@@ -8,6 +8,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_Sessions() {
 		return $this->getDef( 'sessions_table_columns' );

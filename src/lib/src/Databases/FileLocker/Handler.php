@@ -11,18 +11,16 @@ class Handler extends Base\Handler {
 	 * @return string[]
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_FileLocker();
+		return $this->getOptions()->getDef( 'table_columns_filelocker' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_FileLocker();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_FileLocker();
 	}
 
 	/**
@@ -51,8 +49,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_FileLocker();
+		return $this->getOptions()->getDef( 'table_columns_filelocker' );
 	}
 }

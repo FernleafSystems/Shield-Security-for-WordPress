@@ -18,18 +18,16 @@ class Handler extends Base\Handler {
 	 * @return array
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_AuditTrail();
+		return $this->getOptions()->getDef( 'audit_trail_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_AuditTrail();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_AuditTrail();
 	}
 
 	/**
@@ -60,8 +58,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_AuditTrail();
+		return $this->getOptions()->getDef( 'audit_trail_table_columns' );
 	}
 }

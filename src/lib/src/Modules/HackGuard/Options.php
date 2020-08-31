@@ -9,6 +9,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_FileLocker() {
 		return $this->getDef( 'table_columns_filelocker' );
@@ -16,6 +17,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_Scanner() {
 		return $this->getDef( 'table_columns_scanner' );
@@ -23,6 +25,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_ScanQueue() {
 		return $this->getDef( 'table_columns_scanqueue' );

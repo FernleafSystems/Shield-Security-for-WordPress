@@ -11,18 +11,16 @@ class Handler extends Base\Handler {
 	 * @return string[]
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Scanner();
+		return $this->getOptions()->getDef( 'table_columns_scanner' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_Scanner();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_Scanner();
 	}
 
 	/**
@@ -48,8 +46,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Scanner();
+		return $this->getOptions()->getDef( 'table_columns_scanner' );
 	}
 }

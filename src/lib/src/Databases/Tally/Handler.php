@@ -11,18 +11,16 @@ class Handler extends Base\Handler {
 	 * @return string[]
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Tallys();
+		return $this->getOptions()->getDef( 'statistics_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_Tallys();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_Tallys();
 	}
 
 	/**
@@ -46,8 +44,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Tallys();
+		return $this->getOptions()->getDef( 'statistics_table_columns' );
 	}
 }

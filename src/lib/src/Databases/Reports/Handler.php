@@ -18,18 +18,16 @@ class Handler extends Base\Handler {
 	 * @return string[]
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Reports();
+		return $this->getOptions()->getDef( 'reports_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_Reports();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_Reports();
 	}
 
 	/**
@@ -54,8 +52,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Reports();
+		return $this->getOptions()->getDef( 'reports_table_columns' );
 	}
 }

@@ -33,27 +33,25 @@ class Handler extends Base\Handler {
 		$oEvt->event = $sEvent;
 		$oEvt->count = max( 1, (int)$nCount );
 		$oEvt->created_at = max( 1, $nTs );
-		/** @var Insert $oQI */
-		$oQI = $this->getQueryInserter();
-		return $oQI->insert( $oEvt );
+		/** @var Insert $QI */
+		$QI = $this->getQueryInserter();
+		return $QI->insert( $oEvt );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Events();
+		return $this->getOptions()->getDef( 'events_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_Events();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_Events();
 	}
 
 	/**
@@ -75,8 +73,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Events();
+		return $this->getOptions()->getDef( 'events_table_columns' );
 	}
 }

@@ -37,28 +37,19 @@ class Handler extends Base\Handler {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getColumnsDefinition() {
-		return $this->enumerateColumns();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_IPs();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_IPs();
 	}
 
 	/**
 	 * @return string[]
 	 */
 	protected function getColumnsAsArray() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbColumns_IPs();
+		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 
 	/**
@@ -66,8 +57,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_IPs();
+		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 }

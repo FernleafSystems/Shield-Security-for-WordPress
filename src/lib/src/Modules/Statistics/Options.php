@@ -8,6 +8,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_Tallys() {
 		return $this->getDef( 'statistics_table_columns' );

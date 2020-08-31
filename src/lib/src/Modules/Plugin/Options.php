@@ -23,6 +23,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_GeoIp() {
 		return $this->getDef( 'geoip_table_columns' );
@@ -30,6 +31,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_Notes() {
 		return $this->getDef( 'db_notes_table_columns' );

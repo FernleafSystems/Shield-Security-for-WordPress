@@ -8,25 +8,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Options;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		$this->cleanDb( 30 );
+		$this->tableCleanExpired( 30 );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getColumns() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Sessions();
+		return $this->getOptions()->getDef( 'sessions_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_Sessions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_Sessions();
 	}
 
 	/**
@@ -56,8 +54,6 @@ class Handler extends Base\Handler {
 	 * @deprecated 9.2.0
 	 */
 	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Sessions();
+		return $this->getOptions()->getDef( 'sessions_table_columns' );
 	}
 }
