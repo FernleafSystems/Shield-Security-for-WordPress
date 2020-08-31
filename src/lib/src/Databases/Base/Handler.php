@@ -35,11 +35,6 @@ class Handler {
 	 */
 	private $bIsReady;
 
-	/**
-	 * @var string
-	 */
-	private $sSqlCreate;
-
 	public function __construct() {
 	}
 
@@ -48,9 +43,9 @@ class Handler {
 
 	/**
 	 * @param int $nAutoExpireDays
-	 * @return $this;
+	 * @return $this
 	 */
-	public function cleanDb( $nAutoExpireDays ) {
+	public function tableCleanExpired( $nAutoExpireDays ) {
 		$nAutoExpire = $nAutoExpireDays*DAY_IN_SECONDS;
 		if ( $nAutoExpire > 0 ) {
 			$this->deleteRowsOlderThan( Services::Request()->ts() - $nAutoExpire );
@@ -152,7 +147,7 @@ class Handler {
 	 * @return string
 	 */
 	public function getSqlCreate() {
-		return empty( $this->sSqlCreate ) ? $this->getDefaultCreateTableSql() : $this->sSqlCreate;
+		return $this->getDefaultCreateTableSql();
 	}
 
 	/**
@@ -256,15 +251,6 @@ class Handler {
 	 */
 	public function setColumnsDefinition( $aColumns ) {
 		$this->aColDef = $aColumns;
-		return $this;
-	}
-
-	/**
-	 * @param string $sSqlCreate
-	 * @return $this
-	 */
-	public function setSqlCreate( $sSqlCreate ) {
-		$this->sSqlCreate = $sSqlCreate;
 		return $this;
 	}
 
