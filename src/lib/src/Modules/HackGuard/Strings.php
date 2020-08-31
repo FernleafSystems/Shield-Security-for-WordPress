@@ -270,6 +270,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Lock Files Against Tampering And Changes', 'wp-simple-firewall' );
 				$sDescription = [
 					__( 'Detects changes to the files, then lets you examine contents and revert as required.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Web.Config is Windows/IIS only.', 'wp-simple-firewall' ) )
 				];
 
 				$aLocks = ( new LoadFileLocks() )

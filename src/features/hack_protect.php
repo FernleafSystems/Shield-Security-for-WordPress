@@ -106,28 +106,34 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	protected function preProcessOptions() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$this->cleanFileExclusions();
 
-		if ( $oOpts->isOptChanged( 'scan_frequency' ) ) {
+		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
 			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
 			$oPro = $this->getProcessor();
 			$oPro->getSubProScanner()->deleteCron();
 		}
 
-		if ( count( $oOpts->getFilesToLock() ) === 0 || !$this->getCon()
-															  ->getModule_Plugin()
-															  ->getShieldNetApiController()
-															  ->canHandshake() ) {
-			$oOpts->setOpt( 'file_locker', [] );
+		if ( count( $opts->getFilesToLock() ) === 0 || !$this->getCon()
+															 ->getModule_Plugin()
+															 ->getShieldNetApiController()
+															 ->canHandshake() ) {
+			$opts->setOpt( 'file_locker', [] );
 			$this->getFileLocker()->purge();
 		}
 
-		foreach ( $this->getAllScanCons() as $oCon ) {
-			if ( !$oCon->isEnabled() ) {
-				$oCon->purge();
+		$lockFiles = $opts->getFilesToLock();
+		if ( in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
+			unset( $lockFiles[ array_search( 'root_webconfig', $lockFiles ) ] );
+			$opts->setOpt( 'file_locker', $lockFiles );
+		}
+
+		foreach ( $this->getAllScanCons() as $con ) {
+			if ( !$con->isEnabled() ) {
+				$con->purge();
 			}
 		}
 	}

@@ -53,8 +53,8 @@ class Options extends Base\ShieldOptions {
 	 * @return array
 	 */
 	public function getFilesToLock() {
-		$aLocks = $this->getOpt( 'file_locker', [] );
-		return is_array( $aLocks ) ? $aLocks : [];
+		$locks = $this->getOpt( 'file_locker', [] );
+		return is_array( $locks ) ? $locks : [];
 	}
 
 	/**
