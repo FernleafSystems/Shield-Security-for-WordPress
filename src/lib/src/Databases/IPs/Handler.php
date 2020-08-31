@@ -60,4 +60,14 @@ class Handler extends Base\Handler {
 		$opts = $this->getOptions();
 		return $opts->getDbColumns_IPs();
 	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->getDbColumns_IPs();
+	}
 }

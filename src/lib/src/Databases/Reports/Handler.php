@@ -48,4 +48,14 @@ class Handler extends Base\Handler {
  			PRIMARY KEY  (id)
 		) %s;";
 	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->getDbColumns_Reports();
+	}
 }

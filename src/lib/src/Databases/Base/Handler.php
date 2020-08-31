@@ -77,7 +77,7 @@ class Handler {
 	 * @return string[]
 	 * @deprecated 9.2.0
 	 */
-	public function getDefaultColumnsDefinition() {
+	protected function getDefaultColumnsDefinition() {
 		return $this->getColumns();
 	}
 
