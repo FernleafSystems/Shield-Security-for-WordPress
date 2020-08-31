@@ -90,10 +90,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
 		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getOptions();
 
 		$sCurrentPage = Services::WpPost()->getCurrentPage();
 

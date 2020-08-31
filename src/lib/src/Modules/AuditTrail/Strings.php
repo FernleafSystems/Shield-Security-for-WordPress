@@ -175,12 +175,10 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $key ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$sModName = $oMod->getMainFeatureName();
+		$con = $this->getCon();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
@@ -196,9 +194,9 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' ),
 				];
-				if ( !$oCon->isPremiumActive() ) {
+				if ( !$con->isPremiumActive() ) {
 					$sDescription[] = sprintf( __( 'Upgrade to PRO to increase limit above %s.', 'wp-simple-firewall' ),
-						'<code>'.$oOpts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
+						'<code>'.$opts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
 				}
 
 				break;
@@ -246,9 +244,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_audit_context_wpsf' :
-				$sName = $oCon->getHumanName();
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), $oCon->getHumanName() );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), $oCon->getHumanName() );
+				$sName = $con->getHumanName();
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), $con->getHumanName() );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), $con->getHumanName() );
 				break;
 
 			case 'enable_change_tracking' :

@@ -38,41 +38,39 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 	}
 
 	private function initAuditors() {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
-		/** @var AuditTrail\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		/** @var AuditTrail\Options $opts */
+		$opts = $this->getOptions();
 
 		$this->loadAuditorWriter()->setIfCommit( true );
 
-		if ( $oOpts->isAuditUsers() ) {
+		if ( $opts->isAuditUsers() ) {
 			( new Auditors\Users() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->run();
 		}
-		if ( $oOpts->isAuditPlugins() ) {
+		if ( $opts->isAuditPlugins() ) {
 			( new Auditors\Plugins() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->run();
 		}
-		if ( $oOpts->isAuditThemes() ) {
+		if ( $opts->isAuditThemes() ) {
 			( new Auditors\Themes() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->run();
 		}
-		if ( $oOpts->isAuditWp() ) {
+		if ( $opts->isAuditWp() ) {
 			( new Auditors\Wordpress() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->run();
 		}
-		if ( $oOpts->isAuditPosts() ) {
+		if ( $opts->isAuditPosts() ) {
 			( new Auditors\Posts() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->run();
 		}
-		if ( $oOpts->isAuditEmails() ) {
+		if ( $opts->isAuditEmails() ) {
 			( new Auditors\Emails() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->run();
 		}
 	}

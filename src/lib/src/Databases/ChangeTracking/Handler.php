@@ -10,7 +10,7 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
+	public function getColumns() {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->getDbColumns_ChangeTracking();

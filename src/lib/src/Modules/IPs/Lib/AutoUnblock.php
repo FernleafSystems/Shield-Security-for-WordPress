@@ -36,16 +36,16 @@ class AutoUnblock {
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
-		$opts = $oMod->getOptions();
+		$opts = $this->getOptions();
 		$req = Services::Request();
 
 		$unblocked = false;
 
 		if ( $opts->isEnabledAutoVisitorRecover() && $req->isPost()
-			 && $req->request( 'action' ) == $oMod->prefix() && $req->request( 'exec' ) == 'uau' ) {
+			 && $req->request( 'action' ) == $mod->prefix() && $req->request( 'exec' ) == 'uau' ) {
 
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
@@ -82,7 +82,7 @@ class AutoUnblock {
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
+				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $sIP )
 				->fromBlacklist();
 			$unblocked = true;

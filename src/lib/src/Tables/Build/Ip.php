@@ -46,12 +46,10 @@ class Ip extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		$nTransLimit = $oOpts->getOffenseLimit();
+		$nTransLimit = $opts->getOffenseLimit();
 		$aEntries = [];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var IPs\EntryVO $oEntry */
@@ -64,7 +62,7 @@ class Ip extends BaseBuild {
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
-			$aE[ 'expires_at' ] = $this->formatTimestampField( $oEntry->last_access_at + $oOpts->getAutoExpireTime() );
+			$aE[ 'expires_at' ] = $this->formatTimestampField( $oEntry->last_access_at + $opts->getAutoExpireTime() );
 			$aEntries[ $nKey ] = $aE;
 		}
 		return $aEntries;

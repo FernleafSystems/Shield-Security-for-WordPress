@@ -75,9 +75,24 @@ class Handler {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	public function getDefaultColumnsDefinition() {
+		return $this->getColumns();
+	}
+
+	/**
+	 * @return string[]
 	 */
 	public function getColumnsDefinition() {
-		return is_array( $this->aColDef ) ? $this->aColDef : $this->getDefaultColumnsDefinition();
+		return $this->enumerateColumns();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getColumnas() {
+		return $this->getColumns();
 	}
 
 	/**
@@ -266,7 +281,7 @@ class Handler {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
+	public function getColumns() {
 		return [];
 	}
 
@@ -315,7 +330,7 @@ class Handler {
 	 * @throws \Exception
 	 */
 	protected function verifyTableStructure() {
-		$aColDef = array_map( 'strtolower', $this->getColumnsDefinition() );
+		$aColDef = array_map( 'strtolower', $this->getColumns() );
 		if ( empty( $aColDef ) ) {
 			throw new \Exception( 'Could not verify table structure as no columns definition provided' );
 		}

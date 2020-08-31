@@ -116,8 +116,7 @@ class AdminNotices {
 	 */
 	protected function preProcessNotice( $notice ) {
 		$con = $this->getCon();
-		$mod = $this->getMod();
-		$opts = $mod->getOptions();
+		$opts = $this->getOptions();
 
 		if ( $notice->plugin_page_only && !$con->isModulePage() ) {
 			$notice->non_display_reason = 'plugin_page_only';
