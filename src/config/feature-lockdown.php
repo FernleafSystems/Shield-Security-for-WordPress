@@ -131,6 +131,17 @@
       "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
     },
     {
+      "key":         "block_author_discovery",
+      "section":     "section_wordpress_obscurity_options",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/wpsf23",
+      "link_blog":   "",
+      "name":        "Block Username Fishing",
+      "summary":     "Block the ability to discover WordPress usernames based on author IDs",
+      "description": "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."
+    },
+    {
       "key":         "clean_wp_rubbish",
       "section":     "section_wordpress_obscurity_options",
       "default":     "N",
@@ -151,17 +162,6 @@
       "name":        "WP Generator Tag",
       "summary":     "Remove WP Generator Meta Tag",
       "description": "Remove a meta tag from your WordPress pages that publicly displays that your site is WordPress and its current version."
-    },
-    {
-      "key":         "block_author_discovery",
-      "section":     "section_wordpress_obscurity_options",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/wpsf23",
-      "link_blog":   "",
-      "name":        "Block Username Fishing",
-      "summary":     "Block the ability to discover WordPress usernames based on author IDs",
-      "description": "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."
     }
   ],
   "definitions": {
