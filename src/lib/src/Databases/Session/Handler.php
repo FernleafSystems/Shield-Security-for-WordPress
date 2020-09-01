@@ -48,12 +48,4 @@ class Handler extends Base\Handler {
  			PRIMARY KEY  (id)
 		) %s;";
 	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getOptions()->getDef( 'sessions_table_columns' );
-	}
 }

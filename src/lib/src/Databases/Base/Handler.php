@@ -75,14 +75,6 @@ class Handler {
 
 	/**
 	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getColumns();
-	}
-
-	/**
-	 * @return string[]
 	 */
 	public function getColumnsDefinition() {
 		return $this->enumerateColumns();

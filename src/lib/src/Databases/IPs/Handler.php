@@ -51,12 +51,4 @@ class Handler extends Base\Handler {
 	protected function getColumnsAsArray() {
 		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getOptions()->getDef( 'ip_list_table_columns' );
-	}
 }

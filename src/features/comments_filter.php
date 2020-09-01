@@ -37,26 +37,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 9.2.0
-	 */
-	public function getApprovedMinimum() {
-		return $this->getOpt( 'trusted_commenter_minimum', 1 );
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	public function getTrustedRoles() {
-		$aRoles = [];
-		if ( $this->isPremium() ) {
-			$aRoles = $this->getOpt( 'trusted_user_roles', [] );
-		}
-		return is_array( $aRoles ) ? $aRoles : [];
-	}
-
-	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -152,28 +132,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$opts = $this->getOptions();
 		return $this->isModOptEnabled() && !$opts->isEnabledCaptcha()
 			   && $this->getCaptchaCfg()->ready;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2
-	 */
-	public function isEnabledGaspCheck() {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' )
-			   && ( $opts->getTokenExpireInterval() > $opts->getTokenCooldown() );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2
-	 */
-	public function isEnabledHumanCheck() {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isOpt( 'enable_comments_human_spam_filter', 'Y' )
-			   && count( $opts->getHumanSpamFilterItems() ) > 0;
 	}
 
 	/**
