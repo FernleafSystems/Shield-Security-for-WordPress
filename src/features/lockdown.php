@@ -1,12 +1,12 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	private function getRestApiAnonymousExclusions() {
 		$aExcl = $this->getOpt( 'api_namespace_exclusions' );
@@ -17,15 +17,18 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @param string $sNamespace
+	 * @param string $namespace
 	 * @return bool
 	 */
-	public function isPermittedAnonRestApiNamespace( $sNamespace ) {
-		return in_array( $sNamespace, $this->getRestApiAnonymousExclusions() );
+	public function isPermittedAnonRestApiNamespace( $namespace ) {
+		/** @var Shield\Modules\Lockdown\Options $opts */
+		$opts = $this->getOptions();
+		return in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
 	}
 
 	/**
 	 * @return bool
+	 * @deprecated 9.2.0
 	 */
 	public function isOptFileEditingDisabled() {
 		return $this->isOpt( 'disable_file_editing', 'Y' );
@@ -33,6 +36,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	/**
 	 * @return bool
+	 * @deprecated 9.2.0
 	 */
 	public function isRestApiAnonymousAccessDisabled() {
 		return $this->isOpt( 'disable_anonymous_restapi', 'Y' );
@@ -40,6 +44,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	/**
 	 * @return bool
+	 * @deprecated 9.2.0
 	 */
 	public function isXmlrpcDisabled() {
 		return $this->isOpt( 'disable_xmlrpc', 'Y' );
@@ -53,7 +58,9 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return $this
 	 */
 	private function cleanApiExclusions() {
-		$aExt = $this->cleanStringArray( $this->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' );
+		/** @var Shield\Modules\Lockdown\Options $opts */
+		$opts = $this->getOptions();
+		$aExt = $this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' );
 		return $this->setOpt( 'api_namespace_exclusions', $aExt );
 	}
 
@@ -62,13 +69,16 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
+		/** @var Shield\Modules\Lockdown\Options $opts */
+		$opts = $this->getOptions();
+
 		$aNotices = [
 			'title'    => __( 'WP Lockdown', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
 		{ //edit plugins
-			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
+			$bEditingDisabled = $opts->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
 			if ( !$bEditingDisabled ) { //assumes current user is admin
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = [
 					'title'   => __( 'File Editing via WP', 'wp-simple-firewall' ),
@@ -91,6 +101,9 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var Shield\Modules\Lockdown\Options $opts */
+		$opts = $this->getOptions();
+
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'WordPress Lockdown', 'wp-simple-firewall' ),
@@ -104,7 +117,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
+			$bEditingDisabled = $opts->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
 			$aThis[ 'key_opts' ][ 'editing' ] = [
 				'name'    => __( 'File Editing via WP', 'wp-simple-firewall' ),
 				'enabled' => $bEditingDisabled,
@@ -115,7 +128,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
 			];
 
-			$bXml = $this->isXmlrpcDisabled();
+			$bXml = $opts->isXmlrpcDisabled();
 			$aThis[ 'key_opts' ][ 'xml' ] = [
 				'name'    => __( 'XML-RPC', 'wp-simple-firewall' ),
 				'enabled' => $bXml,
@@ -126,7 +139,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'href'    => $this->getUrl_DirectLinkToOption( 'disable_xmlrpc' ),
 			];
 
-			$bApi = $this->isRestApiAnonymousAccessDisabled();
+			$bApi = $opts->isRestApiAnonymousAccessDisabled();
 			$aThis[ 'key_opts' ][ 'api' ] = [
 				'name'    => __( 'REST API', 'wp-simple-firewall' ),
 				'enabled' => $bApi,

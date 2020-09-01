@@ -7,27 +7,31 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
-		$oMod = $this->getMod();
-		/** @var Lockdown\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Lockdown\Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oMod->isOptFileEditingDisabled() ) {
+		if ( $opts->isOptFileEditingDisabled() ) {
 			$this->blockFileEditing();
 		}
 
-		if ( $oOpts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
+		if ( $opts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );
 			}
 			force_ssl_admin( true );
 		}
 
-		if ( $oOpts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
+		if ( $opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $oMod->isXmlrpcDisabled() ) {
+		if ( $opts->isOpt( 'clean_wp_rubbish', 'Y' ) ) {
+			( new Lockdown\Lib\CleanRubbish() )
+				->setMod( $this->getMod() )
+				->execute();
+		}
+
+		if ( $opts->isXmlrpcDisabled() ) {
 			add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
 			add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		}
@@ -57,12 +61,12 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function onWpInit() {
+		/** @var Lockdown\Options $opts */
+		$opts = $this->getOptions();
+
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			$this->interceptCanonicalRedirects();
-
-			/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
-			$oMod = $this->getMod();
-			if ( $oMod->isRestApiAnonymousAccessDisabled() ) {
+			if ( $opts->isRestApiAnonymousAccessDisabled() ) {
 				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
 			}
 		}
@@ -103,13 +107,13 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	 * @return WP_Error
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $mod */
+		$mod = $this->getMod();
 		$oWpRest = Services::Rest();
 
 		$sNamespace = $oWpRest->getNamespace();
 		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$oMod->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
+			 && !$mod->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',

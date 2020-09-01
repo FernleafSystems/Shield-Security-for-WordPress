@@ -371,13 +371,14 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro from just $1/month](https://shsec.io/aa).
 
 #### 9.2 Series
-*Released: 31st August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+*Released: 2nd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
 
 **Important**: 9.2 is the *final* release to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
 ##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
 
 * **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
+* **(.0)  NEW**:		Add feature to allow Shield to automatically delete files such as `wp-config-sample.php`.
 * **(.0)  ADDED**:  	Provide native support for protection on WP Members plugin login/registration forms.
 * **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
 * **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.

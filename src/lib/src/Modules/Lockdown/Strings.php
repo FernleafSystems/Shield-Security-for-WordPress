@@ -132,6 +132,17 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'Remove a meta tag from your WordPress pages that publicly displays that your site is WordPress and its current version.', 'wp-simple-firewall' );
 				break;
 
+			case 'clean_wp_rubbish' :
+				$sName = __( 'Clean WP Files', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Delete Unnecessary WP Files', 'wp-simple-firewall' );
+				$sDescription = [
+					__( "Automatically delete WordPress files that aren't necessary.", 'wp-simple-firewall' ),
+					__( "The cleanup process runs once each day.", 'wp-simple-firewall' ),
+					sprintf( '%s: <code>%s</code>', __( 'Files Deleted', 'wp-simple-firewall' ),
+						implode( '</code><code>', [ 'wp-config-sample.php', 'readme.html', 'license.txt' ] ) )
+				];
+				break;
+
 			case 'block_author_discovery' :
 				$sName = __( 'Block Username Fishing', 'wp-simple-firewall' );
 				$sSummary = __( 'Block the ability to discover WordPress usernames based on author IDs', 'wp-simple-firewall' );

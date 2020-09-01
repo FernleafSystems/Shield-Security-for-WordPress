@@ -131,6 +131,17 @@
       "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
     },
     {
+      "key":         "clean_wp_rubbish",
+      "section":     "section_wordpress_obscurity_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Clean WP Files",
+      "summary":     "Automatically Delete Unnecessary WP Files",
+      "description": "Automatically delete WordPress files like wp-config-sample.php."
+    },
+    {
       "key":         "hide_wordpress_generator_tag",
       "section":     "section_wordpress_obscurity_options",
       "default":     "N",
