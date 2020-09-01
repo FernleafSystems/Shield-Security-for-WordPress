@@ -121,9 +121,9 @@ class Export {
 	 */
 	private function getExportData() {
 		$aAll = [];
-		foreach ( $this->getCon()->modules as $oMod ) {
-			$oOpts = $oMod->getOptions();
-			$aAll[ $oMod->getOptionsStorageKey() ] = array_diff_key(
+		foreach ( $this->getCon()->modules as $mod ) {
+			$oOpts = $mod->getOptions();
+			$aAll[ $mod->getOptionsStorageKey() ] = array_diff_key(
 				$oOpts->getTransferableOptions(),
 				array_flip( $oOpts->getXferExcluded() )
 			);
@@ -132,24 +132,24 @@ class Export {
 	}
 
 	/**
-	 * @param string $sUrl
+	 * @param string $url
 	 * @return bool
 	 */
-	private function isUrlOnWhitelist( $sUrl ) {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return !empty( $sUrl ) && in_array( $sUrl, $oOpts->getImportExportWhitelist() );
+	private function isUrlOnWhitelist( $url ) {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		return !empty( $url ) && in_array( $url, $opts->getImportExportWhitelist() );
 	}
 
 	/**
-	 * @param string $sUrl
+	 * @param string $url
 	 * @return bool
 	 */
-	private function verifyUrlWithHandshake( $sUrl ) {
+	private function verifyUrlWithHandshake( $url ) {
 		$bVerified = false;
 
-		if ( !empty( $sUrl ) ) {
-			$sReqUrl = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $sUrl );
+		if ( !empty( $url ) ) {
+			$sReqUrl = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $url );
 			$aResp = @json_decode( Services::HttpRequest()->getContent( $sReqUrl ), true );
 			$bVerified = is_array( $aResp ) && isset( $aResp[ 'success' ] ) && ( $aResp[ 'success' ] === true );
 		}

@@ -23,6 +23,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_TrafficLog() {
 		return $this->getDef( 'traffic_table_columns' );

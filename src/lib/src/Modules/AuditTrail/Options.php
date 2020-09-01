@@ -9,6 +9,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_AuditTrail() {
 		return $this->getDef( 'audit_trail_table_columns' );
@@ -16,6 +17,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_ChangeTracking() {
 		return $this->getDef( 'table_columns_changetracking' );

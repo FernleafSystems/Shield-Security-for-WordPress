@@ -20,15 +20,15 @@ class TestIp {
 	 * @throws \Exception
 	 */
 	public function runTest( $sHumanIp ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $mod */
+		$mod = $this->getMod();
 		/** @var Shield\Modules\Traffic\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getOptions();
 
 		$oNow = Services::Request()->carbon();
 
 		/** @var Traffic\Select $oSel */
-		$oSel = $oMod->getDbHandler_Traffic()->getQuerySelector();
+		$oSel = $mod->getDbHandler_Traffic()->getQuerySelector();
 		$nCount = $oSel->filterByIp( inet_pton( $sHumanIp ) )
 					   ->filterByCreatedAt( $oNow->subSeconds( $oOpts->getLimitTimeSpan() )->timestamp, '>' )
 					   ->count();

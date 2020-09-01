@@ -14,19 +14,17 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_GeoIp();
+	public function getColumns() {
+		return $this->getOptions()->getDef( 'geoip_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_GeoIp();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_GeoIp();
 	}
 
 	/**
@@ -41,5 +39,13 @@ class Handler extends Base\Handler {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return $this->getOptions()->getDef( 'geoip_table_columns' );
 	}
 }

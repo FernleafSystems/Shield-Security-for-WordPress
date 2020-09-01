@@ -9,14 +9,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		/** @var Delete $oDel */
-		$oDel = $this->getQueryDeleter();
-		$oDel->filterByBlacklist()
-			 ->filterByLastAccessBefore( Services::Request()->ts() - $oOpts->getAutoExpireTime() )
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		/** @var Delete $del */
+		$del = $this->getQueryDeleter();
+		$del->filterByBlacklist()
+			 ->filterByLastAccessBefore( Services::Request()->ts() - $opts->getAutoExpireTime() )
 			 ->query();
 	}
 
@@ -34,34 +32,31 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_IPs();
+	public function getColumns() {
+		return array_keys( $this->getColumnsDefinition() );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_IPs();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_IPs();
 	}
 
 	/**
 	 * @return string[]
 	 */
 	protected function getColumnsAsArray() {
-		return [
-			'ip'             => "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
-			'label'          => "varchar(255) NOT NULL DEFAULT ''",
-			'transgressions' => "int(10) UNSIGNED NOT NULL DEFAULT 0",
-			'list'           => "varchar(4) NOT NULL DEFAULT ''",
-			'ip6'            => "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
-			'is_range'       => "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
-			'last_access_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
-			'blocked_at'     => "int(15) UNSIGNED NOT NULL DEFAULT 0",
-		];
+		return $this->getOptions()->getDef( 'ip_list_table_columns' );
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 }

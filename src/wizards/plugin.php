@@ -534,9 +534,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardLoginProtect() {
-		$oMod = $this->getCon()->getModule_LoginGuard();
+		$mod = $this->getCon()->getModule_LoginGuard();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $mod->getOptions();
 
 		$sInput = Services::Request()->post( 'LoginProtectOption' );
 		$bSuccess = false;
@@ -546,10 +546,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			if ( $bEnabled ) { // we don't disable the whole module
-				$oMod->setIsMainFeatureEnabled( true );
+				$mod->setIsMainFeatureEnabled( true );
 			}
-			$oMod->setEnabledGaspCheck( $bEnabled );
-			$oMod->saveModOptions();
+			$mod->setEnabledGaspCheck( $bEnabled );
+			$mod->saveModOptions();
 
 			$bSuccess = $oOpts->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {

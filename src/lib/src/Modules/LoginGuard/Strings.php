@@ -145,9 +145,9 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $key ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$sModName = $oMod->getMainFeatureName();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		$sModName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 
@@ -249,7 +249,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
 				$sDescription = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
 								.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
-								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getOptions()
+								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getOptions()
 																									->getOptDefault( 'login_limit_interval' ) );
 				break;
 
@@ -307,14 +307,14 @@ class Strings extends Base\Strings {
 				$sName = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
 				$sSummary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
 				$sDescription = __( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getTextOptDefault( 'text_imahuman' ) );
+								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_imahuman' ) );
 				break;
 
 			case 'text_pleasecheckbox' :
 				$sName = __( 'GASP Alert Text', 'wp-simple-firewall' );
 				$sSummary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
 				$sDescription = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getTextOptDefault( 'text_pleasecheckbox' ) );
+								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_pleasecheckbox' ) );
 				break;
 
 			// removed 9.0

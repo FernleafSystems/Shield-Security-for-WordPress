@@ -190,10 +190,17 @@ class FileLockerController {
 				}
 				// TODO: is split URL?
 				break;
+
 			case 'root_htaccess':
 				$sFileKey = '.htaccess';
 				$nLevels = $bIsSplitWp ? 2 : 1;
 				break;
+
+			case 'root_webconfig':
+				$sFileKey = 'Web.Config';
+				$nLevels = $bIsSplitWp ? 2 : 1;
+				break;
+
 			case 'root_index':
 				$sFileKey = 'index.php';
 				$nLevels = $bIsSplitWp ? 2 : 1;

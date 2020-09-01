@@ -175,9 +175,9 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $key ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$sModName = $oMod->getMainFeatureName();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		$sModName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 
@@ -247,9 +247,9 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Doesn't currently detect missing files.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
 				];
-				if ( !$oMod->canCacheDirWrite() ) {
+				if ( !$mod->canCacheDirWrite() ) {
 					$sDescription[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: %s', 'wp-simple-firewall' ),
-						'<code>'.$oMod->getPtgSnapsBaseDir().'</code>' );
+						'<code>'.$mod->getPtgSnapsBaseDir().'</code>' );
 				}
 				break;
 
@@ -270,6 +270,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Lock Files Against Tampering And Changes', 'wp-simple-firewall' );
 				$sDescription = [
 					__( 'Detects changes to the files, then lets you examine contents and revert as required.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Web.Config is Windows/IIS only.', 'wp-simple-firewall' ) )
 				];
 
 				$aLocks = ( new LoadFileLocks() )
@@ -299,7 +300,7 @@ class Strings extends Base\Strings {
 			case 'ufc_exclusions' :
 				$sName = __( 'File Exclusions', 'wp-simple-firewall' );
 				$sSummary = __( 'Provide A List Of Files To Be Excluded From The Scan', 'wp-simple-firewall' );
-				$sDefaults = implode( ', ', $oMod->getOptions()->getOptDefault( 'ufc_exclusions' ) );
+				$sDefaults = implode( ', ', $this->getOptions()->getOptDefault( 'ufc_exclusions' ) );
 				$sDescription = __( 'Take a new line for each file you wish to exclude from the scan.', 'wp-simple-firewall' )
 								.'<br/><strong>'.__( 'No commas are necessary.', 'wp-simple-firewall' ).'</strong>'
 								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $sDefaults );

@@ -13,11 +13,11 @@ class ResetPlugin {
 	use PluginControllerConsumer;
 
 	public function run() {
-		foreach ( $this->getCon()->modules as $oMod ) {
-			$oMod->getOptions()
-				 ->setOptionsValues( [] )
-				 ->deleteStorage();
-			$oMod->saveModOptions();
+		foreach ( $this->getCon()->modules as $mod ) {
+			$mod->getOptions()
+				->setOptionsValues( [] )
+				->deleteStorage();
+			$mod->saveModOptions();
 		}
 	}
 }

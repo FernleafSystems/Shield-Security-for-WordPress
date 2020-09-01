@@ -17,12 +17,12 @@ class VerifyUniqueEvents {
 		$oCon = $this->getCon();
 
 		$aAllKeys = [];
-		foreach ( $oCon->modules as $oMod ) {
+		foreach ( $oCon->modules as $mod ) {
 			$aKeys = array_map(
 				function ( $aEvt ) {
 					return $aEvt[ 'key' ];
 				},
-				array_values( $oMod->getOptions()->getDef( 'events' ) )
+				array_values( $mod->getOptions()->getDef( 'events' ) )
 			);
 			$aAllKeys = array_merge( $aAllKeys, $aKeys );
 		}

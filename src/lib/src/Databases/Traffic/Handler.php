@@ -8,28 +8,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$this->cleanDb( $oOpts->getAutoCleanDays() );
-		$this->tableTrimExcess( $oOpts->getMaxEntries() );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$this->tableCleanExpired( $opts->getAutoCleanDays() );
+		$this->tableTrimExcess( $opts->getMaxEntries() );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_TrafficLog();
+	public function getColumns() {
+		return $this->getOptions()->getDef( 'traffic_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_TrafficLog();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_TrafficLog();
 	}
 
 	/**
@@ -50,5 +48,13 @@ class Handler extends Base\Handler {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return $this->getOptions()->getDef( 'traffic_table_columns' );
 	}
 }

@@ -9,14 +9,14 @@ class CleanStorage {
 	use PluginControllerConsumer;
 
 	public function run() {
-		foreach ( $this->getCon()->modules as $oMod ) {
-			$oOpts = $oMod->getOptions();
+		foreach ( $this->getCon()->modules as $mod ) {
+			$oOpts = $mod->getOptions();
 			foreach ( array_keys( $oOpts->getAllOptionsValues() ) as $sOptKey ) {
 				if ( !$oOpts->isValidOptionKey( $sOptKey ) ) {
 					$oOpts->unsetOpt( $sOptKey );
 				}
 			}
-			$oMod->saveModOptions();
+			$mod->saveModOptions();
 		}
 	}
 }

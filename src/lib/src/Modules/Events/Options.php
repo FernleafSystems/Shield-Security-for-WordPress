@@ -8,6 +8,7 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
 	 */
 	public function getDbColumns_Events() {
 		return $this->getDef( 'events_table_columns' );

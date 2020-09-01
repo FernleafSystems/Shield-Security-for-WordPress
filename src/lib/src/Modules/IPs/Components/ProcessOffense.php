@@ -17,15 +17,15 @@ class ProcessOffense {
 	use IpAddressConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		$con = $this->getCon();
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
 
 		try {
 			$oIP = ( new IPs\Lib\Ops\AddIp() )
-				->setMod( $oMod )
+				->setMod( $mod )
 				->setIP( $this->getIP() )
 				->toAutoBlacklist();
 		}
@@ -36,16 +36,16 @@ class ProcessOffense {
 		if ( $oIP instanceof Databases\IPs\EntryVO ) {
 			$nCurrent = $oIP->transgressions;
 
-			$oTracker = $oMod->loadOffenseTracker();
+			$oTracker = $mod->loadOffenseTracker();
 			$nNewTotal = $oIP->transgressions + $oTracker->getOffenseCount();
 			$bToBlock = $oTracker->isBlocked() ||
-						( $oIP->blocked_at == 0 && ( $nNewTotal >= $oOpts->getOffenseLimit() ) );
+						( $oIP->blocked_at == 0 && ( $nNewTotal >= $opts->getOffenseLimit() ) );
 
 			/** @var Databases\IPs\Update $oUp */
-			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
+			$oUp = $mod->getDbHandler_IPs()->getQueryUpdater();
 			$oUp->updateTransgressions( $oIP, $nNewTotal );
 
-			$oCon->fireEvent( $bToBlock ? 'ip_blocked' : 'ip_offense',
+			$con->fireEvent( $bToBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit' => [
 						'from' => $nCurrent,
@@ -60,9 +60,9 @@ class ProcessOffense {
 			 * so we fire ip_offense but suppress the audit
 			 */
 			if ( $bToBlock ) {
-				$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
+				$oUp = $mod->getDbHandler_IPs()->getQueryUpdater();
 				$oUp->setBlocked( $oIP );
-				$oCon->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
+				$con->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
 			}
 		}
 	}
