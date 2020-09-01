@@ -378,6 +378,7 @@ You will always be able to use Shield Security and its free features in-full.
 ##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
 
 * **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
+* **(.0)  NEW**:		Add feature to allow Shield to automatically delete files such as `wp-config-sample.php`.
 * **(.0)  ADDED**:  	Provide native support for protection on WP Members plugin login/registration forms.
 * **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
 * **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.

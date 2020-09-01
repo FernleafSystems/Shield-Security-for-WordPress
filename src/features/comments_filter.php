@@ -92,7 +92,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				function ( $sRole ) {
 					return sanitize_key( strtolower( $sRole ) );
 				},
-				$this->getTrustedRoles()
+				$opts->getTrustedRoles()
 			) ) )
 		);
 
