@@ -250,6 +250,13 @@ class UI {
 	/**
 	 * @return array
 	 */
+	public function getInsightsNoticesData() {
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
 	protected function getModDisabledInsight() {
 		$mod = $this->getMod();
 		return [

@@ -611,34 +611,40 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getNotices() {
-		$aAll = apply_filters(
-			$this->prefix( 'collect_notices' ),
-			[
-				'plugins' => $this->getNoticesPlugins(),
-				'themes'  => $this->getNoticesThemes(),
-				'core'    => $this->getNoticesCore(),
-			]
-		);
+		$aAll = [
+			'plugins' => $this->getNoticesPlugins(),
+			'themes'  => $this->getNoticesThemes(),
+			'core'    => $this->getNoticesCore(),
+		];
+		foreach ( $this->getCon()->modules as $module ) {
+			$aAll[ $module->getSlug() ] = $module->getUIHandler()->getInsightsNoticesData();
+		}
 
-		// order and then remove empties
-		return array_filter(
-			array_merge(
-				[
-					'site'      => [],
-					'sec_admin' => [],
-					'scans'     => [],
-					'core'      => [],
-					'plugins'   => [],
-					'themes'    => [],
-					'users'     => [],
-					'lockdown'  => [],
-				],
-				$aAll
-			),
-			function ( $aSection ) {
-				return !empty( $aSection[ 'count' ] );
-			}
-		);
+		// remove empties, add a count, then order.
+		return array_filter( array_merge(
+			[
+				'plugin'                   => [],
+				'admin_access_restriction' => [],
+				'hack_protect'             => [],
+				'core'                     => [],
+				'plugins'                  => [],
+				'themes'                   => [],
+				'user_management'          => [],
+				'lockdown'                 => [],
+			],
+			array_map(
+				function ( $notices ) {
+					$notices[ 'count' ] = count( $notices[ 'messages' ] );
+					return $notices;
+				},
+				array_filter(
+					$aAll,
+					function ( $notices ) {
+						return !empty( $notices[ 'messages' ] );
+					}
+				)
+			)
+		) );
 	}
 
 	protected function getNoticesSite() {

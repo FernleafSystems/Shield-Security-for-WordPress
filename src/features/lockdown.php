@@ -65,38 +65,6 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var Shield\Modules\Lockdown\Options $opts */
-		$opts = $this->getOptions();
-
-		$aNotices = [
-			'title'    => __( 'WP Lockdown', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{ //edit plugins
-			$bEditingDisabled = $opts->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
-			if ( !$bEditingDisabled ) { //assumes current user is admin
-				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = [
-					'title'   => __( 'File Editing via WP', 'wp-simple-firewall' ),
-					'message' => __( 'Direct editing of plugin/theme files is permitted.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'WP Plugin file editing should be disabled.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-
-		$aAllNotices[ 'lockdown' ] = $aNotices;
-		return $aAllNotices;
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

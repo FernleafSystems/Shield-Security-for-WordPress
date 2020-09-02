@@ -112,9 +112,6 @@ class BaseModCon {
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
-		add_filter( $this->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
 		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );

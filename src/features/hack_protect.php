@@ -56,34 +56,34 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return HackGuard\Scan\Controller\Base[]
 	 */
 	public function getAllScanCons() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $scanSlug ) {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		foreach ( $opts->getScanSlugs() as $scanSlug ) {
 			$this->getScanCon( $scanSlug );
 		}
 		return $this->aScanCons;
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $slug
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
-	public function getScanCon( $sSlug ) {
+	public function getScanCon( $slug ) {
 		if ( !is_array( $this->aScanCons ) ) {
 			$this->aScanCons = [];
 		}
-		if ( !isset( $this->aScanCons[ $sSlug ] ) ) {
-			$sClass = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $sSlug );
-			if ( @class_exists( $sClass ) ) {
+		if ( !isset( $this->aScanCons[ $slug ] ) ) {
+			$class = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $slug );
+			if ( @class_exists( $class ) ) {
 				/** @var HackGuard\Scan\Controller\Base $oObj */
-				$oObj = new $sClass();
-				$this->aScanCons[ $sSlug ] = $oObj->setMod( $this );
+				$oObj = new $class();
+				$this->aScanCons[ $slug ] = $oObj->setMod( $this );
 			}
 			else {
-				$this->aScanCons[ $sSlug ] = false;
+				$this->aScanCons[ $slug ] = false;
 			}
 		}
-		return $this->aScanCons[ $sSlug ];
+		return $this->aScanCons[ $slug ];
 	}
 
 	/**
@@ -300,155 +300,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function getTempDir() {
 		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
 		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
-	}
-
-	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var HackGuard\Strings $oStrings */
-		$oStrings = $this->getStrings();
-		$aScanNames = $oStrings->getScanNames();
-
-		$aNotices = [
-			'title'    => __( 'Scans', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		$sScansUrl = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
-
-		{// Core files
-			if ( !$this->isScanEnabled( 'wcf' ) ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = [
-					'title'   => $aScanNames[ 'wcf' ],
-					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $this->getScanCon( 'wcf' )->getScanHasProblem() ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = [
-					'title'   => $aScanNames[ 'wcf' ],
-					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Unrecognised
-			if ( !$this->isScanEnabled( 'ufc' ) ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = [
-					'title'   => $aScanNames[ 'ufc' ],
-					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $this->getScanCon( 'ufc' )->getScanHasProblem() ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = [
-					'title'   => $aScanNames[ 'ufc' ],
-					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Plugin/Theme Guard
-			$oPTG = $this->getScanCon( 'ptg' );
-			if ( !$oPTG->isEnabled() ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = [
-					'title'   => $aScanNames[ 'ptg' ],
-					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToOption( 'ptg_enable' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $oPTG->getScanHasProblem() ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = [
-					'title'   => $aScanNames[ 'ptg' ],
-					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Vulnerability Scanner
-			if ( !$this->isScanEnabled( 'wpv' ) ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = [
-					'title'   => $aScanNames[ 'wpv' ],
-					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $this->getScanCon( 'wpv' )->getScanHasProblem() ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = [
-					'title'   => $aScanNames[ 'wpv' ],
-					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Abandoned Plugins
-			if ( !$this->isScanEnabled( 'apc' ) ) {
-				$aNotices[ 'messages' ][ 'apc' ] = [
-					'title'   => $aScanNames[ 'apc' ],
-					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $this->getScanCon( 'apc' )->getScanHasProblem() ) {
-				$aNotices[ 'messages' ][ 'apc' ] = [
-					'title'   => $aScanNames[ 'apc' ],
-					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Malware
-			if ( !$this->isScanEnabled( 'mal' ) ) {
-				$aNotices[ 'messages' ][ 'mal' ] = [
-					'title'   => $aScanNames[ 'mal' ],
-					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $this->getScanCon( 'mal' )->getScanHasProblem() ) {
-				$aNotices[ 'messages' ][ 'mal' ] = [
-					'title'   => $aScanNames[ 'mal' ],
-					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-
-		$aAllNotices[ 'scans' ] = $aNotices;
-		return $aAllNotices;
 	}
 
 	/**

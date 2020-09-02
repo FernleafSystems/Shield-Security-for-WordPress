@@ -136,61 +136,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	}
 
 	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aNotices = [
-			'title'    => __( 'Users', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{ //admin user
-			$oAdmin = Services::WpUsers()->getUserByUsername( 'admin' );
-			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
-				$aNotices[ 'messages' ][ 'admin' ] = [
-					'title'   => 'Admin User',
-					'message' => sprintf( __( "Default 'admin' user still available.", 'wp-simple-firewall' ) ),
-					'href'    => '',
-					'rec'     => __( "Default 'admin' user should be disabled or removed.", 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{//password policies
-			if ( !$oOpts->isPasswordPoliciesEnabled() ) {
-				$aNotices[ 'messages' ][ 'password' ] = [
-					'title'   => __( 'Password Policies', 'wp-simple-firewall' ),
-					'message' => __( "Strong password policies are not enforced.", 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Password policies should be turned-on.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-
-		$aAllNotices[ 'users' ] = $aNotices;
-		return $aAllNotices;
-	}
-
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

@@ -112,10 +112,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		{ // TODO: replace these with Modules iterator
-			add_filter( $con->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
-			add_filter( $con->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
-		}
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
@@ -813,6 +809,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aAllNotices
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
 		return $aAllNotices;
@@ -821,6 +818,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aAllData
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		return $aAllData;
