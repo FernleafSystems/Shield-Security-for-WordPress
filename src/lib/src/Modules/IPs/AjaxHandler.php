@@ -37,8 +37,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_AddIp() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 		$oIpServ = Services::IP();
 
 		$aFormParams = $this->getAjaxFormParams();
@@ -53,7 +53,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 						 || $oIpServ->isValidIp4Range( $sIp )
 						 || $oIpServ->isValidIp6Range( $sIp );
 
-		$bIsBlackList = $sList != $oMod::LIST_MANUAL_WHITE;
+		$bIsBlackList = $sList != $mod::LIST_MANUAL_WHITE;
 
 		// TODO: Bring this IP verification out of here and make it more accessible
 		if ( empty( $sIp ) ) {
@@ -65,7 +65,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		elseif ( !$bAcceptableIp ) {
 			$sMessage = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && !$oMod->isPremium() ) {
+		elseif ( $bIsBlackList && !$mod->isPremium() ) {
 			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
 		elseif ( $bIsBlackList && $oIpServ->checkIp( $oIpServ->getRequestIp(), $sIp ) ) {
@@ -78,10 +78,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
 			$oIP = null;
 			switch ( $sList ) {
-				case $oMod::LIST_MANUAL_WHITE:
+				case $mod::LIST_MANUAL_WHITE:
 					try {
 						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-							->setMod( $oMod )
+							->setMod( $mod )
 							->setIP( $sIp )
 							->toManualWhitelist( $sLabel );
 					}
@@ -89,10 +89,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					}
 					break;
 
-				case $oMod::LIST_MANUAL_BLACK:
+				case $mod::LIST_MANUAL_BLACK:
 					try {
 						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-							->setMod( $oMod )
+							->setMod( $mod )
 							->setIP( $sIp )
 							->toManualBlacklist( $sLabel );
 					}

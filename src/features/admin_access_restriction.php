@@ -282,9 +282,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isWlEnabled() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledWhitelabel() && $this->isPremium();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledWhitelabel() && $this->isPremium();
 	}
 
 	/**

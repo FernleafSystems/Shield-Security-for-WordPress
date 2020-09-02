@@ -198,17 +198,17 @@ class UI {
 	 */
 	public function getBaseDisplayData() {
 		$mod = $this->getMod();
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 
 		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
-		$oPluginOptions = $oCon->getModule_Plugin()->getOptions();
+		$oPluginOptions = $con->getModule_Plugin()->getOptions();
 
 		return [
-			'sPluginName'   => $oCon->getHumanName(),
+			'sPluginName'   => $con->getHumanName(),
 			'sTagline'      => $this->getOptions()->getFeatureTagline(),
-			'nonce_field'   => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
+			'nonce_field'   => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'form_action'   => 'admin.php?page='.$mod->getModSlug(),
-			'aPluginLabels' => $oCon->getLabels(),
+			'aPluginLabels' => $con->getLabels(),
 			'help_video'    => [
 				'auto_show'   => $this->getIfAutoShowHelpVideo(),
 				'display_id'  => 'ShieldHelpVideo'.$mod->getSlug(),
@@ -220,7 +220,6 @@ class UI {
 			],
 			'aSummaryData'  => $this->getModulesSummaryData(),
 
-			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'    => $mod->getMainFeatureName(),
 			'data'          => [
 				'mod_slug'       => $mod->getModSlug( true ),
@@ -246,8 +245,8 @@ class UI {
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
 				'has_wizard'            => $mod->hasWizard(),
-				'is_premium'            => $mod->isPremium(),
-				'show_transfer_switch'  => $mod->isPremium(),
+				'is_premium'            => $con->isPremiumActive(),
+				'show_transfer_switch'  => $con->isPremiumActive(),
 				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
 			],
 			'hrefs'         => [
@@ -257,22 +256,22 @@ class UI {
 				'wizard_landing' => $mod->getUrl_WizardLanding(),
 
 				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
-				'css_pages'        => $oCon->getPluginUrl_Css( 'pages' ),
-				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps' ),
-				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min' ),
-				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin' ),
-				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard' ),
+				'css_bootstrap'    => $con->getPluginUrl_Css( 'bootstrap4.min' ),
+				'css_pages'        => $con->getPluginUrl_Css( 'pages' ),
+				'css_steps'        => $con->getPluginUrl_Css( 'jquery.steps' ),
+				'css_fancybox'     => $con->getPluginUrl_Css( 'jquery.fancybox.min' ),
+				'css_globalplugin' => $con->getPluginUrl_Css( 'global-plugin' ),
+				'css_wizard'       => $con->getPluginUrl_Css( 'wizard' ),
 				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
-				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min' ),
-				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin' ),
-				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min' ),
-				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard' ),
+				'js_bootstrap'     => $con->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
+				'js_fancybox'      => $con->getPluginUrl_Js( 'jquery.fancybox.min' ),
+				'js_globalplugin'  => $con->getPluginUrl_Js( 'global-plugin' ),
+				'js_steps'         => $con->getPluginUrl_Js( 'jquery.steps.min' ),
+				'js_wizard'        => $con->getPluginUrl_Js( 'wizard' ),
 			],
 			'imgs'          => [
-				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'plugin_banner' => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
+				'favicon'       => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'plugin_banner' => $con->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 			],
 			'content'       => [
 				'options_form'   => '',

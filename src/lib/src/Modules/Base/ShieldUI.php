@@ -40,7 +40,7 @@ class ShieldUI extends UI {
 					'sec_admin_login' => $mod->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'show_promo'  => !$mod->isPremium(),
+					'show_promo'  => !$this->getCon()->isPremiumActive(),
 					'has_session' => $mod->hasSession()
 				],
 				'hrefs'   => [
@@ -50,7 +50,7 @@ class ShieldUI extends UI {
 				'classes' => [
 					'top_container' => implode( ' ', array_filter( [
 						'odp-outercontainer',
-						$mod->isPremium() ? 'is-pro' : 'is-not-pro',
+						$this->getCon()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 						$mod->getModSlug(),
 						Services::Request()->query( 'inav', '' )
 					] ) )

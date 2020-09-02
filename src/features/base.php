@@ -1039,22 +1039,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param string $sSectionSlug
-	 * @return array
-	 */
-	protected function getSectionNotices( $sSectionSlug ) {
-		return [];
-	}
-
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		return [];
-	}
-
-	/**
 	 * @param array $aOptParams
 	 * @return array
 	 * @deprecated 9.2.0
@@ -1087,7 +1071,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	protected function getAllFormOptionsAndTypes() {
 		$aOpts = [];
 
-		foreach ( $this->buildOptions() as $aOptionsSection ) {
+		foreach ( $this->getUIHandler()->buildOptions() as $aOptionsSection ) {
 			if ( !empty( $aOptionsSection ) ) {
 				foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
 					$aOpts[ $aOption[ 'key' ] ] = $aOption[ 'type' ];
