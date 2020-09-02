@@ -726,15 +726,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param array $aSummaryData
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addModuleSummaryData( $aSummaryData ) {
-		return $aSummaryData;
-	}
-
-	/**
 	 * TODO: not the place for this method.
 	 * @return array[]
 	 */
@@ -795,24 +786,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
 		);
 		return $aSum;
-	}
-
-	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-		return $aAllNotices;
-	}
-
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		return $aAllData;
 	}
 
 	/**
