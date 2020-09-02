@@ -113,7 +113,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
 		{ // TODO: replace these with Modules iterator
-			add_filter( $con->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
 			add_filter( $con->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
 			add_filter( $con->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
 		}
@@ -742,12 +741,73 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aSummaryData
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	public function addModuleSummaryData( $aSummaryData ) {
-		if ( $this->getIfShowModuleLink() ) {
-			$aSummaryData[ $this->getModSlug( false ) ] = $this->getUIHandler()->buildSummaryData();
-		}
 		return $aSummaryData;
+	}
+
+	/**
+	 * TODO: not the place for this method.
+	 * @return array[]
+	 */
+	public function getModulesSummaryData() {
+		return array_map(
+			function ( $mod ) {
+				return $mod->buildSummaryData();
+			},
+			$this->getCon()->modules
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function buildSummaryData() {
+		$opts = $this->getOptions();
+		$sMenuTitle = $opts->getFeatureProperty( 'menu_title' );
+
+		$aSections = $opts->getSections();
+		foreach ( $aSections as $sSlug => $aSection ) {
+			try {
+				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
+				foreach ( $aStrings as $sKey => $sVal ) {
+					unset( $aSection[ $sKey ] );
+					$aSection[ $sKey ] = $sVal;
+				}
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		$aSum = [
+			'slug'          => $this->getSlug(),
+			'enabled'       => $this->getUIHandler()->isEnabledForUiSummary(),
+			'active'        => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
+			'name'          => $this->getMainFeatureName(),
+			'sidebar_name'  => $opts->getFeatureProperty( 'sidebar_name' ),
+			'menu_title'    => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
+			'href'          => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
+			'sections'      => $aSections,
+			'options'       => [],
+			'show_mod_opts' => $this->getIfShowModuleOpts(),
+		];
+
+		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
+			try {
+				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
+				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
+				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		$aSum[ 'tooltip' ] = sprintf(
+			'%s',
+			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
+		);
+		return $aSum;
 	}
 
 	/**
@@ -764,14 +824,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		return $aAllData;
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	protected function buildSummaryData() {
-		return $this->getUIHandler()->buildSummaryData();
 	}
 
 	/**
@@ -792,7 +844,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	public function getIfShowModuleLink() {
+	public function getIfShowModuleOpts() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 

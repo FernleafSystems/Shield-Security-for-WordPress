@@ -284,7 +284,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = [
 					'vars'    => [
 						'config_cards'          => $this->getConfigCardsData(),
-						'summary'               => $this->getInsightsModsSummary(),
 						'insight_events'        => $this->getRecentEvents(),
 						'insight_notices'       => $aSecNotices,
 						'insight_notices_count' => $nNoticesCount,
@@ -355,26 +354,28 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aSearchSelect = [];
 		$aSettingsSubNav = [];
-		foreach ( $this->getUIHandler()->getModulesSummaryData() as $sSlug => $aSubMod ) {
-			$aSettingsSubNav[ $sSlug ] = [
-				'href'   => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
-				'name'   => $aSubMod[ 'name' ],
-				'active' => $sSlug === $sSubNavSection,
-				'slug'   => $sSlug
-			];
+		foreach ( $this->getModulesSummaryData() as $slug => $summary ) {
+			if ( $summary[ 'show_mod_opts' ] ) {
+				$aSettingsSubNav[ $slug ] = [
+					'href'   => add_query_arg( [ 'subnav' => $slug ], $aTopNav[ 'settings' ][ 'href' ] ),
+					'name'   => $summary[ 'name' ],
+					'active' => $slug === $sSubNavSection,
+					'slug'   => $slug
+				];
 
-			$aSearchSelect[ $aSubMod[ 'name' ] ] = $aSubMod[ 'options' ];
+				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+			}
 		}
-		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
-//		$aTopNav[ 'full_options' ] = [
-//			'href'   => $this->getCon()->getModule_Plugin( )->getUrl_AdminPage(),
-//			'name'   => __( 'Settings', 'wp-simple-firewall' ),
-//			'active' => false
-//		];
+		if ( empty( $aSettingsSubNav ) ) {
+			unset( $aTopNav[ 'settings' ] );
+		}
+		else {
+			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
+		}
 
-		$oDp = Services::DataManipulation();
-		$aData = $oDp->mergeArraysRecursive(
+		$DP = Services::DataManipulation();
+		$aData = $DP->mergeArraysRecursive(
 			$this->getUIHandler()->getBaseDisplayData(),
 			[
 				'classes' => [
@@ -599,13 +600,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getInsightsModsSummary() {
-		$aMods = [];
-		foreach ( $this->getUIHandler()->getModulesSummaryData() as $aMod ) {
-			if ( !in_array( $aMod[ 'slug' ], [ 'insights' ] ) ) {
-				$aMods[] = $aMod;
+		return array_filter(
+			$this->getModulesSummaryData(),
+			function ( $summary ) {
+				return !in_array( $summary[ 'slug' ], [ 'insights' ] );
 			}
-		}
-		return $aMods;
+		);
 	}
 
 	/**

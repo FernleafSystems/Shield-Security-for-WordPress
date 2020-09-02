@@ -125,7 +125,8 @@ class UI {
 
 		$aParams = [
 			'value'    => is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent,
-			'disabled' => !$this->getCon()->isPremiumActive() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] ),
+			'disabled' => !$this->getCon()
+								->isPremiumActive() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] ),
 		];
 		$aParams[ 'enabled' ] = !$aParams[ 'disabled' ];
 		$aOptParams = array_merge( [ 'rows' => 2 ], $aOptParams, $aParams );
@@ -141,56 +142,6 @@ class UI {
 		catch ( \Exception $oE ) {
 		}
 		return $aOptParams;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function buildSummaryData() {
-		$mod = $this->getMod();
-		$opts = $this->getOptions();
-		$sMenuTitle = $opts->getFeatureProperty( 'menu_title' );
-
-		$aSections = $opts->getSections();
-		foreach ( $aSections as $sSlug => $aSection ) {
-			try {
-				$aStrings = $mod->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-				foreach ( $aStrings as $sKey => $sVal ) {
-					unset( $aSection[ $sKey ] );
-					$aSection[ $sKey ] = $sVal;
-				}
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		$aSum = [
-			'enabled'      => $this->isEnabledForUiSummary(),
-			'active'       => $mod->isThisModulePage() || $mod->isPage_InsightsThisModule(),
-			'slug'         => $mod->getSlug(),
-			'name'         => $mod->getMainFeatureName(),
-			'sidebar_name' => $opts->getFeatureProperty( 'sidebar_name' ),
-			'menu_title'   => empty( $sMenuTitle ) ? $mod->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
-			'href'         => network_admin_url( 'admin.php?page='.$mod->getModSlug() ),
-			'sections'     => $aSections,
-			'options'      => [],
-		];
-
-		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
-			try {
-				$aOptData = $mod->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $mod->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		$aSum[ 'tooltip' ] = sprintf(
-			'%s',
-			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
-		);
-		return $aSum;
 	}
 
 	/**
@@ -218,10 +169,16 @@ class UI {
 				'width'       => 772,
 				'height'      => 454,
 			],
-			'aSummaryData'  => $this->getModulesSummaryData(),
 
-			'sPageTitle'    => $mod->getMainFeatureName(),
-			'data'          => [
+			'aSummaryData'  => array_filter(
+				$mod->getModulesSummaryData(),
+				function ( $summary ) {
+					return $summary[ 'show_mod_opts' ];
+				}
+			),
+
+			'sPageTitle' => $mod->getMainFeatureName(),
+			'data'       => [
 				'mod_slug'       => $mod->getModSlug( true ),
 				'mod_slug_short' => $mod->getModSlug( false ),
 				'all_options'    => $this->buildOptions(),
@@ -230,14 +187,14 @@ class UI {
 					->build(),
 				'hidden_options' => $this->getOptions()->getHiddenOptions()
 			],
-			'ajax'          => [
+			'ajax'       => [
 				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
 			],
-			'vendors'       => [
+			'vendors'    => [
 				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */
 			],
-			'strings'       => $mod->getStrings()->getDisplayStrings(),
-			'flags'         => [
+			'strings'    => $mod->getStrings()->getDisplayStrings(),
+			'flags'      => [
 				'access_restricted'     => !$mod->canDisplayOptionsForm(),
 				'show_ads'              => $mod->getIsShowMarketing(),
 				'wrap_page_content'     => true,
@@ -249,7 +206,7 @@ class UI {
 				'show_transfer_switch'  => $con->isPremiumActive(),
 				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
 			],
-			'hrefs'         => [
+			'hrefs'      => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 				'wizard_link'    => $mod->getUrl_WizardLanding(),
@@ -269,11 +226,11 @@ class UI {
 				'js_steps'         => $con->getPluginUrl_Js( 'jquery.steps.min' ),
 				'js_wizard'        => $con->getPluginUrl_Js( 'wizard' ),
 			],
-			'imgs'          => [
+			'imgs'       => [
 				'favicon'       => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 				'plugin_banner' => $con->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 			],
-			'content'       => [
+			'content'    => [
 				'options_form'   => '',
 				'alt'            => '',
 				'actions'        => '',
@@ -353,13 +310,6 @@ class UI {
 	 */
 	protected function getHelpVideoId() {
 		return $this->getOptions()->getDef( 'help_video_id' );
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getModulesSummaryData() {
-		return apply_filters( $this->getCon()->prefix( 'collect_mod_summary' ), [] );
 	}
 
 	/**

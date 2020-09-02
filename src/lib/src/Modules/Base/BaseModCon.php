@@ -1173,7 +1173,6 @@ class BaseModCon {
 				'width'       => 772,
 				'height'      => 454,
 			],
-			'aSummaryData'  => $this->getModulesSummaryData(),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'    => $this->getMainFeatureName(),
@@ -1248,13 +1247,6 @@ class BaseModCon {
 			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
 			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
 		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getModulesSummaryData() {
-		return apply_filters( $this->prefix( 'collect_mod_summary' ), [] );
 	}
 
 	/**
