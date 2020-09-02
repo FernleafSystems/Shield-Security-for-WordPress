@@ -332,6 +332,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param array $aOptParams
+	 * @return array
+	 */
+	protected function buildOptionForUi( $aOptParams ) {
+		$aOptParams = parent::buildOptionForUi( $aOptParams );
+		if ( $aOptParams[ 'key' ] === 'file_locker' && !Services::Data()->isWindows() ) {
+			$aOptParams[ 'value_options' ][ 'root_webconfig' ] .= sprintf( ' (%s)', __( 'unavailable', 'wp-simple-firewall' ) );
+		}
+		return $aOptParams;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
