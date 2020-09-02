@@ -97,6 +97,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'flags'   => [],
 					'strings' => [
 						'table_title'             => __( 'Audit Trail', 'wp-simple-firewall' ),
+						'sub_title'               => __( 'Use the Audit Trail Glossary for help interpreting log entries.', 'wp-simple-firewall' ),
+						'audit_trail_glossary'    => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
 						'title_filter_form'       => __( 'Audit Trail Filters', 'wp-simple-firewall' ),
 						'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
 						'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
@@ -110,6 +112,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'events_for_select' => $aEventsSelect,
 						'unique_ips'        => $oAuditSelect->getDistinctIps(),
 						'unique_users'      => $oAuditSelect->getDistinctUsernames(),
+					],
+					'hrefs'   => [
+						'audit_trail_glossary' => 'https://shsec.io/audittrailglossary',
 					],
 				];
 				break;
@@ -331,7 +336,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
 			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
+			//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );

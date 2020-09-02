@@ -371,7 +371,7 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro from just $1/month](https://shsec.io/aa).
 
 #### 9.2 Series
-*Released: 31st August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+*Released: 2nd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
 
 **Important**: 9.2 is the *final* release to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
