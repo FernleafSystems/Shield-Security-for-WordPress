@@ -80,51 +80,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'SPAM Blocking', 'wp-simple-firewall' ),
-				'sub'   => __( 'Block Bot & Human Comment SPAM', 'wp-simple-firewall' ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$aThis[ 'key_opts' ][ 'bot' ] = [
-				'name'    => __( 'Bot SPAM', 'wp-simple-firewall' ),
-				'enabled' => $opts->isEnabledGaspCheck() || $this->isEnabledCaptcha(),
-				'summary' => ( $opts->isEnabledGaspCheck() || $this->isEnabledCaptcha() ) ?
-					__( 'Bot SPAM comments are blocked', 'wp-simple-firewall' )
-					: __( 'There is no protection against Bot SPAM comments', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_bot_comment_spam_protection_filter' ),
-			];
-			$aThis[ 'key_opts' ][ 'human' ] = [
-				'name'    => __( 'Human SPAM', 'wp-simple-firewall' ),
-				'enabled' => $opts->isEnabledHumanCheck(),
-				'summary' => $opts->isEnabledHumanCheck() ?
-					__( 'Comments posted by humans are checked for SPAM', 'wp-simple-firewall' )
-					: __( "Comments posted by humans aren't checked for SPAM", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_human_spam_filter' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isEnabledCaptcha() {

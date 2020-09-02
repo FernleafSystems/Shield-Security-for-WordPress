@@ -220,13 +220,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function verifyAccessKey( $sKey ) {
+	public function verifyAccessKey( $key ) {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
-		return !empty( $sKey ) && hash_equals( $opts->getSecurityPIN(), md5( $sKey ) );
+		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
 	}
 
 	/**
@@ -347,97 +347,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$aInsertData
 			);
 		}
-	}
-
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'Security Admin', 'wp-simple-firewall' ),
-				'sub'   => sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ), $this->getCon()
-																										   ->getHumanName() ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->getUIHandler()->isEnabledForUiSummary() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$aThis[ 'key_opts' ][ 'mod' ] = [
-				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
-				'enabled' => true,
-				'summary' => true ?
-					__( 'Security plugin is protected against tampering', 'wp-simple-firewall' )
-					: __( 'Security plugin is vulnerable to tampering', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_key' ),
-			];
-
-			$bWpOpts = $oOpts->getAdminAccessArea_Options();
-			$aThis[ 'key_opts' ][ 'wpopts' ] = [
-				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
-				'enabled' => $bWpOpts,
-				'summary' => $bWpOpts ?
-					__( 'Important WP options are protected against tampering', 'wp-simple-firewall' )
-					: __( "Important WP options aren't protected against tampering", 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
-			];
-
-			$bUsers = $oOpts->isSecAdminRestrictUsersEnabled();
-			$aThis[ 'key_opts' ][ 'adminusers' ] = [
-				'name'    => __( 'WP Admins', 'wp-simple-firewall' ),
-				'enabled' => $bUsers,
-				'summary' => $bUsers ?
-					__( 'Admin users are protected against tampering', 'wp-simple-firewall' )
-					: __( "Admin users aren't protected against tampering", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-
-		$aNotices = [
-			'title'    => __( 'Security Admin Protection', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{//sec admin
-			if ( !$this->isEnabledSecurityAdmin() ) {
-				$aNotices[ 'messages' ][ 'sec_admin' ] = [
-					'title'   => __( 'Security Plugin Unprotected', 'wp-simple-firewall' ),
-					'message' => sprintf(
-						__( "The Security Admin protection is not active.", 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName()
-					),
-					'href'    => $this->getUrl_AdminPage(),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options' ) ),
-					'rec'     => __( 'Security Admin should be turned-on to protect your security settings.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		$aAllNotices[ 'sec_admin' ] = $aNotices;
-
-		return $aAllNotices;
 	}
 
 	/**

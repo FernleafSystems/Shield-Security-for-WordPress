@@ -112,9 +112,6 @@ class BaseModCon {
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
-		add_filter( $this->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
 		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
@@ -1173,7 +1170,6 @@ class BaseModCon {
 				'width'       => 772,
 				'height'      => 454,
 			],
-			'aSummaryData'  => $this->getModulesSummaryData(),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'    => $this->getMainFeatureName(),
@@ -1248,13 +1244,6 @@ class BaseModCon {
 			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
 			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
 		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getModulesSummaryData() {
-		return apply_filters( $this->prefix( 'collect_mod_summary' ), [] );
 	}
 
 	/**

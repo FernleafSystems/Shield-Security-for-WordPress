@@ -13,7 +13,7 @@ class Strings {
 	 * @return string[]
 	 */
 	public function getDisplayStrings() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 
 		$aProFeatures = [
 			__( 'Customer Support', 'wp-simple-firewall' ),
@@ -50,8 +50,8 @@ class Strings {
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-				'plugin_name'       => $oCon->getHumanName(),
+				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'plugin_name'       => $con->getHumanName(),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),

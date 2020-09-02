@@ -584,62 +584,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'General Settings', 'wp-simple-firewall' ),
-				'sub'   => sprintf( __( 'General %s Settings', 'wp-simple-firewall' ), $this->getCon()
-																							->getHumanName() ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		$oOpts = $this->getOptions();
-		if ( $this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$aThis[ 'key_opts' ][ 'editing' ] = [
-				'name'    => __( 'Visitor IP', 'wp-simple-firewall' ),
-				'enabled' => true,
-				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ),
-					__( $oOpts->getSelectOptionValueText( 'visitor_address_source' ), 'wp-simple-firewall' ) ),
-				'weight'  => 0,
-				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
-			];
-
-			$bHasSupportEmail = Services::Data()->validEmail( $this->getOpt( 'block_send_email_address' ) );
-			$aThis[ 'key_opts' ][ 'reports' ] = [
-				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
-				'enabled' => $bHasSupportEmail,
-				'summary' => $bHasSupportEmail ?
-					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() )
-					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() ),
-				'weight'  => 0,
-				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
-			];
-
-			$bRecap = $this->getCaptchaCfg()->ready;
-			$aThis[ 'key_opts' ][ 'recap' ] = [
-				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
-				'enabled' => $bRecap,
-				'summary' => $bRecap ?
-					__( 'CAPTCHA keys have been provided', 'wp-simple-firewall' )
-					: __( "CAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
 	 * @return Shield\Databases\GeoIp\Handler
 	 */
 	public function getDbHandler_GeoIp() {
@@ -661,30 +605,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
 		}
 		return $this->oCaptchaEnqueue;
-	}
-
-	/**
-	 * @param array $aOptParams
-	 * @return array
-	 */
-	protected function buildOptionForUi( $aOptParams ) {
-		$aOptParams = parent::buildOptionForUi( $aOptParams );
-		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
-			$aNewOptions = [];
-			$oIPDet = Services::IP()->getIpDetector();
-			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
-				if ( $sValKey == 'AUTO_DETECT_IP' ) {
-					$aNewOptions[ $sValKey ] = $sSource;
-				}
-				else {
-					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
-					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
-						$sSource, empty( $sIPs ) ? '-' : $sIPs );
-				}
-			}
-			$aOptParams[ 'value_options' ] = $aNewOptions;
-		}
-		return $aOptParams;
 	}
 
 	/**

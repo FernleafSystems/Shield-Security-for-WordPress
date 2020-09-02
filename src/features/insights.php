@@ -284,7 +284,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = [
 					'vars'    => [
 						'config_cards'          => $this->getConfigCardsData(),
-						'summary'               => $this->getInsightsModsSummary(),
 						'insight_events'        => $this->getRecentEvents(),
 						'insight_notices'       => $aSecNotices,
 						'insight_notices_count' => $nNoticesCount,
@@ -355,26 +354,28 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aSearchSelect = [];
 		$aSettingsSubNav = [];
-		foreach ( $this->getUIHandler()->getModulesSummaryData() as $sSlug => $aSubMod ) {
-			$aSettingsSubNav[ $sSlug ] = [
-				'href'   => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
-				'name'   => $aSubMod[ 'name' ],
-				'active' => $sSlug === $sSubNavSection,
-				'slug'   => $sSlug
-			];
+		foreach ( $this->getModulesSummaryData() as $slug => $summary ) {
+			if ( $summary[ 'show_mod_opts' ] ) {
+				$aSettingsSubNav[ $slug ] = [
+					'href'   => add_query_arg( [ 'subnav' => $slug ], $aTopNav[ 'settings' ][ 'href' ] ),
+					'name'   => $summary[ 'name' ],
+					'active' => $slug === $sSubNavSection,
+					'slug'   => $slug
+				];
 
-			$aSearchSelect[ $aSubMod[ 'name' ] ] = $aSubMod[ 'options' ];
+				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+			}
 		}
-		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
-//		$aTopNav[ 'full_options' ] = [
-//			'href'   => $this->getCon()->getModule_Plugin( )->getUrl_AdminPage(),
-//			'name'   => __( 'Settings', 'wp-simple-firewall' ),
-//			'active' => false
-//		];
+		if ( empty( $aSettingsSubNav ) ) {
+			unset( $aTopNav[ 'settings' ] );
+		}
+		else {
+			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
+		}
 
-		$oDp = Services::DataManipulation();
-		$aData = $oDp->mergeArraysRecursive(
+		$DP = Services::DataManipulation();
+		$aData = $DP->mergeArraysRecursive(
 			$this->getUIHandler()->getBaseDisplayData(),
 			[
 				'classes' => [
@@ -573,7 +574,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oStrs = $oEvtsMod->getStrings();
 		$aEvtNames = $oStrs->getEventNames();
 
-		$aData = [
+		return [
 			'ajax'    => [
 				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
 			],
@@ -593,61 +594,57 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				)
 			],
 		];
-		return $aData;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getInsightsModsSummary() {
-		$aMods = [];
-		foreach ( $this->getUIHandler()->getModulesSummaryData() as $aMod ) {
-			if ( !in_array( $aMod[ 'slug' ], [ 'insights' ] ) ) {
-				$aMods[] = $aMod;
-			}
-		}
-		return $aMods;
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getConfigCardsData() {
-		return apply_filters( $this->prefix( 'collect_summary' ), [] );
+		$data = [];
+		foreach ( $this->getCon()->modules as $mod ) {
+			$data[ $mod->getSlug() ] = $mod->getUIHandler()->getInsightsConfigCardData();
+		}
+		return array_filter( $data );
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getNotices() {
-		$aAll = apply_filters(
-			$this->prefix( 'collect_notices' ),
-			[
-				'plugins' => $this->getNoticesPlugins(),
-				'themes'  => $this->getNoticesThemes(),
-				'core'    => $this->getNoticesCore(),
-			]
-		);
+		$aAll = [
+			'plugins' => $this->getNoticesPlugins(),
+			'themes'  => $this->getNoticesThemes(),
+			'core'    => $this->getNoticesCore(),
+		];
+		foreach ( $this->getCon()->modules as $module ) {
+			$aAll[ $module->getSlug() ] = $module->getUIHandler()->getInsightsNoticesData();
+		}
 
-		// order and then remove empties
-		return array_filter(
-			array_merge(
-				[
-					'site'      => [],
-					'sec_admin' => [],
-					'scans'     => [],
-					'core'      => [],
-					'plugins'   => [],
-					'themes'    => [],
-					'users'     => [],
-					'lockdown'  => [],
-				],
-				$aAll
-			),
-			function ( $aSection ) {
-				return !empty( $aSection[ 'count' ] );
-			}
-		);
+		// remove empties, add a count, then order.
+		return array_filter( array_merge(
+			[
+				'plugin'                   => [],
+				'admin_access_restriction' => [],
+				'hack_protect'             => [],
+				'core'                     => [],
+				'plugins'                  => [],
+				'themes'                   => [],
+				'user_management'          => [],
+				'lockdown'                 => [],
+			],
+			array_map(
+				function ( $notices ) {
+					$notices[ 'count' ] = count( $notices[ 'messages' ] );
+					return $notices;
+				},
+				array_filter(
+					$aAll,
+					function ( $notices ) {
+						return !empty( $notices[ 'messages' ] );
+					}
+				)
+			)
+		) );
 	}
 
 	protected function getNoticesSite() {
