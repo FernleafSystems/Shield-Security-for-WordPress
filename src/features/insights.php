@@ -599,20 +599,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return array[]
 	 */
-	protected function getInsightsModsSummary() {
-		return array_filter(
-			$this->getModulesSummaryData(),
-			function ( $summary ) {
-				return !in_array( $summary[ 'slug' ], [ 'insights' ] );
-			}
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
 	protected function getConfigCardsData() {
-		return apply_filters( $this->prefix( 'collect_summary' ), [] );
+		$data = [];
+		foreach ( $this->getCon()->modules as $mod ) {
+			$data[ $mod->getSlug() ] = $mod->getUIHandler()->getInsightsConfigCardData();
+		}
+		return array_filter( $data );
 	}
 
 	/**

@@ -27,6 +27,65 @@ class UI extends Base\ShieldUI {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getInsightsConfigCardData() {
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$data = [
+			'strings'      => [
+				'title' => __( 'Security Admin', 'wp-simple-firewall' ),
+				'sub'   => sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ), $this->getCon()
+																										   ->getHumanName() ),
+			],
+			'key_opts'     => [],
+			'href_options' => $mod->getUrl_AdminPage()
+		];
+
+		if ( !$this->isEnabledForUiSummary() ) {
+			$data[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$data[ 'key_opts' ][ 'mod' ] = [
+				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
+				'enabled' => true,
+				'summary' => true ?
+					__( 'Security plugin is protected against tampering', 'wp-simple-firewall' )
+					: __( 'Security plugin is vulnerable to tampering', 'wp-simple-firewall' ),
+				'weight'  => 2,
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_key' ),
+			];
+
+			$bWpOpts = $opts->getAdminAccessArea_Options();
+			$data[ 'key_opts' ][ 'wpopts' ] = [
+				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
+				'enabled' => $bWpOpts,
+				'summary' => $bWpOpts ?
+					__( 'Important WP options are protected against tampering', 'wp-simple-firewall' )
+					: __( "Important WP options aren't protected against tampering", 'wp-simple-firewall' ),
+				'weight'  => 2,
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
+			];
+
+			$bUsers = $opts->isSecAdminRestrictUsersEnabled();
+			$data[ 'key_opts' ][ 'adminusers' ] = [
+				'name'    => __( 'WP Admins', 'wp-simple-firewall' ),
+				'enabled' => $bUsers,
+				'summary' => $bUsers ?
+					__( 'Admin users are protected against tampering', 'wp-simple-firewall' )
+					: __( "Admin users aren't protected against tampering", 'wp-simple-firewall' ),
+				'weight'  => 1,
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
+			];
+		}
+
+		return $data;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isEnabledForUiSummary() {

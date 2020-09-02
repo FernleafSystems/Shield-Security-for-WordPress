@@ -240,6 +240,27 @@ class UI {
 		];
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getInsightsConfigCardData() {
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getModDisabledInsight() {
+		$mod = $this->getMod();
+		return [
+			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
+			'enabled' => false,
+			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
+			'weight'  => 2,
+			'href'    => $mod->getUrl_DirectLinkToOption( $mod->getEnableModOptKey() ),
+		];
+	}
+
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOptions()->getOpt( 'help_video_options', [] );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {

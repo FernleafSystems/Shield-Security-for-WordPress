@@ -280,17 +280,4 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		}
 		return array_unique( array_filter( $aCleaned ) );
 	}
-
-	/**
-	 * @return array
-	 */
-	protected function getModDisabledInsight() {
-		return [
-			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
-			'enabled' => false,
-			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
-			'weight'  => 2,
-			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
-		];
-	}
 }

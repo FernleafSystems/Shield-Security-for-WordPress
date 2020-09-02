@@ -629,7 +629,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string
 	 */
-	protected function getEnableModOptKey() {
+	public function getEnableModOptKey() {
 		return 'enable_'.$this->getSlug();
 	}
 

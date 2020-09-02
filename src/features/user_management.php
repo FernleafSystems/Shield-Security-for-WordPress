@@ -186,66 +186,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'User Management', 'wp-simple-firewall' ),
-				'sub'   => __( 'Sessions Control & Password Policies', 'wp-simple-firewall' ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$bHasIdle = $oOpts->hasSessionIdleTimeout();
-			$aThis[ 'key_opts' ][ 'idle' ] = [
-				'name'    => __( 'Idle Users', 'wp-simple-firewall' ),
-				'enabled' => $bHasIdle,
-				'summary' => $bHasIdle ?
-					sprintf( __( 'Idle sessions are terminated after %s hours', 'wp-simple-firewall' ), $this->getOpt( 'session_idle_timeout_interval' ) )
-					: __( 'Idle sessions wont be terminated', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
-			];
-
-			$bLocked = $oOpts->isLockToIp();
-			$aThis[ 'key_opts' ][ 'lock' ] = [
-				'name'    => __( 'Lock To IP', 'wp-simple-firewall' ),
-				'enabled' => $bLocked,
-				'summary' => $bLocked ?
-					__( 'Sessions are locked to IP address', 'wp-simple-firewall' )
-					: __( "Sessions aren't locked to IP address", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToOption( 'session_lock_location' ),
-			];
-
-			$bPolicies = $oOpts->isPasswordPoliciesEnabled();
-
-			$bPwned = $bPolicies && $oOpts->isPassPreventPwned();
-			$aThis[ 'key_opts' ][ 'pwned' ] = [
-				'name'    => __( 'Pwned Passwords', 'wp-simple-firewall' ),
-				'enabled' => $bPwned,
-				'summary' => $bPwned ?
-					__( 'Pwned passwords are blocked on this site', 'wp-simple-firewall' )
-					: __( 'Pwned passwords are allowed on this site', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
-			];
-
-			$bIndepthPolices = $bPolicies && $this->isPremium();
-			$aThis[ 'key_opts' ][ 'policies' ] = [
-				'name'    => __( 'Password Policies', 'wp-simple-firewall' ),
-				'enabled' => $bIndepthPolices,
-				'summary' => $bIndepthPolices ?
-					__( 'Several password policies are active', 'wp-simple-firewall' )
-					: __( 'Limited or no password polices are active', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
-			];
-		}
-
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
