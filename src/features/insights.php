@@ -573,7 +573,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oStrs = $oEvtsMod->getStrings();
 		$aEvtNames = $oStrs->getEventNames();
 
-		$aData = [
+		return [
 			'ajax'    => [
 				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
 			],
@@ -593,7 +593,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				)
 			],
 		];
-		return $aData;
 	}
 
 	/**

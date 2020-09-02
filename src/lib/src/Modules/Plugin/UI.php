@@ -4,8 +4,33 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
+use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
+
+	/**
+	 * @param array $aOptParams
+	 * @return array
+	 */
+	protected function buildOptionForUi( $aOptParams ) {
+		$aOptParams = parent::buildOptionForUi( $aOptParams );
+		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
+			$aNewOptions = [];
+			$oIPDet = Services::IP()->getIpDetector();
+			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
+				if ( $sValKey == 'AUTO_DETECT_IP' ) {
+					$aNewOptions[ $sValKey ] = $sSource;
+				}
+				else {
+					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
+					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
+						$sSource, empty( $sIPs ) ? '-' : $sIPs );
+				}
+			}
+			$aOptParams[ 'value_options' ] = $aNewOptions;
+		}
+		return $aOptParams;
+	}
 
 	/**
 	 * @param string $section

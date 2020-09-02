@@ -229,13 +229,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function verifyAccessKey( $sKey ) {
+	public function verifyAccessKey( $key ) {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
-		return !empty( $sKey ) && hash_equals( $opts->getSecurityPIN(), md5( $sKey ) );
+		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
 	}
 
 	/**

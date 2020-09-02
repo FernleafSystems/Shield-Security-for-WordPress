@@ -223,8 +223,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return string[]
 	 */
 	private function getAllDbClasses() {
-		$aCls = $this->getOptions()->getDef( 'db_classes' );
-		return is_array( $aCls ) ? $aCls : [];
+		$classes = $this->getOptions()->getDef( 'db_classes' );
+		return is_array( $classes ) ? $classes : [];
 	}
 
 	/**
@@ -337,11 +337,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		$this->getProcessor()->execute();
 	}
 
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
 	public function onWpInit() {
-		$oReq = Services::Request();
 
 		$sShieldAction = $this->getCon()->getShieldAction();
 		if ( !empty( $sShieldAction ) ) {
@@ -366,7 +362,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			else {
 				try {
 					if ( $this->verifyModActionRequest() ) {
-						$this->handleModAction( $oReq->request( 'exec' ) );
+						$this->handleModAction( Services::Request()->request( 'exec' ) );
 					}
 				}
 				catch ( \Exception $oE ) {
@@ -1645,7 +1641,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		if ( !isset( $this->oUI ) ) {
 			$this->oUI = $this->loadClass( 'UI' );
 			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {
-				$this->oUI = $this->loadClassFromBase( 'UI' );
+				// TODO: autoloader for base classes
+				$this->oUI = $this->loadClassFromBase( 'ShieldUI' );
 			}
 			$this->oUI->setMod( $this );
 		}
