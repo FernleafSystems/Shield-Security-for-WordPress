@@ -29,7 +29,7 @@ class TrackLoginFailed extends Base {
 
 					// Adds an extra message to login failed
 					$oUser->add(
-						$this->getMod()->prefix( 'transgression-warning' ),
+						$this->getCon()->prefix( 'transgression-warning' ),
 						$this->getMod()->getTextOpt( 'text_loginfailed' )
 					);
 				}

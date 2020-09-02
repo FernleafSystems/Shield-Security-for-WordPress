@@ -302,12 +302,11 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return string
 	 */
 	protected function getFirewallDieMessageForDisplay() {
-		$aMessages = apply_filters( $this->getMod()
-										 ->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
-		if ( !is_array( $aMessages ) ) {
-			$aMessages = [];
-		}
-		return implode( ' ', $aMessages );
+		$messages = apply_filters(
+			$this->getCon()->prefix( 'firewall_die_message' ),
+			$this->getFirewallDieMessage()
+		);
+		return implode( ' ', is_array( $messages ) ? $messages : [] );
 	}
 
 	/**

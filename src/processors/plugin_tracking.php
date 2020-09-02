@@ -56,11 +56,11 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends Shield\Modules\BaseShield\Shie
 	 * @return array
 	 */
 	public function collectTrackingData() {
-		$aData = apply_filters(
-			$this->getMod()->prefix( 'collect_tracking_data' ),
+		$data = apply_filters(
+			$this->getCon()->prefix( 'collect_tracking_data' ),
 			$this->getBaseTrackingData()
 		);
-		return is_array( $aData ) ? $aData : [];
+		return is_array( $data ) ? $data : [];
 	}
 
 	/**

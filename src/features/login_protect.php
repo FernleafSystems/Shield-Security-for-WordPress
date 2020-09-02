@@ -272,7 +272,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	public function getLoginIntentRequestFlag() {
-		return $this->prefix( 'login-intent-request' );
+		return $this->getCon()->prefix( 'login-intent-request' );
 	}
 
 	/**
@@ -309,7 +309,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(
-			$this->prefix( 'global-plugin' ),
+			$this->getCon()->prefix( 'global-plugin' ),
 			'icwp_wpsf_vars_lg',
 			[
 				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
