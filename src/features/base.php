@@ -762,22 +762,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	protected function buildSummaryData() {
-		return $this->getUIHandler()->buildSummaryData();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2.0
-	 */
-	public function isEnabledForUiSummary() {
-		return $this->isModuleEnabled();
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
@@ -1028,26 +1012,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * Will initiate the plugin options structure for use by the UI builder.
-	 * It doesn't set any values, just populates the array created in buildOptions()
-	 * with values stored.
-	 * It has to handle the conversion of stored values to data to be displayed to the user.
-	 * @deprecated 9.2.0
-	 */
-	public function buildOptions() {
-		return $this->getUIHandler()->buildOptions();
-	}
-
-	/**
-	 * @param array $aOptParams
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	protected function buildOptionForUi( $aOptParams ) {
-		return [];
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
@@ -1288,14 +1252,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			'index.php',
 			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData )
 		);
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function getBaseDisplayData() {
-		return $this->getUIHandler()->getBaseDisplayData();
 	}
 
 	/**
