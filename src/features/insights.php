@@ -70,10 +70,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
-		/** @var ICWP_WPSF_Processor_HackProtect $oProHp */
-		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
-		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
-		$oModLicense = $oCon->getModule( 'license' );
+		/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
+		$UIHackGuard = $oCon->getModule_HackGuard()->getUIHandler();
+		/** @var Shield\Modules\License\UI $UILicense */
+		$UILicense = $oCon->getModule_License()->getUIHandler();
 
 		$oModPlugin = $oCon->getModule_Plugin();
 		$oTourManager = $oModPlugin->getTourManager();
@@ -228,11 +228,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'license':
-				$aData = $oModLicense->buildInsightsVars();
+				$aData = $UILicense->buildInsightsVars();
 				break;
 
 			case 'scans':
-				$aData = $oProHp->buildInsightsVars();
+				$aData = $UIHackGuard->buildInsightsVars();
 				break;
 
 			case 'importexport':
@@ -375,7 +375,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$oDp = Services::DataManipulation();
 		$aData = $oDp->mergeArraysRecursive(
-			$this->getBaseDisplayData(),
+			$this->getUIHandler()->getBaseDisplayData(),
 			[
 				'classes' => [
 					'page_container' => 'page-insights page-'.$sNavSection

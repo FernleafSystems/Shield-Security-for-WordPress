@@ -376,14 +376,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			'href_options' => $this->getUrl_AdminPage()
 		];
 
-		if ( !$this->isEnabledForUiSummary() ) {
+		if ( !$this->getUIHandler()->isEnabledForUiSummary() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
 			$aThis[ 'key_opts' ][ 'mod' ] = [
 				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
-				'enabled' => $this->isEnabledForUiSummary(),
-				'summary' => $this->isEnabledForUiSummary() ?
+				'enabled' => true,
+				'summary' => true ?
 					__( 'Security plugin is protected against tampering', 'wp-simple-firewall' )
 					: __( 'Security plugin is vulnerable to tampering', 'wp-simple-firewall' ),
 				'weight'  => 2,
@@ -447,13 +447,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$aAllNotices[ 'sec_admin' ] = $aNotices;
 
 		return $aAllNotices;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && $this->isEnabledSecurityAdmin();
 	}
 
 	/**

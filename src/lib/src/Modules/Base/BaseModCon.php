@@ -648,55 +648,6 @@ class BaseModCon {
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function buildSummaryData() {
-		$oOptsVo = $this->getOptions();
-		$sMenuTitle = $oOptsVo->getFeatureProperty( 'menu_title' );
-
-		$aSections = $oOptsVo->getSections();
-		foreach ( $aSections as $sSlug => $aSection ) {
-			try {
-				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-				foreach ( $aStrings as $sKey => $sVal ) {
-					unset( $aSection[ $sKey ] );
-					$aSection[ $sKey ] = $sVal;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		$aSum = [
-			'enabled'    => $this->isEnabledForUiSummary(),
-			'active'     => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
-			'slug'       => $this->getSlug(),
-			'name'       => $this->getMainFeatureName(),
-			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
-			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections,
-			'options'    => [],
-		];
-
-		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
-			try {
-				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		$aSum[ 'tooltip' ] = sprintf(
-			'%s%s',
-			$aSum[ 'name' ],
-			( $aSum[ 'enabled' ] ? '' : ' ('.strtolower( __( 'Disabled', 'wp-simple-firewall' ) ).')' )
-		);
-		return $aSum;
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {

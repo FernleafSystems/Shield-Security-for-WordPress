@@ -25,4 +25,13 @@ class UI extends Base\ShieldUI {
 
 		return $aWarnings;
 	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledForUiSummary() {
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		$mod = $this->getMod();
+		return parent::isEnabledForUiSummary() && $mod->isEnabledSecurityAdmin();
+	}
 }

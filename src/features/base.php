@@ -101,32 +101,34 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @param array $aModProps
 	 */
 	protected function setupHooks( $aModProps ) {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 
-		add_action( $oCon->prefix( 'modules_loaded' ), function () {
+		add_action( $con->prefix( 'modules_loaded' ), function () {
 			$this->onModulesLoaded();
 		}, $nRunPriority );
-		add_action( $oCon->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
+		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-		add_filter( $oCon->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		add_filter( $oCon->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
-		add_filter( $oCon->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
-		add_filter( $oCon->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
-		add_action( $oCon->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
-		add_action( $oCon->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
-		add_action( $oCon->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-		add_filter( $oCon->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
+		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		{ // TODO: replace these with Modules iterator
+			add_filter( $con->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
+			add_filter( $con->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
+			add_filter( $con->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
+		}
+		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
+		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
+		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
+		add_filter( $con->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
-		add_filter( $oCon->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
+		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
-		add_action( $oCon->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $oCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		add_action( $con->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		add_action( $con->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
 		// supply supported events for this module
-		add_filter( $oCon->prefix( 'get_all_events' ), function ( $aEvents ) {
+		add_filter( $con->prefix( 'get_all_events' ), function ( $aEvents ) {
 			return array_merge(
 				is_array( $aEvents ) ? $aEvents : [],
 				array_map(
@@ -500,14 +502,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getModActionParams( $sAction ) {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		return [
-			'action'     => $oCon->prefix(),
+			'action'     => $con->prefix(),
 			'exec'       => $sAction,
 			'mod_slug'   => $this->getModSlug(),
 			'ts'         => Services::Request()->ts(),
 			'exec_nonce' => substr(
-				hash_hmac( 'md5', $sAction.Services::Request()->ts(), $oCon->getSiteInstallationId() )
+				hash_hmac( 'md5', $sAction.Services::Request()->ts(), $con->getSiteInstallationId() )
 				, 0, 6 )
 		];
 	}
@@ -747,7 +749,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function addModuleSummaryData( $aSummaryData ) {
 		if ( $this->getIfShowModuleLink() ) {
-			$aSummaryData[ $this->getModSlug( false ) ] = $this->buildSummaryData();
+			$aSummaryData[ $this->getModSlug( false ) ] = $this->getUIHandler()->buildSummaryData();
 		}
 		return $aSummaryData;
 	}
@@ -770,57 +772,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	protected function buildSummaryData() {
-		$oOpts = $this->getOptions();
-		$sMenuTitle = $oOpts->getFeatureProperty( 'menu_title' );
-
-		$aSections = $oOpts->getSections();
-		foreach ( $aSections as $sSlug => $aSection ) {
-			try {
-				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-				foreach ( $aStrings as $sKey => $sVal ) {
-					unset( $aSection[ $sKey ] );
-					$aSection[ $sKey ] = $sVal;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		$aSum = [
-			'enabled'      => $this->isEnabledForUiSummary(),
-			'active'       => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
-			'slug'         => $this->getSlug(),
-			'name'         => $this->getMainFeatureName(),
-			'sidebar_name' => $oOpts->getFeatureProperty( 'sidebar_name' ),
-			'menu_title'   => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
-			'href'         => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'     => $aSections,
-			'options'      => [],
-		];
-
-		foreach ( $oOpts->getVisibleOptionsKeys() as $sOptKey ) {
-			try {
-				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		$aSum[ 'tooltip' ] = sprintf(
-			'%s',
-			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
-		);
-		return $aSum;
+		return $this->getUIHandler()->buildSummaryData();
 	}
 
 	/**
 	 * @return bool
+	 * @deprecated 9.2.0
 	 */
-	protected function isEnabledForUiSummary() {
+	public function isEnabledForUiSummary() {
 		return $this->isModuleEnabled();
 	}
 
@@ -940,7 +902,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * Sets the value for the given option key
-	 * Note: We also set the ability to bypass admin access since setOpt() is a protected function
 	 * @param string $sOptionKey
 	 * @param mixed  $mValue
 	 * @return $this
@@ -1348,12 +1309,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return string
 	 */
 	protected function renderModulePage( $aData = [] ) {
-		// Get Base Data
-		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData );
-		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
-
-		return $this->renderTemplate( 'index.php', $aData );
+		return $this->renderTemplate(
+			'index.php',
+			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData )
+		);
 	}
 
 	/**
@@ -1367,15 +1326,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string
 	 */
-	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData() );
-	}
-
-	/**
-	 * @return string
-	 */
 	protected function getContentWizardLanding() {
-		$aData = $this->getBaseDisplayData();
+		$aData = $this->getUIHandler()->getBaseDisplayData();
 		if ( $this->hasWizard() ) {
 			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
 		}
@@ -1494,7 +1446,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			return $this->getCon()
 						->getRenderer()
 						->setTemplate( $sTemplate )
-						->setRenderVars( $this->getBaseDisplayData() )
+						->setRenderVars( $this->getUIHandler()->getBaseDisplayData() )
 						->setTemplateEngineTwig()
 						->render();
 		}

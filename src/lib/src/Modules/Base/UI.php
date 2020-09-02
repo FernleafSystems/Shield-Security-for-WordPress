@@ -146,6 +146,56 @@ class UI {
 	/**
 	 * @return array
 	 */
+	public function buildSummaryData() {
+		$mod = $this->getMod();
+		$opts = $this->getOptions();
+		$sMenuTitle = $opts->getFeatureProperty( 'menu_title' );
+
+		$aSections = $opts->getSections();
+		foreach ( $aSections as $sSlug => $aSection ) {
+			try {
+				$aStrings = $mod->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
+				foreach ( $aStrings as $sKey => $sVal ) {
+					unset( $aSection[ $sKey ] );
+					$aSection[ $sKey ] = $sVal;
+				}
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		$aSum = [
+			'enabled'      => $this->isEnabledForUiSummary(),
+			'active'       => $mod->isThisModulePage() || $mod->isPage_InsightsThisModule(),
+			'slug'         => $mod->getSlug(),
+			'name'         => $mod->getMainFeatureName(),
+			'sidebar_name' => $opts->getFeatureProperty( 'sidebar_name' ),
+			'menu_title'   => empty( $sMenuTitle ) ? $mod->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
+			'href'         => network_admin_url( 'admin.php?page='.$mod->getModSlug() ),
+			'sections'     => $aSections,
+			'options'      => [],
+		];
+
+		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
+			try {
+				$aOptData = $mod->getStrings()->getOptionStrings( $sOptKey );
+				$aOptData[ 'href' ] = $mod->getUrl_DirectLinkToOption( $sOptKey );
+				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		$aSum[ 'tooltip' ] = sprintf(
+			'%s',
+			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
+		);
+		return $aSum;
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getBaseDisplayData() {
 		$mod = $this->getMod();
 		$oCon = $this->getCon();
@@ -327,5 +377,12 @@ class UI {
 	 */
 	protected function getSectionWarnings( $section ) {
 		return [];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledForUiSummary() {
+		return $this->getMod()->isModuleEnabled();
 	}
 }
