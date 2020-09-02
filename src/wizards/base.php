@@ -254,13 +254,13 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array[]
 	 */
 	protected function getRenderData_PageWizardLanding() {
-		/** @var ICWP_WPSF_FeatureHandler_Base $oMod */
-		$oMod = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Base $mod */
+		$mod = $this->getMod();
 
 		$aWizards = $this->getModuleWizardsForRender();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
-			$oMod->getBaseDisplayData(),
+			$mod->getUIHandler()->getBaseDisplayData(),
 			[
 				'strings' => [
 					'page_title'   => 'Select Your Wizard',
@@ -271,13 +271,13 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'mod_wizards'       => $aWizards
 				],
 				'hrefs'   => [
-					'dashboard'   => $oMod->getUrl_AdminPage(),
+					'dashboard'   => $mod->getUrl_AdminPage(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
-					'content'       => $oMod->getAjaxActionData( 'wiz_process_step' ),
-					'steps'         => $oMod->getAjaxActionData( 'wiz_render_step' ),
-					'steps_as_json' => $oMod->getAjaxActionData( 'wiz_render_step', true ),
+					'content'       => $mod->getAjaxActionData( 'wiz_process_step' ),
+					'steps'         => $mod->getAjaxActionData( 'wiz_render_step' ),
+					'steps_as_json' => $mod->getAjaxActionData( 'wiz_render_step', true ),
 				]
 			]
 		);
@@ -288,7 +288,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array
 	 */
 	protected function getRenderData_TwigPageBase() {
-		return $this->getMod()->getBaseDisplayData();
+		return $this->getMod()->getUIHandler()->getBaseDisplayData();
 	}
 
 	/**
@@ -299,7 +299,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 		return Services::DataManipulation()->mergeArraysRecursive(
-			$oMod->getBaseDisplayData(),
+			$oMod->getUIHandler()->getBaseDisplayData(),
 			[
 				'strings' => [
 					'page_title'  => $this->getPageTitle(),

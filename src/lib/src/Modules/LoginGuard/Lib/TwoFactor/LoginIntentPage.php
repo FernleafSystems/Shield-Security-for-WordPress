@@ -20,25 +20,25 @@ class LoginIntentPage {
 	 */
 	public function renderForm() {
 		$oIC = $this->getMfaCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $oIC->getMod();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $oIC->getOptions();
-		$oCon = $oIC->getCon();
-		$oReq = Services::Request();
-		$oWP = Services::WpGeneral();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $oIC->getMod();
+		/** @var LoginGuard\Options $opts */
+		$opts = $oIC->getOptions();
+		$con = $oIC->getCon();
+		$req = Services::Request();
+		$WP = Services::WpGeneral();
 
-		$oNotice = $oCon->getAdminNotices()->getFlashNotice();
+		$oNotice = $con->getAdminNotices()->getFlashNotice();
 		if ( $oNotice instanceof NoticeVO ) {
 			$sMessage = $oNotice->render_data[ 'message' ];
 		}
 		else {
-			$sMessage = $oOpts->isChainedAuth() ?
+			$sMessage = $opts->isChainedAuth() ?
 				__( 'Please supply all authentication codes', 'wp-simple-firewall' )
 				: __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
 
-		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
+		$sReferUrl = $req->server( 'HTTP_REFERER', '' );
 		if ( strpos( $sReferUrl, '?' ) ) {
 			list( $sReferUrl, $sReferQuery ) = explode( '?', $sReferUrl, 2 );
 		}
@@ -54,17 +54,17 @@ class LoginIntentPage {
 			}
 		}
 		if ( empty( $sRedirectTo ) ) {
-			$sRedirectTo = rawurlencode( $oReq->post( 'redirect_to', $oReq->getUri() ) );
+			$sRedirectTo = rawurlencode( $req->post( 'redirect_to', $req->getUri() ) );
 		}
 
-		$sCancelHref = $oReq->post( 'cancel_href', '' );
+		$sCancelHref = $req->post( 'cancel_href', '' );
 		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
 			$sCancelHref = parse_url( $sReferUrl, PHP_URL_PATH );
 		}
 
-		$nMfaSkip = (int)( $oOpts->getMfaSkip()/DAY_IN_SECONDS );
-		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
-		$aDisplayData = [
+		$nMfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
+		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
+		$data = [
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
 				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
@@ -87,21 +87,25 @@ class LoginIntentPage {
 				) ),
 				'time_remaining'    => $nTimeRemaining,
 				'message_type'      => 'info',
-				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
+				'login_intent_flag' => $mod->getLoginIntentRequestFlag(),
 			],
 			'hrefs'   => [
-				'form_action' => parse_url( $oWP->getAdminUrl( '', true ), PHP_URL_PATH ),
+				'form_action' => parse_url( $WP->getAdminUrl( '', true ), PHP_URL_PATH ),
 				'redirect_to' => $sRedirectTo,
 				'cancel_href' => $sCancelHref
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $oOpts->isMfaSkip(),
-				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
+				'can_skip_mfa'       => $opts->isMfaSkip(),
+				'show_branded_links' => !$mod->isWlEnabled(), // white label mitigation
 			]
 		];
 
-		return $oMod->renderTemplate( '/snippets/login_intent/form.twig',
-			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
+		return $mod->renderTemplate(
+			'/snippets/login_intent/form.twig',
+			Services::DataManipulation()->mergeArraysRecursive(
+				$mod->getUIHandler()->getBaseDisplayData(), $data ),
+			true
+		);
 	}
 
 	/**
@@ -160,6 +164,7 @@ class LoginIntentPage {
 		}
 
 		return $oMod->renderTemplate( '/pages/login_intent/index.twig',
-			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
+			Services::DataManipulation()->mergeArraysRecursive(
+				$oMod->getUIHandler()->getBaseDisplayData(), $aDisplayData ), true );
 	}
 }

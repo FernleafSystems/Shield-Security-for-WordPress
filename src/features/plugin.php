@@ -70,36 +70,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			->checkAll();
 	}
 
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		switch ( $sSection ) {
-			case 'section_third_party_captcha':
-				/** @var Plugin\Options $oOpts */
-				$oOpts = $this->getOptions();
-				if ( $this->getCaptchaCfg()->ready ) {
-					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0 ) {
-						( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
-							->setMod( $this )
-							->checkAll();
-					}
-					if ( $oOpts->getOpt( 'captcha_checked_at' ) == 0 ) {
-						$aWarnings[] = sprintf(
-							__( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
-							.__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' )
-						);
-					}
-				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
 	public function deleteAllPluginCrons() {
 		$oCon = $this->getCon();
 		$oWpCron = Services::WpCron();
