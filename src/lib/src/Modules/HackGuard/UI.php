@@ -57,7 +57,7 @@ class UI extends Base\ShieldUI {
 				'item_action'           => $mod->getAjaxActionData( 'item_action', true ),
 			],
 			'flags'        => [
-				'is_premium' => $mod->isPremium(),
+				'is_premium' => $this->getCon()->isPremiumActive(),
 				'can_scan'   => count( $aReasonCantScan ) === 0,
 			],
 			'strings'      => [

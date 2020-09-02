@@ -27,7 +27,8 @@
     "nesbot/carbon":                      "^1.39",
     "nullpunkt/lz-string-php":            "^1.2.0",
     "ramsey/uuid":                        "^3.9",
-    "symfony/polyfill-iconv":             "^1.17"
+    "symfony/polyfill-iconv":             "^1.17",
+    "ext-json":                           "*"
   },
   "require-dev":       {
   },
