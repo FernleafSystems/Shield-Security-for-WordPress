@@ -1083,7 +1083,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @deprecated 9.2.0
 	 */
 	public function buildOptions() {
-		return $this->getUI()->buildOptions();
+		return $this->getUIHandler()->buildOptions();
 	}
 
 	/**
@@ -1350,7 +1350,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	protected function renderModulePage( $aData = [] ) {
 		// Get Base Data
 		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
+						 ->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
 		return $this->renderTemplate( 'index.php', $aData );
@@ -1358,93 +1358,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	public function getBaseDisplayData() {
-		$oCon = $this->getCon();
-
-		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
-		$oPluginOptions = $oCon->getModule_Plugin()
-							   ->getOptions();
-
-		return [
-			'sPluginName'   => $oCon->getHumanName(),
-			'sTagline'      => $this->getOptions()->getFeatureTagline(),
-			'nonce_field'   => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
-			'form_action'   => 'admin.php?page='.$this->getModSlug(),
-			'aPluginLabels' => $oCon->getLabels(),
-			'help_video'    => [
-				'auto_show'   => $this->getIfAutoShowHelpVideo(),
-				'display_id'  => 'ShieldHelpVideo'.$this->getSlug(),
-				'options'     => $this->getHelpVideoOptions(),
-				'displayable' => $this->isHelpVideoDisplayable(),
-				'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
-				'width'       => 772,
-				'height'      => 454,
-			],
-			'aSummaryData'  => $this->getModulesSummaryData(),
-
-			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-			'sPageTitle'    => $this->getMainFeatureName(),
-			'data'          => [
-				'mod_slug'       => $this->getModSlug( true ),
-				'mod_slug_short' => $this->getModSlug( false ),
-				'all_options'    => $this->buildOptions(),
-				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions() )
-					->setMod( $this )
-					->build(),
-				'hidden_options' => $this->getOptions()->getHiddenOptions()
-			],
-			'ajax'          => [
-				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
-			],
-			'vendors'       => [
-				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */
-			],
-			'strings'       => $this->getStrings()->getDisplayStrings(),
-			'flags'         => [
-				'access_restricted'     => !$this->canDisplayOptionsForm(),
-				'show_ads'              => $this->getIsShowMarketing(),
-				'wrap_page_content'     => true,
-				'show_standard_options' => true,
-				'show_content_help'     => true,
-				'show_alt_content'      => false,
-				'has_wizard'            => $this->hasWizard(),
-				'is_premium'            => $this->isPremium(),
-				'show_transfer_switch'  => $this->isPremium(),
-				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
-			],
-			'hrefs'         => [
-				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
-				'goprofooter'    => 'https://shsec.io/goprofooter',
-				'wizard_link'    => $this->getUrl_WizardLanding(),
-				'wizard_landing' => $this->getUrl_WizardLanding(),
-
-				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
-				'css_pages'        => $oCon->getPluginUrl_Css( 'pages' ),
-				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps' ),
-				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min' ),
-				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin' ),
-				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard' ),
-				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
-				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min' ),
-				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin' ),
-				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min' ),
-				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard' ),
-			],
-			'imgs'          => [
-				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'plugin_banner' => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
-			],
-			'content'       => [
-				'options_form'   => '',
-				'alt'            => '',
-				'actions'        => '',
-				'help'           => '',
-				'wizard_landing' => ''
-			]
-		];
+		return $this->getUIHandler()->getBaseDisplayData();
 	}
 
 	/**
@@ -1486,13 +1403,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array[]
-	 */
-	protected function getModulesSummaryData() {
-		return apply_filters( $this->prefix( 'collect_mod_summary' ), [] );
-	}
-
-	/**
 	 * @param string $sWizardSlug
 	 * @return string
 	 * @uses nonce
@@ -1520,7 +1430,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string
 	 */
-	protected function getUrl_WizardLanding() {
+	public function getUrl_WizardLanding() {
 		return $this->getUrl_Wizard( 'landing' );
 	}
 
@@ -1564,7 +1474,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	protected function getIsShowMarketing() {
+	public function getIsShowMarketing() {
 		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
@@ -1596,7 +1506,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	protected function canDisplayOptionsForm() {
+	public function canDisplayOptionsForm() {
 		return $this->getOptions()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
 	}
 
@@ -1749,80 +1659,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $aData;
 	}
 
-	protected function getHelpVideoOptions() {
-		$aOptions = $this->getOpt( 'help_video_options', [] );
-		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
-			$aOptions = [
-				'closed'    => false,
-				'displayed' => false,
-				'played'    => false,
-			];
-			$this->setOpt( 'help_video_options', $aOptions );
-		}
-		return $aOptions;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getHelpVideoHasBeenClosed() {
-		return (bool)$this->getHelpVideoOption( 'closed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getHelpVideoHasBeenDisplayed() {
-		return (bool)$this->getHelpVideoOption( 'displayed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getVideoHasBeenPlayed() {
-		return (bool)$this->getHelpVideoOption( 'played' );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return mixed|null
-	 */
-	protected function getHelpVideoOption( $sKey ) {
-		$aOpts = $this->getHelpVideoOptions();
-		return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getIfAutoShowHelpVideo() {
-		return !$this->getHelpVideoHasBeenClosed();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getHelpVideoId() {
-		return $this->getDef( 'help_video_id' );
-	}
-
-	/**
-	 * @param string $sId
-	 * @return string
-	 */
-	protected function getHelpVideoUrl( $sId ) {
-		return sprintf( 'https://player.vimeo.com/video/%s', $sId );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isHelpVideoDisplayable() {
-		$sId = $this->getHelpVideoId();
-		return false;
-		return !empty( $sId );
-	}
-
 	/**
 	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
 	 */
@@ -1857,15 +1693,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * The primary DB for the
-	 * @return null|Shield\Databases\Base\Handler|mixed
-	 */
-	public function getPrimaryDbHandler() {
-		$aDBs = $this->getAllDbClasses();
-		return empty( $aDBs ) ? null : $this->getDbH( key( $aDBs ) );
-	}
-
-	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
@@ -1878,7 +1705,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return Shield\Modules\Base\UI
 	 */
-	public function getUI() {
+	public function getUIHandler() {
 		if ( !isset( $this->oUI ) ) {
 			$this->oUI = $this->loadClass( 'UI' );
 			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {

@@ -355,7 +355,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aSearchSelect = [];
 		$aSettingsSubNav = [];
-		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
+		foreach ( $this->getUIHandler()->getModulesSummaryData() as $sSlug => $aSubMod ) {
 			$aSettingsSubNav[ $sSlug ] = [
 				'href'   => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
 				'name'   => $aSubMod[ 'name' ],
@@ -601,7 +601,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getInsightsModsSummary() {
 		$aMods = [];
-		foreach ( $this->getModulesSummaryData() as $aMod ) {
+		foreach ( $this->getUIHandler()->getModulesSummaryData() as $aMod ) {
 			if ( !in_array( $aMod[ 'slug' ], [ 'insights' ] ) ) {
 				$aMods[] = $aMod;
 			}

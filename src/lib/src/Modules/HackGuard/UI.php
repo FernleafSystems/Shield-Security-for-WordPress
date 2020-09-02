@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\UI {
+class UI extends Base\ShieldUI {
 
 	/**
 	 * @param array $aOptParams

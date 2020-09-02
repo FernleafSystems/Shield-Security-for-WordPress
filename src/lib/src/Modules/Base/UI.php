@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -64,14 +65,6 @@ class UI {
 					$this->getSectionWarnings( $aSection[ 'slug' ] )
 				);
 				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
-
-				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
-					$sHelpVideoUrl = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
-				}
-				else {
-					$sHelpVideoUrl = '';
-				}
-				$aOptions[ $nSectionKey ][ 'help_video_url' ] = ''; /* Remove on Shield 9.0 */
 			}
 		}
 
@@ -151,6 +144,110 @@ class UI {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getBaseDisplayData() {
+		$mod = $this->getMod();
+		$oCon = $this->getCon();
+
+		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
+		$oPluginOptions = $oCon->getModule_Plugin()->getOptions();
+
+		return [
+			'sPluginName'   => $oCon->getHumanName(),
+			'sTagline'      => $this->getOptions()->getFeatureTagline(),
+			'nonce_field'   => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
+			'form_action'   => 'admin.php?page='.$mod->getModSlug(),
+			'aPluginLabels' => $oCon->getLabels(),
+			'help_video'    => [
+				'auto_show'   => $this->getIfAutoShowHelpVideo(),
+				'display_id'  => 'ShieldHelpVideo'.$mod->getSlug(),
+				'options'     => $this->getHelpVideoOptions(),
+				'displayable' => $this->isHelpVideoDisplayable(),
+				'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
+				'width'       => 772,
+				'height'      => 454,
+			],
+			'aSummaryData'  => $this->getModulesSummaryData(),
+
+			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+			'sPageTitle'    => $mod->getMainFeatureName(),
+			'data'          => [
+				'mod_slug'       => $mod->getModSlug( true ),
+				'mod_slug_short' => $mod->getModSlug( false ),
+				'all_options'    => $this->buildOptions(),
+				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions() )
+					->setMod( $mod )
+					->build(),
+				'hidden_options' => $this->getOptions()->getHiddenOptions()
+			],
+			'ajax'          => [
+				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
+			],
+			'vendors'       => [
+				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */
+			],
+			'strings'       => $mod->getStrings()->getDisplayStrings(),
+			'flags'         => [
+				'access_restricted'     => !$mod->canDisplayOptionsForm(),
+				'show_ads'              => $mod->getIsShowMarketing(),
+				'wrap_page_content'     => true,
+				'show_standard_options' => true,
+				'show_content_help'     => true,
+				'show_alt_content'      => false,
+				'has_wizard'            => $mod->hasWizard(),
+				'is_premium'            => $mod->isPremium(),
+				'show_transfer_switch'  => $mod->isPremium(),
+				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
+			],
+			'hrefs'         => [
+				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
+				'goprofooter'    => 'https://shsec.io/goprofooter',
+				'wizard_link'    => $mod->getUrl_WizardLanding(),
+				'wizard_landing' => $mod->getUrl_WizardLanding(),
+
+				'form_action'      => Services::Request()->getUri(),
+				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
+				'css_pages'        => $oCon->getPluginUrl_Css( 'pages' ),
+				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps' ),
+				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min' ),
+				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin' ),
+				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard' ),
+				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
+				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
+				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min' ),
+				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin' ),
+				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min' ),
+				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard' ),
+			],
+			'imgs'          => [
+				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'plugin_banner' => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
+			],
+			'content'       => [
+				'options_form'   => '',
+				'alt'            => '',
+				'actions'        => '',
+				'help'           => '',
+				'wizard_landing' => ''
+			]
+		];
+	}
+
+	protected function getHelpVideoOptions() {
+		$aOptions = $this->getOptions()->getOpt( 'help_video_options', [] );
+		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
+			$aOptions = [
+				'closed'    => false,
+				'displayed' => false,
+				'played'    => false,
+			];
+			$this->getOptions()->setOpt( 'help_video_options', $aOptions );
+		}
+		return $aOptions;
+	}
+
+	/**
 	 * @param string $sId
 	 * @return string
 	 */
@@ -159,10 +256,68 @@ class UI {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @return bool
+	 */
+	protected function getIfAutoShowHelpVideo() {
+		return !$this->getHelpVideoHasBeenClosed();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getHelpVideoHasBeenDisplayed() {
+		return (bool)$this->getHelpVideoOption( 'displayed' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getVideoHasBeenPlayed() {
+		return (bool)$this->getHelpVideoOption( 'played' );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return mixed|null
+	 */
+	protected function getHelpVideoOption( $sKey ) {
+		$aOpts = $this->getHelpVideoOptions();
+		return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getHelpVideoHasBeenClosed() {
+		return (bool)$this->getHelpVideoOption( 'closed' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isHelpVideoDisplayable() {
+		return false;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getHelpVideoId() {
+		return $this->getOptions()->getDef( 'help_video_id' );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function getModulesSummaryData() {
+		return apply_filters( $this->getCon()->prefix( 'collect_mod_summary' ), [] );
+	}
+
+	/**
+	 * @param string $section
 	 * @return array
 	 */
-	protected function getSectionNotices( $sSectionSlug ) {
+	protected function getSectionNotices( $section ) {
 		return [];
 	}
 

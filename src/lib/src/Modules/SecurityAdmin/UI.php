@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-class UI extends Base\UI {
+class UI extends Base\ShieldUI {
 
 	/**
 	 * @param string $section
