@@ -280,35 +280,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		switch ( $sSection ) {
-
-			case 'section_realtime':
-				$bCanHandshake = $this->getCon()
-									  ->getModule_Plugin()
-									  ->getShieldNetApiController()
-									  ->canHandshake();
-				if ( !$bCanHandshake ) {
-					$aWarnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
-				}
-//				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-//					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
-//				}
-//				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
-//					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
-//				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
-	/**
 	 * @return string|false
 	 */
 	public function getPtgSnapsBaseDir() {
@@ -329,18 +300,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function getTempDir() {
 		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
 		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
-	}
-
-	/**
-	 * @param array $aOptParams
-	 * @return array
-	 */
-	protected function buildOptionForUi( $aOptParams ) {
-		$aOptParams = parent::buildOptionForUi( $aOptParams );
-		if ( $aOptParams[ 'key' ] === 'file_locker' && !Services::Data()->isWindows() ) {
-			$aOptParams[ 'value_options' ][ 'root_webconfig' ] .= sprintf( ' (%s)', __( 'unavailable', 'wp-simple-firewall' ) );
-		}
-		return $aOptParams;
 	}
 
 	/**

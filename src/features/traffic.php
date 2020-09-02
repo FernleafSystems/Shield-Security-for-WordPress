@@ -40,37 +40,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aWarnings = [];
-
-		$oIp = Services::IP();
-		if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
-			$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
-		}
-
-		switch ( $sSection ) {
-			case 'section_traffic_limiter':
-				if ( $this->isPremium() ) {
-					if ( !$oOpts->isTrafficLoggerEnabled() ) {
-						$aWarnings[] = sprintf( __( '%s may only be enabled if the Traffic Logger feature is also turned on.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
-					}
-				}
-				else {
-					$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
-				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

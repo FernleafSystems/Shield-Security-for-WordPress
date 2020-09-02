@@ -51,6 +51,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	private $oStrings;
 
 	/**
+	 * @var Shield\Modules\Base\UI
+	 */
+	private $oUI;
+
+	/**
 	 * @var Shield\Modules\Base\Options
 	 */
 	private $oOpts;
@@ -1075,66 +1080,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * It doesn't set any values, just populates the array created in buildOptions()
 	 * with values stored.
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
+	 * @deprecated 9.2.0
 	 */
 	public function buildOptions() {
-
-		$bPremiumEnabled = $this->getCon()->isPremiumExtensionsEnabled();
-
-		$oOptsVo = $this->getOptions();
-		$aOptions = $oOptsVo->getOptionsForPluginUse();
-
-		foreach ( $aOptions as $nSectionKey => $aSection ) {
-
-			if ( !empty( $aSection[ 'options' ] ) ) {
-
-				foreach ( $aSection[ 'options' ] as $nKey => $aOption ) {
-					$aOption[ 'is_value_default' ] = ( $aOption[ 'value' ] === $aOption[ 'default' ] );
-					$bIsPrem = isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ];
-					if ( !$bIsPrem || $bPremiumEnabled ) {
-						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOption );
-					}
-					else {
-						unset( $aSection[ 'options' ][ $nKey ] );
-					}
-				}
-
-				if ( empty( $aSection[ 'options' ] ) ) {
-					unset( $aOptions[ $nSectionKey ] );
-				}
-				else {
-					try {
-						$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-						foreach ( $aStrings as $sKey => $sVal ) {
-							unset( $aSection[ $sKey ] );
-							$aSection[ $sKey ] = $sVal;
-						}
-					}
-					catch ( \Exception $oE ) {
-					}
-					$aOptions[ $nSectionKey ] = $aSection;
-				}
-
-				$aWarnings = [];
-				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
-				}
-				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
-					$aWarnings,
-					$this->getSectionWarnings( $aSection[ 'slug' ] )
-				);
-				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
-
-				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
-					$sHelpVideoUrl = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
-				}
-				else {
-					$sHelpVideoUrl = '';
-				}
-				$aOptions[ $nSectionKey ][ 'help_video_url' ] = ''; /* Remove on Shield 9.0 */
-			}
-		}
-
-		return $aOptions;
+		return $this->getUI()->buildOptions();
 	}
 
 	/**
@@ -1156,73 +1105,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aOptParams
 	 * @return array
+	 * @deprecated 9.2.0
 	 */
 	protected function buildOptionForUi( $aOptParams ) {
-
-		$mCurrent = $aOptParams[ 'value' ];
-
-		switch ( $aOptParams[ 'type' ] ) {
-
-			case 'password':
-				if ( !empty( $mCurrent ) ) {
-					$mCurrent = '';
-				}
-				break;
-
-			case 'array':
-
-				if ( empty( $mCurrent ) || !is_array( $mCurrent ) ) {
-					$mCurrent = [];
-				}
-
-				$aOptParams[ 'rows' ] = count( $mCurrent ) + 2;
-				$mCurrent = stripslashes( implode( "\n", $mCurrent ) );
-
-				break;
-
-			case 'comma_separated_lists':
-
-				$aNewValues = [];
-				if ( !empty( $mCurrent ) && is_array( $mCurrent ) ) {
-
-					foreach ( $mCurrent as $sPage => $aParams ) {
-						$aNewValues[] = $sPage.', '.implode( ", ", $aParams );
-					}
-				}
-				$aOptParams[ 'rows' ] = count( $aNewValues ) + 1;
-				$mCurrent = implode( "\n", $aNewValues );
-
-				break;
-
-			case 'multiple_select':
-				if ( !is_array( $mCurrent ) ) {
-					$mCurrent = [];
-				}
-				break;
-
-			case 'text':
-				$mCurrent = stripslashes( $this->getTextOpt( $aOptParams[ 'key' ] ) );
-				break;
-		}
-
-		$aParams = [
-			'value'    => is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent,
-			'disabled' => !$this->isPremium() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] ),
-		];
-		$aParams[ 'enabled' ] = !$aParams[ 'disabled' ];
-		$aOptParams = array_merge( [ 'rows' => 2 ], $aOptParams, $aParams );
-
-		// add strings
-		try {
-			$aOptStrings = $this->getStrings()->getOptionStrings( $aOptParams[ 'key' ] );
-			if ( is_array( $aOptStrings[ 'description' ] ) ) {
-				$aOptStrings[ 'description' ] = implode( "<br/>", $aOptStrings[ 'description' ] );
-			}
-			$aOptParams = Services::DataManipulation()->mergeArraysRecursive( $aOptParams, $aOptStrings );
-		}
-		catch ( \Exception $oE ) {
-		}
-		return $aOptParams;
+		return [];
 	}
 
 	/**
@@ -1488,7 +1374,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			'aPluginLabels' => $oCon->getLabels(),
 			'help_video'    => [
 				'auto_show'   => $this->getIfAutoShowHelpVideo(),
-				'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),
 				'display_id'  => 'ShieldHelpVideo'.$this->getSlug(),
 				'options'     => $this->getHelpVideoOptions(),
 				'displayable' => $this->isHelpVideoDisplayable(),
@@ -1988,6 +1873,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
+	}
+
+	/**
+	 * @return Shield\Modules\Base\UI
+	 */
+	public function getUI() {
+		if ( !isset( $this->oUI ) ) {
+			$this->oUI = $this->loadClass( 'UI' );
+			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {
+				$this->oUI = $this->loadClassFromBase( 'UI' );
+			}
+			$this->oUI->setMod( $this );
+		}
+		return $this->oUI;
 	}
 
 	/**

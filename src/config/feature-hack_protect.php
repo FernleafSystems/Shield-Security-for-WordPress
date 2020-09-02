@@ -193,12 +193,12 @@
           "text":      "Root .htaccess"
         },
         {
-          "value_key": "root_webconfig",
-          "text":      "Root Web.Config"
-        },
-        {
           "value_key": "root_index",
           "text":      "Root index.php"
+        },
+        {
+          "value_key": "root_webconfig",
+          "text":      "Root Web.Config"
         }
       ],
       "link_info":     "https://shsec.io/h7",

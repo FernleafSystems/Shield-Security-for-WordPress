@@ -167,10 +167,10 @@ class UI {
 	}
 
 	/**
-	 * @param string $sSection
+	 * @param string $section
 	 * @return array
 	 */
-	protected function getSectionWarnings( $sSection ) {
+	protected function getSectionWarnings( $section ) {
 		return [];
 	}
 }

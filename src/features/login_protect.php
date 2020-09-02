@@ -305,50 +305,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return $this->setOpt( 'enable_login_gasp_check', $bEnabled ? 'Y' : 'N' );
 	}
 
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		if ( $sSection == 'section_brute_force_login_protection' && !$this->isPremium() ) {
-			$sIntegration = $this->getPremiumOnlyIntegration();
-			if ( !empty( $sIntegration ) ) {
-				$aWarnings[] = sprintf( __( 'Support for login protection with %s is a Pro-only feature.', 'wp-simple-firewall' ), $sIntegration );
-			}
-		}
-
-		if ( $sSection == 'section_2fa_email' ) {
-			$aWarnings[] =
-				__( '2FA by email demands that your WP site is properly configured to send email.', 'wp-simple-firewall' )
-				.'<br/>'.__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', __( 'Learn More.', 'wp-simple-firewall' ) );
-		}
-
-		return $aWarnings;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getPremiumOnlyIntegration() {
-		$aIntegrations = [
-			'WooCommerce'            => 'WooCommerce',
-			'Easy_Digital_Downloads' => 'Easy Digital Downloads',
-			'BuddyPress'             => 'BuddyPress',
-		];
-
-		$sIntegration = '';
-		foreach ( $aIntegrations as $sInt => $sName ) {
-			if ( class_exists( $sInt ) ) {
-				$sIntegration = $sName;
-				break;
-			}
-		}
-		return $sIntegration;
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
