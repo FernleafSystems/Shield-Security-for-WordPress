@@ -100,7 +100,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'CommentsFilter';
 	}
 

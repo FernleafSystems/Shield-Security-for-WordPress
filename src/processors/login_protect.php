@@ -42,7 +42,7 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'rename'    => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
 		];

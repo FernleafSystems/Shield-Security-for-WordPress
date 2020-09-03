@@ -6,11 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class UI extends Base\ShieldUI {
 
-	/**
-	 * @param string $section
-	 * @return array
-	 */
-	protected function getSectionWarnings( $section ) {
+	protected function getSectionWarnings( string $section ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
 		$mod = $this->getMod();
 		$aWarnings = [];
@@ -26,10 +22,7 @@ class UI extends Base\ShieldUI {
 		return $aWarnings;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getInsightsNoticesData() {
+	public function getInsightsNoticesData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
 		$mod = $this->getMod();
 
@@ -56,10 +49,7 @@ class UI extends Base\ShieldUI {
 		return $notices;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getInsightsConfigCardData() {
+	public function getInsightsConfigCardData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
@@ -115,10 +105,7 @@ class UI extends Base\ShieldUI {
 		return $data;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledForUiSummary() {
+	public function isEnabledForUiSummary() :bool {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
 		$mod = $this->getMod();
 		return parent::isEnabledForUiSummary() && $mod->isEnabledSecurityAdmin();

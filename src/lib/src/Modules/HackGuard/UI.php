@@ -382,7 +382,7 @@ class UI extends Base\ShieldUI {
 	/**
 	 * @return array
 	 */
-	public function getInsightsConfigCardData() {
+	public function getInsightsConfigCardData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
@@ -523,7 +523,7 @@ class UI extends Base\ShieldUI {
 	/**
 	 * @return array
 	 */
-	public function getInsightsNoticesData() {
+	public function getInsightsNoticesData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
 		$mod = $this->getMod();
 		/** @var Strings $oStrings */
@@ -672,11 +672,7 @@ class UI extends Base\ShieldUI {
 		return $notices;
 	}
 
-	/**
-	 * @param string $section
-	 * @return array
-	 */
-	protected function getSectionWarnings( $section ) {
+	protected function getSectionWarnings( string $section ) :array {
 		$aWarnings = [];
 
 		switch ( $section ) {

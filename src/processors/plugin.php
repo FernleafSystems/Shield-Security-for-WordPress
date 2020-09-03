@@ -76,7 +76,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'tracking' => 'ICWP_WPSF_Processor_Plugin_Tracking',
 		];

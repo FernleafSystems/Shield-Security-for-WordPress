@@ -242,21 +242,15 @@ class UI {
 	/**
 	 * @return array
 	 */
-	public function getInsightsConfigCardData() {
+	public function getInsightsConfigCardData() :array {
 		return [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getInsightsNoticesData() {
+	public function getInsightsNoticesData() :array {
 		return [];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getModDisabledInsight() {
+	protected function getModDisabledInsight() :array {
 		$mod = $this->getMod();
 		return [
 			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
@@ -267,7 +261,7 @@ class UI {
 		];
 	}
 
-	protected function getHelpVideoOptions() {
+	protected function getHelpVideoOptions() :array {
 		$aOptions = $this->getOptions()->getOpt( 'help_video_options', [] );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
 			$aOptions = [
@@ -280,48 +274,32 @@ class UI {
 		return $aOptions;
 	}
 
-	/**
-	 * @param string $sId
-	 * @return string
-	 */
-	protected function getHelpVideoUrl( $sId ) {
-		return sprintf( 'https://player.vimeo.com/video/%s', $sId );
+	protected function getHelpVideoUrl( string $id ) :string {
+		return sprintf( 'https://player.vimeo.com/video/%s', $id );
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function getIfAutoShowHelpVideo() {
+	protected function getIfAutoShowHelpVideo() :bool {
 		return !$this->getHelpVideoHasBeenClosed();
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function getHelpVideoHasBeenDisplayed() {
+	protected function getHelpVideoHasBeenDisplayed() :bool {
 		return (bool)$this->getHelpVideoOption( 'displayed' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function getVideoHasBeenPlayed() {
+	protected function getVideoHasBeenPlayed() :bool {
 		return (bool)$this->getHelpVideoOption( 'played' );
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	protected function getHelpVideoOption( $sKey ) {
-		$aOpts = $this->getHelpVideoOptions();
-		return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
+	protected function getHelpVideoOption( $key ) {
+		$opts = $this->getHelpVideoOptions();
+		return $opts[ $key ] ?? null;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function getHelpVideoHasBeenClosed() {
+	protected function getHelpVideoHasBeenClosed() :bool {
 		return (bool)$this->getHelpVideoOption( 'closed' );
 	}
 
@@ -339,26 +317,18 @@ class UI {
 		return $this->getOptions()->getDef( 'help_video_id' );
 	}
 
-	/**
-	 * @param string $section
-	 * @return array
-	 */
-	protected function getSectionNotices( $section ) {
+	protected function getSectionNotices( string $section ) :array {
 		return [];
 	}
 
-	/**
-	 * @param string $section
-	 * @return array
-	 */
-	protected function getSectionWarnings( $section ) {
+	protected function getSectionWarnings( string $section ) :array {
 		return [];
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEnabledForUiSummary() {
+	public function isEnabledForUiSummary() :bool {
 		return $this->getMod()->isModuleEnabled();
 	}
 }

@@ -33,7 +33,8 @@ class LicenseHandler {
 
 				case 'license_check':
 					if ( !wp_next_scheduled( $oCon->prefix( 'adhoc_cron_license_check' ) ) ) {
-						wp_schedule_single_event( Services::Request()->ts() + 20, $oCon->prefix( 'adhoc_cron_license_check' ) );
+						wp_schedule_single_event( Services::Request()
+														  ->ts() + 20, $oCon->prefix( 'adhoc_cron_license_check' ) );
 					}
 					break;
 			}
@@ -148,7 +149,7 @@ class LicenseHandler {
 	 * 5) the time since the last check hasn't expired
 	 * @return bool
 	 */
-	public function hasValidWorkingLicense() {
+	public function hasValidWorkingLicense() :bool {
 		$oLic = $this->getLicense();
 		return $oLic->isValid() && $this->isActive();
 	}

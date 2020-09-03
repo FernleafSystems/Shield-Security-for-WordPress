@@ -924,13 +924,6 @@ class Controller {
 
 			$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
 
-			/** We block automatic updates for Shield v7+ if PHP < 5.3 */
-//			if ( version_compare( $sNewVersion, '7.0.0', '>=' )
-//				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.3' )
-//			) {
-//				$sAutoupdateSpec = 'block';
-//			}
-
 			switch ( $sAutoupdateSpec ) {
 
 				case 'yes' :
@@ -1083,12 +1076,8 @@ class Controller {
 		return sprintf( '%s%s%s', $sPrefix, empty( $sSuffix ) ? '' : $sGlue, empty( $sSuffix ) ? '' : $sSuffix );
 	}
 
-	/**
-	 * @param string $sSuffix
-	 * @return string
-	 */
-	public function prefixOption( $sSuffix = '' ) {
-		return $this->prefix( $sSuffix, '_' );
+	public function prefixOption( string $suffix = '' ) :string {
+		return $this->prefix( $suffix, '_' );
 	}
 
 	/**
@@ -1098,64 +1087,60 @@ class Controller {
 		return $this->getPluginControllerOptions()->plugin_spec;
 	}
 
-	/**
-	 * @param string $sKey
-	 * @return mixed|null
-	 */
-	protected function getPluginSpec_ActionLinks( $sKey ) {
+	protected function getPluginSpec_ActionLinks( string $key ) :array {
 		$aData = $this->getPluginSpec()[ 'action_links' ];
-		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : [];
+		return $aData[ $key ] ?? [];
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	protected function getPluginSpec_Include( $sKey ) {
+	protected function getPluginSpec_Include( string $key ) {
 		$aData = $this->getPluginSpec()[ 'includes' ];
-		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
+		return $aData[ $key ] ?? null;
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return array|string
 	 */
-	protected function getPluginSpec_Labels( $sKey = '' ) {
+	protected function getPluginSpec_Labels( string $key = '' ) {
 		$oSpec = $this->getPluginSpec();
 		$aLabels = isset( $oSpec[ 'labels' ] ) ? $oSpec[ 'labels' ] : [];
 
-		if ( empty( $sKey ) ) {
+		if ( empty( $key ) ) {
 			return $aLabels;
 		}
 
-		return isset( $oSpec[ 'labels' ][ $sKey ] ) ? $oSpec[ 'labels' ][ $sKey ] : null;
+		return isset( $oSpec[ 'labels' ][ $key ] ) ? $oSpec[ 'labels' ][ $key ] : null;
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	protected function getPluginSpec_Menu( $sKey ) {
+	protected function getPluginSpec_Menu( string $key ) {
 		$aData = $this->getPluginSpec()[ 'menu' ];
-		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
+		return $aData[ $key ] ?? null;
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return mixed|null
+	 * @param string $key
+	 * @return string|null
 	 */
-	public function getPluginSpec_Path( $sKey ) {
+	public function getPluginSpec_Path( string $key ) {
 		$aData = $this->getPluginSpec()[ 'paths' ];
-		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
+		return $aData[ $key ] ?? null;
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	protected function getPluginSpec_Property( $sKey ) {
+	protected function getPluginSpec_Property( string $key ) {
 		$aData = $this->getPluginSpec()[ 'properties' ];
-		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
+		return $aData[ $key ] ?? null;
 	}
 
 	/**
@@ -1167,26 +1152,19 @@ class Controller {
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	protected function getPluginSpec_Requirement( $sKey ) {
+	protected function getPluginSpec_Requirement( string $key ) {
 		$aData = $this->getPluginSpec()[ 'requirements' ];
-		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
+		return $aData[ $key ] ?? null;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getBasePermissions() {
+	public function getBasePermissions() :string {
 		return $this->getPluginSpec_Property( 'base_permissions' );
 	}
 
-	/**
-	 * @param bool $bCheckUserPerms - do we check the logged-in user permissions
-	 * @return bool
-	 */
-	public function isValidAdminArea( $bCheckUserPerms = false ) {
+	public function isValidAdminArea( bool $bCheckUserPerms = false ) :bool {
 		if ( $bCheckUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
 		}
@@ -1201,18 +1179,14 @@ class Controller {
 		return false;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModulePage() {
+	public function isModulePage() :bool {
 		return strpos( Services::Request()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**
 	 * only ever consider after WP INIT (when a logged-in user is recognised)
-	 * @return bool
 	 */
-	public function isPluginAdmin() {
+	public function isPluginAdmin() :bool {
 		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
 			   || ( $this->getMeetsBasePermissions() // takes care of did_action('init)
 					&& apply_filters( $this->prefix( 'is_plugin_admin' ), true )
@@ -1220,31 +1194,23 @@ class Controller {
 	}
 
 	/**
-	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
+	 * DO NOT CHANGE THIS IMPLEMENTATION.
+	 * We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
-	 * @return bool
 	 */
-	public function getMeetsBasePermissions() {
+	public function getMeetsBasePermissions() :bool {
 		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
-			$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
-			$this->user_can_base_permissions = $this->bMeetsBasePermissions;
+			$this->user_can_base_permissions = current_user_can( $this->getBasePermissions() );
+			$this->bMeetsBasePermissions = $this->user_can_base_permissions;
 		}
-		return isset( $this->bMeetsBasePermissions ) ? $this->bMeetsBasePermissions : false;
+		return (bool)$this->user_can_base_permissions;
 	}
 
-	/**
-	 * @param string
-	 * @return string
-	 */
-	public function getOptionStoragePrefix() {
+	public function getOptionStoragePrefix() :string {
 		return $this->getPluginPrefix( '_' ).'_';
 	}
 
-	/**
-	 * @param string
-	 * @return string
-	 */
-	public function getPluginPrefix( $sGlue = '-' ) {
+	public function getPluginPrefix( string $sGlue = '-' ) :string {
 		return sprintf( '%s%s%s', $this->getParentSlug(), $sGlue, $this->getPluginSlug() );
 	}
 
@@ -1366,67 +1332,40 @@ class Controller {
 		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $sPath, $this->getRootFile() ) );
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPluginUrl_Asset( $sAsset ) {
-		$sUrl = '';
-		$sAssetPath = $this->getPath_Assets( $sAsset );
+	public function getPluginUrl_Asset( string $asset ) :string {
+		$url = '';
+		$sAssetPath = $this->getPath_Assets( $asset );
 		if ( Services::WpFs()->exists( $sAssetPath ) ) {
-			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
-			return Services::Includes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
+			$url = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$asset );
+			return Services::Includes()->addIncludeModifiedParam( $url, $sAssetPath );
 		}
-		return $sUrl;
+		return $url;
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPluginUrl_Css( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'css/'.Services::Data()->addExtensionToFilePath( $sAsset, 'css' ) );
+	public function getPluginUrl_Css( string $asset ) :string {
+		return $this->getPluginUrl_Asset( 'css/'.Services::Data()->addExtensionToFilePath( $asset, 'css' ) );
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPluginUrl_Image( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'images/'.$sAsset );
+	public function getPluginUrl_Image( string $asset ) :string {
+		return $this->getPluginUrl_Asset( 'images/'.$asset );
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPluginUrl_Js( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'js/'.Services::Data()->addExtensionToFilePath( $sAsset, 'js' ) );
+	public function getPluginUrl_Js( string $asset ) :string {
+		return $this->getPluginUrl_Asset( 'js/'.Services::Data()->addExtensionToFilePath( $asset, 'js' ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPluginUrl_AdminMainPage() {
+	public function getPluginUrl_AdminMainPage() :string {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPath_Assets( $sAsset = '' ) {
-		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) );
-		return empty( $sAsset ) ? $sBase : path_join( $sBase, $sAsset );
+	public function getPath_Assets( string $asset = '' ) :string {
+		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) );
+		return empty( $asset ) ? $base : path_join( $base, $asset );
 	}
 
-	/**
-	 * @param string $sFlag
-	 * @return string
-	 */
-	public function getPath_Flags( $sFlag = '' ) {
-		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
-		return empty( $sFlag ) ? $sBase : path_join( $sBase, $sFlag );
+	public function getPath_Flags( string $flag = '' ) :string {
+		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
+		return empty( $flag ) ? $base : path_join( $base, $flag );
 	}
 
 	/**
@@ -1443,97 +1382,52 @@ class Controller {
 		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPath_AssetCss( $sAsset = '' ) {
-		return $this->getPath_Assets( 'css/'.$sAsset );
+	public function getPath_AssetCss( string $asset = '' ) :string {
+		return $this->getPath_Assets( 'css/'.$asset );
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPath_AssetJs( $sAsset = '' ) {
-		return $this->getPath_Assets( 'js/'.$sAsset );
+	public function getPath_AssetJs( string $asset = '' ) :string {
+		return $this->getPath_Assets( 'js/'.$asset );
 	}
 
-	/**
-	 * @param string $sAsset
-	 * @return string
-	 */
-	public function getPath_AssetImage( $sAsset = '' ) {
-		return $this->getPath_Assets( 'images/'.$sAsset );
+	public function getPath_AssetImage( string $asset = '' ) :string {
+		return $this->getPath_Assets( 'images/'.$asset );
 	}
 
-	/**
-	 * @param string $sSlug
-	 * @return string
-	 */
-	public function getPath_ConfigFile( $sSlug ) {
-		return $this->getPath_SourceFile( sprintf( 'config/feature-%s.php', $sSlug ) );
+	public function getPath_ConfigFile( string $slug ) :string {
+		return $this->getPath_SourceFile( sprintf( 'config/feature-%s.php', $slug ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPath_Languages() {
-		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ).'/';
+	public function getPath_Languages() :string {
+		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
 	}
 
-	/**
-	 * Get the path to a library source file
-	 * @param string $sLibFile
-	 * @return string
-	 */
-	public function getPath_LibFile( $sLibFile = '' ) {
-		return $this->getPath_SourceFile( 'lib/'.$sLibFile );
+	public function getPath_LibFile( string $libFile ) :string {
+		return $this->getPath_SourceFile( 'lib/'.$libFile );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPath_Autoload() {
+	public function getPath_Autoload() :string {
 		return $this->getPath_SourceFile( $this->getPluginSpec_Path( 'autoload' ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPath_PluginCache() {
+	public function getPath_PluginCache() :string {
 		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
 	}
 
-	/**
-	 * Get the directory for the plugin source files with the trailing slash
-	 * @param string $sSourceFile
-	 * @return string
-	 */
-	public function getPath_SourceFile( $sSourceFile = '' ) {
-		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) ).'/';
-		return empty( $sSourceFile ) ? $sBase : path_join( $sBase, $sSourceFile );
+	public function getPath_SourceFile( string $sourceFile ) :string {
+		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) );
+		return empty( $sourceFile ) ? $base : path_join( $base, $sourceFile );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPath_Templates() {
+	public function getPath_Templates() :string {
 		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
-	/**
-	 * @param string $sTemplate
-	 * @return string
-	 */
-	public function getPath_TemplatesFile( $sTemplate ) {
+	public function getPath_TemplatesFile( string $sTemplate ) :string {
 		return path_join( $this->getPath_Templates(), $sTemplate );
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getPathPluginSpec() {
+	private function getPathPluginSpec() :string {
 		return path_join( $this->getRootDir(), 'plugin-spec.php' );
 	}
 
@@ -1590,15 +1484,12 @@ class Controller {
 		return $this->getPluginSpec_Property( 'version' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPreviousVersion() {
-		$oOpts = $this->getPluginControllerOptions();
-		if ( empty( $oOpts->previous_version ) ) {
-			$oOpts->previous_version = $this->getVersion();
+	public function getPreviousVersion() :string {
+		$opts = $this->getPluginControllerOptions();
+		if ( empty( $opts->previous_version ) ) {
+			$opts->previous_version = $this->getVersion();
 		}
-		return $oOpts->previous_version;
+		return $opts->previous_version;
 	}
 
 	/**
@@ -1663,18 +1554,12 @@ class Controller {
 		return (bool)$this->getPluginSpec_Property( 'enable_premium' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPremiumActive() {
+	public function isPremiumActive() :bool {
 		return $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isRelabelled() {
-		return apply_filters( $this->prefix( 'is_relabelled' ), false );
+	public function isRelabelled() :bool {
+		return (bool)apply_filters( $this->prefix( 'is_relabelled' ), false );
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
@@ -1732,10 +1617,7 @@ class Controller {
 		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfForceOffActive() {
+	public function getIfForceOffActive() :bool {
 		return $this->getForceOffFilePath() !== false;
 	}
 
@@ -1767,11 +1649,7 @@ class Controller {
 		return self::$sSessionId;
 	}
 
-	/**
-	 * @param bool $bSetIfNeeded
-	 * @return string
-	 */
-	public function getUniqueRequestId( $bSetIfNeeded = false ) {
+	public function getUniqueRequestId( bool $bSetIfNeeded = false ) :string {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
 				$this->getSessionId( $bSetIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
@@ -1780,19 +1658,12 @@ class Controller {
 		return self::$sRequestId;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getShortRequestId() {
+	public function getShortRequestId() :string {
 		return substr( $this->getUniqueRequestId( false ), 0, 10 );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function hasSessionId() {
-		$sSessionId = $this->getSessionId( false );
-		return !empty( $sSessionId );
+	public function hasSessionId() :bool {
+		return !empty( $this->getSessionId( false ) );
 	}
 
 	protected function setSessionCookie() {
@@ -1805,10 +1676,7 @@ class Controller {
 		);
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getSessionCookieID() {
+	private function getSessionCookieID() :string {
 		return 'wp-'.$this->getPluginPrefix();
 	}
 
@@ -1835,7 +1703,7 @@ class Controller {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function loadAllFeatures() {
+	public function loadAllFeatures() :bool {
 		$bSuccess = true;
 		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $sSlug ) {
 			try {
@@ -1860,20 +1728,20 @@ class Controller {
 
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
-		return $bSuccess;
+		return true;
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $slug
 	 * @return \ICWP_WPSF_FeatureHandler_Base|null|mixed
 	 */
-	public function getModule( $sSlug ) {
-		$oMod = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
+	public function getModule( string $slug ) {
+		$oMod = isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : null;
 		if ( !$oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
 			try {
 				$aMods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
-				if ( isset( $aMods[ $sSlug ] ) ) {
-					$oMod = $this->loadFeatureHandler( $aMods[ $sSlug ] );
+				if ( isset( $aMods[ $slug ] ) ) {
+					$oMod = $this->loadFeatureHandler( $aMods[ $slug ] );
 				}
 			}
 			catch ( \Exception $oE ) {
@@ -1882,94 +1750,55 @@ class Controller {
 		return $oMod;
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_AuditTrail
-	 */
-	public function getModule_AuditTrail() {
+	public function getModule_AuditTrail() :\ICWP_WPSF_FeatureHandler_AuditTrail {
 		return $this->getModule( 'audit_trail' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_CommentsFilter
-	 */
-	public function getModule_Comments() {
+	public function getModule_Comments() :\ICWP_WPSF_FeatureHandler_CommentsFilter {
 		return $this->getModule( 'comments_filter' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Events
-	 */
-	public function getModule_Events() {
+	public function getModule_Events() :\ICWP_WPSF_FeatureHandler_Events {
 		return $this->getModule( 'events' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_HackProtect
-	 */
-	public function getModule_HackGuard() {
+	public function getModule_HackGuard() :\ICWP_WPSF_FeatureHandler_HackProtect {
 		return $this->getModule( 'hack_protect' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Insights
-	 */
-	public function getModule_Insights() {
+	public function getModule_Insights() :\ICWP_WPSF_FeatureHandler_Insights {
 		return $this->getModule( 'insights' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Ips
-	 */
-	public function getModule_IPs() {
+	public function getModule_IPs() :\ICWP_WPSF_FeatureHandler_Ips {
 		return $this->getModule( 'ips' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_License
-	 */
-	public function getModule_License() {
+	public function getModule_License() :\ICWP_WPSF_FeatureHandler_License {
 		return $this->getModule( 'license' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_LoginProtect
-	 */
-	public function getModule_LoginGuard() {
+	public function getModule_LoginGuard() :\ICWP_WPSF_FeatureHandler_LoginProtect {
 		return $this->getModule( 'login_protect' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Plugin
-	 */
-	public function getModule_Plugin() {
+	public function getModule_Plugin() :\ICWP_WPSF_FeatureHandler_Plugin {
 		return $this->getModule( 'plugin' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Reporting
-	 */
-	public function getModule_Reporting() {
+	public function getModule_Reporting() :\ICWP_WPSF_FeatureHandler_Reporting {
 		return $this->getModule( 'reporting' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_AdminAccessRestriction
-	 */
-	public function getModule_SecAdmin() {
+	public function getModule_SecAdmin() :\ICWP_WPSF_FeatureHandler_AdminAccessRestriction {
 		return $this->getModule( 'admin_access_restriction' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Sessions
-	 */
-	public function getModule_Sessions() {
+	public function getModule_Sessions() :\ICWP_WPSF_FeatureHandler_Sessions {
 		return $this->getModule( 'sessions' );
 	}
 
-	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Traffic
-	 */
-	public function getModule_Traffic() {
+	public function getModule_Traffic() :\ICWP_WPSF_FeatureHandler_Traffic {
 		return $this->getModule( 'traffic' );
 	}
 
@@ -2039,7 +1868,7 @@ class Controller {
 						->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $user->ID );
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		return $oMeta;
 	}

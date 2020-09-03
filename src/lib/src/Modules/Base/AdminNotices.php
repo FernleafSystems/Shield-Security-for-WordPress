@@ -28,10 +28,7 @@ class AdminNotices {
 		return $aAjaxResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_DismissAdminNotice() {
+	protected function ajaxExec_DismissAdminNotice() :array {
 		$aAjaxResponse = [];
 
 		$sNoticeId = sanitize_key( Services::Request()->query( 'notice_id', '' ) );

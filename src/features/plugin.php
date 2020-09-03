@@ -192,7 +192,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return string
 	 */
-	public function getPluginReportEmail() {
+	public function getPluginReportEmail() :string {
 		$sE = (string)$this->getOpt( 'block_send_email_address' );
 		if ( $this->isPremium() ) {
 			$sE = apply_filters( $this->getCon()->prefix( 'report_email' ), $sE );
@@ -610,7 +610,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'Plugin';
 	}
 

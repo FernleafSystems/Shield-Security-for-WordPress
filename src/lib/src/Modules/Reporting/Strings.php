@@ -39,7 +39,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'lic_check_success'   => [
 				__( 'Pro License check succeeded.', 'wp-simple-firewall' )
@@ -58,7 +58,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		$oCon = $this->getCon();
 
 		switch ( $key ) {
@@ -105,7 +105,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 

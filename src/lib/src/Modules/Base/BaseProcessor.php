@@ -151,25 +151,22 @@ class BaseProcessor {
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return BaseProcessor|mixed|null
 	 */
-	protected function getSubPro( $sKey ) {
+	protected function getSubPro( string $key ) {
 		$aProcessors = $this->getSubProcessors();
-		if ( !isset( $aProcessors[ $sKey ] ) ) {
+		if ( !isset( $aProcessors[ $key ] ) ) {
 			$aMap = $this->getSubProMap();
-			if ( !isset( $aMap[ $sKey ] ) ) {
-				error_log( 'Sub processor key not set: '.$sKey );
+			if ( !isset( $aMap[ $key ] ) ) {
+				error_log( 'Sub processor key not set: '.$key );
 			}
-			$aProcessors[ $sKey ] = new $aMap[ $sKey ]( $this->getMod() );
+			$aProcessors[ $key ] = new $aMap[ $key ]( $this->getMod() );
 		}
-		return $aProcessors[ $sKey ];
+		return $aProcessors[ $key ];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [];
 	}
 
@@ -184,16 +181,5 @@ class BaseProcessor {
 			$this->aSubPros = [];
 		}
 		return $this->aSubPros;
-	}
-
-	/**
-	 * Will prefix and return any string with the unique plugin prefix.
-	 * @param string $sSuffix
-	 * @param string $sGlue
-	 * @return string
-	 * @deprecated
-	 */
-	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getCon()->prefix( $sSuffix, $sGlue );
 	}
 }

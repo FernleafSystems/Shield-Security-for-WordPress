@@ -39,7 +39,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'lic_check_success'   => [
 				__( 'Pro License check succeeded.', 'wp-simple-firewall' )

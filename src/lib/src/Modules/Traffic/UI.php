@@ -11,7 +11,7 @@ class UI extends Base\ShieldUI {
 	 * @param string $section
 	 * @return array
 	 */
-	protected function getSectionWarnings( $section ) {
+	protected function getSectionWarnings( string $section ) :array {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 

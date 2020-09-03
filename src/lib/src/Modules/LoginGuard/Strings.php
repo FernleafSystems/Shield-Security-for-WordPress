@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'botbox_fail'             => [
 				__( 'User "%s" attempted "%s" but Bot checkbox was not found.', 'wp-simple-firewall' )
@@ -59,7 +59,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 
@@ -144,7 +144,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
 		$mod = $this->getMod();
 		$sModName = $mod->getMainFeatureName();

@@ -88,7 +88,7 @@ class UI extends Base\ShieldUI {
 	/**
 	 * @return bool
 	 */
-	public function isEnabledForUiSummary() {
+	public function isEnabledForUiSummary() :bool {
 		/** @var \ICWP_WPSF_FeatureHandler_License $mod */
 		$mod = $this->getMod();
 		return $mod->getLicenseHandler()->hasValidWorkingLicense();

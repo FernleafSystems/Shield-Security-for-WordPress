@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @param array  $aMessage
 	 * @return bool
 	 */
-	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
+	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) :bool {
 		$oWP = Services::WpGeneral();
 		return $this->send(
 			$sAddress,
@@ -126,7 +126,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 * @uses wp_mail
 	 */
-	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) {
+	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) :bool {
 
 		$this->emailFilters( true );
 		$bSuccess = wp_mail(
@@ -136,7 +136,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		);
 		$this->emailFilters( false );
 
-		return $bSuccess;
+		return (bool)$bSuccess;
 	}
 
 	/**

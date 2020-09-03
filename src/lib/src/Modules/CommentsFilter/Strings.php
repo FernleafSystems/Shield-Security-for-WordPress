@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'spam_block_human'     => [
 				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
@@ -30,7 +30,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 
@@ -86,7 +86,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
 		$sModName = $this->getMod()->getMainFeatureName();

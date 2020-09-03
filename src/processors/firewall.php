@@ -25,7 +25,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 *
 	 * @var array
 	 */
-	protected $aPageParams;
+	private $aPageParams;
 
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
@@ -37,20 +37,14 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function getIfDoFirewallBlock() {
+	private function getIfDoFirewallBlock() :bool {
 		return !$this->isVisitorRequestPermitted();
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function getIfPerformFirewallScan() {
+	private function getIfPerformFirewallScan() :bool {
 		$bPerformScan = true;
-		/** @var Modules\Firewall\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Modules\Firewall\Options $opts */
+		$opts = $this->getOptions();
 
 		$sPath = Services::Request()->getPath();
 
@@ -65,18 +59,15 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 			$bPerformScan = false;
 		}
 		// TODO: are we calling is_super_admin() too early?
-		elseif ( $oOpts->isIgnoreAdmin() && is_super_admin() ) {
+		elseif ( $opts->isIgnoreAdmin() && is_super_admin() ) {
 			$bPerformScan = false;
 		}
 
 		return $bPerformScan;
 	}
 
-	/**
-	 * @return bool - true if visitor is permitted, false if it should be blocked.
-	 */
-	private function isVisitorRequestPermitted() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $mod */
+	private function isVisitorRequestPermitted() :bool {
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
 		$mod = $this->getMod();
 
 		$bRequestIsPermitted = true;
@@ -107,12 +98,9 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		return $bRequestIsPermitted;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function doPassCheckBlockExeFileUploads() {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oMod */
-		$oMod = $this->getMod();
+	protected function doPassCheckBlockExeFileUploads() :bool {
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
+		$mod = $this->getMod();
 
 		$sKey = 'exefile';
 		$bFAIL = false;
@@ -142,7 +130,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 						 'block_exefile',
 						 [
 							 'audit' => [
-								 'blockresponse' => $oMod->getBlockResponse(),
+								 'blockresponse' => $mod->getBlockResponse(),
 								 'blockkey'      => $sKey,
 							 ]
 						 ]
@@ -159,7 +147,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @param string $sBlockKey
 	 * @return bool
 	 */
-	private function doPassCheck( $sBlockKey ) {
+	private function doPassCheck( string $sBlockKey ) :bool {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
 		$oMod = $this->getMod();
 
@@ -248,26 +236,23 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function doPreFirewallBlock() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
-		$oMod = $this->getMod();
-		/** @var Modules\Firewall\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		if ( $oOpts->isSendBlockEmail() ) {
-			$sRecipient = $oMod->getPluginReportEmail();
+		/** @var Modules\Firewall\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isSendBlockEmail() ) {
+			$recipient = $this->getMod()->getPluginReportEmail();
 			$this->getCon()->fireEvent(
-				$this->sendBlockEmail( $sRecipient ) ? 'fw_email_success' : 'fw_email_fail',
-				[ 'audit' => [ 'recipient' => $sRecipient ] ]
+				$this->sendBlockEmail( $recipient ) ? 'fw_email_success' : 'fw_email_fail',
+				[ 'audit' => [ 'recipient' => $recipient ] ]
 			);
 		}
 		$this->getCon()->fireEvent( 'firewall_block' );
 	}
 
 	private function doFirewallBlock() {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
+		$mod = $this->getMod();
 
-		switch ( $oMod->getBlockResponse() ) {
+		switch ( $mod->getBlockResponse() ) {
 			case 'redirect_die':
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
@@ -288,20 +273,14 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		die();
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getFirewallDieMessage() {
+	protected function getFirewallDieMessage() :array {
 		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
 			$this->aDieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
 		}
 		return $this->aDieMessage;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getFirewallDieMessageForDisplay() {
+	protected function getFirewallDieMessageForDisplay() :string {
 		$messages = apply_filters(
 			$this->getCon()->prefix( 'firewall_die_message' ),
 			$this->getFirewallDieMessage()
@@ -320,20 +299,17 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		return $this;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getParamsToCheck() {
+	private function getParamsToCheck() :array {
 		if ( isset( $this->aPageParams ) ) {
 			return $this->aPageParams;
 		}
 
-		/** @var Modules\Firewall\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Modules\Firewall\Options $opts */
+		$opts = $this->getOptions();
 
 		$this->aPageParams = $this->getRawRequestParams();
 		$aWhitelist = Services::DataManipulation()
-							  ->mergeArraysRecursive( $oOpts->getDef( 'default_whitelist' ), $oOpts->getCustomWhitelist() );
+							  ->mergeArraysRecursive( $opts->getDef( 'default_whitelist' ), $opts->getCustomWhitelist() );
 
 		// first we remove globally whitelisted request parameters
 		if ( !empty( $aWhitelist[ '*' ] ) && is_array( $aWhitelist[ '*' ] ) ) {
@@ -383,18 +359,11 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		return $this->aPageParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getRawRequestParams() {
+	private function getRawRequestParams() :array {
 		return Services::Request()->getRawRequestParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
 	}
 
-	/**
-	 * @param string $sRecipient
-	 * @return bool
-	 */
-	private function sendBlockEmail( $sRecipient ) {
+	private function sendBlockEmail( string $recipient ) :bool {
 		$bSuccess = false;
 		if ( !empty( $this->aAuditBlockMessage ) ) {
 			$sIp = Services::IP()->getRequestIp();
@@ -418,45 +387,41 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 			);
 
 			$bSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sRecipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
+							 ->sendEmailWithWrap( $recipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
 		}
 		return $bSuccess;
 	}
 
-	/**
-	 * @param string $sBlockKey
-	 * @return string
-	 */
-	private function getFirewallBlockKeyName( $sBlockKey ) {
-		switch ( $sBlockKey ) {
+	private function getFirewallBlockKeyName( string $blockKey ) :string {
+		switch ( $blockKey ) {
 			case 'dirtraversal':
-				$sName = __( 'Directory Traversal', 'wp-simple-firewall' );
+				$name = __( 'Directory Traversal', 'wp-simple-firewall' );
 				break;
 			case 'wpterms':
-				$sName = __( 'WordPress Terms', 'wp-simple-firewall' );
+				$name = __( 'WordPress Terms', 'wp-simple-firewall' );
 				break;
 			case 'fieldtruncation':
-				$sName = __( 'Field Truncation', 'wp-simple-firewall' );
+				$name = __( 'Field Truncation', 'wp-simple-firewall' );
 				break;
 			case 'sqlqueries':
-				$sName = __( 'SQL Queries', 'wp-simple-firewall' );
+				$name = __( 'SQL Queries', 'wp-simple-firewall' );
 				break;
 			case 'exefile':
-				$sName = __( 'EXE File Uploads', 'wp-simple-firewall' );
+				$name = __( 'EXE File Uploads', 'wp-simple-firewall' );
 				break;
 			case 'schema':
-				$sName = __( 'Leading Schema', 'wp-simple-firewall' );
+				$name = __( 'Leading Schema', 'wp-simple-firewall' );
 				break;
 			case 'phpcode':
-				$sName = __( 'PHP Code', 'wp-simple-firewall' );
+				$name = __( 'PHP Code', 'wp-simple-firewall' );
 				break;
 			case 'aggressive':
-				$sName = __( 'Aggressive Rules', 'wp-simple-firewall' );
+				$name = __( 'Aggressive Rules', 'wp-simple-firewall' );
 				break;
 			default:
-				$sName = __( 'Unknown Rules', 'wp-simple-firewall' );
+				$name = __( 'Unknown Rules', 'wp-simple-firewall' );
 				break;
 		}
-		return $sName;
+		return $name;
 	}
 }

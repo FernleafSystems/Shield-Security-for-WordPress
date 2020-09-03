@@ -9,7 +9,7 @@ class UI extends Base\ShieldUI {
 	/**
 	 * @return array
 	 */
-	public function getInsightsConfigCardData() {
+	public function getInsightsConfigCardData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */

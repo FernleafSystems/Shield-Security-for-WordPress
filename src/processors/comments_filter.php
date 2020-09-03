@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'bot'       => 'ICWP_WPSF_Processor_CommentsFilter_BotSpam',
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',

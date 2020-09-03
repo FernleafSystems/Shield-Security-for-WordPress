@@ -121,7 +121,7 @@ class Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [];
 	}
 
@@ -139,7 +139,7 @@ class Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		$aOpt = $this->getOptions()->getOptDefinition( $key );
 		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
 			return [
@@ -156,7 +156,7 @@ class Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 

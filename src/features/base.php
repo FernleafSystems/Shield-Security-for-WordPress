@@ -97,10 +97,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}
 	}
 
-	/**
-	 * @param array $aModProps
-	 */
-	protected function setupHooks( $aModProps ) {
+	protected function setupHooks( array $aModProps ) {
 		$con = $this->getCon();
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 
@@ -407,9 +404,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * Override this and adapt per feature
-	 * @return string
 	 */
-	protected function getProcessorClassName() {
+	protected function getProcessorClassName() :string {
 		return implode( '_',
 			[
 				strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
@@ -467,10 +463,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadProcessor();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getUrl_AdminPage() {
+	public function getUrl_AdminPage():string {
 		return Services::WpGeneral()
 					   ->getUrl_AdminPage(
 						   $this->getModSlug(),
@@ -586,38 +579,32 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->setOpt( 'enable_'.$this->getSlug(), $bEnable ? 'Y' : 'N' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleEnabled() {
+	public function isModuleEnabled() :bool {
 		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
 		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
-			$bEnabled = true;
+			$enabled = true;
 		}
 		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true
 				 && !$this->isPremium() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		else {
-			$bEnabled = $this->isModOptEnabled();
+			$enabled = $this->isModOptEnabled();
 		}
 
-		return $bEnabled;
+		return $enabled;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModOptEnabled() {
+	public function isModOptEnabled() :bool {
 		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
 			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
 	}
@@ -1248,14 +1235,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param string
-	 * @return string
-	 */
-	public function getOptionStoragePrefix() {
-		return $this->getCon()->getOptionStoragePrefix();
-	}
-
-	/**
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
@@ -1688,24 +1667,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return @class_exists( $sC ) ? new $sC() : false;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getBaseNamespace() {
+	private function getBaseNamespace() :string {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\\';
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getNamespace() {
+	private function getNamespace() :string {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\'.$this->getNamespaceBase().'\\';
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'Base';
 	}
 
@@ -1716,5 +1686,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * @deprecated 10.0
+	 */
+	public function getOptionStoragePrefix() :string {
+		return $this->getCon()->getOptionStoragePrefix();
 	}
 }

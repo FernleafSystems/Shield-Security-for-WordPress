@@ -429,7 +429,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	protected function getOptionRegexPattern() {
 		if ( !isset( $this->sOptionRegexPattern ) ) {
 			$this->sOptionRegexPattern = sprintf( '/^%s.*_options$/',
-				$this->getMod()->getOptionStoragePrefix()
+				$this->getCon()->getOptionStoragePrefix()
 			);
 		}
 		return $this->sOptionRegexPattern;

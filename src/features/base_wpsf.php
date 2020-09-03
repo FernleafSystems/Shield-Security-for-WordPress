@@ -136,10 +136,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $aAjaxData;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPluginReportEmail() {
+	public function getPluginReportEmail() :string {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getPluginReportEmail();

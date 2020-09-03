@@ -20,7 +20,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'import_notify_sent'     => [
 				__( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' )
@@ -55,7 +55,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 		$sPlugName = $this->getCon()->getHumanName();
 
 		switch ( $section ) {
@@ -128,7 +128,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 		/** @var Options $oOpts */

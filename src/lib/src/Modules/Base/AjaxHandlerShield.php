@@ -4,11 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class AjaxHandlerShield extends AjaxHandlerBase {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 		$aResponse = [];
 		$mod = $this->getMod();
 

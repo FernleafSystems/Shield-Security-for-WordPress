@@ -7,11 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
-	/**
-	 * @param string $section
-	 * @return array
-	 */
-	protected function getSectionWarnings( $section ) {
+	protected function getSectionWarnings( string $section ) :array {
 		$aWarnings = [];
 
 		/** @var Options $opts */

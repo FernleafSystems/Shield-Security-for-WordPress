@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'block_anonymous_restapi' => [
 				__( 'Blocked Anonymous API Access through "%s" namespace', 'wp-simple-firewall' )
@@ -22,7 +22,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 
@@ -79,7 +79,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 
 		$sModName = $this->getMod()->getMainFeatureName();
 

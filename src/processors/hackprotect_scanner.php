@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
 			'mal' => 'ICWP_WPSF_Processor_HackProtect_Mal',

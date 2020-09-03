@@ -258,7 +258,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'passwords' => 'ICWP_WPSF_Processor_UserManagement_Passwords',
 			'sessions'  => 'ICWP_WPSF_Processor_UserManagement_Sessions',

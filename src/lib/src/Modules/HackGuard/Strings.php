@@ -34,7 +34,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		$aMessages = [];
 		foreach ( $this->getScanNames() as $sSlug => $sScanName ) {
 			$aMessages[ $sSlug.'_alert_sent' ] = [
@@ -65,7 +65,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		$sModName = $this->getMod()->getMainFeatureName();
 
@@ -174,7 +174,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
 		$mod = $this->getMod();
 		$sModName = $mod->getMainFeatureName();

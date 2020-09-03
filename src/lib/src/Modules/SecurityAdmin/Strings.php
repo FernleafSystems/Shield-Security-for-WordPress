@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'key_success' => [
 				__( 'Successful authentication using Security Admin PIN.', 'wp-simple-firewall' ),
@@ -25,7 +25,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 		$sPlugName = $this->getCon()->getHumanName();
 
 		switch ( $section ) {
@@ -91,7 +91,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		$sPlugName = $this->getCon()->getHumanName();

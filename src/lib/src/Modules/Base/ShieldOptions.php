@@ -6,10 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldOptions extends Options {
 
-	/**
-	 * @return int
-	 */
-	public function getInstallationDays() {
+	public function getInstallationDays() :int{
 		$nTimeInstalled = $this->getCon()
 							   ->getModule_Plugin()
 							   ->getInstallDate();
