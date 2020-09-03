@@ -70,44 +70,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			->checkAll();
 	}
 
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		switch ( $sSection ) {
-			case 'section_third_party_captcha':
-				/** @var Plugin\Options $oOpts */
-				$oOpts = $this->getOptions();
-				if ( $this->getCaptchaCfg()->ready ) {
-					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0 ) {
-						( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
-							->setMod( $this )
-							->checkAll();
-					}
-					if ( $oOpts->getOpt( 'captcha_checked_at' ) == 0 ) {
-						$aWarnings[] = sprintf(
-							__( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
-							.__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' )
-						);
-					}
-				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
 	public function deleteAllPluginCrons() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		$oWpCron = Services::WpCron();
 
 		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
 			foreach ( $aCronArgs as $sHook => $aCron ) {
-				if ( strpos( $sHook, $this->prefix() ) === 0
-					 || strpos( $sHook, $oCon->prefixOption() ) === 0 ) {
+				if ( strpos( $sHook, $con->prefix() ) === 0
+					 || strpos( $sHook, $con->prefixOption() ) === 0 ) {
 					$oWpCron->deleteCronJob( $sHook );
 				}
 			}
@@ -225,7 +195,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getPluginReportEmail() {
 		$sE = (string)$this->getOpt( 'block_send_email_address' );
 		if ( $this->isPremium() ) {
-			$sE = apply_filters( $this->prefix( 'report_email' ), $sE );
+			$sE = apply_filters( $this->getCon()->prefix( 'report_email' ), $sE );
 		}
 		$sE = trim( $sE );
 		return Services::Data()->validEmail( $sE ) ? $sE : Services::WpGeneral()->getSiteAdminEmail();
@@ -576,11 +546,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$sFile = $oCon->getPluginBaseFile();
+			$sFile = $con->getPluginBaseFile();
 			wp_localize_script(
-				$this->prefix( 'global-plugin' ),
+				$con->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				[
 					'file'  => $sFile,
@@ -597,12 +567,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		}
 
 		wp_localize_script(
-			$oCon->prefix( 'plugin' ),
+			$con->prefix( 'plugin' ),
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
 		);
 		wp_localize_script(
-			$this->prefix( 'plugin' ),
+			$con->prefix( 'plugin' ),
 			'icwp_wpsf_vars_plugin',
 			[
 				'strings' => [
@@ -611,62 +581,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				],
 			]
 		);
-	}
-
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'General Settings', 'wp-simple-firewall' ),
-				'sub'   => sprintf( __( 'General %s Settings', 'wp-simple-firewall' ), $this->getCon()
-																							->getHumanName() ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		$oOpts = $this->getOptions();
-		if ( $this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$aThis[ 'key_opts' ][ 'editing' ] = [
-				'name'    => __( 'Visitor IP', 'wp-simple-firewall' ),
-				'enabled' => true,
-				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ),
-					__( $oOpts->getSelectOptionValueText( 'visitor_address_source' ), 'wp-simple-firewall' ) ),
-				'weight'  => 0,
-				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
-			];
-
-			$bHasSupportEmail = Services::Data()->validEmail( $this->getOpt( 'block_send_email_address' ) );
-			$aThis[ 'key_opts' ][ 'reports' ] = [
-				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
-				'enabled' => $bHasSupportEmail,
-				'summary' => $bHasSupportEmail ?
-					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() )
-					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() ),
-				'weight'  => 0,
-				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
-			];
-
-			$bRecap = $this->getCaptchaCfg()->ready;
-			$aThis[ 'key_opts' ][ 'recap' ] = [
-				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
-				'enabled' => $bRecap,
-				'summary' => $bRecap ?
-					__( 'CAPTCHA keys have been provided', 'wp-simple-firewall' )
-					: __( "CAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
 	}
 
 	/**
@@ -691,30 +605,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
 		}
 		return $this->oCaptchaEnqueue;
-	}
-
-	/**
-	 * @param array $aOptParams
-	 * @return array
-	 */
-	protected function buildOptionForUi( $aOptParams ) {
-		$aOptParams = parent::buildOptionForUi( $aOptParams );
-		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
-			$aNewOptions = [];
-			$oIPDet = Services::IP()->getIpDetector();
-			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
-				if ( $sValKey == 'AUTO_DETECT_IP' ) {
-					$aNewOptions[ $sValKey ] = $sSource;
-				}
-				else {
-					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
-					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
-						$sSource, empty( $sIPs ) ? '-' : $sIPs );
-				}
-			}
-			$aOptParams[ 'value_options' ] = $aNewOptions;
-		}
-		return $aOptParams;
 	}
 
 	/**

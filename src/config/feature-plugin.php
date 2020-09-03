@@ -34,6 +34,14 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "update-available":            {
+      "id":               "update-available",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
     "php7":                       {
       "id":               "php7",
       "schedule":         "conditions",
@@ -61,10 +69,6 @@
       "min_install_days": 5,
       "type":             "promo",
       "drip_form_id":     "250437573"
-    },
-    "plugin-update-available":    {
-      "id":   "plugin-update-available",
-      "type": "warning"
     },
     "allow-tracking":             {
       "id":               "allow-tracking",

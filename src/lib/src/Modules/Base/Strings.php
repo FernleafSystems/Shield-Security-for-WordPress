@@ -13,7 +13,7 @@ class Strings {
 	 * @return string[]
 	 */
 	public function getDisplayStrings() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 
 		$aProFeatures = [
 			__( 'Customer Support', 'wp-simple-firewall' ),
@@ -50,8 +50,8 @@ class Strings {
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-				'plugin_name'       => $oCon->getHumanName(),
+				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'plugin_name'       => $con->getHumanName(),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
@@ -135,12 +135,12 @@ class Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
-		$aOpt = $this->getOptions()->getOptDefinition( $sOptKey );
+	public function getOptionStrings( $key ) {
+		$aOpt = $this->getOptions()->getOptDefinition( $key );
 		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
 			return [
 				'name'        => __( $aOpt[ 'name' ], 'wp-simple-firewall' ),
@@ -148,17 +148,17 @@ class Strings {
 				'description' => __( $aOpt[ 'description' ], 'wp-simple-firewall' ),
 			];
 		}
-		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sOptKey ) );
+		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $key ) );
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( $section ) {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_user_messages' :
 				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
@@ -171,14 +171,14 @@ class Strings {
 				break;
 
 			default:
-				$aSect = $this->getOptions()->getSection( $sSectionSlug );
+				$aSect = $this->getOptions()->getSection( $section );
 				if ( is_array( $aSect ) && !empty( $aSect[ 'title' ] ) && !empty( $aSect[ 'title_short' ] ) ) {
 					$sTitle = __( $aSect[ 'title' ], 'wp-simple-firewall' );
 					$sTitleShort = __( $aSect[ 'title_short' ], 'wp-simple-firewall' );
 					$aSummary = empty( $aSect[ 'summary' ] ) ? [] : $aSect[ 'summary' ];
 				}
 				else {
-					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $section ) );
 				}
 		}
 

@@ -8,7 +8,6 @@
     "show_module_options":   true,
     "storage_key":           "commentsfilter",
     "tagline":               "Block comment SPAM and retain your privacy",
-    "use_sessions":          true,
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,

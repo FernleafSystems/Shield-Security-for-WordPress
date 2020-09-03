@@ -56,7 +56,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
+		return $this->getSession() instanceof Shield\Databases\Session\EntryVO;
 	}
 
 	/**
@@ -158,55 +158,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getBaseDisplayData() {
-		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getBaseDisplayData(),
-			[
-				'head'    => [
-					'html'    => [
-						'lang' => Services::WpGeneral()->getLocale( '-' ),
-						'dir'  => is_rtl() ? 'rtl' : 'ltr',
-					],
-					'meta'    => [
-						[
-							'type'      => 'http-equiv',
-							'type_type' => 'Cache-Control',
-							'content'   => 'no-store, no-cache',
-						],
-						[
-							'type'      => 'http-equiv',
-							'type_type' => 'Expires',
-							'content'   => '0',
-						],
-					],
-					'scripts' => []
-				],
-				'ajax'    => [
-					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
-				],
-				'flags'   => [
-					'show_promo'  => !$this->isPremium(),
-					'has_session' => $this->hasSession()
-				],
-				'hrefs'   => [
-					'aar_forget_key' => $this->isWlEnabled() ?
-						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
-				],
-				'classes' => [
-					'top_container' => implode( ' ', array_filter( [
-						'odp-outercontainer',
-						$this->isPremium() ? 'is-pro' : 'is-not-pro',
-						$this->getModSlug(),
-						Services::Request()->query( 'inav', '' )
-					] ) )
-				],
-			]
-		);
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function renderRestrictedPage() {
@@ -216,7 +167,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 						 ->getOptions();
 		$aData = Services::DataManipulation()
 						 ->mergeArraysRecursive(
-							 $this->getBaseDisplayData(),
+							 $this->getUIHandler()->getBaseDisplayData(),
 							 [
 								 'ajax'    => [
 									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
@@ -328,18 +279,5 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			}
 		}
 		return array_unique( array_filter( $aCleaned ) );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getModDisabledInsight() {
-		return [
-			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
-			'enabled' => false,
-			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
-			'weight'  => 2,
-			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
-		];
 	}
 }

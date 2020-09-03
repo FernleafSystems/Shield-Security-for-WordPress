@@ -42,8 +42,6 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		$this->activateUserSession( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
-	/**
-	 */
 	public function onWpLoaded() {
 		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->autoAddSession();

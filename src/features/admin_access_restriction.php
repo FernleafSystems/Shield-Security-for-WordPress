@@ -13,8 +13,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	private $bValidSecAdminRequest;
 
-	/**
-	 */
 	protected function setupCustomHooks() {
 		parent::setupCustomHooks();
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
@@ -30,19 +28,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @return array
-	 * @deprecated 9.1.0
+	 * @deprecated 9.2.0
 	 */
 	public function getSecurityAdminUsers() {
 		$aU = $this->getOpt( 'sec_admin_users', [] );
 		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : [];
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.1.0
-	 */
-	public function hasSecAdminUsers() {
-		return count( $this->getSecurityAdminUsers() ) > 0;
 	}
 
 	/**
@@ -51,11 +41,16 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser() {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 		$sUser = Services::WpUsers()->getCurrentWpUsername();
-		return !empty( $sUser ) && in_array( $sUser, $this->getSecurityAdminUsers() );
+		return !empty( $sUser ) && in_array( $sUser, $opts->getSecurityAdminUsers() );
 	}
 
 	protected function preProcessOptions() {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+
 		if ( $this->isValidSecAdminRequest() ) {
 			$this->setSecurityAdminStatusOnOff( true );
 		}
@@ -75,7 +70,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 		}
 
-		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $this->getSecurityAdminUsers() ) );
+		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
 	}
 
 	/**
@@ -86,8 +81,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
 		$aFiltered = [];
 		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
@@ -109,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// We now run a bit of a sanity check to ensure that the current user is
 		// not adding users here that aren't themselves without a key to still gain access
 		$oCurrent = $oWpUsers->getCurrentWpUser();
-		if ( !empty( $aFiltered ) && !$oOpts->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
+		if ( !empty( $aFiltered ) && !$opts->hasSecurityPIN() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
 			$aFiltered[] = $oCurrent->user_login;
 		}
 
@@ -169,11 +164,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isEnabledSecurityAdmin() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 		return $this->isModOptEnabled() &&
-			   ( count( $oOpts->getSecurityAdminUsers() ) > 0 ||
-				 ( $oOpts->hasAccessKey() && $this->getSecAdminTimeout() > 0 )
+			   ( count( $opts->getSecurityAdminUsers() ) > 0 ||
+				 ( $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0 )
 			   );
 	}
 
@@ -204,14 +199,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
 			if ( !empty( $sReqKey ) ) {
-				/** @var SecurityAdmin\Options $oOpts */
-				$oOpts = $this->getOptions();
-				$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sReqKey ) );
+				/** @var SecurityAdmin\Options $opts */
+				$opts = $this->getOptions();
+				$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sReqKey ) );
 				if ( !$bValid ) {
 					$sEscaped = isset( $_POST[ 'sec_admin_key' ] ) ? $_POST[ 'sec_admin_key' ] : '';
 					if ( !empty( $sEscaped ) ) {
 						// Workaround for escaping of passwords
-						$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sEscaped ) );
+						$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sEscaped ) );
 						if ( $bValid ) {
 							$this->setOpt( 'admin_access_key', md5( $sReqKey ) );
 						}
@@ -234,13 +229,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function verifyAccessKey( $sKey ) {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return !empty( $sKey ) && hash_equals( $oOpts->getAccessKeyHash(), md5( $sKey ) );
+	public function verifyAccessKey( $key ) {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
 	}
 
 	/**
@@ -293,30 +288,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		switch ( $sSection ) {
-			case 'section_whitelabel':
-				if ( !$this->isEnabledSecurityAdmin() ) {
-					$aWarnings[] = __( 'Please also supply a Security Admin PIN, as whitelabel settings are only applied when the Security Admin feature is active.', 'wp-simple-firewall' );
-				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isWlEnabled() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledWhitelabel() && $this->isPremium();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledWhitelabel() && $this->isPremium();
 	}
 
 	/**
@@ -382,119 +359,21 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'Security Admin', 'wp-simple-firewall' ),
-				'sub'   => sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ), $this->getCon()
-																										   ->getHumanName() ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->isEnabledForUiSummary() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$aThis[ 'key_opts' ][ 'mod' ] = [
-				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
-				'enabled' => $this->isEnabledForUiSummary(),
-				'summary' => $this->isEnabledForUiSummary() ?
-					__( 'Security plugin is protected against tampering', 'wp-simple-firewall' )
-					: __( 'Security plugin is vulnerable to tampering', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_key' ),
-			];
-
-			$bWpOpts = $oOpts->getAdminAccessArea_Options();
-			$aThis[ 'key_opts' ][ 'wpopts' ] = [
-				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
-				'enabled' => $bWpOpts,
-				'summary' => $bWpOpts ?
-					__( 'Important WP options are protected against tampering', 'wp-simple-firewall' )
-					: __( "Important WP options aren't protected against tampering", 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
-			];
-
-			$bUsers = $oOpts->isSecAdminRestrictUsersEnabled();
-			$aThis[ 'key_opts' ][ 'adminusers' ] = [
-				'name'    => __( 'WP Admins', 'wp-simple-firewall' ),
-				'enabled' => $bUsers,
-				'summary' => $bUsers ?
-					__( 'Admin users are protected against tampering', 'wp-simple-firewall' )
-					: __( "Admin users aren't protected against tampering", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-
-		$aNotices = [
-			'title'    => __( 'Security Admin Protection', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{//sec admin
-			if ( !$this->isEnabledSecurityAdmin() ) {
-				$aNotices[ 'messages' ][ 'sec_admin' ] = [
-					'title'   => __( 'Security Plugin Unprotected', 'wp-simple-firewall' ),
-					'message' => sprintf(
-						__( "The Security Admin protection is not active.", 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName()
-					),
-					'href'    => $this->getUrl_AdminPage(),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options' ) ),
-					'rec'     => __( 'Security Admin should be turned-on to protect your security settings.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		$aAllNotices[ 'sec_admin' ] = $aNotices;
-
-		return $aAllNotices;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && $this->isEnabledSecurityAdmin();
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
-		if ( hash_equals( $oOpts->getAccessKeyHash(), self::HASH_DELETE ) ) {
-			$oOpts->clearSecurityAdminKey();
+		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
+			$opts->clearSecurityAdminKey();
 			$this->setSecurityAdminStatusOnOff( false );
 		}
 
 		// Restricting Activate Plugins also means restricting the rest.
-		$aPluginsRestrictions = $oOpts->getAdminAccessArea_Plugins();
+		$aPluginsRestrictions = $opts->getAdminAccessArea_Plugins();
 		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
-			$oOpts->setOpt(
+			$opts->setOpt(
 				'admin_access_restrict_plugins',
 				array_unique( array_merge( $aPluginsRestrictions, [
 					'install_plugins',
@@ -505,9 +384,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 
 		// Restricting Switch (Activate) Themes also means restricting the rest.
-		$aThemesRestrictions = $oOpts->getAdminAccessArea_Themes();
+		$aThemesRestrictions = $opts->getAdminAccessArea_Themes();
 		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
-			$oOpts->setOpt(
+			$opts->setOpt(
 				'admin_access_restrict_themes',
 				array_unique( array_merge( $aThemesRestrictions, [
 					'install_themes',
@@ -517,17 +396,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			);
 		}
 
-		$aPostRestrictions = $oOpts->getAdminAccessArea_Posts();
+		$aPostRestrictions = $opts->getAdminAccessArea_Posts();
 		if ( in_array( 'edit', $aPostRestrictions ) ) {
-			$oOpts->setOpt(
+			$opts->setOpt(
 				'admin_access_restrict_posts',
 				array_unique( array_merge( $aPostRestrictions, [ 'create', 'publish', 'delete' ] ) )
 			);
 		}
 	}
 
-	/**
-	 */
 	public function preDeactivatePlugin() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			Services::WpGeneral()->wpDie(

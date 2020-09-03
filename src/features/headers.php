@@ -87,54 +87,6 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var Headers\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'HTTP Security Headers', 'wp-simple-firewall' ),
-				'sub'   => __( 'Protect Visitors With Powerful HTTP Headers', 'wp-simple-firewall' ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$bAllEnabled = $oOpts->isEnabledXFrame() && $oOpts->isEnabledXssProtection()
-						   && $oOpts->isEnabledContentTypeHeader() && $oOpts->isReferrerPolicyEnabled();
-			$aThis[ 'key_opts' ][ 'all' ] = [
-				'name'    => __( 'HTTP Headers', 'wp-simple-firewall' ),
-				'enabled' => $bAllEnabled,
-				'summary' => $bAllEnabled ?
-					__( 'All important security Headers have been set', 'wp-simple-firewall' )
-					: __( "At least one of the HTTP Headers hasn't been set", 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_security_headers' ),
-			];
-			$bCsp = $oOpts->isEnabledContentSecurityPolicy();
-			$aThis[ 'key_opts' ][ 'csp' ] = [
-				'name'    => __( 'Content Security Policies', 'wp-simple-firewall' ),
-				'enabled' => $bCsp,
-				'summary' => $bCsp ?
-					__( 'Content Security Policy is turned on', 'wp-simple-firewall' )
-					: __( "Content Security Policies aren't active", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool                                     $plugin_deactivating
  * @property bool                                     $plugin_deleting
  * @property bool                                     $plugin_reset
- * @property string                                   $file_forceoff
+ * @property false|string                             $file_forceoff
  * @property string                                   $base_file
  * @property string                                   $root_file
  * @property bool                                     $user_can_base_permissions
@@ -45,11 +45,6 @@ class Controller {
 	 * @var bool
 	 */
 	protected $bRebuildOptions;
-
-	/**
-	 * @var string
-	 */
-	protected $sForceOffFile;
 
 	/**
 	 * @var string
@@ -218,8 +213,6 @@ class Controller {
 		}
 	}
 
-	/**
-	 */
 	public function adminNoticeDoesNotMeetRequirements() {
 		$aMessages = $this->getRequirementsMessages();
 		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
@@ -241,8 +234,6 @@ class Controller {
 		}
 	}
 
-	/**
-	 */
 	public function adminNoticePluginFailedToLoad() {
 		$aDisplayData = [
 			'strings' => [
@@ -332,8 +323,6 @@ class Controller {
 		return $bSuccess;
 	}
 
-	/**
-	 */
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
@@ -397,8 +386,6 @@ class Controller {
 		);
 	}
 
-	/**
-	 */
 	public function onWpAdminInit() {
 		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
 		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
@@ -429,8 +416,6 @@ class Controller {
 		return $aHeaders;
 	}
 
-	/**
-	 */
 	public function onWpInit() {
 		$this->getMeetsBasePermissions();
 		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueFrontendCss' ], 99 );
@@ -504,8 +489,6 @@ class Controller {
 			->run();
 	}
 
-	/**
-	 */
 	public function onWpAdminMenu() {
 		if ( $this->isValidAdminArea() ) {
 			$this->createPluginMenu();
@@ -517,7 +500,8 @@ class Controller {
 	 */
 	public function onWpAdminBarMenu( $oAdminBar ) {
 		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
-			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
+			$this->isValidAdminArea( true )
+			&& (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
 		);
 		if ( $bShow ) {
 			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
@@ -1612,8 +1596,7 @@ class Controller {
 	public function getPreviousVersion() {
 		$oOpts = $this->getPluginControllerOptions();
 		if ( empty( $oOpts->previous_version ) ) {
-			$oOpts->previous_version = '9.0.4'; //@deprecated 9.0.4
-//			$oOpts->previous_version = $this->getVersion();
+			$oOpts->previous_version = $this->getVersion();
 		}
 		return $oOpts->previous_version;
 	}
@@ -1655,14 +1638,6 @@ class Controller {
 			}
 		}
 		return self::$oControllerOptions;
-	}
-
-	/**
-	 * @deprecated 9.0.4
-	 */
-	protected function deletePluginControllerOptions() {
-		$this->setPluginControllerOptions( false );
-		$this->saveCurrentPluginControllerOptions();
 	}
 
 	protected function deleteCronJobs() {
@@ -1734,24 +1709,12 @@ class Controller {
 		return strtolower( get_class() );
 	}
 
-	/**
-	 * @param string $sPathToLib
-	 * @return mixed
-	 */
-	public function loadLib( $sPathToLib ) {
-		return include( $this->getPath_LibFile( $sPathToLib ) );
-	}
-
-	/**
-	 */
 	public function deactivateSelf() {
 		if ( $this->isPluginAdmin() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
 		}
 	}
 
-	/**
-	 */
 	public function clearSession() {
 		Services::Response()->cookieDelete( $this->getPluginPrefix() );
 		self::$sSessionId = null;
@@ -1763,7 +1726,6 @@ class Controller {
 	public function deleteForceOffFile() {
 		if ( $this->getIfForceOffActive() ) {
 			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
-			$this->sForceOffFile = null;
 			unset( $this->file_forceoff );
 			clearstatcache();
 		}
@@ -1771,23 +1733,22 @@ class Controller {
 	}
 
 	/**
-	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
+	 * @return bool
 	 */
 	public function getIfForceOffActive() {
-		return ( $this->getForceOffFilePath() !== false );
+		return $this->getForceOffFilePath() !== false;
 	}
 
 	/**
-	 * @return null|string
+	 * @return false|string
 	 */
 	protected function getForceOffFilePath() {
-		if ( !isset( $this->sForceOffFile ) ) {
-			$oFs = Services::WpFs();
-			$sFile = $oFs->findFileInDir( 'forceOff', $this->getRootDir(), false, false );
-			$this->sForceOffFile = ( !empty( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
-			$this->file_forceoff = $this->sForceOffFile;
+		if ( !isset( $this->file_forceoff ) ) {
+			$FS = Services::WpFs();
+			$file = $FS->findFileInDir( 'forceoff', $this->getRootDir(), false, false );
+			$this->file_forceoff = empty( $file ) ? false : $file;
 		}
-		return $this->sForceOffFile;
+		return $this->file_forceoff;
 	}
 
 	/**
@@ -1796,7 +1757,11 @@ class Controller {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = Services::Request()->cookie( $this->getPluginPrefix(), '' );
+			$req = Services::Request();
+			self::$sSessionId = $req->cookie( 'wp-'.$this->getPluginPrefix(), '' );
+			if ( empty( self::$sSessionId ) ) { /* the old cookie name */
+				self::$sSessionId = $req->cookie( $this->getPluginPrefix(), '' );
+			}
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
@@ -1833,11 +1798,9 @@ class Controller {
 		return !empty( $sSessionId );
 	}
 
-	/**
-	 */
 	protected function setSessionCookie() {
 		Services::Response()->cookieSet(
-			$this->getPluginPrefix(),
+			'wp-'.$this->getPluginPrefix(),
 			$this->getSessionId(),
 			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),

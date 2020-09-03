@@ -30,7 +30,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
 			// Hooked here to ensure "plugins_loaded" has completely finished as some mailers aren't init'd.
-			add_action( 'setup_theme', function () {
+			add_action( 'init', function () {
 				$this->doPreFirewallBlock();
 				$this->doFirewallBlock();
 			}, 0 );
@@ -76,32 +76,32 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool - true if visitor is permitted, false if it should be blocked.
 	 */
 	private function isVisitorRequestPermitted() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $mod */
+		$mod = $this->getMod();
 
 		$bRequestIsPermitted = true;
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_dir_traversal', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_dir_traversal', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_sql_queries', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_sql_queries', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_wordpress_terms', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_wordpress_terms', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_field_truncation', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_field_truncation', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_php_code', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_php_code', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_leading_schema', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_leading_schema', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_aggressive', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_aggressive', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 		}
 		return $bRequestIsPermitted;
@@ -247,8 +247,6 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		return '/'.$sTerm.'/i';
 	}
 
-	/**
-	 */
 	private function doPreFirewallBlock() {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
 		$oMod = $this->getMod();
@@ -265,8 +263,6 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		$this->getCon()->fireEvent( 'firewall_block' );
 	}
 
-	/**
-	 */
 	private function doFirewallBlock() {
 		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oMod */
 		$oMod = $this->getMod();
@@ -306,12 +302,11 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return string
 	 */
 	protected function getFirewallDieMessageForDisplay() {
-		$aMessages = apply_filters( $this->getMod()
-										 ->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
-		if ( !is_array( $aMessages ) ) {
-			$aMessages = [];
-		}
-		return implode( ' ', $aMessages );
+		$messages = apply_filters(
+			$this->getCon()->prefix( 'firewall_die_message' ),
+			$this->getFirewallDieMessage()
+		);
+		return implode( ' ', is_array( $messages ) ? $messages : [] );
 	}
 
 	/**

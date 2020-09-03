@@ -40,7 +40,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 			$oMod = $this->getMod();
 			/** @var SecurityAdmin\Options $oOpts */
-			$oOpts = $oMod->getOptions();
+			$oOpts = $this->getOptions();
 
 			if ( !$oMod->isUpgrading() && !Services::WpGeneral()->isLoginRequest() ) {
 				add_filter( 'pre_update_option', [ $this, 'blockOptionsSaves' ], 1, 3 );
@@ -296,10 +296,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 */
 	protected function isOptionRestricted( $sOptionKey ) {
 		$bRestricted = false;
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
 		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getOptions();
 
 		if ( $oOpts->getAdminAccessArea_Options() ) {
 			$bRestricted = in_array(
@@ -438,10 +436,10 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	}
 
 	public function printAdminAccessAjaxForm() {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		$mod = $this->getMod();
 		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getOptions();
 
 		$aRenderData = [
 			'flags'       => [
@@ -455,11 +453,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				'options_to_restrict' => "'".implode( "','", $oOpts->getOptionsToRestrict() )."'",
 			],
 			'ajax'        => [
-				'sec_admin_login_box' => $oMod->getAjaxActionData( 'sec_admin_login_box', true )
+				'sec_admin_login_box' => $mod->getAjaxActionData( 'sec_admin_login_box', true )
 			]
 		];
 		add_thickbox();
-		echo $oMod->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
+		echo $mod->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
 	}
 
 	/**

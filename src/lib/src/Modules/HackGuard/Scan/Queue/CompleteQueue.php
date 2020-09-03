@@ -21,22 +21,23 @@ class CompleteQueue {
 	 * Take care here not to confuse the 2x DB Handlers
 	 */
 	public function complete() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		$con = $this->getCon();
 		/** @var Databases\ScanQueue\Handler $oDbH */
 		$oDbH = $this->getDbHandler();
 		$oSel = $oDbH->getQuerySelector();
 
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 
-			$oScanCon = $oMod->getScanCon( $sScanSlug );
+			$oScanCon = $mod->getScanCon( $sScanSlug );
 
 			$oResultsSet = ( new CollateResults() )
 				->setScanController( $oScanCon )
 				->setDbHandler( $oDbH )
 				->collate( $sScanSlug );
 
-			$this->getCon()->fireEvent( $sScanSlug.'_scan_run' );
+			$con->fireEvent( $sScanSlug.'_scan_run' );
 
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
@@ -44,7 +45,7 @@ class CompleteQueue {
 					->update( $oResultsSet );
 
 				if ( $oResultsSet->countItems() > 0 ) {
-					$this->getCon()->fireEvent( $sScanSlug.'_scan_found' );
+					$con->fireEvent( $sScanSlug.'_scan_found' );
 				}
 			}
 
@@ -54,14 +55,14 @@ class CompleteQueue {
 				 ->query();
 		}
 
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isScanCron() && !wp_next_scheduled( $oMod->prefix( 'post_scan' ) ) ) {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isScanCron() && !wp_next_scheduled( $con->prefix( 'post_scan' ) ) ) {
 			wp_schedule_single_event(
 				Services::Request()->ts() + 5,
-				$oMod->prefix( 'post_scan' )
+				$con->prefix( 'post_scan' )
 			);
 		}
-		$oOpts->setIsScanCron( false );
+		$opts->setIsScanCron( false );
 	}
 }

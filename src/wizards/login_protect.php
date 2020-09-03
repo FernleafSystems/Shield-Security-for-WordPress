@@ -151,11 +151,11 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processMultiSelect() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 
 		$bEnabledMulti = Services::Request()->post( 'multiselect' ) === 'Y';
-		$oFO->setIsChainedAuth( $bEnabledMulti );
+		$mod->setIsChainedAuth( $bEnabledMulti );
 		$sMessage = sprintf( __( 'Multi-Factor Authentication was %s for the site.', 'wp-simple-firewall' ),
 			$bEnabledMulti ? __( 'enabled', 'wp-simple-firewall' ) : __( 'disabled', 'wp-simple-firewall' )
 		);

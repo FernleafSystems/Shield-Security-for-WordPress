@@ -108,8 +108,6 @@ class BaseProcessor {
 	public function onModuleShutdown() {
 	}
 
-	/**
-	 */
 	public function init() {
 	}
 
@@ -175,8 +173,6 @@ class BaseProcessor {
 		return [];
 	}
 
-	/**
-	 */
 	public function deactivatePlugin() {
 	}
 
@@ -198,6 +194,6 @@ class BaseProcessor {
 	 * @deprecated
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getMod()->prefix( $sSuffix, $sGlue );
+		return $this->getCon()->prefix( $sSuffix, $sGlue );
 	}
 }

@@ -105,8 +105,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 		return false;
 	}
 
-	/**
-	 */
 	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
@@ -138,9 +136,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return string
 	 */
 	protected function getLoginPath() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getCustomLoginPath();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		return $mod->getCustomLoginPath();
 	}
 
 	/**
@@ -192,8 +190,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 		return $sUrl;
 	}
 
-	/**
-	 */
 	public function aLoadWpLogin() {
 		if ( Services::WpGeneral()->isLoginUrl() ) {
 			@require_once( ABSPATH.'wp-login.php' );

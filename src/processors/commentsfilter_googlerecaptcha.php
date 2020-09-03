@@ -5,8 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		add_action( 'wp', [ $this, 'setup' ] );
 	}

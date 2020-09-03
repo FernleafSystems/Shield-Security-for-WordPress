@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
@@ -48,8 +46,6 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 			->run();
 	}
 
-	/**
-	 */
 	public function onWpInit() {
 		parent::onWpInit();
 
@@ -163,8 +159,9 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
+		$con = $this->getCon();
 
 		$aUserCapToRolesMap = [
 			'network_admin' => 'manage_network',
@@ -175,8 +172,8 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 			'subscriber'    => 'read',
 		];
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getMod()
-														->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		$sRoleToCheck = strtolower( apply_filters(
+			$con->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
 		}
@@ -199,7 +196,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		$aMessage = [
 			sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
+				$con->getHumanName(),
 				$sHumanName
 			),
 			'',
@@ -216,7 +213,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		$oEmailer = $this->getMod()
 						 ->getEmailProcessor();
-		foreach ( $oMod->getAdminLoginNotificationEmails() as $sEmail ) {
+		foreach ( $mod->getAdminLoginNotificationEmails() as $sEmail ) {
 			$oEmailer->sendEmailWithWrap(
 				$sEmail,
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),

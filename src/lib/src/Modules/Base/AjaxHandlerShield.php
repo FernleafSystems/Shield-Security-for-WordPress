@@ -5,14 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class AjaxHandlerShield extends AjaxHandlerBase {
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( $action ) {
 		$aResponse = [];
-		$oMod = $this->getMod();
+		$mod = $this->getMod();
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 
 			case 'mod_opts_form_render':
 				$aResponse = $this->ajaxExec_ModOptionsFormRender();
@@ -23,21 +23,21 @@ class AjaxHandlerShield extends AjaxHandlerBase {
 				break;
 
 			case 'wiz_process_step':
-				if ( $oMod->hasWizard() ) {
-					$aResponse = $oMod->getWizardHandler()
+				if ( $mod->hasWizard() ) {
+					$aResponse = $mod->getWizardHandler()
 									  ->ajaxExec_WizProcessStep();
 				}
 				break;
 
 			case 'wiz_render_step':
-				if ( $oMod->hasWizard() ) {
-					$aResponse = $oMod->getWizardHandler()
+				if ( $mod->hasWizard() ) {
+					$aResponse = $mod->getWizardHandler()
 									  ->ajaxExec_WizRenderStep();
 				}
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;

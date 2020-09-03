@@ -32,19 +32,8 @@ class Handler {
 
 	/**
 	 * @var bool
-	 * @deprecated 9.0.4
-	 */
-	private $bTableExist;
-
-	/**
-	 * @var bool
 	 */
 	private $bIsReady;
-
-	/**
-	 * @var string
-	 */
-	private $sSqlCreate;
 
 	public function __construct() {
 	}
@@ -54,9 +43,9 @@ class Handler {
 
 	/**
 	 * @param int $nAutoExpireDays
-	 * @return $this;
+	 * @return $this
 	 */
-	public function cleanDb( $nAutoExpireDays ) {
+	public function tableCleanExpired( $nAutoExpireDays ) {
 		$nAutoExpire = $nAutoExpireDays*DAY_IN_SECONDS;
 		if ( $nAutoExpire > 0 ) {
 			$this->deleteRowsOlderThan( Services::Request()->ts() - $nAutoExpire );
@@ -86,9 +75,24 @@ class Handler {
 
 	/**
 	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return $this->getColumns();
+	}
+
+	/**
+	 * @return string[]
 	 */
 	public function getColumnsDefinition() {
-		return is_array( $this->aColDef ) ? $this->aColDef : $this->getDefaultColumnsDefinition();
+		return $this->enumerateColumns();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getColumnas() {
+		return $this->getColumns();
 	}
 
 	/**
@@ -158,7 +162,7 @@ class Handler {
 	 * @return string
 	 */
 	public function getSqlCreate() {
-		return empty( $this->sSqlCreate ) ? $this->getDefaultCreateTableSql() : $this->sSqlCreate;
+		return $this->getDefaultCreateTableSql();
 	}
 
 	/**
@@ -180,7 +184,7 @@ class Handler {
 		}
 		$oDB = Services::WpDb();
 		$sSql = sprintf( $sSql, $this->getTable(), $oDB->getCharCollate() );
-		$this->isTable() ? $oDB->dbDelta( $sSql ) : $oDB->doSql( $sSql );
+		$this->tableExists() ? $oDB->dbDelta( $sSql ) : $oDB->doSql( $sSql );
 		return $this;
 	}
 
@@ -191,7 +195,7 @@ class Handler {
 	public function tableDelete( $bTruncate = false ) {
 		$table = $this->getTable();
 		$oDB = Services::WpDb();
-		$mResult = !$this->isTable() ||
+		$mResult = !$this->tableExists() ||
 				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
 		$this->reset();
 		return $mResult !== false;
@@ -214,7 +218,7 @@ class Handler {
 			$this->tableCreate();
 
 			if ( !$this->isReady( true ) ) {
-				$this->deleteTable();
+				$this->tableDelete();
 				$this->tableCreate();
 			}
 		}
@@ -246,7 +250,7 @@ class Handler {
 
 		if ( !isset( $this->bIsReady ) ) {
 			try {
-				$this->bIsReady = $this->isTable() && $this->verifyTableStructure();
+				$this->bIsReady = $this->tableExists() && $this->verifyTableStructure();
 			}
 			catch ( \Exception $e ) {
 				$this->bIsReady = false;
@@ -266,15 +270,6 @@ class Handler {
 	}
 
 	/**
-	 * @param string $sSqlCreate
-	 * @return $this
-	 */
-	public function setSqlCreate( $sSqlCreate ) {
-		$this->sSqlCreate = $sSqlCreate;
-		return $this;
-	}
-
-	/**
 	 * @param string $sTable
 	 * @return $this
 	 */
@@ -286,7 +281,7 @@ class Handler {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
+	public function getColumns() {
 		return [];
 	}
 
@@ -335,7 +330,7 @@ class Handler {
 	 * @throws \Exception
 	 */
 	protected function verifyTableStructure() {
-		$aColDef = array_map( 'strtolower', $this->getColumnsDefinition() );
+		$aColDef = array_map( 'strtolower', $this->getColumns() );
 		if ( empty( $aColDef ) ) {
 			throw new \Exception( 'Could not verify table structure as no columns definition provided' );
 		}
@@ -368,28 +363,6 @@ class Handler {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 9.0.4
-	 */
-	public function isTable() {
-		return Services::WpDb()->getIfTableExists( $this->getTable() );
-	}
-
-	/**
-	 * @param bool $bTruncate
-	 * @return bool
-	 * @deprecated 9.0.4
-	 */
-	public function deleteTable( $bTruncate = false ) {
-		$table = $this->getTable();
-		$oDB = Services::WpDb();
-		$mResult = !$this->isTable() ||
-				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
-		$this->reset();
-		return $mResult !== false;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	protected function getColumn_ID() {
@@ -413,5 +386,31 @@ class Handler {
 	 */
 	protected function getPrimaryKeySpec() {
 		return 'PRIMARY KEY  (id)';
+	}
+
+	/**
+	 * @param bool $bTruncate
+	 * @return bool
+	 * @deprecated 9.0.4
+	 */
+	public function deleteTable( $bTruncate = false ) {
+		return $this->tableDelete( $bTruncate );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0.4
+	 */
+	public function isTable() {
+		return $this->tableExists();
+	}
+
+	/**
+	 * @param int $nAutoExpireDays
+	 * @return $this
+	 * @deprecated 9.2.0
+	 */
+	public function cleanDb( $nAutoExpireDays ) {
+		return $this->tableCleanExpired( $nAutoExpireDays );
 	}
 }

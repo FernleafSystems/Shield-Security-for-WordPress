@@ -6,32 +6,33 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BlackmarkRequest {
+class ProcessOffenses {
 
 	use ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 
-		$oMod->loadOffenseTracker()->setIfCommit( true );
+		$mod->loadOffenseTracker()->setIfCommit( true );
 
-		$oCon = $this->getCon();
-		add_filter( $oCon->prefix( 'firewall_die_message' ), [ $this, 'augmentFirewallDieMessage' ] );
-		add_action( $oCon->prefix( 'pre_plugin_shutdown' ), function () {
+		$con = $this->getCon();
+		add_filter( $con->prefix( 'firewall_die_message' ), [ $this, 'augmentFirewallDieMessage' ] );
+		add_action( $con->prefix( 'pre_plugin_shutdown' ), function () {
 			$this->processOffense();
 		} );
 		add_action( 'shield_security_offense', [ $this, 'processCustomShieldOffense' ], 10, 3 );
 	}
 
 	private function processOffense() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 
-		$oTracker = $oMod->loadOffenseTracker();
-		if ( !$this->getCon()->plugin_deleting && $oTracker->hasVisitorOffended() && $oTracker->isCommit() ) {
+		$oTracker = $mod->loadOffenseTracker();
+		if ( !$this->getCon()->plugin_deleting
+			 && $oTracker->hasVisitorOffended() && $oTracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
-				->setMod( $oMod )
+				->setMod( $mod )
 				->setIp( Services::IP()->getRequestIp() )
 				->run();
 		}
@@ -48,10 +49,10 @@ class BlackmarkRequest {
 
 		$aMessages[] = sprintf( '<p>%s</p>', sprintf(
 			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
-			( new IPs\Components\QueryRemainingOffenses() )
+			max( 0, ( new IPs\Components\QueryRemainingOffenses() )
 				->setMod( $this->getMod() )
 				->setIP( Services::IP()->getRequestIp() )
-				->run()
+				->run() )
 		) );
 
 		return $aMessages;

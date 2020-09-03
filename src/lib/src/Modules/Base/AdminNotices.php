@@ -10,15 +10,11 @@ class AdminNotices {
 
 	use Shield\Modules\ModConsumer;
 
-	/**
-	 * @var
-	 */
 	protected static $nCount = 0;
 
 	public function run() {
-		$oMod = $this->getMod();
-		add_filter( $oMod->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
-		add_filter( $oMod->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
+		add_filter( $this->getCon()->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
+		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
 	}
 
 	/**
@@ -70,13 +66,13 @@ class AdminNotices {
 	protected function buildNotices() {
 		$aNotices = [];
 
-		foreach ( $this->getAdminNotices() as $oNtc ) {
-			$this->preProcessNotice( $oNtc );
-			if ( $oNtc->display ) {
+		foreach ( $this->getAdminNotices() as $notice ) {
+			$this->preProcessNotice( $notice );
+			if ( $notice->display ) {
 				try {
-					$this->processNotice( $oNtc );
-					if ( $oNtc->display ) {
-						$aNotices[] = $oNtc;
+					$this->processNotice( $notice );
+					if ( $notice->display ) {
+						$aNotices[] = $notice;
 					}
 				}
 				catch ( \Exception $oE ) {
@@ -116,61 +112,60 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNtc
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 */
-	protected function preProcessNotice( $oNtc ) {
-		$oCon = $this->getCon();
-		$oMod = $this->getMod();
-		$oOpts = $oMod->getOptions();
+	protected function preProcessNotice( $notice ) {
+		$con = $this->getCon();
+		$opts = $this->getOptions();
 
-		if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
-			$oNtc->non_display_reason = 'plugin_page_only';
+		if ( $notice->plugin_page_only && !$con->isModulePage() ) {
+			$notice->non_display_reason = 'plugin_page_only';
 		}
-		elseif ( $oNtc->type == 'promo' && !$this->getOptions()->isShowPromoAdminNotices() ) {
-			$oNtc->non_display_reason = 'promo_hidden';
+		elseif ( $notice->type == 'promo' && !$opts->isShowPromoAdminNotices() ) {
+			$notice->non_display_reason = 'promo_hidden';
 		}
-		elseif ( $oNtc->valid_admin && !$oCon->isValidAdminArea() ) {
-			$oNtc->non_display_reason = 'not_admin_area';
+		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
+			$notice->non_display_reason = 'not_admin_area';
 		}
-		elseif ( $oNtc->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
-			$oNtc->non_display_reason = 'not_plugin_admin';
+		elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
+			$notice->non_display_reason = 'not_plugin_admin';
 		}
-		elseif ( $oNtc->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
-			$oNtc->non_display_reason = 'is_plugin_admin';
+		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
+			$notice->non_display_reason = 'is_plugin_admin';
 		}
-		elseif ( $oNtc->min_install_days > 0 && $oNtc->min_install_days > $oOpts->getInstallationDays() ) {
-			$oNtc->non_display_reason = 'min_install_days';
+		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $opts->getInstallationDays() ) {
+			$notice->non_display_reason = 'min_install_days';
 		}
-		elseif ( static::$nCount > 0 && $oNtc->type !== 'error' ) {
-			$oNtc->non_display_reason = 'max_nonerror_count';
+		elseif ( static::$nCount > 0 && $notice->type !== 'error' ) {
+			$notice->non_display_reason = 'max_nonerror_count';
 		}
-		elseif ( $oNtc->can_dismiss && $this->isNoticeDismissed( $oNtc ) ) {
-			$oNtc->non_display_reason = 'dismissed';
+		elseif ( $notice->can_dismiss && $this->isNoticeDismissed( $notice ) ) {
+			$notice->non_display_reason = 'dismissed';
 		}
-		elseif ( !$this->isDisplayNeeded( $oNtc ) ) {
-			$oNtc->non_display_reason = 'not_needed';
+		elseif ( !$this->isDisplayNeeded( $notice ) ) {
+			$notice->non_display_reason = 'not_needed';
 		}
 		else {
 			static::$nCount++;
-			$oNtc->display = true;
-			$oNtc->non_display_reason = 'n/a';
+			$notice->display = true;
+			$notice->non_display_reason = 'n/a';
 		}
 
-		$oNtc->template = '/notices/'.$oNtc->id;
+		$notice->template = '/notices/'.$notice->id;
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isNoticeDismissed( $oNotice ) {
-		$bDismissedUser = $this->isNoticeDismissedForCurrentUser( $oNotice );
+	protected function isNoticeDismissed( $notice ) {
+		$bDismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
 
 		$aDisd = $this->getMod()->getDismissedNotices();
-		$bDismissedMod = isset( $aDisd[ $oNotice->id ] ) && $aDisd[ $oNotice->id ] > 0;
+		$bDismissedMod = isset( $aDisd[ $notice->id ] ) && $aDisd[ $notice->id ] > 0;
 
-		if ( !$oNotice->per_user && $bDismissedUser && !$bDismissedMod ) {
-			$this->setNoticeDismissed( $oNotice );
+		if ( !$notice->per_user && $bDismissedUser && !$bDismissedMod ) {
+			$this->setNoticeDismissed( $notice );
 		}
 
 		return $bDismissedUser || $bDismissedMod;
@@ -185,22 +180,22 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isNoticeDismissedForCurrentUser( $oNotice ) {
+	protected function isNoticeDismissedForCurrentUser( $notice ) {
 		$bDismissed = false;
 
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		if ( $oMeta instanceof PluginUserMeta ) {
-			$sNoticeMetaKey = $this->getNoticeMetaKey( $oNotice );
+		$meta = $this->getCon()->getCurrentUserMeta();
+		if ( $meta instanceof PluginUserMeta ) {
+			$sNoticeMetaKey = $this->getNoticeMetaKey( $notice );
 
-			if ( isset( $oMeta->{$sNoticeMetaKey} ) ) {
+			if ( isset( $meta->{$sNoticeMetaKey} ) ) {
 				$bDismissed = true;
 
 				// migrate from old-style array storage to plain Timestamp
-				if ( is_array( $oMeta->{$sNoticeMetaKey} ) ) {
-					$oMeta->{$sNoticeMetaKey} = $oMeta->{$sNoticeMetaKey}[ 'time' ];
+				if ( is_array( $meta->{$sNoticeMetaKey} ) ) {
+					$meta->{$sNoticeMetaKey} = $meta->{$sNoticeMetaKey}[ 'time' ];
 				}
 			}
 		}
@@ -217,39 +212,39 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @return $this
 	 */
-	protected function setNoticeDismissed( $oNotice ) {
+	protected function setNoticeDismissed( $notice ) {
 		$nTs = Services::Request()->ts();
 
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		$sNoticeMetaKey = $this->getNoticeMetaKey( $oNotice );
+		$meta = $this->getCon()->getCurrentUserMeta();
+		$sNoticeMetaKey = $this->getNoticeMetaKey( $notice );
 
-		if ( $oNotice->per_user ) {
-			if ( $oMeta instanceof PluginUserMeta ) {
-				$oMeta->{$sNoticeMetaKey} = $nTs;
+		if ( $notice->per_user ) {
+			if ( $meta instanceof PluginUserMeta ) {
+				$meta->{$sNoticeMetaKey} = $nTs;
 			}
 		}
 		else {
-			$oMod = $this->getMod();
-			$aDismissed = $oMod->getDismissedNotices();
-			$aDismissed[ $oNotice->id ] = $nTs;
-			$oMod->setDismissedNotices( $aDismissed );
+			$mod = $this->getMod();
+			$aDismissed = $mod->getDismissedNotices();
+			$aDismissed[ $notice->id ] = $nTs;
+			$mod->setDismissedNotices( $aDismissed );
 
 			// Clear out any old
-			if ( $oMeta instanceof PluginUserMeta ) {
-				unset( $oMeta->{$sNoticeMetaKey} );
+			if ( $meta instanceof PluginUserMeta ) {
+				unset( $meta->{$sNoticeMetaKey} );
 			}
 		}
 		return $this;
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @return string
 	 */
-	private function getNoticeMetaKey( $oNotice ) {
-		return 'notice_'.str_replace( [ '-', '_' ], '', $oNotice->id );
+	private function getNoticeMetaKey( $notice ) {
+		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
 	}
 }

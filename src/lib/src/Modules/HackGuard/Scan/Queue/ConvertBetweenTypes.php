@@ -32,7 +32,7 @@ class ConvertBetweenTypes {
 	 */
 	public function fromActionToDbEntry( $oAction ) {
 		$oEntry = new Databases\ScanQueue\EntryVO();
-		foreach ( $this->getDbHandler()->getColumnsDefinition() as $sField ) {
+		foreach ( $this->getDbHandler()->getColumns() as $sField ) {
 			if ( isset( $oAction->{$sField} ) ) {
 				$oEntry->{$sField} = $oAction->{$sField};
 			}

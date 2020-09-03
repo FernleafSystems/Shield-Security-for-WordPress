@@ -165,8 +165,12 @@
 	</div>
 
 	<div class="col option-description">
-		<div id="Description{{ aOption.key }}">
-			<div>{{ aOption.description|raw }}</div>
+		<div id="Description-{{ aOption.key }}">
+			<div>
+				{% for desc in aOption.description %}
+					<p>{{ desc|raw }}</p>
+				{% endfor %}
+			</div>
 
 			<div class="mt-3 text-left text-nowrap">
 				{% if aOption.link_info %}

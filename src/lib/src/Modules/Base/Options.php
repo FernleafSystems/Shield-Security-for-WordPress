@@ -56,8 +56,6 @@ class Options {
 	 */
 	protected $sPathToConfig;
 
-	/**
-	 */
 	public function __construct() {
 	}
 
@@ -146,8 +144,9 @@ class Options {
 		return array_filter(
 			$this->getOptionsKeys(),
 			function ( $sKey ) {
-				return $this->getRawData_SingleOption( $sKey )[ 'section' ]
-					   !== 'section_non_ui';
+				$opt = $this->getRawData_SingleOption( $sKey );
+				return !empty( $opt[ 'section' ] )
+					   && $opt[ 'section' ] !== 'section_non_ui';
 			}
 		);
 	}
@@ -871,17 +870,6 @@ class Options {
 		$aValues[ $sOptKey ] = $mValue;
 		$this->aOptionsValues = $aValues;
 		return $this;
-	}
-
-	/**
-	 * @param $sOptKey
-	 * @param $mValue
-	 * @return array|int|mixed|string
-	 * @throws \Exception
-	 * @deprecated 9.1.0
-	 */
-	private function ensureOptValueState( $sOptKey, $mValue ) {
-		return $mValue;
 	}
 
 	/**

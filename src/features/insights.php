@@ -70,10 +70,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
-		/** @var ICWP_WPSF_Processor_HackProtect $oProHp */
-		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
-		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
-		$oModLicense = $oCon->getModule( 'license' );
+		/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
+		$UIHackGuard = $oCon->getModule_HackGuard()->getUIHandler();
+		/** @var Shield\Modules\License\UI $UILicense */
+		$UILicense = $oCon->getModule_License()->getUIHandler();
 
 		$oModPlugin = $oCon->getModule_Plugin();
 		$oTourManager = $oModPlugin->getTourManager();
@@ -97,6 +97,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'flags'   => [],
 					'strings' => [
 						'table_title'             => __( 'Audit Trail', 'wp-simple-firewall' ),
+						'sub_title'               => __( 'Use the Audit Trail Glossary for help interpreting log entries.', 'wp-simple-firewall' ),
+						'audit_trail_glossary'    => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
 						'title_filter_form'       => __( 'Audit Trail Filters', 'wp-simple-firewall' ),
 						'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
 						'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
@@ -110,6 +112,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'events_for_select' => $aEventsSelect,
 						'unique_ips'        => $oAuditSelect->getDistinctIps(),
 						'unique_users'      => $oAuditSelect->getDistinctUsernames(),
+					],
+					'hrefs'   => [
+						'audit_trail_glossary' => 'https://shsec.io/audittrailglossary',
 					],
 				];
 				break;
@@ -223,11 +228,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'license':
-				$aData = $oModLicense->buildInsightsVars();
+				$aData = $UILicense->buildInsightsVars();
 				break;
 
 			case 'scans':
-				$aData = $oProHp->buildInsightsVars();
+				$aData = $UIHackGuard->buildInsightsVars();
 				break;
 
 			case 'importexport':
@@ -279,7 +284,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = [
 					'vars'    => [
 						'config_cards'          => $this->getConfigCardsData(),
-						'summary'               => $this->getInsightsModsSummary(),
 						'insight_events'        => $this->getRecentEvents(),
 						'insight_notices'       => $aSecNotices,
 						'insight_notices_count' => $nNoticesCount,
@@ -331,7 +335,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
 			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
+			//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );
@@ -350,27 +354,29 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aSearchSelect = [];
 		$aSettingsSubNav = [];
-		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
-			$aSettingsSubNav[ $sSlug ] = [
-				'href'   => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
-				'name'   => $aSubMod[ 'name' ],
-				'active' => $sSlug === $sSubNavSection,
-				'slug'   => $sSlug
-			];
+		foreach ( $this->getModulesSummaryData() as $slug => $summary ) {
+			if ( $summary[ 'show_mod_opts' ] ) {
+				$aSettingsSubNav[ $slug ] = [
+					'href'   => add_query_arg( [ 'subnav' => $slug ], $aTopNav[ 'settings' ][ 'href' ] ),
+					'name'   => $summary[ 'name' ],
+					'active' => $slug === $sSubNavSection,
+					'slug'   => $slug
+				];
 
-			$aSearchSelect[ $aSubMod[ 'name' ] ] = $aSubMod[ 'options' ];
+				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+			}
 		}
-		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
-//		$aTopNav[ 'full_options' ] = [
-//			'href'   => $this->getCon()->getModule_Plugin( )->getUrl_AdminPage(),
-//			'name'   => __( 'Settings', 'wp-simple-firewall' ),
-//			'active' => false
-//		];
+		if ( empty( $aSettingsSubNav ) ) {
+			unset( $aTopNav[ 'settings' ] );
+		}
+		else {
+			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
+		}
 
-		$oDp = Services::DataManipulation();
-		$aData = $oDp->mergeArraysRecursive(
-			$this->getBaseDisplayData(),
+		$DP = Services::DataManipulation();
+		$aData = $DP->mergeArraysRecursive(
+			$this->getUIHandler()->getBaseDisplayData(),
 			[
 				'classes' => [
 					'page_container' => 'page-insights page-'.$sNavSection
@@ -404,23 +410,23 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		if ( $this->isThisModulePage() ) {
 
-			$oCon = $this->getCon();
-			$aStdDepsJs = [ $this->prefix( 'plugin' ) ];
+			$con = $this->getCon();
+			$aStdDepsJs = [ $con->prefix( 'plugin' ) ];
 			$sNav = Services::Request()->query( 'inav', 'overview' );
 
-			$oModPlugin = $oCon->getModule_Plugin();
+			$oModPlugin = $con->getModule_Plugin();
 			$oTourManager = $oModPlugin->getTourManager();
 			switch ( $sNav ) {
 
 				case 'importexport':
 
 					$sAsset = 'shield-import';
-					$sUnique = $oCon->prefix( $sAsset );
+					$sUnique = $con->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oCon->getPluginUrl_Js( $sAsset ),
+						$con->getPluginUrl_Js( $sAsset ),
 						$aStdDepsJs,
-						$oCon->getVersion(),
+						$con->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
@@ -436,12 +442,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						array_unshift( $aJsAssets, 'introjs.min.js' );
 					}
 					foreach ( $aJsAssets as $sAsset ) {
-						$sUnique = $oCon->prefix( $sAsset );
+						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oCon->getPluginUrl_Js( $sAsset ),
+							$con->getPluginUrl_Js( $sAsset ),
 							$aDeps,
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -454,12 +460,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						array_unshift( $aCssAssets, 'introjs.min.css' );
 					}
 					foreach ( $aCssAssets as $sAsset ) {
-						$sUnique = $oCon->prefix( $sAsset );
+						$sUnique = $con->prefix( $sAsset );
 						wp_register_style(
 							$sUnique,
-							$oCon->getPluginUrl_Css( $sAsset ),
+							$con->getPluginUrl_Css( $sAsset ),
 							$aDeps,
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_style( $sUnique );
@@ -477,12 +483,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'users':
 
 					$sAsset = 'shield-tables';
-					$sUnique = $oCon->prefix( $sAsset );
+					$sUnique = $con->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oCon->getPluginUrl_Js( $sAsset ),
+						$con->getPluginUrl_Js( $sAsset ),
 						$aStdDepsJs,
-						$oCon->getVersion(),
+						$con->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
@@ -490,24 +496,24 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aStdDepsJs[] = $sUnique;
 					if ( $sNav == 'scans' ) {
 						$sAsset = 'shield-scans';
-						$sUnique = $oCon->prefix( $sAsset );
+						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oCon->getPluginUrl_Js( $sAsset ),
+							$con->getPluginUrl_Js( $sAsset ),
 							array_unique( $aStdDepsJs ),
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
 					}
 
 					if ( $sNav == 'audit' ) {
-						$sUnique = $this->prefix( 'datepicker' );
+						$sUnique = $con->prefix( 'datepicker' );
 						wp_register_script(
 							$sUnique, //TODO: use an includes services for CNDJS
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
 							array_unique( $aStdDepsJs ),
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -516,7 +522,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							$sUnique,
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
 							[],
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_style( $sUnique );
@@ -526,7 +532,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 
 			wp_localize_script(
-				$this->prefix( 'plugin' ),
+				$con->prefix( 'plugin' ),
 				'icwp_wpsf_vars_insights',
 				[
 					'strings' => [
@@ -568,7 +574,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oStrs = $oEvtsMod->getStrings();
 		$aEvtNames = $oStrs->getEventNames();
 
-		$aData = [
+		return [
 			'ajax'    => [
 				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
 			],
@@ -588,61 +594,57 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				)
 			],
 		];
-		return $aData;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getInsightsModsSummary() {
-		$aMods = [];
-		foreach ( $this->getModulesSummaryData() as $aMod ) {
-			if ( !in_array( $aMod[ 'slug' ], [ 'insights' ] ) ) {
-				$aMods[] = $aMod;
-			}
-		}
-		return $aMods;
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getConfigCardsData() {
-		return apply_filters( $this->prefix( 'collect_summary' ), [] );
+		$data = [];
+		foreach ( $this->getCon()->modules as $mod ) {
+			$data[ $mod->getSlug() ] = $mod->getUIHandler()->getInsightsConfigCardData();
+		}
+		return array_filter( $data );
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getNotices() {
-		$aAll = apply_filters(
-			$this->prefix( 'collect_notices' ),
-			[
-				'plugins' => $this->getNoticesPlugins(),
-				'themes'  => $this->getNoticesThemes(),
-				'core'    => $this->getNoticesCore(),
-			]
-		);
+		$aAll = [
+			'plugins' => $this->getNoticesPlugins(),
+			'themes'  => $this->getNoticesThemes(),
+			'core'    => $this->getNoticesCore(),
+		];
+		foreach ( $this->getCon()->modules as $module ) {
+			$aAll[ $module->getSlug() ] = $module->getUIHandler()->getInsightsNoticesData();
+		}
 
-		// order and then remove empties
-		return array_filter(
-			array_merge(
-				[
-					'site'      => [],
-					'sec_admin' => [],
-					'scans'     => [],
-					'core'      => [],
-					'plugins'   => [],
-					'themes'    => [],
-					'users'     => [],
-					'lockdown'  => [],
-				],
-				$aAll
-			),
-			function ( $aSection ) {
-				return !empty( $aSection[ 'count' ] );
-			}
-		);
+		// remove empties, add a count, then order.
+		return array_filter( array_merge(
+			[
+				'plugin'                   => [],
+				'admin_access_restriction' => [],
+				'hack_protect'             => [],
+				'core'                     => [],
+				'plugins'                  => [],
+				'themes'                   => [],
+				'user_management'          => [],
+				'lockdown'                 => [],
+			],
+			array_map(
+				function ( $notices ) {
+					$notices[ 'count' ] = count( $notices[ 'messages' ] );
+					return $notices;
+				},
+				array_filter(
+					$aAll,
+					function ( $notices ) {
+						return !empty( $notices[ 'messages' ] );
+					}
+				)
+			)
+		) );
 	}
 
 	protected function getNoticesSite() {

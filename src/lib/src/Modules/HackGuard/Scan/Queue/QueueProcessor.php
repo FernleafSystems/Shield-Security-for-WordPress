@@ -140,8 +140,6 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		return $this;
 	}
 
-	/**
-	 */
 	public function handleExpiredItems() {
 		$nBoundary = Services::Request()
 							 ->carbon()

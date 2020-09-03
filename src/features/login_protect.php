@@ -128,8 +128,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 	}
 
-	/**
-	 */
 	private function cleanLoginUrlPath() {
 		$sCustomLoginPath = $this->getCustomLoginPath();
 		if ( !empty( $sCustomLoginPath ) ) {
@@ -274,7 +272,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	public function getLoginIntentRequestFlag() {
-		return $this->prefix( 'login-intent-request' );
+		return $this->getCon()->prefix( 'login-intent-request' );
 	}
 
 	/**
@@ -307,55 +305,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return $this->setOpt( 'enable_login_gasp_check', $bEnabled ? 'Y' : 'N' );
 	}
 
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		if ( $sSection == 'section_brute_force_login_protection' && !$this->isPremium() ) {
-			$sIntegration = $this->getPremiumOnlyIntegration();
-			if ( !empty( $sIntegration ) ) {
-				$aWarnings[] = sprintf( __( 'Support for login protection with %s is a Pro-only feature.', 'wp-simple-firewall' ), $sIntegration );
-			}
-		}
-
-		if ( $sSection == 'section_2fa_email' ) {
-			$aWarnings[] =
-				__( '2FA by email demands that your WP site is properly configured to send email.', 'wp-simple-firewall' )
-				.'<br/>'.__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', __( 'Learn More.', 'wp-simple-firewall' ) );
-		}
-
-		return $aWarnings;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getPremiumOnlyIntegration() {
-		$aIntegrations = [
-			'WooCommerce'            => 'WooCommerce',
-			'Easy_Digital_Downloads' => 'Easy Digital Downloads',
-			'BuddyPress'             => 'BuddyPress',
-		];
-
-		$sIntegration = '';
-		foreach ( $aIntegrations as $sInt => $sName ) {
-			if ( class_exists( $sInt ) ) {
-				$sIntegration = $sName;
-				break;
-			}
-		}
-		return $sIntegration;
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(
-			$this->prefix( 'global-plugin' ),
+			$this->getCon()->prefix( 'global-plugin' ),
 			'icwp_wpsf_vars_lg',
 			[
 				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
@@ -364,76 +318,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		);
 		wp_enqueue_script( 'jquery-ui-dialog' );
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
-	}
-
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'Login Guard', 'wp-simple-firewall' ),
-				'sub'   => __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$bHasBotCheck = $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
-
-			$bBotLogin = $bHasBotCheck && $oOpts->isProtectLogin();
-			$bBotRegister = $bHasBotCheck && $oOpts->isProtectRegister();
-			$bBotPassword = $bHasBotCheck && $oOpts->isProtectLostPassword();
-			$aThis[ 'key_opts' ][ 'bot_login' ] = [
-				'name'    => __( 'Brute Force Login', 'wp-simple-firewall' ),
-				'enabled' => $bBotLogin,
-				'summary' => $bBotLogin ?
-					__( 'Login forms are protected against bot attacks', 'wp-simple-firewall' )
-					: __( 'Login forms are not protected against brute force bot attacks', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-			];
-			$aThis[ 'key_opts' ][ 'bot_register' ] = [
-				'name'    => __( 'Bot User Register', 'wp-simple-firewall' ),
-				'enabled' => $bBotRegister,
-				'summary' => $bBotRegister ?
-					__( 'Registration forms are protected against bot attacks', 'wp-simple-firewall' )
-					: __( 'Registration forms are not protected against automated bots', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-			];
-			$aThis[ 'key_opts' ][ 'bot_password' ] = [
-				'name'    => __( 'Brute Force Lost Password', 'wp-simple-firewall' ),
-				'enabled' => $bBotPassword,
-				'summary' => $bBotPassword ?
-					__( 'Lost Password forms are protected against bot attacks', 'wp-simple-firewall' )
-					: __( 'Lost Password forms are not protected against automated bots', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-			];
-
-			$bHas2Fa = $oOpts->isEmailAuthenticationActive()
-					   || $oOpts->isEnabledGoogleAuthenticator() || $oOpts->isEnabledYubikey();
-			$aThis[ 'key_opts' ][ '2fa' ] = [
-				'name'    => __( 'Identity Verification', 'wp-simple-firewall' ),
-				'enabled' => $bHas2Fa,
-				'summary' => $bHas2Fa ?
-					__( 'At least 1 2FA option is enabled', 'wp-simple-firewall' )
-					: __( 'No 2FA options, such as Google Authenticator, are active', 'wp-simple-firewall' ),
-				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_2fa_email' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
 	}
 
 	/**

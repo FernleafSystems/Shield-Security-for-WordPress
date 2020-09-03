@@ -13,8 +13,6 @@ class AjaxHandlerBase {
 		add_action( 'wp_loaded', [ $this, 'init' ] );
 	}
 
-	/**
-	 */
 	public function init() {
 		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAjaxAuth' ], 10, 2 );
 		add_filter( $this->getCon()->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
@@ -80,10 +78,10 @@ class AjaxHandlerBase {
 	}
 
 	/**
-	 * @param string $sAjaxAction
+	 * @param string $action
 	 * @return array
 	 */
-	protected function processAjaxAction( $sAjaxAction ) {
+	protected function processAjaxAction( $action ) {
 		return [];
 	}
 

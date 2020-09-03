@@ -36,12 +36,14 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			//more parameter options here for later
 			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $nPriority, 1 );
 			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $nPriority, 1 );
+			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $nPriority, 1 );
 
 			add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
 			add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
 			add_action( 'set_site_transient_update_themes', [ $this, 'trackUpdateTimesThemes' ] );
 
-			if ( $oOpts->isSendAutoupdatesNotificationEmail() ) {
+			if ( $oOpts->isSendAutoupdatesNotificationEmail()
+				 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.5' ) ) {
 				$this->trackAssetsVersions();
 				add_action( 'automatic_updates_complete', [ $this, 'sendNotificationEmail' ] );
 			}
@@ -64,9 +66,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		}
 	}
 
-	/**
-	 * This is hooked right after the autoupdater lock is saved.
-	 */
 	private function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
 
@@ -232,17 +231,15 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			$bDoAutoUpdate = false;
 		}
 		else {
-			$sFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
+			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
 
-			if ( $this->isDelayed( $sFile, 'plugins' ) ) {
-				return false;
+			if ( $this->isDelayed( $file, 'plugins' ) ) {
+				$bDoAutoUpdate = false;
 			}
-
-			// first, is global auto updates for plugins set
-			if ( $oOpts->isAutoupdateAllPlugins() ) {
+			elseif ( $oOpts->isAutoupdateAllPlugins() ) {
 				$bDoAutoUpdate = true;
 			}
-			elseif ( $sFile === $this->getCon()->getPluginBaseFile() ) {
+			elseif ( $file === $this->getCon()->getPluginBaseFile() ) {
 				$sAuto = $oOpts->getSelfAutoUpdateOpt();
 				if ( $sAuto === 'immediate' ) {
 					$bDoAutoUpdate = true;
@@ -269,22 +266,16 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			$bDoAutoUpdate = false;
 		}
 		else {
-			$sFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
+			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
 
-			if ( $this->isDelayed( $sFile, 'themes' ) ) {
-				return false;
+			if ( $this->isDelayed( $file, 'themes' ) ) {
+				$bDoAutoUpdate = false;
 			}
-
-			// first, is global auto updates for themes set
-			if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
-				return true;
-			}
-
-			$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', [] );
-			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
+			elseif ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
 				$bDoAutoUpdate = true;
 			}
 		}
+
 		return $bDoAutoUpdate;
 	}
 
@@ -454,48 +445,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @param string $sPluginBaseFileName
-	 * @param bool   $bIsAutoupdate
-	 * @param bool   $bDisabled
-	 * @return string
-	 */
-	protected function getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bIsAutoupdate, $bDisabled ) {
-		return sprintf( '<label class="icwp-toggle-switch %s">
-				<input type="checkbox"
-				class="icwp-autoupdate-plugin"
-				data-pluginfile="%s"
-				data-disabled="%s"
-				%s />
-				<span class="slider"></span></label>',
-			$bDisabled ? 'disabled' : '',
-			$sPluginBaseFileName,
-			$bDisabled ? __( 'Automatic updates for this plugin is controlled by another plugin or setting.', 'wp-simple-firewall' ) : 'no',
-			$bIsAutoupdate ? 'checked="checked"' : ''
-		);
-	}
-
-	/**
-	 * Removes all filters that have been added from auto-update related WordPress filters
-	 */
-	protected function removeAllAutoupdateFilters() {
-		$aFilters = [
-			'allow_minor_auto_core_updates',
-			'allow_major_auto_core_updates',
-			'auto_update_translation',
-			'auto_update_plugin',
-			'auto_update_theme',
-			'automatic_updates_is_vcs_checkout',
-			'automatic_updater_disabled'
-		];
-		foreach ( $aFilters as $sFilter ) {
-			remove_all_filters( $sFilter );
-		}
-	}
-
-	/**
 	 * @return int
 	 */
-	protected function getHookPriority() {
+	private function getHookPriority() {
 		return $this->getOptions()->getDef( 'action_hook_priority' );
 	}
 }

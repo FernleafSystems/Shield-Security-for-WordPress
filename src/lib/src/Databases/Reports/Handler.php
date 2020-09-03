@@ -11,25 +11,23 @@ class Handler extends Base\Handler {
 	const TYPE_INFO = 'nfo';
 
 	public function autoCleanDb() {
-		$this->cleanDb( 30 );
+		$this->tableCleanExpired( 30 );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_Reports();
+	public function getColumns() {
+		return $this->getOptions()->getDef( 'reports_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_Reports();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_Reports();
 	}
 
 	/**
@@ -47,5 +45,13 @@ class Handler extends Base\Handler {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 9.2.0
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return $this->getOptions()->getDef( 'reports_table_columns' );
 	}
 }

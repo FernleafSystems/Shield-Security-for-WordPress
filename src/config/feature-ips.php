@@ -21,7 +21,7 @@
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
       "plugin_page_only": true,
-      "per_user": true,
+      "per_user":         true,
       "type":             "info"
     }
   },
@@ -167,16 +167,16 @@
       "key":           "user_auto_recover",
       "section":       "section_auto_black_list",
       "premium":       true,
-      "default":       "disabled",
-      "type":          "select",
+      "default":       [],
+      "type":          "multiple_select",
       "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
         {
           "value_key": "gasp",
           "text":      "With Shield Bot Protection"
+        },
+        {
+          "value_key": "email",
+          "text":      "Magic Email Links To Unblock Logged-In Users"
         }
       ],
       "link_info":     "https://shsec.io/f8",
@@ -186,16 +186,16 @@
       "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
     },
     {
-      "key":           "request_whitelist",
-      "section":       "section_auto_black_list",
-      "premium":       true,
-      "default":       [],
-      "type":          "array",
-      "link_info":     "https://shsec.io/gd",
-      "link_blog":     "",
-      "name":          "Request Path Whitelist",
-      "summary":       "Request Path Whitelist",
-      "description":   "Request Path Whitelist."
+      "key":         "request_whitelist",
+      "section":     "section_auto_black_list",
+      "premium":     true,
+      "default":     [],
+      "type":        "array",
+      "link_info":   "https://shsec.io/gd",
+      "link_blog":   "",
+      "name":        "Request Path Whitelist",
+      "summary":     "Request Path Whitelist",
+      "description": "Request Path Whitelist."
     },
     {
       "key":         "text_loginfailed",
@@ -317,7 +317,6 @@
       "section":       "section_logins",
       "default":       "transgression-single",
       "type":          "select",
-      "default":       "log",
       "value_options": [
         {
           "value_key": "disabled",
@@ -467,26 +466,30 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "autounblock_emailids",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
-    "db_classes":             {
+    "db_classes":            {
       "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name":   "ip_lists",
-    "ip_list_table_columns": [
-      "id",
-      "ip",
-      "label",
-      "list",
-      "ip6",
-      "is_range",
-      "transgressions",
-      "last_access_at",
-      "blocked_at",
-      "created_at",
-      "deleted_at"
-    ],
+    "ip_list_table_columns": {
+      "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
+      "label":          "varchar(255) NOT NULL DEFAULT ''",
+      "list":           "varchar(4) NOT NULL DEFAULT ''",
+      "ip6":            "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
+      "is_range":       "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
+      "transgressions": "int(10) UNSIGNED NOT NULL DEFAULT 0",
+      "last_access_at": "int(15) UNSIGNED NOT NULL DEFAULT 0",
+      "blocked_at":     "int(15) UNSIGNED NOT NULL DEFAULT 0"
+    },
     "events":                {
       "custom_offense":          {
         "cat":     3,

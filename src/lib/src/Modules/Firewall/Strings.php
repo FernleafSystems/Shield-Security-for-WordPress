@@ -7,13 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( $section ) {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_wordpress_firewall' :
 				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
@@ -55,7 +55,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [
@@ -66,15 +66,15 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
+	public function getOptionStrings( $key ) {
 
 		$sModName = $this->getMod()->getMainFeatureName();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'enable_firewall' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
@@ -169,7 +169,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [

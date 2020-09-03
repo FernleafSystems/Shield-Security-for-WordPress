@@ -70,19 +70,19 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function onWpEnqueueJs() {
-		$oCon = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		$con = $this->getCon();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$sAsset = 'shield-antibot';
-		$sUnique = $oMod->prefix( $sAsset );
+		$sUnique = $con->prefix( $sAsset );
 		wp_register_script(
 			$sUnique,
-			$oCon->getPluginUrl_Js( $sAsset ),
+			$con->getPluginUrl_Js( $sAsset ),
 			[ 'jquery' ],
-			$oCon->getVersion()
+			$con->getVersion()
 		);
 		wp_enqueue_script( $sUnique );
 
@@ -92,15 +92,15 @@ class GaspJs extends BaseProtectionProvider {
 			[
 				'form_selectors' => implode( ',', $oOpts->getAntiBotFormSelectors() ),
 				'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-				'cbname'         => $oMod->getGaspKey(),
+				'cbname'         => $mod->getGaspKey(),
 				'strings'        => [
-					'label'   => $oMod->getTextImAHuman(),
-					'alert'   => $oMod->getTextPleaseCheckBox(),
+					'label'   => $mod->getTextImAHuman(),
+					'alert'   => $mod->getTextPleaseCheckBox(),
 					'loading' => __( 'Loading', 'wp-simple-firewall' )
 				],
 				'flags'          => [
 					'gasp'    => $oOpts->isEnabledGaspCheck(),
-					'captcha' => $oMod->isEnabledCaptcha(),
+					'captcha' => $mod->isEnabledCaptcha(),
 				]
 			]
 		);

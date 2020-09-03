@@ -123,15 +123,15 @@ class FileLockerController {
 	}
 
 	public function deleteAllLocks() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->tableDelete( true );
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		$mod->getDbHandler_FileLocker()->tableDelete( true );
 	}
 
 	public function purge() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->tableDelete();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		$mod->getDbHandler_FileLocker()->tableDelete();
 	}
 
 	/**
@@ -181,14 +181,26 @@ class FileLockerController {
 		switch ( $sFileKey ) {
 			case 'wpconfig':
 				$sFileKey = 'wp-config.php';
-				$nLevels = $bIsSplitWp ? 3 : 2;
 				$nMaxPaths = 1;
+				$nLevels = $bIsSplitWp ? 3 : 2;
+
+				$openBaseDir = ini_get( 'open_basedir' );
+				if ( !empty( $openBaseDir ) ) {
+					$nLevels--;
+				}
 				// TODO: is split URL?
 				break;
+
 			case 'root_htaccess':
 				$sFileKey = '.htaccess';
 				$nLevels = $bIsSplitWp ? 2 : 1;
 				break;
+
+			case 'root_webconfig':
+				$sFileKey = 'Web.Config';
+				$nLevels = $bIsSplitWp ? 2 : 1;
+				break;
+
 			case 'root_index':
 				$sFileKey = 'index.php';
 				$nLevels = $bIsSplitWp ? 2 : 1;

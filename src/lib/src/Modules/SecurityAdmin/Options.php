@@ -61,31 +61,31 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * TODO: Bug where if $sType is defined, it'll be set to 'wp' anyway
-	 * @param string $sType - wp or wpms
+	 * @param string $type - wp or wpms
 	 * @return array
 	 */
-	public function getOptionsToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+	public function getOptionsToRestrict( $type = '' ) {
+		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $sType.'_options' ] ) && is_array( $aOptions[ $sType.'_options' ] ) ) ? $aOptions[ $sType.'_options' ] : [];
+		return ( isset( $aOptions[ $type.'_options' ] ) && is_array( $aOptions[ $type.'_options' ] ) ) ? $aOptions[ $type.'_options' ] : [];
 	}
 
 	/**
-	 * @param string $sType - wp or wpms
+	 * @param string $type - wp or wpms
 	 * @return array
 	 */
-	public function getOptionsPagesToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+	public function getOptionsPagesToRestrict( $type = '' ) {
+		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $sType.'_pages' ] ) && is_array( $aOptions[ $sType.'_pages' ] ) ) ? $aOptions[ $sType.'_pages' ] : [];
+		return ( isset( $aOptions[ $type.'_pages' ] ) && is_array( $aOptions[ $type.'_pages' ] ) ) ? $aOptions[ $type.'_pages' ] : [];
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getSecurityAdminUsers() {
-		$aU = $this->getOpt( 'sec_admin_users', [] );
-		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : [];
+		$users = $this->getOpt( 'sec_admin_users', [] );
+		return ( is_array( $users ) && $this->isPremium() ) ? $users : [];
 	}
 
 	/**
@@ -132,18 +132,17 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return bool
-	 * @deprecated 9.1.0
+	 * @deprecated 9.2.0
 	 */
 	public function hasAccessKey() {
-		$sKey = $this->getAccessKeyHash();
-		return !empty( $sKey ) && strlen( $sKey ) == 32;
+		return $this->hasSecurityPIN();
 	}
 
 	/**
 	 * @return string
-	 * @deprecated 9.1.0
+	 * @deprecated 9.2.0
 	 */
 	public function getAccessKeyHash() {
-		return $this->getOpt( 'admin_access_key' );
+		return $this->getSecurityPIN();
 	}
 }

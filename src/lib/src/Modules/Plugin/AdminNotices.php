@@ -28,16 +28,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_PluginDisabled( $oNotice );
 				break;
 
+			case 'update-available':
+				$this->buildNotice_UpdateAvailable( $oNotice );
+				break;
+
 			case 'compat-sgoptimize':
 				$this->buildNotice_CompatSgOptimize( $oNotice );
 				break;
 
 			case 'plugin-mailing-list-signup':
 				$this->buildNotice_PluginMailingListSignup( $oNotice );
-				break;
-
-			case 'plugin-update-available':
-				$this->buildNotice_UpdateAvailable( $oNotice );
 				break;
 
 			case 'wizard_welcome':
@@ -337,13 +337,12 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$bNeeded = $oOpts->isPluginGloballyDisabled();
 				break;
 
-			case 'compat-sgoptimize':
-				$bNeeded = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
+			case 'update-available':
+				$bNeeded = Services::WpPlugins()->isUpdateAvailable( $oCon->getPluginBaseFile() );
 				break;
 
-			case 'plugin-update-available':
-				$bNeeded = !Services::WpPost()->isPage_Updates()
-						   && Services::WpPlugins()->isUpdateAvailable( !Services::WpPost()->isPage_Updates() );
+			case 'compat-sgoptimize':
+				$bNeeded = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
 				break;
 
 			case 'allow-tracking':
