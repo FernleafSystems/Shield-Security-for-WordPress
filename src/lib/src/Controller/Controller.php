@@ -1717,7 +1717,6 @@ class Controller {
 
 	public function clearSession() {
 		Services::Response()->cookieDelete( $this->getSessionCookieID() );
-		Services::Response()->cookieDelete( $this->prefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1760,9 +1759,6 @@ class Controller {
 		if ( empty( self::$sSessionId ) ) {
 			$req = Services::Request();
 			self::$sSessionId = $req->cookie( $this->getSessionCookieID(), '' );
-			if ( empty( self::$sSessionId ) ) { /* the old cookie name */
-				self::$sSessionId = $req->cookie( $this->getPluginPrefix(), '' );
-			}
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
