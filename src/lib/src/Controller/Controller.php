@@ -1716,7 +1716,8 @@ class Controller {
 	}
 
 	public function clearSession() {
-		Services::Response()->cookieDelete( $this->getPluginPrefix() );
+		Services::Response()->cookieDelete( $this->getSessionCookieID() );
+		Services::Response()->cookieDelete( $this->prefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1758,7 +1759,7 @@ class Controller {
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
 			$req = Services::Request();
-			self::$sSessionId = $req->cookie( 'wp-'.$this->getPluginPrefix(), '' );
+			self::$sSessionId = $req->cookie( $this->getSessionCookieID(), '' );
 			if ( empty( self::$sSessionId ) ) { /* the old cookie name */
 				self::$sSessionId = $req->cookie( $this->getPluginPrefix(), '' );
 			}
@@ -1800,12 +1801,19 @@ class Controller {
 
 	protected function setSessionCookie() {
 		Services::Response()->cookieSet(
-			'wp-'.$this->getPluginPrefix(),
+			$this->getSessionCookieID(),
 			$this->getSessionId(),
 			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),
 			Services::WpGeneral()->getCookieDomain()
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getSessionCookieID() {
+		return 'wp-'.$this->getPluginPrefix();
 	}
 
 	/**
