@@ -180,9 +180,9 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 
 		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $oCon->isPluginAdmin() ) {
 			$bIsSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-			$oMod = $this->getMod();
-			$oMod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
+			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+			$mod = $this->getMod();
+			$mod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
 
 			if ( $bIsSuspend ) { // Delete any existing user sessions
 				( new Sessions\Lib\Ops\Terminate() )

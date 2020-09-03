@@ -1282,14 +1282,11 @@ class Controller {
 		return $this->getIsRebuildOptionsFromFile();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIsResetPlugin() {
+	public function getIsResetPlugin() :bool {
 		if ( !isset( $this->plugin_reset ) ) {
 			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 		}
-		return $this->plugin_reset;
+		return (bool)$this->plugin_reset;
 	}
 
 	/**

@@ -11,9 +11,9 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	private function cleanCustomRules() {
-		/** @var Headers\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setOpt( 'xcsp_custom', array_unique( array_filter( array_map(
+		/** @var Headers\Options $opts */
+		$opts = $this->getOptions();
+		$opts->setOpt( 'xcsp_custom', array_unique( array_filter( array_map(
 			function ( $sRule ) {
 				$sRule = trim( preg_replace( '#;|\s{2,}#', '', html_entity_decode( $sRule, ENT_QUOTES ) ) );
 				if ( !empty( $sRule ) ) {
@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				}
 				return $sRule;
 			},
-			$this->getOpt( 'xcsp_custom', [] )
+			$opts->getOpt( 'xcsp_custom', [] )
 		) ) ) );
 	}
 
@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			// Special wildcard case
 			if ( $sDomain == '*' ) {
 				if ( $bHttps ) {
-					$this->setOpt( 'xcsp_https', 'Y' );
+					$this->getOptions()->setOpt( 'xcsp_https', 'Y' );
 				}
 				else {
 					$bValidDomain = true;

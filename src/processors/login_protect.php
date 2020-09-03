@@ -1,28 +1,31 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $oMod->isXmlrpcBypass() ) {
+		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 
 		// So we can allow access to the login pages if IP is whitelisted
-		if ( $oMod->isCustomLoginPathEnabled() ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( !empty( $opts->getCustomLoginPath() ) ) {
 			$this->getSubPro( 'rename' )->execute();
 		}
 
-		if ( !$oMod->isVisitorWhitelisted() ) {
-			( new AntiBot\AntibotSetup() )->setMod( $oMod );
-			$oMod->getLoginIntentController()->run();
+		if ( !$mod->isVisitorWhitelisted() ) {
+			( new AntiBot\AntibotSetup() )->setMod( $mod );
+			$mod->getLoginIntentController()->run();
 		}
 	}
 
@@ -44,7 +47,7 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 	 */
 	protected function getSubProMap() :array {
 		return [
-			'rename'    => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
+			'rename' => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
 		];
 	}
 }

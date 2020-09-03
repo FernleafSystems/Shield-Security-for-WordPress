@@ -27,6 +27,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getCustomLoginPath() {
+		return $this->getOpt( 'rename_wplogin_path', '' );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getEmail2FaRoles() {

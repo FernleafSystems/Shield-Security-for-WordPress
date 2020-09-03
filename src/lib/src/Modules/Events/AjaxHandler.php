@@ -8,10 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
 	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
@@ -30,19 +26,16 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_RenderChart() {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_RenderChart() :array{
+		/** @var \ICWP_WPSF_FeatureHandler_Events $mod */
+		$mod = $this->getMod();
 
 		$aParams = $this->getAjaxFormParams();
 		$oReq = new Events\Charts\ChartRequestVO();
 		$oReq->render_location = $aParams[ 'render_location' ];
 		$oReq->chart_params = $aParams[ 'chart_params' ];
 		$aChart = ( new Events\Charts\BuildData() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->build( $oReq );
 
 		return [
@@ -52,10 +45,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_RenderChartPost() {
+	private function ajaxExec_RenderChartPost() :array{
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();

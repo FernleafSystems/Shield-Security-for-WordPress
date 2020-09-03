@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldOptions extends Options {
 
-	public function getInstallationDays() :int{
+	public function getInstallationDays() :int {
 		$nTimeInstalled = $this->getCon()
 							   ->getModule_Plugin()
 							   ->getInstallDate();
@@ -16,17 +16,11 @@ class ShieldOptions extends Options {
 		return (int)round( ( Services::Request()->ts() - $nTimeInstalled )/DAY_IN_SECONDS );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPremium() {
+	public function isPremium() :bool {
 		return $this->getCon()->isPremiumActive();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isShowPromoAdminNotices() {
+	public function isShowPromoAdminNotices() :bool {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getOptions()

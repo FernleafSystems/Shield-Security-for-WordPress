@@ -463,7 +463,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadProcessor();
 	}
 
-	public function getUrl_AdminPage():string {
+	public function getUrl_AdminPage() :string {
 		return Services::WpGeneral()
 					   ->getUrl_AdminPage(
 						   $this->getModSlug(),
@@ -502,22 +502,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function verifyModActionRequest() {
+	protected function verifyModActionRequest() :bool {
 		$bValid = false;
 
-		$oCon = $this->getCon();
-		$oReq = Services::Request();
+		$con = $this->getCon();
+		$req = Services::Request();
 
-		$sExec = $oReq->request( 'exec' );
-		if ( !empty( $sExec ) && $oReq->request( 'action' ) == $oCon->prefix() ) {
+		$sExec = $req->request( 'exec' );
+		if ( !empty( $sExec ) && $req->request( 'action' ) == $con->prefix() ) {
 
 
-			if ( wp_verify_nonce( $oReq->request( 'exec_nonce' ), $sExec ) && $oCon->getMeetsBasePermissions() ) {
+			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $sExec ) && $con->getMeetsBasePermissions() ) {
 				$bValid = true;
 			}
 			else {
-				$bValid = $oReq->request( 'exec_nonce' ) ===
-						  substr( hash_hmac( 'md5', $sExec.$oReq->request( 'ts' ), $oCon->getSiteInstallationId() ), 0, 6 );
+				$bValid = $req->request( 'exec_nonce' ) ===
+						  substr( hash_hmac( 'md5', $sExec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
 			}
 			if ( !$bValid ) {
 				throw new Exception( 'Invalid request' );
@@ -527,29 +527,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $bValid;
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getUrl_DirectLinkToOption( $sOptKey ) {
-		$sUrl = $this->getUrl_AdminPage();
-		$aDef = $this->getOptions()->getOptDefinition( $sOptKey );
-		if ( !empty( $aDef[ 'section' ] ) ) {
-			$sUrl = $this->getUrl_DirectLinkToSection( $aDef[ 'section' ] );
+	public function getUrl_DirectLinkToOption( string $key ) :string {
+		$url = $this->getUrl_AdminPage();
+		$def = $this->getOptions()->getOptDefinition( $key );
+		if ( !empty( $def[ 'section' ] ) ) {
+			$url = $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
 		}
-		return $sUrl;
+		return $url;
 	}
 
-	/**
-	 * @param string $sSection
-	 * @return string
-	 */
-	public function getUrl_DirectLinkToSection( $sSection ) {
-		if ( $sSection == 'primary' ) {
-			$aSec = $this->getOptions()->getPrimarySection();
-			$sSection = $aSec[ 'slug' ];
+	public function getUrl_DirectLinkToSection( string $section ) :string {
+		if ( $section == 'primary' ) {
+			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];
 		}
-		return $this->getUrl_AdminPage().'#tab-'.$sSection;
+		return $this->getUrl_AdminPage().'#tab-'.$section;
 	}
 
 	/**
@@ -572,11 +563,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param bool $bEnable
+	 * @param bool $enable
 	 * @return $this
 	 */
-	public function setIsMainFeatureEnabled( $bEnable ) {
-		return $this->setOpt( 'enable_'.$this->getSlug(), $bEnable ? 'Y' : 'N' );
+	public function setIsMainFeatureEnabled( bool $enable ) {
+		$this->getOptions()->setOpt( 'enable_'.$this->getSlug(), $enable ? 'Y' : 'N' );
+		return $this;
 	}
 
 	public function isModuleEnabled() :bool {
@@ -605,8 +597,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	public function isModOptEnabled() :bool {
-		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
+		$opts = $this->getOptions();
+		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' )
+			   || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
 	/**
@@ -811,11 +804,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return string|array
 	 */
 	public function getLastErrors( $bAsString = false, $sGlue = " " ) {
-		$aErrors = $this->getOpt( 'last_errors' );
-		if ( !is_array( $aErrors ) ) {
-			$aErrors = [];
+		$errors = $this->getOptions()->getOpt( 'last_errors' );
+		if ( !is_array( $errors ) ) {
+			$errors = [];
 		}
-		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+		return $bAsString ? implode( $sGlue, $errors ) : $errors;
 	}
 
 	/**
@@ -823,15 +816,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function hasLastErrors() {
 		return count( $this->getLastErrors( false ) ) > 0;
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mDefault
-	 * @return mixed
-	 */
-	public function getOpt( $sOptionKey, $mDefault = false ) {
-		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**
@@ -845,14 +829,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOpt( $sOptKey ) {
-		$sValue = $this->getOpt( $sOptKey, 'default' );
+	public function getTextOpt( string $key ) :string {
+		$sValue = $this->getOptions()->getOpt( $key, 'default' );
 		if ( $sValue == 'default' ) {
-			$sValue = $this->getTextOptDefault( $sOptKey );
+			$sValue = $this->getTextOptDefault( $key );
 		}
 		return __( $sValue, 'wp-simple-firewall' );
 	}
@@ -879,27 +859,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				$mErrors = [];
 			}
 		}
-		return $this->setOpt( 'last_errors', $mErrors );
-	}
-
-	/**
-	 * Sets the value for the given option key
-	 * @param string $sOptionKey
-	 * @param mixed  $mValue
-	 * @return $this
-	 */
-	protected function setOpt( $sOptionKey, $mValue ) {
-		$this->getOptions()->setOpt( $sOptionKey, $mValue );
+		$this->getOptions()->setOpt( 'last_errors', $mErrors );
 		return $this;
 	}
 
-	/**
-	 * @param array $aOptions
-	 */
-	public function setOptions( $aOptions ) {
-		$oVO = $this->getOptions();
-		foreach ( $aOptions as $sKey => $mValue ) {
-			$oVO->setOpt( $sKey, $mValue );
+	public function setOptions( array $options ) {
+		$opts = $this->getOptions();
+		foreach ( $options as $key => $value ) {
+			$opts->setOpt( $key, $value );
 		}
 	}
 
@@ -934,33 +901,25 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string[]
 	 */
-	public function getDismissedNotices() {
-		$aDN = $this->getOpt( 'dismissed_notices' );
-		return is_array( $aDN ) ? $aDN : [];
+	public function getDismissedNotices() :array {
+		$notices = $this->getOptions()->getOpt( 'dismissed_notices' );
+		return is_array( $notices ) ? $notices : [];
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getUiTrack() {
-		$aDN = $this->getOpt( 'ui_track' );
+		$aDN = $this->getOptions()->getOpt( 'ui_track' );
 		return is_array( $aDN ) ? $aDN : [];
 	}
 
-	/**
-	 * @param string[] $aDismissed
-	 * @return $this
-	 */
-	public function setDismissedNotices( $aDismissed ) {
-		return $this->setOpt( 'dismissed_notices', $aDismissed );
+	public function setDismissedNotices( array $aDismissed ) {
+		$this->getOptions()->setOpt( 'dismissed_notices', $aDismissed );
 	}
 
-	/**
-	 * @param string[] $aDismissed
-	 * @return $this
-	 */
-	public function setUiTrack( $aDismissed ) {
-		return $this->setOpt( 'ui_track', $aDismissed );
+	public function setUiTrack( array $UI ) {
+		$this->getOptions()->setOpt( 'ui_track', $UI );
 	}
 
 	/**
@@ -1166,7 +1125,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 			// Prevent overwriting of non-editable fields
 			if ( !in_array( $sOptType, [ 'noneditable_text' ] ) ) {
-				$this->setOpt( $sKey, $sOptionValue );
+				$this->getOptions()->setOpt( $sKey, $sOptionValue );
 			}
 		}
 
@@ -1693,5 +1652,27 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getOptionStoragePrefix() :string {
 		return $this->getCon()->getOptionStoragePrefix();
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @param mixed  $mDefault
+	 * @return mixed
+	 * @deprecated 10.0
+	 */
+	public function getOpt( $sOptionKey, $mDefault = false ) {
+		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
+	}
+
+	/**
+	 * Sets the value for the given option key
+	 * @param string $key
+	 * @param mixed  $value
+	 * @return $this
+	 * @deprecated 10.0
+	 */
+	protected function setOpt( string $key, $value ) {
+		$this->getOptions()->setOpt( $key, $value );
+		return $this;
 	}
 }

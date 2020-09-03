@@ -192,11 +192,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	protected function cleanFileExclusions() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 		$aExclusions = [];
 
-		$aToClean = $this->getOpt( 'ufc_exclusions', [] );
+		$aToClean = $opts->getOpt( 'ufc_exclusions', [] );
 		if ( is_array( $aToClean ) ) {
 			foreach ( $aToClean as $nKey => $sExclusion ) {
 				$sExclusion = wp_normalize_path( trim( $sExclusion ) );
@@ -214,7 +214,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		$oOpts->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
+		$opts->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
 	}
 
 	/**
@@ -236,19 +236,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
+		$opts = $this->getOptions();
 		return $this->isModuleEnabled() && $this->isPremium()
-			   && $this->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
+			   && $opts->isOpt( 'ptg_enable', 'enabled' )
+			   && $opts->isOptReqsMet( 'ptg_enable' )
 			   && $this->canCacheDirWrite();
-	}
-
-	/**
-	 * @param string $sSlug
-	 * @return bool
-	 */
-	protected function isScanEnabled( $sSlug ) {
-		return $this->getScanCon( $sSlug )
-					->isEnabled();
 	}
 
 	public function insertCustomJsVars_Admin() {

@@ -1,22 +1,23 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\ShieldProcessor {
 
 	public function onWpInit() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 
 		if ( $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
 			return;
 		}
 		if ( Services::WpGeneral()->isLoginUrl() &&
-			 ( $oMod->isVisitorWhitelisted() || Services::WpUsers()->isUserLoggedIn() ) ) {
+			 ( $mod->isVisitorWhitelisted() || Services::WpUsers()->isUserLoggedIn() ) ) {
 			return;
 		}
-		if ( is_admin() && $oMod->isVisitorWhitelisted() && !Services::WpUsers()->isUserLoggedIn() ) {
+		if ( is_admin() && $mod->isVisitorWhitelisted() && !Services::WpUsers()->isUserLoggedIn() ) {
 			return;
 		}
 
@@ -44,16 +45,18 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return bool - true if conflict exists
 	 */
 	protected function checkForPluginConflict() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$sMessage = '';
 		$bConflicted = false;
 
-		$sCustomLoginPath = $this->getLoginPath();
+		$path = $opts->getCustomLoginPath();
 
-		$oWp = Services::WpGeneral();
-		if ( $oWp->isMultisite() ) {
+		$WP = Services::WpGeneral();
+		if ( $WP->isMultisite() ) {
 			$sMessage = __( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.', 'wp-simple-firewall' );
 			$bConflicted = true;
 		}
@@ -65,12 +68,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
 			$bConflicted = true;
 		}
-		elseif ( !$oWp->isPermalinksEnabled() ) {
+		elseif ( !$WP->isPermalinksEnabled() ) {
 			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
 			$bConflicted = true;
 		}
-		elseif ( $oWp->isPermalinksEnabled() && ( $oWp->getDoesWpSlugExist( $sCustomLoginPath ) || in_array( $sCustomLoginPath, $oWp->getAutoRedirectLocations() ) ) ) {
-			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.', 'wp-simple-firewall' ), $sCustomLoginPath );
+		elseif ( $WP->isPermalinksEnabled() && ( $WP->getDoesWpSlugExist( $path ) || in_array( $path, $WP->getAutoRedirectLocations() ) ) ) {
+			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.', 'wp-simple-firewall' ), $path );
 			$bConflicted = true;
 		}
 
@@ -79,7 +82,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 				__( 'Warning', 'wp-simple-firewall' ),
 				$sMessage
 			);
-			$oMod->setFlashAdminNotice( $sNoticeMessage, true );
+			$mod->setFlashAdminNotice( $sNoticeMessage, true );
 		}
 
 		return $bConflicted;
@@ -133,24 +136,17 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function getLoginPath() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
-		$mod = $this->getMod();
-		return $mod->getCustomLoginPath();
-	}
-
-	/**
 	 * @param string $sLocation
 	 * @return string
 	 */
 	public function fCheckForLoginPhp( $sLocation ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$sRedirectPath = parse_url( $sLocation, PHP_URL_PATH );
 		if ( strpos( $sRedirectPath, 'wp-login.php' ) !== false ) {
 
-			$sLoginUrl = home_url( $this->getLoginPath() );
+			$sLoginUrl = home_url( $opts->getCustomLoginPath() );
 			$aQueryArgs = explode( '?', $sLocation );
 			if ( !empty( $aQueryArgs[ 1 ] ) ) {
 				parse_str( $aQueryArgs[ 1 ], $aNewQueryArgs );
@@ -166,10 +162,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return string
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $sLocation ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
 			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
-			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->getLoginPath() );
+			$bRedirectIsHiddenUrl = ( $sRedirectPath == $opts->getCustomLoginPath() );
 			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->doWpLoginFailedRedirect404();
 			}
@@ -210,7 +208,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return array
 	 */
 	public function fAddToEtMaintenanceExceptions( $aUrlExceptions ) {
-		$aUrlExceptions[] = $this->getLoginPath();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$aUrlExceptions[] = $opts->getCustomLoginPath();
 		return $aUrlExceptions;
 	}
 
@@ -229,5 +229,15 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 		}
 
 		Services::Response()->sendApache404( '', Services::WpGeneral()->getHomeUrl() );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	protected function getLoginPath() :string {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		return $mod->getCustomLoginPath();
 	}
 }

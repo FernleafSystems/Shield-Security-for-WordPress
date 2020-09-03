@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getCaptchaCfg() {
 		$oCfg = parent::getCaptchaCfg();
-		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
+		$sStyle = $this->getOptions()->getOpt( 'google_recaptcha_style_comments' );
 		if ( $sStyle !== 'default' && $this->isPremium() ) {
 			$oCfg->theme = $sStyle;
 			$oCfg->invisible = $oCfg->theme == 'invisible';
@@ -89,12 +89,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			   && $this->getCaptchaCfg()->ready;
 	}
 
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setEnabledGasp( $bEnabled = true ) {
-		return $this->setOpt( 'enable_comments_gasp_protection', $bEnabled ? 'Y' : 'N' );
+	public function setEnabledGasp( bool $enabled = true ) {
+		$this->getOptions()->setOpt( 'enable_comments_gasp_protection', $enabled ? 'Y' : 'N' );
 	}
 
 	/**

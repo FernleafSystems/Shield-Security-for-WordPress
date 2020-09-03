@@ -67,32 +67,31 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function isVisitorRequestPermitted() :bool {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
-		$mod = $this->getMod();
+		$opts = $this->getOptions();
 
 		$bRequestIsPermitted = true;
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_dir_traversal', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_dir_traversal', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_sql_queries', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_sql_queries', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_wordpress_terms', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_wordpress_terms', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_field_truncation', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_field_truncation', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_php_code', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_php_code', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_leading_schema', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_leading_schema', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_aggressive', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_aggressive', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
 		}
-		if ( $bRequestIsPermitted && $mod->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $opts->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 		}
 		return $bRequestIsPermitted;
@@ -360,7 +359,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function getRawRequestParams() :array {
-		return Services::Request()->getRawRequestParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
+		return Services::Request()->getRawRequestParams( $this->getOptions()->isOpt( 'include_cookie_checks', 'Y' ) );
 	}
 
 	private function sendBlockEmail( string $recipient ) :bool {

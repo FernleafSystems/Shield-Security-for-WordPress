@@ -413,25 +413,25 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_StartScans() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$bPageReload = false;
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		$oScanCon = $oMod->getScanQueueController();
+		$oScanCon = $mod->getScanQueueController();
 
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );
 
-			$aUiTrack = $oMod->getUiTrack();
+			$aUiTrack = $mod->getUiTrack();
 			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
-			$oMod->setUiTrack( $aUiTrack );
+			$mod->setUiTrack( $aUiTrack );
 
 			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
-				$oThisScanCon = $oMod->getScanCon( $sScanSlug );
+				$oThisScanCon = $mod->getScanCon( $sScanSlug );
 				if ( !empty( $oThisScanCon ) && $oThisScanCon->isScanningAvailable() ) {
 
 					$aScansToStart[] = $sScanSlug;

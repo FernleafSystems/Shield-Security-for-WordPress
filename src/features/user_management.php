@@ -13,7 +13,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	public function getAdminLoginNotificationEmails() {
 		$aEmails = [];
 
-		$sEmails = $this->getOpt( 'enable_admin_login_email_notification', '' );
+		$sEmails = $this->getOptions()->getOpt( 'enable_admin_login_email_notification', '' );
 		if ( !empty( $sEmails ) ) {
 			$aEmails = array_values( array_unique( array_filter(
 				array_map(
@@ -60,20 +60,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		$opts->setOpt( 'email_checks', array_unique( $aChecks ) );
 	}
 
-	/**
-	 * Currently no distinction between the module and user sessions.
-	 * @return bool
-	 */
-	public function isUserSessionsManagementEnabled() {
-		return $this->isOpt( 'enable_user_management', 'Y' )
-			   && $this->getDbHandler_Sessions()->isReady();
+	public function isUserSessionsManagementEnabled() :bool {
+		return $this->isModOptEnabled() && $this->getDbHandler_Sessions()->isReady();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSendUserEmailLoginNotification() {
-		return $this->isPremium() && $this->isOpt( 'enable_user_login_email_notification', 'Y' );
+	public function isSendUserEmailLoginNotification() :bool {
+		return $this->isPremium() && $this->getOptions()->isOpt( 'enable_user_login_email_notification', 'Y' );
 	}
 
 	/**
@@ -94,13 +86,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	/**
 	 * @param int  $nUserId
 	 * @param bool $bAdd - set true to add, false to remove
-	 * @return $this
 	 */
 	public function addRemoveHardSuspendUserId( $nUserId, $bAdd = true ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
-		$aIds = $oOpts->getSuspendHardUserIds();
+		$aIds = $opts->getSuspendHardUserIds();
 
 		$oMeta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
 		$bIdSuspended = isset( $aIds[ $nUserId ] ) || $oMeta->hard_suspended_at > 0;
@@ -132,7 +123,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 			);
 		}
 
-		return $this->setOpt( 'hard_suspended_userids', $aIds );
+		$opts->setOpt( 'hard_suspended_userids', $aIds );
 	}
 
 	/**

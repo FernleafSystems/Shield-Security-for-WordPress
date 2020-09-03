@@ -249,10 +249,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return self::$bIsVerifiedBot;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isXmlrpcBypass() {
+	public function isXmlrpcBypass() :bool {
 		return $this->getCon()
 					->getModule_Plugin()
 					->isXmlrpcBypass();

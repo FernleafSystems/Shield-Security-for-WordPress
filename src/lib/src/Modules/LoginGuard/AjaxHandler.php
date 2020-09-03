@@ -87,9 +87,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_Disable2faEmail() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->setEnabled2FaEmail( false );
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		$mod->setEnabled2FaEmail( false );
 		return [
 			'success'     => true,
 			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
@@ -137,8 +137,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ResendEmailVerification() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		$bSuccess = true;
@@ -152,8 +152,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			$sMessage = __( 'Verification email resent.', 'wp-simple-firewall' );
-			$oMod->setIfCanSendEmail( false )
-				 ->sendEmailVerifyCanSend();
+			$mod->setIfCanSendEmail( false )
+				->sendEmailVerifyCanSend();
 		}
 
 		return [

@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[]
 	 */
-	public function getInsightStatNames() {
+	public function getInsightStatNames() :array {
 		return [
 			'key_success'                  => __( 'Successful authentication with Security Admin', 'wp-simple-firewall' ),
 			'key_fail'                     => __( 'Failed authentication with Security Admin', 'wp-simple-firewall' ),
@@ -55,7 +55,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[]
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		$sName = $this->getCon()->getHumanName();
 		return [
 			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $sName ),

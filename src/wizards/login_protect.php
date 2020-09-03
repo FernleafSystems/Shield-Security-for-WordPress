@@ -46,8 +46,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthEmail() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -60,38 +60,34 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sMessage = __( 'Invalid email address', 'wp-simple-firewall' );
 		}
-		else {
-			if ( empty( $sCode ) ) {
-				if ( $oMod->sendEmailVerifyCanSend( $sEmail, false ) ) {
-					$oMod->setIfCanSendEmail( false );
-					$oResponse->setSuccessful( true );
-					$sMessage = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
-								.' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
-				}
-				else {
-					$sMessage = 'Failed to send verification email';
-				}
+		elseif ( empty( $sCode ) ) {
+			if ( $mod->sendEmailVerifyCanSend( $sEmail, false ) ) {
+				$mod->setIfCanSendEmail( false );
+				$oResponse->setSuccessful( true );
+				$sMessage = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
+							.' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
 			}
 			else {
-				if ( $sCode == $oMod->getCanEmailVerifyCode() ) {
-					$oResponse->setSuccessful( true );
-					$sMessage = 'Email sending has been verified successfully.';
-
-					$oMod->setIfCanSendEmail( true );
-
-					if ( $bFa ) {
-						$oMod->setEnabled2FaEmail( true );
-						$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
-					}
-					else {
-						$sMessage .= ' '.'Email-based two factor authentication is NOT enabled.';
-					}
-				}
-				else {
-					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
-								.'Email-based two factor authentication option has not been updated.';
-				}
+				$sMessage = 'Failed to send verification email';
 			}
+		}
+		elseif ( $sCode == $mod->getCanEmailVerifyCode() ) {
+			$oResponse->setSuccessful( true );
+			$sMessage = 'Email sending has been verified successfully.';
+
+			$mod->setIfCanSendEmail( true );
+
+			if ( $bFa ) {
+				$mod->setEnabled2FaEmail( true );
+				$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
+			}
+			else {
+				$sMessage .= ' '.'Email-based two factor authentication is NOT enabled.';
+			}
+		}
+		else {
+			$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
+						.'Email-based two factor authentication option has not been updated.';
 		}
 
 		return $oResponse->setMessageText( $sMessage );
@@ -101,8 +97,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthGa() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -119,7 +115,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 			else {
 				/** @var TwoFactor\Provider\GoogleAuth $oGA */
-				$oGA = $oMod->getLoginIntentController()
+				$oGA = $mod->getLoginIntentController()
 							->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$oUser = Services::WpUsers()->getCurrentWpUser();
 				$bValidated = $oGA->validateGaCode( $oUser, $sCode );
@@ -140,7 +136,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		if ( $bEnableGa ) {
-			$oMod->setEnabled2FaGoogleAuthenticator( true );
+			$mod->setEnabled2FaGoogleAuthenticator( true );
 			$sMessage .= ' '.__( 'Google Authenticator was enabled for the site.', 'wp-simple-firewall' );
 		}
 
