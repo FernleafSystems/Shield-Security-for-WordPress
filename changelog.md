@@ -1,8 +1,9 @@
 #### 9.2 Series
-*Released: 2nd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+*Released: 3rd August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
 
 ##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
 
+* **(.1)  FIXED**:		User session IDs weren't being cleared correctly.
 * **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
 * **(.0)  NEW**:		Add feature to allow Shield to automatically delete files such as `wp-config-sample.php`.
 * **(.0)  ADDED**:  	Provide native support for protection on WP Members plugin login/registration forms.
