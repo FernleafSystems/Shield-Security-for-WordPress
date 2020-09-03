@@ -386,6 +386,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(.0)  IMPROVED**:	Prevent spurious output from errors not relating to this plugin from affecting display of our admin pages.
 * **(.0)  IMPROVED**:	`forceoff` file detection improved.
 * **(.0)  IMPROVED**:	The File Locker is less likely to trigger an `open_basedir` warning.
+* **(.0)  IMPROVED**:	Lots of code optimisation.
 * **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugin devs feel a cookie is only important if it begins with `wp-`.
 * **(.0)  CHANGED**:	Upgraded shipped Bootstrap libraries to latest available (v4.5.2).
 * **(.0)  FIXED**:		Upgraded the database to support much larger values for the IP offenses counter.

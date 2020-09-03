@@ -1102,6 +1102,9 @@ input[type=checkbox].form-check-input {
 .content-options .option-description {
 	border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
+.content-options .option-description p {
+	margin-bottom: 5px;
+}
 .content-options .option_label_name {
 	position: relative;
 	/*display: block;*/

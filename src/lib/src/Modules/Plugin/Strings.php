@@ -201,8 +201,8 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
+					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral.", 'wp-simple-firewall' ),
 					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
-					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards	 for each referral.", 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -227,24 +227,30 @@ class Strings extends Base\Strings {
 			case 'importexport_enable' :
 				$sName = __( 'Allow Import/Export', 'wp-simple-firewall' );
 				$sSummary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );
-				$sDescription = __( 'Uncheck this box to completely disable import and export of options.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Import/Export is a premium-only feature.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( 'Uncheck this box to completely disable import and export of options.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Import/Export is a premium-only feature.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'importexport_whitelist' :
 				$sName = __( 'Export Whitelist', 'wp-simple-firewall' );
 				$sSummary = __( 'Whitelisted Sites To Export Options From This Site', 'wp-simple-firewall' );
-				$sDescription = __( 'Whitelisted sites may export options from this site without the key.', 'wp-simple-firewall' )
-								.'<br />'.__( 'List each site URL on a new line.', 'wp-simple-firewall' )
-								.'<br />'.__( 'This is to be used in conjunction with the Master Import Site feature.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Whitelisted sites may export options from this site without the key.', 'wp-simple-firewall' ),
+					__( 'List each site URL on a new line.', 'wp-simple-firewall' ),
+					__( 'This is to be used in conjunction with the Master Import Site feature.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'importexport_masterurl' :
 				$sName = __( 'Master Import Site', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Import Options From This Site URL', 'wp-simple-firewall' );
-				$sDescription = __( "Supplying a site URL here will make this site an 'Options Slave'.", 'wp-simple-firewall' )
-								.'<br />'.__( 'Options will be automatically exported from the Master site each day.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( "Supplying a site URL here will make this site an 'Options Slave'.", 'wp-simple-firewall' ),
+					__( 'Options will be automatically exported from the Master site each day.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'importexport_whitelist_notify' :
@@ -281,15 +287,19 @@ class Strings extends Base\Strings {
 			case 'google_recaptcha_secret_key' :
 				$sName = __( 'CAPTCHA Secret', 'wp-simple-firewall' );
 				$sSummary = __( 'CAPTCHA Secret Key', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter your CAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( 'Enter your CAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'google_recaptcha_site_key' :
 				$sName = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
 				$sSummary = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter your CAPTCHA site key for use throughout the plugin.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( 'Enter your CAPTCHA site key for use throughout the plugin.', 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'google_recaptcha_style' :
