@@ -1,5 +1,5 @@
 #### 9.2 Series
-*Released: 31st August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+*Released: 2nd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
 
 ##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
 
