@@ -2019,24 +2019,24 @@ class Controller {
 	}
 
 	/**
-	 * @param $oUser \WP_User
+	 * @param \WP_User $user
 	 * @return Shield\Users\ShieldUserMeta|mixed
 	 */
-	public function getUserMeta( $oUser ) {
+	public function getUserMeta( $user ) {
 		$oMeta = null;
 		try {
-			if ( $oUser instanceof \WP_User ) {
+			if ( $user instanceof \WP_User ) {
 				/** @var Shield\Users\ShieldUserMeta $oMeta */
-				$oMeta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
+				$oMeta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $user->ID );
 				if ( !$oMeta instanceof Shield\Users\ShieldUserMeta ) {
 					// Weird: user reported an error where it wasn't of the correct type
-					$oMeta = new Shield\Users\ShieldUserMeta( $this->prefix(), $oUser->ID );
+					$oMeta = new Shield\Users\ShieldUserMeta( $this->prefix(), $user->ID );
 					Shield\Users\ShieldUserMeta::AddToCache( $oMeta );
 				}
-				$oMeta->setPasswordStartedAt( $oUser->user_pass )
+				$oMeta->setPasswordStartedAt( $user->user_pass )
 					  ->updateFirstSeenAt();
 				Services::WpUsers()
-						->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $oUser->ID );
+						->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $user->ID );
 			}
 		}
 		catch ( \Exception $oE ) {

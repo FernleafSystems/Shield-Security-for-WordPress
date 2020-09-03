@@ -520,7 +520,7 @@ class Options {
 	 * @param bool   $bStrict
 	 * @return bool
 	 */
-	public function isOpt( $sKey, $mValueToTest, $bStrict = false ) {
+	public function isOpt( $sKey, $mValueToTest, $bStrict = false ) :bool {
 		$mOptionValue = $this->getOpt( $sKey );
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
