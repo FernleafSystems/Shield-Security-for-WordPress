@@ -410,23 +410,23 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		if ( $this->isThisModulePage() ) {
 
-			$oCon = $this->getCon();
-			$aStdDepsJs = [ $this->prefix( 'plugin' ) ];
+			$con = $this->getCon();
+			$aStdDepsJs = [ $con->prefix( 'plugin' ) ];
 			$sNav = Services::Request()->query( 'inav', 'overview' );
 
-			$oModPlugin = $oCon->getModule_Plugin();
+			$oModPlugin = $con->getModule_Plugin();
 			$oTourManager = $oModPlugin->getTourManager();
 			switch ( $sNav ) {
 
 				case 'importexport':
 
 					$sAsset = 'shield-import';
-					$sUnique = $oCon->prefix( $sAsset );
+					$sUnique = $con->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oCon->getPluginUrl_Js( $sAsset ),
+						$con->getPluginUrl_Js( $sAsset ),
 						$aStdDepsJs,
-						$oCon->getVersion(),
+						$con->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
@@ -442,12 +442,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						array_unshift( $aJsAssets, 'introjs.min.js' );
 					}
 					foreach ( $aJsAssets as $sAsset ) {
-						$sUnique = $oCon->prefix( $sAsset );
+						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oCon->getPluginUrl_Js( $sAsset ),
+							$con->getPluginUrl_Js( $sAsset ),
 							$aDeps,
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -460,12 +460,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						array_unshift( $aCssAssets, 'introjs.min.css' );
 					}
 					foreach ( $aCssAssets as $sAsset ) {
-						$sUnique = $oCon->prefix( $sAsset );
+						$sUnique = $con->prefix( $sAsset );
 						wp_register_style(
 							$sUnique,
-							$oCon->getPluginUrl_Css( $sAsset ),
+							$con->getPluginUrl_Css( $sAsset ),
 							$aDeps,
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_style( $sUnique );
@@ -483,12 +483,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'users':
 
 					$sAsset = 'shield-tables';
-					$sUnique = $oCon->prefix( $sAsset );
+					$sUnique = $con->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oCon->getPluginUrl_Js( $sAsset ),
+						$con->getPluginUrl_Js( $sAsset ),
 						$aStdDepsJs,
-						$oCon->getVersion(),
+						$con->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
@@ -496,24 +496,24 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aStdDepsJs[] = $sUnique;
 					if ( $sNav == 'scans' ) {
 						$sAsset = 'shield-scans';
-						$sUnique = $oCon->prefix( $sAsset );
+						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oCon->getPluginUrl_Js( $sAsset ),
+							$con->getPluginUrl_Js( $sAsset ),
 							array_unique( $aStdDepsJs ),
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
 					}
 
 					if ( $sNav == 'audit' ) {
-						$sUnique = $this->prefix( 'datepicker' );
+						$sUnique = $con->prefix( 'datepicker' );
 						wp_register_script(
 							$sUnique, //TODO: use an includes services for CNDJS
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
 							array_unique( $aStdDepsJs ),
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -522,7 +522,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							$sUnique,
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
 							[],
-							$oCon->getVersion(),
+							$con->getVersion(),
 							false
 						);
 						wp_enqueue_style( $sUnique );
@@ -532,7 +532,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 
 			wp_localize_script(
-				$this->prefix( 'plugin' ),
+				$con->prefix( 'plugin' ),
 				'icwp_wpsf_vars_insights',
 				[
 					'strings' => [

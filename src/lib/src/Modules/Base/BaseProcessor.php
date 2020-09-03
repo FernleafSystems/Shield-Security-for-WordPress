@@ -194,6 +194,6 @@ class BaseProcessor {
 	 * @deprecated
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getMod()->prefix( $sSuffix, $sGlue );
+		return $this->getCon()->prefix( $sSuffix, $sGlue );
 	}
 }

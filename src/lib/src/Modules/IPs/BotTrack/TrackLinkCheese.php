@@ -30,7 +30,7 @@ class TrackLinkCheese extends Base {
 		$sTempl = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
 		$sRobotsText = rtrim( $sRobotsText, "\n" )."\n";
 		foreach ( $this->getPossibleWords() as $sWord ) {
-			$sRobotsText .= sprintf( $sTempl, $this->getMod()->prefix( $sWord ) );
+			$sRobotsText .= sprintf( $sTempl, $this->getCon()->prefix( $sWord ) );
 		}
 		return $sRobotsText;
 	}

@@ -122,17 +122,22 @@ class Strings extends Base\Strings {
 			case 'transgression_limit' :
 				$sName = __( 'Offense Limit', 'wp-simple-firewall' );
 				$sSummary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
-				$sDescription = sprintf( __( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName )
-								.'<br />'.__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( __( 'Set this to "0" to turn off the %s feature.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) );
+				$sDescription = [
+					sprintf( __( 'An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName ),
+					__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' ),
+					sprintf( __( 'Set this to "0" to turn off the %s feature.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'auto_expire' :
 				$sName = __( 'Auto Block Expiration', 'wp-simple-firewall' );
 				$sSummary = __( 'After 1 "X" a black listed IP will be removed from the black list', 'wp-simple-firewall' );
-				$sDescription = __( 'Permanent and lengthy IP Black Lists are harmful to performance.', 'wp-simple-firewall' )
-								.'<br />'.__( 'You should allow IP addresses on the black list to be eventually removed over time.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Blocked IP addresses are eventually removed.', 'wp-simple-firewall' )
+					.'<br/>'.__( 'This option lets you specify how long they should be kept.', 'wp-simple-firewall' ),
+					__( 'Large, permanent IP Block Lists will degrade site performance.', 'wp-simple-firewall' ),
+					__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'user_auto_recover' :
@@ -203,15 +208,22 @@ class Strings extends Base\Strings {
 			case 'track_fakewebcrawler' :
 				$sName = __( 'Fake Web Crawler', 'wp-simple-firewall' );
 				$sSummary = __( 'Detect Fake Search Engine Crawlers', 'wp-simple-firewall' );
-				$sDescription = __( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake.", 'wp-simple-firewall' );
+				$sDescription = [
+					__( "Identify a visitor as a Bot when it presents as an official web crawler, but analysis shows it's fake.", 'wp-simple-firewall' ),
+					__( "Many bots pretend to be a Google Bot.", 'wp-simple-firewall' )
+					.'<br/>'.__( "We can then know that a bot isn't here for anything good and block them.", 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'track_useragent' :
 				$sName = __( 'Empty User Agents', 'wp-simple-firewall' );
 				$sSummary = __( 'Detect Requests With Empty User Agents', 'wp-simple-firewall' );
-				$sDescription = __( "Identify a bot when the user agent is not provided.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: <code>%s</code>',
-						__( 'Your user agent is', 'wp-simple-firewall' ), Services::Request()->getUserAgent() );
+				$sDescription = [
+					__( "Identify a bot when the user agent is not provided.", 'wp-simple-firewall' ),
+					sprintf( '%s:<br/><code>%s</code>',
+						__( 'For example, your browser user agent is', 'wp-simple-firewall' ), Services::Request()
+																									   ->getUserAgent() )
+				];
 				break;
 
 			default:

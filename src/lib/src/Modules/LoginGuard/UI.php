@@ -112,8 +112,8 @@ class UI extends Base\ShieldUI {
 		];
 
 		$sIntegration = '';
-		foreach ( $aIntegrations as $sInt => $sName ) {
-			if ( class_exists( $sInt ) ) {
+		foreach ( $aIntegrations as $classToIntegrate => $sName ) {
+			if ( class_exists( $classToIntegrate ) ) {
 				$sIntegration = $sName;
 				break;
 			}

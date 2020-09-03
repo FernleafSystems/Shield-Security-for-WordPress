@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	 * @return array
 	 */
 	public function clearCommentNotificationEmail( $aEmails ) {
-		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
+		$sStatus = apply_filters( $this->getCon()->prefix( 'cf_status' ), '' );
 		if ( in_array( $sStatus, [ 'reject', 'trash' ] ) ) {
 			$aEmails = [];
 		}

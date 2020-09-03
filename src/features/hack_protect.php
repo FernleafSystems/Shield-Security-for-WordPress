@@ -177,9 +177,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$nFreq = $oOpts->getScanFrequency();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$nFreq = $opts->getScanFrequency();
 		Services::WpCron()
 				->addNewSchedule(
 					$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
@@ -254,10 +254,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' )
-			 && $oOpts->isPtgReinstallLinks() && $this->getScanCon( 'ptg' )->isReady() ) {
+			 && $opts->isPtgReinstallLinks() && $this->getScanCon( 'ptg' )->isReady() ) {
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',

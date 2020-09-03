@@ -71,13 +71,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	public function deleteAllPluginCrons() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		$oWpCron = Services::WpCron();
 
 		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
 			foreach ( $aCronArgs as $sHook => $aCron ) {
-				if ( strpos( $sHook, $this->prefix() ) === 0
-					 || strpos( $sHook, $oCon->prefixOption() ) === 0 ) {
+				if ( strpos( $sHook, $con->prefix() ) === 0
+					 || strpos( $sHook, $con->prefixOption() ) === 0 ) {
 					$oWpCron->deleteCronJob( $sHook );
 				}
 			}
@@ -195,7 +195,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getPluginReportEmail() {
 		$sE = (string)$this->getOpt( 'block_send_email_address' );
 		if ( $this->isPremium() ) {
-			$sE = apply_filters( $this->prefix( 'report_email' ), $sE );
+			$sE = apply_filters( $this->getCon()->prefix( 'report_email' ), $sE );
 		}
 		$sE = trim( $sE );
 		return Services::Data()->validEmail( $sE ) ? $sE : Services::WpGeneral()->getSiteAdminEmail();
@@ -546,11 +546,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$sFile = $oCon->getPluginBaseFile();
+			$sFile = $con->getPluginBaseFile();
 			wp_localize_script(
-				$this->prefix( 'global-plugin' ),
+				$con->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				[
 					'file'  => $sFile,
@@ -567,12 +567,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		}
 
 		wp_localize_script(
-			$oCon->prefix( 'plugin' ),
+			$con->prefix( 'plugin' ),
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
 		);
 		wp_localize_script(
-			$this->prefix( 'plugin' ),
+			$con->prefix( 'plugin' ),
 			'icwp_wpsf_vars_plugin',
 			[
 				'strings' => [

@@ -43,13 +43,12 @@ class UI {
 				}
 				else {
 					try {
-						$aStrings = $this->getMod()
-										 ->getStrings()
-										 ->getSectionStrings( $aSection[ 'slug' ] );
-						foreach ( $aStrings as $sKey => $sVal ) {
-							unset( $aSection[ $sKey ] );
-							$aSection[ $sKey ] = $sVal;
-						}
+						$aSection = array_merge(
+							$aSection,
+							$this->getMod()
+								 ->getStrings()
+								 ->getSectionStrings( $aSection[ 'slug' ] )
+						);
 					}
 					catch ( \Exception $oE ) {
 					}
@@ -134,8 +133,8 @@ class UI {
 		// add strings
 		try {
 			$aOptStrings = $this->getMod()->getStrings()->getOptionStrings( $aOptParams[ 'key' ] );
-			if ( is_array( $aOptStrings[ 'description' ] ) ) {
-				$aOptStrings[ 'description' ] = implode( "<br/>", $aOptStrings[ 'description' ] );
+			if ( !is_array( $aOptStrings[ 'description' ] ) ) {
+				$aOptStrings[ 'description' ] = [ $aOptStrings[ 'description' ] ];
 			}
 			$aOptParams = Services::DataManipulation()->mergeArraysRecursive( $aOptParams, $aOptStrings );
 		}
@@ -170,7 +169,7 @@ class UI {
 				'height'      => 454,
 			],
 
-			'aSummaryData'  => array_filter(
+			'aSummaryData' => array_filter(
 				$mod->getModulesSummaryData(),
 				function ( $summary ) {
 					return $summary[ 'show_mod_opts' ];

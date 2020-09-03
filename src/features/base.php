@@ -803,13 +803,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function getIfUseSessions() {
-		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
-	}
-
-	/**
 	 * Get config 'definition'.
 	 * @param string $sKey
 	 * @return mixed|null
