@@ -1,8 +1,9 @@
 #### 9.2 Series
-*Released: 31st August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+*Released: 3rd August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
 
 ##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
 
+* **(.1)  FIXED**:		User session IDs weren't being cleared correctly.
 * **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
 * **(.0)  ADDED**:  	Provide native support for protection on WP Members plugin login/registration forms.
 * **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
