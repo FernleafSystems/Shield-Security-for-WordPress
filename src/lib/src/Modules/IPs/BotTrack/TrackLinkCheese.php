@@ -23,16 +23,16 @@ class TrackLinkCheese extends Base {
 	}
 
 	/**
-	 * @param string $sRobotsText
+	 * @param string $robotsText
 	 * @return string
 	 */
-	public function appendRobotsTxt( $sRobotsText ) {
-		$sTempl = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
-		$sRobotsText = rtrim( $sRobotsText, "\n" )."\n";
-		foreach ( $this->getPossibleWords() as $sWord ) {
-			$sRobotsText .= sprintf( $sTempl, $this->getCon()->prefix( $sWord ) );
+	public function appendRobotsTxt( $robotsText ) {
+		$template = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
+		$robotsText = rtrim( $robotsText, "\n" )."\n";
+		foreach ( $this->getPossibleWords() as $word ) {
+			$robotsText .= sprintf( $template, $this->getCon()->prefix( $word ) );
 		}
-		return $sRobotsText;
+		return $robotsText;
 	}
 
 	private function isCheese() {
@@ -42,15 +42,15 @@ class TrackLinkCheese extends Base {
 		$bIsCheese = false;
 		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
 			preg_match(
-				sprintf( '#^%s-(%s)-([a-z0-9]{7,9})$#i', $con->prefix(), implode( '|', $this->getPossibleWords() ) ),
+				sprintf( '#%s-(%s)-([a-z0-9]{7,9})$#i', $con->prefix(), implode( '|', $this->getPossibleWords() ) ),
 				trim( $req->getPath(), '/' ),
 				$aMatches
 			);
 			$bIsCheese = isset( $aMatches[ 2 ] );
 		}
 		else {
-			foreach ( $this->getPossibleWords() as $sWord ) {
-				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $req->query( $con->prefix( $sWord ) ) ) ) {
+			foreach ( $this->getPossibleWords() as $word ) {
+				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $req->query( $con->prefix( $word ) ) ) ) {
 					$bIsCheese = true;
 					break;
 				}
@@ -61,11 +61,11 @@ class TrackLinkCheese extends Base {
 	}
 
 	public function insertMouseTrap() {
-		$sId = chr( rand( 97, 122 ) ).rand( 1000, 10000000 );
+		$id = chr( rand( 97, 122 ) ).rand( 1000, 10000000 );
 		echo sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
-			$sId, $this->buildTrapHref(), 'Click here to see something fantastic',
-			$sId, 'Click to access the login or register cheese'
+			$id, $this->buildTrapHref(), 'Click here to see something fantastic',
+			$id, 'Click to access the login or register cheese'
 		);
 	}
 
