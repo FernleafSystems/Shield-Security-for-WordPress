@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\AlwaysDeliver;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi;
@@ -10,14 +10,9 @@ class SendEmail extends BaseShieldNetApi {
 
 	use ModConsumer;
 
-	const API_ACTION = 'always-deliver/email';
+	const API_ACTION = 'sure-send/email';
 
-	/**
-	 * @param string $to
-	 * @param string $code
-	 * @return bool
-	 */
-	public function send2FA( $to, $code ) {
+	public function send2FA( string $to, string $code ) {
 		return $this->run(
 			'2fa',
 			$to,
@@ -28,13 +23,7 @@ class SendEmail extends BaseShieldNetApi {
 		);
 	}
 
-	/**
-	 * @param string $slug
-	 * @param string $to
-	 * @param array  $data
-	 * @return bool
-	 */
-	public function run( $slug, $to, array $data ) {
+	public function run( string $slug, string $to, array $data ) :bool {
 		$this->request_method = 'post';
 		$this->params_body = [
 			'slug'       => $slug,
@@ -46,10 +35,7 @@ class SendEmail extends BaseShieldNetApi {
 		return is_array( $raw ) && !empty( $raw[ 'success' ] );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getApiRequestUrl() {
+	protected function getApiRequestUrl() :string {
 		return sprintf( '%s/%s', parent::getApiRequestUrl(), $this->params_body[ 'slug' ] );
 	}
 }
