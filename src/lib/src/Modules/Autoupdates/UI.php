@@ -74,6 +74,37 @@ class UI extends Base\ShieldUI {
 		return $data;
 	}
 
+	public function getInsightsOverviewCards() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$cardSection = [
+			'title' => __( 'Automatic Updates', 'wp-simple-firewall' ),
+		];
+
+		{ //really disabled?
+			$WP = Services::WpGeneral();
+			if ( $mod->isModOptEnabled() ) {
+				if ( $opts->isDisableAllAutoUpdates() && !$WP->getWpAutomaticUpdater()->is_disabled() ) {
+					$cardSection[ 'cards' ][] = [
+						'id'      => 'disabled_auto',
+						'cat'     => 'error',
+						'title'   => __( 'Auto Updates Not Really Disabled.', 'wp-simple-firewall' ),
+						'message' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
+						'href'    => $mod->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+						'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+						'rec'     => sprintf( __( 'A plugin/theme other than %s is affecting your automatic update settings.', 'wp-simple-firewall' ),
+							$this->getCon()->getHumanName() )
+					];
+				}
+			}
+		}
+
+		return $cardSection;
+	}
+
 	public function getInsightsNoticesData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $mod */
 		$mod = $this->getMod();

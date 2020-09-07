@@ -1,18 +1,18 @@
-{% for card_row in vars.overview_cards %}
+{% for card_section in vars.overview_cards %}
 	<div class="row overview-card-row">
-		{% for card in overview_cards %}
+		<div class="col-12 col">
+			<h6>{{ card_section.title }}</h6>
+		</div>
+		{% for card in card_section.cards %}
 			<div class="col-lg-2 col-md-4">
-				<div class="stat card text-center" id="statcard-{{ card.id }}"
+				<div class="overview card text-center" id="statcard-{{ card.id }}"
 					 {% if card.tooltip is defined %}title="{{ card.tooltip }}"{% endif %}
 				>
 					<div class="card-header">
-						<p class="mb-0">{{ card.title }}</p>
-						<span>({{ card.title_sub }})</span>
+						header
 					</div>
 					<div class="card-body">
-						<div class="stat-chart"
-							 {% if card.tooltip_chart is defined %}title="{{ card.tooltip_chart }}"{% endif %}></div>
-						<h6 style="font-size: small" {% if card.tooltip_p is defined %}title="{{ card.tooltip_p }}"{% endif %}>{{ card.val }}</h6>
+						boddy
 					</div>
 				</div>
 			</div>

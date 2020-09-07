@@ -250,6 +250,10 @@ class UI {
 		return [];
 	}
 
+	public function getInsightsOverviewCards() :array {
+		return [];
+	}
+
 	protected function getModDisabledInsight() :array {
 		$mod = $this->getMod();
 		return [

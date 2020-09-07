@@ -301,12 +301,30 @@ class UI extends Base\ShieldUI {
 		return $aNotices;
 	}
 
-	/**
-	 * @return array[]
-	 */
-	protected function getOverviewCards() :array {
-		$cards = [];
-		return $cards;
+	private function getOverviewCards() :array {
+		$sections = [];
+		foreach ( $this->getCon()->modules as $module ) {
+			$sections = array_merge( $sections, $module->getUIHandler()->getInsightsOverviewCards() );
+		}
+
+		// remove empties, add a count, then order.
+		return array_filter( array_merge(
+			[
+				'plugin'                   => [],
+			],
+			array_map(
+				function ( $section ) {
+					$section[ 'count' ] = count( $section[ 'cards' ] );
+					return $section;
+				},
+				array_filter(
+					$sections,
+					function ( $section ) {
+						return !empty( $section[ 'cards' ] );
+					}
+				)
+			)
+		) );
 	}
 
 	/**
