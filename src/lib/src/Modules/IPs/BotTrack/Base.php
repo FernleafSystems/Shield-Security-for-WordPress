@@ -16,15 +16,15 @@ abstract class Base {
 	}
 
 	protected function doTransgression() {
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
 
-		$bBlock = $oOpts->isTrackOptImmediateBlock( static::OPT_KEY );
+		$bBlock = $opts->isTrackOptImmediateBlock( static::OPT_KEY );
 		if ( $bBlock ) {
 			$nCount = 1;
 		}
-		elseif ( $oOpts->isTrackOptTransgression( static::OPT_KEY ) ) {
-			$nCount = $oOpts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
+		elseif ( $opts->isTrackOptTransgression( static::OPT_KEY ) ) {
+			$nCount = $opts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
 		}
 		else {
 			$nCount = 0;
