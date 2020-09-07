@@ -370,28 +370,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro from just $1/month](https://shsec.io/aa).
 
-#### 9.2 Series
+#### 10.0 Series
 *Released: 3rd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
 
-**Important**: 9.2 is the *final* release to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
+##### [Please review the full Shield 10.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide10).
 
-##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
-
-* **(.1)  FIXED**:		User session IDs weren't cleared correctly.
-* **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
-* **(.0)  NEW**:		Add feature to allow Shield to automatically delete files such as `wp-config-sample.php`.
-* **(.0)  ADDED**:  	Provide native support for protection on WP Members plugin login/registration forms.
-* **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
-* **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
-* **(.0)  IMPROVED**:	Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing.
-* **(.0)  IMPROVED**:	Prevent spurious output from errors not relating to this plugin from affecting display of our admin pages.
-* **(.0)  IMPROVED**:	`forceoff` file detection improved.
-* **(.0)  IMPROVED**:	The File Locker is less likely to trigger an `open_basedir` warning.
-* **(.0)  IMPROVED**:	Lots of code optimisation.
-* **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugin devs feel a cookie is only important if it begins with `wp-`.
-* **(.0)  CHANGED**:	Upgraded shipped Bootstrap libraries to latest available (v4.5.2).
-* **(.0)  FIXED**:		Upgraded the database to support much larger values for the IP offenses counter.
-* **(.0)  FIXED**:		MemberPress support had a bug where certain forms weren't checked for bots.
-* **(.0)  FIXED**:		Cleaned some WP-CLI PHP notices on certain commands.
+* **(.0)  CHANGED**:	U2F two-factor authentication can now be standalone - doesn't require another 2FA provider to be active.
 
 ##### [Entire Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
