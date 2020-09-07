@@ -33,205 +33,60 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return string
 	 */
 	protected function renderModulePage( $aData = [] ) {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		$oReq = Services::Request();
-		$aSecNotices = $this->getNotices();
-
-		$nNoticesCount = 0;
-		foreach ( $aSecNotices as $aNoticeSection ) {
-			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
-		}
 
 		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
-		$oTrafficMod = $oCon->getModule_Traffic();
-		/** @var Shield\Modules\Traffic\Options $oTrafficOpts */
-		$oTrafficOpts = $oTrafficMod->getOptions();
-		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
-		$oTrafficSelector = $oTrafficMod->getDbHandler_Traffic()->getQuerySelector();
-
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
-		$oAuditMod = $oCon->getModule( 'audit_trail' );
-		/** @var Shield\Databases\AuditTrail\Select $oAuditSelect */
-		$oAuditSelect = $oAuditMod->getDbHandler_AuditTrail()->getQuerySelector();
-
-		/** @var Shield\Modules\Events\Strings $oEventStrings */
-		$oEventStrings = $oCon->getModule_Events()->getStrings();
-		$aEventsSelect = array_intersect_key( $oEventStrings->getEventNames(), array_flip( $oAuditSelect->getDistinctEvents() ) );
-		asort( $aEventsSelect );
-
-		$oIpMod = $oCon->getModule_IPs();
-		/** @var Shield\Modules\IPs\Options $oIpOpts */
-		$oIpOpts = $oIpMod->getOptions();
-
-		/** @var Shield\Databases\Session\Select $oSessionSelect */
-		$oSessionSelect = $this->getDbHandler_Sessions()->getQuerySelector();
-
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
-		$oModUsers = $oCon->getModule( 'user_management' );
-		/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
-		$UIHackGuard = $oCon->getModule_HackGuard()->getUIHandler();
-		/** @var Shield\Modules\License\UI $UILicense */
-		$UILicense = $oCon->getModule_License()->getUIHandler();
-
-		$oModPlugin = $oCon->getModule_Plugin();
+		$oModPlugin = $con->getModule_Plugin();
 		$oTourManager = $oModPlugin->getTourManager();
 		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 600 ) {
 			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
-		$oEvtsMod = $oCon->getModule_Events();
-
 		$bIsPro = $this->isPremium();
-		$oCarbon = $oReq->carbon();
-		$nPluginName = $oCon->getHumanName();
 		switch ( $sNavSection ) {
 
 			case 'audit':
-				$aData = [
-					'ajax'    => [
-						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true ),
-						'item_addparamwhite'      => $oAuditMod->getAjaxActionData( 'item_addparamwhite', true )
-					],
-					'flags'   => [],
-					'strings' => [
-						'table_title'             => __( 'Audit Trail', 'wp-simple-firewall' ),
-						'sub_title'               => __( 'Use the Audit Trail Glossary for help interpreting log entries.', 'wp-simple-firewall' ),
-						'audit_trail_glossary'    => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
-						'title_filter_form'       => __( 'Audit Trail Filters', 'wp-simple-firewall' ),
-						'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
-						'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
-						'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
-						'context'                 => __( 'Context', 'wp-simple-firewall' ),
-						'event'                   => __( 'Event', 'wp-simple-firewall' ),
-						'show_after'              => __( 'show results that occurred after', 'wp-simple-firewall' ),
-						'show_before'             => __( 'show results that occurred before', 'wp-simple-firewall' ),
-					],
-					'vars'    => [
-						'events_for_select' => $aEventsSelect,
-						'unique_ips'        => $oAuditSelect->getDistinctIps(),
-						'unique_users'      => $oAuditSelect->getDistinctUsernames(),
-					],
-					'hrefs'   => [
-						'audit_trail_glossary' => 'https://shsec.io/audittrailglossary',
-					],
-				];
+				/** @var Shield\Modules\AuditTrail\UI $UI */
+				$UI = $con->getModule_AuditTrail()->getUIHandler();
+				$aData = $UI->buildInsightsVars();
 				break;
 
 			case 'debug':
-				$aData = [
-					'vars' => [
-						'debug_data' => ( new Shield\Modules\Plugin\Lib\Debug\Collate() )
-							->setMod( $oModPlugin )
-							->run()
-					],
-				];
+				/** @var Shield\Modules\Plugin\UI $UI */
+				$UI = $con->getModule_Plugin()->getUIHandler();
+				$aData = $UI->buildInsightsVars_Debug();
 				break;
 
 			case 'ips':
-				$aData = [
-					'ajax'    => [
-						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
-						'item_insert'     => $oIpMod->getAjaxActionData( 'ip_insert', true ),
-						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
-					],
-					'flags'   => [
-						'can_blacklist' => $bIsPro
-					],
-					'strings' => [
-						'trans_limit'       => sprintf(
-							__( 'Offenses required for IP block: %s', 'wp-simple-firewall' ),
-							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpOpts->getOffenseLimit() )
-						),
-						'auto_expire'       => sprintf(
-							__( 'Black listed IPs auto-expire after: %s', 'wp-simple-firewall' ),
-							sprintf( '<a href="%s" target="_blank">%s</a>',
-								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ),
-								$oCarbon->setTimestamp( $oReq->ts() + $oIpOpts->getAutoExpireTime() + 10 )
-										->diffForHumans( null, true )
-							)
-						),
-						'title_whitelist'   => __( 'IP Whitelist', 'wp-simple-firewall' ),
-						'title_blacklist'   => __( 'IP Blacklist', 'wp-simple-firewall' ),
-						'summary_whitelist' => sprintf( __( 'IP addresses that are never blocked by %s.', 'wp-simple-firewall' ), $nPluginName ),
-						'summary_blacklist' => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $nPluginName ),
-						'enter_ip_block'    => __( 'Enter IP address to block', 'wp-simple-firewall' ),
-						'enter_ip_white'    => __( 'Enter IP address to whitelist', 'wp-simple-firewall' ),
-						'enter_ip'          => __( 'Enter IP address', 'wp-simple-firewall' ),
-						'label_for_ip'      => __( 'Label for IP', 'wp-simple-firewall' ),
-						'ip_new'            => __( 'New IP', 'wp-simple-firewall' ),
-						'ip_filter'         => __( 'Filter By IP', 'wp-simple-firewall' ),
-						'ip_block'          => __( 'Block IP', 'wp-simple-firewall' ),
-					],
-					'vars'    => [
-						'unique_ips_black' => ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
-							->setDbHandler( $oIpMod->getDbHandler_IPs() )
-							->black(),
-						'unique_ips_white' => ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
-							->setDbHandler( $oIpMod->getDbHandler_IPs() )
-							->white()
-					],
-				];
+				/** @var Shield\Modules\IPs\UI $UI */
+				$UI = $con->getModule_IPs()->getUIHandler();
+				$aData = $UI->buildInsightsVars();
 				break;
 
 			case 'notes':
-				$aData = [
-					'ajax'    => [
-						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
-						'item_action_notes'       => $oModPlugin->getAjaxActionData( 'item_action_notes', true ),
-						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
-						'item_insert'             => $oModPlugin->getAjaxActionData( 'note_insert', true ),
-						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
-					],
-					'flags'   => [
-						'can_adminnotes' => $bIsPro,
-					],
-					'strings' => [
-						'note_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),
-						'use_this_area' => __( 'Use this feature to make ongoing notes and to-dos', 'wp-simple-firewall' ),
-						'note_add'      => __( 'Add Note', 'wp-simple-firewall' ),
-						'note_new'      => __( 'New Note', 'wp-simple-firewall' ),
-						'note_enter'    => __( 'Enter new note here', 'wp-simple-firewall' ),
-					],
-				];
+				/** @var Shield\Modules\Plugin\UI $UI */
+				$UI = $con->getModule_Plugin()->getUIHandler();
+				$aData = $UI->buildInsightsVars_AdminNotes();
 				break;
 
 			case 'traffic':
-				$aData = [
-					'ajax'    => [
-						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
-					],
-					'flags'   => [
-						'can_traffic' => true, // since 8.2 it's always available
-						'is_enabled'  => $oTrafficOpts->isTrafficLoggerEnabled(),
-					],
-					'hrefs'   => [
-						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_logger' ),
-					],
-					'strings' => [
-						'title_filter_form'       => __( 'Traffic Table Filters', 'wp-simple-firewall' ),
-						'traffic_title'           => __( 'Traffic Watch', 'wp-simple-firewall' ),
-						'traffic_subtitle'        => __( 'Watch and review requests to your site', 'wp-simple-firewall' ),
-						'response'                => __( 'Response', 'wp-simple-firewall' ),
-						'path_contains'           => __( 'Page/Path Contains', 'wp-simple-firewall' ),
-						'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
-						'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
-						'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
-					],
-					'vars'    => [
-						'unique_ips'       => $oTrafficSelector->getDistinctIps(),
-						'unique_responses' => $oTrafficSelector->getDistinctCodes(),
-						'unique_users'     => $oTrafficSelector->getDistinctUsernames(),
-					],
-				];
+				/** @var Shield\Modules\Traffic\UI $UI */
+				$UI = $con->getModule_Traffic()->getUIHandler();
+				$aData = $UI->buildInsightsVars();
 				break;
 
 			case 'license':
+				/** @var Shield\Modules\License\UI $UILicense */
+				$UILicense = $con->getModule_License()->getUIHandler();
 				$aData = $UILicense->buildInsightsVars();
 				break;
 
 			case 'scans':
+				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
+				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
 				$aData = $UIHackGuard->buildInsightsVars();
 				break;
 
@@ -240,86 +95,35 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'reports':
-				$aData = $this->buildVars_Reports();
+				/** @var Shield\Modules\Reporting\UI $UIReporting */
+				$UIReporting = $con->getModule_Reporting()->getUIHandler();
+				$aData = $UIReporting->buildInsightsVars();
 				break;
 
 			case 'users':
-				$aData = [
-					'ajax'    => [
-						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true ),
-						'item_delete'           => $oModUsers->getAjaxActionData( 'session_delete', true ),
-						'bulk_action'           => $oModUsers->getAjaxActionData( 'bulk_action', true ),
-
-					],
-					'flags'   => [],
-					'strings' => [
-						'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),
-						'users_title'         => __( 'User Sessions', 'wp-simple-firewall' ),
-						'users_subtitle'      => __( 'Review and manage current user sessions', 'wp-simple-firewall' ),
-						'users_maybe_expired' => __( "Some sessions may have expired but haven't been automatically cleaned from the database yet", 'wp-simple-firewall' ),
-						'username'            => __( 'Username', 'wp-simple-firewall' ),
-					],
-					'vars'    => [
-						'unique_ips'   => $oSessionSelect->getDistinctIps(),
-						'unique_users' => $oSessionSelect->getDistinctUsernames(),
-					],
-				];
+				/** @var Shield\Modules\UserManagement\UI $UIUsers */
+				$UIUsers = $con->getModule( 'user_management' )->getUIHandler();
+				$aData = $UIUsers->buildInsightsVars();
 				break;
 
 			case 'settings':
 				$aData = [
 					'ajax' => [
-						'mod_options'          => $oCon->getModule( Services::Request()->query( 'subnav' ) )
-													   ->getAjaxActionData( 'mod_options', true ),
-						'mod_opts_form_render' => $oCon->getModule( Services::Request()->query( 'subnav' ) )
-													   ->getAjaxActionData( 'mod_opts_form_render', true ),
+						'mod_options'          => $con->getModule( Services::Request()->query( 'subnav' ) )
+													  ->getAjaxActionData( 'mod_options', true ),
+						'mod_opts_form_render' => $con->getModule( Services::Request()->query( 'subnav' ) )
+													  ->getAjaxActionData( 'mod_opts_form_render', true ),
 					],
 				];
 				break;
 
 			case 'overview':
 			case 'index':
+				/** @var Shield\Modules\Insights\UI $UIInsights */
+				$UIInsights = $this->getUIHandler();
+				$aData = $UIInsights->buildInsightsVars();
+				break;
 			default:
-				$sNavSection = 'overview';
-				$aData = [
-					'vars'    => [
-						'config_cards'          => $this->getConfigCardsData(),
-						'insight_events'        => $this->getRecentEvents(),
-						'insight_notices'       => $aSecNotices,
-						'insight_notices_count' => $nNoticesCount,
-						'insight_stats'         => $this->getStats(),
-					],
-					'ajax'    => [
-						'render_chart_post' => $oEvtsMod->getAjaxActionData( 'render_chart_post', true ),
-					],
-					'hrefs'   => [
-						'shield_pro_url'           => 'https://shsec.io/shieldpro',
-						'shield_pro_more_info_url' => 'https://shsec.io/shld1',
-					],
-					'flags'   => [
-						'show_ads'              => false,
-						'show_standard_options' => false,
-						'show_alt_content'      => true,
-						'is_pro'                => $bIsPro,
-						'has_notices'           => count( $aSecNotices ) > 0,
-					],
-					'strings' => [
-						'title_recent'              => __( 'Recent Events Log', 'wp-simple-firewall' ),
-						'title_security_notices'    => __( 'Security Notices', 'wp-simple-firewall' ),
-						'subtitle_security_notices' => __( 'Potential security issues on your site right now', 'wp-simple-firewall' ),
-						'configuration_summary'     => __( 'Plugin Configuration Summary', 'wp-simple-firewall' ),
-						'click_to_toggle'           => __( 'click to toggle', 'wp-simple-firewall' ),
-						'go_to_options'             => sprintf(
-							__( 'Go To %s', 'wp-simple-firewall' ),
-							__( 'Options' )
-						),
-						'key'                       => __( 'Key' ),
-						'key_positive'              => __( 'Positive Security', 'wp-simple-firewall' ),
-						'key_warning'               => __( 'Potential Warning', 'wp-simple-firewall' ),
-						'key_danger'                => __( 'Potential Danger', 'wp-simple-firewall' ),
-						'key_information'           => __( 'Information', 'wp-simple-firewall' ),
-					],
-				];
 				break;
 		}
 
@@ -392,11 +196,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'   => $this->getUrl_AdminPage(),
 					'top_nav'    => $aTopNav,
-					'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
+					'img_banner' => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 				],
 				'strings' => $this->getStrings()->getDisplayStrings(),
 				'vars'    => [
-					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
+					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
 					'search_select' => $aSearchSelect
 				],
 			],
@@ -566,404 +370,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				[ 'ajax' => $oCon->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
 			);
 		}
-	}
-
-	private function buildVars_Reports() {
-		$oEvtsMod = $this->getCon()->getModule_Events();
-		/** @var Shield\Modules\Events\Strings $oStrs */
-		$oStrs = $oEvtsMod->getStrings();
-		$aEvtNames = $oStrs->getEventNames();
-
-		return [
-			'ajax'    => [
-				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
-			],
-			'flags'   => [],
-			'strings' => [
-			],
-			'vars'    => [
-				'events_options' => array_intersect_key(
-					$aEvtNames,
-					array_flip(
-						[
-							'ip_offense',
-							'conn_kill',
-							'firewall_block',
-						]
-					)
-				)
-			],
-		];
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getConfigCardsData() {
-		$data = [];
-		foreach ( $this->getCon()->modules as $mod ) {
-			$data[ $mod->getSlug() ] = $mod->getUIHandler()->getInsightsConfigCardData();
-		}
-		return array_filter( $data );
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getNotices() {
-		$aAll = [
-			'plugins' => $this->getNoticesPlugins(),
-			'themes'  => $this->getNoticesThemes(),
-			'core'    => $this->getNoticesCore(),
-		];
-		foreach ( $this->getCon()->modules as $module ) {
-			$aAll[ $module->getSlug() ] = $module->getUIHandler()->getInsightsNoticesData();
-		}
-
-		// remove empties, add a count, then order.
-		return array_filter( array_merge(
-			[
-				'plugin'                   => [],
-				'admin_access_restriction' => [],
-				'hack_protect'             => [],
-				'core'                     => [],
-				'plugins'                  => [],
-				'themes'                   => [],
-				'user_management'          => [],
-				'lockdown'                 => [],
-			],
-			array_map(
-				function ( $notices ) {
-					$notices[ 'count' ] = count( $notices[ 'messages' ] );
-					return $notices;
-				},
-				array_filter(
-					$aAll,
-					function ( $notices ) {
-						return !empty( $notices[ 'messages' ] );
-					}
-				)
-			)
-		) );
-	}
-
-	protected function getNoticesSite() {
-		$oSslService = new \FernleafSystems\Wordpress\Services\Utilities\Ssl();
-
-		$aNotices = [
-			'title'    => __( 'Site', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		// SSL Expires
-		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
-		$bHomeSsl = strpos( $sHomeUrl, 'https://' ) === 0;
-
-		if ( $bHomeSsl && $oSslService->isEnvSupported() ) {
-
-			try {
-				// first verify SSL cert:
-				$oSslService->getCertDetailsForDomain( $sHomeUrl );
-
-				// If we didn't throw and exception, we got it.
-				$nExpiresAt = $oSslService->getExpiresAt( $sHomeUrl );
-				if ( $nExpiresAt > 0 ) {
-					$nTimeLeft = ( $nExpiresAt - Services::Request()->ts() );
-					$bExpired = $nTimeLeft < 0;
-					$nDaysLeft = $bExpired ? 0 : (int)round( $nTimeLeft/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
-
-					if ( $nDaysLeft < 15 ) {
-
-						if ( $bExpired ) {
-							$sMess = __( 'SSL certificate for this site has expired.', 'wp-simple-firewall' );
-						}
-						else {
-							$sMess = sprintf( __( 'SSL certificate will expire soon (in %s days)', 'wp-simple-firewall' ), $nDaysLeft );
-						}
-
-						$aMessage = [
-							'title'   => 'SSL Cert Expiration',
-							'message' => $sMess,
-							'href'    => '',
-							'rec'     => __( 'Check or renew your SSL certificate.', 'wp-simple-firewall' )
-						];
-					}
-				}
-			}
-			catch ( \Exception $oE ) {
-				$aMessage = [
-					'title'   => 'SSL Cert Expiration',
-					'message' => 'Failed to retrieve a valid SSL certificate.',
-					'href'    => ''
-				];
-			}
-
-			if ( !empty( $aMessage ) ) {
-				$aNotices[ 'messages' ][ 'ssl_cert' ] = $aMessage;
-			}
-		}
-
-		{ // db password strength
-			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
-			if ( $nStrength < 4 ) {
-				$aNotices[ 'messages' ][ 'db_strength' ] = [
-					'title'   => 'DB Password',
-					'message' => __( 'DB Password appears to be weak.', 'wp-simple-firewall' ),
-					'href'    => '',
-					'rec'     => __( 'The database password should be strong.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesPlugins() {
-		$oWpPlugins = Services::WpPlugins();
-		$aNotices = [
-			'title'    => __( 'Plugins' ),
-			'messages' => []
-		];
-
-		{// Inactive
-			$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
-			if ( $nCount > 0 ) {
-				$aNotices[ 'messages' ][ 'inactive' ] = [
-					'title'   => __( 'Inactive', 'wp-simple-firewall' ),
-					'message' => sprintf( __( '%s inactive plugin(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Plugins', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// updates
-			$nCount = count( $oWpPlugins->getUpdates() );
-			if ( $nCount > 0 ) {
-				$aNotices[ 'messages' ][ 'updates' ] = [
-					'title'   => 'Updates',
-					'message' => sprintf( __( '%s plugin update(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesThemes() {
-		$oWpT = Services::WpThemes();
-		$aNotices = [
-			'title'    => __( 'Themes', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{// Inactive
-			$nInactive = count( $oWpT->getThemes() ) - ( $oWpT->isActiveThemeAChild() ? 2 : 1 );
-			if ( $nInactive > 0 ) {
-				$aNotices[ 'messages' ][ 'inactive' ] = [
-					'title'   => 'Inactive',
-					'message' => sprintf( __( '%s inactive themes(s)', 'wp-simple-firewall' ), $nInactive ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Themes( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// updates
-			$nCount = count( $oWpT->getUpdates() );
-			if ( $nCount > 0 ) {
-				$aNotices[ 'messages' ][ 'updates' ] = [
-					'title'   => 'Updates',
-					'message' => sprintf( __( '%s theme update(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesCore() {
-		$oWp = Services::WpGeneral();
-		$aNotices = [
-			'title'    => __( 'WordPress Core', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{// updates
-			if ( $oWp->hasCoreUpdate() ) {
-				$aNotices[ 'messages' ][ 'updates' ] = [
-					'title'   => 'Updates',
-					'message' => __( 'WordPress Core has an update available.', 'wp-simple-firewall' ),
-					'href'    => $oWp->getAdminUrl_Updates( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// autoupdates
-			if ( !$oWp->canCoreUpdateAutomatically() ) {
-				$aNotices[ 'messages' ][ 'updates_auto' ] = [
-					'title'   => 'Auto Updates',
-					'message' => __( 'WordPress does not automatically install updates.', 'wp-simple-firewall' ),
-					'href'    => $this->getCon()->getModule( 'autoupdates' )->getUrl_AdminPage(),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Minor WordPress upgrades should be applied automatically.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getStats() {
-		$oCon = $this->getCon();
-		/** @var Shield\Databases\Events\Select $oSelEvents */
-		$oSelEvents = $oCon->getModule_Events()
-						   ->getDbHandler_Events()
-						   ->getQuerySelector();
-
-		/** @var Shield\Databases\IPs\Select $oSelectIp */
-		$oSelectIp = $oCon->getModule_IPs()
-						  ->getDbHandler_IPs()
-						  ->getQuerySelector();
-
-		$aStatsData = [
-			'login'          => [
-				'id'        => 'login_block',
-				'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
-				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
-			],
-			//			'firewall'       => [
-			//				'id'      => 'firewall_block',
-			//				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
-			//				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
-			//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
-			//			],
-			'bot_blocks'     => [
-				'id'        => 'bot_blocks',
-				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
-				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
-			],
-			'comments'       => [
-				'id'        => 'comment_block',
-				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvents( [
-						'spam_block_bot',
-						'spam_block_human',
-						'spam_block_recaptcha'
-					] ) ),
-				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
-			],
-			'transgressions' => [
-				'id'        => 'ip_offense',
-				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
-				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
-			],
-			'conn_kills'     => [
-				'id'        => 'conn_kill',
-				'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
-				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
-			],
-			'ip_blocked'     => [
-				'id'        => 'ip_blocked',
-				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Now' ),
-					$oSelectIp->filterByBlacklist()->count()
-				),
-				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
-			],
-		];
-
-		foreach ( $aStatsData as $sKey => $sStatData ) {
-			$sSub = sprintf( __( 'previous %s %s', 'wp-simple-firewall' ), 7, __( 'days', 'wp-simple-firewall' ) );
-			$aStatsData[ $sKey ][ 'title_sub' ] = $sSub;
-			$aStatsData[ $sKey ][ 'tooltip_chart' ] = sprintf( '%s: %s.', __( 'Stats', 'wp-simple-firewall' ), $sSub );
-		}
-
-		return $aStatsData;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getRecentEvents() {
-		$oCon = $this->getCon();
-
-		$aTheStats = array_filter(
-			$oCon->loadEventsService()->getEvents(),
-			function ( $aEvt ) {
-				return isset( $aEvt[ 'recent' ] ) && $aEvt[ 'recent' ];
-			}
-		);
-
-		/** @var Shield\Modules\Insights\Strings $oStrs */
-		$oStrs = $this->getStrings();
-		$aNames = $oStrs->getInsightStatNames();
-
-		/** @var Shield\Databases\Events\Select $oSel */
-		$oSel = $oCon->getModule_Events()
-					 ->getDbHandler_Events()
-					 ->getQuerySelector();
-
-		$aRecentStats = array_intersect_key(
-			array_map(
-				function ( $oEntryVO ) use ( $aNames ) {
-					/** @var Shield\Databases\Events\EntryVO $oEntryVO */
-					return [
-						'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
-						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
-					];
-				},
-				$oSel->getLatestForAllEvents()
-			),
-			$aTheStats
-		);
-
-		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
-			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
-				$aRecentStats[ $sStatKey ] = [
-					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
-					'val'  => $sNotYetRecorded
-				];
-			}
-		}
-
-		return $aRecentStats;
 	}
 
 	/**

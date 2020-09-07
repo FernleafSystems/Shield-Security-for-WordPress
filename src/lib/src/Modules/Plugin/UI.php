@@ -4,9 +4,46 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
+
+	public function buildInsightsVars_Debug() :array {
+		return [
+			'vars' => [
+				'debug_data' => ( new Collate() )
+					->setMod( $this->getMod() )
+					->run()
+			],
+		];
+	}
+
+	public function buildInsightsVars_AdminNotes() :array {
+		$con = $this->getCon();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
+
+		return [
+			'ajax'    => [
+				'render_table_adminnotes' => $mod->getAjaxActionData( 'render_table_adminnotes', true ),
+				'item_action_notes'       => $mod->getAjaxActionData( 'item_action_notes', true ),
+				'item_delete'             => $mod->getAjaxActionData( 'note_delete', true ),
+				'item_insert'             => $mod->getAjaxActionData( 'note_insert', true ),
+				'bulk_action'             => $mod->getAjaxActionData( 'bulk_action', true ),
+			],
+			'flags'   => [
+				'can_adminnotes' => $con->isPremiumActive(),
+			],
+			'strings' => [
+				'note_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),
+				'use_this_area' => __( 'Use this feature to make ongoing notes and to-dos', 'wp-simple-firewall' ),
+				'note_add'      => __( 'Add Note', 'wp-simple-firewall' ),
+				'note_new'      => __( 'New Note', 'wp-simple-firewall' ),
+				'note_enter'    => __( 'Enter new note here', 'wp-simple-firewall' ),
+			],
+		];
+	}
 
 	/**
 	 * @param array $aOptParams
