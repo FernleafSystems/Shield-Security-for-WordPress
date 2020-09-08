@@ -24,7 +24,7 @@ class UI extends Base\ShieldUI {
 				'insight_notices'       => $aSecNotices,
 				'insight_notices_count' => $nNoticesCount,
 				'insight_stats'         => $this->getStats(),
-				'overview_cards'        => $this->getOverviewCards(),
+				'overview_cards'        => $this->getOverviewCards_Static(),
 			],
 			'ajax'    => [
 				'render_chart_post' => $con->getModule_Events()->getAjaxActionData( 'render_chart_post', true ),
@@ -289,7 +289,16 @@ class UI extends Base\ShieldUI {
 		return $aNotices;
 	}
 
-	private function getOverviewCards() :array {
+	private function getOverviewCards_Shuffle() :array {
+		$data = [
+			'cards' => $this->getOverviewCards_Static(),
+			'groups' => $this->getOverviewCards_Static(),
+		];
+
+		return $data;
+	}
+
+	private function getOverviewCards_Static() :array {
 		$sections = [];
 		foreach ( $this->getCon()->modules as $module ) {
 			$sections = array_merge( $sections, $module->getUIHandler()->getInsightsOverviewCards() );
@@ -308,6 +317,9 @@ class UI extends Base\ShieldUI {
 						}
 						if ( !isset( $card[ 'state' ] ) ) {
 							$card[ 'state' ] = 0;
+						}
+						if ( !isset( $card[ 'groups' ] ) ) {
+							$card[ 'groups' ] = [];
 						}
 					}
 

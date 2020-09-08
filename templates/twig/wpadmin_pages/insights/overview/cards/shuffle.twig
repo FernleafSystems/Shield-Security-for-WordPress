@@ -1,8 +1,24 @@
+<div class="row mb-5">
+	<div class="col">
+		<div class="btn-group filter-options" role="group" aria-label="Basic example">
+			<button type="button" class="btn btn-secondary" data-group="audit_trail">Audit Trail</button>
+			<button type="button" class="btn btn-secondary">Middle</button>
+			<button type="button" class="btn btn-secondary">Right</button>
+		</div>
+	</div>
+</div>
+
 <div class="row overview-card-row mb-3" id="overview-card-shuffle">
 {% for card_section in vars.overview_cards %}
 	{% for card in card_section.cards %}
-		<div class="col-xl-2 col-lg-3 col-md-4 card-item">
-				<div class="text-center overview card mb-3
+		<div class="col-xl-2 col-lg-3 col-md-4 card-item"
+				{% if not card.groups is empty %}
+					data-groups='["{{ card.groups|join('","') }}"]'
+				{% else %}
+					data-groups='[]'
+				{% endif %}
+		>
+			<div class="text-center overview card mb-3
 				{% if card.state == -1 %}
 				state-warning
 				{% elseif card.state == 0 %}
@@ -11,9 +27,9 @@
 				state-good
 				{% endif %}
 				"
-					 id="overviewcard-{{ card.id }}"
-					 {% if card.summary is defined %}title="{{ card.summary }}"{% endif %}
-				>
+				 id="overviewcard-{{ card.id }}"
+				 {% if card.summary is defined %}title="{{ card.summary }}"{% endif %}
+			>
 					<div class="card-header font-weight-bolder">
 						{{ card.name }}
 					</div>

@@ -17,7 +17,7 @@ class UI extends Base\ShieldUI {
 		$cardSection = [
 			'title'        => __( 'Activity Audit Log', 'wp-simple-firewall' ),
 			'subtitle'     => $mod->getStrings()->getModTagLine(),
-			'href_options' => $mod->getUrl_AdminPage()
+			'href_options' => $mod->getUrl_AdminPage(),
 		];
 
 		$cards = [];
@@ -67,6 +67,13 @@ class UI extends Base\ShieldUI {
 				'summary' => sprintf( __( 'Maximum Audit Trail entries limited to %s', 'wp-simple-firewall' ), $opts->getMaxEntries() ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
 			];
+		}
+
+		foreach ( $cards as &$card ) {
+			if ( empty( $card[ 'groups' ] ) || !is_array( $card[ 'groups' ] ) ) {
+				$card[ 'groups' ] = [];
+			}
+			$card[ 'groups' ][] = $mod->getSlug();
 		}
 
 		$cardSection[ 'cards' ] = $cards;

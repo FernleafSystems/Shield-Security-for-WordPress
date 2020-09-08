@@ -13,8 +13,8 @@ var ShieldCardShuffle = function ( element, itemSelector ) {
 	this._activeFilters = [];
 
 	this.addFilterButtons();
-	this.addSorting();
-	this.addSearchFilter();
+	// this.addSorting();
+	// this.addSearchFilter();
 
 	this.mode = 'exclusive';
 };
@@ -34,7 +34,6 @@ ShieldCardShuffle.prototype._handleFilterClick = function ( evt ) {
 	var btn = evt.currentTarget;
 	var isActive = btn.classList.contains( 'active' );
 	var btnGroup = btn.getAttribute( 'data-group' );
-
 	// You don't need _both_ of these modes. This is only for the demo.
 
 	// For this custom 'additive' mode in the demo, clicking on filter buttons

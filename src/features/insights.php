@@ -245,7 +245,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'chartist.min',
 						'chartist-plugin-legend',
 						'charts',
-						'shuffle.min',
+						'shuffle',
 						'shield-card-shuffle'
 					];
 					if ( $oTourManager->canShow( 'insights_overview' ) ) {
