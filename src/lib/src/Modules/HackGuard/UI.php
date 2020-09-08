@@ -10,6 +10,134 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
+	public function getInsightsOverviewCards() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$aScanNames = $mod->getStrings()->getScanNames();
+
+		$cardSection = [
+			'title'        => __( 'Hack Guard', 'wp-simple-firewall' ),
+			'subtitle'     => __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' ),
+			'href_options' => $mod->getUrl_AdminPage()
+		];
+
+		$cards = [];
+
+		if ( !$mod->isModOptEnabled() ) {
+			$cards[ 'mod' ] = $this->getModDisabledCard();
+		}
+		else {
+			$bGoodFrequency = $opts->getScanFrequency() > 1;
+			$cards[ 'frequency' ] = [
+				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
+				'state'   => $bGoodFrequency ? 1 : 0,
+				'summary' => $bGoodFrequency ?
+					__( 'Automatic scanners run more than once per day', 'wp-simple-firewall' )
+					: __( "Automatic scanners only run once per day", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_options' ),
+			];
+
+			$bCore = $mod->getScanCon( 'wcf' )->isEnabled();
+			$cards[ 'wcf' ] = [
+				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
+				'state'   => $bCore ? 1 : -1,
+				'summary' => $bCore ?
+					__( 'Core files scanned regularly for hacks', 'wp-simple-firewall' )
+					: __( "Core files are never scanned for hacks!", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
+			];
+			if ( $bCore && !$opts->isRepairFileWP() ) {
+				$cards[ 'wcf_repair' ] = [
+					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
+					'state'   => $opts->isRepairFileWP() ? 1 : 0,
+					'summary' => $opts->isRepairFileWP() ?
+						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
+						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToOption( 'file_repair_areas' ),
+				];
+			}
+
+			$bUcf = $mod->getScanCon( 'ufc' )->isEnabled();
+			$cards[ 'ufc' ] = [
+				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
+				'state'   => $bUcf ? 1 : -1,
+				'summary' => $bUcf ?
+					__( 'Core directories scanned regularly for unrecognised files', 'wp-simple-firewall' )
+					: __( "WP Core is never scanned for unrecognised files!", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+			];
+			if ( $bUcf && !$opts->isUfsDeleteFiles() ) {
+				$cards[ 'ufc_repair' ] = [
+					'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
+					'state'   => $opts->isUfsDeleteFiles() ? 1 : 0,
+					'summary' => $opts->isUfsDeleteFiles() ?
+						__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
+						: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+				];
+			}
+
+			$bWpv = $mod->getScanCon( 'wpv' )->isEnabled();
+			$cards[ 'wpv' ] = [
+				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
+				'state'   => $bWpv ? 1 : -1,
+				'summary' => $bWpv ?
+					__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
+					: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+			];
+			$bWpvAutoUpdates = $opts->isWpvulnAutoupdatesEnabled();
+			if ( $bWpv && !$bWpvAutoUpdates ) {
+				$cards[ 'wpv_repair' ] = [
+					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
+					'state'   => $bWpvAutoUpdates ? 1 : 0,
+					'summary' => $bWpvAutoUpdates ?
+						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
+						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+				];
+			}
+
+			$bPtg = $mod->getScanCon( 'ptg' )->isEnabled();
+			$cards[ 'ptg' ] = [
+				'title'   => $aScanNames[ 'ptg' ],
+				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
+				'state'   => $bPtg ? 1 : -1,
+				'summary' => $bPtg ?
+					__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
+					: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'ptg_enable' ),
+			];
+
+			$bMal = $mod->getScanCon( 'mal' )->isEnabled();
+			$cards[ 'mal' ] = [
+				'title'   => $aScanNames[ 'mal' ],
+				'name'    => $aScanNames[ 'mal' ],
+				'state'   => $bMal ? 1 : -1,
+				'summary' => $bMal ?
+					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'mal' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+			];
+
+			$bApc = $mod->getScanCon( 'apc' )->isEnabled();
+			$cards[ 'apc' ] = [
+				'title'   => $aScanNames[ 'apc' ],
+				'name'    => $aScanNames[ 'apc' ],
+				'state'   => $bApc ? 1 : -1,
+				'summary' => $bApc ?
+					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'apc' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'apc' ] ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
+			];
+		}
+
+		$cardSection[ 'cards' ] = $cards;
+		return [ 'hack_protect' => $cardSection ];
+	}
+
 	/**
 	 * @return array
 	 */
