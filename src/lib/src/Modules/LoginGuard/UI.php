@@ -6,6 +6,70 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class UI extends Base\ShieldUI {
 
+	public function getInsightsOverviewCards() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$cardSection = [
+			'title'        => __( 'Login Guard', 'wp-simple-firewall' ),
+			'sub'          => __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' ),
+			'href_options' => $mod->getUrl_AdminPage()
+		];
+
+		$cards = [];
+
+		if ( !$mod->isModOptEnabled() ) {
+			$cards[ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bHasBotCheck = $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
+
+			$bBotLogin = $bHasBotCheck && $opts->isProtectLogin();
+			$bBotRegister = $bHasBotCheck && $opts->isProtectRegister();
+			$bBotPassword = $bHasBotCheck && $opts->isProtectLostPassword();
+			$cards[ 'bot_login' ] = [
+				'name'    => __( 'Brute Force Login', 'wp-simple-firewall' ),
+				'state'   => $bBotLogin ? 1 : -1,
+				'summary' => $bBotLogin ?
+					__( 'Login forms are protected against bot attacks', 'wp-simple-firewall' )
+					: __( 'Login forms are not protected against brute force bot attacks', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
+			];
+			$cards[ 'bot_register' ] = [
+				'name'    => __( 'Bot User Register', 'wp-simple-firewall' ),
+				'state'   => $bBotRegister ? 1 : -1,
+				'summary' => $bBotRegister ?
+					__( 'Registration forms are protected against bot attacks', 'wp-simple-firewall' )
+					: __( 'Registration forms are not protected against automated bots', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
+			];
+			$cards[ 'bot_password' ] = [
+				'name'    => __( 'Brute Force Lost Password', 'wp-simple-firewall' ),
+				'state'   => $bBotPassword ? 1 : -1,
+				'summary' => $bBotPassword ?
+					__( 'Lost Password forms are protected against bot attacks', 'wp-simple-firewall' )
+					: __( 'Lost Password forms are not protected against automated bots', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
+			];
+
+			$bHas2Fa = $opts->isEmailAuthenticationActive()
+					   || $opts->isEnabledGoogleAuthenticator() || $opts->isEnabledYubikey();
+			$cards[ '2fa' ] = [
+				'name'    => __( 'Identity Verification', 'wp-simple-firewall' ),
+				'state'   => $bHas2Fa ? 1 : -1,
+				'summary' => $bHas2Fa ?
+					__( 'At least 1 2FA option is enabled', 'wp-simple-firewall' )
+					: __( 'No 2FA options, such as Google Authenticator, are active.', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_2fa_email' ),
+			];
+		}
+
+		$cardSection[ 'cards' ] = $cards;
+		return [ 'login_protect' => $cardSection ];
+	}
+
 	/**
 	 * @return array
 	 */
