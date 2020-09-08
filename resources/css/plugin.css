@@ -1294,6 +1294,16 @@ dl.pro-features dd {
 }
 .overview.card {
 }
+.overview.card > .card-footer {
+	padding: 10px 15px;
+}
+.overview.card > .card-footer > a {
+	text-decoration: none !important;
+	line-height: 24px;
+}
+.overview.card > .card-footer > a .dashicons {
+	font-size: 24px;
+}
 .overview.card.state-good,
 .overview.card.state-good > .card-header,
 .overview.card.state-good > .card-footer {
@@ -1309,7 +1319,6 @@ dl.pro-features dd {
 .overview.card.state-ok > .card-footer {
 	border-color: #0579d2;
 }
-
 .overview.card.state-good > .card-header {
 	background-color: rgba(98, 214, 83, 0.2);
 }
@@ -1322,7 +1331,6 @@ dl.pro-features dd {
 .overview.card.state-good > .card-footer > a {
 	color: #008000;
 }
-
 .overview.card.state-warning > .card-header {
 	background-color: rgba(255, 161, 99, 0.2);
 }
@@ -1335,7 +1343,6 @@ dl.pro-features dd {
 .overview.card.state-warning > .card-footer > a {
 	color: #9f4000;
 }
-
 .overview.card.state-ok > .card-header {
 	background-color: rgba(99, 187, 255, 0.2);
 }

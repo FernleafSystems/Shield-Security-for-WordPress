@@ -3,11 +3,11 @@
 		<div class="col-12 col">
 			<h5>
 				{{ card_section.title }}
-				<br/><small>{{ card_section.subtitle }}</small>
+				<small>{{ card_section.subtitle }}</small>
 			</h5>
 		</div>
 		{% for card in card_section.cards %}
-			<div class="col-lg-2 col-md-4 card-group">
+			<div class="col-xl-2 col-lg-3 col-md-4 card-group">
 				<div class="text-center overview card mb-3
 				{% if card.state == -1 %}
 				state-warning
@@ -27,8 +27,8 @@
 						{{ card.summary }}
 					</div>
 					<div class="card-footer text-right">
-						<a href="{{ card.href }}"
-						   class="">{{ strings.options_title }} &rarr;</a>
+						<a href="{{ card.href }}" title="{{ strings.go_to_options }}"
+						   class=""><span class="dashicons dashicons-admin-generic"></span></a>
 					</div>
 				</div>
 			</div>

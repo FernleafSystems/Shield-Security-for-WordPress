@@ -60,7 +60,7 @@ class UI extends Base\ShieldUI {
 				'name'    => __( 'Identity Verification', 'wp-simple-firewall' ),
 				'state'   => $bHas2Fa ? 1 : -1,
 				'summary' => $bHas2Fa ?
-					__( 'At least 1 2FA option is enabled', 'wp-simple-firewall' )
+					__( 'At least one 2FA option is available', 'wp-simple-firewall' )
 					: __( 'No 2FA options, such as Google Authenticator, are active.', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_2fa_email' ),
 			];

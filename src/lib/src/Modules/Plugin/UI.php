@@ -28,14 +28,6 @@ class UI extends Base\ShieldUI {
 			$cards[] = $this->getModDisabledCard();
 		}
 		else {
-			$cards[ 'editing' ] = [
-				'name'    => __( 'Visitor IP', 'wp-simple-firewall' ),
-				'state'   => 0,
-				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ),
-					__( $opts->getSelectOptionValueText( 'visitor_address_source' ), 'wp-simple-firewall' ) ),
-				'href'    => $mod->getUrl_DirectLinkToOption( 'visitor_address_source' ),
-			];
-
 			$bHasSupportEmail = Services::Data()->validEmail( $opts->getOpt( 'block_send_email_address' ) );
 			$cards[ 'reports' ] = [
 				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
@@ -44,6 +36,14 @@ class UI extends Base\ShieldUI {
 					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() )
 					: sprintf( __( 'No reporting address provided - defaulting to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+			];
+
+			$cards[ 'editing' ] = [
+				'name'    => __( 'Visitor IP Detection', 'wp-simple-firewall' ),
+				'state'   => 0,
+				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ),
+					__( $opts->getSelectOptionValueText( 'visitor_address_source' ), 'wp-simple-firewall' ) ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			];
 
 			$bRecap = $mod->getCaptchaCfg()->ready;
