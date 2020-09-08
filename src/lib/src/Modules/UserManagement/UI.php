@@ -49,24 +49,22 @@ class UI extends Base\ShieldUI {
 			$bPolicies = $opts->isPasswordPoliciesEnabled();
 
 			$bPwned = $bPolicies && $opts->isPassPreventPwned();
-			$data[ 'key_opts' ][ 'pwned' ] = [
+			$cards[ 'pwned' ] = [
 				'name'    => __( 'Pwned Passwords', 'wp-simple-firewall' ),
-				'enabled' => $bPwned,
+				'state'   => $bPwned ? 1 : -1,
 				'summary' => $bPwned ?
 					__( 'Pwned passwords are blocked on this site', 'wp-simple-firewall' )
 					: __( 'Pwned passwords are allowed on this site', 'wp-simple-firewall' ),
-				'weight'  => 2,
 				'href'    => $mod->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
 			];
 
 			$bIndepthPolices = $bPolicies && $this->getCon()->isPremiumActive();
-			$data[ 'key_opts' ][ 'policies' ] = [
+			$cards[ 'policies' ] = [
 				'name'    => __( 'Password Policies', 'wp-simple-firewall' ),
-				'enabled' => $bIndepthPolices,
+				'state'   => $bIndepthPolices ? 1 : -1,
 				'summary' => $bIndepthPolices ?
 					__( 'Several password policies are active', 'wp-simple-firewall' )
 					: __( 'Limited or no password polices are active', 'wp-simple-firewall' ),
-				'weight'  => 2,
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_passwords' ),
 			];
 		}
