@@ -1309,14 +1309,42 @@ dl.pro-features dd {
 .overview.card.state-ok > .card-footer {
 	border-color: #0579d2;
 }
-.overview.card > .card-body:before {
+
+.overview.card.state-good > .card-header {
+	background-color: rgba(98, 214, 83, 0.2);
 }
 .overview.card.state-good > .card-body {
-	background-color: rgba(115, 255, 99, 0.1);
+	background-color: rgba(115, 255, 99, 0.08);
+}
+.overview.card.state-good > .card-footer {
+	background-color: rgba(115, 255, 99, 0.02);
+}
+.overview.card.state-good > .card-footer > a {
+	color: #008000;
+}
+
+.overview.card.state-warning > .card-header {
+	background-color: rgba(255, 161, 99, 0.2);
 }
 .overview.card.state-warning > .card-body {
-	background-color: rgba(255, 161, 99, 0.1);
+	background-color: rgba(255, 161, 99, 0.08);
+}
+.overview.card.state-warning > .card-footer {
+	background-color: rgba(255, 161, 99, 0.02);
+}
+.overview.card.state-warning > .card-footer > a {
+	color: #9f4000;
+}
+
+.overview.card.state-ok > .card-header {
+	background-color: rgba(99, 187, 255, 0.2);
 }
 .overview.card.state-ok > .card-body {
-	background-color: rgba(99, 187, 255, 0.1);
+	background-color: rgba(99, 187, 255, 0.08);
+}
+.overview.card.state-ok > .card-footer {
+	background-color: rgba(99, 187, 255, 0.02);
+}
+.overview.card.state-ok > .card-footer > a {
+	color: #007ba2;
 }

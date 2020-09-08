@@ -1,11 +1,14 @@
 {% for card_section in vars.overview_cards %}
-	<div class="row overview-card-row">
+	<div class="row overview-card-row mb-3">
 		<div class="col-12 col">
-			<h6>{{ card_section.title }}</h6>
+			<h5>
+				{{ card_section.title }}
+				<br/><small>{{ card_section.subtitle }}</small>
+			</h5>
 		</div>
 		{% for card in card_section.cards %}
 			<div class="col-lg-2 col-md-4 card-group">
-				<div class="text-center overview card
+				<div class="text-center overview card mb-3
 				{% if card.state == -1 %}
 				state-warning
 				{% elseif card.state == 0 %}
@@ -17,16 +20,15 @@
 					 id="overviewcard-{{ card.id }}"
 					 {% if card.summary is defined %}title="{{ card.summary }}"{% endif %}
 				>
-					<div class="card-header">
+					<div class="card-header font-weight-bolder">
 						{{ card.name }}
 					</div>
 					<div class="card-body">
 						{{ card.summary }}
 					</div>
-					<div class="card-footer bg-transparent">
-
+					<div class="card-footer text-right">
 						<a href="{{ card.href }}"
-						   class="btn btn-sm btn-link">{{ strings.go_to_options }} &rarr;</a>
+						   class="">{{ strings.options_title }} &rarr;</a>
 					</div>
 				</div>
 			</div>

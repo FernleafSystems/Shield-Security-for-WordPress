@@ -18,42 +18,6 @@
 		<div class="col-xl-6 col-lg-12 insights_section">
 			{% include '/wpadmin_pages/insights/overview/recent_events.twig' %}
 		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-12 insights_section mb-3">
-			<h4 id="collapseConfigSummaryTitle" data-toggle="collapse"
-				href="#collapseConfigSummary" aria-expanded="true" aria-controls="">
-				{{ strings.configuration_summary }} <small>({{ strings.click_to_toggle }} &rarr;)</small>
-			</h4>
-		</div>
-	</div>
-
-	<div class="row collapse show" id="collapseConfigSummary">
-		<div class="col-12">
-			<div class="row keys text-center">
-				<div class="col-sm-1">
-					<h6 style="line-height: 42px" class="mb-0">{{ strings.key }}</h6>
-				</div>
-				<div class="col-sm-3">
-					<div class="alert alert-success">{{ strings.key_positive }}</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="alert alert-warning">{{ strings.key_warning }}</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="alert alert-danger">{{ strings.key_danger }}</div>
-				</div>
-				<div class="col-sm-2">
-					<div class="alert alert-secondary">{{ strings.key_information }}</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-12 insights_section mt-0">
-					{% include '/wpadmin_pages/insights/config/module_summaries.twig' %}
-				</div>
-			</div>
-		</div>
 		{% if flags.show_guided_tour %}
 			<a style="display: none;" class="btn btn-default"
 			   id="IntroVideo"

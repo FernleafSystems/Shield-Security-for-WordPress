@@ -42,7 +42,7 @@ class UI extends Base\ShieldUI {
 				'state'   => $bHasSupportEmail ? 1 : -1,
 				'summary' => $bHasSupportEmail ?
 					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() )
-					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() ),
+					: sprintf( __( 'No reporting address provided - defaulting to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
 

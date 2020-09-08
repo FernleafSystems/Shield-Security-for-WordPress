@@ -34,7 +34,7 @@ class UI extends Base\ShieldUI {
 				'state'   => $bBotLogin ? 1 : -1,
 				'summary' => $bBotLogin ?
 					__( 'Login forms are protected against bot attacks', 'wp-simple-firewall' )
-					: __( 'Login forms are not protected against brute force bot attacks', 'wp-simple-firewall' ),
+					: __( "Login forms aren't protected against brute force bot attacks", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 			$cards[ 'bot_register' ] = [
@@ -42,7 +42,7 @@ class UI extends Base\ShieldUI {
 				'state'   => $bBotRegister ? 1 : -1,
 				'summary' => $bBotRegister ?
 					__( 'Registration forms are protected against bot attacks', 'wp-simple-firewall' )
-					: __( 'Registration forms are not protected against automated bots', 'wp-simple-firewall' ),
+					: __( "Registration forms aren't protected against automated bots", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 			$cards[ 'bot_password' ] = [
@@ -50,7 +50,7 @@ class UI extends Base\ShieldUI {
 				'state'   => $bBotPassword ? 1 : -1,
 				'summary' => $bBotPassword ?
 					__( 'Lost Password forms are protected against bot attacks', 'wp-simple-firewall' )
-					: __( 'Lost Password forms are not protected against automated bots', 'wp-simple-firewall' ),
+					: __( "Lost Password forms aren't protected against automated bots", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 
