@@ -6,6 +6,62 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class UI extends Base\ShieldUI {
 
+	public function getInsightsOverviewCards() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$cardSection = [
+			'title'        => __( 'Security Admin', 'wp-simple-firewall' ),
+			'subtitle'     => sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ),
+				$this->getCon()->getHumanName() ),
+			'href_options' => $mod->getUrl_AdminPage()
+		];
+
+		$cards = [];
+
+		if ( !$this->isEnabledForUiSummary() ) {
+			$cards[ 'mod' ] = [
+				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
+				'state'   => -1,
+				'summary' => __( 'Security plugin is vulnerable to tampering', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_key' ),
+			];
+		}
+		else {
+			$cards[ 'mod' ] = [
+				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
+				'state'   => 1,
+				'summary' => __( 'Security plugin is protected against tampering', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_key' ),
+			];
+
+			$bWpOpts = $opts->getAdminAccessArea_Options();
+			$cards[ 'wpopts' ] = [
+				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
+				'state'   => $bWpOpts ? 1 : -1,
+				'summary' => $bWpOpts ?
+					__( 'Important WP options are protected against tampering', 'wp-simple-firewall' )
+					: __( "Important WP options aren't protected against tampering", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
+			];
+
+			$bUsers = $opts->isSecAdminRestrictUsersEnabled();
+			$cards[ 'adminusers' ] = [
+				'name'    => __( 'WP Admins', 'wp-simple-firewall' ),
+				'state'   => $bUsers ? 1 : -1,
+				'summary' => $bUsers ?
+					__( 'Admin users are protected against tampering', 'wp-simple-firewall' )
+					: __( "Admin users aren't protected against tampering", 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
+			];
+		}
+
+		$cardSection[ 'cards' ] = $cards;
+		return [ 'sec_admin' => $cardSection ];
+	}
+
 	protected function getSectionWarnings( string $section ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
 		$mod = $this->getMod();

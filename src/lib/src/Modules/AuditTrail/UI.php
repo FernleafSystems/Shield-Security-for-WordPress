@@ -23,7 +23,7 @@ class UI extends Base\ShieldUI {
 		$cards = [];
 
 		if ( !$mod->isModOptEnabled() ) {
-			$data[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+			$data[ 'key_opts' ][ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
 			$aAudit = [];
