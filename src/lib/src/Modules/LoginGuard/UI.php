@@ -14,14 +14,14 @@ class UI extends Base\ShieldUI {
 
 		$cardSection = [
 			'title'        => __( 'Login Guard', 'wp-simple-firewall' ),
-			'sub'          => __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' ),
+			'subtitle'          => __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' ),
 			'href_options' => $mod->getUrl_AdminPage()
 		];
 
 		$cards = [];
 
 		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledInsight();
+			$cards[ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
 			$bHasBotCheck = $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
