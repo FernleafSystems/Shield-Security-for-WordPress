@@ -1,13 +1,7 @@
+<div class="row overview-card-row mb-3" id="overview-card-shuffle">
 {% for card_section in vars.overview_cards %}
-	<div class="row overview-card-row mb-3">
-		<div class="col-12 col">
-			<h5>
-				{{ card_section.title }}
-				<small>{{ card_section.subtitle }}</small>
-			</h5>
-		</div>
-		{% for card in card_section.cards %}
-			<div class="col-xl-2 col-lg-3 col-md-4 card-group">
+	{% for card in card_section.cards %}
+		<div class="col-xl-2 col-lg-3 col-md-4 card-item">
 				<div class="text-center overview card mb-3
 				{% if card.state == -1 %}
 				state-warning
@@ -32,6 +26,15 @@
 					</div>
 				</div>
 			</div>
-		{% endfor %}
-	</div>
+	{% endfor %}
 {% endfor %}
+	</div>
+<script>
+
+document.addEventListener( 'DOMContentLoaded', function () {
+	window.demo = new ShieldCardShuffle(
+		document.getElementById( 'overview-card-shuffle' ),
+		'.card-item'
+	);
+} );
+</script>

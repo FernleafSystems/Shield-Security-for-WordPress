@@ -241,7 +241,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 					$aDeps = $aStdDepsJs;
 
-					$aJsAssets = [ 'chartist.min', 'chartist-plugin-legend', 'charts' ];
+					$aJsAssets = [
+						'chartist.min',
+						'chartist-plugin-legend',
+						'charts',
+						'shuffle.min',
+						'shield-card-shuffle'
+					];
 					if ( $oTourManager->canShow( 'insights_overview' ) ) {
 						array_unshift( $aJsAssets, 'introjs.min.js' );
 					}
