@@ -239,13 +239,6 @@ class UI {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getInsightsConfigCardData() :array {
-		return [];
-	}
-
 	public function getInsightsNoticesData() :array {
 		return [];
 	}
@@ -257,7 +250,7 @@ class UI {
 	protected function getModDisabledCard() :array {
 		$mod = $this->getMod();
 		return [
-			'name'   => __( 'Module Disabled', 'wp-simple-firewall' ),
+			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
 			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
 			'state'   => -1,
 			'href'    => $mod->getUrl_DirectLinkToOption( $mod->getEnableModOptKey() ),

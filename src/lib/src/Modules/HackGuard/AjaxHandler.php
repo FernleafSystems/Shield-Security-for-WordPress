@@ -200,7 +200,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		catch ( \Exception $oE ) {
 			$aData[ 'error' ] = $oE->getMessage();
-		};
+		}
 
 		return [
 			'success' => $aData[ 'success' ],

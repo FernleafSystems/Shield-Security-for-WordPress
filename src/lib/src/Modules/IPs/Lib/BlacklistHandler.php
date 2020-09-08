@@ -41,7 +41,6 @@ class BlacklistHandler {
 						->setMod( $this->getMod() )
 						->run();
 				}, -100000 );
-
 			}
 		}
 	}

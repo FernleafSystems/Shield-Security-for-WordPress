@@ -9,14 +9,17 @@ class Strings {
 
 	use ModConsumer;
 
+	public function getModTagLine() :string {
+		return __( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @return string[]
 	 */
-	public function getDisplayStrings() {
+	public function getDisplayStrings() :array {
 		$con = $this->getCon();
 
 		$aProFeatures = [
-			__( 'Customer Support', 'wp-simple-firewall' ),
 			__( 'More Scans', 'wp-simple-firewall' ),
 			__( 'Malware Scanner', 'wp-simple-firewall' ),
 			__( 'Scan Every Hour', 'wp-simple-firewall' ),

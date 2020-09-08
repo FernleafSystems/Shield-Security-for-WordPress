@@ -114,7 +114,8 @@ class Strings extends Base\Strings {
 				$sTitleShort = __( 'Report Frequencies', 'wp-simple-firewall' );
 				$aSummary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
-					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()->getPluginReportEmail().'</code>' )
+					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()
+																				  ->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="font-weight-bolder">%s</a>',
 						$this->getCon()->getModule_Plugin()

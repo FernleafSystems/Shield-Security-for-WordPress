@@ -21,14 +21,14 @@ class AjaxHandlerShield extends AjaxHandlerBase {
 			case 'wiz_process_step':
 				if ( $mod->hasWizard() ) {
 					$aResponse = $mod->getWizardHandler()
-									  ->ajaxExec_WizProcessStep();
+									 ->ajaxExec_WizProcessStep();
 				}
 				break;
 
 			case 'wiz_render_step':
 				if ( $mod->hasWizard() ) {
 					$aResponse = $mod->getWizardHandler()
-									  ->ajaxExec_WizRenderStep();
+									 ->ajaxExec_WizRenderStep();
 				}
 				break;
 

@@ -53,7 +53,7 @@ class WordPress extends BaseFormProvider {
 	 */
 	public function checkLostPassword( $oWpError ) {
 		try {
-			$this->setUserToAudit( sanitize_user(Services::Request()->post( 'user_login', '' )) )
+			$this->setUserToAudit( sanitize_user( Services::Request()->post( 'user_login', '' ) ) )
 				 ->setActionToAudit( 'reset-password' )
 				 ->checkProviders();
 		}

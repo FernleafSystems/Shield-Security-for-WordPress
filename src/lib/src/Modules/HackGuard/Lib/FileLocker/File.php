@@ -49,7 +49,6 @@ class File {
 
 			$workingDir = dirname( $workingDir );
 			$dirCount++;
-
 		} while (
 			$dirCount < $this->getMaxDirLevels()
 			&& ( empty( $this->max_paths ) || count( $paths ) < $this->max_paths )

@@ -180,9 +180,9 @@ class Collate {
 		}
 		else {
 			$sPrev = 'Last Attempt: '.Services::Request()
-												 ->carbon()
-												 ->setTimestamp( $nPrevAttempt )
-												 ->diffForHumans();
+											  ->carbon()
+											  ->setTimestamp( $nPrevAttempt )
+											  ->diffForHumans();
 		}
 
 		$aD = [

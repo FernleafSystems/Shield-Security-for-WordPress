@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base {
 
 	use Shield\Modules\ModConsumer;
+
 	const OPT_KEY = '';
 
 	public function run() {

@@ -7,7 +7,7 @@
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",
-    "tagline":               "Get a view on what happens on your site, when it happens",
+    "tagline":               "Track All Site Activity: Who, What, When and Where",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,

@@ -26,7 +26,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $aResponse;
 	}
 
-	private function ajaxExec_RenderChart() :array{
+	private function ajaxExec_RenderChart() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $mod */
 		$mod = $this->getMod();
 
@@ -45,7 +45,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	private function ajaxExec_RenderChartPost() :array{
+	private function ajaxExec_RenderChartPost() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
