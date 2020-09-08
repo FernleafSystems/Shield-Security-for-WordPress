@@ -102,7 +102,7 @@ class UI extends Base\ShieldUI {
 			}
 		}
 
-		return $cardSection;
+		return [ 'auto_updates' => $cardSection ];
 	}
 
 	public function getInsightsNoticesData() :array {

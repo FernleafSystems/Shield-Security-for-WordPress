@@ -4,15 +4,29 @@
 			<h6>{{ card_section.title }}</h6>
 		</div>
 		{% for card in card_section.cards %}
-			<div class="col-lg-2 col-md-4">
-				<div class="overview card text-center" id="statcard-{{ card.id }}"
-					 {% if card.tooltip is defined %}title="{{ card.tooltip }}"{% endif %}
+			<div class="col-lg-2 col-md-4 card-group">
+				<div class="text-center overview card
+				{% if card.state == -1 %}
+				state-warning
+				{% elseif card.state == 0 %}
+				state-ok
+				{% else %}
+				state-good
+				{% endif %}
+				"
+					 id="overviewcard-{{ card.id }}"
+					 {% if card.summary is defined %}title="{{ card.summary }}"{% endif %}
 				>
 					<div class="card-header">
-						header
+						{{ card.name }}
 					</div>
 					<div class="card-body">
-						boddy
+						{{ card.summary }}
+					</div>
+					<div class="card-footer bg-transparent">
+
+						<a href="{{ card.href }}"
+						   class="btn btn-sm btn-link">{{ strings.go_to_options }} &rarr;</a>
 					</div>
 				</div>
 			</div>

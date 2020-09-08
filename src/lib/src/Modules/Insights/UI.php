@@ -306,15 +306,19 @@ class UI extends Base\ShieldUI {
 		foreach ( $this->getCon()->modules as $module ) {
 			$sections = array_merge( $sections, $module->getUIHandler()->getInsightsOverviewCards() );
 		}
-
 		// remove empties, add a count, then order.
 		return array_filter( array_merge(
 			[
-				'plugin'                   => [],
+				'plugin' => [],
 			],
 			array_map(
 				function ( $section ) {
 					$section[ 'count' ] = count( $section[ 'cards' ] );
+					foreach ( $section[ 'cards' ] as $key => &$card ) {
+						if ( empty( $card[ 'id' ] ) ) {
+							$card[ 'id' ] = $key;
+						}
+					}
 					return $section;
 				},
 				array_filter(
