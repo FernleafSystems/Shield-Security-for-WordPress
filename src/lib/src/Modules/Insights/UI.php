@@ -318,145 +318,167 @@ class UI extends Base\ShieldUI {
 						if ( empty( $card[ 'id' ] ) ) {
 							$card[ 'id' ] = $key;
 						}
+						if ( !isset( $card[ 'state' ] ) ) {
+							$card[ 'state' ] = 0;
+						}
 					}
-					return $section;
-				},
-				array_filter(
-					$sections,
-					function ( $section ) {
-						return !empty( $section[ 'cards' ] );
-					}
-				)
-			)
-		) );
+
+					uasort( $section[ 'cards' ], function ( $a, $b ) {
+						$a = $a[ 'state' ];
+						$b = $b[ 'state' ];
+						if ( $a == $b ) {
+							$ret = 0;
+						}
+						elseif ( $a === 0 || $a < $b ) {
+							$ret = 1;
+						}
+						else {
+							$ret = -1;
+						}
+
+						return $ret;
+				} );
+
+		return $section;
+	},
+array_filter(
+$sections,
+	function ( $section ) {
+		return !empty( $section[ 'cards' ] );
 	}
+)
+)
+) );
+}
 
-	/**
-	 * @return array
-	 */
-	private function getRecentEvents() :array {
-		$con = $this->getCon();
+/**
+ * @return array
+ */
+private
+function getRecentEvents() :array {
+	$con = $this->getCon();
 
-		$aTheStats = array_filter(
-			$con->loadEventsService()->getEvents(),
-			function ( $aEvt ) {
-				return isset( $aEvt[ 'recent' ] ) && $aEvt[ 'recent' ];
-			}
-		);
+	$aTheStats = array_filter(
+		$con->loadEventsService()->getEvents(),
+		function ( $aEvt ) {
+			return isset( $aEvt[ 'recent' ] ) && $aEvt[ 'recent' ];
+		}
+	);
 
-		/** @var Strings $oStrs */
-		$oStrs = $this->getMod()->getStrings();
-		$aNames = $oStrs->getInsightStatNames();
+	/** @var Strings $oStrs */
+	$oStrs = $this->getMod()->getStrings();
+	$aNames = $oStrs->getInsightStatNames();
 
-		/** @var Events\Select $oSel */
-		$oSel = $con->getModule_Events()
-					->getDbHandler_Events()
-					->getQuerySelector();
+	/** @var Events\Select $oSel */
+	$oSel = $con->getModule_Events()
+				->getDbHandler_Events()
+				->getQuerySelector();
 
-		$aRecentStats = array_intersect_key(
-			array_map(
-				function ( $oEntryVO ) use ( $aNames ) {
-					/** @var Events\EntryVO $oEntryVO */
-					return [
-						'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
-						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
-					];
-				},
-				$oSel->getLatestForAllEvents()
-			),
-			$aTheStats
-		);
-
-		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
-			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
-				$aRecentStats[ $sStatKey ] = [
-					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
-					'val'  => $sNotYetRecorded
+	$aRecentStats = array_intersect_key(
+		array_map(
+			function ( $oEntryVO ) use ( $aNames ) {
+				/** @var Events\EntryVO $oEntryVO */
+				return [
+					'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
+					'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
 				];
-			}
-		}
+			},
+			$oSel->getLatestForAllEvents()
+		),
+		$aTheStats
+	);
 
-		return $aRecentStats;
+	$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
+	foreach ( array_keys( $aTheStats ) as $sStatKey ) {
+		if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
+			$aRecentStats[ $sStatKey ] = [
+				'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
+				'val'  => $sNotYetRecorded
+			];
+		}
 	}
 
-	/**
-	 * @return array[]
-	 */
-	protected function getStats() {
-		$oCon = $this->getCon();
-		/** @var Events\Select $oSelEvents */
-		$oSelEvents = $oCon->getModule_Events()
-						   ->getDbHandler_Events()
-						   ->getQuerySelector();
+	return $aRecentStats;
+}
 
-		/** @var IPs\Select $oSelectIp */
-		$oSelectIp = $oCon->getModule_IPs()
-						  ->getDbHandler_IPs()
-						  ->getQuerySelector();
+/**
+ * @return array[]
+ */
+protected
+function getStats() {
+	$oCon = $this->getCon();
+	/** @var Events\Select $oSelEvents */
+	$oSelEvents = $oCon->getModule_Events()
+					   ->getDbHandler_Events()
+					   ->getQuerySelector();
 
-		$aStatsData = [
-			'login'          => [
-				'id'        => 'login_block',
-				'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
-				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
-			],
-			//			'firewall'       => [
-			//				'id'      => 'firewall_block',
-			//				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
-			//				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
-			//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
-			//			],
-			'bot_blocks'     => [
-				'id'        => 'bot_blocks',
-				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
-				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
-			],
-			'comments'       => [
-				'id'        => 'comment_block',
-				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvents( [
-						'spam_block_bot',
-						'spam_block_human',
-						'spam_block_recaptcha'
-					] ) ),
-				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
-			],
-			'transgressions' => [
-				'id'        => 'ip_offense',
-				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
-				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
-			],
-			'conn_kills'     => [
-				'id'        => 'conn_kill',
-				'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
-				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
-			],
-			'ip_blocked'     => [
-				'id'        => 'ip_blocked',
-				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Now' ),
-					$oSelectIp->filterByBlacklist()->count()
-				),
-				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
-			],
-		];
+	/** @var IPs\Select $oSelectIp */
+	$oSelectIp = $oCon->getModule_IPs()
+					  ->getDbHandler_IPs()
+					  ->getQuerySelector();
 
-		foreach ( $aStatsData as $sKey => $sStatData ) {
-			$sSub = sprintf( __( 'previous %s %s', 'wp-simple-firewall' ), 7, __( 'days', 'wp-simple-firewall' ) );
-			$aStatsData[ $sKey ][ 'title_sub' ] = $sSub;
-			$aStatsData[ $sKey ][ 'tooltip_chart' ] = sprintf( '%s: %s.', __( 'Stats', 'wp-simple-firewall' ), $sSub );
-		}
+	$aStatsData = [
+		'login'          => [
+			'id'        => 'login_block',
+			'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
+			'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
+			'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
+		],
+		//			'firewall'       => [
+		//				'id'      => 'firewall_block',
+		//				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
+		//				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
+		//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
+		//			],
+		'bot_blocks'     => [
+			'id'        => 'bot_blocks',
+			'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
+			'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
+			'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
+		],
+		'comments'       => [
+			'id'        => 'comment_block',
+			'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
+			'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				$oSelEvents->clearWheres()->sumEvents( [
+					'spam_block_bot',
+					'spam_block_human',
+					'spam_block_recaptcha'
+				] ) ),
+			'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
+		],
+		'transgressions' => [
+			'id'        => 'ip_offense',
+			'title'     => __( 'Offenses', 'wp-simple-firewall' ),
+			'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
+			'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
+		],
+		'conn_kills'     => [
+			'id'        => 'conn_kill',
+			'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
+			'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
+			'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
+		],
+		'ip_blocked'     => [
+			'id'        => 'ip_blocked',
+			'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
+			'val'       => sprintf( '%s: %s', __( 'Now' ),
+				$oSelectIp->filterByBlacklist()->count()
+			),
+			'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
+		],
+	];
 
-		return $aStatsData;
+	foreach ( $aStatsData as $sKey => $sStatData ) {
+		$sSub = sprintf( __( 'previous %s %s', 'wp-simple-firewall' ), 7, __( 'days', 'wp-simple-firewall' ) );
+		$aStatsData[ $sKey ][ 'title_sub' ] = $sSub;
+		$aStatsData[ $sKey ][ 'tooltip_chart' ] = sprintf( '%s: %s.', __( 'Stats', 'wp-simple-firewall' ), $sSub );
 	}
+
+	return $aStatsData;
+}
 }

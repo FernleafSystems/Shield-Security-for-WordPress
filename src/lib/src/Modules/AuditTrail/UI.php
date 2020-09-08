@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class UI extends Base\ShieldUI {
 
 	public function getInsightsOverviewCards() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
