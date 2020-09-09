@@ -519,11 +519,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->getOptions()->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getCanAdminNotes() {
-		return $this->isPremium() && Services::WpUsers()->isUserAdmin();
+	public function getCanAdminNotes() :bool {
+		return Services::WpUsers()->isUserAdmin();
 	}
 
 	public function insertCustomJsVars_Admin() {

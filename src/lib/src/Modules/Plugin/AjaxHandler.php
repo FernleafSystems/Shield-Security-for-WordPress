@@ -258,21 +258,21 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_AdminNotesInsert() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$aFormParams = $this->getAjaxFormParams();
 
 		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
-		if ( !$oMod->getCanAdminNotes() ) {
-			$sMessage = __( 'Sorry, Admin Notes is only available for Pro subscriptions.', 'wp-simple-firewall' );
+		if ( !$mod->getCanAdminNotes() ) {
+			$sMessage = __( 'Sorry, Admin Notes is not available.', 'wp-simple-firewall' );
 		}
 		elseif ( empty( $sNote ) ) {
 			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$oInserter = $oMod->getDbHandler_Notes()->getQueryInserter();
+			$oInserter = $mod->getDbHandler_Notes()->getQueryInserter();
 			$bSuccess = $oInserter->create( $sNote );
 			$sMessage = $bSuccess ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
