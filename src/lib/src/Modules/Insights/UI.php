@@ -24,7 +24,7 @@ class UI extends Base\ShieldUI {
 				'insight_notices'       => $aSecNotices,
 				'insight_notices_count' => $nNoticesCount,
 				'insight_stats'         => $this->getStats(),
-				'overview_cards'        => $this->getOverviewCards_Static(),
+				'overview_cards'        => $this->getOverviewCards_Shuffle(),
 			],
 			'ajax'    => [
 				'render_chart_post' => $con->getModule_Events()->getAjaxActionData( 'render_chart_post', true ),
@@ -290,21 +290,28 @@ class UI extends Base\ShieldUI {
 	}
 
 	private function getOverviewCards_Shuffle() :array {
-		$data = [
-			'cards' => $this->getOverviewCards_Static(),
-			'groups' => $this->getOverviewCards_Static(),
-		];
+		$allSections = [];
+		foreach ( $this->getCon()->modules as $mod ) {
+			$modSections = $mod->getUIHandler()->getInsightsOverviewCards();
 
-		return $data;
-	}
+			foreach ( $modSections as &$section ) {
+				if ( empty( $section[ 'cards' ] ) || !is_array( $section[ 'cards' ] ) ) {
+					$section[ 'cards' ] = [];
+				}
+				foreach ( $section[ 'cards' ] as &$card ) {
+					if ( empty( $card[ 'groups' ] ) || !is_array( $card[ 'groups' ] ) ) {
+						$card[ 'groups' ] = [];
+					}
+					$card[ 'groups' ][ $mod->getSlug() ] = $mod->getMainFeatureName();
+				}
+			}
 
-	private function getOverviewCards_Static() :array {
-		$sections = [];
-		foreach ( $this->getCon()->modules as $module ) {
-			$sections = array_merge( $sections, $module->getUIHandler()->getInsightsOverviewCards() );
+			$allSections = array_merge( $allSections, $modSections );
 		}
+
+		$allGroups = [];
 		// remove empties, add a count, then order.
-		return array_filter( array_merge(
+		$allSections = array_filter( array_merge(
 			[
 				'plugin' => [],
 			],
@@ -322,33 +329,32 @@ class UI extends Base\ShieldUI {
 							$card[ 'groups' ] = [];
 						}
 					}
-
-					uasort( $section[ 'cards' ], function ( $a, $b ) {
-						$a = $a[ 'state' ];
-						$b = $b[ 'state' ];
-						if ( $a == $b ) {
-							$ret = 0;
-						}
-						elseif ( $a === 0 || $a < $b ) {
-							$ret = 1;
-						}
-						else {
-							$ret = -1;
-						}
-
-						return $ret;
-					} );
-
 					return $section;
 				},
 				array_filter(
-					$sections,
+					$allSections,
 					function ( $section ) {
 						return !empty( $section[ 'cards' ] );
 					}
 				)
 			)
 		) );
+
+		foreach ( $allSections as $section ) {
+			foreach ( $section[ 'cards' ] as $card ) {
+				$allGroups = array_merge( $allGroups, $card[ 'groups' ] );
+			}
+		}
+
+		return [
+			'sections'   => $allSections,
+			'groups'     => $allGroups,
+			'group_keys' => array_keys( $allGroups ),
+		];
+	}
+
+	private function getOverviewCards_Static() :array {
+		return $this->getOverviewCards_Shuffle()[ 'sections' ];
 	}
 
 	/**

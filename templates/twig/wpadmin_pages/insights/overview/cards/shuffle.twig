@@ -1,19 +1,19 @@
 <div class="row mb-5">
 	<div class="col">
 		<div class="btn-group filter-options" role="group" aria-label="Basic example">
-			<button type="button" class="btn btn-secondary" data-group="audit_trail">Audit Trail</button>
-			<button type="button" class="btn btn-secondary">Middle</button>
-			<button type="button" class="btn btn-secondary">Right</button>
+			{% for card_group_key,card_group_name in vars.overview_cards.groups %}
+			<button type="button" class="btn btn-outline-secondary" data-group="{{ card_group_key }}">{{ card_group_name }}</button>
+			{% endfor %}
 		</div>
 	</div>
 </div>
 
 <div class="row overview-card-row mb-3" id="overview-card-shuffle">
-{% for card_section in vars.overview_cards %}
+{% for card_section in vars.overview_cards.sections %}
 	{% for card in card_section.cards %}
 		<div class="col-xl-2 col-lg-3 col-md-4 card-item"
 				{% if not card.groups is empty %}
-					data-groups='["{{ card.groups|join('","') }}"]'
+					data-groups='["{{ card.groups|keys|join('","') }}"]'
 				{% else %}
 					data-groups='[]'
 				{% endif %}

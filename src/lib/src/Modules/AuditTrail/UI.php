@@ -69,13 +69,6 @@ class UI extends Base\ShieldUI {
 			];
 		}
 
-		foreach ( $cards as &$card ) {
-			if ( empty( $card[ 'groups' ] ) || !is_array( $card[ 'groups' ] ) ) {
-				$card[ 'groups' ] = [];
-			}
-			$card[ 'groups' ][] = $mod->getSlug();
-		}
-
 		$cardSection[ 'cards' ] = $cards;
 		return [ 'audit_trail' => $cardSection ];
 	}
