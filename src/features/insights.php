@@ -290,6 +290,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'audit':
 				case 'ips':
 				case 'notes':
+				case 'debug':
 				case 'traffic':
 				case 'users':
 

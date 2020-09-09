@@ -11,7 +11,7 @@ class AdminNotes {
 	public function build() :string {
 		return $this->getMod()
 					->renderTemplate(
-						'/wpadmin_pages/insights/notes/index.twig',
+						'/wpadmin_pages/insights/notes/admin_notes.twig',
 						$this->buildData(),
 						true
 					);
