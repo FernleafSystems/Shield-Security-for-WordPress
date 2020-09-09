@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
@@ -63,11 +65,19 @@ class UI extends Base\ShieldUI {
 
 	public function buildInsightsVars_Debug() :array {
 		return [
-			'vars' => [
+			'vars'    => [
 				'debug_data' => ( new Collate() )
 					->setMod( $this->getMod() )
 					->run()
 			],
+			'content' => [
+				'recent_events' => ( new RecentEvents() )
+					->setMod( $this->getMod() )
+					->build(),
+				'admin_notes' => ( new AdminNotes() )
+					->setMod( $this->getMod() )
+					->build()
+			]
 		];
 	}
 

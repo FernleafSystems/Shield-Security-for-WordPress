@@ -44,7 +44,6 @@ class UI extends Base\ShieldUI {
 				'has_notices'           => count( $aSecNotices ) > 0,
 			],
 			'strings' => [
-				'title_recent'              => __( 'Recent Events Log', 'wp-simple-firewall' ),
 				'title_security_notices'    => __( 'Security Notices', 'wp-simple-firewall' ),
 				'subtitle_security_notices' => __( 'Potential security issues on your site right now', 'wp-simple-firewall' ),
 				'configuration_summary'     => __( 'Plugin Configuration Summary', 'wp-simple-firewall' ),
