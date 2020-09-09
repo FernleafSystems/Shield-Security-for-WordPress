@@ -5,26 +5,36 @@ var ShieldCardShuffle = function ( element, itemSelector ) {
 
 	this.shuffle = new Shuffle( element, {
 		itemSelector: itemSelector,
+		filterMode: Shuffle.FilterMode.ANY,
 	} );
 
 	// Log events.
 	// this.addShuffleEventListeners();
 
+	this._activeModFilters = [];
+	this._activeStateFilters = [];
 	this._activeFilters = [];
 
 	this.addFilterButtons();
 	// this.addSorting();
 	// this.addSearchFilter();
 
-	this.mode = 'exclusive';
+	this.mode = 'additive';
 };
 
 ShieldCardShuffle.prototype.addFilterButtons = function () {
-	var options = document.querySelector( '.filter-options' );
-
-	if ( options ) {
-		var filterButtons = Array.from( options.children );
+	var filterByMod = document.querySelector( '.filter-groups' );
+	if ( filterByMod ) {
+		var filterButtons = Array.from( filterByMod.children );
 		filterButtons.forEach( function ( button ) {
+			button.addEventListener( 'click', this._handleFilterClick.bind( this ), false );
+		}, this );
+	}
+
+	var filterByStates = document.querySelector( '.filter-states' );
+	if ( filterByStates ) {
+		var filterStatesButtons = Array.from( filterByStates.children );
+		filterStatesButtons.forEach( function ( button ) {
 			button.addEventListener( 'click', this._handleFilterClick.bind( this ), false );
 		}, this );
 	}
@@ -33,24 +43,48 @@ ShieldCardShuffle.prototype.addFilterButtons = function () {
 ShieldCardShuffle.prototype._handleFilterClick = function ( evt ) {
 	var btn = evt.currentTarget;
 	var isActive = btn.classList.contains( 'active' );
-	var btnGroup = btn.getAttribute( 'data-group' );
+	var btnGroup = btn.getAttribute( 'data-filter' );
+	var btnCategory = btn.getAttribute( 'data-category' );
 	// You don't need _both_ of these modes. This is only for the demo.
 
 	// For this custom 'additive' mode in the demo, clicking on filter buttons
 	// doesn't remove any other filters.
 	if ( this.mode === 'additive' ) {
+
+		var workingFilters;
+		if ( btnCategory === 'mod' ) {
+			workingFilters = this._activeModFilters;
+		}
+		else { //'state'
+			workingFilters = this._activeStateFilters;
+		}
+
 		// If this button is already active, remove it from the list of filters.
 		if ( isActive ) {
-			this._activeFilters.splice( this._activeFilters.indexOf( btnGroup ) );
+			workingFilters.splice( workingFilters.indexOf( btnGroup ), 1 );
 		}
 		else {
-			this._activeFilters.push( btnGroup );
+			workingFilters.push( btnGroup );
 		}
 
 		btn.classList.toggle( 'active' );
 
 		// Filter elements
-		this.shuffle.filter( this._activeFilters );
+		// this.shuffle.filter( workingFilter );
+
+		var modFilters = this._activeModFilters;
+		var stateFilters = this._activeStateFilters;
+
+		this.shuffle.filter( function ( element, shuffle ) {
+			// If there is a current filter applied, ignore elements that don't match it.
+			// if ( shuffle.group !== Shuffle.ALL_ITEMS ) {
+			// Get the item's groups.
+				// Get the item's groups.
+				var elemGroups = JSON.parse( element.getAttribute( 'data-groups' ) );
+				showItem = elemGroups.filter( x => modFilters.includes( x ) ).length > 0
+					&& elemGroups.filter( x => stateFilters.includes( x ) ).length > 0;
+			return showItem;
+		} );
 
 		// 'exclusive' mode lets only one filter button be active at a time.
 	}

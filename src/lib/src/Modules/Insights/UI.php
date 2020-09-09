@@ -290,26 +290,64 @@ class UI extends Base\ShieldUI {
 	}
 
 	private function getOverviewCards_Shuffle() :array {
+
+		$stateDefs = [
+			-2 => [
+				'name' => __( 'Danger', 'wp-simple-firewall' ),
+				'slug' => 'danger',
+			],
+			-1 => [
+				'name' => __( 'Warning', 'wp-simple-firewall' ),
+				'slug' => 'warning',
+			],
+			-0 => [
+				'name' => __( 'Info', 'wp-simple-firewall' ),
+				'slug' => 'info',
+			],
+			1  => [
+				'name' => __( 'Good', 'wp-simple-firewall' ),
+				'slug' => 'good',
+			],
+		];
+
+		$stateNames = [];
+		foreach ( $stateDefs as $stateKey => $stateDef ) {
+			$stateNames[ $stateDef[ 'slug' ] ] = $stateDef[ 'name' ];
+		}
+
 		$allSections = [];
+		$modGroups = [];
+		$allStates = [];
 		foreach ( $this->getCon()->modules as $mod ) {
+
 			$modSections = $mod->getUIHandler()->getInsightsOverviewCards();
 
-			foreach ( $modSections as &$section ) {
+			foreach ( $modSections as $sectionKey => $section ) {
 				if ( empty( $section[ 'cards' ] ) || !is_array( $section[ 'cards' ] ) ) {
-					$section[ 'cards' ] = [];
+					continue;
 				}
+
 				foreach ( $section[ 'cards' ] as &$card ) {
 					if ( empty( $card[ 'groups' ] ) || !is_array( $card[ 'groups' ] ) ) {
 						$card[ 'groups' ] = [];
 					}
-					$card[ 'groups' ][ $mod->getSlug() ] = $mod->getMainFeatureName();
-				}
-			}
 
-			$allSections = array_merge( $allSections, $modSections );
+					$card[ 'groups' ][ $mod->getSlug() ] = $mod->getMainFeatureName();
+
+					// Translate state value (numeric) to text.
+					$card[ 'groups' ][ $stateDefs[ $card[ 'state' ] ][ 'slug' ] ] = $stateDefs[ $card[ 'state' ] ][ 'name' ];
+					$card[ 'state' ] = $stateDefs[ $card[ 'state' ] ][ 'slug' ];
+
+					$allStates[] = $card[ 'state' ];
+				}
+
+				$modGroups[ $mod->getSlug() ] = $mod->getMainFeatureName();
+				$allStates = array_unique( $allStates );
+
+				$allSections[ $sectionKey ] = $section;
+			}
 		}
 
-		$allGroups = [];
 		// remove empties, add a count, then order.
 		$allSections = array_filter( array_merge(
 			[
@@ -331,25 +369,15 @@ class UI extends Base\ShieldUI {
 					}
 					return $section;
 				},
-				array_filter(
-					$allSections,
-					function ( $section ) {
-						return !empty( $section[ 'cards' ] );
-					}
-				)
+				$allSections
 			)
 		) );
 
-		foreach ( $allSections as $section ) {
-			foreach ( $section[ 'cards' ] as $card ) {
-				$allGroups = array_merge( $allGroups, $card[ 'groups' ] );
-			}
-		}
-
 		return [
-			'sections'   => $allSections,
-			'groups'     => $allGroups,
-			'group_keys' => array_keys( $allGroups ),
+			'sections'    => $allSections,
+			'mod_groups'  => $modGroups,
+			'states'      => $allStates,
+			'state_names' => $stateNames,
 		];
 	}
 
