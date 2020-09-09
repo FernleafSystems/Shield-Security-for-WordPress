@@ -79,11 +79,10 @@ ShieldCardShuffle.prototype._handleFilterClick = function ( evt ) {
 			// If there is a current filter applied, ignore elements that don't match it.
 			// if ( shuffle.group !== Shuffle.ALL_ITEMS ) {
 			// Get the item's groups.
-				// Get the item's groups.
-				var elemGroups = JSON.parse( element.getAttribute( 'data-groups' ) );
-				showItem = elemGroups.filter( x => modFilters.includes( x ) ).length > 0
-					&& elemGroups.filter( x => stateFilters.includes( x ) ).length > 0;
-			return showItem;
+			// Get the item's groups.
+			var elemGroups = JSON.parse( element.getAttribute( 'data-groups' ) );
+			return (modFilters.length === 0 || elemGroups.filter( x => modFilters.includes( x ) ).length > 0)
+				&& (stateFilters.length === 0 || elemGroups.filter( x => stateFilters.includes( x ) ).length > 0);
 		} );
 
 		// 'exclusive' mode lets only one filter button be active at a time.
