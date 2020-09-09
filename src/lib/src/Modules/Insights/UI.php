@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
@@ -24,7 +25,9 @@ class UI extends Base\ShieldUI {
 				'insight_notices'       => $aSecNotices,
 				'insight_notices_count' => $nNoticesCount,
 				'insight_stats'         => $this->getStats(),
-				'overview_cards'        => $this->getOverviewCards_Shuffle(),
+				'overview_cards'        => ( new OverviewCards() )
+					->setMod( $this->getMod() )
+					->buildForShuffle(),
 			],
 			'ajax'    => [
 				'render_chart_post' => $con->getModule_Events()->getAjaxActionData( 'render_chart_post', true ),
@@ -289,108 +292,10 @@ class UI extends Base\ShieldUI {
 		return $aNotices;
 	}
 
-	private function getOverviewCards_Shuffle() :array {
-
-		$stateDefs = [
-			-2 => [
-				'name' => __( 'Danger', 'wp-simple-firewall' ),
-				'slug' => 'danger',
-			],
-			-1 => [
-				'name' => __( 'Warning', 'wp-simple-firewall' ),
-				'slug' => 'warning',
-			],
-			-0 => [
-				'name' => __( 'Info', 'wp-simple-firewall' ),
-				'slug' => 'info',
-			],
-			1  => [
-				'name' => __( 'Good', 'wp-simple-firewall' ),
-				'slug' => 'good',
-			],
-		];
-
-		$stateNames = [];
-		foreach ( $stateDefs as $stateKey => $stateDef ) {
-			$stateNames[ $stateDef[ 'slug' ] ] = $stateDef[ 'name' ];
-		}
-
-		$allSections = [];
-		$modGroups = [];
-		$allStates = [];
-		foreach ( $this->getCon()->modules as $mod ) {
-
-			$modSections = $mod->getUIHandler()->getInsightsOverviewCards();
-
-			foreach ( $modSections as $sectionKey => $section ) {
-				if ( empty( $section[ 'cards' ] ) || !is_array( $section[ 'cards' ] ) ) {
-					continue;
-				}
-
-				foreach ( $section[ 'cards' ] as &$card ) {
-					if ( empty( $card[ 'groups' ] ) || !is_array( $card[ 'groups' ] ) ) {
-						$card[ 'groups' ] = [];
-					}
-
-					$card[ 'mod' ] = $mod->getMainFeatureName();
-					$card[ 'groups' ][ $mod->getSlug() ] = $mod->getMainFeatureName();
-
-					// Translate state value (numeric) to text.
-					$card[ 'groups' ][ $stateDefs[ $card[ 'state' ] ][ 'slug' ] ] = $stateDefs[ $card[ 'state' ] ][ 'name' ];
-					$card[ 'state' ] = $stateDefs[ $card[ 'state' ] ][ 'slug' ];
-
-					$allStates[] = $card[ 'state' ];
-				}
-
-				$modGroups[ $mod->getSlug() ] = $mod->getMainFeatureName();
-				$allStates = array_unique( $allStates );
-
-				$allSections[ $sectionKey ] = $section;
-			}
-		}
-
-		// remove empties, add a count, then order.
-		$allSections = array_filter( array_merge(
-			[
-				'plugin' => [],
-			],
-			array_map(
-				function ( $section ) {
-					$section[ 'count' ] = count( $section[ 'cards' ] );
-					foreach ( $section[ 'cards' ] as $key => &$card ) {
-						if ( empty( $card[ 'id' ] ) ) {
-							$card[ 'id' ] = $key;
-						}
-						if ( !isset( $card[ 'state' ] ) ) {
-							$card[ 'state' ] = 0;
-						}
-						if ( !isset( $card[ 'groups' ] ) ) {
-							$card[ 'groups' ] = [];
-						}
-					}
-					return $section;
-				},
-				$allSections
-			)
-		) );
-
-		return [
-			'sections'    => $allSections,
-			'mod_groups'  => $modGroups,
-			'states'      => $allStates,
-			'state_names' => $stateNames,
-		];
-	}
-
-	private function getOverviewCards_Static() :array {
-		return $this->getOverviewCards_Shuffle()[ 'sections' ];
-	}
-
 	/**
 	 * @return array
 	 */
-	private
-	function getRecentEvents() :array {
+	private function getRecentEvents() :array {
 		$con = $this->getCon();
 
 		$aTheStats = array_filter(
@@ -439,8 +344,7 @@ class UI extends Base\ShieldUI {
 	/**
 	 * @return array[]
 	 */
-	protected
-	function getStats() {
+	protected function getStats() {
 		$oCon = $this->getCon();
 		/** @var Events\Select $oSelEvents */
 		$oSelEvents = $oCon->getModule_Events()
