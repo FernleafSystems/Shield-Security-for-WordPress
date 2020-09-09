@@ -1,20 +1,22 @@
-<div class="row mb-5">
+<div class="row mb-1">
 	<div class="col">
-		<div class="btn-group filter-groups" role="group" aria-label="Basic example">
-			{% for card_group_key,card_group_name in vars.overview_cards.mod_groups %}
-				<button type="button" class="btn btn-outline-secondary"
-						data-category="mod"
-						data-filter="{{ card_group_key }}">{{ card_group_name }}</button>
-			{% endfor %}
-		</div>
+		<h4>
+			Your Security At A Glance
+			<small class="d-block">
+				Quickly discover where your site security is doing well or areas that can be improved
+			</small>
+		</h4>
 	</div>
 </div>
 
-<div class="row mb-5">
-	<div class="col">
+<div class="row mb-3">
+	<div class="col-12">
+		<h6>Click To Filter By Status</h6>
+	</div>
+	<div class="col-12">
 		<div class="btn-group filter-states" role="group" aria-label="Basic example">
 			{% for state_key in vars.overview_cards.states %}
-				<button type="button" class="btn btn-outline-secondary"
+				<button type="button" class="btn btn-outline-dark"
 						data-category="state"
 						data-filter="{{ state_key }}">{{ attribute(vars.overview_cards.state_names, state_key) }}</button>
 			{% endfor %}
@@ -22,7 +24,22 @@
 	</div>
 </div>
 
-<div class="row overview-card-row mb-3" id="overview-card-shuffle">
+<div class="row mb-4">
+	<div class="col-12">
+		<h6>Click To Filter By Area</h6>
+	</div>
+	<div class="col-12">
+		<div class="btn-group filter-groups" role="group" aria-label="Basic example">
+			{% for card_group_key,card_group_name in vars.overview_cards.mod_groups %}
+				<button type="button" class="btn btn-outline-dark"
+						data-category="mod"
+						data-filter="{{ card_group_key }}">{{ card_group_name }}</button>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+<div class="row overview-card-row mb-3 card-deck" id="overview-card-shuffle">
 {% for card_section in vars.overview_cards.sections %}
 	{% for card in card_section.cards %}
 		<div class="col-xl-2 col-lg-3 col-md-4 card-item"
@@ -54,7 +71,8 @@
 					<div class="card-body">
 						{{ card.summary }}
 					</div>
-					<div class="card-footer text-right">
+					<div class="card-footer ">
+						<span class="badge badge-secondary">{{ card.mod }}</span>
 						<a href="{{ card.href }}" title="{{ strings.go_to_options }}"
 						   class=""><span class="dashicons dashicons-admin-generic"></span></a>
 					</div>
@@ -68,7 +86,14 @@
 document.addEventListener( 'DOMContentLoaded', function () {
 	window.demo = new ShieldCardShuffle(
 		document.getElementById( 'overview-card-shuffle' ),
-		'.card-item'
+		'.card-deck .card-item'
 	);
+	var filterByStates = document.querySelector( '.filter-states' );
+	if ( filterByStates ) {
+		var filterStatesButtons = Array.from( filterByStates.children );
+		filterStatesButtons.forEach( function ( button ) {
+			button.dispatchEvent(new MouseEvent("click",{bubbles: true, cancellable: true}));
+		} );
+	}
 } );
 </script>

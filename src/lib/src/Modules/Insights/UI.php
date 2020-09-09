@@ -332,6 +332,7 @@ class UI extends Base\ShieldUI {
 						$card[ 'groups' ] = [];
 					}
 
+					$card[ 'mod' ] = $mod->getMainFeatureName();
 					$card[ 'groups' ][ $mod->getSlug() ] = $mod->getMainFeatureName();
 
 					// Translate state value (numeric) to text.

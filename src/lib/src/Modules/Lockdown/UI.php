@@ -30,7 +30,7 @@ class UI extends Base\ShieldUI {
 				'state'   => $bEditingDisabled ? 1 : -1,
 				'summary' => $bEditingDisabled ?
 					__( 'File editing is disabled', 'wp-simple-firewall' )
-					: __( "File editing is permitted through WP admin", 'wp-simple-firewall' ),
+					: __( "File editing within WP admin is allowed", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'disable_file_editing' ),
 			];
 
@@ -40,7 +40,7 @@ class UI extends Base\ShieldUI {
 				'state'   => $bXml ? 1 : -1,
 				'summary' => $bXml ?
 					__( 'XML-RPC is disabled', 'wp-simple-firewall' )
-					: __( "XML-RPC is not blocked", 'wp-simple-firewall' ),
+					: __( "XML-RPC access is allowed", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'disable_xmlrpc' ),
 			];
 
