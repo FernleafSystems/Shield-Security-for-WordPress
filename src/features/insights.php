@@ -140,6 +140,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 			//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
+			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );
