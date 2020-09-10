@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
+if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 	global $sIcwpWpsfPluginFile;
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
@@ -38,9 +38,17 @@ if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 if ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 }
-
-if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {
-	return;
+else {
+	add_action( 'admin_notices', function() {
+		echo sprintf( '<div class="error"><h4>%s</h4><p>%s</p></div>',
+			'Shield Security Plugin - Broken Installation',
+			implode( '<br/>', [
+				'It appears the Shield Security plugin was not upgraded/installed correctly.',
+				"We run a quick check to make sure certain important files are present in-case a faulty installation breaks your site.",
+				'Try refreshing this page, and if you continue to see this notice, we recommend that you reinstall the Shield Security plugin.'
+			] )
+		);
+	} );
 }
 
 add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
@@ -54,7 +62,7 @@ function icwp_wpsf_onactivate() {
 	try {
 		\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
 	}
-	catch ( Exception $oE ) {
+	catch ( Exception $e ) {
 	}
 }
 
