@@ -42,7 +42,7 @@ class UI extends Base\ShieldUI {
 			$bCore = $mod->getScanCon( 'wcf' )->isEnabled();
 			$cards[ 'wcf' ] = [
 				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
-				'state'   => $bCore ? 1 : -1,
+				'state'   => $bCore ? 1 : -2,
 				'summary' => $bCore ?
 					__( 'Core files scanned regularly for hacks', 'wp-simple-firewall' )
 					: __( "Core files are never scanned for hacks!", 'wp-simple-firewall' ),

@@ -52,7 +52,7 @@ class OverviewCards {
 
 				$section[ 'count' ] = count( $section[ 'cards' ] );
 
-				foreach ( $section[ 'cards' ] as $key=> &$card ) {
+				foreach ( $section[ 'cards' ] as $key => &$card ) {
 					if ( empty( $card[ 'id' ] ) ) {
 						$card[ 'id' ] = $key;
 					}
@@ -67,18 +67,19 @@ class OverviewCards {
 					$card[ 'groups' ][ $mod->getSlug() ] = $mod->getMainFeatureName();
 
 					// Translate state value (numeric) to text.
-					$card[ 'groups' ][ $stateDefs[ $card[ 'state' ] ][ 'slug' ] ] = $stateDefs[ $card[ 'state' ] ][ 'name' ];
-					$card[ 'state' ] = $stateDefs[ $card[ 'state' ] ][ 'slug' ];
+					$nState = $card[ 'state' ];
+					$card[ 'groups' ][ $stateDefs[ $nState ][ 'slug' ] ] = $stateDefs[ $nState ][ 'name' ];
+					$card[ 'state' ] = $stateDefs[ $nState ][ 'slug' ];
 
-					$allStates[] = $card[ 'state' ];
+					$allStates[ $nState ] = $card[ 'state' ];
 				}
 
-				$modGroups[ $mod->getSlug() ] = $mod->getMainFeatureName();
-				$allStates = array_unique( $allStates );
-
 				$allSections[ $sectionKey ] = $section;
+				$modGroups[ $mod->getSlug() ] = $mod->getMainFeatureName();
 			}
 		}
+
+		ksort( $allStates );
 
 		return [
 			'sections'    => $allSections,
