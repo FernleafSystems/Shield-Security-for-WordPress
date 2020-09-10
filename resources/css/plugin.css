@@ -1372,3 +1372,23 @@ dl.pro-features dd {
 .overview.card.state-ok > .card-footer > a {
 	color: #007ba2;
 }
+.filter-states .state-danger:not(:disabled).active,
+.filter-states .state-danger:not(:disabled):active,
+.filter-states .state-danger:hover {
+	background-color: #cf0000;
+}
+.filter-states .state-warning:not(:disabled).active,
+.filter-states .state-warning:not(:disabled):active,
+.filter-states .state-warning:hover {
+	background-color: rgb(248, 134, 59);
+}
+.filter-states .state-info:not(:disabled).active,
+.filter-states .state-info:not(:disabled):active,
+.filter-states .state-info:hover {
+	background-color: #007ba2;
+}
+.filter-states .state-good:not(:disabled).active,
+.filter-states .state-good:not(:disabled):active,
+.filter-states .state-good:hover {
+	background-color: #008000;
+}

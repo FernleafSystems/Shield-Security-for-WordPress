@@ -18,7 +18,7 @@
 	<div class="col-12">
 		<div class="btn-group filter-states" role="group" aria-label="Basic example">
 			{% for state_key in vars.overview_cards.states %}
-				<button type="button" class="btn btn-outline-dark"
+				<button type="button" class="btn btn-outline-dark state-{{ state_key }}"
 						data-category="state"
 						data-filter="{{ state_key }}">{{ attribute(vars.overview_cards.state_names, state_key) }}</button>
 			{% endfor %}
