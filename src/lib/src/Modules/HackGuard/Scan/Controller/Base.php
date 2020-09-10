@@ -167,19 +167,13 @@ abstract class Base {
 	/**
 	 * @return bool
 	 */
-	public function isCronAutoRepair() {
+	public function isCronAutoRepair() :bool {
 		return false;
 	}
 
-	/**
-	 * @return bool
-	 */
-	abstract public function isEnabled();
+	abstract public function isEnabled() :bool;
 
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumOnly() {
+	protected function isPremiumOnly() :bool {
 		return true;
 	}
 

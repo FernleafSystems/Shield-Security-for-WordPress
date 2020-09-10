@@ -14,21 +14,15 @@ class Wpv extends BaseForAssets {
 		return new Scans\Wpv\Utilities\ItemActionHandler();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnAutoupdatesEnabled();
+	public function isCronAutoRepair() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isWpvulnAutoupdatesEnabled();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isPremium() && $oOpts->isOpt( 'enable_wpvuln_scan', 'Y' );
+	public function isEnabled() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isPremium() && $opts->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 }

@@ -15,7 +15,8 @@ class UI extends Base\ShieldUI {
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$aScanNames = $mod->getStrings()->getScanNames();
+		$scanNames = $mod->getStrings()->getScanNames();
+		$urlForScans = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
 
 		$cardSection = [
 			'title'        => __( 'Hack Guard', 'wp-simple-firewall' ),
@@ -39,33 +40,47 @@ class UI extends Base\ShieldUI {
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_options' ),
 			];
 
-			$bCore = $mod->getScanCon( 'wcf' )->isEnabled();
+			$scanCon = $mod->getScanCon( 'wcf' );
+			$bCore = $scanCon->isEnabled();
 			$cards[ 'wcf' ] = [
 				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
 				'state'   => $bCore ? 1 : -2,
 				'summary' => $bCore ?
 					__( 'Core files scanned regularly for modifications', 'wp-simple-firewall' )
-					: __( 'Core files are never scanned for modifications!', 'wp-simple-firewall' ),
+					: __( 'Core files are not automatically scanned!', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
+				'help'    => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 			];
-			if ( $bCore && !$opts->isRepairFileWP() ) {
-				$cards[ 'wcf_repair' ] = [
-					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
-					'state'   => $opts->isRepairFileWP() ? 1 : -1,
-					'summary' => $opts->isRepairFileWP() ?
-						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
-						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToOption( 'file_repair_areas' ),
+			if ( $bCore ) {
+				if ( !$opts->isRepairFileWP() ) {
+					$cards[ 'wcf_repair' ] = [
+						'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
+						'state'   => $opts->isRepairFileWP() ? 1 : -1,
+						'summary' => $opts->isRepairFileWP() ?
+							__( 'Core files are automatically repaired', 'wp-simple-firewall' )
+							: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
+						'href'    => $mod->getUrl_DirectLinkToOption( 'file_repair_areas' ),
+					];
+				}
+			}
+			if ( $scanCon->getScanHasProblem() ) {
+				$cards[ 'wcf_problem' ] = [
+					'name'    => __( 'Core Files Changed', 'wp-simple-firewall' ),
+					'summary' => __( 'WordPress core files have been modified.', 'wp-simple-firewall' ),
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'href'    => $urlForScans,
+					'state'   => -2,
+					'help'    => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
 				];
 			}
 
 			$bUcf = $mod->getScanCon( 'ufc' )->isEnabled();
 			$cards[ 'ufc' ] = [
 				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-				'state'   => $bUcf ? 1 : -2,
 				'summary' => $bUcf ?
 					__( 'Core directories are scanned regularly for unrecognised files', 'wp-simple-firewall' )
 					: __( "WP Core directories are never scanned for unrecognised files!", 'wp-simple-firewall' ),
+				'state'   => $bUcf ? 1 : -2,
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
 			];
 			if ( $bUcf && !$opts->isUfsDeleteFiles() ) {
@@ -79,57 +94,77 @@ class UI extends Base\ShieldUI {
 				];
 			}
 
-			$bWpv = $mod->getScanCon( 'wpv' )->isEnabled();
+			$scanCon = $mod->getScanCon( 'wpv' );
+			$enabledWpv = $scanCon->isEnabled();
 			$cards[ 'wpv' ] = [
 				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
-				'state'   => $bWpv ? 1 : -2,
-				'summary' => $bWpv ?
+				'state'   => $enabledWpv ? 1 : -2,
+				'summary' => $enabledWpv ?
 					__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
 					: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 			];
 			$bWpvAutoUpdates = $opts->isWpvulnAutoupdatesEnabled();
-			if ( $bWpv && !$bWpvAutoUpdates ) {
-				$cards[ 'wpv_repair' ] = [
-					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
-					'state'   => $bWpvAutoUpdates ? 1 : -1,
-					'summary' => $bWpvAutoUpdates ?
-						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
-						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
-				];
+			if ( $enabledWpv ) {
+				if ( !$bWpvAutoUpdates ) {
+					$cards[ 'wpv_repair' ] = [
+						'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
+						'summary' => $bWpvAutoUpdates ?
+							__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
+							: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
+						'state'   => $bWpvAutoUpdates ? 1 : -1,
+						'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+					];
+				}
+				if ( $scanCon->getScanHasProblem() ) {
+					$cards[ 'wpv_problem' ] = [
+						'name'    => __( 'Vulnerable Plugin', 'wp-simple-firewall' ),
+						'summary' => __( 'Plugin with vulnerabilities found on site.', 'wp-simple-firewall' ),
+						'state'   => -2,
+						'href'    => $urlForScans,
+					];
+				}
 			}
 
 			$bPtg = $mod->getScanCon( 'ptg' )->isEnabled();
 			$cards[ 'ptg' ] = [
-				'title'   => $aScanNames[ 'ptg' ],
-				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'state'   => $bPtg ? 1 : -2,
+				'name'    => $scanNames[ 'ptg' ],
 				'summary' => $bPtg ?
 					__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
 					: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
+				'state'   => $bPtg ? 1 : -2,
 				'href'    => $mod->getUrl_DirectLinkToOption( 'ptg_enable' ),
 			];
 
-			$bMal = $mod->getScanCon( 'mal' )->isEnabled();
+			$scanCon = $mod->getScanCon( 'mal' );
+			$malEnabled = $scanCon->isEnabled();
 			$cards[ 'mal' ] = [
-				'title'   => $aScanNames[ 'mal' ],
-				'name'    => $aScanNames[ 'mal' ],
-				'state'   => $bMal ? 1 : -2,
-				'summary' => $bMal ?
-					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'mal' ] )
-					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
+				'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanNames[ 'mal' ] ),
+				'summary' => $malEnabled ?
+					sprintf( __( '%s Scanner is enabled.' ), $scanNames[ 'mal' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $scanNames[ 'mal' ] ),
+				'state'   => $malEnabled ? 1 : -2,
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+				'help'    => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 			];
+			if ( $malEnabled && $scanCon->getScanHasProblem() ) {
+				$cards[ 'mal_problem' ] = [
+					'name'    => __( 'Malware Detected', 'wp-simple-firewall' ),
+					'summary' => __( 'Potential Malware files have been discovered.', 'wp-simple-firewall' ),
+					'state'   => -2,
+					'href'    => $urlForScans,
+					'help'    => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' ),
+				];
+			}
 
 			$bApc = $mod->getScanCon( 'apc' )->isEnabled();
 			$cards[ 'apc' ] = [
-				'title'   => $aScanNames[ 'apc' ],
-				'name'    => $aScanNames[ 'apc' ],
+				'title'   => $scanNames[ 'apc' ],
+				'name'    => $scanNames[ 'apc' ],
 				'state'   => $bApc ? 1 : -1,
 				'summary' => $bApc ?
-					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'apc' ] )
-					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'apc' ] ),
+					sprintf( __( '%s Scanner is enabled.' ), $scanNames[ 'apc' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $scanNames[ 'apc' ] ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 			];
 		}
@@ -523,50 +558,6 @@ class UI extends Base\ShieldUI {
 		];
 
 		$sScansUrl = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
-
-		{// Malware
-			$scan = $mod->getScanCon( 'mal' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'mal' ] = [
-					'title'   => $aScanNames[ 'mal' ],
-					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_mal' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'mal' ] = [
-					'title'   => $aScanNames[ 'mal' ],
-					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Core files
-			$scan = $mod->getScanCon( 'wcf' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'wcf' ] = [
-					'title'   => $aScanNames[ 'wcf' ],
-					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'wcf' ] = [
-					'title'   => $aScanNames[ 'wcf' ],
-					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
-				];
-			}
-		}
 
 		{// Unrecognised
 			$scan = $mod->getScanCon( 'ufc' );

@@ -25,28 +25,17 @@ class Wcf extends Base {
 			   || Services::CoreFileHashes()->isCoreFileHashValid( $oItem->path_full );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isRepairFileWP();
+	public function isCronAutoRepair() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isRepairFileWP();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isOpt( 'enable_core_file_integrity_scan', 'Y' );
+	public function isEnabled() :bool {
+		return $this->getOptions()->isOpt( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumOnly() {
+	protected function isPremiumOnly() :bool {
 		return false;
 	}
 }

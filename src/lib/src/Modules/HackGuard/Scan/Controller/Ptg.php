@@ -31,10 +31,7 @@ class Ptg extends BaseForAssets {
 		return $oRes;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
+	public function isCronAutoRepair() :bool {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->isRepairFilePlugin() || $oOpts->isRepairFileTheme();
@@ -86,10 +83,8 @@ class Ptg extends BaseForAssets {
 	/**
 	 * @return bool
 	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isOpt( 'ptg_enable', 'Y' ) && $oOpts->isOptReqsMet( 'ptg_enable' );
+	public function isEnabled() :bool {
+		return $this->getOptions()->isOpt( 'ptg_enable', 'Y' ) && $this->getOptions()->isOptReqsMet( 'ptg_enable' );
 	}
 
 	/**
