@@ -44,14 +44,14 @@ class UI extends Base\ShieldUI {
 				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
 				'state'   => $bCore ? 1 : -2,
 				'summary' => $bCore ?
-					__( 'Core files scanned regularly for hacks', 'wp-simple-firewall' )
-					: __( "Core files are never scanned for hacks!", 'wp-simple-firewall' ),
+					__( 'Core files scanned regularly for modifications', 'wp-simple-firewall' )
+					: __( 'Core files are never scanned for modifications!', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			];
 			if ( $bCore && !$opts->isRepairFileWP() ) {
 				$cards[ 'wcf_repair' ] = [
 					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
-					'state'   => $opts->isRepairFileWP() ? 1 : 0,
+					'state'   => $opts->isRepairFileWP() ? 1 : -1,
 					'summary' => $opts->isRepairFileWP() ?
 						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
 						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
@@ -62,10 +62,10 @@ class UI extends Base\ShieldUI {
 			$bUcf = $mod->getScanCon( 'ufc' )->isEnabled();
 			$cards[ 'ufc' ] = [
 				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-				'state'   => $bUcf ? 1 : -1,
+				'state'   => $bUcf ? 1 : -2,
 				'summary' => $bUcf ?
-					__( 'Core directories scanned regularly for unrecognised files', 'wp-simple-firewall' )
-					: __( "WP Core is never scanned for unrecognised files!", 'wp-simple-firewall' ),
+					__( 'Core directories are scanned regularly for unrecognised files', 'wp-simple-firewall' )
+					: __( "WP Core directories are never scanned for unrecognised files!", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
 			];
 			if ( $bUcf && !$opts->isUfsDeleteFiles() ) {
@@ -82,7 +82,7 @@ class UI extends Base\ShieldUI {
 			$bWpv = $mod->getScanCon( 'wpv' )->isEnabled();
 			$cards[ 'wpv' ] = [
 				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
-				'state'   => $bWpv ? 1 : -1,
+				'state'   => $bWpv ? 1 : -2,
 				'summary' => $bWpv ?
 					__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
 					: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
@@ -104,7 +104,7 @@ class UI extends Base\ShieldUI {
 			$cards[ 'ptg' ] = [
 				'title'   => $aScanNames[ 'ptg' ],
 				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'state'   => $bPtg ? 1 : -1,
+				'state'   => $bPtg ? 1 : -2,
 				'summary' => $bPtg ?
 					__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
 					: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
@@ -115,7 +115,7 @@ class UI extends Base\ShieldUI {
 			$cards[ 'mal' ] = [
 				'title'   => $aScanNames[ 'mal' ],
 				'name'    => $aScanNames[ 'mal' ],
-				'state'   => $bMal ? 1 : -1,
+				'state'   => $bMal ? 1 : -2,
 				'summary' => $bMal ?
 					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'mal' ] )
 					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),

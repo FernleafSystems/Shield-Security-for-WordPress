@@ -11,7 +11,9 @@
 
 <div class="row mb-3">
 	<div class="col-12">
-		<h6>Click To Filter By Status</h6>
+		<h6>Click To Filter By Status
+			<small><a href="#" id="ClearFilterState">Clear Filter</a></small>
+		</h6>
 	</div>
 	<div class="col-12">
 		<div class="btn-group filter-states" role="group" aria-label="Basic example">
@@ -91,20 +93,24 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		document.getElementById( 'overview-card-shuffle' ),
 		'.card-deck .card-item'
 	);
-	var filterByStates = document.querySelector( '.filter-states' );
-	if ( filterByStates ) {
-		var filterStatesButtons = Array.from( filterByStates.children );
-		filterStatesButtons.forEach( function ( button ) {
-			// button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
-		} );
-	}
 
 	document.getElementById("ClearFilterArea").addEventListener( 'click', function ( evt ) {
 		var filterByArea = document.querySelector( '.filter-groups' );
 		if ( filterByArea ) {
 			var filterStatesButtons = Array.from( filterByArea.children );
 			filterStatesButtons.forEach( function ( button ) {
-				console.log( button.classList );
+				if (button.classList.contains( "active" ) ) {
+					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
+				}
+			} );
+		}
+	} );
+
+	document.getElementById("ClearFilterState").addEventListener( 'click', function ( evt ) {
+		var filterByArea = document.querySelector( '.filter-states' );
+		if ( filterByArea ) {
+			var filterStatesButtons = Array.from( filterByArea.children );
+			filterStatesButtons.forEach( function ( button ) {
 				if (button.classList.contains( "active" ) ) {
 					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 				}
