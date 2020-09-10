@@ -43,7 +43,7 @@ class UI extends Base\ShieldUI {
 			$scanCon = $mod->getScanCon( 'wcf' );
 			$bCore = $scanCon->isEnabled();
 			$cards[ 'wcf' ] = [
-				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
+				'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanNames[ 'wcf' ] ),
 				'state'   => $bCore ? 1 : -2,
 				'summary' => $bCore ?
 					__( 'Core files scanned regularly for modifications', 'wp-simple-firewall' )
@@ -67,7 +67,6 @@ class UI extends Base\ShieldUI {
 				$cards[ 'wcf_problem' ] = [
 					'name'    => __( 'Core Files Changed', 'wp-simple-firewall' ),
 					'summary' => __( 'WordPress core files have been modified.', 'wp-simple-firewall' ),
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'href'    => $urlForScans,
 					'state'   => -2,
 					'help'    => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
@@ -157,20 +156,130 @@ class UI extends Base\ShieldUI {
 				];
 			}
 
-			$bApc = $mod->getScanCon( 'apc' )->isEnabled();
+			$scanCon = $mod->getScanCon( 'apc' );
+			$bApc = $scanCon->isEnabled();
 			$cards[ 'apc' ] = [
-				'title'   => $scanNames[ 'apc' ],
-				'name'    => $scanNames[ 'apc' ],
+				'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanNames[ 'apc' ] ),
 				'state'   => $bApc ? 1 : -1,
 				'summary' => $bApc ?
 					sprintf( __( '%s Scanner is enabled.' ), $scanNames[ 'apc' ] )
 					: sprintf( __( '%s Scanner is not enabled.' ), $scanNames[ 'apc' ] ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 			];
+			if ( $scanCon->getScanHasProblem() ) {
+				$cards[ 'apc_problem' ] = [
+					'name'    => __( 'Plugin Abandoned' ),
+					'summary' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
+					'state'   => -1,
+					'href'    => $urlForScans,
+					'help'    => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
+				];
+			}
 		}
 
 		$cardSection[ 'cards' ] = $cards;
 		return [ 'hack_protect' => $cardSection ];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInsightsNoticesData() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		/** @var Strings $oStrings */
+		$oStrings = $mod->getStrings();
+		$aScanNames = $oStrings->getScanNames();
+
+		$notices = [
+			'title'    => __( 'Scans', 'wp-simple-firewall' ),
+			'messages' => []
+		];
+
+		$sScansUrl = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
+
+		{// Unrecognised
+			$scan = $mod->getScanCon( 'ufc' );
+			if ( !$scan->isEnabled() ) {
+				$notices[ 'messages' ][ 'ufc' ] = [
+					'title'   => $aScanNames[ 'ufc' ],
+					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
+				];
+			}
+			elseif ( $scan->getScanHasProblem() ) {
+				$notices[ 'messages' ][ 'ufc' ] = [
+					'title'   => $aScanNames[ 'ufc' ],
+					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
+					'href'    => $sScansUrl,
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' )
+				];
+			}
+		}
+
+		{// Plugin/Theme Guard
+			$scan = $mod->getScanCon( 'ptg' );
+			if ( !$scan->isEnabled() ) {
+				$notices[ 'messages' ][ 'ptg' ] = [
+					'title'   => $aScanNames[ 'ptg' ],
+					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToOption( 'ptg_enable' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
+				];
+			}
+			elseif ( $scan->getScanHasProblem() ) {
+				$notices[ 'messages' ][ 'ptg' ] = [
+					'title'   => $aScanNames[ 'ptg' ],
+					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
+					'href'    => $sScansUrl,
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
+				];
+			}
+		}
+
+		{// Vulnerability Scanner
+			$scan = $mod->getScanCon( 'wpv' );
+			if ( !$scan->isEnabled() ) {
+				$notices[ 'messages' ][ 'wpv' ] = [
+					'title'   => $aScanNames[ 'wpv' ],
+					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
+				];
+			}
+			elseif ( $scan->getScanHasProblem() ) {
+				$notices[ 'messages' ][ 'wpv' ] = [
+					'title'   => $aScanNames[ 'wpv' ],
+					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
+					'href'    => $sScansUrl,
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
+				];
+			}
+		}
+
+		{// Abandoned Plugins
+			$scan = $mod->getScanCon( 'apc' );
+			if ( !$scan->isEnabled() ) {
+				$notices[ 'messages' ][ 'apc' ] = [
+					'title'   => $aScanNames[ 'apc' ],
+					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
+				];
+			}
+			elseif ( $scan->getScanHasProblem() ) {
+			}
+		}
+
+		return $notices;
 	}
 
 	/**
@@ -540,114 +649,6 @@ class UI extends Base\ShieldUI {
 				'update'              => __( 'Upgrade', 'wp-simple-firewall' ),
 			]
 		];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getInsightsNoticesData() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
-		$mod = $this->getMod();
-		/** @var Strings $oStrings */
-		$oStrings = $mod->getStrings();
-		$aScanNames = $oStrings->getScanNames();
-
-		$notices = [
-			'title'    => __( 'Scans', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		$sScansUrl = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
-
-		{// Unrecognised
-			$scan = $mod->getScanCon( 'ufc' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'ufc' ] = [
-					'title'   => $aScanNames[ 'ufc' ],
-					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'ufc' ] = [
-					'title'   => $aScanNames[ 'ufc' ],
-					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Plugin/Theme Guard
-			$scan = $mod->getScanCon( 'ptg' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'ptg' ] = [
-					'title'   => $aScanNames[ 'ptg' ],
-					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToOption( 'ptg_enable' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'ptg' ] = [
-					'title'   => $aScanNames[ 'ptg' ],
-					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Vulnerability Scanner
-			$scan = $mod->getScanCon( 'wpv' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'wpv' ] = [
-					'title'   => $aScanNames[ 'wpv' ],
-					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'wpv' ] = [
-					'title'   => $aScanNames[ 'wpv' ],
-					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// Abandoned Plugins
-			$scan = $mod->getScanCon( 'apc' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'apc' ] = [
-					'title'   => $aScanNames[ 'apc' ],
-					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'apc' ] = [
-					'title'   => $aScanNames[ 'apc' ],
-					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		return $notices;
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
