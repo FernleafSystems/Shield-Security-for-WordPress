@@ -265,7 +265,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
 		if ( !$mod->getCanAdminNotes() ) {
-			$sMessage = __( 'Sorry, Admin Notes is not available.', 'wp-simple-firewall' );
+			$sMessage = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $sNote ) ) {
 			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );

@@ -66,12 +66,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = $UI->buildInsightsVars();
 				break;
 
-			case 'notes':
-				/** @var Shield\Modules\Plugin\UI $UI */
-				$UI = $con->getModule_Plugin()->getUIHandler();
-				$aData = $UI->buildInsightsVars_AdminNotes();
-				break;
-
 			case 'traffic':
 				/** @var Shield\Modules\Traffic\UI $UI */
 				$UI = $con->getModule_Traffic()->getUIHandler();
@@ -136,8 +130,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'users'        => __( 'Users', 'wp-simple-firewall' ),
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
-			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
+			//			'repcorts'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 			//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
@@ -289,7 +282,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'scans':
 				case 'audit':
 				case 'ips':
-				case 'notes':
 				case 'debug':
 				case 'traffic':
 				case 'users':
