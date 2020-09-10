@@ -65,6 +65,9 @@ class UI extends Base\ShieldUI {
 
 	public function buildInsightsVars_Debug() :array {
 		return [
+			'strings' => [
+				'page_title' => sprintf( __( '%s Debug Page' ), $this->getCon()->getHumanName() )
+			],
 			'vars'    => [
 				'debug_data' => ( new Collate() )
 					->setMod( $this->getMod() )
@@ -74,7 +77,7 @@ class UI extends Base\ShieldUI {
 				'recent_events' => ( new RecentEvents() )
 					->setMod( $this->getMod() )
 					->build(),
-				'admin_notes' => ( new AdminNotes() )
+				'admin_notes'   => ( new AdminNotes() )
 					->setMod( $this->getMod() )
 					->build()
 			]

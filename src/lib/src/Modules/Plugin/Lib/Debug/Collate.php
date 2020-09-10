@@ -19,17 +19,17 @@ class Collate {
 	/**
 	 * @return array[]
 	 */
-	public function run() {
+	public function run() :array {
 		return [
-			'Shield'    => [
+			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
-			'System'    => [
+			'System Info'    => [
 				'PHP'         => $this->getPHP(),
 				'Environment' => $this->getEnv(),
 			],
-			'WordPress' => [
+			'WordPress Info' => [
 				'Summary'            => $this->getWordPressSummary(),
 				'Plugins (Active)'   => $this->getPlugins( true ),
 				'Plugins (Inactive)' => $this->getPlugins( false ),

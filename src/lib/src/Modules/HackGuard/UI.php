@@ -71,7 +71,7 @@ class UI extends Base\ShieldUI {
 			if ( $bUcf && !$opts->isUfsDeleteFiles() ) {
 				$cards[ 'ufc_repair' ] = [
 					'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
-					'state'   => $opts->isUfsDeleteFiles() ? 1 : 0,
+					'state'   => $opts->isUfsDeleteFiles() ? 1 : -1,
 					'summary' => $opts->isUfsDeleteFiles() ?
 						__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
 						: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
@@ -92,7 +92,7 @@ class UI extends Base\ShieldUI {
 			if ( $bWpv && !$bWpvAutoUpdates ) {
 				$cards[ 'wpv_repair' ] = [
 					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
-					'state'   => $bWpvAutoUpdates ? 1 : 0,
+					'state'   => $bWpvAutoUpdates ? 1 : -1,
 					'summary' => $bWpvAutoUpdates ?
 						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
 						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
