@@ -15,6 +15,8 @@ abstract class Base {
 
 	use ModConsumer;
 
+	const SCAN_SLUG = '';
+
 	/**
 	 * @var BaseScanActionVO
 	 */

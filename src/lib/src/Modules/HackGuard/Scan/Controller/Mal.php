@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Mal extends Base {
 
+	const SCAN_SLUG = 'mal';
+
 	/**
 	 * Can only possibly repair themes, plugins or core files.
 	 * @return Scans\Mal\ResultsSet

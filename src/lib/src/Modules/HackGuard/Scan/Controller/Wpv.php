@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Wpv extends BaseForAssets {
 
+	const SCAN_SLUG = 'wpv';
+
 	/**
 	 * @return Scans\Wpv\Utilities\ItemActionHandler
 	 */

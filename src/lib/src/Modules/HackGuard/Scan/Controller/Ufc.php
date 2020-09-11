@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Ufc extends Base {
 
+	const SCAN_SLUG = 'ufc';
+
 	/**
 	 * @return Scans\Ufc\Utilities\ItemActionHandler
 	 */

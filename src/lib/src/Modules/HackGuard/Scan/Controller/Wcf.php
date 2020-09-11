@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Wcf extends Base {
 
+	const SCAN_SLUG = 'wcf';
+
 	/**
 	 * @return Scans\Wcf\Utilities\ItemActionHandler
 	 */

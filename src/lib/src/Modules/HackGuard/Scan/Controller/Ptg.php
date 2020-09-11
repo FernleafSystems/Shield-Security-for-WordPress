@@ -9,21 +9,23 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Ptg extends BaseForAssets {
 
+	const SCAN_SLUG = 'ptg';
+
 	/**
 	 * @return Scans\Ptg\ResultsSet
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		/** @var Scans\Ptg\ResultsSet $oRes */
 		$oRes = parent::getItemsToAutoRepair();
 
-		if ( !$oOpts->isRepairFilePlugin() || !$oOpts->isRepairFileTheme() ) {
-			if ( $oOpts->isRepairFileTheme() ) {
+		if ( !$opts->isRepairFilePlugin() || !$opts->isRepairFileTheme() ) {
+			if ( $opts->isRepairFileTheme() ) {
 				$oRes = $oRes->getResultsForThemesContext();
 			}
-			elseif ( $oOpts->isRepairFilePlugin() ) {
+			elseif ( $opts->isRepairFilePlugin() ) {
 				$oRes = $oRes->getResultsForPluginsContext();
 			}
 		}
@@ -32,9 +34,9 @@ class Ptg extends BaseForAssets {
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isRepairFilePlugin() || $oOpts->isRepairFileTheme();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isRepairFilePlugin() || $opts->isRepairFileTheme();
 	}
 
 	/**
@@ -74,7 +76,7 @@ class Ptg extends BaseForAssets {
 					->run();
 				$bSuccess = true;
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 		return $bSuccess;
@@ -91,11 +93,9 @@ class Ptg extends BaseForAssets {
 	 * @return bool
 	 */
 	public function isScanningAvailable() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		return parent::isScanningAvailable()
 			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
-			   && $oMod->canCacheDirWrite();
+			   && $this->getMod()->canCacheDirWrite();
 	}
 
 	/**

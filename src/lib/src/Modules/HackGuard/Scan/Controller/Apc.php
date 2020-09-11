@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
 
+	const SCAN_SLUG = 'apc';
+
 	/**
 	 * @return Scans\Apc\Utilities\ItemActionHandler
 	 */
