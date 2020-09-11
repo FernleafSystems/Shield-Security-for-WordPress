@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 
-class OverviewCards extends Shield\Modules\Base\Insights\BaseOverviewCards {
+class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */

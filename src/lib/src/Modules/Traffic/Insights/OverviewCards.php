@@ -4,6 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class OverviewCards extends Shield\Modules\Base\Insights\BaseOverviewCards {
+class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 }

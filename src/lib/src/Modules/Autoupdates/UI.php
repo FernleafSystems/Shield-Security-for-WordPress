@@ -7,12 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
-	public function getInsightsOverviewCards() :array {
-		return ( new Insights\OverviewCards() )
-			->setMod( $this->getMod() )
-			->build();
-	}
-
 	public function getInsightsNoticesData() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $mod */
 		$mod = $this->getMod();

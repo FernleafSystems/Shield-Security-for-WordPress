@@ -10,12 +10,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
-	public function getInsightsOverviewCards() :array {
-		return ( new Insights\OverviewCards() )
-			->setMod( $this->getMod() )
-			->build();
-	}
-
 	/**
 	 * @return array
 	 */

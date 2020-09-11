@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class OverviewCards extends Shield\Modules\Base\Insights\BaseOverviewCards {
+class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */

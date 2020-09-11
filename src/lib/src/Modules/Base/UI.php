@@ -244,7 +244,9 @@ class UI {
 	}
 
 	public function getInsightsOverviewCards() :array {
-		return [];
+		/** @var Insights\OverviewCards $oc */
+		$oc = $this->loadInsightsHelperClass( 'OverviewCards' );
+		return $oc->build();
 	}
 
 	protected function getModDisabledCard() :array {
@@ -338,5 +340,24 @@ class UI {
 	 */
 	public function isEnabledForUiSummary() :bool {
 		return $this->getMod()->isModuleEnabled();
+	}
+
+	protected function loadInsightsHelperClass( string $classToLoad ) {
+		try {
+			$NS = ( new \ReflectionClass( $this ) )->getNamespaceName();
+		}
+		catch ( \Exception $oE ) {
+			$NS = __NAMESPACE__;
+		}
+
+		$fullClass = rtrim( $NS, '\\' ).'\\Insights\\'.$classToLoad;
+		if ( !@class_exists( $fullClass ) ) {
+			$fullClass = __NAMESPACE__.'\\Insights\\'.$classToLoad;
+		}
+
+		/** @var ModConsumer $class */
+		$class = new $fullClass();
+		$class->setMod( $this->getMod() );
+		return $class;
 	}
 }
