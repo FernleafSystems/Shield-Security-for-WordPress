@@ -9,7 +9,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\BaseOverviewCards {
 	public function build() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */
 		$mod = $this->getMod();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options $opts */
+		/** @var Shield\Modules\AuditTrail\Options $opts */
 		$opts = $this->getOptions();
 
 		$cardSection = [

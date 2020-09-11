@@ -334,6 +334,7 @@ class UI {
 
 	/**
 	 * @return bool
+	 * @deprecated 10.0
 	 */
 	public function isEnabledForUiSummary() :bool {
 		return $this->getMod()->isModuleEnabled();

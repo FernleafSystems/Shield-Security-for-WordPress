@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 abstract class BaseOverviewCards {
 
 	use Shield\Modules\ModConsumer;
 
-	abstract public function build() :array;
+	public function build() :array {
+		return [];
+	}
 
 	protected function getModDisabledCard() :array {
 		$mod = $this->getMod();
