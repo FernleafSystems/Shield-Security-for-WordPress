@@ -20,7 +20,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[]
 	 */
-	public function getScanNames() {
+	public function getScanNames() :array {
 		return [
 			'apc' => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
 			'ptg' => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),

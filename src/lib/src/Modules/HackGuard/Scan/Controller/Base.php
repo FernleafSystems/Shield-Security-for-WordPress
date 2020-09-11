@@ -166,6 +166,12 @@ abstract class Base {
 		return $this->oScanActionVO;
 	}
 
+	public function getScanName() :string {
+		/** @var HackGuard\Strings $strings */
+		$strings = $this->getMod()->getStrings();
+		return $strings->getScanNames()[ static::SCAN_SLUG ];
+	}
+
 	/**
 	 * @return bool
 	 */

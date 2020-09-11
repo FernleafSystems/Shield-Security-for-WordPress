@@ -19,64 +19,6 @@ class UI extends Base\ShieldUI {
 	/**
 	 * @return array
 	 */
-	public function getInsightsNoticesData() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
-		$mod = $this->getMod();
-		/** @var Strings $oStrings */
-		$oStrings = $mod->getStrings();
-		$aScanNames = $oStrings->getScanNames();
-
-		$notices = [
-			'title'    => __( 'Scans', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		$sScansUrl = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
-
-		{// Plugin/Theme Guard
-			$scan = $mod->getScanCon( 'ptg' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'ptg' ] = [
-					'title'   => $aScanNames[ 'ptg' ],
-					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToOption( 'ptg_enable' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-				$notices[ 'messages' ][ 'ptg' ] = [
-					'title'   => $aScanNames[ 'ptg' ],
-					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
-					'href'    => $sScansUrl,
-					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
-					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-
-		{// Abandoned Plugins
-			$scan = $mod->getScanCon( 'apc' );
-			if ( !$scan->isEnabled() ) {
-				$notices[ 'messages' ][ 'apc' ] = [
-					'title'   => $aScanNames[ 'apc' ],
-					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
-				];
-			}
-			elseif ( $scan->getScanHasProblem() ) {
-			}
-		}
-
-		return $notices;
-	}
-
-	/**
-	 * @return array
-	 */
 	public function buildInsightsVars() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
 		$mod = $this->getMod();
