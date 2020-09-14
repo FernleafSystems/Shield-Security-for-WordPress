@@ -109,9 +109,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * Only returns greater than 0 if you have a valid Sec admin session
-	 * @return int
 	 */
-	public function getSecAdminTimeLeft() {
+	public function getSecAdminTimeLeft() :int {
 		$nLeft = 0;
 		if ( $this->hasSession() ) {
 
@@ -123,13 +122,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
 			}
 		}
-		return max( 0, $nLeft );
+		return (int)max( 0, $nLeft );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'remove_secadmin_confirm':
 				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
@@ -141,17 +137,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSecAdminSessionValid() {
-		return ( $this->getSecAdminTimeLeft() > 0 );
+	public function isSecAdminSessionValid() :bool {
+		return $this->getSecAdminTimeLeft() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledSecurityAdmin() {
+	public function isEnabledSecurityAdmin() :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return $this->isModOptEnabled() &&
@@ -172,17 +162,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isValidSecAdminRequest() {
+	public function isValidSecAdminRequest() :bool {
 		return $this->isAccessKeyRequest() && $this->testSecAccessKeyRequest();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function testSecAccessKeyRequest() {
+	public function testSecAccessKeyRequest() :bool {
 		if ( !isset( $this->bValidSecAdminRequest ) ) {
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
@@ -209,27 +193,17 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->bValidSecAdminRequest;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isAccessKeyRequest() {
+	private function isAccessKeyRequest() :bool {
 		return strlen( Services::Request()->post( 'sec_admin_key', '' ) ) > 0;
 	}
 
-	/**
-	 * @param string $key
-	 * @return bool
-	 */
-	public function verifyAccessKey( $key ) {
+	public function verifyAccessKey( string $key ) :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getWhitelabelOptions() {
+	public function getWhitelabelOptions() :array {
 		$opts = $this->getOptions();
 		$sMain = $opts->getOpt( 'wl_pluginnamemain' );
 		$sMenu = $opts->getOpt( 'wl_namemenu' );
@@ -276,19 +250,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $sLogoUrl;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWlEnabled() {
+	public function isWlEnabled() :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEnabledWhitelabel() && $this->isPremium();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWlHideUpdates() {
+	public function isWlHideUpdates() :bool {
 		return $this->isWlEnabled() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
@@ -406,9 +374,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getNamespaceBase() :string {
 		return 'SecurityAdmin';
 	}

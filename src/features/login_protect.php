@@ -60,10 +60,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case 'email_send_verify':
 				$this->processEmailSendVerify();

@@ -30,10 +30,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->getScanQueueController();
 	}
 
-	/**
-	 * @return HackGuard\Lib\FileLocker\FileLockerController
-	 */
-	public function getFileLocker() {
+	public function getFileLocker() :HackGuard\Lib\FileLocker\FileLockerController {
 		if ( !isset( $this->oFileLocker ) ) {
 			$this->oFileLocker = ( new HackGuard\Lib\FileLocker\FileLockerController() )
 				->setMod( $this );
@@ -41,10 +38,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->oFileLocker;
 	}
 
-	/**
-	 * @return HackGuard\Scan\Queue\Controller
-	 */
-	public function getScanQueueController() {
+	public function getScanQueueController() :HackGuard\Scan\Queue\Controller {
 		if ( !isset( $this->oScanQueueController ) ) {
 			$this->oScanQueueController = ( new HackGuard\Scan\Queue\Controller() )
 				->setMod( $this );
@@ -55,7 +49,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return HackGuard\Scan\Controller\Base[]
 	 */
-	public function getAllScanCons() {
+	public function getAllScanCons() :array {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		foreach ( $opts->getScanSlugs() as $scanSlug ) {
@@ -68,12 +62,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $slug
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
-	public function getScanCon( $slug ) {
+	public function getScanCon( string $slug ) {
 		if ( !is_array( $this->aScanCons ) ) {
 			$this->aScanCons = [];
 		}
 		if ( !isset( $this->aScanCons[ $slug ] ) ) {
-			$class = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $slug );
+			$class = $this->getNamespace().'Scan\Controller\\'.ucwords( $slug );
 			if ( @class_exists( $class ) ) {
 				/** @var HackGuard\Scan\Controller\Base $oObj */
 				$oObj = new $class();
@@ -86,10 +80,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->aScanCons[ $slug ];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'scan_file_download':
 				( new HackGuard\Lib\Utility\FileDownloadHandler() )
@@ -232,10 +223,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			   && ( ( $sOpt != 'securityadmin' ) || $this->getCon()->isPluginAdmin() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPtgEnabled() {
+	public function isPtgEnabled() :bool {
 		$opts = $this->getOptions();
 		return $this->isModuleEnabled() && $this->isPremium()
 			   && $opts->isOpt( 'ptg_enable', 'enabled' )
@@ -278,11 +266,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->getCon()->getPluginCachePath( 'ptguard/' );
 	}
 
-	/**
-	 * temporary
-	 * @return bool
-	 */
-	public function hasWizard() {
+	public function hasWizard() :bool {
 		return false;
 	}
 
@@ -294,24 +278,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
 	}
 
-	/**
-	 * @return Shield\Databases\FileLocker\Handler
-	 */
-	public function getDbHandler_FileLocker() {
+	public function getDbHandler_FileLocker() :Shield\Databases\FileLocker\Handler {
 		return $this->getDbH( 'file_protect' );
 	}
 
-	/**
-	 * @return false|Shield\Databases\ScanQueue\Handler
-	 */
-	public function getDbHandler_ScanQueue() {
+	public function getDbHandler_ScanQueue() :Shield\Databases\ScanQueue\Handler {
 		return $this->getDbH( 'scanq' );
 	}
 
-	/**
-	 * @return false|Shield\Databases\Scanner\Handler
-	 */
-	public function getDbHandler_ScanResults() {
+	public function getDbHandler_ScanResults() :Shield\Databases\Scanner\Handler {
 		return $this->getDbH( 'scanresults' );
 	}
 
@@ -340,9 +315,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->getFileLocker()->purge();
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getNamespaceBase() :string {
 		return 'HackGuard';
 	}

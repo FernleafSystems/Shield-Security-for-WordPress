@@ -27,10 +27,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	private $oShieldNetApiController;
 
-	/**
-	 * @return Plugin\Lib\ImportExport\ImportExportController
-	 */
-	public function getImpExpController() {
+	public function getImpExpController() :Plugin\Lib\ImportExport\ImportExportController {
 		if ( !isset( $this->oImportExportController ) ) {
 			$this->oImportExportController = ( new Plugin\Lib\ImportExport\ImportExportController() )
 				->setMod( $this );
@@ -38,10 +35,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->oImportExportController;
 	}
 
-	/**
-	 * @return Plugin\Components\PluginBadge
-	 */
-	public function getPluginBadgeCon() {
+	public function getPluginBadgeCon() :Plugin\Components\PluginBadge {
 		if ( !isset( $this->oPluginBadgeController ) ) {
 			$this->oPluginBadgeController = ( new Plugin\Components\PluginBadge() )
 				->setMod( $this );
@@ -49,10 +43,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->oPluginBadgeController;
 	}
 
-	/**
-	 * @return Shield\ShieldNetApi\ShieldNetApiController
-	 */
-	public function getShieldNetApiController() {
+	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
 		if ( !isset( $this->oShieldNetApiController ) ) {
 			$this->oShieldNetApiController = ( new Shield\ShieldNetApi\ShieldNetApiController() )
 				->setMod( $this );
@@ -95,9 +86,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::onPluginShutdown();
 	}
 
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
 	public function onWpInit() {
 		parent::onWpInit();
 		$this->getImportExportSecretKey();
@@ -107,19 +95,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( !$oOpts->isIpSourceAutoDetect() ) {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		if ( !$opts->isIpSourceAutoDetect() ) {
 			Services::IP()->setIpDetector(
-				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $oOpts->getIpSource() )
+				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 
 			case 'export_file_download':
@@ -152,19 +137,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getCanSiteCallToItself() {
+	public function getCanSiteCallToItself() :bool {
 		$oHttp = Services::HttpRequest();
 		return $oHttp->get( Services::WpGeneral()->getHomeUrl(), [ 'timeout' => 20 ] )
 			   && $oHttp->lastResponse->getCode() < 400;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getActivePluginFeatures() {
+	public function getActivePluginFeatures() :array {
 		$aActiveFeatures = $this->getDef( 'active_plugin_features' );
 
 		$aPluginFeatures = [];
@@ -180,19 +159,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $aPluginFeatures;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getLinkToTrackingDataDump() {
+	public function getLinkToTrackingDataDump() :string {
 		return add_query_arg(
 			[ 'shield_action' => 'dump_tracking_data' ],
 			Services::WpGeneral()->getAdminUrl()
 		);
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getPluginReportEmail() :string {
 		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
 		if ( $this->isPremium() ) {
@@ -224,11 +197,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setPluginInstallationId();
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getFirstInstallDate() {
-		return Services::WpGeneral()->getOption( $this->getCon()->prefixOption( 'install_date' ) );
+	public function getFirstInstallDate() :int {
+		return (int)Services::WpGeneral()->getOption( $this->getCon()->prefixOption( 'install_date' ) );
 	}
 
 	public function getInstallDate() :int {
@@ -272,18 +242,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			try {
 				$sKey = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 		return $sKey;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasOpenSslPrivateKey() {
-		$sKey = $this->getOpenSslPrivateKey();
-		return !empty( $sKey );
+	public function hasOpenSslPrivateKey() :bool {
+		return !empty( $this->getOpenSslPrivateKey() );
 	}
 
 	/**
@@ -344,10 +310,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $ID;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getActivateLength() {
+	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
@@ -360,10 +323,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
 	}
 
-	/**
-	 * @return Plugin\Lib\TourManager
-	 */
-	public function getTourManager() {
+	public function getTourManager() :Plugin\Lib\TourManager {
 		return ( new Plugin\Lib\TourManager() )->setMod( $this );
 	}
 
@@ -384,10 +344,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $newID;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function genInstallId() {
+	protected function genInstallId() :string {
 		return sha1(
 			$this->getInstallDate()
 			.Services::WpGeneral()->getWpUrl()
@@ -395,17 +352,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasImportExportWhitelistSites() {
-		return ( count( $this->getImportExportWhitelist() ) > 0 );
+	public function hasImportExportWhitelistSites() :bool {
+		return count( $this->getImportExportWhitelist() ) > 0;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getImportExportWhitelist() {
+	public function getImportExportWhitelist() :array {
 		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
 		return is_array( $list ) ? $list : [];
 	}
@@ -470,8 +424,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @param string $sKey
 	 * @return bool
 	 */
-	public function isImportExportSecretKey( $sKey ) {
-		return ( !empty( $sKey ) && $this->getImportExportSecretKey() == $sKey );
+	public function isImportExportSecretKey( $sKey ) :bool {
+		return !empty( $sKey ) && $this->getImportExportSecretKey() == $sKey;
 	}
 
 	protected function cleanImportExportWhitelistUrls() {
@@ -513,7 +467,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	protected function isValidInstallId( $sId ) {
-		return ( !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40 );
+		return !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40;
 	}
 
 	public function isXmlrpcBypass() :bool {
@@ -564,33 +518,21 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		);
 	}
 
-	/**
-	 * @return Shield\Databases\GeoIp\Handler
-	 */
-	public function getDbHandler_GeoIp() {
+	public function getDbHandler_GeoIp() :Shield\Databases\GeoIp\Handler {
 		return $this->getDbH( 'geoip' );
 	}
 
-	/**
-	 * @return Shield\Databases\AdminNotes\Handler
-	 */
-	public function getDbHandler_Notes() {
+	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {
 		return $this->getDbH( 'notes' );
 	}
 
-	/**
-	 * @return Shield\Utilities\ReCaptcha\Enqueue
-	 */
-	public function getCaptchaEnqueue() {
+	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
 		if ( !isset( $this->oCaptchaEnqueue ) ) {
 			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
 		}
 		return $this->oCaptchaEnqueue;
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
 	}

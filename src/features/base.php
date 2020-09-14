@@ -1012,10 +1012,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $aOpts;
 	}
 
-	/**
-	 * @param string $sAction
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 	}
 
 	/**
@@ -1296,10 +1293,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return is_array( $aW ) ? $aW : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasWizard() {
+	public function hasWizard() :bool {
 		return ( count( $this->getWizardDefinitions() ) > 0 );
 	}
 
@@ -1630,7 +1624,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\\';
 	}
 
-	private function getNamespace() :string {
+	protected function getNamespace() :string {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\'.$this->getNamespaceBase().'\\';
 	}
 
