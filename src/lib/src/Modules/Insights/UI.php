@@ -66,7 +66,6 @@ class UI extends Base\ShieldUI {
 	 */
 	private function getNotices() :array {
 		$aAll = [
-			'themes'  => $this->getNoticesThemes(),
 			'core'    => $this->getNoticesCore(),
 		];
 		foreach ( $this->getCon()->modules as $module ) {
@@ -98,46 +97,6 @@ class UI extends Base\ShieldUI {
 				)
 			)
 		) );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesThemes() {
-		$oWpT = Services::WpThemes();
-		$aNotices = [
-			'title'    => __( 'Themes', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{// Inactive
-			$nInactive = count( $oWpT->getThemes() ) - ( $oWpT->isActiveThemeAChild() ? 2 : 1 );
-			if ( $nInactive > 0 ) {
-				$aNotices[ 'messages' ][ 'inactive' ] = [
-					'title'   => 'Inactive',
-					'message' => sprintf( __( '%s inactive themes(s)', 'wp-simple-firewall' ), $nInactive ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Themes( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// updates
-			$nCount = count( $oWpT->getUpdates() );
-			if ( $nCount > 0 ) {
-				$aNotices[ 'messages' ][ 'updates' ] = [
-					'title'   => 'Updates',
-					'message' => sprintf( __( '%s theme update(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
 	}
 
 	/**

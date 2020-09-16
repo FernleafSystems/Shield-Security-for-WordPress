@@ -55,23 +55,34 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		{// Inactive
-			$oWpPlugins = Services::WpPlugins();
-			$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
-			$cards[ 'plugins_inactive' ] = [
-				'name'    => __( 'Inactive Plugins', 'wp-simple-firewall' ),
-				'state'   => $nCount > 0 ? -1 : 1,
-				'summary' => $nCount > 0 ?
-					sprintf( __( 'There are %s inactive and unused plugins', 'wp-simple-firewall' ), $nCount )
-					: __( "There appears to be no unused plugins", 'wp-simple-firewall' ),
-				'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
-				'help'    => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
-			];
-		}
+		$cards = array_merge(
+			$cards,
+			$this->getCardsForPlugins(),
+			$this->getCardsForThemes()
+		);
+
+		$cardSection[ 'cards' ] = $cards;
+		return [ 'plugin' => $cardSection ];
+	}
+
+	private function getCardsForPlugins() :array {
+		$cards = [];
+
+		$oWpPlugins = Services::WpPlugins();
+		$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
+		$cards[ 'plugins_inactive' ] = [
+			'name'    => __( 'Inactive Plugins', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s inactive and unused plugins', 'wp-simple-firewall' ), $nCount )
+				: __( "There appears to be no unused plugins", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
+			'help'    => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
+		];
 
 		$nCount = count( $oWpPlugins->getUpdates() );
-		$cards[ 'plugins_update' ] = [
-			'name'    => __( 'Updates', 'wp-simple-firewall' ),
+		$cards[ 'plugin_updates' ] = [
+			'name'    => __( 'Plugin Updates', 'wp-simple-firewall' ),
 			'state'   => $nCount > 0 ? -1 : 1,
 			'summary' => $nCount > 0 ?
 				sprintf( __( 'There are %s plugin updates available to be applied', 'wp-simple-firewall' ), $nCount )
@@ -80,7 +91,35 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'help'    => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' ),
 		];
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'plugin' => $cardSection ];
+		return $cards;
+	}
+
+	private function getCardsForThemes() :array {
+		$cards = [];
+
+		$oWpT = Services::WpThemes();
+		$nCount = count( $oWpT->getThemes() ) - ( $oWpT->isActiveThemeAChild() ? 2 : 1 );
+		$cards[ 'themes_inactive' ] = [
+			'name'    => __( 'Inactive Themes', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s inactive and unused themes', 'wp-simple-firewall' ), $nCount )
+				: __( "There appears to be no unused themes", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
+			'help'    => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
+		];
+
+		$nCount = count( $oWpT->getUpdates() );
+		$cards[ 'theme_updates' ] = [
+			'name'    => __( 'Theme Updates', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s theme updates available to be applied', 'wp-simple-firewall' ), $nCount )
+				: __( "All available theme updates have been applied", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
+			'help'    => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' ),
+		];
+
+		return $cards;
 	}
 }
