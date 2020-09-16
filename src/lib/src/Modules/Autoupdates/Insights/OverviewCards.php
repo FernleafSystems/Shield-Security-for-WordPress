@@ -58,6 +58,21 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToOption( 'autoupdate_plugin_self' ),
 			];
 		}
+		{ //really disabled?
+			$WP = Services::WpGeneral();
+			if ( $mod->isModOptEnabled()
+				 && $opts->isDisableAllAutoUpdates() && !$WP->getWpAutomaticUpdater()->is_disabled() ) {
+				$notices[ 'messages' ][ 'disabled_auto' ] = [
+					'name'    => 'Auto Updates Not Really Disabled',
+					'summary' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'help'    => sprintf( __( 'A plugin/theme other than %s is affecting your automatic update settings.', 'wp-simple-firewall' ), $this->getCon()
+																																						->getHumanName() ),
+					'state'   => -2
+				];
+			}
+		}
 
 		$cardSection[ 'cards' ] = $cards;
 		return [ 'auto_updates' => $cardSection ];

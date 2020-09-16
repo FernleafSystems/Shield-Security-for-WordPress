@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
@@ -37,46 +36,5 @@ class UI extends Base\ShieldUI {
 				'unique_users' => $dbSel->getDistinctUsernames(),
 			],
 		];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getInsightsNoticesData() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$notices = [
-			'title'    => __( 'Users', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{ //admin user
-			$oAdmin = Services::WpUsers()->getUserByUsername( 'admin' );
-			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
-				$notices[ 'messages' ][ 'admin' ] = [
-					'title'   => 'Admin User',
-					'message' => sprintf( __( "Default 'admin' user still available.", 'wp-simple-firewall' ) ),
-					'href'    => '',
-					'rec'     => __( "Default 'admin' user should be disabled or removed.", 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{//password policies
-			if ( !$opts->isPasswordPoliciesEnabled() ) {
-				$notices[ 'messages' ][ 'password' ] = [
-					'title'   => __( 'Password Policies', 'wp-simple-firewall' ),
-					'message' => __( "Strong password policies are not enforced.", 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_passwords' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Password policies should be turned-on.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		return $notices;
 	}
 }

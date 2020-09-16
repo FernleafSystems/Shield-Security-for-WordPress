@@ -24,15 +24,30 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
-			$bEditingDisabled = $opts->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
-			$cards[ 'editing' ] = [
-				'name'    => __( 'File Editing via WP', 'wp-simple-firewall' ),
-				'state'   => $bEditingDisabled ? 1 : -1,
-				'summary' => $bEditingDisabled ?
-					__( 'File editing is disabled', 'wp-simple-firewall' )
-					: __( "File editing within WP admin is allowed", 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToOption( 'disable_file_editing' ),
-			];
+			$bUserCanEdit = current_user_can( 'edit_plugins' );
+
+			if ( !$bUserCanEdit ) {
+				$cards[ 'editing' ] = [
+					'name'    => __( 'File Editing via WP', 'wp-simple-firewall' ),
+					'state'   => 1,
+					'summary' => __( 'File editing from within WordPress admin is disabled', 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToOption( 'disable_file_editing' ),
+				];
+			}
+			else {
+				$bEditOptSet = $opts->isOptFileEditingDisabled();
+				$cards[ 'editing' ] = [
+					'name'    => __( 'File Editing via WP', 'wp-simple-firewall' ),
+					'state'   => $bEditOptSet ? -2 : -1,
+					'summary' => $bEditOptSet ?
+						__( "File editing is allowed even though you've switched it off", 'wp-simple-firewall' )
+						: __( "File editing from within the WP admin should be disabled", 'wp-simple-firewall' ),
+					'href'    => $mod->getUrl_DirectLinkToOption( 'disable_file_editing' ),
+					'help'    => $bEditOptSet ?
+						__( 'Another plugin or theme is interfering with this setting.', 'wp-simple-firewall' )
+						: __( 'WP Plugin file editing should be disabled wherever possible.', 'wp-simple-firewall' )
+				];
+			}
 
 			$bXml = $opts->isXmlrpcDisabled();
 			$cards[ 'xml' ] = [

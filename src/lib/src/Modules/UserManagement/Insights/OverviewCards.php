@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Insight
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
@@ -67,6 +68,18 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_passwords' ),
 			];
 		}
+
+		$oAdmin = Services::WpUsers()->getUserByUsername( 'admin' );
+		$bActiveAdminUser = $oAdmin instanceof \WP_User && user_can( $oAdmin, 'manage_options' );
+		$cards[ 'admin_active' ] = [
+			'name'    => __( 'Admin User', 'wp-simple-firewall' ),
+			'summary' => $bActiveAdminUser ?
+				sprintf( __( "Default 'admin' user is still available", 'wp-simple-firewall' ), $opts->getOpt( 'session_idle_timeout_interval' ) )
+				: __( "The default 'admin' user is no longer available.", 'wp-simple-firewall' ),
+			'href'    => $mod->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
+			'state'   => $bActiveAdminUser ? -2 : 1,
+			'help'    => __( "The default 'admin' user should be deleted or demoted.", 'wp-simple-firewall' )
+		];
 
 		$cardSection[ 'cards' ] = $cards;
 		return [ 'user_management' => $cardSection ];
