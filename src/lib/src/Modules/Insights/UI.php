@@ -66,7 +66,6 @@ class UI extends Base\ShieldUI {
 	 */
 	private function getNotices() :array {
 		$aAll = [
-			'plugins' => $this->getNoticesPlugins(),
 			'themes'  => $this->getNoticesThemes(),
 			'core'    => $this->getNoticesCore(),
 		];
@@ -99,46 +98,6 @@ class UI extends Base\ShieldUI {
 				)
 			)
 		) );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesPlugins() {
-		$oWpPlugins = Services::WpPlugins();
-		$aNotices = [
-			'title'    => __( 'Plugins' ),
-			'messages' => []
-		];
-
-		{// Inactive
-			$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
-			if ( $nCount > 0 ) {
-				$aNotices[ 'messages' ][ 'inactive' ] = [
-					'title'   => __( 'Inactive', 'wp-simple-firewall' ),
-					'message' => sprintf( __( '%s inactive plugin(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Plugins', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// updates
-			$nCount = count( $oWpPlugins->getUpdates() );
-			if ( $nCount > 0 ) {
-				$aNotices[ 'messages' ][ 'updates' ] = [
-					'title'   => 'Updates',
-					'message' => sprintf( __( '%s plugin update(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
 	}
 
 	/**
