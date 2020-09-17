@@ -53,7 +53,7 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
 	protected function getAdditionalDisplayStrings() :array {
 		$sName = $this->getCon()->getHumanName();

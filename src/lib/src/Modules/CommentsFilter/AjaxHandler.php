@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
 	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {

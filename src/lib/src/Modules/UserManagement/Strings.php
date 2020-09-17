@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'um_current_user_settings'          => __( 'Current User Sessions', 'wp-simple-firewall' ),
 			'um_username'                       => __( 'Username', 'wp-simple-firewall' ),

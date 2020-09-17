@@ -1202,7 +1202,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @param array $aData
 	 * @return string
 	 */
-	protected function renderModulePage( $aData = [] ) {
+	protected function renderModulePage( array $aData = [] ) :string {
 		return $this->renderTemplate(
 			'index.php',
 			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData )
@@ -1294,7 +1294,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	public function hasWizard() :bool {
-		return ( count( $this->getWizardDefinitions() ) > 0 );
+		return count( $this->getWizardDefinitions() ) > 0;
 	}
 
 	/**
@@ -1411,32 +1411,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->renderTemplate( $sTemplate, $aData, $bTwig );
 	}
 
-	/**
-	 * @param string $sTemplate
-	 * @param array  $aData
-	 * @param bool   $bUseTwig
-	 * @return string
-	 */
-	public function renderTemplate( $sTemplate, $aData = [], $bUseTwig = false ) {
-		if ( empty( $aData[ 'unique_render_id' ] ) ) {
-			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
+	public function renderTemplate( string $template, array $data = [], bool $isTwig = false ) :string {
+		if ( empty( $data[ 'unique_render_id' ] ) ) {
+			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
 			$oRndr = $this->getCon()->getRenderer();
-			if ( $bUseTwig || preg_match( '#^.*\.twig$#i', $sTemplate ) ) {
+			if ( $isTwig || preg_match( '#^.*\.twig$#i', $template ) ) {
 				$oRndr->setTemplateEngineTwig();
 			}
 
-			$sOutput = $oRndr->setTemplate( $sTemplate )
-							 ->setRenderVars( $aData )
-							 ->render();
+			$render = $oRndr->setTemplate( $template )
+							->setRenderVars( $data )
+							->render();
 		}
 		catch ( \Exception $oE ) {
-			$sOutput = $oE->getMessage();
+			$render = $oE->getMessage();
 			error_log( $oE->getMessage() );
 		}
 
-		return $sOutput;
+		return (string)$render;
 	}
 
 	/**
@@ -1451,10 +1445,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $aTransferableOptions;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function collectOptionsForTracking() {
+	public function collectOptionsForTracking() :array {
 		$oVO = $this->getOptions();
 		$aOptionsData = $this->getOptions()->getOptionsForTracking();
 		foreach ( $aOptionsData as $sOption => $mValue ) {
@@ -1519,7 +1510,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
 				$this->oWpCli = $this->loadClassFromBase( 'WpCli' );
 				if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-					throw new Exception( 'WP-CLI not supported' );
+					throw new \Exception( 'WP-CLI not supported' );
 				}
 			}
 			$this->oWpCli->setMod( $this );

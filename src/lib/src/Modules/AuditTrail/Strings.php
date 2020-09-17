@@ -83,9 +83,9 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'at_users'            => __( 'Users', 'wp-simple-firewall' ),
 			'at_plugins'          => __( 'Plugins', 'wp-simple-firewall' ),

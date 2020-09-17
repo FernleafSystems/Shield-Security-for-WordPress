@@ -117,7 +117,7 @@ class Strings {
 	/**
 	 * @return string[]
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [];
 	}
 

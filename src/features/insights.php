@@ -10,29 +10,21 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	private function maybeRedirectToAdmin() {
-		$oCon = $this->getCon();
-		$nActiveFor = $oCon->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$oCon->isModulePage() && $nActiveFor < 4 ) {
+		$con = $this->getCon();
+		$nActiveFor = $con->getModule_Plugin()->getActivateLength();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $nActiveFor < 4 ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
 	}
 
-	/**
-	 * @param string $sSubPage
-	 * @return string
-	 */
-	public function getUrl_SubInsightsPage( $sSubPage ) {
+	public function getUrl_SubInsightsPage( string $subPage ) :string {
 		return add_query_arg(
-			[ 'inav' => sanitize_key( $sSubPage ) ],
+			[ 'inav' => sanitize_key( $subPage ) ],
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
 	}
 
-	/**
-	 * @param array $aData
-	 * @return string
-	 */
-	protected function renderModulePage( $aData = [] ) {
+	protected function renderModulePage( array $aData = [] ) :string {
 		$con = $this->getCon();
 		$oReq = Services::Request();
 
@@ -351,30 +343,27 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	private function includeScriptIpDetect() {
-		$oCon = $this->getCon();
-		/** @var Shield\Modules\Plugin\Options $oOpts */
-		$oOpts = $oCon->getModule_Plugin()->getOptions();
-		if ( $oOpts->isIpSourceAutoDetect() ) {
+		$con = $this->getCon();
+		/** @var Shield\Modules\Plugin\Options $opts */
+		$opts = $con->getModule_Plugin()->getOptions();
+		if ( $opts->isIpSourceAutoDetect() ) {
 			wp_register_script(
-				$oCon->prefix( 'ip_detect' ),
-				$oCon->getPluginUrl_Js( 'ip_detect.js' ),
+				$con->prefix( 'ip_detect' ),
+				$con->getPluginUrl_Js( 'ip_detect.js' ),
 				[],
-				$oCon->getVersion(),
+				$con->getVersion(),
 				true
 			);
-			wp_enqueue_script( $oCon->prefix( 'ip_detect' ) );
+			wp_enqueue_script( $con->prefix( 'ip_detect' ) );
 
 			wp_localize_script(
-				$oCon->prefix( 'ip_detect' ),
+				$con->prefix( 'ip_detect' ),
 				'icwp_wpsf_vars_ipdetect',
-				[ 'ajax' => $oCon->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
+				[ 'ajax' => $con->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
 			);
 		}
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getNamespaceBase() :string {
 		return 'Insights';
 	}

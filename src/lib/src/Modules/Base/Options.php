@@ -152,8 +152,8 @@ class Options {
 	 * Returns an array of all the options with the values for "sensitive" options masked out.
 	 * @return array
 	 */
-	public function getOptionsForTracking() {
-		$aOpts = [];
+	public function getOptionsForTracking() :array {
+		$opts = [];
 		if ( (bool)$this->getFeatureProperty( 'tracking_exclude' ) === false ) {
 
 			$aOptions = $this->getAllOptionsValues();
@@ -167,9 +167,9 @@ class Options {
 					unset( $aOptions[ $aOptDef[ 'key' ] ] );
 				}
 			}
-			$aOpts = array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+			$opts = array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
 		}
-		return $aOpts;
+		return $opts;
 	}
 
 	/**

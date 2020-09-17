@@ -16,9 +16,9 @@ class ReportingController {
 	 * @return bool
 	 */
 	protected function canRun() {
-		/** @var Modules\Reporting\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getFrequencyInfo() !== 'disabled' || $oOpts->getFrequencyAlert() !== 'disabled';
+		/** @var Modules\Reporting\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getFrequencyInfo() !== 'disabled' || $opts->getFrequencyAlert() !== 'disabled';
 	}
 
 	protected function run() {
@@ -30,12 +30,12 @@ class ReportingController {
 	}
 
 	private function buildAndSendReport() {
-		/** @var Modules\Reporting\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Modules\Reporting\Options $opts */
+		$opts = $this->getOptions();
 
 		$aReports = [];
 
-		if ( $oOpts->getFrequencyAlert() !== 'disabled' ) {
+		if ( $opts->getFrequencyAlert() !== 'disabled' ) {
 			try {
 				$oAlertReport = $this->buildReportAlerts();
 				if ( !empty( $oAlertReport->content ) ) {
@@ -47,7 +47,7 @@ class ReportingController {
 			}
 		}
 
-		if ( $oOpts->getFrequencyInfo() !== 'disabled' ) {
+		if ( $opts->getFrequencyInfo() !== 'disabled' ) {
 			try {
 				$oInfoReport = $this->buildReportInfo();
 				if ( !empty( $oInfoReport->content ) ) {
@@ -63,7 +63,7 @@ class ReportingController {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO $oReport
+	 * @param Modules\Reporting\Lib\Reports\ReportVO $oReport
 	 * @return bool
 	 */
 	private function storeReportRecord( Reports\ReportVO $oReport ) {
@@ -82,7 +82,7 @@ class ReportingController {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO
+	 * @return Modules\Reporting\Lib\Reports\ReportVO
 	 * @throws \Exception
 	 */
 	private function buildReportAlerts() {
@@ -96,7 +96,7 @@ class ReportingController {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO
+	 * @return Modules\Reporting\Lib\Reports\ReportVO
 	 * @throws \Exception
 	 */
 	private function buildReportInfo() {
@@ -110,7 +110,7 @@ class ReportingController {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO[] $aReportVOs
+	 * @param Modules\Reporting\Lib\Reports\ReportVO[] $aReportVOs
 	 */
 	private function sendEmail( array $aReportVOs ) {
 

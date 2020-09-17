@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'actions_title'   => __( 'Plugin Actions', 'wp-simple-firewall' ),
 			'actions_summary' => __( 'E.g. Import/Export', 'wp-simple-firewall' ),

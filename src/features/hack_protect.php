@@ -132,7 +132,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return int[] - key is scan slug
 	 */
-	public function getLastScansAt() {
+	public function getLastScansAt() :array {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		/** @var Shield\Databases\Events\Select $oSel */
@@ -170,13 +170,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function setCustomCronSchedules() {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		$nFreq = $opts->getScanFrequency();
+		$freq = $opts->getScanFrequency();
 		Services::WpCron()
 				->addNewSchedule(
-					$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+					$this->prefix( sprintf( 'per-day-%s', $freq ) ),
 					[
-						'interval' => DAY_IN_SECONDS/$nFreq,
-						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
+						'interval' => DAY_IN_SECONDS/$freq,
+						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 					]
 				);
 		return $this;
