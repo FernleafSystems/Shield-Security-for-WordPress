@@ -77,9 +77,23 @@
 						{{ card.summary }}
 					</div>
 					<div class="card-footer ">
-						<span class="badge badge-secondary">{{ card.mod }}</span>
-						<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
-						   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
+						<div class="w-25 d-inline-block">
+							{% if card.help|default('') is not empty %}
+								<a class="card_help"
+									  data-toggle="popover"
+									  data-content="{{ card.help }}" data-original-title="" title="">
+									<span class="dashicons dashicons-info"></span>
+								</a>
+							{% endif %}
+						</div>
+						<div class="w-25 d-inline-block">
+							&nbsp;
+{#							<span class="badge badge-secondary">{{ card.mod }}</span>#}
+						</div>
+						<div class="w-25 d-inline-block">
+							<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
+							   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -116,6 +130,15 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				}
 			} );
 		}
+	} );
+
+	jQuery( function () {
+		jQuery( '[data-toggle="popover"]' ).popover( {
+			placement: 'top',
+			trigger: 'hover focus',
+			delay: 150,
+			html: false
+		} );
 	} );
 } );
 </script>

@@ -1392,3 +1392,7 @@ dl.pro-features dd {
 .filter-states .state-good:hover {
 	background-color: #008000;
 }
+
+a.card_help {
+	text-decoration: none !important;
+}

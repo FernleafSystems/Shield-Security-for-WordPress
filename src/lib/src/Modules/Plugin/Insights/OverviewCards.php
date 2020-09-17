@@ -81,7 +81,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'state'   => -1,
 				'summary' => __( "Site visitor traffic isn't protected by HTTPS", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
-				'help'    => __( "It's recommended that a SSL certificate is installed on your site.", 'wp-simple-firewall' )
+				'help'    => __( "It's recommended that an SSL certificate is installed on your site.", 'wp-simple-firewall' )
 			];
 		}
 		elseif ( !$srvSSL->isEnvSupported() ) {
@@ -90,7 +90,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'state'   => 1,
 				'summary' => __( "Site visitor traffic set to use HTTPS", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
-				'help'    => __( "It's recommended that a SSL certificate is installed on your site.", 'wp-simple-firewall' )
+				'help'    => __( "It's recommended that an SSL certificate is installed on your site.", 'wp-simple-firewall' )
 			];
 		}
 		else {
@@ -111,7 +111,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 						'state'   => 1,
 						'summary' => __( 'SSL Certificate remains valid for at least the next 2 weeks', 'wp-simple-firewall' ),
 						'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
-						'help'    => __( "It's recommended to keep a valid SSL certificate at all time.", 'wp-simple-firewall' )
+						'help'    => __( "It's recommended to keep a valid SSL certificate installed at all times.", 'wp-simple-firewall' )
 					];
 					if ( $nDaysLeft < 15 ) {
 

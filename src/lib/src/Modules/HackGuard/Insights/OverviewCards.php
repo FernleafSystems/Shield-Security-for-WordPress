@@ -64,8 +64,8 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
 			'state'   => $bCore ? 1 : -2,
 			'summary' => $bCore ?
-				__( 'Core files scanned regularly for modifications', 'wp-simple-firewall' )
-				: __( 'Core files are not automatically scanned!', 'wp-simple-firewall' ),
+				__( 'WP Core files are scanned automatically', 'wp-simple-firewall' )
+				: __( "WP Core files aren't automatically scanned!", 'wp-simple-firewall' ),
 			'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			'help'    => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 		];
@@ -178,8 +178,8 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards[ $scanCon::SCAN_SLUG ] = [
 			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
 			'summary' => $malEnabled ?
-				sprintf( __( '%s Scanner is enabled.' ), $scanCon->getScanName() )
-				: sprintf( __( '%s Scanner is not enabled.' ), $scanCon->getScanName() ),
+				sprintf( __( '%s Scanner runs automatically.' ), $scanCon->getScanName() )
+				: sprintf( __( "%s Scanner isn't set to run automatically." ), $scanCon->getScanName() ),
 			'state'   => $malEnabled ? 1 : -2,
 			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_mal' ),
 			'help'    => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
