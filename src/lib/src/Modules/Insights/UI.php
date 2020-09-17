@@ -21,9 +21,6 @@ class UI extends Base\ShieldUI {
 
 		return [
 			'vars'    => [
-				'insight_events'        => $this->getRecentEvents(),
-				'insight_notices'       => $aSecNotices,
-				'insight_notices_count' => $nNoticesCount,
 				'insight_stats'         => $this->getStats(),
 				'overview_cards'        => ( new OverviewCards() )
 					->setMod( $this->getMod() )
@@ -63,78 +60,10 @@ class UI extends Base\ShieldUI {
 
 	/**
 	 * @return array[]
+	 * @deprecated 10.0
 	 */
 	private function getNotices() :array {
-		$aAll = [
-			'core'    => $this->getNoticesCore(),
-		];
-		foreach ( $this->getCon()->modules as $module ) {
-			$aAll[ $module->getSlug() ] = $module->getUIHandler()->getInsightsNoticesData();
-		}
-
-		// remove empties, add a count, then order.
-		return array_filter( array_merge(
-			[
-				'plugin'                   => [],
-				'admin_access_restriction' => [],
-				'hack_protect'             => [],
-				'core'                     => [],
-				'plugins'                  => [],
-				'themes'                   => [],
-				'user_management'          => [],
-				'lockdown'                 => [],
-			],
-			array_map(
-				function ( $notices ) {
-					$notices[ 'count' ] = count( $notices[ 'messages' ] );
-					return $notices;
-				},
-				array_filter(
-					$aAll,
-					function ( $notices ) {
-						return !empty( $notices[ 'messages' ] );
-					}
-				)
-			)
-		) );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesCore() {
-		$oWp = Services::WpGeneral();
-		$aNotices = [
-			'title'    => __( 'WordPress Core', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		{// updates
-			if ( $oWp->hasCoreUpdate() ) {
-				$aNotices[ 'messages' ][ 'updates' ] = [
-					'title'   => 'Updates',
-					'message' => __( 'WordPress Core has an update available.', 'wp-simple-firewall' ),
-					'href'    => $oWp->getAdminUrl_Updates( true ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		{// autoupdates
-			if ( !$oWp->canCoreUpdateAutomatically() ) {
-				$aNotices[ 'messages' ][ 'updates_auto' ] = [
-					'title'   => 'Auto Updates',
-					'message' => __( 'WordPress does not automatically install updates.', 'wp-simple-firewall' ),
-					'href'    => $this->getCon()->getModule( 'autoupdates' )->getUrl_AdminPage(),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'rec'     => __( 'Minor WordPress upgrades should be applied automatically.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
+		return [];
 	}
 
 	private function getNoticesSite() :array {
@@ -209,9 +138,6 @@ class UI extends Base\ShieldUI {
 		return $aNotices;
 	}
 
-	/**
-	 * @return array
-	 */
 	private function getRecentEvents() :array {
 		$con = $this->getCon();
 

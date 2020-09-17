@@ -239,10 +239,6 @@ class UI {
 		];
 	}
 
-	public function getInsightsNoticesData() :array {
-		return [];
-	}
-
 	public function getInsightsOverviewCards() :array {
 		/** @var Insights\OverviewCards $oc */
 		$oc = $this->loadInsightsHelperClass( 'OverviewCards' );

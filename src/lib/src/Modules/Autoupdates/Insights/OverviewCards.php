@@ -13,6 +13,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
+		$WP = Services::WpGeneral();
 
 		$cardSection = [
 			'title'        => __( 'Automatic Updates', 'wp-simple-firewall' ),
@@ -26,9 +27,20 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
+			$bHasUpdate = $WP->hasCoreUpdate();
+			$cards[ 'core_update' ] = [
+				'name'    => __( 'Core Update', 'wp-simple-firewall' ),
+				'state'   => $bHasUpdate ? -1 : 1,
+				'summary' => $bHasUpdate ?
+					__( 'WordPress Core is up-to-date', 'wp-simple-firewall' )
+					: __( "No WordPress Core upgrades waiting to be applied", 'wp-simple-firewall' ),
+				'href'    => $WP->getAdminUrl_Updates( true ),
+				'help'    => __( 'Core upgrades should be applied as early as possible.', 'wp-simple-firewall' )
+			];
+
 			$bCanCore = Services::WpGeneral()->canCoreUpdateAutomatically();
 			$cards[ 'core_minor' ] = [
-				'name'    => __( 'Core Updates', 'wp-simple-firewall' ),
+				'name'    => __( 'Auto Core Updates', 'wp-simple-firewall' ),
 				'state'   => $bCanCore ? 1 : -1,
 				'summary' => $bCanCore ?
 					__( 'Minor WP Core updates will be installed automatically', 'wp-simple-firewall' )
@@ -53,28 +65,92 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'name'    => __( 'Self Auto-Update', 'wp-simple-firewall' ),
 				'state'   => $bSelfAuto ? 1 : -1,
 				'summary' => $bSelfAuto ?
-					sprintf( __( '%s is automatically updated', 'wp-simple-firewall' ), $sName )
-					: sprintf( __( "%s isn't automatically updated", 'wp-simple-firewall' ), $sName ),
+					sprintf( __( '%s upgrades are installed automatically', 'wp-simple-firewall' ), $sName )
+					: sprintf( __( "%s upgrades aren't installed automatically", 'wp-simple-firewall' ), $sName ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'autoupdate_plugin_self' ),
 			];
 		}
-		{ //really disabled?
-			$WP = Services::WpGeneral();
-			if ( $mod->isModOptEnabled()
-				 && $opts->isDisableAllAutoUpdates() && !$WP->getWpAutomaticUpdater()->is_disabled() ) {
-				$notices[ 'messages' ][ 'disabled_auto' ] = [
-					'name'    => 'Auto Updates Not Really Disabled',
-					'summary' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
-					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
-					'help'    => sprintf( __( 'A plugin/theme other than %s is affecting your automatic update settings.', 'wp-simple-firewall' ), $this->getCon()
-																																						->getHumanName() ),
-					'state'   => -2
-				];
-			}
+
+		//really disabled?
+		$WP = Services::WpGeneral();
+		if ( $mod->isModOptEnabled()
+			 && $opts->isDisableAllAutoUpdates() && !$WP->getWpAutomaticUpdater()->is_disabled() ) {
+			$notices[ 'messages' ][ 'disabled_auto' ] = [
+				'name'    => 'Auto Updates Not Really Disabled',
+				'summary' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+				'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+				'help'    => sprintf( __( 'A plugin/theme other than %s is affecting your automatic update settings.', 'wp-simple-firewall' ), $this->getCon()
+																																					->getHumanName() ),
+				'state'   => -2
+			];
 		}
+
+		$cards = array_merge(
+			$cards,
+			$this->getCardsForPlugins(),
+			$this->getCardsForThemes()
+		);
 
 		$cardSection[ 'cards' ] = $cards;
 		return [ 'auto_updates' => $cardSection ];
+	}
+
+	private function getCardsForPlugins() :array {
+		$cards = [];
+
+		$oWpPlugins = Services::WpPlugins();
+		$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
+		$cards[ 'plugins_inactive' ] = [
+			'name'    => __( 'Inactive Plugins', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s inactive and unused plugins', 'wp-simple-firewall' ), $nCount )
+				: __( "There appears to be no unused plugins", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
+			'help'    => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
+		];
+
+		$nCount = count( $oWpPlugins->getUpdates() );
+		$cards[ 'plugin_updates' ] = [
+			'name'    => __( 'Plugin Updates', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s plugin updates available to be applied', 'wp-simple-firewall' ), $nCount )
+				: __( "All available plugin updates have been applied", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
+			'help'    => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' ),
+		];
+
+		return $cards;
+	}
+
+	private function getCardsForThemes() :array {
+		$cards = [];
+
+		$oWpT = Services::WpThemes();
+		$nCount = count( $oWpT->getThemes() ) - ( $oWpT->isActiveThemeAChild() ? 2 : 1 );
+		$cards[ 'themes_inactive' ] = [
+			'name'    => __( 'Inactive Themes', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s inactive and unused themes', 'wp-simple-firewall' ), $nCount )
+				: __( "There appears to be no unused themes", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
+			'help'    => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
+		];
+
+		$nCount = count( $oWpT->getUpdates() );
+		$cards[ 'theme_updates' ] = [
+			'name'    => __( 'Theme Updates', 'wp-simple-firewall' ),
+			'state'   => $nCount > 0 ? -1 : 1,
+			'summary' => $nCount > 0 ?
+				sprintf( __( 'There are %s theme updates available to be applied', 'wp-simple-firewall' ), $nCount )
+				: __( "All available theme updates have been applied", 'wp-simple-firewall' ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
+			'help'    => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' ),
+		];
+
+		return $cards;
 	}
 }
