@@ -1,6 +1,9 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
+
+	{{ content.summary_stats|raw }}
+
 	<div class="row">
 		<div class="col-4 insights_section">
 			<h3>Daily</h3>

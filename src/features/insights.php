@@ -117,15 +117,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
 			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
-			'ips'          => __( 'IP Lists', 'wp-simple-firewall' ),
-			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
+			'audit'        => __( 'Logs', 'wp-simple-firewall' ),
 			'users'        => __( 'Users', 'wp-simple-firewall' ),
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
-			//			'repcorts'      => __( 'Reports', 'wp-simple-firewall' ),
-			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-			//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
+			'importexport' => __( 'Import', 'wp-simple-firewall' ),
+			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
+			//			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );
@@ -138,7 +138,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'name'    => $sName,
 				'slug'    => $sKey,
 				'active'  => $sKey === $sNavSection,
-				'subnavs' => []
+				'subnavs' => [],
+				'icon'    => ''
 			];
 		} );
 

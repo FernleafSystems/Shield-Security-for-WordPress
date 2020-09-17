@@ -303,7 +303,7 @@ label input[type=checkbox] {
 }
 .module-icon {
 	position: relative;
-	top: 2px;
+	top: 7px;
 }
 .module-icon:before {
 	-webkit-font-smoothing: antialiased;
@@ -1026,12 +1026,15 @@ table.odp-table.scan-table td.column-path code {
 	display: inline-block;
 	background-repeat: no-repeat;
 }
-@media (max-width: 1160px) {
+.navbar .nav-item {
+	transition: letter-spacing 0.5s ease;
+}
+@media (max-width: 1030px) {
 	.navbar .nav-item {
 		letter-spacing: -1.7px;
 	}
 }
-@media (max-width: 992px) {
+@media (max-width: 760px) {
 	.navbar .nav-item {
 		padding-left: 5px;
 		letter-spacing: 0;
@@ -1392,7 +1395,18 @@ dl.pro-features dd {
 .filter-states .state-good:hover {
 	background-color: #008000;
 }
-
 a.card_help {
 	text-decoration: none !important;
+}
+#pills-nav-ips {
+	margin-top: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+#pills-nav-ips a {
+	font-size: 2em;
+	margin-right: 20px;
+}
+#pills-nav-ips a.active {
+	background-color: #008000;;
 }

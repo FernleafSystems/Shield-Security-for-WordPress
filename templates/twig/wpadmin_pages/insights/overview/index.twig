@@ -2,11 +2,6 @@
 
 {% block page_main %}
 	<div class="row">
-		<div class="col-12 insights_section" id="SectionStats">
-			{% include '/wpadmin_pages/insights/overview/stats.twig' %}
-		</div>
-	</div>
-	<div class="row">
 		<div class="col-12 insights_section" id="SectionOverviewCards">
 			{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
 		</div>
@@ -49,20 +44,6 @@
 {% block inline_scripts %}
 	<script type="text/javascript">
 		jQuery( document ).ready( function () {
-
-			{% for stat in vars.insight_stats %}
-			jQuery( '#statcard-{{ stat.id }} .card-body .stat-chart' ).icwpWpsfAjaxChart(
-				{
-					'ajax_render':{{ ajax.render_chart_post|raw }},
-					'req_params': {
-						'render_location': "insights-overview-statcard",
-						'chart_params': {
-							'stat_id': "{{ stat.id }}",
-						}
-					}
-				}
-			);
-			{% endfor %}
 
 			{% if flags.tours.insights_overview %}
 			var bIsExited = false;
@@ -124,6 +105,7 @@
 			{% endif %}
 		} );
 	</script>
+
 	<script type="text/javascript">
 		jQuery( '#collapseConfigSummary' ).on( 'shown.bs.collapse', function () {
 			jQuery( 'html, body' ).animate( {

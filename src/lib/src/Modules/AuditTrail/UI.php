@@ -27,7 +27,7 @@ class UI extends Base\ShieldUI {
 			],
 			'flags'   => [],
 			'strings' => [
-				'table_title'             => __( 'Audit Trail', 'wp-simple-firewall' ),
+				'table_title'             => sprintf( '%s: %s', __( 'Logs', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ),
 				'sub_title'               => __( 'Use the Audit Trail Glossary for help interpreting log entries.', 'wp-simple-firewall' ),
 				'audit_trail_glossary'    => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
 				'title_filter_form'       => __( 'Audit Trail Filters', 'wp-simple-firewall' ),
