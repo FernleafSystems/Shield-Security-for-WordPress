@@ -72,7 +72,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		}
 
 		//really disabled?
-		$WP = Services::WpGeneral();
 		if ( $mod->isModOptEnabled()
 			 && $opts->isDisableAllAutoUpdates() && !$WP->getWpAutomaticUpdater()->is_disabled() ) {
 			$notices[ 'messages' ][ 'disabled_auto' ] = [

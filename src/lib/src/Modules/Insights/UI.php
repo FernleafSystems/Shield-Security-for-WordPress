@@ -12,17 +12,11 @@ class UI extends Base\ShieldUI {
 
 	public function buildInsightsVars() :array {
 		$con = $this->getCon();
-		$aSecNotices = $this->getNotices();
-
-		$nNoticesCount = 0;
-		foreach ( $aSecNotices as $aNoticeSection ) {
-			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
-		}
 
 		return [
 			'vars'    => [
-				'insight_stats'         => $this->getStats(),
-				'overview_cards'        => ( new OverviewCards() )
+				'insight_stats'  => $this->getStats(),
+				'overview_cards' => ( new OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
 			],
@@ -38,7 +32,6 @@ class UI extends Base\ShieldUI {
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
 				'is_pro'                => $con->isPremiumActive(),
-				'has_notices'           => count( $aSecNotices ) > 0,
 			],
 			'strings' => [
 				'title_security_notices'    => __( 'Security Notices', 'wp-simple-firewall' ),
@@ -60,144 +53,18 @@ class UI extends Base\ShieldUI {
 
 	/**
 	 * @return array[]
-	 * @deprecated 10.0
-	 */
-	private function getNotices() :array {
-		return [];
-	}
-
-	private function getNoticesSite() :array {
-		$oSslService = new \FernleafSystems\Wordpress\Services\Utilities\Ssl();
-
-		$aNotices = [
-			'title'    => __( 'Site', 'wp-simple-firewall' ),
-			'messages' => []
-		];
-
-		// SSL Expires
-		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
-		$bHomeSsl = strpos( $sHomeUrl, 'https://' ) === 0;
-
-		if ( $bHomeSsl && $oSslService->isEnvSupported() ) {
-
-			try {
-				// first verify SSL cert:
-				$oSslService->getCertDetailsForDomain( $sHomeUrl );
-
-				// If we didn't throw and exception, we got it.
-				$nExpiresAt = $oSslService->getExpiresAt( $sHomeUrl );
-				if ( $nExpiresAt > 0 ) {
-					$nTimeLeft = ( $nExpiresAt - Services::Request()->ts() );
-					$bExpired = $nTimeLeft < 0;
-					$nDaysLeft = $bExpired ? 0 : (int)round( $nTimeLeft/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
-
-					if ( $nDaysLeft < 15 ) {
-
-						if ( $bExpired ) {
-							$sMess = __( 'SSL certificate for this site has expired.', 'wp-simple-firewall' );
-						}
-						else {
-							$sMess = sprintf( __( 'SSL certificate will expire soon (in %s days)', 'wp-simple-firewall' ), $nDaysLeft );
-						}
-
-						$aMessage = [
-							'title'   => 'SSL Cert Expiration',
-							'message' => $sMess,
-							'href'    => '',
-							'rec'     => __( 'Check or renew your SSL certificate.', 'wp-simple-firewall' )
-						];
-					}
-				}
-			}
-			catch ( \Exception $oE ) {
-				$aMessage = [
-					'title'   => 'SSL Cert Expiration',
-					'message' => 'Failed to retrieve a valid SSL certificate.',
-					'href'    => ''
-				];
-			}
-
-			if ( !empty( $aMessage ) ) {
-				$aNotices[ 'messages' ][ 'ssl_cert' ] = $aMessage;
-			}
-		}
-
-		{ // db password strength
-			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
-			if ( $nStrength < 4 ) {
-				$aNotices[ 'messages' ][ 'db_strength' ] = [
-					'title'   => 'DB Password',
-					'message' => __( 'DB Password appears to be weak.', 'wp-simple-firewall' ),
-					'href'    => '',
-					'rec'     => __( 'The database password should be strong.', 'wp-simple-firewall' )
-				];
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	private function getRecentEvents() :array {
-		$con = $this->getCon();
-
-		$aTheStats = array_filter(
-			$con->loadEventsService()->getEvents(),
-			function ( $aEvt ) {
-				return isset( $aEvt[ 'recent' ] ) && $aEvt[ 'recent' ];
-			}
-		);
-
-		/** @var Strings $oStrs */
-		$oStrs = $this->getMod()->getStrings();
-		$aNames = $oStrs->getInsightStatNames();
-
-		/** @var Events\Select $oSel */
-		$oSel = $con->getModule_Events()
-					->getDbHandler_Events()
-					->getQuerySelector();
-
-		$aRecentStats = array_intersect_key(
-			array_map(
-				function ( $oEntryVO ) use ( $aNames ) {
-					/** @var Events\EntryVO $oEntryVO */
-					return [
-						'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
-						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
-					];
-				},
-				$oSel->getLatestForAllEvents()
-			),
-			$aTheStats
-		);
-
-		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
-			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
-				$aRecentStats[ $sStatKey ] = [
-					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
-					'val'  => $sNotYetRecorded
-				];
-			}
-		}
-
-		return $aRecentStats;
-	}
-
-	/**
-	 * @return array[]
 	 */
 	protected function getStats() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		/** @var Events\Select $oSelEvents */
-		$oSelEvents = $oCon->getModule_Events()
-						   ->getDbHandler_Events()
-						   ->getQuerySelector();
+		$oSelEvents = $con->getModule_Events()
+						  ->getDbHandler_Events()
+						  ->getQuerySelector();
 
 		/** @var IPs\Select $oSelectIp */
-		$oSelectIp = $oCon->getModule_IPs()
-						  ->getDbHandler_IPs()
-						  ->getQuerySelector();
+		$oSelectIp = $con->getModule_IPs()
+						 ->getDbHandler_IPs()
+						 ->getQuerySelector();
 
 		$aStatsData = [
 			'login'          => [
