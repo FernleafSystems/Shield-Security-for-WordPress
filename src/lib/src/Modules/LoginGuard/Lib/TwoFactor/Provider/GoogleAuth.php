@@ -159,12 +159,12 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
-	 * @param string   $sOtpCode
+	 * @param \WP_User $user
+	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $oUser, $sOtpCode ) {
-		return $this->validateGaCode( $oUser, $sOtpCode );
+	protected function processOtp( $user, $otp ) {
+		return $this->validateGaCode( $user, $otp );
 	}
 
 	/**
@@ -232,12 +232,12 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return string
 	 */
-	protected function getSecret( \WP_User $oUser ) {
-		$sSec = parent::getSecret( $oUser );
-		return empty( $sSec ) ? $this->resetSecret( $oUser ) : $sSec;
+	protected function getSecret( \WP_User $user ) {
+		$sSec = parent::getSecret( $user );
+		return empty( $sSec ) ? $this->resetSecret( $user ) : $sSec;
 	}
 
 	/**

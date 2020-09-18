@@ -248,12 +248,12 @@ class U2F extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
-	 * @param string   $sOtpCode
+	 * @param \WP_User $user
+	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $oUser, $sOtpCode ) {
-		return $this->validateU2F( $oUser, $sOtpCode );
+	protected function processOtp( $user, $otp ) {
+		return $this->validateU2F( $user, $otp );
 	}
 
 	/**

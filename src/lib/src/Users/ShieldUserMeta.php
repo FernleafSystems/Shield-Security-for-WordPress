@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class UserMeta
  * @package FernleafSystems\Wordpress\Plugin\Shield\Users
  * @property string $email_secret
+ * @property int[]  $email_secrets
  * @property bool   $email_validated
  * @property string $backupcode_secret
  * @property string $backupcode_validated

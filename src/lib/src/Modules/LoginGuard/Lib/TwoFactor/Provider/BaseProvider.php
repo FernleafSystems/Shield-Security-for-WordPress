@@ -42,11 +42,11 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return string
 	 */
-	protected function getSecret( \WP_User $oUser ) {
-		$sSecret = $this->getCon()->getUserMeta( $oUser )->{static::SLUG.'_secret'};
+	protected function getSecret( \WP_User $user ) {
+		$sSecret = $this->getCon()->getUserMeta( $user )->{static::SLUG.'_secret'};
 		return empty( $sSecret ) ? static::DEFAULT_SECRET : $sSecret;
 	}
 
@@ -70,7 +70,7 @@ abstract class BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function isEnforced( $oUser ) {
+	protected function isEnforced( \WP_User $oUser ) {
 		return false;
 	}
 
@@ -154,11 +154,11 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
-	 * @param string   $sOtpCode
+	 * @param \WP_User $user
+	 * @param string   $otp
 	 * @return bool
 	 */
-	abstract protected function processOtp( $oUser, $sOtpCode );
+	abstract protected function processOtp( $user, $otp );
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
@@ -209,9 +209,9 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function captureLoginAttempt( $oUser ) {
+	public function captureLoginAttempt( $user ) {
 	}
 
 	/**
