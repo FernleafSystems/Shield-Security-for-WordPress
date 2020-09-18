@@ -143,15 +143,15 @@ class Yubikey extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param string   $sOneTimePassword
+	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $user, $sOneTimePassword ) {
+	protected function processOtp( \WP_User $user, $otp ) {
 		$bSuccess = false;
 
 		foreach ( $this->getYubiIds( $user ) as $sKey ) {
-			if ( strpos( $sOneTimePassword, $sKey ) === 0
-				 && $this->sendYubiOtpRequest( $sOneTimePassword ) ) {
+			if ( strpos( $otp, $sKey ) === 0
+				 && $this->sendYubiOtpRequest( $otp ) ) {
 				$bSuccess = true;
 				break;
 			}

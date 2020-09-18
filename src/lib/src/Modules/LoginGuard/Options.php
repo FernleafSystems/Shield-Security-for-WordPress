@@ -14,7 +14,7 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return int
 	 */
-	public function getLoginIntentTimeoutMinutes() {
+	public function getLoginIntentMinutes() {
 		return (int)max( 1, apply_filters(
 			$this->getCon()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
