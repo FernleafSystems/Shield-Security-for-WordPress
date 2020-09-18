@@ -10,18 +10,10 @@ class Email extends BaseProvider {
 	const SLUG = 'email';
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function captureLoginAttempt( $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-		$oUpd->setLoginIntentCodeEmail( $oMod->getSession(), $this->getSecret( $oUser ) );
-
-		// Now send email with authentication link for user.
-		$this->sendEmailTwoFactorVerify( $oUser );
+	public function captureLoginAttempt( $user ) {
+		$this->sendEmailTwoFactorVerify( $user );
 	}
 
 	/**
@@ -54,12 +46,21 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
-	 * @param string   $sOtpCode
+	 * @param \WP_User $user
+	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $oUser, $sOtpCode ) {
-		return $sOtpCode == $this->getStoredSessionHashCode();
+	protected function processOtp( $user, $otp ) {
+		$valid = false;
+		$secrets = $this->getAllSecrets( $user );
+		foreach ( $secrets as $secret => $expiresAt ) {
+			if ( wp_check_password( $secret, $otp ) ) {
+				$valid = true;
+				unset( $secrets[ $secret ] );
+				$this->getCon()->getUserMeta( $user )->email_secrets = $secrets;
+			}
+		}
+		return $valid;
 	}
 
 	/**
@@ -78,14 +79,11 @@ class Email extends BaseProvider {
 
 	/**
 	 * We don't use user meta as it's dependent on the particular user sessions in-use
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return string
 	 */
-	protected function getSecret( \WP_User $oUser ) {
-		return strtoupper( substr(
-			hash_hmac( 'sha1', $this->getCon()->getUniqueRequestId(), $this->getCon()->getSiteInstallationId() ),
-			0, 6
-		) );
+	protected function getSecret( \WP_User $user ) {
+		return wp_generate_password( 6, false );
 	}
 
 	/**
@@ -143,10 +141,10 @@ class Email extends BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function isEnforced( $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return count( array_intersect( $oOpts->getEmail2FaRoles(), $oUser->roles ) ) > 0;
+	protected function isEnforced( \WP_User $oUser ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return count( array_intersect( $opts->getEmail2FaRoles(), $oUser->roles ) ) > 0;
 	}
 
 	/**
@@ -180,7 +178,7 @@ class Email extends BaseProvider {
 										'show_login_link' => !$this->getCon()->isRelabelled()
 									],
 									'vars'    => [
-										'code' => $this->getSecret( $oUser )
+										'code' => $this->genNewCode( $oUser )
 									],
 									'hrefs'   => [
 										'login_link' => 'https://shsec.io/96'
@@ -240,9 +238,37 @@ class Email extends BaseProvider {
 	 * @return bool
 	 */
 	public function isProviderAvailableToUser( \WP_User $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 		return parent::isProviderAvailableToUser( $oUser )
-			   && ( $this->isEnforced( $oUser ) || $oOpts->isEnabledEmailAuthAnyUserSet() );
+			   && ( $this->isEnforced( $oUser ) || $opts->isEnabledEmailAuthAnyUserSet() );
+	}
+
+	/**
+	 * @param \WP_User $user
+	 * @return string
+	 */
+	private function genNewCode( \WP_User $user ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+
+		$secrets = $this->getAllSecrets( $user );
+		$newCode = $this->getSecret( $user );
+		$secrets[ $newCode ] = Services::Request()
+									   ->carbon()
+									   ->addMinutes( $opts->getLoginIntentTimeoutMinutes() )->timestamp;
+		$this->getCon()->getUserMeta( $user )->email_secrets = array_slice( $secrets, -10 );
+
+		return $newCode;
+	}
+
+	private function getAllSecrets( \WP_User $user ) {
+		$meta = $this->getCon()->getUserMeta( $user );
+		return array_filter(
+			empty( $meta->email_secrets ) ? [] : $meta->email_secrets,
+			function ( $ts ) {
+				return $ts < Services::Request()->ts();
+			}
+		);
 	}
 }

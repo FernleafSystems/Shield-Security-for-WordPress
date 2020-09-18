@@ -75,8 +75,8 @@ class MfaController {
 		if ( empty( $this->bLoginAttemptCaptured ) && $oUser instanceof \WP_User ) {
 			$this->bLoginAttemptCaptured = true;
 
-			/** @var LoginGuard\Options $oOpts */
-			$oOpts = $this->getOptions();
+			/** @var LoginGuard\Options $opts */
+			$opts = $this->getOptions();
 			if ( $this->isSubjectToLoginIntent( $oUser ) && !$this->canUserMfaSkip( $oUser ) ) {
 
 				$aProviders = $this->getProvidersForUser( $oUser );
@@ -85,12 +85,10 @@ class MfaController {
 						$oProvider->captureLoginAttempt( $oUser );
 					}
 
-					$nTimeout = (int)apply_filters(
-						$this->getCon()->prefix( 'login_intent_timeout' ),
-						$oOpts->getDef( 'login_intent_timeout' )
-					);
 					$this->setLoginIntentExpiresAt(
-						Services::Request()->carbon()->addMinutes( $nTimeout )->timestamp
+						Services::Request()
+								->carbon()
+								->addMinutes( $opts->getLoginIntentTimeoutMinutes() )->timestamp
 					);
 				}
 			}
