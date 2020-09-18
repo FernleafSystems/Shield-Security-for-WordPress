@@ -13,11 +13,11 @@ class U2F extends BaseProvider {
 	const DEFAULT_SECRET = '[]';
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function isProfileActive( \WP_User $oUser ) {
-		return parent::isProfileActive( $oUser ) && $this->hasValidatedProfile( $oUser );
+	public function isProfileActive( \WP_User $user ) {
+		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
 	public function setupProfile() {

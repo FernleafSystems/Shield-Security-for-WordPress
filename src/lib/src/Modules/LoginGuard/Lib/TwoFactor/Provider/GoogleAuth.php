@@ -16,11 +16,11 @@ class GoogleAuth extends BaseProvider {
 	private $oWorkingSecret;
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function isProfileActive( \WP_User $oUser ) {
-		return parent::isProfileActive( $oUser ) && $this->hasValidatedProfile( $oUser );
+	public function isProfileActive( \WP_User $user ) {
+		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
 	/**
@@ -241,11 +241,11 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @param string $sSecret
+	 * @param string $secret
 	 * @return bool
 	 */
-	protected function isSecretValid( $sSecret ) {
-		return parent::isSecretValid( $sSecret ) && ( strlen( $sSecret ) == 16 );
+	protected function isSecretValid( $secret ) {
+		return parent::isSecretValid( $secret ) && ( strlen( $secret ) == 16 );
 	}
 
 	/**

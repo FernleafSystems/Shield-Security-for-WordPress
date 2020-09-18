@@ -9,6 +9,8 @@ class Email extends BaseProvider {
 
 	const SLUG = 'email';
 
+	private $secretToDelete = '';
+
 	/**
 	 * @param \WP_User $user
 	 */
@@ -37,9 +39,11 @@ class Email extends BaseProvider {
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
-		$secrets = $this->getAllSecrets( $user );
-		unset( $secrets[ wp_hash_password( $this->fetchCodeFromRequest() ) ] );
-		$this->getCon()->getUserMeta( $user )->email_secrets = $secrets;
+		if ( !empty( $this->secretToDelete ) ) {
+			$secrets = $this->getAllSecrets( $user );
+			unset( $secrets[ $this->secretToDelete ] );
+			$this->getCon()->getUserMeta( $user )->email_secrets = $secrets;
+		}
 		return $this;
 	}
 
@@ -54,6 +58,7 @@ class Email extends BaseProvider {
 		foreach ( $secrets as $secret => $expiresAt ) {
 			if ( wp_check_password( $otp, $secret ) ) {
 				$valid = true;
+				$this->secretToDelete = $secret;
 				break;
 			}
 		}
@@ -123,15 +128,15 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function isProfileActive( \WP_User $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return parent::isProfileActive( $oUser ) &&
-			   ( $this->isEnforced( $oUser ) ||
-				 ( $this->hasValidatedProfile( $oUser ) && $oOpts->isEnabledEmailAuthAnyUserSet() ) );
+	public function isProfileActive( \WP_User $user ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return parent::isProfileActive( $user ) &&
+			   ( $this->isEnforced( $user ) ||
+				 ( $this->hasValidatedProfile( $user ) && $opts->isEnabledEmailAuthAnyUserSet() ) );
 	}
 
 	/**

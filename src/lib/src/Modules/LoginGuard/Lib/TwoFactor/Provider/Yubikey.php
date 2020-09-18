@@ -256,13 +256,13 @@ class Yubikey extends BaseProvider {
 	}
 
 	/**
-	 * @param string $sSecret
+	 * @param string $secret
 	 * @return bool
 	 */
-	protected function isSecretValid( $sSecret ) {
-		$bValid = parent::isSecretValid( $sSecret );
+	protected function isSecretValid( $secret ) {
+		$bValid = parent::isSecretValid( $secret );
 		if ( $bValid ) {
-			foreach ( explode( ',', $sSecret ) as $sId ) {
+			foreach ( explode( ',', $secret ) as $sId ) {
 				$bValid = $bValid &&
 						  preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $sId );
 			}
