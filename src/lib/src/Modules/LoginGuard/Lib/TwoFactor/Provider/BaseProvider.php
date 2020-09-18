@@ -75,11 +75,11 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function isProfileActive( \WP_User $oUser ) {
-		return $this->hasValidSecret( $oUser );
+	public function isProfileActive( \WP_User $user ) {
+		return $this->hasValidSecret( $user );
 	}
 
 	/**
@@ -96,11 +96,11 @@ abstract class BaseProvider {
 	abstract public function isProviderEnabled();
 
 	/**
-	 * @param string $sSecret
+	 * @param string $secret
 	 * @return bool
 	 */
-	protected function isSecretValid( $sSecret ) {
-		return !empty( $sSecret ) && is_string( $sSecret );
+	protected function isSecretValid( $secret ) {
+		return !empty( $secret ) && is_string( $secret );
 	}
 
 	/**
