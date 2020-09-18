@@ -74,12 +74,12 @@ class Backup extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return $this
 	 */
-	public function postSuccessActions( \WP_User $oUser ) {
-		$this->deleteSecret( $oUser );
-		$this->sendBackupCodeUsedEmail( $oUser );
+	public function postSuccessActions( \WP_User $user ) {
+		$this->deleteSecret( $user );
+		$this->sendBackupCodeUsedEmail( $user );
 		return $this;
 	}
 
@@ -89,7 +89,7 @@ class Backup extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $user, $otp ) {
+	protected function processOtp( \WP_User $user, $otp ) {
 		return $this->validateBackupCode( $user, $otp );
 	}
 

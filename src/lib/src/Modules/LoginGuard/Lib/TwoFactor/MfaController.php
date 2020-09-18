@@ -88,7 +88,7 @@ class MfaController {
 					$this->setLoginIntentExpiresAt(
 						Services::Request()
 								->carbon()
-								->addMinutes( $opts->getLoginIntentTimeoutMinutes() )->timestamp
+								->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
 					);
 				}
 			}

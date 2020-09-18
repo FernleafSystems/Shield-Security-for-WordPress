@@ -33,15 +33,13 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return $this
 	 */
-	public function postSuccessActions( \WP_User $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-		$oUpd->clearLoginIntentCodeEmail( $oMod->getSession() );
+	public function postSuccessActions( \WP_User $user ) {
+		$secrets = $this->getAllSecrets( $user );
+		unset( $secrets[ wp_hash_password( $this->fetchCodeFromRequest() ) ] );
+		$this->getCon()->getUserMeta( $user )->email_secrets = $secrets;
 		return $this;
 	}
 
@@ -50,14 +48,13 @@ class Email extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $user, $otp ) {
+	protected function processOtp( \WP_User $user, $otp ) {
 		$valid = false;
 		$secrets = $this->getAllSecrets( $user );
 		foreach ( $secrets as $secret => $expiresAt ) {
-			if ( wp_check_password( $secret, $otp ) ) {
+			if ( wp_check_password( $otp, $secret ) ) {
 				$valid = true;
-				unset( $secrets[ $secret ] );
-				$this->getCon()->getUserMeta( $user )->email_secrets = $secrets;
+				break;
 			}
 		}
 		return $valid;
@@ -253,21 +250,25 @@ class Email extends BaseProvider {
 		$opts = $this->getOptions();
 
 		$secrets = $this->getAllSecrets( $user );
-		$newCode = $this->getSecret( $user );
-		$secrets[ $newCode ] = Services::Request()
-									   ->carbon()
-									   ->addMinutes( $opts->getLoginIntentTimeoutMinutes() )->timestamp;
+		$new = $this->getSecret( $user );
+		$secrets[ wp_hash_password( $new ) ] = Services::Request()
+													   ->carbon()
+													   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
 		$this->getCon()->getUserMeta( $user )->email_secrets = array_slice( $secrets, -10 );
 
-		return $newCode;
+		return $new;
 	}
 
+	/**
+	 * @param \WP_User $user
+	 * @return array
+	 */
 	private function getAllSecrets( \WP_User $user ) {
 		$meta = $this->getCon()->getUserMeta( $user );
 		return array_filter(
 			empty( $meta->email_secrets ) ? [] : $meta->email_secrets,
 			function ( $ts ) {
-				return $ts < Services::Request()->ts();
+				return $ts >= Services::Request()->ts();
 			}
 		);
 	}

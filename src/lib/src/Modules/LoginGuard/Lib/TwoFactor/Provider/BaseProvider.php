@@ -158,14 +158,14 @@ abstract class BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	abstract protected function processOtp( $user, $otp );
+	abstract protected function processOtp( \WP_User $user, $otp );
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return $this
 	 */
-	public function postSuccessActions( \WP_User $oUser ) {
+	public function postSuccessActions( \WP_User $user ) {
 		return $this;
 	}
 

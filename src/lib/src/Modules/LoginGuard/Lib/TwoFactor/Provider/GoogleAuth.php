@@ -163,7 +163,7 @@ class GoogleAuth extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $user, $otp ) {
+	protected function processOtp( \WP_User $user, $otp ) {
 		return $this->validateGaCode( $user, $otp );
 	}
 
