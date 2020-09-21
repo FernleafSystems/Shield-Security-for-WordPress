@@ -22,7 +22,7 @@ class Email extends BaseProvider {
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( $user, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'email_verified' : 'email_fail',
 			[
@@ -40,9 +40,9 @@ class Email extends BaseProvider {
 	 */
 	public function postSuccessActions( \WP_User $user ) {
 		if ( !empty( $this->secretToDelete ) ) {
-			$secrets = $this->getAllSecrets( $user );
+			$secrets = $this->getAllCodes( $user );
 			unset( $secrets[ $this->secretToDelete ] );
-			$this->getCon()->getUserMeta( $user )->email_secrets = $secrets;
+			$this->storeCodes( $user, $secrets );
 		}
 		return $this;
 	}
@@ -54,7 +54,7 @@ class Email extends BaseProvider {
 	 */
 	protected function processOtp( \WP_User $user, $otp ) {
 		$valid = false;
-		$secrets = $this->getAllSecrets( $user );
+		$secrets = $this->getAllCodes( $user );
 		foreach ( $secrets as $secret => $expiresAt ) {
 			if ( wp_check_password( $otp, $secret ) ) {
 				$valid = true;
@@ -77,15 +77,6 @@ class Email extends BaseProvider {
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 			'help_link'   => 'https://shsec.io/3t'
 		];
-	}
-
-	/**
-	 * We don't use user meta as it's dependent on the particular user sessions in-use
-	 * @param \WP_User $user
-	 * @return string
-	 */
-	protected function getSecret( \WP_User $user ) {
-		return wp_generate_password( 6, false );
 	}
 
 	/**
@@ -254,13 +245,13 @@ class Email extends BaseProvider {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$secrets = $this->getAllSecrets( $user );
+		$secrets = $this->getAllCodes( $user );
 		$new = $this->getSecret( $user );
 		$secrets[ wp_hash_password( $new ) ] = Services::Request()
 													   ->carbon()
 													   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
-		$this->getCon()->getUserMeta( $user )->email_secrets = array_slice( $secrets, -10 );
 
+		$this->storeCodes( $user, array_slice( $secrets, -10 ) );
 		return $new;
 	}
 
@@ -268,13 +259,27 @@ class Email extends BaseProvider {
 	 * @param \WP_User $user
 	 * @return array
 	 */
-	private function getAllSecrets( \WP_User $user ) {
-		$meta = $this->getCon()->getUserMeta( $user );
+	private function getAllCodes( \WP_User $user ) {
+		$secretsRaw = $this->getSecret( $user );
+		if ( empty( $secrets ) ) {
+			$secretsRaw = '{}';
+		}
+
+		$secrets = json_decode( $secretsRaw );
 		return array_filter(
-			empty( $meta->email_secrets ) ? [] : $meta->email_secrets,
+			is_array( $secrets ) ? $secrets : [],
 			function ( $ts ) {
 				return $ts >= Services::Request()->ts();
 			}
 		);
+	}
+
+	/**
+	 * @param \WP_User $user
+	 * @param array    $codes
+	 * @return $this
+	 */
+	private function storeCodes( \WP_User $user, array $codes ) {
+		return $this->setSecret( $user, json_encode( $codes ) );
 	}
 }
