@@ -1,3 +1,73 @@
+
+
+{% block section_pre_table %}
+	<div class="row">
+
+		<div class="col-6">
+			<h5><label for="_fIpWhite">{{ strings.ip_filter }}</label></h5>
+			<form class="mb-3" id="FilterIpWhite" action="#" method="post" autocomplete="off">
+				<input type="hidden" name="fLists[]" value="MW" />
+				<div class="form-row">
+					<div class="col">
+						<select id="_fIpWhite" name="fIp" class="selectpicker form-control mb-2"
+								data-live-search="true">
+							<option value="">-- {{ strings.select }} --</option>
+							{% for unique_ip in vars.unique_ips_white %}
+								<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col">
+						<input id="SubmitForm" href="#" class="btn btn-info" style="border-radius: 0;"
+							   type="submit" value="{{ strings.filters_apply }}" />
+					</div>
+				</div>
+			</form>
+		</div>
+
+
+		<div class="col-6">
+			<h5>{{ strings.ip_new }}</h5>
+			<form class="mb-3 add-ip" id="NewWhiteIp" action="#" method="post" autocomplete="off">
+				<input type="hidden" name="list" value="MW" />
+				<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
+
+				<div class="form-row">
+					<div class="col">
+						<input type="text" class="form-control mb-2" id="IpAddress" name="ip"
+							   placeholder="{{ strings.enter_ip_white }}" />
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col">
+						<input type="text" class="form-control mb-2" id="Label" name="label"
+							   placeholder="{{ strings.label_for_ip }}" />
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col">
+						<button type="submit" class="btn btn-warning add" style="border-radius: 0;"
+								name="subbutt"
+								{% if flags.can_blacklist %}
+									title="{{ strings.ip_block }}"
+								{% else %}
+									disabled="disabled"
+									title="Manual IP Blocking Is A Pro Feature"
+								{% endif %}
+						><span class="dashicons dashicons-plus"></span>
+							<span>{{ strings.ip_new }}</span></button>
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+
+{% endblock %}
+
+
 {% block section_table %}
 	<div class="row insights_widget" id="SectionIpsWhite">
 		<div class="col-12">
@@ -8,45 +78,6 @@
 					<h6 class="card-subtitle text-muted">{{ strings.summary_whitelist }}</h6>
 				</div>
 				<div class="card-body">
-					<form class="form-inline m-0 add-ip" id="NewWhiteIp" action="#" method="post" autocomplete="off">
-						<input type="hidden" name="list" value="MW" />
-						<label class="sr-only" for="IpAddress">{{ strings.ip_address }}</label>
-						<div class="input-group w-100">
-							<div class="input-group-prepend">
-								<div class="input-group-text" style="border-radius: 0">{{ strings.ip_new }}:</div>
-							</div>
-							<input type="text" class="form-control" id="IpAddress" name="ip"
-								   placeholder="{{ strings.enter_ip_white }}" />
-							<input type="text" class="form-control" id="Label" name="label"
-								   placeholder="{{ strings.label_for_ip }}" />
-							<div class="input-group-append">
-								<button type="submit" class="btn btn-info add" style="border-radius: 0;" name="subbutt"
-										title="{{ strings.ip_new }}"><span class="dashicons dashicons-plus"></span></button>
-							</div>
-						</div>
-					</form>
-
-					<form class="form-inline m-0" id="FilterIpWhite" action="#" method="post" autocomplete="off">
-						<input type="hidden" name="fLists[]" value="MW" />
-						<div class="input-group w-100">
-							<div class="input-group-prepend w-25">
-								<div class="w-100 input-group-text" style="border-radius: 0">
-									<label class="mb-0" for="_fIpWhite">{{ strings.ip_filter }}:</label>
-								</div>
-							</div>
-								<select id="_fIpWhite" name="fIp" class="form-control w-50"
-										style="max-width: none; font-size: 16px">
-									<option value="">-- {{ strings.select }} --</option>
-									{% for unique_ip in vars.unique_ips_white %}
-										<option value="{{ unique_ip }}">{{ unique_ip }}</option>
-									{% endfor %}
-								</select>
-							<div class="input-group-append w-25">
-								<input id="SubmitForm" href="#" class="btn btn-info w-100" style="border-radius: 0;"
-									   type="submit" value="{{ strings.filters_apply }}" />
-							</div>
-						</div>
-					</form>
 
 					<div id="TableIpsWhite"></div>
 

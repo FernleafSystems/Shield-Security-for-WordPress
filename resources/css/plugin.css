@@ -1207,6 +1207,7 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SessionsFilter .btn-link {
 	color: #008000;
 }
+#FilterIpWhite #SubmitForm,
 #FilterIpBlack #SubmitForm {
 	color: #ffffff;
 	background-color: #008000;
