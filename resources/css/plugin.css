@@ -1405,9 +1405,13 @@ a.card_help {
 	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 #pills-nav-ips a {
-	font-size: 2em;
+	font-size: 1.4em;
 	margin-right: 20px;
 }
 #pills-nav-ips a.active {
 	background-color: #008000;;
+}
+
+.card .badge.badge-secondary a {
+	color: white;
 }

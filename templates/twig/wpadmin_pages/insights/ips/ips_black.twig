@@ -75,15 +75,14 @@
 			<div class="card">
 				<div class="card-header">
 					<h5 class="card-title">{{ strings.title_blacklist }}</h5>
-					<h6 class="card-subtitle text-muted">{{ strings.summary_blacklist }}</h6>
+					<h6 class="card-subtitle text-muted">
+						<span class="badge badge-pill badge-secondary">{{ strings.trans_limit|raw }}</span>
+						<span class="badge badge-pill badge-secondary">{{ strings.auto_expire|raw }}</span>
+					</h6>
 				</div>
 				<div class="card-body">
 
 					<div id="TableIpsBlack"></div>
-				</div>
-				<div class="card-footer">
-					{{ strings.trans_limit|raw }}
-					<br />{{ strings.auto_expire|raw }}
 				</div>
 			</div>
 		</div>

@@ -48,16 +48,10 @@
 				</div>
 				<div class="form-row">
 					<div class="col">
-						<button type="submit" class="btn btn-warning add" style="border-radius: 0;"
-								name="subbutt"
-								{% if flags.can_blacklist %}
-									title="{{ strings.ip_block }}"
-								{% else %}
-									disabled="disabled"
-									title="Manual IP Blocking Is A Pro Feature"
-								{% endif %}
-						><span class="dashicons dashicons-plus"></span>
-							<span>{{ strings.ip_new }}</span></button>
+						<button type="submit" class="btn btn-info add" style="border-radius: 0;" name="subbutt"
+								title="{{ strings.ip_new }}"><span class="dashicons dashicons-plus"></span>
+							{{ strings.ip_new }}
+						</button>
 					</div>
 				</div>
 			</form>
