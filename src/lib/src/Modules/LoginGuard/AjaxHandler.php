@@ -97,12 +97,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ProfileU2fRemove() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 
 		$sKey = Services::Request()->post( 'u2fid' );
 		( new TwoFactor\Provider\U2F() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $sKey );
 		return [
 			'success'     => true,

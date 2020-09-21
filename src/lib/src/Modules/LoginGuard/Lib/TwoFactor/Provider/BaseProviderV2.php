@@ -3,11 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseProvider {
+abstract class BaseProviderV2 implements ProviderInterface {
 
 	use Modules\ModConsumer;
+	use WpUserConsumer;
 
 	const SLUG = '';
 	/**
@@ -28,49 +30,44 @@ abstract class BaseProvider {
 
 	/**
 	 * Assumes this is only called on active profiles
-	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function validateLoginIntent( \WP_User $user ) {
-		$bOtpSuccess = false;
+	public function validateLoginIntent() {
+		$valid = false;
 		$sReqOtpCode = $this->fetchCodeFromRequest();
 		if ( !empty( $sReqOtpCode ) ) {
-			$bOtpSuccess = $this->processOtp( $user, $sReqOtpCode );
-			$this->postOtpProcessAction( $user, $bOtpSuccess );
+			$valid = $this->processOtp( $this->getWpUser(), $sReqOtpCode );
+			$this->postOtpProcessAction( $this->getWpUser(), $valid );
 		}
-		return $bOtpSuccess;
+		return $valid;
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @return string|array
+	 * @return string
 	 */
-	protected function getSecret( \WP_User $user ) {
-		$sSecret = $this->getCon()->getUserMeta( $user )->{static::SLUG.'_secret'};
-		return empty( $sSecret ) ? static::DEFAULT_SECRET : $sSecret;
+	protected function getSecret() {
+		$secret = $this->getMeta()->{static::SLUG.'_secret'};
+		return empty( $secret ) ? static::DEFAULT_SECRET : $secret;
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function hasValidatedProfile( $user ) {
-		return $this->getCon()->getUserMeta( $user )->{static::SLUG.'_validated'} === true;
+	public function hasValidatedProfile() {
+		return $this->getMeta()->{static::SLUG.'_validated'} === true;
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return bool
 	 */
-	protected function hasValidSecret( \WP_User $user ) {
-		return $this->isSecretValid( $this->getSecret( $user ) );
+	protected function hasValidSecret() {
+		return $this->isSecretValid( $this->getSecret() );
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return bool
 	 */
-	protected function isEnforced( \WP_User $user ) {
+	public function isEnforced() {
 		return false;
 	}
 
@@ -78,15 +75,14 @@ abstract class BaseProvider {
 	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function isProfileActive( \WP_User $user ) {
+	public function isProfileActive() {
 		return $this->hasValidSecret( $user );
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function isProviderAvailableToUser( \WP_User $user ) {
+	public function isProviderAvailableToUser() {
 		return $this->isProviderEnabled();
 	}
 
@@ -135,8 +131,8 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User     $user
-	 * @param string|array $sNewSecret
+	 * @param \WP_User $user
+	 * @param string   $sNewSecret
 	 * @return $this
 	 */
 	protected function setSecret( $user, $sNewSecret ) {
@@ -272,5 +268,12 @@ abstract class BaseProvider {
 				'is_enforced' => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
 			],
 		];
+	}
+
+	/**
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta
+	 */
+	protected function getMeta() {
+		return $this->getCon()->getUserMeta( $this->getWpUser() );
 	}
 }
