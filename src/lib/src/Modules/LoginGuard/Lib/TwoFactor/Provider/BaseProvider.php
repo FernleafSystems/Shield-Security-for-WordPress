@@ -43,7 +43,7 @@ abstract class BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @return string
+	 * @return string|array
 	 */
 	protected function getSecret( \WP_User $user ) {
 		$sSecret = $this->getCon()->getUserMeta( $user )->{static::SLUG.'_secret'};
@@ -135,8 +135,8 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @param string   $sNewSecret
+	 * @param \WP_User     $user
+	 * @param string|array $sNewSecret
 	 * @return $this
 	 */
 	protected function setSecret( $user, $sNewSecret ) {

@@ -54,8 +54,7 @@ class Email extends BaseProvider {
 	 */
 	protected function processOtp( \WP_User $user, $otp ) {
 		$valid = false;
-		$secrets = $this->getAllCodes( $user );
-		foreach ( $secrets as $secret => $expiresAt ) {
+		foreach ( $this->getAllCodes( $user ) as $secret => $expiresAt ) {
 			if ( wp_check_password( $otp, $secret ) ) {
 				$valid = true;
 				$this->secretToDelete = $secret;
@@ -141,23 +140,18 @@ class Email extends BaseProvider {
 	}
 
 	/**
+	 * @param string $secret
+	 * @return bool
+	 */
+	protected function isSecretValid( $secret ) {
+		return true;
+	}
+
+	/**
 	 * @param \WP_User $user
 	 * @return $this
 	 */
 	private function sendEmailTwoFactorVerify( \WP_User $user ) {
-
-		$aLines = [
-			'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-			'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-			'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
-			'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
-			'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-			'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()
-																								->getHomeUrl() ),
-			'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-			'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
-																									   ->getRequestIp() ),
-		];
 
 		try {
 			$bResult = $this->getMod()
@@ -176,7 +170,18 @@ class Email extends BaseProvider {
 									'hrefs'   => [
 										'login_link' => 'https://shsec.io/96'
 									],
-									'strings' => $aLines
+									'strings' => [
+										'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
+										'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
+										'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
+										'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
+										'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
+										'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
+											Services::WpGeneral()->getHomeUrl() ),
+										'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+										'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
+											Services::IP()->getRequestIp() ),
+									]
 								]
 							);
 		}
@@ -221,9 +226,9 @@ class Email extends BaseProvider {
 	 * @return bool
 	 */
 	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEmailAuthenticationActive();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEmailAuthenticationActive();
 	}
 
 	/**
@@ -246,7 +251,7 @@ class Email extends BaseProvider {
 		$opts = $this->getOptions();
 
 		$secrets = $this->getAllCodes( $user );
-		$new = $this->getSecret( $user );
+		$new = wp_generate_password( 6, false );
 		$secrets[ wp_hash_password( $new ) ] = Services::Request()
 													   ->carbon()
 													   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
@@ -260,12 +265,7 @@ class Email extends BaseProvider {
 	 * @return array
 	 */
 	private function getAllCodes( \WP_User $user ) {
-		$secretsRaw = $this->getSecret( $user );
-		if ( empty( $secrets ) ) {
-			$secretsRaw = '{}';
-		}
-
-		$secrets = json_decode( $secretsRaw );
+		$secrets = $this->getSecret( $user );
 		return array_filter(
 			is_array( $secrets ) ? $secrets : [],
 			function ( $ts ) {
@@ -280,6 +280,6 @@ class Email extends BaseProvider {
 	 * @return $this
 	 */
 	private function storeCodes( \WP_User $user, array $codes ) {
-		return $this->setSecret( $user, json_encode( $codes ) );
+		return $this->setSecret( $user, $codes );
 	}
 }
