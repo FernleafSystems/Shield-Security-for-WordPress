@@ -88,6 +88,8 @@ class BuildDisplay {
 
 		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
 
+		$sRDNS = gethostbyaddr( $ip );
+
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_review/ip_general.twig',
 			[
@@ -118,9 +120,9 @@ class BuildDisplay {
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
 					],
 					'geo'    => [
-						'rdns'         => gethostbyaddr( $ip ),
-						'country_name' => $validGeo ? $geo->getCountryName() : 'Unknown',
-						'timezone'     => $validGeo ? $geo->getTimezone() : 'Unknown',
+						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
+						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
+						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),
 						'coordinates'  => $validGeo ? sprintf( '%s: %s; %s: %s;',
 							__( 'Latitude', 'wp-simple-firewall' ), $geo->getLatitude(),
 							__( 'Longitude', 'wp-simple-firewall' ), $geo->getLongitude() )
