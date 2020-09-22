@@ -1,5 +1,7 @@
-<h6 class="mt-3">{{ strings.title }} <span class="badge badge-info">{{ vars.total_sessions }}</span></h6>
-{% if vars.total_sessions > 0 %}
+<h6 class="mt-4">{{ strings.title }} <span class="badge badge-info">{{ vars.total_sessions }}</span></h6>
+{% if vars.total_sessions < 1 %}
+	<div class="alert-info alert">{{ strings.no_sessions }}</div>
+{% else %}
 	<table class="table">
 		<thead class="thead-light">
 		<tr>
@@ -27,6 +29,4 @@
 		{% endfor %}
 		</tbody>
 	</table>
-{% else %}
-	<div class="alert-info alert">{{ strings.no_sessions }}</div>
 {% endif %}

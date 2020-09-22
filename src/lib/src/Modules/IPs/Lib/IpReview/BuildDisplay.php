@@ -34,13 +34,6 @@ class BuildDisplay {
 //				   ->getQuerySelector();
 //		$ips = array_merge( $ips, $sel->getDistinctIps() );
 //
-//		// Audit Trail
-//		/** @var Databases\AuditTrail\Select $sel */
-//		$sel = $con->getModule_AuditTrail()
-//				   ->getDbHandler_AuditTrail()
-//				   ->getQuerySelector();
-//		$ips = array_merge( $ips, $sel->getDistinctIps() );
-//
 //		// IP Addresses
 //		/** @var Databases\IPs\Select $sel */
 //		$sel = $con->getModule_IPs()
@@ -48,7 +41,8 @@ class BuildDisplay {
 //				   ->getQuerySelector();
 //		$ips = array_merge( $ips, $sel->getDistinctForColumn( 'ip' ) );
 
-		$renderData = Services::DataManipulation()->mergeArraysRecursive(
+		return $mod->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_review/ip_info.twig',
 			[
 				'strings' => [
 					'title' => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
@@ -57,14 +51,10 @@ class BuildDisplay {
 					'ip' => $ip
 				],
 				'content' => [
-					'users' => $this->renderForUsers()
+					'users'       => $this->renderForUsers(),
+					'audit_trail' => $this->renderForAuditTrail()
 				],
 			],
-			$this->renderForUsers()
-		);
-		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/ip_info.twig',
-			$renderData,
 			true
 		);
 	}
@@ -80,7 +70,6 @@ class BuildDisplay {
 		$sessions = $sel->filterByIp( $this->getIP() )
 						->query();
 
-		$c = Services::Request()->carbon( true );
 		foreach ( $sessions as $key => $session ) {
 			$asArray = $session->getRawDataAsArray();
 			$asArray[ 'logged_in_at' ] = $this->formatTimestampField( (int)$session->logged_in_at );
@@ -96,13 +85,50 @@ class BuildDisplay {
 					'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
 					'no_sessions'      => __( 'No sessions at this IP', 'wp-simple-firewall' ),
 					'username'         => __( 'Username', 'wp-simple-firewall' ),
-					'sec_admin'   => __( 'Security Admin', 'wp-simple-firewall' ),
+					'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
 					'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),
 					'last_activity_at' => __( 'Last Seen At', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'sessions'       => $sessions,
 					'total_sessions' => count( $sessions ),
+				],
+			],
+			true
+		);
+	}
+
+	private function renderForAuditTrail() :string {
+		/** @var Databases\AuditTrail\Select $sel */
+		$sel = $this->getCon()
+					->getModule_AuditTrail()
+					->getDbHandler_AuditTrail()
+					->getQuerySelector();
+		/** @var Databases\AuditTrail\EntryVO[] $logs */
+		$logs = $sel->filterByIp( $this->getIP() )
+					->query();
+
+		foreach ( $logs as $key => $log ) {
+			$asArray = $log->getRawDataAsArray();
+			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$log->created_at );
+
+			$logs[ $key ] = $asArray;
+		}
+
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_review/ip_audittrail.twig',
+			[
+				'strings' => [
+					'title'            => __( 'Audit Log Entries', 'wp-simple-firewall' ),
+					'no_logs'          => __( 'No logs at this IP', 'wp-simple-firewall' ),
+					'username'         => __( 'Username', 'wp-simple-firewall' ),
+					'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
+					'event'     => __( 'Event', 'wp-simple-firewall' ),
+					'created_at' => __( 'Logged At', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'logs'       => $logs,
+					'total_logs' => count( $logs ),
 				],
 			],
 			true
