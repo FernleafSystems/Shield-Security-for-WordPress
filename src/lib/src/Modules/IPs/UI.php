@@ -56,6 +56,9 @@ class UI extends Base\ShieldUI {
 				'ip_new'            => __( 'New IP', 'wp-simple-firewall' ),
 				'ip_filter'         => __( 'Filter By IP', 'wp-simple-firewall' ),
 				'ip_block'          => __( 'Block IP', 'wp-simple-firewall' ),
+				'tab_manage_block'  => __( 'Manage Block List', 'wp-simple-firewall' ),
+				'tab_manage_bypass' => __( 'Manage Bypass List', 'wp-simple-firewall' ),
+				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
@@ -108,9 +111,8 @@ class UI extends Base\ShieldUI {
 				],
 				'strings' => [
 					'select_ip'     => __( 'Select IP', 'wp-simple-firewall' ),
-					'card_title'    => 'IP Review',
-					'card_summary'  => 'Investigate IP address activity on this site',
-					'review_ip'     => 'Review IP',
+					'card_title'    => 'IP Analysis',
+					'card_summary'  => 'Investigate IP activity on this site',
 					'select'        => 'Select IP',
 					'please_select' => 'Please select an IP address.',
 				],

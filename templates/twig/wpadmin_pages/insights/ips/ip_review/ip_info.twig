@@ -16,6 +16,11 @@
 					{{ strings.nav_audit }}
 				</a>
 			</li>
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" role="tab" href="#tabIpInfoTraffic">
+					{{ strings.nav_traffic }}
+				</a>
+			</li>
 		</ul>
 	</div>
 </div>
@@ -29,5 +34,8 @@
 	</div>
 	<div class="tab-pane" id="tabIpInfoAudit" role="tabpanel" aria-labelledby="tabIpInfoAudit">
 		{{ content.audit_trail|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoTraffic" role="tabpanel" aria-labelledby="tabIpInfoTraffic">
+		{{ content.traffic|raw }}
 	</div>
 </div>

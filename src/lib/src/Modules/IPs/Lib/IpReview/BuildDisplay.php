@@ -27,16 +27,6 @@ class BuildDisplay {
 			throw new \Exception( "A valid IP address was not provided." );
 		}
 
-		$con = $this->getCon();
-
-		// Traffic
-//		/** @var Databases\Traffic\Select $sel */
-//		$sel = $con->getModule_Traffic()
-//				   ->getDbHandler_Traffic()
-//				   ->getQuerySelector();
-//		$ips = array_merge( $ips, $sel->getDistinctIps() );
-//
-
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_review/ip_info.twig',
 			[
@@ -45,6 +35,7 @@ class BuildDisplay {
 					'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
 					'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
 					'nav_audit'    => __( 'Audit Trail', 'wp-simple-firewall' ),
+					'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'ip' => $ip
@@ -52,7 +43,8 @@ class BuildDisplay {
 				'content' => [
 					'general'     => $this->renderForGeneral(),
 					'sessions'    => $this->renderForSessions(),
-					'audit_trail' => $this->renderForAuditTrail()
+					'audit_trail' => $this->renderForAuditTrail(),
+					'traffic'     => $this->renderForTraffic(),
 				],
 			],
 			true
@@ -63,16 +55,7 @@ class BuildDisplay {
 		$con = $this->getCon();
 		$ip = $this->getIP();
 
-		$geo = ( new Lookup() )
-			->setDbHandler( $con->getModule_Plugin()->getDbHandler_GeoIp() )
-			->setIP( $ip )
-			->lookupIp();
-
 		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
-		/** @var Databases\IPs\Select $sel */
-		$sel = $con->getModule_IPs()
-				   ->getDbHandler_IPs()
-				   ->getQuerySelector();
 
 		$oBlockIP = ( new LookupIpOnList() )
 			->setDbHandler( $dbh )
@@ -86,6 +69,10 @@ class BuildDisplay {
 			->setIP( $ip )
 			->lookup( true );
 
+		$geo = ( new Lookup() )
+			->setDbHandler( $con->getModule_Plugin()->getDbHandler_GeoIp() )
+			->setIP( $ip )
+			->lookupIp();
 		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
 
 		$sRDNS = gethostbyaddr( $ip );
@@ -113,6 +100,7 @@ class BuildDisplay {
 					'rdns'        => 'rDNS',
 				],
 				'vars'    => [
+					'ip'     => $ip,
 					'status' => [
 						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
 						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
@@ -169,6 +157,47 @@ class BuildDisplay {
 				'vars'    => [
 					'sessions'       => $sessions,
 					'total_sessions' => count( $sessions ),
+				],
+			],
+			true
+		);
+	}
+
+	private function renderForTraffic() :string {
+		/** @var Databases\Traffic\Select $sel */
+		$sel = $this->getCon()
+					->getModule_Traffic()
+					->getDbHandler_Traffic()
+					->getQuerySelector();
+		/** @var Databases\Traffic\EntryVO[] $requests */
+		$requests = $sel->filterByIp( inet_pton( $this->getIP() ) )
+						->query();
+
+		foreach ( $requests as $key => $request ) {
+			$asArray = $request->getRawDataAsArray();
+			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$request->created_at );
+			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $request->path, 2 ) );
+			$asArray[ 'trans' ] = (bool)$asArray[ 'trans' ];
+			$requests[ $key ] = $asArray;
+		}
+
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_review/ip_traffic.twig',
+			[
+				'strings' => [
+					'title'        => __( 'Visitor Requests', 'wp-simple-firewall' ),
+					'no_requests'  => __( 'No requests logged for this IP', 'wp-simple-firewall' ),
+					'path'         => __( 'Path', 'wp-simple-firewall' ),
+					'query'        => __( 'Query', 'wp-simple-firewall' ),
+					'verb'         => __( 'Verb', 'wp-simple-firewall' ),
+					'requested_at' => __( 'Requested At', 'wp-simple-firewall' ),
+					'response'     => __( 'Response', 'wp-simple-firewall' ),
+					'http_code'    => __( 'Code', 'wp-simple-firewall' ),
+					'offense'      => __( 'Offense', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'requests'       => $requests,
+					'total_requests' => count( $requests ),
 				],
 			],
 			true

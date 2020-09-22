@@ -5,31 +5,24 @@
 		<div class="col">
 			<ul class="nav nav-tabs" id="pills-nav-ips">
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab"  href="#blocklist">
-						Manage Block List
+					<a class="nav-link active" data-toggle="tab" role="tab"  href="#ipanalysis">
+						{{ strings.tab_ip_analysis }}
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" role="tab"  href="#blocklist">
+						{{ strings.tab_manage_block }}
 					</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" data-toggle="tab" role="tab"  href="#allowedlist">
-						Manage By-Pass List
-					</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab"  href="#ipreview">
-						Review IP Information
+						{{ strings.tab_manage_bypass }}
 					</a>
 				</li>
 			</ul>
 		</div>
 	</div>
 	<div class="tab-content">
-		<div class="tab-pane fade show active" id="blocklist" role="tabpanel" aria-labelledby="blocklist">
-			<div class="row">
-				<div class="col insights_section">
-					{% include '/wpadmin_pages/insights/ips/ips_black.twig' %}
-				</div>
-			</div>
-		</div>
 		<div class="tab-pane fade" id="allowedlist" role="tabpanel" aria-labelledby="allowedlist">
 			<div class="row">
 				<div class="col insights_section">
@@ -37,7 +30,14 @@
 				</div>
 			</div>
 		</div>
-		<div class="tab-pane fade" id="ipreview" role="tabpanel" aria-labelledby="ipreview">
+		<div class="tab-pane fade" id="blocklist" role="tabpanel" aria-labelledby="blocklist">
+			<div class="row">
+				<div class="col insights_section">
+					{% include '/wpadmin_pages/insights/ips/ips_black.twig' %}
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane fade show active" id="ipanalysis" role="tabpanel" aria-labelledby="ipanalysis">
 			<div class="row">
 				<div class="col insights_section">
 					{{ content.ip_review|raw }}
