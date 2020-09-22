@@ -18,10 +18,15 @@
 
 					<td>
 						<div>
-							{{ strings.http_code }}: <code class="text-uppercase d-inline-block">{{ request.verb }}</code>
+							{{ strings.http_code }}:
+							<code class="text-uppercase d-inline-block">{{ request.code }}</code>
 						</div>
 						<div>
-							{{ strings.offense }}: {{ request.trans ? 'Yes':'No' }}
+							{{ strings.offense }}:
+							<span class="badge badge-{{ request.trans ? 'danger':'success' }}">
+								{{ request.trans ? 'Yes':'No' }}
+							</span>
+
 						</div>
 					</td>
 
