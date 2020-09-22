@@ -3,31 +3,44 @@
 {% block page_main %}
 	<div class="row">
 		<div class="col">
-			<ul class="nav nav-pills" id="pills-nav-ips">
+			<ul class="nav nav-tabs" id="pills-nav-ips">
 				<li class="nav-item">
-					<a class="nav-link disabled" data-toggle="tab" role="tab">Select List:</a>
+					<a class="nav-link active" data-toggle="tab" role="tab"  href="#blocklist">
+						Manage Block List
+					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab"  href="#blocklist">Block List</a>
+					<a class="nav-link" data-toggle="tab" role="tab"  href="#allowedlist">
+						Manage By-Pass List
+					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab"  href="#allowedlist">By-Pass List</a>
+					<a class="nav-link" data-toggle="tab" role="tab"  href="#ipreview">
+						Review IP Information
+					</a>
 				</li>
 			</ul>
 		</div>
 	</div>
 	<div class="tab-content">
-		<div class="tab-pane fade show active" id="blocklist" role="tabpanel" aria-labelledby="ip-blocked">
+		<div class="tab-pane fade show active" id="blocklist" role="tabpanel" aria-labelledby="blocklist">
 			<div class="row">
 				<div class="col insights_section">
 					{% include '/wpadmin_pages/insights/ips/ips_black.twig' %}
 				</div>
 			</div>
 		</div>
-		<div class="tab-pane fade" id="allowedlist" role="tabpanel" aria-labelledby="ip-bypass">
+		<div class="tab-pane fade" id="allowedlist" role="tabpanel" aria-labelledby="allowedlist">
 			<div class="row">
 				<div class="col insights_section">
 					{% include '/wpadmin_pages/insights/ips/ips_white.twig' %}
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane fade" id="ipreview" role="tabpanel" aria-labelledby="ipreview">
+			<div class="row">
+				<div class="col insights_section">
+					{{ content.ip_review|raw }}
 				</div>
 			</div>
 		</div>

@@ -1,0 +1,56 @@
+<div class="row">
+	<div class="col-6">
+	</div>
+</div>
+
+<div class="row insights_widget" id="SectionIpsReview">
+	<div class="col">
+
+		<form class="mb-3" action="#" method="post" autocomplete="off">
+			<div class="form-group row">
+				<div class="col">
+					<select id="IpReviewSelect" name="fIp" class="selectpicker form-control mb-2"
+							data-live-search="true">
+						<option value="">-- {{ strings.select }} --</option>
+						{% for unique_ip in vars.unique_ips %}
+							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+			</div>
+		</form>
+
+		<div class="card">
+			<div class="card-header">
+				<h5 class="card-title">{{ strings.card_title }}</h5>
+				<h6 class="card-subtitle text-muted">{{ strings.card_summary }}</h6>
+			</div>
+			<div class="card-body" id="IpReviewContent">
+				<div class="alert alert-info mb-0">{{ strings.please_select }}</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% block section_table_js %}
+	<script type="text/javascript">
+		let theSelect = jQuery( '#IpReviewSelect' );
+		jQuery( document ).on( 'change', theSelect, function ( evt ) {
+			let ajaxvars = {{ ajax.build_ip_review|raw }};
+			ajaxvars.ip = theSelect.val();
+			iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
+
+			jQuery.post( ajaxurl, ajaxvars,
+				function ( oResponse ) {
+					jQuery( '#IpReviewContent' ).html( oResponse.data.html )
+				}
+			).always(
+				function () {
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			);
+		} );
+
+	</script>
+{% endblock %}

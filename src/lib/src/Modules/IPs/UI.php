@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpReview\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,6 +22,9 @@ class UI extends Base\ShieldUI {
 				'render_table_ip' => $mod->getAjaxActionData( 'render_table_ip', true ),
 				'item_insert'     => $mod->getAjaxActionData( 'ip_insert', true ),
 				'item_delete'     => $mod->getAjaxActionData( 'ip_delete', true ),
+			],
+			'content' => [
+				'ip_review' => $this->renderIpReview()
 			],
 			'flags'   => [
 				'can_blacklist' => $con->isPremiumActive()
@@ -92,5 +96,31 @@ class UI extends Base\ShieldUI {
 		}
 
 		return $aWarnings;
+	}
+
+	private function renderIpReview() :string {
+		$mod = $this->getMod();
+		return $mod->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_review/index.twig',
+			[
+				'ajax'    => [
+					'build_ip_review' => $mod->getAjaxActionData( 'build_ip_review', true ),
+				],
+				'strings' => [
+					'select_ip'     => __( 'Select IP', 'wp-simple-firewall' ),
+					'card_title'    => 'IP Review',
+					'card_summary'  => 'Investigate IP address activity on this site',
+					'review_ip'     => 'Review IP',
+					'select'        => 'Select IP',
+					'please_select' => 'Please select an IP address.',
+				],
+				'vars'    => [
+					'unique_ips' => ( new FindAllPluginIps() )
+						->setCon( $this->getCon() )
+						->run()
+				]
+			],
+			true
+		);
 	}
 }

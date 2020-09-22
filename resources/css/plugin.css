@@ -1400,16 +1400,15 @@ a.card_help {
 	text-decoration: none !important;
 }
 #pills-nav-ips {
-	margin-top: 20px;
-	padding-bottom: 20px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	margin-top: 10px;
 }
 #pills-nav-ips a {
+	color: #4f4f4f;
 	font-size: 1.4em;
 	margin-right: 20px;
 }
 #pills-nav-ips a.active {
-	background-color: #008000;;
+	/*background-color: #008000;;*/
 }
 
 .card .badge.badge-secondary a {

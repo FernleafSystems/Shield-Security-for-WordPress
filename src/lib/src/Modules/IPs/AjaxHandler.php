@@ -22,6 +22,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_BuildTableIps();
 				break;
 
+			case 'build_ip_review':
+				$aResponse = $this->ajaxExec_BuildIpReview();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $action );
 		}
@@ -29,10 +33,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_AddIp() {
+	private function ajaxExec_AddIp() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
 		$mod = $this->getMod();
 		$oIpServ = Services::IP();
@@ -112,10 +113,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_IpDelete() {
+	private function ajaxExec_IpDelete() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		$bSuccess = false;
@@ -138,23 +136,32 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableIps() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_BuildTableIps() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 
-		$oDbH = $oMod->getDbHandler_IPs();
+		$oDbH = $mod->getDbHandler_IPs();
 		$oDbH->autoCleanDb();
-
-		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
-			->setMod( $oMod )
-			->setDbHandler( $oDbH );
 
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->render()
+			'html'    => ( new Shield\Tables\Build\Ip() )
+				->setMod( $mod )
+				->setDbHandler( $oDbH )
+				->render()
+		];
+	}
+
+	private function ajaxExec_BuildIpReview() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+
+		$oDbH = $mod->getDbHandler_IPs();
+		$oDbH->autoCleanDb();
+
+		return [
+			'success' => true,
+			'html'    =>
 		];
 	}
 }
