@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpReview;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,24 +36,22 @@ class BuildDisplay {
 //				   ->getQuerySelector();
 //		$ips = array_merge( $ips, $sel->getDistinctIps() );
 //
-//		// IP Addresses
-//		/** @var Databases\IPs\Select $sel */
-//		$sel = $con->getModule_IPs()
-//				   ->getDbHandler_IPs()
-//				   ->getQuerySelector();
-//		$ips = array_merge( $ips, $sel->getDistinctForColumn( 'ip' ) );
 
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_review/ip_info.twig',
 			[
 				'strings' => [
-					'title' => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
+					'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
+					'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
+					'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
+					'nav_audit'    => __( 'Audit Trail', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'ip' => $ip
 				],
 				'content' => [
-					'users'       => $this->renderForUsers(),
+					'general'     => $this->renderForGeneral(),
+					'sessions'    => $this->renderForSessions(),
 					'audit_trail' => $this->renderForAuditTrail()
 				],
 			],
@@ -59,8 +59,83 @@ class BuildDisplay {
 		);
 	}
 
-	private function renderForUsers() :string {
-		// User Sessions
+	private function renderForGeneral() :string {
+		$con = $this->getCon();
+		$ip = $this->getIP();
+
+		$geo = ( new Lookup() )
+			->setDbHandler( $con->getModule_Plugin()->getDbHandler_GeoIp() )
+			->setIP( $ip )
+			->lookupIp();
+
+		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
+		/** @var Databases\IPs\Select $sel */
+		$sel = $con->getModule_IPs()
+				   ->getDbHandler_IPs()
+				   ->getQuerySelector();
+
+		$oBlockIP = ( new LookupIpOnList() )
+			->setDbHandler( $dbh )
+			->setListTypeBlack()
+			->setIP( $ip )
+			->lookup( true );
+
+		$oBypassIP = ( new LookupIpOnList() )
+			->setDbHandler( $dbh )
+			->setListTypeWhite()
+			->setIP( $ip )
+			->lookup( true );
+
+		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
+
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_review/ip_general.twig',
+			[
+				'strings' => [
+					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
+					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
+
+					'status' => [
+						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
+						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
+						'is_blocked' => __( 'Is Blocked', 'wp-simple-firewall' ),
+						'is_bypass'  => __( 'Is By-Pass IP', 'wp-simple-firewall' ),
+					],
+
+					'yes' => __( 'Yes', 'wp-simple-firewall' ),
+					'no'  => __( 'No', 'wp-simple-firewall' ),
+
+					'country'     => __( 'Country', 'wp-simple-firewall' ),
+					'timezone'    => __( 'Timezone', 'wp-simple-firewall' ),
+					'coordinates' => __( 'Coordinates', 'wp-simple-firewall' ),
+					'rdns'        => 'rDNS',
+				],
+				'vars'    => [
+					'status' => [
+						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
+						'is_blocked' => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
+						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
+					],
+					'geo'    => [
+						'rdns'         => gethostbyaddr( $ip ),
+						'country_name' => $validGeo ? $geo->getCountryName() : 'Unknown',
+						'timezone'     => $validGeo ? $geo->getTimezone() : 'Unknown',
+						'coordinates'  => $validGeo ? sprintf( '%s: %s; %s: %s;',
+							__( 'Latitude', 'wp-simple-firewall' ), $geo->getLatitude(),
+							__( 'Longitude', 'wp-simple-firewall' ), $geo->getLongitude() )
+							: 'Unknown'
+					],
+				],
+				'flags'   => [
+					'has_geo' => $validGeo,
+				],
+			],
+			true
+		);
+	}
+
+	private function renderForSessions() :string {
 		/** @var Databases\Session\Select $sel */
 		$sel = $this->getCon()
 					->getModule_Sessions()

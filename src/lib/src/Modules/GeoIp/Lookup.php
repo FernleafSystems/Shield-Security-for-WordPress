@@ -3,55 +3,53 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Lookup {
 
 	const URL_REDIRECTLI = 'https://api.redirect.li/v1/ip/';
 	use Databases\Base\HandlerConsumer;
+	use IpAddressConsumer;
 
-	private $aIps = [];
+	private $aIP = [];
 
 	/**
-	 * @param string $sIp
 	 * @return Databases\GeoIp\EntryVO|null
 	 */
-	public function lookupIp( $sIp ) {
+	public function lookupIp() {
+		$ip = $this->getIP();
 		// Small optimization so we don't SQL it every time.
-		if ( isset( $this->aIps[ $sIp ] ) ) {
-			return $this->aIps[ $sIp ];
+		if ( isset( $this->aIP[ $ip ] ) ) {
+			return $this->aIP[ $ip ];
 		}
 
 		/** @var Databases\GeoIp\Handler $oDbH */
 		$oDbH = $this->getDbHandler();
 		/** @var Databases\GeoIp\Select $oSel */
 		$oSel = $oDbH->getQuerySelector();
-		$oIp = $oSel->byIp( $sIp );
+		$oIP = $oSel->byIp( $ip );
 
 		/**
 		 * We look up the IP and if the request fails, we store it anyway so that we don't repeatedly
 		 * bombard the API. The address will eventually be expired over time and lookup will process
 		 * again at a later date, as required
 		 */
-		if ( empty( $oIp ) ) {
-			$oIp = new Databases\GeoIp\EntryVO();
-			$oIp->ip = $sIp;
-			$oIp->meta = $this->redirectliIpLookup( $sIp );
+		if ( empty( $oIP ) ) {
+			$oIP = new Databases\GeoIp\EntryVO();
+			$oIP->ip = $ip;
+			$oIP->meta = $this->redirectliIpLookup();
 			/** @var Databases\GeoIp\Insert $oIsrt */
-			$oDbH->getQueryInserter()->insert( $oIp );
+			$oDbH->getQueryInserter()->insert( $oIP );
 		}
 
-		$this->aIps[ $sIp ] = $oIp;
-		return $oIp;
+		$this->aIP[ $ip ] = $oIP;
+		return $oIP;
 	}
 
-	/**
-	 * @param string $sIp
-	 * @return array
-	 */
-	private function redirectliIpLookup( $sIp ) {
+	private function redirectliIpLookup() :array {
 		$oHttp = Services::HttpRequest();
-		$aIpData = @json_decode( $oHttp->getContent( self::URL_REDIRECTLI.$sIp ), true );
+		$aIpData = @json_decode( $oHttp->getContent( self::URL_REDIRECTLI.$this->getIP() ), true );
 		if ( empty( $aIpData ) || !is_array( $aIpData ) ) {
 			$aIpData = [];
 		}

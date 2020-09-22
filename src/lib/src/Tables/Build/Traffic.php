@@ -128,7 +128,9 @@ class Traffic extends BaseBuild {
 				}
 			}
 
-			$oGeoIp = $oGeoIpLookup->lookupIp( $sIp );
+			$oGeoIp = $oGeoIpLookup
+				->setIP( $sIp )
+				->lookupIp();
 			$sCountryIso = $oGeoIp->getCountryCode();
 			if ( empty( $sCountryIso ) ) {
 				$sCountry = __( 'Unknown', 'wp-simple-firewall' );

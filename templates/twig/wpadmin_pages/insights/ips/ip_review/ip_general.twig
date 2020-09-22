@@ -1,0 +1,47 @@
+<div class="row">
+
+	<div class="col-6">
+		<h6 class="mt-4">{{ strings.title_status }}</h6>
+		<dl>
+			<dt>{{ strings.status.is_you }}</dt>
+			<dd>
+				<p>{{ vars.status.is_you ? strings.yes : strings.no }}</p>
+			</dd>
+			<dt>{{ strings.status.offenses }}</dt>
+			<dd>
+				<p>{{ vars.status.offenses }}</p>
+			</dd>
+			<dt>{{ strings.status.is_blocked }}</dt>
+			<dd>
+				<p>{{ vars.status.is_blocked ? strings.yes : strings.no }}</p>
+			</dd>
+			<dt>{{ strings.status.is_bypass }}</dt>
+			<dd>
+				<p>{{ vars.status.is_bypass ? strings.yes : strings.no }}</p>
+			</dd>
+		</dl>
+	</div>
+
+	<div class="col-6">
+		<h6 class="mt-4">{{ strings.title_general }}</h6>
+		<dl>
+			<dt>{{ strings.rdns }}</dt>
+			<dd>
+				<p>{{ vars.geo.rdns }}</p>
+			</dd>
+			<dt>{{ strings.country }}</dt>
+			<dd>
+				<p>{{ vars.geo.country_name }}</p>
+			</dd>
+			<dt>{{ strings.timezone }}</dt>
+			<dd>
+				<p>{{ vars.geo.timezone }}</p>
+			</dd>
+			<dt>{{ strings.coordinates }}</dt>
+			<dd>
+				<p>{{ vars.geo.coordinates }}</p>
+			</dd>
+		</dl>
+	</div>
+
+</div>

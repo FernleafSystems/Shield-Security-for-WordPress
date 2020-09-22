@@ -1,4 +1,33 @@
-<h5>{{ strings.title }}</h5>
+<div class="row">
+	<div class="col">
+		<ul class="nav nav-pills">
+			<li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" role="tab" href="#tabIpInfoGeneral">
+					{{ strings.nav_general }}
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" role="tab" href="#tabIpInfoSessions">
+					{{ strings.nav_sessions }}
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" role="tab" href="#tabIpInfoAudit">
+					{{ strings.nav_audit }}
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
 
-{{ content.users|raw }}
-{{ content.audit_trail|raw }}
+<div class="tab-content">
+	<div class="tab-pane show active" id="tabIpInfoGeneral" role="tabpanel" aria-labelledby="tabIpInfoGeneral">
+		{{ content.general|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoSessions" role="tabpanel" aria-labelledby="tabIpInfoSessions">
+		{{ content.sessions|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoAudit" role="tabpanel" aria-labelledby="tabIpInfoAudit">
+		{{ content.audit_trail|raw }}
+	</div>
+</div>
