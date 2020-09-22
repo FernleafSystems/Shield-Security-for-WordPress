@@ -99,17 +99,30 @@ class BuildDisplay {
 	}
 
 	private function renderForAuditTrail() :string {
+		$con = $this->getCon();
 		/** @var Databases\AuditTrail\Select $sel */
-		$sel = $this->getCon()
-					->getModule_AuditTrail()
-					->getDbHandler_AuditTrail()
-					->getQuerySelector();
+		$sel = $con->getModule_AuditTrail()
+				   ->getDbHandler_AuditTrail()
+				   ->getQuerySelector();
 		/** @var Databases\AuditTrail\EntryVO[] $logs */
 		$logs = $sel->filterByIp( $this->getIP() )
 					->query();
 
 		foreach ( $logs as $key => $log ) {
 			$asArray = $log->getRawDataAsArray();
+
+			$module = $con->getModule( $log->context );
+			if ( empty( $module ) ) {
+				$module = $con->getModule_AuditTrail();
+			}
+			$oStrings = $module->getStrings();
+
+			$asArray[ 'event' ] = stripslashes( sanitize_textarea_field(
+				vsprintf(
+					implode( "\n", $oStrings->getAuditMessage( $log->event ) ),
+					$log->meta
+				)
+			) );
 			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$log->created_at );
 
 			$logs[ $key ] = $asArray;
@@ -119,11 +132,11 @@ class BuildDisplay {
 			'/wpadmin_pages/insights/ips/ip_review/ip_audittrail.twig',
 			[
 				'strings' => [
-					'title'            => __( 'Audit Log Entries', 'wp-simple-firewall' ),
-					'no_logs'          => __( 'No logs at this IP', 'wp-simple-firewall' ),
-					'username'         => __( 'Username', 'wp-simple-firewall' ),
-					'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
-					'event'     => __( 'Event', 'wp-simple-firewall' ),
+					'title'      => __( 'Audit Log Entries', 'wp-simple-firewall' ),
+					'no_logs'    => __( 'No logs at this IP', 'wp-simple-firewall' ),
+					'username'   => __( 'Username', 'wp-simple-firewall' ),
+					'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),
+					'event'      => __( 'Event', 'wp-simple-firewall' ),
 					'created_at' => __( 'Logged At', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
