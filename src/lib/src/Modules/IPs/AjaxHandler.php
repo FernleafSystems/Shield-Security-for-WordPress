@@ -153,15 +153,25 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	}
 
 	private function ajaxExec_BuildIpReview() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
-		$mod = $this->getMod();
+		try {
+			$response = ( new Lib\IpReview\BuildDisplay() )
+				->setMod( $this->getMod() )
+				->setIP( Services::Request()->post( 'fIp', '' ) )
+				->run();
 
-		$oDbH = $mod->getDbHandler_IPs();
-		$oDbH->autoCleanDb();
+			$msg = '';
+			$success = true;
+		}
+		catch ( \Exception $e ) {
+			$msg = $e->getMessage();
+			$success = false;
+			$response = $msg;
+		}
 
 		return [
-			'success' => true,
-			'html'    =>
+			'success' => $success,
+			'message' => $msg,
+			'html'    => $response,
 		];
 	}
 }

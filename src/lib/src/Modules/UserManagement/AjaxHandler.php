@@ -13,7 +13,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		switch ( $action ) {
 			case 'render_table_sessions':
-				$response = $this->ajaxExec_BuildTableTraffic();
+				$response = $this->ajaxExec_BuildTableSessions();
 				break;
 
 			case 'bulk_action':
@@ -31,10 +31,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $response;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableTraffic() {
+	private function ajaxExec_BuildTableSessions() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
 		$mod = $this->getMod();
 

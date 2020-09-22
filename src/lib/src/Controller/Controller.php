@@ -1799,6 +1799,10 @@ class Controller {
 		return $this->getModule( 'traffic' );
 	}
 
+	public function getModule_UserManagement() :\ICWP_WPSF_FeatureHandler_UserManagement {
+		return $this->getModule( 'user_management' );
+	}
+
 	/**
 	 * @param array $aModProps
 	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed

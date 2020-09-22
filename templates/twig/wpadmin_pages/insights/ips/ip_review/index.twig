@@ -3,7 +3,7 @@
 	</div>
 </div>
 
-<div class="row insights_widget" id="SectionIpsReview">
+<div class="row" id="SectionIpsReview">
 	<div class="col">
 
 		<form class="mb-3" action="#" method="post" autocomplete="off">
@@ -25,6 +25,7 @@
 			<div class="card-header">
 				<h5 class="card-title">{{ strings.card_title }}</h5>
 				<h6 class="card-subtitle text-muted">{{ strings.card_summary }}</h6>
+				<a href="#" id="Refresh">Refresh</a>
 			</div>
 			<div class="card-body" id="IpReviewContent">
 				<div class="alert alert-info mb-0">{{ strings.please_select }}</div>
@@ -38,9 +39,20 @@
 		let theSelect = jQuery( '#IpReviewSelect' );
 		jQuery( document ).on( 'change', theSelect, function ( evt ) {
 			let ajaxvars = {{ ajax.build_ip_review|raw }};
-			ajaxvars.ip = theSelect.val();
-			iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
-
+			ajaxvars.fIp = theSelect.val();
+			jQuery.post( ajaxurl, ajaxvars,
+				function ( oResponse ) {
+					jQuery( '#IpReviewContent' ).html( oResponse.data.html )
+				}
+			).always(
+				function () {
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			);
+		} );
+		jQuery( document ).on( 'click', '#Refresh', function ( evt ) {
+			let ajaxvars = {{ ajax.build_ip_review|raw }};
+			ajaxvars.fIp = theSelect.val();
 			jQuery.post( ajaxurl, ajaxvars,
 				function ( oResponse ) {
 					jQuery( '#IpReviewContent' ).html( oResponse.data.html )
