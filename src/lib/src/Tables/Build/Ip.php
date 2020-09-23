@@ -27,6 +27,7 @@ class Ip extends BaseBuild {
 		}
 
 		$oSelector->setOrderBy( 'last_access_at', 'DESC', true );
+		$oSelector->setOrderBy( 'created_at', 'DESC', false );
 
 		return $this;
 	}
