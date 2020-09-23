@@ -6,15 +6,16 @@
 		<div class="col insights-sub-nav insights_section">
 			<ul class="nav nav-tabs">
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab"  href="#AtAGlance">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#AtAGlance">
 						{{ strings.tab_security_glance }}
 					</a>
 				</li>
 			</ul>
 		</div>
 	</div>
+
 	<div class="tab-content">
-		<div class="tab-pane fade show active" id="AtAGlance" role="tabpanel" aria-labelledby="AtAGlance">
+		<div class="tab-pane show active" id="AtAGlance" role="tabpanel" aria-labelledby="AtAGlance">
 			<div class="row">
 				<div class="col insights_section" id="SectionOverviewCards">
 					{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
@@ -33,29 +34,6 @@
 			   data-featherlight-iframe-height="675">&nbsp;</a>
 		{% endif %}
 	</div>
-{% endblock %}
-
-{% block inline_styles %}
-	<style>
-		.ct-series-a .ct-line {
-			/* Set the colour of this series line */
-			stroke: green;
-			/* Control the thikness of your lines */
-			stroke-width: 2px;
-			/* Create a dashed line with a pattern */
-			stroke-dasharray: 3px 1px;
-		}
-
-		/* This selector overrides the points style on line charts. Points on line charts are actually just very short strokes. This allows you to customize even the point size in CSS */
-		.ct-series-a .ct-point {
-			/* Colour of your points */
-			stroke: green;
-			/* Size of your points */
-			stroke-width: 4px;
-			/* Make your points appear as squares */
-			stroke-linecap: square;
-		}
-	</style>
 {% endblock %}
 
 {% block inline_scripts %}
@@ -124,11 +102,6 @@
 	</script>
 
 	<script type="text/javascript">
-		jQuery( '#collapseConfigSummary' ).on( 'shown.bs.collapse', function () {
-			jQuery( 'html, body' ).animate( {
-				scrollTop: jQuery( "#collapseConfigSummaryTitle" ).offset().top - 115
-			}, 750 );
-		} );
 		{% if flags.show_guided_tour %}
 		window.onload = function () {
 			jQuery( '#IntroVideo' ).click();

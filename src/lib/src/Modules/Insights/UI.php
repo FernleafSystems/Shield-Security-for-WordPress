@@ -10,7 +10,13 @@ class UI extends Base\ShieldUI {
 	public function buildInsightsVars() :array {
 		$con = $this->getCon();
 
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\UI $uiReporting */
+		$uiReporting = $con->getModule_Reporting()->getUIHandler();
+
 		return [
+			'content' => [
+				'summary_stats' => $uiReporting->renderSummaryStats()
+			],
 			'vars'    => [
 				'overview_cards' => ( new OverviewCards() )
 					->setMod( $this->getMod() )
@@ -28,6 +34,7 @@ class UI extends Base\ShieldUI {
 			],
 			'strings' => [
 				'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
+				'tab_summary_stats'   => __( 'Summary Stats', 'wp-simple-firewall' ),
 				'click_filter_status' => __( 'Click To Filter By Security Status', 'wp-simple-firewall' ),
 				'click_filter_area'   => __( 'Click To Filter By Security Area', 'wp-simple-firewall' ),
 				'discover'            => __( 'Discover where your site security is doing well or areas that can be improved', 'wp-simple-firewall' ),
