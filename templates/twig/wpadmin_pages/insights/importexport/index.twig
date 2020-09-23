@@ -3,16 +3,17 @@
 {% block page_main %}
 	{% if flags.can_importexport %}
 		<div class="row">
-			<div class="col">
-				<ul class="nav nav-pills">
+			<div class="col insights-sub-nav insights_section">
+				<ul class="nav nav-tabs">
 					<li class="nav-item">
-						<a class="nav-link disabled" data-toggle="tab" role="tab">Select Method:</a>
+						<a class="nav-link active" data-toggle="tab" role="tab"  href="#byFile">
+							{{ strings.tab_by_file }}
+						</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link active" data-toggle="tab" role="tab"  href="#byFile">File</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" data-toggle="tab" role="tab"  href="#bySite">Site-To-Site</a>
+						<a class="nav-link" data-toggle="tab" role="tab"  href="#bySite">
+							{{ strings.tab_by_site }}
+						</a>
 					</li>
 				</ul>
 			</div>
