@@ -23,7 +23,7 @@ class WooCommerce extends BaseFormProvider {
 
 	protected function register() {
 		add_action( 'woocommerce_register_form', [ $this, 'formInsertsPrint_WooRegister' ] );
-		add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'formInsertsPrintCheckout' ] );
+		add_action( $this->getCheckoutHookLocation(), [ $this, 'formInsertsPrintCheckout' ] );
 		add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkRegister' ], 10, 2 );
 	}
 
@@ -32,8 +32,18 @@ class WooCommerce extends BaseFormProvider {
 	}
 
 	protected function woocheckout() {
-		add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'formInsertsPrintCheckout' ] );
+		add_action( $this->getCheckoutHookLocation(), [ $this, 'formInsertsPrintCheckout' ] );
 		add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkCheckout' ], 10, 2 );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getCheckoutHookLocation() {
+		return apply_filters(
+			$this->getCon()->prefix( 'woocommerce_checkout_hook_location' ),
+			'woocommerce_after_checkout_registration_form'
+		);
 	}
 
 	/**
