@@ -951,17 +951,18 @@ table.scan-table.wp-list-table button.toggle-row {
 }
 #ScanResultsTabs {
 }
-#ScanResultsTabs ul.nav.nav-tabs a.nav-link {
+.insights-sub-nav ul.nav.nav-tabs a.nav-link {
 	color: #666666;
 	font-size: 1.4rem;
+	margin-right: 1rem;
 }
-#ScanResultsTabs ul.nav.nav-tabs a.nav-link.active {
+.insights-sub-nav ul.nav.nav-tabs a.nav-link.active {
 	color: #333333;
 }
-#ScanResultsTabs .card.card-scan_results {
+.insights-sub-nav .card.card-scan_results {
 	margin-top: 0;
 }
-#ScanResultsTabs nav > a.nav-link .badge {
+.insights-sub-nav nav > a.nav-link .badge {
 	font-size: 12px;
 }
 /**
@@ -1410,7 +1411,12 @@ a.card_help {
 #pills-nav-ips a.active {
 	/*background-color: #008000;;*/
 }
-
 .card .badge.badge-secondary a {
 	color: white;
+}
+.bootstrap-select.form-control {
+	border: 1px solid rgba(0, 0, 0, 0.4);
+}
+.bootstrap-select.form-control > button {
+	background-color: white;
 }

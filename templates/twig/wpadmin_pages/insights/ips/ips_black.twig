@@ -30,14 +30,14 @@
 
 
 		<div class="col-6">
-			<h5>{{ strings.ip_new }}</h5>
+			<h5>{{ strings.ip_block }}</h5>
 			<form class="mb-3 add-ip" id="NewBlackIp" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="list" value="MB" />
 				<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
 
 				<div class="form-row">
 					<div class="col">
-						<input type="text" class="form-control mb-2" id="IpAddressNew" name="ip"
+						<input type="text" class="form-control mb-2 mt-2" id="IpAddressNew" name="ip"
 								{% if flags.can_blacklist %}
 									placeholder="{{ strings.enter_ip_block }}"
 								{% else %}
