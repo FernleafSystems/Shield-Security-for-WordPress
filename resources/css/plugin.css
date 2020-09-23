@@ -903,7 +903,6 @@ th.column-is_secadmin {
 /** End Sessions Table **/
 /** IPS Insights **/
 form.add-ip button.add {
-	padding: 5px 6px;
 	vertical-align: text-bottom;
 }
 form.add-ip button.add .dashicons {
@@ -955,9 +954,21 @@ table.scan-table.wp-list-table button.toggle-row {
 	color: #666666;
 	font-size: 1.4rem;
 	margin-right: 1rem;
+	background-color: rgba(0, 0, 0, 0.05);
+	border-color: rgba(0, 0, 0, 0.1);
+	border-bottom-color: transparent;
+	box-shadow: 0 -2px 3px rgba(0,0,0,0.03) inset;
+	opacity: 0.9;
+}
+.insights-sub-nav ul.nav.nav-tabs a.nav-link:hover {
+	opacity: 1;
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link.active {
 	color: #333333;
+	background-color: transparent;
+	border-bottom-color: #f1f1f1;
+	opacity: 1;
+	box-shadow: none;
 }
 .insights-sub-nav .card.card-scan_results {
 	margin-top: 0;
@@ -1409,7 +1420,6 @@ a.card_help {
 .bootstrap-select.form-control > button {
 	background-color: white;
 }
-
 .nav-pills a.nav-link.active {
 	background-color: #008000;
 }
