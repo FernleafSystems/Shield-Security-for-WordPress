@@ -47,7 +47,7 @@
 <div class="row overview-card-row mb-3 card-deck" id="overview-card-shuffle">
 {% for card_section in vars.overview_cards.sections %}
 	{% for card in card_section.cards %}
-		<div class="col-xl-2 col-lg-3 col-md-4 card-item"
+		<div class="col-xl-3 col-lg-3 col-md-4 card-item"
 				{% if not card.groups is empty %}
 					data-groups='["{{ card.groups|keys|join('","') }}"]'
 				{% else %}

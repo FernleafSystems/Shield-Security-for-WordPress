@@ -28,7 +28,7 @@ class BuildDisplay {
 		}
 
 		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/ip_info.twig',
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_info.twig',
 			[
 				'strings' => [
 					'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
@@ -78,7 +78,7 @@ class BuildDisplay {
 		$sRDNS = gethostbyaddr( $ip );
 
 		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/ip_general.twig',
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
 			[
 				'strings' => [
 					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
@@ -144,7 +144,7 @@ class BuildDisplay {
 		}
 
 		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/ip_sessions.twig',
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_sessions.twig',
 			[
 				'strings' => [
 					'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
@@ -185,7 +185,7 @@ class BuildDisplay {
 		}
 
 		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/ip_traffic.twig',
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_traffic.twig',
 			[
 				'strings' => [
 					'title'        => __( 'Visitor Requests', 'wp-simple-firewall' ),
@@ -238,7 +238,7 @@ class BuildDisplay {
 		}
 
 		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/ip_audittrail.twig',
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig',
 			[
 				'strings' => [
 					'title'      => __( 'Audit Log Entries', 'wp-simple-firewall' ),

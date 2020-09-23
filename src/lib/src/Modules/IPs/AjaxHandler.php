@@ -22,8 +22,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_BuildTableIps();
 				break;
 
-			case 'build_ip_review':
-				$aResponse = $this->ajaxExec_BuildIpReview();
+			case 'build_ip_analyse':
+				$aResponse = $this->ajaxExec_BuildIpAnalyse();
 				break;
 
 			default:
@@ -152,7 +152,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	private function ajaxExec_BuildIpReview() :array {
+	private function ajaxExec_BuildIpAnalyse() :array {
 		try {
 			$response = ( new Lib\IpReview\BuildDisplay() )
 				->setMod( $this->getMod() )

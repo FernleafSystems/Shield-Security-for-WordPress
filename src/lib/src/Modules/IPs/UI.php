@@ -24,7 +24,7 @@ class UI extends Base\ShieldUI {
 				'item_delete'     => $mod->getAjaxActionData( 'ip_delete', true ),
 			],
 			'content' => [
-				'ip_review' => $this->renderIpReview()
+				'ip_review' => $this->renderIpAnalyse()
 			],
 			'flags'   => [
 				'can_blacklist' => $con->isPremiumActive()
@@ -36,7 +36,7 @@ class UI extends Base\ShieldUI {
 						$mod->getUrl_DirectLinkToOption( 'transgression_limit' ), $opts->getOffenseLimit() )
 				),
 				'auto_expire'       => sprintf(
-					__( 'Black listed IPs auto-expire after: %s', 'wp-simple-firewall' ),
+					__( 'IPs on block list auto-expire after: %s', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$mod->getUrl_DirectLinkToOption( 'auto_expire' ),
 						Services::Request()
@@ -101,19 +101,18 @@ class UI extends Base\ShieldUI {
 		return $aWarnings;
 	}
 
-	private function renderIpReview() :string {
+	private function renderIpAnalyse() :string {
 		$mod = $this->getMod();
 		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_review/index.twig',
+			'/wpadmin_pages/insights/ips/ip_analyse/index.twig',
 			[
 				'ajax'    => [
-					'build_ip_review' => $mod->getAjaxActionData( 'build_ip_review', true ),
+					'build_ip_analyse' => $mod->getAjaxActionData( 'build_ip_analyse', true ),
 				],
 				'strings' => [
-					'select_ip'     => __( 'Select IP', 'wp-simple-firewall' ),
+					'select_ip'     => __( 'Select IP To Analyse', 'wp-simple-firewall' ),
 					'card_title'    => 'IP Analysis',
 					'card_summary'  => 'Investigate IP activity on this site',
-					'select'        => 'Select IP',
 					'please_select' => 'Please select an IP address.',
 				],
 				'vars'    => [

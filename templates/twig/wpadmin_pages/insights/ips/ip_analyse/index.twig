@@ -1,13 +1,13 @@
 <div class="row" id="SectionIpsReview">
 	<div class="col">
 
-		<h5>{{ strings.select }}</h5>
+		<h5>{{ strings.select_ip }}</h5>
 		<form class="mb-3" action="#" method="post" autocomplete="off">
 			<div class="form-group row">
 				<div class="col">
 					<select id="IpReviewSelect" name="fIp" class="selectpicker form-control mb-2"
 							data-live-search="true">
-						<option value="">-- {{ strings.select }} --</option>
+						<option value="">-- {{ strings.select_ip }} --</option>
 						{% for unique_ip in vars.unique_ips %}
 							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
 						{% endfor %}
@@ -27,7 +27,7 @@
 	<script type="text/javascript">
 		let theSelect = jQuery( '#IpReviewSelect' );
 		jQuery( document ).on( 'change', theSelect, function ( evt ) {
-			let ajaxvars = {{ ajax.build_ip_review|raw }};
+			let ajaxvars = {{ ajax.build_ip_analyse|raw }};
 			ajaxvars.fIp = theSelect.val();
 			jQuery.post( ajaxurl, ajaxvars,
 				function ( oResponse ) {
@@ -40,7 +40,7 @@
 			);
 		} );
 		jQuery( document ).on( 'click', '#Refresh', function ( evt ) {
-			let ajaxvars = {{ ajax.build_ip_review|raw }};
+			let ajaxvars = {{ ajax.build_ip_analyse|raw }};
 			ajaxvars.fIp = theSelect.val();
 			jQuery.post( ajaxurl, ajaxvars,
 				function ( oResponse ) {
