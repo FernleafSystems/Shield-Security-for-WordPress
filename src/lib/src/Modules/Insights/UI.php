@@ -27,19 +27,21 @@ class UI extends Base\ShieldUI {
 				'is_pro'                => $con->isPremiumActive(),
 			],
 			'strings' => [
-				'title_security_notices'    => __( 'Security Notices', 'wp-simple-firewall' ),
-				'subtitle_security_notices' => __( 'Potential security issues on your site right now', 'wp-simple-firewall' ),
-				'configuration_summary'     => __( 'Plugin Configuration Summary', 'wp-simple-firewall' ),
-				'click_to_toggle'           => __( 'click to toggle', 'wp-simple-firewall' ),
-				'go_to_options'             => sprintf(
+				'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
+				'click_filter_status' => __( 'Click To Filter By Security Status', 'wp-simple-firewall' ),
+				'click_filter_area'   => __( 'Click To Filter By Security Area', 'wp-simple-firewall' ),
+				'discover'            => __( 'Discover where your site security is doing well or areas that can be improved', 'wp-simple-firewall' ),
+				'clear_filter'        => __( 'Clear Filter', 'wp-simple-firewall' ),
+				'click_to_toggle'     => __( 'click to toggle', 'wp-simple-firewall' ),
+				'go_to_options'       => sprintf(
 					__( 'Go To %s', 'wp-simple-firewall' ),
 					__( 'Options' )
 				),
-				'key'                       => __( 'Key' ),
-				'key_positive'              => __( 'Positive Security', 'wp-simple-firewall' ),
-				'key_warning'               => __( 'Potential Warning', 'wp-simple-firewall' ),
-				'key_danger'                => __( 'Potential Danger', 'wp-simple-firewall' ),
-				'key_information'           => __( 'Information', 'wp-simple-firewall' ),
+				'key'                 => __( 'Key' ),
+				'key_positive'        => __( 'Positive Security', 'wp-simple-firewall' ),
+				'key_warning'         => __( 'Potential Warning', 'wp-simple-firewall' ),
+				'key_danger'          => __( 'Potential Danger', 'wp-simple-firewall' ),
+				'key_information'     => __( 'Information', 'wp-simple-firewall' ),
 			],
 		];
 	}

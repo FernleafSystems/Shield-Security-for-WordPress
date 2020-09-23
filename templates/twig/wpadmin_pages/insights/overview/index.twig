@@ -1,11 +1,28 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
+
 	<div class="row">
-		<div class="col-12 insights_section" id="SectionOverviewCards">
-			{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
+		<div class="col insights-sub-nav insights_section">
+			<ul class="nav nav-tabs">
+				<li class="nav-item">
+					<a class="nav-link active" data-toggle="tab" role="tab"  href="#AtAGlance">
+						{{ strings.tab_security_glance }}
+					</a>
+				</li>
+			</ul>
 		</div>
 	</div>
+	<div class="tab-content">
+		<div class="tab-pane fade show active" id="AtAGlance" role="tabpanel" aria-labelledby="AtAGlance">
+			<div class="row">
+				<div class="col insights_section" id="SectionOverviewCards">
+					{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="row">
 		{% if flags.show_guided_tour %}
 			<a style="display: none;" class="btn btn-default"

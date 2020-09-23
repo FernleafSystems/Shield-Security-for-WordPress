@@ -1,18 +1,15 @@
-<div class="row mb-1">
+<div class="row mb-2">
 	<div class="col">
 		<h4>
-			Your Security At A Glance
-			<small class="d-block">
-				Quickly discover where your site security is doing well or areas that can be improved
-			</small>
+			<small class="d-block">{{ strings.discover }}</small>
 		</h4>
 	</div>
 </div>
 
-<div class="row mb-3">
+<div class="row mb-4">
 	<div class="col-12">
-		<h6>Click To Filter By Status
-			<small><a href="#" id="ClearFilterState">Clear Filter</a></small>
+		<h6>{{ strings.click_filter_status }}
+			<small><a href="#" id="ClearFilterState">{{ strings.clear_filter }}</a></small>
 		</h6>
 	</div>
 	<div class="col-12">
@@ -29,8 +26,8 @@
 <div class="row mb-4">
 	<div class="col-12">
 		<h6>
-			Click To Filter By Security Area
-			<small><a href="#" id="ClearFilterArea">Clear Filter</a></small>
+			{{ strings.click_filter_area }}
+			<small><a href="#" id="ClearFilterArea">{{ strings.clear_filter }}</a></small>
 		</h6>
 	</div>
 	<div class="col-12">
@@ -80,15 +77,15 @@
 						<div class="w-25 d-inline-block">
 							{% if card.help|default('') is not empty %}
 								<a class="card_help"
-									  data-toggle="popover"
-									  data-content="{{ card.help }}" data-original-title="" title="">
+								   data-toggle="popover"
+								   data-content="{{ card.help }}" data-original-title="" title="">
 									<span class="dashicons dashicons-info"></span>
 								</a>
 							{% endif %}
 						</div>
 						<div class="w-25 d-inline-block">
 							&nbsp;
-{#							<span class="badge badge-secondary">{{ card.mod }}</span>#}
+							{# <span class="badge badge-secondary">{{ card.mod }}</span> #}
 						</div>
 						<div class="w-25 d-inline-block">
 							<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
@@ -108,24 +105,24 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		'.card-deck .card-item'
 	);
 
-	document.getElementById("ClearFilterArea").addEventListener( 'click', function ( evt ) {
+	document.getElementById( "ClearFilterArea" ).addEventListener( 'click', function ( evt ) {
 		var filterByArea = document.querySelector( '.filter-groups' );
 		if ( filterByArea ) {
 			var filterStatesButtons = Array.from( filterByArea.children );
 			filterStatesButtons.forEach( function ( button ) {
-				if (button.classList.contains( "active" ) ) {
+				if ( button.classList.contains( "active" ) ) {
 					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 				}
 			} );
 		}
 	} );
 
-	document.getElementById("ClearFilterState").addEventListener( 'click', function ( evt ) {
+	document.getElementById( "ClearFilterState" ).addEventListener( 'click', function ( evt ) {
 		var filterByArea = document.querySelector( '.filter-states' );
 		if ( filterByArea ) {
 			var filterStatesButtons = Array.from( filterByArea.children );
 			filterStatesButtons.forEach( function ( button ) {
-				if (button.classList.contains( "active" ) ) {
+				if ( button.classList.contains( "active" ) ) {
 					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 				}
 			} );
