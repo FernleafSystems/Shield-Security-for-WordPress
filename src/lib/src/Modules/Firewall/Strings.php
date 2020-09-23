@@ -46,7 +46,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_whitelist' :
-				$title = __( 'Whitelists - Pages, Parameters, and Users that by-pass the Firewall', 'wp-simple-firewall' );
+				$title = __( 'Whitelists - Pages, Parameters, and Users that bypass the Firewall', 'wp-simple-firewall' );
 				$summary = [
 					__( 'In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Do not whitelist anything unless you are confident in what you are doing.', 'wp-simple-firewall' ) )

@@ -88,7 +88,7 @@ class BuildDisplay {
 						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
 						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
 						'is_blocked' => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'  => __( 'Is By-Pass IP', 'wp-simple-firewall' ),
+						'is_bypass'  => __( 'Is Bypass IP', 'wp-simple-firewall' ),
 					],
 
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),

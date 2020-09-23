@@ -154,9 +154,9 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/b1",
       "link_blog":   "",
-      "name":        "Multi-Factor By-Pass",
-      "summary":     "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days",
-      "description": "Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable."
+      "name":        "Multi-Factor Bypass",
+      "summary":     "A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days",
+      "description": "Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable."
     },
     {
       "key":         "allow_backupcodes",

@@ -28,7 +28,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 					'type'        => 'flag',
 					'name'        => 'force',
 					'optional'    => true,
-					'description' => 'By-pass confirmation to overwrite files and create necessary directories.',
+					'description' => 'Bypass confirmation to overwrite files and create necessary directories.',
 				],
 			],
 		] ) );

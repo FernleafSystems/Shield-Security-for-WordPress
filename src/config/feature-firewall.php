@@ -38,7 +38,7 @@
     },
     {
       "slug":        "section_whitelist",
-      "title":       "Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall",
+      "title":       "Whitelists - IPs, Pages, Parameters, and Users that bypass the Firewall",
       "title_short": "Whitelist",
       "summary":     [
         "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",

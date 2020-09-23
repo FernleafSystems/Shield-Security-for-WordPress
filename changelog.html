@@ -72,7 +72,7 @@
 <li><strong>(v.0)</strong>  IMPROVED:    Completely re-written much of the scanners code.</li>
 <li><strong>(v.0)</strong>  IMPROVED:    Better detection of the hosting server&#39;s IP addresses - i.e. support for IPv6 alongside IPv4.</li>
 <li><strong>(v.0)</strong>  FIXED:        Two-Factor Authentication (2FA) login screen redirection bug.</li>
-<li><strong>(v.0)</strong>  FIXED:        It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.</li>
+<li><strong>(v.0)</strong>  FIXED:        It was possible to temporarily bypass the 2FA screen to gain access to WP Admin after logging-in.</li>
 <li><strong>(v.0)</strong>  CLEANED:    Code cleaning.</li>
 <li><strong>(v.0)</strong>  UPDATED:    Twitter Bootstrap library.</li>
 </ul>
@@ -952,7 +952,7 @@ will outright block any access they have to your WordPress site.</p>
 <li>ADDED:      New audit trail concept added called &quot;immutable&quot; that represents entries that will never be deleted - such entries would usually involve actions taken on the audit trail itself.</li>
 <li>FIXED:      Support for audit trail events with longer names.</li>
 <li>IMPROVED:   Comments Filtering - It now honours the WordPress settings for previously approved comment authors and never filters such comments.</li>
-<li>REMOVED:    Option to enable GASP Comments Filtering for logged-in users has been completely removed - this reduces plugin options complexity. All logged-in users by-pass <strong>all</strong> comments filtering.</li>
+<li>REMOVED:    Option to enable GASP Comments Filtering for logged-in users has been completely removed - this reduces plugin options complexity. All logged-in users bypass <strong>all</strong> comments filtering.</li>
 <li>FIXED:      Prevention against plugin redirect loops under certain conditions.</li>
 <li>FIXED:      IP whitelisting wasn&#39;t working under certain cases.</li>
 </ul>
@@ -1001,7 +1001,7 @@ will outright block any access they have to your WordPress site.</p>
 </ul>
 <p>= 3.2.0 =</p>
 <ul>
-<li>ADDED:      Options to allow by-pass XML-RPC so as to be compatible with WordPress iPhone/Android apps.</li>
+<li>ADDED:      Options to allow bypass XML-RPC so as to be compatible with WordPress iPhone/Android apps.</li>
 <li>UPDATED:    Login screen message when you&#39;re forced logged-out due to 2-factor auth failure on IP or cookie.</li>
 <li>CHANGED:    Tweaked method for setting admin access protection on/off</li>
 <li>CHANGED:    comment filtering code refactoring.</li>
@@ -1322,7 +1322,7 @@ will outright block any access they have to your WordPress site.</p>
 </ul>
 <p>= 1.5.0 =</p>
 <ul>
-<li>ADDED:        A new IP whitelist on the Login Protect that lets you by-pass login protect rules for given IP addresses.</li>
+<li>ADDED:        A new IP whitelist on the Login Protect that lets you bypass login protect rules for given IP addresses.</li>
 <li>REMOVED:    Firewall rule for wp-login.php and whitelisted IPs.</li>
 </ul>
 <p>= 1.4.2 =</p>
@@ -1352,7 +1352,7 @@ will outright block any access they have to your WordPress site.</p>
 <li>ADDED:        Another Firewall die() option. New option will print a message and uses the wp_die() function instead.</li>
 <li>ADDED:        Refactored and improved the logging system (upgrading will delete your current logs!).</li>
 <li>ADDED:        Option to separately log Login Protect features.</li>
-<li>ADDED:        Option to by-pass 2-factor authentication in the case sending the verification email fails<pre><code>       <span class="hljs-comment">(so you don't get locked out if your hosting doesn't support email!)</span>.
+<li>ADDED:        Option to bypass 2-factor authentication in the case sending the verification email fails<pre><code>       <span class="hljs-comment">(so you don't get locked out if your hosting doesn't support email!)</span>.
 </code></pre></li>
 <li>CHANGED:    Login Protect checking now better logs out users immediately with a redirect.</li>
 <li>CHANGED:    We now escape the log data being printed - just in case there&#39;s any HTML/JS etc in there we don&#39;t want.</li>

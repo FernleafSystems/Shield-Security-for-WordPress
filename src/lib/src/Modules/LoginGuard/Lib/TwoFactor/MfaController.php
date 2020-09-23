@@ -218,7 +218,7 @@ class MfaController {
 						 __( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
 						 true
 					 );
-				// We don't protect against loops here to prevent by-passing of the login intent page.
+				// We don't protect against loops here to prevent bypassing of the login intent page.
 				Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
 			}
 		}

@@ -45,12 +45,12 @@ class UI extends Base\ShieldUI {
 								->diffForHumans( null, true )
 					)
 				),
-				'title_whitelist'   => __( 'IP By-Pass List', 'wp-simple-firewall' ),
+				'title_whitelist'   => __( 'IP Bypass List', 'wp-simple-firewall' ),
 				'title_blacklist'   => __( 'IP Block List', 'wp-simple-firewall' ),
-				'summary_whitelist' => sprintf( __( 'IP addresses that are never blocked and by-pass all %s rules.', 'wp-simple-firewall' ), $pluginName ),
+				'summary_whitelist' => sprintf( __( 'IP addresses that are never blocked and bypass all %s rules.', 'wp-simple-firewall' ), $pluginName ),
 				'summary_blacklist' => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $pluginName ),
 				'enter_ip_block'    => __( 'Enter IP address to block', 'wp-simple-firewall' ),
-				'enter_ip_white'    => __( 'Enter IP address to whitelist', 'wp-simple-firewall' ),
+				'enter_ip_white'    => __( 'Supply IP address to add to bypass list', 'wp-simple-firewall' ),
 				'enter_ip'          => __( 'Enter IP address', 'wp-simple-firewall' ),
 				'label_for_ip'      => __( 'Label for IP', 'wp-simple-firewall' ),
 				'ip_new'            => __( 'New IP', 'wp-simple-firewall' ),

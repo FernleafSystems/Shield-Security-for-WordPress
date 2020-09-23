@@ -220,7 +220,7 @@ class Strings extends Base\Strings {
 
 			case 'enable_xmlrpc_compatibility' :
 				$sName = __( 'XML-RPC Compatibility', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Login Through XML-RPC To Bypass Accounts Management Rules', 'wp-simple-firewall' );
 				$sDescription = __( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.', 'wp-simple-firewall' );
 				break;
 
@@ -401,7 +401,7 @@ class Strings extends Base\Strings {
 		__( 'Automatically Detect Visitor IP', 'wp-simple-firewall' );
 		__( 'IP Whitelist', 'wp-simple-firewall' );
 		__( 'IP Address White List', 'wp-simple-firewall' );
-		__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.', 'wp-simple-firewall' );
+		__( 'Any IP addresses on this list will bypass all Plugin Security Checking.', 'wp-simple-firewall' );
 		__( 'Your IP address is: %s', 'wp-simple-firewall' );
 		__( 'Choose IP Addresses To Blacklist', 'wp-simple-firewall' );
 		__( 'Recommendation - %s', 'wp-simple-firewall' );
