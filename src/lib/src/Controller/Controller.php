@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class Controller
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
  * @property bool                                     $is_activating
+ * @property bool                                     $is_debug
  * @property bool                                     $modules_loaded
  * @property bool                                     $rebuild_options
  * @property bool                                     $plugin_deactivating
@@ -24,7 +25,9 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class Controller {
 
-	use StdClassAdapter;
+	use StdClassAdapter {
+		__get as __adapterGet;
+	}
 
 	/**
 	 * @var \stdClass
@@ -151,6 +154,31 @@ class Controller {
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
 		$this->doLoadTextDomain();
+	}
+
+	/**
+	 * @param string $key
+	 * @return mixed
+	 */
+	public function __get( $key ) {
+		$val = $this->__adapterGet( $key );
+
+		switch ( $key ) {
+
+			case 'is_debug':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Controller\Utilities\DebugMode() )
+						->setCon( $this )
+						->isDebugMode();
+					$this->is_debug = $val;
+				}
+				break;
+
+			default:
+				break;
+		}
+
+		return $val;
 	}
 
 	/**
