@@ -228,6 +228,7 @@ class UI {
 			'imgs'       => [
 				'favicon'       => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 				'plugin_banner' => $con->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
+				'background'    => $con->getPluginUrl_Image( 'shield/dash-background.png' )
 			],
 			'content'    => [
 				'options_form'   => '',

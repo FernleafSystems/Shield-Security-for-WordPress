@@ -75,6 +75,15 @@
 {% endblock %}
 
 {% block inline_styles %}
+	<style>
+		#wpwrap {
+			background-image: url({{ imgs.background }});
+		}
+		#wpcontent,
+		#wpbody-content {
+			background-color: transparent;
+		}
+	</style>
 {% endblock %}
 
 {% block inline_scripts %}
