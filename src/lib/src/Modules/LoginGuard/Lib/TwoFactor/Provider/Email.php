@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Email extends BaseProvider {
@@ -198,6 +199,15 @@ class Email extends BaseProvider {
 			]
 		);
 		return $this;
+	}
+
+	private function send2faEmailSureSend( \WP_User $user, string $code ) :bool {
+		return ( new SendEmail() )
+			->setMod( $this->getMod() )
+			->send2FA(
+				$user->user_email,
+				$code
+			);
 	}
 
 	/**

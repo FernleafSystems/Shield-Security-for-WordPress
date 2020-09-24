@@ -12,7 +12,7 @@ class SendEmail extends BaseShieldNetApi {
 
 	const API_ACTION = 'sure-send/email';
 
-	public function send2FA( string $to, string $code ) {
+	public function send2FA( string $to, string $code ) :bool {
 		return $this->run(
 			'2fa',
 			$to,
