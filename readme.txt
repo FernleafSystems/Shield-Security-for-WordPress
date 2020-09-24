@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.4
-Stable tag: 9.2.1
+Stable tag: 9.2.2
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -377,6 +377,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 ##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
 
+* **(.2)  ADDED**:		WordPress filter [allowing dev to customise placement](https://shsec.io/ie) of Antibot elements on WooCommerce checkout form.
+* **(.2)  IMPROVED**:	2FA codes generated and sent by email are more reliable.
+* **(.2)  IMPROVED**:	HTTP loopback request test now has a longer timeout to be more reliable for slow sites.
+* **(.2)  IMPROVED**:	Detection of requests to link cheese is improved.
+* **(.2)  FIXED**:		Potential PHP error in some cases.
 * **(.1)  FIXED**:		User session IDs weren't cleared correctly.
 * **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
 * **(.0)  NEW**:		Add feature to allow Shield to automatically delete files such as `wp-config-sample.php`.
