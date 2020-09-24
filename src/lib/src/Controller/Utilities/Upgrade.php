@@ -10,10 +10,10 @@ class Upgrade {
 	use \FernleafSystems\Utilities\Logic\OneTimeExecute;
 
 	protected function run() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 
-		if ( $oCon->getPreviousVersion() !== $oCon->getVersion() ) {
-			foreach ( $oCon->modules as $mod ) {
+		if ( $con->getPreviousVersion() !== $con->getVersion() ) {
+			foreach ( $con->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
 				if ( $H instanceof Shield\Modules\Base\Upgrade ) {
 					$H->setMod( $mod )->execute();
@@ -21,6 +21,6 @@ class Upgrade {
 			}
 		}
 
-		$oCon->getPluginControllerOptions()->previous_version = $oCon->getVersion();
+		$con->getPluginControllerOptions()->previous_version = $con->getVersion();
 	}
 }

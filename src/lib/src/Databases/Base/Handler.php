@@ -6,10 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class BaseHandler
+ * Class Handler
  * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
  */
-class Handler {
+abstract class Handler {
 
 	use ModConsumer;
 
@@ -79,13 +79,6 @@ class Handler {
 	 */
 	protected function getDefaultColumnsDefinition() {
 		return $this->getColumns();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getColumnsDefinition() {
-		return $this->enumerateColumns();
 	}
 
 	/**
@@ -281,35 +274,7 @@ class Handler {
 	/**
 	 * @return string
 	 */
-	protected function getDefaultCreateTableSql() {
-		$aCols = [];
-		foreach ( $this->enumerateColumns() as $col => $def ) {
-			$aCols[] = sprintf( '%s %s', $col, $def );
-		}
-		$aCols[] = $this->getPrimaryKeySpec();
-
-		return "CREATE TABLE %s (
-			".implode( ", ", $aCols )."
-		) %s;";
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getColumnsAsArray() {
-		return [];
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function enumerateColumns() {
-		return array_merge(
-			$this->getColumn_ID(),
-			$this->getColumnsAsArray(),
-			$this->getColumns_Ats()
-		);
-	}
+	abstract protected function getDefaultCreateTableSql();
 
 	/**
 	 * @return string
@@ -353,32 +318,6 @@ class Handler {
 		unset( $this->bIsReady );
 		unset( $this->aColActual );
 		return $this;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getColumn_ID() {
-		return [
-			'id' => 'int(11) UNSIGNED NOT NULL AUTO_INCREMENT',
-		];
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getColumns_Ats() {
-		return [
-			'created_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
-			'deleted_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
-		];
-	}
-
-	/**
-	 * @return strinG
-	 */
-	protected function getPrimaryKeySpec() {
-		return 'PRIMARY KEY  (id)';
 	}
 
 	/**
