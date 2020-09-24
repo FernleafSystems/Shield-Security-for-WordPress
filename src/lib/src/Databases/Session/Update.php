@@ -52,23 +52,6 @@ class Update extends Base\Update {
 
 	/**
 	 * @param EntryVO $oSession
-	 * @return bool
-	 */
-	public function clearLoginIntentCodeEmail( $oSession ) {
-		return $this->setLoginIntentCodeEmail( $oSession, '' );
-	}
-
-	/**
-	 * @param EntryVO $oSession
-	 * @param string  $sCode
-	 * @return bool
-	 */
-	public function setLoginIntentCodeEmail( $oSession, $sCode ) {
-		return $this->updateSession( $oSession, [ 'li_code_email' => (string)$sCode ] );
-	}
-
-	/**
-	 * @param EntryVO $oSession
 	 * @param array   $aUpdateData
 	 * @return bool
 	 */

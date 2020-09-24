@@ -89,13 +89,6 @@ class Handler {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getColumnas() {
-		return $this->getColumns();
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getTable() {
