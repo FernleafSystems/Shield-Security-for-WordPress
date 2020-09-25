@@ -94,7 +94,6 @@ class BuildDisplay {
 					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
 					'status' => [
-						'who_is_it'  => __( 'Who Is It?', 'wp-simple-firewall' ),
 						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
 						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
 						'is_blocked' => __( 'Is Blocked', 'wp-simple-firewall' ),
@@ -104,6 +103,9 @@ class BuildDisplay {
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
 					'no'  => __( 'No', 'wp-simple-firewall' ),
 
+					'identity'    => [
+						'who_is_it'   => __( 'Who Is It?', 'wp-simple-firewall' ),
+					],
 					'country'     => __( 'Country', 'wp-simple-firewall' ),
 					'timezone'    => __( 'Timezone', 'wp-simple-firewall' ),
 					'coordinates' => __( 'Coordinates', 'wp-simple-firewall' ),
@@ -113,12 +115,12 @@ class BuildDisplay {
 					'ip'     => $ip,
 					'status' => [
 						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'who_is_it'  =>$who,
 						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
 						'is_blocked' => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
 					],
-					'geo'    => [
+					'identity'    => [
+						'who_is_it'    => $who,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
 						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),

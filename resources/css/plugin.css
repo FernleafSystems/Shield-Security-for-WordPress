@@ -1420,3 +1420,6 @@ a.card_help {
 .nav-pills a.nav-link.active {
 	background-color: #008000;
 }
+.badge.bigger-badge {
+	font-size: 1rem;
+}

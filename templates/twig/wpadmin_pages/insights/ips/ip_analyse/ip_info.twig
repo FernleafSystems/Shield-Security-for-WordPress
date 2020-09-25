@@ -1,11 +1,9 @@
-<div class="row">
-	<div class="col">
-		<h5 class="mb-3">{{ vars.ip }}</h5>
-	</div>
-</div>
-<div class="row">
-	<div class="col">
-		<ul class="nav nav-pills">
+<div class="card">
+	<div class="card-header">
+		<strong class="m-0 float-right d-block border p-1">
+			{{ vars.ip }}</strong>
+
+		<ul class="nav nav-pills card-header-pills mr-auto">
 			<li class="nav-item">
 				<a class="nav-link active" data-toggle="tab" role="tab" href="#tabIpInfoGeneral">
 					{{ strings.nav_general }}
@@ -28,19 +26,21 @@
 			</li>
 		</ul>
 	</div>
-</div>
+	<div class="card-body">
 
-<div class="tab-content">
-	<div class="tab-pane show active" id="tabIpInfoGeneral" role="tabpanel" aria-labelledby="tabIpInfoGeneral">
-		{{ content.general|raw }}
-	</div>
-	<div class="tab-pane" id="tabIpInfoSessions" role="tabpanel" aria-labelledby="tabIpInfoSessions">
-		{{ content.sessions|raw }}
-	</div>
-	<div class="tab-pane" id="tabIpInfoAudit" role="tabpanel" aria-labelledby="tabIpInfoAudit">
-		{{ content.audit_trail|raw }}
-	</div>
-	<div class="tab-pane" id="tabIpInfoTraffic" role="tabpanel" aria-labelledby="tabIpInfoTraffic">
-		{{ content.traffic|raw }}
+		<div class="tab-content">
+			<div class="tab-pane show active" id="tabIpInfoGeneral" role="tabpanel" aria-labelledby="tabIpInfoGeneral">
+				{{ content.general|raw }}
+			</div>
+			<div class="tab-pane" id="tabIpInfoSessions" role="tabpanel" aria-labelledby="tabIpInfoSessions">
+				{{ content.sessions|raw }}
+			</div>
+			<div class="tab-pane" id="tabIpInfoAudit" role="tabpanel" aria-labelledby="tabIpInfoAudit">
+				{{ content.audit_trail|raw }}
+			</div>
+			<div class="tab-pane" id="tabIpInfoTraffic" role="tabpanel" aria-labelledby="tabIpInfoTraffic">
+				{{ content.traffic|raw }}
+			</div>
+		</div>
 	</div>
 </div>
