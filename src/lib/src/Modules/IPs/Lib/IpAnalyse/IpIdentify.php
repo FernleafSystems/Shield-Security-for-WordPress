@@ -12,6 +12,7 @@ class IpIdentify {
 
 	const UNKNOWN = 'unknown';
 	const VISITOR = 'visitor';
+	const THIS_SERVER = 'server';
 	const APPLE = 'apple';
 	const BAIDU = 'baidu';
 	const BING = 'bing';
@@ -44,6 +45,9 @@ class IpIdentify {
 
 		if ( $srvIP->checkIp( $ip, $srvIP->getRequestIp() ) ) {
 			$is = self::VISITOR;
+		}
+		elseif ( $srvIP->checkIp( $ip, $srvIP->getServerPublicIPs() ) ) {
+			$is = self::THIS_SERVER;
 		}
 		elseif ( $srvProviders->isIp_AppleBot( $ip, '' ) ) {
 			$is = self::APPLE;
@@ -100,6 +104,7 @@ class IpIdentify {
 	public function getNames() :array {
 		return [
 			self::UNKNOWN     => 'Unknown',
+			self::THIS_SERVER => 'Server',
 			self::VISITOR     => 'You',
 			self::APPLE       => 'AppleBot',
 			self::BAIDU       => 'BaiduBot',
