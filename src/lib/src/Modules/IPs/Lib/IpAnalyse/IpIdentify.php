@@ -16,6 +16,7 @@ class IpIdentify {
 	const APPLE = 'apple';
 	const BAIDU = 'baidu';
 	const BING = 'bing';
+	const BLOGVAULT = 'blogvault';
 	const CLOUDFLARE = 'cloudflare';
 	const DUCKDUCKGO = 'duckduckgo';
 	const GOOGLE = 'google';
@@ -58,6 +59,9 @@ class IpIdentify {
 		elseif ( $srvProviders->isIp_BingBot( $ip, '' ) ) {
 			$is = self::BING;
 		}
+		elseif ( $srvProviders->isIp_BlogVault( $ip ) ) {
+			$is = self::BLOGVAULT;
+		}
 		elseif ( $srvProviders->isIp_Cloudflare( $ip ) ) {
 			$is = self::CLOUDFLARE;
 		}
@@ -70,7 +74,7 @@ class IpIdentify {
 		elseif ( $srvProviders->isIp_iControlWP( $ip ) ) {
 			$is = self::ICONTROLWP;
 		}
-		elseif ( $srvProviders->isIp_iControlWP( $ip, '' ) ) { // TODO
+		elseif ( $srvProviders->isIp_ManageWP( $ip ) ) {
 			$is = self::MANAGEWP;
 		}
 		elseif ( $srvProviders->isIp_Pingdom( $ip, '' ) ) {
@@ -109,6 +113,7 @@ class IpIdentify {
 			self::APPLE       => 'AppleBot',
 			self::BAIDU       => 'BaiduBot',
 			self::BING        => 'BingBot',
+			self::BLOGVAULT   => 'BlogVault',
 			self::CLOUDFLARE  => 'CloudFlare',
 			self::DUCKDUCKGO  => 'DuckDuckGoBot',
 			self::GOOGLE      => 'GoogleBot',
