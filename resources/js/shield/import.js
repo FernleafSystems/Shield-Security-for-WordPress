@@ -1,8 +1,6 @@
-/**
- */
 jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 
-	var startScans = function ( evt ) {
+	var runImport = function ( evt ) {
 		evt.preventDefault();
 		sendReq( { 'form_params': $oThis.serialize() } );
 		return false;
@@ -36,7 +34,7 @@ jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 
 	var initialise = function () {
 		jQuery( document ).ready( function () {
-			$oThis.on( 'submit', startScans );
+			$oThis.on( 'submit', runImport );
 		} );
 	};
 

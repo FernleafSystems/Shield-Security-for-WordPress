@@ -25,39 +25,12 @@
 
 {% block section_table_js %}
 	<script type="text/javascript">
-		let theSelect = jQuery( '#IpReviewSelect' );
-		jQuery( document ).on( 'change', theSelect, function ( evt ) {
-			let ajaxvars = {{ ajax.build_ip_analyse|raw }};
-			ajaxvars.fIp = theSelect.val();
-			jQuery.post( ajaxurl, ajaxvars,
-				function ( oResponse ) {
-					jQuery( '#IpReviewContent' ).html( oResponse.data.html )
-				}
-			).always(
-				function () {
-					iCWP_WPSF_BodyOverlay.hide();
+		jQuery( document ).ready( function () {
+			jQuery( '#IpReviewSelect' ).icwpWpsfIpAnalyse(
+				{
+					'build_ip_analyse':{{ ajax.build_ip_analyse|raw }}
 				}
 			);
 		} );
-
-		/** THis is a quick hac **/
-		window.addEventListener( 'load', ( event ) => {
-			const urlParams = new URLSearchParams( window.location.search );
-			const myParam = urlParams.get( 'analyse_ip' );
-			theSelect.selectpicker('val', myParam);
-
-			let ajaxvars = {{ ajax.build_ip_analyse|raw }};
-			ajaxvars.fIp = theSelect.val();
-			jQuery.post( ajaxurl, ajaxvars,
-				function ( oResponse ) {
-					jQuery( '#IpReviewContent' ).html( oResponse.data.html )
-				}
-			).always(
-				function () {
-					iCWP_WPSF_BodyOverlay.hide();
-				}
-			);
-		} );
-
 	</script>
 {% endblock %}

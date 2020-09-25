@@ -211,7 +211,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 				case 'importexport':
 
-					$sAsset = 'shield-import';
+					$sAsset = 'shield/import';
 					$sUnique = $con->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
@@ -293,6 +293,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aStdDepsJs[] = $sUnique;
 					if ( $sNav == 'scans' ) {
 						$sAsset = 'shield-scans';
+						$sUnique = $con->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$con->getPluginUrl_Js( $sAsset ),
+							array_unique( $aStdDepsJs ),
+							$con->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+					}
+
+					if ( $sNav == 'ips' ) {
+						$sAsset = 'shield/ipanalyse';
 						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
