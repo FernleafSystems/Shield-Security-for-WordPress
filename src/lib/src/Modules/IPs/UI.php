@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpReview\FindAllPluginIps;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Services\Services;
 

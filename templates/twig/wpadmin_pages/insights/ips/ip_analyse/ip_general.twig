@@ -3,25 +3,27 @@
 	<div class="col-6">
 		<h6 class="mt-4">
 			{{ strings.title_status }}
-			<small>{{ vars.ip }}</small>
 		</h6>
 		<dl>
-			<dt>{{ strings.status.is_you }}</dt>
+			<dt>{{ strings.status.who_is_it }}</dt>
 			<dd>
-				<p>{{ vars.status.is_you ? strings.yes : strings.no }}</p>
+				<p>{{ vars.status.who_is_it }}</p>
 			</dd>
+
 			<dt>{{ strings.status.offenses }}</dt>
 			<dd>
 				<p class="badge badge-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
 					{{ vars.status.offenses }}
 				</p>
 			</dd>
+
 			<dt>{{ strings.status.is_blocked }}</dt>
 			<dd>
 				<p class="badge badge-{{ vars.status.is_blocked ? 'danger' : 'success' }}">
 					{{ vars.status.is_blocked ? strings.yes : strings.no }}
 				</p>
 			</dd>
+
 			<dt>{{ strings.status.is_bypass }}</dt>
 			<dd>
 				<p class="badge badge-{{ vars.status.is_bypass ? 'warning' : 'success' }}">

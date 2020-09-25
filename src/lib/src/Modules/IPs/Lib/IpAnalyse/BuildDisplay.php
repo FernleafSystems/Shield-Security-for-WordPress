@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpReview;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
@@ -77,6 +77,15 @@ class BuildDisplay {
 
 		$sRDNS = gethostbyaddr( $ip );
 
+		try {
+			$who = current( ( new IpIdentify() )
+				->setIP( $ip )
+				->run() );
+		}
+		catch ( \Exception $e ) {
+			$who = IpIdentify::UNKNOWN;
+		}
+
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
 			[
@@ -85,6 +94,7 @@ class BuildDisplay {
 					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
 					'status' => [
+						'who_is_it'  => __( 'Who Is It?', 'wp-simple-firewall' ),
 						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
 						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
 						'is_blocked' => __( 'Is Blocked', 'wp-simple-firewall' ),
@@ -103,6 +113,7 @@ class BuildDisplay {
 					'ip'     => $ip,
 					'status' => [
 						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'who_is_it'  =>$who,
 						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
 						'is_blocked' => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
