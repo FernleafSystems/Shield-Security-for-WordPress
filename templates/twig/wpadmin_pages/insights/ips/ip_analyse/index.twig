@@ -39,7 +39,13 @@
 				}
 			);
 		} );
-		jQuery( document ).on( 'click', '#Refresh', function ( evt ) {
+
+		/** THis is a quick hac **/
+		window.addEventListener( 'load', ( event ) => {
+			const urlParams = new URLSearchParams( window.location.search );
+			const myParam = urlParams.get( 'analyse_ip' );
+			theSelect.selectpicker('val', myParam);
+
 			let ajaxvars = {{ ajax.build_ip_analyse|raw }};
 			ajaxvars.fIp = theSelect.val();
 			jQuery.post( ajaxurl, ajaxvars,
