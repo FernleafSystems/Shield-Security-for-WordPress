@@ -52,19 +52,12 @@ class Traffic extends BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function buildEmpty() {
+	protected function buildEmpty() :string {
 		return sprintf( '<div class="alert alert-success m-0">%s</div>',
 			__( "No requests have been logged.", 'wp-simple-firewall' ) );
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [
 			'fIp'         => '',
 			'fUsername'   => '',
@@ -79,8 +72,7 @@ class Traffic extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
-		$modInsights = $this->getCon()->getModule_Insights();
+	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
 		$oWpUsers = Services::WpUsers();
@@ -108,17 +100,17 @@ class Traffic extends BaseBuild {
 				$sCodeType = 'warning';
 			}
 
-			$aEntry = $oEntry->getRawDataAsArray();
-			$aEntry[ 'path' ] = $sPath;
-			$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
-			$aEntry[ 'trans' ] = sprintf(
+			$aE = $oEntry->getRawDataAsArray();
+			$aE[ 'path' ] = $sPath;
+			$aE[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
+			$aE[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
 				$oEntry->trans ? 'danger' : 'info',
 				$oEntry->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
-			$aEntry[ 'ip' ] = $ip;
-			$aEntry[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			$aEntry[ 'is_you' ] = $ip == $sYou;
+			$aE[ 'ip' ] = $ip;
+			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$aE[ 'is_you' ] = $ip == $sYou;
 
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
@@ -141,11 +133,9 @@ class Traffic extends BaseBuild {
 				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $oGeoIp->getCountryName() );
 			}
 
-			$sIpLink = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>%s',
-				$modInsights->getUrl_IpAnalysis( $oEntry->ip ),
-				__( 'IP Analysis', 'wp-simple-firewall' ),
-				$ip,
-				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+			$sIpLink = sprintf( '%s%s',
+				$this->getIpAnalysisLink( $oEntry->ip ),
+				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
 			$aDetails = [
@@ -154,14 +144,14 @@ class Traffic extends BaseBuild {
 				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $sCountry ),
 				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $oEntry->ua ) ) )
 			];
-			$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
+			$aE[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
 			$aInfo = [
-				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aEntry[ 'code' ] ),
-				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
+				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aE[ 'code' ] ),
+				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $aE[ 'trans' ] ),
 			];
-			$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
-			$aEntries[ $nKey ] = $aEntry;
+			$aE[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
+			$aEntries[ $nKey ] = $aE;
 		}
 		return $aEntries;
 	}

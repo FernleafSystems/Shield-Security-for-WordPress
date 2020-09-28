@@ -954,7 +954,7 @@ table.scan-table.wp-list-table button.toggle-row {
 	background-color: rgba(0, 0, 0, 0.05);
 	border-color: rgba(0, 0, 0, 0.1);
 	border-bottom-color: transparent;
-	box-shadow: 0 -2px 3px rgba(0,0,0,0.03) inset;
+	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.03) inset;
 	opacity: 0.9;
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link:hover {
@@ -1258,8 +1258,7 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SectionIpsWhite .form-inline {
 	background-color: transparent !important;
 }
-a[target="_blank"]:not(.option_link_info):not(.card-link)::after,
-a.new-window-link::after {
+a[target="_blank"]:not(.option_link_info):not(.card-link)::after {
 	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
 	margin: 0 3px;
 }

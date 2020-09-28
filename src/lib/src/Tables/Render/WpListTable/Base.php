@@ -253,17 +253,4 @@ class Base extends \WP_List_Table {
 			[ 'rid' => $nId, ]
 		);
 	}
-
-	/**
-	 * @param string $ip
-	 * @return string
-	 */
-	protected function getIpWhoisLookupLink( string $ip ) :string {
-		$oIp = Services::IP();
-
-		return sprintf( '<a href="%s" target="_blank" class="ip-whois new-window-link">%s</a>',
-			$oIp->isValidIpRange( $ip ) ? $oIp->getIpWhoisLookup( $ip ) : $oIp->getIpInfo( $ip ),
-			$ip
-		);
-	}
 }

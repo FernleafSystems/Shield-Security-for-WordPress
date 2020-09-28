@@ -67,11 +67,7 @@ class AuditTrail extends BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [
 			'fIp'         => '',
 			'fUsername'   => '',
@@ -86,8 +82,7 @@ class AuditTrail extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
-		$modInsights = $this->getCon()->getModule_Insights();
+	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
@@ -101,11 +96,11 @@ class AuditTrail extends BaseBuild {
 				 * To cater for the contexts that don't refer to a module, but rather a context
 				 * with the Audit Trail module
 				 */
-				$oModule = $oCon->getModule( $oEntry->context );
-				if ( empty( $oModule ) ) {
-					$oModule = $oCon->getModule_AuditTrail();
+				$mod = $oCon->getModule( $oEntry->context );
+				if ( empty( $mod ) ) {
+					$mod = $oCon->getModule_AuditTrail();
 				}
-				$oStrings = $oModule->getStrings();
+				$oStrings = $mod->getStrings();
 
 				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
 					$sMsg = stripslashes( sanitize_textarea_field(
@@ -140,11 +135,9 @@ class AuditTrail extends BaseBuild {
 					$aE[ 'ip' ] = '';
 				}
 				else {
-					$aE[ 'ip' ] = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>%s',
-						$modInsights->getUrl_IpAnalysis( $oEntry->ip ),
-						__( 'IP Analysis', 'wp-simple-firewall' ),
-						$oEntry->ip,
-						$aE[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+					$aE[ 'ip' ] = sprintf( '%s%s',
+						$this->getIpAnalysisLink( $oEntry->ip ),
+						$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 					);
 				}
 			}

@@ -20,35 +20,30 @@ class BaseBuild {
 	 */
 	protected $aBuildParams;
 
-	/**
-	 * @return string
-	 */
-	public function render() {
-
-		$sRendered = null;
+	public function render() :string {
 
 		if ( !$this->getDbHandler()->isReady() ) {
-			$sRendered = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
+			$render = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
 		}
 		else {
 			$this->preBuildTable();
 
 			if ( $this->countTotal() > 0 ) {
-				$oTable = $this->getTableRenderer()
-							   ->setItemEntries( $this->getEntriesFormatted() )
-							   ->setPerPage( $this->getParams()[ 'limit' ] )
-							   ->setTotalRecords( $this->countTotal() )
-							   ->prepare_items();
+				$table = $this->getTableRenderer()
+							  ->setItemEntries( $this->getEntriesFormatted() )
+							  ->setPerPage( $this->getParams()[ 'limit' ] )
+							  ->setTotalRecords( $this->countTotal() )
+							  ->prepare_items();
 				ob_start();
-				$oTable->display();
-				$sRendered = ob_get_clean();
+				$table->display();
+				$render = ob_get_clean();
 			}
 			else {
-				$sRendered = $this->buildEmpty();
+				$render = $this->buildEmpty();
 			}
 		}
 
-		return $sRendered;
+		return $render;
 	}
 
 	/**
@@ -58,18 +53,15 @@ class BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function buildEmpty() {
+	protected function buildEmpty() :string {
 		return sprintf( '<div class="alert alert-success m-0">%s</div>',
 			__( "No entries to display.", 'wp-simple-firewall' ) );
 	}
 
 	/**
-	 * @return array[]|int|string[]
+	 * @return array[]|Shield\Databases\Base\EntryVO[]|string[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		return $this->getEntriesRaw();
 	}
 
@@ -89,7 +81,7 @@ class BaseBuild {
 	/**
 	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
 	 */
-	protected function getEntriesRaw() {
+	protected function getEntriesRaw() :array {
 		$aEntries = $this->startQueryProcess()
 						 ->applyDefaultQueryFilters()
 						 ->applyCustomQueryFilters()
@@ -192,7 +184,7 @@ class BaseBuild {
 	 * Override to allow other parameter keys for building the table
 	 * @return array
 	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [];
 	}
 
@@ -206,11 +198,18 @@ class BaseBuild {
 		return $this->oWorkingSelector;
 	}
 
-	/**
-	 * @return $this
-	 */
-	protected function startQueryProcess() {
+	protected function startQueryProcess() :self {
 		unset( $this->oWorkingSelector );
 		return $this;
+	}
+
+	protected function getIpAnalysisLink( string $ip ) :string {
+		$srvIP = Services::IP();
+		return sprintf( '<a href="%s" target="_blank" title="%s" class="ip-whois">%s</a>',
+			$srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) :
+				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip ),
+			__( 'IP Analysis' ),
+			$ip
+		);
 	}
 }

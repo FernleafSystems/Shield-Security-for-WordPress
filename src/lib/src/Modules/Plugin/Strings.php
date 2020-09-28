@@ -155,7 +155,7 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank" class="new-window-link">%s</a>', $oMod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" target="_blank">%s</a>', $oMod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
 				];
 				break;
 

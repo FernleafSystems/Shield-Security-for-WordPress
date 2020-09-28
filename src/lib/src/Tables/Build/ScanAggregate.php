@@ -29,7 +29,7 @@ class ScanAggregate extends ScanBase {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		// first filter out PTG results as we process them a bit separately.
 		$aPtgScanEntries = [];
 		$aRaw = $this->getEntriesRaw();
@@ -125,11 +125,7 @@ class ScanAggregate extends ScanBase {
 		return [ 'mal', 'wcf', 'ufc', 'ptg' ];
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [];
 	}
 

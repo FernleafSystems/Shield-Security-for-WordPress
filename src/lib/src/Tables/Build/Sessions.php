@@ -44,11 +44,7 @@ class Sessions extends BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [
 			'fIp'       => '',
 			'fUsername' => '',
@@ -58,7 +54,7 @@ class Sessions extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		$modInsights = $this->getCon()->getModule_Insights();
 		$aEntries = [];
 
@@ -75,11 +71,9 @@ class Sessions extends BaseBuild {
 			else {
 				$aE[ 'is_you' ] = '';
 			}
-			$aE[ 'ip' ] = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>%s',
-				$modInsights->getUrl_IpAnalysis( $oEntry->ip ),
-				__( 'IP Analysis', 'wp-simple-firewall' ),
-				$oEntry->ip,
-				$aE[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+			$aE[ 'ip' ] = sprintf( '%s%s',
+				$this->getIpAnalysisLink( $oEntry->ip ),
+				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
 			$oWpUsers = Services::WpUsers();

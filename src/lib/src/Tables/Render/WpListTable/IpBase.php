@@ -4,19 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
 class IpBase extends Base {
 
-	/**
-	 * @param array $aItem
-	 * @return string
-	 */
-	public function column_ip( $aItem ) {
-		return $this->getIpWhoisLookupLink( $aItem[ 'ip' ] )
-			   .$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] );
+	public function column_ip( array $item ) :string {
+		return $item[ 'ip' ].$this->buildActions( [ $this->getActionButton_Delete( $item[ 'id' ] ) ] );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function get_columns() {
+	public function get_columns() :array {
 		return [
 			'ip'             => __( 'IP Address' ),
 			'label'          => __( 'Label', 'wp-simple-firewall' ),

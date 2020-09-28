@@ -32,11 +32,7 @@ class Ip extends BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [
 			'fLists' => '',
 			'fIp'    => '',
@@ -46,7 +42,7 @@ class Ip extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
@@ -64,6 +60,12 @@ class Ip extends BaseBuild {
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'expires_at' ] = $this->formatTimestampField( $oEntry->last_access_at + $opts->getAutoExpireTime() );
+
+			$aE[ 'ip' ] = sprintf( '%s%s',
+				$this->getIpAnalysisLink( $oEntry->ip ),
+				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+			);
+
 			$aEntries[ $nKey ] = $aE;
 		}
 		return $aEntries;
