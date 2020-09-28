@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Ips\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Handler extends Base\Handler {
+class Handler extends Base\EnumeratedColumnsHandler {
 
 	public function autoCleanDb() {
 		/** @var Options $opts */
@@ -14,8 +14,8 @@ class Handler extends Base\Handler {
 		/** @var Delete $del */
 		$del = $this->getQueryDeleter();
 		$del->filterByBlacklist()
-			 ->filterByLastAccessBefore( Services::Request()->ts() - $opts->getAutoExpireTime() )
-			 ->query();
+			->filterByLastAccessBefore( Services::Request()->ts() - $opts->getAutoExpireTime() )
+			->query();
 	}
 
 	/**
@@ -27,13 +27,6 @@ class Handler extends Base\Handler {
 					->addWhereOlderThan( $nTimeStamp, 'last_access_at' )
 					->addWhere( 'list', \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, '!=' )
 					->query();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getColumns() {
-		return array_keys( $this->getColumnsDefinition() );
 	}
 
 	/**

@@ -77,15 +77,6 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * @return string The unique 2FA 6-digit code
-	 */
-	protected function getStoredSessionHashCode() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->hasSession() ? $oMod->getSession()->getLoginIntentCodeEmail() : '';
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $user ) {
