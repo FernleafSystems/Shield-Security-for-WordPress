@@ -61,38 +61,43 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_global_security_options' :
-				$sTitle = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
-				$sTitleShort = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $sPlugName );
+				$title = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
+				$titleShort = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $sPlugName );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Use this option to completely disable all active Shield Protection.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_defaults' :
-				$sTitle = __( 'Plugin Defaults', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Plugin Defaults', 'wp-simple-firewall' );
+				$title = __( 'Plugin Defaults', 'wp-simple-firewall' );
+				$titleShort = __( 'Plugin Defaults', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Important default settings used throughout the plugin.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_importexport' :
-				$sTitle = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
+				$title = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatically import options, and deploy configurations across your entire network.', 'wp-simple-firewall' ) ),
 					sprintf( __( 'This is a Pro-only feature.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
+				$titleShort = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
+				break;
+
+			case 'section_suresend' :
+				$title = __( 'SureSend Email', 'wp-simple-firewall' );
+				$titleShort = __( 'SureSend Email', 'wp-simple-firewall' );
 				break;
 
 			case 'section_general_plugin_options' :
-				$sTitle = __( 'General Plugin Options', 'wp-simple-firewall' );
-				$sTitleShort = __( 'General Options', 'wp-simple-firewall' );
+				$title = __( 'General Plugin Options', 'wp-simple-firewall' );
+				$titleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
 			case 'section_third_party_captcha' :
-				$sTitle = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$sTitleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
+				$title = __( 'CAPTCHA', 'wp-simple-firewall' );
+				$titleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup CAPTCHA for use across %s.', 'wp-simple-firewall' ), $sPlugName ) ),
 					sprintf( '%s - %s',
@@ -108,8 +113,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_third_party_duo' :
-				$sTitle = __( 'Duo Security', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Duo Security', 'wp-simple-firewall' );
+				$title = __( 'Duo Security', 'wp-simple-firewall' );
+				$titleShort = __( 'Duo Security', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -117,8 +122,8 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
+			'title'       => $title,
+			'title_short' => $titleShort,
 			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
 		];
 	}
@@ -306,6 +311,17 @@ class Strings extends Base\Strings {
 				$sName = __( 'CAPTCHA Style', 'wp-simple-firewall' );
 				$sSummary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
 				$sDescription = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
+				break;
+
+			case 'suresend_emails' :
+				$sName = __( 'SureSend Emails', 'wp-simple-firewall' );
+				$sSummary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'SureSend is a dedicated email delivery service from Shield Security.', 'wp-simple-firewall' ),
+					__( 'The purpose is the improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
+					__( "If you're relying on WordPress to send and deliver important emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
+					__( "This isn't a replacement for a dedicated email service and if you're using a 3rd party email service, you probably won't need SureSend.", 'wp-simple-firewall' ),
+				];
 				break;
 
 			default:

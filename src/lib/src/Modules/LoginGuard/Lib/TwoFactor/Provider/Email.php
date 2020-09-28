@@ -12,10 +12,7 @@ class Email extends BaseProvider {
 
 	private $secretToDelete = '';
 
-	/**
-	 * @param \WP_User $user
-	 */
-	public function captureLoginAttempt( $user ) {
+	public function captureLoginAttempt( \WP_User $user ) {
 		$this->sendEmailTwoFactorVerify( $user );
 	}
 
@@ -155,49 +152,57 @@ class Email extends BaseProvider {
 	private function sendEmailTwoFactorVerify( \WP_User $user ) {
 
 		try {
-			$bResult = $this->getMod()
-							->getEmailProcessor()
-							->sendEmailWithTemplate(
-								'/email/lp_2fa_email_code',
-								$user->user_email,
-								__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-								[
-									'flags'   => [
-										'show_login_link' => !$this->getCon()->isRelabelled()
-									],
-									'vars'    => [
-										'code' => $this->genNewCode( $user )
-									],
-									'hrefs'   => [
-										'login_link' => 'https://shsec.io/96'
-									],
-									'strings' => [
-										'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-										'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-										'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
-										'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
-										'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-										'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
-											Services::WpGeneral()->getHomeUrl() ),
-										'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-										'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
-											Services::IP()->getRequestIp() ),
-									]
-								]
-							);
+			$code = $this->genNewCode( $user );
+
+			if ( $this->getCon()->getModule_Plugin()->getSureSendController()->isEnabled2Fa() ) {
+				$sendSuccess = $this->send2faEmailSureSend( $user, $code );
+			}
+			else {
+				$sendSuccess = $this->getMod()
+									->getEmailProcessor()
+									->sendEmailWithTemplate(
+										'/email/lp_2fa_email_code',
+										$user->user_email,
+										__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+										[
+											'flags'   => [
+												'show_login_link' => !$this->getCon()->isRelabelled()
+											],
+											'vars'    => [
+												'code' => $code
+											],
+											'hrefs'   => [
+												'login_link' => 'https://shsec.io/96'
+											],
+											'strings' => [
+												'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
+												'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
+												'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
+												'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
+												'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
+												'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
+													Services::WpGeneral()->getHomeUrl() ),
+												'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+												'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
+													Services::IP()->getRequestIp() ),
+											]
+										]
+									);
+			}
 		}
 		catch ( \Exception $e ) {
-			$bResult = false;
+			$sendSuccess = false;
 		}
 
 		$this->getCon()->fireEvent(
-			$bResult ? '2fa_email_send_success' : '2fa_email_send_fail',
+			$sendSuccess ? '2fa_email_send_success' : '2fa_email_send_fail',
 			[
 				'audit' => [
 					'user_login' => $user->user_login,
 				]
 			]
 		);
+
 		return $this;
 	}
 

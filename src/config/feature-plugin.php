@@ -34,7 +34,7 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "update-available":            {
+    "update-available":           {
       "id":               "update-available",
       "schedule":         "conditions",
       "valid_admin":      true,
@@ -106,6 +106,11 @@
       "slug":        "section_importexport",
       "title":       "Import / Export",
       "title_short": "Import / Export"
+    },
+    {
+      "slug":        "section_suresend",
+      "title":       "SureSend Email",
+      "title_short": "SureSend Email"
     },
     {
       "slug":        "section_global_security_options",
@@ -397,6 +402,24 @@
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
+    },
+    {
+      "key":           "suresend_emails",
+      "section":       "section_suresend",
+      "type":          "multiple_select",
+      "premium":       true,
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "2fa",
+          "text":      "2FA Login Code"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "SureSend Emails",
+      "summary":       "SureSend Emails",
+      "description":   "SureSend Emails."
     },
     {
       "key":          "tracking_last_sent_at",

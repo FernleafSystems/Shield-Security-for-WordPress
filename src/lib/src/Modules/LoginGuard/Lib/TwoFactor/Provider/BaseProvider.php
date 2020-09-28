@@ -208,10 +208,7 @@ abstract class BaseProvider {
 	public function handleUserProfileSubmit( \WP_User $user ) {
 	}
 
-	/**
-	 * @param \WP_User $user
-	 */
-	public function captureLoginAttempt( $user ) {
+	public function captureLoginAttempt( \WP_User $user ) {
 	}
 
 	/**
