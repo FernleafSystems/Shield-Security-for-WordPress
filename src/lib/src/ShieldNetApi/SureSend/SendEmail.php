@@ -32,7 +32,7 @@ class SendEmail extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		return is_array( $raw ) && !empty( $raw[ 'success' ] );
+		return is_array( $raw ) && empty( $raw[ 'error' ] );
 	}
 
 	protected function getApiRequestUrl() :string {
