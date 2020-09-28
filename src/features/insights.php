@@ -107,13 +107,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				];
 				break;
 
+			default:
 			case 'overview':
 			case 'index':
 				/** @var Shield\Modules\Insights\UI $UIInsights */
 				$UIInsights = $this->getUIHandler();
 				$aData = $UIInsights->buildInsightsVars();
-				break;
-			default:
 				break;
 		}
 

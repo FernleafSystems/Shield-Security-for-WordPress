@@ -38,7 +38,7 @@ class BuildDisplay {
 					'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
-					'ip' => $ip
+					'ip' => $ip,
 				],
 				'content' => [
 					'general'     => $this->renderForGeneral(),
