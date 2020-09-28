@@ -8,7 +8,7 @@ class IpBase extends Base {
 		return $item[ 'ip' ].$this->buildActions( [ $this->getActionButton_Delete( $item[ 'id' ] ) ] );
 	}
 
-	public function get_columns() :array {
+	public function get_columns() {
 		return [
 			'ip'             => __( 'IP Address' ),
 			'label'          => __( 'Label', 'wp-simple-firewall' ),
