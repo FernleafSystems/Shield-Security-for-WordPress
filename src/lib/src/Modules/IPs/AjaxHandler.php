@@ -154,9 +154,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 	private function ajaxExec_BuildIpAnalyse() :array {
 		try {
+			$ip = Services::Request()->post( 'fIp', '' );
+			if ( !Services::IP()->isValidIp( $ip ) ) {
+				throw new \Exception( 'Not a valid IP' );
+			}
+
 			$response = ( new Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay() )
 				->setMod( $this->getMod() )
-				->setIP( Services::Request()->post( 'fIp', '' ) )
+				->setIP( $ip )
 				->run();
 
 			$msg = '';

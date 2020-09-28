@@ -1,6 +1,6 @@
 <div class="row">
 
-	<div class="col-6">
+	<div class="col">
 		<h6 class="card-title">
 			{{ strings.title_status }}
 		</h6>
@@ -29,7 +29,7 @@
 		</dl>
 	</div>
 
-	<div class="col-6">
+	<div class="col">
 		<h6 class="card-title">
 			{{ strings.title_general }}
 		</h6>
@@ -39,12 +39,12 @@
 				<p>{{ vars.identity.who_is_it }}</p>
 			</dd>
 
-			<dt>{{ strings.rdns }}</dt>
+			<dt>{{ strings.identity.rdns }}</dt>
 			<dd>
 				<p>{{ vars.identity.rdns }}</p>
 			</dd>
 
-			<dt>{{ strings.country }}</dt>
+			<dt>{{ strings.identity.country }} ({{ strings.identity.timezone }})</dt>
 			<dd>
 				<p>
 					{{ vars.identity.country_name }}
@@ -52,9 +52,21 @@
 				</p>
 			</dd>
 
-			<dt>{{ strings.coordinates }}</dt>
+			<dt>{{ strings.identity.coordinates }}</dt>
 			<dd>
 				<p>{{ vars.identity.coordinates }}</p>
+			</dd>
+		</dl>
+	</div>
+
+	<div class="col">
+		<h6 class="card-title">
+			{{ strings.extras.title }}
+		</h6>
+		<dl>
+			<dt>{{ strings.extras.ip_whois }}</dt>
+			<dd>
+				<p><a href="{{ vars.extras.ip_whois }}" target="_blank">{{ strings.extras.query_ip_whois }}</a></p>
 			</dd>
 		</dl>
 	</div>

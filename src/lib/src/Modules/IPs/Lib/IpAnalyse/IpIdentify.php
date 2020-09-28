@@ -108,7 +108,7 @@ class IpIdentify {
 	public function getNames() :array {
 		return [
 			self::UNKNOWN     => 'Unknown',
-			self::THIS_SERVER => 'Server',
+			self::THIS_SERVER => 'This Server',
 			self::VISITOR     => 'You',
 			self::APPLE       => 'AppleBot',
 			self::BAIDU       => 'BaiduBot',

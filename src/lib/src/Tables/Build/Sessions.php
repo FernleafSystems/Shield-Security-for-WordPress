@@ -59,6 +59,7 @@ class Sessions extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() {
+		$modInsights = $this->getCon()->getModule_Insights();
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
@@ -69,11 +70,17 @@ class Sessions extends BaseBuild {
 			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
 			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );
 			if ( $oEntry->ip == $sYou ) {
-				$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
+				$aE[ 'is_you' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
 			}
 			else {
-				$aE[ 'your_ip' ] = '';
+				$aE[ 'is_you' ] = '';
 			}
+			$aE[ 'ip' ] = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>%s',
+				$modInsights->getUrl_IpAnalysis( $oEntry->ip ),
+				__( 'IP Analysis', 'wp-simple-firewall' ),
+				$oEntry->ip,
+				$aE[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+			);
 
 			$oWpUsers = Services::WpUsers();
 			$aE[ 'wp_username' ] = sprintf(

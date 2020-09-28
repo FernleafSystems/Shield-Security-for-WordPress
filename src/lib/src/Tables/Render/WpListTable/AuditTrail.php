@@ -45,17 +45,17 @@ class AuditTrail extends Base {
 	}
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_details( $aItem ) {
+	public function column_details( $item ) {
 		$sContent = sprintf( '%s<br />%s%s',
-			$aItem[ 'wp_username' ],
-			empty( $aItem[ 'ip' ] ) ? '' : $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
-			$aItem[ 'your_ip' ]
+			$item[ 'wp_username' ],
+			$item[ 'ip' ],
+			$item[ 'your_ip' ]
 		);
-		if ( isset( $aItem[ 'meta' ][ 'param' ] ) ) {
-			$sContent .= $this->buildActions( $this->getActionButton_AddParam( $aItem[ 'id' ] ) );
+		if ( isset( $item[ 'meta' ][ 'param' ] ) ) {
+			$sContent .= $this->buildActions( [ $this->getActionButton_AddParam( $item[ 'id' ] ) ] );
 		}
 		return $sContent;
 	}

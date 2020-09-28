@@ -103,23 +103,29 @@ class BuildDisplay {
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
 					'no'  => __( 'No', 'wp-simple-firewall' ),
 
-					'identity'    => [
-						'who_is_it'   => __( 'Who Is It?', 'wp-simple-firewall' ),
+					'identity' => [
+						'who_is_it'   => __( 'Is this a known IP address?', 'wp-simple-firewall' ),
+						'rdns'        => 'rDNS',
+						'country'     => __( 'Country', 'wp-simple-firewall' ),
+						'timezone'    => __( 'Timezone', 'wp-simple-firewall' ),
+						'coordinates' => __( 'Coordinates', 'wp-simple-firewall' ),
 					],
-					'country'     => __( 'Country', 'wp-simple-firewall' ),
-					'timezone'    => __( 'Timezone', 'wp-simple-firewall' ),
-					'coordinates' => __( 'Coordinates', 'wp-simple-firewall' ),
-					'rdns'        => 'rDNS',
+
+					'extras' => [
+						'title'          => __( 'Extras', 'wp-simple-firewall' ),
+						'ip_whois'       => __( 'IP Whois', 'wp-simple-firewall' ),
+						'query_ip_whois' => __( 'Query IP Whois', 'wp-simple-firewall' ),
+					],
 				],
 				'vars'    => [
-					'ip'     => $ip,
-					'status' => [
+					'ip'       => $ip,
+					'status'   => [
 						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
 						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
 						'is_blocked' => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
 					],
-					'identity'    => [
+					'identity' => [
 						'who_is_it'    => $who,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
@@ -128,6 +134,9 @@ class BuildDisplay {
 							__( 'Latitude', 'wp-simple-firewall' ), $geo->getLatitude(),
 							__( 'Longitude', 'wp-simple-firewall' ), $geo->getLongitude() )
 							: 'Unknown'
+					],
+					'extras'   => [
+						'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),
 					],
 				],
 				'flags'   => [

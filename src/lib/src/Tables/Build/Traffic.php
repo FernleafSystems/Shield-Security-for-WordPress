@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class LiveTraffic
+ * Class Traffic
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
 class Traffic extends BaseBuild {
@@ -80,6 +80,7 @@ class Traffic extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() {
+		$modInsights = $this->getCon()->getModule_Insights();
 		$aEntries = [];
 
 		$oWpUsers = Services::WpUsers();
@@ -92,7 +93,7 @@ class Traffic extends BaseBuild {
 		$aUsers = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\Traffic\EntryVO $oEntry */
-			$sIp = $oEntry->ip;
+			$ip = $oEntry->ip;
 
 			list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
 			$sQuery = trim( $sQuery, '?' );
@@ -115,9 +116,9 @@ class Traffic extends BaseBuild {
 				$oEntry->trans ? 'danger' : 'info',
 				$oEntry->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
-			$aEntry[ 'ip' ] = $sIp;
+			$aEntry[ 'ip' ] = $ip;
 			$aEntry[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			$aEntry[ 'is_you' ] = $sIp == $sYou;
+			$aEntry[ 'is_you' ] = $ip == $sYou;
 
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
@@ -129,7 +130,7 @@ class Traffic extends BaseBuild {
 			}
 
 			$oGeoIp = $oGeoIpLookup
-				->setIP( $sIp )
+				->setIP( $ip )
 				->lookupIp();
 			$sCountryIso = $oGeoIp->getCountryCode();
 			if ( empty( $sCountryIso ) ) {
@@ -140,8 +141,10 @@ class Traffic extends BaseBuild {
 				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $oGeoIp->getCountryName() );
 			}
 
-			$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
-				$oIpSrv->getIpInfo( $sIp ), $sIp,
+			$sIpLink = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>%s',
+				$modInsights->getUrl_IpAnalysis( $oEntry->ip ),
+				__( 'IP Analysis', 'wp-simple-firewall' ),
+				$ip,
 				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 

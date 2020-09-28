@@ -87,6 +87,7 @@ class AuditTrail extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() {
+		$modInsights = $this->getCon()->getModule_Insights();
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
@@ -133,6 +134,18 @@ class AuditTrail extends BaseBuild {
 				}
 				if ( $oEntry->wp_username == '-' ) {
 					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
+				}
+
+				if ( empty( $oEntry->ip ) ) {
+					$aE[ 'ip' ] = '';
+				}
+				else {
+					$aE[ 'ip' ] = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>%s',
+						$modInsights->getUrl_IpAnalysis( $oEntry->ip ),
+						__( 'IP Analysis', 'wp-simple-firewall' ),
+						$oEntry->ip,
+						$aE[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+					);
 				}
 			}
 			else {

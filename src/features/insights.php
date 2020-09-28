@@ -17,6 +17,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 	}
 
+	public function getUrl_IpAnalysis( string $ip ) :string {
+		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_SubInsightsPage( 'ips' ) );
+	}
+
 	public function getUrl_SubInsightsPage( string $subPage ) :string {
 		return add_query_arg(
 			[ 'inav' => sanitize_key( $subPage ) ],
