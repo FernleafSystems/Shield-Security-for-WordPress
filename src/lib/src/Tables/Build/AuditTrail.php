@@ -85,7 +85,8 @@ class AuditTrail extends BaseBuild {
 	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
-		$sYou = Services::IP()->getRequestIp();
+		$srvIP = Services::IP();
+		$you = $srvIP->getRequestIp();
 		$oCon = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
@@ -121,14 +122,15 @@ class AuditTrail extends BaseBuild {
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 				$aE[ 'message' ] = $sMsg;
 				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-				if ( $oEntry->ip == $sYou ) {
-					$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
-				}
-				else {
-					$aE[ 'your_ip' ] = '';
-				}
 				if ( $oEntry->wp_username == '-' ) {
 					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
+				}
+
+				try {
+					$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+				}
+				catch ( \Exception $e ) {
+					$aE[ 'is_you' ] = false;
 				}
 
 				if ( empty( $oEntry->ip ) ) {
@@ -137,7 +139,7 @@ class AuditTrail extends BaseBuild {
 				else {
 					$aE[ 'ip' ] = sprintf( '%s%s',
 						$this->getIpAnalysisLink( $oEntry->ip ),
-						$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+						$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
 					);
 				}
 			}

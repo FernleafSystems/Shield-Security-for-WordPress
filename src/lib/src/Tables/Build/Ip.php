@@ -45,9 +45,12 @@ class Ip extends BaseBuild {
 	public function getEntriesFormatted() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
+		$srvIP = Services::IP();
 
 		$nTransLimit = $opts->getOffenseLimit();
+		$you = $srvIP->getRequestIp();
 		$aEntries = [];
+
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var IPs\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
@@ -60,7 +63,7 @@ class Ip extends BaseBuild {
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'expires_at' ] = $this->formatTimestampField( $oEntry->last_access_at + $opts->getAutoExpireTime() );
-
+			$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
 			$aE[ 'ip' ] = sprintf( '%s%s',
 				$this->getIpAnalysisLink( $oEntry->ip ),
 				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''

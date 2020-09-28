@@ -55,25 +55,26 @@ class Sessions extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
 		$aEntries = [];
 
-		$sYou = Services::IP()->getRequestIp();
+		$srvIP = Services::IP();
+		$you = $srvIP->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Session\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'is_secadmin' ] = $this->isSecAdminSession( $oEntry ) ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
 			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );
-			if ( $oEntry->ip == $sYou ) {
-				$aE[ 'is_you' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
+
+			try {
+				$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
 			}
-			else {
-				$aE[ 'is_you' ] = '';
+			catch ( \Exception $e ) {
+				$aE[ 'is_you' ] = false;
 			}
 			$aE[ 'ip' ] = sprintf( '%s%s',
 				$this->getIpAnalysisLink( $oEntry->ip ),
-				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+				$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
 			);
 
 			$oWpUsers = Services::WpUsers();

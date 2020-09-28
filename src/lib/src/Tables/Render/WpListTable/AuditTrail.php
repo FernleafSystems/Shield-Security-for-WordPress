@@ -49,10 +49,9 @@ class AuditTrail extends Base {
 	 * @return string
 	 */
 	public function column_details( $item ) {
-		$sContent = sprintf( '%s<br />%s%s',
+		$sContent = sprintf( '%s<br />%s',
 			$item[ 'wp_username' ],
-			$item[ 'ip' ],
-			$item[ 'your_ip' ]
+			$item[ 'ip' ]
 		);
 		if ( isset( $item[ 'meta' ][ 'param' ] ) ) {
 			$sContent .= $this->buildActions( [ $this->getActionButton_AddParam( $item[ 'id' ] ) ] );

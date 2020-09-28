@@ -79,8 +79,8 @@ class Traffic extends BaseBuild {
 		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $this->getCon()
 															 ->getModule_Plugin()
 															 ->getDbHandler_GeoIp() );
-		$oIpSrv = Services::IP();
-		$sYou = $oIpSrv->getRequestIp();
+		$srvIP = Services::IP();
+		$you = $srvIP->getRequestIp();
 
 		$aUsers = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
@@ -110,7 +110,17 @@ class Traffic extends BaseBuild {
 			);
 			$aE[ 'ip' ] = $ip;
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			$aE[ 'is_you' ] = $ip == $sYou;
+
+			try {
+				$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+			}
+			catch ( \Exception $e ) {
+				$aE[ 'is_you' ] = false;
+			}
+			$sIpLink = sprintf( '%s%s',
+				$this->getIpAnalysisLink( $oEntry->ip ),
+				$aE[ 'is_you' ] ? ' <small>'.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
+			);
 
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
@@ -132,11 +142,6 @@ class Traffic extends BaseBuild {
 				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $sCountryIso ) );
 				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $oGeoIp->getCountryName() );
 			}
-
-			$sIpLink = sprintf( '%s%s',
-				$this->getIpAnalysisLink( $oEntry->ip ),
-				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
-			);
 
 			$aDetails = [
 				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $sIpLink ),
