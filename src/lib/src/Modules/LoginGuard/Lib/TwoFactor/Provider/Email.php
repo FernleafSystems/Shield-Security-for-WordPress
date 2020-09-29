@@ -20,7 +20,7 @@ class Email extends BaseProvider {
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( \WP_User $user, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'email_verified' : 'email_fail',
 			[
@@ -50,7 +50,7 @@ class Email extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( \WP_User $user, $otp ) {
+	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		$valid = false;
 		foreach ( $this->getAllCodes( $user ) as $secret => $expiresAt ) {
 			if ( wp_check_password( $otp, $secret ) ) {
@@ -141,45 +141,43 @@ class Email extends BaseProvider {
 	 * @return $this
 	 */
 	private function sendEmailTwoFactorVerify( \WP_User $user ) {
+		$useSureSend = Services::WpUsers()->isUserAdmin( $user )
+					   && $this->getCon()->getModule_Plugin()->getSureSendController()->isEnabled2Fa();
 
 		try {
 			$code = $this->genNewCode( $user );
 
-			if ( $this->getCon()->getModule_Plugin()->getSureSendController()->isEnabled2Fa() ) {
-				$sendSuccess = $this->send2faEmailSureSend( $user, $code );
-			}
-			else {
-				$sendSuccess = $this->getMod()
-									->getEmailProcessor()
-									->sendEmailWithTemplate(
-										'/email/lp_2fa_email_code',
-										$user->user_email,
-										__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-										[
-											'flags'   => [
-												'show_login_link' => !$this->getCon()->isRelabelled()
-											],
-											'vars'    => [
-												'code' => $code
-											],
-											'hrefs'   => [
-												'login_link' => 'https://shsec.io/96'
-											],
-											'strings' => [
-												'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-												'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-												'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
-												'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
-												'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-												'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
-													Services::WpGeneral()->getHomeUrl() ),
-												'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-												'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
-													Services::IP()->getRequestIp() ),
-											]
-										]
-									);
-			}
+			$sendSuccess = ( $useSureSend && $this->send2faEmailSureSend( $user, $code ) )
+						   || $this->getMod()
+								   ->getEmailProcessor()
+								   ->sendEmailWithTemplate(
+									   '/email/lp_2fa_email_code',
+									   $user->user_email,
+									   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+									   [
+										   'flags'   => [
+											   'show_login_link' => !$this->getCon()->isRelabelled()
+										   ],
+										   'vars'    => [
+											   'code' => $code
+										   ],
+										   'hrefs'   => [
+											   'login_link' => 'https://shsec.io/96'
+										   ],
+										   'strings' => [
+											   'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
+											   'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
+											   'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
+											   'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
+											   'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
+											   'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
+												   Services::WpGeneral()->getHomeUrl() ),
+											   'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+											   'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
+												   Services::IP()->getRequestIp() ),
+										   ]
+									   ]
+								   );
 		}
 		catch ( \Exception $e ) {
 			$sendSuccess = false;
@@ -201,15 +199,12 @@ class Email extends BaseProvider {
 		return ( new SendEmail() )
 			->setMod( $this->getMod() )
 			->send2FA(
-				$user->user_email,
+				$user,
 				$code
 			);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function renderUserProfileOptions( \WP_User $user ) {
+	public function renderUserProfileOptions( \WP_User $user ) :string {
 		$aData = [
 			'strings' => [
 				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
@@ -228,10 +223,7 @@ class Email extends BaseProvider {
 					);
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
+	public function isProviderEnabled() :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEmailAuthenticationActive();

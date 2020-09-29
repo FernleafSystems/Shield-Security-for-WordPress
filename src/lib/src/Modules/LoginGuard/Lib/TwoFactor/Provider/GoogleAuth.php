@@ -23,10 +23,7 @@ class GoogleAuth extends BaseProvider {
 		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function renderUserProfileOptions( \WP_User $user ) {
+	public function renderUserProfileOptions( \WP_User $user ) :string {
 		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $user );
@@ -163,35 +160,35 @@ class GoogleAuth extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( \WP_User $user, $otp ) {
+	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateGaCode( $user, $otp );
 	}
 
 	/**
 	 * @param \WP_User $user
-	 * @param string   $sOtpCode
+	 * @param string   $otp
 	 * @return bool
 	 */
-	public function validateGaCode( $user, $sOtpCode ) {
-		$bValidOtp = false;
-		if ( preg_match( '#^[0-9]{6}$#', $sOtpCode ) ) {
+	public function validateGaCode( \WP_User $user, string $otp ) :bool {
+		$valid = false;
+		if ( preg_match( '#^[0-9]{6}$#', $otp ) ) {
 			try {
-				$bValidOtp = ( new GoogleAuthenticator\GoogleAuthenticator() )
-					->authenticate( $this->getSecret( $user ), $sOtpCode );
+				$valid = (bool)( new GoogleAuthenticator\GoogleAuthenticator() )
+					->authenticate( $this->getSecret( $user ), $otp );
 			}
 			catch ( \Exception $oE ) {
 			}
 			catch ( \Psr\Cache\CacheException $oE ) {
 			}
 		}
-		return $bValidOtp;
+		return $valid;
 	}
 
 	/**
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( \WP_User $user, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'googleauth_verified' : 'googleauth_fail',
 			[
@@ -248,12 +245,9 @@ class GoogleAuth extends BaseProvider {
 		return parent::isSecretValid( $secret ) && ( strlen( $secret ) == 16 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledGoogleAuthenticator();
+	public function isProviderEnabled() :bool {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledGoogleAuthenticator();
 	}
 }

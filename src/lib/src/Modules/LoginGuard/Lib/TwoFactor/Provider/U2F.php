@@ -145,10 +145,7 @@ class U2F extends BaseProvider {
 		return sprintf( 'https://%s%s', $aPs[ 'host' ], $sPort );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function renderUserProfileOptions( \WP_User $user ) {
+	public function renderUserProfileOptions( \WP_User $user ) :string {
 
 		$bValidated = $this->hasValidatedProfile( $user );
 
@@ -251,7 +248,7 @@ class U2F extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( \WP_User $user, $otp ) {
+	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateU2F( $user, $otp );
 	}
 
@@ -325,18 +322,13 @@ class U2F extends BaseProvider {
 		return $this;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $sOtpCode
-	 * @return bool
-	 */
-	private function validateU2F( $user, $sOtpCode ) {
+	private function validateU2F( \WP_User $user, string $otp ) :bool {
 		try {
 			$oRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 				->doAuthenticate(
 					json_decode( base64_decode( Services::Request()->post( 'u2f_signs' ) ) ),
 					$this->getRegistrations( $user ),
-					json_decode( $sOtpCode )
+					json_decode( $otp )
 				);
 			$aReg = get_object_vars( $oRegistration );
 			$aReg[ 'used_at' ] = Services::Request()->ts();
@@ -353,7 +345,7 @@ class U2F extends BaseProvider {
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( \WP_User $user, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? '2fa_u2f_verified' : '2fa_u2f_fail',
 			[
@@ -365,12 +357,9 @@ class U2F extends BaseProvider {
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledU2F();
+	public function isProviderEnabled() :bool {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledU2F();
 	}
 }

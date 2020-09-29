@@ -37,11 +37,8 @@ class Yubikey extends BaseProvider {
 		);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function renderUserProfileOptions( \WP_User $user ) {
-		$oCon = $this->getCon();
+	public function renderUserProfileOptions( \WP_User $user ) :string {
+		$con = $this->getCon();
 
 		$aData = [
 			'vars'    => [
@@ -61,7 +58,7 @@ class Yubikey extends BaseProvider {
 				'title'                => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
 				'cant_add_other_user'  => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
 				'cant_remove_admins'   => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
-				'provided_by'          => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'provided_by'          => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $con->getHumanName() ),
 				'remove_more_info'     => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
 			],
 		];
@@ -146,13 +143,12 @@ class Yubikey extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( \WP_User $user, $otp ) {
-		$bSuccess = false;
+	protected function processOtp( \WP_User $user, string $otp ) :bool {
+		$valid = false;
 
 		foreach ( $this->getYubiIds( $user ) as $sKey ) {
-			if ( strpos( $otp, $sKey ) === 0
-				 && $this->sendYubiOtpRequest( $otp ) ) {
-				$bSuccess = true;
+			if ( strpos( $otp, $sKey ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
+				$valid = true;
 				break;
 			}
 			if ( !$this->getCon()->isPremiumActive() ) { // Test 1 key if not Pro
@@ -160,7 +156,7 @@ class Yubikey extends BaseProvider {
 			}
 		}
 
-		return $bSuccess;
+		return $valid;
 	}
 
 	/**
@@ -220,7 +216,7 @@ class Yubikey extends BaseProvider {
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( \WP_User $user, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'yubikey_verified' : 'yubikey_fail',
 			[
@@ -246,13 +242,10 @@ class Yubikey extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledYubikey();
+	public function isProviderEnabled() :bool {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledYubikey();
 	}
 
 	/**

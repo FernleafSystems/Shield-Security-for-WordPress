@@ -1,24 +1,22 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SendEmail extends BaseShieldNetApi {
 
-	use ModConsumer;
-
 	const API_ACTION = 'sure-send/email';
 
-	public function send2FA( string $to, string $code ) :bool {
+	public function send2FA( \WP_User $to, string $code ) :bool {
 		return $this->run(
 			'2fa',
-			$to,
+			$to->user_email,
 			[
-				'code' => $code,
-				'ip'   => Services::IP()->getRequestIp(),
+				'code'   => $code,
+				'ip'     => Services::IP()->getRequestIp(),
+				'wp_url' => Services::WpGeneral()->getHomeUrl(),
 			]
 		);
 	}
@@ -32,7 +30,19 @@ class SendEmail extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		return is_array( $raw ) && empty( $raw[ 'error' ] );
+		$success = is_array( $raw ) && empty( $raw[ 'error' ] );
+
+		$this->getCon()->fireEvent(
+			$success ? 'suresend_success' : 'suresend_fail',
+			[
+				'audit' => [
+					'user_login' => $to,
+					'slug'       => $slug,
+				]
+			]
+		);
+
+		return $success;
 	}
 
 	protected function getApiRequestUrl() :string {

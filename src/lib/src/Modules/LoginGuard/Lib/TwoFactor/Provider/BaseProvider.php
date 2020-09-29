@@ -90,10 +90,7 @@ abstract class BaseProvider {
 		return $this->isProviderEnabled();
 	}
 
-	/**
-	 * @return bool
-	 */
-	abstract public function isProviderEnabled();
+	abstract public function isProviderEnabled() :bool;
 
 	/**
 	 * @param string $secret
@@ -158,7 +155,7 @@ abstract class BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	abstract protected function processOtp( \WP_User $user, $otp );
+	abstract protected function processOtp( \WP_User $user, string $otp ) :bool;
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
@@ -175,7 +172,7 @@ abstract class BaseProvider {
 	 * @param \WP_User $user
 	 * @return string
 	 */
-	public function renderUserProfileOptions( \WP_User $user ) {
+	public function renderUserProfileOptions( \WP_User $user ) :string {
 		return '';
 	}
 
@@ -218,18 +215,14 @@ abstract class BaseProvider {
 		return [];
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param bool     $bIsSuccess
-	 */
-	abstract protected function auditLogin( \WP_User $user, $bIsSuccess );
+	abstract protected function auditLogin( \WP_User $user, bool $bIsSuccess );
 
 	/**
 	 * @param \WP_User $user
 	 * @param bool     $bIsOtpSuccess
 	 * @return $this
 	 */
-	protected function postOtpProcessAction( \WP_User $user, $bIsOtpSuccess ) {
+	protected function postOtpProcessAction( \WP_User $user, bool $bIsOtpSuccess ) {
 		$this->auditLogin( $user, $bIsOtpSuccess );
 		return $this;
 	}

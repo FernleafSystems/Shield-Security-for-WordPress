@@ -10,10 +10,7 @@ class Backup extends BaseProvider {
 	const SLUG = 'backupcode';
 	const STANDALONE = false;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function renderUserProfileOptions( \WP_User $user ) {
+	public function renderUserProfileOptions( \WP_User $user ) :string {
 		$oCon = $this->getCon();
 
 		$aData = [
@@ -89,7 +86,7 @@ class Backup extends BaseProvider {
 	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( \WP_User $user, $otp ) {
+	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateBackupCode( $user, $otp );
 	}
 
@@ -98,15 +95,15 @@ class Backup extends BaseProvider {
 	 * @param string   $sOtpCode
 	 * @return bool
 	 */
-	private function validateBackupCode( $user, $sOtpCode ) {
-		return wp_check_password( str_replace( '-', '', $sOtpCode ), $this->getSecret( $user ) );
+	private function validateBackupCode( \WP_User $user, $sOtpCode ) :bool {
+		return (bool)wp_check_password( str_replace( '-', '', $sOtpCode ), $this->getSecret( $user ) );
 	}
 
 	/**
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( \WP_User $user, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? '2fa_backupcode_verified' : '2fa_backupcode_fail',
 			[
@@ -126,13 +123,10 @@ class Backup extends BaseProvider {
 		return wp_generate_password( 25, false );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledBackupCodes();
+	public function isProviderEnabled() :bool {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledBackupCodes();
 	}
 
 	/**

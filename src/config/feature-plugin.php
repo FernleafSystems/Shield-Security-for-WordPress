@@ -412,7 +412,7 @@
       "value_options": [
         {
           "value_key": "2fa",
-          "text":      "2FA Login Code"
+          "text":      "2FA Login Codes (admins only)"
         }
       ],
       "link_info":     "",
@@ -628,6 +628,10 @@
       "test_cron_run":          {
         "audit":  false,
         "recent": true
+      },
+      "suresend_success":       {
+      },
+      "suresend_fail":          {
       },
       "import_notify_sent":     {
         "stat": false
