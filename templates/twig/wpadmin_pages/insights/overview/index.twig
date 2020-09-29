@@ -6,8 +6,13 @@
 		<div class="col insights-sub-nav insights_section">
 			<ul class="nav nav-tabs">
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab" href="#AtAGlance">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#tabAtAGlance">
 						{{ strings.tab_security_glance }}
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#tabUpdates">
+						{{ strings.tab_updates }}
 					</a>
 				</li>
 			</ul>
@@ -15,10 +20,18 @@
 	</div>
 
 	<div class="tab-content">
-		<div class="tab-pane show active" id="AtAGlance" role="tabpanel" aria-labelledby="AtAGlance">
+		<div class="tab-pane show active" id="tabAtAGlance" role="tabpanel" aria-labelledby="tabAtAGlance">
 			<div class="row">
-				<div class="col insights_section" id="SectionOverviewCards">
+				<div class="col insights_section" id="TabOverviewCards">
 					{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
+				</div>
+			</div>
+		</div>
+
+		<div class="tab-pane" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
+			<div class="row">
+				<div class="col insights_section" id="TabUpdates">
+					{{ content.tab_updates }}
 				</div>
 			</div>
 		</div>

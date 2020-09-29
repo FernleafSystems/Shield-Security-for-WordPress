@@ -15,6 +15,7 @@ class UI extends Base\ShieldUI {
 
 		return [
 			'content' => [
+				'tab_updates'   => $this->renderTabUpdates(),
 				'summary_stats' => $uiReporting->renderSummaryStats()
 			],
 			'vars'    => [
@@ -34,6 +35,7 @@ class UI extends Base\ShieldUI {
 			],
 			'strings' => [
 				'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
+				'tab_updates'         => __( 'Updates and Changes', 'wp-simple-firewall' ),
 				'tab_summary_stats'   => __( 'Summary Stats', 'wp-simple-firewall' ),
 				'click_filter_status' => __( 'Click To Filter By Security Status', 'wp-simple-firewall' ),
 				'click_filter_area'   => __( 'Click To Filter By Security Area', 'wp-simple-firewall' ),
@@ -51,5 +53,32 @@ class UI extends Base\ShieldUI {
 				'key_information'     => __( 'Information', 'wp-simple-firewall' ),
 			],
 		];
+	}
+
+	private function renderTabUpdates() :string {
+		$con = $this->getCon();
+
+		return $this->getMod()
+					->renderTemplate(
+						'/wpadmin_pages/insights/overview/updates/index.twig',
+						[
+							'vars'    => [
+							],
+							'hrefs'   => [
+								'shield_pro_url'           => 'https://shsec.io/shieldpro',
+								'shield_pro_more_info_url' => 'https://shsec.io/shld1',
+							],
+							'flags'   => [
+								'show_ads'              => false,
+								'show_standard_options' => false,
+								'show_alt_content'      => true,
+								'is_pro'                => $con->isPremiumActive(),
+							],
+							'strings' => [
+								'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
+							],
+						],
+						true
+					);
 	}
 }

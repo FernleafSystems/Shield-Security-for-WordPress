@@ -196,7 +196,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			],
 			$aData
 		);
-		return $this->renderTemplate( sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ), $aData, true );
+		return $this->renderTemplate(
+			sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ),
+			$aData,
+			true
+		);
 	}
 
 	public function insertCustomJsVars_Admin() {
