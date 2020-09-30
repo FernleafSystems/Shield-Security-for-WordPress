@@ -62,8 +62,9 @@ class UI extends Base\ShieldUI {
 						'/wpadmin_pages/insights/overview/updates/index.twig',
 						[
 							'vars'      => [
+								// the keys here must match the changelog item types
 								'badge_types' => [
-									'change' => 'info'
+									'changed' => 'info'
 								]
 							],
 							'changelog' => ( new Retrieve() )

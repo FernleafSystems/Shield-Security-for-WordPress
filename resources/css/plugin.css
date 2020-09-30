@@ -1424,3 +1424,12 @@ a.card_help {
 .badge.bigger-badge {
 	font-size: 1rem;
 }
+#DynamicChangelog dl {
+	margin-left: 12px;
+}
+#DynamicChangelog dt {
+	margin-bottom: 8px;
+}
+#DynamicChangelog dd p {
+	margin-bottom: 5px;
+}

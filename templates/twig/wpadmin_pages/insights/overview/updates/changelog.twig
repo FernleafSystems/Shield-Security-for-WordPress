@@ -1,11 +1,11 @@
 {% for release in changelog %}
-	<div class="row">
+	<div class="row" id="DynamicChangelog">
 		<div class="col-6">
 			<h6>{{ release.version }} <small>{{ release.released_at|date("Y-m-d") }}</small></h6>
 			<dl>
 				{% for item in release.items %}
 					<dt>
-						<span class="badge badge-info">{{ item.type|upper }}</span>
+						<span class="badge badge-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
 						<span>{{ item.title }}</span>
 					</dt>
 					<dd>
