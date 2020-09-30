@@ -11,7 +11,7 @@ class Retrieve {
 
 	public function fromFile() :array {
 		return json_decode( Services::WpFs()->getFileContent(
-			path_join( $this->getCon()->getRootDir(), 'changelog.json' )
+			path_join( $this->getCon()->getRootDir(), 'cl.json' )
 		), true );
 	}
 }
