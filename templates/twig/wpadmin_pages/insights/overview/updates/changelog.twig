@@ -1,23 +1,59 @@
 {% for release in changelog %}
 	<div class="row" id="DynamicChangelog">
-		<div class="col-6">
-			<h6>{{ release.version }} <small>{{ release.released_at|date("Y-m-d") }}</small></h6>
-			<dl>
-				{% for item in release.items %}
-					<dt>
-						<span class="badge badge-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
-						<span>{{ item.title }}</span>
-					</dt>
-					<dd>
-						{% for desc in item.description %}
-							<p>{{ desc }}</p>
+		<div class="offset-3 col-6">
+
+			<div class="card">
+				<div class="card-header">
+					<h5 class="m-0">{{ strings.version }}: {{ release.version }}
+					</h5>
+				</div>
+				<div class="card-body">
+
+					{% if release.title|default('') is not empty %}
+						<h5 class="card-title">{{ release.title }}</h5>
+					{% endif %}
+
+					<p class="card-text">
+						<strong>{{ strings.published_on }}</strong>:
+						{{ release.released_at|date("Y-m-d") }}
+					</p>
+
+					{% for desc in release.description|default([]) %}
+						<p class="card-text">{{ desc }}</p>
+					{% endfor %}
+
+					<ul class="list-group list-group-flush">
+						{% for item in release.items %}
+							<li class="list-group-item">
+								<dl>
+									<dt>
+										<span class="badge badge-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
+										{% if item.pro_only|default(false) == true %}
+											<span class="badge badge-dark">{{ strings.pro_only }}</span>
+										{% endif %}
+										<span>{{ item.title }}</span>
+									</dt>
+									<dd>
+										{% for desc in item.description|default([]) %}
+											<p>{{ desc }}</p>
+										{% endfor %}
+										{% if item.href|default('') is not empty %}
+											<p><a href="{{ item.href }}" target="_blank">More Info</a></p>
+										{% endif %}
+									</dd>
+								</dl>
+							</li>
 						{% endfor %}
-						{% if item.href is not empty %}
-							<p><a href="{{ item.href }}" target="_blank">More Info</a></p>
-						{% endif %}
-					</dd>
-				{% endfor %}
-			</dl>
+					</ul>
+
+					{% if release.href|default('') is not empty %}
+						<a href="{{ release.href }}"
+						   class="btn btn-outline-primary"
+						   target="_blank">{{ strings.full_release }}</a>
+					{% endif %}
+				</div>
+			</div>
+
 		</div>
 	</div>
 {% endfor %}

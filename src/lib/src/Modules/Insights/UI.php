@@ -64,8 +64,16 @@ class UI extends Base\ShieldUI {
 							'vars'      => [
 								// the keys here must match the changelog item types
 								'badge_types' => [
-									'changed' => 'info'
+									'changed' => 'info',
+									'new'     => 'success',
 								]
+							],
+							'strings'   => [
+								// the keys here must match the changelog item types
+								'version'      => __( 'Version', 'wp-simple-firewall' ),
+								'published_on' => __( 'Published On', 'wp-simple-firewall' ),
+								'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
+								'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
 							],
 							'changelog' => ( new Retrieve() )
 								->setCon( $this->getCon() )

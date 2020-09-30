@@ -2,12 +2,29 @@
   "10.0.0": {
     "version":     "10.0.0",
     "released_at": 1601466659,
+    "href":        "https://shsec.io/shieldrelease92",
+    "title":       "All-New PHP-7 Optimised Shield Security",
+    "description": [
+      "We've taken steps to improve the Dashboard UI, making it much easier to secure your WordPress site by quickly identifying areas of improvement.",
+      "Of particular note is the IP Analysis tool which lets you see all information pertaining to an IP address in 1 place."
+    ],
     "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "SureSend Email Delivery",
+        "description": [
+          "Most WordPress sites aren't properly configured to send emails, so sometimes they don't arrive.",
+          "This is a critical issue when 2-Factor Authentication emails don't go where they should.",
+          "SureSend uses the ShieldNET API to deliver 2FA emails so that you always get them."
+        ],
+        "href":        "https://shsec.io/hv"
+      },
       {
         "type":        "changed",
         "title":       "U2F two-factor authentication can now be standalone",
         "description": [
-          "Due to the experimental nature of the U2F implementation, you had to have at least one other 2FA factor active on your profile before you could enable U2F."
+          "Due to the experimental nature of the U2F implementation, you needed at least one other 2FA factor active on your profile before you could enable U2F."
         ],
         "href":        "https://shsec.io/hv"
       }
