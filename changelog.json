@@ -1,0 +1,16 @@
+{
+  "10.0.0": {
+    "version":     "10.0.0",
+    "released_at": 1601466659,
+    "items":       [
+      {
+        "type":        "changed",
+        "title":       "U2F two-factor authentication can now be standalone",
+        "description": [
+          "Due to the experimental nature of the U2F implementation, you had to have at least one other 2FA factor active on your profile before you could enable U2F."
+        ],
+        "href":        "https://shsec.io/hv"
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{% for release in changelog %}
+	<div class="row">
+		<div class="col-6">
+			<h6>{{ release.version }} <small>{{ release.released_at|date("Y-m-d") }}</small></h6>
+			<dl>
+				{% for item in release.items %}
+					<dt>
+						<span class="badge badge-info">{{ item.type|upper }}</span>
+						<span>{{ item.title }}</span>
+					</dt>
+					<dd>
+						{% for desc in item.description %}
+							<p>{{ desc }}</p>
+						{% endfor %}
+						{% if item.href is not empty %}
+							<p><a href="{{ item.href }}" target="_blank">More Info</a></p>
+						{% endif %}
+					</dd>
+				{% endfor %}
+			</dl>
+		</div>
+	</div>
+{% endfor %}

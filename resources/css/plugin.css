@@ -360,6 +360,8 @@ label input[type=checkbox] {
 #NavItem-SearchOptionsLaunch > a {
 	width: 35px;
 	content: "\f179";
+	font-size: 24px;
+	color: #008000 !important;
 }
 .dropdown-item .module-icon:before {
 	font-size: 1.6rem;

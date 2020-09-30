@@ -1,9 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
 
 class UI extends Base\ShieldUI {
 
@@ -56,27 +57,18 @@ class UI extends Base\ShieldUI {
 	}
 
 	private function renderTabUpdates() :string {
-		$con = $this->getCon();
-
 		return $this->getMod()
 					->renderTemplate(
 						'/wpadmin_pages/insights/overview/updates/index.twig',
 						[
-							'vars'    => [
+							'vars'      => [
+								'badge_types' => [
+									'change' => 'info'
+								]
 							],
-							'hrefs'   => [
-								'shield_pro_url'           => 'https://shsec.io/shieldpro',
-								'shield_pro_more_info_url' => 'https://shsec.io/shld1',
-							],
-							'flags'   => [
-								'show_ads'              => false,
-								'show_standard_options' => false,
-								'show_alt_content'      => true,
-								'is_pro'                => $con->isPremiumActive(),
-							],
-							'strings' => [
-								'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
-							],
+							'changelog' => ( new Retrieve() )
+								->setCon( $this->getCon() )
+								->fromFile()
 						],
 						true
 					);

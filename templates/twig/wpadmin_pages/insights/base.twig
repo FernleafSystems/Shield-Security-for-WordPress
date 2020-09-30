@@ -44,8 +44,6 @@
 							   data-toggle="modal" data-target="#OptionsSearch">&nbsp;</a>
 						</li>
 
-						<div class="nav-item announcekit-widget"></div>
-
 					</ul>
 				</div>
 				{#<form class="form-inline">#}
@@ -60,21 +58,6 @@
 	</div>
 
 	{% include '/snippets/modal/search_options.twig' %}
-
-	<script>
-	  window.announcekit = (window.announcekit || {
-		  queue: [], on: function ( n, x ) {
-			  window.announcekit.queue.push( [ n, x ] );
-		  }, push: function ( x ) {
-			  window.announcekit.queue.push( x );
-		  }
-	  });
-	  window.announcekit.push( {
-		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
-		  "selector": ".announcekit-widget",
-		  "version": 2
-	  } )
-	</script>
 	<script>
 	  jQuery( document ).ready( function () {
 		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';

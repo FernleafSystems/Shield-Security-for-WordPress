@@ -10,10 +10,15 @@
 						{{ strings.tab_security_glance }}
 					</a>
 				</li>
+
 				<li class="nav-item">
 					<a class="nav-link" data-toggle="tab" role="tab" href="#tabUpdates">
 						{{ strings.tab_updates }}
 					</a>
+				</li>
+
+				<li class="nav-item">
+					<a class="nav-link announcekit-widget"></a>
 				</li>
 			</ul>
 		</div>
@@ -31,7 +36,7 @@
 		<div class="tab-pane" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
 			<div class="row">
 				<div class="col insights_section" id="TabUpdates">
-					{{ content.tab_updates }}
+					{{ content.tab_updates|raw }}
 				</div>
 			</div>
 		</div>
@@ -50,7 +55,23 @@
 {% endblock %}
 
 {% block inline_scripts %}
+
 	<script type="text/javascript">
+	  window.announcekit = (window.announcekit || {
+		  queue: [], on: function ( n, x ) {
+			  window.announcekit.queue.push( [ n, x ] );
+		  }, push: function ( x ) {
+			  window.announcekit.queue.push( x );
+		  }
+	  });
+	  window.announcekit.push( {
+		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
+		  "selector": ".announcekit-widget",
+		  "version": 2
+	  } )
+	</script>
+
+	<script>
 		jQuery( document ).ready( function () {
 
 			{% if flags.tours.insights_overview %}
