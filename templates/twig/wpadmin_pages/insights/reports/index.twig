@@ -4,22 +4,6 @@
 
 	{{ content.summary_stats|raw }}
 
-	<div class="row">
-		<div class="col-4 insights_section">
-			<h3>Daily</h3>
-			<form id="ChartDaily">
-				<label>Chart Your Desired Stats
-					<select name="event">
-						<option value="" disabled="disabled" selected="selected">-- Select --</option>
-						{% for event_key, event_name in vars.events_options %}
-							<option value="{{ event_key }}">{{ event_name }}</option>
-						{% endfor %}
-					</select>
-				</label>
-			</form>
-			<div id="ChartDaily"></div>
-		</div>
-	</div>
 {% endblock %}
 {% block inline_styles %}
 	<style>
@@ -41,88 +25,4 @@
 			stroke-linecap: square;
 		}
 	</style>
-{% endblock %}
-
-{% block inline_scripts %}
-
-	<script type="text/javascript">
-		jQuery( document ).ready( function () {
-
-			let $oChartOffense = jQuery( '#ChartDaily' ).icwpWpsfAjaxChart(
-				{
-					'ajax_render':{{ ajax.render_chart|raw }}
-				}
-			);
-
-			jQuery( document ).icwpWpsfChartWithFilters(
-				{
-					'chart': $oChartOffense,
-					'selector_filter_form': 'form#ChartDaily'
-				}
-			);
-		} );
-		{#jQuery( document ).icwpWpsfTableWithFilter(#}
-		{#	{#}
-		{#		'table': $oTableAuditTrail,#}
-		{#		'selector_filter_form': 'form#AuditFilterForm'#}
-		{#	}#}
-		{#);#}
-		{#jQuery( '#SectionAuditTable' ).icwpWpsfTableActions(#}
-		{#	{#}
-		{#		'table': $oTableAuditTrail,#}
-		{#		'custom_actions_ajax': {#}
-		{#			'item_addparamwhite': {{ ajax.item_addparamwhite|raw }}#}
-		{#		}#}
-		{#	}#}
-		{#);#}
-
-		{#let $oDatePickers = jQuery( '.date-picker' );#}
-		{#$oDatePickers.datepicker(#}
-		{#	{#}
-		{#		autoclose: true,#}
-		{#		clearBtn: true,#}
-		{#		format: "yyyy-mm-dd",#}
-		{#		language: "az",#}
-		{#		maxViewMode: 2#}
-		{#	}#}
-		{#);#}
-	</script>
-
-	<script type="text/javascript">
-		{#jQuery( document ).ready( function () {#}
-
-		{#	let data = {{ chart_data|raw }};#}
-
-		{#	let options = {#}
-		{#		// Don't draw the line chart points#}
-		{#		showPoint: true,#}
-		{#		// Disable line smoothing#}
-		{#		lineSmooth: true,#}
-		{#		showArea: true,#}
-		{#		// X-Axis specific configuration#}
-		{#		axisX: {#}
-		{#			// We can disable the grid for this axis#}
-		{#			showGrid: true,#}
-		{#			// and also don't show the label#}
-		{#			showLabel: true#}
-		{#		},#}
-		{#		// Y-Axis specific configuration#}
-		{#		axisY: {#}
-		{#			onlyInteger: true,#}
-		{#			// The label interpolation function enables you to modify the values#}
-		{#			// used for the labels on each axis. Here we are converting the#}
-		{#			// values into million pound.#}
-		{#			labelInterpolationFnc: function ( value ) {#}
-		{#				return value;#}
-		{#			}#}
-		{#		}#}
-		{#	};#}
-
-		{#	// Create a new line chart object where as first parameter we pass in a selector#}
-		{#	// that is resolving to our chart container element. The Second parameter#}
-		{#	// is the actual data object.#}
-		{#	new Chartist.Line( '.ct-chart', data, options );#}
-
-		{#} );#}
-	</script>
 {% endblock %}

@@ -1,6 +1,6 @@
 <div class="row" id="SectionStats">
 	{% for stat in vars.stats %}
-		<div class="col-2 insights_section">
+		<div class="col-xl-2 col-4 insights_section">
 			<div class="stat card text-center" id="statcard-{{ stat.id }}"
 				 {% if stat.tooltip is defined %}title="{{ stat.tooltip }}"{% endif %}
 			>
