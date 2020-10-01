@@ -3,19 +3,19 @@
 {% block page_main %}
 	<div class="row">
 		<div class="col insights-sub-nav insights_section">
-			<ul class="nav nav-tabs" id="">
+			<ul class="nav nav-tabs" id="TabsIps">
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab"  href="#ipanalysis">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#ipanalysis">
 						{{ strings.tab_ip_analysis }}
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab"  href="#blocklist">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#blocklist">
 						{{ strings.tab_manage_block }}
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab"  href="#allowedlist">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#allowedlist">
 						{{ strings.tab_manage_bypass }}
 					</a>
 				</li>
@@ -45,4 +45,18 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{% block inline_scripts %}
+	<script type="text/javascript">
+		jQuery( document ).ready( function () {
+			jQuery( '#TabsIps a[data-toggle="tab"]' ).on( 'show.bs.tab', function ( e ) {
+				localStorage.setItem( 'ipsActiveTab', jQuery( e.target ).attr( 'href' ) );
+			} );
+			var activeTab = localStorage.getItem( 'ipsActiveTab' );
+			if ( activeTab ) {
+				jQuery( 'a[href="' + activeTab + '"]' ).tab( 'show' );
+			}
+		} );
+	</script>
 {% endblock %}
