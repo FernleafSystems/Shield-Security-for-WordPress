@@ -46,17 +46,3 @@
 		</div>
 	</div>
 {% endblock %}
-
-{% block inline_scripts %}
-	<script type="text/javascript">
-		jQuery( document ).ready( function () {
-			jQuery( '#TabsIps a[data-toggle="tab"]' ).on( 'show.bs.tab', function ( e ) {
-				localStorage.setItem( 'ipsActiveTab', jQuery( e.target ).attr( 'href' ) );
-			} );
-			var activeTab = localStorage.getItem( 'ipsActiveTab' );
-			if ( activeTab ) {
-				jQuery( 'a[href="' + activeTab + '"]' ).tab( 'show' );
-			}
-		} );
-	</script>
-{% endblock %}

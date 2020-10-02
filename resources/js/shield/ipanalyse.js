@@ -14,6 +14,14 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		sendReq( { 'fIp': $oThis.val() } );
 	};
 
+	var clearAnalyseIpParam = function () {
+		window.history.replaceState(
+			{},
+			document.title,
+			window.location.href.replace( /&analyse_ip=(\d{1,3}\.){3}\d{1,3}/i, "" )
+		);
+	};
+
 	var sendReq = function ( params ) {
 		iCWP_WPSF_BodyOverlay.show();
 
@@ -46,16 +54,29 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 	};
 
 	var initialise = function () {
-		jQuery( document ).ready( function () {
-			$oThis.on( 'change', runAnalysis );
+
+		jQuery( '#TabsIps a[data-toggle="tab"]' ).on( 'show.bs.tab', function ( e ) {
+			clearAnalyseIpParam();
+			localStorage.setItem( 'ipsActiveTab', jQuery( e.target ).attr( 'href' ) );
 		} );
 
-		let urlParams = new URLSearchParams( window.location.search );
-		let theIP = urlParams.get( 'analyse_ip' );
-		if ( theIP ) {
-			$oThis.selectpicker( 'val', theIP );
-			runAnalysis();
-		}
+		jQuery( document ).ready( function () {
+			$oThis.on( 'change', runAnalysis );
+
+			let urlParams = new URLSearchParams( window.location.search );
+			let theIP = urlParams.get( 'analyse_ip' );
+			if ( theIP ) {
+				$oThis.selectpicker( 'val', theIP );
+				runAnalysis();
+			}
+			else {
+				var activeTab = localStorage.getItem( 'ipsActiveTab' );
+				if ( activeTab ) {
+					jQuery( 'a[href="' + activeTab + '"]' ).tab( 'show' );
+				}
+			}
+
+		} );
 	};
 
 	var $oThis = this;
