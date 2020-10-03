@@ -131,7 +131,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oFLCon = $oMod->getFileLocker();
-		$oFS = Services::WpFs();
+		$FS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
 		$aData = [
@@ -187,14 +187,16 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$oCarb = Services::Request()->carbon( true );
 			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
 			$aData[ 'vars' ][ 'file_modified_at' ] =
-				Services::WpGeneral()->getTimeStampForDisplay( $oFS->getModifiedTime( $oLock->file ) );
+				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $oLock->file ) );
 			$aData[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
-			$aData[ 'vars' ][ 'file_size_locked' ] = $this->formatBytes( strlen(
+			$aData[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $oMod )
 					->run( $oLock )
 			), 3 );
-			$aData[ 'vars' ][ 'file_size_modified' ] = $oFS->exists( $oLock->file ) ? $this->formatBytes( $oFS->getFileSize( $oLock->file ), 3 ) : 0;
+			$aData[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $oLock->file ) ?
+				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $oLock->file ), 3 )
+				: 0;
 			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
 			$aData[ 'success' ] = true;
 		}
@@ -212,26 +214,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 								  true
 							  )
 		];
-	}
-
-	/**
-	 * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
-	 * @param     $bytes
-	 * @param int $precision
-	 * @return string
-	 */
-	private function formatBytes( $bytes, $precision = 2 ) {
-		$units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
-
-		$bytes = max( $bytes, 0 );
-		$pow = floor( ( $bytes ? log( $bytes ) : 0 )/log( 1024 ) );
-		$pow = min( $pow, count( $units ) - 1 );
-
-		// Uncomment one of the following alternatives
-		$bytes /= pow( 1024, $pow );
-		// $bytes /= (1 << (10 * $pow));
-
-		return round( $bytes, $precision ).' '.$units[ $pow ];
 	}
 
 	/**
