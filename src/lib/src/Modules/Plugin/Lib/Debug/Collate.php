@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses;
@@ -23,6 +24,7 @@ class Collate {
 		return [
 			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
+				'Integrity'    => $this->getShieldIntegrity(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
 			'System Info'    => [
@@ -42,25 +44,35 @@ class Collate {
 	 * @return array
 	 */
 	private function getEnv() {
-		$oIP = Services::IP();
+		$srvIP = Services::IP();
 		$oReq = Services::Request();
 
-		$sSig = $oReq->server( 'SERVER_SIGNATURE' );
-		$aIPs = $oIP->getServerPublicIPs();
+		$sig = $oReq->server( 'SERVER_SIGNATURE' );
+		$soft = $oReq->server( 'SERVER_SOFTWARE' );
+		$aIPs = $srvIP->getServerPublicIPs();
 		$rDNS = '';
-		foreach ( $aIPs as $sIP ) {
-			if ( $oIP->getIpVersion( $sIP ) === 4 ) {
-				$rDNS = gethostbyaddr( $sIP );
+		foreach ( $aIPs as $ip ) {
+			if ( $srvIP->getIpVersion( $ip ) === 4 ) {
+				$rDNS = gethostbyaddr( $ip );
 				break;
 			}
 		}
+
+		$totalDisk = disk_total_space( ABSPATH );
+		$freeDisk = disk_free_space( ABSPATH );
 		return [
-			'Host OS'          => PHP_OS,
-			'Server Hostname'  => gethostname(),
-			'Server IPs'       => implode( ', ', $aIPs ),
-			'rDNS'             => empty( $rDNS ) ? '-' : $rDNS,
-			'Server Name'      => $oReq->server( 'SERVER_NAME' ),
-			'Server Signature' => empty( $sSig ) ? '-' : $sSig,
+			'Host OS'                           => PHP_OS,
+			'Server Hostname'                   => gethostname(),
+			'Server IPs'                        => implode( ', ', $aIPs ),
+			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
+			'Server Name'                       => $oReq->server( 'SERVER_NAME' ),
+			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
+			'Server Software'                   => empty( $soft ) ? '-' : $soft,
+			'Disk Space (Used/Available/Total)' => sprintf( '%s / %s / %s',
+				FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ),
+				FormatBytes::Format( $freeDisk, 2, '' ),
+				FormatBytes::Format( $totalDisk, 2, '' )
+			)
 		];
 	}
 
@@ -69,17 +81,25 @@ class Collate {
 	 */
 	private function getPHP() {
 		$oDP = Services::Data();
+		$req = Services::Request();
 
 		$sPHP = $oDP->getPhpVersionCleaned();
 		if ( $sPHP !== $oDP->getPhpVersion() ) {
 			$sPHP .= sprintf( ' (%s)', $oDP->getPhpVersion() );
 		}
+
+		$ext = get_loaded_extensions();
+		natsort( $ext );
+
+		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
 			'PHP'           => $sPHP,
 			'Memory Limit'  => ini_get( 'memory_limit' ),
 			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,
 			'Time Limit'    => ini_get( 'max_execution_time' ),
 			'Dir Separator' => DIRECTORY_SEPARATOR,
+			'Document Root' => empty( $root ) ? '-' : $root,
+			'Extensions'    => implode( ', ', $ext ),
 		];
 	}
 
@@ -143,26 +163,47 @@ class Collate {
 	/**
 	 * @return array
 	 */
+	private function getShieldIntegrity() {
+		$con = $this->getCon();
+		return [
+			'DB Table: Sessions' => $con->getModule_Sessions()
+										->getDbHandler_Sessions()
+										->isReady() ? 'Ready' : 'Missing',
+			'DB Table: IP'       => $con->getModule_IPs()
+										->getDbHandler_IPs()
+										->isReady() ? 'Ready' : 'Missing',
+			'DB Table: Scan'     => $con->getModule_HackGuard()
+										->getDbHandler_ScanResults()
+										->isReady() ? 'Ready' : 'Missing',
+			'DB Table: Traffic'  => $con->getModule_Traffic()
+										->getDbHandler_Traffic()
+										->isReady() ? 'Ready' : 'Missing',
+		];
+	}
+
+	/**
+	 * @return array
+	 */
 	private function getShieldCapabilities() {
-		$oCon = $this->getCon();
-		$oModPlugin = $oCon->getModule_Plugin();
+		$con = $this->getCon();
+		$modPlug = $con->getModule_Plugin();
 
 		$sHome = Services::WpGeneral()->getHomeUrl();
-		$aD = [
-			sprintf( 'Loopback To %s', $sHome ) => $oModPlugin->getCanSiteCallToItself() ? 'Yes' : 'No',
-			'Handshake ShieldNET'               => $oModPlugin->getShieldNetApiController()
-															  ->canHandshake() ? 'Yes' : 'No',
+		$data = [
+			sprintf( 'Loopback To %s', $sHome ) => $modPlug->getCanSiteCallToItself() ? 'Yes' : 'No',
+			'Handshake ShieldNET'               => $modPlug->getShieldNetApiController()
+														   ->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'                    => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
 		$oPing = new Licenses\Keyless\Ping();
 		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
-		$aD[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
+		$data[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
 
-		$sTmpPath = $oCon->getPluginCachePath();
-		$aD[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
+		$sTmpPath = $con->getPluginCachePath();
+		$data[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
 
-		return $aD;
+		return $data;
 	}
 
 	/**
@@ -204,19 +245,25 @@ class Collate {
 	 * @return array
 	 */
 	private function getWordPressSummary() {
-		$oWP = Services::WpGeneral();
-		$aD = [
-			'URL - Home' => $oWP->getHomeUrl(),
-			'URL - Site' => $oWP->getWpUrl(),
-			'WP'         => $oWP->getVersion( true ),
-			'Locale'     => $oWP->getLocale(),
-			'Multisite'  => $oWP->isMultisite() ? 'Yes' : 'No',
-			'ABSPATH'    => ABSPATH,
+		$WP = Services::WpGeneral();
+		$data = [
+			'URL - Home'  => $WP->getHomeUrl(),
+			'URL - Site'  => $WP->getWpUrl(),
+			'WP'          => $WP->getVersion( true ),
+			'Locale'      => $WP->getLocale(),
+			'Multisite'   => $WP->isMultisite() ? 'Yes' : 'No',
+			'ABSPATH'     => ABSPATH,
+			'Debug Is On' => $WP->isDebug() ? 'Yes' : 'No',
+			'Database' => [
+				sprintf( 'Name: %s', DB_NAME ),
+				sprintf( 'User: %s', DB_USER ),
+				sprintf( 'Prefix: %s', Services::WpDb()->getPrefix() ),
+			],
 		];
-		if ( $oWP->isClassicPress() ) {
-			$aD[ 'ClassicPress' ] = $oWP->getVersion();
+		if ( $WP->isClassicPress() ) {
+			$data[ 'ClassicPress' ] = $WP->getVersion();
 		}
 
-		return $aD;
+		return $data;
 	}
 }
