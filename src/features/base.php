@@ -1592,7 +1592,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		$req = Services::Request();
 		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug() ) {
 			/** @var Shield\Modules\Base\Debug $debug */
-			$debug = $this->loadModClass( 'Debug' );
+			$debug = $this->loadModElement( 'Debug', true );
 			$debug->run();
 		}
 	}
@@ -1618,19 +1618,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @param false  $injectMod
 	 * @return false|Shield\Modules\ModConsumer
 	 */
-	private function loadModClass( $class, $injectMod = false ) {
-		$instance = false;
+	private function loadModElement( $class, $injectMod = true ) {
+		$element = false;
 		try {
 			$C = $this->findElementClass( $class, true, true );
-			/** @var Shield\Modules\ModConsumer $instance */
-			$instance = @class_exists( $C ) ? new $C() : false;
-			if ( $injectMod && $instance instanceof Shield\Modules\ModConsumer ) {
-				$instance->setMod( $this );
+			/** @var Shield\Modules\ModConsumer $element */
+			$element = @class_exists( $C ) ? new $C() : false;
+			if ( $injectMod && $element instanceof Shield\Modules\ModConsumer ) {
+				$element->setMod( $this );
 			}
 		}
 		catch ( \Exception $e ) {
 		}
-		return $instance;
+		return $element;
 	}
 
 	/**
