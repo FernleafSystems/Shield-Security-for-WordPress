@@ -36,6 +36,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_CompatSgOptimize( $oNotice );
 				break;
 
+			case 'cloudflare-apo':
+				$this->buildNotice_CloudflareAPO( $oNotice );
+				break;
+
 			case 'plugin-mailing-list-signup':
 				$this->buildNotice_PluginMailingListSignup( $oNotice );
 				break;
@@ -183,6 +187,23 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'ajax'              => [
 				'sgoptimizer_turnoff' => $this->getMod()->getAjaxActionData( 'sgoptimizer_turnoff', true )
 			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
+	 */
+	private function buildNotice_CloudflareAPO( $notice ) {
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+					__( "CloudFlare APO Conflict/Bug", 'wp-simple-firewall' ) ),
+				'message' => [
+					__( "CloudFlare's Automatic Platform Optimisation for WordPress breaks the ability to correctly detect visitor IP addresses.", 'wp-simple-firewall' ),
+					__( 'Until they fix this, please switch off APO for this domain on your CloudFlare control panel.', 'wp-simple-firewall' ),
+				],
+			],
 		];
 	}
 
@@ -343,6 +364,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'compat-sgoptimize':
 				$bNeeded = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
+				break;
+
+			case 'cloudflare-apo':
+				$bNeeded = ( new Plugin\Components\TestForCloudflareAPO() )->run();
 				break;
 
 			case 'allow-tracking':
