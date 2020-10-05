@@ -373,6 +373,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
+
+		$this->loadDebug();
 	}
 
 	/**
@@ -1735,6 +1737,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadClass( 'Options' );
 	}
 
+	protected function loadDebug() {
+		$req = Services::Request();
+		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug() ) {
+			/** @var Shield\Modules\Base\Debug $debug */
+			$debug = $this->loadModClass( 'Debug' );
+			$debug->run();
+		}
+	}
+
 	/**
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
@@ -1752,12 +1763,62 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param string $class
+	 * @param false  $injectMod
+	 * @return false|Shield\Modules\ModConsumer
+	 */
+	private function loadModClass( $class, $injectMod = false ) {
+		$instance = false;
+		try {
+			$C = $this->findElementClass( $class, true, true );
+			/** @var Shield\Modules\ModConsumer $instance */
+			$instance = @class_exists( $C ) ? new $C() : false;
+			if ( $injectMod && $instance instanceof Shield\Modules\ModConsumer ) {
+				$instance->setMod( $this );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
+		return $instance;
+	}
+
+	/**
 	 * @param $sClass
 	 * @return \stdClass|mixed|false
 	 */
 	private function loadClassFromBase( $sClass ) {
 		$sC = $this->getBaseNamespace().$sClass;
 		return @class_exists( $sC ) ? new $sC() : false;
+	}
+
+	/**
+	 * @param string $element
+	 * @param bool   $bThrowException
+	 * @param bool   $bUseFoundationBase
+	 * @return string|null
+	 * @throws \Exception
+	 */
+	protected function findElementClass( $element, $bUseFoundationBase = true, $bThrowException = true ) {
+		$namespace = [
+			$this->getNamespace(),
+		];
+		if ( $bUseFoundationBase ) {
+			$namespace[] = $this->getBaseNamespace();
+		}
+
+		$theClass = null;
+		foreach ( $namespace as $NS ) {
+			$sMaybe = $NS.'\\'.$element;
+			if ( @class_exists( $sMaybe ) ) {
+				$theClass = $sMaybe;
+				break;
+			}
+		}
+
+		if ( $bThrowException && is_null( $theClass ) ) {
+			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
+		}
+		return $theClass;
 	}
 
 	/**
