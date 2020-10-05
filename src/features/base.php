@@ -1659,9 +1659,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 		$theClass = null;
 		foreach ( $namespace as $NS ) {
-			$sMaybe = $NS.'\\'.$element;
-			if ( @class_exists( $sMaybe ) ) {
-				$theClass = $sMaybe;
+			$maybe = $NS.$element;
+			if ( @class_exists( $maybe ) ) {
+				$theClass = $maybe;
 				break;
 			}
 		}
