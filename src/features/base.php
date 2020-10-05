@@ -1590,7 +1590,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	protected function loadDebug() {
 		$req = Services::Request();
-		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug() ) {
+		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
+			 && $this->getCon()->isPluginAdmin() ) {
 			/** @var Shield\Modules\Base\Debug $debug */
 			$debug = $this->loadModElement( 'Debug', true );
 			$debug->run();
