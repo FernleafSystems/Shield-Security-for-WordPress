@@ -29,7 +29,7 @@
 									<dt>
 										<span class="badge badge-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
 										{% if item.pro_only|default(false) == true %}
-											<span class="badge badge-dark">{{ strings.pro_only }}</span>
+											<span class="badge badge-success">{{ strings.pro_only }}</span>
 										{% endif %}
 										<span>{{ item.title }}</span>
 									</dt>

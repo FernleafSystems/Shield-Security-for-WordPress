@@ -64,8 +64,10 @@ class UI extends Base\ShieldUI {
 							'vars'      => [
 								// the keys here must match the changelog item types
 								'badge_types' => [
-									'changed' => 'info',
-									'new'     => 'success',
+									'new'      => 'primary',
+									'improved' => 'info',
+									'changed'  => 'warning',
+									'fixed'    => 'danger',
 								]
 							],
 							'strings'   => [

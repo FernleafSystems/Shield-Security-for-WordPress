@@ -11,6 +11,17 @@
     "items":       [
       {
         "type":        "new",
+        "pro_only":    false,
+        "title":       "Enhanced Dashboard Overview UI",
+        "description": [
+          "The new Dashboard Overview provides a simplified display of all security items on your site.",
+          "You can quickly discover where your site is doing well, and what areas need immediate attention or improvements.",
+          "Responsive filters let you filter by individual Shield modules and the current status of each item."
+        ],
+        "href":        "https://shsec.io/hv"
+      },
+      {
+        "type":        "new",
         "pro_only":    true,
         "title":       "SureSend Email Delivery",
         "description": [
@@ -21,12 +32,34 @@
         "href":        "https://shsec.io/hv"
       },
       {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "IP Analysis Tool",
+        "description": [
+          "Discover all the ways an IP address is interacting with your site, in 1 place.",
+          "Rather than jump around looking at different tables and filtering by IP address, you can see all information in the IP Analyse tool."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "PHP 7+ Only",
+        "description": [
+          "Due to the experimental nature of the U2F implementation, you needed at least one other 2FA factor active on your profile before you could enable U2F."
+        ]
+      },
+      {
         "type":        "changed",
         "title":       "U2F two-factor authentication can now be standalone",
         "description": [
           "Due to the experimental nature of the U2F implementation, you needed at least one other 2FA factor active on your profile before you could enable U2F."
-        ],
-        "href":        "https://shsec.io/hv"
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "U2F two-factor authentication can now be standalone",
+        "description": [
+          "Due to the experimental nature of the U2F implementation, you needed at least one other 2FA factor active on your profile before you could enable U2F."
+        ]
       }
     ]
   }
