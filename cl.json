@@ -41,6 +41,13 @@
         ]
       },
       {
+        "type":        "new",
+        "title":       "Huawei (Petal) Bot Detection",
+        "description": [
+          "Added support for detection of Huawei search engine bot/spider."
+        ]
+      },
+      {
         "type":        "improved",
         "title":       "PHP 7+ Only",
         "description": [

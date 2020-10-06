@@ -1,6 +1,6 @@
 {% for release in changelog %}
 	<div class="row" id="DynamicChangelog">
-		<div class="offset-3 col-6">
+		<div class="offset-2 col-8">
 
 			<div class="card">
 				<div class="card-header">
@@ -38,20 +38,23 @@
 											<p>{{ desc }}</p>
 										{% endfor %}
 										{% if item.href|default('') is not empty %}
-											<p><a href="{{ item.href }}" target="_blank">More Info</a></p>
+											<p class="text-right">
+												<a href="{{ item.href }}" target="_blank">More Info</a>
+											</p>
 										{% endif %}
 									</dd>
 								</dl>
 							</li>
 						{% endfor %}
 					</ul>
-
-					{% if release.href|default('') is not empty %}
+				</div>
+				{% if release.href|default('') is not empty %}
+					<div class="card-footer text-right">
 						<a href="{{ release.href }}"
 						   class="btn btn-outline-primary"
 						   target="_blank">{{ strings.full_release }}</a>
-					{% endif %}
-				</div>
+					</div>
+				{% endif %}
 			</div>
 
 		</div>
