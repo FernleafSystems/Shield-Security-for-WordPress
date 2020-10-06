@@ -44,7 +44,15 @@
         "type":        "improved",
         "title":       "PHP 7+ Only",
         "description": [
-          "Due to the experimental nature of the U2F implementation, you needed at least one other 2FA factor active on your profile before you could enable U2F."
+          "PHP 7.0+ is required to run Shield v10.",
+          "This change in minimum requirements lets us optimise Shield code for PHP 7 and better prepare for PHP 8."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "More reliable 2FA email codes",
+        "description": [
+          "2FA codes generated and sent by email are more reliable."
         ]
       },
       {
@@ -56,9 +64,30 @@
       },
       {
         "type":        "fixed",
-        "title":       "U2F two-factor authentication can now be standalone",
+        "title":       "Server Public IPv6 Detection",
         "description": [
-          "Due to the experimental nature of the U2F implementation, you needed at least one other 2FA factor active on your profile before you could enable U2F."
+          "Detection of your WordPress server's public IPv6 address has been fixed."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "HTTP loopback tests would timeout",
+        "description": [
+          "HTTP loopback request now has a longer timeout to be more reliable for slow sites."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Link Cheese requests could be missed",
+        "description": [
+          "Detection of requests to link cheese is improved."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Potential PHP error",
+        "description": [
+          "A PHP error has been fixed which would occur in some cases."
         ]
       }
     ]
