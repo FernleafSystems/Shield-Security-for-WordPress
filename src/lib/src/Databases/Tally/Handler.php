@@ -10,7 +10,7 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string[]
 	 */
-	public function getColumns() {
+	public function getColumns() :array {
 		return $this->getOptions()->getDef( 'statistics_table_columns' );
 	}
 

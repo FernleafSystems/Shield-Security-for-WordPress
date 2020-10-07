@@ -22,7 +22,7 @@ abstract class EnumeratedColumnsHandler extends Handler {
 	/**
 	 * @return string[]
 	 */
-	public function getColumns() {
+	public function getColumns() :array {
 		return array_keys( $this->getColumnsDefinition() );
 	}
 

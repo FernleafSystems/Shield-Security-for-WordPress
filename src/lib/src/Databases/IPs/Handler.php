@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
@@ -29,19 +29,13 @@ class Handler extends Base\EnumeratedColumnsHandler {
 					->query();
 	}
 
-	/**
-	 * @return string
-	 */
+	protected function getColumnsAsArray() :array {
+		return $this->getOptions()->getDef( 'ip_list_table_columns' );
+	}
+
 	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_IPs();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getColumnsAsArray() :array {
-		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 }

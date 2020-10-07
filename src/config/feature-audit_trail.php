@@ -232,36 +232,33 @@
     }
   ],
   "definitions": {
-    "db_classes":                      {
+    "db_classes":                   {
       "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
     "audit_trail_free_max_entries": 100,
-    "audit_trail_table_name":          "audit_trail",
-    "audit_trail_table_columns":       [
-      "id",
-      "rid",
-      "wp_username",
-      "ip",
-      "context",
-      "event",
-      "category",
-      "message",
-      "count",
-      "immutable",
-      "meta",
-      "updated_at",
-      "created_at",
-      "deleted_at"
-    ],
-    "table_name_changetracking":       "changetracking",
-    "table_columns_changetracking":    [
+    "audit_trail_table_name":       "audit_trail",
+    "audit_trail_table_columns":    {
+      "rid":         "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
+      "ip":          "varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address'",
+      "wp_username": "varchar(255) NOT NULL DEFAULT '-' COMMENT 'WP User'",
+      "context":     "varchar(32) NOT NULL DEFAULT 'none' COMMENT 'Audit Context'",
+      "event":       "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event'",
+      "category":    "int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity'",
+      "message":     "text COMMENT 'Audit Event Description'",
+      "meta":        "text COMMENT 'Audit Event Data'",
+      "immutable":   "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May Be Deleted'",
+      "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'",
+      "updated_at":  "int(15) UNSIGNED NOT NULL DEFAULT 0"
+    },
+    "table_name_changetracking":    "changetracking",
+    "table_columns_changetracking": [
       "id",
       "data",
       "meta",
       "created_at",
       "deleted_at"
     ],
-    "events":                          {
+    "events":                       {
       "plugin_activated":        {
         "context":        "plugins",
         "audit_multiple": true

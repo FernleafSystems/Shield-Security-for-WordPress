@@ -273,7 +273,7 @@ abstract class Handler {
 	/**
 	 * @return string[]
 	 */
-	public function getColumns() {
+	public function getColumns() :array {
 		return [];
 	}
 
