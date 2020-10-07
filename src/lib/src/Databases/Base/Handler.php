@@ -35,6 +35,11 @@ abstract class Handler {
 	 */
 	private $bIsReady;
 
+	/**
+	 * @var TableBuilder
+	 */
+	private $builder;
+
 	public function __construct() {
 	}
 
@@ -179,9 +184,9 @@ abstract class Handler {
 	 */
 	public function tableDelete( $bTruncate = false ) {
 		$table = $this->getTable();
-		$oDB = Services::WpDb();
+		$DB = Services::WpDb();
 		$mResult = !$this->tableExists() ||
-				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
+				   ( $bTruncate ? $DB->doTruncateTable( $table ) : $DB->doDropTable( $table ) );
 		$this->reset();
 		return $mResult !== false;
 	}
@@ -270,7 +275,9 @@ abstract class Handler {
 		return [];
 	}
 
-	abstract protected function getDefaultCreateTableSql() :string;
+	protected function getDefaultCreateTableSql() :string {
+		throw new \Exception( 'No SQL' );
+	}
 
 	protected function getDefaultTableName() :string {
 		return '';

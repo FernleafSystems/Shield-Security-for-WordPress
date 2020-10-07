@@ -8,12 +8,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class Upgrade extends Base\Upgrade {
 
 	protected function upgrade_905() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oDBH = $oMod->getDbHandler_IPs();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		$DBH = $mod->getDbHandler_IPs();
 		Services::WpDb()->doSql(
 			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$oDBH->getTable(), 'ip', $oDBH->enumerateColumns()[ 'ip' ] )
+				$DBH->getTable(), 'ip', $DBH->getColumnsDefinition()[ 'ip' ] )
 		);
 	}
 
@@ -23,10 +23,10 @@ class Upgrade extends Base\Upgrade {
 	protected function upgrade_911() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		$oDBH = $oMod->getDbHandler_IPs();
+		$DBH = $oMod->getDbHandler_IPs();
 		Services::WpDb()->doSql(
 			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$oDBH->getTable(), 'transgressions', $oDBH->enumerateColumns()[ 'transgressions' ] )
+				$DBH->getTable(), 'transgressions', $DBH->getColumnsDefinition()[ 'transgressions' ] )
 		);
 	}
 
