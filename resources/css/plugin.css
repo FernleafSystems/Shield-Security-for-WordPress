@@ -301,7 +301,11 @@ label input[type=checkbox] {
 	border: 1px solid #cccccc;
 	background: #f9f9f9;
 }
-.module-icon {
+.nav-link.module .module-icon {
+	position: relative;
+	top: 3px;
+}
+.dropdown-menu .module-icon {
 	position: relative;
 	top: 7px;
 }
@@ -353,6 +357,9 @@ label input[type=checkbox] {
 }
 .module-icon-traffic:before {
 	content: "\f319";
+}
+.module-icon-comms:before {
+	content: "\f466";
 }
 .module-icon-support:before {
 	content: "\f525";
@@ -601,8 +608,10 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module.active {
 	font-weight: bold;
-	color: rgba(0, 128, 0, 1);
+	color: white;
 	padding-left: 5px;
+	background-color: rgba(0, 128, 0, 0.75);
+	border-radius: .25rem;
 }
 .modules a.module.active > div {
 }
@@ -610,7 +619,7 @@ input:checked + .icwp-slider:before {
 	color: #222222;
 }
 .modules a.module.active .module-icon::before {
-	color: rgba(0, 128, 0, 1);
+	color: white;
 }
 .modules a#tab-license {
 	color: #1d00ff;

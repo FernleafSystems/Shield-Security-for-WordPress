@@ -18,22 +18,7 @@
     "enabled": false
   },
   "sections":   [
-    {
-      "slug":    "section_email_options",
-      "title":   "Email Options",
-      "primary": true
-    },
-    {
-      "slug":   "section_non_ui",
-      "hidden": true
-    }
   ],
   "options":    [
-    {
-      "key":     "send_throttle_limit",
-      "section": "section_non_ui",
-      "default": 10,
-      "type":    "integer"
-    }
   ]
 }

@@ -1761,18 +1761,18 @@ class Controller {
 	 * @return \ICWP_WPSF_FeatureHandler_Base|null|mixed
 	 */
 	public function getModule( string $slug ) {
-		$oMod = isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : null;
-		if ( !$oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+		$mod = isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : null;
+		if ( !$mod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
 			try {
-				$aMods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
-				if ( isset( $aMods[ $slug ] ) ) {
-					$oMod = $this->loadFeatureHandler( $aMods[ $slug ] );
+				$mods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
+				if ( isset( $mods[ $slug ] ) ) {
+					$mod = $this->loadFeatureHandler( $mods[ $slug ] );
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
-		return $oMod;
+		return $mod;
 	}
 
 	public function getModule_AuditTrail() :\ICWP_WPSF_FeatureHandler_AuditTrail {
@@ -1781,6 +1781,10 @@ class Controller {
 
 	public function getModule_Comments() :\ICWP_WPSF_FeatureHandler_CommentsFilter {
 		return $this->getModule( 'comments_filter' );
+	}
+
+	public function getModule_Comms() :\ICWP_WPSF_FeatureHandler_Comms {
+		return $this->getModule( 'comms' );
 	}
 
 	public function getModule_Events() :\ICWP_WPSF_FeatureHandler_Events {

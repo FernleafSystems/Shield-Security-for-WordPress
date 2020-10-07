@@ -116,11 +116,6 @@
       "title_short": "Import / Export"
     },
     {
-      "slug":        "section_suresend",
-      "title":       "SureSend Email",
-      "title_short": "SureSend Email"
-    },
-    {
       "slug":        "section_global_security_options",
       "title":       "Global Plugin Security Options",
       "title_short": "Disable Shield"
@@ -412,24 +407,6 @@
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
     },
     {
-      "key":           "suresend_emails",
-      "section":       "section_suresend",
-      "type":          "multiple_select",
-      "premium":       true,
-      "default":       [],
-      "value_options": [
-        {
-          "value_key": "2fa",
-          "text":      "2FA Login Codes (admins only)"
-        }
-      ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "SureSend Emails",
-      "summary":       "SureSend Emails",
-      "description":   "SureSend Emails."
-    },
-    {
       "key":          "tracking_last_sent_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -628,6 +605,10 @@
         "storage_key": "lockdown"
       },
       {
+        "slug":        "comms",
+        "storage_key": "comms"
+      },
+      {
         "slug":        "email",
         "storage_key": "email"
       }
@@ -636,10 +617,6 @@
       "test_cron_run":          {
         "audit":  false,
         "recent": true
-      },
-      "suresend_success":       {
-      },
-      "suresend_fail":          {
       },
       "import_notify_sent":     {
         "stat": false

@@ -27,11 +27,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	private $oShieldNetApiController;
 
-	public function getSureSendController() :Plugin\Lib\SureSend\SureSendController {
-		return ( new Plugin\Lib\SureSend\SureSendController() )
-			->setMod( $this );
-	}
-
 	public function getImpExpController() :Plugin\Lib\ImportExport\ImportExportController {
 		if ( !isset( $this->oImportExportController ) ) {
 			$this->oImportExportController = ( new Plugin\Lib\ImportExport\ImportExportController() )
