@@ -1836,23 +1836,27 @@ class Controller {
 	}
 
 	/**
-	 * @param array $aModProps
+	 * @param array $modProperties
 	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( $aModProps ) {
-		$sModSlug = $aModProps[ 'slug' ];
-		$oMod = isset( $this->modules[ $sModSlug ] ) ? $this->modules[ $sModSlug ] : null;
-		if ( $oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
-			return $oMod;
+	public function loadFeatureHandler( array $modProperties ) {
+		$modSlug = $modProperties[ 'slug' ];
+		$mod = isset( $this->modules[ $modSlug ] ) ? $this->modules[ $modSlug ] : null;
+		if ( $mod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			return $mod;
 		}
 
-		if ( !empty( $aModProps[ 'min_php' ] )
-			 && !Services::Data()->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
+		if ( empty( $modProperties[ 'storage_key' ] ) ) {
+			$modProperties[ 'storage_key' ] = $modSlug;
+		}
+
+		if ( !empty( $modProperties[ 'min_php' ] )
+			 && !Services::Data()->getPhpVersionIsAtLeast( $modProperties[ 'min_php' ] ) ) {
 			return null;
 		}
 
-		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sModSlug ) ) );
+		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
 		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $sFeatureName ); // e.g. oFeatureHandlerPlugin
 
 		// e.g. \ICWP_WPSF_FeatureHandler_Plugin
@@ -1860,7 +1864,7 @@ class Controller {
 
 		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 		if ( class_exists( $sClassName ) ) {
-			$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
+			$this->{$sOptionsVarName} = new $sClassName( $this, $modProperties );
 		}
 		else {
 			$sMessage = sprintf( 'Class "%s" is missing', $sClassName );
@@ -1868,9 +1872,9 @@ class Controller {
 		}
 
 		$aMs = $this->modules;
-		$aMs[ $sModSlug ] = $this->{$sOptionsVarName};
+		$aMs[ $modSlug ] = $this->{$sOptionsVarName};
 		$this->modules = $aMs;
-		return $this->modules[ $sModSlug ];
+		return $this->modules[ $modSlug ];
 	}
 
 	/**

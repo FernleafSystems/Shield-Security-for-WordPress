@@ -525,39 +525,32 @@
     "active_plugin_features": [
       {
         "slug":          "insights",
-        "storage_key":   "insights",
         "load_priority": 1,
         "menu_priority": 5
       },
       {
         "slug":          "admin_access_restriction",
-        "storage_key":   "admin_access_restriction",
         "load_priority": 11
       },
       {
         "slug":          "ips",
-        "storage_key":   "ips",
         "load_priority": 15
       },
       {
         "slug":          "audit_trail",
-        "storage_key":   "audit_trail",
         "load_priority": 11,
         "hidden":        false
       },
       {
-        "slug":        "hack_protect",
-        "storage_key": "hack_protect"
+        "slug": "hack_protect"
       },
       {
         "slug":          "traffic",
-        "storage_key":   "traffic",
         "load_priority": 12,
         "min_php":       "5.4"
       },
       {
         "slug":          "firewall",
-        "storage_key":   "firewall",
         "load_priority": 1000
       },
       {
@@ -565,8 +558,7 @@
         "storage_key": "loginprotect"
       },
       {
-        "slug":        "user_management",
-        "storage_key": "user_management"
+        "slug": "user_management"
       },
       {
         "slug":        "comments_filter",
@@ -574,43 +566,34 @@
       },
       {
         "slug":          "events",
-        "storage_key":   "events",
         "load_priority": 11
       },
       {
         "slug":          "reporting",
-        "storage_key":   "reporting",
         "load_priority": 12
       },
       {
         "slug":          "sessions",
-        "storage_key":   "sessions",
         "load_priority": 5
       },
       {
         "slug":          "license",
-        "storage_key":   "license",
         "load_priority": 10
       },
       {
-        "slug":        "autoupdates",
-        "storage_key": "autoupdates"
+        "slug": "autoupdates"
       },
       {
-        "slug":        "headers",
-        "storage_key": "headers"
+        "slug": "headers"
       },
       {
-        "slug":        "lockdown",
-        "storage_key": "lockdown"
+        "slug": "lockdown"
       },
       {
-        "slug":        "comms",
-        "storage_key": "comms"
+        "slug": "comms"
       },
       {
-        "slug":        "email",
-        "storage_key": "email"
+        "slug": "email"
       }
     ],
     "events":                 {
