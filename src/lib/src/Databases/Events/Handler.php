@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Handler extends Base\EnumeratedColumnsHandler {
+class Handler extends Base\Handler {
 
 	/**
 	 * @param $aEvents - array of events: key event slug, value created_at timestamp
@@ -38,7 +38,7 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		return $QI->insert( $oEvt );
 	}
 
-	public function getColumnsAsArray() :array {
+	public function getCustomColumns() :array {
 		return $this->getOptions()->getDef( 'events_table_columns' );
 	}
 

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Ips\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Handler extends Base\EnumeratedColumnsHandler {
+class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
 		/** @var Options $opts */
@@ -29,7 +29,7 @@ class Handler extends Base\EnumeratedColumnsHandler {
 					->query();
 	}
 
-	protected function getColumnsAsArray() :array {
+	protected function getCustomColumns() :array {
 		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 
@@ -39,7 +39,7 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		return $opts->getDbTable_IPs();
 	}
 
-	protected function getTimestampColumnNames() :array {
+	protected function getTimestampColumns() :array {
 		return $this->getOptions()->getDef( 'ip_list_table_timestamp_columns' );
 	}
 }

@@ -78,17 +78,7 @@ abstract class Handler {
 		return is_array( $this->aColActual ) ? $this->aColActual : [];
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getColumnas() {
-		return $this->getColumns();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTable() {
+	public function getTable() :string {
 		return Services::WpDb()->getPrefix().esc_sql( $this->getTableSlug() );
 	}
 
@@ -168,13 +158,7 @@ abstract class Handler {
 	 * @throws \Exception
 	 */
 	protected function tableCreate() {
-		$sSql = $this->getSqlCreate();
-		if ( empty( $sSql ) ) {
-			throw new \Exception( 'Table Create SQL is empty' );
-		}
-		$oDB = Services::WpDb();
-		$sSql = sprintf( $sSql, $this->getTable(), $oDB->getCharCollate() );
-		$this->tableExists() ? $oDB->dbDelta( $sSql ) : $oDB->doSql( $sSql );
+		$this->getTableBuilder()->create();
 		return $this;
 	}
 
@@ -272,7 +256,7 @@ abstract class Handler {
 	 * @return string[]
 	 */
 	public function getColumns() :array {
-		return [];
+		return array_keys( $this->getColumnsDefinition() );
 	}
 
 	protected function getDefaultCreateTableSql() :string {
@@ -281,6 +265,35 @@ abstract class Handler {
 
 	protected function getDefaultTableName() :string {
 		return '';
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getColumnsDefinition() :array {
+		return $this->getTableBuilder()->enumerateColumns();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getCustomColumns() :array {
+		return [];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getTimestampColumns() :array {
+		return [];
+	}
+
+	protected function getTableBuilder() :TableBuilder {
+		$builder = new TableBuilder();
+		$builder->table = $this->getTable();
+		$builder->cols_custom = $this->getCustomColumns();
+		$builder->cols_timestamps = $this->getTimestampColumns();
+		return $builder;
 	}
 
 	/**
@@ -318,5 +331,13 @@ abstract class Handler {
 		unset( $this->bIsReady );
 		unset( $this->aColActual );
 		return $this;
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 10.0
+	 */
+	public function enumerateColumns() :array {
+		return $this->getTableBuilder()->enumerateColumns();
 	}
 }

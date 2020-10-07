@@ -16,7 +16,7 @@ class Upgrade extends Base\Upgrade {
 		$dbh = $mod->getDbHandler_Sessions();
 		Services::WpDb()->doSql(
 			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$dbh->getTable(), 'ip', $dbh->enumerateColumns()[ 'ip' ] )
+				$dbh->getTable(), 'ip', $dbh->getColumnsDefinition()[ 'ip' ] )
 		);
 	}
 }
