@@ -18,12 +18,13 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		return $this->getOptions()->getDef( 'audit_trail_table_columns' );
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_AuditTrail();
+	}
+
+	protected function getTimestampColumnNames() :array {
+		return $this->getOptions()->getDef( 'audittrail_table_timestamp_columns' );
 	}
 }

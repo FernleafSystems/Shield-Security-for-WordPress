@@ -76,13 +76,6 @@ abstract class Handler {
 	/**
 	 * @return string[]
 	 */
-	public function getColumnsDefinition() {
-		return $this->enumerateColumns();
-	}
-
-	/**
-	 * @return string[]
-	 */
 	public function getColumnas() {
 		return $this->getColumns();
 	}
@@ -277,10 +270,7 @@ abstract class Handler {
 		return [];
 	}
 
-	/**
-	 * @return string
-	 */
-	abstract protected function getDefaultCreateTableSql();
+	abstract protected function getDefaultCreateTableSql() :string;
 
 	protected function getDefaultTableName() :string {
 		return '';

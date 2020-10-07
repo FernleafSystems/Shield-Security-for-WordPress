@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class Handler extends Base\EnumeratedColumnsHandler {
 
-	/**
-	 * @return string[]
-	 */
 	public function getColumnsAsArray() :array {
 		return $this->getOptions()->getDef( 'db_notes_table_columns' );
 	}

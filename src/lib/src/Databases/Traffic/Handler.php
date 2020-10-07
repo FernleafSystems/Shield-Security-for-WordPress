@@ -14,18 +14,12 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		$this->tableTrimExcess( $opts->getMaxEntries() );
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_TrafficLog();
 	}
 
-	/**
-	 * @return string[]
-	 */
 	protected function getColumnsAsArray() :array {
 		return $this->getOptions()->getDef( 'traffic_table_columns' );
 	}

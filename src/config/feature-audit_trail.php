@@ -247,8 +247,10 @@
       "message":     "text COMMENT 'Audit Event Description'",
       "meta":        "text COMMENT 'Audit Event Data'",
       "immutable":   "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May Be Deleted'",
-      "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'",
-      "updated_at":  "int(15) UNSIGNED NOT NULL DEFAULT 0"
+      "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'"
+    },
+    "audittrail_table_timestamp_columns": {
+      "updated_at": "Updated"
     },
     "table_name_changetracking":    "changetracking",
     "table_columns_changetracking": [

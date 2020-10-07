@@ -42,9 +42,6 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		return $this->getOptions()->getDef( 'events_table_columns' );
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

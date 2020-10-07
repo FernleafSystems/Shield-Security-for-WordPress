@@ -55,23 +55,25 @@
     }
   ],
   "definitions": {
-    "db_classes":             {
+    "db_classes":                       {
       "session": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
     },
-    "sessions_table_name":    "sessions",
-    "sessions_table_columns": {
-      "session_id":              "varchar(32) NOT NULL DEFAULT ''",
-      "wp_username":             "varchar(255) NOT NULL DEFAULT ''",
-      "ip":                      "varchar(60) NOT NULL DEFAULT '0'",
-      "browser":                 "varchar(32) NOT NULL DEFAULT ''",
-      "logged_in_at":            "int(15) NOT NULL DEFAULT 0",
-      "last_activity_at":        "int(15) UNSIGNED NOT NULL DEFAULT 0",
-      "last_activity_uri":       "text NOT NULL DEFAULT ''",
-      "li_code_email":           "varchar(6) NOT NULL DEFAULT ''",
-      "login_intent_expires_at": "int(15) UNSIGNED NOT NULL DEFAULT 0",
-      "secadmin_at":             "int(15) UNSIGNED NOT NULL DEFAULT 0"
+    "sessions_table_name":              "sessions",
+    "sessions_table_columns":           {
+      "session_id":        "varchar(32) NOT NULL DEFAULT ''",
+      "wp_username":       "varchar(255) NOT NULL DEFAULT ''",
+      "ip":                "varchar(60) NOT NULL DEFAULT '0'",
+      "browser":           "varchar(32) NOT NULL DEFAULT ''",
+      "last_activity_uri": "text NOT NULL DEFAULT ''",
+      "li_code_email":     "varchar(6) NOT NULL DEFAULT ''"
     },
-    "events":                 {
+    "sessions_table_timestamp_columns": {
+      "logged_in_at":            "Session Started",
+      "last_activity_at":        "Last Seen At",
+      "login_intent_expires_at": "2FA Window Expires",
+      "secadmin_at":             "Security Admin Authenticated"
+    },
+    "events":                           {
       "session_start":     {
         "audit": false
       },

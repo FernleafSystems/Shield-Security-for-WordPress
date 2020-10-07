@@ -11,7 +11,7 @@ abstract class EnumeratedColumnsHandler extends Handler {
 	/**
 	 * @return string[]
 	 */
-	public function enumerateColumns() {
+	public function enumerateColumns() :array {
 		return array_merge(
 			$this->getColumn_ID(),
 			$this->getColumnsAsArray(),
@@ -34,48 +34,61 @@ abstract class EnumeratedColumnsHandler extends Handler {
 	/**
 	 * @return string[]
 	 */
-	public function getColumnsDefinition() {
+	public function getColumnsDefinition() :array {
 		return $this->enumerateColumns();
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getColumn_ID() {
+	protected function getColumn_ID() :array {
 		return [
-			'id' => 'int(11) UNSIGNED NOT NULL AUTO_INCREMENT',
+			'id' => 'INT(11) UNSIGNED NOT NULL AUTO_INCREMENT',
 		];
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getColumns_Ats() {
-		return [
-			'created_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
-			'deleted_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
-		];
+	protected function getTimestampColumnNames() :array {
+		return [];
 	}
 
 	/**
-	 * @return string
+	 * @return string[]
 	 */
-	protected function getDefaultCreateTableSql() {
-		$aCols = [];
+	protected function getColumns_Ats() :array {
+		return array_map(
+			function ( $comment ) {
+				return $this->getTimestampColDef( $comment );
+			},
+			array_merge(
+				$this->getTimestampColumnNames(),
+				[
+					'created_at' => 'Created At',
+					'deleted_at' => 'Soft Deleted At',
+				]
+			)
+		);
+	}
+
+	protected function getTimestampColDef( string $comment = '' ) {
+		return sprintf( "INT(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT '%s'", str_replace( "'", '', $comment ) );
+	}
+
+	protected function getDefaultCreateTableSql() :string {
+		$cols = [];
 		foreach ( $this->enumerateColumns() as $col => $def ) {
-			$aCols[] = sprintf( '%s %s', $col, $def );
+			$cols[] = sprintf( '%s %s', $col, $def );
 		}
-		$aCols[] = $this->getPrimaryKeySpec();
+		$cols[] = $this->getPrimaryKeySpec();
 
 		return "CREATE TABLE %s (
-			".implode( ", ", $aCols )."
+			".implode( ", ", $cols )."
 		) %s;";
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getPrimaryKeySpec() {
+	protected function getPrimaryKeySpec() :string {
 		return 'PRIMARY KEY  (id)';
 	}
 }

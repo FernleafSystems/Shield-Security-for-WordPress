@@ -38,4 +38,8 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		$opts = $this->getOptions();
 		return $opts->getDbTable_IPs();
 	}
+
+	protected function getTimestampColumnNames() :array {
+		return $this->getOptions()->getDef( 'ip_list_table_timestamp_columns' );
+	}
 }

@@ -16,4 +16,8 @@ class Handler extends Base\EnumeratedColumnsHandler {
 		$opts = $this->getOptions();
 		return $opts->getDbTable_ScanQueue();
 	}
+
+	protected function getTimestampColumnNames() :array {
+		return $this->getOptions()->getDef( 'scanqueue_table_timestamp_columns' );
+	}
 }

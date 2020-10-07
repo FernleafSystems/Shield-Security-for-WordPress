@@ -396,12 +396,12 @@
     }
   ],
   "definitions":      {
-    "db_classes":                  {
+    "db_classes":                          {
       "file_protect": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "scanresults":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
       "scanq":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
     },
-    "all_scan_slugs":              [
+    "all_scan_slugs":                      [
       "apc",
       "mal",
       "ptg",
@@ -409,8 +409,8 @@
       "wcf",
       "ufc"
     ],
-    "table_name_filelocker":       "filelocker",
-    "table_columns_filelocker":    {
+    "table_name_filelocker":               "filelocker",
+    "table_columns_filelocker":            {
       "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
       "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
       "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
@@ -421,44 +421,48 @@
       "notified_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Notification Sent'",
       "updated_at":    "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated'"
     },
-    "table_name_scanner":          "scanner",
-    "table_columns_scanner":       {
-      "hash":        "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
-      "meta":        "text COMMENT 'Relevant Item Data'",
-      "scan":        "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
-      "severity":    "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'",
-      "ignored_at":  "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignored'",
-      "notified_at": "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Last Notified'"
+    "table_name_scanner":                  "scanner",
+    "table_columns_scanner":               {
+      "hash":     "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
+      "meta":     "text COMMENT 'Relevant Item Data'",
+      "scan":     "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
+      "severity": "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'"
     },
-    "table_name_scanqueue":        "scanq",
-    "table_columns_scanqueue":     {
-      "scan":        "varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug'",
-      "items":       "text COMMENT 'Array of scan items'",
-      "results":     "text COMMENT 'Array of results'",
-      "meta":        "text COMMENT 'Meta Data'",
-      "started_at":  "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Started'",
-      "finished_at": "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Finished'"
+    "scanresults_table_timestamp_columns": {
+      "ignored_at":  "Scan Result Ignored",
+      "notified_at": "Scan Notifiation Sent"
     },
-    "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
-    "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
-    "malware_whitelist_paths":     [
+    "table_name_scanqueue":                "scanq",
+    "table_columns_scanqueue":             {
+      "scan":    "varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug'",
+      "items":   "text COMMENT 'Array of scan items'",
+      "results": "text COMMENT 'Array of results'",
+      "meta":    "text COMMENT 'Meta Data'"
+    },
+    "scanqueue_table_timestamp_columns":   {
+      "started_at":  "Scan Started",
+      "finished_at": "Scan Completed"
+    },
+    "url_mal_sigs_simple":                 "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
+    "url_mal_sigs_regex":                  "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
+    "malware_whitelist_paths":             [
       "wp-content/wflogs/",
       "wp-content/cache/",
       "wp-content/icwp/rollback/"
     ],
-    "cron_all_scans":              "all-scans",
-    "wcf_exclusions":              [
+    "cron_all_scans":                      "all-scans",
+    "wcf_exclusions":                      [
       "readme.html",
       "license.txt",
       "licens-sv_SE.txt",
       "wp-config-sample.php",
       "wp-content/"
     ],
-    "wcf_exclusions_missing_only": [
+    "wcf_exclusions_missing_only":         [
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "events":                      {
+    "events":                              {
       "apc_alert_sent":          {
       },
       "mal_alert_sent":          {
