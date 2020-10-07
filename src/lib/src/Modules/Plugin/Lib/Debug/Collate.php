@@ -165,20 +165,35 @@ class Collate {
 	 */
 	private function getShieldIntegrity() {
 		$con = $this->getCon();
-		return [
-			'DB Table: Sessions' => $con->getModule_Sessions()
-										->getDbHandler_Sessions()
-										->isReady() ? 'Ready' : 'Missing',
-			'DB Table: IP'       => $con->getModule_IPs()
-										->getDbHandler_IPs()
-										->isReady() ? 'Ready' : 'Missing',
-			'DB Table: Scan'     => $con->getModule_HackGuard()
-										->getDbHandler_ScanResults()
-										->isReady() ? 'Ready' : 'Missing',
-			'DB Table: Traffic'  => $con->getModule_Traffic()
-										->getDbHandler_Traffic()
-										->isReady() ? 'Ready' : 'Missing',
-		];
+		$DB = Services::WpDb();
+		$data = [];
+
+		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
+		$data[ 'DB Table: Sessions' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
+		$data[ 'DB Table: IP' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_HackGuard()->getDbHandler_ScanResults();
+		$data[ 'DB Table: Scan' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_Traffic()->getDbHandler_Traffic();
+		$data[ 'DB Table: Traffic' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_Events()->getDbHandler_Events();
+		$data[ 'DB Table: Events' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		return $data;
 	}
 
 	/**
@@ -254,7 +269,7 @@ class Collate {
 			'Multisite'   => $WP->isMultisite() ? 'Yes' : 'No',
 			'ABSPATH'     => ABSPATH,
 			'Debug Is On' => $WP->isDebug() ? 'Yes' : 'No',
-			'Database' => [
+			'Database'    => [
 				sprintf( 'Name: %s', DB_NAME ),
 				sprintf( 'User: %s', DB_USER ),
 				sprintf( 'Prefix: %s', Services::WpDb()->getPrefix() ),
