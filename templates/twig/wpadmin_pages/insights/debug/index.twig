@@ -25,7 +25,7 @@
 								{% for key,val in section_data %}
 									<dt>{{ key }}</dt>
 									<dd class="mb-2">
-										{{ val is iterable ? val|join('<br/>')|raw : val }}
+										{{ val is iterable ? val|join('<br/>')|raw : val|raw }}
 									</dd>
 								{% endfor %}
 								</dl>

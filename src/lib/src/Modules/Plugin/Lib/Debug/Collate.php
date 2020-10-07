@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
@@ -40,15 +40,12 @@ class Collate {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getEnv() {
+	private function getEnv() :array {
 		$srvIP = Services::IP();
-		$oReq = Services::Request();
+		$req = Services::Request();
 
-		$sig = $oReq->server( 'SERVER_SIGNATURE' );
-		$soft = $oReq->server( 'SERVER_SOFTWARE' );
+		$sig = $req->server( 'SERVER_SIGNATURE' );
+		$soft = $req->server( 'SERVER_SOFTWARE' );
 		$aIPs = $srvIP->getServerPublicIPs();
 		$rDNS = '';
 		foreach ( $aIPs as $ip ) {
@@ -64,8 +61,9 @@ class Collate {
 			'Host OS'                           => PHP_OS,
 			'Server Hostname'                   => gethostname(),
 			'Server IPs'                        => implode( ', ', $aIPs ),
+			'CloudFlare'                        => empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
 			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
-			'Server Name'                       => $oReq->server( 'SERVER_NAME' ),
+			'Server Name'                       => $req->server( 'SERVER_NAME' ),
 			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
 			'Server Software'                   => empty( $soft ) ? '-' : $soft,
 			'Disk Space (Used/Available/Total)' => sprintf( '%s / %s / %s',
@@ -76,16 +74,13 @@ class Collate {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getPHP() {
+	private function getPHP() :array {
 		$oDP = Services::Data();
 		$req = Services::Request();
 
-		$sPHP = $oDP->getPhpVersionCleaned();
-		if ( $sPHP !== $oDP->getPhpVersion() ) {
-			$sPHP .= sprintf( ' (%s)', $oDP->getPhpVersion() );
+		$phpV = $oDP->getPhpVersionCleaned();
+		if ( $phpV !== $oDP->getPhpVersion() ) {
+			$phpV .= sprintf( ' (%s)', $oDP->getPhpVersion() );
 		}
 
 		$ext = get_loaded_extensions();
@@ -93,8 +88,9 @@ class Collate {
 
 		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
-			'PHP'           => $sPHP,
-			'Memory Limit'  => ini_get( 'memory_limit' ),
+			'PHP'           => $phpV,
+			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', ini_get( 'memory_limit' ),
+				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
 			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,
 			'Time Limit'    => ini_get( 'max_execution_time' ),
 			'Dir Separator' => DIRECTORY_SEPARATOR,
@@ -103,11 +99,7 @@ class Collate {
 		];
 	}
 
-	/**
-	 * @param bool $bActive
-	 * @return array
-	 */
-	private function getPlugins( $bActive ) {
+	private function getPlugins( bool $bActive ) :array {
 		$oWpPlugins = Services::WpPlugins();
 
 		$aD = [];
@@ -127,11 +119,7 @@ class Collate {
 		);
 	}
 
-	/**
-	 * @param bool $bActive
-	 * @return array
-	 */
-	private function getThemes( $bActive ) {
+	private function getThemes( bool $bActive ) :array {
 		$oWpT = Services::WpThemes();
 
 		$aD = [];
@@ -160,12 +148,8 @@ class Collate {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getShieldIntegrity() {
+	private function getShieldIntegrity() :array {
 		$con = $this->getCon();
-		$DB = Services::WpDb();
 		$data = [];
 
 		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
@@ -196,10 +180,7 @@ class Collate {
 		return $data;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getShieldCapabilities() {
+	private function getShieldCapabilities() :array {
 		$con = $this->getCon();
 		$modPlug = $con->getModule_Plugin();
 
@@ -221,10 +202,7 @@ class Collate {
 		return $data;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getShieldSummary() {
+	private function getShieldSummary() :array {
 		$oCon = $this->getCon();
 		$oModLicense = $oCon->getModule_License();
 		$oModPlugin = $oCon->getModule_Plugin();
@@ -256,10 +234,7 @@ class Collate {
 		return $aD;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getWordPressSummary() {
+	private function getWordPressSummary() :array {
 		$WP = Services::WpGeneral();
 		$data = [
 			'URL - Home'  => $WP->getHomeUrl(),
