@@ -410,44 +410,35 @@
       "ufc"
     ],
     "table_name_filelocker":       "filelocker",
-    "table_columns_filelocker":    [
-      "id",
-      "file",
-      "hash_original",
-      "hash_current",
-      "content",
-      "public_key_id",
-      "detected_at",
-      "reverted_at",
-      "notified_at",
-      "updated_at",
-      "created_at",
-      "deleted_at"
-    ],
+    "table_columns_filelocker":    {
+      "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
+      "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
+      "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
+      "content":       "blob COMMENT 'Content'",
+      "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'",
+      "detected_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Change Last Detected'",
+      "reverted_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Reverted To Backup'",
+      "notified_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Notification Sent'",
+      "updated_at":    "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated'"
+    },
     "table_name_scanner":          "scanner",
-    "table_columns_scanner":       [
-      "id",
-      "hash",
-      "meta",
-      "scan",
-      "severity",
-      "ignored_at",
-      "notified_at",
-      "created_at",
-      "deleted_at"
-    ],
+    "table_columns_scanner":       {
+      "hash":        "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
+      "meta":        "text COMMENT 'Relevant Item Data'",
+      "scan":        "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
+      "severity":    "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'",
+      "ignored_at":  "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignored'",
+      "notified_at": "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Last Notified'"
+    },
     "table_name_scanqueue":        "scanq",
-    "table_columns_scanqueue":     [
-      "id",
-      "scan",
-      "items",
-      "results",
-      "meta",
-      "started_at",
-      "finished_at",
-      "created_at",
-      "deleted_at"
-    ],
+    "table_columns_scanqueue":     {
+      "scan":        "varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug'",
+      "items":       "text COMMENT 'Array of scan items'",
+      "results":     "text COMMENT 'Array of results'",
+      "meta":        "text COMMENT 'Meta Data'",
+      "started_at":  "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Started'",
+      "finished_at": "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Finished'"
+    },
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "malware_whitelist_paths":     [

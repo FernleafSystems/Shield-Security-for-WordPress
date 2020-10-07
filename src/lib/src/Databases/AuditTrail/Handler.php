@@ -24,7 +24,7 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string
 	 */
-	protected function getDefaultTableName() {
+	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_AuditTrail();

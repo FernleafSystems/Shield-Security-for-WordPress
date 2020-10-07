@@ -32,7 +32,7 @@ class Handler extends Base\EnumeratedColumnsHandler {
 	/**
 	 * @return string
 	 */
-	protected function getDefaultTableName() {
+	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_IPs();
@@ -41,7 +41,7 @@ class Handler extends Base\EnumeratedColumnsHandler {
 	/**
 	 * @return string[]
 	 */
-	protected function getColumnsAsArray() {
+	protected function getColumnsAsArray() :array {
 		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 }

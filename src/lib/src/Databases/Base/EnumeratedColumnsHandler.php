@@ -29,7 +29,7 @@ abstract class EnumeratedColumnsHandler extends Handler {
 	/**
 	 * @return string[]
 	 */
-	abstract protected function getColumnsAsArray();
+	abstract protected function getColumnsAsArray() :array;
 
 	/**
 	 * @return string[]

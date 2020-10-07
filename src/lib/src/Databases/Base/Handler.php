@@ -282,10 +282,7 @@ abstract class Handler {
 	 */
 	abstract protected function getDefaultCreateTableSql();
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
+	protected function getDefaultTableName() :string {
 		return '';
 	}
 

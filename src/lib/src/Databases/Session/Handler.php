@@ -14,14 +14,14 @@ class Handler extends Base\EnumeratedColumnsHandler {
 	/**
 	 * @return string[]
 	 */
-	protected function getColumnsAsArray() {
+	protected function getColumnsAsArray() :array {
 		return $this->getOptions()->getDef( 'sessions_table_columns' );
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getDefaultTableName() {
+	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_Sessions();
