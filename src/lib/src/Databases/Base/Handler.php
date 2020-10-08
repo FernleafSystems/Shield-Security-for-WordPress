@@ -79,7 +79,8 @@ abstract class Handler {
 	}
 
 	public function getTable() :string {
-		return Services::WpDb()->getPrefix().esc_sql( $this->getTableSlug() );
+		return Services::WpDb()->getPrefix()
+			   .esc_sql( $this->getCon()->prefixOption( $this->getTableSlug() ) );
 	}
 
 	/**
@@ -243,11 +244,7 @@ abstract class Handler {
 		return $this;
 	}
 
-	/**
-	 * @param string $sTable
-	 * @return $this
-	 */
-	public function setTable( $sTable ) {
+	public function setTable( string $sTable ) :self {
 		$this->sTable = $sTable;
 		return $this;
 	}
@@ -264,7 +261,7 @@ abstract class Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		return '';
+		throw new \Exception( 'No table name' );
 	}
 
 	/**

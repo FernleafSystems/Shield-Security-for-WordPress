@@ -9,7 +9,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return false|Shield\Databases\AuditTrail\Handler
 	 */
 	public function getDbHandler_AuditTrail() {
-		return $this->getDbH( 'audit' );
+		return $this->getDbH( 'audit' )
+					->setTable( $this->getDef( 'audit_trail_table_name' ) );
 	}
 
 	/**

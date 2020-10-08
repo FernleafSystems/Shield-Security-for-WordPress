@@ -32,12 +32,14 @@ class TableBuilder {
 		}
 		$cols[] = $this->getPrimaryKeySpec();
 
-		$sqlCreate = "CREATE TABLE {{TABLE_NAME}} (
-			".implode( ", ", $cols )."
-		) {{TABLE_COLLATE}};";
-
-		return str_replace( '{{TABLE_NAME}}', $this->table,
-			str_replace( '{{TABLE_COLLATE}}', Services::WpDb()->getCharCollate(), $sqlCreate ) );
+		return sprintf(
+			'CREATE TABLE %s (
+				%s
+			) %s;',
+			$this->table,
+			implode( ", ", $cols ),
+			Services::WpDb()->getCharCollate()
+		);
 	}
 
 	/**

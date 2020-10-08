@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
@@ -43,8 +42,6 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_Events();
+		return $this->getOptions()->getDef( 'events_table_name' );
 	}
 }

@@ -15,9 +15,9 @@ class PluginBadge {
 	use ModConsumer;
 
 	public function run() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$bDisplay = $oOpts->isOnFloatingPluginBadge()
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$bDisplay = $opts->isOpt( 'display_plugin_badge', 'Y' )
 					&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 		if ( $bDisplay ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'includeJquery' ] );

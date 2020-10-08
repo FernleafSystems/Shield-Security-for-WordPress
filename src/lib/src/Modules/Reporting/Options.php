@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Options extends Base\ShieldOptions {
 
-	public function getDbTable_Reports() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
-	}
-
 	public function getFrequencyAlert() :string {
 		return $this->getFrequency( 'alert' );
 	}
@@ -24,5 +20,13 @@ class Options extends Base\ShieldOptions {
 		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $sDefault ] ) )
 			? $this->getOpt( $key )
 			: $sDefault;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_Reports() :string {
+		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
 	}
 }

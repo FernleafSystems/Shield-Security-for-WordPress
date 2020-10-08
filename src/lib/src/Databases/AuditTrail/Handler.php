@@ -19,9 +19,7 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_AuditTrail();
+		return $this->getOptions()->getDef( 'audit_trail_table_name' );
 	}
 
 	protected function getTimestampColumns() :array {

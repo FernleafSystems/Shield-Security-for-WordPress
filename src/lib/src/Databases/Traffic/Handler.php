@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
@@ -15,9 +15,7 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_TrafficLog();
+		return $this->getOptions()->getDef( 'traffic_table_name' );
 	}
 
 	protected function getCustomColumns() :array {

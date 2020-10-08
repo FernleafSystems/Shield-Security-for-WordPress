@@ -298,15 +298,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_IpDetect() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
-		if ( !empty( $sSource ) ) {
-			$oOpts->setVisitorAddressSource( $sSource );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
+		if ( !empty( $source ) ) {
+			$opts->setVisitorAddressSource( $source );
 		}
 		return [
-			'success' => !empty( $sSource ),
-			'message' => empty( $sSource ) ? 'Could not find source' : 'IP Source Found: '.$sSource
+			'success' => !empty( $source ),
+			'message' => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source
 		];
 	}
 

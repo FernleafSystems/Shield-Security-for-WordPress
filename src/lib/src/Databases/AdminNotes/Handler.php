@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class Handler extends Base\Handler {
 
@@ -12,8 +11,6 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_Notes();
+		return $this->getOptions()->getDef( 'db_notes_name' );
 	}
 }

@@ -1,9 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Options;
 
 class Handler extends Base\Handler {
 
@@ -16,9 +15,7 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_Sessions();
+		return $this->getOptions()->getDef( 'sessions_table_name' );
 	}
 
 	protected function getTimestampColumns() :array {

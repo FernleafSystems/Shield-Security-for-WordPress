@@ -19,9 +19,7 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_Reports();
+		return $this->getOptions()->getDef( 'reports_table_name' );
 	}
 
 	protected function getTimestampColumns() :array {

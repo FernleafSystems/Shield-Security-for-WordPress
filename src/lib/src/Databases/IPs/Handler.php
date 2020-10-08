@@ -34,9 +34,7 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_IPs();
+		return $this->getOptions()->getDef( 'ip_lists_table_name' );
 	}
 
 	protected function getTimestampColumns() :array {

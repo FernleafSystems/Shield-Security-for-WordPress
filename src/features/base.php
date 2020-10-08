@@ -185,30 +185,30 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return Shield\Databases\Base\Handler|mixed|false
 	 */
 	protected function getDbH( $sDbhKey ) {
-		$oDbH = false;
+		$dbh = false;
 
 		if ( !is_array( $this->aDbHandlers ) ) {
 			$this->aDbHandlers = [];
 		}
 
 		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
-			$oDbH = $this->aDbHandlers[ $sDbhKey ];
+			$dbh = $this->aDbHandlers[ $sDbhKey ];
 		}
 		else {
 			$aDbClasses = $this->getAllDbClasses();
 			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
-				/** @var Shield\Databases\Base\Handler $oDbH */
-				$oDbH = new $aDbClasses[ $sDbhKey ]();
+				/** @var Shield\Databases\Base\Handler $dbh */
+				$dbh = new $aDbClasses[ $sDbhKey ]();
 				try {
-					$oDbH->setMod( $this )->tableInit();
+					$dbh->setMod( $this )->tableInit();
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
-			$this->aDbHandlers[ $sDbhKey ] = $oDbH;
+			$this->aDbHandlers[ $sDbhKey ] = $dbh;
 		}
 
-		return $oDbH;
+		return $dbh;
 	}
 
 	/**

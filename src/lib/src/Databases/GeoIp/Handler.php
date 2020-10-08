@@ -1,9 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\GeoIp;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class Handler extends Base\Handler {
 
@@ -16,8 +15,6 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_GeoIp();
+		return $this->getOptions()->getDef( 'geoip_table_name' );
 	}
 }

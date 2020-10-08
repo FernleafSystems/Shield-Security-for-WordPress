@@ -22,13 +22,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getDbTable_TrafficLog() {
-		return $this->getCon()->prefixOption( $this->getDef( 'traffic_table_name' ) );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getLimitRequestCount() {
@@ -71,5 +64,13 @@ class Options extends Base\ShieldOptions {
 	public function isTrafficLimitEnabled() {
 		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_TrafficLog() {
+		return $this->getCon()->prefixOption( $this->getDef( 'traffic_table_name' ) );
 	}
 }

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
 class Handler extends Base\Handler {
 
@@ -12,9 +11,7 @@ class Handler extends Base\Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_Scanner();
+		return $this->getOptions()->getDef( 'table_name_scanner' );
 	}
 
 	protected function getTimestampColumns() :array {
