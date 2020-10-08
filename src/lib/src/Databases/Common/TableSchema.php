@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Common;
 
 use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Services\Services;
@@ -14,23 +14,17 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $cols_custom
  * @property string[] $cols_timestamps
  */
-class TableBuilder {
+class TableSchema {
 
 	const PRIMARY_KEY = 'id';
 	use StdClassAdapter;
 
-	public function create() {
-		$DB = Services::WpDb();
-		$sql = $this->buildSqlCreate();
-		$DB->getIfTableExists( $this->table ) ? $DB->dbDelta( $sql ) : $DB->doSql( $sql );
-	}
-
-	public function buildSqlCreate() :string {
+	public function buildCreate() :string {
 		$cols = [];
 		foreach ( $this->enumerateColumns() as $col => $def ) {
 			$cols[] = sprintf( '%s %s', $col, $def );
 		}
-		$cols[] = $this->getPrimaryKeySpec();
+		$cols[] = $this->getPrimaryKeyDef();
 
 		return sprintf(
 			'CREATE TABLE %s (
@@ -40,6 +34,13 @@ class TableBuilder {
 			implode( ", ", $cols ),
 			Services::WpDb()->getCharCollate()
 		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getColumnNames() :array {
+		return array_keys( $this->enumerateColumns() );
 	}
 
 	/**
@@ -80,7 +81,7 @@ class TableBuilder {
 		);
 	}
 
-	protected function getPrimaryKeySpec() :string {
+	protected function getPrimaryKeyDef() :string {
 		return sprintf( 'PRIMARY KEY  (%s)', $this->getPrimaryKeyColumnName() );
 	}
 

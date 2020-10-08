@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\AlignTableWithSchema;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,18 +16,6 @@ abstract class Handler {
 	use ModConsumer;
 
 	/**
-	 * The defined table columns.
-	 * @var array
-	 */
-	protected $aColDef;
-
-	/**
-	 * The actual table columns.
-	 * @var array
-	 */
-	protected $aColActual;
-
-	/**
 	 * @var string
 	 */
 	protected $sTable;
@@ -34,11 +24,6 @@ abstract class Handler {
 	 * @var bool
 	 */
 	private $bIsReady;
-
-	/**
-	 * @var TableBuilder
-	 */
-	private $builder;
 
 	public function __construct() {
 	}
@@ -66,16 +51,6 @@ abstract class Handler {
 		return $this->isReady() && $this->getQueryDeleter()
 										->addWhereOlderThan( $nTimeStamp )
 										->query();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getColumnsActual() {
-		if ( empty( $this->aColActual ) ) {
-			$this->aColActual = Services::WpDb()->getColumnsForTable( $this->getTable(), 'strtolower' );
-		}
-		return is_array( $this->aColActual ) ? $this->aColActual : [];
 	}
 
 	public function getTable() :string {
@@ -139,19 +114,8 @@ abstract class Handler {
 		return new $sClass();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSqlCreate() {
-		return $this->getDefaultCreateTableSql();
-	}
-
-	/**
-	 * @param string $sCol
-	 * @return bool
-	 */
-	public function hasColumn( $sCol ) {
-		return in_array( strtolower( $sCol ), array_map( 'strtolower', $this->getColumnsActual() ) );
+	public function hasColumn( string $col ) :bool {
+		return in_array( strtolower( $col ), $this->getTableSchema()->getColumnNames() );
 	}
 
 	/**
@@ -159,19 +123,17 @@ abstract class Handler {
 	 * @throws \Exception
 	 */
 	protected function tableCreate() {
-		$this->getTableBuilder()->create();
+		$DB = Services::WpDb();
+		$sch = $this->getTableSchema();
+		$DB->getIfTableExists( $sch->table ) ? $DB->dbDelta( $sch->buildCreate() ) : $DB->doSql( $sch->buildCreate() );
 		return $this;
 	}
 
-	/**
-	 * @param bool $bTruncate
-	 * @return bool
-	 */
-	public function tableDelete( $bTruncate = false ) {
+	public function tableDelete( bool $truncate = false ) :bool {
 		$table = $this->getTable();
 		$DB = Services::WpDb();
 		$mResult = !$this->tableExists() ||
-				   ( $bTruncate ? $DB->doTruncateTable( $table ) : $DB->doDropTable( $table ) );
+				   ( $truncate ? $DB->doTruncateTable( $table ) : $DB->doDropTable( $table ) );
 		$this->reset();
 		return $mResult !== false;
 	}
@@ -200,11 +162,7 @@ abstract class Handler {
 		return $this;
 	}
 
-	/**
-	 * @param int $nRowsLimit
-	 * @return $this;
-	 */
-	public function tableTrimExcess( $nRowsLimit ) {
+	public function tableTrimExcess( int $nRowsLimit ) :self {
 		try {
 			$this->getQueryDeleter()
 				 ->deleteExcess( $nRowsLimit );
@@ -225,7 +183,9 @@ abstract class Handler {
 
 		if ( !isset( $this->bIsReady ) ) {
 			try {
-				$this->bIsReady = $this->tableExists() && $this->verifyTableStructure();
+				$align = new AlignTableWithSchema( $this->getTableSchema() );
+				$align->align();
+				$this->bIsReady = $this->tableExists() && $align->isAligned();
 			}
 			catch ( \Exception $e ) {
 				$this->bIsReady = false;
@@ -235,40 +195,13 @@ abstract class Handler {
 		return $this->bIsReady;
 	}
 
-	/**
-	 * @param string[] $aColumns
-	 * @return $this
-	 */
-	public function setColumnsDefinition( $aColumns ) {
-		$this->aColDef = $aColumns;
-		return $this;
-	}
-
 	public function setTable( string $sTable ) :self {
 		$this->sTable = $sTable;
 		return $this;
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getColumns() :array {
-		return array_keys( $this->getColumnsDefinition() );
-	}
-
-	protected function getDefaultCreateTableSql() :string {
-		throw new \Exception( 'No SQL' );
-	}
-
 	protected function getDefaultTableName() :string {
 		throw new \Exception( 'No table name' );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getColumnsDefinition() :array {
-		return $this->getTableBuilder()->enumerateColumns();
 	}
 
 	/**
@@ -285,27 +218,12 @@ abstract class Handler {
 		return [];
 	}
 
-	protected function getTableBuilder() :TableBuilder {
-		$builder = new TableBuilder();
-		$builder->table = $this->getTable();
-		$builder->cols_custom = $this->getCustomColumns();
-		$builder->cols_timestamps = $this->getTimestampColumns();
-		return $builder;
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function verifyTableStructure() {
-		$aColDef = array_map( 'strtolower', $this->getColumns() );
-		if ( empty( $aColDef ) ) {
-			throw new \Exception( 'Could not verify table structure as no columns definition provided' );
-		}
-
-		$aColActual = $this->getColumnsActual();
-		return ( count( array_diff( $aColActual, $aColDef ) ) <= 0
-				 && ( count( array_diff( $aColDef, $aColActual ) ) <= 0 ) );
+	public function getTableSchema() :TableSchema {
+		$sch = new TableSchema();
+		$sch->table = $this->getTable();
+		$sch->cols_custom = $this->getCustomColumns();
+		$sch->cols_timestamps = $this->getTimestampColumns();
+		return $sch;
 	}
 
 	/**
@@ -326,7 +244,6 @@ abstract class Handler {
 	 */
 	private function reset() {
 		unset( $this->bIsReady );
-		unset( $this->aColActual );
 		return $this;
 	}
 
@@ -335,6 +252,56 @@ abstract class Handler {
 	 * @deprecated 10.0
 	 */
 	public function enumerateColumns() :array {
-		return $this->getTableBuilder()->enumerateColumns();
+		return $this->getTableSchema()->enumerateColumns();
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 * @deprecated 10.0
+	 */
+	protected function verifyTableStructure() {
+		return true;
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 10.0
+	 */
+	public function getColumns() :array {
+		return $this->getTableSchema()->getColumnNames();
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 10.0
+	 */
+	public function getColumnsDefinition() :array {
+		return $this->getTableSchema()->enumerateColumns();
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 10.0
+	 */
+	public function getColumnsActual() {
+		return Services::WpDb()->getColumnsForTable( $this->getTable(), 'strtolower' );
+	}
+
+	/**
+	 * @return string
+	 * @throws \Exception
+	 * @deprecated 10.0
+	 */
+	protected function getDefaultCreateTableSql() :string {
+		throw new \Exception( 'No SQL' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getSqlCreate() {
+		return $this->getDefaultCreateTableSql();
 	}
 }

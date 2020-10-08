@@ -21,11 +21,10 @@ class Options extends Base\ShieldOptions {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getMaxEntries() {
-		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDef( 'audit_trail_free_max_entries' );
+	public function getMaxEntries() :int {
+		return $this->isPremium() ?
+			(int)$this->getOpt( 'audit_trail_max_entries' ) :
+			(int)$this->getDef( 'audit_trail_free_max_entries' );
 	}
 
 	/**

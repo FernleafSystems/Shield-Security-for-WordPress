@@ -13,10 +13,10 @@ class Upgrade extends Base\Upgrade {
 	protected function upgrade_922() {
 		/** @var \ICWP_WPSF_FeatureHandler_Sessions $mod */
 		$mod = $this->getMod();
-		$dbh = $mod->getDbHandler_Sessions();
+		$schema = $mod->getDbHandler_Sessions()->getTableSchema();
 		Services::WpDb()->doSql(
 			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$dbh->getTable(), 'ip', $dbh->getColumnsDefinition()[ 'ip' ] )
+				$schema->table, 'ip', $schema->enumerateColumns()[ 'ip' ] )
 		);
 	}
 }

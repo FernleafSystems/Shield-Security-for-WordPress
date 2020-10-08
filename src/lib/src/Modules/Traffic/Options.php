@@ -35,10 +35,7 @@ class Options extends Base\ShieldOptions {
 		return (int)$this->getOpt( 'limit_time_span' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getMaxEntries() {
+	public function getMaxEntries() :int {
 		return (int)$this->getOpt( 'max_entries' );
 	}
 

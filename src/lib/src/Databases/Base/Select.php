@@ -42,12 +42,12 @@ class Select extends BaseQuery {
 	protected $sResultFormat;
 
 	/**
-	 * @param string $sCol
+	 * @param string $col
 	 * @return $this
 	 */
-	public function addColumnToSelect( $sCol ) {
+	public function addColumnToSelect( $col ) {
 		$aCols = $this->getColumnsToSelect();
-		$aCols[] = $sCol;
+		$aCols[] = $col;
 		return $this->setColumnsToSelect( $aCols );
 	}
 
@@ -307,16 +307,14 @@ class Select extends BaseQuery {
 
 	/**
 	 * Verifies the given columns are valid and unique
-	 * @param string[] $aColumns
+	 * @param string[] $columns
 	 * @return $this
 	 */
-	public function setColumnsToSelect( $aColumns ) {
-		if ( is_array( $aColumns ) ) {
-			$this->aColumnsToSelect = array_intersect(
-				$this->getDbH()->getColumnsActual(),
-				array_map( 'strtolower', $aColumns )
-			);
-		}
+	public function setColumnsToSelect( array $columns ) {
+		$this->aColumnsToSelect = array_intersect(
+			$this->getDbH()->getTableSchema()->getColumnNames(),
+			array_map( 'strtolower', $columns )
+		);
 		return $this;
 	}
 

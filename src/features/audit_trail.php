@@ -6,11 +6,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return false|Shield\Databases\AuditTrail\Handler
+	 * @return Shield\Databases\AuditTrail\Handler
 	 */
 	public function getDbHandler_AuditTrail() {
-		return $this->getDbH( 'audit' )
-					->setTable( $this->getDef( 'audit_trail_table_name' ) );
+		return $this->getDbH( 'audit' );
 	}
 
 	/**
@@ -18,8 +17,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getDbHandler_AuditTrail() instanceof Shield\Databases\AuditTrail\Handler )
-			   && $this->getDbHandler_AuditTrail()->isReady()
+		return $this->getDbHandler_AuditTrail()->isReady()
 			   && parent::isReadyToExecute();
 	}
 
@@ -107,9 +105,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return $aData;
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getNamespaceBase() :string {
 		return 'AuditTrail';
 	}
