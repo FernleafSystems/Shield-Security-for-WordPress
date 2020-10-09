@@ -12,7 +12,7 @@
 			<div class="card-body">
 
 				<div id="AuditFilter">
-					<form id="AuditFilterForm" autocomplete="off" class="px-3 pt-3 form-inline">
+					<form id="AuditFilterForm" autocomplete="off" class="px-3 pt-3">
 						<div class="form-row">
 
 						<div class="col-auto mb-3">
@@ -55,11 +55,12 @@
 							{# </select> #}
 							{# </div> #}
 
-						<div class="col-auto mb-3 input-daterange">
+							<div class="col-auto mb-3 input-daterange">
 							<label class="form-label sr-only" for="_fDateFrom" title="{{ strings.show_after }}...">
 								{{ strings.time_since }}:</label>
 							<input type="text" class="form-control date-picker" id="_fDateFrom"
-								   name="fDateFrom" value="" placeholder="{{ strings.time_since }} {{ strings.yyyymmdd }}">
+								   name="fDateFrom" value=""
+								   placeholder="{{ strings.time_since }} {{ strings.yyyymmdd }}">
 
 						</div>
 
@@ -67,7 +68,8 @@
 							<label class="form-label sr-only" for="_fDateTo" title="{{ strings.show_before }}...">
 								{{ strings.time_until }}:</label>
 							<input type="text" class="form-control date-picker" id="_fDateTo"
-								   name="fDateTo" value="" placeholder="{{ strings.time_until }} {{ strings.yyyymmdd }}">
+								   name="fDateTo" value=""
+								   placeholder="{{ strings.time_until }} {{ strings.yyyymmdd }}">
 						</div>
 
 						<div class="col-auto mb-3 text-right">
@@ -75,7 +77,8 @@
 								{{ strings.exclude_your_ip }}?</label>
 							<input id="SubmitForm" href="#" class="btn btn-primary"
 								   type="submit" value="{{ strings.filters_apply }}" />
-							<a id="ClearForm" href="#" class="btn btn-sm btn-link text-dark">{{ strings.filters_clear }}</a>
+							<a id="ClearForm" href="#"
+							   class="btn btn-sm btn-link text-dark">{{ strings.filters_clear }}</a>
 						</div>
 						</div>
 
