@@ -7,32 +7,32 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class Delete extends Base\Delete {
 
 	/**
-	 * @param int $bOlderThan
+	 * @param int $olderThan
 	 * @return bool
 	 */
-	public function forExpiredLoginAt( $bOlderThan ) {
+	public function forExpiredLoginAt( int $olderThan ) {
 		return $this->reset()
-					->addWhereOlderThan( $bOlderThan, 'logged_in_at' )
+					->addWhereOlderThan( $olderThan, 'logged_in_at' )
 					->query();
 	}
 
 	/**
-	 * @param int $bOlderThan
+	 * @param int $olderThan
 	 * @return bool
 	 */
-	public function forExpiredLoginIdle( $bOlderThan ) {
+	public function forExpiredLoginIdle( int $olderThan ) {
 		return $this->reset()
-					->addWhereOlderThan( $bOlderThan, 'last_activity_at' )
+					->addWhereOlderThan( $olderThan, 'last_activity_at' )
 					->query();
 	}
 
 	/**
-	 * @param string $sWpUsername
+	 * @param string $username
 	 * @return false|int
 	 */
-	public function forUsername( $sWpUsername ) {
+	public function forUsername( string $username ) {
 		return $this->reset()
-					->addWhereEquals( 'wp_username', $sWpUsername )
+					->addWhereEquals( 'wp_username', $username )
 					->query();
 	}
 }
