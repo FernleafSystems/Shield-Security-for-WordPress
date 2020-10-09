@@ -21,6 +21,9 @@ class Collate {
 	 * @return array[]
 	 */
 	public function run() :array {
+		$pluginsActive = $this->getPlugins( true );
+		$pluginsInactive = $this->getPlugins( false );
+		$themes = $this->getThemes( true );
 		return [
 			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
@@ -32,10 +35,10 @@ class Collate {
 				'Environment' => $this->getEnv(),
 			],
 			'WordPress Info' => [
-				'Summary'            => $this->getWordPressSummary(),
-				'Plugins (Active)'   => $this->getPlugins( true ),
-				'Plugins (Inactive)' => $this->getPlugins( false ),
-				'Themes (Active)'    => $this->getThemes( true ),
+				'Summary'                                                     => $this->getWordPressSummary(),
+				sprintf( 'Active Plugins (%s)', count( $pluginsActive ) )     => $pluginsActive,
+				sprintf( 'Inactive Plugins (%s)', count( $pluginsInactive ) ) => $pluginsInactive,
+				sprintf( 'Active Themes (%s)', count( $themes ) )             => $themes,
 			],
 		];
 	}
@@ -99,53 +102,47 @@ class Collate {
 		];
 	}
 
-	private function getPlugins( bool $bActive ) :array {
+	private function getPlugins( bool $filterByActive ) :array {
 		$oWpPlugins = Services::WpPlugins();
 
-		$aD = [];
+		$data = [];
 
 		foreach ( $oWpPlugins->getPluginsAsVo() as $oVO ) {
-			if ( $bActive === $oVO->active ) {
-				$aD[ $oVO->Name ] = sprintf( '%s / %s / %s',
+			if ( $filterByActive === $oVO->active ) {
+				$data[ $oVO->Name ] = sprintf( '%s / %s / %s',
 					$oVO->Version, $oVO->active ? 'Active' : 'Deactivated',
 					$oVO->hasUpdate() ? 'Update Available' : 'No Update'
 				);
 			}
 		}
 
-		return array_merge(
-			[ 'Total' => count( $aD ), ],
-			$aD
-		);
+		return $data;
 	}
 
-	private function getThemes( bool $bActive ) :array {
-		$oWpT = Services::WpThemes();
+	private function getThemes( bool $filterByActive ) :array {
+		$WPT = Services::WpThemes();
 
-		$aD = [];
+		$data = [];
 
-		foreach ( $oWpT->getThemesAsVo() as $oVO ) {
+		foreach ( $WPT->getThemesAsVo() as $T ) {
 
-			$bIsActive = $oVO->active ||
-						 ( $oWpT->isActiveThemeAChild() && ( $oVO->is_child || $oVO->is_parent ) );
+			$tActive = $T->active ||
+					   ( $WPT->isActiveThemeAChild() && ( $T->is_child || $T->is_parent ) );
 
-			if ( $bActive == $bIsActive ) {
-				$sLine = sprintf( '%s / %s / %s',
-					$oVO->Version, $oVO->active ? 'Active' : 'Deactivated',
-					$oVO->hasUpdate() ? 'Update Available' : 'No Update'
+			if ( $filterByActive == $tActive ) {
+				$line = sprintf( '%s / %s / %s',
+					$T->Version, $T->active ? 'Active' : 'Deactivated',
+					$T->hasUpdate() ? 'Update Available' : 'No Update'
 				);
 
-				if ( $oWpT->isActiveThemeAChild() && ( $oVO->is_child || $oVO->is_parent ) ) {
-					$sLine .= ' / '.( $oVO->is_parent ? 'Parent' : 'Child' );
+				if ( $WPT->isActiveThemeAChild() && ( $T->is_child || $T->is_parent ) ) {
+					$line .= ' / '.( $T->is_parent ? 'Parent' : 'Child' );
 				}
-				$aD[ $oVO->Name ] = $sLine;
+				$data[ $T->Name ] = $line;
 			}
 		}
 
-		return array_merge(
-			[ 'Total' => count( $aD ), ],
-			$aD
-		);
+		return $data;
 	}
 
 	private function getShieldIntegrity() :array {
