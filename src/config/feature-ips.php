@@ -482,11 +482,11 @@
     "ip_lists_table_name":             "ip_lists",
     "ip_list_table_columns":           {
       "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
-      "label":          "varchar(255) NOT NULL DEFAULT ''",
-      "list":           "varchar(4) NOT NULL DEFAULT ''",
-      "ip6":            "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
-      "is_range":       "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
-      "transgressions": "int(10) UNSIGNED NOT NULL DEFAULT 0"
+      "label":          "varchar(255) NOT NULL DEFAULT '' COMMENT 'Description'",
+      "list":           "varchar(4) NOT NULL DEFAULT '' COMMENT 'Block or Bypass'",
+      "ip6":            "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is IPv6'",
+      "is_range":       "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is Range'",
+      "transgressions": "int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total Offenses'"
     },
     "ip_list_table_timestamp_columns": {
       "last_access_at": "Last Access By IP",

@@ -6,7 +6,7 @@
     "name":                  "Comms",
     "menu_title":            "Comms",
     "show_module_options":   true,
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "auto_enabled":          true,
     "show_central":          true,
     "premium":               false,
