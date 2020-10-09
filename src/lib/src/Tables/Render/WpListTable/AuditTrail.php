@@ -61,8 +61,8 @@ class AuditTrail extends Base {
 	 */
 	public function get_columns() {
 		return [
-			'user'    => __( 'User' ),
-			'ip'    => __( 'IP' ),
+			'user'       => __( 'User' ),
+			'ip'         => __( 'IP' ),
 			'message'    => __( 'Message', 'wp-simple-firewall' ),
 			'created_at' => __( 'Date' ),
 		];

@@ -18,7 +18,7 @@
 						<div class="col-auto mb-3">
 							<label class="sr-only" for="_fUsername">{{ strings.username }}</label>
 							<select id="_fUsername" name="fUsername" class="form-control">
-								<option value="">-- User --</option>
+								<option value="">-- {{ strings.username }} --</option>
 								{% for uniq_user in vars.unique_users %}
 									<option value="{{ uniq_user }}">{{ uniq_user }}</option>
 								{% endfor %}
@@ -29,7 +29,7 @@
 						<div class="col-auto mb-3">
 							<label class="sr-only" for="_fIp">{{ strings.ip_address }}</label>
 							<select id="_fIp" name="fIp" class="form-control">
-								<option value="">-- IP --</option>
+								<option value="">-- {{ strings.ip_address }} --</option>
 								{% for unique_ip in vars.unique_ips %}
 									<option value="{{ unique_ip }}">{{ unique_ip }}</option>
 								{% endfor %}
@@ -39,7 +39,7 @@
 						<div class="col-auto mb-3">
 							<label class="sr-only" for="_fEvent">{{ strings.event }}</label>
 							<select id="_fEvent" name="fEvent" class="form-control">
-								<option value="">-- Event --</option>
+								<option value="">-- {{ strings.event }} --</option>
 								{% for event_key,event_name in vars.events_for_select %}
 									<option value="{{ event_key }}">{{ event_name }}</option>
 								{% endfor %}
