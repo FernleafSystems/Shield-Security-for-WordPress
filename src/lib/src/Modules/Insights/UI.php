@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
+use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
@@ -17,6 +18,7 @@ class UI extends Base\ShieldUI {
 		return [
 			'content' => [
 				'tab_updates'   => $this->renderTabUpdates(),
+				'tab_freetrial' => $this->renderFreeTrial(),
 				'summary_stats' => $uiReporting->renderSummaryStats()
 			],
 			'vars'    => [
@@ -36,6 +38,7 @@ class UI extends Base\ShieldUI {
 			],
 			'strings' => [
 				'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
+				'tab_freetrial'       => __( 'Free Trial', 'wp-simple-firewall' ),
 				'tab_updates'         => __( 'Updates and Changes', 'wp-simple-firewall' ),
 				'tab_summary_stats'   => __( 'Summary Stats', 'wp-simple-firewall' ),
 				'click_filter_status' => __( 'Click To Filter By Security Status', 'wp-simple-firewall' ),
@@ -54,6 +57,30 @@ class UI extends Base\ShieldUI {
 				'key_information'     => __( 'Information', 'wp-simple-firewall' ),
 			],
 		];
+	}
+
+	private function renderFreeTrial() :string {
+		$user = Services::WpUsers()->getCurrentWpUser();
+		return $this->getMod()
+					->renderTemplate(
+						'/forms/drip_trial_signup.twig',
+						[
+							'vars'    => [
+								// the keys here must match the changelog item types
+								'activation_url' => Services::WpGeneral()->getHomeUrl(),
+								'email'          => $user->user_email,
+								'name'           => $user->user_firstname,
+							],
+							'strings' => [
+								// the keys here must match the changelog item types
+								'version'      => __( 'Version', 'wp-simple-firewall' ),
+								'published_on' => __( 'Published On', 'wp-simple-firewall' ),
+								'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
+								'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
+							],
+						],
+						true
+					);
 	}
 
 	private function renderTabUpdates() :string {

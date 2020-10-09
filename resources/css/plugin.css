@@ -379,9 +379,6 @@ label input[type=checkbox] {
 .dropdown-item.active {
 	background-color: rgba(69, 119, 0, 1);
 }
-input[type="email"] {
-	height: 28px;
-}
 .bootstrap-wpadmin .row .shield-free-block {
 	background-color: rgba(255, 255, 255, 0.7);
 	border: 1px solid rgba(0, 0, 0, 0.1);

@@ -15,7 +15,7 @@ class UI extends Base\ShieldUI {
 		$mod = $this->getMod();
 		$con = $this->getCon();
 		$opts = $this->getOptions();
-		$oWp = Services::WpGeneral();
+		$WP = Services::WpGeneral();
 		$oCarbon = Services::Request()->carbon();
 
 		$oCurrent = $mod->getLicenseHandler()->getLicense();
@@ -23,7 +23,7 @@ class UI extends Base\ShieldUI {
 		$nExpiresAt = $oCurrent->getExpiresAt();
 		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
 			$sExpiresAt = $oCarbon->setTimestamp( $nExpiresAt )->diffForHumans()
-						  .sprintf( '<br/><small>%s</small>', $oWp->getTimeStampForDisplay( $nExpiresAt ) );
+						  .sprintf( '<br/><small>%s</small>', $WP->getTimeStampForDisplay( $nExpiresAt ) );
 		}
 		else {
 			$sExpiresAt = 'n/a';
@@ -35,7 +35,7 @@ class UI extends Base\ShieldUI {
 		}
 		else {
 			$sChecked = $oCarbon->setTimestamp( $nLastReqAt )->diffForHumans()
-						.sprintf( '<br/><small>%s</small>', $oWp->getTimeStampForDisplay( $nLastReqAt ) );
+						.sprintf( '<br/><small>%s</small>', $WP->getTimeStampForDisplay( $nLastReqAt ) );
 		}
 		$aLicenseTableVars = [
 			'product_name'    => $oCurrent->is_central ?
@@ -54,7 +54,7 @@ class UI extends Base\ShieldUI {
 		return [
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
-				'activation_url' => $oWp->getHomeUrl(),
+				'activation_url' => $WP->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true )
 			],
 			'inputs'  => [

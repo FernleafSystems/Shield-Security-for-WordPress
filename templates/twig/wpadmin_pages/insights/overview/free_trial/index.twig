@@ -17,14 +17,6 @@
 					</a>
 				</li>
 
-				{% if not flags.is_pro %}
-					<li class="nav-item">
-						<a class="nav-link" data-toggle="tab" role="tab" href="#tabFreeTrial">
-							{{ strings.tab_freetrial }}
-						</a>
-					</li>
-				{% endif %}
-
 				<li class="nav-item">
 					<a class="nav-link announcekit-widget"></a>
 				</li>
@@ -45,14 +37,6 @@
 			<div class="row">
 				<div class="col insights_section" id="TabUpdates">
 					{{ content.tab_updates|raw }}
-				</div>
-			</div>
-		</div>
-
-		<div class="tab-pane" id="tabFreeTrial" role="tabpanel" aria-labelledby="tabFreeTrial">
-			<div class="row">
-				<div class="col insights_section" id="TabUpdates">
-					{{ content.tab_freetrial|raw }}
 				</div>
 			</div>
 		</div>
