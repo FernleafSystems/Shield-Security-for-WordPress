@@ -336,6 +336,17 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
+      "key":         "locale_override",
+      "section":     "section_general_plugin_options",
+      "default":     "",
+      "type":        "text",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Locale Override",
+      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
+    },
+    {
       "key":           "captcha_provider",
       "section":       "section_third_party_captcha",
       "default":       "grecaptcha",

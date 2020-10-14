@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -151,9 +152,9 @@ class Strings extends Base\Strings {
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :
-				$sName = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $sPlugName );
-				$sSummary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $sPlugName );
+				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
+				$desc = [
 					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $sPlugName ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'debug' ),
@@ -163,9 +164,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_tracking' :
-				$sName = __( 'Anonymous Usage Statistics', 'wp-simple-firewall' );
-				$sSummary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Anonymous Usage Statistics', 'wp-simple-firewall' );
+				$summary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>', $oMod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
@@ -173,26 +174,26 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'visitor_address_source' :
-				$sName = __( 'IP Source', 'wp-simple-firewall' );
-				$sSummary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
-				$sDescription = __( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' )
-								.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
-								.'<br />'.sprintf(
-									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
-									'<strong>'.$oOpts->getIpSource().'</strong>',
-									Services::IP()->getRequestIp()
-								)
-								.sprintf(
-									'<p class="mt-2"><a href="%s" target="_blank">%s</a></p>',
-									'https://shsec.io/shieldwhatismyip',
-									__( 'What Is My IP Address?', 'wp-simple-firewall' )
-								);
+				$name = __( 'IP Source', 'wp-simple-firewall' );
+				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
+				$desc = __( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' )
+						.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
+						.'<br />'.sprintf(
+							__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
+							'<strong>'.$oOpts->getIpSource().'</strong>',
+							Services::IP()->getRequestIp()
+						)
+						.sprintf(
+							'<p class="mt-2"><a href="%s" target="_blank">%s</a></p>',
+							'https://shsec.io/shieldwhatismyip',
+							__( 'What Is My IP Address?', 'wp-simple-firewall' )
+						);
 				break;
 
 			case 'block_send_email_address' :
-				$sName = __( 'Report Email', 'wp-simple-firewall' );
-				$sSummary = __( 'Where to send email reports', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Report Email', 'wp-simple-firewall' );
+				$summary = __( 'Where to send email reports', 'wp-simple-firewall' );
+				$desc = [
 					__( "This lets you customise the default email address for all emails sent by the plugin.", 'wp-simple-firewall' ),
 					sprintf( __( "The plugin defaults to the site administration email address, which is: %s", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" target="_blank" title="%s"><code>'.get_bloginfo( 'admin_email' ).'</code></a>',
@@ -203,15 +204,15 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_upgrade_admin_notice' :
-				$sName = __( 'In-Plugin Notices', 'wp-simple-firewall' );
-				$sSummary = __( 'Display Plugin Specific Notices', 'wp-simple-firewall' );
-				$sDescription = __( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.', 'wp-simple-firewall' );
+				$name = __( 'In-Plugin Notices', 'wp-simple-firewall' );
+				$summary = __( 'Display Plugin Specific Notices', 'wp-simple-firewall' );
+				$desc = __( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.', 'wp-simple-firewall' );
 				break;
 
 			case 'display_plugin_badge' :
-				$sName = __( 'Show Plugin Badge', 'wp-simple-firewall' );
-				$sSummary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Show Plugin Badge', 'wp-simple-firewall' );
+				$summary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
 					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards for each referral.", 'wp-simple-firewall' ),
@@ -220,36 +221,48 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_wpcli' :
-				$sName = __( 'Allow WP-CLI', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
-				$sDescription = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
+				$name = __( 'Allow WP-CLI', 'wp-simple-firewall' );
+				$summary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
+				$desc = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
 				break;
 
 			case 'delete_on_deactivate' :
-				$sName = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
-				$sSummary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );
-				$sDescription = __( 'Careful: Removes all plugin options when you deactivate the plugin', 'wp-simple-firewall' );
+				$name = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
+				$summary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );
+				$desc = __( 'Careful: Removes all plugin options when you deactivate the plugin', 'wp-simple-firewall' );
+				break;
+
+			case 'locale_override' :
+				$name = __( 'Locale Override', 'wp-simple-firewall' );
+				$summary = __( 'Set Global Locale For This Plugin For All Users', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Use this if you want to force a language for this plugin for all users at all times.', 'wp-simple-firewall' ),
+					__( "We don't recommend setting this unless you're sure of the consequences for all users.", 'wp-simple-firewall' ),
+					__( "If you provide a locale for which there are no translations, defaults will apply.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
+						implode( ', ', ( new GetAllAvailableLocales() )->setCon( $this->getCon() )->run() ) ),
+				];
 				break;
 
 			case 'enable_xmlrpc_compatibility' :
-				$sName = __( 'XML-RPC Compatibility', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Login Through XML-RPC To Bypass Accounts Management Rules', 'wp-simple-firewall' );
-				$sDescription = __( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.', 'wp-simple-firewall' );
+				$name = __( 'XML-RPC Compatibility', 'wp-simple-firewall' );
+				$summary = __( 'Allow Login Through XML-RPC To Bypass Accounts Management Rules', 'wp-simple-firewall' );
+				$desc = __( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.', 'wp-simple-firewall' );
 				break;
 
 			case 'importexport_enable' :
-				$sName = __( 'Allow Import/Export', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Allow Import/Export', 'wp-simple-firewall' );
+				$summary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Uncheck this box to completely disable import and export of options.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Import/Export is a premium-only feature.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'importexport_whitelist' :
-				$sName = __( 'Export Whitelist', 'wp-simple-firewall' );
-				$sSummary = __( 'Whitelisted Sites To Export Options From This Site', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Export Whitelist', 'wp-simple-firewall' );
+				$summary = __( 'Whitelisted Sites To Export Options From This Site', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Whitelisted sites may export options from this site without the key.', 'wp-simple-firewall' ),
 					__( 'List each site URL on a new line.', 'wp-simple-firewall' ),
 					__( 'This is to be used in conjunction with the Master Import Site feature.', 'wp-simple-firewall' )
@@ -257,9 +270,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'importexport_masterurl' :
-				$sName = __( 'Master Import Site', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Import Options From This Site URL', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Master Import Site', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Import Options From This Site URL', 'wp-simple-firewall' );
+				$desc = [
 					__( "Supplying a site URL here will make this site an 'Options Slave'.", 'wp-simple-firewall' ),
 					__( 'Options will be automatically exported from the Master site each day.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.', 'wp-simple-firewall' ) )
@@ -267,27 +280,27 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'importexport_whitelist_notify' :
-				$sName = __( 'Notify Whitelist', 'wp-simple-firewall' );
-				$sSummary = __( 'Notify Sites On The Whitelist To Update Options From Master', 'wp-simple-firewall' );
-				$sDescription = __( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site.", 'wp-simple-firewall' );
+				$name = __( 'Notify Whitelist', 'wp-simple-firewall' );
+				$summary = __( 'Notify Sites On The Whitelist To Update Options From Master', 'wp-simple-firewall' );
+				$desc = __( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site.", 'wp-simple-firewall' );
 				break;
 
 			case 'importexport_secretkey' :
-				$sName = __( 'Secret Key', 'wp-simple-firewall' );
-				$sSummary = __( 'Import/Export Secret Key', 'wp-simple-firewall' );
-				$sDescription = __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' );
+				$name = __( 'Secret Key', 'wp-simple-firewall' );
+				$summary = __( 'Import/Export Secret Key', 'wp-simple-firewall' );
+				$desc = __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' );
 				break;
 
 			case 'unique_installation_id' :
-				$sName = __( 'Installation ID', 'wp-simple-firewall' );
-				$sSummary = __( 'Unique Plugin Installation ID', 'wp-simple-firewall' );
-				$sDescription = __( 'Keep this ID private.', 'wp-simple-firewall' );
+				$name = __( 'Installation ID', 'wp-simple-firewall' );
+				$summary = __( 'Unique Plugin Installation ID', 'wp-simple-firewall' );
+				$desc = __( 'Keep this ID private.', 'wp-simple-firewall' );
 				break;
 
 			case 'captcha_provider' :
-				$sName = __( 'CAPTCHA Provider', 'wp-simple-firewall' );
-				$sSummary = __( 'Which CAPTCHA Provider To Use Throughout', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'CAPTCHA Provider', 'wp-simple-firewall' );
+				$summary = __( 'Which CAPTCHA Provider To Use Throughout', 'wp-simple-firewall' );
+				$desc = [
 					__( 'You can choose the CAPTCHA provider depending on your preferences.', 'wp-simple-firewall' ),
 					__( 'Ensure your Site Keys and Secret Keys are supplied from the appropriate provider.', 'wp-simple-firewall' ),
 					sprintf( '<strong>%s</strong>',
@@ -298,33 +311,33 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'google_recaptcha_secret_key' :
-				$sName = __( 'CAPTCHA Secret', 'wp-simple-firewall' );
-				$sSummary = __( 'CAPTCHA Secret Key', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'CAPTCHA Secret', 'wp-simple-firewall' );
+				$summary = __( 'CAPTCHA Secret Key', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Enter your CAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' ),
 					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'google_recaptcha_site_key' :
-				$sName = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
-				$sSummary = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
+				$summary = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Enter your CAPTCHA site key for use throughout the plugin.', 'wp-simple-firewall' ),
 					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'google_recaptcha_style' :
-				$sName = __( 'CAPTCHA Style', 'wp-simple-firewall' );
-				$sSummary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
-				$sDescription = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
+				$name = __( 'CAPTCHA Style', 'wp-simple-firewall' );
+				$summary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
+				$desc = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
 				break;
 
 			case 'suresend_emails' :
-				$sName = __( 'SureSend Emails', 'wp-simple-firewall' );
-				$sSummary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'SureSend Emails', 'wp-simple-firewall' );
+				$summary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
+				$desc = [
 					__( 'SureSend is a dedicated email delivery service from Shield Security.', 'wp-simple-firewall' ),
 					__( 'The purpose is the improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
 					__( "If you're relying on WordPress to send and deliver important emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
@@ -337,9 +350,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $desc,
 		];
 	}
 

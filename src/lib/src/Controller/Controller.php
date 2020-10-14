@@ -153,7 +153,10 @@ class Controller {
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
-		$this->doLoadTextDomain();
+
+		( new Shield\Controller\I18n\LoadTextDomain() )
+			->setCon( $this )
+			->run();
 	}
 
 	/**
@@ -393,25 +396,6 @@ class Controller {
 			}
 			return $bByPass;
 		}, PHP_INT_MAX );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function doLoadTextDomain() {
-
-		/**
-		 * Translations override - we want to use our in-plugin translations, not those
-		 * provided by WordPress.org since getting our existing translations into the WP.org
-		 * system is full of friction, though that's where we'd like to end-up eventually.
-		 */
-		add_filter( 'load_textdomain_mofile', [ $this, 'overrideTranslations' ], 100, 2 );
-
-		return load_plugin_textdomain(
-			$this->getTextDomain(),
-			false,
-			plugin_basename( $this->getPath_Languages() )
-		);
 	}
 
 	public function onWpAdminInit() {
@@ -1488,10 +1472,7 @@ class Controller {
 		return $this->getPluginSpec_Property( 'release_timestamp' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTextDomain() {
+	public function getTextDomain() :string {
 		return $this->getPluginSpec_Property( 'text_domain' );
 	}
 
