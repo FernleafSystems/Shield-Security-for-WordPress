@@ -11,13 +11,15 @@ class Insert extends BaseQuery {
 	 */
 	protected $aInsertData;
 
-	/**
-	 * @return array
-	 */
-	public function getInsertData() {
+	public function getInsertData() :array {
+		$dbh = $this->getDbH();
+		$cols = method_exists( $dbh, 'getTableSchema' ) ?
+			$dbh->getTableSchema()->getColumnNames()
+			: $dbh->getColumnsActual();
+
 		return array_intersect_key(
 			is_array( $this->aInsertData ) ? $this->aInsertData : [],
-			array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
+			array_flip( $cols )
 		);
 	}
 
@@ -38,10 +40,13 @@ class Insert extends BaseQuery {
 		if ( !is_array( $data ) ) {
 			$data = [];
 		}
-		$this->aInsertData = array_intersect_key(
-			$data,
-			array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
-		);
+
+		$dbh = $this->getDbH();
+		$cols = method_exists( $dbh, 'getTableSchema' ) ?
+			$dbh->getTableSchema()->getColumnNames()
+			: $dbh->getColumnsActual();
+
+		$this->aInsertData = array_intersect_key( $data, array_flip( $cols ) );
 		return $this;
 	}
 
