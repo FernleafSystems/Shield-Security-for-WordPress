@@ -84,6 +84,17 @@ class UI extends Base\ShieldUI {
 	}
 
 	private function renderTabUpdates() :string {
+		try {
+			$changelog = ( new Retrieve() )
+				->setCon( $this->getCon() )
+				->fromRepo();
+		}
+		catch ( \Exception $e ) {
+			$changelog = ( new Retrieve() )
+				->setCon( $this->getCon() )
+				->fromFile();
+		}
+
 		return $this->getMod()
 					->renderTemplate(
 						'/wpadmin_pages/insights/overview/updates/index.twig',
@@ -105,9 +116,7 @@ class UI extends Base\ShieldUI {
 								'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
 								'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
 							],
-							'changelog' => ( new Retrieve() )
-								->setCon( $this->getCon() )
-								->fromFile()
+							'changelog' => $changelog
 						],
 						true
 					);
