@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class Retrieve {
 
@@ -20,11 +21,19 @@ class Retrieve {
 	 * @throws \Exception
 	 */
 	public function fromRepo() :array {
-		$raw = Services::HttpRequest()
-					   ->getContent( 'https://raw.githubusercontent.com/FernleafSystems/Shield-Security-for-WordPress/develop/cl.json' );
-		if ( empty( $raw ) ) {
-			throw new \Exception( "Couldn't retrieve changelog" );
+		$cl = Transient::Get( 'shield_cl' );
+		if ( empty( $cl ) ) {
+			$raw = Services::HttpRequest()
+						   ->getContent( 'https://raw.githubusercontent.com/FernleafSystems/Shield-Security-for-WordPress/develop/cl.json' );
+			if ( empty( $raw ) ) {
+				throw new \Exception( "Couldn't retrieve changelog" );
+			}
+			$cl = json_decode( $raw, true );
+			if ( empty( $cl ) ) {
+				throw new \Exception( "Couldn't build changelog" );
+			}
+			Transient::Set( 'shield_cl', $cl, DAY_IN_SECONDS );
 		}
-		return json_decode( $raw, true );
+		return $cl;
 	}
 }
