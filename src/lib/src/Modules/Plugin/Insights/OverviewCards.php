@@ -68,28 +68,41 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	private function getNoticesSite() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
 		$mod = $this->getMod();
+		$WP = Services::WpGeneral();
 		$srvSSL = new Ssl();
 		$cards = [];
 
 		// SSL Expires
-		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
+		$sHomeUrl = $WP->getHomeUrl();
+		$sSiteUrl = $WP->getWpUrl();
 		$bHomeSsl = strpos( $sHomeUrl, 'https://' ) === 0;
+		$bSiteSsl = strpos( $sSiteUrl, 'https://' ) === 0;
 
 		if ( !$bHomeSsl ) {
 			$cards[ 'site_https' ] = [
 				'name'    => __( 'HTTPS', 'wp-simple-firewall' ),
 				'state'   => -1,
 				'summary' => __( "Site visitor traffic isn't protected by HTTPS", 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
+				'href'    => $WP->getAdminUrl_Settings(),
 				'help'    => __( "It's recommended that an SSL certificate is installed on your site.", 'wp-simple-firewall' )
 			];
 		}
+		elseif ( !$bSiteSsl ) {
+			$cards[ 'url_https' ] = [
+				'name'    => __( 'HTTPS', 'wp-simple-firewall' ),
+				'state'   => -1,
+				'summary' => __( "Site visitor traffic isn't protected by HTTPS", 'wp-simple-firewall' ),
+				'href'    => $WP->getAdminUrl_Settings(),
+				'help'    => __( "HTTPS setting for Home URL and Site URL are not consistent.", 'wp-simple-firewall' )
+			];
+		}
 		elseif ( !$srvSSL->isEnvSupported() ) {
+			// If we can't test our SSL certificate, we just assume it's okay.
 			$cards[ 'site_https' ] = [
 				'name'    => __( 'HTTPS', 'wp-simple-firewall' ),
 				'state'   => 1,
 				'summary' => __( "Site visitor traffic set to use HTTPS", 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
+				'href'    => $WP->getAdminUrl_Settings(),
 				'help'    => __( "It's recommended that an SSL certificate is installed on your site.", 'wp-simple-firewall' )
 			];
 		}
@@ -110,7 +123,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 						'name'    => __( 'SSL Certificate', 'wp-simple-firewall' ),
 						'state'   => 1,
 						'summary' => __( 'SSL Certificate remains valid for at least the next 2 weeks', 'wp-simple-firewall' ),
-						'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
+						'href'    => $this->getUrlSslCheck(),
 						'help'    => __( "It's recommended to keep a valid SSL certificate installed at all times.", 'wp-simple-firewall' )
 					];
 					if ( $nDaysLeft < 15 ) {
@@ -133,7 +146,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 					'name'    => __( 'SSL Certificate', 'wp-simple-firewall' ),
 					'state'   => 0,
 					'summary' => __( "Couldn't automatically test and verify your site SSL certificate", 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
+					'href'    => $this->getUrlSslCheck(),
 					'help'    => sprintf( '%s: %s', __( 'Error message', 'wp-simple-firewall' ), $e->getMessage() )
 				];
 			}
@@ -147,10 +160,20 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'summary' => $bStrong ?
 				__( 'WP Database password is very strong', 'wp-simple-firewall' )
 				: __( "WP Database password appears to be weak", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), //TODO
+			'href'    => '',
 			'help'    => __( 'The database password should be strong.', 'wp-simple-firewall' )
 		];
 
 		return $cards;
+	}
+
+	private function getUrlSslCheck() :string {
+		return add_query_arg(
+			[
+				'action' => Services::WpGeneral()->getHomeUrl(),
+				'run'    => 'toolpage'
+			],
+			'https://mxtoolbox.com/SuperTool.aspx'
+		);
 	}
 }
