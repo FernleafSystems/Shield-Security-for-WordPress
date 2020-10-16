@@ -58,16 +58,32 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 		$cards = array_merge(
 			$cards,
-			$this->getNoticesSite()
+			$this->getNoticesSsl(),
+			$this->getNoticesDb()
 		);
 
 		$cardSection[ 'cards' ] = $cards;
 		return [ 'plugin' => $cardSection ];
 	}
 
-	private function getNoticesSite() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
-		$mod = $this->getMod();
+	private function getNoticesDb() :array {
+		$cards = [];
+
+		// db password strength
+		$bStrong = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] >= 4;
+		$cards[ 'db_strength' ] = [
+			'name'    => __( 'DB Password', 'wp-simple-firewall' ),
+			'state'   => $bStrong >= 4 ? 1 : -1,
+			'summary' => $bStrong ?
+				__( 'WP Database password is very strong', 'wp-simple-firewall' )
+				: __( "WP Database password appears to be weak", 'wp-simple-firewall' ),
+			'href'    => '',
+			'help'    => __( 'The database password should be strong.', 'wp-simple-firewall' )
+		];
+		return $cards;
+	}
+
+	private function getNoticesSsl() :array {
 		$WP = Services::WpGeneral();
 		$srvSSL = new Ssl();
 		$cards = [];
@@ -88,7 +104,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 		elseif ( !$bSiteSsl ) {
-			$cards[ 'url_https' ] = [
+			$cards[ 'site_https' ] = [
 				'name'    => __( 'HTTPS', 'wp-simple-firewall' ),
 				'state'   => -1,
 				'summary' => __( "Site visitor traffic isn't protected by HTTPS", 'wp-simple-firewall' ),
@@ -151,18 +167,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				];
 			}
 		}
-
-		// db password strength
-		$bStrong = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] >= 4;
-		$cards[ 'db_strength' ] = [
-			'name'    => __( 'DB Password', 'wp-simple-firewall' ),
-			'state'   => $bStrong >= 4 ? 1 : -1,
-			'summary' => $bStrong ?
-				__( 'WP Database password is very strong', 'wp-simple-firewall' )
-				: __( "WP Database password appears to be weak", 'wp-simple-firewall' ),
-			'href'    => '',
-			'help'    => __( 'The database password should be strong.', 'wp-simple-firewall' )
-		];
 
 		return $cards;
 	}
