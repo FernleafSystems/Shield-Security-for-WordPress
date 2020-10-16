@@ -88,8 +88,10 @@
 							{# <span class="badge badge-secondary">{{ card.mod }}</span> #}
 						</div>
 						<div class="w-25 d-inline-block">
-							<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
-							   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
+							{% if card.href|default('') is not empty %}
+								<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
+								   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
+							{% endif %}
 						</div>
 					</div>
 				</div>

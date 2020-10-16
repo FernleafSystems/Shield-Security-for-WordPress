@@ -14,18 +14,18 @@ class AutoUnblock {
 	 * This should only be run if the current IP has been verified as being blocked
 	 * @return bool - true if IP is unblocked, false otherwise.
 	 */
-	public function run() {
+	public function run() :bool {
 		try {
 			$bUnblocked = $this->processAutoUnblockRequest();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$bUnblocked = false;
 		}
 		if ( !$bUnblocked ) {
 			try {
 				$bUnblocked = $this->processUserMagicLink();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 		return $bUnblocked;
@@ -35,7 +35,7 @@ class AutoUnblock {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private function processAutoUnblockRequest() {
+	private function processAutoUnblockRequest() :bool {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
@@ -95,7 +95,7 @@ class AutoUnblock {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private function processUserMagicLink() {
+	private function processUserMagicLink() :bool {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */

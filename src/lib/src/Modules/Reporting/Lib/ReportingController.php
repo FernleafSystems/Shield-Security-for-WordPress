@@ -44,7 +44,7 @@ class ReportingController {
 					$aReports[] = $oAlertReport;
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 
@@ -56,7 +56,7 @@ class ReportingController {
 					$aReports[] = $oInfoReport;
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 
@@ -87,13 +87,13 @@ class ReportingController {
 	 * @throws \Exception
 	 */
 	private function buildReportAlerts() {
-		$oReport = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_ALERT ) )
+		$report = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_ALERT ) )
 			->setMod( $this->getMod() )
 			->create();
-		( new Build\BuilderAlerts( $oReport ) )
+		( new Build\BuilderAlerts( $report ) )
 			->setMod( $this->getMod() )
 			->build();
-		return $oReport;
+		return $report;
 	}
 
 	/**
@@ -101,51 +101,57 @@ class ReportingController {
 	 * @throws \Exception
 	 */
 	private function buildReportInfo() {
-		$oReport = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_INFO ) )
+		$report = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_INFO ) )
 			->setMod( $this->getMod() )
 			->create();
-		( new Build\BuilderInfo( $oReport ) )
+		( new Build\BuilderInfo( $report ) )
 			->setMod( $this->getMod() )
 			->build();
-		return $oReport;
+		return $report;
 	}
 
 	/**
-	 * @param Modules\Reporting\Lib\Reports\ReportVO[] $aReportVOs
+	 * @param Modules\Reporting\Lib\Reports\ReportVO[] $reportVOs
 	 */
-	private function sendEmail( array $aReportVOs ) {
+	private function sendEmail( array $reportVOs ) {
 
-		$aReports = array_filter( array_map(
-			function ( $oReport ) {
-				return $oReport->content;
+		$reports = array_filter( array_map(
+			function ( $rep ) {
+				return $rep->content;
 			},
-			$aReportVOs
+			$reportVOs
 		) );
 
-		if ( !empty( $aReports ) ) {
-			$oWP = Services::WpGeneral();
-			$aReports = array_merge(
-				[
-					__( 'Please find your site report below.', 'wp-simple-firewall' ),
-					__( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
-					'',
-					sprintf( '- %s: %s', __( 'Site URL', 'wp-simple-firewall' ), $oWP->getHomeUrl() ),
-					sprintf( '- %s: %s', __( 'Report Generation Date', 'wp-simple-firewall' ),
-						$oWP->getTimeStampForDisplay() ),
-					'',
-					__( 'Please use the links provided to review the report details.', 'wp-simple-firewall' ),
-				],
-				$aReports,
-				[
-					__( 'Thank You.', 'wp-simple-firewall' ),
-				]
-			);
+		if ( !empty( $reports ) ) {
+			$WP = Services::WpGeneral();
 			$this->getMod()
 				 ->getEmailProcessor()
-				 ->sendEmailWithWrap(
+				 ->sendEmailWithTemplate(
+					 '/email/reports/cron_alert_info_report',
 					 $this->getMod()->getPluginReportEmail(),
 					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
-					 $aReports
+					 [
+						 'content' => [
+							 'reports' => $reports
+						 ],
+						 'vars'    => [
+							 'site_url'    => $WP->getHomeUrl(),
+							 'report_date' => $WP->getTimeStampForDisplay(),
+						 ],
+						 'hrefs'   => [
+							 'click_adjust' => $this->getCon()
+													->getModule_Reporting()
+													->getUrl_AdminPage()
+						 ],
+						 'strings' => [
+							 'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),
+							 'depending'    => __( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
+							 'site_url'     => __( 'Site URL', 'wp-simple-firewall' ),
+							 'report_date'  => __( 'Report Generation Date', 'wp-simple-firewall' ),
+							 'use_links'    => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
+							 'click_adjust' => __( 'Click here to adjust your reporting settings', 'wp-simple-firewall' ),
+						 ]
+					 ]
 				 );
 		}
 	}
