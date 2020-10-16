@@ -154,6 +154,11 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
+		$dbh = $con->getModule_AuditTrail()->getDbHandler_AuditTrail();
+		$data[ 'DB Table: Audit Trail' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
 		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
 		$data[ 'DB Table: IP' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
