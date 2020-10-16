@@ -93,11 +93,9 @@ class Options extends Base\ShieldOptions {
 	}
 
 	public function isSuspendEnabled() :bool {
-		return $this->isPremium() &&
-			   ( $this->isSuspendManualEnabled()
-				 || $this->isSuspendAutoIdleEnabled()
-				 || $this->isSuspendAutoPasswordEnabled()
-			   );
+		return $this->isSuspendManualEnabled()
+			   || $this->isSuspendAutoIdleEnabled()
+			   || $this->isSuspendAutoPasswordEnabled();
 	}
 
 	public function isSuspendAutoPasswordEnabled() :bool {

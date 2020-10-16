@@ -19,10 +19,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 
 	/**
 	 * @param string   $sUsername
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		$this->captureLogin( $oUser );
+	public function onWpLogin( $sUsername, $user ) {
+		$this->captureLogin( $user );
 	}
 
 	/**

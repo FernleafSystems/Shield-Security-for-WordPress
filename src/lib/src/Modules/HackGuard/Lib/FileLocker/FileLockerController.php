@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
@@ -11,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class FileLockerController {
 
 	use Modules\ModConsumer;
-	use Modules\Base\OneTimeExecute;
+	use OneTimeExecute;
 
 	/**
 	 * @return bool

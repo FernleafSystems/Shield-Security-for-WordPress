@@ -38,13 +38,14 @@ class Strings extends Base\Strings {
 		switch ( $key ) {
 
 			case 'suresend_emails' :
-				$sName = __( 'SureSend Emails', 'wp-simple-firewall' );
-				$sSummary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'SureSend Emails', 'wp-simple-firewall' );
+				$summary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
+				$desc = [
 					__( 'SureSend is a dedicated email delivery service from Shield Security.', 'wp-simple-firewall' ),
 					__( 'The purpose is the improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
-					__( "If you're relying on WordPress to send and deliver important emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
-					__( "This isn't a replacement for a dedicated email service and if you're using a 3rd party email service, you probably won't need SureSend.", 'wp-simple-firewall' ),
+					__( "If you're not using a dedicated email service provider to send WordPress emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
+					__( "This isn't a replacement for a dedicated email service.", 'wp-simple-firewall' ),
+					__( "Please read the information and blog links below to fully understand this service and its limitations.", 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -53,9 +54,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $desc,
 		];
 	}
 

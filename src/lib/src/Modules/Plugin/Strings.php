@@ -334,17 +334,6 @@ class Strings extends Base\Strings {
 				$desc = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
 				break;
 
-			case 'suresend_emails' :
-				$name = __( 'SureSend Emails', 'wp-simple-firewall' );
-				$summary = __( 'Select Which Shield Emails Should Be Sent Using SureSend', 'wp-simple-firewall' );
-				$desc = [
-					__( 'SureSend is a dedicated email delivery service from Shield Security.', 'wp-simple-firewall' ),
-					__( 'The purpose is the improve WordPress email reliability for critical emails.', 'wp-simple-firewall' ),
-					__( "If you're relying on WordPress to send and deliver important emails, you should enable SureSend for these important emails.", 'wp-simple-firewall' ),
-					__( "This isn't a replacement for a dedicated email service and if you're using a 3rd party email service, you probably won't need SureSend.", 'wp-simple-firewall' ),
-				];
-				break;
-
 			default:
 				return parent::getOptionStrings( $key );
 		}

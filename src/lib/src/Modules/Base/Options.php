@@ -624,33 +624,30 @@ class Options {
 
 	/**
 	 * Return the section of the Raw config that is the "options" key only.
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return array
 	 */
-	public function getRawData_SingleOption( $sOptionKey ) {
+	public function getRawData_SingleOption( $key ) {
 		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( isset( $aOption[ 'key' ] ) && ( $sOptionKey == $aOption[ 'key' ] ) ) {
+			if ( isset( $aOption[ 'key' ] ) && ( $key == $aOption[ 'key' ] ) ) {
 				return $aOption;
 			}
 		}
 		return null;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getRebuildFromFile() {
-		return $this->bRebuildFromFile;
+	public function getRebuildFromFile() :bool {
+		return (bool)$this->bRebuildFromFile;
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return string
 	 */
-	public function getSelectOptionValueText( $sKey ) {
+	public function getSelectOptionValueText( $key ) {
 		$sText = '';
-		foreach ( $this->getOptDefinition( $sKey )[ 'value_options' ] as $aOpt ) {
-			if ( $aOpt[ 'value_key' ] == $this->getOpt( $sKey ) ) {
+		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $aOpt ) {
+			if ( $aOpt[ 'value_key' ] == $this->getOpt( $key ) ) {
 				$sText = $aOpt[ 'text' ];
 				break;
 			}
@@ -658,41 +655,26 @@ class Options {
 		return $sText;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAccessRestricted() {
-		$bAccessRestricted = $this->getFeatureProperty( 'access_restricted' );
-		return is_null( $bAccessRestricted ) ? true : (bool)$bAccessRestricted;
+	public function isAccessRestricted() :bool {
+		$state = $this->getFeatureProperty( 'access_restricted' );
+		return is_null( $state ) ? true : (bool)$state;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModulePremium() {
+	public function isModulePremium() :bool {
 		return (bool)$this->getFeatureProperty( 'premium' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleRunIfWhitelisted() {
-		$bState = $this->getFeatureProperty( 'run_if_whitelisted' );
-		return is_null( $bState ) ? true : (bool)$bState;
+	public function isModuleRunIfWhitelisted() :bool {
+		$state = $this->getFeatureProperty( 'run_if_whitelisted' );
+		return is_null( $state ) ? true : (bool)$state;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleRunUnderWpCli() {
-		$bState = $this->getFeatureProperty( 'run_if_wpcli' );
-		return is_null( $bState ) ? true : (bool)$bState;
+	public function isModuleRunUnderWpCli() :bool {
+		$state = $this->getFeatureProperty( 'run_if_wpcli' );
+		return is_null( $state ) ? true : (bool)$state;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleRunIfVerifiedBot() {
+	public function isModuleRunIfVerifiedBot() :bool {
 		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
 	}
 
@@ -700,20 +682,12 @@ class Options {
 		return is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
 	}
 
-	/**
-	 * @param string $sOptionKey
-	 * @return bool true if premium is set and true, false otherwise.
-	 */
-	public function isOptPremium( $sOptionKey ) {
-		return (bool)$this->getOptProperty( $sOptionKey, 'premium' );
+	public function isOptPremium( string $optKey ) :bool {
+		return (bool)$this->getOptProperty( $optKey, 'premium' );
 	}
 
-	/**
-	 * @param string $sOptionKey
-	 * @return $this
-	 */
-	public function resetOptToDefault( $sOptionKey ) {
-		return $this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey ) );
+	public function resetOptToDefault( string $optKey ) :self {
+		return $this->setOpt( $optKey, $this->getOptDefault( $optKey ) );
 	}
 
 	/**
@@ -727,12 +701,8 @@ class Options {
 		}
 	}
 
-	/**
-	 * @param string $sKey
-	 * @return $this
-	 */
-	public function setOptionsStorageKey( $sKey ) {
-		$this->sOptionsStorageKey = $sKey;
+	public function setOptionsStorageKey( string $key ) :self {
+		$this->sOptionsStorageKey = $key;
 		return $this;
 	}
 
@@ -741,11 +711,8 @@ class Options {
 		return $this;
 	}
 
-	/**
-	 * @param bool $bNeed
-	 */
-	public function setNeedSave( $bNeed ) {
-		$this->bNeedSave = $bNeed;
+	public function setNeedSave( bool $need ) {
+		$this->bNeedSave = $need;
 	}
 
 	/**

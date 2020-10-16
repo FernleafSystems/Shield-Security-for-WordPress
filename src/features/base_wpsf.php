@@ -196,54 +196,49 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		$oOpts = $this->getOptions();
-		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
-			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
-			   && ( $oOpts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
+		$opts = $this->getOptions();
+		return ( $opts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
+			   && ( $opts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
+			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
 			   && parent::isReadyToExecute();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isVisitorWhitelisted() {
+	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-			$oIp = ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-				->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-				->setIP( Services::IP()->getRequestIp() )
-				->setListTypeWhite()
-				->lookup();
-			self::$bVisitorIsWhitelisted = $oIp instanceof Shield\Databases\IPs\EntryVO;
+			self::$bVisitorIsWhitelisted =
+				( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+					->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+					->setIP( Services::IP()->getRequestIp() )
+					->setListTypeWhite()
+					->lookup()
+				instanceof Shield\Databases\IPs\EntryVO;
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isVerifiedBot() {
+	public function isVerifiedBot() :bool {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$oIP = Services::IP();
+			$srvIP = Services::IP();
 
-			if ( $oIP->isLoopback() ) {
+			if ( $srvIP->isLoopback() ) {
 				self::$bIsVerifiedBot = false;
 			}
 			else {
-				$oSP = Services::ServiceProviders();
-				$sIp = $oIP->getRequestIp();
-				$sAgent = Services::Request()->getUserAgent();
-				if ( empty( $sAgent ) ) {
-					$sAgent = 'Unknown';
+				$SP = Services::ServiceProviders();
+				$ip = $srvIP->getRequestIp();
+				$agent = Services::Request()->getUserAgent();
+				if ( empty( $agent ) ) {
+					$agent = 'Unknown';
 				}
-				self::$bIsVerifiedBot = $oSP->isIp_GoogleBot( $sIp, $sAgent )
-										|| $oSP->isIp_BingBot( $sIp, $sAgent )
-										|| $oSP->isIp_AppleBot( $sIp, $sAgent )
-										|| $oSP->isIp_YahooBot( $sIp, $sAgent )
-										|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
-										|| $oSP->isIp_YandexBot( $sIp, $sAgent )
-										|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
-										|| $oSP->isIp_BaiduBot( $sIp, $sAgent )
-										|| $oSP->isIp_Stripe( $sIp, $sAgent );
+				self::$bIsVerifiedBot = $SP->isIp_GoogleBot( $ip, $agent )
+										|| $SP->isIp_BingBot( $ip, $agent )
+										|| $SP->isIp_AppleBot( $ip, $agent )
+										|| $SP->isIp_YahooBot( $ip, $agent )
+										|| $SP->isIp_DuckDuckGoBot( $ip, $agent )
+										|| $SP->isIp_YandexBot( $ip, $agent )
+										|| ( class_exists( 'ICWP_Plugin' ) && $SP->isIp_iControlWP( $ip ) )
+										|| $SP->isIp_BaiduBot( $ip, $agent )
+										|| $SP->isIp_Stripe( $ip, $agent );
 			}
 		}
 		return self::$bIsVerifiedBot;

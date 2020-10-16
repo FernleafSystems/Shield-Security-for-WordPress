@@ -459,7 +459,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\BaseProcessor|Shield\Modules\Base\OneTimeExecute|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|\FernleafSystems\Utilities\Logic\OneTimeExecute|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();

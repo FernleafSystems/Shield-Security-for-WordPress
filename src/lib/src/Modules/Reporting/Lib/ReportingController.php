@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
@@ -10,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ReportingController {
 
 	use Modules\ModConsumer;
-	use Modules\Base\OneTimeExecute;
+	use OneTimeExecute;
 
 	/**
 	 * @return bool
