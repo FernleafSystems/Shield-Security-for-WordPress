@@ -1,8 +1,12 @@
 {
-  "10.0.0": {
-    "version":     "10.0.0",
+  "10.0": {
+    "version":     "10.0",
     "released_at": 1601466659,
-    "href":        "https://shsec.io/shieldrelease92",
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease100",
+      "upgrade": "https://shsec.io/shieldupgradeguide100"
+    },
+    "href":        "https://shsec.io/",
     "title":       "All-New PHP-7 Optimised Shield Security",
     "description": [
       "We've taken steps to improve the Dashboard UI, making it much easier to secure your WordPress site by quickly identifying areas of improvement.",
@@ -96,6 +100,139 @@
         "description": [
           "A PHP error has been fixed which would occur in some cases."
         ]
+      }
+    ]
+  },
+  "9.2":  {
+    "version":     "9.2",
+    "released_at": 1599135934,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease92",
+      "upgrade": "https://shsec.io/shieldupgradeguide92"
+    },
+    "title":       "Improved UX For Logged-In Users",
+    "description": [
+      "Most notable in this release is a feature that allows logged-in users to unblock their IP.",
+      "Note that this will also be the final release to support PHP 5."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Automatic Unblock For Logged-In Users",
+        "description": [
+          "When a user's IP address is blocked on a site, they may automatically unblock it if they're logged-in.",
+          "By using a magic unblock-link, users may regain access to a site without intervention from an admin."
+        ],
+        "href":        "https://shsec.io/ii"
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Auto-Delete Unnecessary WordPress Files",
+        "description": [
+          "Files such as wp-config-sample.php, readme.html and license.txt are replaced each time WordPress upgrades.",
+          "This new option ensures that they are removed each time they are restored to your site after an upgrade."
+        ],
+        "href":        "https://shsec.io/hv"
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Support for WP Members plugin",
+        "description": [
+          "Provide native support for protection on WP Members plugin login/registration forms."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Defer to WordPress 5.5 Automatic Updates Changes",
+        "description": [
+          "Automatic updates notification email is now only sent if on WordPress < 5.5"
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Integrate with WordPress 5.5 Automatic Updates Changes",
+        "description": [
+          "Shield's Automatic updates notification email setting also applies to plugin/theme update emails."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Improved Integration with WP Fastest Cache",
+        "description": [
+          "Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Better Mitigation of Error From Other Plugins",
+        "description": [
+          "Prevent spurious output from errors not relating to this plugin from affecting display of our admin pages."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Better Detection Of forceoff File",
+        "description": [
+          "Detecting the forceoff file is all its many forms is improved."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "File Locker + open_basedir",
+        "description": [
+          "The File Locker is less likely to trigger an open_basedir warning."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Lots Of Code Optimisation",
+        "description": []
+      },
+      {
+        "type":        "changed",
+        "title":       "Session Cookie Name Change",
+        "description": [
+          "Session cookie renamed from icwp-wpsf to wp-icwp-wpsf."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Bootstrap Library Updated",
+        "description": [
+          "Upgraded shipped Bootstrap libraries to latest available (v4.5.2)."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Increased Limit For Counting IP Offenses",
+        "description": [
+          "Upgraded the database to support much larger values for the IP offenses counter."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "MemberPress Integration Bug",
+        "description": [
+          "MemberPress support had a bug where certain forms weren’t checked for bots."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "WP-CLI Bugs",
+        "description": [
+          "Cleaned some WP-CLI PHP notices on certain commands."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Bug: User Sessions",
+        "description": [
+          "User session IDs weren’t cleared correctly."
+        ],
+        "patch":       "9.2.1"
       }
     ]
   }

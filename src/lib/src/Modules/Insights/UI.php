@@ -72,11 +72,6 @@ class UI extends Base\ShieldUI {
 								'name'           => $user->user_firstname,
 							],
 							'strings' => [
-								// the keys here must match the changelog item types
-								'version'      => __( 'Version', 'wp-simple-firewall' ),
-								'published_on' => __( 'Published On', 'wp-simple-firewall' ),
-								'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
-								'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
 							],
 						],
 						true
@@ -87,7 +82,7 @@ class UI extends Base\ShieldUI {
 		try {
 			$changelog = ( new Retrieve() )
 				->setCon( $this->getCon() )
-				->fromRepo();
+				->fromFile();
 		}
 		catch ( \Exception $e ) {
 			$changelog = ( new Retrieve() )
@@ -112,7 +107,7 @@ class UI extends Base\ShieldUI {
 							'strings'   => [
 								// the keys here must match the changelog item types
 								'version'      => __( 'Version', 'wp-simple-firewall' ),
-								'published_on' => __( 'Published On', 'wp-simple-firewall' ),
+								'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
 								'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
 								'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
 							],
