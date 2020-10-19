@@ -1,7 +1,7 @@
 {
   "10.0": {
     "version":     "10.0",
-    "released_at": 1601466659,
+    "released_at": 1603281600,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease100",
       "upgrade": "https://shsec.io/shieldupgradeguide100"
@@ -9,7 +9,7 @@
     "href":        "https://shsec.io/",
     "title":       "All-New PHP-7 Optimised Shield Security",
     "description": [
-      "We've taken steps to improve the Dashboard UI, making it much easier to secure your WordPress site by quickly identifying areas of improvement.",
+      "We've massively enhanced the Dashboard UI, making it much easier to secure your WordPress site by quickly identifying areas of improvement.",
       "Of particular note is the IP Analysis tool which lets you see all information pertaining to an IP address in 1 place."
     ],
     "items":       [
@@ -72,7 +72,7 @@
         "type":        "improved",
         "title":       "More reliable 2FA email codes",
         "description": [
-          "2FA codes generated and sent by email are more reliable."
+          "2FA codes generated for email 2FA are more reliable."
         ]
       },
       {

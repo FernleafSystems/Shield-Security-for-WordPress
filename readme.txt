@@ -5,10 +5,10 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.5.2
-Requires PHP: 5.4.0
-Recommended PHP: 7.0
-Tested up to: 5.4
-Stable tag: 9.2.2
+Requires PHP: 7.0
+Recommended PHP: 7.4
+Tested up to: 5.5
+Stable tag: 10.0.0
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -363,18 +363,11 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-Shield Pro brings exclusive features to the serious webmaster to maximise site security.
-You'll also have access to our email technical support team.
+The full Shield Changelog can be viewed from our home page:
 
-You will always be able to use Shield Security and its free features in-full.
+#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+
+ShieldPRO delivers exclusive security features to the serious site administrator to maximise site security
+You'll also have direct access to our technical support team.
 
 [Go Pro from just $1/month](https://shsec.io/aa).
-
-#### 10.0 Series
-*Released: 3rd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
-
-##### [Please review the full Shield 10.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide10).
-
-* **(.0)  CHANGED**:	U2F two-factor authentication can now be standalone - doesn't require another 2FA provider to be active.
-
-##### [Entire Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
