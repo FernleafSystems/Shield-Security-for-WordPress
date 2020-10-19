@@ -82,7 +82,7 @@ class UI extends Base\ShieldUI {
 		try {
 			$changelog = ( new Retrieve() )
 				->setCon( $this->getCon() )
-				->fromFile();
+				->fromRepo();
 		}
 		catch ( \Exception $e ) {
 			$changelog = ( new Retrieve() )

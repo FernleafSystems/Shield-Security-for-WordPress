@@ -1,13 +1,18 @@
 {% for release in changelog %}
-	<div class="row mt-4" id="DynamicChangelog">
+	<div class="row dynamicChangelog">
 		<div class="offset-2 col-8">
 
 			<div class="card">
 				<div class="card-header">
-					<h5 class="m-0">{{ strings.version }}: {{ release.version }}
+					<h5 class="m-0">
+						{{ strings.version }}: {{ release.version }}
+						<a class="float-right btn btn-sm btn-outline-dark"
+								title="Collapse"
+								data-toggle="collapse" href="#Release-{{ release.released_at }}"
+						>&#9660;</a>
 					</h5>
 				</div>
-				<div class="card-body">
+				<div class="card-body collapse show" id="Release-{{ release.released_at }}">
 
 					{% if release.title|default('') is not empty %}
 						<h5 class="card-title">{{ release.title }}</h5>
@@ -71,6 +76,8 @@
 					</div>
 				{% endif %}
 			</div>
+
+			<hr class="w-50 my-4"/>
 
 		</div>
 	</div>
