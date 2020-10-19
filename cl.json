@@ -46,6 +46,15 @@
       },
       {
         "type":        "new",
+        "title":       "Force Shield Locale",
+        "description": [
+          "An option has been added that lets you force Shield to always display in certain locale.",
+          "Setting this option will override user's profile locale for anything relating to Shield.",
+          "This setting doesn't affect the locale for anything other part of a WordPress site."
+        ]
+      },
+      {
+        "type":        "new",
         "title":       "Huawei (Petal) Bot Detection",
         "description": [
           "Added support for detection of Huawei search engine bot/spider."
