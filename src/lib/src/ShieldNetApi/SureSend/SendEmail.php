@@ -14,9 +14,8 @@ class SendEmail extends BaseShieldNetApi {
 			'2fa',
 			$to->user_email,
 			[
-				'code'   => $code,
-				'ip'     => Services::IP()->getRequestIp(),
-				'wp_url' => Services::WpGeneral()->getHomeUrl(),
+				'code' => $code,
+				'ip'   => Services::IP()->getRequestIp(),
 			]
 		);
 	}
@@ -26,7 +25,13 @@ class SendEmail extends BaseShieldNetApi {
 		$this->params_body = [
 			'slug'       => $slug,
 			'email_to'   => $to,
-			'email_data' => $data,
+			'email_data' => array_merge(
+				[
+					'ts' => Services::Request()->ts(),
+					'tz' => Services::WpGeneral()->getOption( 'timezone_string' ),
+				],
+				$data
+			),
 		];
 
 		$raw = $this->sendReq();

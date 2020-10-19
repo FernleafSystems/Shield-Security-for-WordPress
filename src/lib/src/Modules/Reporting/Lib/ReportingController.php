@@ -34,14 +34,14 @@ class ReportingController {
 		/** @var Modules\Reporting\Options $opts */
 		$opts = $this->getOptions();
 
-		$aReports = [];
+		$reports = [];
 
 		if ( $opts->getFrequencyAlert() !== 'disabled' ) {
 			try {
-				$oAlertReport = $this->buildReportAlerts();
-				if ( !empty( $oAlertReport->content ) ) {
-					$this->storeReportRecord( $oAlertReport );
-					$aReports[] = $oAlertReport;
+				$alertReport = $this->buildReportAlerts();
+				if ( !empty( $alertReport->content ) ) {
+					$this->storeReportRecord( $alertReport );
+					$reports[] = $alertReport;
 				}
 			}
 			catch ( \Exception $e ) {
@@ -50,36 +50,36 @@ class ReportingController {
 
 		if ( $opts->getFrequencyInfo() !== 'disabled' ) {
 			try {
-				$oInfoReport = $this->buildReportInfo();
-				if ( !empty( $oInfoReport->content ) ) {
-					$this->storeReportRecord( $oInfoReport );
-					$aReports[] = $oInfoReport;
+				$infoReport = $this->buildReportInfo();
+				if ( !empty( $infoReport->content ) ) {
+					$this->storeReportRecord( $infoReport );
+					$reports[] = $infoReport;
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$this->sendEmail( $aReports );
+		$this->sendEmail( $reports );
 	}
 
 	/**
-	 * @param Modules\Reporting\Lib\Reports\ReportVO $oReport
+	 * @param Modules\Reporting\Lib\Reports\ReportVO $report
 	 * @return bool
 	 */
-	private function storeReportRecord( Reports\ReportVO $oReport ) {
-		$oRecord = new DBReports\EntryVO();
-		$oRecord->sent_at = Services::Request()->ts();
-		$oRecord->rid = $oReport->rid;
-		$oRecord->type = $oReport->type;
-		$oRecord->frequency = $oReport->interval;
-		$oRecord->interval_end_at = $oReport->interval_end_at;
+	private function storeReportRecord( Reports\ReportVO $report ) {
+		$record = new DBReports\EntryVO();
+		$record->sent_at = Services::Request()->ts();
+		$record->rid = $report->rid;
+		$record->type = $report->type;
+		$record->frequency = $report->interval;
+		$record->interval_end_at = $report->interval_end_at;
 
-		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getDbHandler_Reports()
-					->getQueryInserter()
-					->insert( $oRecord );
+		/** @var \ICWP_WPSF_FeatureHandler_Reporting $mod */
+		$mod = $this->getMod();
+		return $mod->getDbHandler_Reports()
+				   ->getQueryInserter()
+				   ->insert( $record );
 	}
 
 	/**
@@ -124,35 +124,40 @@ class ReportingController {
 
 		if ( !empty( $reports ) ) {
 			$WP = Services::WpGeneral();
-			$this->getMod()
-				 ->getEmailProcessor()
-				 ->sendEmailWithTemplate(
-					 '/email/reports/cron_alert_info_report',
-					 $this->getMod()->getPluginReportEmail(),
-					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
-					 [
-						 'content' => [
-							 'reports' => $reports
-						 ],
-						 'vars'    => [
-							 'site_url'    => $WP->getHomeUrl(),
-							 'report_date' => $WP->getTimeStampForDisplay(),
-						 ],
-						 'hrefs'   => [
-							 'click_adjust' => $this->getCon()
-													->getModule_Reporting()
-													->getUrl_AdminPage()
-						 ],
-						 'strings' => [
-							 'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),
-							 'depending'    => __( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
-							 'site_url'     => __( 'Site URL', 'wp-simple-firewall' ),
-							 'report_date'  => __( 'Report Generation Date', 'wp-simple-firewall' ),
-							 'use_links'    => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
-							 'click_adjust' => __( 'Click here to adjust your reporting settings', 'wp-simple-firewall' ),
+			try {
+				$this->getMod()
+					 ->getEmailProcessor()
+					 ->sendEmailWithTemplate(
+						 '/email/reports/cron_alert_info_report',
+						 $this->getMod()->getPluginReportEmail(),
+						 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
+						 [
+							 'content' => [
+								 'reports' => $reports
+							 ],
+							 'vars'    => [
+								 'site_url'    => $WP->getHomeUrl(),
+								 'report_date' => $WP->getTimeStampForDisplay(),
+							 ],
+							 'hrefs'   => [
+								 'click_adjust' => $this->getCon()
+														->getModule_Reporting()
+														->getUrl_AdminPage()
+							 ],
+							 'strings' => [
+								 'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),
+								 'depending'    => __( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
+								 'site_url'     => __( 'Site URL', 'wp-simple-firewall' ),
+								 'report_date'  => __( 'Report Generation Date', 'wp-simple-firewall' ),
+								 'use_links'    => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
+								 'click_adjust' => __( 'Click here to adjust your reporting settings', 'wp-simple-firewall' ),
+							 ]
 						 ]
-					 ]
-				 );
+					 );
+			}
+			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
+			}
 		}
 	}
 }

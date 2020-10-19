@@ -1625,7 +1625,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			$C = $this->findElementClass( $class, true, true );
 			/** @var Shield\Modules\ModConsumer $element */
 			$element = @class_exists( $C ) ? new $C() : false;
-			if ( $injectMod && $element instanceof Shield\Modules\ModConsumer ) {
+			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
 			}
 		}

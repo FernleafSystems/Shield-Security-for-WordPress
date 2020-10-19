@@ -95,14 +95,14 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @param string $sTemplate
-	 * @param string $sAddress
-	 * @param string $sSubject
+	 * @param string $templ
+	 * @param string $to
+	 * @param string $subject
 	 * @param array  $aBody
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function sendEmailWithTemplate( $sTemplate, $sAddress, $sSubject, array $aBody ) {
+	public function sendEmailWithTemplate( string $templ, string $to, string $subject, array $aBody ) {
 		$aData = [
 			'header' => $this->getEmailHeader(),
 			'body'   => $aBody,
@@ -113,9 +113,9 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		];
 
 		return $this->send(
-			$sAddress,
-			$sSubject,
-			$this->getMod()->renderTemplate( $sTemplate, $aData, true )
+			$to,
+			$subject,
+			$this->getMod()->renderTemplate( $templ, $aData, true )
 		);
 	}
 

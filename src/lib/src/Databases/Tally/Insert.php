@@ -8,14 +8,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class Insert extends Base\Insert {
 
 	/**
-	 * @param EntryVO $oTally
+	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
-	public function insert( $oTally ) {
+	public function insert( $oEntry ) :bool {
 		$bSuccess = false;
-		if ( preg_match( '#[a-z]+\.[a-z]+#i', $oTally->stat_key )
-			 && is_numeric( $oTally->tally ) && $oTally->tally > 0 ) {
-			$bSuccess = parent::insert( $oTally );
+		if ( preg_match( '#[a-z]+\.[a-z]+#i', $oEntry->stat_key )
+			 && is_numeric( $oEntry->tally ) && $oEntry->tally > 0 ) {
+			$bSuccess = parent::insert( $oEntry );
 		}
 		return $bSuccess;
 	}

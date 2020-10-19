@@ -27,7 +27,7 @@ class Insert extends BaseQuery {
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
-	public function insert( $oEntry ) {
+	public function insert( $oEntry ) :bool {
 		return $this->setInsertData( $oEntry->getRawDataAsArray() )->query() === 1;
 	}
 
