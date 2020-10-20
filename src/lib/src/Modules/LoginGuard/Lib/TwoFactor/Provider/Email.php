@@ -250,7 +250,7 @@ class Email extends BaseProvider {
 		$opts = $this->getOptions();
 
 		$secrets = $this->getAllCodes( $user );
-		$new = strtoupper( wp_generate_password( 6, false ) );
+		$new = substr( strtoupper( preg_replace( '#io#i', '', wp_generate_password( 30, false ) ) ), 0, 6 );
 		$secrets[ wp_hash_password( $new ) ] = Services::Request()
 													   ->carbon()
 													   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
