@@ -22,16 +22,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		$this->handlePostScanCron();
 	}
 
-	/**
-	 * @return \ICWP_WPSF_Processor_HackProtect_Ptg
-	 */
-	public function getSubProcessorPtg() {
+	public function getSubProcessorPtg() :\ICWP_WPSF_Processor_HackProtect_Ptg {
 		return $this->getSubPro( 'ptg' );
 	}
 
-	/**
-	 * @return array
-	 */
 	protected function getSubProMap() :array {
 		return [
 			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
@@ -50,12 +44,12 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	private function runAutoRepair() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
-			$oScanCon = $oMod->getScanCon( $sSlug );
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		foreach ( $opts->getScanSlugs() as $sSlug ) {
+			$oScanCon = $mod->getScanCon( $sSlug );
 			if ( $oScanCon->isCronAutoRepair() ) {
 				$oScanCon->runCronAutoRepair();
 			}
@@ -95,24 +89,24 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	private function cronScan() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		if ( $this->getCanScansExecute() ) {
 			$aScans = [];
-			foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
-				$oScanCon = $oMod->getScanCon( $sScanSlug );
+			foreach ( $opts->getScanSlugs() as $sScanSlug ) {
+				$oScanCon = $mod->getScanCon( $sScanSlug );
 				if ( $oScanCon->isScanningAvailable() && $oScanCon->isEnabled() ) {
 					$aScans[] = $sScanSlug;
 				}
 			}
 
-			$oOpts->setIsScanCron( true );
-			$oMod->saveModOptions()
-				 ->getScanQueueController()
-				 ->startScans( $aScans );
+			$opts->setIsScanCron( true );
+			$mod->saveModOptions()
+				->getScanQueueController()
+				->startScans( $aScans );
 		}
 		else {
 			error_log( 'Shield scans cannot execute.' );
@@ -122,55 +116,43 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	/**
 	 * @return string[]
 	 */
-	public function getReasonsScansCantExecute() {
+	public function getReasonsScansCantExecute() :array {
 		return array_keys( array_filter( [
 			'reason_not_call_self' => !$this->getCon()->getModule_Plugin()->getCanSiteCallToItself()
 		] ) );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getCanScansExecute() {
+	public function getCanScansExecute() :bool {
 		return count( $this->getReasonsScansCantExecute() ) === 0;
 	}
 
-	/**
-	 * @return int
-	 */
 	protected function getCronFrequency() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getScanFrequency();
+		/** @var Shield\Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getScanFrequency();
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getFirstRunTimestamp() {
-		$oCarb = Services::Request()->carbon( true );
-		$oCarb->addHours( $oCarb->minute < 40 ? 0 : 1 )
-			  ->minute( $oCarb->minute < 40 ? 45 : 15 )
-			  ->second( 0 );
+	public function getFirstRunTimestamp() :int {
+		$c = Services::Request()->carbon( true );
+		$c->addHours( $c->minute < 40 ? 0 : 1 )
+		  ->minute( $c->minute < 40 ? 45 : 15 )
+		  ->second( 0 );
 
 		if ( $this->getCronFrequency() === 1 ) { // If it's a daily scan only, set to 3am by default
-			$nHour = (int)apply_filters( $this->getCon()->prefix( 'daily_scan_cron_hour' ), 3 );
-			if ( $nHour < 0 || $nHour > 23 ) {
-				$nHour = 3;
+			$hour = (int)apply_filters( $this->getCon()->prefix( 'daily_scan_cron_hour' ), 3 );
+			if ( $hour < 0 || $hour > 23 ) {
+				$hour = 3;
 			}
-			if ( $oCarb->hour >= $nHour ) {
-				$oCarb->addDays( 1 );
+			if ( $c->hour >= $hour ) {
+				$c->addDays( 1 );
 			}
-			$oCarb->hour( $nHour );
+			$c->hour( $hour );
 		}
 
-		return $oCarb->timestamp;
+		return $c->timestamp;
 	}
 
-	/**
-	 * @return int
-	 */
-	protected function getCronName() {
+	protected function getCronName() :string {
 		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
 	}
 }

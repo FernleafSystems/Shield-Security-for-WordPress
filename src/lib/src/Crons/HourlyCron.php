@@ -14,24 +14,16 @@ class HourlyCron extends BaseCron {
 		return 'hourly';
 	}
 
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function getCronName() {
+	protected function getCronName() :string {
 		return $this->getCon()->prefix( 'hourly' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getFirstRunTimestamp() {
-		$oCarb = Services::Request()
-						 ->carbon( true )
-						 ->addHours( 1 )
-						 ->minute( 1 )
-						 ->second( 0 );
-		return $oCarb->timestamp;
+	public function getFirstRunTimestamp() :int {
+		return Services::Request()
+					   ->carbon( true )
+					   ->addHours( 1 )
+					   ->minute( rand( 1, 59 ) )
+					   ->second( 0 )->timestamp;
 	}
 
 	public function runCron() {

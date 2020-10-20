@@ -161,17 +161,14 @@ class Options extends Base\ShieldOptions {
 		return $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getScanFrequency() {
+	public function getScanFrequency() :int {
 		return (int)$this->getOpt( 'scan_frequency', 1 );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getScanSlugs() {
+	public function getScanSlugs() :array {
 		return $this->getDef( 'all_scan_slugs' );
 	}
 
