@@ -39,7 +39,7 @@
 						{% for item in release.items %}
 							<li class="list-group-item">
 								<dl>
-									<dt>
+									<dt class="mb-1">
 										<span class="badge badge-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
 										{% if item.pro_only|default(false) == true %}
 											<span class="badge badge-success">{{ strings.pro_only }}</span>
@@ -54,10 +54,10 @@
 									{% if item.description|default([]) is not empty %}
 										<dd>
 											{% for desc in item.description %}
-												<p>{{ desc }}</p>
+												<p class="mb-2">{{ desc }}</p>
 											{% endfor %}
 											{% if item.href|default('') is not empty %}
-												<p class="text-right">
+												<p class="text-left">
 													<a href="{{ item.href }}" target="_blank">More Info</a>
 												</p>
 											{% endif %}
