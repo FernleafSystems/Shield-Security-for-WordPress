@@ -4,6 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -219,27 +220,12 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function isVerifiedBot() :bool {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
 			$srvIP = Services::IP();
-
-			if ( $srvIP->isLoopback() ) {
-				self::$bIsVerifiedBot = false;
-			}
-			else {
-				$SP = Services::ServiceProviders();
-				$ip = $srvIP->getRequestIp();
-				$agent = Services::Request()->getUserAgent();
-				if ( empty( $agent ) ) {
-					$agent = 'Unknown';
-				}
-				self::$bIsVerifiedBot = $SP->isIp_GoogleBot( $ip, $agent )
-										|| $SP->isIp_BingBot( $ip, $agent )
-										|| $SP->isIp_AppleBot( $ip, $agent )
-										|| $SP->isIp_YahooBot( $ip, $agent )
-										|| $SP->isIp_DuckDuckGoBot( $ip, $agent )
-										|| $SP->isIp_YandexBot( $ip, $agent )
-										|| ( class_exists( 'ICWP_Plugin' ) && $SP->isIp_iControlWP( $ip ) )
-										|| $SP->isIp_BaiduBot( $ip, $agent )
-										|| $SP->isIp_Stripe( $ip, $agent );
-			}
+			self::$bIsVerifiedBot = !$srvIP->isLoopback() &&
+									!in_array( $srvIP->getIpDetector()->getIPIdentity(), [
+										IpIdentify::UNKNOWN,
+										IpIdentify::THIS_SERVER,
+										IpIdentify::VISITOR,
+									] );
 		}
 		return self::$bIsVerifiedBot;
 	}

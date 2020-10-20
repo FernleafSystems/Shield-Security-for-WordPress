@@ -77,15 +77,6 @@ class BuildDisplay {
 
 		$sRDNS = gethostbyaddr( $ip );
 
-		try {
-			$who = current( ( new IpIdentify() )
-				->setIP( $ip )
-				->run() );
-		}
-		catch ( \Exception $e ) {
-			$who = IpIdentify::UNKNOWN;
-		}
-
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
 			[
@@ -126,7 +117,9 @@ class BuildDisplay {
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
 					],
 					'identity' => [
-						'who_is_it'    => $who,
+						'who_is_it'    => Services::IP()
+												  ->getIpDetector()
+												  ->getIPIdentity(),
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
 						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),

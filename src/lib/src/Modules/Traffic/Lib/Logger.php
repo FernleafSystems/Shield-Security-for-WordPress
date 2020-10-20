@@ -6,15 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class Logger {
 
 	use ModConsumer;
 
 	public function run() {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isTrafficLoggerEnabled() ) {
+		/** @var Traffic\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isTrafficLoggerEnabled() ) {
 			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 				if ( $this->isRequestToBeLogged() ) {
 					$this->logTraffic();
@@ -23,114 +24,97 @@ class Logger {
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isRequestToBeLogged() {
+	private function isRequestToBeLogged() :bool {
 		return !$this->getCon()->plugin_deleting
 			   && apply_filters( $this->getCon()->prefix( 'is_log_traffic' ), true )
 			   && ( !$this->isCustomExcluded() )
 			   && ( !$this->isRequestTypeExcluded() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isRequestTypeExcluded() {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aEx = $oOpts->getReqTypeExclusions();
+	private function isRequestTypeExcluded() :bool {
+		/** @var Traffic\Options $opts */
+		$opts = $this->getOptions();
+		$excl = $opts->getReqTypeExclusions();
 		$bLoggedIn = Services::WpUsers()->isUserLoggedIn();
 
-		$bExcluded = ( in_array( 'simple', $aEx ) && count( Services::Request()->getRawRequestParams( false ) ) == 0 )
-					 || ( in_array( 'logged_in', $aEx ) && $bLoggedIn )
-					 || ( in_array( 'ajax', $aEx ) && Services::WpGeneral()->isAjax() )
-					 || ( in_array( 'cron', $aEx ) && Services::WpGeneral()->isCron() );
+		$exclude = ( in_array( 'simple', $excl ) && count( Services::Request()->getRawRequestParams( false ) ) == 0 )
+				   || ( in_array( 'logged_in', $excl ) && $bLoggedIn )
+				   || ( in_array( 'ajax', $excl ) && Services::WpGeneral()->isAjax() )
+				   || ( in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() );
 
-		if ( !$bExcluded && !$bLoggedIn ) {
-			$bExcluded = ( in_array( 'search', $aEx ) && $this->isServiceIp_Search() )
-						 || ( in_array( 'uptime', $aEx ) && $this->isServiceIp_Uptime() );
+		if ( !$exclude && !$bLoggedIn ) {
+			$exclude = ( in_array( 'search', $excl ) && $this->isServiceIp_Search() )
+					   || ( in_array( 'uptime', $excl ) && $this->isServiceIp_Uptime() );
 		}
 
-		return $bExcluded;
+		return $exclude;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isCustomExcluded() {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oReq = Services::Request();
+	private function isCustomExcluded() :bool {
+		/** @var Traffic\Options $opts */
+		$opts = $this->getOptions();
+		$req = Services::Request();
 
-		$sAgent = $oReq->getUserAgent();
-		$sPath = $oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
+		$agent = $req->getUserAgent();
+		$path = $req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 
-		$bExcluded = false;
-		foreach ( $oOpts->getCustomExclusions() as $sExcl ) {
-			if ( stripos( $sAgent, $sExcl ) !== false || stripos( $sPath, $sExcl ) !== false ) {
-				$bExcluded = true;
+		$exclude = false;
+		foreach ( $opts->getCustomExclusions() as $excl ) {
+			if ( stripos( $agent, $excl ) !== false || stripos( $path, $excl ) !== false ) {
+				$exclude = true;
 			}
 		}
-		return $bExcluded;
+		return $exclude;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isServiceIp_Search() {
-		$oSP = Services::ServiceProviders();
-		$sIp = Services::IP()->getRequestIp();
-		$sAgent = (string)Services::Request()->getUserAgent();
-
-		return $oSP->isIp_GoogleBot( $sIp, $sAgent )
-			   || $oSP->isIp_BingBot( $sIp, $sAgent )
-			   || $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
-			   || $oSP->isIp_YandexBot( $sIp, $sAgent )
-			   || $oSP->isIp_BaiduBot( $sIp, $sAgent )
-			   || $oSP->isIp_YahooBot( $sIp, $sAgent )
-			   || $oSP->isIp_AppleBot( $sIp, $sAgent );
+	private function isServiceIp_Search() :bool {
+		return in_array( Services::IP()->getIpDetector()->getIPIdentity(), [
+			IpIdentify::APPLE,
+			IpIdentify::BAIDU,
+			IpIdentify::BING,
+			IpIdentify::DUCKDUCKGO,
+			IpIdentify::GOOGLE,
+			IpIdentify::HUAWEI,
+			IpIdentify::YAHOO,
+			IpIdentify::YANDEX,
+		] );
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isServiceIp_Uptime() {
-		$oSP = Services::ServiceProviders();
-		$sIp = Services::IP()->getRequestIp();
-		$sAgent = (string)Services::Request()->getUserAgent();
-
-		return $oSP->isIp_Statuscake( $sIp, $sAgent )
-			   || $oSP->isIp_UptimeRobot( $sIp, $sAgent )
-			   || $oSP->isIp_Pingdom( $sIp, $sAgent )
-			   || $oSP->isIpInCollection( $sIp, $oSP->getIps_NodePing() );
+	private function isServiceIp_Uptime() :bool {
+		return in_array( Services::IP()->getIpDetector()->getIPIdentity(), [
+			IpIdentify::PINGDOM,
+			IpIdentify::STATUSCAKE,
+			IpIdentify::UPTIMEROBOT,
+			IpIdentify::NODEPING
+		] );
 	}
 
 	private function logTraffic() {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
-		$oDbh = $oMod->getDbHandler_Traffic();
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbHandler_Traffic();
+
+		$req = Services::Request();
 
 		// For multisites that are separated by sub-domains we also show the host.
-		$sLeadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
+		$sLeadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $req->getHost() : '';
 
-		/** @var EntryVO $oEntry */
-		$oEntry = $oDbh->getVo();
+		/** @var EntryVO $entry */
+		$entry = $dbh->getVo();
 
-		$oEntry->rid = $this->getCon()->getShortRequestId();
-		$oEntry->uid = Services::WpUsers()->getCurrentWpUserId();
-		$oEntry->ip = Services::IP()->getRequestIp();
-		$oEntry->verb = $oReq->getMethod();
-		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
-		$oEntry->code = http_response_code();
-		$oEntry->ua = $oReq->getUserAgent();
-		$oEntry->trans = $this->getCon()
-							  ->getModule_IPs()
-							  ->loadOffenseTracker()
-							  ->getOffenseCount() > 0 ? 1 : 0;
+		$entry->rid = $this->getCon()->getShortRequestId();
+		$entry->uid = Services::WpUsers()->getCurrentWpUserId();
+		$entry->ip = Services::IP()->getRequestIp();
+		$entry->verb = $req->getMethod();
+		$entry->path = $sLeadingPath.$req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
+		$entry->code = http_response_code();
+		$entry->ua = $req->getUserAgent();
+		$entry->trans = $this->getCon()
+							 ->getModule_IPs()
+							 ->loadOffenseTracker()
+							 ->getOffenseCount() > 0 ? 1 : 0;
 
-		$oDbh->getQueryInserter()
-			 ->insert( $oEntry );
+		$dbh->getQueryInserter()
+			->insert( $entry );
 	}
 }
