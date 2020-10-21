@@ -45,8 +45,8 @@
           "text":      "2FA Login Codes (admins only)"
         }
       ],
-      "link_info":     "https://shsec.io/ih",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/ij",
+      "link_blog":     "https://icwp.io/ik",
       "name":          "SureSend Emails",
       "summary":       "SureSend Emails",
       "description":   "SureSend Emails."

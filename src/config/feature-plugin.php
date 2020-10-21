@@ -340,7 +340,7 @@
       "section":     "section_general_plugin_options",
       "default":     "",
       "type":        "text",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/il",
       "link_blog":   "",
       "name":        "Locale Override",
       "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",

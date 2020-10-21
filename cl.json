@@ -21,8 +21,7 @@
           "The new Dashboard Overview provides a simplified display of all security items on your site.",
           "You can quickly discover where your site is doing well, and what areas need immediate attention or improvements.",
           "Responsive filters let you filter by individual Shield modules and the current status of each item."
-        ],
-        "href":        "https://shsec.io/hv"
+        ]
       },
       {
         "type":        "new",
@@ -33,7 +32,7 @@
           "This is a critical issue when 2-Factor Authentication emails don't go where they should.",
           "SureSend uses the ShieldNET API to deliver 2FA emails so that you always get them."
         ],
-        "href":        "https://shsec.io/hv"
+        "href":        "https://icwp.io/im"
       },
       {
         "type":        "new",
