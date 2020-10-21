@@ -116,6 +116,12 @@
           "In some cases during plugin upgrade, some table may get inadvertently deleted."
         ],
         "patch":       "10.0.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fatal error when IP address isn't detected",
+        "description": [],
+        "patch":       "10.0.2"
       }
     ]
   },
