@@ -62,7 +62,7 @@ class AlignTableWithSchema {
 		}
 
 		if ( $colsUpdated ) {
-			unset( $this->cols );
+			$this->cols = null;
 		}
 	}
 

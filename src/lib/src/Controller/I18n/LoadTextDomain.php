@@ -17,11 +17,11 @@ class LoadTextDomain {
 		 * provided by WordPress.org since getting our existing translations into the WP.org
 		 * system is full of friction, though that's where we'd like to end-up eventually.
 		 */
-		add_filter( 'load_textdomain_mofile', function ( $mofile, $domain ) {
+		add_filter( 'load_textdomain_mofile', function ( $moFile, $domain ) {
 			if ( $domain == $this->getCon()->getTextDomain() ) {
-				$mofile = $this->overrideTranslations( (string)$mofile );
+				$moFile = $this->overrideTranslations( (string)$moFile );
 			}
-			return $mofile;
+			return $moFile;
 		}, 100, 2 );
 
 		load_plugin_textdomain(
