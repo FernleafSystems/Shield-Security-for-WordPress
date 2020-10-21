@@ -1910,38 +1910,9 @@ class Controller {
 	 * @param string $sMoFilePath
 	 * @param string $sDomain
 	 * @return string
+	 * @deprecated 10.0
 	 */
 	public function overrideTranslations( $sMoFilePath, $sDomain ) {
-		if ( $sDomain == $this->getTextDomain() ) {
-
-			// use determine_locale() as it also considers the user's profile preference
-			$sLocale = apply_filters(
-				'shield_force_locale',
-				function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale()
-			);
-
-			/**
-			 * Cater for duplicate language translations that don't exist (yet)
-			 * E.g. where Spanish-Spain is present
-			 * This isn't ideal, and in-time we'll like full localizations, but we aren't there.
-			 */
-			$sCountry = substr( $sLocale, 0, 2 );
-			$aDuplicateMappings = [
-				'en' => 'en_GB',
-				'es' => 'es_ES',
-				'fr' => 'fr_FR',
-				'pt' => 'pt_PT',
-			];
-			if ( array_key_exists( $sCountry, $aDuplicateMappings ) ) {
-				$sLocale = $aDuplicateMappings[ $sCountry ];
-			}
-
-			$sMaybeFile = path_join( $this->getPath_Languages(), $this->getTextDomain().'-'.$sLocale.'.mo' );
-
-			if ( Services::WpFs()->exists( $sMaybeFile ) ) {
-				$sMoFilePath = $sMaybeFile;
-			}
-		}
 		return $sMoFilePath;
 	}
 
