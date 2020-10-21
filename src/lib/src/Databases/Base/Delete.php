@@ -61,10 +61,7 @@ class Delete extends BaseQuery {
 		return $nEntriesDeleted;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getBaseQuery() {
+	protected function getBaseQuery() :string {
 		return "DELETE FROM `%s` WHERE %s %s";
 	}
 
