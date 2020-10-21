@@ -72,9 +72,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	private function cleanPathWhitelist() {
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		$opts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
 			function ( $sRule ) {
 				$sRule = strtolower( trim( $sRule ) );
 				if ( !empty( $sRule ) ) {
@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				}
 				return $sRule;
 			},
-			$this->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
+			$opts->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
 		) ) ) );
 	}
 
@@ -187,7 +187,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'IPs';
 	}
 }

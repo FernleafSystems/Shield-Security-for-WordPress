@@ -14,7 +14,7 @@ class AdminNotes extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {

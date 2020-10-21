@@ -7,11 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
 			case 'ip_insert':
@@ -26,6 +22,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_BuildTableIps();
 				break;
 
+			case 'build_ip_analyse':
+				$aResponse = $this->ajaxExec_BuildIpAnalyse();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $action );
 		}
@@ -33,10 +33,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_AddIp() {
+	private function ajaxExec_AddIp() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
 		$mod = $this->getMod();
 		$oIpServ = Services::IP();
@@ -116,10 +113,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_IpDelete() {
+	private function ajaxExec_IpDelete() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		$bSuccess = false;
@@ -142,23 +136,43 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableIps() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_BuildTableIps() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 
-		$oDbH = $oMod->getDbHandler_IPs();
+		$oDbH = $mod->getDbHandler_IPs();
 		$oDbH->autoCleanDb();
-
-		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
-			->setMod( $oMod )
-			->setDbHandler( $oDbH );
 
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->render()
+			'html'    => ( new Shield\Tables\Build\Ip() )
+				->setMod( $mod )
+				->setDbHandler( $oDbH )
+				->render()
+		];
+	}
+
+	private function ajaxExec_BuildIpAnalyse() :array {
+		try {
+			$ip = Services::Request()->post( 'fIp', '' );
+			$response = ( new Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay() )
+				->setMod( $this->getMod() )
+				->setIP( $ip )
+				->run();
+
+			$msg = '';
+			$success = true;
+		}
+		catch ( \Exception $e ) {
+			$msg = $e->getMessage();
+			$success = false;
+			$response = $msg;
+		}
+
+		return [
+			'success' => $success,
+			'message' => $msg,
+			'html'    => $response,
 		];
 	}
 }

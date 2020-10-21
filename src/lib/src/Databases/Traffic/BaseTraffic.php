@@ -6,12 +6,12 @@ trait BaseTraffic {
 
 	/**
 	 * Will test whether the Binary IP can be converted back before applying filter.
-	 * @param mixed $bBinaryIp - IP has already been converted using inet_pton
+	 * @param mixed $binaryIP - IP has already been converted using inet_pton
 	 * @return $this
 	 */
-	public function filterByIp( $bBinaryIp ) {
-		if ( inet_ntop( $bBinaryIp ) !== false ) {
-			$this->addWhereEquals( 'ip', $bBinaryIp );
+	public function filterByIp( $binaryIP ) {
+		if ( inet_ntop( $binaryIP ) !== false ) {
+			$this->addWhereEquals( 'ip', $binaryIP );
 		}
 		return $this;
 	}

@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[]
 	 */
-	public function getInsightStatNames() {
+	public function getInsightStatNames() :array {
 		return [
 			'key_success'                  => __( 'Successful authentication with Security Admin', 'wp-simple-firewall' ),
 			'key_fail'                     => __( 'Failed authentication with Security Admin', 'wp-simple-firewall' ),
@@ -53,16 +53,15 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		$sName = $this->getCon()->getHumanName();
 		return [
 			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $sName ),
 			'recommendation'      => ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 			'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'box_welcome_title'   => sprintf( __( 'Welcome To %s Security Insights Dashboard', 'wp-simple-firewall' ), $sName ),
-			'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), $sName ),
 			'options'             => __( 'Options', 'wp-simple-firewall' ),
 			'not_available'       => __( 'Sorry, this feature is included with Pro subscriptions.', 'wp-simple-firewall' ),
 			'not_enabled'         => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),

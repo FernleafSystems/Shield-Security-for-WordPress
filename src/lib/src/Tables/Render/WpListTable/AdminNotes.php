@@ -9,7 +9,7 @@ class AdminNotes extends Base {
 	 * @return string
 	 */
 	public function column_note( $aItem ) {
-		return $aItem[ 'note' ].$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ] ) );
+		return $aItem[ 'note' ].$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] );
 	}
 
 	/**

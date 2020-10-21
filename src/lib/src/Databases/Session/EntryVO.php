@@ -12,18 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int    last_activity_at
  * @property int    logged_in_at
  * @property int    login_intent_expires_at
- * @property string li_code_email
  * @property string session_id
  * @property int    secadmin_at
  */
 class EntryVO extends Base\EntryVO {
-
-	/**
-	 * @return string
-	 */
-	public function getLoginIntentCodeEmail() {
-		return (string)$this->li_code_email;
-	}
 
 	/**
 	 * @return string

@@ -368,12 +368,11 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$bSuccess = false;
 
-		/** @var \ICWP_WPSF_FeatureHandler_License $oModule */
-		$oModule = $this->getCon()->getModule( 'license' );
+		$mod = $this->getCon()->getModule_License();
 		try {
-			$bSuccess = $oModule->getLicenseHandler()
-								->verify( true )
-								->hasValidWorkingLicense();
+			$bSuccess = $mod->getLicenseHandler()
+							->verify( true )
+							->hasValidWorkingLicense();
 			if ( $bSuccess ) {
 				$sMessage = __( 'License was found and successfully installed.', 'wp-simple-firewall' );
 			}
@@ -435,21 +434,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardSecurityAdmin() {
 		$oReq = Services::Request();
-		$sKey = $oReq->post( 'AccessKey' );
+		$pin = $oReq->post( 'AccessKey' );
 		$sConfirm = $oReq->post( 'AccessKeyConfirm' );
 
 		$bSuccess = false;
-		if ( empty( $sKey ) ) {
+		if ( empty( $pin ) ) {
 			$sMessage = __( "Security Admin PIN was empty.", 'wp-simple-firewall' );
 		}
-		elseif ( $sKey != $sConfirm ) {
+		elseif ( $pin != $sConfirm ) {
 			$sMessage = __( "Security PINs don't match.", 'wp-simple-firewall' );
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
 			$oModule = $this->getCon()->getModule( 'admin_access_restriction' );
 			try {
-				$oModule->setNewAccessKeyManually( $sKey )
+				$oModule->setNewPinManually( $pin )
 						->setSecurityAdminStatusOnOff( true );
 				$bSuccess = true;
 				$sMessage = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );

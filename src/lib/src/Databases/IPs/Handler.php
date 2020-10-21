@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
@@ -14,8 +14,8 @@ class Handler extends Base\Handler {
 		/** @var Delete $del */
 		$del = $this->getQueryDeleter();
 		$del->filterByBlacklist()
-			 ->filterByLastAccessBefore( Services::Request()->ts() - $opts->getAutoExpireTime() )
-			 ->query();
+			->filterByLastAccessBefore( Services::Request()->ts() - $opts->getAutoExpireTime() )
+			->query();
 	}
 
 	/**
@@ -29,34 +29,15 @@ class Handler extends Base\Handler {
 					->query();
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getColumns() {
-		return array_keys( $this->getColumnsDefinition() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_IPs();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getColumnsAsArray() {
+	protected function getCustomColumns() :array {
 		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getOptions()->getDef( 'ip_list_table_columns' );
+	protected function getDefaultTableName() :string {
+		return $this->getOptions()->getDef( 'ip_lists_table_name' );
+	}
+
+	protected function getTimestampColumns() :array {
+		return $this->getOptions()->getDef( 'ip_list_table_timestamp_columns' );
 	}
 }

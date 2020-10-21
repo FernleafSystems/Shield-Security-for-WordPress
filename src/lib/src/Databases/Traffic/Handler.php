@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
@@ -14,47 +14,11 @@ class Handler extends Base\Handler {
 		$this->tableTrimExcess( $opts->getMaxEntries() );
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getColumns() {
-		return $this->getOptions()->getDef( 'traffic_table_columns' );
+	protected function getDefaultTableName() :string {
+		return $this->getOptions()->getDef( 'traffic_table_name' );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_TrafficLog();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getDefaultCreateTableSql() {
-		return "CREATE TABLE %s (
-			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			rid varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID',
-			uid int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID',
-			ip varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address',
-			path text NOT NULL DEFAULT '' COMMENT 'Request Path or URI',
-			code int(5) NOT NULL DEFAULT '200' COMMENT 'HTTP Response Code',
-			verb varchar(10) NOT NULL DEFAULT 'get' COMMENT 'HTTP Method',
-			ua text COMMENT 'Browser User Agent String',
-			trans tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Trangression',
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
- 			PRIMARY KEY  (id)
-		) %s;";
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
+	protected function getCustomColumns() :array {
 		return $this->getOptions()->getDef( 'traffic_table_columns' );
 	}
 }

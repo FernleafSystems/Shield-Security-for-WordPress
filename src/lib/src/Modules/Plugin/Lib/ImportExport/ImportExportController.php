@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -130,6 +130,8 @@ class ImportExportController {
 				'export_file_download' => $this->createExportFileDownloadLink()
 			],
 			'strings' => [
+				'tab_by_file'           => __( 'Import From File', 'wp-simple-firewall' ),
+				'tab_by_site'           => __( 'Import From Another Site', 'wp-simple-firewall' ),
 				'title_import_file'    => __( 'Import From File', 'wp-simple-firewall' ),
 				'subtitle_import_file' => __( 'Upload an exported options file you downloaded from another site', 'wp-simple-firewall' ),
 				'select_import_file'   => __( 'Select file to import options from', 'wp-simple-firewall' ),

@@ -9,9 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var Modules\Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isTrafficLoggerEnabled() ) {
+		/** @var Modules\Traffic\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isTrafficLoggerEnabled() ) {
 			( new Lib\Logger() )
 				->setMod( $this->getMod() )
 				->run();

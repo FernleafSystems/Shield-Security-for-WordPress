@@ -46,7 +46,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 					'type'        => 'flag',
 					'name'        => 'force',
 					'optional'    => true,
-					'description' => 'By-pass confirmation prompt.',
+					'description' => 'Bypass confirmation prompt.',
 				],
 				[
 					'type'        => 'flag',

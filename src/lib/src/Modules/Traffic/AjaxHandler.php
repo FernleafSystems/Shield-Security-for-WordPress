@@ -3,15 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
 			case 'render_table_traffic':

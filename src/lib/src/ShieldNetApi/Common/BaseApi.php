@@ -63,10 +63,7 @@ abstract class BaseApi {
 		return $aResponse;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getApiRequestUrl() {
+	protected function getApiRequestUrl() :string {
 		return sprintf( '%s/%s', $this->lookup_url_stub, static::API_ACTION );
 	}
 

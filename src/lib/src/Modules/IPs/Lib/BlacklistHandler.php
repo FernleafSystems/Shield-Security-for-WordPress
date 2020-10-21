@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
@@ -9,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class BlacklistHandler {
 
 	use Modules\ModConsumer;
-	use Modules\Base\OneTimeExecute;
+	use OneTimeExecute;
 
 	protected function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
@@ -41,7 +42,6 @@ class BlacklistHandler {
 						->setMod( $this->getMod() )
 						->run();
 				}, -100000 );
-
 			}
 		}
 	}

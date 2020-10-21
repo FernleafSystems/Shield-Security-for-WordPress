@@ -1,33 +1,37 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_UserManagement_Suspend
+ * @deprecated 10.0
+ */
 class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oOpts->isSuspendManualEnabled() ) {
+		if ( $opts->isSuspendManualEnabled() ) {
 			$this->setupUserFilters();
 			( new Suspend\Suspended() )
 				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oOpts->isSuspendAutoIdleEnabled() ) {
+		if ( $opts->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
 				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oOpts->isSuspendAutoPasswordEnabled() ) {
+		if ( $opts->isSuspendAutoPasswordEnabled() ) {
 			( new Suspend\PasswordExpiry() )
-				->setMaxPasswordAge( $oOpts->getPassExpireTimeout() )
+				->setMaxPasswordAge( $opts->getPassExpireTimeout() )
 				->setMod( $this->getMod() )
 				->run();
 		}
@@ -180,9 +184,9 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 
 		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $oCon->isPluginAdmin() ) {
 			$bIsSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-			$oMod = $this->getMod();
-			$oMod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
+			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+			$mod = $this->getMod();
+			$mod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
 
 			if ( $bIsSuspend ) { // Delete any existing user sessions
 				( new Sessions\Lib\Ops\Terminate() )

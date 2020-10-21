@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'botbox_fail'             => [
 				__( 'User "%s" attempted "%s" but Bot checkbox was not found.', 'wp-simple-firewall' )
@@ -59,7 +59,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 
@@ -144,7 +144,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
 		$mod = $this->getMod();
 		$sModName = $mod->getMainFeatureName();
@@ -174,9 +174,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mfa_skip' :
-				$sName = __( 'Multi-Factor By-Pass', 'wp-simple-firewall' );
-				$sSummary = __( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
+				$sName = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
+				$sSummary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'allow_backupcodes' :

@@ -10,11 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 
 		$oReq = Services::Request();
 		switch ( $action ) {
@@ -131,7 +127,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oFLCon = $oMod->getFileLocker();
-		$oFS = Services::WpFs();
+		$FS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
 		$aData = [
@@ -187,20 +183,22 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$oCarb = Services::Request()->carbon( true );
 			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
 			$aData[ 'vars' ][ 'file_modified_at' ] =
-				Services::WpGeneral()->getTimeStampForDisplay( $oFS->getModifiedTime( $oLock->file ) );
+				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $oLock->file ) );
 			$aData[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
-			$aData[ 'vars' ][ 'file_size_locked' ] = $this->formatBytes( strlen(
+			$aData[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $oMod )
 					->run( $oLock )
 			), 3 );
-			$aData[ 'vars' ][ 'file_size_modified' ] = $oFS->exists( $oLock->file ) ? $this->formatBytes( $oFS->getFileSize( $oLock->file ), 3 ) : 0;
+			$aData[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $oLock->file ) ?
+				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $oLock->file ), 3 )
+				: 0;
 			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {
 			$aData[ 'error' ] = $oE->getMessage();
-		};
+		}
 
 		return [
 			'success' => $aData[ 'success' ],
@@ -212,26 +210,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 								  true
 							  )
 		];
-	}
-
-	/**
-	 * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
-	 * @param     $bytes
-	 * @param int $precision
-	 * @return string
-	 */
-	private function formatBytes( $bytes, $precision = 2 ) {
-		$units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
-
-		$bytes = max( $bytes, 0 );
-		$pow = floor( ( $bytes ? log( $bytes ) : 0 )/log( 1024 ) );
-		$pow = min( $pow, count( $units ) - 1 );
-
-		// Uncomment one of the following alternatives
-		$bytes /= pow( 1024, $pow );
-		// $bytes /= (1 << (10 * $pow));
-
-		return round( $bytes, $precision ).' '.$units[ $pow ];
 	}
 
 	/**
@@ -413,25 +391,25 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_StartScans() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$bPageReload = false;
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		$oScanCon = $oMod->getScanQueueController();
+		$oScanCon = $mod->getScanQueueController();
 
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );
 
-			$aUiTrack = $oMod->getUiTrack();
+			$aUiTrack = $mod->getUiTrack();
 			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
-			$oMod->setUiTrack( $aUiTrack );
+			$mod->setUiTrack( $aUiTrack );
 
 			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
-				$oThisScanCon = $oMod->getScanCon( $sScanSlug );
+				$oThisScanCon = $mod->getScanCon( $sScanSlug );
 				if ( !empty( $oThisScanCon ) && $oThisScanCon->isScanningAvailable() ) {
 
 					$aScansToStart[] = $sScanSlug;

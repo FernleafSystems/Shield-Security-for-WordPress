@@ -259,10 +259,10 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Modules\Autoupdates\Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() ) {
+		if ( $opts->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
 		else {
@@ -271,7 +271,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			if ( $this->isDelayed( $file, 'themes' ) ) {
 				$bDoAutoUpdate = false;
 			}
-			elseif ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
+			elseif ( $opts->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
 				$bDoAutoUpdate = true;
 			}
 		}

@@ -1,0 +1,39 @@
+<div class="row" id="SectionIpsReview">
+	<div class="col">
+
+		<h5>{{ strings.select_ip }}</h5>
+		<form class="mb-3" action="#" method="post" autocomplete="off">
+			<div class="form-group row">
+				<div class="col">
+					<select id="IpReviewSelect" name="fIp" class="selectpicker form-control mb-2"
+							data-live-search="true">
+						<option value="">-- {{ strings.select_ip }} --</option>
+						{% for unique_ip in vars.unique_ips %}
+							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+			</div>
+		</form>
+
+		<div id="IpSelectContent">
+			<div class="alert alert-info mb-0">{{ strings.please_select }}</div>
+		</div>
+		<div class="d-none" id="IpReviewContent">
+			<div class="alert alert-info mb-0">{{ strings.please_select }}</div>
+		</div>
+	</div>
+</div>
+
+{% block section_table_js %}
+	<script type="text/javascript">
+		jQuery( document ).ready( function () {
+			jQuery( '#IpReviewSelect' ).icwpWpsfIpAnalyse(
+				{
+					'build_ip_analyse':{{ ajax.build_ip_analyse|raw }}
+				}
+			);
+		} );
+	</script>
+{% endblock %}

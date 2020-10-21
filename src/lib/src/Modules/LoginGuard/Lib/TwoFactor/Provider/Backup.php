@@ -10,10 +10,7 @@ class Backup extends BaseProvider {
 	const SLUG = 'backupcode';
 	const STANDALONE = false;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function renderUserProfileOptions( \WP_User $oUser ) {
+	public function renderUserProfileOptions( \WP_User $user ) :string {
 		$oCon = $this->getCon();
 
 		$aData = [
@@ -39,7 +36,7 @@ class Backup extends BaseProvider {
 		return $this->getMod()
 					->renderTemplate(
 						'/snippets/user/profile/mfa/mfa_backup.twig',
-						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $oUser ), $aData ),
+						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $user ), $aData ),
 						true
 					);
 	}
@@ -47,7 +44,7 @@ class Backup extends BaseProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function renderUserEditProfileOptions( \WP_User $oUser ) {
+	public function renderUserEditProfileOptions( \WP_User $user ) {
 		// Allow no actions to be taken on other user profiles
 	}
 
@@ -66,52 +63,52 @@ class Backup extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	public function hasValidatedProfile( $oUser ) {
-		return $this->hasValidSecret( $oUser );
+	public function hasValidatedProfile( $user ) {
+		return $this->hasValidSecret( $user );
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return $this
 	 */
-	public function postSuccessActions( \WP_User $oUser ) {
-		$this->deleteSecret( $oUser );
-		$this->sendBackupCodeUsedEmail( $oUser );
+	public function postSuccessActions( \WP_User $user ) {
+		$this->deleteSecret( $user );
+		$this->sendBackupCodeUsedEmail( $user );
 		return $this;
 	}
 
 	/**
 	 * Backup Code are 1-time only and if you have MFA, then we need to remove all the other tracking factors
-	 * @param \WP_User $oUser
-	 * @param string   $sOtpCode
+	 * @param \WP_User $user
+	 * @param string   $otp
 	 * @return bool
 	 */
-	protected function processOtp( $oUser, $sOtpCode ) {
-		return $this->validateBackupCode( $oUser, $sOtpCode );
+	protected function processOtp( \WP_User $user, string $otp ) :bool {
+		return $this->validateBackupCode( $user, $otp );
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @param string   $sOtpCode
 	 * @return bool
 	 */
-	private function validateBackupCode( $oUser, $sOtpCode ) {
-		return wp_check_password( str_replace( '-', '', $sOtpCode ), $this->getSecret( $oUser ) );
+	private function validateBackupCode( \WP_User $user, $sOtpCode ) :bool {
+		return (bool)wp_check_password( str_replace( '-', '', $sOtpCode ), $this->getSecret( $user ) );
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
 	 */
-	protected function auditLogin( $oUser, $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? '2fa_backupcode_verified' : '2fa_backupcode_fail',
 			[
 				'audit' => [
-					'user_login' => $oUser->user_login,
+					'user_login' => $user->user_login,
 					'method'     => 'Backup Code',
 				]
 			]
@@ -119,36 +116,33 @@ class Backup extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return string
 	 */
-	protected function genNewSecret( \WP_User $oUser ) {
+	protected function genNewSecret( \WP_User $user ) {
 		return wp_generate_password( 25, false );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledBackupCodes();
+	public function isProviderEnabled() :bool {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledBackupCodes();
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @param string   $sNewSecret
 	 * @return $this
 	 */
-	protected function setSecret( $oUser, $sNewSecret ) {
-		parent::setSecret( $oUser, wp_hash_password( $sNewSecret ) );
+	protected function setSecret( $user, $sNewSecret ) {
+		parent::setSecret( $user, wp_hash_password( $sNewSecret ) );
 		return $this;
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	private function sendBackupCodeUsedEmail( $oUser ) {
+	private function sendBackupCodeUsedEmail( \WP_User $user ) {
 		$aEmailContent = [
 			__( 'This is a quick notice to inform you that your Backup Login code was just used.', 'wp-simple-firewall' ),
 			__( "Your WordPress account had only 1 backup login code.", 'wp-simple-firewall' )
@@ -156,7 +150,7 @@ class Backup extends BaseProvider {
 			'',
 			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
 			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
+			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
 			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
 			'',
 			__( 'Thank You.', 'wp-simple-firewall' ),
@@ -165,6 +159,6 @@ class Backup extends BaseProvider {
 		$sTitle = sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Backup Login Code Just Used", 'wp-simple-firewall' ) );
 		$this->getMod()
 			 ->getEmailProcessor()
-			 ->sendEmailWithWrap( $oUser->user_email, $sTitle, $aEmailContent );
+			 ->sendEmailWithWrap( $user->user_email, $sTitle, $aEmailContent );
 	}
 }

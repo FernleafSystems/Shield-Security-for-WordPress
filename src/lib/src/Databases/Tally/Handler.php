@@ -7,26 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Statistics\Options;
 
 class Handler extends Base\Handler {
 
-	/**
-	 * @return string[]
-	 */
-	public function getColumns() {
+	public function getColumns() :array {
 		return $this->getOptions()->getDef( 'statistics_table_columns' );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
+	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_Tallys();
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultCreateTableSql() {
+	protected function getDefaultCreateTableSql() :string {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			stat_key varchar(100) NOT NULL DEFAULT 0,
@@ -37,13 +28,5 @@ class Handler extends Base\Handler {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getOptions()->getDef( 'statistics_table_columns' );
 	}
 }

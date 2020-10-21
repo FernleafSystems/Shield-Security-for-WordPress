@@ -92,7 +92,7 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'auditor'        => 'ICWP_WPSF_Processor_AuditTrail_Auditor',
 			'changetracking' => 'ICWP_WPSF_Processor_AuditTrail_ChangeTracking',

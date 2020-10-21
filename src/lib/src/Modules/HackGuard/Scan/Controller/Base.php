@@ -15,6 +15,8 @@ abstract class Base {
 
 	use ModConsumer;
 
+	const SCAN_SLUG = '';
+
 	/**
 	 * @var BaseScanActionVO
 	 */
@@ -164,22 +166,22 @@ abstract class Base {
 		return $this->oScanActionVO;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
-		return false;
+	public function getScanName() :string {
+		/** @var HackGuard\Strings $strings */
+		$strings = $this->getMod()->getStrings();
+		return $strings->getScanNames()[ static::SCAN_SLUG ];
 	}
 
 	/**
 	 * @return bool
 	 */
-	abstract public function isEnabled();
+	public function isCronAutoRepair() :bool {
+		return false;
+	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumOnly() {
+	abstract public function isEnabled() :bool;
+
+	protected function isPremiumOnly() :bool {
 		return true;
 	}
 

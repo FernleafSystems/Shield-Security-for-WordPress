@@ -215,6 +215,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 				let requestData = this.options[ 'ajax_item_insert' ];
 				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
 				this.sendReq( requestData );
+				this.$oFormInsert[ 0 ].reset();
 			},
 
 			ignoreEntry: function () {

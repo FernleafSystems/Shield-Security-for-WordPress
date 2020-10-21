@@ -1,34 +1,30 @@
-﻿=== Shield Security: Protection with Smarter Automation ===
+﻿=== Shield Security: Powerful All-In-One Protection ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.5.2
-Requires PHP: 5.4.0
-Recommended PHP: 7.0
-Tested up to: 5.4
-Stable tag: 9.2.1
+Requires PHP: 7.0
+Recommended PHP: 7.4
+Tested up to: 5.5
+Stable tag: 10.0.0
 
-Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
+The highest rated WordPress Security plugin, delivering unparalleled, all-in-one protection for you and your customers.
 
 == Description ==
 
 ### The highest rated 5* Security Plugin for WordPress
 
-Shield - highest average 5* rating for any WordPress security plugin (2019/05). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5).
+Don't *settle* for the same ol' security plugin just because everyone else does.
 
-#### It's 2020 - Don't settle for just another security plugin. Get *smarter* security.
+You **need** a security plugin that does **all** the heavy lifting for you, and alerts you only when you need to know.
 
-You don't need another 100 email notifications.
+And when you get an alert, you'll have clear steps to take to solve the problem.
 
-You **need** a security plugin that does **all** the heavy lifting for you, and only alerts you when you need to know.
+### Shield makes Security for WordPress easy
 
-And when you get an alert, you actually have steps to take, not just the position of "I have no clue what to do!"
-
-### Security for WordPress *doesn't* have to be *hard*
-
-There's no reason for security to be so darn complicated. It doesn't have to be this way any longer.
+There's no reason for security to be so complicated.
 
 Shield is the easiest security plugin to setup - you simply activate it.
 
@@ -363,35 +359,11 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-Shield Pro brings exclusive features to the serious webmaster to maximise site security.
-You'll also have access to our email technical support team.
+The full Shield Changelog can be viewed from our home page:
 
-You will always be able to use Shield Security and its free features in-full.
+#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+
+ShieldPRO delivers exclusive security features to the serious site administrator to maximise site security
+You'll also have direct access to our technical support team.
 
 [Go Pro from just $1/month](https://shsec.io/aa).
-
-#### 9.2 Series
-*Released: 3rd September 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
-
-**Important**: 9.2 is the *final* release to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
-
-##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
-
-* **(.1)  FIXED**:		User session IDs weren't cleared correctly.
-* **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
-* **(.0)  NEW**:		Add feature to allow Shield to automatically delete files such as `wp-config-sample.php`.
-* **(.0)  ADDED**:  	Provide native support for protection on WP Members plugin login/registration forms.
-* **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
-* **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
-* **(.0)  IMPROVED**:	Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing.
-* **(.0)  IMPROVED**:	Prevent spurious output from errors not relating to this plugin from affecting display of our admin pages.
-* **(.0)  IMPROVED**:	`forceoff` file detection improved.
-* **(.0)  IMPROVED**:	The File Locker is less likely to trigger an `open_basedir` warning.
-* **(.0)  IMPROVED**:	Lots of code optimisation.
-* **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugin devs feel a cookie is only important if it begins with `wp-`.
-* **(.0)  CHANGED**:	Upgraded shipped Bootstrap libraries to latest available (v4.5.2).
-* **(.0)  FIXED**:		Upgraded the database to support much larger values for the IP offenses counter.
-* **(.0)  FIXED**:		MemberPress support had a bug where certain forms weren't checked for bots.
-* **(.0)  FIXED**:		Cleaned some WP-CLI PHP notices on certain commands.
-
-##### [Entire Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

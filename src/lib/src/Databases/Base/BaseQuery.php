@@ -276,10 +276,7 @@ abstract class BaseQuery {
 		return $this->filterByBoundary( $oCbn->startOfYear()->timestamp, $oCbn->endOfYear()->timestamp );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getBaseQuery() {
+	protected function getBaseQuery() :string {
 		return "SELECT * FROM `%s` WHERE %s %s";
 	}
 

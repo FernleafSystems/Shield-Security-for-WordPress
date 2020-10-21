@@ -28,7 +28,7 @@ class EventsService {
 	/**
 	 * @return array[]
 	 */
-	public function getEvents() {
+	public function getEvents() :array {
 		if ( empty( $this->aEvents ) ) {
 			$aEvts = apply_filters( $this->getCon()->prefix( 'get_all_events' ), [] );
 			$this->aEvents = is_array( $aEvts ) ? $this->buildEvents( $aEvts ) : [];

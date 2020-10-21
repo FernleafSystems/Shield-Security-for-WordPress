@@ -8,29 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\ShieldOptions {
 
 	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function getDbColumns_AuditTrail() {
-		return $this->getDef( 'audit_trail_table_columns' );
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function getDbColumns_ChangeTracking() {
-		return $this->getDef( 'table_columns_changetracking' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_AuditTrail() {
-		return $this->getCon()->prefixOption( $this->getDef( 'audit_trail_table_name' ) );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getDbTable_ChangeTracking() {
@@ -44,11 +21,10 @@ class Options extends Base\ShieldOptions {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getMaxEntries() {
-		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDef( 'audit_trail_free_max_entries' );
+	public function getMaxEntries() :int {
+		return $this->isPremium() ?
+			(int)$this->getOpt( 'audit_trail_max_entries' ) :
+			(int)$this->getDef( 'audit_trail_free_max_entries' );
 	}
 
 	/**
@@ -160,5 +136,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function updateCTLastSnapshotAt() {
 		return $this->setOptAt( 'ct_last_snapshot_at' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_AuditTrail() {
+		return $this->getCon()->prefixOption( $this->getDef( 'audit_trail_table_name' ) );
 	}
 }

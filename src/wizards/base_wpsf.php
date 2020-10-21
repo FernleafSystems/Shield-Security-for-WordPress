@@ -38,7 +38,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 
 		switch ( $sStep ) {
 			case 'security_admin_verify':
-				$aAdditional = array( 'current_index' => Services::Request()->post( 'current_index' ) );
+				$aAdditional = [ 'current_index' => Services::Request()->post( 'current_index' ) ];
 				break;
 			default:
 				$aAdditional = parent::getRenderData_SlideExtra( $sStep );
@@ -54,14 +54,14 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 	protected function getStepsDefinition() {
 		return array_merge(
 			parent::getStepsDefinition(),
-			array(
-				'security_admin_verify' => array(
+			[
+				'security_admin_verify' => [
 					'content'        => '',
 					'slug'           => 'security_admin_verify',
 					'title'          => __( 'Security Admin', 'wp-simple-firewall' ),
 					'security_admin' => false
-				)
-			)
+				]
+			]
 		);
 	}
 
@@ -98,21 +98,20 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 
 		$bSuccess = false;
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-		$oModule = $this->getCon()->getModule( 'admin_access_restriction' );
+		$mod = $this->getCon()->getModule_SecAdmin();
 
 		$sMessage = '';
 		if ( empty( $sKey ) ) {
 			$sMessage = 'Security Admin PIN was empty.';
 		}
-		elseif ( !$oModule->verifyAccessKey( $sKey ) ) {
+		elseif ( !$mod->verifyAccessKey( $sKey ) ) {
 			$sMessage = __( 'Security Admin PIN was not correct.', 'wp-simple-firewall' );
 		}
 		else {
-			$bSuccess = $oModule->setSecurityAdminStatusOnOff( true );
-			$aData = array(
+			$bSuccess = $mod->setSecurityAdminStatusOnOff( true );
+			$aData = [
 				'rerender' => true
-			);
+			];
 			$oResponse->setData( $aData );
 		}
 

@@ -11,24 +11,24 @@ class Select extends Base\Select {
 	/**
 	 * @return string[]
 	 */
-	public function getDistinctIps() {
+	public function getDistinctIps() :array {
 		return IpListSort::Sort( $this->getDistinctForColumn( 'ip' ) );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getDistinctUsernames() {
+	public function getDistinctUsernames() :array {
 		return $this->getDistinct_FilterAndSort( 'wp_username' );
 	}
 
 	/**
-	 * @param string $sIp
+	 * @param string $ip
 	 * @return $this
 	 */
-	public function filterByIp( $sIp ) {
-		if ( Services::IP()->isValidIp( $sIp ) ) {
-			$this->addWhereEquals( 'ip', trim( $sIp ) );
+	public function filterByIp( string $ip ) :self {
+		if ( Services::IP()->isValidIp( $ip ) ) {
+			$this->addWhereEquals( 'ip', trim( $ip ) );
 		}
 		return $this;
 	}
@@ -56,39 +56,33 @@ class Select extends Base\Select {
 		return $this->addWhereNewerThan( $nExpiredBoundary, 'last_activity_at' );
 	}
 
-	/**
-	 * @param int $sUsername
-	 * @return $this
-	 */
-	public function filterByUsername( $sUsername ) {
-		return $this->addWhereEquals( 'wp_username', trim( $sUsername ) );
+	public function filterByUsername( string $username ) :self {
+		return $this->addWhereEquals( 'wp_username', trim( $username ) );
 	}
 
 	/**
-	 * @param string $sSessionId
-	 * @param string $sWpUsername
+	 * @param string $ID
+	 * @param string $username
 	 * @return EntryVO|null
 	 */
-	public function retrieveUserSession( $sSessionId, $sWpUsername = '' ) {
-		$aData = $this->selectForUserSession( $sSessionId, $sWpUsername );
-		return ( count( $aData ) == 1 ) ? array_shift( $aData ) : null;
+	public function retrieveUserSession( string $ID, $username = '' ) {
+		$data = $this->selectForUserSession( $ID, $username );
+		return ( count( $data ) == 1 ) ? array_shift( $data ) : null;
 	}
 
 	/**
-	 * @param string $sSessionId
-	 * @param string $sWpUsername
+	 * @param string $ID
+	 * @param string $username
 	 * @return EntryVO[]
 	 */
-	protected function selectForUserSession( $sSessionId = '', $sWpUsername = '' ) {
-		if ( !empty( $sWpUsername ) ) {
-			$this->addWhereEquals( 'wp_username', $sWpUsername );
+	protected function selectForUserSession( $ID = '', $username = '' ) {
+		if ( !empty( $username ) ) {
+			$this->addWhereEquals( 'wp_username', $username );
 		}
-		if ( !empty( $sSessionId ) ) {
-			$this->addWhereEquals( 'session_id', $sSessionId );
+		if ( !empty( $ID ) ) {
+			$this->addWhereEquals( 'session_id', $ID );
 		}
 
-		/** @var EntryVO[] $aRes */
-		$aRes = $this->setOrderBy( 'last_activity_at', 'DESC' )->query();
-		return $aRes;
+		return $this->setOrderBy( 'last_activity_at', 'DESC' )->query();
 	}
 }

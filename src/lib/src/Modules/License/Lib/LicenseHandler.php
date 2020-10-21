@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
@@ -10,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class LicenseHandler {
 
 	use Modules\ModConsumer;
-	use Modules\Base\OneTimeExecute;
+	use OneTimeExecute;
 
 	protected function run() {
 		$oCon = $this->getCon();
@@ -33,7 +34,8 @@ class LicenseHandler {
 
 				case 'license_check':
 					if ( !wp_next_scheduled( $oCon->prefix( 'adhoc_cron_license_check' ) ) ) {
-						wp_schedule_single_event( Services::Request()->ts() + 20, $oCon->prefix( 'adhoc_cron_license_check' ) );
+						wp_schedule_single_event( Services::Request()
+														  ->ts() + 20, $oCon->prefix( 'adhoc_cron_license_check' ) );
 					}
 					break;
 			}
@@ -148,7 +150,7 @@ class LicenseHandler {
 	 * 5) the time since the last check hasn't expired
 	 * @return bool
 	 */
-	public function hasValidWorkingLicense() {
+	public function hasValidWorkingLicense() :bool {
 		$oLic = $this->getLicense();
 		return $oLic->isValid() && $this->isActive();
 	}

@@ -67,11 +67,7 @@ class AuditTrail extends BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [
 			'fIp'         => '',
 			'fUsername'   => '',
@@ -86,10 +82,11 @@ class AuditTrail extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
-		$sYou = Services::IP()->getRequestIp();
+		$srvIP = Services::IP();
+		$you = $srvIP->getRequestIp();
 		$oCon = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
@@ -100,11 +97,11 @@ class AuditTrail extends BaseBuild {
 				 * To cater for the contexts that don't refer to a module, but rather a context
 				 * with the Audit Trail module
 				 */
-				$oModule = $oCon->getModule( $oEntry->context );
-				if ( empty( $oModule ) ) {
-					$oModule = $oCon->getModule_AuditTrail();
+				$mod = $oCon->getModule( $oEntry->context );
+				if ( empty( $mod ) ) {
+					$mod = $oCon->getModule_AuditTrail();
 				}
-				$oStrings = $oModule->getStrings();
+				$oStrings = $mod->getStrings();
 
 				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
 					$sMsg = stripslashes( sanitize_textarea_field(
@@ -125,14 +122,25 @@ class AuditTrail extends BaseBuild {
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 				$aE[ 'message' ] = $sMsg;
 				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-				if ( $oEntry->ip == $sYou ) {
-					$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
-				}
-				else {
-					$aE[ 'your_ip' ] = '';
-				}
 				if ( $oEntry->wp_username == '-' ) {
 					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
+				}
+
+				try {
+					$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+				}
+				catch ( \Exception $e ) {
+					$aE[ 'is_you' ] = false;
+				}
+
+				if ( empty( $oEntry->ip ) ) {
+					$aE[ 'ip' ] = '';
+				}
+				else {
+					$aE[ 'ip' ] = sprintf( '%s%s',
+						$this->getIpAnalysisLink( $oEntry->ip ),
+						$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
+					);
 				}
 			}
 			else {

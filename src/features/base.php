@@ -97,10 +97,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}
 	}
 
-	/**
-	 * @param array $aModProps
-	 */
-	protected function setupHooks( $aModProps ) {
+	protected function setupHooks( array $aModProps ) {
 		$con = $this->getCon();
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 
@@ -188,30 +185,30 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return Shield\Databases\Base\Handler|mixed|false
 	 */
 	protected function getDbH( $sDbhKey ) {
-		$oDbH = false;
+		$dbh = false;
 
 		if ( !is_array( $this->aDbHandlers ) ) {
 			$this->aDbHandlers = [];
 		}
 
 		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
-			$oDbH = $this->aDbHandlers[ $sDbhKey ];
+			$dbh = $this->aDbHandlers[ $sDbhKey ];
 		}
 		else {
 			$aDbClasses = $this->getAllDbClasses();
 			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
-				/** @var Shield\Databases\Base\Handler $oDbH */
-				$oDbH = new $aDbClasses[ $sDbhKey ]();
+				/** @var Shield\Databases\Base\Handler $dbh */
+				$dbh = new $aDbClasses[ $sDbhKey ]();
 				try {
-					$oDbH->setMod( $this )->tableInit();
+					$dbh->setMod( $this )->tableInit();
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
-			$this->aDbHandlers[ $sDbhKey ] = $oDbH;
+			$this->aDbHandlers[ $sDbhKey ] = $dbh;
 		}
 
-		return $oDbH;
+		return $dbh;
 	}
 
 	/**
@@ -373,6 +370,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
+
+		$this->loadDebug();
 	}
 
 	/**
@@ -407,9 +406,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * Override this and adapt per feature
-	 * @return string
 	 */
-	protected function getProcessorClassName() {
+	protected function getProcessorClassName() :string {
 		return implode( '_',
 			[
 				strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
@@ -461,16 +459,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\BaseProcessor|Shield\Modules\Base\OneTimeExecute|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|\FernleafSystems\Utilities\Logic\OneTimeExecute|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getUrl_AdminPage() {
+	public function getUrl_AdminPage() :string {
 		return Services::WpGeneral()
 					   ->getUrl_AdminPage(
 						   $this->getModSlug(),
@@ -509,22 +504,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function verifyModActionRequest() {
+	protected function verifyModActionRequest() :bool {
 		$bValid = false;
 
-		$oCon = $this->getCon();
-		$oReq = Services::Request();
+		$con = $this->getCon();
+		$req = Services::Request();
 
-		$sExec = $oReq->request( 'exec' );
-		if ( !empty( $sExec ) && $oReq->request( 'action' ) == $oCon->prefix() ) {
+		$sExec = $req->request( 'exec' );
+		if ( !empty( $sExec ) && $req->request( 'action' ) == $con->prefix() ) {
 
 
-			if ( wp_verify_nonce( $oReq->request( 'exec_nonce' ), $sExec ) && $oCon->getMeetsBasePermissions() ) {
+			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $sExec ) && $con->getMeetsBasePermissions() ) {
 				$bValid = true;
 			}
 			else {
-				$bValid = $oReq->request( 'exec_nonce' ) ===
-						  substr( hash_hmac( 'md5', $sExec.$oReq->request( 'ts' ), $oCon->getSiteInstallationId() ), 0, 6 );
+				$bValid = $req->request( 'exec_nonce' ) ===
+						  substr( hash_hmac( 'md5', $sExec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
 			}
 			if ( !$bValid ) {
 				throw new Exception( 'Invalid request' );
@@ -534,29 +529,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $bValid;
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getUrl_DirectLinkToOption( $sOptKey ) {
-		$sUrl = $this->getUrl_AdminPage();
-		$aDef = $this->getOptions()->getOptDefinition( $sOptKey );
-		if ( !empty( $aDef[ 'section' ] ) ) {
-			$sUrl = $this->getUrl_DirectLinkToSection( $aDef[ 'section' ] );
+	public function getUrl_DirectLinkToOption( string $key ) :string {
+		$url = $this->getUrl_AdminPage();
+		$def = $this->getOptions()->getOptDefinition( $key );
+		if ( !empty( $def[ 'section' ] ) ) {
+			$url = $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
 		}
-		return $sUrl;
+		return $url;
 	}
 
-	/**
-	 * @param string $sSection
-	 * @return string
-	 */
-	public function getUrl_DirectLinkToSection( $sSection ) {
-		if ( $sSection == 'primary' ) {
-			$aSec = $this->getOptions()->getPrimarySection();
-			$sSection = $aSec[ 'slug' ];
+	public function getUrl_DirectLinkToSection( string $section ) :string {
+		if ( $section == 'primary' ) {
+			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];
 		}
-		return $this->getUrl_AdminPage().'#tab-'.$sSection;
+		return $this->getUrl_AdminPage().'#tab-'.$section;
 	}
 
 	/**
@@ -579,47 +565,43 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param bool $bEnable
+	 * @param bool $enable
 	 * @return $this
 	 */
-	public function setIsMainFeatureEnabled( $bEnable ) {
-		return $this->setOpt( 'enable_'.$this->getSlug(), $bEnable ? 'Y' : 'N' );
+	public function setIsMainFeatureEnabled( bool $enable ) {
+		$this->getOptions()->setOpt( 'enable_'.$this->getSlug(), $enable ? 'Y' : 'N' );
+		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleEnabled() {
+	public function isModuleEnabled() :bool {
 		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
 		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
-			$bEnabled = true;
+			$enabled = true;
 		}
 		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true
 				 && !$this->isPremium() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		else {
-			$bEnabled = $this->isModOptEnabled();
+			$enabled = $this->isModOptEnabled();
 		}
 
-		return $bEnabled;
+		return $enabled;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModOptEnabled() {
-		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
+	public function isModOptEnabled() :bool {
+		$opts = $this->getOptions();
+		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' )
+			   || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
 	/**
@@ -652,15 +634,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			$this->sModSlug = $this->getOptions()->getFeatureProperty( 'slug' );
 		}
 		return $this->sModSlug;
-	}
-
-	/**
-	 * @param array $aItems
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addAdminMenuBarItems( array $aItems ) {
-		return $aItems;
 	}
 
 	/**
@@ -735,15 +708,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param array $aSummaryData
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addModuleSummaryData( $aSummaryData ) {
-		return $aSummaryData;
-	}
-
-	/**
 	 * TODO: not the place for this method.
 	 * @return array[]
 	 */
@@ -807,32 +771,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-		return $aAllNotices;
-	}
-
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		return $aAllData;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2.0
-	 */
-	public function isEnabledForUiSummary() {
-		return $this->isModuleEnabled();
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
@@ -868,11 +806,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return string|array
 	 */
 	public function getLastErrors( $bAsString = false, $sGlue = " " ) {
-		$aErrors = $this->getOpt( 'last_errors' );
-		if ( !is_array( $aErrors ) ) {
-			$aErrors = [];
+		$errors = $this->getOptions()->getOpt( 'last_errors' );
+		if ( !is_array( $errors ) ) {
+			$errors = [];
 		}
-		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+		return $bAsString ? implode( $sGlue, $errors ) : $errors;
 	}
 
 	/**
@@ -880,15 +818,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function hasLastErrors() {
 		return count( $this->getLastErrors( false ) ) > 0;
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mDefault
-	 * @return mixed
-	 */
-	public function getOpt( $sOptionKey, $mDefault = false ) {
-		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**
@@ -902,14 +831,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOpt( $sOptKey ) {
-		$sValue = $this->getOpt( $sOptKey, 'default' );
+	public function getTextOpt( string $key ) :string {
+		$sValue = $this->getOptions()->getOpt( $key, 'default' );
 		if ( $sValue == 'default' ) {
-			$sValue = $this->getTextOptDefault( $sOptKey );
+			$sValue = $this->getTextOptDefault( $key );
 		}
 		return __( $sValue, 'wp-simple-firewall' );
 	}
@@ -936,27 +861,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				$mErrors = [];
 			}
 		}
-		return $this->setOpt( 'last_errors', $mErrors );
-	}
-
-	/**
-	 * Sets the value for the given option key
-	 * @param string $sOptionKey
-	 * @param mixed  $mValue
-	 * @return $this
-	 */
-	protected function setOpt( $sOptionKey, $mValue ) {
-		$this->getOptions()->setOpt( $sOptionKey, $mValue );
+		$this->getOptions()->setOpt( 'last_errors', $mErrors );
 		return $this;
 	}
 
-	/**
-	 * @param array $aOptions
-	 */
-	public function setOptions( $aOptions ) {
-		$oVO = $this->getOptions();
-		foreach ( $aOptions as $sKey => $mValue ) {
-			$oVO->setOpt( $sKey, $mValue );
+	public function setOptions( array $options ) {
+		$opts = $this->getOptions();
+		foreach ( $options as $key => $value ) {
+			$opts->setOpt( $key, $value );
 		}
 	}
 
@@ -991,33 +903,25 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string[]
 	 */
-	public function getDismissedNotices() {
-		$aDN = $this->getOpt( 'dismissed_notices' );
-		return is_array( $aDN ) ? $aDN : [];
+	public function getDismissedNotices() :array {
+		$notices = $this->getOptions()->getOpt( 'dismissed_notices' );
+		return is_array( $notices ) ? $notices : [];
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getUiTrack() {
-		$aDN = $this->getOpt( 'ui_track' );
+		$aDN = $this->getOptions()->getOpt( 'ui_track' );
 		return is_array( $aDN ) ? $aDN : [];
 	}
 
-	/**
-	 * @param string[] $aDismissed
-	 * @return $this
-	 */
-	public function setDismissedNotices( $aDismissed ) {
-		return $this->setOpt( 'dismissed_notices', $aDismissed );
+	public function setDismissedNotices( array $aDismissed ) {
+		$this->getOptions()->setOpt( 'dismissed_notices', $aDismissed );
 	}
 
-	/**
-	 * @param string[] $aDismissed
-	 * @return $this
-	 */
-	public function setUiTrack( $aDismissed ) {
-		return $this->setOpt( 'ui_track', $aDismissed );
+	public function setUiTrack( array $UI ) {
+		$this->getOptions()->setOpt( 'ui_track', $UI );
 	}
 
 	/**
@@ -1076,26 +980,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * Will initiate the plugin options structure for use by the UI builder.
-	 * It doesn't set any values, just populates the array created in buildOptions()
-	 * with values stored.
-	 * It has to handle the conversion of stored values to data to be displayed to the user.
-	 * @deprecated 9.2.0
-	 */
-	public function buildOptions() {
-		return $this->getUIHandler()->buildOptions();
-	}
-
-	/**
-	 * @param array $aOptParams
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	protected function buildOptionForUi( $aOptParams ) {
-		return [];
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
@@ -1130,10 +1014,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $aOpts;
 	}
 
-	/**
-	 * @param string $sAction
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 	}
 
 	/**
@@ -1243,7 +1124,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 			// Prevent overwriting of non-editable fields
 			if ( !in_array( $sOptType, [ 'noneditable_text' ] ) ) {
-				$this->setOpt( $sKey, $sOptionValue );
+				$this->getOptions()->setOpt( $sKey, $sOptionValue );
 			}
 		}
 
@@ -1312,14 +1193,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param string
-	 * @return string
-	 */
-	public function getOptionStoragePrefix() {
-		return $this->getCon()->getOptionStoragePrefix();
-	}
-
-	/**
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
@@ -1331,19 +1204,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @param array $aData
 	 * @return string
 	 */
-	protected function renderModulePage( $aData = [] ) {
+	protected function renderModulePage( array $aData = [] ) :string {
 		return $this->renderTemplate(
 			'index.php',
 			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData )
 		);
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function getBaseDisplayData() {
-		return $this->getUIHandler()->getBaseDisplayData();
 	}
 
 	/**
@@ -1430,11 +1295,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return is_array( $aW ) ? $aW : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasWizard() {
-		return ( count( $this->getWizardDefinitions() ) > 0 );
+	public function hasWizard() :bool {
+		return count( $this->getWizardDefinitions() ) > 0;
 	}
 
 	/**
@@ -1551,32 +1413,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->renderTemplate( $sTemplate, $aData, $bTwig );
 	}
 
-	/**
-	 * @param string $sTemplate
-	 * @param array  $aData
-	 * @param bool   $bUseTwig
-	 * @return string
-	 */
-	public function renderTemplate( $sTemplate, $aData = [], $bUseTwig = false ) {
-		if ( empty( $aData[ 'unique_render_id' ] ) ) {
-			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
+	public function renderTemplate( string $template, array $data = [], bool $isTwig = false ) :string {
+		if ( empty( $data[ 'unique_render_id' ] ) ) {
+			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
 			$oRndr = $this->getCon()->getRenderer();
-			if ( $bUseTwig || preg_match( '#^.*\.twig$#i', $sTemplate ) ) {
+			if ( $isTwig || preg_match( '#^.*\.twig$#i', $template ) ) {
 				$oRndr->setTemplateEngineTwig();
 			}
 
-			$sOutput = $oRndr->setTemplate( $sTemplate )
-							 ->setRenderVars( $aData )
-							 ->render();
+			$render = $oRndr->setTemplate( $template )
+							->setRenderVars( $data )
+							->render();
 		}
 		catch ( \Exception $oE ) {
-			$sOutput = $oE->getMessage();
+			$render = $oE->getMessage();
 			error_log( $oE->getMessage() );
 		}
 
-		return $sOutput;
+		return (string)$render;
 	}
 
 	/**
@@ -1591,10 +1447,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $aTransferableOptions;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function collectOptionsForTracking() {
+	public function collectOptionsForTracking() :array {
 		$oVO = $this->getOptions();
 		$aOptionsData = $this->getOptions()->getOptionsForTracking();
 		foreach ( $aOptionsData as $sOption => $mValue ) {
@@ -1659,7 +1512,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
 				$this->oWpCli = $this->loadClassFromBase( 'WpCli' );
 				if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-					throw new Exception( 'WP-CLI not supported' );
+					throw new \Exception( 'WP-CLI not supported' );
 				}
 			}
 			$this->oWpCli->setMod( $this );
@@ -1735,6 +1588,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadClass( 'Options' );
 	}
 
+	protected function loadDebug() {
+		$req = Services::Request();
+		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
+			 && $this->getCon()->isPluginAdmin() ) {
+			/** @var Shield\Modules\Base\Debug $debug */
+			$debug = $this->loadModElement( 'Debug', true );
+			$debug->run();
+		}
+	}
+
 	/**
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
@@ -1752,6 +1615,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param string $class
+	 * @param false  $injectMod
+	 * @return false|Shield\Modules\ModConsumer
+	 */
+	private function loadModElement( $class, $injectMod = true ) {
+		$element = false;
+		try {
+			$C = $this->findElementClass( $class, true, true );
+			/** @var Shield\Modules\ModConsumer $element */
+			$element = @class_exists( $C ) ? new $C() : false;
+			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
+				$element->setMod( $this );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
+		return $element;
+	}
+
+	/**
 	 * @param $sClass
 	 * @return \stdClass|mixed|false
 	 */
@@ -1761,23 +1644,44 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return string
+	 * @param string $element
+	 * @param bool   $bThrowException
+	 * @param bool   $bUseFoundationBase
+	 * @return string|null
+	 * @throws \Exception
 	 */
+	protected function findElementClass( $element, $bUseFoundationBase = true, $bThrowException = true ) {
+		$namespace = [
+			$this->getNamespace(),
+		];
+		if ( $bUseFoundationBase ) {
+			$namespace[] = $this->getBaseNamespace();
+		}
+
+		$theClass = null;
+		foreach ( $namespace as $NS ) {
+			$maybe = $NS.$element;
+			if ( @class_exists( $maybe ) ) {
+				$theClass = $maybe;
+				break;
+			}
+		}
+
+		if ( $bThrowException && is_null( $theClass ) ) {
+			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
+		}
+		return $theClass;
+	}
+
 	private function getBaseNamespace() {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\\';
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getNamespace() {
+	protected function getNamespace() :string {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\'.$this->getNamespaceBase().'\\';
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'Base';
 	}
 
@@ -1791,9 +1695,31 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @deprecated 9.0
+	 * @deprecated 10.0
 	 */
-	protected function doExtraSubmitProcessing() {
-		$this->preProcessOptions();
+	public function getOptionStoragePrefix() :string {
+		return $this->getCon()->getOptionStoragePrefix();
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @param mixed  $mDefault
+	 * @return mixed
+	 * @deprecated 10.0
+	 */
+	public function getOpt( $sOptionKey, $mDefault = false ) {
+		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
+	}
+
+	/**
+	 * Sets the value for the given option key
+	 * @param string $key
+	 * @param mixed  $value
+	 * @return $this
+	 * @deprecated 10.0
+	 */
+	protected function setOpt( string $key, $value ) {
+		$this->getOptions()->setOpt( $key, $value );
+		return $this;
 	}
 }

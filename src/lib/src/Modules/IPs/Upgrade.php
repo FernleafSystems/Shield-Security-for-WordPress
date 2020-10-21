@@ -8,12 +8,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class Upgrade extends Base\Upgrade {
 
 	protected function upgrade_905() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oDBH = $oMod->getDbHandler_IPs();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		$schema = $mod->getDbHandler_IPs()->getTableSchema();
 		Services::WpDb()->doSql(
 			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$oDBH->getTable(), 'ip', $oDBH->enumerateColumns()[ 'ip' ] )
+				$schema->table, 'ip', $schema->enumerateColumns()[ 'ip' ] )
 		);
 	}
 
@@ -21,12 +21,15 @@ class Upgrade extends Base\Upgrade {
 	 * Support larger transgression counts [smallint(1) => int(10)]
 	 */
 	protected function upgrade_911() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oDBH = $oMod->getDbHandler_IPs();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		$schema = $mod->getDbHandler_IPs()->getTableSchema();
 		Services::WpDb()->doSql(
 			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$oDBH->getTable(), 'transgressions', $oDBH->enumerateColumns()[ 'transgressions' ] )
+				$schema->table,
+				'transgressions',
+				$schema->enumerateColumns()[ 'transgressions' ]
+			)
 		);
 	}
 

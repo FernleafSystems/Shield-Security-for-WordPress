@@ -1,0 +1,24 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>
+		{{ body.strings.please_find }}
+		<br />{{ body.strings.depending }}
+	</p>
+
+	<p>
+		&ndash; {{ body.strings.site_url }}: {{ body.vars.site_url }}
+		<br />&ndash; {{ body.strings.report_date }}: {{ body.vars.report_date }}
+	</p>
+
+	<p>{{ body.strings.use_links }}</p>
+
+	<p>
+		<a href="{{ body.strings.click_adjust }}" target="_blank">
+			{{ body.hrefs.click_adjust }}</a>
+	</p>
+
+	<div>
+		{{ body.content.reports|join('<br />')|raw }}
+	</div>
+{% endblock %}

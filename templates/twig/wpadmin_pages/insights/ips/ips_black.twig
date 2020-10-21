@@ -1,5 +1,73 @@
 {% extends '/wpadmin_pages/insights/ips/ips_base.twig' %}
 
+{% block section_pre_table %}
+	<div class="row">
+
+		<div class="col-6">
+			<h5><label for="_fIpBlack">{{ strings.ip_filter }}</label></h5>
+			<form class="mb-3" id="FilterIpBlack" action="#" method="post" autocomplete="off">
+				<input type="hidden" name="fLists[]" value="MB" />
+				<input type="hidden" name="fLists[]" value="AB" />
+				<div class="form-row">
+					<div class="col">
+						<select id="_fIpBlack" name="fIp" class="selectpicker form-control mb-2"
+								data-live-search="true">
+							<option value="">-- {{ strings.select }} --</option>
+							{% for unique_ip in vars.unique_ips_black %}
+								<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col">
+						<input id="SubmitForm" href="#" class="btn btn-info" style="border-radius: 0;"
+							   type="submit" value="{{ strings.filters_apply }}" />
+					</div>
+				</div>
+			</form>
+		</div>
+
+
+		<div class="col-6">
+			<h5>{{ strings.ip_block }}</h5>
+			<form class="mb-3 add-ip" id="NewBlackIp" action="#" method="post" autocomplete="off">
+				<input type="hidden" name="list" value="MB" />
+				<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
+
+				<div class="form-row">
+					<div class="col">
+						<input type="text" class="form-control mb-2 mt-2" id="IpAddressNew" name="ip"
+								{% if flags.can_blacklist %}
+									placeholder="{{ strings.enter_ip_block }}"
+								{% else %}
+									readonly
+									placeholder="{{ strings.pro_only_feature }}"
+								{% endif %}
+						/>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col">
+						<button type="submit" class="btn btn-warning add" style="border-radius: 0;"
+								name="subbutt"
+								{% if flags.can_blacklist %}
+									title="{{ strings.ip_block }}"
+								{% else %}
+									disabled="disabled"
+									title="Manual IP Blocking Is A Pro Feature"
+								{% endif %}
+						><span class="dashicons dashicons-plus"></span>
+							<span>{{ strings.ip_block }}</span></button>
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+
+{% endblock %}
+
 {% block section_table %}
 	<div class="row insights_widget" id="SectionIpsBlack">
 		<div class="col-12">
@@ -7,72 +75,13 @@
 			<div class="card">
 				<div class="card-header">
 					<h5 class="card-title">{{ strings.title_blacklist }}</h5>
-					<h6 class="card-subtitle text-muted">{{ strings.summary_blacklist }}</h6>
+					<h6 class="card-subtitle text-muted font-weight-normal">
+						{{ strings.trans_limit|raw }}
+						<br/>{{ strings.auto_expire|raw }}
+					</h6>
 				</div>
 				<div class="card-body">
-
-					<form class="form-inline m-0 add-ip" id="NewBlackIp" action="#" method="post" autocomplete="off">
-						<input type="hidden" name="list" value="MB" />
-						<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
-
-						<div class="input-group w-100">
-							<div class="input-group-prepend w-25">
-								<div class="input-group-text w-100" style="border-radius: 0">
-									<label for="IpAddressNew">{{ strings.ip_new }}:</label>
-								</div>
-							</div>
-							<input type="text" class="form-control w-50" id="IpAddressNew" name="ip"
-									{% if flags.can_blacklist %}
-										placeholder="{{ strings.enter_ip_block }}"
-									{% else %}
-										readonly
-										placeholder="{{ strings.pro_only_feature }}"
-									{% endif %}
-							/>
-							<div class="input-group-append w-25">
-								<button type="submit" class="btn btn-warning add w-100" style="border-radius: 0;"
-										name="subbutt"
-										{% if flags.can_blacklist %}
-											title="{{ strings.ip_block }}"
-										{% else %}
-											disabled="disabled"
-											title="Manual IP Blocking Is A Pro Feature"
-										{% endif %}
-								><span class="dashicons dashicons-plus"></span>
-									<span>{{ strings.ip_block }}</span></button>
-							</div>
-						</div>
-
-					</form>
-
-					<form class="form-inline m-0" id="FilterIpBlack" action="#" method="post" autocomplete="off">
-						<input type="hidden" name="fLists[]" value="MB" />
-						<input type="hidden" name="fLists[]" value="AB" />
-						<div class="input-group w-100">
-							<div class="input-group-prepend w-25">
-								<div class="w-100 input-group-text" style="border-radius: 0">
-									<label class="mb-0" for="_fIpBlack">{{ strings.ip_filter }}:</label>
-								</div>
-							</div>
-								<select id="_fIpBlack" name="fIp" class="form-control w-50"
-										style="max-width: none; font-size: 16px">
-									<option value="">-- {{ strings.select }} --</option>
-									{% for unique_ip in vars.unique_ips_black %}
-										<option value="{{ unique_ip }}">{{ unique_ip }}</option>
-									{% endfor %}
-								</select>
-							<div class="input-group-append w-25">
-								<input id="SubmitForm" href="#" class="btn btn-info w-100" style="border-radius: 0;"
-									   type="submit" value="{{ strings.filters_apply }}" />
-							</div>
-						</div>
-					</form>
-
 					<div id="TableIpsBlack"></div>
-				</div>
-				<div class="card-footer">
-					{{ strings.trans_limit|raw }}
-					<br />{{ strings.auto_expire|raw }}
 				</div>
 			</div>
 		</div>

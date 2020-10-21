@@ -4,6 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -136,10 +137,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $aAjaxData;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPluginReportEmail() {
+	public function getPluginReportEmail() :string {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getPluginReportEmail();
@@ -199,63 +197,40 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		$oOpts = $this->getOptions();
-		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
-			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
-			   && ( $oOpts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
+		$opts = $this->getOptions();
+		return ( $opts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
+			   && ( $opts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
+			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
 			   && parent::isReadyToExecute();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isVisitorWhitelisted() {
+	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-			$oIp = ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-				->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-				->setIP( Services::IP()->getRequestIp() )
-				->setListTypeWhite()
-				->lookup();
-			self::$bVisitorIsWhitelisted = $oIp instanceof Shield\Databases\IPs\EntryVO;
+			self::$bVisitorIsWhitelisted =
+				( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+					->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+					->setIP( Services::IP()->getRequestIp() )
+					->setListTypeWhite()
+					->lookup()
+				instanceof Shield\Databases\IPs\EntryVO;
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isVerifiedBot() {
+	public function isVerifiedBot() :bool {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$oIP = Services::IP();
-
-			if ( $oIP->isLoopback() ) {
-				self::$bIsVerifiedBot = false;
-			}
-			else {
-				$oSP = Services::ServiceProviders();
-				$sIp = $oIP->getRequestIp();
-				$sAgent = Services::Request()->getUserAgent();
-				if ( empty( $sAgent ) ) {
-					$sAgent = 'Unknown';
-				}
-				self::$bIsVerifiedBot = $oSP->isIp_GoogleBot( $sIp, $sAgent )
-										|| $oSP->isIp_BingBot( $sIp, $sAgent )
-										|| $oSP->isIp_AppleBot( $sIp, $sAgent )
-										|| $oSP->isIp_YahooBot( $sIp, $sAgent )
-										|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
-										|| $oSP->isIp_YandexBot( $sIp, $sAgent )
-										|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
-										|| $oSP->isIp_BaiduBot( $sIp, $sAgent )
-										|| $oSP->isIp_Stripe( $sIp, $sAgent );
-			}
+			$srvIP = Services::IP();
+			self::$bIsVerifiedBot = !$srvIP->isLoopback() &&
+									!in_array( $srvIP->getIpDetector()->getIPIdentity(), [
+										IpIdentify::UNKNOWN,
+										IpIdentify::THIS_SERVER,
+										IpIdentify::VISITOR,
+									] );
 		}
 		return self::$bIsVerifiedBot;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isXmlrpcBypass() {
+	public function isXmlrpcBypass() :bool {
 		return $this->getCon()
 					->getModule_Plugin()
 					->isXmlrpcBypass();

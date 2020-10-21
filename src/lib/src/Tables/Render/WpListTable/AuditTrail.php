@@ -45,17 +45,13 @@ class AuditTrail extends Base {
 	}
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_details( $aItem ) {
-		$sContent = sprintf( '%s<br />%s%s',
-			$aItem[ 'wp_username' ],
-			empty( $aItem[ 'ip' ] ) ? '' : $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
-			$aItem[ 'your_ip' ]
-		);
-		if ( isset( $aItem[ 'meta' ][ 'param' ] ) ) {
-			$sContent .= $this->buildActions( $this->getActionButton_AddParam( $aItem[ 'id' ] ) );
+	public function column_user( $item ) {
+		$sContent = $item[ 'wp_username' ];
+		if ( isset( $item[ 'meta' ][ 'param' ] ) ) {
+			$sContent .= $this->buildActions( [ $this->getActionButton_AddParam( $item[ 'id' ] ) ] );
 		}
 		return $sContent;
 	}
@@ -65,7 +61,8 @@ class AuditTrail extends Base {
 	 */
 	public function get_columns() {
 		return [
-			'details'    => __( 'Details' ),
+			'user'       => __( 'User' ),
+			'ip'         => __( 'IP' ),
 			'message'    => __( 'Message', 'wp-simple-firewall' ),
 			'created_at' => __( 'Date' ),
 		];

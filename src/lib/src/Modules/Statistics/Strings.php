@@ -11,7 +11,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $section ) {

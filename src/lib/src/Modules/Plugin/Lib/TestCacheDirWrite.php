@@ -13,10 +13,7 @@ class TestCacheDirWrite {
 
 	use ModConsumer;
 
-	/**
-	 * @return bool
-	 */
-	public function canWrite() {
+	public function canWrite() :bool {
 		return $this->run()->getTestData()[ 'last_success_at' ] > 0;
 	}
 
@@ -42,10 +39,7 @@ class TestCacheDirWrite {
 		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function canCreateWriteDeleteDir() {
+	private function canCreateWriteDeleteDir() :bool {
 		$bCanWrite = false;
 
 		$oFS = Services::WpFs();
@@ -61,10 +55,7 @@ class TestCacheDirWrite {
 		return $bCanWrite;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function canCreateWriteDeleteFile() {
+	private function canCreateWriteDeleteFile() :bool {
 		$bCanWrite = false;
 
 		$oFS = Services::WpFs();
@@ -83,10 +74,7 @@ class TestCacheDirWrite {
 		return $bCanWrite;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getTestData() {
+	private function getTestData() :array {
 		$aD = $this->getOptions()->getOpt( 'cache_dir_write_test' );
 		return array_merge(
 			[

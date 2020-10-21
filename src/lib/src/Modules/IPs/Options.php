@@ -58,21 +58,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	public function getDbColumns_IPs() {
-		return $this->getDef( 'ip_list_table_columns' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_IPs() {
-		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
-	}
-
-	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
 	public function getRequestWhitelistAsRegex() {
@@ -177,5 +162,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	protected function isSelectOptionEnabled( $key ) {
 		return !$this->isOpt( $key, 'disabled' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_IPs() {
+		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
 	}
 }

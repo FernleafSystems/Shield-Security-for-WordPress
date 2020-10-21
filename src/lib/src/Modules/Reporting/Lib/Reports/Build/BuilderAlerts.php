@@ -10,7 +10,7 @@ class BuilderAlerts extends BaseBuilder {
 	/**
 	 * @return string[]
 	 */
-	protected function gather() {
+	protected function gather() :array {
 		$aReports = [];
 		foreach ( $this->getCon()->modules as $oMod ) {
 			$oRepCon = $oMod->getReportingHandler();
@@ -27,11 +27,7 @@ class BuilderAlerts extends BaseBuilder {
 		return $aReports;
 	}
 
-	/**
-	 * @param array $aGatheredData
-	 * @return string
-	 */
-	protected function render( array $aGatheredData ) {
+	protected function render( array $aGatheredData ) :string {
 		return $this->getMod()->renderTemplate(
 			'/components/reports/alert_body.twig',
 			[

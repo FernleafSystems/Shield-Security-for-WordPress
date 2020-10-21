@@ -22,13 +22,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 
 	/**
 	 * @param string   $sUsername
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		if ( !$oUser instanceof \WP_User ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
+	public function onWpLogin( $sUsername, $user ) {
+		if ( !$user instanceof \WP_User ) {
+			$user = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
-		$this->enforceSessionLimits( $oUser );
+		$this->enforceSessionLimits( $user );
 	}
 
 	/**

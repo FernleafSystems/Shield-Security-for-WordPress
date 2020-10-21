@@ -9,7 +9,7 @@ class BuilderInfo extends BaseBuilder {
 	/**
 	 * @return string[]
 	 */
-	protected function gather() {
+	protected function gather() :array {
 		$aReports = [];
 		foreach ( $this->getCon()->modules as $oMod ) {
 			$oRepCon = $oMod->getReportingHandler();
@@ -26,10 +26,7 @@ class BuilderInfo extends BaseBuilder {
 		return $aReports;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function render( array $aGatheredData ) {
+	protected function render( array $aGatheredData ) :string {
 		return $this->getMod()->renderTemplate(
 			'/components/reports/info_body.twig',
 			[

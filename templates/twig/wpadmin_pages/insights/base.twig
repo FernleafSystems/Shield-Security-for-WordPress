@@ -5,10 +5,7 @@
 {% block page_head %}
 	<div class="row">
 		<div class="col-12">
-			<nav class="navbar navbar-expand-lg navbar-light bg-light">
-				<a class="navbar-brand" href="{{ hrefs.nav_home }}" id="navbar-bannerlogo"
-				   style="background-image: url('{{ hrefs.img_banner }}');"
-				>&nbsp;</a>
+			<nav class="navbar navbar-expand-md navbar-light bg-light">
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
 						aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
@@ -26,7 +23,9 @@
 								<li class="nav-item dropdown" id="NavItem-{{ navkey }}">
 									<a class="nav-link dropdown-toggle{% if navdata.active %} active{% endif %}"
 									   data-toggle="dropdown" href="#" role="button"
-									   aria-haspopup="true" aria-expanded="false">{{ navdata.name }}</a>
+									   aria-haspopup="true" aria-expanded="false">
+										{{ navdata.name }}
+									</a>
 									<div class="dropdown-menu">
 										{% for subnavslug,subnavdata in navdata.subnavs %}
 											<a class="dropdown-item {% if subnavdata.active %} active{% endif %}"
@@ -45,34 +44,20 @@
 							   data-toggle="modal" data-target="#OptionsSearch">&nbsp;</a>
 						</li>
 
-						<div class="nav-item announcekit-widget"></div>
-
 					</ul>
 				</div>
 				{#<form class="form-inline">#}
 				{#<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">#}
 				{#<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>#}
 				{#</form>#}
+				<a class="navbar-brand" href="{{ hrefs.nav_home }}" id="navbar-bannerlogo"
+				   style="background-image: url('{{ hrefs.img_banner }}');"
+				>&nbsp;</a>
 			</nav>
 		</div>
 	</div>
 
 	{% include '/snippets/modal/search_options.twig' %}
-
-	<script>
-	  window.announcekit = (window.announcekit || {
-		  queue: [], on: function ( n, x ) {
-			  window.announcekit.queue.push( [ n, x ] );
-		  }, push: function ( x ) {
-			  window.announcekit.queue.push( x );
-		  }
-	  });
-	  window.announcekit.push( {
-		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
-		  "selector": ".announcekit-widget",
-		  "version": 2
-	  } )
-	</script>
 	<script>
 	  jQuery( document ).ready( function () {
 		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';

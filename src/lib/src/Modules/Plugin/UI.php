@@ -3,10 +3,34 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
+
+	public function buildInsightsVars_Debug() :array {
+		return [
+			'strings' => [
+				'page_title' => sprintf( __( '%s Debug Page' ), $this->getCon()->getHumanName() )
+			],
+			'vars'    => [
+				'debug_data' => ( new Collate() )
+					->setMod( $this->getMod() )
+					->run()
+			],
+			'content' => [
+				'recent_events' => ( new RecentEvents() )
+					->setMod( $this->getMod() )
+					->build(),
+				'admin_notes'   => ( new AdminNotes() )
+					->setMod( $this->getMod() )
+					->build()
+			]
+		];
+	}
 
 	/**
 	 * @param array $aOptParams
@@ -32,68 +56,7 @@ class UI extends Base\ShieldUI {
 		return $aOptParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getInsightsConfigCardData() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$data = [
-			'strings'      => [
-				'title' => __( 'General Settings', 'wp-simple-firewall' ),
-				'sub'   => sprintf( __( 'General %s Settings', 'wp-simple-firewall' ), $this->getCon()
-																							->getHumanName() ),
-			],
-			'key_opts'     => [],
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
-		if ( $mod->isModOptEnabled() ) {
-			$data[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$data[ 'key_opts' ][ 'editing' ] = [
-				'name'    => __( 'Visitor IP', 'wp-simple-firewall' ),
-				'enabled' => true,
-				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ),
-					__( $opts->getSelectOptionValueText( 'visitor_address_source' ), 'wp-simple-firewall' ) ),
-				'weight'  => 0,
-				'href'    => $mod->getUrl_DirectLinkToOption( 'visitor_address_source' ),
-			];
-
-			$bHasSupportEmail = Services::Data()->validEmail( $opts->getOpt( 'block_send_email_address' ) );
-			$data[ 'key_opts' ][ 'reports' ] = [
-				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
-				'enabled' => $bHasSupportEmail,
-				'summary' => $bHasSupportEmail ?
-					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() )
-					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() ),
-				'weight'  => 0,
-				'href'    => $mod->getUrl_DirectLinkToOption( 'block_send_email_address' ),
-			];
-
-			$bRecap = $mod->getCaptchaCfg()->ready;
-			$data[ 'key_opts' ][ 'recap' ] = [
-				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
-				'enabled' => $bRecap,
-				'summary' => $bRecap ?
-					__( 'CAPTCHA keys have been provided', 'wp-simple-firewall' )
-					: __( "CAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
-				'weight'  => 1,
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
-			];
-		}
-
-		return $data;
-	}
-
-	/**
-	 * @param string $section
-	 * @return array
-	 */
-	protected function getSectionWarnings( $section ) {
+	protected function getSectionWarnings( string $section ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
 		$mod = $this->getMod();
 		$opts = $this->getOptions();

@@ -39,7 +39,7 @@ class OptValueSanitize {
 
 			case 'email':
 				$mVal = trim( (string)$mVal );
-				$validValue = empty($mVal) || Services::Data()->validEmail( $mVal );
+				$validValue = empty( $mVal ) || Services::Data()->validEmail( $mVal );
 				break;
 
 			case 'array':

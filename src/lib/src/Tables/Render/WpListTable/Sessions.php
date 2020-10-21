@@ -9,11 +9,10 @@ class Sessions extends Base {
 	 * @return string
 	 */
 	public function column_details( $aItem ) {
-		return sprintf( '%s<br />%s%s%s',
+		return sprintf( '%s<br />%s%s',
 			$aItem[ 'wp_username' ],
-			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
-			$aItem[ 'your_ip' ],
-			$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ], __( 'Discard', 'wp-simple-firewall' ) ) )
+			$aItem[ 'ip' ],
+			$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ], __( 'Discard', 'wp-simple-firewall' ) ) ] )
 		);
 	}
 

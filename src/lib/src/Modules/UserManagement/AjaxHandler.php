@@ -9,36 +9,29 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
 			case 'render_table_sessions':
-				$aResponse = $this->ajaxExec_BuildTableTraffic();
+				$response = $this->ajaxExec_BuildTableSessions();
 				break;
 
 			case 'bulk_action':
-				$aResponse = $this->ajaxExec_BulkItemAction();
+				$response = $this->ajaxExec_BulkItemAction();
 				break;
 
 			case 'session_delete':
-				$aResponse = $this->ajaxExec_SessionDelete();
+				$response = $this->ajaxExec_SessionDelete();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableTraffic() {
+	private function ajaxExec_BuildTableSessions() :array {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
 		$mod = $this->getMod();
 
@@ -62,12 +55,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BulkItemAction() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_BulkItemAction() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
 		$oReq = Services::Request();
 
 		$bSuccess = false;
@@ -81,7 +71,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			$nYourId = $oMod->getSession()->id;
+			$nYourId = $mod->getSession()->id;
 			$bIncludesYourSession = in_array( $nYourId, $aIds );
 
 			if ( $bIncludesYourSession && ( count( $aIds ) == 1 ) ) {
@@ -110,21 +100,18 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_SessionDelete() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_SessionDelete() :array {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		elseif ( $oMod->getSession()->id === $nId ) {
+		elseif ( $mod->getSession()->id === $nId ) {
 			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
-		elseif ( $oMod->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $mod->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}

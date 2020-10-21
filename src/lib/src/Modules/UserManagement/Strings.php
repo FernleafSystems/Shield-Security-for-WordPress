@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'um_current_user_settings'          => __( 'Current User Sessions', 'wp-simple-firewall' ),
 			'um_username'                       => __( 'Username', 'wp-simple-firewall' ),
@@ -27,7 +27,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $section ) {
@@ -103,7 +103,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		$oOpts = $this->getOptions();
 		$sModName = $this->getMod()->getMainFeatureName();
 
@@ -262,7 +262,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'reg_email_invalid'            => [
 				__( 'Detected user registration with invalid email address (%s).', 'wp-simple-firewall' ),

@@ -8,11 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
 			case 'gen_backup_codes':
@@ -87,9 +83,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_Disable2faEmail() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->setEnabled2FaEmail( false );
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		$mod->setEnabled2FaEmail( false );
 		return [
 			'success'     => true,
 			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
@@ -101,12 +97,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ProfileU2fRemove() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 
 		$sKey = Services::Request()->post( 'u2fid' );
 		( new TwoFactor\Provider\U2F() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $sKey );
 		return [
 			'success'     => true,
@@ -137,8 +133,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ResendEmailVerification() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		$bSuccess = true;
@@ -152,8 +148,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			$sMessage = __( 'Verification email resent.', 'wp-simple-firewall' );
-			$oMod->setIfCanSendEmail( false )
-				 ->sendEmailVerifyCanSend();
+			$mod->setIfCanSendEmail( false )
+				->sendEmailVerifyCanSend();
 		}
 
 		return [

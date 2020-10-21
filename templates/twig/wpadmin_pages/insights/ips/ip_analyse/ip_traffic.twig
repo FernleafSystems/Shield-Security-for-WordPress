@@ -1,0 +1,52 @@
+<h6 class="card-title">
+	{{ strings.title }}
+	<span class="badge badge-info">{{ vars.total_requests }}</span>
+</h6>
+{% if vars.total_requests < 1 %}
+	<div class="alert-info alert">{{ strings.no_requests }}</div>
+{% else %}
+	<div class="overflow_container">
+		<table class="table">
+			<thead class="thead-light">
+			<tr>
+				<th scope="col">{{ strings.requested_at }}</th>
+				<th scope="col">{{ strings.response }}</th>
+				<th scope="col">{{ strings.verb }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for request in vars.requests %}
+				<tr>
+					<td>{{ request.created_at|raw }}</td>
+
+					<td>
+						<div>
+							{{ strings.http_code }}:
+							<code class="text-uppercase d-inline-block">{{ request.code }}</code>
+						</div>
+						<div>
+							{{ strings.offense }}:
+							<span class="badge badge-{{ request.trans ? 'danger':'success' }}">
+								{{ request.trans ? 'Yes':'No' }}
+							</span>
+
+						</div>
+					</td>
+
+					<td class="text-wrap" style="word-break: break-all">
+						<div>
+							{{ strings.verb }}:<code class="text-uppercase d-inline-block">{{ request.verb }}</code>
+						</div>
+						<div>
+							{{ strings.path }}:<code>{{ request.path }}</code>
+						</div>
+						{% if request.query is not empty %}
+							<div>{{ strings.query }}:<code>?{{ request.query|raw }}</code></div>
+						{% endif %}
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}

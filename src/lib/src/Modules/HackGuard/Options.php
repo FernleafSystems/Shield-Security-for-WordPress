@@ -7,63 +7,12 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends Base\ShieldOptions {
 
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	public function getDbColumns_FileLocker() {
-		return $this->getDef( 'table_columns_filelocker' );
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	public function getDbColumns_Scanner() {
-		return $this->getDef( 'table_columns_scanner' );
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	public function getDbColumns_ScanQueue() {
-		return $this->getDef( 'table_columns_scanqueue' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_FileLocker() {
-		return $this->getCon()->prefixOption( $this->getDef( 'table_name_filelocker' ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_Scanner() {
-		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_ScanQueue() {
-		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanqueue' ) );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getFilesToLock() {
+	public function getFilesToLock() :array {
 		$locks = $this->getOpt( 'file_locker', [] );
 		return is_array( $locks ) ? $locks : [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getRepairAreas() {
+	public function getRepairAreas() :array {
 		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
 	}
 
@@ -79,14 +28,14 @@ class Options extends Base\ShieldOptions {
 	 * @param string $sReportHash
 	 * @return bool
 	 */
-	public function isMalFalsePositiveReported( $sReportHash ) {
+	public function isMalFalsePositiveReported( $sReportHash ) :bool {
 		return isset( $this->getMalFalsePositiveReports()[ $sReportHash ] );
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getMalConfidenceBoundary() {
+	public function getMalConfidenceBoundary() :int {
 		return (int)apply_filters( 'icwp_shield_fp_confidence_boundary', 50 );
 	}
 
@@ -212,17 +161,14 @@ class Options extends Base\ShieldOptions {
 		return $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getScanFrequency() {
+	public function getScanFrequency() :int {
 		return (int)$this->getOpt( 'scan_frequency', 1 );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getScanSlugs() {
+	public function getScanSlugs() :array {
 		return $this->getDef( 'all_scan_slugs' );
 	}
 
@@ -381,5 +327,29 @@ class Options extends Base\ShieldOptions {
 				return $nTS > Services::Request()->carbon()->subMonth()->timestamp;
 			}
 		) );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_FileLocker() {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_filelocker' ) );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_Scanner() {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_ScanQueue() :string {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanqueue' ) );
 	}
 }

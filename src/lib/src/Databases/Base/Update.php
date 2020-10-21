@@ -57,21 +57,21 @@ class Update extends Insert {
 	 * @return bool
 	 */
 	public function updateEntry( $oEntry, $aUpdateData = [] ) {
-		$bSuccess = false;
+		$success = false;
 
 		if ( $oEntry instanceof EntryVO ) {
 			if ( empty( $aUpdateData ) ) {
 				$aUpdateData = $oEntry->getRawDataAsArray();
 			}
-			$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
+			$success = $this->updateById( $oEntry->id, $aUpdateData );
 			// TODO: run through update data and determine if anything actually needs updating
-			if ( $bSuccess ) {
-				foreach ( $aUpdateData as $sCol => $mVal ) {
-					$oEntry->{$sCol} = $mVal;
+			if ( $success ) {
+				foreach ( $aUpdateData as $col => $mVal ) {
+					$oEntry->{$col} = $mVal;
 				}
 			}
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

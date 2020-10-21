@@ -38,7 +38,7 @@ class Pin extends BaseWpCliCmd {
 	 * @param array $aA
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdPin( array $null, array$aA ) {
+	public function cmdPin( array $null, array $aA ) {
 
 		$sNewPin = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
 		$bRemove = WP_CLI\Utils\get_flag_value( $aA, 'remove', false );

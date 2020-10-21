@@ -27,15 +27,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function getSecurityAdminUsers() {
-		$aU = $this->getOpt( 'sec_admin_users', [] );
-		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : [];
-	}
-
-	/**
 	 * No checking of admin capabilities in-case of infinite loop with
 	 * admin access caps check
 	 * @return bool
@@ -70,7 +61,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 		}
 
-		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
+		$opts->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
 	}
 
 	/**
@@ -112,18 +103,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return array_unique( $aFiltered );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getSecAdminTimeout() {
-		return (int)$this->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+	public function getSecAdminTimeout() :int {
+		return (int)$this->getOptions()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
 	}
 
 	/**
 	 * Only returns greater than 0 if you have a valid Sec admin session
-	 * @return int
 	 */
-	public function getSecAdminTimeLeft() {
+	public function getSecAdminTimeLeft() :int {
 		$nLeft = 0;
 		if ( $this->hasSession() ) {
 
@@ -135,13 +122,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
 			}
 		}
-		return max( 0, $nLeft );
+		return (int)max( 0, $nLeft );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function handleModAction( $sAction ) {
+	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'remove_secadmin_confirm':
 				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
@@ -153,17 +137,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSecAdminSessionValid() {
-		return ( $this->getSecAdminTimeLeft() > 0 );
+	public function isSecAdminSessionValid() :bool {
+		return $this->getSecAdminTimeLeft() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledSecurityAdmin() {
+	public function isEnabledSecurityAdmin() :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return $this->isModOptEnabled() &&
@@ -184,17 +162,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isValidSecAdminRequest() {
+	public function isValidSecAdminRequest() :bool {
 		return $this->isAccessKeyRequest() && $this->testSecAccessKeyRequest();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function testSecAccessKeyRequest() {
+	public function testSecAccessKeyRequest() :bool {
 		if ( !isset( $this->bValidSecAdminRequest ) ) {
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
@@ -208,7 +180,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 						// Workaround for escaping of passwords
 						$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sEscaped ) );
 						if ( $bValid ) {
-							$this->setOpt( 'admin_access_key', md5( $sReqKey ) );
+							$opts->setOpt( 'admin_access_key', md5( $sReqKey ) );
 						}
 					}
 				}
@@ -221,29 +193,20 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->bValidSecAdminRequest;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isAccessKeyRequest() {
+	private function isAccessKeyRequest() :bool {
 		return strlen( Services::Request()->post( 'sec_admin_key', '' ) ) > 0;
 	}
 
-	/**
-	 * @param string $key
-	 * @return bool
-	 */
-	public function verifyAccessKey( $key ) {
+	public function verifyAccessKey( string $key ) :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getWhitelabelOptions() {
-		$sMain = $this->getOpt( 'wl_pluginnamemain' );
-		$sMenu = $this->getOpt( 'wl_namemenu' );
+	public function getWhitelabelOptions() :array {
+		$opts = $this->getOptions();
+		$sMain = $opts->getOpt( 'wl_pluginnamemain' );
+		$sMenu = $opts->getOpt( 'wl_namemenu' );
 		if ( empty( $sMenu ) ) {
 			$sMenu = $sMain;
 		}
@@ -251,9 +214,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return [
 			'name_main'            => $sMain,
 			'name_menu'            => $sMenu,
-			'name_company'         => $this->getOpt( 'wl_companyname' ),
-			'description'          => $this->getOpt( 'wl_description' ),
-			'url_home'             => $this->getOpt( 'wl_homeurl' ),
+			'name_company'         => $opts->getOpt( 'wl_companyname' ),
+			'description'          => $opts->getOpt( 'wl_description' ),
+			'url_home'             => $opts->getOpt( 'wl_homeurl' ),
 			'url_icon'             => $this->buildWlImageUrl( 'wl_menuiconurl' ),
 			'url_dashboardlogourl' => $this->buildWlImageUrl( 'wl_dashboardlogourl' ),
 			'url_login2fa_logourl' => $this->buildWlImageUrl( 'wl_login2fa_logourl' ),
@@ -265,59 +228,53 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * Full URL
 	 * Relative path URL: i.e. starts with /
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
-	 * @param string $sKey
+	 * @param string $key
 	 * @return string
 	 */
-	private function buildWlImageUrl( $sKey ) {
-		$oOpts = $this->getOptions();
+	private function buildWlImageUrl( $key ) {
+		$opts = $this->getOptions();
 
-		$sLogoUrl = $this->getOpt( $sKey );
+		$sLogoUrl = $opts->getOpt( $key );
 		if ( empty( $sLogoUrl ) ) {
-			$oOpts->resetOptToDefault( $sKey );
-			$sLogoUrl = $this->getOpt( $sKey );
+			$opts->resetOptToDefault( $key );
+			$sLogoUrl = $opts->getOpt( $key );
 		}
 		if ( !empty( $sLogoUrl ) && !Services::Data()->isValidWebUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
 			$sLogoUrl = $this->getCon()->getPluginUrl_Image( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
-				$oOpts->resetOptToDefault( $sKey );
-				$sLogoUrl = $this->getCon()->getPluginUrl_Image( $this->getOpt( $sKey ) );
+				$opts->resetOptToDefault( $key );
+				$sLogoUrl = $this->getCon()->getPluginUrl_Image( $opts->getOpt( $key ) );
 			}
 		}
 
 		return $sLogoUrl;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWlEnabled() {
+	public function isWlEnabled() :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEnabledWhitelabel() && $this->isPremium();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWlHideUpdates() {
-		return $this->isWlEnabled() && $this->isOpt( 'wl_hide_updates', 'Y' );
+	public function isWlHideUpdates() :bool {
+		return $this->isWlEnabled() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $pin
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public function setNewAccessKeyManually( $sKey ) {
-		if ( empty( $sKey ) ) {
+	public function setNewPinManually( string $pin ) {
+		if ( empty( $pin ) ) {
 			throw new \Exception( 'Attempting to set an empty Security PIN.' );
 		}
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( 'User does not have permission to update the Security PIN.' );
 		}
 
-		$this->setIsMainFeatureEnabled( true )
-			 ->setOpt( 'admin_access_key', md5( $sKey ) );
+		$this->setIsMainFeatureEnabled( true );
+		$this->getOptions()->setOpt( 'admin_access_key', md5( $pin ) );
 		return $this->saveModOptions();
 	}
 
@@ -417,10 +374,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'SecurityAdmin';
 	}
 }

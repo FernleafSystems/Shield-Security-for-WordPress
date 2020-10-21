@@ -14,44 +14,15 @@ class Handler extends Base\Handler {
 		$this->tableCleanExpired( 30 );
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getColumns() {
+	protected function getCustomColumns() :array {
 		return $this->getOptions()->getDef( 'reports_table_columns' );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getDbTable_Reports();
+	protected function getDefaultTableName() :string {
+		return $this->getOptions()->getDef( 'reports_table_name' );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultCreateTableSql() {
-		return "CREATE TABLE %s (
-			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			rid int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Report ID',
-			type varchar(3) NOT NULL DEFAULT '' COMMENT 'Report Type',
-			frequency varchar(10) NOT NULL DEFAULT '' COMMENT 'Report Interval/Frequency',
-			interval_end_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS of end of interval',
-			sent_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
- 			PRIMARY KEY  (id)
-		) %s;";
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getOptions()->getDef( 'reports_table_columns' );
+	protected function getTimestampColumns() :array {
+		return $this->getOptions()->getDef( 'reports_table_timestamp_columns' );
 	}
 }

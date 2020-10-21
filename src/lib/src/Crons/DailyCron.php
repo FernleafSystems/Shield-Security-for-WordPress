@@ -14,25 +14,18 @@ class DailyCron extends BaseCron {
 		return 'daily';
 	}
 
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function getCronName() {
+	protected function getCronName() :string {
 		return $this->getCon()->prefix( 'daily' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getFirstRunTimestamp() {
+	public function getFirstRunTimestamp() :int {
 		$nHour = apply_filters( $this->getCon()->prefix( 'daily_cron_hour' ), 7 );
 		if ( $nHour < 0 || $nHour > 23 ) {
 			$nHour = 7;
 		}
 		$oCarb = Services::Request()
 						 ->carbon( true )
-						 ->minute( 1 )
+						 ->minute( rand( 1, 59 ) )
 						 ->second( 0 );
 		if ( $oCarb->hour >= $nHour ) {
 			$oCarb->addDays( 1 );

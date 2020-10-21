@@ -2,11 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Ufc extends Base {
+
+	const SCAN_SLUG = 'ufc';
 
 	/**
 	 * @return Scans\Ufc\Utilities\ItemActionHandler
@@ -23,28 +25,19 @@ class Ufc extends Base {
 		return !Services::WpFs()->exists( $oItem->path_full );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
+	public function isCronAutoRepair() :bool {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->isUfsDeleteFiles();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getUnrecognisedFileScannerOption() != 'disabled';
+	public function isEnabled() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getUnrecognisedFileScannerOption() !== 'disabled';
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumOnly() {
+	protected function isPremiumOnly() :bool {
 		return false;
 	}
 }

@@ -77,11 +77,7 @@ class AjaxHandlerBase {
 		return $aFormParams;
 	}
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	protected function processAjaxAction( $action ) {
+	protected function processAjaxAction( string $action ) :array {
 		return [];
 	}
 

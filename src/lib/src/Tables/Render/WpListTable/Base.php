@@ -38,7 +38,7 @@ class Base extends \WP_List_Table {
 	}
 
 	protected function extra_tablenav( $which ) {
-		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn btn-sm tableActionRefresh">%s</a>', __( 'Refresh', 'wp-simple-firewall' ) );
+		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn btn-sm btn-outline-dark ml-3 tableActionRefresh">%s</a>', __( 'Refresh', 'wp-simple-firewall' ) );
 	}
 
 	/**
@@ -177,11 +177,7 @@ class Base extends \WP_List_Table {
 		return sprintf( '<div class="actions-block">%s</div>', implode( ' | ', (array)$aButtons ) );
 	}
 
-	/**
-	 * @param array $aProps
-	 * @return string
-	 */
-	protected function buildActionButton_CustomArray( $aProps ) {
+	protected function buildActionButton_CustomArray( array $aProps ) :string {
 		$sTitle = empty( $aProps[ 'title' ] ) ? $aProps[ 'text' ] : $aProps[ 'title' ];
 
 		$aClasses = $aProps[ 'classes' ];
@@ -204,7 +200,7 @@ class Base extends \WP_List_Table {
 	 * @param string $sTitle
 	 * @return string
 	 */
-	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) {
+	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) :string {
 		$aClasses[] = 'action';
 		return $this->buildActionButton_CustomArray( [
 			'text'    => $sText,
@@ -255,19 +251,6 @@ class Base extends \WP_List_Table {
 			__( 'Ignore', 'wp-simple-firewall' ),
 			[ 'ignore' ],
 			[ 'rid' => $nId, ]
-		);
-	}
-
-	/**
-	 * TODO Put this into Service IPs and grab it from there
-	 * @param string $sIp
-	 * @return string
-	 */
-	protected function getIpWhoisLookupLink( $sIp ) {
-		$oIp = Services::IP();
-		return sprintf( '<a href="%s" target="_blank" class="ip-whois new-window-link">%s</a>',
-			$oIp->isValidIpRange( $sIp ) ? $oIp->getIpWhoisLookup( $sIp ) : $oIp->getIpInfo( $sIp ),
-			$sIp
 		);
 	}
 }

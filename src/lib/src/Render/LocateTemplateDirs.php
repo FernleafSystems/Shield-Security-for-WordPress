@@ -12,7 +12,7 @@ class LocateTemplateDirs {
 	/**
 	 * @return string[]
 	 */
-	public function run() {
+	public function run() :array {
 		$aDirs = array_filter(
 			$this->getCustomTemplateDirs(),
 			function ( $sDir ) {
@@ -26,12 +26,12 @@ class LocateTemplateDirs {
 	/**
 	 * @return string[]
 	 */
-	protected function getCustomTemplateDirs() {
-		$sDir = $this->getCon()->getPluginSpec_Path( 'custom_templates' );
-		$aDirs = array_unique( [
-			path_join( get_stylesheet_directory(), $sDir ),
-			path_join( get_template_directory(), $sDir ),
+	protected function getCustomTemplateDirs() :array {
+		$dir = $this->getCon()->getPluginSpec_Path( 'custom_templates' );
+		$dirs = array_unique( [
+			path_join( get_stylesheet_directory(), $dir ),
+			path_join( get_template_directory(), $dir ),
 		] );
-		return $this->getCon()->isPremiumActive() ? $aDirs : [];
+		return $this->getCon()->isPremiumActive() ? $dirs : [];
 	}
 }

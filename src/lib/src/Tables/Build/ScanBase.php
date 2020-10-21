@@ -12,10 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class ScanBase extends BaseBuild {
 
-	/**
-	 * @return string
-	 */
-	protected function buildEmpty() {
+	protected function buildEmpty() :string {
 		return sprintf( '<div class="alert alert-success m-0">%s</div>',
 			__( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ) );
 	}
@@ -23,7 +20,7 @@ class ScanBase extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	public function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -57,11 +54,7 @@ class ScanBase extends BaseBuild {
 		return $this;
 	}
 
-	/**
-	 * Override to allow other parameter keys for building the table
-	 * @return array
-	 */
-	protected function getCustomParams() {
+	protected function getCustomParams() :array {
 		return [
 			'fScan'    => 'wcf',
 			'fSlug'    => '',

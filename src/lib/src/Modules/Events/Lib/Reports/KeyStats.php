@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
 class KeyStats extends BaseReporter {
@@ -65,7 +65,7 @@ class KeyStats extends BaseReporter {
 						'counts' => $aCounts
 					],
 					'strings' => [
-						'title'       => __( 'Top Security Statistics', 'wp-simple-firewall' ),
+						'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
 					],

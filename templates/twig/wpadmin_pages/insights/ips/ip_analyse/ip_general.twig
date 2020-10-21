@@ -1,0 +1,74 @@
+<div class="row">
+
+	<div class="col">
+		<h6 class="card-title">
+			{{ strings.title_status }}
+		</h6>
+		<dl>
+
+			<dt>{{ strings.status.offenses }}</dt>
+			<dd>
+				<p class="bigger-badge badge badge-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
+					{{ vars.status.offenses }}
+				</p>
+			</dd>
+
+			<dt>{{ strings.status.is_blocked }}</dt>
+			<dd>
+				<p class="bigger-badge badge badge-{{ vars.status.is_blocked ? 'danger' : 'success' }}">
+					{{ vars.status.is_blocked ? strings.yes : strings.no }}
+				</p>
+			</dd>
+
+			<dt>{{ strings.status.is_bypass }}</dt>
+			<dd>
+				<p class="bigger-badge badge badge-{{ vars.status.is_bypass ? 'warning' : 'success' }}">
+					{{ vars.status.is_bypass ? strings.yes : strings.no }}
+				</p>
+			</dd>
+		</dl>
+	</div>
+
+	<div class="col">
+		<h6 class="card-title">
+			{{ strings.title_general }}
+		</h6>
+		<dl>
+			<dt>{{ strings.identity.who_is_it }}</dt>
+			<dd>
+				<p>{{ vars.identity.who_is_it }}</p>
+			</dd>
+
+			<dt>{{ strings.identity.rdns }}</dt>
+			<dd>
+				<p>{{ vars.identity.rdns }}</p>
+			</dd>
+
+			<dt>{{ strings.identity.country }} ({{ strings.identity.timezone }})</dt>
+			<dd>
+				<p>
+					{{ vars.identity.country_name }}
+					({{ vars.identity.timezone }})
+				</p>
+			</dd>
+
+			<dt>{{ strings.identity.coordinates }}</dt>
+			<dd>
+				<p>{{ vars.identity.coordinates }}</p>
+			</dd>
+		</dl>
+	</div>
+
+	<div class="col">
+		<h6 class="card-title">
+			{{ strings.extras.title }}
+		</h6>
+		<dl>
+			<dt>{{ strings.extras.ip_whois }}</dt>
+			<dd>
+				<p><a href="{{ vars.extras.ip_whois }}" target="_blank">{{ strings.extras.query_ip_whois }}</a></p>
+			</dd>
+		</dl>
+	</div>
+
+</div>

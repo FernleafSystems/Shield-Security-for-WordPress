@@ -45,7 +45,7 @@ class SessionTerminate extends BaseWpCliCmd {
 					'type'        => 'flag',
 					'name'        => 'force',
 					'optional'    => true,
-					'description' => 'By-pass confirmation prompt.',
+					'description' => 'Bypass confirmation prompt.',
 				],
 			],
 		] ) );

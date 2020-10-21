@@ -79,8 +79,7 @@ class Scanner {
 	 * @return array
 	 */
 	public function checkComment( $aCommData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		$opts = $this->getOptions();
 
 		if ( Services::WpComments()->isCommentSubmission()
 			 && $this->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
@@ -95,10 +94,10 @@ class Scanner {
 					 );
 
 				if ( $mResult->get_error_code() == 'human' ) {
-					$sStatus = $oMod->getOpt( 'comments_default_action_human_spam' );
+					$sStatus = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$sStatus = $oMod->getOpt( 'comments_default_action_spam_bot' );
+					$sStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
 
 				if ( $sStatus == 'reject' ) {

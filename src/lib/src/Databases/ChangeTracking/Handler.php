@@ -10,23 +10,17 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string[]
 	 */
-	public function getColumns() {
+	public function getColumns() :array {
 		return $this->getOptions()->getDef( 'table_columns_changetracking' );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
+	protected function getDefaultTableName() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getDbTable_ChangeTracking();
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultCreateTableSql() {
+	protected function getDefaultCreateTableSql() :string {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			data BLOB NOT NULL DEFAULT '' COMMENT 'Snapshot Data',
@@ -35,13 +29,5 @@ class Handler extends Base\Handler {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	protected function getDefaultColumnsDefinition() {
-		return $this->getOptions()->getDef( 'table_columns_changetracking' );
 	}
 }

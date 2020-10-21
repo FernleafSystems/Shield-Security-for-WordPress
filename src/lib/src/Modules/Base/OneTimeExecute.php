@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+/**
+ * Trait OneTimeExecute
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.0
+ */
 trait OneTimeExecute {
 
 	private $bExecuted = false;

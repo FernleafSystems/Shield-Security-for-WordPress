@@ -11,32 +11,42 @@ class Insert extends BaseQuery {
 	 */
 	protected $aInsertData;
 
-	/**
-	 * @return array
-	 */
-	public function getInsertData() {
-		$aD = is_array( $this->aInsertData ) ? $this->aInsertData : [];
-		return array_intersect_key( $aD, array_flip( $this->getDbH()->getColumnsActual() ) );
+	public function getInsertData() :array {
+		$dbh = $this->getDbH();
+		$cols = method_exists( $dbh, 'getTableSchema' ) ?
+			$dbh->getTableSchema()->getColumnNames()
+			: $dbh->getColumnsActual();
+
+		return array_intersect_key(
+			is_array( $this->aInsertData ) ? $this->aInsertData : [],
+			array_flip( $cols )
+		);
 	}
 
 	/**
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
-	public function insert( $oEntry ) {
+	public function insert( $oEntry ) :bool {
 		return $this->setInsertData( $oEntry->getRawDataAsArray() )->query() === 1;
 	}
 
 	/**
 	 * Verifies insert data keys against actual table columns
-	 * @param array $aData
+	 * @param array $data
 	 * @return $this
 	 */
-	protected function setInsertData( $aData ) {
-		if ( !is_array( $aData ) ) {
-			$aData = [];
+	protected function setInsertData( $data ) {
+		if ( !is_array( $data ) ) {
+			$data = [];
 		}
-		$this->aInsertData = array_intersect_key( $aData, array_flip( $this->getDbH()->getColumnsActual() ) );
+
+		$dbh = $this->getDbH();
+		$cols = method_exists( $dbh, 'getTableSchema' ) ?
+			$dbh->getTableSchema()->getColumnNames()
+			: $dbh->getColumnsActual();
+
+		$this->aInsertData = array_intersect_key( $data, array_flip( $cols ) );
 		return $this;
 	}
 

@@ -6,28 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Options extends Base\ShieldOptions {
 
-	/**
-	 * @return array
-	 */
-	public function getSuspendHardUserIds() {
+	public function getSuspendHardUserIds() :array {
 		$ids = $this->getOpt( 'hard_suspended_userids', [] );
 		return is_array( $ids ) ? array_filter( $ids, function ( $nTime ) {
 			return is_int( $nTime ) && $nTime > 0;
 		} ) : [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getSuspendAutoIdleUserRoles() {
-		$aRoles = $this->getOpt( 'auto_idle_roles', [] );
-		return is_array( $aRoles ) ? $aRoles : [];
+	public function getSuspendAutoIdleUserRoles() :array {
+		$roles = $this->getOpt( 'auto_idle_roles', [] );
+		return is_array( $roles ) ? $roles : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSuspendAutoIdleEnabled() {
+	public function isSuspendAutoIdleEnabled() :bool {
 		return ( $this->getSuspendAutoIdleTime() > 0 )
 			   && ( count( $this->getSuspendAutoIdleUserRoles() ) > 0 );
 	}
@@ -53,10 +44,7 @@ class Options extends Base\ShieldOptions {
 		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
 	}
 
-	/**
-	 * @return int days
-	 */
-	public function getPassExpireDays() {
+	public function getPassExpireDays() :int {
 		return ( $this->isPasswordPoliciesEnabled() && $this->isPremium() ) ? (int)$this->getOpt( 'pass_expire' ) : 0;
 	}
 
@@ -67,93 +55,55 @@ class Options extends Base\ShieldOptions {
 		return $this->getPassExpireDays()*DAY_IN_SECONDS;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getPassMinLength() {
+	public function getPassMinLength() :int {
 		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_length' ) : 0;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getPassMinStrength() {
+	public function getPassMinStrength() :int {
 		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasMaxSessionTimeout() {
+	public function hasMaxSessionTimeout() :bool {
 		return $this->getMaxSessionTime() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasSessionIdleTimeout() {
+	public function hasSessionIdleTimeout() :bool {
 		return $this->getIdleTimeoutInterval() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isLockToIp() {
+	public function isLockToIp() :bool {
 		return $this->isOpt( 'session_lock_location', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPassExpirationEnabled() {
+	public function isPassExpirationEnabled() :bool {
 		return $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPassPreventPwned() {
+	public function isPassPreventPwned() :bool {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPassForceUpdateExisting() {
+	public function isPassForceUpdateExisting() :bool {
 		return $this->isOpt( 'pass_force_existing', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPasswordPoliciesEnabled() {
+	public function isPasswordPoliciesEnabled() :bool {
 		return $this->isOpt( 'enable_password_policies', 'Y' )
 			   && $this->isOptReqsMet( 'enable_password_policies' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSuspendEnabled() {
-		return $this->isPremium() &&
-			   ( $this->isSuspendManualEnabled()
-				 || $this->isSuspendAutoIdleEnabled()
-				 || $this->isSuspendAutoPasswordEnabled()
-			   );
+	public function isSuspendEnabled() :bool {
+		return $this->isSuspendManualEnabled()
+			   || $this->isSuspendAutoIdleEnabled()
+			   || $this->isSuspendAutoPasswordEnabled();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSuspendAutoPasswordEnabled() {
+	public function isSuspendAutoPasswordEnabled() :bool {
 		return $this->isOpt( 'auto_password', 'Y' )
 			   && $this->isPasswordPoliciesEnabled() && $this->getPassExpireTimeout();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSuspendManualEnabled() {
+	public function isSuspendManualEnabled() :bool {
 		return $this->isOpt( 'manual_suspend', 'Y' );
 	}
 

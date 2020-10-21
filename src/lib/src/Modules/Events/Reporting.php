@@ -10,7 +10,7 @@ class Reporting extends BaseReporting {
 	/**
 	 * @inheritDoc
 	 */
-	protected function enumAlertReporters() {
+	protected function enumAlertReporters() :array {
 		return [
 			new Reports\ScanRepairs(),
 		];
@@ -19,7 +19,7 @@ class Reporting extends BaseReporting {
 	/**
 	 * @inheritDoc
 	 */
-	protected function enumInfoReporters() {
+	protected function enumInfoReporters() :array {
 		return [
 			new Reports\KeyStats(),
 		];

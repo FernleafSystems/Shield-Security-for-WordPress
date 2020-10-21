@@ -41,16 +41,12 @@ trait StandardCron {
 		return 'daily';
 	}
 
-	/**
-	 * @return string
-	 */
-	abstract protected function getCronName();
+	abstract protected function getCronName() :string;
 
-	/**
-	 * @return int
-	 */
-	public function getFirstRunTimestamp() {
-		return empty( $this->nCronFirstRun ) ? ( Services::Request()->ts() + MINUTE_IN_SECONDS ) : $this->nCronFirstRun;
+	public function getFirstRunTimestamp() :int {
+		return empty( $this->nCronFirstRun ) ?
+			( Services::Request()->ts() + MINUTE_IN_SECONDS )
+			: $this->nCronFirstRun;
 	}
 
 	/**
@@ -74,12 +70,8 @@ trait StandardCron {
 		// Override to run the actual Cron activity
 	}
 
-	/**
-	 * @param int $nFirstRun
-	 * @return $this
-	 */
-	public function setFirstRun( $nFirstRun ) {
-		$this->nCronFirstRun = $nFirstRun;
+	public function setFirstRun( int $firstRunAt ) :self {
+		$this->nCronFirstRun = $firstRunAt;
 		return $this;
 	}
 }

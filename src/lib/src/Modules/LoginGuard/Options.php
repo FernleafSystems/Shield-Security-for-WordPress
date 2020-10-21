@@ -12,6 +12,16 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\ShieldOptions {
 
 	/**
+	 * @return int
+	 */
+	public function getLoginIntentMinutes() {
+		return (int)max( 1, apply_filters(
+			$this->getCon()->prefix( 'login_intent_timeout' ),
+			$this->getDef( 'login_intent_timeout' )
+		) );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getAntiBotFormSelectors() {
@@ -24,6 +34,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getCooldownInterval() {
 		return (int)$this->getOpt( 'login_limit_interval' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCustomLoginPath() {
+		return $this->getOpt( 'rename_wplogin_path', '' );
 	}
 
 	/**

@@ -9,14 +9,17 @@ class Strings {
 
 	use ModConsumer;
 
+	public function getModTagLine() :string {
+		return __( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @return string[]
 	 */
-	public function getDisplayStrings() {
+	public function getDisplayStrings() :array {
 		$con = $this->getCon();
 
 		$aProFeatures = [
-			__( 'Customer Support', 'wp-simple-firewall' ),
 			__( 'More Scans', 'wp-simple-firewall' ),
 			__( 'Malware Scanner', 'wp-simple-firewall' ),
 			__( 'Scan Every Hour', 'wp-simple-firewall' ),
@@ -114,14 +117,14 @@ class Strings {
 	/**
 	 * @return string[]
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [];
 	}
 
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [];
 	}
 
@@ -139,7 +142,7 @@ class Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $key ) {
+	public function getOptionStrings( string $key ) :array {
 		$aOpt = $this->getOptions()->getOptDefinition( $key );
 		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
 			return [
@@ -156,7 +159,7 @@ class Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $section ) {
+	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
 

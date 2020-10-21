@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getCaptchaCfg() {
 		$oCfg = parent::getCaptchaCfg();
-		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
+		$sStyle = $this->getOptions()->getOpt( 'google_recaptcha_style_comments' );
 		if ( $sStyle !== 'default' && $this->isPremium() ) {
 			$oCfg->theme = $sStyle;
 			$oCfg->invisible = $oCfg->theme == 'invisible';
@@ -34,26 +34,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
 			$opts->setOpt( 'google_recaptcha_style_comments', 'default' );
 		}
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2.0
-	 */
-	public function getApprovedMinimum() {
-		return $this->getOpt( 'trusted_commenter_minimum', 1 );
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.2.0
-	 */
-	public function getTrustedRoles() {
-		$aRoles = [];
-		if ( $this->isPremium() ) {
-			$aRoles = $this->getOpt( 'trusted_user_roles', [] );
-		}
-		return is_array( $aRoles ) ? $aRoles : [];
 	}
 
 	/**
@@ -109,40 +89,14 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			   && $this->getCaptchaCfg()->ready;
 	}
 
-	/**
-	 * @return bool
-	 * @deprecated 9.2
-	 */
-	public function isEnabledGaspCheck() {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' )
-			   && ( $opts->getTokenExpireInterval() > $opts->getTokenCooldown() );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2
-	 */
-	public function isEnabledHumanCheck() {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isOpt( 'enable_comments_human_spam_filter', 'Y' )
-			   && count( $opts->getHumanSpamFilterItems() ) > 0;
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setEnabledGasp( $bEnabled = true ) {
-		return $this->setOpt( 'enable_comments_gasp_protection', $bEnabled ? 'Y' : 'N' );
+	public function setEnabledGasp( bool $enabled = true ) {
+		$this->getOptions()->setOpt( 'enable_comments_gasp_protection', $enabled ? 'Y' : 'N' );
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'CommentsFilter';
 	}
 

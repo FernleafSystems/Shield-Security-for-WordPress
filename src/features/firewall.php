@@ -30,8 +30,8 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return string
 	 */
 	public function getBlockResponse() {
-		$sBlockResponse = $this->getOpt( 'block_response', '' );
-		return !empty( $sBlockResponse ) ? $sBlockResponse : 'redirect_die_message'; // TODO: use default
+		$response = $this->getOptions()->getOpt( 'block_response', '' );
+		return !empty( $response ) ? $response : 'redirect_die_message'; // TODO: use default
 	}
 
 	/**
@@ -59,7 +59,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'Firewall';
 	}
 }

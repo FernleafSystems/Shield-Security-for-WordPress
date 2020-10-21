@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: https://shsec.io/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 9.2.1
+ * Version: 10.0.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
  * Author: Shield Security
@@ -28,34 +28,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
+if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 	global $sIcwpWpsfPluginFile;
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
-	return;
 }
+elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
-if ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
-}
 
-if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {
-	return;
-}
-
-add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
-function icwp_wpsf_init() {
-	$sRootFile = __FILE__;
-	require_once( dirname( __FILE__ ).'/init.php' );
-}
-
-function icwp_wpsf_onactivate() {
-	icwp_wpsf_init();
-	try {
-		\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
+	add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
+	function icwp_wpsf_init() {
+		$sRootFile = __FILE__;
+		require_once( dirname( __FILE__ ).'/init.php' );
 	}
-	catch ( Exception $oE ) {
-	}
-}
 
-register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
+	function icwp_wpsf_onactivate() {
+		icwp_wpsf_init();
+		try {
+			\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
+		}
+		catch ( Exception $e ) {
+		}
+	}
+
+	register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
+}
+else {
+	add_action( 'admin_notices', function() {
+		echo sprintf( '<div class="error"><h4>%s</h4><p>%s</p></div>',
+			'Shield Security Plugin - Broken Installation',
+			implode( '<br/>', [
+				'It appears the Shield Security plugin was not upgraded/installed correctly.',
+				"We run a quick check to make sure certain important files are present in-case a faulty installation breaks your site.",
+				'Try refreshing this page, and if you continue to see this notice, we recommend that you reinstall the Shield Security plugin.'
+			] )
+		);
+	} );
+}

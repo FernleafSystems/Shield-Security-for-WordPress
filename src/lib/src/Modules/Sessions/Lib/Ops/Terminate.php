@@ -27,18 +27,11 @@ class Terminate {
 		return $this->getDeleter()->deleteById( (int)$nId );
 	}
 
-	/**
-	 * @param string $sUsername
-	 * @return bool
-	 */
-	public function byUsername( $sUsername ) {
-		return $this->getDeleter()->forUsername( $sUsername ) !== false;
+	public function byUsername( string $username ) :bool {
+		return $this->getDeleter()->forUsername( $username ) !== false;
 	}
 
-	/**
-	 * @return Delete
-	 */
-	private function getDeleter() {
+	private function getDeleter() :Delete {
 		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
 		$oMod = $this->getMod();
 		return $oMod->getDbHandler_Sessions()->getQueryDeleter();

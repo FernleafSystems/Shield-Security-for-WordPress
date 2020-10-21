@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	 */
 	private function interceptCanonicalRedirects() {
 
-		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) ) {
+		if ( $this->getOptions()->isOpt( 'block_author_discovery', 'Y' ) ) {
 			$sAuthor = Services::Request()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
 				Services::WpGeneral()->wpDie( sprintf(

@@ -1,54 +1,64 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
+
 	<div class="row">
-		<div class="col-12 insights_section" id="SectionStats" data-intro='Hello step one!'>
-			{% include '/wpadmin_pages/insights/overview/stats.twig' %}
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xl-6 col-lg-12 insights_section">
-			{% include '/wpadmin_pages/insights/overview/notices.twig' %}
-		</div>
-		<div class="col-xl-6 col-lg-12 insights_section">
-			{% include '/wpadmin_pages/insights/overview/recent_events.twig' %}
+		<div class="col insights-sub-nav insights_section">
+			<ul class="nav nav-tabs">
+				<li class="nav-item">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#tabAtAGlance">
+						{{ strings.tab_security_glance }}
+					</a>
+				</li>
+
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#tabUpdates">
+						{{ strings.tab_updates }}
+					</a>
+				</li>
+
+				{% if not flags.is_pro %}
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" role="tab" href="#tabFreeTrial">
+							{{ strings.tab_freetrial }}
+						</a>
+					</li>
+				{% endif %}
+
+				<li class="nav-item">
+					<a class="nav-link announcekit-widget"></a>
+				</li>
+			</ul>
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-12 insights_section mb-3">
-			<h4 id="collapseConfigSummaryTitle" data-toggle="collapse"
-				href="#collapseConfigSummary" aria-expanded="true" aria-controls="">
-				{{ strings.configuration_summary }} <small>({{ strings.click_to_toggle }} &rarr;)</small>
-			</h4>
-		</div>
-	</div>
-
-	<div class="row collapse show" id="collapseConfigSummary">
-		<div class="col-12">
-			<div class="row keys text-center">
-				<div class="col-sm-1">
-					<h6 style="line-height: 42px" class="mb-0">{{ strings.key }}</h6>
-				</div>
-				<div class="col-sm-3">
-					<div class="alert alert-success">{{ strings.key_positive }}</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="alert alert-warning">{{ strings.key_warning }}</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="alert alert-danger">{{ strings.key_danger }}</div>
-				</div>
-				<div class="col-sm-2">
-					<div class="alert alert-secondary">{{ strings.key_information }}</div>
-				</div>
-			</div>
+	<div class="tab-content">
+		<div class="tab-pane show active" id="tabAtAGlance" role="tabpanel" aria-labelledby="tabAtAGlance">
 			<div class="row">
-				<div class="col-12 insights_section mt-0">
-					{% include '/wpadmin_pages/insights/config/module_summaries.twig' %}
+				<div class="col insights_section" id="TabOverviewCards">
+					{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
 				</div>
 			</div>
 		</div>
+
+		<div class="tab-pane" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
+			<div class="row">
+				<div class="col insights_section" id="TabUpdates">
+					{{ content.tab_updates|raw }}
+				</div>
+			</div>
+		</div>
+
+		<div class="tab-pane" id="tabFreeTrial" role="tabpanel" aria-labelledby="tabFreeTrial">
+			<div class="row">
+				<div class="col insights_section" id="TabUpdates">
+					{{ content.tab_freetrial|raw }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
 		{% if flags.show_guided_tour %}
 			<a style="display: none;" class="btn btn-default"
 			   id="IntroVideo"
@@ -60,46 +70,25 @@
 	</div>
 {% endblock %}
 
-{% block inline_styles %}
-	<style>
-		.ct-series-a .ct-line {
-			/* Set the colour of this series line */
-			stroke: green;
-			/* Control the thikness of your lines */
-			stroke-width: 2px;
-			/* Create a dashed line with a pattern */
-			stroke-dasharray: 3px 1px;
-		}
-
-		/* This selector overrides the points style on line charts. Points on line charts are actually just very short strokes. This allows you to customize even the point size in CSS */
-		.ct-series-a .ct-point {
-			/* Colour of your points */
-			stroke: green;
-			/* Size of your points */
-			stroke-width: 4px;
-			/* Make your points appear as squares */
-			stroke-linecap: square;
-		}
-	</style>
-{% endblock %}
-
 {% block inline_scripts %}
-	<script type="text/javascript">
-		jQuery( document ).ready( function () {
 
-			{% for stat in vars.insight_stats %}
-			jQuery( '#statcard-{{ stat.id }} .card-body .stat-chart' ).icwpWpsfAjaxChart(
-				{
-					'ajax_render':{{ ajax.render_chart_post|raw }},
-					'req_params': {
-						'render_location': "insights-overview-statcard",
-						'chart_params': {
-							'stat_id': "{{ stat.id }}",
-						}
-					}
-				}
-			);
-			{% endfor %}
+	<script type="text/javascript">
+	  window.announcekit = (window.announcekit || {
+		  queue: [], on: function ( n, x ) {
+			  window.announcekit.queue.push( [ n, x ] );
+		  }, push: function ( x ) {
+			  window.announcekit.queue.push( x );
+		  }
+	  });
+	  window.announcekit.push( {
+		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
+		  "selector": ".announcekit-widget",
+		  "version": 2
+	  } )
+	</script>
+
+	<script>
+		jQuery( document ).ready( function () {
 
 			{% if flags.tours.insights_overview %}
 			var bIsExited = false;
@@ -161,12 +150,8 @@
 			{% endif %}
 		} );
 	</script>
+
 	<script type="text/javascript">
-		jQuery( '#collapseConfigSummary' ).on( 'shown.bs.collapse', function () {
-			jQuery( 'html, body' ).animate( {
-				scrollTop: jQuery( "#collapseConfigSummaryTitle" ).offset().top - 115
-			}, 750 );
-		} );
 		{% if flags.show_guided_tour %}
 		window.onload = function () {
 			jQuery( '#IntroVideo' ).click();
