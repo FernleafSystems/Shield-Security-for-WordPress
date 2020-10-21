@@ -108,6 +108,14 @@
         "description": [
           "A PHP error has been fixed which would occur in some cases."
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Database creation may delete existing tables",
+        "description": [
+          "In some cases during plugin upgrade, some table may get inadvertently deleted."
+        ],
+        "patch":       "10.0.1"
       }
     ]
   },
