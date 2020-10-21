@@ -125,7 +125,9 @@ abstract class Handler {
 	protected function tableCreate() {
 		$DB = Services::WpDb();
 		$sch = $this->getTableSchema();
-		$DB->getIfTableExists( $sch->table ) ? $DB->dbDelta( $sch->buildCreate() ) : $DB->doSql( $sch->buildCreate() );
+		if ( !$DB->getIfTableExists( $sch->table ) ) {
+			$DB->doSql( $sch->buildCreate() );
+		}
 		return $this;
 	}
 
