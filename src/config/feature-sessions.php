@@ -64,8 +64,7 @@
       "wp_username":       "varchar(255) NOT NULL DEFAULT ''",
       "ip":                "varchar(60) NOT NULL DEFAULT '0'",
       "browser":           "varchar(32) NOT NULL DEFAULT ''",
-      "last_activity_uri": "text NOT NULL DEFAULT ''",
-      "li_code_email":     "varchar(6) NOT NULL DEFAULT ''"
+      "last_activity_uri": "text NOT NULL DEFAULT ''"
     },
     "sessions_table_timestamp_columns": {
       "logged_in_at":            "Session Started",
