@@ -1,4 +1,4 @@
-﻿=== Shield Security: Protection with Smarter Automation ===
+﻿=== Shield Security: Powerful All-In-One Protection ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://shsec.io/bw
 License: GPLv3
@@ -10,25 +10,21 @@ Recommended PHP: 7.4
 Tested up to: 5.5
 Stable tag: 10.0.0
 
-Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
+The highest rated WordPress Security plugin, delivering unparalleled, all-in-one protection for you and your customers.
 
 == Description ==
 
 ### The highest rated 5* Security Plugin for WordPress
 
-Shield - highest average 5* rating for any WordPress security plugin (2019/05). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5).
+Don't *settle* for the same ol' security plugin just because everyone else does.
 
-#### It's 2020 - Don't settle for just another security plugin. Get *smarter* security.
+You **need** a security plugin that does **all** the heavy lifting for you, and alerts you only when you need to know.
 
-You don't need another 100 email notifications.
+And when you get an alert, you'll have clear steps to take to solve the problem.
 
-You **need** a security plugin that does **all** the heavy lifting for you, and only alerts you when you need to know.
+### Shield makes Security for WordPress easy
 
-And when you get an alert, you actually have steps to take, not just the position of "I have no clue what to do!"
-
-### Security for WordPress *doesn't* have to be *hard*
-
-There's no reason for security to be so darn complicated. It doesn't have to be this way any longer.
+There's no reason for security to be so complicated.
 
 Shield is the easiest security plugin to setup - you simply activate it.
 
