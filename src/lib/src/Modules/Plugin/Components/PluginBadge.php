@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class PluginBadge {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
 
 	public function run() {
 		/** @var Options $opts */
@@ -65,15 +65,21 @@ class PluginBadge {
 	 * @return string
 	 */
 	public function render( $bFloating = false ) {
-		$oCon = $this->getCon();
-		$sName = $oCon->getHumanName();
+		$con = $this->getCon();
+		$sName = $con->getHumanName();
 
-		$sBadgeUrl = 'https://shsec.io/wpsecurityfirewall';
-		$oLicense = $oCon->getModule_License()
-						 ->getLicenseHandler()
-						 ->getLicense();
-		if ( !empty( $oLicense->aff_ref ) ) {
-			$sBadgeUrl = add_query_arg( [ 'ref' => $oLicense->aff_ref ], $sBadgeUrl );
+		$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
+		/** @var Modules\SecurityAdmin\Options $secAdminOpts */
+		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
+		if ( $secAdminOpts->isEnabledWhitelabel() && $secAdminOpts->isReplaceBadgeUrl() ) {
+			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
+		}
+
+		$lic = $con->getModule_License()
+				   ->getLicenseHandler()
+				   ->getLicense();
+		if ( !empty( $lic->aff_ref ) ) {
+			$badgeUrl = add_query_arg( [ 'ref' => $lic->aff_ref ], $badgeUrl );
 		}
 
 		$aData = [
@@ -85,8 +91,8 @@ class PluginBadge {
 				'is_floating' => $bFloating
 			],
 			'hrefs'   => [
-				'badge' => $sBadgeUrl,
-				'logo'  => $oCon->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
+				'badge' => $badgeUrl,
+				'logo'  => $con->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
 			],
 			'strings' => [
 				'protected' => apply_filters( 'icwp_shield_plugin_badge_text',

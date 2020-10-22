@@ -270,6 +270,17 @@
       "description": "Hides the availability of Shield updates from non-security admins."
     },
     {
+      "key":         "wl_replace_badge_url",
+      "section":     "section_whitelabel",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Replace Badge URL",
+      "summary":     "Replace Plugin Badge URL",
+      "description": "When using the plugin badge, replace the link with your Whitelabel Home URL."
+    },
+    {
       "key":         "wl_pluginnamemain",
       "section":     "section_whitelabel",
       "sensitive":   true,
