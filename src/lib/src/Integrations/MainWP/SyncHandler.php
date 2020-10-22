@@ -10,8 +10,6 @@ class SyncHandler {
 	use PluginControllerConsumer;
 	use OneTimeExecute;
 
-	private $childKey;
-
 	protected function run() {
 		add_action( 'mainwp_site_synced', function ( $website, $info ) {
 			$this->syncSite( $website, $info );

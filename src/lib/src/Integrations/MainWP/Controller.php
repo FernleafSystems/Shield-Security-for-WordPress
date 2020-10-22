@@ -10,24 +10,41 @@ class Controller {
 
 	private $childKey;
 
+	public function run() {
+		try {
+			$this->runServerSide();
+		}
+		catch ( \Exception $e ) {
+			try {
+				$this->runClientSide();
+			}
+			catch ( \Exception $e ) {
+				$this->setCon( null );
+			}
+		}
+	}
+
 	/**
 	 * @throws \Exception
 	 */
-	public function run() {
-		if ( !$this->isMainWPActive() ) {
-			$this->setCon( null );
+	private function runClientSide() {
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function runServerSide() {
+		if ( !$this->isMainWPServerActive() ) {
 			throw new \Exception( 'MainWP not active' );
 		}
 		$this->childKey = $this->initExt();
 		if ( empty( $this->childKey ) ) {
 			throw new \Exception( 'No child key provided' );
 		}
-
-		$this->setupHooks();
-	}
-
-	private function setupHooks() {
 		( new SyncHandler() )
+			->setCon( $this->getCon() )
+			->execute();
+		( new SitesListTableHandler() )
 			->setCon( $this->getCon() )
 			->execute();
 	}
@@ -44,7 +61,7 @@ class Controller {
 		return $childEnabled[ 'key' ] ?? '';
 	}
 
-	private function isMainWPActive() :bool {
+	private function isMainWPServerActive() :bool {
 		return (bool)apply_filters( 'mainwp_activated_check', false );
 	}
 
