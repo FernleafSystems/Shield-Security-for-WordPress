@@ -505,56 +505,13 @@ class Controller {
 	}
 
 	private function initMainWpDashboardExtention() {
-
-		// Ensure plugin is initialised
-		if ( apply_filters( 'mainwp-activated-check', false ) !== false ) {
-			$this->activateMainWpExtension();
+		try {
+			( new Shield\Integrations\MainWP\Controller() )
+				->setCon( $this )
+				->run();
 		}
-		else {
-			add_action( 'mainwp-activated', function () {
-				$this->activateMainWpExtension();
-			} );
+		catch ( \Exception $e ) {
 		}
-
-		// Provide the main plugin configuration page.
-		add_filter( 'mainwp-getextensions', function ( $aExts ) {
-			return [ 'plugin' => $this->getRootFile(), 'callback' => [ $this, 'supplyMainWpExtensionPage' ] ];
-		} );
-	}
-
-	private function activateMainWpExtension() {
-		global $childEnabled;
-		$childEnabled = apply_filters( 'mainwp-extension-enabled-check', $this->getRootFile() );
-		if ( !$childEnabled ) {
-			return;
-		}
-		$childKey = $childEnabled[ 'key' ]; // TODO: store this
-		//init?
-	}
-
-	public function supplyMainWpExtensionPage() {
-		do_action( 'mainwp-pageheader-extensions', $this->getRootFile() );
-		echo 'Your custom settings page';
-		global $childEnabled;
-		$childEnabled = apply_filters( 'mainwp-extension-enabled-check', $this->getRootFile() );
-		if ( !$childEnabled ) {
-			return;
-		}
-
-		$childKey = $childEnabled[ 'key' ];
-
-		echo "<br /><br />";
-
-		$sites = apply_filters( 'mainwp-getsites', $this->getRootFile(), $childKey );
-		?>
-		https://mainwp.com/passing-information-to-your-child-sites/
-		<div id="uploader_select_sites_box" class="mainwp_config_box_right">
-        <?php
-		do_action( 'mainwp_select_sites_box', __( "Select Sites", 'mainwp' ), 'checkbox', true, true, 'mainwp_select_sites_box_right', "", [], [] );
-		?></div>
-		<?php
-
-		do_action( 'mainwp-pagefooter-extensions', $this->getRootFile() );
 	}
 
 	/**
