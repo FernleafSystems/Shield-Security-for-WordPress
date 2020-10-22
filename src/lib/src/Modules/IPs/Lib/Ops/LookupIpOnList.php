@@ -27,20 +27,25 @@ class LookupIpOnList {
 	 * @version 8.6.0 - switched to lookup ranges first
 	 */
 	public function lookup( $bIncludeRanges = true ) {
-		$oIp = null;
-		if ( $bIncludeRanges ) {
-			foreach ( $this->lookupRange() as $oMaybeIp ) {
-				try {
-					if ( Services::IP()->checkIp( $this->getIP(), $oMaybeIp->ip ) ) {
-						$oIp = $oMaybeIp;
-						break;
+		$IP = null;
+		if ( !empty( $this->getIP() ) ) {
+			if ( $bIncludeRanges ) {
+				foreach ( $this->lookupRange() as $oMaybeIp ) {
+					try {
+						if ( Services::IP()->checkIp( $this->getIP(), $oMaybeIp->ip ) ) {
+							$IP = $oMaybeIp;
+							break;
+						}
+					}
+					catch ( \Exception $e ) {
 					}
 				}
-				catch ( \Exception $oE ) {
-				}
+			}
+			if ( !$IP instanceof Databases\IPs\EntryVO ) {
+				$IP = $this->lookupIp();
 			}
 		}
-		return ( $oIp instanceof Databases\IPs\EntryVO ) ? $oIp : $this->lookupIp();
+		return $IP;
 	}
 
 	/**

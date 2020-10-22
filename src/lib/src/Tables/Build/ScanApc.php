@@ -15,7 +15,7 @@ class ScanApc extends ScanBase {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -47,9 +47,9 @@ class ScanApc extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanApc
+	 * @return Shield\Tables\Render\WpListTable\ScanApc
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanApc();
+		return new Shield\Tables\Render\WpListTable\ScanApc();
 	}
 }

@@ -15,7 +15,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'import' ] ),
-			[ $this, 'cmdImport' ], [
+			[ $this, 'cmdImport' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Import configuration from another WP site running Shield',
 			'synopsis'  => [
 				[
@@ -46,7 +46,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 					'type'        => 'flag',
 					'name'        => 'force',
 					'optional'    => true,
-					'description' => 'By-pass confirmation prompt.',
+					'description' => 'Bypass confirmation prompt.',
 				],
 				[
 					'type'        => 'flag',
@@ -55,7 +55,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 					'description' => 'Delete file after configurations have been imported.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	/**
@@ -70,7 +70,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 			WP_CLI::error( __( 'Please use the `--source=` argument to provide the source site URL or path to file.', 'wp-simple-firewall' ) );
 		}
 
-		if ( !isset( $aA[ 'force' ] ) ) {
+		if ( !$this->isForceFlag( $aA ) ) {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 
@@ -79,7 +79,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 				$this->runImportFromSite( $aA );
 			}
 			else {
-				$this->runImportFromFile( $sSource, $aA[ 'delete-file' ] );
+				$this->runImportFromFile( $sSource, WP_CLI\Utils\get_flag_value( $aA, 'delete-file', false ) );
 			}
 		}
 		catch ( \Exception $oE ) {

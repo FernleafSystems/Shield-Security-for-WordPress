@@ -10,14 +10,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( string $action ) :array {
 
 		$oReq = Services::Request();
-		switch ( $sAction ) {
+		switch ( $action ) {
 
 			case 'scans_start':
 				$aResponse = $this->ajaxExec_StartScans();
@@ -40,7 +36,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'item_delete':
 			case 'item_ignore':
 			case 'item_repair':
-				$aResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sAction ) );
+				$aResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $action ) );
 				break;
 
 			case 'render_table_scan':
@@ -60,7 +56,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;
@@ -115,7 +111,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sHtml = $oTableBuilder
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_ScanResults() )
-				->buildTable();
+				->render();
 		}
 
 		return [
@@ -131,7 +127,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oFLCon = $oMod->getFileLocker();
-		$oFS = Services::WpFs();
+		$FS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
 		$aData = [
@@ -156,9 +152,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'locked_file'           => __( 'Locked File' ),
 				'modified_file'         => __( 'Modified File' ),
 				'locked'                => __( 'Locked' ),
+				'modified_timestamp'    => __( 'File Modified Timestamp' ),
 				'modified'              => __( 'Modified' ),
 				'download'              => __( 'Download' ),
-				'modified_at'           => __( 'Modified' ),
+				'change_detected_at'    => __( 'Change Detected' ),
 				'file_content_original' => __( 'Original File Content' ),
 				'file_content_current'  => __( 'Current File Content' ),
 				'download_original'     => __( 'Download Original' ),
@@ -173,27 +170,35 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			]
 		];
 		try {
-			$oCarb = Services::Request()->carbon( true );
-			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\PerformAction() )
-				->setMod( $this->getMod() )
-				->run( $nRID, 'diff' );
+
 			$oLock = $oFLCon->getFileLock( $nRID );
+			$bDiff = $oLock->detected_at > 0;
 			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
-			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
-			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
-			$aData[ 'vars' ][ 'modified_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
-			$aData[ 'vars' ][ 'file_size_locked' ] = $this->formatBytes( strlen(
+			$aData[ 'flags' ][ 'has_diff' ] = $bDiff;
+			$aData[ 'html' ][ 'diff' ] = $bDiff ?
+				( new FileLocker\Ops\PerformAction() )
+					->setMod( $this->getMod() )
+					->run( $nRID, 'diff' ) : '';
+
+			$oCarb = Services::Request()->carbon( true );
+			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
+			$aData[ 'vars' ][ 'file_modified_at' ] =
+				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $oLock->file ) );
+			$aData[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+			$aData[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $oMod )
 					->run( $oLock )
 			), 3 );
-			$aData[ 'vars' ][ 'file_size_modified' ] = $oFS->exists( $oLock->file ) ? $this->formatBytes( $oFS->getFileSize( $oLock->file ), 3 ) : 0;
+			$aData[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $oLock->file ) ?
+				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $oLock->file ), 3 )
+				: 0;
 			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {
 			$aData[ 'error' ] = $oE->getMessage();
-		};
+		}
 
 		return [
 			'success' => $aData[ 'success' ],
@@ -205,26 +210,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 								  true
 							  )
 		];
-	}
-
-	/**
-	 * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
-	 * @param     $bytes
-	 * @param int $precision
-	 * @return string
-	 */
-	private function formatBytes( $bytes, $precision = 2 ) {
-		$units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
-
-		$bytes = max( $bytes, 0 );
-		$pow = floor( ( $bytes ? log( $bytes ) : 0 )/log( 1024 ) );
-		$pow = min( $pow, count( $units ) - 1 );
-
-		// Uncomment one of the following alternatives
-		$bytes /= pow( 1024, $pow );
-		// $bytes /= (1 << (10 * $pow));
-
-		return round( $bytes, $precision ).' '.$units[ $pow ];
 	}
 
 	/**
@@ -406,25 +391,25 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_StartScans() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$bPageReload = false;
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		$oScanCon = $oMod->getScanQueueController();
+		$oScanCon = $mod->getScanQueueController();
 
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );
 
-			$aUiTrack = $oMod->getUiTrack();
+			$aUiTrack = $mod->getUiTrack();
 			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
-			$oMod->setUiTrack( $aUiTrack );
+			$mod->setUiTrack( $aUiTrack );
 
 			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
-				$oThisScanCon = $oMod->getScanCon( $sScanSlug );
+				$oThisScanCon = $mod->getScanCon( $sScanSlug );
 				if ( !empty( $oThisScanCon ) && $oThisScanCon->isScanningAvailable() ) {
 
 					$aScansToStart[] = $sScanSlug;

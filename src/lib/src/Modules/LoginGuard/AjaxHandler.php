@@ -8,13 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( string $action ) :array {
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 			case 'gen_backup_codes':
 				$aResponse = $this->ajaxExec_GenBackupCodes();
 				break;
@@ -31,8 +27,16 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_ResendEmailVerification();
 				break;
 
+			case 'u2f_remove':
+				$aResponse = $this->ajaxExec_ProfileU2fRemove();
+				break;
+
+			case 'yubikey_remove':
+				$aResponse = $this->ajaxExec_ProfileYubikeyRemove();
+				break;
+
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;
@@ -79,9 +83,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_Disable2faEmail() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->setEnabled2FaEmail( false );
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		$mod->setEnabled2FaEmail( false );
 		return [
 			'success'     => true,
 			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
@@ -92,9 +96,45 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	/**
 	 * @return array
 	 */
-	private function ajaxExec_ResendEmailVerification() {
+	private function ajaxExec_ProfileU2fRemove() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+
+		$sKey = Services::Request()->post( 'u2fid' );
+		( new TwoFactor\Provider\U2F() )
+			->setMod( $mod )
+			->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $sKey );
+		return [
+			'success'     => true,
+			'message'     => __( 'Registered U2F device removed from profile.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_ProfileYubikeyRemove() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
+
+		$sKey = Services::Request()->post( 'yubikeyid' );
+		( new TwoFactor\Provider\Yubikey() )
+			->setMod( $oMod )
+			->addRemoveRegisteredYubiId( Services::WpUsers()->getCurrentWpUser(), $sKey, false );
+		return [
+			'success'     => true,
+			'message'     => __( 'Yubikey removed from profile.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_ResendEmailVerification() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		$bSuccess = true;
@@ -108,8 +148,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			$sMessage = __( 'Verification email resent.', 'wp-simple-firewall' );
-			$oMod->setIfCanSendEmail( false )
-				 ->sendEmailVerifyCanSend();
+			$mod->setIfCanSendEmail( false )
+				->sendEmailVerifyCanSend();
 		}
 
 		return [

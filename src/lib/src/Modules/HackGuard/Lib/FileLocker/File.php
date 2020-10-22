@@ -26,36 +26,35 @@ class File {
 	 * @return string[]
 	 */
 	public function getExistingPossiblePaths() {
-		$aPaths = array_filter(
+		return array_filter(
 			$this->getPossiblePaths(),
 			function ( $sPath ) {
 				return Services::WpFs()->isFile( $sPath );
 			}
 		);
-
-		if ( (int)$this->max_paths > 0 ) {
-			$aPaths = array_slice( $aPaths, 0, $this->max_paths );
-		}
-		return $aPaths;
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getPossiblePaths() {
-		$aPossible = [];
-		$nLimiter = 1;
-		$sDir = realpath( $this->dir );
+		$paths = [];
+		$dirCount = 0;
+		$workingDir = realpath( $this->dir );
 		do {
-			if ( empty( $sDir ) ) {
+			if ( empty( $workingDir ) ) {
 				break;
 			}
-			$aPossible[] = path_join( $sDir, $this->file );
-			$sDir = realpath( dirname( $sDir ) );
-			$nLimiter++;
-		} while ( $nLimiter <= $this->getMaxDirLevels() );
+			$paths[] = path_join( $workingDir, $this->file );
 
-		return $aPossible;
+			$workingDir = dirname( $workingDir );
+			$dirCount++;
+		} while (
+			$dirCount < $this->getMaxDirLevels()
+			&& ( empty( $this->max_paths ) || count( $paths ) < $this->max_paths )
+		);
+
+		return $paths;
 	}
 
 	/**

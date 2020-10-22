@@ -7,6 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Options extends Base\ShieldOptions {
 
 	/**
+	 * @return int
+	 */
+	public function getApprovedMinimum() {
+		return (int)$this->getOpt( 'trusted_commenter_minimum', 1 );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getHumanSpamFilterItems() {
@@ -43,5 +50,39 @@ class Options extends Base\ShieldOptions {
 				$this->getDef( 'comments_expire' )
 			)
 		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getTrustedRoles() {
+		$aRoles = [];
+		if ( $this->isPremium() ) {
+			$aRoles = $this->getOpt( 'trusted_user_roles', [] );
+		}
+		return is_array( $aRoles ) ? $aRoles : [];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledGaspCheck() {
+		return $this->isOpt( 'enable_comments_gasp_protection', 'Y' )
+			   && ( $this->getTokenExpireInterval() > $this->getTokenCooldown() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledCaptcha() {
+		return !$this->isOpt( 'google_recaptcha_style_comments', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledHumanCheck() {
+		return $this->isOpt( 'enable_comments_human_spam_filter', 'Y' )
+			   && count( $this->getHumanSpamFilterItems() ) > 0;
 	}
 }

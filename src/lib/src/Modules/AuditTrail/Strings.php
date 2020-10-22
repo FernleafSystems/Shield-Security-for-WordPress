@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'plugin_activated'        => [
 				__( 'Plugin "%s" was activated.', 'wp-simple-firewall' )
@@ -83,9 +83,9 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'at_users'            => __( 'Users', 'wp-simple-firewall' ),
 			'at_plugins'          => __( 'Plugins', 'wp-simple-firewall' ),
@@ -105,13 +105,13 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( string $section ) :array {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_audit_trail' :
 				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
@@ -159,7 +159,7 @@ class Strings extends Base\Strings {
 			*/
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [
@@ -170,19 +170,17 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$sModName = $oMod->getMainFeatureName();
+	public function getOptionStrings( string $key ) :array {
+		$con = $this->getCon();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$sModName = $this->getMod()->getMainFeatureName();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'enable_audit_trail' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
@@ -196,9 +194,9 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' ),
 				];
-				if ( !$oCon->isPremiumActive() ) {
+				if ( !$con->isPremiumActive() ) {
 					$sDescription[] = sprintf( __( 'Upgrade to PRO to increase limit above %s.', 'wp-simple-firewall' ),
-						'<code>'.$oOpts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
+						'<code>'.$opts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
 				}
 
 				break;
@@ -246,9 +244,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_audit_context_wpsf' :
-				$sName = $oCon->getHumanName();
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), $oCon->getHumanName() );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), $oCon->getHumanName() );
+				$sName = $con->getHumanName();
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), $con->getHumanName() );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), $con->getHumanName() );
 				break;
 
 			case 'enable_change_tracking' :
@@ -273,7 +271,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [

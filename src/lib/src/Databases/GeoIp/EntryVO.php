@@ -21,14 +21,35 @@ class EntryVO extends Base\EntryVO {
 	 * @return string
 	 */
 	public function getCountryCode() {
-		return isset( $this->meta[ 'countryCode' ] ) ? $this->meta[ 'countryCode' ] : '';
+		return $this->meta[ 'countryCode' ] ?? '';
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getCountryName() {
-		return isset( $this->meta[ 'countryName' ] ) ? $this->meta[ 'countryName' ] : '';
+		return $this->meta[ 'countryName' ] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLatitude() {
+		return $this->meta[ 'latitude' ] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLongitude() {
+		return $this->meta[ 'longitude' ] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTimezone() {
+		return $this->meta[ 'timeZone' ] ?? '';
 	}
 
 	/**

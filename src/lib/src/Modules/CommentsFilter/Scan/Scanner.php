@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 use FernleafSystems\Wordpress\Services\Services;
@@ -78,8 +79,7 @@ class Scanner {
 	 * @return array
 	 */
 	public function checkComment( $aCommData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		$opts = $this->getOptions();
 
 		if ( Services::WpComments()->isCommentSubmission()
 			 && $this->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
@@ -94,10 +94,10 @@ class Scanner {
 					 );
 
 				if ( $mResult->get_error_code() == 'human' ) {
-					$sStatus = $oMod->getOpt( 'comments_default_action_human_spam' );
+					$sStatus = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$sStatus = $oMod->getOpt( 'comments_default_action_spam_bot' );
+					$sStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
 
 				if ( $sStatus == 'reject' ) {
@@ -113,31 +113,33 @@ class Scanner {
 	}
 
 	/**
-	 * @param $aCommData
+	 * @param array $aCommData
 	 * @return true|\WP_Error|null
 	 */
 	private function runScans( $aCommData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		$mResult = true;
 
-		if ( !is_wp_error( $mResult ) && $oMod->isEnabledGaspCheck() ) {
+		if ( !is_wp_error( $mResult ) && $opts->isEnabledGaspCheck() ) {
 			$mResult = ( new Bot() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->scan( $aCommData[ 'comment_post_ID' ] );
 		}
 
-		if ( !is_wp_error( $mResult ) && $oMod->isEnabledCaptcha() ) {
+		if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
 			try {
-				if ( $oMod->getCaptchaCfg()->provider === 'hcaptcha' ) {
+				if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {
 					( new Utilities\HCaptcha\TestRequest() )
-						->setMod( $oMod )
+						->setMod( $this->getMod() )
 						->test();
 				}
 				else {
 					( new Utilities\ReCaptcha\TestRequest() )
-						->setMod( $oMod )
+						->setMod( $this->getMod() )
 						->test();
 				}
 			}
@@ -146,9 +148,9 @@ class Scanner {
 			}
 		}
 
-		if ( !is_wp_error( $mResult ) && $oMod->isEnabledHumanCheck() ) {
+		if ( !is_wp_error( $mResult ) && $opts->isEnabledHumanCheck() ) {
 			$mResult = ( new Human() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->scan( $aCommData );
 		}
 
@@ -161,10 +163,11 @@ class Scanner {
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
-		$oPost = Services::WpPost()->getById( $nPostId );
-		return ( $oPost instanceof \WP_Post ) && Services::WpComments()->isCommentsOpen( $oPost )
-			   && !( new IsEmailTrusted() )->trusted( $sCommentEmail, $oMod->getApprovedMinimum(), $oMod->getTrustedRoles() );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$post = Services::WpPost()->getById( $nPostId );
+		return $post instanceof \WP_Post
+			   && Services::WpComments()->isCommentsOpen( $post )
+			   && !( new IsEmailTrusted() )->trusted( $sCommentEmail, $opts->getApprovedMinimum(), $opts->getTrustedRoles() );
 	}
 }

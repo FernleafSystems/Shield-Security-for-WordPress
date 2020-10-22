@@ -1,0 +1,37 @@
+{% for card_section in vars.overview_cards %}
+	<div class="row overview-card-row mb-3">
+		<div class="col-12 col">
+			<h5>
+				{{ card_section.title }}
+				<small>{{ card_section.subtitle }}</small>
+			</h5>
+		</div>
+		{% for card in card_section.cards %}
+			<div class="col-xl-2 col-lg-3 col-md-4 card-group">
+				<div class="text-center overview card mb-3
+				{% if card.state == -1 %}
+				state-warning
+				{% elseif card.state == 0 %}
+				state-ok
+				{% else %}
+				state-good
+				{% endif %}
+				"
+					 id="overviewcard-{{ card.id }}"
+					 {% if card.summary is defined %}title="{{ card.summary }}"{% endif %}
+				>
+					<div class="card-header font-weight-bolder">
+						{{ card.name }}
+					</div>
+					<div class="card-body">
+						{{ card.summary }}
+					</div>
+					<div class="card-footer text-right">
+						<a href="{{ card.href }}" title="{{ strings.go_to_options }}"
+						   class=""><span class="dashicons dashicons-admin-generic"></span></a>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endfor %}

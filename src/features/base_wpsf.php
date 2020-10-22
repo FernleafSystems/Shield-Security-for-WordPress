@@ -4,6 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -56,7 +57,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
+		return $this->getSession() instanceof Shield\Databases\Session\EntryVO;
 	}
 
 	/**
@@ -136,10 +137,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $aAjaxData;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPluginReportEmail() {
+	public function getPluginReportEmail() :string {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getPluginReportEmail();
@@ -158,55 +156,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getBaseDisplayData() {
-		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getBaseDisplayData(),
-			[
-				'head'    => [
-					'html'    => [
-						'lang' => Services::WpGeneral()->getLocale( '-' ),
-						'dir'  => is_rtl() ? 'rtl' : 'ltr',
-					],
-					'meta'    => [
-						[
-							'type'      => 'http-equiv',
-							'type_type' => 'Cache-Control',
-							'content'   => 'no-store, no-cache',
-						],
-						[
-							'type'      => 'http-equiv',
-							'type_type' => 'Expires',
-							'content'   => '0',
-						],
-					],
-					'scripts' => []
-				],
-				'ajax'    => [
-					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
-				],
-				'flags'   => [
-					'show_promo'  => !$this->isPremium(),
-					'has_session' => $this->hasSession()
-				],
-				'hrefs'   => [
-					'aar_forget_key' => $this->isWlEnabled() ?
-						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
-				],
-				'classes' => [
-					'top_container' => implode( ' ', array_filter( [
-						'odp-outercontainer',
-						$this->isPremium() ? 'is-pro' : 'is-not-pro',
-						$this->getModSlug(),
-						Services::Request()->query( 'inav', '' )
-					] ) )
-				],
-			]
-		);
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function renderRestrictedPage() {
@@ -216,13 +165,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 						 ->getOptions();
 		$aData = Services::DataManipulation()
 						 ->mergeArraysRecursive(
-							 $this->getBaseDisplayData(),
+							 $this->getUIHandler()->getBaseDisplayData(),
 							 [
 								 'ajax'    => [
 									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
 								 ],
 								 'strings' => [
-									 'force_remove_email' => __( "If you've forgotten your key, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
+									 'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
 									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
 									 'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
 										 Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
@@ -248,63 +197,40 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		$oOpts = $this->getOptions();
-		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
-			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
-			   && ( $oOpts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
+		$opts = $this->getOptions();
+		return ( $opts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
+			   && ( $opts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
+			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
 			   && parent::isReadyToExecute();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isVisitorWhitelisted() {
+	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-			$oIp = ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-				->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-				->setIP( Services::IP()->getRequestIp() )
-				->setListTypeWhite()
-				->lookup();
-			self::$bVisitorIsWhitelisted = $oIp instanceof Shield\Databases\IPs\EntryVO;
+			self::$bVisitorIsWhitelisted =
+				( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+					->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+					->setIP( Services::IP()->getRequestIp() )
+					->setListTypeWhite()
+					->lookup()
+				instanceof Shield\Databases\IPs\EntryVO;
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isVerifiedBot() {
+	public function isVerifiedBot() :bool {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$oIP = Services::IP();
-
-			if ( $oIP->isLoopback() ) {
-				self::$bIsVerifiedBot = false;
-			}
-			else {
-				$oSP = Services::ServiceProviders();
-				$sIp = $oIP->getRequestIp();
-				$sAgent = Services::Request()->getUserAgent();
-				if ( empty( $sAgent ) ) {
-					$sAgent = 'Unknown';
-				}
-				self::$bIsVerifiedBot = $oSP->isIp_GoogleBot( $sIp, $sAgent )
-										|| $oSP->isIp_BingBot( $sIp, $sAgent )
-										|| $oSP->isIp_AppleBot( $sIp, $sAgent )
-										|| $oSP->isIp_YahooBot( $sIp, $sAgent )
-										|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
-										|| $oSP->isIp_YandexBot( $sIp, $sAgent )
-										|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
-										|| $oSP->isIp_BaiduBot( $sIp, $sAgent )
-										|| $oSP->isIp_Stripe( $sIp, $sAgent );
-			}
+			$srvIP = Services::IP();
+			self::$bIsVerifiedBot = !$srvIP->isLoopback() &&
+									!in_array( $srvIP->getIpDetector()->getIPIdentity(), [
+										IpIdentify::UNKNOWN,
+										IpIdentify::THIS_SERVER,
+										IpIdentify::VISITOR,
+									] );
 		}
 		return self::$bIsVerifiedBot;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isXmlrpcBypass() {
+	public function isXmlrpcBypass() :bool {
 		return $this->getCon()
 					->getModule_Plugin()
 					->isXmlrpcBypass();
@@ -328,18 +254,5 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			}
 		}
 		return array_unique( array_filter( $aCleaned ) );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getModDisabledInsight() {
-		return [
-			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
-			'enabled' => false,
-			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
-			'weight'  => 2,
-			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
-		];
 	}
 }

@@ -19,8 +19,8 @@ class ShieldProcessor extends Base\BaseProcessor {
 	 */
 	public function init() {
 		parent::init();
-		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
+		$con = $this->getCon();
+		add_filter( $con->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
 	}
 
 	/**

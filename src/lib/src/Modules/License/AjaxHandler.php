@@ -8,13 +8,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( string $action ) :array {
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 			case 'license_handling':
 				$aResponse = $this->ajaxExec_LicenseHandling();
 				break;
@@ -23,7 +19,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;

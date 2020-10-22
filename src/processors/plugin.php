@@ -9,25 +9,28 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		parent::run();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
 
 		$this->removePluginConflicts();
+		( new Plugin\Lib\OverrideLocale() )
+			->setMod( $this->getMod() )
+			->run();
 
-		$oMod->getPluginBadgeCon()->run();
+		$mod->getPluginBadgeCon()->run();
 
-		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
+		if ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->execute();
 		}
 
-		if ( $oOpts->isImportExportPermitted() ) {
-			$oMod->getImpExpController()->run();
+		if ( $opts->isImportExportPermitted() ) {
+			$mod->getImpExpController()->run();
 		}
 
-		$oCon = $this->getCon();
-		switch ( $oCon->getShieldAction() ) {
+		$con = $this->getCon();
+		switch ( $con->getShieldAction() ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
 				break;
@@ -37,11 +40,11 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
 		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
 
-		add_filter( $oCon->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $oOpts ) {
-			return $bDelete || $oOpts->isOpt( 'delete_on_deactivate', 'Y' );
+		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $opts ) {
+			return $bDelete || $opts->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
-		add_action( $oCon->prefix( 'dashboard_widget_content' ),
+		add_action( $con->prefix( 'dashboard_widget_content' ),
 			[ $this, 'printDashboardWidget' ],
 			100
 		);
@@ -76,7 +79,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'tracking' => 'ICWP_WPSF_Processor_Plugin_Tracking',
 		];

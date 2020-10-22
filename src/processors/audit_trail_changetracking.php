@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		if ( !$this->isReadyToRun() ) {
 			return;

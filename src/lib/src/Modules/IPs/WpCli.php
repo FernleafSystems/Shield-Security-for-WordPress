@@ -12,7 +12,8 @@ class WpCli extends Base\WpCli {
 	 */
 	protected function getCmdHandlers() {
 		return [
-			new IPs\WpCli\AddRemove(),
+			new IPs\WpCli\Add(),
+			new IPs\WpCli\Remove(),
 			new IPs\WpCli\Enumerate(),
 		];
 	}

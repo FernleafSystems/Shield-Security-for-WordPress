@@ -3,10 +3,17 @@
 		<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
 		<td>
 			{% if flags.is_profile_active %}
-				<p>{{ strings.current_yubi_ids }}</p>
+				<p>{{ strings.registered_yubi_ids }}</p>
 				<ul style=" list-style: circle inside; ">
 					{% for yubi_id in vars.yubi_ids %}
-						<li><code>{{ yubi_id }}</code></li>
+						<li>
+							<code>{{ yubi_id }}</code>
+							<a href="#"
+							   class="icwpWpsf-YubikeyRemove"
+							   style="text-decoration: none;"
+							   title="Remove"
+							   data-yubikeyid="{{ yubi_id }}">&#10006;</a>
+						</li>
 					{% endfor %}
 				</ul>
 			{% else %}

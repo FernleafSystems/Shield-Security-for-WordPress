@@ -3,23 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( string $action ) :array {
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 			case 'render_table_traffic':
 				$aResponse = $this->ajaxExec_BuildTableTraffic();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;
@@ -36,7 +31,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'html'    => ( new Shield\Tables\Build\Traffic() )
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_Traffic() )
-				->buildTable()
+				->render()
 		];
 	}
 }

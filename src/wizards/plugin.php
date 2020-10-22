@@ -125,53 +125,49 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Welcome() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		$oConn = $this->getCon();
+		$con = $this->getCon();
 
 		$aStepsSlugs = [
 			'welcome',
 			'ip_detect'
 		];
-//		if ( !$oFO->isPremium() ) {
-//			$aStepsSlugs[] = 'license'; not showing it for now
-//		}
 
-		if ( $oFO->isPremium() ) {
+		if ( $con->isPremiumActive() ) {
 			$aStepsSlugs[] = 'import';
 		}
 
-		if ( !$oConn->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
+		if ( !$con->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
-		$oModule = $oConn->getModule( 'audit_trail' );
-		if ( !$oModule->isModuleEnabled() ) {
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $mod */
+		$mod = $con->getModule( 'audit_trail' );
+		if ( !$mod->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$oConn->getModule_IPs()->isModuleEnabled() ) {
+		if ( !$con->getModule_IPs()->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
-		$oModule = $oConn->getModule_LoginGuard();
+		$mod = $con->getModule_LoginGuard();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $oModule->getOptions();
-		if ( !( $oModule->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
+		$oOpts = $mod->getOptions();
+		if ( !( $mod->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $oConn->getModule( 'comments_filter' );
-		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		$modComm = $con->getModule_Comments();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
+		$optsComm = $modComm->getOptions();
+		if ( !( $modComm->isModuleEnabled() && $optsComm->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';
 		}
 
 		$aStepsSlugs[] = 'how_shield_works';
 		$aStepsSlugs[] = 'optin';
 
-		if ( !$oFO->isPremium() ) {
+		if ( !$con->isPremiumActive() ) {
 			$aStepsSlugs[] = 'import';
 		}
 
@@ -372,12 +368,11 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$bSuccess = false;
 
-		/** @var \ICWP_WPSF_FeatureHandler_License $oModule */
-		$oModule = $this->getCon()->getModule( 'license' );
+		$mod = $this->getCon()->getModule_License();
 		try {
-			$bSuccess = $oModule->getLicenseHandler()
-								->verify( true )
-								->hasValidWorkingLicense();
+			$bSuccess = $mod->getLicenseHandler()
+							->verify( true )
+							->hasValidWorkingLicense();
 			if ( $bSuccess ) {
 				$sMessage = __( 'License was found and successfully installed.', 'wp-simple-firewall' );
 			}
@@ -439,24 +434,24 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardSecurityAdmin() {
 		$oReq = Services::Request();
-		$sKey = $oReq->post( 'AccessKey' );
+		$pin = $oReq->post( 'AccessKey' );
 		$sConfirm = $oReq->post( 'AccessKeyConfirm' );
 
 		$bSuccess = false;
-		if ( empty( $sKey ) ) {
-			$sMessage = 'Security access key was empty.';
+		if ( empty( $pin ) ) {
+			$sMessage = __( "Security Admin PIN was empty.", 'wp-simple-firewall' );
 		}
-		elseif ( $sKey != $sConfirm ) {
-			$sMessage = 'Keys do not match.';
+		elseif ( $pin != $sConfirm ) {
+			$sMessage = __( "Security PINs don't match.", 'wp-simple-firewall' );
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
 			$oModule = $this->getCon()->getModule( 'admin_access_restriction' );
 			try {
-				$oModule->setNewAccessKeyManually( $sKey )
+				$oModule->setNewPinManually( $pin )
 						->setSecurityAdminStatusOnOff( true );
 				$bSuccess = true;
-				$sMessage = __( 'Security Admin setup was successful.', 'wp-simple-firewall' );
+				$sMessage = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );
 			}
 			catch ( Exception $oE ) {
 				$sMessage = __( $oE->getMessage(), 'wp-simple-firewall' );
@@ -538,9 +533,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardLoginProtect() {
-		$oMod = $this->getCon()->getModule_LoginGuard();
+		$mod = $this->getCon()->getModule_LoginGuard();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $mod->getOptions();
 
 		$sInput = Services::Request()->post( 'LoginProtectOption' );
 		$bSuccess = false;
@@ -550,10 +545,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			if ( $bEnabled ) { // we don't disable the whole module
-				$oMod->setIsMainFeatureEnabled( true );
+				$mod->setIsMainFeatureEnabled( true );
 			}
-			$oMod->setEnabledGaspCheck( $bEnabled );
-			$oMod->saveModOptions();
+			$mod->setEnabledGaspCheck( $bEnabled );
+			$mod->saveModOptions();
 
 			$bSuccess = $oOpts->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
@@ -694,15 +689,16 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-			$oMod = $this->getCon()->getModule( 'comments_filter' );
+			$modComm = $this->getCon()->getModule_Comments();
 			if ( $bEnabled ) { // we don't disable the whole module
-				$oMod->setIsMainFeatureEnabled( true );
+				$modComm->setIsMainFeatureEnabled( true );
 			}
-			$oMod->setEnabledGasp( $bEnabled );
-			$oMod->saveModOptions();
+			$modComm->setEnabledGasp( $bEnabled );
+			$modComm->saveModOptions();
 
-			$bSuccess = $oMod->isEnabledGaspCheck() === $bEnabled;
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
+			$optsComm = $modComm->getOptions();
+			$bSuccess = $optsComm->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
 					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )

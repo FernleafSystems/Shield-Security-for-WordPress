@@ -1,0 +1,25 @@
+{% block email_open %}
+<html lang="{{ vars.lang|default('en-us') }}">
+{% endblock %}
+
+{% block email_header %}
+	{% for section in header %}
+		<div>{{ section|raw }}</div>
+	{% endfor %}
+{% endblock %}
+
+{% block email_body %}
+	{% for section in body %}
+		<div>{{ section|raw }}</div>
+	{% endfor %}
+{% endblock %}
+
+{% block email_footer %}
+	{% for section in footer %}
+		<div>{{ section|raw }}</div>
+	{% endfor %}
+{% endblock %}
+
+{% block email_close %}
+</html>
+{% endblock %}

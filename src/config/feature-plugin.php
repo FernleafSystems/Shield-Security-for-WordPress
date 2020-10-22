@@ -34,7 +34,15 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "php7":          {
+    "update-available":           {
+      "id":               "update-available",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
+    "php7":                       {
       "id":               "php7",
       "schedule":         "conditions",
       "valid_admin":      true,
@@ -51,6 +59,14 @@
       "can_dismiss":      false,
       "type":             "warning"
     },
+    "cloudflare-apo":             {
+      "id":               "cloudflare-apo",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
     "wizard_welcome":             {
       "id":       "wizard_welcome",
       "per_user": false,
@@ -61,10 +77,6 @@
       "min_install_days": 5,
       "type":             "promo",
       "drip_form_id":     "250437573"
-    },
-    "plugin-update-available":    {
-      "id":   "plugin-update-available",
-      "type": "warning"
     },
     "allow-tracking":             {
       "id":               "allow-tracking",
@@ -234,8 +246,8 @@
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/5v",
-      "link_blog":   "https://shsec.io/wpsf20",
+      "link_info":   "https://shsec.io/i1",
+      "link_blog":   "https://shsec.io/i2",
       "name":        "Allow WP-CLI",
       "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
       "description": "Turn off this option to disable this plugin's WP-CLI integration."
@@ -320,6 +332,17 @@
       "link_info":   "",
       "link_blog":   "",
       "name":        "Delete Plugin Settings",
+      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
+    },
+    {
+      "key":         "locale_override",
+      "section":     "section_general_plugin_options",
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://icwp.io/il",
+      "link_blog":   "",
+      "name":        "Locale Override",
       "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
@@ -495,57 +518,44 @@
     "db_autoexpire_notes":    0,
     "db_autoexpire_geoip":    30,
     "db_notes_name":          "notes",
-    "db_notes_table_columns": [
-      "id",
-      "wp_username",
-      "note",
-      "created_at",
-      "deleted_at"
-    ],
+    "db_notes_table_columns": {
+      "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
+      "note": "TEXT"
+    },
     "geoip_table_name":       "geoip",
-    "geoip_table_columns":    [
-      "id",
-      "ip",
-      "meta",
-      "created_at",
-      "deleted_at"
-    ],
+    "geoip_table_columns":    {
+      "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
+      "meta": "TEXT"
+    },
     "active_plugin_features": [
       {
         "slug":          "insights",
-        "storage_key":   "insights",
         "load_priority": 1,
         "menu_priority": 5
       },
       {
         "slug":          "admin_access_restriction",
-        "storage_key":   "admin_access_restriction",
         "load_priority": 11
       },
       {
         "slug":          "ips",
-        "storage_key":   "ips",
         "load_priority": 15
       },
       {
         "slug":          "audit_trail",
-        "storage_key":   "audit_trail",
         "load_priority": 11,
         "hidden":        false
       },
       {
-        "slug":        "hack_protect",
-        "storage_key": "hack_protect"
+        "slug": "hack_protect"
       },
       {
         "slug":          "traffic",
-        "storage_key":   "traffic",
         "load_priority": 12,
         "min_php":       "5.4"
       },
       {
         "slug":          "firewall",
-        "storage_key":   "firewall",
         "load_priority": 1000
       },
       {
@@ -553,8 +563,7 @@
         "storage_key": "loginprotect"
       },
       {
-        "slug":        "user_management",
-        "storage_key": "user_management"
+        "slug": "user_management"
       },
       {
         "slug":        "comments_filter",
@@ -562,39 +571,34 @@
       },
       {
         "slug":          "events",
-        "storage_key":   "events",
         "load_priority": 11
       },
       {
         "slug":          "reporting",
-        "storage_key":   "reporting",
         "load_priority": 12
       },
       {
         "slug":          "sessions",
-        "storage_key":   "sessions",
         "load_priority": 5
       },
       {
         "slug":          "license",
-        "storage_key":   "license",
         "load_priority": 10
       },
       {
-        "slug":        "autoupdates",
-        "storage_key": "autoupdates"
+        "slug": "autoupdates"
       },
       {
-        "slug":        "headers",
-        "storage_key": "headers"
+        "slug": "headers"
       },
       {
-        "slug":        "lockdown",
-        "storage_key": "lockdown"
+        "slug": "lockdown"
       },
       {
-        "slug":        "email",
-        "storage_key": "email"
+        "slug": "comms"
+      },
+      {
+        "slug": "email"
       }
     ],
     "events":                 {

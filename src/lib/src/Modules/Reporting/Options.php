@@ -6,43 +6,27 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Options extends Base\ShieldOptions {
 
-	/**
-	 * @return string[]
-	 */
-	public function getDbColumns_Reports() {
-		return $this->getDef( 'reports_table_columns' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_Reports() {
-		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getFrequencyAlert() {
+	public function getFrequencyAlert() :string {
 		return $this->getFrequency( 'alert' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getFrequencyInfo() {
+	public function getFrequencyInfo() :string {
 		return $this->getFrequency( 'info' );
 	}
 
-	/**
-	 * @param string $sType
-	 * @return string
-	 */
-	private function getFrequency( $sType ) {
-		$sKey = 'frequency_'.$sType;
-		$sDefault = $this->getOptDefault( $sKey );
-		return ( $this->isPremium() || in_array( $this->getOpt( $sKey ), [ 'disabled', $sDefault ] ) )
-			? $this->getOpt( $sKey )
+	private function getFrequency( string $type ) :string {
+		$key = 'frequency_'.$type;
+		$sDefault = $this->getOptDefault( $key );
+		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $sDefault ] ) )
+			? $this->getOpt( $key )
 			: $sDefault;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_Reports() :string {
+		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
 	}
 }

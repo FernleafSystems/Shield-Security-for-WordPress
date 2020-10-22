@@ -22,7 +22,8 @@ class Create {
 		$sToken = $this->generateNewToken( $nTs, $nPostId );
 
 		Services::WpGeneral()->setTransient(
-			$this->getCon()->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) ) ),
+			$this->getCon()->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()
+																								 ->getRequestIp() ) ) ),
 			$sToken,
 			$oOpts->getTokenExpireInterval()
 		);

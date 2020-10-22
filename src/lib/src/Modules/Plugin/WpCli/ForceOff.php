@@ -14,7 +14,7 @@ class ForceOff extends BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'forceoff' ] ),
-			[ $this, 'cmdForceOff' ], [
+			[ $this, 'cmdForceOff' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Manage the `forceoff` file.',
 			'synopsis'  => [
 				[
@@ -29,7 +29,7 @@ class ForceOff extends BaseWpCliCmd {
 					'description' => 'Action to take with the `forceoff` file.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	public function cmdForceOff( $null, $aA ) {

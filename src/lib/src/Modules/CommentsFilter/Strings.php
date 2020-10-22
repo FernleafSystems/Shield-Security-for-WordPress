@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'spam_block_human'     => [
 				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
@@ -26,13 +26,13 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( string $section ) :array {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
@@ -71,7 +71,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [
@@ -82,16 +82,16 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
+	public function getOptionStrings( string $key ) :array {
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
 		$sModName = $this->getMod()->getMainFeatureName();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'enable_comments_filter' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
@@ -186,7 +186,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [

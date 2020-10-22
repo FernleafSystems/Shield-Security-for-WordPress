@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
@@ -9,11 +10,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class BlacklistHandler {
 
 	use Modules\ModConsumer;
-	use Modules\Base\OneTimeExecute;
+	use OneTimeExecute;
 
 	protected function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
@@ -24,62 +25,67 @@ class BlacklistHandler {
 			}
 
 			( new IPs\Components\UnblockIpByFlag() )
-				->setMod( $oMod )
+				->setMod( $mod )
 				->run();
 
 			add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
 
-			if ( !$oMod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() && !$oMod->isVerifiedBot() ) {
-				( new BlockRequest() )
-					->setMod( $oMod )
+			if ( !$mod->isVisitorWhitelisted()
+				 && !$this->isRequestWhitelisted() && !$mod->isVerifiedBot() ) {
+
+				// We setup offenses processing immediately but run the blocks on 'init
+				( new ProcessOffenses() )
+					->setMod( $this->getMod() )
 					->run();
-				( new BlackmarkRequest() )
-					->setMod( $oMod )
-					->run();
+				add_action( 'init', function () {
+					( new BlockRequest() )
+						->setMod( $this->getMod() )
+						->run();
+				}, -100000 );
 			}
 		}
 	}
 
 	public function loadBotDetectors() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$oMod->isVerifiedBot() ) {
-				if ( $oOpts->isEnabledTrackXmlRpc() ) {
+			if ( !$mod->isVerifiedBot() ) {
+				if ( $opts->isEnabledTrackXmlRpc() ) {
 					( new IPs\BotTrack\TrackXmlRpc() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrack404() ) {
+				if ( $opts->isEnabledTrack404() ) {
 					( new IPs\BotTrack\Track404() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrackLoginFailed() ) {
+				if ( $opts->isEnabledTrackLoginFailed() ) {
 					( new IPs\BotTrack\TrackLoginFailed() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrackLoginInvalid() ) {
+				if ( $opts->isEnabledTrackLoginInvalid() ) {
 					( new IPs\BotTrack\TrackLoginInvalid() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrackFakeWebCrawler() ) {
+				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
 					( new IPs\BotTrack\TrackFakeWebCrawler() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
 			}
 
 			/** Always run link cheese regardless of the verified bot or not */
-			if ( $oOpts->isEnabledTrackLinkCheese() ) {
+			if ( $opts->isEnabledTrackLinkCheese() ) {
 				( new IPs\BotTrack\TrackLinkCheese() )
-					->setMod( $oMod )
+					->setMod( $mod )
 					->run();
 			}
 		}

@@ -20,25 +20,25 @@ class AddIp {
 	 * @throws \Exception
 	 */
 	public function toAutoBlacklist() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 		$oReq = Services::Request();
 
 		$sIP = $this->getIP();
 		if ( !Services::IP()->isValidIp( $sIP ) ) {
-			throw new \Exception( 'IP address is not valid' );
+			throw new \Exception( "IP address isn't valid." );
 		}
 		if ( in_array( $sIP, Services::IP()->getServerPublicIPs() ) ) {
 			throw new \Exception( 'Will not black mark our own server IP' );
 		}
 
 		$oIP = ( new LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlack()
 			->setIP( $sIP )
 			->lookup( false );
 		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-			$oIP = $this->add( $oMod::LIST_AUTO_BLACK, 'auto', $oReq->ts() );
+			$oIP = $this->add( $mod::LIST_AUTO_BLACK, 'auto', $oReq->ts() );
 		}
 
 		// Edge-case: the IP is on the list but the last access long-enough passed
@@ -48,7 +48,7 @@ class AddIp {
 		$oOpts = $this->getOptions();
 		if ( $oIP->transgressions > 0
 			 && ( $oReq->ts() - $oOpts->getAutoExpireTime() > (int)$oIP->last_access_at ) ) {
-			$oMod->getDbHandler_IPs()
+			$mod->getDbHandler_IPs()
 				 ->getQueryUpdater()
 				 ->updateEntry( $oIP, [
 					 'last_access_at' => Services::Request()->ts(),
@@ -70,7 +70,7 @@ class AddIp {
 
 		$sIP = $this->getIP();
 		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
-			throw new \Exception( 'IP address is not valid' );
+			throw new \Exception( "IP address isn't valid." );
 		}
 
 		$oIP = null;
@@ -127,7 +127,7 @@ class AddIp {
 
 		$sIP = $this->getIP();
 		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
-			throw new \Exception( 'IP address is not valid' );
+			throw new \Exception( "IP address isn't valid." );
 		}
 
 		if ( $oIpServ->isValidIpRange( $sIP ) ) {
@@ -173,6 +173,7 @@ class AddIp {
 	 * @param string   $sLabel
 	 * @param int|null $nLastAccessAt
 	 * @return Databases\IPs\EntryVO|null
+	 * @throws \Exception
 	 */
 	private function add( $sList, $sLabel = '', $nLastAccessAt = null ) {
 		$oIP = null;
@@ -197,6 +198,10 @@ class AddIp {
 			$oIP = $oDbh->getQuerySelector()
 						->setWheresFromVo( $oTempIp )
 						->first();
+		}
+
+		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
+			throw new \Exception( "IP couldn't be added to the database." );
 		}
 
 		return $oIP;

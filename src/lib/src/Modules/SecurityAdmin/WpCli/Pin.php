@@ -14,7 +14,7 @@ class Pin extends BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'pin' ] ),
-			[ $this, 'cmdPin' ], [
+			[ $this, 'cmdPin' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Set or remove the Security Admin PIN.',
 			'synopsis'  => [
 				[
@@ -30,18 +30,23 @@ class Pin extends BaseWpCliCmd {
 					'description' => 'Use this to remove any existing PIN.',
 				],
 			],
-		] );
+		] ) );
 	}
 
-	public function cmdPin( $args, $aA ) {
+	/**
+	 * @param array $null
+	 * @param array $aA
+	 * @throws WP_CLI\ExitException
+	 */
+	public function cmdPin( array $null, array $aA ) {
 
 		$sNewPin = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
-		$bRemove = isset( $aA[ 'remove' ] );
+		$bRemove = WP_CLI\Utils\get_flag_value( $aA, 'remove', false );
 
 		if ( !empty( $sNewPin ) && !empty( $bRemove ) ) {
 			WP_CLI::error( 'Please use either `--set` or `--remove`, but not both.' );
 		}
-		elseif (empty( $sNewPin ) && empty( $bRemove )) {
+		elseif ( empty( $sNewPin ) && empty( $bRemove ) ) {
 			WP_CLI::error( 'Please provide the desired action, either `--set` or `--remove`.' );
 		}
 

@@ -6,25 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Options extends Base\ShieldOptions {
 
-	/**
-	 * @return array
-	 */
-	public function getCustomWhitelist() {
+	public function getCustomWhitelist() :array {
 		$aW = $this->getOpt( 'page_params_whitelist', [] );
 		return is_array( $aW ) ? $aW : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isIgnoreAdmin() {
+	public function isIgnoreAdmin() :bool {
 		return $this->isOpt( 'whitelist_admins', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSendBlockEmail() {
+	public function isSendBlockEmail() :bool {
 		return $this->isOpt( 'block_send_email', 'Y' );
 	}
 }

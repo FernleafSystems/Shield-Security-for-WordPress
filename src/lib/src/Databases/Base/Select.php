@@ -42,12 +42,12 @@ class Select extends BaseQuery {
 	protected $sResultFormat;
 
 	/**
-	 * @param string $sCol
+	 * @param string $col
 	 * @return $this
 	 */
-	public function addColumnToSelect( $sCol ) {
+	public function addColumnToSelect( $col ) {
 		$aCols = $this->getColumnsToSelect();
-		$aCols[] = $sCol;
+		$aCols[] = $col;
 		return $this->setColumnsToSelect( $aCols );
 	}
 
@@ -108,10 +108,7 @@ class Select extends BaseQuery {
 		return $sSubstitute;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function count() {
+	public function count() :int {
 		return (int)$this->setIsCount( true )->query();
 	}
 
@@ -130,94 +127,59 @@ class Select extends BaseQuery {
 		return empty( $aR ) ? null : array_shift( $aR );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getBaseQuery() {
+	protected function getBaseQuery() :string {
 		return "SELECT %s FROM `%s` WHERE %s %s";
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getColumnsToSelect() {
+	public function getColumnsToSelect() :array {
 		return is_array( $this->aColumnsToSelect ) ? $this->aColumnsToSelect : [];
 	}
 
-	/**
-	 * @param string $sColumn
-	 * @return array
-	 */
-	public function getDistinctForColumn( $sColumn ) {
+	public function getDistinctForColumn( string $col ) :array {
 		return $this->reset()
-					->addColumnToSelect( $sColumn )
+					->addColumnToSelect( $col )
 					->setIsDistinct( true )
 					->query();
 	}
 
-	/**
-	 * @param string $sColumn
-	 * @return array
-	 */
-	protected function getDistinct_FilterAndSort( $sColumn ) {
-		$a = array_filter( $this->getDistinctForColumn( $sColumn ) );
+	protected function getDistinct_FilterAndSort( string $col ) :array {
+		$a = array_filter( $this->getDistinctForColumn( $col ) );
 		natcasesort( $a );
 		return $a;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getSelectDataFormat() {
+	protected function getSelectDataFormat() :string {
 		if ( $this->isResultsAsVo() ) {
-			$sForm = ARRAY_A;
+			$format = ARRAY_A;
 		}
 		else {
-			$sForm = in_array( $this->sResultFormat, [ OBJECT_K, ARRAY_A ] ) ? $this->sResultFormat : OBJECT_K;
+			$format = in_array( $this->sResultFormat, [ OBJECT_K, ARRAY_A ] ) ? $this->sResultFormat : OBJECT_K;
 		}
-		return $sForm;
+		return $format;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function hasColumnsToSelect() {
-		return ( count( $this->getColumnsToSelect() ) > 0 );
+	protected function hasColumnsToSelect() :bool {
+		return count( $this->getColumnsToSelect() ) > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCount() {
+	public function isCount() :bool {
 		return (bool)$this->bIsCount;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSum() {
+	public function isSum() :bool {
 		return (bool)$this->bIsSum;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCustomSelect() {
+	public function isCustomSelect() :bool {
 		return !empty( $this->sCustomSelect );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isDistinct() {
+	public function isDistinct() :bool {
 		return (bool)$this->bIsDistinct;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isResultsAsVo() {
-		return (bool)$this->bResultsAsVo && !$this->isSum();
+	public function isResultsAsVo() :bool {
+		return $this->bResultsAsVo && !$this->isSum();
 	}
 
 	/**
@@ -307,70 +269,44 @@ class Select extends BaseQuery {
 
 	/**
 	 * Verifies the given columns are valid and unique
-	 * @param string[] $aColumns
+	 * @param string[] $columns
 	 * @return $this
 	 */
-	public function setColumnsToSelect( $aColumns ) {
-		if ( is_array( $aColumns ) ) {
-			$this->aColumnsToSelect = array_intersect(
-				$this->getDbH()->getColumnsActual(),
-				array_map( 'strtolower', $aColumns )
-			);
-		}
+	public function setColumnsToSelect( array $columns ) {
+		$this->aColumnsToSelect = array_intersect(
+			$this->getDbH()->getTableSchema()->getColumnNames(),
+			array_map( 'strtolower', $columns )
+		);
 		return $this;
 	}
 
-	/**
-	 * @param string $sSelect
-	 * @return $this
-	 */
-	public function setCustomSelect( $sSelect ) {
-		$this->sCustomSelect = $sSelect;
+	public function setCustomSelect( string $select ) :self {
+		$this->sCustomSelect = $select;
 		return $this;
 	}
 
-	/**
-	 * @param bool $bIsCount
-	 * @return $this
-	 */
-	public function setIsCount( $bIsCount ) {
-		$this->bIsCount = $bIsCount;
+	public function setIsCount( bool $isCount ) :self {
+		$this->bIsCount = $isCount;
 		return $this;
 	}
 
-	/**
-	 * @param bool $bSum
-	 * @return $this
-	 */
-	public function setIsSum( $bSum ) {
-		$this->bIsSum = $bSum;
+	public function setIsSum( bool $sum ) :self {
+		$this->bIsSum = $sum;
 		return $this;
 	}
 
-	/**
-	 * @param bool $bIsDistinct
-	 * @return $this
-	 */
-	public function setIsDistinct( $bIsDistinct ) {
-		$this->bIsDistinct = $bIsDistinct;
+	public function setIsDistinct( bool $distinct ) :self {
+		$this->bIsDistinct = $distinct;
 		return $this;
 	}
 
-	/**
-	 * @param bool $bResultsAsVo
-	 * @return $this
-	 */
-	public function setResultsAsVo( $bResultsAsVo ) {
-		$this->bResultsAsVo = $bResultsAsVo;
+	public function setResultsAsVo( bool $asVO ) :self {
+		$this->bResultsAsVo = $asVO;
 		return $this;
 	}
 
-	/**
-	 * @param string $sFormat
-	 * @return $this
-	 */
-	public function setSelectResultsFormat( $sFormat ) {
-		$this->sResultFormat = $sFormat;
+	public function setSelectResultsFormat( string $format ) :self {
+		$this->sResultFormat = $format;
 		return $this;
 	}
 }

@@ -57,7 +57,7 @@ class AuditWriter extends EventsListener {
 	/**
 	 * @return AuditTrail\EntryVO[]
 	 */
-	public function getLogs() {
+	public function getLogs() :array {
 		return is_array( $this->aAuditLogs ) ? $this->aAuditLogs : [];
 	}
 

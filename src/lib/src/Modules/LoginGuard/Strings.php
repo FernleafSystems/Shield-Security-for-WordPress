@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'botbox_fail'             => [
 				__( 'User "%s" attempted "%s" but Bot checkbox was not found.', 'wp-simple-firewall' )
@@ -54,13 +55,13 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( string $section ) :array {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_login_protection' :
 				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
@@ -118,9 +119,9 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_yubikey_authentication' :
-				$sTitle = __( 'Yubikey Two-Factor Authentication', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Yubikey', 'wp-simple-firewall' );
+			case 'section_hardware_authentication' :
+				$sTitle = __( 'Hardware 2-Factor Authentication', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Hardware 2FA', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
@@ -128,7 +129,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [
@@ -139,16 +140,16 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$sModName = $oMod->getMainFeatureName();
+	public function getOptionStrings( string $key ) :array {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		$sModName = $mod->getMainFeatureName();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'enable_login_protect' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
@@ -173,9 +174,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mfa_skip' :
-				$sName = __( 'Multi-Factor By-Pass', 'wp-simple-firewall' );
-				$sSummary = __( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
+				$sName = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
+				$sSummary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'allow_backupcodes' :
@@ -248,7 +249,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
 				$sDescription = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
 								.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
-								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getOptions()
+								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getOptions()
 																									->getOptDefault( 'login_limit_interval' ) );
 				break;
 
@@ -258,17 +259,32 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' );
 				break;
 
+			case 'enable_u2f' :
+				$sName = __( 'Allow U2F', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Registration Of U2F Devices', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
+					__( "Currently only U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' ),
+					__( "Beta! This may only be used when at least 1 other 2FA option is enabled on a user account.", 'wp-simple-firewall' ),
+				];
+				if ( !Services::Data()->getPhpVersionIsAtLeast( '7.0' ) ) {
+					$sDescription[] = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Requires PHP 7.0 or later.", 'wp-simple-firewall' ) );
+				}
+				break;
+
 			case 'enable_yubikey' :
-				$sName = __( 'Enable Yubikey Authentication', 'wp-simple-firewall' );
-				$sSummary = __( 'Turn On / Off Yubikey Authentication On This Site', 'wp-simple-firewall' );
+				$sName = __( 'Allow Yubikey OTP', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Yubikey Registration For One Time Passwords', 'wp-simple-firewall' );
 				$sDescription = __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_app_id' :
 				$sName = __( 'Yubikey App ID', 'wp-simple-firewall' );
 				$sSummary = __( 'Your Unique Yubikey App ID', 'wp-simple-firewall' );
-				$sDescription = __( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' )
-								.'<br />'.__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' ),
+					__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'yubikey_api_key' :
@@ -291,14 +307,14 @@ class Strings extends Base\Strings {
 				$sName = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
 				$sSummary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
 				$sDescription = __( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getTextOptDefault( 'text_imahuman' ) );
+								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_imahuman' ) );
 				break;
 
 			case 'text_pleasecheckbox' :
 				$sName = __( 'GASP Alert Text', 'wp-simple-firewall' );
 				$sSummary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
 				$sDescription = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getTextOptDefault( 'text_pleasecheckbox' ) );
+								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_pleasecheckbox' ) );
 				break;
 
 			// removed 9.0
@@ -309,7 +325,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [

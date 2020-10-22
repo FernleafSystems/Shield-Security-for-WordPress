@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -112,9 +111,6 @@ class BaseModCon {
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
-		add_filter( $this->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
 		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
@@ -167,12 +163,8 @@ class BaseModCon {
 
 	protected function cleanupDatabases() {
 		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			try {
-				if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-					$oDbh->autoCleanDb();
-				}
-			}
-			catch ( \Exception $oE ) {
+			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+				$oDbh->autoCleanDb();
 			}
 		}
 	}
@@ -309,8 +301,6 @@ class BaseModCon {
 		return $bMeetsReqs;
 	}
 
-	/**
-	 */
 	public function onRunProcessors() {
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
@@ -358,8 +348,6 @@ class BaseModCon {
 		add_action( 'load-'.$page_hook, [ $this, 'onLoadOptionsScreen' ] );
 	}
 
-	/**
-	 */
 	public function onLoadOptionsScreen() {
 		if ( $this->getCon()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
@@ -656,55 +644,6 @@ class BaseModCon {
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function buildSummaryData() {
-		$oOptsVo = $this->getOptions();
-		$sMenuTitle = $oOptsVo->getFeatureProperty( 'menu_title' );
-
-		$aSections = $oOptsVo->getSections();
-		foreach ( $aSections as $sSlug => $aSection ) {
-			try {
-				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-				foreach ( $aStrings as $sKey => $sVal ) {
-					unset( $aSection[ $sKey ] );
-					$aSection[ $sKey ] = $sVal;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		$aSum = [
-			'enabled'    => $this->isEnabledForUiSummary(),
-			'active'     => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
-			'slug'       => $this->getSlug(),
-			'name'       => $this->getMainFeatureName(),
-			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
-			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections,
-			'options'    => [],
-		];
-
-		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
-			try {
-				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		$aSum[ 'tooltip' ] = sprintf(
-			'%s%s',
-			$aSum[ 'name' ],
-			( $aSum[ 'enabled' ] ? '' : ' ('.strtolower( __( 'Disabled', 'wp-simple-firewall' ) ).')' )
-		);
-		return $aSum;
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {
@@ -954,167 +893,11 @@ class BaseModCon {
 	}
 
 	/**
-	 * Will initiate the plugin options structure for use by the UI builder.
-	 * It doesn't set any values, just populates the array created in buildOptions()
-	 * with values stored.
-	 * It has to handle the conversion of stored values to data to be displayed to the user.
-	 */
-	public function buildOptions() {
-
-		$bPremiumEnabled = $this->getCon()->isPremiumExtensionsEnabled();
-
-		$oOptsVo = $this->getOptions();
-		$aOptions = $oOptsVo->getOptionsForPluginUse();
-
-		foreach ( $aOptions as $nSectionKey => $aSection ) {
-
-			if ( !empty( $aSection[ 'options' ] ) ) {
-
-				foreach ( $aSection[ 'options' ] as $nKey => $aOption ) {
-					$aOption[ 'is_value_default' ] = ( $aOption[ 'value' ] === $aOption[ 'default' ] );
-					$bIsPrem = isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ];
-					if ( !$bIsPrem || $bPremiumEnabled ) {
-						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOption );
-					}
-					else {
-						unset( $aSection[ 'options' ][ $nKey ] );
-					}
-				}
-
-				if ( empty( $aSection[ 'options' ] ) ) {
-					unset( $aOptions[ $nSectionKey ] );
-				}
-				else {
-					try {
-						$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-						foreach ( $aStrings as $sKey => $sVal ) {
-							unset( $aSection[ $sKey ] );
-							$aSection[ $sKey ] = $sVal;
-						}
-					}
-					catch ( \Exception $oE ) {
-					}
-					$aOptions[ $nSectionKey ] = $aSection;
-				}
-
-				$aWarnings = [];
-				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
-				}
-				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
-					$aWarnings,
-					$this->getSectionWarnings( $aSection[ 'slug' ] )
-				);
-				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
-
-				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
-					$sHelpVideoUrl = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
-				}
-				else {
-					$sHelpVideoUrl = '';
-				}
-				$aOptions[ $nSectionKey ][ 'help_video_url' ] = $sHelpVideoUrl;
-			}
-		}
-
-		return $aOptions;
-	}
-
-	/**
-	 * @param string $sSectionSlug
-	 * @return array
-	 */
-	protected function getSectionNotices( $sSectionSlug ) {
-		return [];
-	}
-
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		return [];
-	}
-
-	/**
-	 * @param array $aOptParams
-	 * @return array
-	 */
-	protected function buildOptionForUi( $aOptParams ) {
-
-		$mCurrent = $aOptParams[ 'value' ];
-
-		switch ( $aOptParams[ 'type' ] ) {
-
-			case 'password':
-				if ( !empty( $mCurrent ) ) {
-					$mCurrent = '';
-				}
-				break;
-
-			case 'array':
-
-				if ( empty( $mCurrent ) || !is_array( $mCurrent ) ) {
-					$mCurrent = [];
-				}
-
-				$aOptParams[ 'rows' ] = count( $mCurrent ) + 2;
-				$mCurrent = stripslashes( implode( "\n", $mCurrent ) );
-
-				break;
-
-			case 'comma_separated_lists':
-
-				$aNewValues = [];
-				if ( !empty( $mCurrent ) && is_array( $mCurrent ) ) {
-
-					foreach ( $mCurrent as $sPage => $aParams ) {
-						$aNewValues[] = $sPage.', '.implode( ", ", $aParams );
-					}
-				}
-				$aOptParams[ 'rows' ] = count( $aNewValues ) + 1;
-				$mCurrent = implode( "\n", $aNewValues );
-
-				break;
-
-			case 'multiple_select':
-				if ( !is_array( $mCurrent ) ) {
-					$mCurrent = [];
-				}
-				break;
-
-			case 'text':
-				$mCurrent = stripslashes( $this->getTextOpt( $aOptParams[ 'key' ] ) );
-				break;
-		}
-
-		$aParams = [
-			'value'    => is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent,
-			'disabled' => !$this->isPremium() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] ),
-		];
-		$aParams[ 'enabled' ] = !$aParams[ 'disabled' ];
-		$aOptParams = array_merge( [ 'rows' => 2 ], $aOptParams, $aParams );
-
-		// add strings
-		try {
-			$aOptParams = Services::DataManipulation()->mergeArraysRecursive(
-				$aOptParams,
-				$this->getStrings()->getOptionStrings( $aOptParams[ 'key' ] )
-			);
-		}
-		catch ( \Exception $oE ) {
-		}
-		return $aOptParams;
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
 	}
 
-	/**
-	 */
 	public function onPluginDeactivate() {
 	}
 
@@ -1139,8 +922,6 @@ class BaseModCon {
 		return $aOpts;
 	}
 
-	/**
-	 */
 	public function handleModRequest() {
 	}
 
@@ -1260,8 +1041,6 @@ class BaseModCon {
 		}
 	}
 
-	/**
-	 */
 	protected function runWizards() {
 		if ( $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
@@ -1390,7 +1169,6 @@ class BaseModCon {
 				'width'       => 772,
 				'height'      => 454,
 			],
-			'aSummaryData'  => $this->getModulesSummaryData(),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'    => $this->getMainFeatureName(),
@@ -1465,13 +1243,6 @@ class BaseModCon {
 			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
 			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
 		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getModulesSummaryData() {
-		return apply_filters( $this->prefix( 'collect_mod_summary' ), [] );
 	}
 
 	/**

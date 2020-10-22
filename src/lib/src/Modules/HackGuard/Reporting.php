@@ -10,7 +10,7 @@ class Reporting extends BaseReporting {
 	/**
 	 * @inheritDoc
 	 */
-	protected function enumAlertReporters() {
+	protected function enumAlertReporters() :array {
 		return [
 			new Reports\ScanAlerts(),
 			new Reports\FileLockerAlerts(),

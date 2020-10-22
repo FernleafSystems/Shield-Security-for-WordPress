@@ -16,11 +16,6 @@ class DeleteIp {
 	use IPs\Components\IpAddressConsumer;
 
 	/**
-	 * @var string
-	 */
-	private $sIpAddress;
-
-	/**
 	 * @return bool
 	 */
 	public function fromBlacklist() {
@@ -46,21 +41,5 @@ class DeleteIp {
 		$oDel = $this->getDbHandler()->getQueryDeleter();
 		return $oDel->filterByIp( $this->getIP() )
 					->setLimit( 1 );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getIP() {
-		return $this->sIpAddress;
-	}
-
-	/**
-	 * @param string $sIP
-	 * @return $this
-	 */
-	public function setIP( $sIP ) {
-		$this->sIpAddress = $sIP;
-		return $this;
 	}
 }

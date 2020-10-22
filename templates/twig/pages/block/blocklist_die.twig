@@ -1,0 +1,54 @@
+<h3 style="text-align: center;">{{ strings.title|raw }}</h3>
+<ul>
+	{% for line in strings.lines %}
+		<li>{{ line }}</li>
+	{% endfor %}
+</ul>
+<p style="text-align: center;">{{ strings.your_ip }}: <strong>{{ vars.ip }}</strong></p>
+
+<style>
+	#UAU hr {
+		margin: 40px 40px 30px;
+		color: rgba(0,0,0,0.5);
+	}
+	#UAU h3 {
+		margin: 20px 40px 30px ;
+	}
+	.uau {
+		width: 75%;
+		margin: auto;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 20px 30px 10px;
+		background-color: rgba(0, 0, 0, 0.02);
+	}
+	.uau p {
+		margin: 10px 0 !important;
+	}
+</style>
+{% if flags.is_autorecover %}
+	<div id="UAU">
+		<hr style=""/>
+		<div class="auto-recover">
+			<h3 style="">{{ strings.unblock.title }}</h3>
+			{% if flags.is_uaug_permitted %}
+				<div class="uaug uau">
+					<p>{{ strings.unblock.you_can }}</p>
+					<form method="post" action="#">
+						{{ vars.gasp_element|raw }}
+						<input type="hidden" name="email" value="" />
+						<input type="hidden" name="ip" value="{{ vars.ip }}" />
+						{% for key,val in vars.nonce %}
+							<input type="hidden" name="{{ key }}" value="{{ val }}" />
+						{% endfor %}
+						<p><button type="submit">{{ strings.unblock.button }}</button></p>
+					</form>
+				</div>
+				<div style="text-align: center">&#8284;&#8280;&#8284;&#8280;&#8284;</div>
+			{% endif %}
+			{% if flags.is_uaum_permitted %}
+				<div class="uaum uau">{{ content.email_unblock|raw }}</div>
+			{% endif %}
+		</div>
+
+	</div>
+{% endif %}

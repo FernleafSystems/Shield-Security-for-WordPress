@@ -42,10 +42,7 @@ class ScanPtg extends ScanBase {
 		return array_values( $aEntries );
 	}
 
-	/**
-	 * @return Shield\Tables\Render\ScanPtg
-	 */
-	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanPtg();
+	protected function getTableRenderer() :Shield\Tables\Render\WpListTable\ScanPtg {
+		return new Shield\Tables\Render\WpListTable\ScanPtg();
 	}
 }

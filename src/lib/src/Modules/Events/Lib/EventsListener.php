@@ -16,19 +16,19 @@ abstract class EventsListener {
 
 	/**
 	 * EventsListener constructor.
-	 * @param Controller\Controller $oCon
+	 * @param Controller\Controller $con
 	 */
-	public function __construct( $oCon ) {
-		$this->setCon( $oCon );
+	public function __construct( $con ) {
+		$this->setCon( $con );
 
-		add_action( $oCon->prefix( 'event' ),
-			function ( $sEvent, $aMeta = [] ) use ( $oCon ) {
-				if ( $oCon->loadEventsService()->isSupportedEvent( $sEvent ) ) {
+		add_action( $con->prefix( 'event' ),
+			function ( $sEvent, $aMeta = [] ) use ( $con ) {
+				if ( $con->loadEventsService()->isSupportedEvent( $sEvent ) ) {
 					$this->captureEvent( $sEvent, $aMeta );
 				}
 			}, 10, 2 );
 
-		add_action( $oCon->prefix( 'plugin_shutdown' ), function () {
+		add_action( $con->prefix( 'plugin_shutdown' ), function () {
 			$this->onShutdown();
 		}, 100 );
 	}

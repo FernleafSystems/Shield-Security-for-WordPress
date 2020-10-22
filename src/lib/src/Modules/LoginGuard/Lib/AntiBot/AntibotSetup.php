@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TestCacheDirWrite;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
@@ -24,31 +23,31 @@ class AntibotSetup {
 	}
 
 	private function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$aProtectionProviders = [];
-		if ( $oOpts->isEnabledCooldown() && $oMod->canCacheDirWrite() ) {
+		if ( $opts->isEnabledCooldown() && $mod->canCacheDirWrite() ) {
 			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
-				->setMod( $oMod );
+				->setMod( $mod );
 		}
 
-		if ( $oOpts->isEnabledGaspCheck() ) {
+		if ( $opts->isEnabledGaspCheck() ) {
 			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GaspJs() )
-				->setMod( $oMod );
+				->setMod( $mod );
 		}
 
-		if ( $oMod->isEnabledCaptcha() ) {
-			$oCfg = $oMod->getCaptchaCfg();
+		if ( $mod->isEnabledCaptcha() ) {
+			$oCfg = $mod->getCaptchaCfg();
 			if ( $oCfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
 				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
-					->setMod( $oMod );
+					->setMod( $mod );
 			}
 			elseif ( $oCfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
 				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
-					->setMod( $oMod );
+					->setMod( $mod );
 			}
 		}
 
@@ -85,13 +84,16 @@ class AntibotSetup {
 				if ( @class_exists( 'WooCommerce' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
 				}
+				if ( defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' ) ) {
+					$aFormProviders[] = new AntiBot\FormProviders\WPMembers();
+				}
 				if ( false && @class_exists( 'UserRegistration' ) && @function_exists( 'UR' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\UserRegistration();
 				}
 			}
 
 			foreach ( $aFormProviders as $oForm ) {
-				$oForm->setMod( $oMod )->run();
+				$oForm->setMod( $mod )->run();
 			}
 		}
 	}

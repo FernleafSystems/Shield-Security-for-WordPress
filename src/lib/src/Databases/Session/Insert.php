@@ -7,15 +7,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Insert extends Base\Insert {
 
-	/**
-	 * @param string $sSessionId
-	 * @param string $sUsername
-	 * @return bool
-	 */
-	public function create( $sSessionId, $sUsername ) {
+	public function create( string $ID, string $username ) :bool {
 		$aData = [
-			'session_id'  => $sSessionId,
-			'wp_username' => $sUsername,
+			'session_id'  => $ID,
+			'wp_username' => $username,
 			'ip'          => Services::IP()->getRequestIp()
 		];
 		return $this->setInsertData( $aData )->query() === 1;
@@ -42,13 +37,13 @@ class Insert extends Base\Insert {
 			$aData[ 'ip' ] = $oIP->isValidIp( $sReqIP ) ? $sReqIP : '';
 		}
 
-		$oReq = Services::Request();
+		$req = Services::Request();
 		$aData = array_merge(
 			[
-				'browser'                 => md5( $oReq->getUserAgent() ),
-				'logged_in_at'            => $oReq->ts(),
-				'last_activity_at'        => $oReq->ts(),
-				'last_activity_uri'       => $oReq->getRequestUri(),
+				'browser'                 => md5( $req->getUserAgent() ),
+				'logged_in_at'            => $req->ts(),
+				'last_activity_at'        => $req->ts(),
+				'last_activity_uri'       => $req->getUri(),
 				'login_intent_expires_at' => 0,
 				'secadmin_at'             => 0,
 			],

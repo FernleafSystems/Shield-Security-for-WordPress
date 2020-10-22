@@ -1,9 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses;
@@ -19,156 +20,191 @@ class Collate {
 	/**
 	 * @return array[]
 	 */
-	public function run() {
+	public function run() :array {
+		$pluginsActive = $this->getPlugins( true );
+		$pluginsInactive = $this->getPlugins( false );
+		$themes = $this->getThemes( true );
 		return [
-			'Shield'    => [
+			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
+				'Integrity'    => $this->getShieldIntegrity(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
-			'System'    => [
+			'System Info'    => [
 				'PHP'         => $this->getPHP(),
 				'Environment' => $this->getEnv(),
 			],
-			'WordPress' => [
-				'Summary'            => $this->getWordPressSummary(),
-				'Plugins (Active)'   => $this->getPlugins( true ),
-				'Plugins (Inactive)' => $this->getPlugins( false ),
-				'Themes (Active)'    => $this->getThemes( true ),
+			'WordPress Info' => [
+				'Summary'                                                     => $this->getWordPressSummary(),
+				sprintf( 'Active Plugins (%s)', count( $pluginsActive ) )     => $pluginsActive,
+				sprintf( 'Inactive Plugins (%s)', count( $pluginsInactive ) ) => $pluginsInactive,
+				sprintf( 'Active Themes (%s)', count( $themes ) )             => $themes,
 			],
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getEnv() {
-		$oIP = Services::IP();
-		$oReq = Services::Request();
+	private function getEnv() :array {
+		$srvIP = Services::IP();
+		$req = Services::Request();
 
-		$sSig = $oReq->server( 'SERVER_SIGNATURE' );
-		$aIPs = $oIP->getServerPublicIPs();
+		$sig = $req->server( 'SERVER_SIGNATURE' );
+		$soft = $req->server( 'SERVER_SOFTWARE' );
+		$aIPs = $srvIP->getServerPublicIPs();
 		$rDNS = '';
-		foreach ( $aIPs as $sIP ) {
-			if ( $oIP->getIpVersion( $sIP ) === 4 ) {
-				$rDNS = gethostbyaddr( $sIP );
+		foreach ( $aIPs as $ip ) {
+			if ( $srvIP->getIpVersion( $ip ) === 4 ) {
+				$rDNS = gethostbyaddr( $ip );
 				break;
 			}
 		}
+
+		$totalDisk = disk_total_space( ABSPATH );
+		$freeDisk = disk_free_space( ABSPATH );
 		return [
-			'Host OS'          => PHP_OS,
-			'Server Hostname'  => gethostname(),
-			'Server IPs'       => implode( ', ', $aIPs ),
-			'rDNS'             => empty( $rDNS ) ? '-' : $rDNS,
-			'Server Name'      => $oReq->server( 'SERVER_NAME' ),
-			'Server Signature' => empty( $sSig ) ? '-' : $sSig,
+			'Host OS'                           => PHP_OS,
+			'Server Hostname'                   => gethostname(),
+			'Server IPs'                        => implode( ', ', $aIPs ),
+			'CloudFlare'                        => empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
+			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
+			'Server Name'                       => $req->server( 'SERVER_NAME' ),
+			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
+			'Server Software'                   => empty( $soft ) ? '-' : $soft,
+			'Disk Space (Used/Available/Total)' => sprintf( '%s / %s / %s',
+				FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ),
+				FormatBytes::Format( $freeDisk, 2, '' ),
+				FormatBytes::Format( $totalDisk, 2, '' )
+			)
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getPHP() {
+	private function getPHP() :array {
 		$oDP = Services::Data();
+		$req = Services::Request();
 
-		$sPHP = $oDP->getPhpVersionCleaned();
-		if ( $sPHP !== $oDP->getPhpVersion() ) {
-			$sPHP .= sprintf( ' (%s)', $oDP->getPhpVersion() );
+		$phpV = $oDP->getPhpVersionCleaned();
+		if ( $phpV !== $oDP->getPhpVersion() ) {
+			$phpV .= sprintf( ' (%s)', $oDP->getPhpVersion() );
 		}
+
+		$ext = get_loaded_extensions();
+		natsort( $ext );
+
+		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
-			'PHP'           => $sPHP,
-			'Memory Limit'  => ini_get( 'memory_limit' ),
+			'PHP'           => $phpV,
+			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', ini_get( 'memory_limit' ),
+				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
 			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,
 			'Time Limit'    => ini_get( 'max_execution_time' ),
 			'Dir Separator' => DIRECTORY_SEPARATOR,
+			'Document Root' => empty( $root ) ? '-' : $root,
+			'Extensions'    => implode( ', ', $ext ),
 		];
 	}
 
-	/**
-	 * @param bool $bActive
-	 * @return array
-	 */
-	private function getPlugins( $bActive ) {
+	private function getPlugins( bool $filterByActive ) :array {
 		$oWpPlugins = Services::WpPlugins();
 
-		$aD = [];
+		$data = [];
 
 		foreach ( $oWpPlugins->getPluginsAsVo() as $oVO ) {
-			if ( $bActive === $oVO->active ) {
-				$aD[ $oVO->Name ] = sprintf( '%s / %s / %s',
+			if ( $filterByActive === $oVO->active ) {
+				$data[ $oVO->Name ] = sprintf( '%s / %s / %s',
 					$oVO->Version, $oVO->active ? 'Active' : 'Deactivated',
 					$oVO->hasUpdate() ? 'Update Available' : 'No Update'
 				);
 			}
 		}
 
-		return array_merge(
-			[ 'Total' => count( $aD ), ],
-			$aD
-		);
+		return $data;
 	}
 
-	/**
-	 * @param bool $bActive
-	 * @return array
-	 */
-	private function getThemes( $bActive ) {
-		$oWpT = Services::WpThemes();
+	private function getThemes( bool $filterByActive ) :array {
+		$WPT = Services::WpThemes();
 
-		$aD = [];
+		$data = [];
 
-		foreach ( $oWpT->getThemesAsVo() as $oVO ) {
+		foreach ( $WPT->getThemesAsVo() as $T ) {
 
-			$bIsActive = $oVO->active ||
-						 ( $oWpT->isActiveThemeAChild() && ( $oVO->is_child || $oVO->is_parent ) );
+			$tActive = $T->active ||
+					   ( $WPT->isActiveThemeAChild() && ( $T->is_child || $T->is_parent ) );
 
-			if ( $bActive == $bIsActive ) {
-				$sLine = sprintf( '%s / %s / %s',
-					$oVO->Version, $oVO->active ? 'Active' : 'Deactivated',
-					$oVO->hasUpdate() ? 'Update Available' : 'No Update'
+			if ( $filterByActive == $tActive ) {
+				$line = sprintf( '%s / %s / %s',
+					$T->Version, $T->active ? 'Active' : 'Deactivated',
+					$T->hasUpdate() ? 'Update Available' : 'No Update'
 				);
 
-				if ( $oWpT->isActiveThemeAChild() && ( $oVO->is_child || $oVO->is_parent ) ) {
-					$sLine .= ' / '.( $oVO->is_parent ? 'Parent' : 'Child' );
+				if ( $WPT->isActiveThemeAChild() && ( $T->is_child || $T->is_parent ) ) {
+					$line .= ' / '.( $T->is_parent ? 'Parent' : 'Child' );
 				}
-				$aD[ $oVO->Name ] = $sLine;
+				$data[ $T->Name ] = $line;
 			}
 		}
 
-		return array_merge(
-			[ 'Total' => count( $aD ), ],
-			$aD
-		);
+		return $data;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getShieldCapabilities() {
-		$oCon = $this->getCon();
-		$oModPlugin = $oCon->getModule_Plugin();
+	private function getShieldIntegrity() :array {
+		$con = $this->getCon();
+		$data = [];
+
+		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
+		$data[ 'DB Table: Sessions' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_AuditTrail()->getDbHandler_AuditTrail();
+		$data[ 'DB Table: Audit Trail' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
+		$data[ 'DB Table: IP' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_HackGuard()->getDbHandler_ScanResults();
+		$data[ 'DB Table: Scan' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_Traffic()->getDbHandler_Traffic();
+		$data[ 'DB Table: Traffic' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_Events()->getDbHandler_Events();
+		$data[ 'DB Table: Events' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		return $data;
+	}
+
+	private function getShieldCapabilities() :array {
+		$con = $this->getCon();
+		$modPlug = $con->getModule_Plugin();
 
 		$sHome = Services::WpGeneral()->getHomeUrl();
-		$aD = [
-			sprintf( 'Loopback To %s', $sHome ) => $oModPlugin->getCanSiteCallToItself() ? 'Yes' : 'No',
-			'Handshake ShieldNET'               => $oModPlugin->getShieldNetApiController()
-															  ->canHandshake() ? 'Yes' : 'No',
+		$data = [
+			sprintf( 'Loopback To %s', $sHome ) => $modPlug->getCanSiteCallToItself() ? 'Yes' : 'No',
+			'Handshake ShieldNET'               => $modPlug->getShieldNetApiController()
+														   ->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'                    => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
 		$oPing = new Licenses\Keyless\Ping();
 		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
-		$aD[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
+		$data[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
 
-		$sTmpPath = $oCon->getPluginCachePath();
-		$aD[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
+		$sTmpPath = $con->getPluginCachePath();
+		$data[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
 
-		return $aD;
+		return $data;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getShieldSummary() {
+	private function getShieldSummary() :array {
 		$oCon = $this->getCon();
 		$oModLicense = $oCon->getModule_License();
 		$oModPlugin = $oCon->getModule_Plugin();
@@ -180,9 +216,9 @@ class Collate {
 		}
 		else {
 			$sPrev = 'Last Attempt: '.Services::Request()
-												 ->carbon()
-												 ->setTimestamp( $nPrevAttempt )
-												 ->diffForHumans();
+											  ->carbon()
+											  ->setTimestamp( $nPrevAttempt )
+											  ->diffForHumans();
 		}
 
 		$aD = [
@@ -200,23 +236,26 @@ class Collate {
 		return $aD;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getWordPressSummary() {
-		$oWP = Services::WpGeneral();
-		$aD = [
-			'URL - Home' => $oWP->getHomeUrl(),
-			'URL - Site' => $oWP->getWpUrl(),
-			'WP'         => $oWP->getVersion( true ),
-			'Locale'     => $oWP->getLocale(),
-			'Multisite'  => $oWP->isMultisite() ? 'Yes' : 'No',
-			'ABSPATH'    => ABSPATH,
+	private function getWordPressSummary() :array {
+		$WP = Services::WpGeneral();
+		$data = [
+			'URL - Home'  => $WP->getHomeUrl(),
+			'URL - Site'  => $WP->getWpUrl(),
+			'WP'          => $WP->getVersion( true ),
+			'Locale'      => $WP->getLocale(),
+			'Multisite'   => $WP->isMultisite() ? 'Yes' : 'No',
+			'ABSPATH'     => ABSPATH,
+			'Debug Is On' => $WP->isDebug() ? 'Yes' : 'No',
+			'Database'    => [
+				sprintf( 'Name: %s', DB_NAME ),
+				sprintf( 'User: %s', DB_USER ),
+				sprintf( 'Prefix: %s', Services::WpDb()->getPrefix() ),
+			],
 		];
-		if ( $oWP->isClassicPress() ) {
-			$aD[ 'ClassicPress' ] = $oWP->getVersion();
+		if ( $WP->isClassicPress() ) {
+			$data[ 'ClassicPress' ] = $WP->getVersion();
 		}
 
-		return $aD;
+		return $data;
 	}
 }

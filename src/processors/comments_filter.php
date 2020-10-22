@@ -6,45 +6,45 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 	}
 
 	public function onWpInit() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		$mod = $this->getMod();
+		/** @var CommentsFilter\Options $opts */
+		$opts = $this->getOptions();
 		$oWpUsers = Services::WpUsers();
 
 		$bLoadComProc = !$oWpUsers->isUserLoggedIn() ||
 						!( new CommentsFilter\Scan\IsEmailTrusted() )->trusted(
 							$oWpUsers->getCurrentWpUser()->user_email,
-							$oMod->getApprovedMinimum(),
-							$oMod->getTrustedRoles()
+							$opts->getApprovedMinimum(),
+							$opts->getTrustedRoles()
 						);
 
 		if ( $bLoadComProc ) {
 
-			if ( $oMod->isEnabledCaptcha() ) {
+			if ( $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
 				$this->getSubPro( 'recaptcha' )->execute();
 			}
 
 			if ( Services::Request()->isPost() ) {
 				( new CommentsFilter\Scan\Scanner() )
-					->setMod( $oMod )
+					->setMod( $this->getMod() )
 					->run();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
-			elseif ( $oMod->isEnabledGaspCheck() ) {
+			elseif ( $opts->isEnabledGaspCheck() ) {
 				$this->getSubPro( 'bot' )->execute();
 			}
 		}
 	}
 
 	public function runHourlyCron() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isEnabledGaspCheck() && function_exists( 'delete_expired_transients' ) ) {
+		/** @var CommentsFilter\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isEnabledGaspCheck() && function_exists( 'delete_expired_transients' ) ) {
 			delete_expired_transients(); // cleanup unused comment tokens
 		}
 	}
@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	/**
 	 * @return array
 	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'bot'       => 'ICWP_WPSF_Processor_CommentsFilter_BotSpam',
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	 * @return array
 	 */
 	public function clearCommentNotificationEmail( $aEmails ) {
-		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
+		$sStatus = apply_filters( $this->getCon()->prefix( 'cf_status' ), '' );
 		if ( in_array( $sStatus, [ 'reject', 'trash' ] ) ) {
 			$aEmails = [];
 		}

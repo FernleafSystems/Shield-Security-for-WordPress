@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[]
+	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
 			'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
@@ -39,7 +39,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'lic_check_success'   => [
 				__( 'Pro License check succeeded.', 'wp-simple-firewall' )

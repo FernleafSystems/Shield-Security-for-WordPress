@@ -1,13 +1,12 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return false|Shield\Databases\AuditTrail\Handler
+	 * @return Shield\Databases\AuditTrail\Handler
 	 */
 	public function getDbHandler_AuditTrail() {
 		return $this->getDbH( 'audit' );
@@ -18,8 +17,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getDbHandler_AuditTrail() instanceof Shield\Databases\AuditTrail\Handler )
-			   && $this->getDbHandler_AuditTrail()->isReady()
+		return $this->getDbHandler_AuditTrail()->isReady()
 			   && parent::isReadyToExecute();
 	}
 
@@ -107,82 +105,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return $aData;
 	}
 
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		/** @var AuditTrail\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aThis = [
-			'strings'      => [
-				'title' => __( 'Activity Audit Log', 'wp-simple-firewall' ),
-				'sub'   => __( 'Track Activity: What, Who, When, Where', 'wp-simple-firewall' ),
-			],
-			'key_opts'     => [],
-			'href_options' => $this->getUrl_AdminPage()
-		];
-
-		if ( !$this->isModOptEnabled() ) {
-			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
-		}
-		else {
-			$aAudit = [];
-			$aNonAudit = [];
-			$oOpts->isAuditShield() ? $aAudit[] = 'Shield' : $aNonAudit[] = 'Shield';
-			$oOpts->isAuditUsers() ? $aAudit[] = __( 'users', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'users', 'wp-simple-firewall' );
-			$oOpts->isAuditPlugins() ? $aAudit[] = __( 'plugins', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'plugins', 'wp-simple-firewall' );
-			$oOpts->isAuditThemes() ? $aAudit[] = __( 'themes', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'themes', 'wp-simple-firewall' );
-			$oOpts->isAuditPosts() ? $aAudit[] = __( 'posts', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'posts', 'wp-simple-firewall' );
-			$oOpts->isAuditEmails() ? $aAudit[] = __( 'emails', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'emails', 'wp-simple-firewall' );
-			$oOpts->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
-
-			if ( empty( $aNonAudit ) ) {
-				$aThis[ 'key_opts' ][ 'audit' ] = [
-					'name'    => __( 'Audit Areas', 'wp-simple-firewall' ),
-					'enabled' => true,
-					'summary' => __( 'All important events on your site are being logged', 'wp-simple-firewall' ),
-					'weight'  => 2,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
-				];
-			}
-			elseif ( empty( $aAudit ) ) {
-				$aThis[ 'key_opts' ][ 'audit' ] = [
-					'name'    => __( 'Audit Areas', 'wp-simple-firewall' ),
-					'enabled' => false,
-					'summary' => sprintf( __( 'No areas are set to be audited: %s', 'wp-simple-firewall' ), implode( ', ', $aAudit ) ),
-					'weight'  => 2,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
-				];
-			}
-			else {
-				$aThis[ 'key_opts' ][ 'nonaudit' ] = [
-					'name'    => __( 'Audit Events', 'wp-simple-firewall' ),
-					'enabled' => false,
-					'summary' => sprintf( __( "Important events aren't being audited: %s", 'wp-simple-firewall' ), implode( ', ', $aNonAudit ) ),
-					'weight'  => 2,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
-				];
-			}
-
-			$aThis[ 'key_opts' ][ 'length' ] = [
-				'name'    => __( 'Audit Trail', 'wp-simple-firewall' ),
-				'enabled' => true,
-				'summary' => sprintf( __( 'Maximum Audit Trail entries limited to %s', 'wp-simple-firewall' ), $oOpts->getMaxEntries() ),
-				'weight'  => 0,
-				'href'    => $this->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
-			];
-		}
-
-		$aAllData[ $this->getSlug() ] = $aThis;
-		return $aAllData;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'AuditTrail';
 	}
 }

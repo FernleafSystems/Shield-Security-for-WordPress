@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class UserMeta
  * @package FernleafSystems\Wordpress\Plugin\Shield\Users
- * @property string $email_secret
+ * @property array  $email_secret
  * @property bool   $email_validated
  * @property string $backupcode_secret
  * @property string $backupcode_validated
@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool   $ga_validated
  * @property string $u2f_secret
  * @property bool   $u2f_validated
+ * @property string $u2f_regrequest
  * @property array  $hash_loginmfa
  * @property string $pass_hash
  * @property int    $first_seen_at
@@ -30,23 +31,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property array  $tours
  */
 class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta {
-
-	/**
-	 * @param string   $sAgent
-	 * @param int|null $nMaxExpires - allows us to clean out old entries
-	 */
-	public function addMfaSkipAgent( $sAgent, $nMaxExpires = null ) {
-		$aHashes = is_array( $this->hash_loginmfa ) ? $this->hash_loginmfa : [];
-		$aHashes[ md5( $sAgent ) ] = Services::Request()->ts();
-		if ( !empty( $nMaxExpires ) ) {
-			$aHashes = array_filter( $aHashes,
-				function ( $nTS ) use ( $nMaxExpires ) {
-					return Services::Request()->ts() - $nTS < $nMaxExpires;
-				}
-			);
-		}
-		$this->hash_loginmfa = $aHashes;
-	}
 
 	/**
 	 * @return int

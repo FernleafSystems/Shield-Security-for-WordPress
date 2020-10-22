@@ -15,6 +15,9 @@
     "run_if_wpcli":          false,
     "tracking_exclude":      true
   },
+  "wpcli":       {
+    "enabled": false
+  },
   "sections":    [
     {
       "slug":        "section_enable_plugin_feature_sessions",
@@ -52,30 +55,28 @@
     }
   ],
   "definitions": {
-    "db_classes":             {
+    "db_classes":                       {
       "session": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
     },
-    "sessions_table_name":    "sessions",
-    "sessions_table_columns": [
-      "id",
-      "session_id",
-      "wp_username",
-      "ip",
-      "browser",
-      "logged_in_at",
-      "last_activity_at",
-      "last_activity_uri",
-      "li_code_email",
-      "login_intent_expires_at",
-      "secadmin_at",
-      "created_at",
-      "deleted_at"
-    ],
-    "events":               {
-      "session_start":             {
-        "audit":  false
+    "sessions_table_name":              "sessions",
+    "sessions_table_columns":           {
+      "session_id":        "varchar(32) NOT NULL DEFAULT ''",
+      "wp_username":       "varchar(255) NOT NULL DEFAULT ''",
+      "ip":                "varchar(60) NOT NULL DEFAULT '0'",
+      "browser":           "varchar(32) NOT NULL DEFAULT ''",
+      "last_activity_uri": "text NOT NULL DEFAULT ''"
+    },
+    "sessions_table_timestamp_columns": {
+      "logged_in_at":            "Session Started",
+      "last_activity_at":        "Last Seen At",
+      "login_intent_expires_at": "2FA Window Expires",
+      "secadmin_at":             "Security Admin Authenticated"
+    },
+    "events":                           {
+      "session_start":     {
+        "audit": false
       },
-      "session_terminate":             {
+      "session_terminate": {
         "audit":  false,
         "recent": true
       }

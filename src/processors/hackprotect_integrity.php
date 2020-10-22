@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		$this->setupSnapshots();
 		add_action( 'user_register', [ $this, 'snapshotUsers' ] );

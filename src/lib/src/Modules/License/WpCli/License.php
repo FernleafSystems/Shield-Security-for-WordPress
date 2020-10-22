@@ -13,7 +13,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'pro' ] ),
-			[ $this, 'cmdAction' ], [
+			[ $this, 'cmdAction' ], $this->mergeCommonCmdArgs( [
 				'shortdesc' => 'Manage the ShieldPRO license.',
 				'synopsis'  => [
 					[
@@ -31,11 +31,11 @@ class License extends Base\WpCli\BaseWpCliCmd {
 						'type'        => 'flag',
 						'name'        => 'force',
 						'optional'    => true,
-						'description' => 'By-pass confirmation prompt.',
+						'description' => 'Bypass confirmation prompt.',
 					],
 				],
 			]
-		);
+		) );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 				break;
 
 			case 'remove':
-				$this->runRemove( isset( $aA[ 'force' ] ) );
+				$this->runRemove( $this->isForceFlag( $aA ) );
 				break;
 		}
 	}

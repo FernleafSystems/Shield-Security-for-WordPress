@@ -7,14 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( string $section ) :array {
 		$sModName = $this->getMod()->getMainFeatureName();
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_statistics' :
 				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
@@ -46,7 +46,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [

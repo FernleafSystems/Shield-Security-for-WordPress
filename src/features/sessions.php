@@ -9,11 +9,12 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return bool
 	 */
 	public function isAutoAddSessions() {
+		$opts = $this->getOptions();
 		$oReq = Services::Request();
-		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
+		$nStartedAt = $opts->getOpt( 'autoadd_sessions_started_at', 0 );
 		if ( $nStartedAt < 1 ) {
 			$nStartedAt = $oReq->ts();
-			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
+			$opts->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
 		}
 		return ( $oReq->ts() - $nStartedAt ) < 20;
 	}
@@ -38,7 +39,7 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'Sessions';
 	}
 }

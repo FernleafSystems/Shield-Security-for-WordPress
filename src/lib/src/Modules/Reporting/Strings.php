@@ -7,39 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[]
-	 */
-	protected function getAdditionalDisplayStrings() {
-		return [
-			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
-			'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
-			'check_availability'       => __( 'Check License Availability For This Site', 'wp-simple-firewall' ),
-			'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
-			'clear_license'            => __( 'Clear License Status', 'wp-simple-firewall' ),
-			'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
-			'activate_site_in'         => sprintf(
-				__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
-				__( 'Keyless Activation', 'wp-simple-firewall' )
-			),
-			'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
-			'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
-			'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
-
-			'product_name'    => __( 'Name', 'wp-simple-firewall' ),
-			'license_active'  => __( 'Active', 'wp-simple-firewall' ),
-			'license_status'  => __( 'Status', 'wp-simple-firewall' ),
-			'license_key'     => __( 'Key', 'wp-simple-firewall' ),
-			'license_expires' => __( 'Expires', 'wp-simple-firewall' ),
-			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
-			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
-			'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
-		];
-	}
-
-	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [
 			'lic_check_success'   => [
 				__( 'Pro License check succeeded.', 'wp-simple-firewall' )
@@ -54,14 +24,14 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
+	public function getOptionStrings( string $key ) :array {
 		$oCon = $this->getCon();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'frequency_alert' :
 				$sName = __( 'Alert Frequency', 'wp-simple-firewall' );
@@ -90,7 +60,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [
@@ -101,20 +71,21 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( string $section ) :array {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_timings' :
 				$sTitle = __( 'Report Frequencies', 'wp-simple-firewall' );
 				$sTitleShort = __( 'Report Frequencies', 'wp-simple-firewall' );
 				$aSummary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
-					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()->getPluginReportEmail().'</code>' )
+					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()
+																				  ->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="font-weight-bolder">%s</a>',
 						$this->getCon()->getModule_Plugin()
@@ -126,7 +97,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [

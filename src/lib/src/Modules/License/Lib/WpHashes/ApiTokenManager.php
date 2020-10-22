@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Token;
@@ -9,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Token;
 class ApiTokenManager {
 
 	use Modules\ModConsumer;
-	use Modules\Base\OneTimeExecute;
+	use OneTimeExecute;
 
 	/**
 	 * @var bool
@@ -62,14 +63,6 @@ class ApiTokenManager {
 		}
 
 		return empty( $aT[ 'token' ] ) ? '' : $aT[ 'token' ];
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0.3
-	 */
-	private function getTheToken() {
-		return $this->loadToken()[ 'token' ];
 	}
 
 	/**

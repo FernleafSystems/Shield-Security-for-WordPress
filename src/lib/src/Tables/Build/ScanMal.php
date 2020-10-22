@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class ScanMal extends ScanBase {
 
 	/**
-	 * @return Shield\Tables\Render\ScanMal
+	 * @return Shield\Tables\Render\WpListTable\ScanMal
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanMal();
+		return new Shield\Tables\Render\WpListTable\ScanMal();
 	}
 }

@@ -31,15 +31,15 @@ class ConvertBetweenTypes {
 	 * @return Databases\ScanQueue\EntryVO
 	 */
 	public function fromActionToDbEntry( $oAction ) {
-		$oEntry = new Databases\ScanQueue\EntryVO();
-		foreach ( $this->getDbHandler()->getColumnsDefinition() as $sField ) {
-			if ( isset( $oAction->{$sField} ) ) {
-				$oEntry->{$sField} = $oAction->{$sField};
+		$entry = new Databases\ScanQueue\EntryVO();
+		foreach ( $this->getDbHandler()->getTableSchema()->getColumnNames() as $field ) {
+			if ( isset( $oAction->{$field} ) ) {
+				$entry->{$field} = $oAction->{$field};
 			}
 		}
 		unset( $oAction->items );
 		unset( $oAction->results );
-		$oEntry->meta = $oAction->getRawDataAsArray();
-		return $oEntry;
+		$entry->meta = $oAction->getRawDataAsArray();
+		return $entry;
 	}
 }

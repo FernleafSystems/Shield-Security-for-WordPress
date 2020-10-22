@@ -1,34 +1,30 @@
-﻿=== Shield Security: Protection with Smarter Automation ===
+﻿=== Shield Security: Powerful All-In-One Protection ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.5.2
-Requires PHP: 5.4.0
-Recommended PHP: 7.0
-Tested up to: 5.4
-Stable tag: 9.0.3
+Requires PHP: 7.0
+Recommended PHP: 7.4
+Tested up to: 5.5
+Stable tag: 10.0.2
 
-Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
+The highest rated WordPress Security plugin, delivering unparalleled, all-in-one protection for you and your customers.
 
 == Description ==
 
 ### The highest rated 5* Security Plugin for WordPress
 
-Shield - highest average 5* rating for any WordPress security plugin (2019/05). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5).
+Don't *settle* for the same ol' security plugin just because everyone else does.
 
-#### It's 2020 - Don't settle for just another security plugin. Get *smarter* security.
+You **need** a security plugin that does **all** the heavy lifting for you, and alerts you only when you need to know.
 
-You don't need another 100 email notifications.
+And when you get an alert, you'll have clear steps to take to solve the problem.
 
-You **need** a security plugin that does **all** the heavy lifting for you, and only alerts you when you need to know.
+### Shield makes Security for WordPress easy
 
-And when you get an alert, you actually have steps to take, not just the position of "I have no clue what to do!"
-
-### Security for WordPress *doesn't* have to be *hard*
-
-There's no reason for security to be so darn complicated. It doesn't have to be this way any longer.
+There's no reason for security to be so complicated.
 
 Shield is the easiest security plugin to setup - you simply activate it.
 
@@ -216,7 +212,7 @@ protection for your site and you should choose which you need based on your own 
 Why do we do this? It's simple: performance and optimization - there is no reason to automatically turn on features for people that don't
 need it as each site and set of requirements is different.
 
-This plugin should install as any other WordPress.org respository plugin.
+This plugin should install as any other WordPress.org repository plugin.
 
 1.	Browse to Plugins -> Add Plugin
 1.	Search: Shield
@@ -363,47 +359,11 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-Shield Pro brings exclusive features to the serious webmaster to maximise site security.
-You'll also have access to our email technical support team.
+The full Shield Changelog can be viewed from our home page:
 
-You will always be able to use Shield Security and its free features in-full.
+#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
 
-[Go Pro for just $1/month](https://shsec.io/aa).
+ShieldPRO delivers exclusive security features to the serious site administrator to maximise site security
+You'll also have direct access to our technical support team.
 
-#### 9.0 Series
-*Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
-
-**Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
-
-##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
-
-* **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
-* **(.3)  IMPROVED**:	Better recovery from errors during certain scans.
-* **(.3)  IMPROVED**:	WPHashes Token Retrieval.
-* **(.3)  FIX**:		Plugins were sometimes disabled when updates applied via Scan UI.
-* **(.3)  FIX**:		Audit Trail more correctly reflects "repair/delete" activity from the Unrecognised File Scanner.
-* **(.3)  FIX**:		Yubikeys weren't always registered correctly.
-* **(.3)  FIX**:		Support MemberPress Password Reset that has an Auto-Login.
-* **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
-* **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
-* **(.2)  IMPROVED**:	[WPHashes.com](https://shsec.io/hs) API token update is more reliable.
-* **(.2)  FIXED**:		Applying a plugin update from within the Vulnerabilities scanner no longer disables that plugin.
-* **(.1)  FIXED**:		Javascript for Anti-Bot Login Protection not loading in all cases.
-* **(.1)  FIXED**:		MemberPress Registration protection PHP error.
-* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
-* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
-* **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
-* **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
-* **(.0)  NEW**:		Debug page to show summary and important information for debugging.
-* **(.0)  IMPROVED**:	Hourly and Daily crons set to specific run times.
-* **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
-* **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
-* **(.0)  IMPROVED**:	Simplification of many options and plugin configuration.
-* **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
-* **(.0)  IMPROVED**:	Tweaks and changes to UI.
-* **(.0)  FIXED**:		Minor issues with the MFA page.
-* **(.0)  FIXED**:		Older Twig Library compatibility with PHP 7.4.
-* **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
-
-##### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+[Go Pro from just $1/month](https://shsec.io/aa).

@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Delete extends BaseAction {
 
-	/**
-	 */
 	public function run() {
 		try {
 			$oStore = ( new Load() )

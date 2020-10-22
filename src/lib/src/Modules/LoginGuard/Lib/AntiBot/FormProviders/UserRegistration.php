@@ -20,7 +20,7 @@ class UserRegistration extends BaseFormProvider {
 	 */
 	public function formInsertsPrint() {
 		echo '<div class="ur-form-grid">';
-		echo preg_replace('#class="(.*)"#i', 'class="\\1 ur-frontend-field"', $this->formInsertsBuild() );
+		echo preg_replace( '#class="(.*)"#i', 'class="\\1 ur-frontend-field"', $this->formInsertsBuild() );
 		echo '</div>';
 	}
 

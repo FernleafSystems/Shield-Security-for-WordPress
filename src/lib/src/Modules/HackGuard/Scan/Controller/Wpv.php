@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Wpv extends BaseForAssets {
+
+	const SCAN_SLUG = 'wpv';
 
 	/**
 	 * @return Scans\Wpv\Utilities\ItemActionHandler
@@ -14,21 +16,15 @@ class Wpv extends BaseForAssets {
 		return new Scans\Wpv\Utilities\ItemActionHandler();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnAutoupdatesEnabled();
+	public function isCronAutoRepair() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isWpvulnAutoupdatesEnabled();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isPremium() && $oOpts->isOpt( 'enable_wpvuln_scan', 'Y' );
+	public function isEnabled() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isPremium() && $opts->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 }

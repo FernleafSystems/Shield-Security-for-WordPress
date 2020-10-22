@@ -16,7 +16,7 @@
 	<dt>What is the human SPAM option?</dt>
 	<dd>
 		<p>The vast majority of comment spam is automated - bots (see above).</p>
-		<p>But you get random human spam comments too which can easily by-pass SPAM filters. This is
+		<p>But you get random human spam comments too which can easily bypass SPAM filters. This is
 		   natural, because they're real humans. And humans know how to click checkboxes.
 		</p>
 		<p>This is what the human SPAM detection is for. It uses a dictionary of common human spam terms and if

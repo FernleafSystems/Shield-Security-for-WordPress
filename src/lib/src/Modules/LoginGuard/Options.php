@@ -3,12 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Options
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard
  */
 class Options extends Base\ShieldOptions {
+
+	/**
+	 * @return int
+	 */
+	public function getLoginIntentMinutes() {
+		return (int)max( 1, apply_filters(
+			$this->getCon()->prefix( 'login_intent_timeout' ),
+			$this->getDef( 'login_intent_timeout' )
+		) );
+	}
 
 	/**
 	 * @return array
@@ -23,6 +34,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getCooldownInterval() {
 		return (int)$this->getOpt( 'login_limit_interval' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCustomLoginPath() {
+		return $this->getOpt( 'rename_wplogin_path', '' );
 	}
 
 	/**
@@ -131,7 +149,8 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isEnabledU2F() {
-		return $this->isPremium() && $this->isOpt( 'allow_u2f', 'Y' );
+		return Services::Data()->getPhpVersionIsAtLeast( '7.0' )
+			   && $this->isPremium() && $this->isOpt( 'enable_u2f', 'Y' );
 	}
 
 	/**

@@ -8,7 +8,6 @@
     "show_module_options":   true,
     "storage_key":           "commentsfilter",
     "tagline":               "Block comment SPAM and retain your privacy",
-    "use_sessions":          true,
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
@@ -170,7 +169,7 @@
       "type":          "select",
       "value_options": [
         {
-          "value_key": 0,
+          "value_key": "0",
           "text":      "Move To Pending Moderation"
         },
         {
@@ -206,11 +205,11 @@
     {
       "key":           "comments_default_action_human_spam",
       "section":       "section_human_spam_filter",
-      "default":       0,
+      "default":       "0",
       "type":          "select",
       "value_options": [
         {
-          "value_key": 0,
+          "value_key": "0",
           "text":      "Move To Pending Moderation"
         },
         {

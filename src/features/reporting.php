@@ -20,7 +20,7 @@ class ICWP_WPSF_FeatureHandler_Reporting extends ICWP_WPSF_FeatureHandler_BaseWp
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'Reporting';
 	}
 

@@ -22,13 +22,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 
 	/**
 	 * @param string   $sUsername
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		if ( !$oUser instanceof \WP_User ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
+	public function onWpLogin( $sUsername, $user ) {
+		if ( !$user instanceof \WP_User ) {
+			$user = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
-		$this->enforceSessionLimits( $oUser );
+		$this->enforceSessionLimits( $user );
 	}
 
 	/**
@@ -41,8 +41,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		$this->enforceSessionLimits( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
-	/**
-	 */
 	public function onWpLoaded() {
 		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->checkCurrentSession();
@@ -50,10 +48,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	private function checkCurrentSession() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
 		try {
-			if ( $oMod->hasValidRequestIP() ) {
+			if ( $mod->hasValidRequestIP() ) {
 				$this->assessSession();
 			}
 		}
@@ -61,8 +59,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 			$sEvent = $oE->getMessage();
 			$this->getCon()
 				 ->fireEvent( $sEvent );
-			$oMod->getSessionsProcessor()
-				 ->terminateCurrentSession();
+			$mod->getSessionsProcessor()
+				->terminateCurrentSession();
 			$oU = Services::WpUsers();
 			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $sEvent ] ) : $oU->logoutUser( true );
 		}
@@ -72,29 +70,26 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	 * @throws \Exception
 	 */
 	private function assessSession() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$oSess = $oMod->getSession();
-		if ( empty( $oSess ) ) {
+		$sess = $this->getMod()->getSession();
+		if ( empty( $sess ) ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
 		$nTime = Services::Request()->ts();
 
-		// timeout interval
-		if ( $oOpts->hasMaxSessionTimeout() && ( $nTime - $oSess->logged_in_at > $oOpts->getMaxSessionTime() ) ) {
+		if ( $oOpts->hasMaxSessionTimeout() && ( $nTime - $sess->logged_in_at > $oOpts->getMaxSessionTime() ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 
-		if ( $oOpts->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oOpts->getIdleTimeoutInterval() ) ) {
+		if ( $oOpts->hasSessionIdleTimeout() && ( $nTime - $sess->last_activity_at > $oOpts->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
 
 		$oIP = Services::IP();
-		if ( $oOpts->isLockToIp() && $oIP->getRequestIp() != $oSess->ip ) {
+		if ( $oOpts->isLockToIp() && $oIP->getRequestIp() != $sess->ip ) {
 			// We force-refresh the server IPs just to be sure.
 			Services::IP()->getServerPublicIPs( true );
 			if ( !$oIP->isLoopback() ) {

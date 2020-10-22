@@ -72,9 +72,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	private function cleanPathWhitelist() {
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		$opts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
 			function ( $sRule ) {
 				$sRule = strtolower( trim( $sRule ) );
 				if ( !empty( $sRule ) ) {
@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				}
 				return $sRule;
 			},
-			$this->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
+			$opts->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
 		) ) ) );
 	}
 
@@ -105,40 +105,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			$this->oOffenseTracker = new IPs\Lib\OffenseTracker( $this->getCon() );
 		}
 		return $this->oOffenseTracker;
-	}
-
-	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		switch ( $sSection ) {
-
-			case 'section_auto_black_list':
-				if ( !$oOpts->isEnabledAutoBlackList() ) {
-					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
-				}
-				break;
-
-			case 'section_behaviours':
-			case 'section_probes':
-			case 'section_logins':
-				if ( !$oOpts->isEnabledAutoBlackList() ) {
-					$aWarnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
-				}
-
-				if ( $sSection == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$aWarnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
-				}
-				break;
-		}
-
-		return $aWarnings;
 	}
 
 	/**
@@ -181,8 +147,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		parent::onPluginShutdown();
 	}
 
-	/**
-	 */
 	protected function addFilterIpsToWhiteList() {
 		$aIps = [];
 		$oSp = Services::ServiceProviders();
@@ -223,7 +187,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getNamespaceBase() {
+	protected function getNamespaceBase() :string {
 		return 'IPs';
 	}
 }

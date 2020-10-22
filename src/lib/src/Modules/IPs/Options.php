@@ -23,13 +23,31 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @param string $sIp
+	 * @return array
+	 */
+	public function getAutoUnblockEmailIDs() {
+		$aIps = $this->getOpt( 'autounblock_emailids', [] );
+		return is_array( $aIps ) ? $aIps : [];
+	}
+
+	/**
+	 * @param string $ip
 	 * @return bool
 	 */
-	public function getCanIpRequestAutoUnblock( $sIp ) {
-		$aExistingIps = $this->getAutoUnblockIps();
-		return !array_key_exists( $sIp, $aExistingIps )
-			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $aExistingIps[ $sIp ] );
+	public function getCanIpRequestAutoUnblock( $ip ) {
+		$existing = $this->getAutoUnblockIps();
+		return !array_key_exists( $ip, $existing )
+			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $existing[ $ip ] );
+	}
+
+	/**
+	 * @param \WP_User $user
+	 * @return bool
+	 */
+	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) {
+		$existing = $this->getAutoUnblockEmailIDs();
+		return !array_key_exists( $user->ID, $existing )
+			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $user->ID ] );
 	}
 
 	/**
@@ -37,20 +55,6 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getOffenseLimit() {
 		return (int)$this->getOpt( 'transgression_limit' );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getDbColumns_IPs() {
-		return $this->getDef( 'ip_list_table_columns' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_IPs() {
-		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
 	}
 
 	/**
@@ -75,8 +79,15 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isEnabledAutoUserRecover() {
-		return !$this->isOpt( 'user_auto_recover', 'disabled' );
+	public function isEnabledAutoVisitorRecover() {
+		return in_array( 'gasp', (array)$this->getOpt( 'user_auto_recover', [] ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledMagicEmailLinkRecover() {
+		return in_array( 'email', (array)$this->getOpt( 'user_auto_recover', [] ) );
 	}
 
 	/**
@@ -122,34 +133,42 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptTransgression( $sOptionKey ) {
-		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
+	public function isTrackOptTransgression( $key ) {
+		return strpos( $this->getOpt( $key ), 'transgression' ) !== false;
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptDoubleTransgression( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'transgression-double' );
+	public function isTrackOptDoubleTransgression( $key ) {
+		return $this->isOpt( $key, 'transgression-double' );
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptImmediateBlock( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'block' );
+	public function isTrackOptImmediateBlock( $key ) {
+		return $this->isOpt( $key, 'block' );
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	protected function isSelectOptionEnabled( $sOptionKey ) {
-		return !$this->isOpt( $sOptionKey, 'disabled' );
+	protected function isSelectOptionEnabled( $key ) {
+		return !$this->isOpt( $key, 'disabled' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 10.0
+	 */
+	public function getDbTable_IPs() {
+		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
 	}
 }

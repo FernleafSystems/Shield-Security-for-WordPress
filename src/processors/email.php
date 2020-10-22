@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -44,14 +45,21 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			];
 			shuffle( $aBenefits );
 		}
+
 		$aFooter = [
-			'',
 			$this->getMod()
-				 ->renderTemplate( '/snippets/email/footer.twig', [
+				 ->renderTemplate( '/email/footer.twig', [
 					 'strings' => [
 						 'benefits'  => $aBenefits,
 						 'much_more' => 'And So Much More',
 						 'upgrade'   => $aGoProPhrases[ array_rand( $aGoProPhrases ) ],
+						 'sent_from' => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
+							 $this->getCon()->getHumanName(),
+							 $this->getCon()->getVersion(),
+							 $oWp->getHomeUrl()
+						 ),
+						 'delays'    => __( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
+						 'time_sent' => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
 					 ],
 					 'hrefs'   => [
 						 'upgrade'   => 'https://shsec.io/buyshieldproemailfooter',
@@ -62,14 +70,6 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
 					 ]
 				 ] ),
-			'',
-			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
-				$this->getCon()->getVersion(),
-				$oWp->getHomeUrl()
-			),
-			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() )
 		];
 
 		return apply_filters( 'icwp_shield_email_footer', $aFooter );
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @param array  $aMessage
 	 * @return bool
 	 */
-	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
+	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) :bool {
 		$oWP = Services::WpGeneral();
 		return $this->send(
 			$sAddress,
@@ -95,13 +95,38 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
+	 * @param string $templ
+	 * @param string $to
+	 * @param string $subject
+	 * @param array  $aBody
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function sendEmailWithTemplate( string $templ, string $to, string $subject, array $aBody ) {
+		$aData = [
+			'header' => $this->getEmailHeader(),
+			'body'   => $aBody,
+			'footer' => $this->getEmailFooter(),
+			'vars'   => [
+				'lang' => Services::WpGeneral()->getLocale( '-' )
+			]
+		];
+
+		return $this->send(
+			$to,
+			$subject,
+			$this->getMod()->renderTemplate( $templ, $aData, true )
+		);
+	}
+
+	/**
 	 * @param string $sAddress
 	 * @param string $sSubject
 	 * @param string $sMessageBody
 	 * @return bool
 	 * @uses wp_mail
 	 */
-	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) {
+	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) :bool {
 
 		$this->emailFilters( true );
 		$bSuccess = wp_mail(
@@ -111,7 +136,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		);
 		$this->emailFilters( false );
 
-		return $bSuccess;
+		return (bool)$bSuccess;
 	}
 
 	/**

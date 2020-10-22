@@ -2,20 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Mal extends Base {
+
+	const SCAN_SLUG = 'mal';
 
 	/**
 	 * Can only possibly repair themes, plugins or core files.
 	 * @return Scans\Mal\ResultsSet
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$oRes = new Scans\Mal\ResultsSet();
 
@@ -23,7 +25,7 @@ class Mal extends Base {
 		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $oItem ) {
 
 			try {
-				if ( $oOpts->isRepairFilePlugin()
+				if ( $opts->isRepairFilePlugin()
 					 && ( new WpOrg\Plugin\Files() )->isValidFileFromPlugin( $oItem->path_full ) ) {
 					$oRes->addItem( $oItem );
 				}
@@ -32,7 +34,7 @@ class Mal extends Base {
 			}
 
 			try {
-				if ( $oOpts->isRepairFileTheme()
+				if ( $opts->isRepairFileTheme()
 					 && ( new WpOrg\Theme\Files() )->isValidFileFromTheme( $oItem->path_full ) ) {
 					$oRes->addItem( $oItem );
 				}
@@ -40,7 +42,7 @@ class Mal extends Base {
 			catch ( \InvalidArgumentException $e ) {
 			}
 
-			if ( !$oOpts->isRepairFileWP()
+			if ( !$opts->isRepairFileWP()
 				 && Services::CoreFileHashes()->isCoreFile( $oItem->path_full ) ) {
 				$oRes->addItem( $oItem );
 			}
@@ -64,21 +66,13 @@ class Mal extends Base {
 		return new Scans\Mal\Utilities\ItemActionHandler();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCronAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isRepairFileAuto();
+	public function isCronAutoRepair() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isRepairFileAuto();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isOpt( 'mal_scan_enable', 'Y' );
+	public function isEnabled() :bool {
+		return $this->getOptions()->isOpt( 'mal_scan_enable', 'Y' );
 	}
 }

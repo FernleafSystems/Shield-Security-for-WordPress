@@ -101,8 +101,8 @@ class Import {
 	public function fromSite( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null ) {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
 		$oDP = Services::Data();
 
 		if ( empty( $sMasterSiteUrl ) ) {
@@ -187,18 +187,18 @@ class Import {
 		// Only do so if we're not turning it off. i.e on or no-change
 		if ( is_null( $bEnableNetwork ) ) {
 			if ( $bHadMasterSiteUrl && !$oOpts->hasImportExportMasterImportUrl() ) {
-				$oMod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
+				$mod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
 			}
 		}
 		elseif ( $bEnableNetwork === true ) {
-			$oMod->setImportExportMasterImportUrl( $sMasterSiteUrl );
+			$mod->setImportExportMasterImportUrl( $sMasterSiteUrl );
 			$this->getCon()->fireEvent(
 				'master_url_set',
 				[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
 			);
 		}
 		elseif ( $bEnableNetwork === false ) {
-			$oMod->setImportExportMasterImportUrl( '' );
+			$mod->setImportExportMasterImportUrl( '' );
 		}
 
 		return 0;
@@ -213,18 +213,18 @@ class Import {
 		$bImported = false;
 
 		$bAnythingChanged = false;
-		foreach ( $this->getCon()->modules as $oTheMod ) {
-			if ( !empty( $aImportData[ $oTheMod->getOptionsStorageKey() ] ) ) {
-				$oTheseOpts = $oTheMod->getOptions();
+		foreach ( $this->getCon()->modules as $mod ) {
+			if ( !empty( $aImportData[ $mod->getOptionsStorageKey() ] ) ) {
+				$oTheseOpts = $mod->getOptions();
 				$oTheseOpts->setMultipleOptions(
 					array_diff_key(
-						$aImportData[ $oTheMod->getOptionsStorageKey() ],
+						$aImportData[ $mod->getOptionsStorageKey() ],
 						array_flip( $oTheseOpts->getXferExcluded() )
 					)
 				);
 
 				$bAnythingChanged = $bAnythingChanged || $oTheseOpts->getNeedSave();
-				$oTheMod->saveModOptions( true );
+				$mod->saveModOptions( true );
 			}
 		}
 

@@ -7,12 +7,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
 
 	/**
+	 * This module is set to "run if whitelisted", so we must ensure any
+	 * actions taken by this module respect whether the current visitor is whitelisted.
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -21,101 +23,93 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $oMod->isXmlrpcBypass() ) {
+		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 
-		/** Everything from this point on must consider XMLRPC compatibility **/
-		if ( $oMod->isUserSessionsManagementEnabled() ) {
-			$this->getSubPro( 'sessions' )->execute();
-		}
-
-		if ( $oOpts->isPasswordPoliciesEnabled() ) {
-			$this->getSubPro( 'passwords' )->execute();
-		}
-
-		if ( $oOpts->isSuspendEnabled() ) {
-			$this->getSubPro( 'suspend' )->execute();
-		}
-
-		// All newly created users have their first seen and password start date set
-		add_action( 'user_register', function ( $nUserId ) {
-			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
-		} );
-
-		( new UserManagement\Lib\Registration\EmailValidate() )
+		// This controller will handle visitor whitelisted status internally.
+		( new UserManagement\Lib\Suspend\UserSuspendController() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
+
+		if ( !$mod->isVisitorWhitelisted() ) {
+
+			/** Everything from this point on must consider XMLRPC compatibility **/
+			if ( $mod->isUserSessionsManagementEnabled() ) {
+				$this->getSubPro( 'sessions' )->execute();
+			}
+
+			if ( $opts->isPasswordPoliciesEnabled() ) {
+				$this->getSubPro( 'passwords' )->execute();
+			}
+
+			// All newly created users have their first seen and password start date set
+			add_action( 'user_register', function ( $nUserId ) {
+				$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+			} );
+
+			( new UserManagement\Lib\Registration\EmailValidate() )
+				->setMod( $this->getMod() )
+				->run();
+		}
 	}
 
-	/**
-	 */
 	public function onWpInit() {
-		parent::onWpInit();
-
-		$oWpUsers = Services::WpUsers();
-		if ( $oWpUsers->isUserLoggedIn() ) {
-			$this->setPasswordStartedAt( $oWpUsers->getCurrentWpUser() ); // used by Password Policies
+		$WPU = Services::WpUsers();
+		if ( $WPU->isUserLoggedIn() ) {
+			$this->setPasswordStartedAt( $WPU->getCurrentWpUser() ); // used by Password Policies
 		}
 	}
 
 	/**
 	 * @param string   $sUsername
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $oUser = null ) {
-		if ( !$oUser instanceof \WP_User ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
+	public function onWpLogin( $sUsername, $user = null ) {
+		if ( !$user instanceof \WP_User ) {
+			$user = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
-		$this->setPasswordStartedAt( $oUser )// used by Password Policies
-			 ->setUserLastLoginTime( $oUser )
-			 ->sendLoginNotifications( $oUser );
+		$this->setPasswordStartedAt( $user )// used by Password Policies
+			 ->setUserLastLoginTime( $user )
+			 ->sendLoginNotifications( $user );
 	}
 
 	/**
-	 * @param \WP_User $oUser - not checking that user is valid
+	 * @param \WP_User $user - not checking that user is valid
 	 * @return $this
 	 */
-	private function sendLoginNotifications( $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		$aAdminEmails = $oMod->getAdminLoginNotificationEmails();
+	private function sendLoginNotifications( \WP_User $user ) {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
+		$aAdminEmails = $mod->getAdminLoginNotificationEmails();
 		$bAdmin = count( $aAdminEmails ) > 0;
-		$bUser = $oMod->isSendUserEmailLoginNotification();
+		$bUser = $mod->isSendUserEmailLoginNotification();
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
-		if ( $bAdmin && $bUser && in_array( strtolower( $oUser->user_email ), $aAdminEmails ) ) {
+		if ( $bAdmin && $bUser && in_array( strtolower( $user->user_email ), $aAdminEmails ) ) {
 			$bUser = false;
 		}
 
 		if ( $bAdmin ) {
-			$this->sendAdminLoginEmailNotification( $oUser );
+			$this->sendAdminLoginEmailNotification( $user );
 		}
-		if ( $bUser && !$this->isUserSubjectToLoginIntent( $oUser ) ) {
-			$this->sendUserLoginEmailNotification( $oUser );
+		if ( $bUser && !$this->isUserSubjectToLoginIntent( $user ) ) {
+			$this->sendUserLoginEmailNotification( $user );
 		}
 		return $this;
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return $this
-	 */
-	private function setPasswordStartedAt( $oUser ) {
+	private function setPasswordStartedAt( \WP_User $user ) :self {
 		$this->getCon()
-			 ->getUserMeta( $oUser )
-			 ->setPasswordStartedAt( $oUser->user_pass );
+			 ->getUserMeta( $user )
+			 ->setPasswordStartedAt( $user->user_pass );
 		return $this;
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return $this
-	 */
-	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		$oMeta->last_login_at = Services::Request()->ts();
+	protected function setUserLastLoginTime( \WP_User $user ) :self {
+		$meta = $this->getCon()->getUserMeta( $user );
+		$meta->last_login_at = Services::Request()->ts();
 		return $this;
 	}
 
@@ -163,8 +157,9 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
+		$con = $this->getCon();
 
 		$aUserCapToRolesMap = [
 			'network_admin' => 'manage_network',
@@ -175,8 +170,8 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 			'subscriber'    => 'read',
 		];
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getMod()
-														->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		$sRoleToCheck = strtolower( apply_filters(
+			$con->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
 		}
@@ -199,7 +194,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		$aMessage = [
 			sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
+				$con->getHumanName(),
 				$sHumanName
 			),
 			'',
@@ -216,7 +211,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		$oEmailer = $this->getMod()
 						 ->getEmailProcessor();
-		foreach ( $oMod->getAdminLoginNotificationEmails() as $sEmail ) {
+		foreach ( $mod->getAdminLoginNotificationEmails() as $sEmail ) {
 			$oEmailer->sendEmailWithWrap(
 				$sEmail,
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
@@ -258,14 +253,10 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 			);
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getSubProMap() {
+	protected function getSubProMap() :array {
 		return [
 			'passwords' => 'ICWP_WPSF_Processor_UserManagement_Passwords',
 			'sessions'  => 'ICWP_WPSF_Processor_UserManagement_Sessions',
-			'suspend'   => 'ICWP_WPSF_Processor_UserManagement_Suspend',
 		];
 	}
 }

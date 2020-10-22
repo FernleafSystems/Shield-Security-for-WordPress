@@ -8,8 +8,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'ptg';
 
-	/**
-	 */
 	public function run() {
 		parent::run();
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */

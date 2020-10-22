@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**

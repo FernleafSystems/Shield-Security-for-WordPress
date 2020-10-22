@@ -27,25 +27,25 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 	}
 
 	public function onWpEnqueueJs() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oConn = $this->getCon();
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$con = $this->getCon();
 
 		$sAsset = 'shield-comments';
-		$sUnique = $oConn->prefix( 'shield-comments' );
+		$sUnique = $con->prefix( 'shield-comments' );
 		wp_register_script(
 			$sUnique,
-			$oConn->getPluginUrl_Js( $sAsset ),
+			$con->getPluginUrl_Js( $sAsset ),
 			[ 'jquery' ],
-			$oConn->getVersion(),
+			$con->getVersion(),
 			true
 		);
 		wp_enqueue_script( $sUnique );
 
 		$nTs = Services::Request()->ts();
-		$aNonce = $oMod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
+		$aNonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
 		$aNonce[ 'ts' ] = $nTs;
 		$aNonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
 
@@ -61,18 +61,18 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 					'botts'    => $nTs,
 					'token'    => 'not created',
 					'uniq'     => $this->getUniqueFormId(),
-					'cooldown' => $oOpts->getTokenCooldown(),
-					'expires'  => $oOpts->getTokenExpireInterval(),
+					'cooldown' => $opts->getTokenCooldown(),
+					'expires'  => $opts->getTokenExpireInterval(),
 				],
 				'strings' => [
-					'label'           => $oMod->getTextOpt( 'custom_message_checkbox' ),
-					'alert'           => $oMod->getTextOpt( 'custom_message_alert' ),
-					'comment_reload'  => $oMod->getTextOpt( 'custom_message_comment_reload' ),
-					'js_comment_wait' => $oMod->getTextOpt( 'custom_message_comment_wait' ),
+					'label'           => $mod->getTextOpt( 'custom_message_checkbox' ),
+					'alert'           => $mod->getTextOpt( 'custom_message_alert' ),
+					'comment_reload'  => $mod->getTextOpt( 'custom_message_comment_reload' ),
+					'js_comment_wait' => $mod->getTextOpt( 'custom_message_comment_wait' ),
 				],
 				'flags'   => [
 					'gasp'  => true,
-					'recap' => $oMod->isEnabledCaptcha(),
+					'recap' => $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready,
 				]
 			]
 		);

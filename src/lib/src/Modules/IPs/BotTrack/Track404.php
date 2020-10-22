@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class Track404 extends Base {
 
 	const OPT_KEY = 'track_404';

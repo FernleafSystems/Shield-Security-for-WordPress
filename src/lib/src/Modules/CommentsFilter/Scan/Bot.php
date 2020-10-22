@@ -64,12 +64,12 @@ class Bot {
 	 * @return bool
 	 */
 	private function checkTokenHash( $sToken, $nTs, $nPostId ) {
-		$oWp = Services::WpGeneral();
-		$sKey = $this->getMod()->prefix(
+		$WP = Services::WpGeneral();
+		$key = $this->getCon()->prefix(
 			'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) )
 		);
-		$sStoredToken = Services::WpGeneral()->getTransient( $sKey );
-		$oWp->deleteTransient( $sKey ); // single use hashes & clean as we go
+		$sStoredToken = Services::WpGeneral()->getTransient( $key );
+		$WP->deleteTransient( $key ); // single use hashes & clean as we go
 		return hash_equals(
 			(string)$sStoredToken,
 			$sToken

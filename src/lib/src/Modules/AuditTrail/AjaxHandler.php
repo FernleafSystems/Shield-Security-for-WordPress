@@ -7,13 +7,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( string $action ) :array {
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 			case 'render_table_audittrail':
 				$aResponse = $this->ajaxExec_BuildTableAuditTrail();
 				break;
@@ -23,7 +19,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;
@@ -85,7 +81,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
+			'html'    => $oTableBuilder->render()
 		];
 	}
 }

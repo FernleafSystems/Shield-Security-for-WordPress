@@ -33,6 +33,7 @@ class Accept extends BaseOps {
 			'public_key_id' => key( $aPublicKey ),
 			'detected_at'   => 0,
 			'updated_at'    => Services::Request()->ts(),
+			'created_at'    => Services::Request()->ts(), // update "locked at"
 		] );
 
 		$this->clearFileLocksCache();

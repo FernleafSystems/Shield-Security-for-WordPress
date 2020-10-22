@@ -38,32 +38,50 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 	};
 }();
 
+var iCWP_WPSF_ParseAjaxResponse = new function () {
+	this.parseIt = function ( raw ) {
+		let parsed = {};
+		try {
+			parsed = JSON.parse( raw );
+		}
+		catch ( e ) {
+			parsed = JSON.parse(
+				raw.substring( raw.indexOf( '{' ), raw.lastIndexOf( '}' ) + 1 )
+			);
+		}
+		return parsed;
+	};
+}();
+
 var iCWP_WPSF_StandardAjax = new function () {
 	this.send_ajax_req = function ( reqData ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		jQuery.post( ajaxurl, reqData,
-			function ( oResponse ) {
+		jQuery.ajax( {
+			type: "POST",
+			url: ajaxurl,
+			data: reqData,
+			dataType: "text",
+			success: function ( raw ) {
+				let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
 				if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
-					iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
+					iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
 				}
 				else {
-					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+					iCWP_WPSF_Growl.showMessage( resp.data.message, resp.success );
 				}
 
-				if ( oResponse.data.page_reload ) {
+				if ( resp.data.page_reload ) {
 					setTimeout( function () {
-						location.reload( true );
+						location.reload();
 					}, 2000 );
 				}
 				else {
 					iCWP_WPSF_BodyOverlay.hide();
 				}
 			}
-		).always( function () {
-			}
-		);
+		} )
 	};
 }();
 
@@ -305,8 +323,6 @@ var iCWP_WPSF_Growl = new function () {
 		}, 4000 );
 	};
 
-	/**
-	 */
 	var createDynDiv = function ( sClass ) {
 		var $oDiv = jQuery( '<div />' ).appendTo( 'body' );
 		$oDiv.attr( 'id', 'icwp-growl-notice' + Math.floor( (Math.random() * 100) + 1 ) );

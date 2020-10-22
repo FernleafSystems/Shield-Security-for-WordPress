@@ -9,12 +9,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function processAjaxAction( $sAction ) {
-		switch ( $sAction ) {
+	protected function processAjaxAction( string $action ) :array {
+		switch ( $action ) {
 			case 'bulk_action':
 				$aResponse = $this->ajaxExec_BulkItemAction();
 				break;
@@ -64,7 +60,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;
@@ -177,7 +173,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'html'    => ( new Shield\Tables\Build\AdminNotes() )
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_Notes() )
-				->buildTable()
+				->render()
 		];
 	}
 
@@ -262,21 +258,21 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_AdminNotesInsert() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$aFormParams = $this->getAjaxFormParams();
 
 		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
-		if ( !$oMod->getCanAdminNotes() ) {
-			$sMessage = __( 'Sorry, Admin Notes is only available for Pro subscriptions.', 'wp-simple-firewall' );
+		if ( !$mod->getCanAdminNotes() ) {
+			$sMessage = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $sNote ) ) {
 			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$oInserter = $oMod->getDbHandler_Notes()->getQueryInserter();
+			$oInserter = $mod->getDbHandler_Notes()->getQueryInserter();
 			$bSuccess = $oInserter->create( $sNote );
 			$sMessage = $bSuccess ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
@@ -302,15 +298,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_IpDetect() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
-		if ( !empty( $sSource ) ) {
-			$oOpts->setVisitorAddressSource( $sSource );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
+		if ( !empty( $source ) ) {
+			$opts->setVisitorAddressSource( $source );
 		}
 		return [
-			'success' => !empty( $sSource ),
-			'message' => empty( $sSource ) ? 'Could not find source' : 'IP Source Found: '.$sSource
+			'success' => !empty( $source ),
+			'message' => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source
 		];
 	}
 

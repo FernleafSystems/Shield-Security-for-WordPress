@@ -1,51 +1,48 @@
 <div class="row insights_widget" id="SectionUserSessions">
 
-	<div class="col-lg-10 col-md-9 col-sm-8">
+	<div class="col">
 		<div class="card">
 			<div class="card-header">
 				<h5 class="card-title">{{ strings.users_title }}</h5>
 				<h6 class="card-subtitle text-muted">
 					{{ strings.users_subtitle }}
-					(<small>{{ strings.users_maybe_expired }}</small>)
 				</h6>
 			</div>
 
 			<div class="card-body">
+
+				<form id="SessionsFilter" autocomplete="off" class="px-3 pt-3">
+					<div class="form-row">
+						<div class="col-auto mb-3">
+							<label class="sr-only" for="_fIp">{{ strings.ip_address }}</label>
+							<select id="_fIp" name="fIp" class="form-control">
+								<option value="">-- {{ strings.ip_address }} --</option>
+								{% for unique_ip in vars.unique_ips %}
+									<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="col-auto mb-3">
+							<label class="sr-only" for="_fIp">{{ strings.username }}</label>
+							<select id="_fUsername" name="fUsername" class="form-control">
+								<option value="">-- {{ strings.username }} --</option>
+								{% for uniq_user in vars.unique_users %}
+									<option value="{{ uniq_user }}">{{ uniq_user }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="col-auto mb-3 text-right">
+							<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
+								   value="{{ strings.filters_apply }}" />
+							<a id="ClearForm" href="#"
+							   class="btn btn-sm btn-link text-dark">{{ strings.filters_clear }}</a>
+						</div>
+
+					</div>
+				</form>
+
 				<div id="TableSessions"></div>
 			</div>
-		</div>
-	</div>
-
-	<div class="col-lg-2 col-md-3 col-sm-4">
-
-		<h6 class="mt-3">{{ strings.title_filter_form }}</h6>
-		<div class="" id="">
-			<form id="SessionsFilter" autocomplete="off">
-				<div class="form-group">
-					<label for="_fIp">{{ strings.ip_address }}</label>
-					<select id="_fIp" name="fIp" class="form-control">
-						<option value="">-- {{ strings.select }} --</option>
-						{% for unique_ip in vars.unique_ips %}
-							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
-						{% endfor %}
-					</select>
-				</div>
-				<div class="form-group">
-					<label for="_fIp">{{ strings.username }}</label>
-					<select id="_fUsername" name="fUsername" class="form-control">
-						<option value="">-- {{ strings.select }} --</option>
-						{% for uniq_user in vars.unique_users %}
-							<option value="{{ uniq_user }}">{{ uniq_user }}</option>
-						{% endfor %}
-					</select>
-				</div>
-				<div class="form-group text-right">
-					<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
-						   value="{{ strings.filters_apply }}" />
-					<a id="ClearForm" href="#" class="btn btn-link">{{ strings.filters_clear }}</a>
-				</div>
-
-			</form>
 		</div>
 	</div>
 

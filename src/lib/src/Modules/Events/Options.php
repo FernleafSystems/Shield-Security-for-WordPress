@@ -7,16 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Options extends Base\ShieldOptions {
 
 	/**
-	 * @return string[]
-	 */
-	public function getDbColumns_Events() {
-		return $this->getDef( 'events_table_columns' );
-	}
-
-	/**
 	 * @return string
+	 * @deprecated 10.0
 	 */
-	public function getDbTable_Events() {
+	public function getDbTable_Events() :string {
 		return $this->getCon()->prefixOption( $this->getDef( 'events_table_name' ) );
 	}
 }

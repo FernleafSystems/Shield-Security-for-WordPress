@@ -10,25 +10,17 @@ class Handler extends Base\Handler {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultColumnsDefinition() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_ChangeTracking();
+	public function getColumns() :array {
+		return $this->getOptions()->getDef( 'table_columns_changetracking' );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultTableName() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_ChangeTracking();
+	protected function getDefaultTableName() :string {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getDbTable_ChangeTracking();
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getDefaultCreateTableSql() {
+	protected function getDefaultCreateTableSql() :string {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			data BLOB NOT NULL DEFAULT '' COMMENT 'Snapshot Data',

@@ -23,13 +23,13 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @param string   $sUsername
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		if ( !$oUser instanceof \WP_User ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
+	public function onWpLogin( $sUsername, $user ) {
+		if ( !$user instanceof \WP_User ) {
+			$user = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
-		$this->activateUserSession( $oUser );
+		$this->activateUserSession( $user );
 	}
 
 	/**
@@ -42,8 +42,6 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		$this->activateUserSession( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
-	/**
-	 */
 	public function onWpLoaded() {
 		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->autoAddSession();
@@ -54,7 +52,7 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
 		$oMod = $this->getMod();
 
-		if ( !Services::Rest()->isRest() ) {
+		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
 			$oSession = $this->getCurrentSession();
 			if ( $oSession instanceof Session\EntryVO ) {
 				/** @var Session\Update $oUpd */

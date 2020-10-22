@@ -1,0 +1,33 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>
+		{{ body.strings.looks_like }}
+		<br />{{ body.strings.please_click }}
+	</p>
+
+	<p><strong>{{ body.strings.important }}</strong>:</p>
+	<ul>
+		<li>{{ body.strings.imp_browser }}</li>
+		<li>{{ body.strings.imp_limit }}</li>
+	</ul>
+
+	<p>
+		<strong>
+			<a style="display:inline-block; padding:20px; border:1px solid; margin:10px;
+			    text-align:center; border-radius:3px; text-decoration:none;"
+			   href="{{ body.hrefs.unblock }}">{{ body.strings.unblock_my_ip }} &rarr;</a>
+		</strong>
+	</p>
+	<p>
+		{{ body.strings.or_copy }}:
+		<br /><code>{{ body.hrefs.unblock }}</code>
+	</p>
+
+	<p>{{ body.strings.details }}:</p>
+	<ul>
+		<li>{{ body.strings.details_url }}</li>
+		<li>{{ body.strings.details_username }}</li>
+		<li>{{ body.strings.details_ip }}</li>
+	</ul>
+{% endblock %}

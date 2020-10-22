@@ -30,7 +30,7 @@ class MemberPress extends BaseFormProvider {
 	 * @return array
 	 */
 	public function checkLogin( $aErrors ) {
-		if ( !empty( $aErrors ) ) {
+		if ( empty( $aErrors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-login' )
 					 ->checkProviders();
@@ -47,8 +47,7 @@ class MemberPress extends BaseFormProvider {
 	 * @return array
 	 */
 	public function checkLostPassword( $aErrors ) {
-		error_log( __FUNCTION__ );
-		if ( !empty( $aErrors ) ) {
+		if ( empty( $aErrors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-lostpassword' )
 					 ->checkProviders();
@@ -66,7 +65,7 @@ class MemberPress extends BaseFormProvider {
 	 * @return string[]
 	 */
 	public function checkRegister( $aErrors ) {
-		if ( !empty( $aErrors ) ) {
+		if ( empty( $aErrors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-register' )
 					 ->checkProviders();

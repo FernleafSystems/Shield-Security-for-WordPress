@@ -38,7 +38,7 @@
     },
     {
       "slug":        "section_whitelist",
-      "title":       "Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall",
+      "title":       "Whitelists - IPs, Pages, Parameters, and Users that bypass the Firewall",
       "title_short": "Whitelist",
       "summary":     [
         "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",
@@ -306,7 +306,11 @@
         "/^wordpress_logged_in_[0-9a-f]+$/",
         "edd_action",
         "edd_redirect",
-        "wpcf7-form"
+        "wpcf7-form",
+        "yoast_wpseo_metadesc",
+        "icwp_wpsf_new_u2f_response",
+        "icwp_wpsf_u2f_otp",
+        "appId"
       ]
     },
     "firewall_patterns": {

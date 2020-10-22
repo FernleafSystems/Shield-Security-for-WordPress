@@ -8,29 +8,29 @@ use FernleafSystems\Wordpress\Services\Services;
 class Update extends Base\Update {
 
 	/**
-	 * @param EntryVO $oSession
+	 * @param EntryVO $session
 	 * @return bool
 	 */
-	public function startSecurityAdmin( $oSession ) {
-		return $this->updateSession( $oSession, [ 'secadmin_at' => Services::Request()->ts() ] );
+	public function startSecurityAdmin( EntryVO $session ) {
+		return $this->updateSession( $session, [ 'secadmin_at' => Services::Request()->ts() ] );
 	}
 
 	/**
-	 * @param EntryVO $oSession
+	 * @param EntryVO $session
 	 * @return bool
 	 */
-	public function terminateSecurityAdmin( $oSession ) {
-		return $this->updateSession( $oSession, [ 'secadmin_at' => 0 ] );
+	public function terminateSecurityAdmin( EntryVO $session ) {
+		return $this->updateSession( $session, [ 'secadmin_at' => 0 ] );
 	}
 
 	/**
-	 * @param EntryVO $oSession
+	 * @param EntryVO $session
 	 * @return bool
 	 */
-	public function updateLastActivity( $oSession ) {
+	public function updateLastActivity( $session ) {
 		$oR = Services::Request();
 		return $this->updateSession(
-			$oSession,
+			$session,
 			[
 				'last_activity_at'  => $oR->ts(),
 				'last_activity_uri' => $oR->server( 'REQUEST_URI' )
@@ -39,40 +39,23 @@ class Update extends Base\Update {
 	}
 
 	/**
-	 * @param EntryVO $oSession
+	 * @param EntryVO $session
 	 * @param int     $nExpiresAt
 	 * @return bool
 	 */
-	public function updateLoginIntentExpiresAt( $oSession, $nExpiresAt ) {
+	public function updateLoginIntentExpiresAt( $session, $nExpiresAt ) {
 		return $this->updateSession(
-			$oSession,
+			$session,
 			[ 'login_intent_expires_at' => (int)$nExpiresAt ]
 		);
 	}
 
 	/**
-	 * @param EntryVO $oSession
-	 * @return bool
-	 */
-	public function clearLoginIntentCodeEmail( $oSession ) {
-		return $this->setLoginIntentCodeEmail( $oSession, '' );
-	}
-
-	/**
-	 * @param EntryVO $oSession
-	 * @param string  $sCode
-	 * @return bool
-	 */
-	public function setLoginIntentCodeEmail( $oSession, $sCode ) {
-		return $this->updateSession( $oSession, [ 'li_code_email' => (string)$sCode ] );
-	}
-
-	/**
-	 * @param EntryVO $oSession
+	 * @param EntryVO $session
 	 * @param array   $aUpdateData
 	 * @return bool
 	 */
-	public function updateSession( $oSession, $aUpdateData = [] ) {
-		return parent::updateEntry( $oSession, $aUpdateData );
+	public function updateSession( $session, $aUpdateData = [] ) {
+		return parent::updateEntry( $session, $aUpdateData );
 	}
 }

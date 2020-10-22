@@ -7,45 +7,23 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends Base\ShieldOptions {
 
-	/**
-	 * @return $this
-	 */
-	public function clearSecurityAdminKey() {
+	public function clearSecurityAdminKey() :self {
 		return $this->setOpt( 'admin_access_key', '' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getAccessKeyHash() {
-		return $this->getOpt( 'admin_access_key' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getAdminAccessArea_Options() {
+	public function getAdminAccessArea_Options() :bool {
 		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAdminAccessArea_Plugins() {
+	public function getAdminAccessArea_Plugins() :array {
 		return $this->getAdminAccessArea( 'plugins' );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAdminAccessArea_Themes() {
+	public function getAdminAccessArea_Themes() :array {
 		return $this->getAdminAccessArea( 'themes' );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAdminAccessArea_Posts() {
+	public function getAdminAccessArea_Posts() :array {
 		return $this->getAdminAccessArea( 'posts' );
 	}
 
@@ -53,73 +31,63 @@ class Options extends Base\ShieldOptions {
 	 * @param string $sArea one of plugins, themes
 	 * @return array
 	 */
-	private function getAdminAccessArea( $sArea = 'plugins' ) {
-		$aD = $this->getOpt( 'admin_access_restrict_'.$sArea, [] );
-		return is_array( $aD ) ? $aD : [];
+	private function getAdminAccessArea( $sArea = 'plugins' ) :array {
+		$d = $this->getOpt( 'admin_access_restrict_'.$sArea, [] );
+		return is_array( $d ) ? $d : [];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getRestrictedOptions() {
-		$aOptions = $this->getDef( 'options_to_restrict' );
-		return is_array( $aOptions ) ? $aOptions : [];
+	private function getRestrictedOptions() :array {
+		$options = $this->getDef( 'options_to_restrict' );
+		return is_array( $options ) ? $options : [];
 	}
 
 	/**
 	 * TODO: Bug where if $sType is defined, it'll be set to 'wp' anyway
-	 * @param string $sType - wp or wpms
+	 * @param string $type - wp or wpms
 	 * @return array
 	 */
-	public function getOptionsToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+	public function getOptionsToRestrict( $type = '' ) {
+		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $sType.'_options' ] ) && is_array( $aOptions[ $sType.'_options' ] ) ) ? $aOptions[ $sType.'_options' ] : [];
+		return ( isset( $aOptions[ $type.'_options' ] ) && is_array( $aOptions[ $type.'_options' ] ) ) ? $aOptions[ $type.'_options' ] : [];
 	}
 
 	/**
-	 * @param string $sType - wp or wpms
+	 * @param string $type - wp or wpms
 	 * @return array
 	 */
-	public function getOptionsPagesToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+	public function getOptionsPagesToRestrict( $type = '' ) {
+		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $sType.'_pages' ] ) && is_array( $aOptions[ $sType.'_pages' ] ) ) ? $aOptions[ $sType.'_pages' ] : [];
+		return ( isset( $aOptions[ $type.'_pages' ] ) && is_array( $aOptions[ $type.'_pages' ] ) ) ? $aOptions[ $type.'_pages' ] : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasAccessKey() {
-		$sKey = $this->getAccessKeyHash();
-		return !empty( $sKey ) && strlen( $sKey ) == 32;
+	public function getSecurityAdminUsers() :array {
+		$users = $this->getOpt( 'sec_admin_users', [] );
+		return ( is_array( $users ) && $this->isPremium() ) ? $users : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledWhitelabel() {
+	public function getSecurityPIN() :string {
+		return (string)$this->getOpt( 'admin_access_key', '' );
+	}
+
+	public function hasSecurityPIN() :bool {
+		return strlen( $this->getSecurityPIN() ) == 32;
+	}
+
+	public function isEnabledWhitelabel() :bool {
 		return $this->isOpt( 'whitelabel_enable', 'Y' ) && $this->isPremium();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEmailOverridePermitted() {
+	public function isEmailOverridePermitted() :bool {
 		return $this->isOpt( 'allow_email_override', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSecAdminRestrictUsersEnabled() {
+	public function isSecAdminRestrictUsersEnabled() :bool {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWlHideUpdates() {
+	public function isWlHideUpdates() :bool {
 		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
 	}
 }

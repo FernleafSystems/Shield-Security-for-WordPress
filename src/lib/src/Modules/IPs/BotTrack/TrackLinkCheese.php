@@ -23,35 +23,34 @@ class TrackLinkCheese extends Base {
 	}
 
 	/**
-	 * @param string $sRobotsText
+	 * @param string $robotsText
 	 * @return string
 	 */
-	public function appendRobotsTxt( $sRobotsText ) {
-		$sTempl = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
-		$sRobotsText = rtrim( $sRobotsText, "\n" )."\n";
-		foreach ( $this->getPossibleWords() as $sWord ) {
-			$sRobotsText .= sprintf( $sTempl, $this->getMod()->prefix( $sWord ) );
+	public function appendRobotsTxt( $robotsText ) {
+		$template = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
+		$robotsText = rtrim( $robotsText, "\n" )."\n";
+		foreach ( $this->getPossibleWords() as $word ) {
+			$robotsText .= sprintf( $template, $this->getCon()->prefix( $word ) );
 		}
-		return $sRobotsText;
+		return $robotsText;
 	}
 
 	private function isCheese() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		$oReq = Services::Request();
+		$con = $this->getCon();
+		$req = Services::Request();
 
 		$bIsCheese = false;
 		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
 			preg_match(
-				sprintf( '#^%s-(%s)-([a-z0-9]{7,9})$#i', $oFO->prefix(), implode( '|', $this->getPossibleWords() ) ),
-				trim( $oReq->getPath(), '/' ),
+				sprintf( '#%s-(%s)-([a-z0-9]{7,9})$#i', $con->prefix(), implode( '|', $this->getPossibleWords() ) ),
+				trim( $req->getPath(), '/' ),
 				$aMatches
 			);
 			$bIsCheese = isset( $aMatches[ 2 ] );
 		}
 		else {
-			foreach ( $this->getPossibleWords() as $sWord ) {
-				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $oReq->query( $oFO->prefix( $sWord ) ) ) ) {
+			foreach ( $this->getPossibleWords() as $word ) {
+				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $req->query( $con->prefix( $word ) ) ) ) {
 					$bIsCheese = true;
 					break;
 				}
@@ -62,11 +61,11 @@ class TrackLinkCheese extends Base {
 	}
 
 	public function insertMouseTrap() {
-		$sId = chr( rand( 97, 122 ) ).rand( 1000, 10000000 );
+		$id = chr( rand( 97, 122 ) ).rand( 1000, 10000000 );
 		echo sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
-			$sId, $this->buildTrapHref(), 'Click here to see something fantastic',
-			$sId, 'Click to access the login or register cheese'
+			$id, $this->buildTrapHref(), 'Click here to see something fantastic',
+			$id, 'Click to access the login or register cheese'
 		);
 	}
 
@@ -74,17 +73,16 @@ class TrackLinkCheese extends Base {
 	 * @return string
 	 */
 	private function buildTrapHref() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
+		$con = $this->getCon();
 
-		$oWp = Services::WpGeneral();
+		$oWP = Services::WpGeneral();
 		$sKey = substr( md5( wp_generate_password() ), 5, rand( 7, 9 ) );
 		$sWord = $this->getPossibleWords()[ rand( 1, count( $this->getPossibleWords() ) ) - 1 ];
-		if ( $oWp->isPermalinksEnabled() ) {
-			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( $sWord ), $sKey ) );
+		if ( $oWP->isPermalinksEnabled() ) {
+			$sLink = $oWP->getHomeUrl( sprintf( '/%s-%s/', $con->prefix( $sWord ), $sKey ) );
 		}
 		else {
-			$sLink = add_query_arg( [ $oFO->prefix( $sWord ) => $sKey ], $oWp->getHomeUrl() );
+			$sLink = add_query_arg( [ $con->prefix( $sWord ) => $sKey ], $oWP->getHomeUrl() );
 		}
 		return $sLink;
 	}

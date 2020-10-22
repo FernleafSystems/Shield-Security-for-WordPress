@@ -5,111 +5,79 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class BlockRequest {
 
 	use ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		if ( $this->isBlocked() ) {
 
-		$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
-			->setMod( $oMod )
-			->setIp( Services::IP()->getRequestIp() )
-			->run();
+			if ( $this->isAutoUnBlocked() ) {
+				// TODO: flash message
+				Services::Response()->redirectToAdmin();
+			}
 
-		if ( $bIpBlocked ) {
 			// don't log killed requests
 			add_filter( $this->getCon()->prefix( 'is_log_traffic' ), '__return_false' );
-			try {
-				if ( $this->processAutoUnblockRequest() ) {
-					return;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
 			$this->getCon()->fireEvent( 'conn_kill' );
 			$this->renderKillPage();
 		}
 	}
 
 	/**
-	 * @throws \Exception
+	 * @return bool
 	 */
-	private function processAutoUnblockRequest() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$oReq = Services::Request();
+	private function isBlocked() {
+		return ( new IPs\Components\QueryIpBlock() )
+			->setMod( $this->getMod() )
+			->setIp( Services::IP()->getRequestIp() )
+			->run();
+	}
 
-		if ( $oOpts->isEnabledAutoUserRecover() && $oReq->isPost()
-			 && $oReq->request( 'action' ) == $oMod->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
-
-			if ( check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
-			}
-			if ( strlen( $oReq->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
-				throw new \Exception( 'Email should not be provided in honeypot' );
-			}
-
-			$sIp = Services::IP()->getRequestIp();
-			if ( $oReq->post( 'ip' ) != $sIp ) {
-				throw new \Exception( 'IP does not match' );
-			}
-
-			$oLoginMod = $this->getCon()->getModule_LoginGuard();
-			$sGasp = $oReq->post( $oLoginMod->getGaspKey() );
-			if ( empty( $sGasp ) ) {
-				throw new \Exception( 'GASP failed' );
-			}
-
-			if ( !$oOpts->getCanIpRequestAutoUnblock( $sIp ) ) {
-				throw new \Exception( 'IP already processed in the last 24hrs' );
-			}
-
-			{
-				$aExistingIps = $oOpts->getAutoUnblockIps();
-				$aExistingIps[ $sIp ] = Services::Request()->ts();
-				$oOpts->setOpt( 'autounblock_ips', $aExistingIps );
-			}
-
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
-				->setIP( $sIp )
-				->fromBlacklist();
-			Services::Response()->redirectToHome();
-		}
-
-		return false;
+	/**
+	 * @return bool
+	 */
+	private function isAutoUnBlocked() {
+		return ( new AutoUnblock() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	private function renderKillPage() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$oCon = $this->getCon();
-		$oLoginMod = $oCon->getModule_LoginGuard();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		$con = $this->getCon();
+		$oLoginMod = $con->getModule_LoginGuard();
 
 		$sUniqId = 'uau'.uniqid();
 
-		$sIp = Services::IP()->getRequestIp();
-		$nTimeRemaining = max( floor( $oOpts->getAutoExpireTime()/60 ), 0 );
+		$sIP = Services::IP()->getRequestIp();
+		$nTimeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
+
+		$user = Services::WpUsers()->getCurrentWpUser();
+		$bCanUauGasp = $opts->isEnabledAutoVisitorRecover() && $opts->getCanIpRequestAutoUnblock( $sIP );
+		$bCanUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
+						$user instanceof \WP_User
+						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
+		$bCanAutoRecover = $bCanUauGasp || $bCanUauMagic;
+
 		$aData = [
 			'strings' => [
 				'title'   => sprintf( __( "You've been blocked by the %s plugin", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$oCon->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
-						$oCon->getHumanName()
+						$con->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
+						$con->getHumanName()
 					)
 				),
 				'lines'   => [
 					sprintf( __( 'Time remaining on black list: %s', 'wp-simple-firewall' ),
 						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
 					),
-					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $oOpts->getOffenseLimit() ),
+					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $opts->getOffenseLimit() ),
 					sprintf( __( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ) ),
 				],
 				'your_ip' => 'Your IP address',
@@ -119,10 +87,13 @@ class BlockRequest {
 					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
 				],
 			],
+			'content' => [
+				'email_unblock' => $this->renderEmailMagicLinkContent()
+			],
 			'vars'    => [
-				'nonce'        => $oMod->getNonceActionData( 'uau' ),
-				'ip'           => $sIp,
-				'gasp_element' => $oMod->renderTemplate(
+				'nonce'        => $mod->getNonceActionData( 'uau' ),
+				'ip'           => $sIP,
+				'gasp_element' => $mod->renderTemplate(
 					'snippets/gasp_js.php',
 					[
 						'sCbName'   => $oLoginMod->getGaspKey(),
@@ -138,13 +109,68 @@ class BlockRequest {
 				),
 			],
 			'flags'   => [
-				'is_autorecover'   => $oOpts->isEnabledAutoUserRecover(),
-				'is_uau_permitted' => $oOpts->getCanIpRequestAutoUnblock( $sIp ),
+				'is_autorecover'    => $bCanAutoRecover,
+				'is_uaug_permitted' => $bCanUauGasp,
+				'is_uaum_permitted' => $bCanUauMagic,
 			],
 		];
 		Services::WpGeneral()
 				->wpDie(
-					$oMod->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
+					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $aData, true )
 				);
+	}
+
+	/**
+	 * @return string
+	 */
+	private function renderEmailMagicLinkContent() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		$con = $this->getCon();
+
+		$content = '';
+
+		$user = Services::WpUsers()->getCurrentWpUser();
+		if ( $user instanceof \WP_User &&
+			 $opts->isEnabledMagicEmailLinkRecover()
+			 && $opts->getCanRequestAutoUnblockEmailLink( $user ) ) {
+
+			if ( apply_filters( $con->prefix( 'can_user_magic_link' ), true ) ) {
+				$content = $mod->renderTemplate(
+					'/pages/block/magic_link.twig',
+					[
+						'flags'   => [
+						],
+						'hrefs'   => [
+							'unblock' => add_query_arg(
+								array_merge(
+									$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
+									[
+										'ip' => Services::IP()->getRequestIp()
+									]
+								),
+								Services::WpGeneral()->getHomeUrl()
+							)
+						],
+						'vars'    => [
+							'email' => Obfuscate::Email( $user->user_email )
+						],
+						'strings' => [
+							'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
+							'this_will_send' => __( 'Clicking the button will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
+							'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - many are not.', 'wp-simple-firewall' ),
+							'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
+							'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the audit trail to determine the cause.", 'wp-simple-firewall' ),
+							'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
+							'click_to_send'  => __( 'Send Auto-Unblock Link To My Email', 'wp-simple-firewall' )
+						],
+					]
+				);
+			}
+		}
+
+		return $content;
 	}
 }

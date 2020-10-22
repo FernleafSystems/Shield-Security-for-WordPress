@@ -21,8 +21,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		);
 	}
 
-	/**
-	 */
 	public function hookOnDemandScan() {
 		$this->scheduleOnDemandScan();
 	}

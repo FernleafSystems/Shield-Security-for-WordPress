@@ -47,17 +47,23 @@ var iCWP_WPSF_OptionsPages = new function () {
 }();
 
 let iCWP_WPSF_OptsPageRender = new function () {
-	this.renderForm = function ( aAjaxReqData ) {
+	this.renderForm = function ( reqData ) {
 		iCWP_WPSF_BodyOverlay.show();
-		jQuery.post( ajaxurl, aAjaxReqData,
-			function ( oResponse ) {
-				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html )
-														   .trigger( 'odp-optsrender' );
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				dataType: "text",
+				success: function ( rawResponse ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
+					jQuery( '#ColumnOptions .content-options' )
+					.html( response.data.html )
+					.trigger( 'odp-optsrender' );
+				}
 			}
-		).fail(
+		).always(
 			function () {
-			}
-		).always( function () {
 				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
@@ -120,8 +126,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		aAjaxReqParams = aParams;
 	};
 
-	/**
-	 */
 	var submitOptionsForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
@@ -229,8 +233,6 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 		var bWarningShown = false;
 		var nIntervalTimeout = 500 * icwp_wpsf_vars_secadmin.timeleft;
 
-		/**
-		 */
 		var checkSecAdmin = function () {
 
 			bCheckInPlace = false;

@@ -9,14 +9,17 @@ class Strings {
 
 	use ModConsumer;
 
+	public function getModTagLine() :string {
+		return __( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @return string[]
 	 */
-	public function getDisplayStrings() {
-		$oCon = $this->getCon();
+	public function getDisplayStrings() :array {
+		$con = $this->getCon();
 
 		$aProFeatures = [
-			__( 'Customer Support', 'wp-simple-firewall' ),
 			__( 'More Scans', 'wp-simple-firewall' ),
 			__( 'Malware Scanner', 'wp-simple-firewall' ),
 			__( 'Scan Every Hour', 'wp-simple-firewall' ),
@@ -50,8 +53,8 @@ class Strings {
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-				'plugin_name'       => $oCon->getHumanName(),
+				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'plugin_name'       => $con->getHumanName(),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
@@ -74,12 +77,12 @@ class Strings {
 				'description'                  => __( 'Description', 'wp-simple-firewall' ),
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
-				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
-				'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
-				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
-				'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
-				'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
-				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' ),
+				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Admin PIN.', 'wp-simple-firewall' ),
+				'aar_must_supply_key_first'    => __( 'Please provide the Security Admin PIN to manage this plugin.', 'wp-simple-firewall' ),
+				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the Security Admin PIN.', 'wp-simple-firewall' ),
+				'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
+				'aar_submit_access_key'        => __( 'Submit Security Admin PIN', 'wp-simple-firewall' ),
+				'aar_forget_key'               => __( "Forgotten PIN", 'wp-simple-firewall' ),
 				'supply_password'              => __( 'Supply Password', 'wp-simple-firewall' ),
 				'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
 				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
@@ -102,6 +105,10 @@ class Strings {
 
 				'wphashes_token'      => 'WPHashes.com API Token',
 				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
+
+				'search_select' => [
+					'title' => ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
+				]
 			],
 			$this->getAdditionalDisplayStrings()
 		);
@@ -110,14 +117,14 @@ class Strings {
 	/**
 	 * @return string[]
 	 */
-	protected function getAdditionalDisplayStrings() {
+	protected function getAdditionalDisplayStrings() :array {
 		return [];
 	}
 
 	/**
 	 * @return string[][]
 	 */
-	protected function getAuditMessages() {
+	protected function getAuditMessages() :array {
 		return [];
 	}
 
@@ -131,12 +138,12 @@ class Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
-		$aOpt = $this->getOptions()->getOptDefinition( $sOptKey );
+	public function getOptionStrings( string $key ) :array {
+		$aOpt = $this->getOptions()->getOptDefinition( $key );
 		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
 			return [
 				'name'        => __( $aOpt[ 'name' ], 'wp-simple-firewall' ),
@@ -144,17 +151,17 @@ class Strings {
 				'description' => __( $aOpt[ 'description' ], 'wp-simple-firewall' ),
 			];
 		}
-		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sOptKey ) );
+		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $key ) );
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( string $section ) :array {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_user_messages' :
 				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
@@ -167,14 +174,14 @@ class Strings {
 				break;
 
 			default:
-				$aSect = $this->getOptions()->getSection( $sSectionSlug );
+				$aSect = $this->getOptions()->getSection( $section );
 				if ( is_array( $aSect ) && !empty( $aSect[ 'title' ] ) && !empty( $aSect[ 'title_short' ] ) ) {
 					$sTitle = __( $aSect[ 'title' ], 'wp-simple-firewall' );
 					$sTitleShort = __( $aSect[ 'title_short' ], 'wp-simple-firewall' );
 					$aSummary = empty( $aSect[ 'summary' ] ) ? [] : $aSect[ 'summary' ];
 				}
 				else {
-					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $section ) );
 				}
 		}
 

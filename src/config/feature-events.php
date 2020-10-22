@@ -13,6 +13,9 @@
     "run_if_wpcli":          true,
     "tracking_exclude":      true
   },
+  "wpcli": {
+    "enabled": false
+  },
   "sections":    [
     {
       "slug":        "section_enable_plugin_feature_events",
@@ -47,12 +50,9 @@
       "events": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Events\\Handler"
     },
     "events_table_name":                 "events",
-    "events_table_columns":              [
-      "id",
-      "event",
-      "count",
-      "created_at",
-      "deleted_at"
-    ]
+    "events_table_columns":              {
+      "event": "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Event ID'",
+      "count": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total'"
+    }
   }
 }
