@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -9,20 +10,27 @@ use FernleafSystems\Wordpress\Services\Services;
 class ApplyLabels {
 
 	use ModConsumer;
+	use OneTimeExecute;
 
-	public function run() {
-		$oCon = $this->getCon();
+	protected function canRun() {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledWhitelabel();
+	}
+
+	protected function run() {
+		$con = $this->getCon();
 		add_action( 'init', [ $this, 'onWpInit' ] );
-		add_filter( $oCon->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $oCon->prefix( 'plugin_labels' ), [ $this, 'applyPluginLabels' ] );
+		add_filter( $con->prefix( 'is_relabelled' ), '__return_true' );
+		add_filter( $con->prefix( 'plugin_labels' ), [ $this, 'applyPluginLabels' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 		add_action( 'admin_print_footer_scripts-plugin-editor.php', [ $this, 'hideFromPluginEditor' ] );
 	}
 
 	public function onWpInit() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {
 			$this->hideUpdates();
 		}
 	}
@@ -57,52 +65,48 @@ class ApplyLabels {
 	}
 
 	public function hideFromPluginEditor() {
-		$oCon = $this->getCon();
-		$sJs = Services::Data()->readFileContentsUsingInclude( $oCon->getPath_AssetJs( 'whitelabel.js' ) );
-		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $sJs, $oCon->getPluginBaseFile() ) );
+		$con = $this->getCon();
+		$sJs = Services::Data()->readFileContentsUsingInclude( $con->getPath_AssetJs( 'whitelabel.js' ) );
+		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $sJs, $con->getPluginBaseFile() ) );
 	}
 
 	/**
-	 * @param array $aPluginLabels
+	 * @param array $pluginLabels
 	 * @return array
 	 */
-	public function applyPluginLabels( $aPluginLabels ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
+	public function applyPluginLabels( $pluginLabels ) {
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		$mod = $this->getMod();
 
-		$aWhiteLabels = $oMod->getWhitelabelOptions();
+		$labels = $mod->getWhitelabelOptions();
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
-		$sServiceName = $aWhiteLabels[ 'name_main' ];
-		$aPluginLabels[ 'Name' ] = $sServiceName;
-		$aPluginLabels[ 'Title' ] = $sServiceName;
-		$aPluginLabels[ 'Author' ] = $aWhiteLabels[ 'name_company' ];
-		$aPluginLabels[ 'AuthorName' ] = $aWhiteLabels[ 'name_company' ];
-		$aPluginLabels[ 'MenuTitle' ] = $aWhiteLabels[ 'name_menu' ];
+		$sServiceName = $labels[ 'name_main' ];
+		$pluginLabels[ 'Name' ] = $sServiceName;
+		$pluginLabels[ 'Title' ] = $sServiceName;
+		$pluginLabels[ 'Author' ] = $labels[ 'name_company' ];
+		$pluginLabels[ 'AuthorName' ] = $labels[ 'name_company' ];
+		$pluginLabels[ 'MenuTitle' ] = $labels[ 'name_menu' ];
 
-		$sTagLine = $aWhiteLabels[ 'description' ];
-		if ( !empty( $sTagLine ) ) {
-			$aPluginLabels[ 'Description' ] = $sTagLine;
+		if ( !empty( $labels[ 'description' ] ) ) {
+			$pluginLabels[ 'Description' ] = $labels[ 'description' ];
 		}
 
-		$sUrl = $aWhiteLabels[ 'url_home' ];
-		if ( !empty( $sUrl ) ) {
-			$aPluginLabels[ 'PluginURI' ] = $sUrl;
-			$aPluginLabels[ 'AuthorURI' ] = $sUrl;
+		if ( !empty( $labels[ 'url_home' ] ) ) {
+			$pluginLabels[ 'PluginURI' ] = $labels[ 'url_home' ];
+			$pluginLabels[ 'AuthorURI' ] = $labels[ 'url_home' ];
 		}
 
-		$sIconUrl = $aWhiteLabels[ 'url_icon' ];
-		if ( !empty( $sIconUrl ) ) {
-			$aPluginLabels[ 'icon_url_16x16' ] = $sIconUrl;
-			$aPluginLabels[ 'icon_url_32x32' ] = $sIconUrl;
+		if ( !empty( $labels[ 'url_icon' ] ) ) {
+			$pluginLabels[ 'icon_url_16x16' ] = $labels[ 'url_icon' ];
+			$pluginLabels[ 'icon_url_32x32' ] = $labels[ 'url_icon' ];
 		}
 
-		$sLogoUrl = $aWhiteLabels[ 'url_dashboardlogourl' ];
-		if ( !empty( $sLogoUrl ) ) {
-			$aPluginLabels[ 'icon_url_128x128' ] = $sLogoUrl;
+		if ( !empty( $labels[ 'url_dashboardlogourl' ] ) ) {
+			$pluginLabels[ 'icon_url_128x128' ] = $labels[ 'url_dashboardlogourl' ];
 		}
 
-		return array_merge( $aWhiteLabels, $aPluginLabels );
+		return array_merge( $labels, $pluginLabels );
 	}
 
 	/**
@@ -132,10 +136,7 @@ class ApplyLabels {
 		return $oPlugins;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isNeedToHideUpdates() {
+	private function isNeedToHideUpdates() :bool {
 		return is_admin() && !Services::WpGeneral()->isCron();
 	}
 }

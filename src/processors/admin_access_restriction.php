@@ -12,15 +12,14 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	protected $sOptionRegexPattern;
 
 	public function run() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-
 		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
-		if ( $oOpts->isEnabledWhitelabel() ) {
-			( new SecurityAdmin\Lib\WhiteLabel\ApplyLabels() )
-				->setMod( $this->getMod() )
-				->run();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isEnabledWhitelabel() ) {
+			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+			$mod = $this->getMod();
+			$mod->getWhiteLabelController()->execute();
 		}
 	}
 
@@ -29,24 +28,24 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return bool
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
-		return $bHasPermission && ( $oMod->isRegisteredSecAdminUser() || $oMod->isSecAdminSessionValid()
-									|| $oMod->testSecAccessKeyRequest() );
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		$mod = $this->getMod();
+		return $bHasPermission && ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid()
+									|| $mod->testSecAccessKeyRequest() );
 	}
 
 	public function onWpInit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-			$oMod = $this->getMod();
-			/** @var SecurityAdmin\Options $oOpts */
-			$oOpts = $this->getOptions();
+			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+			$mod = $this->getMod();
+			/** @var SecurityAdmin\Options $opts */
+			$opts = $this->getOptions();
 
-			if ( !$oMod->isUpgrading() && !Services::WpGeneral()->isLoginRequest() ) {
+			if ( !$mod->isUpgrading() && !Services::WpGeneral()->isLoginRequest() ) {
 				add_filter( 'pre_update_option', [ $this, 'blockOptionsSaves' ], 1, 3 );
 			}
 
-			if ( $oOpts->isSecAdminRestrictUsersEnabled() ) {
+			if ( $opts->isSecAdminRestrictUsersEnabled() ) {
 				add_filter( 'editable_roles', [ $this, 'restrictEditableRoles' ], 100, 1 );
 				add_filter( 'user_has_cap', [ $this, 'restrictAdminUserChanges' ], 100, 3 );
 				add_action( 'delete_user', [ $this, 'restrictAdminUserDelete' ], 100, 1 );
@@ -55,17 +54,17 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				add_action( 'set_user_role', [ $this, 'restrictSetUserRole' ], 100, 3 );
 			}
 
-			$aPluginRestrictions = $oOpts->getAdminAccessArea_Plugins();
+			$aPluginRestrictions = $opts->getAdminAccessArea_Plugins();
 			if ( !empty( $aPluginRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disablePluginManipulation' ], 0, 3 );
 			}
 
-			$aThemeRestrictions = $oOpts->getAdminAccessArea_Themes();
+			$aThemeRestrictions = $opts->getAdminAccessArea_Themes();
 			if ( !empty( $aThemeRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disableThemeManipulation' ], 0, 3 );
 			}
 
-			$aPostRestrictions = $oOpts->getAdminAccessArea_Posts();
+			$aPostRestrictions = $opts->getAdminAccessArea_Posts();
 			if ( !empty( $aPostRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disablePostsManipulation' ], 0, 3 );
 			}
@@ -250,10 +249,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		return $aAllCaps;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getUserPagesToRestrict() {
+	protected function getUserPagesToRestrict() :array {
 		return [
 			/* 'user-new.php', */
 			'user-edit.php',
@@ -268,44 +264,29 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * Right before a plugin option is due to update it will check that we have permissions to do so
 	 * and if not, will * revert the option to save to the previous one.
 	 * @param mixed  $mNewOptionValue
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @param mixed  $mOldValue
 	 * @return mixed
 	 */
-	public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
+	public function blockOptionsSaves( $mNewOptionValue, $key, $mOldValue ) {
 
-		if ( !$this->getCon()->isPluginAdmin()
-			 && ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) ) {
+		if ( !$this->getCon()->isPluginAdmin() && is_string( $key )
+			 && ( $this->isOptionForThisPlugin( $key ) || $this->isOptionRestricted( $key ) ) ) {
 			$mNewOptionValue = $mOldValue;
 		}
 
 		return $mNewOptionValue;
 	}
 
-	/**
-	 * @param string $sOptionKey
-	 * @return int
-	 */
-	protected function isOptionForThisPlugin( $sOptionKey ) {
-		return preg_match( $this->getOptionRegexPattern(), $sOptionKey );
+	private function isOptionForThisPlugin( string $key ) :bool {
+		return preg_match( $this->getOptionRegexPattern(), $key ) > 0;
 	}
 
-	/**
-	 * @param string $sOptionKey
-	 * @return int
-	 */
-	protected function isOptionRestricted( $sOptionKey ) {
-		$bRestricted = false;
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		if ( $oOpts->getAdminAccessArea_Options() ) {
-			$bRestricted = in_array(
-				$sOptionKey,
-				$oOpts->getOptionsToRestrict()
-			);
-		}
-		return $bRestricted;
+	private function isOptionRestricted( string $key ) :bool {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getAdminAccessArea_Options()
+			   && in_array( $key, $opts->getOptionsToRestrict() );
 	}
 
 	/**
@@ -315,9 +296,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return array
 	 */
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oReq = Services::Request();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		$req = Services::Request();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -325,8 +306,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		// special case for plugin info thickbox for changelog
 		$bIsChangelog = defined( 'IFRAME_REQUEST' )
 						&& ( $sRequestedCapability === 'install_plugins' )
-						&& ( $oReq->query( 'section' ) == 'changelog' )
-						&& $oReq->query( 'plugin' );
+						&& ( $req->query( 'section' ) == 'changelog' )
+						&& $req->query( 'plugin' );
 		if ( $bIsChangelog ) {
 			return $aAllCaps;
 		}
@@ -334,7 +315,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		$aEditCapabilities = [ 'activate_plugins', 'delete_plugins', 'install_plugins', 'update_plugins' ];
 
 		if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
-			$aAreaRestrictions = $oOpts->getAdminAccessArea_Plugins();
+			$aAreaRestrictions = $opts->getAdminAccessArea_Plugins();
 			if ( in_array( $sRequestedCapability, $aAreaRestrictions ) ) {
 				$aAllCaps[ $sRequestedCapability ] = false;
 			}
@@ -355,8 +336,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 			return $aAllCaps;
 		}
 
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -369,7 +350,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		];
 
 		if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
-			$aAreaRestrictions = $oOpts->getAdminAccessArea_Themes();
+			$aAreaRestrictions = $opts->getAdminAccessArea_Themes();
 			if ( in_array( $sRequestedCapability, $aAreaRestrictions ) ) {
 				$aAllCaps[ $sRequestedCapability ] = false;
 			}
@@ -381,19 +362,19 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	/**
 	 * @param array $aAllCaps
 	 * @param       $cap
-	 * @param array $aArgs
+	 * @param array $args
 	 * @return array
 	 */
-	public function disablePostsManipulation( $aAllCaps, $cap, $aArgs ) {
+	public function disablePostsManipulation( $aAllCaps, $cap, $args ) {
 		if ( $this->getCon()->isPluginAdmin() ) {
 			return $aAllCaps;
 		}
 
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
 		/** @var string $sRequestedCapability */
-		$sRequestedCapability = $aArgs[ 0 ];
+		$sRequestedCapability = $args[ 0 ];
 		$aEditCapabilities = [
 			'edit_post',
 			'publish_post',
@@ -415,7 +396,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				'_post',
 				'_page'
 			], '', $sRequestedCapability ); //Order of items in this array is important!
-			$aAreaRestrictions = $oOpts->getAdminAccessArea_Posts();
+			$aAreaRestrictions = $opts->getAdminAccessArea_Posts();
 			if ( in_array( $sRequestedCapabilityTrimmed, $aAreaRestrictions ) ) {
 				$aAllCaps[ $sRequestedCapability ] = false;
 			}
@@ -438,19 +419,19 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	public function printAdminAccessAjaxForm() {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
 		$mod = $this->getMod();
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
 		$aRenderData = [
 			'flags'       => [
-				'restrict_options' => $oOpts->getAdminAccessArea_Options()
+				'restrict_options' => $opts->getAdminAccessArea_Options()
 			],
 			'strings'     => [
 				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				'unlock_link'        => $this->getUnlockLinkHtml(),
 			],
 			'js_snippets' => [
-				'options_to_restrict' => "'".implode( "','", $oOpts->getOptionsToRestrict() )."'",
+				'options_to_restrict' => "'".implode( "','", $opts->getOptionsToRestrict() )."'",
 			],
 			'ajax'        => [
 				'sec_admin_login_box' => $mod->getAjaxActionData( 'sec_admin_login_box', true )
