@@ -272,10 +272,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return array_merge( $aAdminNotices, $this->getOptions()->getAdminNotices() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function verifyModuleMeetRequirements() {
+	private function verifyModuleMeetRequirements() :bool {
 		$bMeetsReqs = true;
 
 		$aPhpReqs = $this->getOptions()->getFeatureRequirement( 'php' );
@@ -336,15 +333,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
 		}
 
-		if ( Services::Data()->getPhpVersionIsAtLeast( '7.0' ) ) {
-			add_action( 'cli_init', function () {
-				try {
-					$this->getWpCli()->execute();
-				}
-				catch ( \Exception $oE ) {
-				}
-			} );
-		}
+		add_action( 'cli_init', function () {
+			try {
+				$this->getWpCli()->execute();
+			}
+			catch ( \Exception $e ) {
+			}
+		} );
 
 		if ( $this->isModuleRequest() ) {
 
@@ -357,7 +352,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 						$this->handleModAction( Services::Request()->request( 'exec' ) );
 					}
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 					wp_nonce_ays( '' );
 				}
 			}
