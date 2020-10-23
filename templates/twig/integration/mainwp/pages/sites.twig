@@ -1,3 +1,18 @@
+<div class="ui green inverted center aligned padded segment" style="margin-bottom: 0;">
+	<div class="ui four column grid">
+		<div class="row">
+			{% for head_stat_key,head_stat_val in vars.stats_head %}
+				<div class="column">
+					<div class="ui inverted horizontal statistic">
+						<div class="value">{{ head_stat_val }}</div>
+						<div class="label">{{ attribute(strings, head_stat_key) }}</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
 <table id="mainwp-shield-sites-table" class="mainwp-shield-table ui single line table" style="width:100%">
 	<thead>
 		<tr>
@@ -38,8 +53,8 @@
 			{{ site.shield.version }}
 		</td>
 		{% else %}
-			<td colspan="4" style="text-align: center; background-color: #ffe4cd">Shield Security plugin not detected.</td>
-		{% endif %}
+		<td colspan="4" style="text-align: center; background-color: #ffe4cd">Shield Security plugin not detected.</td>
+	{% endif %}
 	{% endfor %}
 	</tbody>
 </table>
