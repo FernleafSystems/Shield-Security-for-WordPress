@@ -1,9 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use MainWP\Dashboard\MainWP_DB;
 
 class SyncHandler {
 
@@ -21,5 +22,12 @@ class SyncHandler {
 	 * @param array  $info
 	 */
 	private function syncSite( $website, array $info ) {
+		$con = $this->getCon();
+		error_log( var_export( $info, true ) );
+		MainWP_DB::instance()->update_website_option(
+			$website,
+			$con->prefix( 'shield-sync' ),
+			wp_json_encode( $info[ $con->prefix( 'shield-sync' ) ] ?? [] )
+		);
 	}
 }

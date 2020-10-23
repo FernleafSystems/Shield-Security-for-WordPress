@@ -1,9 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use MainWP\Dashboard\MainWP_DB;
 
 class SitesListTableHandler {
 
@@ -22,6 +24,12 @@ class SitesListTableHandler {
 	}
 
 	private function renderShieldColumnEntryForItem( array $item ) :string {
+		$con = $this->getCon();
+		$syncData = MainWP_DB::instance()->get_website_option(
+			$item,
+			$con->prefix( 'shield-sync' )
+		);
+		$sync = ( new SyncVO() )->applyFromArray( empty( $syncData ) ? [] : json_decode( $syncData, true ) );
 		return '<a class="ui mini compact button red" href="admin.php?page=managesites&amp;updateid=1">5</a>';
 	}
 }
