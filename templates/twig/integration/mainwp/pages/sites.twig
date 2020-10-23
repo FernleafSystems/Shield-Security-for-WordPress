@@ -16,21 +16,30 @@
 	</thead>
 	<tbody>
 	{% for site in vars.sites %}
+		{% set shield_installed = site.shield.is_installed %}
 		<td class="check-column">
 			<span class="ui checkbox"><input type="checkbox" name="checkbox_url" class="checkbox_url"></span>
 		</td>
 		<td>{{ site.name }}</td>
 		<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
-		<td>ok</td>
+		{% if site.shield.is_installed %}
 		<td>
-			{{ site.shield.sync_at_diff }}
-			<br /><small>{{ site.shield.sync_at_text }}</small>
+			okay!
 		</td>
 		<td>
 			{{ site.shield.sync_at_diff }}
 			<br /><small>{{ site.shield.sync_at_text }}</small>
 		</td>
-		<td>{{ site.shield.version }}</td>
+		<td>
+			{{ site.shield.sync_at_diff }}
+			<br /><small>{{ site.shield.sync_at_text }}</small>
+		</td>
+		<td>
+			{{ site.shield.version }}
+		</td>
+		{% else %}
+			<td colspan="4" style="text-align: center; background-color: #ffe4cd">Shield Security plugin not detected.</td>
+		{% endif %}
 	{% endfor %}
 	</tbody>
 </table>

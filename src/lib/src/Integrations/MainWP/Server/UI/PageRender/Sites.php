@@ -18,6 +18,7 @@ class Sites extends BaseRender {
 		foreach ( $sites as &$site ) {
 			$sync = $this->getSiteShieldSyncInfo( $site );
 			$site[ 'shield' ] = $sync->getRawDataAsArray();
+			$site[ 'shield' ][ 'is_installed' ] = $sync->installed_at ?? false;
 			$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $sync->sync_at );
 			$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $sync->sync_at )->diffForHumans();
 		}
@@ -40,13 +41,14 @@ class Sites extends BaseRender {
 	}
 
 	protected function getSiteShieldSyncInfo( $site ) :SyncVO {
-		return ( new SyncVO() )->applyFromArray( json_decode(
-			MainWP_DB::instance()->get_website_option(
-				$site,
-				$this->getCon()->prefix( 'mainwp-sync' )
-			),
-			true
-		) );
+		$data = MainWP_DB::instance()->get_website_option(
+			$site,
+			$this->getCon()->prefix( 'mainwp-sync' )
+		);
+		if ( empty( $data ) ) {
+			$data = '[]';
+		}
+		return ( new SyncVO() )->applyFromArray( json_decode( $data, true ) );
 	}
 
 	protected function getTemplateSlug() :string {
