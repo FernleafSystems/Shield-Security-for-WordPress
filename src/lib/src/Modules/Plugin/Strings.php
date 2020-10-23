@@ -104,6 +104,11 @@ class Strings extends Base\Strings {
 				$titleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
+			case 'section_integrations' :
+				$title = __( '3rd Party Integrations', 'wp-simple-firewall' );
+				$titleShort = __( 'Integrations', 'wp-simple-firewall' );
+				break;
+
 			case 'section_third_party_captcha' :
 				$title = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$titleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
@@ -332,6 +337,16 @@ class Strings extends Base\Strings {
 				$name = __( 'CAPTCHA Style', 'wp-simple-firewall' );
 				$summary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
 				$desc = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
+				break;
+
+			case 'enable_mainwp' :
+				$name = __( 'MainWP Integration', 'wp-simple-firewall' );
+				$summary = __( "Turn-On Shield's Built-In Integration For MainWP Server And Client Installations", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Easily integrate Shield Security to help you manage your site security from within MainWP.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+						__( "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list.", 'wp-simple-firewall' ) )
+				];
 				break;
 
 			default:

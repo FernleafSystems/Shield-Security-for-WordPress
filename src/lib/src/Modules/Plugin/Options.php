@@ -54,10 +54,11 @@ class Options extends Base\ShieldOptions {
 		return !$this->isOpt( 'global_enable_plugin_features', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isTrackingEnabled() {
+	public function isEnabledMainWP() :bool {
+		return $this->isPremium() && $this->isOpt( 'enable_mainwp', 'Y' );
+	}
+
+	public function isTrackingEnabled() :bool {
 		return $this->isOpt( 'enable_tracking', 'Y' );
 	}
 

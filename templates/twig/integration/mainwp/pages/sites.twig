@@ -1,0 +1,45 @@
+<table id="mainwp-shield-sites-table" class="mainwp-shield-table ui single line table" style="width:100%">
+	<thead>
+		<tr>
+			<th class="collapsing no-sort check-column">
+				<span class="ui checkbox">
+					<input type="checkbox" name="checkall" class="url_checkall" id="url_checkall" />
+				</span>
+			</th>
+			<th>Site</th>
+			<th>URL</th>
+			<th>Status</th>
+			<th>Last Sync</th>
+			<th>Last Scan</th>
+			<th>Version</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for site in vars.sites %}
+		{% set shield_installed = site.shield.is_installed %}
+		<td class="check-column">
+			<span class="ui checkbox"><input type="checkbox" name="checkbox_url" class="checkbox_url"></span>
+		</td>
+		<td>{{ site.name }}</td>
+		<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
+		{% if site.shield.is_installed %}
+		<td>
+			okay!
+		</td>
+		<td>
+			{{ site.shield.sync_at_diff }}
+			<br /><small>{{ site.shield.sync_at_text }}</small>
+		</td>
+		<td>
+			{{ site.shield.sync_at_diff }}
+			<br /><small>{{ site.shield.sync_at_text }}</small>
+		</td>
+		<td>
+			{{ site.shield.version }}
+		</td>
+		{% else %}
+			<td colspan="4" style="text-align: center; background-color: #ffe4cd">Shield Security plugin not detected.</td>
+		{% endif %}
+	{% endfor %}
+	</tbody>
+</table>
