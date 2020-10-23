@@ -9,19 +9,20 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class Controller
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
- * @property bool                                     $is_activating
- * @property bool                                     $is_debug
- * @property bool                                     $modules_loaded
- * @property bool                                     $rebuild_options
- * @property bool                                     $plugin_deactivating
- * @property bool                                     $plugin_deleting
- * @property bool                                     $plugin_reset
- * @property false|string                             $file_forceoff
- * @property string                                   $base_file
- * @property string                                   $root_file
- * @property bool                                     $user_can_base_permissions
- * @property Shield\Modules\Events\Lib\EventsService  $service_events
- * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[] $modules
+ * @property bool                                       $is_activating
+ * @property bool                                       $is_debug
+ * @property bool                                       $modules_loaded
+ * @property bool                                       $rebuild_options
+ * @property Shield\Integrations\MainWP\Common\MainWPVO $mwpVO
+ * @property bool                                       $plugin_deactivating
+ * @property bool                                       $plugin_deleting
+ * @property bool                                       $plugin_reset
+ * @property false|string                               $file_forceoff
+ * @property string                                     $base_file
+ * @property string                                     $root_file
+ * @property bool                                       $user_can_base_permissions
+ * @property Shield\Modules\Events\Lib\EventsService    $service_events
+ * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[]   $modules
  */
 class Controller {
 

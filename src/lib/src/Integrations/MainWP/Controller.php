@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -16,12 +17,11 @@ class Controller {
 			$this->runServerSide();
 		}
 		catch ( \Exception $e ) {
-			try {
-				$this->runClientSide();
-			}
-			catch ( \Exception $e ) {
-				$this->setCon( null );
-			}
+		}
+		try {
+			$this->runClientSide();
+		}
+		catch ( \Exception $e ) {
 		}
 	}
 
@@ -29,18 +29,31 @@ class Controller {
 	 * @throws \Exception
 	 */
 	private function runClientSide() {
+		$con = $this->getCon();
+		$mwpVO = $con->mwpVO ?? new MainWPVO();
+		$mwpVO->is_client = false;
+		$con->mwpVO = $mwpVO;
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	private function runServerSide() {
+		$con = $this->getCon();
+		$mwpVO = new MainWPVO();
+		$mwpVO->is_server = false;
+
 		if ( !$this->isMainWPServerActive() ) {
 			throw new \Exception( 'MainWP not active' );
 		}
-		$this->childKey = ( new Server\Init() )
-			->setCon( $this->getCon() )
+
+		$mwpVO->child_key = ( new Server\Init() )
+			->setCon( $con )
 			->run();
+
+		$mwpVO->is_server = true;
+
+		$con->mwpVO = $mwpVO;
 	}
 
 	private function isMainWPServerActive() :bool {

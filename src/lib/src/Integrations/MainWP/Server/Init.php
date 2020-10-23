@@ -18,14 +18,12 @@ class Init {
 		add_filter( 'mainwp_getextensions', function ( $exts ) {
 			$exts[] = [
 				'plugin'   => $this->getCon()->getRootFile(),
-				'callback' => function () {
-					( new ExtensionSettingsPage() )
-						->setCon( $this->getCon() )
-						->render();
-				}
+				// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
+				'callback' => [ ( new ExtensionSettingsPage() )->setCon( $this->getCon() ), 'render' ]
 			];
 			return $exts;
 		}, 10, 1 );
+
 		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', $this->getCon()->getRootFile() );
 		$key = $childEnabled[ 'key' ] ?? '';
 		if ( empty( $key ) ) {
