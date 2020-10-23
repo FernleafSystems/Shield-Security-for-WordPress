@@ -230,14 +230,4 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 
 		Services::Response()->sendApache404( '', Services::WpGeneral()->getHomeUrl() );
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	protected function getLoginPath() :string {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
-		$mod = $this->getMod();
-		return $mod->getCustomLoginPath();
-	}
 }

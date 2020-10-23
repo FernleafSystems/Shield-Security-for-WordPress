@@ -163,12 +163,4 @@ class Options extends Base\ShieldOptions {
 	protected function isSelectOptionEnabled( $key ) {
 		return !$this->isOpt( $key, 'disabled' );
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_IPs() {
-		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
-	}
 }

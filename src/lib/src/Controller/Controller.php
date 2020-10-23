@@ -1916,18 +1916,6 @@ class Controller {
 	}
 
 	/**
-	 * Path of format -
-	 * wp-content/languages/plugins/wp-simple-firewall-de_DE.mo
-	 * @param string $sMoFilePath
-	 * @param string $sDomain
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function overrideTranslations( $sMoFilePath, $sDomain ) {
-		return $sMoFilePath;
-	}
-
-	/**
 	 * @param array[] $aRegistered
 	 * @return array[]
 	 */

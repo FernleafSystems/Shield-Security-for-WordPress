@@ -137,12 +137,4 @@ class Options extends Base\ShieldOptions {
 	public function updateCTLastSnapshotAt() {
 		return $this->setOptAt( 'ct_last_snapshot_at' );
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_AuditTrail() {
-		return $this->getCon()->prefixOption( $this->getDef( 'audit_trail_table_name' ) );
-	}
 }

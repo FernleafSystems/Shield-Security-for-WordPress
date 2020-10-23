@@ -1098,14 +1098,6 @@ class BaseModCon {
 	}
 
 	/**
-	 * @param string
-	 * @return string
-	 */
-	public function getOptionStoragePrefix() {
-		return $this->getCon()->getOptionStoragePrefix();
-	}
-
-	/**
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {

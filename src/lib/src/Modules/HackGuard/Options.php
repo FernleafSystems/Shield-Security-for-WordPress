@@ -328,28 +328,4 @@ class Options extends Base\ShieldOptions {
 			}
 		) );
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_FileLocker() {
-		return $this->getCon()->prefixOption( $this->getDef( 'table_name_filelocker' ) );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_Scanner() {
-		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_ScanQueue() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanqueue' ) );
-	}
 }

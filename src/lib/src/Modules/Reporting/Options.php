@@ -21,12 +21,4 @@ class Options extends Base\ShieldOptions {
 			? $this->getOpt( $key )
 			: $sDefault;
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_Reports() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
-	}
 }

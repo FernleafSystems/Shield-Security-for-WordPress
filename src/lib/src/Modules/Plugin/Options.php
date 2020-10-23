@@ -98,28 +98,4 @@ class Options extends Base\ShieldOptions {
 	public function setVisitorAddressSource( $sSource ) {
 		return $this->setOpt( 'visitor_address_source', $sSource );
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 10.0
-	 */
-	public function isOnFloatingPluginBadge() {
-		return $this->isOpt( 'display_plugin_badge', 'Y' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_GeoIp() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'geoip_table_name' ) );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_Notes() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'db_notes_name' ) );
-	}
 }

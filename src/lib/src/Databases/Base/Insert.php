@@ -13,10 +13,7 @@ class Insert extends BaseQuery {
 
 	public function getInsertData() :array {
 		$dbh = $this->getDbH();
-		$cols = method_exists( $dbh, 'getTableSchema' ) ?
-			$dbh->getTableSchema()->getColumnNames()
-			: $dbh->getColumnsActual();
-
+		$cols = $dbh->getTableSchema()->getColumnNames();
 		return array_intersect_key(
 			is_array( $this->aInsertData ) ? $this->aInsertData : [],
 			array_flip( $cols )
@@ -41,12 +38,10 @@ class Insert extends BaseQuery {
 			$data = [];
 		}
 
-		$dbh = $this->getDbH();
-		$cols = method_exists( $dbh, 'getTableSchema' ) ?
-			$dbh->getTableSchema()->getColumnNames()
-			: $dbh->getColumnsActual();
-
-		$this->aInsertData = array_intersect_key( $data, array_flip( $cols ) );
+		$this->aInsertData = array_intersect_key(
+			$data,
+			array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
+		);
 		return $this;
 	}
 

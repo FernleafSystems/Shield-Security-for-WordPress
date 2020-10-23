@@ -1693,33 +1693,4 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function savePluginOptions() {
 		$this->saveModOptions();
 	}
-
-	/**
-	 * @deprecated 10.0
-	 */
-	public function getOptionStoragePrefix() :string {
-		return $this->getCon()->getOptionStoragePrefix();
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mDefault
-	 * @return mixed
-	 * @deprecated 10.0
-	 */
-	public function getOpt( $sOptionKey, $mDefault = false ) {
-		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
-	}
-
-	/**
-	 * Sets the value for the given option key
-	 * @param string $key
-	 * @param mixed  $value
-	 * @return $this
-	 * @deprecated 10.0
-	 */
-	protected function setOpt( string $key, $value ) {
-		$this->getOptions()->setOpt( $key, $value );
-		return $this;
-	}
 }
