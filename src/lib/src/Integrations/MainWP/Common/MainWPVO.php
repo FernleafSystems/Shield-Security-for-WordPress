@@ -8,6 +8,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * Class MainwpVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common
  * @property string $child_key
+ * @property string $child_file
  * @property bool   $is_client
  * @property bool   $is_server
  */

@@ -56,6 +56,7 @@ class Controller {
 		$mwpVO->child_key = ( new Server\Init() )
 			->setCon( $con )
 			->run();
+		$mwpVO->child_file = $con->getRootFile();
 
 		$mwpVO->is_server = true;
 
