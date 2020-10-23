@@ -436,6 +436,10 @@ class Controller {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+
+		if ( $this->isPremiumActive() ) {
+			$this->initMainWpDashboardExtention();
+		}
 	}
 
 	/**
@@ -491,9 +495,6 @@ class Controller {
 	public function onWpLoaded() {
 		$this->getAdminNotices();
 		$this->initCrons();
-		if ( $this->isPremiumActive() ) {
-			$this->initMainWpDashboardExtention();
-		}
 	}
 
 	protected function initCrons() {

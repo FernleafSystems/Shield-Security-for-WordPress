@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Client;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -9,8 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 class Controller {
 
 	use PluginControllerConsumer;
-
-	private $childKey;
 
 	public function run() {
 		try {
@@ -31,7 +30,14 @@ class Controller {
 	private function runClientSide() {
 		$con = $this->getCon();
 		$mwpVO = $con->mwpVO ?? new MainWPVO();
-		$mwpVO->is_client = false;
+		$mwpVO->is_client = @class_exists( '\MainWP\Child\MainWP_Child' );
+
+		if ( $mwpVO->is_client ) {
+			( new Client\Init() )
+				->setCon( $con )
+				->run();
+		}
+
 		$con->mwpVO = $mwpVO;
 	}
 

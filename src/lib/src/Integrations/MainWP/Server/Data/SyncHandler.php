@@ -12,6 +12,10 @@ class SyncHandler {
 	use OneTimeExecute;
 
 	protected function run() {
+		add_action( 'mainwp_sync_others_data', function ( $othersData, $website ) {
+			$othersData[ $this->getCon()->prefix( 'mainwp-sync' ) ] = 'shield';
+			return $othersData;
+		}, 10, 2 );
 		add_action( 'mainwp_site_synced', function ( $website, $info ) {
 			$this->syncSite( $website, $info );
 		}, 10, 2 );
@@ -23,11 +27,10 @@ class SyncHandler {
 	 */
 	private function syncSite( $website, array $info ) {
 		$con = $this->getCon();
-		error_log( var_export( $info, true ) );
 		MainWP_DB::instance()->update_website_option(
 			$website,
-			$con->prefix( 'shield-sync' ),
-			wp_json_encode( $info[ $con->prefix( 'shield-sync' ) ] ?? [] )
+			$con->prefix( 'mainwp-sync' ),
+			wp_json_encode( $info[ $con->prefix( 'mainwp-sync' ) ] ?? [] )
 		);
 	}
 }
