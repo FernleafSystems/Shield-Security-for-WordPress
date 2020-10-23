@@ -31,6 +31,6 @@ class SitesListTableHandler {
 		);
 		$sync = ( new SyncVO() )->applyFromArray( empty( $syncData ) ? [] : json_decode( $syncData, true ) );
 		return sprintf( '<a class="ui mini compact button red" href="admin.php?page=managesites&amp;updateid=1">%s</a>',
-			$sync->version );
+			$sync->meta->version );
 	}
 }

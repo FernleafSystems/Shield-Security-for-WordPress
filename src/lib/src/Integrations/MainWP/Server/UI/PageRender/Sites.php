@@ -9,8 +9,7 @@ use MainWP\Dashboard\MainWP_DB;
 class Sites extends BaseRender {
 
 	protected function getData() :array {
-		$con = $this->getCon();
-		$mwp = $con->mwpVO;
+		$mwp = $this->getCon()->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
 
@@ -23,15 +22,17 @@ class Sites extends BaseRender {
 		$sites = apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 		foreach ( $sites as &$site ) {
 			$sync = $this->getSiteShieldSyncInfo( $site );
-			$site[ 'shield' ] = $sync->getRawDataAsArray();
-			$site[ 'shield' ][ 'is_installed' ] = $sync->installed_at ?? false;
-			if ( $sync->installed_at > 0 ) {
-				$statsHead[ 'active' ]++;
-				$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $sync->sync_at );
-				$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $sync->sync_at )->diffForHumans();
+			$meta = $sync->meta;
 
-				$statsHead[ 'with_issues' ] += $sync->has_update ? 1 : 0;
-				$statsHead[ 'needs_update' ] += $sync->has_update ? 1 : 0;
+			$site[ 'shield' ] = $sync->getRawDataAsArray();
+			$site[ 'shield' ][ 'is_installed' ] = $meta->installed_at ?? false;
+			if ( $meta->installed_at > 0 ) {
+				$statsHead[ 'active' ]++;
+				$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
+				$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
+
+				$statsHead[ 'with_issues' ] += $meta->has_update ? 1 : 0;
+				$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
 			}
 			else {
 				$statsHead[ 'inactive' ]++;

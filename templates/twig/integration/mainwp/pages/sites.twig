@@ -31,7 +31,6 @@
 	</thead>
 	<tbody>
 	{% for site in vars.sites %}
-		{% set shield_installed = site.shield.is_installed %}
 		<td class="check-column">
 			<span class="ui checkbox"><input type="checkbox" name="checkbox_url" class="checkbox_url"></span>
 		</td>
@@ -50,7 +49,7 @@
 			<br /><small>{{ site.shield.sync_at_text }}</small>
 		</td>
 		<td>
-			{{ site.shield.version }}
+			{{ site.shield.meta.version }}
 		</td>
 		{% else %}
 		<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.not_detected }}</td>

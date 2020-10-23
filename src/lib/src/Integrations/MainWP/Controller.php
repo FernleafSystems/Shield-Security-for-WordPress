@@ -46,7 +46,7 @@ class Controller {
 	 */
 	private function runServerSide() {
 		$con = $this->getCon();
-		$mwpVO = new MainWPVO();
+		$mwpVO = $con->mwpVO ?? new MainWPVO();
 		$mwpVO->is_server = false;
 
 		if ( !$this->isMainWPServerActive() ) {

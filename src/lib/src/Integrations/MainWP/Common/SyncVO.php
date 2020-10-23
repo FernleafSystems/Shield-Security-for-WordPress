@@ -7,12 +7,31 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class SyncVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common
- * @property int    $installed_at
- * @property int    $sync_at
- * @property string $version
- * @property bool   $has_update
+ * @property array[]    $modules
+ * @property SyncMetaVO $meta
  */
 class SyncVO {
 
-	use StdClassAdapter;
+	use StdClassAdapter {
+		__get as __adapterGet;
+	}
+
+	/**
+	 * @param string $property
+	 * @return mixed
+	 */
+	public function __get( $property ) {
+
+		$mValue = $this->__adapterGet( $property );
+
+		switch ( $property ) {
+			case 'meta':
+				$mValue = ( new SyncMetaVO() )->applyFromArray( $mValue );
+				break;
+			default:
+				break;
+		}
+
+		return $mValue;
+	}
 }

@@ -1460,6 +1460,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $aOptionsData;
 	}
 
+	public function getMainWpData() :array {
+		return [];
+	}
+
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
 	 * @param array  $aExportItems

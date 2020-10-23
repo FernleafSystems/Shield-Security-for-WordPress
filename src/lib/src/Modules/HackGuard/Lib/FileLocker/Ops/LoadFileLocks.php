@@ -58,7 +58,6 @@ class LoadFileLocks {
 		return array_filter(
 			$this->withProblems(),
 			function ( $oLock ) {
-				/** @var FileLocker\EntryVO $oLock */
 				return $oLock->notified_at == 0;
 			}
 		);

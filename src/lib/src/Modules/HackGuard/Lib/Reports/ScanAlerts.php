@@ -20,9 +20,9 @@ class ScanAlerts extends BaseReporter {
 
 		$rep = $this->getReport();
 		$scanCounts = array_filter(
-			( new HackGuard\Lib\Reports\Query\CountsPerScan() )
+			( new Query\ScanCounts( $rep->interval_start_at, $rep->interval_end_at ) )
 				->setMod( $this->getMod() )
-				->run( $rep->interval_start_at, $rep->interval_end_at )
+				->standard()
 		);
 
 		if ( !empty( $scanCounts ) ) {
