@@ -30,6 +30,7 @@ class SitesListTableHandler {
 			$con->prefix( 'mainwp-sync' )
 		);
 		$sync = ( new SyncVO() )->applyFromArray( empty( $syncData ) ? [] : json_decode( $syncData, true ) );
-		return '<a class="ui mini compact button red" href="admin.php?page=managesites&amp;updateid=1">5</a>';
+		return sprintf( '<a class="ui mini compact button red" href="admin.php?page=managesites&amp;updateid=1">%s</a>',
+			$sync->sync_at );
 	}
 }

@@ -30,7 +30,7 @@ class SyncHandler {
 		MainWP_DB::instance()->update_website_option(
 			$website,
 			$con->prefix( 'mainwp-sync' ),
-			wp_json_encode( $info[ $con->prefix( 'mainwp-sync' ) ] ?? [] )
+			$info[ $con->prefix( 'mainwp-sync' ) ] ?? '[]'
 		);
 	}
 }

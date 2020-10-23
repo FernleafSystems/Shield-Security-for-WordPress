@@ -12,9 +12,9 @@ class Init {
 		add_filter( 'mainwp_site_sync_others_data', function ( $information, $othersData ) {
 			$con = $this->getCon();
 			if ( isset( $othersData[ $con->prefix( 'mainwp-sync' ) ] ) ) {
-				$information[ $con->prefix( 'mainwp-sync' ) ] = ( new Sync() )
+				$information[ $con->prefix( 'mainwp-sync' ) ] = wp_json_encode( ( new Sync() )
 					->setCon( $con )
-					->run();
+					->run() );
 			}
 			return $information;
 		}, 10, 2 );

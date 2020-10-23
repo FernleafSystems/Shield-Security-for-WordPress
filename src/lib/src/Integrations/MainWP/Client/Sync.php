@@ -10,10 +10,12 @@ class Sync {
 	use PluginControllerConsumer;
 
 	public function run() :array {
+		$con = $this->getCon();
 		$data = [
-			'sync_at' => Services::Request()->ts()
+			'sync_at'    => Services::Request()->ts(),
+			'version'    => $con->getVersion(),
+			'has_update' => Services::WpPlugins()->isUpdateAvailable( $con->getPluginBaseFile() ),
 		];
-
 		return $data;
 	}
 }
