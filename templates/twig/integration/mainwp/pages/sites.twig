@@ -21,12 +21,12 @@
 					<input type="checkbox" name="checkall" class="url_checkall" id="url_checkall" />
 				</span>
 			</th>
-			<th>Site</th>
-			<th>URL</th>
-			<th>Status</th>
-			<th>Last Sync</th>
-			<th>Last Scan</th>
-			<th>Version</th>
+			<th>{{ strings.site }}</th>
+			<th>{{ strings.url }}</th>
+			<th>{{ strings.status }}</th>
+			<th>{{ strings.last_sync }}</th>
+			<th>{{ strings.last_scan }}</th>
+			<th>{{ strings.version }}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -53,7 +53,7 @@
 			{{ site.shield.version }}
 		</td>
 		{% else %}
-		<td colspan="4" style="text-align: center; background-color: #ffe4cd">Shield Security plugin not detected.</td>
+		<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.not_detected }}</td>
 	{% endif %}
 	{% endfor %}
 	</tbody>

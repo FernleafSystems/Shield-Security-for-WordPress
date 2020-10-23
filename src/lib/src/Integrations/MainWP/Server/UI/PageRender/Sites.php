@@ -44,10 +44,17 @@ class Sites extends BaseRender {
 				'stats_head' => $statsHead,
 			],
 			'strings' => [
+				'site'         => __( 'Site', 'wp-simple-firewall' ),
+				'url'          => __( 'URL', 'wp-simple-firewall' ),
+				'status'       => __( 'Status', 'wp-simple-firewall' ),
+				'last_sync'    => __( 'Last Sync', 'wp-simple-firewall' ),
+				'last_scan'    => __( 'Last Scan', 'wp-simple-firewall' ),
+				'version'      => __( 'Version', 'wp-simple-firewall' ),
 				'active'       => __( 'Active', 'wp-simple-firewall' ),
 				'inactive'     => __( 'Inactive', 'wp-simple-firewall' ),
 				'with_issues'  => __( 'With Issues', 'wp-simple-firewall' ),
 				'needs_update' => __( 'Needs Update', 'wp-simple-firewall' ),
+				'not_detected' => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
 			]
 		];
 
