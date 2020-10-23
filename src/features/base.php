@@ -310,7 +310,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				$this->doExecuteProcessor();
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 	}
 
