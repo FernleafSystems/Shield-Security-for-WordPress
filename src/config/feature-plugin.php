@@ -116,6 +116,11 @@
       "title_short": "Import / Export"
     },
     {
+      "slug":        "section_integrations",
+      "title":       "Integrations",
+      "title_short": "Integrations"
+    },
+    {
       "slug":        "section_global_security_options",
       "title":       "Global Plugin Security Options",
       "title_short": "Disable Shield"
@@ -416,6 +421,18 @@
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
+    },
+    {
+      "key":         "enable_mainwp",
+      "section":     "section_integrations",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "MainWP Integrations",
+      "summary":     "Turn-On Shield's Integration For Both MainWP Server And Client Installations.",
+      "description": "Easily integrate Shield Security to help you manage your site security from within MainWP."
     },
     {
       "key":          "tracking_last_sent_at",

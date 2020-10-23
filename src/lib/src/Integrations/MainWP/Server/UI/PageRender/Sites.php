@@ -19,8 +19,10 @@ class Sites extends BaseRender {
 			$sync = $this->getSiteShieldSyncInfo( $site );
 			$site[ 'shield' ] = $sync->getRawDataAsArray();
 			$site[ 'shield' ][ 'is_installed' ] = $sync->installed_at ?? false;
-			$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $sync->sync_at );
-			$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $sync->sync_at )->diffForHumans();
+			if ( $sync->installed_at > 0 ) {
+				$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $sync->sync_at );
+				$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $sync->sync_at )->diffForHumans();
+			}
 		}
 		$data = [
 			'vars' => [

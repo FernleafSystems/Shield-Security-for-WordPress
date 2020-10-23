@@ -437,8 +437,12 @@ class Controller {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 
-		if ( $this->isPremiumActive() ) {
-			$this->initMainWpDashboardExtention();
+		/** @var Shield\Modules\Plugin\Options $pluginOpts */
+		$pluginOpts = $this->getModule_Plugin()->getOptions();
+		if ( $pluginOpts->isEnabledMainWP() ) {
+			( new Shield\Integrations\MainWP\Controller() )
+				->setCon( $this )
+				->run();
 		}
 	}
 
@@ -504,16 +508,6 @@ class Controller {
 		( new Shield\Crons\DailyCron() )
 			->setCon( $this )
 			->run();
-	}
-
-	private function initMainWpDashboardExtention() {
-		try {
-			( new Shield\Integrations\MainWP\Controller() )
-				->setCon( $this )
-				->run();
-		}
-		catch ( \Exception $e ) {
-		}
 	}
 
 	/**
