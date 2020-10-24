@@ -13,9 +13,22 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	private $bValidSecAdminRequest;
 
+	/**
+	 * @var SecurityAdmin\Lib\WhiteLabel\ApplyLabels
+	 */
+	private $oWhiteLabelController;
+
 	protected function setupCustomHooks() {
 		parent::setupCustomHooks();
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
+	}
+
+	public function getWhiteLabelController() :SecurityAdmin\Lib\WhiteLabel\ApplyLabels {
+		if ( !$this->oWhiteLabelController instanceof SecurityAdmin\Lib\WhiteLabel\ApplyLabels ) {
+			$this->oWhiteLabelController = ( new SecurityAdmin\Lib\WhiteLabel\ApplyLabels() )
+				->setMod( $this );
+		}
+		return $this->oWhiteLabelController;
 	}
 
 	/**

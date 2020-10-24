@@ -90,4 +90,8 @@ class Options extends Base\ShieldOptions {
 	public function isWlHideUpdates() :bool {
 		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
 	}
+
+	public function isReplaceBadgeUrl() :bool {
+		return $this->isOpt( 'wl_replace_badge_url', 'Y' );
+	}
 }

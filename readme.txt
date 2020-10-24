@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.5
-Stable tag: 10.0.2
+Stable tag: 10.0.3
 
 The highest rated WordPress Security plugin, delivering unparalleled, all-in-one protection for you and your customers.
 
