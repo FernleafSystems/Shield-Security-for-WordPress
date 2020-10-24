@@ -96,7 +96,7 @@ class Options {
 	}
 
 	public function getSlug() :string {
-		return $this->getFeatureProperty( 'slug' );
+		return (string)$this->getFeatureProperty( 'slug' );
 	}
 
 	/**

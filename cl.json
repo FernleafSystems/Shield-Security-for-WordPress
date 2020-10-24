@@ -60,6 +60,14 @@
         ]
       },
       {
+        "type":        "new",
+        "title":       "Shield plugin badge URL may be replaced using White Label settings",
+        "description": [
+          "The URL used in the Shield plugin badge may be replaced using the Home URL provided in White Label settings."
+        ],
+        "patch":       "10.0.3"
+      },
+      {
         "type":        "improved",
         "title":       "PHP 7+ Only",
         "description": [
@@ -122,6 +130,12 @@
         "title":       "Fatal error when IP address isn't detected",
         "description": [],
         "patch":       "10.0.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Not correctly identifying GoogleBot.",
+        "description": [],
+        "patch":       "10.0.3"
       }
     ]
   },

@@ -1,6 +1,7 @@
 {
   "slug":        "user_management",
   "properties":  {
+    "slug":                  "user_management",
     "name":                  "User Management",
     "sidebar_name":          "Users",
     "show_module_menu_item": false,
@@ -197,7 +198,10 @@
       "key":           "email_checks",
       "section":       "section_user_reg",
       "type":          "multiple_select",
-      "default":       [ "syntax", "domain" ],
+      "default":       [
+        "syntax",
+        "domain"
+      ],
       "value_options": [
         {
           "value_key": "syntax",
