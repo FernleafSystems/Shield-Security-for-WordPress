@@ -1312,7 +1312,15 @@ dl.pro-features dd {
 #FileLockerDiffContents .card-body {
 	padding: 1.25rem;
 }
-.overview.card {
+#odp-PageContainer .overview.card {
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
+}
+.overview.card,
+.overview.card .card-header,
+.overview.card .card-body {
+	border: 2px solid white !important;
+}
+.overview.card > .card-header {
 }
 .overview.card > .card-footer {
 	padding: 10px 15px;
@@ -1324,25 +1332,60 @@ dl.pro-features dd {
 .overview.card > .card-footer > a .dashicons {
 	font-size: 24px;
 }
+
+.overview.card.state-good .title-icon:before,
+.overview.card.state-good .card-title,
+.overview.card.state-good .card-header .card-link .dashicons {
+	color: #015b01;
+}
+.overview.card.state-ok .title-icon:before,
+.overview.card.state-ok .card-title,
+.overview.card.state-ok .card-header .card-link .dashicons {
+	color: #345c83;
+}
+.overview.card.state-warning .title-icon:before,
+.overview.card.state-warning .card-title,
+.overview.card.state-warning .card-header .card-link .dashicons {
+	color: #ae5403;
+}
+.overview.card.state-danger .title-icon:before,
+.overview.card.state-danger .card-title,
+.overview.card.state-danger .card-header .card-link .dashicons {
+	color: #811313;
+}
+
+.overview.card.state-danger .title-icon:before {
+	content: "\f153";
+}
+.overview.card.state-warning .title-icon:before {
+	content: "\f534";
+}
+.overview.card.state-ok .title-icon:before {
+	content: "\f348";
+}
+.overview.card.state-good .title-icon:before {
+	content: "\f12a";
+}
+
 .overview.card.state-danger,
 .overview.card.state-danger > .card-header,
 .overview.card.state-danger > .card-footer {
-	border-color: #cf0000;
+	/*border-color: #cf0000;*/
 }
 .overview.card.state-warning,
 .overview.card.state-warning > .card-header,
 .overview.card.state-warning > .card-footer {
-	border-color: #d26605;
+	/*border-color: #d26605;*/
 }
 .overview.card.state-ok,
 .overview.card.state-ok > .card-header,
 .overview.card.state-ok > .card-footer {
-	border-color: #0579d2;
+	/*border-color: #0579d2;*/
 }
 .overview.card.state-good,
 .overview.card.state-good > .card-header,
 .overview.card.state-good > .card-footer {
-	border-color: #008000;
+	/*border-color: #008000;*/
 }
 .overview.card.state-good > .card-header {
 	background-color: rgba(98, 214, 83, 0.2);
