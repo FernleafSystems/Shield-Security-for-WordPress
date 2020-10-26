@@ -14,12 +14,22 @@ class ScanCounts {
 	/**
 	 * @var int
 	 */
-	private $from;
+	public $from;
 
 	/**
 	 * @var int
 	 */
-	private $to;
+	public $to;
+
+	/**
+	 * @var bool
+	 */
+	public $ignored = false;
+
+	/**
+	 * @var bool
+	 */
+	public $notified = false;
 
 	public function __construct( $from = null, $to = null ) {
 		$this->from = is_int( $from ) ? $from : 0;
@@ -55,18 +65,22 @@ class ScanCounts {
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		/** @var Scanner\Select $select */
-		$select = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		/** @var Scanner\Select $qSel */
+		$qSel = $mod->getDbHandler_ScanResults()->getQuerySelector();
 
 		$counts = [];
 
 		foreach ( $opts->getScanSlugs() as $slug ) {
-			$counts[ $slug ] = $select->filterByScan( $slug )
-									  ->filterByNotNotified()
-									  ->filterByNotIgnored()
-									  ->filterByCreatedAt( $this->from, '>=' )
-									  ->filterByCreatedAt( $this->to, '<=' )
-									  ->count();
+			$qSel->filterByScan( $slug )
+				 ->filterByCreatedAt( $this->from, '>=' )
+				 ->filterByCreatedAt( $this->to, '<=' );
+			if ( isset( $this->ignored ) ) {
+				$this->ignored ? $qSel->filterByIgnored() : $qSel->filterByNotIgnored();
+			}
+			if ( isset( $this->notified ) ) {
+				$this->notified ? $qSel->filterByNotified() : $qSel->filterByNotNotified();
+			}
+			$counts[ $slug ] = $qSel->count();
 		}
 
 		return $counts;

@@ -1443,25 +1443,27 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	public function collectOptionsForTracking() :array {
-		$oVO = $this->getOptions();
+		$opts = $this->getOptions();
 		$aOptionsData = $this->getOptions()->getOptionsForTracking();
-		foreach ( $aOptionsData as $sOption => $mValue ) {
-			unset( $aOptionsData[ $sOption ] );
+		foreach ( $aOptionsData as $opt => $mValue ) {
+			unset( $aOptionsData[ $opt ] );
 			// some cleaning to ensure we don't have disallowed characters
-			$sOption = preg_replace( '#[^_a-z]#', '', strtolower( $sOption ) );
-			$sType = $oVO->getOptionType( $sOption );
+			$opt = preg_replace( '#[^_a-z]#', '', strtolower( $opt ) );
+			$sType = $opts->getOptionType( $opt );
 			if ( $sType == 'checkbox' ) { // only want a boolean 1 or 0
-				$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
+				$aOptionsData[ $opt ] = (int)( $mValue == 'Y' );
 			}
 			else {
-				$aOptionsData[ $sOption ] = $mValue;
+				$aOptionsData[ $opt ] = $mValue;
 			}
 		}
 		return $aOptionsData;
 	}
 
 	public function getMainWpData() :array {
-		return [];
+		return [
+			'options' => $this->getOptions()->getTransferableOptions()
+		];
 	}
 
 	/**

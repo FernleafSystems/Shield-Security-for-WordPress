@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\PageRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
 
@@ -39,7 +40,7 @@ class Sites extends BaseRender {
 			}
 		}
 
-		$data = [
+		return [
 			'vars'    => [
 				'sites'      => $sites,
 				'stats_head' => $statsHead,
@@ -58,8 +59,6 @@ class Sites extends BaseRender {
 				'not_detected' => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
 			]
 		];
-
-		return $data;
 	}
 
 	protected function getSiteShieldSyncInfo( $site ) :SyncVO {
@@ -74,6 +73,6 @@ class Sites extends BaseRender {
 	}
 
 	protected function getTemplateSlug() :string {
-		return 'sites';
+		return 'pages/sites';
 	}
 }

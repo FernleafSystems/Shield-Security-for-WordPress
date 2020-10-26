@@ -1,0 +1,12 @@
+{% if flags.is_version_match %}
+	<span data-tooltip="{{ strings.tooltip_issues_found }}: {{ vars.issues }}"
+		  data-position="left center">
+		<a class="ui mini compact button {{ vars.issues > 0 ? 'red':'green' }}"
+		   href="{{ hrefs.this_extension }}">{{ vars.issues }}</a>
+	</span>
+{% else %}
+	<span data-tooltip="{{ strings.tooltip_version_mismatch }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}"><i class="circular inverted orange exclamation icon"></i></a>
+	</span>
+{% endif %}

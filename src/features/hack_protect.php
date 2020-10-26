@@ -80,6 +80,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->aScanCons[ $slug ];
 	}
 
+	public function getMainWpData() :array {
+		$issues = ( new HackGuard\Lib\Reports\Query\ScanCounts() )->setMod( $this );
+		$issues->notified = null;
+		return array_merge( parent::getMainWpData(), [
+			'scan_issues' => array_filter( $issues->all() )
+		] );
+	}
+
 	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'scan_file_download':

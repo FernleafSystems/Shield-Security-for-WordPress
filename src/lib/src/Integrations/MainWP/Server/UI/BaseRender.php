@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\PageRender;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -14,7 +14,7 @@ abstract class BaseRender {
 		try {
 			$output = $con->getRenderer()
 						  ->setTemplateEngineTwig()
-						  ->setTemplate( sprintf( '/integration/mainwp/pages/%s.twig', $this->getTemplateSlug() ) )
+						  ->setTemplate( sprintf( '/integration/mainwp/%s.twig', $this->getTemplateSlug() ) )
 						  ->setRenderVars( $this->getData() )
 						  ->render();
 		}
