@@ -1334,20 +1334,24 @@ dl.pro-features dd {
 }
 
 .overview.card.state-good .title-icon:before,
+.overview.card.state-good .card-title,
 .overview.card.state-good .card-header .card-link .dashicons {
-	color: #008000;
+	color: #015b01;
 }
 .overview.card.state-ok .title-icon:before,
+.overview.card.state-ok .card-title,
 .overview.card.state-ok .card-header .card-link .dashicons {
-	color: #3f6ea0;
+	color: #345c83;
 }
 .overview.card.state-warning .title-icon:before,
+.overview.card.state-warning .card-title,
 .overview.card.state-warning .card-header .card-link .dashicons {
-	color: #d26605;
+	color: #ae5403;
 }
 .overview.card.state-danger .title-icon:before,
+.overview.card.state-danger .card-title,
 .overview.card.state-danger .card-header .card-link .dashicons {
-	color: #921515;
+	color: #811313;
 }
 
 .overview.card.state-danger .title-icon:before {
