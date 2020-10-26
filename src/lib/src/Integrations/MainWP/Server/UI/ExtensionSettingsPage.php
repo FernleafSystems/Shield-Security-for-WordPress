@@ -13,6 +13,11 @@ class ExtensionSettingsPage {
 	public function render() {
 		$con = $this->getCon();
 
+		// Adjust the title at the top of the page so it's not "Wp Simple Firewall"
+		add_filter( 'mainwp_header_title', function () {
+			return $this->getCon()->getHumanName();
+		}, 100, 0 );
+
 		ob_start();
 		do_action( 'mainwp_pageheader_extensions', $this->getCon()->getRootFile() );
 		$mainwpHeader = ob_get_contents();

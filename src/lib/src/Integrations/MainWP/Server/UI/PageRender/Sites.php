@@ -32,7 +32,7 @@ class Sites extends BaseRender {
 				$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
 				$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
 
-				$statsHead[ 'with_issues' ] += $meta->has_update ? 1 : 0;
+				$statsHead[ 'with_issues' ] += empty( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) ? 0 : 1;
 				$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
 			}
 			else {
