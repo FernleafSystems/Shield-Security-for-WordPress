@@ -1313,7 +1313,7 @@ dl.pro-features dd {
 	padding: 1.25rem;
 }
 #odp-PageContainer .overview.card {
-	box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
 }
 .overview.card,
 .overview.card .card-header,
@@ -1333,14 +1333,34 @@ dl.pro-features dd {
 	font-size: 24px;
 }
 
+.overview.card.state-good .title-icon:before,
+.overview.card.state-good .card-header .card-link .dashicons {
+	color: #008000;
+}
+.overview.card.state-ok .title-icon:before,
 .overview.card.state-ok .card-header .card-link .dashicons {
 	color: #3f6ea0;
 }
+.overview.card.state-warning .title-icon:before,
 .overview.card.state-warning .card-header .card-link .dashicons {
 	color: #d26605;
 }
+.overview.card.state-danger .title-icon:before,
 .overview.card.state-danger .card-header .card-link .dashicons {
 	color: #921515;
+}
+
+.overview.card.state-danger .title-icon:before {
+	content: "\f153";
+}
+.overview.card.state-warning .title-icon:before {
+	content: "\f534";
+}
+.overview.card.state-ok .title-icon:before {
+	content: "\f348";
+}
+.overview.card.state-good .title-icon:before {
+	content: "\f12a";
 }
 
 .overview.card.state-danger,
