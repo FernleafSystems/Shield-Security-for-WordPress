@@ -85,6 +85,7 @@
     {
       "key":         "disable_anonymous_restapi",
       "section":     "section_apixml",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",

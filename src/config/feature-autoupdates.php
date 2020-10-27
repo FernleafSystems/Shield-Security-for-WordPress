@@ -62,6 +62,7 @@
     {
       "key":         "enable_autoupdate_disable_all",
       "section":     "section_automatic_updates_for_wordpress_components",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3v",
@@ -109,6 +110,7 @@
     {
       "key":         "enable_autoupdate_themes",
       "section":     "section_automatic_updates_for_wordpress_components",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -132,6 +134,7 @@
     {
       "key":           "autoupdate_plugin_self",
       "section":       "section_options",
+      "advanced":      true,
       "default":       "auto",
       "type":          "select",
       "value_options": [
@@ -157,7 +160,7 @@
     {
       "key":         "enable_upgrade_notification_email",
       "section":     "section_options",
-      "default":     "Y",
+      "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",

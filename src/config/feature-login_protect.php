@@ -125,6 +125,7 @@
     {
       "key":         "rename_wplogin_path",
       "section":     "section_rename_wplogin",
+      "advanced":    true,
       "sensitive":   true,
       "default":     "",
       "type":        "text",

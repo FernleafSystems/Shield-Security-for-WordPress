@@ -144,6 +144,7 @@
     {
       "key":         "session_lock_location",
       "section":     "section_user_session_management",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",

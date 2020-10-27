@@ -154,8 +154,20 @@
       "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
     },
     {
+      "key":         "show_advanced",
+      "section":     "section_defaults",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Show All Options",
+      "summary":     "Show All Options Including Those Marked As Advanced",
+      "description": "Shield hides advanced options from view to simplify display. Turn this option on to display advanced options at all times."
+    },
+    {
       "key":           "visitor_address_source",
       "section":       "section_defaults",
+      "advanced":     true,
       "sensitive":     false,
       "type":          "select",
       "default":       "AUTO_DETECT_IP",
@@ -248,6 +260,7 @@
     {
       "key":         "enable_wpcli",
       "section":     "section_general_plugin_options",
+      "advanced":    true,
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
@@ -271,6 +284,7 @@
     {
       "key":         "importexport_enable",
       "section":     "section_importexport",
+      "advanced":    true,
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
@@ -283,6 +297,7 @@
     {
       "key":         "importexport_masterurl",
       "section":     "section_importexport",
+      "advanced":    true,
       "default":     "",
       "type":        "text",
       "link_info":   "",
@@ -294,6 +309,7 @@
     {
       "key":          "importexport_whitelist",
       "section":      "section_importexport",
+      "advanced":    true,
       "transferable": false,
       "sensitive":    true,
       "default":      [],
@@ -307,6 +323,7 @@
     {
       "key":         "importexport_whitelist_notify",
       "section":     "section_importexport",
+      "advanced":    true,
       "sensitive":   true,
       "default":     "N",
       "type":        "checkbox",
@@ -319,6 +336,7 @@
     {
       "key":          "importexport_secretkey",
       "section":      "section_importexport",
+      "advanced":     true,
       "transferable": false,
       "sensitive":    true,
       "default":      "",
@@ -343,6 +361,7 @@
     {
       "key":         "locale_override",
       "section":     "section_general_plugin_options",
+      "advanced":     true,
       "default":     "",
       "type":        "text",
       "link_info":   "https://icwp.io/il",
@@ -425,6 +444,7 @@
     {
       "key":         "enable_mainwp",
       "section":     "section_integrations",
+      "advanced":     true,
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",

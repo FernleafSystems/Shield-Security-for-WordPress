@@ -133,6 +133,7 @@
     {
       "key":           "auto_expire",
       "section":       "section_auto_black_list",
+      "advanced":      true,
       "default":       "day",
       "type":          "select",
       "value_options": [
@@ -166,6 +167,7 @@
     {
       "key":           "user_auto_recover",
       "section":       "section_auto_black_list",
+      "advanced":      true,
       "premium":       true,
       "default":       [],
       "type":          "multiple_select",
@@ -188,6 +190,7 @@
     {
       "key":         "request_whitelist",
       "section":     "section_auto_black_list",
+      "advanced":    true,
       "premium":     true,
       "default":     [],
       "type":        "array",

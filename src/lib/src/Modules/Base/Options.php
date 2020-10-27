@@ -364,10 +364,7 @@ class Options {
 		return $aKeys;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getOptionsForPluginUse() {
+	public function getOptionsForPluginUse() :array {
 
 		$aOptionsData = [];
 
@@ -562,13 +559,13 @@ class Options {
 	}
 
 	/**
-	 * @param string $sOptKey
-	 * @param string $sProperty
+	 * @param string $key
+	 * @param string $prop
 	 * @return mixed|null
 	 */
-	public function getOptProperty( $sOptKey, $sProperty ) {
-		$aOpt = $this->getRawData_SingleOption( $sOptKey );
-		return ( is_array( $aOpt ) && isset( $aOpt[ $sProperty ] ) ) ? $aOpt[ $sProperty ] : null;
+	public function getOptProperty( string $key, string $prop ) {
+		$opt = $this->getRawData_SingleOption( $key );
+		return $opt[ $prop ] ?? null;
 	}
 
 	public function getStoredOptions() :array {
@@ -607,18 +604,13 @@ class Options {
 		return $raw[ 'menu_items' ] ?? [];
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @param string $key
-	 * @return array
-	 */
-	public function getRawData_SingleOption( $key ) {
-		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( isset( $aOption[ 'key' ] ) && ( $key == $aOption[ 'key' ] ) ) {
-				return $aOption;
+	public function getRawData_SingleOption( string $key ) :array {
+		foreach ( $this->getRawData_AllOptions() as $opt ) {
+			if ( isset( $opt[ 'key' ] ) && ( $key == $opt[ 'key' ] ) ) {
+				return $opt;
 			}
 		}
-		return null;
+		return [];
 	}
 
 	public function getRebuildFromFile() :bool {
@@ -629,11 +621,11 @@ class Options {
 	 * @param string $key
 	 * @return string
 	 */
-	public function getSelectOptionValueText( $key ) {
+	public function getSelectOptionValueText( string $key ) {
 		$sText = '';
-		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $aOpt ) {
-			if ( $aOpt[ 'value_key' ] == $this->getOpt( $key ) ) {
-				$sText = $aOpt[ 'text' ];
+		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
+			if ( $opt[ 'value_key' ] == $this->getOpt( $key ) ) {
+				$sText = $opt[ 'text' ];
 				break;
 			}
 		}
@@ -661,6 +653,10 @@ class Options {
 
 	public function isModuleRunIfVerifiedBot() :bool {
 		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
+	}
+
+	public function isOptAdvanced( string $key ) :bool {
+		return (bool)$this->getOptProperty( $key, 'advanced' );
 	}
 
 	public function isOptChanged( string $key ) :bool {

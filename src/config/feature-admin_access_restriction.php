@@ -16,23 +16,23 @@
     "run_if_wpcli":          false,
     "order":                 20
   },
-  "wpcli": {
-    "root":            "secadmin"
+  "wpcli":         {
+    "root": "secadmin"
   },
   "admin_notices": {
     "certain-options-restricted": {
-      "id":               "certain-options-restricted",
-      "schedule":         "conditions",
-      "plugin_admin":     "no",
-      "per_user": true,
-      "type":             "warning"
+      "id":           "certain-options-restricted",
+      "schedule":     "conditions",
+      "plugin_admin": "no",
+      "per_user":     true,
+      "type":         "warning"
     },
     "admin-users-restricted":     {
-      "id":               "admin-users-restricted",
-      "schedule":         "conditions",
-      "plugin_admin":     "no",
-      "type":             "warning",
-      "per_user": true
+      "id":           "admin-users-restricted",
+      "schedule":     "conditions",
+      "plugin_admin": "no",
+      "type":         "warning",
+      "per_user":     true
     }
   },
   "sections":      [
@@ -107,6 +107,7 @@
     {
       "key":         "sec_admin_users",
       "section":     "section_admin_access_restriction_settings",
+      "advanced":    true,
       "sensitive":   true,
       "premium":     true,
       "default":     [],
@@ -120,6 +121,7 @@
     {
       "key":         "admin_access_timeout",
       "section":     "section_admin_access_restriction_settings",
+      "advanced":    true,
       "default":     30,
       "type":        "integer",
       "min":         1,
@@ -132,6 +134,7 @@
     {
       "key":         "allow_email_override",
       "section":     "section_admin_access_restriction_settings",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/gf",
@@ -154,6 +157,7 @@
     {
       "key":         "admin_access_restrict_admin_users",
       "section":     "section_admin_access_restriction_areas",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/a0",
@@ -165,6 +169,7 @@
     {
       "key":           "admin_access_restrict_plugins",
       "section":       "section_admin_access_restriction_areas",
+      "advanced":      true,
       "type":          "multiple_select",
       "default":       [],
       "value_options": [
@@ -193,6 +198,7 @@
     {
       "key":           "admin_access_restrict_themes",
       "section":       "section_admin_access_restriction_areas",
+      "advanced":      true,
       "type":          "multiple_select",
       "default":       [],
       "value_options": [
@@ -225,6 +231,7 @@
     {
       "key":           "admin_access_restrict_posts",
       "section":       "section_admin_access_restriction_areas",
+      "advanced":      true,
       "type":          "multiple_select",
       "default":       [],
       "value_options": [

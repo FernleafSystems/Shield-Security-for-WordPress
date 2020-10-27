@@ -127,6 +127,7 @@
     {
       "key":         "custom_exclusions",
       "section":     "section_traffic_options",
+      "advanced":    true,
       "premium":     true,
       "default":     [],
       "type":        "array",
@@ -139,6 +140,7 @@
     {
       "key":         "auto_clean",
       "section":     "section_traffic_options",
+      "advanced":    true,
       "default":     3,
       "min":         1,
       "type":        "integer",
@@ -199,18 +201,18 @@
     }
   ],
   "definitions":  {
-    "db_classes":             {
+    "db_classes":            {
       "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
     },
     "traffic_table_name":    "traffic",
     "traffic_table_columns": {
-      "rid": "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
-      "uid": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID'",
-      "ip": "varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address'",
-      "path": "text NOT NULL DEFAULT '' COMMENT 'Request Path or URI'",
-      "code": "int(5) NOT NULL DEFAULT '200' COMMENT 'HTTP Response Code'",
-      "verb": "varchar(10) NOT NULL DEFAULT 'get' COMMENT 'HTTP Method'",
-      "ua": "text COMMENT 'Browser User Agent String'",
+      "rid":   "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
+      "uid":   "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID'",
+      "ip":    "varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address'",
+      "path":  "text NOT NULL DEFAULT '' COMMENT 'Request Path or URI'",
+      "code":  "int(5) NOT NULL DEFAULT '200' COMMENT 'HTTP Response Code'",
+      "verb":  "varchar(10) NOT NULL DEFAULT 'get' COMMENT 'HTTP Method'",
+      "ua":    "text COMMENT 'Browser User Agent String'",
       "trans": "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Trangression'"
     },
     "events":                {

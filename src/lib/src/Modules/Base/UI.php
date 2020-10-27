@@ -17,8 +17,10 @@ class UI {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function buildOptions() {
+		$con = $this->getCon();
 
-		$bPremiumEnabled = $this->getCon()->isPremiumExtensionsEnabled();
+		$bPremiumEnabled = $con->isPremiumExtensionsEnabled();
+		$bShowAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		$opts = $this->getOptions();
 		$aOptions = $opts->getOptionsForPluginUse();
@@ -30,7 +32,8 @@ class UI {
 				foreach ( $aSection[ 'options' ] as $nKey => $aOption ) {
 					$aOption[ 'is_value_default' ] = ( $aOption[ 'value' ] === $aOption[ 'default' ] );
 					$bIsPrem = isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ];
-					if ( !$bIsPrem || $bPremiumEnabled ) {
+					$bIsAdv = isset( $aOption[ 'advanced' ] ) && $aOption[ 'advanced' ];
+					if ( ( !$bIsPrem || $bPremiumEnabled ) && ( !$bIsAdv || $bShowAdvanced ) ) {
 						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOption );
 					}
 					else {
@@ -55,15 +58,17 @@ class UI {
 					$aOptions[ $nSectionKey ] = $aSection;
 				}
 
-				$aWarnings = [];
-				if ( !$opts->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
+				if ( isset( $aOptions[ $nSectionKey ] ) ) {
+					$aWarnings = [];
+					if ( !$opts->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
+						$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
+					}
+					$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
+						$aWarnings,
+						$this->getSectionWarnings( $aSection[ 'slug' ] )
+					);
+					$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
 				}
-				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
-					$aWarnings,
-					$this->getSectionWarnings( $aSection[ 'slug' ] )
-				);
-				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
 			}
 		}
 

@@ -205,6 +205,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return (int)$this->getOptions()->getOpt( 'installation_time', 0 );
 	}
 
+	public function isShowAdvanced() :bool {
+		return $this->getOptions()->isOpt( 'show_advanced', 'Y' );
+	}
+
 	/**
 	 * @return string
 	 */
