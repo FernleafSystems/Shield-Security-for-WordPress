@@ -510,8 +510,6 @@ class Controller {
 			->run();
 	}
 
-	/**
-	 */
 	public function onWpAdminMenu() {
 		if ( $this->isValidAdminArea() ) {
 			$this->createPluginMenu();
@@ -1162,8 +1160,8 @@ class Controller {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Property( string $key ) {
-		$aData = $this->getPluginSpec()[ 'properties' ];
-		return $aData[ $key ] ?? null;
+		$data = $this->getPluginSpec()[ 'properties' ];
+		return $data[ $key ] ?? null;
 	}
 
 	/**
@@ -1260,11 +1258,8 @@ class Controller {
 		return ( strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIsPage_PluginMainDashboard() {
-		return ( Services::WpGeneral()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
+	public function getIsPage_PluginMainDashboard() :bool {
+		return Services::WpGeneral()->getCurrentWpAdminPage() === $this->getPluginPrefix();
 	}
 
 	/**
@@ -1298,13 +1293,6 @@ class Controller {
 		return $this->bRebuildOptions;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isUpgrading() {
-		return $this->getIsRebuildOptionsFromFile();
-	}
-
 	public function getIsResetPlugin() :bool {
 		if ( !isset( $this->plugin_reset ) ) {
 			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
@@ -1319,37 +1307,26 @@ class Controller {
 		return $this->getPluginSpec_Property( 'wpms_network_admin_only' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getParentSlug() {
+	public function getParentSlug() :string {
 		return $this->getPluginSpec_Property( 'slug_parent' );
 	}
 
 	/**
-	 * This is the path to the main plugin file relative to the WordPress plugins directory.
-	 * @return string
+	 * Path to the main plugin file relative to the WordPress plugins directory.
 	 */
-	public function getPluginBaseFile() {
+	public function getPluginBaseFile() :string {
 		if ( !isset( $this->sPluginBaseFile ) ) {
 			$this->sPluginBaseFile = plugin_basename( $this->getRootFile() );
 		}
 		return $this->sPluginBaseFile;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPluginSlug() {
+	public function getPluginSlug() :string {
 		return $this->getPluginSpec_Property( 'slug_plugin' );
 	}
 
-	/**
-	 * @param string $sPath
-	 * @return string
-	 */
-	public function getPluginUrl( $sPath = '' ) {
-		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $sPath, $this->getRootFile() ) );
+	public function getPluginUrl( string $path = '' ) :string {
+		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
 	}
 
 	public function getPluginUrl_Asset( string $asset ) :string {
@@ -1464,10 +1441,10 @@ class Controller {
 	 */
 	public function getRootFile() {
 		if ( empty( $this->sRootFile ) ) {
-			$oVO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
+			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
 				->findPluginFromFile( __FILE__ );
-			if ( $oVO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
-				$this->sRootFile = path_join( WP_PLUGIN_DIR, $oVO->file );
+			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
+				$this->sRootFile = path_join( WP_PLUGIN_DIR, $VO->file );
 			}
 			else {
 				$this->sRootFile = __FILE__;
@@ -1721,15 +1698,13 @@ class Controller {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
-		$bSuccess = true;
-		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $sSlug ) {
+		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $slug ) {
 			try {
-				$this->getModule( $sSlug );
-				$bSuccess = true;
+				$this->getModule( $slug );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
-					$this->sAdminNoticeError = $oE->getMessage();
+					$this->sAdminNoticeError = $e->getMessage();
 					add_action( 'admin_notices', [ $this, 'adminNoticePluginFailedToLoad' ] );
 					add_action( 'network_admin_notices', [ $this, 'adminNoticePluginFailedToLoad' ] );
 				}
@@ -1777,6 +1752,10 @@ class Controller {
 
 	public function getModule_Comms() :\ICWP_WPSF_FeatureHandler_Comms {
 		return $this->getModule( 'comms' );
+	}
+
+	public function getModule_Email() :\ICWP_WPSF_FeatureHandler_Email {
+		return $this->getModule( 'email' );
 	}
 
 	public function getModule_Events() :\ICWP_WPSF_FeatureHandler_Events {

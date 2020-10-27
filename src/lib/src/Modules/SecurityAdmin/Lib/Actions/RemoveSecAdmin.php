@@ -21,12 +21,8 @@ class RemoveSecAdmin {
 	}
 
 	public function sendConfirmationEmail() {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
-		$sEmail = $oMod->getPluginReportEmail();
-		if ( !Services::Data()->validEmail( $sEmail ) ) {
-			$sEmail = Services::WpGeneral()->getSiteAdminEmail();
-		}
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		$mod = $this->getMod();
 
 		$aMessage = [
 			sprintf( __( 'A WordPress user (%s) has requested to remove the Security Admin restriction.', 'wp-simple-firewall' ),
@@ -39,38 +35,38 @@ class RemoveSecAdmin {
 			).'</strong>',
 			'',
 			sprintf( '%s: %s', __( 'Confirmation link', 'wp-simple-firewall' ),
-				$oMod->buildAdminActionNonceUrl( 'remove_secadmin_confirm' ) ),
+				$mod->buildAdminActionNonceUrl( 'remove_secadmin_confirm' ) ),
 			'',
 			__( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin password.", 'wp-simple-firewall' ),
 			'',
 			__( "Thank you.", 'wp-simple-firewall' )
 		];
 
-		$sEmailSubject = __( 'Please Confirm Security Admin Removal', 'wp-simple-firewall' );
 		return $this->getMod()
 					->getEmailProcessor()
-					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
+					->sendEmailWithWrap(
+						$mod->getPluginReportEmail(),
+						__( 'Please Confirm Security Admin Removal', 'wp-simple-firewall' ),
+						$aMessage
+					);
 	}
 
 	private function sendNotificationEmail() {
-		$sEmail = $this->getMod()->getPluginReportEmail();
-		if ( !Services::Data()->validEmail( $sEmail ) ) {
-			$sEmail = Services::WpGeneral()->getSiteAdminEmail();
-		}
-
-		$aMessage = [
-			__( 'This is an email notification to inform you that the Security Admin restriction has been removed.', 'wp-simple-firewall' ),
-			__( 'This was done using a confirmation email sent to the Security Administrator email address.', 'wp-simple-firewall' ),
-			__( 'All restrictions imposed by the Security Admin module have been lifted.', 'wp-simple-firewall' ),
-			'',
-			__( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin password.", 'wp-simple-firewall' ),
-			'',
-			__( "Thank you.", 'wp-simple-firewall' )
-		];
-
 		$sEmailSubject = __( 'Security Admin restrictions have been removed', 'wp-simple-firewall' );
 		return $this->getMod()
 					->getEmailProcessor()
-					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
+					->sendEmailWithWrap(
+						$this->getMod()->getPluginReportEmail(),
+						$sEmailSubject,
+						[
+							__( 'This is an email notification to inform you that the Security Admin restriction has been removed.', 'wp-simple-firewall' ),
+							__( 'This was done using a confirmation email sent to the Security Administrator email address.', 'wp-simple-firewall' ),
+							__( 'All restrictions imposed by the Security Admin module have been lifted.', 'wp-simple-firewall' ),
+							'',
+							__( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin password.", 'wp-simple-firewall' ),
+							'',
+							__( "Thank you.", 'wp-simple-firewall' )
+						]
+					);
 	}
 }

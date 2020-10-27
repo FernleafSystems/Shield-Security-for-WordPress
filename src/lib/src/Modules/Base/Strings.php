@@ -28,6 +28,7 @@ class Strings {
 			__( 'Better Bot Detection', 'wp-simple-firewall' ),
 			__( 'Password Policies', 'wp-simple-firewall' ),
 			__( 'WooCommerce Support', 'wp-simple-firewall' ),
+			__( 'MainWP Integration', 'wp-simple-firewall' ),
 		];
 		$aProFeaturesDisplay = array_intersect_key( $aProFeatures, array_flip( array_rand( $aProFeatures, 6 ) ) );
 		$aProFeaturesDisplay[] = __( 'and much more!' );

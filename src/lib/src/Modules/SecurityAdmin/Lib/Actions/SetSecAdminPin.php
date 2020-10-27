@@ -9,11 +9,11 @@ class SetSecAdminPin {
 	use ModConsumer;
 
 	/**
-	 * @param string $sKey
+	 * @param string $pin
 	 * @throws \Exception
 	 */
-	public function run( $sKey ) {
-		if ( empty( $sKey ) ) {
+	public function run( string $pin ) {
+		if ( empty( $pin ) ) {
 			throw new \Exception( 'Attempting to set an empty Security Admin Access Key.' );
 		}
 		if ( !$this->getCon()->isPluginAdmin() ) {
@@ -21,7 +21,7 @@ class SetSecAdminPin {
 		}
 
 		$this->getOptions()
-			 ->setOpt( 'admin_access_key', md5( $sKey ) );
+			 ->setOpt( 'admin_access_key', md5( $pin ) );
 		$this->getMod()
 			 ->setIsMainFeatureEnabled( true )
 			 ->saveModOptions();

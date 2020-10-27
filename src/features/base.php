@@ -27,6 +27,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
+	 * @deprecated 10.1
 	 */
 	private static $oEmailHandler;
 
@@ -44,11 +45,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @var Shield\Modules\Base\BaseReporting
 	 */
 	private $oReporting;
-
-	/**
-	 * @var Shield\Modules\Base\Strings
-	 */
-	private $oStrings;
 
 	/**
 	 * @var Shield\Modules\Base\UI
@@ -223,7 +219,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return false|Shield\Modules\Base\Upgrade|mixed
 	 */
 	public function getUpgradeHandler() {
-		return $this->loadClass( 'Upgrade' );
+		return $this->loadModElement( 'Upgrade' );
 	}
 
 	/**
@@ -426,10 +422,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isUpgrading() {
+	public function isUpgrading() :bool {
 		return $this->getCon()->getIsRebuildOptionsFromFile() || $this->getOptions()->getRebuildFromFile();
 	}
 
@@ -446,10 +439,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getOptionsStorageKey() {
+	public function getOptionsStorageKey() :string {
 		return $this->getCon()->prefixOption( $this->sOptionsStoreKey ).'_options';
 	}
 
@@ -478,19 +468,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
 	}
 
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	protected function getModActionParams( $sAction ) {
+	protected function getModActionParams( string $action ) :array {
 		$con = $this->getCon();
 		return [
 			'action'     => $con->prefix(),
-			'exec'       => $sAction,
+			'exec'       => $action,
 			'mod_slug'   => $this->getModSlug(),
 			'ts'         => Services::Request()->ts(),
 			'exec_nonce' => substr(
-				hash_hmac( 'md5', $sAction.Services::Request()->ts(), $con->getSiteInstallationId() )
+				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getSiteInstallationId() )
 				, 0, 6 )
 		];
 	}
@@ -544,12 +530,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
 	 * @throws \Exception
+	 * @deprecated 10.1
 	 */
 	public function getEmailHandler() {
-		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = $this->getCon()->getModule( 'email' );
-		}
-		return self::$oEmailHandler;
+		return $this->getCon()->getModule( 'email' );
 	}
 
 	/**
@@ -599,26 +583,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			   || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getEnableModOptKey() {
+	public function getEnableModOptKey() :string {
 		return 'enable_'.$this->getSlug();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMainFeatureName() {
+	public function getMainFeatureName() :string {
 		return __( $this->getOptions()->getFeatureProperty( 'name' ), 'wp-simple-firewall' );
 	}
 
-	/**
-	 * @param bool $bWithPrefix
-	 * @return string
-	 */
-	public function getModSlug( $bWithPrefix = true ) {
-		return $bWithPrefix ? $this->prefix( $this->getSlug() ) : $this->getSlug();
+	public function getModSlug( bool $prefix = true ) :string {
+		return $prefix ? $this->prefix( $this->getSlug() ) : $this->getSlug();
 	}
 
 	/**
@@ -781,11 +755,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * Get config 'definition'.
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	public function getDef( $sKey ) {
-		return $this->getOptions()->getDef( $sKey );
+	public function getDef( string $key ) {
+		return $this->getOptions()->getDef( $key );
 	}
 
 	/**
@@ -808,22 +782,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $bAsString ? implode( $sGlue, $errors ) : $errors;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasLastErrors() {
+	public function hasLastErrors() :bool {
 		return count( $this->getLastErrors( false ) ) > 0;
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mValueToTest
-	 * @param bool   $bStrict
-	 * @return bool
-	 */
-	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
-		$mOptionValue = $this->getOptions()->getOpt( $sOptionKey );
-		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
 	public function getTextOpt( string $key ) :string {
@@ -867,11 +827,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleRequest() {
-		return ( $this->getModSlug() == Services::Request()->request( 'mod_slug' ) );
+	public function isModuleRequest() :bool {
+		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
 	}
 
 	/**
@@ -906,13 +863,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string[]
 	 */
-	public function getUiTrack() {
-		$aDN = $this->getOptions()->getOpt( 'ui_track' );
-		return is_array( $aDN ) ? $aDN : [];
+	public function getUiTrack() :array {
+		$a = $this->getOptions()->getOpt( 'ui_track' );
+		return is_array( $a ) ? $a : [];
 	}
 
-	public function setDismissedNotices( array $aDismissed ) {
-		$this->getOptions()->setOpt( 'dismissed_notices', $aDismissed );
+	public function setDismissedNotices( array $dis ) {
+		$this->getOptions()->setOpt( 'dismissed_notices', $dis );
 	}
 
 	public function setUiTrack( array $UI ) {
@@ -1494,7 +1451,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
 			$oCon = $this->getCon();
-			$this->oOpts = $this->loadOptions()->setMod( $this );
+			$this->oOpts = $this->loadModElement( 'Options' );
 			$this->oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
 						->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 						->setOptionsStorageKey( $this->getOptionsStorageKey() )
@@ -1509,14 +1466,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getWpCli() {
 		if ( !isset( $this->oWpCli ) ) {
-			$this->oWpCli = $this->loadClass( 'WpCli' );
+			$this->oWpCli = $this->loadModElement( 'WpCli' );
 			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-				$this->oWpCli = $this->loadClassFromBase( 'WpCli' );
-				if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-					throw new \Exception( 'WP-CLI not supported' );
-				}
+				throw new \Exception( 'WP-CLI not supported' );
 			}
-			$this->oWpCli->setMod( $this );
 		}
 		return $this->oWpCli;
 	}
@@ -1525,10 +1478,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
-		if ( !isset( $this->oStrings ) ) {
-			$this->oStrings = $this->loadStrings()->setMod( $this );
-		}
-		return $this->oStrings;
+		return $this->loadStrings()->setMod( $this );
 	}
 
 	/**
@@ -1536,12 +1486,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getUIHandler() {
 		if ( !isset( $this->oUI ) ) {
-			$this->oUI = $this->loadClass( 'UI' );
+			$this->oUI = $this->loadModElement( 'UI' );
 			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {
 				// TODO: autoloader for base classes
-				$this->oUI = $this->loadClassFromBase( 'ShieldUI' );
+				$this->oUI = $this->loadModElement( 'ShieldUI' );
 			}
-			$this->oUI->setMod( $this );
 		}
 		return $this->oUI;
 	}
@@ -1551,42 +1500,31 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getReportingHandler() {
 		if ( !isset( $this->oReporting ) ) {
-			$this->oReporting = $this->loadClass( 'Reporting' );
-			if ( $this->oReporting instanceof Shield\Modules\Base\BaseReporting ) {
-				$this->oReporting->setMod( $this );
-			}
+			$this->oReporting = $this->loadModElement( 'Reporting' );
 		}
 		return $this->oReporting;
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function loadAdminNotices() {
-		$oNotices = $this->loadClass( 'AdminNotices' );
-		if ( $oNotices instanceof Shield\Modules\Base\AdminNotices ) {
-			$oNotices->setMod( $this )->run();
+		$N = $this->loadModElement( 'AdminNotices' );
+		if ( $N instanceof Shield\Modules\Base\AdminNotices ) {
+			$N->run();
 		}
-		return $this;
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function loadAjaxHandler() {
-		$oAj = $this->loadClass( 'AjaxHandler' );
+		$oAj = $this->loadModElement( 'AjaxHandler' );
 		if ( !$oAj instanceof Shield\Modules\Base\AjaxHandlerBase ) {
-			$oAj = new Shield\Modules\Base\AjaxHandlerShield();
+			$this->loadModElement( 'AjaxHandlerShield' );
 		}
-		$oAj->setMod( $this );
-		return $this;
 	}
 
 	/**
 	 * @return Shield\Modules\Base\ShieldOptions|mixed
+	 * @deprecated 10.1
 	 */
 	protected function loadOptions() {
-		return $this->loadClass( 'Options' );
+		return $this->loadModElement( 'Options' );
 	}
 
 	protected function loadDebug() {
@@ -1603,7 +1541,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
-		return $this->loadClass( 'Strings' );
+		return $this->loadModElement( 'Strings', true );
 	}
 
 	/**
@@ -1620,7 +1558,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @param false  $injectMod
 	 * @return false|Shield\Modules\ModConsumer
 	 */
-	private function loadModElement( $class, $injectMod = true ) {
+	private function loadModElement( string $class, $injectMod = true ) {
 		$element = false;
 		try {
 			$C = $this->findElementClass( $class, true, true );
@@ -1651,7 +1589,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return string|null
 	 * @throws \Exception
 	 */
-	protected function findElementClass( $element, $bUseFoundationBase = true, $bThrowException = true ) {
+	protected function findElementClass( string $element, $bUseFoundationBase = true, $bThrowException = true ) {
 		$namespace = [
 			$this->getNamespace(),
 		];

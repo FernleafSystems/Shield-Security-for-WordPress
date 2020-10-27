@@ -16,7 +16,7 @@ class Upgrade {
 			foreach ( $con->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
 				if ( $H instanceof Shield\Modules\Base\Upgrade ) {
-					$H->setMod( $mod )->execute();
+					$H->execute();
 				}
 			}
 		}

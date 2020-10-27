@@ -50,7 +50,7 @@ class UI {
 								 ->getSectionStrings( $aSection[ 'slug' ] )
 						);
 					}
-					catch ( \Exception $oE ) {
+					catch ( \Exception $e ) {
 					}
 					$aOptions[ $nSectionKey ] = $aSection;
 				}

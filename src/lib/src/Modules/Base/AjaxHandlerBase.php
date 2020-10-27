@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AjaxHandlerBase {
+abstract class AjaxHandlerBase {
 
 	use ModConsumer;
 

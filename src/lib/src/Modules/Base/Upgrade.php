@@ -27,9 +27,9 @@ class Upgrade {
 	 * version is less than the upgrade version, run the upgrade code.
 	 */
 	protected function upgradeModule() {
-		$oCon = $this->getCon();
-		$sPreviousVersion = $oCon->getPreviousVersion();
-		foreach ( $oCon->getPluginSpec()[ 'version_upgrades' ] as $sVersion ) {
+		$con = $this->getCon();
+		$sPreviousVersion = $con->getPreviousVersion();
+		foreach ( $con->getPluginSpec()[ 'version_upgrades' ] as $sVersion ) {
 			$sMethod = 'upgrade_'.str_replace( '.', '', $sVersion );
 			if ( version_compare( $sPreviousVersion, $sVersion, '<' )
 				 && method_exists( $this, $sMethod ) ) {

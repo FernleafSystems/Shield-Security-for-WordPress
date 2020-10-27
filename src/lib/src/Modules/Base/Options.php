@@ -571,9 +571,6 @@ class Options {
 		return ( is_array( $aOpt ) && isset( $aOpt[ $sProperty ] ) ) ? $aOpt[ $sProperty ] : null;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getStoredOptions() :array {
 		try {
 			return $this->loadOptionsValuesFromStorage();
@@ -590,22 +587,14 @@ class Options {
 		return $this->aRawOptionsConfigData;
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @return array
-	 */
-	protected function getRawData_AllOptions() {
-		$aRaw = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRaw[ 'options' ] ) && is_array( $aRaw[ 'options' ] ) ) ? $aRaw[ 'options' ] : [];
+	protected function getRawData_AllOptions() :array {
+		$raw = $this->getRawData_FullFeatureConfig();
+		return $raw[ 'options' ] ?? [];
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @return array
-	 */
-	protected function getRawData_OptionsSections() {
-		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'sections' ] ) ? $aAllRawOptions[ 'sections' ] : [];
+	protected function getRawData_OptionsSections() :array {
+		$raw = $this->getRawData_FullFeatureConfig();
+		return $raw[ 'sections' ] ?? [];
 	}
 
 	protected function getRawData_Requirements() :array {
@@ -613,13 +602,9 @@ class Options {
 		return $raw[ 'requirements' ] ?? [];
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @return array
-	 */
-	protected function getRawData_MenuItems() {
-		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'menu_items' ] ) ? $aAllRawOptions[ 'menu_items' ] : [];
+	protected function getRawData_MenuItems() :array {
+		$raw = $this->getRawData_FullFeatureConfig();
+		return $raw[ 'menu_items' ] ?? [];
 	}
 
 	/**
@@ -682,12 +667,12 @@ class Options {
 		return is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
 	}
 
-	public function isOptPremium( string $optKey ) :bool {
-		return (bool)$this->getOptProperty( $optKey, 'premium' );
+	public function isOptPremium( string $key ) :bool {
+		return (bool)$this->getOptProperty( $key, 'premium' );
 	}
 
-	public function resetOptToDefault( string $optKey ) :self {
-		return $this->setOpt( $optKey, $this->getOptDefault( $optKey ) );
+	public function resetOptToDefault( string $key ) :self {
+		return $this->setOpt( $key, $this->getOptDefault( $key ) );
 	}
 
 	/**

@@ -40,17 +40,17 @@ class Pin extends BaseWpCliCmd {
 	 */
 	public function cmdPin( array $null, array $aA ) {
 
-		$sNewPin = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
-		$bRemove = WP_CLI\Utils\get_flag_value( $aA, 'remove', false );
+		$newPIN = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
+		$isRemove = WP_CLI\Utils\get_flag_value( $aA, 'remove', false );
 
-		if ( !empty( $sNewPin ) && !empty( $bRemove ) ) {
+		if ( !empty( $newPIN ) && !empty( $isRemove ) ) {
 			WP_CLI::error( 'Please use either `--set` or `--remove`, but not both.' );
 		}
-		elseif ( empty( $sNewPin ) && empty( $bRemove ) ) {
+		elseif ( empty( $newPIN ) && empty( $isRemove ) ) {
 			WP_CLI::error( 'Please provide the desired action, either `--set` or `--remove`.' );
 		}
 
-		if ( $bRemove ) {
+		if ( $isRemove ) {
 			( new Actions\RemoveSecAdmin() )
 				->setMod( $this->getMod() )
 				->remove();
@@ -60,9 +60,9 @@ class Pin extends BaseWpCliCmd {
 			try {
 				( new Actions\SetSecAdminPin() )
 					->setMod( $this->getMod() )
-					->run( $sNewPin );
+					->run( $newPIN );
 				WP_CLI::success(
-					sprintf( __( 'Security admin pin set to: "%s"', 'wp-simple-firewall' ), $sNewPin )
+					sprintf( __( 'Security admin pin set to: "%s"', 'wp-simple-firewall' ), $newPIN )
 				);
 			}
 			catch ( \Exception $oE ) {
