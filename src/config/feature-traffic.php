@@ -59,6 +59,7 @@
     {
       "key":         "enable_traffic",
       "section":     "section_enable_plugin_feature_traffic",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ed",
@@ -82,6 +83,7 @@
       "key":           "type_exclusions",
       "section":       "section_traffic_options",
       "type":          "multiple_select",
+      "advanced":      true,
       "default":       [
         "logged_in",
         "cron",
@@ -153,6 +155,7 @@
     {
       "key":         "max_entries",
       "section":     "section_traffic_options",
+      "advanced":    true,
       "premium":     true,
       "default":     1000,
       "min":         0,

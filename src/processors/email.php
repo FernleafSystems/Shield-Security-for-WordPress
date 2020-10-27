@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		$oWp = Services::WpGeneral();
 
 		{
@@ -66,8 +66,8 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'much_more' => 'https://shsec.io/gp'
 					 ],
 					 'flags'   => [
-						 'is_pro'           => $oCon->isPremiumActive(),
-						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
+						 'is_pro'           => $con->isPremiumActive(),
+						 'is_whitelabelled' => $con->getModule_SecAdmin()->isWlEnabled()
 					 ]
 				 ] ),
 		];

@@ -33,6 +33,8 @@ class Strings {
 		$aProFeaturesDisplay = array_intersect_key( $aProFeatures, array_flip( array_rand( $aProFeatures, 6 ) ) );
 		$aProFeaturesDisplay[] = __( 'and much more!' );
 
+		$bIsAdvanced = $this->getCon()->getModule_Plugin()->isShowAdvanced();
+
 		return Services::DataManipulation()->mergeArraysRecursive(
 			[
 				'see_help_video'    => __( 'Watch Help Video' ),
@@ -74,6 +76,14 @@ class Strings {
 				'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
 					'https://shsec.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
+
+				'mode'          => __( 'Mode', 'wp-simple-firewall' ),
+				'mode_simple'   => __( 'Simple', 'wp-simple-firewall' ),
+				'mode_advanced' => __( '', 'wp-simple-firewall' ),
+				'mode_switchto' => sprintf( '%s: %s', __( 'Switch To', 'wp-simple-firewall' ),
+					$bIsAdvanced ? __( 'Simple', 'wp-simple-firewall' ) : __( 'Advanced', 'wp-simple-firewall' ) ),
+				'mode_switchfrom' => sprintf( '%s: %s', __( 'Mode', 'wp-simple-firewall' ),
+					$bIsAdvanced ? __( 'Advanced', 'wp-simple-firewall' ) : __( 'Simple', 'wp-simple-firewall' ) ),
 
 				'description'                  => __( 'Description', 'wp-simple-firewall' ),
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),

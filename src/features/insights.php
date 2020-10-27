@@ -35,9 +35,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
-		$oModPlugin = $con->getModule_Plugin();
-		$oTourManager = $oModPlugin->getTourManager();
-		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 600 ) {
+		$modPlugin = $con->getModule_Plugin();
+		$oTourManager = $modPlugin->getTourManager();
+		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $modPlugin->getActivateLength() > 600 ) {
 			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
@@ -81,7 +81,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'importexport':
-				$aData = $oModPlugin->getImpExpController()->buildInsightsVars();
+				$aData = $modPlugin->getImpExpController()->buildInsightsVars();
 				break;
 
 			case 'reports':
@@ -177,10 +177,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				],
 				'flags'   => [
 					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
-					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
+					'show_guided_tour' => $modPlugin->getIfShowIntroVideo(),
 					'tours'            => [
 						'insights_overview' => $oTourManager->canShow( 'insights_overview' )
-					]
+					],
+					'is_advanced'      => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
 					'go_pro'     => 'https://shsec.io/shieldgoprofeature',

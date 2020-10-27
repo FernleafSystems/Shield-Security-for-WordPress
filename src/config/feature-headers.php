@@ -54,6 +54,7 @@
     {
       "key":         "enable_headers",
       "section":     "section_enable_plugin_feature_headers",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/aj",

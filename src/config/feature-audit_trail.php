@@ -87,6 +87,7 @@
     {
       "key":         "audit_trail_max_entries",
       "section":     "section_audit_trail_options",
+      "advanced":    true,
       "premium":     true,
       "default":     1000,
       "min":         0,

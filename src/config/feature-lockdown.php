@@ -63,6 +63,7 @@
     {
       "key":         "enable_lockdown",
       "section":     "section_enable_plugin_feature_wordpress_lockdown",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4r",

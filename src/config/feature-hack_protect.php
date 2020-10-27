@@ -99,6 +99,7 @@
     {
       "key":         "enable_hack_protect",
       "section":     "section_enable_plugin_feature_hack_protection_tools",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/wpsf38",

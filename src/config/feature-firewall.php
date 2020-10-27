@@ -73,6 +73,7 @@
     {
       "key":         "enable_firewall",
       "section":     "section_enable_plugin_feature_wordpress_firewall",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/43",

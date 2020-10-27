@@ -196,6 +196,7 @@
     {
       "key":           "two_factor_auth_user_roles",
       "section":       "section_2fa_email",
+      "advanced":      true,
       "type":          "multiple_select",
       "default":       [
         "contributor",
@@ -353,6 +354,7 @@
     {
       "key":         "antibot_form_ids",
       "section":     "section_brute_force_login_protection",
+      "advanced":    true,
       "premium":     true,
       "type":        "array",
       "default":     [

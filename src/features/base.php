@@ -1006,11 +1006,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isAdminOptionsPage() {
-		return ( is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage() );
+	protected function isAdminOptionsPage() :bool {
+		return is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage();
 	}
 
 	/**
@@ -1547,6 +1544,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param $sClass
 	 * @return \stdClass|mixed|false
+	 * @deprecated 10.1
 	 */
 	private function loadClass( $sClass ) {
 		$sC = $this->getNamespace().$sClass;
@@ -1576,6 +1574,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param $sClass
 	 * @return \stdClass|mixed|false
+	 * @deprecated 10.1
 	 */
 	private function loadClassFromBase( $sClass ) {
 		$sC = $this->getBaseNamespace().$sClass;

@@ -11,6 +11,7 @@ class ShieldUI extends UI {
 	 * @return array
 	 */
 	public function getBaseDisplayData() {
+		$con = $this->getCon();
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $mod */
 		$mod = $this->getMod();
 
@@ -40,11 +41,11 @@ class ShieldUI extends UI {
 					'sec_admin_login' => $mod->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'show_promo'  => !$this->getCon()->isPremiumActive(),
+					'show_promo'  => !$con->isPremiumActive(),
 					'has_session' => $mod->hasSession()
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $mod->isWlEnabled() ?
+					'aar_forget_key' => $con->getModule_SecAdmin()->isWlEnabled() ?
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
 				],
 				'classes' => [

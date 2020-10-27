@@ -111,13 +111,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isWlEnabled() {
-		return $this->getCon()->getModule_SecAdmin()->isWlEnabled();
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getSecAdminLoginAjaxData() {

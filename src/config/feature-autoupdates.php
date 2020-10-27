@@ -51,6 +51,7 @@
     {
       "key":         "enable_autoupdates",
       "section":     "section_enable_plugin_feature_automatic_updates_control",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3w",

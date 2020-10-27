@@ -111,6 +111,7 @@
     {
       "key":         "enable_ips",
       "section":     "section_enable_plugin_feature_ips",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ea",

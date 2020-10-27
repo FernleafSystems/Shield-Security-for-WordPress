@@ -80,6 +80,7 @@
     {
       "key":         "enable_comments_filter",
       "section":     "section_enable_plugin_feature_spam_comments_protection_filter",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3z",

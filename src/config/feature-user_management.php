@@ -84,6 +84,7 @@
     {
       "key":         "enable_user_management",
       "section":     "section_enable_plugin_feature_user_accounts_management",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/e3",

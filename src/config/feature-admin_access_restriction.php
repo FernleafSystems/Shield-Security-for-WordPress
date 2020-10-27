@@ -84,6 +84,7 @@
     {
       "key":         "enable_admin_access_restriction",
       "section":     "section_enable_plugin_feature_admin_access_restriction",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/40",
