@@ -1,0 +1,37 @@
+{% extends '/wpadmin_pages/insights/base.twig' %}
+
+{% block page_main %}
+
+<div class="row">
+	<div class="col insights-sub-nav insights_section">
+		<ul class="nav nav-tabs">
+			<li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" role="tab" href="#LogsAudit">
+					Audit
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" role="tab" href="#LogsTraffic">
+					Traffic
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="tab-content">
+	<div class="tab-pane fade show active" id="LogsAudit" role="tabpanel" aria-labelledby="LogsAudit">
+		<div class="row">
+			<div class="col insights_section">
+				{{ content.table_audit|raw }}
+			</div>
+		</div>
+	</div>
+	<div class="tab-pane fade" id="LogsTraffic" role="tabpanel" aria-labelledby="LogsTraffic">
+		<div class="row">
+			<div class="col insights_section">
+				{{ content.table_traffic|raw }}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

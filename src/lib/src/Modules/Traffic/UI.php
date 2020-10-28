@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
-	public function buildInsightsVars() :array {
+	public function renderTrafficTable() :string {
 		/** @var \ICWP_WPSF_FeatureHandler_Traffic $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
@@ -16,33 +16,38 @@ class UI extends Base\ShieldUI {
 		/** @var Select $dbSel */
 		$dbSel = $mod->getDbHandler_Traffic()->getQuerySelector();
 
-		return [
-			'ajax'    => [
-				'render_table_traffic' => $mod->getAjaxActionData( 'render_table_traffic', true )
-			],
-			'flags'   => [
-				'can_traffic' => true, // since 8.2 it's always available
-				'is_enabled'  => $opts->isTrafficLoggerEnabled(),
-			],
-			'hrefs'   => [
-				'please_enable' => $mod->getUrl_DirectLinkToOption( 'enable_logger' ),
-			],
-			'strings' => [
-				'title_filter_form'       => __( 'Traffic Table Filters', 'wp-simple-firewall' ),
-				'traffic_title'           => __( 'Traffic Watch', 'wp-simple-firewall' ),
-				'traffic_subtitle'        => __( 'Watch and review requests to your site', 'wp-simple-firewall' ),
-				'response'                => __( 'Response', 'wp-simple-firewall' ),
-				'path_contains'           => __( 'Page/Path Contains', 'wp-simple-firewall' ),
-				'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
-				'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
-				'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'unique_ips'       => $dbSel->getDistinctIps(),
-				'unique_responses' => $dbSel->getDistinctCodes(),
-				'unique_users'     => $dbSel->getDistinctUsernames(),
-			],
-		];
+		return $this->getMod()
+					->renderTemplate(
+						'/wpadmin_pages/insights/traffic/traffic_table.twig',
+						[
+							'ajax'    => [
+								'render_table_traffic' => $mod->getAjaxActionData( 'render_table_traffic', true )
+							],
+							'flags'   => [
+								'can_traffic' => true, // since 8.2 it's always available
+								'is_enabled'  => $opts->isTrafficLoggerEnabled(),
+							],
+							'hrefs'   => [
+								'please_enable' => $mod->getUrl_DirectLinkToOption( 'enable_logger' ),
+							],
+							'strings' => [
+								'title_filter_form'       => __( 'Traffic Table Filters', 'wp-simple-firewall' ),
+								'traffic_title'           => __( 'Traffic Watch', 'wp-simple-firewall' ),
+								'traffic_subtitle'        => __( 'Watch and review requests to your site', 'wp-simple-firewall' ),
+								'response'                => __( 'Response', 'wp-simple-firewall' ),
+								'path_contains'           => __( 'Page/Path Contains', 'wp-simple-firewall' ),
+								'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
+								'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
+								'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
+							],
+							'vars'    => [
+								'unique_ips'       => $dbSel->getDistinctIps(),
+								'unique_responses' => $dbSel->getDistinctCodes(),
+								'unique_users'     => $dbSel->getDistinctUsernames(),
+							],
+						],
+						true
+					);
 	}
 
 	/**

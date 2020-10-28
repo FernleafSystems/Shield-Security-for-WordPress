@@ -1372,6 +1372,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				$oRndr->setTemplateEngineTwig();
 			}
 
+			$data[ 'strings' ] = Services::DataManipulation()
+										 ->mergeArraysRecursive(
+											 $data[ 'strings' ] ?? [], $this->getStrings()->getDisplayStrings() );
+
 			$render = $oRndr->setTemplate( $template )
 							->setRenderVars( $data )
 							->render();

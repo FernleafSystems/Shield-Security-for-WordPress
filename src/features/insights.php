@@ -44,10 +44,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$bIsPro = $this->isPremium();
 		switch ( $sNavSection ) {
 
-			case 'audit':
-				/** @var Shield\Modules\AuditTrail\UI $UI */
-				$UI = $con->getModule_AuditTrail()->getUIHandler();
-				$aData = $UI->buildInsightsVars();
+			case 'logs':
+				/** @var Shield\Modules\AuditTrail\UI $auditUI */
+				$auditUI = $con->getModule_AuditTrail()->getUIHandler();
+				/** @var Shield\Modules\Traffic\UI $trafficUI */
+				$trafficUI = $con->getModule_Traffic()->getUIHandler();
+				$aData = [
+					'content' => [
+						'table_audit'   => $auditUI->renderAuditTrailTable(),
+						'table_traffic' => $trafficUI->renderTrafficTable(),
+					]
+				];
 				break;
 
 			case 'debug':
@@ -59,12 +66,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'ips':
 				/** @var Shield\Modules\IPs\UI $UI */
 				$UI = $con->getModule_IPs()->getUIHandler();
-				$aData = $UI->buildInsightsVars();
-				break;
-
-			case 'traffic':
-				/** @var Shield\Modules\Traffic\UI $UI */
-				$UI = $con->getModule_Traffic()->getUIHandler();
 				$aData = $UI->buildInsightsVars();
 				break;
 
@@ -121,10 +122,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
 			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
-			'audit'        => __( 'Logs', 'wp-simple-firewall' ),
+			'logs'         => __( 'Logs', 'wp-simple-firewall' ),
 			'users'        => __( 'Users', 'wp-simple-firewall' ),
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
-			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'importexport' => __( 'Import', 'wp-simple-firewall' ),
 			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
@@ -158,7 +158,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'slug'   => $slug,
 				];
 
-				if ( $aSettingsSubNav[$slug]['active']) {
+				if ( $aSettingsSubNav[ $slug ][ 'active' ] ) {
 					$activeSubNav = $aSettingsSubNav[ $slug ];
 				}
 				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
@@ -172,7 +172,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 			if ( !empty( $activeSubNav ) ) {
 				$aTopNav[ 'settings' ][ 'name' ] = sprintf( '%s: %s',
-					__( 'Settings', 'wp-simple-firewall' ), $activeSubNav['name'] );
+					__( 'Settings', 'wp-simple-firewall' ), $activeSubNav[ 'name' ] );
 			}
 		}
 
@@ -219,11 +219,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			$con = $this->getCon();
 			$aStdDepsJs = [ $con->prefix( 'plugin' ) ];
-			$sNav = Services::Request()->query( 'inav', 'overview' );
+			$iNav = Services::Request()->query( 'inav', 'overview' );
 
 			$oModPlugin = $con->getModule_Plugin();
 			$oTourManager = $oModPlugin->getTourManager();
-			switch ( $sNav ) {
+			switch ( $iNav ) {
 
 				case 'importexport':
 
@@ -289,10 +289,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					break;
 
 				case 'scans':
-				case 'audit':
+				case 'logs':
 				case 'ips':
 				case 'debug':
-				case 'traffic':
 				case 'users':
 
 					$sAsset = 'shield-tables';
@@ -307,7 +306,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_enqueue_script( $sUnique );
 
 					$aStdDepsJs[] = $sUnique;
-					if ( $sNav == 'scans' ) {
+					if ( $iNav == 'scans' ) {
 						$sAsset = 'shield-scans';
 						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
@@ -320,7 +319,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
-					if ( $sNav == 'ips' ) {
+					if ( $iNav == 'ips' ) {
 						$sAsset = 'shield/ipanalyse';
 						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
@@ -333,7 +332,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
-					if ( $sNav == 'audit' ) {
+					if ( in_array( $iNav, [ 'logs' ] ) ) {
 						$sUnique = $con->prefix( 'datepicker' );
 						wp_register_script(
 							$sUnique, //TODO: use an includes services for CNDJS
