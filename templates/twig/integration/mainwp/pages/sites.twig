@@ -24,9 +24,9 @@
 			<th>{{ strings.site }}</th>
 			<th>{{ strings.url }}</th>
 			<th>{{ strings.status }}</th>
-			<th>{{ strings.last_sync }}</th>
-			<th>{{ strings.last_scan }}</th>
+{#			<th>{{ strings.last_scan }}</th>#}
 			<th>{{ strings.version }}</th>
+			<th>{{ strings.last_sync }}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -38,18 +38,19 @@
 		<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
 		{% if site.shield.is_installed %}
 		<td>
-			okay!
+			{{ site.shield.status }}
+			<br/>{{ site.shield.issues }}
 		</td>
-		<td>
-			{{ site.shield.sync_at_diff }}
-			<br /><small>{{ site.shield.sync_at_text }}</small>
-		</td>
-		<td>
-			{{ site.shield.sync_at_diff }}
-			<br /><small>{{ site.shield.sync_at_text }}</small>
-		</td>
+{#		<td>#}
+{#			{{ site.shield.sync_at_diff }}#}
+{#			<br /><small>{{ site.shield.sync_at_text }}</small>#}
+{#		</td>#}
 		<td>
 			{{ site.shield.meta.version }}
+		</td>
+		<td>
+			{{ site.shield.sync_at_diff }}
+			<br /><small>{{ site.shield.sync_at_text }}</small>
 		</td>
 		{% else %}
 		<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.not_detected }}</td>

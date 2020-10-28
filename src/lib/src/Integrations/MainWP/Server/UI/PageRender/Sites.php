@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\PageRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\DetermineClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
@@ -25,19 +26,37 @@ class Sites extends BaseRender {
 			$sync = $this->getSiteShieldSyncInfo( $site );
 			$meta = $sync->meta;
 
-			$site[ 'shield' ] = $sync->getRawDataAsArray();
-			$site[ 'shield' ][ 'is_installed' ] = $meta->installed_at ?? false;
+			$shd = $sync->getRawDataAsArray();
+			$shd[ 'is_installed' ] = $meta->installed_at ?? false;
 			if ( $meta->installed_at > 0 ) {
 				$statsHead[ 'active' ]++;
-				$site[ 'shield' ][ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
-				$site[ 'shield' ][ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
+				$shd[ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
+				$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
 
-				$statsHead[ 'with_issues' ] += empty( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) ? 0 : 1;
+				if ( empty( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) ) {
+					$shd[ 'issues' ] = __( 'No Issues', 'wp-simple-firewall' );
+					$shd[ 'has_issues' ] = false;
+				}
+				else {
+					$shd[ 'has_issues' ] = true;
+					$shd[ 'issues' ] = sprintf( '%s: %s', __( 'Issues', 'wp-simple-firewall' ), array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) );
+					$statsHead[ 'with_issues' ]++;
+				}
+
+				$status = ( new DetermineClientPluginStatus() )
+					->setCon( $this->getCon() )
+					->run( $sync );
+				var_dump($status);
+				$shd[ 'status_key' ] = reset( $status );
+				$shd[ 'status' ] = current( $status );
+
 				$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
 			}
 			else {
 				$statsHead[ 'inactive' ]++;
 			}
+
+			$site[ 'shield' ] = $shd;
 		}
 
 		return [
