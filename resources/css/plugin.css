@@ -719,7 +719,7 @@ input:checked + .icwp-slider:before {
 }
 #WizardBanner {
 	height: 66px;
-	background-color: #eaffea;
+	background-color: white;
 	border-top: 1px solid #bbbbbb;
 	padding-top: 15px;
 	text-align: center;
@@ -800,8 +800,6 @@ th.column-request_info {
 }
 #odp-PageHead .nav-link.active {
 	font-weight: bold;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 3px;
 	color: #008000;
 }
 .nav-link.module.notenabled span.module-name {
@@ -957,7 +955,7 @@ table.scan-table.wp-list-table button.toggle-row {
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link {
 	color: #666666;
-	font-size: 1rem;
+	font-size: 0.9rem;
 	margin-right: 1rem;
 	background-color: rgba(0, 0, 0, 0.05);
 	border-color: rgba(0, 0, 0, 0.1);
