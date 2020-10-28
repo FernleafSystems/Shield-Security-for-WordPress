@@ -1374,7 +1374,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 			$data[ 'strings' ] = Services::DataManipulation()
 										 ->mergeArraysRecursive(
-											 $data[ 'strings' ] ?? [], $this->getStrings()->getDisplayStrings() );
+											 $data[ 'strings' ] ?? [], $this->getStrings()->getDisplayStrings()
+										 );
 
 			$render = $oRndr->setTemplate( $template )
 							->setRenderVars( $data )

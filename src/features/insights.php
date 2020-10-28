@@ -53,7 +53,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'content' => [
 						'table_audit'   => $auditUI->renderAuditTrailTable(),
 						'table_traffic' => $trafficUI->renderTrafficTable(),
-					]
+					],
+					'strings' => [
+						'tab_audit'   => __( 'Audit Trail', 'wp-simple-firewall' ),
+						'tab_traffic' => __( 'Traffic', 'wp-simple-firewall' ),
+					],
 				];
 				break;
 
