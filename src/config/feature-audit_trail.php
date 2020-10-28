@@ -64,6 +64,7 @@
     {
       "key":         "enable_audit_trail",
       "section":     "section_enable_plugin_feature_audit_trail",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/5p",
