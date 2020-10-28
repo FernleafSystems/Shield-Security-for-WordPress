@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressCons
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class BuildDisplay {
 
@@ -76,6 +77,12 @@ class BuildDisplay {
 		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
 
 		$sRDNS = gethostbyaddr( $ip );
+		try {
+			$ipID = current( ( new IpIdentify( $ip ) )->run() );
+		}
+		catch ( \Exception $e ) {
+			$ipID = 'Unknown';
+		}
 
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
@@ -117,9 +124,7 @@ class BuildDisplay {
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
 					],
 					'identity' => [
-						'who_is_it'    => Services::IP()
-												  ->getIpDetector()
-												  ->getIPIdentity(),
+						'who_is_it'    => $ipID,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
 						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),
