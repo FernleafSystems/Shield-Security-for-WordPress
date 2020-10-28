@@ -30,10 +30,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	protected function renderModulePage( array $aData = [] ) :string {
 		$con = $this->getCon();
-		$oReq = Services::Request();
+		$req = Services::Request();
 
-		$sNavSection = $oReq->query( 'inav', 'overview' );
-		$sSubNavSection = $oReq->query( 'subnav' );
+		$sNavSection = $req->query( 'inav', 'overview' );
+		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
 		$oTourManager = $modPlugin->getTourManager();
@@ -99,9 +99,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'settings':
 				$aData = [
 					'ajax' => [
-						'mod_options'          => $con->getModule( Services::Request()->query( 'subnav' ) )
+						'mod_options'          => $con->getModule( $subNavSection )
 													  ->getAjaxActionData( 'mod_options', true ),
-						'mod_opts_form_render' => $con->getModule( Services::Request()->query( 'subnav' ) )
+						'mod_opts_form_render' => $con->getModule( $subNavSection )
 													  ->getAjaxActionData( 'mod_opts_form_render', true ),
 					],
 				];
@@ -148,15 +148,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aSearchSelect = [];
 		$aSettingsSubNav = [];
+		$activeSubNav = null;
 		foreach ( $this->getModulesSummaryData() as $slug => $summary ) {
 			if ( $summary[ 'show_mod_opts' ] ) {
 				$aSettingsSubNav[ $slug ] = [
 					'href'   => add_query_arg( [ 'subnav' => $slug ], $aTopNav[ 'settings' ][ 'href' ] ),
 					'name'   => $summary[ 'name' ],
-					'active' => $slug === $sSubNavSection,
-					'slug'   => $slug
+					'active' => $slug === $subNavSection,
+					'slug'   => $slug,
 				];
 
+				if ( $aSettingsSubNav[$slug]['active']) {
+					$activeSubNav = $aSettingsSubNav[ $slug ];
+				}
 				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
 			}
 		}
@@ -166,6 +170,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 		else {
 			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
+			if ( !empty( $activeSubNav ) ) {
+				$aTopNav[ 'settings' ][ 'name' ] = sprintf( '%s: %s',
+					__( 'Settings', 'wp-simple-firewall' ), $activeSubNav['name'] );
+			}
 		}
 
 		$DP = Services::DataManipulation();
