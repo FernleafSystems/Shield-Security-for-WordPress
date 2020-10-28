@@ -18,7 +18,7 @@ class UI extends Base\ShieldUI {
 
 		return $this->getMod()
 					->renderTemplate(
-						'/wpadmin_pages/insights/traffic/traffic_table.twig',
+						'/wpadmin_pages/insights/traffic/index.twig',
 						[
 							'ajax'    => [
 								'render_table_traffic' => $mod->getAjaxActionData( 'render_table_traffic', true )

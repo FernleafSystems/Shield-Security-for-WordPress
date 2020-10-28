@@ -1,15 +1,9 @@
 <div class="row insights_widget" id="SectionAuditTable">
 
 	<div class="col">
-		<div class="card">
-			<div class="card-header">
-				<h5 class="card-title">{{ strings.table_title }}</h5>
-				<h6 class="card-subtitle mb-2 text-muted">
-					{{ strings.sub_title }}
-					<a href="{{ hrefs.audit_trail_glossary }}" target="_blank">{{ strings.audit_trail_glossary }}</a>
-				</h6>
-			</div>
-			<div class="card-body">
+{#		<p>#}
+{#			<a href="{{ hrefs.audit_trail_glossary }}" target="_blank">{{ strings.audit_trail_glossary }}</a>#}
+{#		</p>#}
 
 				<form id="AuditFilterForm" autocomplete="off" class="px-3 pt-3">
 					<div class="form-row">
@@ -45,16 +39,16 @@
 							</select>
 						</div>
 
-							{# <div class="col-auto"> #}
-							{# <label for="_fLoggedIn">{{ strings.logged_in }}?</label> #}
-							{# <select id="_fLoggedIn" name="fLoggedIn" class="form-control"> #}
-							{# <option value="-1" selected>-- {{ strings.select }} --</option> #}
-							{# <option value="1">{{ strings.yes }}</option> #}
-							{# <option value="0">{{ strings.no }}</option> #}
-							{# </select> #}
-							{# </div> #}
+						{# <div class="col-auto"> #}
+						{# <label for="_fLoggedIn">{{ strings.logged_in }}?</label> #}
+						{# <select id="_fLoggedIn" name="fLoggedIn" class="form-control"> #}
+						{# <option value="-1" selected>-- {{ strings.select }} --</option> #}
+						{# <option value="1">{{ strings.yes }}</option> #}
+						{# <option value="0">{{ strings.no }}</option> #}
+						{# </select> #}
+						{# </div> #}
 
-							<div class="col-auto mb-3 input-daterange">
+						<div class="col-auto mb-3 input-daterange">
 							<label class="form-label sr-only" for="_fDateFrom" title="{{ strings.show_after }}...">
 								{{ strings.time_since }}:</label>
 							<input type="text" class="form-control date-picker" id="_fDateFrom"
@@ -84,8 +78,6 @@
 
 				<div id="TableAuditTrail"></div>
 
-			</div>
-		</div>
 	</div>
 
 </div>
