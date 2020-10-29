@@ -114,6 +114,7 @@
     {
       "key":         "enable_login_protect",
       "section":     "section_enable_plugin_feature_login_protection",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/51",
