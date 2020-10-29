@@ -62,12 +62,12 @@ class SitesListTableHandler extends BaseRender {
 		return [
 			'flags'   => [
 				'is_active'           => $isActive,
-				'is_installed'        => $statusKey !== PluginStatus::NOT_INSTALLED,
+				'is_sync_rqd'         => $statusKey === PluginStatus::NEED_SYNC,
+				'is_inactive'         => $statusKey === PluginStatus::INACTIVE,
 				'is_version_mismatch' => in_array( $statusKey, [
 					PluginStatus::VERSION_NEWER_THAN_SERVER,
 					PluginStatus::VERSION_OLDER_THAN_SERVER,
 				] ),
-				'is_sync_rqd'         => $statusKey == PluginStatus::NEED_SYNC,
 			],
 			'vars'    => [
 				'status_key'   => $statusKey,
@@ -80,7 +80,7 @@ class SitesListTableHandler extends BaseRender {
 											->getUrl_AdminPage( $con->mwpVO->official_extension_data[ 'page' ] ),
 			],
 			'strings' => [
-				'tooltip_not_active'       => __( "Shield plugin is installed, but not active.", 'wp-simple-firewall' ),
+				'tooltip_inactive'         => __( "Shield plugin is installed, but not active.", 'wp-simple-firewall' ),
 				'tooltip_not_installed'    => __( "Shield isn't installed on this site.", 'wp-simple-firewall' ),
 				'tooltip_sync_required'    => __( "Sync Required.", 'wp-simple-firewall' ),
 				'tooltip_version_mismatch' => __( "Shield version on site doesn't match this server.", 'wp-simple-firewall' ),

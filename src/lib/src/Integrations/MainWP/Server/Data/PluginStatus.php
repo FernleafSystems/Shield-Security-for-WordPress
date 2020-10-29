@@ -19,6 +19,11 @@ class PluginStatus {
 	const VERSION_NEWER_THAN_SERVER = 'vnts';
 	const VERSION_OLDER_THAN_SERVER = 'vots';
 
+	public function status() :string {
+		$status = $this->detect();
+		return key( $status );
+	}
+
 	/**
 	 * TODO: Consider things like global disabled / forceoff
 	 * @return array
