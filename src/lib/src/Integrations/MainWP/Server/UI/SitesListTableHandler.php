@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI;
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\DetermineClientPluginStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\PluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
@@ -44,13 +44,13 @@ class SitesListTableHandler extends BaseRender {
 		);
 
 		$sync = ( new SyncVO() )->applyFromArray( empty( $syncData ) ? [] : json_decode( $syncData, true ) );
-		$status = ( new DetermineClientPluginStatus() )
+		$status = ( new PluginStatus() )
 			->setCon( $this->getCon() )
 			->setMwpSite( $this->workingItem )
-			->run();
+			->detect();
 
 		$statusKey = key( $status );
-		$isActive = $statusKey === DetermineClientPluginStatus::ACTIVE;
+		$isActive = $statusKey === PluginStatus::ACTIVE;
 		if ( $isActive ) {
 			$issuesCount = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 		}
@@ -58,16 +58,15 @@ class SitesListTableHandler extends BaseRender {
 			$issuesCount = 0;
 		}
 
-		error_log( var_export( $statusKey, true ) );
 		return [
 			'flags'   => [
 				'is_active'           => $isActive,
-				'is_installed'        => $statusKey !== DetermineClientPluginStatus::NOT_INSTALLED,
+				'is_installed'        => $statusKey !== PluginStatus::NOT_INSTALLED,
 				'is_version_mismatch' => in_array( $statusKey, [
-					DetermineClientPluginStatus::VERSION_NEWER_THAN_SERVER,
-					DetermineClientPluginStatus::VERSION_OLDER_THAN_SERVER,
+					PluginStatus::VERSION_NEWER_THAN_SERVER,
+					PluginStatus::VERSION_OLDER_THAN_SERVER,
 				] ),
-				'is_sync_rqd'         => $statusKey == DetermineClientPluginStatus::NEED_SYNC,
+				'is_sync_rqd'         => $statusKey == PluginStatus::NEED_SYNC,
 			],
 			'vars'    => [
 				'status_key'   => $statusKey,

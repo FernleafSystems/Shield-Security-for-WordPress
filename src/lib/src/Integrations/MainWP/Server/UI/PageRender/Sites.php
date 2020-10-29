@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\DetermineClientPluginStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\PluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
@@ -33,21 +33,41 @@ class Sites extends BaseRender {
 		$req = Services::Request();
 
 		$statsHead = [
-			'active'       => 0,
-			'inactive'     => 0,
+			'connected'    => 0,
+			'disconnected' => 0,
 			'with_issues'  => 0,
 			'needs_update' => 0,
 		];
 		$sites = apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 		foreach ( $sites as &$site ) {
-			$VO = ( new MWPSiteVO() )->applyFromArray( $site );
+			$VO = ( new MWPSiteVO() )->applyFromArray(
+				Services::DataManipulation()->convertStdClassToArray(
+					MainWP_DB::instance()->get_website_by_id( $site[ 'id' ] )
+				)
+			);
 			$sync = $this->getSiteShieldSyncInfo( $site );
 			$meta = $sync->meta;
 
 			$shd = $sync->getRawDataAsArray();
-			$shd[ 'is_installed' ] = $meta->installed_at ?? false;
-			if ( $meta->installed_at > 0 ) {
-				$statsHead[ 'active' ]++;
+
+			$status = ( new PluginStatus() )
+				->setCon( $this->getCon() )
+				->setMwpSite( $VO )
+				->detect();
+			$shd[ 'status_key' ] = key( $status );
+			$shd[ 'status' ] = current( $status );
+
+			$shd[ 'is_active' ] = $shd[ 'status_key' ] === PluginStatus::ACTIVE;
+			$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === PluginStatus::INACTIVE;
+			$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === PluginStatus::NEED_SYNC;
+			$shd[ 'is_version_mismatch' ] = in_array( $shd[ 'status_key' ], [
+				PluginStatus::VERSION_NEWER_THAN_SERVER,
+				PluginStatus::VERSION_OLDER_THAN_SERVER,
+			] );
+
+			if ( $shd[ 'is_active' ] ) {
+
+				$statsHead[ 'connected' ]++;
 				$shd[ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
 				$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
 
@@ -61,15 +81,6 @@ class Sites extends BaseRender {
 					$statsHead[ 'with_issues' ]++;
 				}
 
-				$status = ( new DetermineClientPluginStatus() )
-					->setCon( $this->getCon() )
-					->setMwpSite( $VO )
-					->run();
-
-				$shd[ 'status_key' ] = key( $status );
-				$shd[ 'status' ] = current( $status );
-				$shd[ 'is_status_ok' ] = $shd[ 'status_key' ] === DetermineClientPluginStatus::ACTIVE;
-
 				$shd[ 'issues_href' ] = add_query_arg(
 					[
 						'newWindow' => 'yes',
@@ -78,12 +89,12 @@ class Sites extends BaseRender {
 					],
 					Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' )
 				);
-
-				$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
 			}
 			else {
-				$statsHead[ 'inactive' ]++;
+				$statsHead[ 'disconnected' ]++;
 			}
+
+			$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
 
 			$site[ 'shield' ] = $shd;
 		}
@@ -94,18 +105,21 @@ class Sites extends BaseRender {
 				'stats_head' => $statsHead,
 			],
 			'strings' => [
-				'site'         => __( 'Site', 'wp-simple-firewall' ),
-				'url'          => __( 'URL', 'wp-simple-firewall' ),
-				'issues'       => __( 'Issues', 'wp-simple-firewall' ),
-				'status'       => __( 'Status', 'wp-simple-firewall' ),
-				'last_sync'    => __( 'Last Sync', 'wp-simple-firewall' ),
-				'last_scan'    => __( 'Last Scan', 'wp-simple-firewall' ),
-				'version'      => __( 'Version', 'wp-simple-firewall' ),
-				'active'       => __( 'Active', 'wp-simple-firewall' ),
-				'inactive'     => __( 'Inactive', 'wp-simple-firewall' ),
-				'with_issues'  => __( 'With Issues', 'wp-simple-firewall' ),
-				'needs_update' => __( 'Needs Update', 'wp-simple-firewall' ),
-				'not_detected' => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
+				'site'                => __( 'Site', 'wp-simple-firewall' ),
+				'url'                 => __( 'URL', 'wp-simple-firewall' ),
+				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
+				'status'              => __( 'Status', 'wp-simple-firewall' ),
+				'last_sync'           => __( 'Last Sync', 'wp-simple-firewall' ),
+				'last_scan'           => __( 'Last Scan', 'wp-simple-firewall' ),
+				'version'             => __( 'Version', 'wp-simple-firewall' ),
+				'connected'           => __( 'Connected', 'wp-simple-firewall' ),
+				'disconnected'        => __( 'Disconnected', 'wp-simple-firewall' ),
+				'with_issues'         => __( 'With Issues', 'wp-simple-firewall' ),
+				'needs_update'        => __( 'Needs Update', 'wp-simple-firewall' ),
+				'st_inactive'         => __( 'Shield Security plugin is installed but not activated.', 'wp-simple-firewall' ),
+				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
+				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
+				'st_not_detected'     => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
 			]
 		];
 	}

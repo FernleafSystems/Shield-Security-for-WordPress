@@ -7,14 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use MainWP\Dashboard\MainWP_DB;
 
-class DetermineClientPluginStatus {
+class PluginStatus {
 
 	use PluginControllerConsumer;
 	use MWPSiteConsumer;
 
 	const ACTIVE = 'acti';
 	const NEED_SYNC = 'nsync';
-	const INSTALLED = 'inst';
+	const INACTIVE = 'inact';
 	const NOT_INSTALLED = 'ninst';
 	const VERSION_NEWER_THAN_SERVER = 'vnts';
 	const VERSION_OLDER_THAN_SERVER = 'vots';
@@ -23,7 +23,7 @@ class DetermineClientPluginStatus {
 	 * TODO: Consider things like global disabled / forceoff
 	 * @return array
 	 */
-	public function run() :array {
+	public function detect() :array {
 		$sync = $this->getSiteShieldSyncInfo( $this->getMwpSite() );
 		$m = $sync->meta;
 		if ( $this->isActive() ) {
@@ -45,7 +45,7 @@ class DetermineClientPluginStatus {
 			}
 		}
 		elseif ( $this->isInstalled() ) {
-			$status = self::INSTALLED;
+			$status = self::INACTIVE;
 		}
 		else {
 			$status = self::NOT_INSTALLED;
@@ -60,7 +60,6 @@ class DetermineClientPluginStatus {
 		$thePlugin = null;
 
 		$baseName = basename( $this->getCon()->getPluginBaseFile() );
-		error_log( var_export( $this->getMwpSite()->plugins, true ) );
 		foreach ( $this->getMwpSite()->plugins as $plugin ) {
 			if ( basename( $plugin[ 'slug' ] ) === $baseName ) {
 				$thePlugin = $plugin;
@@ -83,7 +82,7 @@ class DetermineClientPluginStatus {
 		return [
 			self::ACTIVE                    => __( 'Active' ),
 			self::NEED_SYNC                 => __( 'Sync Required' ),
-			self::INSTALLED                 => __( 'Installed' ),
+			self::INACTIVE                  => __( 'Installed' ),
 			self::NOT_INSTALLED             => __( 'Not Installed' ),
 			self::VERSION_OLDER_THAN_SERVER => __( 'Update Required' ),
 			self::VERSION_NEWER_THAN_SERVER => __( 'Ahead Of Server' ),

@@ -37,27 +37,33 @@
 		</td>
 		<td>{{ site.name }}</td>
 		<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
-		{% if site.shield.is_installed %}
-		<td>
-			{{ site.shield.status }}
-		</td>
+		{% if site.shield.is_active %}
+			<td>
+				{{ site.shield.status }}
+			</td>
 
-		<td>
-			<a href="{{ site.shield.issues_href }}"
-			   class="ui mini compact button {{ site.shield.has_issues ? 'red':'green' }}"
-			   target="_blank">{{ site.shield.issues }}</a>
-		</td>
+			<td>
+				<a href="{{ site.shield.issues_href }}"
+				   class="ui mini compact button {{ site.shield.has_issues ? 'red':'green' }}"
+				   target="_blank">{{ site.shield.issues }}</a>
+			</td>
 
-		<td>
-			{{ site.shield.meta.version }}
-		</td>
-		<td>
-			{{ site.shield.sync_at_diff }}
-			<br /><small>{{ site.shield.sync_at_text }}</small>
-		</td>
+			<td>
+				{{ site.shield.meta.version }}
+			</td>
+			<td>
+				{{ site.shield.sync_at_diff }}
+				<br /><small>{{ site.shield.sync_at_text }}</small>
+			</td>
+		{% elseif site.shield.is_inactive %}
+			<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_inactive }}</td>
+		{% elseif site.shield.is_sync_rqd %}
+			<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_sync_rqd }}</td>
+		{% elseif site.shield.is_version_mismatch %}
+			<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_version_mismatch }}</td>
 		{% else %}
-		<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.not_detected }}</td>
-	{% endif %}
+			<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_not_detected }}</td>
+		{% endif %}
 	{% endfor %}
 	</tbody>
 </table>

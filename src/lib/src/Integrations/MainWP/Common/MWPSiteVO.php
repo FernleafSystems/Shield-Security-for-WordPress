@@ -27,7 +27,7 @@ class MWPSiteVO {
 		switch ( $property ) {
 			case 'plugins':
 			case 'themes':
-				$mValue = json_decode( $mValue, true );
+				$mValue = json_decode( $mValue ?? '[]', true );
 				break;
 			default:
 				break;
