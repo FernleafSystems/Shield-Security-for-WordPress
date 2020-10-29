@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\DetermineClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -15,7 +16,7 @@ class SitesListTableHandler extends BaseRender {
 	use OneTimeExecute;
 
 	/**
-	 * @var array
+	 * @var MWPSiteVO
 	 */
 	private $workingItem;
 
@@ -31,36 +32,42 @@ class SitesListTableHandler extends BaseRender {
 	}
 
 	private function renderShieldColumnEntryForItem( array $item ) :string {
-		$this->workingItem = $item;
+		$this->workingItem = ( new MWPSiteVO() )->applyFromArray( $item );
 		return $this->render();
 	}
 
 	protected function getData() :array {
 		$con = $this->getCon();
 		$syncData = MainWP_DB::instance()->get_website_option(
-			$this->workingItem,
+			$this->workingItem->getRawDataAsArray(),
 			$con->prefix( 'mainwp-sync' )
 		);
+
 		$sync = ( new SyncVO() )->applyFromArray( empty( $syncData ) ? [] : json_decode( $syncData, true ) );
 		$status = ( new DetermineClientPluginStatus() )
 			->setCon( $this->getCon() )
-			->run( $sync );
+			->setMwpSite( $this->workingItem )
+			->run();
 
 		$statusKey = key( $status );
-		$isStatusOk = $statusKey === DetermineClientPluginStatus::INSTALLED;
-		if ( $isStatusOk ) {
+		$isActive = $statusKey === DetermineClientPluginStatus::ACTIVE;
+		if ( $isActive ) {
 			$issuesCount = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 		}
 		else {
 			$issuesCount = 0;
 		}
 
-		error_log( var_export( $statusKey !== DetermineClientPluginStatus::NOT_INSTALLED, true ) );
+		error_log( var_export( $statusKey, true ) );
 		return [
 			'flags'   => [
-				'is_version_match' => $sync->meta->version === $this->getCon()->getVersion(),
-				'status_ok'        => $isStatusOk,
-				'is_installed'     => $statusKey !== DetermineClientPluginStatus::NOT_INSTALLED,
+				'is_active'           => $isActive,
+				'is_installed'        => $statusKey !== DetermineClientPluginStatus::NOT_INSTALLED,
+				'is_version_mismatch' => in_array( $statusKey, [
+					DetermineClientPluginStatus::VERSION_NEWER_THAN_SERVER,
+					DetermineClientPluginStatus::VERSION_OLDER_THAN_SERVER,
+				] ),
+				'is_sync_rqd'         => $statusKey == DetermineClientPluginStatus::NEED_SYNC,
 			],
 			'vars'    => [
 				'status_key'   => $statusKey,
@@ -73,7 +80,9 @@ class SitesListTableHandler extends BaseRender {
 											->getUrl_AdminPage( $con->mwpVO->official_extension_data[ 'page' ] ),
 			],
 			'strings' => [
+				'tooltip_not_active'       => __( "Shield plugin is installed, but not active.", 'wp-simple-firewall' ),
 				'tooltip_not_installed'    => __( "Shield isn't installed on this site.", 'wp-simple-firewall' ),
+				'tooltip_sync_required'    => __( "Sync Required.", 'wp-simple-firewall' ),
 				'tooltip_version_mismatch' => __( "Shield version on site doesn't match this server.", 'wp-simple-firewall' ),
 				'tooltip_please_update'    => __( "Please update your Shield plugins to the same versions and re-sync.", 'wp-simple-firewall' ),
 				'tooltip_issues_found'     => __( "Issues Found", 'wp-simple-firewall' ),

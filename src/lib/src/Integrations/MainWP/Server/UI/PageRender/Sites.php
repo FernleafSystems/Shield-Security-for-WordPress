@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\PageRender;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\DetermineClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\BaseRender;
@@ -39,6 +40,7 @@ class Sites extends BaseRender {
 		];
 		$sites = apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 		foreach ( $sites as &$site ) {
+			$VO = ( new MWPSiteVO() )->applyFromArray( $site );
 			$sync = $this->getSiteShieldSyncInfo( $site );
 			$meta = $sync->meta;
 
@@ -61,10 +63,12 @@ class Sites extends BaseRender {
 
 				$status = ( new DetermineClientPluginStatus() )
 					->setCon( $this->getCon() )
-					->run( $sync );
+					->setMwpSite( $VO )
+					->run();
+
 				$shd[ 'status_key' ] = key( $status );
 				$shd[ 'status' ] = current( $status );
-				$shd[ 'is_status_ok' ] = $shd[ 'status_key' ] === DetermineClientPluginStatus::INSTALLED;
+				$shd[ 'is_status_ok' ] = $shd[ 'status_key' ] === DetermineClientPluginStatus::ACTIVE;
 
 				$shd[ 'issues_href' ] = add_query_arg(
 					[
