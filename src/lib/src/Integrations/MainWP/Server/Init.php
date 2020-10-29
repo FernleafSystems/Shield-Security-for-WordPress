@@ -35,7 +35,7 @@ class Init {
 		( new SyncHandler() )
 			->setCon( $this->getCon() )
 			->execute();
-		( new UI\SitesListTableHandler() )
+		( new UI\ManageSites\SitesListTableHandler() )
 			->setCon( $this->getCon() )
 			->execute();
 
