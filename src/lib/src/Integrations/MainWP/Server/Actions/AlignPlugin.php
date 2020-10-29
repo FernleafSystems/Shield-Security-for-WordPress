@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\Consumers\MWPSiteConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\{
+	Common\Consumers\MWPSiteConsumer,
+	Server\Data\PluginStatus
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Api;
 use MainWP\Dashboard\MainWP_Connect;
@@ -15,55 +17,56 @@ class AlignPlugin {
 	use MWPSiteConsumer;
 
 	public function run() {
-		$oStatus = ( new Server\Data\PluginStatus() )
+		$oStatus = ( new PluginStatus() )
 			->setCon( $this->getCon() )
 			->setMwpSite( $this->getMwpSite() );
 
 		switch ( $oStatus->status() ) {
 
-			case Server\Data\PluginStatus::INACTIVE:
+			case PluginStatus::INACTIVE:
 				if ( $this->activate() ) {
 					$this->sync();
 				}
 				break;
 
-			case Server\Data\PluginStatus::NEED_SYNC:
+			case PluginStatus::NEED_SYNC:
 				$this->sync();
 				break;
 
-			case Server\Data\PluginStatus::VERSION_OLDER_THAN_SERVER:
+			case PluginStatus::VERSION_OLDER_THAN_SERVER:
 				$this->sync();
-				$this->update();
+				$this->upgrade();
 				$this->sync();
 				break;
 
-			case Server\Data\PluginStatus::NOT_INSTALLED:
+			case PluginStatus::NOT_INSTALLED:
 				$this->install();
 				$this->sync();
 				break;
 
-			case Server\Data\PluginStatus::ACTIVE:
+			case PluginStatus::ACTIVE:
 			default:
 				// nothing
 				break;
 		}
 	}
 
-	public function update() :bool {
+	public function activate() :bool {
 		$siteObj = $this->getMwpSite()->siteobj;
-		MainWP_Connect::fetch_url_authed(
+		$info = MainWP_Connect::fetch_url_authed(
 			$siteObj,
-			'upgradeplugintheme',
+			'plugin_action',
 			[
-				'type' => 'plugin',
-				'list' => ( new Server\Data\PluginStatus() )
-							  ->setCon( $this->getCon() )
-							  ->setMwpSite( $this->getMwpSite() )
-							  ->getInstalledPlugin()[ 'slug' ],
-			],
-			true
+				'action' => 'activate',
+				'plugin' => ( new PluginStatus() )
+								->setCon( $this->getCon() )
+								->setMwpSite( $this->getMwpSite() )
+								->getInstalledPlugin()[ 'slug' ],
+			]
 		);
-		return true;
+
+		$status = $info[ 'status' ] ?? false;
+		return $status === 'SUCCESS';
 	}
 
 	public function install() :bool {
@@ -91,21 +94,20 @@ class AlignPlugin {
 		return (bool)MainWP_Sync::sync_site( $this->getMwpSite()->siteobj );
 	}
 
-	public function activate() :bool {
+	public function upgrade() :bool {
 		$siteObj = $this->getMwpSite()->siteobj;
-		$info = MainWP_Connect::fetch_url_authed(
+		MainWP_Connect::fetch_url_authed(
 			$siteObj,
-			'plugin_action',
+			'upgradeplugintheme',
 			[
-				'action' => 'activate',
-				'plugin' => ( new Server\Data\PluginStatus() )
-								->setCon( $this->getCon() )
-								->setMwpSite( $this->getMwpSite() )
-								->getInstalledPlugin()[ 'slug' ],
-			]
+				'type' => 'plugin',
+				'list' => ( new PluginStatus() )
+							  ->setCon( $this->getCon() )
+							  ->setMwpSite( $this->getMwpSite() )
+							  ->getInstalledPlugin()[ 'slug' ],
+			],
+			true
 		);
-
-		$status = $info[ 'status' ] ?? false;
-		return $status === 'SUCCESS';
+		return true;
 	}
 }
