@@ -71,23 +71,20 @@ class AlignPlugin {
 		$urlInstall = ( new Api() )
 			->setWorkingSlug( 'wp-simple-firewall' )
 			->getInfo()->download_link;
+
 		$info = MainWP_Connect::fetch_urls_authed(
 			$siteObj,
 			'installplugintheme',
 			[
 				'type'           => 'plugin',
-				'url'            => $urlInstall,
+				'url'            => wp_json_encode( $urlInstall ),
 				'activatePlugin' => 'yes',
-				'overwrite'      => 'yes',
+				'overwrite'      => true,
 			],
 			null,
 			$o
 		);
-		var_dump( $o );
-		var_dump( $info );
-		die();
-		error_log( var_export( $info, true ) );
-		return true;
+		return (bool)$info;
 	}
 
 	public function sync() :bool {
