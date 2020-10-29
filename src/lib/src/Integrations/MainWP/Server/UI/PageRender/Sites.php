@@ -11,6 +11,22 @@ use MainWP\Dashboard\MainWP_DB;
 class Sites extends BaseRender {
 
 	protected function getData() :array {
+		return $this->serverNeedsUpdate() ? $this->getDataForUpdate() : $this->getDataForSites();
+	}
+
+	private function getDataForUpdate() :array {
+		return [
+			'strings' => [
+				'update'  => __( 'The Shield Security plugin on this site needs updated.' ),
+				'go_here' => __( 'Go to WordPress Updates' )
+			],
+			'hrefs'   => [
+				'update' => Services::WpGeneral()->getAdminUrl_Updates()
+			],
+		];
+	}
+
+	private function getDataForSites() :array {
 		$mwp = $this->getCon()->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
@@ -111,6 +127,12 @@ class Sites extends BaseRender {
 	}
 
 	protected function getTemplateSlug() :string {
-		return 'pages/sites';
+		return $this->serverNeedsUpdate() ? 'pages/outofdate' : 'pages/sites';
+	}
+
+	private function serverNeedsUpdate() :bool {
+		return Services::WpPlugins()->isUpdateAvailable(
+			$this->getCon()->getPluginBaseFile()
+		);
 	}
 }
