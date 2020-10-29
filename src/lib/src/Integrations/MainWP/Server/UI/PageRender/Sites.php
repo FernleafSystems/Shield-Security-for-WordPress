@@ -39,16 +39,25 @@ class Sites extends BaseRender {
 				}
 				else {
 					$shd[ 'has_issues' ] = true;
-					$shd[ 'issues' ] = sprintf( '%s: %s', __( 'Issues', 'wp-simple-firewall' ), array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) );
+					$shd[ 'issues' ] = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 					$statsHead[ 'with_issues' ]++;
 				}
 
 				$status = ( new DetermineClientPluginStatus() )
 					->setCon( $this->getCon() )
 					->run( $sync );
-				var_dump($status);
-				$shd[ 'status_key' ] = reset( $status );
+				$shd[ 'status_key' ] = key( $status );
 				$shd[ 'status' ] = current( $status );
+				$shd[ 'is_status_ok' ] = $shd[ 'status_key' ] === DetermineClientPluginStatus::INSTALLED;
+
+				$shd[ 'issues_href' ] = add_query_arg(
+					[
+						'newWindow' => 'yes',
+						'websiteid' => $site[ 'id' ],
+						'location'  => base64_encode( $this->getScanPageUrlPart() )
+					],
+					Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' )
+				);
 
 				$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
 			}
@@ -67,6 +76,7 @@ class Sites extends BaseRender {
 			'strings' => [
 				'site'         => __( 'Site', 'wp-simple-firewall' ),
 				'url'          => __( 'URL', 'wp-simple-firewall' ),
+				'issues'       => __( 'Issues', 'wp-simple-firewall' ),
 				'status'       => __( 'Status', 'wp-simple-firewall' ),
 				'last_sync'    => __( 'Last Sync', 'wp-simple-firewall' ),
 				'last_scan'    => __( 'Last Scan', 'wp-simple-firewall' ),
@@ -78,6 +88,15 @@ class Sites extends BaseRender {
 				'not_detected' => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
 			]
 		];
+	}
+
+	private function getScanPageUrlPart() :string {
+		$WP = Services::WpGeneral();
+		return str_replace(
+			$WP->getAdminUrl(),
+			'',
+			$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' )
+		);
 	}
 
 	protected function getSiteShieldSyncInfo( $site ) :SyncVO {

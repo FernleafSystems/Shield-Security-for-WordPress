@@ -24,7 +24,8 @@
 			<th>{{ strings.site }}</th>
 			<th>{{ strings.url }}</th>
 			<th>{{ strings.status }}</th>
-{#			<th>{{ strings.last_scan }}</th>#}
+			<th>{{ strings.issues }}</th>
+			{# <th>{{ strings.last_scan }}</th> #}
 			<th>{{ strings.version }}</th>
 			<th>{{ strings.last_sync }}</th>
 		</tr>
@@ -39,12 +40,14 @@
 		{% if site.shield.is_installed %}
 		<td>
 			{{ site.shield.status }}
-			<br/>{{ site.shield.issues }}
 		</td>
-{#		<td>#}
-{#			{{ site.shield.sync_at_diff }}#}
-{#			<br /><small>{{ site.shield.sync_at_text }}</small>#}
-{#		</td>#}
+
+		<td>
+			<a href="{{ site.shield.issues_href }}"
+			   class="ui mini compact button {{ site.shield.has_issues ? 'red':'green' }}"
+			   target="_blank">{{ site.shield.issues }}</a>
+		</td>
+
 		<td>
 			{{ site.shield.meta.version }}
 		</td>
