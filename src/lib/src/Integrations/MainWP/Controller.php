@@ -11,6 +11,8 @@ class Controller {
 
 	use PluginControllerConsumer;
 
+	const MIN_VERSION_MAINWP = '4.1';
+
 	public function run() {
 		try {
 			$this->runServerSide();
@@ -52,6 +54,9 @@ class Controller {
 		if ( !$this->isMainWPServerActive() ) {
 			throw new \Exception( 'MainWP not active' );
 		}
+		if ( !$this->isMainWPServerVersionSupported() ) {
+			throw new \Exception( sprintf( 'MainWP not the minimum supported version: %s', self::MIN_VERSION_MAINWP ) );
+		}
 
 		$mwpVO->child_key = ( new Server\Init() )
 			->setCon( $con )
@@ -65,5 +70,10 @@ class Controller {
 
 	private function isMainWPServerActive() :bool {
 		return (bool)apply_filters( 'mainwp_activated_check', false );
+	}
+
+	private function isMainWPServerVersionSupported() :bool {
+		return defined( 'MAINWP_VERSION' )
+			   && version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
 	}
 }
