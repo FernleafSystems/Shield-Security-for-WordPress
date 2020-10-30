@@ -77,6 +77,10 @@
 				</td>
 			{% elseif site.shield.is_inactive %}
 				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_inactive }}</td>
+			{% elseif site.shield.is_notpro %}
+				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_notpro }}</td>
+			{% elseif site.shield.is_mwpnoton %}
+				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_mwpnoton }}</td>
 			{% elseif site.shield.is_sync_rqd %}
 				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_sync_rqd }}</td>
 			{% elseif site.shield.is_version_mismatch %}

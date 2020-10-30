@@ -437,13 +437,9 @@ class Controller {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 
-		/** @var Shield\Modules\Plugin\Options $pluginOpts */
-		$pluginOpts = $this->getModule_Plugin()->getOptions();
-		if ( $pluginOpts->isEnabledMainWP() ) {
-			( new Shield\Integrations\MainWP\Controller() )
-				->setCon( $this )
-				->run();
-		}
+		( new Shield\Integrations\MainWP\Controller() )
+			->setCon( $this )
+			->run();
 	}
 
 	/**

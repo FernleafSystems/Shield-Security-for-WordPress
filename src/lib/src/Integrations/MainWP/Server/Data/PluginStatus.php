@@ -13,6 +13,7 @@ class PluginStatus {
 	const ACTIVE = 'acti';
 	const NEED_SYNC = 'nsync';
 	const NOT_PRO = 'npro';
+	const MWP_NOT_ON = 'mwpnoton';
 	const INACTIVE = 'inact';
 	const NOT_INSTALLED = 'ninst';
 	const VERSION_NEWER_THAN_SERVER = 'vnts';
@@ -38,6 +39,9 @@ class PluginStatus {
 			}
 			elseif ( empty( $m->is_pro ) ) {
 				$status = self::NOT_PRO;
+			}
+			elseif ( empty( $m->is_mainwp_on ) ) {
+				$status = self::MWP_NOT_ON;
 			}
 			else {
 				$versionStatus = version_compare( $this->getCon()->getVersion(), $m->version );
@@ -90,6 +94,7 @@ class PluginStatus {
 		return [
 			self::ACTIVE                    => __( 'Active' ),
 			self::NOT_PRO                   => __( 'Not Pro' ),
+			self::MWP_NOT_ON                => __( 'MainWP Option Not Enabled' ),
 			self::NEED_SYNC                 => __( 'Sync Required' ),
 			self::INACTIVE                  => __( 'Installed' ),
 			self::NOT_INSTALLED             => __( 'Not Installed' ),

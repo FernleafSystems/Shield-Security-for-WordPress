@@ -22,6 +22,14 @@
 		</a>
 	</span>
 
+{% elseif flags.is_mwpnoton %}
+	<span data-tooltip="{{ strings.tooltip_mwpnoton }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}">
+			<i class="circular inverted orange icon exclamation"></i>
+		</a>
+	</span>
+
 {% elseif flags.is_inactive %}
 	<span data-tooltip="{{ strings.tooltip_inactive }}"
 		  data-position="left center">
