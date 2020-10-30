@@ -13,14 +13,11 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 	private $oAuditor;
 
 	public function run() {
-		/** @var AuditTrail\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isEnabledAuditing() ) {
+		/** @var AuditTrail\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isEnabledAuditing() ) {
 			$this->initAuditors();
 			$this->getSubProAuditor()->execute();
-		}
-		if ( false && $oOpts->isEnabledChangeTracking() ) {
-			$this->getSubProChangeTracking()->execute();
 		}
 	}
 
@@ -73,6 +70,9 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 				->setMod( $this->getMod() )
 				->run();
 		}
+		( new Auditors\Upgrades() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**

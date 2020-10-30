@@ -14,10 +14,7 @@ class Options extends Base\ShieldOptions {
 		return $this->getCon()->prefixOption( $this->getDef( 'table_name_changetracking' ) );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getAutoCleanDays() {
+	public function getAutoCleanDays() :int {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
 
@@ -27,10 +24,7 @@ class Options extends Base\ShieldOptions {
 			(int)$this->getDef( 'audit_trail_free_max_entries' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledChangeTracking() {
+	public function isEnabledChangeTracking() :bool {
 		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
 	}
 
@@ -69,10 +63,7 @@ class Options extends Base\ShieldOptions {
 		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledAuditing() {
+	public function isEnabledAuditing() :bool {
 		return $this->isAuditEmails()
 			   || $this->isAuditPlugins()
 			   || $this->isAuditThemes()
@@ -82,52 +73,31 @@ class Options extends Base\ShieldOptions {
 			   || $this->isAuditWp();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditEmails() {
+	public function isAuditEmails() :bool {
 		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditPlugins() {
+	public function isAuditPlugins() :bool {
 		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditPosts() {
+	public function isAuditPosts() :bool {
 		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditShield() {
+	public function isAuditShield() :bool {
 		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditThemes() {
+	public function isAuditThemes() :bool {
 		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditUsers() {
+	public function isAuditUsers() :bool {
 		return $this->isOpt( 'enable_audit_context_users', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAuditWp() {
+	public function isAuditWp() :bool {
 		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
 	}
 

@@ -20,11 +20,17 @@ class Strings extends Base\Strings {
 			'plugin_file_edited'      => [
 				__( 'An attempt was made to edit the plugin file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
 			],
+			'plugin_upgraded'         => [
+				__( 'Plugin "%s" was upgraded from version %s to version %s.', 'wp-simple-firewall' )
+			],
 			'theme_activated'         => [
 				__( 'Theme "%s" was activated.', 'wp-simple-firewall' )
 			],
 			'theme_file_edited'       => [
 				__( 'An attempt was made to edit the theme file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
+			],
+			'theme_upgraded'         => [
+				__( 'Theme "%s" was upgraded from version %s to version %s.', 'wp-simple-firewall' )
 			],
 			'core_updated'            => [
 				__( 'WordPress Core was updated from "%s" to "%s".', 'wp-simple-firewall' )

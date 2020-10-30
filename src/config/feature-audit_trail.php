@@ -234,12 +234,12 @@
     }
   ],
   "definitions": {
-    "db_classes":                   {
+    "db_classes":                         {
       "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
-    "audit_trail_free_max_entries": 100,
-    "audit_trail_table_name":       "audit_trail",
-    "audit_trail_table_columns":    {
+    "audit_trail_free_max_entries":       100,
+    "audit_trail_table_name":             "audit_trail",
+    "audit_trail_table_columns":          {
       "rid":         "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
       "ip":          "varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address'",
       "wp_username": "varchar(255) NOT NULL DEFAULT '-' COMMENT 'WP User'",
@@ -254,15 +254,15 @@
     "audittrail_table_timestamp_columns": {
       "updated_at": "Updated"
     },
-    "table_name_changetracking":    "changetracking",
-    "table_columns_changetracking": [
+    "table_name_changetracking":          "changetracking",
+    "table_columns_changetracking":       [
       "id",
       "data",
       "meta",
       "created_at",
       "deleted_at"
     ],
-    "events":                       {
+    "events":                             {
       "plugin_activated":        {
         "context":        "plugins",
         "audit_multiple": true
@@ -274,10 +274,16 @@
       "plugin_file_edited":      {
         "context": "plugins"
       },
+      "plugin_upgraded":         {
+        "context": "plugins"
+      },
       "theme_activated":         {
         "context": "themes"
       },
       "theme_file_edited":       {
+        "context": "themes"
+      },
+      "theme_upgraded":          {
         "context": "themes"
       },
       "core_updated":            {
