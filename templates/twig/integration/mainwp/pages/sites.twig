@@ -13,6 +13,25 @@
 	</div>
 </div>
 
+<div class="mainwp-actions-bar">
+	<div class="ui grid">
+		<div class="ui one column row">
+			<div class="column">
+				<input type="hidden" id="" value="TODO: NONCE" />
+				<div id="sites_bulk_action" class="actions ui mini form">
+					<select name="bulk_action" class="ui mini dropdown">
+						<option value="-1" selected="selected">Bulk Actions</option>
+						<option value="start">Upgrade</option>
+						<option value="pause">Install</option>
+						<option value="delete">Uninstall</option>
+					</select>
+					<a href="#" class="ui mini button disabled">Apply</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <table id="mainwp-shield-sites-table" class="mainwp-shield-table ui single line table" style="width:100%">
 	<thead>
 		<tr>
@@ -32,7 +51,7 @@
 	</thead>
 	<tbody>
 	{% for site in vars.sites %}
-		<tr>
+		<tr class="shield_site_row" data-shield_status="{{ site.shield.status_key }}">
 			<td class="check-column">
 				<span class="ui checkbox"><input type="checkbox" name="checkbox_url" class="checkbox_url"></span>
 			</td>
@@ -61,7 +80,8 @@
 			{% elseif site.shield.is_sync_rqd %}
 				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_sync_rqd }}</td>
 			{% elseif site.shield.is_version_mismatch %}
-				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_version_mismatch }}</td>
+				<td colspan="4"
+					style="text-align: center; background-color: #ffe4cd">{{ strings.st_version_mismatch }}</td>
 			{% else %}
 				<td colspan="4" style="text-align: center; background-color: #ffe4cd">{{ strings.st_not_detected }}</td>
 			{% endif %}
