@@ -7,6 +7,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class SyncVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common
+ * @property bool   $is_pro
  * @property int    $installed_at
  * @property int    $sync_at
  * @property string $version

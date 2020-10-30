@@ -33,7 +33,7 @@ class Init {
 			throw new \Exception( 'No child key provided' );
 		}
 
-		if ( Controller::isMainWPServerVersionSupported() ) {
+		if ( Controller::isMainWPServerVersionSupported() && $this->getCon()->isPremiumActive() ) {
 			( new SyncHandler() )
 				->setCon( $this->getCon() )
 				->execute();

@@ -55,7 +55,7 @@ class Options extends Base\ShieldOptions {
 	}
 
 	public function isEnabledMainWP() :bool {
-		return $this->isPremium() && $this->isOpt( 'enable_mainwp', 'Y' );
+		return $this->isOpt( 'enable_mainwp', 'Y' );
 	}
 
 	public function isTrackingEnabled() :bool {

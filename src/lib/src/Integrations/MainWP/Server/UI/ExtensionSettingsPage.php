@@ -27,7 +27,10 @@ class ExtensionSettingsPage {
 		do_action( 'mainwp_pagefooter_extensions', $this->getCon()->getRootFile() );
 		$mainwpFooter = ob_get_clean();
 
-		if ( $this->serverPluginNeedsUpdate() ) {
+		if ( !$con->isPremiumActive() ) {
+			$pageRenderer = new PageRender\NotShieldPro();
+		}
+		elseif ( $this->serverPluginNeedsUpdate() ) {
 			$pageRenderer = new PageRender\PluginOutOfDate();
 		}
 		elseif ( !Controller::isMainWPServerVersionSupported() ) {

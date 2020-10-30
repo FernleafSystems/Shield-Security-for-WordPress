@@ -32,13 +32,15 @@ class Controller {
 	private function runClientSide() {
 		$con = $this->getCon();
 		$mwpVO = $con->mwpVO ?? new MainWPVO();
-		$mwpVO->is_client = @class_exists( '\MainWP\Child\MainWP_Child' );
+		$mwpVO->is_client = $this->isMainWPChildActive();
 
-		if ( $mwpVO->is_client && self::isMainWPServerVersionSupported() ) {
-			( new Client\Init() )
-				->setCon( $con )
-				->run();
+		if ( !$mwpVO->is_client ) {
+			throw new \Exception( 'MainWP Child not active' );
 		}
+
+		( new Client\Init() )
+			->setCon( $con )
+			->run();
 
 		$con->mwpVO = $mwpVO;
 	}
@@ -65,12 +67,20 @@ class Controller {
 		$con->mwpVO = $mwpVO;
 	}
 
+	private function isMainWPChildActive() :bool {
+		return @class_exists( '\MainWP\Child\MainWP_Child' );
+	}
+
 	private function isMainWPServerActive() :bool {
 		return (bool)apply_filters( 'mainwp_activated_check', false );
 	}
 
+	public static function isMainWPChildVersionSupported() :bool {
+		return version_compare( \MainWP\Child\MainWP_Child::$version, self::MIN_VERSION_MAINWP, '>=' );
+	}
+
 	public static function isMainWPServerVersionSupported() :bool {
-		return false && defined( 'MAINWP_VERSION' )
+		return defined( 'MAINWP_VERSION' )
 			   && version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
 	}
 }

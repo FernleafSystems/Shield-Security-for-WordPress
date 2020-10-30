@@ -12,6 +12,7 @@ class PluginStatus {
 
 	const ACTIVE = 'acti';
 	const NEED_SYNC = 'nsync';
+	const NOT_PRO = 'npro';
 	const INACTIVE = 'inact';
 	const NOT_INSTALLED = 'ninst';
 	const VERSION_NEWER_THAN_SERVER = 'vnts';
@@ -29,10 +30,14 @@ class PluginStatus {
 	public function detect() :array {
 		$sync = LoadShieldSyncData::Load( $this->getMwpSite() );
 		$m = $sync->meta;
+
 		if ( $this->isActive() ) {
 
 			if ( empty( $sync->getRawDataAsArray() ) ) {
 				$status = self::NEED_SYNC;
+			}
+			elseif ( empty( $m->is_pro ) ) {
+				$status = self::NOT_PRO;
 			}
 			else {
 				$versionStatus = version_compare( $this->getCon()->getVersion(), $m->version );
@@ -81,9 +86,10 @@ class PluginStatus {
 		return !empty( $this->getInstalledPlugin() );
 	}
 
-	protected function getStatusText() {
+	public function getStatusText() {
 		return [
 			self::ACTIVE                    => __( 'Active' ),
+			self::NOT_PRO                   => __( 'Not Pro' ),
 			self::NEED_SYNC                 => __( 'Sync Required' ),
 			self::INACTIVE                  => __( 'Installed' ),
 			self::NOT_INSTALLED             => __( 'Not Installed' ),

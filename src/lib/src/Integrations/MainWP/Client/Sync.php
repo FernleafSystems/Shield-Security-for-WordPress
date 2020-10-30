@@ -22,6 +22,7 @@ class Sync {
 	private function buildMetaData() :array {
 		$con = $this->getCon();
 		return [
+			'is_pro'       => $con->isPremiumActive(),
 			'installed_at' => $con->getModule_Plugin()->getInstallDate(),
 			'sync_at'      => Services::Request()->ts(),
 			'version'      => $con->getVersion(),
