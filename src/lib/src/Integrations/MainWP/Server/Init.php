@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\SyncHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\ExtensionSettingsPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -32,12 +33,14 @@ class Init {
 			throw new \Exception( 'No child key provided' );
 		}
 
-		( new SyncHandler() )
-			->setCon( $this->getCon() )
-			->execute();
-		( new UI\ManageSites\SitesListTableHandler() )
-			->setCon( $this->getCon() )
-			->execute();
+		if ( Controller::isMainWPServerVersionSupported() ) {
+			( new SyncHandler() )
+				->setCon( $this->getCon() )
+				->execute();
+			( new UI\ManageSites\SitesListTableHandler() )
+				->setCon( $this->getCon() )
+				->execute();
+		}
 
 		return $key;
 	}

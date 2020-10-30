@@ -4,12 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MWPSiteVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\PluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use MainWP\Dashboard\MainWP_DB;
 
 class SitesListTableHandler extends BaseRender {
 
@@ -19,7 +18,7 @@ class SitesListTableHandler extends BaseRender {
 	/**
 	 * @var MWPSiteVO
 	 */
-	private $workingItem;
+	private $workingSite;
 
 	protected function run() {
 		add_filter( 'mainwp_sitestable_getcolumns', function ( $columns ) {
@@ -33,21 +32,17 @@ class SitesListTableHandler extends BaseRender {
 	}
 
 	private function renderShieldColumnEntryForItem( array $item ) :string {
-		$this->workingItem = ( new MWPSiteVO() )->applyFromArray( $item );
+		$this->workingSite = ( new MWPSiteVO() )->applyFromArray( $item );
 		return $this->render();
 	}
 
 	protected function getData() :array {
 		$con = $this->getCon();
-		$syncData = MainWP_DB::instance()->get_website_option(
-			$this->workingItem->getRawDataAsArray(),
-			$con->prefix( 'mainwp-sync' )
-		);
 
-		$sync = ( new SyncVO() )->applyFromArray( empty( $syncData ) ? [] : json_decode( $syncData, true ) );
+		$sync = LoadShieldSyncData::Load( $this->workingSite );
 		$status = ( new PluginStatus() )
 			->setCon( $this->getCon() )
-			->setMwpSite( $this->workingItem )
+			->setMwpSite( $this->workingSite )
 			->detect();
 
 		$statusKey = key( $status );

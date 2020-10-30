@@ -3,31 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\PageRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\MWPSiteVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data\PluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
 
-class Sites extends BaseRender {
+class SitesList extends BaseRender {
 
 	protected function getData() :array {
-		return $this->serverNeedsUpdate() ? $this->getDataForUpdate() : $this->getDataForSites();
-	}
-
-	private function getDataForUpdate() :array {
-		return [
-			'strings' => [
-				'update'  => __( 'The Shield Security plugin on this site needs updated.' ),
-				'go_here' => __( 'Go to WordPress Updates' )
-			],
-			'hrefs'   => [
-				'update' => Services::WpGeneral()->getAdminUrl_Updates()
-			],
-		];
-	}
-
-	private function getDataForSites() :array {
 		$mwp = $this->getCon()->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
@@ -40,19 +24,19 @@ class Sites extends BaseRender {
 		];
 		$sites = apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 		foreach ( $sites as &$site ) {
-			$VO = ( new MWPSiteVO() )->applyFromArray(
+			$mwpSite = ( new MWPSiteVO() )->applyFromArray(
 				Services::DataManipulation()->convertStdClassToArray(
 					MainWP_DB::instance()->get_website_by_id( $site[ 'id' ] )
 				)
 			);
-			$sync = $this->getSiteShieldSyncInfo( $site );
+			$sync = LoadShieldSyncData::Load( $mwpSite );
 			$meta = $sync->meta;
 
 			$shd = $sync->getRawDataAsArray();
 
 			$status = ( new PluginStatus() )
 				->setCon( $this->getCon() )
-				->setMwpSite( $VO )
+				->setMwpSite( $mwpSite )
 				->detect();
 			$shd[ 'status_key' ] = key( $status );
 			$shd[ 'status' ] = current( $status );
@@ -133,24 +117,7 @@ class Sites extends BaseRender {
 		);
 	}
 
-	protected function getSiteShieldSyncInfo( $site ) :SyncVO {
-		$data = MainWP_DB::instance()->get_website_option(
-			$site,
-			$this->getCon()->prefix( 'mainwp-sync' )
-		);
-		if ( empty( $data ) ) {
-			$data = '[]';
-		}
-		return ( new SyncVO() )->applyFromArray( json_decode( $data, true ) );
-	}
-
 	protected function getTemplateSlug() :string {
-		return $this->serverNeedsUpdate() ? 'pages/outofdate' : 'pages/sites';
-	}
-
-	private function serverNeedsUpdate() :bool {
-		return Services::WpPlugins()->isUpdateAvailable(
-			$this->getCon()->getPluginBaseFile()
-		);
+		return 'pages/sites';
 	}
 }

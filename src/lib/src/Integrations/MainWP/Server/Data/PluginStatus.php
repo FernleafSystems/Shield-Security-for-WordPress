@@ -3,9 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Server\Data;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\Consumers\MWPSiteConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Integrations\MainWP\Common\SyncVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use MainWP\Dashboard\MainWP_DB;
 
 class PluginStatus {
 
@@ -29,7 +27,7 @@ class PluginStatus {
 	 * @return array
 	 */
 	public function detect() :array {
-		$sync = $this->getSiteShieldSyncInfo( $this->getMwpSite() );
+		$sync = LoadShieldSyncData::Load( $this->getMwpSite() );
 		$m = $sync->meta;
 		if ( $this->isActive() ) {
 
@@ -92,16 +90,5 @@ class PluginStatus {
 			self::VERSION_OLDER_THAN_SERVER => __( 'Update Required' ),
 			self::VERSION_NEWER_THAN_SERVER => __( 'Ahead Of Server' ),
 		];
-	}
-
-	protected function getSiteShieldSyncInfo( $site ) :SyncVO {
-		$data = MainWP_DB::instance()->get_website_option(
-			$site,
-			$this->getCon()->prefix( 'mainwp-sync' )
-		);
-		if ( empty( $data ) ) {
-			$data = '[]';
-		}
-		return ( new SyncVO() )->applyFromArray( json_decode( $data, true ) );
 	}
 }

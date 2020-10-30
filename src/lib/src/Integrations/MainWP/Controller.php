@@ -34,7 +34,7 @@ class Controller {
 		$mwpVO = $con->mwpVO ?? new MainWPVO();
 		$mwpVO->is_client = @class_exists( '\MainWP\Child\MainWP_Child' );
 
-		if ( $mwpVO->is_client ) {
+		if ( $mwpVO->is_client && self::isMainWPServerVersionSupported() ) {
 			( new Client\Init() )
 				->setCon( $con )
 				->run();
@@ -54,9 +54,6 @@ class Controller {
 		if ( !$this->isMainWPServerActive() ) {
 			throw new \Exception( 'MainWP not active' );
 		}
-		if ( !$this->isMainWPServerVersionSupported() ) {
-			throw new \Exception( sprintf( 'MainWP not the minimum supported version: %s', self::MIN_VERSION_MAINWP ) );
-		}
 
 		$mwpVO->child_key = ( new Server\Init() )
 			->setCon( $con )
@@ -72,8 +69,8 @@ class Controller {
 		return (bool)apply_filters( 'mainwp_activated_check', false );
 	}
 
-	private function isMainWPServerVersionSupported() :bool {
-		return defined( 'MAINWP_VERSION' )
+	public static function isMainWPServerVersionSupported() :bool {
+		return false && defined( 'MAINWP_VERSION' )
 			   && version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
 	}
 }
