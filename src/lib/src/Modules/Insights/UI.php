@@ -97,7 +97,7 @@ class UI extends Base\ShieldUI {
 			case 'dashboard':
 				/** @var Shield\Modules\Plugin\UI $UI */
 				$UI = $con->getModule_Plugin()->getUIHandler();
-				$data = $UI->buildInsightsVars_Debug();
+				$data = $UI->buildInsightsVars_Dashboard();
 				break;
 
 			case 'debug':

@@ -12,7 +12,31 @@ use FernleafSystems\Wordpress\Services\Services;
 class UI extends Base\ShieldUI {
 
 	public function buildInsightsVars_Dashboard() :array {
-
+		$con = $this->getCon();
+		$modInsights = $con->getModule_Insights();
+		return [
+			'vars' => [
+				'feature_cards' => [
+					'users' => [
+						'title'   => __( 'WordPress Users', 'wp-simple-firewall' ),
+						'paras'   => [
+							__( "Adds fine control over user sessions, account re-use, password strength and expiration.", 'wp-simple-firewall' ),
+							__( "Also provides controls for manual and automatic account suspension.", 'wp-simple-firewall' ),
+						],
+						'actions' => [
+							[
+								'text' => __( "Manage User Settings", 'wp-simple-firewall' ),
+								'href' => $con->getModule_UserManagement()->getUrl_AdminPage(),
+							],
+							[
+								'text' => __( "Manage User Sessions", 'wp-simple-firewall' ),
+								'href' => $modInsights->getUrl_SubInsightsPage( 'users' ),
+							],
+						]
+					]
+				]
+			]
+		];
 	}
 
 	public function buildInsightsVars_Debug() :array {

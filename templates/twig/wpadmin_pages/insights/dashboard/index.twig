@@ -1,39 +1,28 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
-	<div class="row mt-3">
-		<div class="col"><h3>{{ strings.page_title }}</h3></div>
-	</div>
-	<div class="row mt-3">
-		<div class="col-6">
-			{{ content.admin_notes|raw }}
-		</div>
-		<div class="col-6">
-			{{ content.recent_events|raw }}
-		</div>
-	</div>
-	<div class="row">
-		{% for group_title,group in vars.debug_data %}
-			<div class="col-12 insights_section">
-				<h5 class="mb-3">{{ group_title }}</h5>
-				<div class="card-deck">
-					{% for title,section_data in group %}
-						<div class="card">
-							<div class="card-header">{{ title }}</div>
-							<div class="card-body">
-								<dl>
-								{% for key,val in section_data %}
-									<dt>{{ key }}</dt>
-									<dd class="mb-2">
-										{{ val is iterable ? val|join('<br/>')|raw : val|raw }}
-									</dd>
-								{% endfor %}
-								</dl>
-							</div>
+	<div class="row row-cols-3">
+		<div class="col pt-3">
+			<div class="card-deck">
+				{% for c in vars.feature_cards %}
+					<div class="card">
+						<div class="card-header">{{ c.title }}</div>
+						<div class="card-body">
+							<h5 class="card-title">{{ c.title }}</h5>
+							{% for p in c.paras %}
+								<p class="card-text">{{ p }}</p>
+							{% endfor %}
+							<ul class="list-group list-group-flush">
+							{% for action in c.actions %}
+								<li class="list-group-item">
+									<a href="{{ action.href }}">{{ action.text }}</a>
+								</li>
+							{% endfor %}
+							</ul>
 						</div>
-					{% endfor %}
-				</div>
+					</div>
+				{% endfor %}
 			</div>
-		{% endfor %}
+		</div>
 	</div>
 {% endblock %}
