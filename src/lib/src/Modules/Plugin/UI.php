@@ -11,6 +11,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
+	public function buildInsightsVars_Dashboard() :array {
+
+	}
+
 	public function buildInsightsVars_Debug() :array {
 		return [
 			'strings' => [
