@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 trait CommonFilters {
 
 	/**
-	 * @param string $sIp
+	 * @param string $ip
 	 * @return $this
 	 */
-	public function filterByIp( $sIp ) {
-		return $this->addWhereEquals( 'ip', $sIp );
+	public function filterByIp( $ip ) {
+		return $this->addWhereEquals( 'ip', $ip );
 	}
 
 	/**
@@ -43,6 +43,10 @@ trait CommonFilters {
 	 */
 	public function filterByIsRange( $bIsRange ) {
 		return $this->addWhereEquals( 'is_range', $bIsRange ? 1 : 0 );
+	}
+
+	public function filterByLabel( string $label ) :self {
+		return $this->addWhereEquals( 'label', $label );
 	}
 
 	/**
