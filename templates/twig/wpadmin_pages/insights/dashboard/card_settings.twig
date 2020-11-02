@@ -2,15 +2,28 @@
 
 {% block footer %}
 	<div class="card-footer">
-		<select class="w-100" id="DashboardModSettingsSelect">
-			<option value="-">-- {{ strings.select }} --</option>
-			{% for mod in vars.mods %}
-				{% if mod.show_mod_opts %}
-					<option value="{{ mod.slug }}"
-							data-href="{{ mod.href }}"
-					>{{ mod.name }}</option>
-				{% endif %}
-			{% endfor %}
-		</select>
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item">
+				<select class="w-100" id="DashboardModSettingsSelect">
+					<option value="-">-- {{ strings.select }} --</option>
+					{% for mod in vars.mods %}
+						{% if mod.show_mod_opts %}
+							<option value="{{ mod.slug }}"
+									data-href="{{ mod.href }}"
+							>{{ mod.name }}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</li>
+			<li class="list-group-item" id="SearchOptionsLaunch">
+				<a href="#"
+				   class="btn btn-block text-left px-0"
+				   data-toggle="modal" data-target="#OptionsSearch">
+					<span class="dashicons dashicons-search"></span>
+					Search For Option
+				</a>
+			</li>
+		</ul>
 	</div>
+
 {% endblock %}

@@ -110,8 +110,7 @@ class UI extends Base\ShieldUI {
 				'title'   => __( 'IP Blocking and Bypass', 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Shield automatically detects and blocks bad IP addresses based on your security settings.", 'wp-simple-firewall' ),
-					__( "The Bypass List ensures certain IPs are never blocked.", 'wp-simple-firewall' ),
-					__( "The IP Analysis Tool will show you all information for a given IP as it relates to your site.", 'wp-simple-firewall' ),
+					__( "The IP Analysis Tool shows you all information for a given IP as it relates to your site.", 'wp-simple-firewall' ),
 				],
 				'actions' => [
 					[
@@ -162,8 +161,8 @@ class UI extends Base\ShieldUI {
 			'traffic' => [
 				'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
 				'paras'   => [
-					__( "Use the traffic logging feature to monitor requests to your site as part of your visitor analysis.", 'wp-simple-firewall' ),
-					__( "The Traffic Rate Limiting features lets you throttle how many requests any single visitor is allow to make to your site.", 'wp-simple-firewall' ),
+					__( "Use traffic logging to monitor visitor requests to your site.", 'wp-simple-firewall' ),
+					__( "Traffic Rate Limiting lets you throttle requests from any single visitor.", 'wp-simple-firewall' ),
 				],
 				'actions' => [
 					[

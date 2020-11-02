@@ -364,8 +364,11 @@ label input[type=checkbox] {
 .module-icon-support:before {
 	content: "\f525";
 }
-#NavItem-SearchOptionsLaunch > a {
-	width: 35px;
+#SearchOptionsLaunch > a {
+	text-decoration: none !important;
+}
+#SearchOptionsLaunch span {
+	width: 24px;
 	content: "\f179";
 	font-size: 24px;
 	color: #008000 !important;
@@ -1479,4 +1482,8 @@ a.card_help {
 }
 #DashboardFeatureCards .card-footer {
 	background-color: transparent;
+}
+#DashboardFeatureCards .list-group-item {
+	border: 0 none;
+	padding: .3rem 0.2rem;
 }
