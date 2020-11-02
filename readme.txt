@@ -367,3 +367,8 @@ ShieldPRO delivers exclusive security features to the serious site administrator
 You'll also have direct access to our technical support team.
 
 [Go Pro from just $1/month](https://shsec.io/aa).
+
+10.1
+- Remove Audit Trail Areas
+- MainWP
+- Track plugin/theme upgrades in Audit Trail

@@ -11,33 +11,30 @@ class ImportIpsFromFile {
 	use Shield\Modules\ModConsumer;
 
 	public function run() {
-		foreach ( [ 'black', 'white' ] as $sType ) {
-			$this->runFileImport( $sType );
+		foreach ( [ 'black', 'white' ] as $type ) {
+			$this->runFileImport( $type );
 		}
 	}
 
-	/**
-	 * @param string $sType
-	 */
-	private function runFileImport( $sType ) {
-		$oFS = Services::WpFs();
+	private function runFileImport( string $type ) {
+		$FS = Services::WpFs();
 
-		$sImportFile = $oFS->findFileInDir( 'ip_import_'.$sType, $this->getCon()->getPath_Flags() );
-		if ( $oFS->isFile( $sImportFile ) ) {
-			$sContent = $oFS->getFileContent( $sImportFile );
-			if ( !empty( $sContent ) ) {
+		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->getCon()->getPath_Flags() );
+		if ( $FS->isFile( $fileImport ) ) {
+			$content = $FS->getFileContent( $fileImport );
+			if ( !empty( $content ) ) {
 				$oAdd = ( new IPs\Lib\Ops\AddIp() )->setMod( $this->getMod() );
-				foreach ( array_map( 'trim', explode( "\n", $sContent ) ) as $sIP ) {
+				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $sIP ) {
 					$oAdd->setIP( $sIP );
 					try {
-						$sType == 'white' ? $oAdd->toManualWhitelist( 'file import' )
+						$type == 'white' ? $oAdd->toManualWhitelist( 'file import' )
 							: $oAdd->toManualBlacklist( 'file import' );
 					}
-					catch ( \Exception $oE ) {
+					catch ( \Exception $e ) {
 					}
 				}
 			}
-			$oFS->deleteFile( $sImportFile );
+			$FS->deleteFile( $fileImport );
 		}
 	}
 }

@@ -29,7 +29,7 @@ class ProcessOffense {
 				->setIP( $this->getIP() )
 				->toAutoBlacklist();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oIP = null;
 		}
 

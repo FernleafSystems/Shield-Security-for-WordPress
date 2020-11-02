@@ -5,10 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	/**
-	 * @return Shield\Databases\AuditTrail\Handler
-	 */
-	public function getDbHandler_AuditTrail() {
+	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
 		return $this->getDbH( 'audit' );
 	}
 

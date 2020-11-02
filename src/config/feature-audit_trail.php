@@ -18,17 +18,8 @@
   },
   "sections":    [
     {
-      "slug":        "section_enable_audit_contexts",
-      "primary":     true,
-      "title":       "Enable Audit Contexts",
-      "title_short": "Audit Contexts",
-      "summary":     [
-        "Purpose - Specify which types of actions on your site are logged.",
-        "Recommendation - These settings are dependent on your requirements."
-      ]
-    },
-    {
       "slug":        "section_audit_trail_options",
+      "primary":     true,
       "title":       "Audit Trail Options",
       "title_short": "Options",
       "summary":     [
@@ -88,7 +79,6 @@
     {
       "key":         "audit_trail_max_entries",
       "section":     "section_audit_trail_options",
-      "advanced":    true,
       "premium":     true,
       "default":     1000,
       "min":         0,
@@ -98,83 +88,6 @@
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",
       "description": "Automatically remove any audit trail entries when this limit is exceeded."
-    },
-    {
-      "key":         "enable_audit_context_users",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Users And Logins",
-      "summary":     "Enable Audit Context - Users And Logins",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Users And Logins"
-    },
-    {
-      "key":         "enable_audit_context_plugins",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Plugins",
-      "summary":     "Enable Audit Context - Plugins",
-      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Plugins"
-    },
-    {
-      "key":         "enable_audit_context_themes",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Themes",
-      "summary":     "Enable Audit Context - Themes",
-      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Themes"
-    },
-    {
-      "key":         "enable_audit_context_posts",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Posts And Pages",
-      "summary":     "Enable Audit Context - Posts And Pages",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Editing and publishing of posts and pages"
-    },
-    {
-      "key":         "enable_audit_context_wordpress",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "WordPress And Settings",
-      "summary":     "Enable Audit Context - WordPress And Settings",
-      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress upgrades and changes to particular WordPress settings"
-    },
-    {
-      "key":         "enable_audit_context_emails",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Emails",
-      "summary":     "Enable Audit Context - Emails",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Email Sending"
-    },
-    {
-      "key":         "enable_audit_context_wpsf",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a4",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Shield",
-      "summary":     "Enable Audit Context - Shield",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Shield"
     },
     {
       "key":           "enable_change_tracking",
