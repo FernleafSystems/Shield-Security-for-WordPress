@@ -8,7 +8,7 @@ class AdminNotes {
 
 	use ModConsumer;
 
-	public function build() :string {
+	public function render() :string {
 		return $this->getMod()
 					->renderTemplate(
 						'/wpadmin_pages/insights/notes/admin_notes.twig',
@@ -29,9 +29,6 @@ class AdminNotes {
 				'item_delete'             => $mod->getAjaxActionData( 'note_delete', true ),
 				'item_insert'             => $mod->getAjaxActionData( 'note_insert', true ),
 				'bulk_action'             => $mod->getAjaxActionData( 'bulk_action', true ),
-			],
-			'flags'   => [
-				'can_adminnotes' => $con->isPremiumActive(),
 			],
 			'strings' => [
 				'note_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),

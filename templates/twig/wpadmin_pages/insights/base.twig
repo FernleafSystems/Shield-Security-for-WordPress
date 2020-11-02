@@ -6,7 +6,11 @@
 	<div class="row">
 		<div class="col-12">
 			{% if not flags.is_dashboard %}
-				<p class="mt-3"><a href="{{ hrefs.back_to_dash }}">&larr; Back To Dashboard</a></p>
+				<p class="mt-3">
+					<a href="{{ hrefs.back_to_dash }}"
+					   class="btn btn-sm btn-link"
+					>&larr; Back To Dashboard</a>
+				</p>
 			{% endif %}
 
 {#			<nav class="navbar navbar-expand-md navbar-light bg-light">#}

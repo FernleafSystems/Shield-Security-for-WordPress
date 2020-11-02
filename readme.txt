@@ -372,3 +372,4 @@ You'll also have direct access to our technical support team.
 - Remove Audit Trail Areas
 - MainWP
 - Track plugin/theme upgrades in Audit Trail
+- Admin notes are no longer premium only

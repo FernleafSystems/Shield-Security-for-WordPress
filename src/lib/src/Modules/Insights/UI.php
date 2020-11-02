@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -118,6 +119,16 @@ class UI extends Base\ShieldUI {
 				$data = $UILicense->buildInsightsVars();
 				break;
 
+			case 'notes':
+				$data = [
+					'content' => [
+						'notes' => ( new AdminNotes() )
+							->setMod( $modPlugin )
+							->render()
+					],
+				];
+				break;
+
 			case 'scans':
 				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
 				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
@@ -167,6 +178,7 @@ class UI extends Base\ShieldUI {
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
 			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
 			'logs'         => __( 'Logs', 'wp-simple-firewall' ),
+			'notes'        => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'        => __( 'Users', 'wp-simple-firewall' ),
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'importexport' => __( 'Import', 'wp-simple-firewall' ),

@@ -110,6 +110,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$this->includeScriptIpDetect();
 					break;
 
+				case 'notes':
 				case 'scans':
 				case 'logs':
 				case 'ips':

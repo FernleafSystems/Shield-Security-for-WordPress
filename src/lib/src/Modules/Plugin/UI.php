@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
@@ -28,7 +27,7 @@ class UI extends Base\ShieldUI {
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/dashboard/card_settings.twig',
 			[
-				'c'      => [
+				'c'       => [
 					'title'   => __( 'Shield Security Settings', 'wp-simple-firewall' ),
 					'paras'   => [
 						sprintf( __( "All %s settings are arranged into logical modules.", 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -48,7 +47,7 @@ class UI extends Base\ShieldUI {
 				'strings' => [
 					'select' => __( "Select Module", 'wp-simple-firewall' )
 				],
-				'vars'   => [
+				'vars'    => [
 					'mods' => $mod->getModulesSummaryData()
 				]
 			],
@@ -212,6 +211,19 @@ class UI extends Base\ShieldUI {
 				]
 			],
 
+			'notes' => [
+				'title'   => __( 'Admin Notes', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Use these to keep note of important items or to-dos.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Debug Info", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'debug' ),
+					],
+				]
+			],
+
 			'debug' => [
 				'title'   => __( 'Debug Info', 'wp-simple-firewall' ),
 				'paras'   => [
@@ -255,9 +267,6 @@ class UI extends Base\ShieldUI {
 				'recent_events' => ( new RecentEvents() )
 					->setMod( $this->getMod() )
 					->build(),
-				'admin_notes'   => ( new AdminNotes() )
-					->setMod( $this->getMod() )
-					->build()
 			]
 		];
 	}
