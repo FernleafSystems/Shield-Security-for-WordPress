@@ -151,15 +151,17 @@ class UI extends Base\ShieldUI {
 				];
 				break;
 
-			default:
 			case 'overview':
 			case 'index':
 				$data = $this->buildInsightsVars();
 				break;
+			default:
+				throw new \Exception( 'Not available' );
+				break;
 		}
 
 		$aTopNav = [
-			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
+			'settings'     => __( 'Plugin Settings', 'wp-simple-firewall' ),
 			'dashboard'    => __( 'Dashboard', 'wp-simple-firewall' ),
 			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
@@ -177,6 +179,7 @@ class UI extends Base\ShieldUI {
 			$aTopNav[ 'license' ] = __( 'Pro', 'wp-simple-firewall' );
 		}
 
+		$activeNav = [];
 		array_walk( $aTopNav, function ( &$name, $key ) use ( $sNavSection ) {
 			$name = [
 				'href'    => add_query_arg( [ 'inav' => $key ], $this->getMod()->getUrl_AdminPage() ),
@@ -218,6 +221,20 @@ class UI extends Base\ShieldUI {
 			}
 		}
 
+		$theNav = [
+			'settings' => $aTopNav[ 'settings' ],
+		];
+		if ( empty( $aTopNav[ 'dashboard' ][ 'active' ] ) ) {
+			$theNav[ 'back_to_dashboard' ] = [
+				'href'    => add_query_arg( [ 'inav' => 'dashboard' ], $this->getMod()->getUrl_AdminPage() ),
+				'name'    => '&larr;'.__( 'Back To Dashboard', 'wp-simple-firewall' ),
+				'slug'    => 'dashboard',
+				'active'  => false,
+				'subnavs' => [],
+				'icon'    => ''
+			];
+		}
+
 		$DP = Services::DataManipulation();
 		$data = $DP->mergeArraysRecursive(
 			$this->getBaseDisplayData(),
@@ -226,6 +243,7 @@ class UI extends Base\ShieldUI {
 					'page_container' => 'page-insights page-'.$sNavSection
 				],
 				'flags'   => [
+					'is_dashboard'     => $sNavSection === 'dashboard',
 					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $modPlugin->getIfShowIntroVideo(),
 					'tours'            => [
@@ -234,10 +252,11 @@ class UI extends Base\ShieldUI {
 					'is_advanced'      => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
-					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
-					'nav_home'   => $mod->getUrl_AdminPage(),
-					'top_nav'    => $aTopNav,
-					'img_banner' => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
+					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),
+					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
+					'nav_home'     => $mod->getUrl_AdminPage(),
+					'top_nav'      => $theNav,
+					'img_banner'   => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 				],
 				'strings' => $mod->getStrings()->getDisplayStrings(),
 				'vars'    => [

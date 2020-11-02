@@ -822,7 +822,7 @@ th.column-request_info {
 .odp-outercontainer.icwp-wpsf-insights.settings #odp-PageMain {
 }
 .insights_section {
-	margin-top: 20px;
+	/*margin-top: 20px;*/
 }
 .insights_widget .card-body {
 	padding: 0 0 0 0;

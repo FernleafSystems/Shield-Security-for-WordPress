@@ -32,6 +32,24 @@ class UI extends Base\ShieldUI {
 						]
 					],
 
+					'settings' => [
+						'title'   => __( 'Shield Security Settings', 'wp-simple-firewall' ),
+						'paras'   => [
+							sprintf( __( "All %s settings are arranged into logical modules.", 'wp-simple-firewall' ), $con->getHumanName() ),
+							__( "Jump to the settings pages using the link below and use the navigation bar to jump between modules.", 'wp-simple-firewall' ),
+						],
+						'actions' => [
+							[
+								'text' => __( "Go To General Settings", 'wp-simple-firewall' ),
+								'href' => $modPlugin->getUrl_AdminPage(),
+							],
+							[
+								'text' => __( "Scans & Hack Guard Settings", 'wp-simple-firewall' ),
+								'href' => $con->getModule_HackGuard()->getUrl_AdminPage(),
+							],
+						]
+					],
+
 					'scans' => [
 						'title'   => __( 'Scans and Hack Protection', 'wp-simple-firewall' ),
 						'paras'   => [
@@ -148,6 +166,20 @@ class UI extends Base\ShieldUI {
 							[
 								'text' => __( "Import/Export Settings", 'wp-simple-firewall' ),
 								'href' => $modPlugin->getUrl_DirectLinkToSection( 'section_importexport' ),
+							],
+						]
+					],
+
+					'license' => [
+						'title'   => __( 'Go PRO!', 'wp-simple-firewall' ),
+						'paras'   => [
+							__( "By upgrading to ShieldPRO, you support ongoing Shield development and get access to exclusive PRO features.", 'wp-simple-firewall' ),
+							__( "You can also setup automatic syncing of settings between sites.", 'wp-simple-firewall' ),
+						],
+						'actions' => [
+							[
+								'text' => $con->isPremiumActive() ? __( "Manage PRO", 'wp-simple-firewall' ) : __( "Go PRO!", 'wp-simple-firewall' ),
+								'href' => $modInsights->getUrl_SubInsightsPage( 'license' ),
 							],
 						]
 					],
