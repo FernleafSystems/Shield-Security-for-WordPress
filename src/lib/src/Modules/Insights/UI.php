@@ -236,7 +236,8 @@ class UI extends Base\ShieldUI {
 				];
 
 				if ( $aSettingsSubNav[ $slug ][ 'active' ] ) {
-					$activeSubNav = $aSettingsSubNav[ $slug ];
+					$pageTitle = sprintf( '%s: %s',
+						__( 'Settings', 'wp-simple-firewall' ), $summary[ 'name' ] );
 				}
 				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
 			}
@@ -247,10 +248,6 @@ class UI extends Base\ShieldUI {
 		}
 		else {
 			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
-			if ( !empty( $activeSubNav ) ) {
-				$aTopNav[ 'settings' ][ 'name' ] = sprintf( '%s: %s',
-					__( 'Settings', 'wp-simple-firewall' ), $activeSubNav[ 'name' ] );
-			}
 		}
 
 		$theNav = [
