@@ -1,17 +1,18 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
-	<div class="row row-cols-3">
-		<div class="col pt-3">
-			<div class="card-deck">
-				{% for c in vars.feature_cards %}
-					<div class="card">
+	<div class="row row-cols-sm-2 row-cols-lg-3 row-cols-xl-4" id="DashboardFeatureCards">
+		{% for c in vars.feature_cards %}
+			<div class="col mt-3">
+					<div class="card h-100">
 						<div class="card-header">{{ c.title }}</div>
 						<div class="card-body">
 							<h5 class="card-title">{{ c.title }}</h5>
 							{% for p in c.paras %}
 								<p class="card-text">{{ p }}</p>
 							{% endfor %}
+						</div>
+						<div class="card-footer">
 							<ul class="list-group list-group-flush">
 							{% for action in c.actions %}
 								<li class="list-group-item">
@@ -21,8 +22,7 @@
 							</ul>
 						</div>
 					</div>
-				{% endfor %}
 			</div>
-		</div>
+		{% endfor %}
 	</div>
 {% endblock %}

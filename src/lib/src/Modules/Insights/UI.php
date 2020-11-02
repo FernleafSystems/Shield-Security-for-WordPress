@@ -13,7 +13,7 @@ class UI extends Base\ShieldUI {
 	private function buildInsightsVars() :array {
 		$con = $this->getCon();
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\UI $uiReporting */
+		/** @var Shield\Modules\Reporting\UI $uiReporting */
 		$uiReporting = $con->getModule_Reporting()->getUIHandler();
 
 		return [
