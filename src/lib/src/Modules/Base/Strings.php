@@ -85,6 +85,9 @@ class Strings {
 				'mode_switchfrom' => sprintf( '%s: %s', __( 'Mode', 'wp-simple-firewall' ),
 					$bIsAdvanced ? __( 'Advanced', 'wp-simple-firewall' ) : __( 'Simple', 'wp-simple-firewall' ) ),
 
+				'dashboard'        => __( 'Dashboard', 'wp-simple-firewall' ),
+				'dashboard_shield' => sprintf( __( '%s Dashboard', 'wp-simple-firewall' ), $con->getHumanName() ),
+
 				'description'                  => __( 'Description', 'wp-simple-firewall' ),
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),

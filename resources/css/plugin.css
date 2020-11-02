@@ -1487,3 +1487,9 @@ a.card_help {
 	border: 0 none;
 	padding: .3rem 0.2rem;
 }
+#DashboardFeatureCards .card.highlighted .list-group-item {
+	background-color: transparent;
+}
+#DashboardFeatureCards .card.highlighted .list-group-item a {
+	color: white;
+}

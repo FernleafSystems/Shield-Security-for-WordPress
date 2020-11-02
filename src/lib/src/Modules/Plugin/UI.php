@@ -131,11 +131,29 @@ class UI extends Base\ShieldUI {
 				'actions' => [
 					[
 						'text' => __( "View Audit Log", 'wp-simple-firewall' ),
-						'href' => $modInsights->getUrl_SubInsightsPage( 'logs' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'audit' ),
 					],
 					[
 						'text' => __( "Audit Trail Settings", 'wp-simple-firewall' ),
 						'href' => $con->getModule_AuditTrail()->getUrl_AdminPage(),
+					],
+				]
+			],
+
+			'traffic' => [
+				'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Use traffic logging to monitor visitor requests to your site.", 'wp-simple-firewall' ),
+					__( "Traffic Rate Limiting lets you throttle requests from any single visitor.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Traffic Log", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'traffic' ),
+					],
+					[
+						'text' => __( "Traffic Log Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_Traffic()->getUrl_AdminPage(),
 					],
 				]
 			],
@@ -153,24 +171,6 @@ class UI extends Base\ShieldUI {
 					[
 						'text' => __( "Manage User Sessions", 'wp-simple-firewall' ),
 						'href' => $modInsights->getUrl_SubInsightsPage( 'users' ),
-					],
-				]
-			],
-
-			'traffic' => [
-				'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
-				'paras'   => [
-					__( "Use traffic logging to monitor visitor requests to your site.", 'wp-simple-firewall' ),
-					__( "Traffic Rate Limiting lets you throttle requests from any single visitor.", 'wp-simple-firewall' ),
-				],
-				'actions' => [
-					[
-						'text' => __( "View Traffic Log", 'wp-simple-firewall' ),
-						'href' => $modInsights->getUrl_SubInsightsPage( 'logs' ),
-					],
-					[
-						'text' => __( "Traffic Log Settings", 'wp-simple-firewall' ),
-						'href' => $con->getModule_Traffic()->getUrl_AdminPage(),
 					],
 				]
 			],
@@ -208,7 +208,8 @@ class UI extends Base\ShieldUI {
 						'href' => 'https://shsec.io/gp',
 						'new'  => true,
 					],
-				]
+				],
+				'classes' => $con->isPremiumActive() ? [] : [ 'highlighted', 'text-white', 'bg-success' ]
 			],
 
 			'notes' => [

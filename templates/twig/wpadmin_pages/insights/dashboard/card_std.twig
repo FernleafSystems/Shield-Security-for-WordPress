@@ -1,4 +1,4 @@
-<div class="card h-100 border-success">
+<div class="card h-100 {{ c.classes|default([]) is empty ? 'border-success' : c.classes|join(" ") }}">
 
 	{% block header %}
 {#		<div class="card-header">{{ c.title }}</div>#}

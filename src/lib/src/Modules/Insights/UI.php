@@ -82,19 +82,22 @@ class UI extends Base\ShieldUI {
 		$bIsPro = $con->isPremiumActive();
 		switch ( $sNavSection ) {
 
-			case 'logs':
+			case 'audit':
 				/** @var Shield\Modules\AuditTrail\UI $auditUI */
 				$auditUI = $con->getModule_AuditTrail()->getUIHandler();
+				$data = [
+					'content' => [
+						'table_audit' => $auditUI->renderAuditTrailTable(),
+					],
+				];
+				break;
+
+			case 'traffic':
 				/** @var Shield\Modules\Traffic\UI $trafficUI */
 				$trafficUI = $con->getModule_Traffic()->getUIHandler();
 				$data = [
 					'content' => [
-						'table_audit'   => $auditUI->renderAuditTrailTable(),
 						'table_traffic' => $trafficUI->renderTrafficTable(),
-					],
-					'strings' => [
-						'tab_audit'   => __( 'Audit Trail', 'wp-simple-firewall' ),
-						'tab_traffic' => __( 'Traffic', 'wp-simple-firewall' ),
 					],
 				];
 				break;
@@ -185,7 +188,8 @@ class UI extends Base\ShieldUI {
 			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
 			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
-			'logs'         => __( 'Logs', 'wp-simple-firewall' ),
+			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'        => __( 'Users', 'wp-simple-firewall' ),
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
