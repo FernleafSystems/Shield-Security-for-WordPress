@@ -1,15 +1,23 @@
 <div class="card h-100 {{ c.classes|default([]) is empty ? 'border-success' : c.classes|join(" ") }}">
 
 	{% block header %}
-{#		<div class="card-header">{{ c.title }}</div>#}
+		{% if c.img|default('') is empty %}
+			<div class="card-header">{{ c.title }}</div>
+		{% else %}
+			<div class="img-holder pt-2">
+				<img src="{{ c.img }}" class="card-img-top"
+					 width="50px"
+					 alt="...">
+			</div>
+		{% endif %}
 	{% endblock %}
 
 	{% block body %}
-		<div class="card-body">
+		<div class="card-body {% if c.img|default('') is not empty %}pt-1{% endif %}">
 			<h5 class="card-title">{{ c.title }}</h5>
-				{% for p in c.paras %}
-					<p class="card-text">{{ p }}</p>
-				{% endfor %}
+			{% for p in c.paras %}
+				<p class="card-text">{{ p }}</p>
+			{% endfor %}
 		</div>
 	{% endblock %}
 

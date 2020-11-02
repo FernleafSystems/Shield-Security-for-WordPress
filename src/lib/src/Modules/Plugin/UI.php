@@ -195,6 +195,7 @@ class UI extends Base\ShieldUI {
 
 			'license' => [
 				'title'   => __( 'Go PRO!', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/people.svg' ),
 				'paras'   => [
 					__( "By upgrading to ShieldPRO, you support ongoing Shield development and get access to exclusive PRO features.", 'wp-simple-firewall' ),
 				],

@@ -1493,3 +1493,9 @@ a.card_help {
 #DashboardFeatureCards .card.highlighted .list-group-item a {
 	color: white;
 }
+#DashboardFeatureCards .img-holder {
+	text-align: center;
+}
+#DashboardFeatureCards .img-holder .card-img-top {
+	width: 16%;
+}
