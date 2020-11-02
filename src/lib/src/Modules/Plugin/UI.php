@@ -30,8 +30,8 @@ class UI extends Base\ShieldUI {
 				'c'       => [
 					'title'   => __( 'Shield Security Settings', 'wp-simple-firewall' ),
 					'paras'   => [
-						sprintf( __( "All %s settings are arranged into logical modules.", 'wp-simple-firewall' ), $con->getHumanName() ),
-						__( "Jump to the settings pages using the dropdown below.", 'wp-simple-firewall' ),
+						sprintf( __( "%s settings are arranged into modules.", 'wp-simple-firewall' ), $con->getHumanName() )
+						.' '.__( 'Choose the module you need from the dropdown.', 'wp-simple-firewall' )
 					],
 					'actions' => [
 						[
@@ -64,7 +64,7 @@ class UI extends Base\ShieldUI {
 			'overview' => [
 				'title'   => __( 'Security Overview', 'wp-simple-firewall' ),
 				'paras'   => [
-					sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what isn't.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
 				'actions' => [
 					[
@@ -218,8 +218,21 @@ class UI extends Base\ShieldUI {
 				],
 				'actions' => [
 					[
-						'text' => __( "View Debug Info", 'wp-simple-firewall' ),
-						'href' => $modInsights->getUrl_SubInsightsPage( 'debug' ),
+						'text' => __( "Manage Admin Notes", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'notes' ),
+					],
+				]
+			],
+
+			'docs' => [
+				'title'   => __( 'Docs', 'wp-simple-firewall' ),
+				'paras'   => [
+					sprintf( __( "Important information about %s releases and changes.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Docs", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'docs' ),
 					],
 				]
 			],

@@ -11,6 +11,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\ShieldUI {
 
+	public function buildInsightsVars_Docs() :array {
+		return $this->buildInsightsVars();
+	}
+
 	private function buildInsightsVars() :array {
 		$con = $this->getCon();
 
@@ -105,6 +109,10 @@ class UI extends Base\ShieldUI {
 				/** @var Shield\Modules\Plugin\UI $UI */
 				$UI = $con->getModule_Plugin()->getUIHandler();
 				$data = $UI->buildInsightsVars_Debug();
+				break;
+
+			case 'docs':
+				$data = $this->buildInsightsVars_Docs();
 				break;
 
 			case 'ips':

@@ -5,14 +5,9 @@
 	<div class="row">
 		<div class="col insights-sub-nav insights_section">
 			<ul class="nav nav-tabs">
-				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab" href="#tabAtAGlance">
-						{{ strings.tab_security_glance }}
-					</a>
-				</li>
 
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab" href="#tabUpdates">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#tabUpdates">
 						{{ strings.tab_updates }}
 					</a>
 				</li>
@@ -33,17 +28,10 @@
 	</div>
 
 	<div class="tab-content">
-		<div class="tab-pane show active" id="tabAtAGlance" role="tabpanel" aria-labelledby="tabAtAGlance">
-			<div class="row">
-				<div class="col insights_section" id="TabOverviewCards">
-					{% include '/wpadmin_pages/insights/overview/cards/shuffle.twig' %}
-				</div>
-			</div>
-		</div>
 
-		<div class="tab-pane" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
+		<div class="tab-pane show active" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
 			<div class="row">
-				<div class="col insights_section" id="TabUpdates">
+				<div class="col pt-3" id="TabUpdates">
 					{{ content.tab_updates|raw }}
 				</div>
 			</div>
@@ -51,7 +39,7 @@
 
 		<div class="tab-pane" id="tabFreeTrial" role="tabpanel" aria-labelledby="tabFreeTrial">
 			<div class="row">
-				<div class="col insights_section" id="TabUpdates">
+				<div class="col pt-3" id="TabUpdates">
 					{{ content.tab_freetrial|raw }}
 				</div>
 			</div>
