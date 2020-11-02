@@ -89,6 +89,12 @@ class UI extends Base\ShieldUI {
 					'content' => [
 						'table_audit' => $auditUI->renderAuditTrailTable(),
 					],
+					'vars'    => [
+						'related_pages' => [
+							$con->getModule_AuditTrail()->getUrl_AdminPage() => __( 'Audit Settings', 'wp-simple-firewall' ),
+							$mod->getUrl_SubInsightsPage( 'traffic' )        => __( 'Traffic Log', 'wp-simple-firewall' )
+						]
+					]
 				];
 				break;
 
@@ -99,6 +105,12 @@ class UI extends Base\ShieldUI {
 					'content' => [
 						'table_traffic' => $trafficUI->renderTrafficTable(),
 					],
+					'vars'    => [
+						'related_pages' => [
+							$con->getModule_Traffic()->getUrl_AdminPage() => __( 'Traffic Settings', 'wp-simple-firewall' ),
+							$mod->getUrl_SubInsightsPage( 'audit' ) => __( 'Audit Trail', 'wp-simple-firewall' )
+						]
+					]
 				];
 				break;
 
@@ -196,14 +208,10 @@ class UI extends Base\ShieldUI {
 			'importexport' => __( 'Import', 'wp-simple-firewall' ),
 			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
-			//			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
-		if ( $bIsPro ) {
-			unset( $aTopNav[ 'license' ] );
-			$aTopNav[ 'license' ] = __( 'Pro', 'wp-simple-firewall' );
-		}
 
-		$activeNav = [];
+		$pageTitle = $aTopNav[ $sNavSection ];
+
 		array_walk( $aTopNav, function ( &$name, $key ) use ( $sNavSection ) {
 			$name = [
 				'href'    => add_query_arg( [ 'inav' => $key ], $this->getMod()->getUrl_AdminPage() ),
@@ -248,16 +256,6 @@ class UI extends Base\ShieldUI {
 		$theNav = [
 			'settings' => $aTopNav[ 'settings' ],
 		];
-		if ( empty( $aTopNav[ 'dashboard' ][ 'active' ] ) ) {
-			$theNav[ 'back_to_dashboard' ] = [
-				'href'    => add_query_arg( [ 'inav' => 'dashboard' ], $this->getMod()->getUrl_AdminPage() ),
-				'name'    => '&larr;'.__( 'Back To Dashboard', 'wp-simple-firewall' ),
-				'slug'    => 'dashboard',
-				'active'  => false,
-				'subnavs' => [],
-				'icon'    => ''
-			];
-		}
 
 		$DP = Services::DataManipulation();
 		$data = $DP->mergeArraysRecursive(
@@ -282,7 +280,12 @@ class UI extends Base\ShieldUI {
 					'top_nav'      => $theNav,
 					'img_banner'   => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 				],
-				'strings' => $mod->getStrings()->getDisplayStrings(),
+				'strings' => Services::DataManipulation()->mergeArraysRecursive(
+					$mod->getStrings()->getDisplayStrings(),
+					[
+						'page_title' => $pageTitle
+					]
+				),
 				'vars'    => [
 					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
 					'search_select' => $aSearchSelect
