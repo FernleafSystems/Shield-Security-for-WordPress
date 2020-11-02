@@ -28,7 +28,8 @@ class UI extends Base\ShieldUI {
 			'/wpadmin_pages/insights/dashboard/card_settings.twig',
 			[
 				'c'       => [
-					'title'   => __( 'Shield Security Settings', 'wp-simple-firewall' ),
+					'title'   => __( 'Shield Settings', 'wp-simple-firewall' ),
+					'img'     => $con->getPluginUrl_Image( 'bootstrap/sliders.svg' ),
 					'paras'   => [
 						sprintf( __( "%s settings are arranged into modules.", 'wp-simple-firewall' ), $con->getHumanName() )
 						.' '.__( 'Choose the module you need from the dropdown.', 'wp-simple-firewall' )
@@ -63,6 +64,7 @@ class UI extends Base\ShieldUI {
 
 			'overview' => [
 				'title'   => __( 'Security Overview', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/binoculars.svg' ),
 				'paras'   => [
 					sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
@@ -75,7 +77,8 @@ class UI extends Base\ShieldUI {
 			],
 
 			'scans' => [
-				'title'   => __( 'Scans and Hack Protection', 'wp-simple-firewall' ),
+				'title'   => __( 'Scans and Protection', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/shield-shaded.svg' ),
 				'paras'   => [
 					sprintf( __( "Use %s Scans to automatically detect and repair intrusions on your site.", 'wp-simple-firewall' ), $con->getHumanName() ),
 					sprintf( __( "%s scans WordPress core files, plugins, themes and will detect Malware (ShieldPRO).", 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -94,6 +97,7 @@ class UI extends Base\ShieldUI {
 
 			'sec_admin' => [
 				'title'   => __( 'Security Admin', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/person-badge.svg' ),
 				'paras'   => [
 					sprintf( __( "Restrict access to %s and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
@@ -107,6 +111,7 @@ class UI extends Base\ShieldUI {
 
 			'ips' => [
 				'title'   => __( 'IP Blocking and Bypass', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/diagram-3.svg' ),
 				'paras'   => [
 					__( "Shield automatically detects and blocks bad IP addresses based on your security settings.", 'wp-simple-firewall' ),
 					__( "The IP Analysis Tool shows you all information for a given IP as it relates to your site.", 'wp-simple-firewall' ),
@@ -125,6 +130,7 @@ class UI extends Base\ShieldUI {
 
 			'audit_trail' => [
 				'title'   => __( 'Audit Trail', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/person-lines-fill.svg' ),
 				'paras'   => [
 					__( "Provides in-depth logging for all major WordPress events.", 'wp-simple-firewall' ),
 				],
@@ -142,6 +148,7 @@ class UI extends Base\ShieldUI {
 
 			'traffic' => [
 				'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/stoplights.svg' ),
 				'paras'   => [
 					__( "Use traffic logging to monitor visitor requests to your site.", 'wp-simple-firewall' ),
 					__( "Traffic Rate Limiting lets you throttle requests from any single visitor.", 'wp-simple-firewall' ),
@@ -160,6 +167,7 @@ class UI extends Base\ShieldUI {
 
 			'users' => [
 				'title'   => __( 'WordPress Users', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/people.svg' ),
 				'paras'   => [
 					__( "Adds fine control over user sessions, account re-use, password strength and expiration, and user suspension.", 'wp-simple-firewall' ),
 				],
@@ -177,6 +185,7 @@ class UI extends Base\ShieldUI {
 
 			'import' => [
 				'title'   => __( 'Import/Export', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/arrow-down-up.svg' ),
 				'paras'   => [
 					__( "Use the import/export feature to quickly setup a new site based on the settings of another site.", 'wp-simple-firewall' ),
 					__( "You can also setup automatic syncing of settings between sites.", 'wp-simple-firewall' ),
@@ -195,7 +204,7 @@ class UI extends Base\ShieldUI {
 
 			'license' => [
 				'title'   => __( 'Go PRO!', 'wp-simple-firewall' ),
-				'img'     => $con->getPluginUrl_Image( 'bootstrap/people.svg' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/award.svg' ),
 				'paras'   => [
 					__( "By upgrading to ShieldPRO, you support ongoing Shield development and get access to exclusive PRO features.", 'wp-simple-firewall' ),
 				],
@@ -215,6 +224,7 @@ class UI extends Base\ShieldUI {
 
 			'notes' => [
 				'title'   => __( 'Admin Notes', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/stickies.svg' ),
 				'paras'   => [
 					__( "Use these to keep note of important items or to-dos.", 'wp-simple-firewall' ),
 				],
@@ -228,6 +238,7 @@ class UI extends Base\ShieldUI {
 
 			'docs' => [
 				'title'   => __( 'Docs', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/book-half.svg' ),
 				'paras'   => [
 					sprintf( __( "Important information about %s releases and changes.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
@@ -241,6 +252,7 @@ class UI extends Base\ShieldUI {
 
 			'debug' => [
 				'title'   => __( 'Debug Info', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/bug.svg' ),
 				'paras'   => [
 					__( "If you contact support, they may ask you to show them your Debug Information page.", 'wp-simple-firewall' ),
 					__( "It's also an interesting place to see a summary of your WordPress configuration in 1 place.", 'wp-simple-firewall' ),

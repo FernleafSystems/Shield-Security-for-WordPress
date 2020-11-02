@@ -1499,3 +1499,6 @@ a.card_help {
 #DashboardFeatureCards .img-holder .card-img-top {
 	width: 16%;
 }
+#DashboardFeatureCards .card-title img {
+	vertical-align: text-bottom;
+}
