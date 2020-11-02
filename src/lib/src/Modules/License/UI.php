@@ -69,7 +69,6 @@ class UI extends Base\ShieldUI {
 			],
 			'aHrefs'  => [
 				'shield_pro_url'           => 'https://shsec.io/shieldpro',
-				'shield_pro_more_info_url' => 'https://shsec.io/shld1',
 				'iframe_url'               => $opts->getDef( 'landing_page_url' ),
 				'keyless_cp'               => $opts->getDef( 'keyless_cp' ),
 			],

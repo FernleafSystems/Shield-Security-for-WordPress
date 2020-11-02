@@ -12,195 +12,234 @@ use FernleafSystems\Wordpress\Services\Services;
 class UI extends Base\ShieldUI {
 
 	public function buildInsightsVars_Dashboard() :array {
+		return [
+			'content' => [
+				'settings_card' => $this->renderPluginSettingsCard(),
+				'feature_cards' => $this->renderStandardDashboardCards(),
+			],
+		];
+	}
+
+	private function renderPluginSettingsCard() :string {
+		$con = $this->getCon();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		$mod = $this->getMod();
+
+		return $mod->renderTemplate(
+			'/wpadmin_pages/insights/dashboard/card_settings.twig',
+			[
+				'c'      => [
+					'title'   => __( 'Shield Security Settings', 'wp-simple-firewall' ),
+					'paras'   => [
+						sprintf( __( "All %s settings are arranged into logical modules.", 'wp-simple-firewall' ), $con->getHumanName() ),
+						__( "Jump to the settings pages using the dropdown below.", 'wp-simple-firewall' ),
+					],
+					'actions' => [
+						[
+							'text' => __( "Go To General Settings", 'wp-simple-firewall' ),
+							'href' => $mod->getUrl_AdminPage(),
+						],
+						[
+							'text' => __( "Scans & Hack Guard Settings", 'wp-simple-firewall' ),
+							'href' => $con->getModule_HackGuard()->getUrl_AdminPage(),
+						],
+					],
+				],
+				'strings' => [
+					'select' => __( "Select Module", 'wp-simple-firewall' )
+				],
+				'vars'   => [
+					'mods' => $mod->getModulesSummaryData()
+				]
+			],
+			true
+		);
+	}
+
+	private function renderStandardDashboardCards() :array {
 		$con = $this->getCon();
 		$modInsights = $con->getModule_Insights();
 		$modPlugin = $con->getModule_Plugin();
-		return [
-			'vars' => [
-				'feature_cards' => [
+		$cardsData = [
 
-					'overview' => [
-						'title'   => __( 'Security Overview', 'wp-simple-firewall' ),
-						'paras'   => [
-							sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what isn't.", 'wp-simple-firewall' ), $con->getHumanName() ),
-						],
-						'actions' => [
-							[
-								'text' => __( "See My Security Overview", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),
-							],
-						]
+			'overview' => [
+				'title'   => __( 'Security Overview', 'wp-simple-firewall' ),
+				'paras'   => [
+					sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what isn't.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				],
+				'actions' => [
+					[
+						'text' => __( "See My Security Overview", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),
 					],
-
-					'settings' => [
-						'title'   => __( 'Shield Security Settings', 'wp-simple-firewall' ),
-						'paras'   => [
-							sprintf( __( "All %s settings are arranged into logical modules.", 'wp-simple-firewall' ), $con->getHumanName() ),
-							__( "Jump to the settings pages using the link below and use the navigation bar to jump between modules.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "Go To General Settings", 'wp-simple-firewall' ),
-								'href' => $modPlugin->getUrl_AdminPage(),
-							],
-							[
-								'text' => __( "Scans & Hack Guard Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_HackGuard()->getUrl_AdminPage(),
-							],
-						]
-					],
-
-					'scans' => [
-						'title'   => __( 'Scans and Hack Protection', 'wp-simple-firewall' ),
-						'paras'   => [
-							sprintf( __( "Use %s Scans to automatically detect and repair intrusions on your site.", 'wp-simple-firewall' ), $con->getHumanName() ),
-							sprintf( __( "%s scans WordPress core files, plugins, themes and will detect Malware (ShieldPRO).", 'wp-simple-firewall' ), $con->getHumanName() ),
-						],
-						'actions' => [
-							[
-								'text' => __( "Run Scans", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'scans' ),
-							],
-							[
-								'text' => __( "Scans & Hack Guard Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_HackGuard()->getUrl_AdminPage(),
-							],
-						]
-					],
-
-					'sec_admin' => [
-						'title'   => __( 'Security Admin', 'wp-simple-firewall' ),
-						'paras'   => [
-							sprintf( __( "Restrict access to %s and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
-						],
-						'actions' => [
-							[
-								'text' => __( "Security Admin Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_SecAdmin()->getUrl_AdminPage(),
-							],
-						]
-					],
-
-					'ips' => [
-						'title'   => __( 'IP Blocking and Bypass', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "Shield automatically detects and blocks bad IP addresses based on your security settings.", 'wp-simple-firewall' ),
-							__( "The Bypass List ensures certain IPs are never blocked.", 'wp-simple-firewall' ),
-							__( "The IP Analysis Tool will show you all information for a given IP as it relates to your site.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "Analyse & Manage IPs", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'ips' ),
-							],
-							[
-								'text' => __( "IP Blocking Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_IPs()->getUrl_AdminPage(),
-							],
-						]
-					],
-
-					'audit_trail' => [
-						'title'   => __( 'Audit Trail', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "Provides in-depth logging for all major WordPress events.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "View Audit Log", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'logs' ),
-							],
-							[
-								'text' => __( "Audit Trail Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_AuditTrail()->getUrl_AdminPage(),
-							],
-						]
-					],
-
-					'users' => [
-						'title'   => __( 'WordPress Users', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "Adds fine control over user sessions, account re-use, password strength and expiration, and user suspension.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "User Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_UserManagement()->getUrl_AdminPage(),
-							],
-							[
-								'text' => __( "Manage User Sessions", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'users' ),
-							],
-						]
-					],
-
-					'traffic' => [
-						'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "Use the traffic logging feature to monitor requests to your site as part of your visitor analysis.", 'wp-simple-firewall' ),
-							__( "The Traffic Rate Limiting features lets you throttle how many requests any single visitor is allow to make to your site.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "View Traffic Log", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'logs' ),
-							],
-							[
-								'text' => __( "Traffic Log Settings", 'wp-simple-firewall' ),
-								'href' => $con->getModule_Traffic()->getUrl_AdminPage(),
-							],
-						]
-					],
-
-					'import' => [
-						'title'   => __( 'Import/Export', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "Use the import/export feature to quickly setup a new site based on the settings of another site.", 'wp-simple-firewall' ),
-							__( "You can also setup automatic syncing of settings between sites.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "Run Import/Export", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
-							],
-							[
-								'text' => __( "Import/Export Settings", 'wp-simple-firewall' ),
-								'href' => $modPlugin->getUrl_DirectLinkToSection( 'section_importexport' ),
-							],
-						]
-					],
-
-					'license' => [
-						'title'   => __( 'Go PRO!', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "By upgrading to ShieldPRO, you support ongoing Shield development and get access to exclusive PRO features.", 'wp-simple-firewall' ),
-							__( "You can also setup automatic syncing of settings between sites.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => $con->isPremiumActive() ? __( "Manage PRO", 'wp-simple-firewall' ) : __( "Go PRO!", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'license' ),
-							],
-						]
-					],
-
-					'debug' => [
-						'title'   => __( 'Debug Info', 'wp-simple-firewall' ),
-						'paras'   => [
-							__( "If you contact support, they may ask you to show them your Debug Information page.", 'wp-simple-firewall' ),
-							__( "It's also an interesting place to see a summary of your WordPress configuration in 1 place.", 'wp-simple-firewall' ),
-						],
-						'actions' => [
-							[
-								'text' => __( "View Debug Info", 'wp-simple-firewall' ),
-								'href' => $modInsights->getUrl_SubInsightsPage( 'debug' ),
-							],
-						]
-					],
-
 				]
-			]
+			],
+
+			'scans' => [
+				'title'   => __( 'Scans and Hack Protection', 'wp-simple-firewall' ),
+				'paras'   => [
+					sprintf( __( "Use %s Scans to automatically detect and repair intrusions on your site.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "%s scans WordPress core files, plugins, themes and will detect Malware (ShieldPRO).", 'wp-simple-firewall' ), $con->getHumanName() ),
+				],
+				'actions' => [
+					[
+						'text' => __( "Run Scans", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'scans' ),
+					],
+					[
+						'text' => __( "Scans & Hack Guard Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_HackGuard()->getUrl_AdminPage(),
+					],
+				]
+			],
+
+			'sec_admin' => [
+				'title'   => __( 'Security Admin', 'wp-simple-firewall' ),
+				'paras'   => [
+					sprintf( __( "Restrict access to %s and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				],
+				'actions' => [
+					[
+						'text' => __( "Security Admin Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_SecAdmin()->getUrl_AdminPage(),
+					],
+				]
+			],
+
+			'ips' => [
+				'title'   => __( 'IP Blocking and Bypass', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Shield automatically detects and blocks bad IP addresses based on your security settings.", 'wp-simple-firewall' ),
+					__( "The Bypass List ensures certain IPs are never blocked.", 'wp-simple-firewall' ),
+					__( "The IP Analysis Tool will show you all information for a given IP as it relates to your site.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "Analyse & Manage IPs", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'ips' ),
+					],
+					[
+						'text' => __( "IP Blocking Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_IPs()->getUrl_AdminPage(),
+					],
+				]
+			],
+
+			'audit_trail' => [
+				'title'   => __( 'Audit Trail', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Provides in-depth logging for all major WordPress events.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Audit Log", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'logs' ),
+					],
+					[
+						'text' => __( "Audit Trail Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_AuditTrail()->getUrl_AdminPage(),
+					],
+				]
+			],
+
+			'users' => [
+				'title'   => __( 'WordPress Users', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Adds fine control over user sessions, account re-use, password strength and expiration, and user suspension.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "User Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_UserManagement()->getUrl_AdminPage(),
+					],
+					[
+						'text' => __( "Manage User Sessions", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'users' ),
+					],
+				]
+			],
+
+			'traffic' => [
+				'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Use the traffic logging feature to monitor requests to your site as part of your visitor analysis.", 'wp-simple-firewall' ),
+					__( "The Traffic Rate Limiting features lets you throttle how many requests any single visitor is allow to make to your site.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Traffic Log", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'logs' ),
+					],
+					[
+						'text' => __( "Traffic Log Settings", 'wp-simple-firewall' ),
+						'href' => $con->getModule_Traffic()->getUrl_AdminPage(),
+					],
+				]
+			],
+
+			'import' => [
+				'title'   => __( 'Import/Export', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "Use the import/export feature to quickly setup a new site based on the settings of another site.", 'wp-simple-firewall' ),
+					__( "You can also setup automatic syncing of settings between sites.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "Run Import/Export", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
+					],
+					[
+						'text' => __( "Import/Export Settings", 'wp-simple-firewall' ),
+						'href' => $modPlugin->getUrl_DirectLinkToSection( 'section_importexport' ),
+					],
+				]
+			],
+
+			'license' => [
+				'title'   => __( 'Go PRO!', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "By upgrading to ShieldPRO, you support ongoing Shield development and get access to exclusive PRO features.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => $con->isPremiumActive() ? __( "Manage PRO", 'wp-simple-firewall' ) : __( "Go PRO!", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'license' ),
+					],
+					[
+						'text' => __( "See Exclusive ShieldPRO Features", 'wp-simple-firewall' ),
+						'href' => 'https://shsec.io/gp',
+						'new'  => true,
+					],
+				]
+			],
+
+			'debug' => [
+				'title'   => __( 'Debug Info', 'wp-simple-firewall' ),
+				'paras'   => [
+					__( "If you contact support, they may ask you to show them your Debug Information page.", 'wp-simple-firewall' ),
+					__( "It's also an interesting place to see a summary of your WordPress configuration in 1 place.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Debug Info", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'debug' ),
+					],
+				]
+			],
+
 		];
+
+		return array_map(
+			function ( $card ) {
+				return $this->getMod()
+							->renderTemplate(
+								'/wpadmin_pages/insights/dashboard/card_std.twig',
+								[ 'c' => $card ],
+								true
+							);
+			},
+			$cardsData
+		);
 	}
 
 	public function buildInsightsVars_Debug() :array {

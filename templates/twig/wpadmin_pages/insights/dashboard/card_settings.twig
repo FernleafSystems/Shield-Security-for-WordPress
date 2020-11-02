@@ -1,0 +1,16 @@
+{% extends '/wpadmin_pages/insights/dashboard/card_std.twig' %}
+
+{% block footer %}
+	<div class="card-footer">
+		<select class="w-100" id="DashboardModSettingsSelect">
+			<option value="-">-- {{ strings.select }} --</option>
+			{% for mod in vars.mods %}
+				{% if mod.show_mod_opts %}
+					<option value="{{ mod.slug }}"
+							data-href="{{ mod.href }}"
+					>{{ mod.name }}</option>
+				{% endif %}
+			{% endfor %}
+		</select>
+	</div>
+{% endblock %}

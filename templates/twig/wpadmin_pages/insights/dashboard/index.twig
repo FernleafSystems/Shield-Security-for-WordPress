@@ -2,27 +2,26 @@
 
 {% block page_main %}
 	<div class="row row-cols-sm-2 row-cols-lg-3 row-cols-xl-4" id="DashboardFeatureCards">
-		{% for c in vars.feature_cards %}
+		<div class="col mt-3">
+			{{ content.settings_card|raw }}
+		</div>
+		{% for card in content.feature_cards %}
 			<div class="col mt-3">
-					<div class="card h-100">
-						<div class="card-header">{{ c.title }}</div>
-						<div class="card-body">
-							<h5 class="card-title">{{ c.title }}</h5>
-							{% for p in c.paras %}
-								<p class="card-text">{{ p }}</p>
-							{% endfor %}
-						</div>
-						<div class="card-footer">
-							<ul class="list-group list-group-flush">
-							{% for action in c.actions %}
-								<li class="list-group-item">
-									<a href="{{ action.href }}">{{ action.text }}</a>
-								</li>
-							{% endfor %}
-							</ul>
-						</div>
-					</div>
+				{{ card|raw }}
 			</div>
 		{% endfor %}
 	</div>
+{% endblock %}
+
+{% block inline_scripts %}
+	<script type="text/javascript">
+		jQuery( document ).ready( function () {
+			let $oTheSelect = jQuery( 'select#DashboardModSettingsSelect' );
+			$oTheSelect.on( 'change', function ( evt ) {
+				if ( $oTheSelect.val() !== '-' ) {
+					window.location.href = jQuery( "option:selected", $oTheSelect ).data( 'href' );
+				}
+			} );
+		} );
+	</script>
 {% endblock %}
