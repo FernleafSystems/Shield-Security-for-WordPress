@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
@@ -60,6 +61,13 @@ class UI extends Base\ShieldUI {
 		$con = $this->getCon();
 		$modInsights = $con->getModule_Insights();
 		$modPlugin = $con->getModule_Plugin();
+
+		/** @var AdminNotes\EntryVO $note */
+		$note = $modPlugin->getDbHandler_Notes()->getQuerySelector()->first();
+		$latestNote = $note instanceof AdminNotes\EntryVO ?
+			sprintf( 'Your most recent note: "%s"', $note->note ) :
+			__( 'No notes made yet.', 'wp-simple-firewall' );
+
 		$cardsData = [
 
 			'overview' => [
@@ -227,6 +235,7 @@ class UI extends Base\ShieldUI {
 				'img'     => $con->getPluginUrl_Image( 'bootstrap/stickies.svg' ),
 				'paras'   => [
 					__( "Use these to keep note of important items or to-dos.", 'wp-simple-firewall' ),
+					$latestNote
 				],
 				'actions' => [
 					[
