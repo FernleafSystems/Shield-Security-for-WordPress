@@ -78,4 +78,14 @@ class UI extends Base\ShieldUI {
 
 		return $aWarnings;
 	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'traffic' ),
+				'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
+			]
+		];
+	}
 }
