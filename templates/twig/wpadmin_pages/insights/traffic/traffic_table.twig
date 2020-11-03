@@ -1,8 +1,9 @@
-
-<div class="alert alert-dark">
-	<h6 class="alert-heading">{{ strings.not_enabled }}</h6>
-	<p class="m-0"><a class="alert-link" href="{{ hrefs.please_enable }}">{{ strings.please_enable }}</a></p>
-</div>
+{% if not flags.is_enabled %}
+	<div class="alert alert-dark">
+		<h6 class="alert-heading">{{ strings.not_enabled }}</h6>
+		<p class="m-0"><a class="alert-link" href="{{ hrefs.please_enable }}">{{ strings.please_enable }}</a></p>
+	</div>
+{% endif %}
 <div class="row insights_widget" id="SectionTrafficTable">
 
 	<div class="col">
