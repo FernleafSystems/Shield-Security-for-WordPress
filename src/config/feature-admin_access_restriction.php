@@ -284,9 +284,9 @@
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Replace Badge URL",
-      "summary":     "Replace Plugin Badge URL",
-      "description": "When using the plugin badge, replace the link with your Whitelabel Home URL."
+      "name":        "Replace Plugin Badge",
+      "summary":     "Replace Plugin Badge URL and Images",
+      "description": "When using the plugin badge, replace the URL and link with your Whitelabel settings."
     },
     {
       "key":         "wl_pluginnamemain",
