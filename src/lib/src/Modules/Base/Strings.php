@@ -115,7 +115,6 @@ class Strings {
 				'join_thousands_P'   => implode( ', ', $aProFeaturesDisplay ),
 				'get_pro_protection' => __( 'Upgrade To Pro Protection', 'wp-simple-firewall' ),
 
-				'page_title'          => 'Twig Page',
 				'recommendation'      => ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 				'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 				'box_welcome_title'   => sprintf( __( 'Welcome To %s Security Insights Dashboard', 'wp-simple-firewall' ), $con->getHumanName() ),

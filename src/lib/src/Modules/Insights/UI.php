@@ -206,16 +206,16 @@ class UI extends Base\ShieldUI {
 		$aTopNav = [
 			'settings'     => __( 'Plugin Settings', 'wp-simple-firewall' ),
 			'dashboard'    => __( 'Dashboard', 'wp-simple-firewall' ),
-			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
+			'overview'     => __( 'Security Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
 			'docs'         => __( 'Docs', 'wp-simple-firewall' ),
-			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
+			'ips'          => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
 			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Admin Notes', 'wp-simple-firewall' ),
-			'users'        => __( 'Users', 'wp-simple-firewall' ),
+			'users'        => __( 'User Sessions', 'wp-simple-firewall' ),
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
-			'importexport' => __( 'Import', 'wp-simple-firewall' ),
+			'importexport' => __( 'Import / Export', 'wp-simple-firewall' ),
 			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 		];
@@ -287,12 +287,9 @@ class UI extends Base\ShieldUI {
 					'top_nav'      => $theNav,
 					'img_banner'   => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 				],
-				'strings' => Services::DataManipulation()->mergeArraysRecursive(
-					$mod->getStrings()->getDisplayStrings(),
-					[
-						'page_title' => $pageTitle
-					]
-				),
+				'strings' => [
+					'page_title' => $pageTitle
+				],
 				'vars'    => [
 					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
 					'search_select' => $aSearchSelect
