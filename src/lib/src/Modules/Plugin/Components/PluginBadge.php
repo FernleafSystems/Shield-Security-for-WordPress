@@ -82,7 +82,7 @@ class PluginBadge {
 			$badgeUrl = add_query_arg( [ 'ref' => $lic->aff_ref ], $badgeUrl );
 		}
 
-		$aData = [
+		$data = [
 			'ajax'    => [
 				'plugin_badge_close' => $this->getMod()->getAjaxActionData( 'plugin_badge_close', true ),
 			],
@@ -104,7 +104,7 @@ class PluginBadge {
 		];
 
 		try {
-			$sRender = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $aData, true );
+			$sRender = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $data, true );
 		}
 		catch ( \Exception $oE ) {
 			$sRender = 'Could not generate badge: '.$oE->getMessage();

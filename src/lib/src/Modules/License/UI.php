@@ -93,11 +93,9 @@ class UI extends Base\ShieldUI {
 
 	protected function getSettingsRelatedLinks() :array {
 		$modInsights = $this->getCon()->getModule_Insights();
-		if ( $this->getCon()->isPremiumActive() ) {
-			$links = [];
-		}
-		else {
-			$links = [
+		$links = [];
+		if ( !$this->getCon()->isPremiumActive() ) {
+			$links[] = [
 				'href'  => $modInsights->getUrl_SubInsightsPage( 'free_trial' ),
 				'title' => __( 'Free Trial', 'wp-simple-firewall' ),
 			];
