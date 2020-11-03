@@ -2,18 +2,14 @@
 
 {% block page_main %}
 	<div class="row row-cols-sm-2 row-cols-lg-3 row-cols-xl-4" id="DashboardFeatureCards">
-		<div class="col mt-3">
-			{{ content.settings_card|raw }}
-		</div>
-		{% for card in content.feature_cards %}
+		{% for card in content.dashboard_cards %}
 			<div class="col mt-3">
 				{{ card|raw }}
 			</div>
 		{% endfor %}
 	</div>
 	<div class="row">
-	<div class="col" style="height: 80px">
-	</div>
+		<div class="col" style="height: 80px"></div>
 	</div>
 {% endblock %}
 
