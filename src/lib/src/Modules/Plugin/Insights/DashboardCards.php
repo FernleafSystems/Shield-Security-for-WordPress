@@ -37,7 +37,7 @@ class DashboardCards {
 
 		// Merge ensures the order is as we want it, and the intersect ensure hidden cards are not included
 		return array_merge(
-			array_intersect_key( array_flip( $this->getAllCardSlugs() ), array_flip( $cards ) ),
+			array_flip( array_intersect( $this->getAllCardSlugs(), array_keys( $cards ) ) ),
 			$cards
 		);
 	}
