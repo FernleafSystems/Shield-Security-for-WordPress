@@ -22,7 +22,12 @@ class DashboardCards {
 				function ( $card ) {
 					return $this->renderStandardCard( $card );
 				},
-				$this->buildStandardCards()
+				array_filter(
+					$this->buildStandardCards(),
+					function ( $card ) {
+						return empty( $card[ 'hidden' ] );
+					}
+				)
 			)
 		);
 
@@ -30,7 +35,11 @@ class DashboardCards {
 			throw new \Exception( 'Card(s) with unrecognised slug' );
 		}
 
-		return array_merge( array_flip( $this->getAllCardSlugs() ), $cards );
+		// Merge ensures the order is as we want it, and the intersect ensure hidden cards are not included
+		return array_merge(
+			array_intersect_key( array_flip( $this->getAllCardSlugs() ), array_flip( $cards ) ),
+			$cards
+		);
 	}
 
 	public function renderSettingsCard() :string {
@@ -138,6 +147,23 @@ class DashboardCards {
 						'href' => $con->getModule_SecAdmin()->getUrl_AdminPage(),
 					],
 				]
+			],
+
+			'free_trial' => [
+				'title'   => __( 'Free ShieldPRO Trial', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/emoji-smile.svg' ),
+				'paras'   => [
+					__( "Full, unrestricted access to ShieldPRO with no obligation.", 'wp-simple-firewall' ),
+					__( "Turn-on the ShieldPRO trial within 60 seconds.", 'wp-simple-firewall' )
+				],
+				'actions' => [
+					[
+						'text' => __( "Get The Free Trial", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'free_trial' ),
+					],
+				],
+				'classes' => $con->isPremiumActive() ? [] : [ 'highlighted', 'text-white', 'bg-primary' ],
+				'hidden'  => $con->isPremiumActive()
 			],
 
 			'ips' => [
@@ -309,6 +335,7 @@ class DashboardCards {
 			'overview',
 			'settings',
 			'scans',
+			'free_trial',
 			'sec_admin',
 			'ips',
 			'audit_trail',

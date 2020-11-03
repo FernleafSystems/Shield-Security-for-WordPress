@@ -129,6 +129,18 @@ class UI extends Base\ShieldUI {
 				$data = $this->buildInsightsVars_Docs();
 				break;
 
+			case 'free_trial':
+				$data = [
+					'content' => [
+						'free_trial' => $this->renderFreeTrial()
+					]
+				];
+				break;
+
+			case 'importexport':
+				$data = $modPlugin->getImpExpController()->buildInsightsVars();
+				break;
+
 			case 'ips':
 				/** @var Shield\Modules\IPs\UI $UI */
 				$UI = $con->getModule_IPs()->getUIHandler();
@@ -151,30 +163,26 @@ class UI extends Base\ShieldUI {
 				];
 				break;
 
-			case 'scans':
-				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
-				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
-				$data = $UIHackGuard->buildInsightsVars();
-				break;
-
-			case 'importexport':
-				$data = $modPlugin->getImpExpController()->buildInsightsVars();
-				break;
-
 			case 'reports':
 				/** @var Shield\Modules\Reporting\UI $UIReporting */
 				$UIReporting = $con->getModule_Reporting()->getUIHandler();
 				$data = $UIReporting->buildInsightsVars();
 				break;
 
-			case 'users':
-				/** @var Shield\Modules\UserManagement\UI $UIUsers */
-				$UIUsers = $con->getModule( 'user_management' )->getUIHandler();
-				$data = $UIUsers->buildInsightsVars();
+			case 'scans':
+				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
+				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
+				$data = $UIHackGuard->buildInsightsVars();
 				break;
 
 			case 'settings':
 				$data = $con->modules[ $subNavSection ]->getUIHandler()->getBaseDisplayData();
+				break;
+
+			case 'users':
+				/** @var Shield\Modules\UserManagement\UI $UIUsers */
+				$UIUsers = $con->modules[ 'user_management' ]->getUIHandler();
+				$data = $UIUsers->buildInsightsVars();
 				break;
 
 			case 'overview':
@@ -185,7 +193,7 @@ class UI extends Base\ShieldUI {
 				throw new \Exception( 'Not available' );
 		}
 
-		$aTopNav = [
+		$availablePages = [
 			'settings'     => __( 'Plugin Settings', 'wp-simple-firewall' ),
 			'dashboard'    => __( 'Dashboard', 'wp-simple-firewall' ),
 			'overview'     => __( 'Security Overview', 'wp-simple-firewall' ),
@@ -196,55 +204,29 @@ class UI extends Base\ShieldUI {
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'        => __( 'User Sessions', 'wp-simple-firewall' ),
-			'license'      => __( 'Pro', 'wp-simple-firewall' ),
+			'license'      => __( 'ShieldPRO', 'wp-simple-firewall' ),
 			'importexport' => __( 'Import / Export', 'wp-simple-firewall' ),
 			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
+			'free_trial'   => __( 'Free Trial', 'wp-simple-firewall' ),
 		];
 
-		$pageTitle = $aTopNav[ $sNavSection ];
-
-		array_walk( $aTopNav, function ( &$name, $key ) use ( $sNavSection ) {
-			$name = [
-				'href'    => add_query_arg( [ 'inav' => $key ], $this->getMod()->getUrl_AdminPage() ),
-				'name'    => $name,
-				'slug'    => $key,
-				'active'  => $key === $sNavSection,
-				'subnavs' => [],
-				'icon'    => ''
-			];
-		} );
-
-		$aSearchSelect = [];
-		$aSettingsSubNav = [];
-		$activeSubNav = null;
-		foreach ( $mod->getModulesSummaryData() as $slug => $summary ) {
-			if ( $summary[ 'show_mod_opts' ] ) {
-				$aSettingsSubNav[ $slug ] = [
-					'href'   => add_query_arg( [ 'subnav' => $slug ], $aTopNav[ 'settings' ][ 'href' ] ),
-					'name'   => $summary[ 'name' ],
-					'active' => $slug === $subNavSection,
-					'slug'   => $slug,
-				];
-
-				if ( $aSettingsSubNav[ $slug ][ 'active' ] ) {
-					$pageTitle = sprintf( '%s: %s',
-						__( 'Settings', 'wp-simple-firewall' ), $summary[ 'name' ] );
-				}
-				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+		$modsToSearch = array_filter(
+			$mod->getModulesSummaryData(),
+			function ( $modSummary ) {
+				return !empty( $modSummary[ 'show_mod_opts' ] );
 			}
+		);
+		$aSearchSelect = [];
+		foreach ( $modsToSearch as $slug => $summary ) {
+			$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
 		}
 
-		if ( empty( $aSettingsSubNav ) ) {
-			unset( $aTopNav[ 'settings' ] );
+		$pageTitle = $availablePages[ $sNavSection ];
+		if ( !empty( $subNavSection ) ) {
+			$pageTitle = sprintf( '%s: %s',
+				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
 		}
-		else {
-			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
-		}
-
-		$theNav = [
-			'settings' => $aTopNav[ 'settings' ],
-		];
 
 		$DP = Services::DataManipulation();
 		$data = $DP->mergeArraysRecursive(
@@ -266,7 +248,6 @@ class UI extends Base\ShieldUI {
 					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),
 					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'     => $mod->getUrl_AdminPage(),
-					'top_nav'      => $theNav,
 					'img_banner'   => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 				],
 				'strings' => [
@@ -293,7 +274,6 @@ class UI extends Base\ShieldUI {
 						'/forms/drip_trial_signup.twig',
 						[
 							'vars'    => [
-								// the keys here must match the changelog item types
 								'activation_url' => Services::WpGeneral()->getHomeUrl(),
 								'email'          => $user->user_email,
 								'name'           => $user->user_firstname,
