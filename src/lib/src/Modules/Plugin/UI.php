@@ -99,7 +99,7 @@ class UI extends Base\ShieldUI {
 				'title'   => __( 'Security Admin', 'wp-simple-firewall' ),
 				'img'     => $con->getPluginUrl_Image( 'bootstrap/person-badge.svg' ),
 				'paras'   => [
-					sprintf( __( "Restrict access to %s and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Restrict access to %s itself and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
 				'actions' => [
 					[

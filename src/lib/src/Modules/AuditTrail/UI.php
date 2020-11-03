@@ -32,7 +32,6 @@ class UI extends Base\ShieldUI {
 							'strings' => [
 								'table_title'             => sprintf( '%s: %s', __( 'Logs', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ),
 								'sub_title'               => __( 'Use the Audit Trail Glossary for help interpreting log entries.', 'wp-simple-firewall' ),
-								'audit_trail_glossary'    => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
 								'title_filter_form'       => __( 'Audit Trail Filters', 'wp-simple-firewall' ),
 								'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
 								'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
@@ -47,11 +46,18 @@ class UI extends Base\ShieldUI {
 								'unique_ips'        => $dbSel->getDistinctIps(),
 								'unique_users'      => $dbSel->getDistinctUsernames(),
 							],
-							'hrefs'   => [
-								'audit_trail_glossary' => 'https://shsec.io/audittrailglossary',
-							],
 						],
 						true
 					);
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'audit' ),
+				'title' => __( 'View Audit Trail', 'wp-simple-firewall' ),
+			]
+		];
 	}
 }

@@ -90,9 +90,20 @@ class UI extends Base\ShieldUI {
 						'table_audit' => $auditUI->renderAuditTrailTable(),
 					],
 					'vars'    => [
-						'related_pages' => [
-							$con->getModule_AuditTrail()->getUrl_AdminPage() => __( 'Audit Settings', 'wp-simple-firewall' ),
-							$mod->getUrl_SubInsightsPage( 'traffic' )        => __( 'Traffic Log', 'wp-simple-firewall' )
+						'related_hrefs' => [
+							[
+								'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
+								'title' => __( 'Audit Trail Settings', 'wp-simple-firewall' ),
+							],
+							[
+								'href'  => 'https://shsec.io/audittrailglossary',
+								'title' => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
+								'new'   => true,
+							],
+							[
+								'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
+								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
+							],
 						]
 					]
 				];
@@ -106,9 +117,15 @@ class UI extends Base\ShieldUI {
 						'table_traffic' => $trafficUI->renderTrafficTable(),
 					],
 					'vars'    => [
-						'related_pages' => [
-							$con->getModule_Traffic()->getUrl_AdminPage() => __( 'Traffic Settings', 'wp-simple-firewall' ),
-							$mod->getUrl_SubInsightsPage( 'audit' ) => __( 'Audit Trail', 'wp-simple-firewall' )
+						'related_hrefs' => [
+							[
+								'href'  => $con->getModule_Traffic()->getUrl_AdminPage(),
+								'title' => __( 'Traffic Settings', 'wp-simple-firewall' ),
+							],
+							[
+								'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
+								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
+							],
 						]
 					]
 				];
@@ -175,14 +192,7 @@ class UI extends Base\ShieldUI {
 				break;
 
 			case 'settings':
-				$data = [
-					'ajax' => [
-						'mod_options'          => $con->getModule( $subNavSection )
-													  ->getAjaxActionData( 'mod_options', true ),
-						'mod_opts_form_render' => $con->getModule( $subNavSection )
-													  ->getAjaxActionData( 'mod_opts_form_render', true ),
-					],
-				];
+				$data = $con->modules[ $subNavSection ]->getUIHandler()->getBaseDisplayData();
 				break;
 
 			case 'overview':
@@ -191,7 +201,6 @@ class UI extends Base\ShieldUI {
 				break;
 			default:
 				throw new \Exception( 'Not available' );
-				break;
 		}
 
 		$aTopNav = [

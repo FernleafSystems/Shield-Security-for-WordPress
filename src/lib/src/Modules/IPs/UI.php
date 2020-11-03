@@ -61,6 +61,12 @@ class UI extends Base\ShieldUI {
 				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
+				'related_hrefs' => [
+					[
+						'href'  => $mod->getUrl_AdminPage(),
+						'title' => __( 'IP Block Settings', 'wp-simple-firewall' ),
+					],
+				],
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
 					->setDbHandler( $mod->getDbHandler_IPs() )
 					->black(),

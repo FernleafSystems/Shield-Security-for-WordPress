@@ -148,10 +148,7 @@ class UI {
 		return $aOptParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getBaseDisplayData() {
+	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();
 
@@ -192,7 +189,9 @@ class UI {
 				'hidden_options' => $this->getOptions()->getHiddenOptions()
 			],
 			'ajax'       => [
-				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
+				'mod_options'          => $mod->getAjaxActionData( 'mod_options', true ),
+				'mod_opts_form_render' => $mod->getAjaxActionData( 'mod_opts_form_render', true ),
+				//				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
 			],
 			'vendors'    => [
 				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */

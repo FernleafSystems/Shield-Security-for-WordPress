@@ -12,13 +12,13 @@
 				<h6 class="mt-4">
 					{{ strings.page_title }}
 					<br />
-					<small class="mt-1">
-						<a href="{{ hrefs.back_to_dash }}"
-						   class="text-primary"
-						>&larr; Dashboard</a>
-						{% if vars.related_pages|default([]) is not empty %}
-							{% for href,title in vars.related_pages %}
-								| <a href="{{ href }}">{{ title }}</a>
+					<small class="mt-2 d-inline-block">
+						<a href="{{ hrefs.back_to_dash }}">&laquo; {{ strings.dashboard }}</a>
+						{% if vars.related_hrefs|default([]) is not empty %}
+							{% for related_href in vars.related_hrefs %}
+								| <a href="{{ related_href.href }}"
+									 {% if related_href.new|default(false) %}target="_blank"{% endif %}>
+								{{ related_href.title }}</a>
 							{% endfor %}
 						{% endif %}
 					</small>

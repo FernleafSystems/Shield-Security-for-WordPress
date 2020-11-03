@@ -7,10 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldUI extends UI {
 
-	/**
-	 * @return array
-	 */
-	public function getBaseDisplayData() {
+	public function getBaseDisplayData() :array {
 		$con = $this->getCon();
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $mod */
 		$mod = $this->getMod();
@@ -56,7 +53,14 @@ class ShieldUI extends UI {
 						Services::Request()->query( 'inav', '' )
 					] ) )
 				],
+				'vars'    => [
+					'related_hrefs' => $this->getSettingsRelatedLinks()
+				]
 			]
 		);
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		return [];
 	}
 }
