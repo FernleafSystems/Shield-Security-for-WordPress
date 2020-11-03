@@ -3,7 +3,7 @@
 {% block section_pre_table %}
 	<div class="row">
 
-		<div class="col-6">
+		<div class="col-6 mt-3">
 			<h5><label for="_fIpBlack">{{ strings.ip_filter }}</label></h5>
 			<form class="mb-3" id="FilterIpBlack" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="fLists[]" value="MB" />
@@ -29,7 +29,7 @@
 		</div>
 
 
-		<div class="col-6">
+		<div class="col-6 mt-3">
 			<h5>{{ strings.ip_block }}</h5>
 			<form class="mb-3 add-ip" id="NewBlackIp" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="list" value="MB" />

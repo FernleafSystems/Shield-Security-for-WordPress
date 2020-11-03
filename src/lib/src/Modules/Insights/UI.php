@@ -208,6 +208,7 @@ class UI extends Base\ShieldUI {
 			'dashboard'    => __( 'Dashboard', 'wp-simple-firewall' ),
 			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
+			'docs'         => __( 'Docs', 'wp-simple-firewall' ),
 			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
 			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),

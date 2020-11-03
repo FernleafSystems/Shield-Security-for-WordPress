@@ -87,7 +87,13 @@ class UI extends Base\ShieldUI {
 			],
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
-				'cannot_scan_reasons' => $aReasonCantScan
+				'cannot_scan_reasons' => $aReasonCantScan,
+				'related_hrefs' => [
+					[
+						'href'  => $this->getCon()->getModule_HackGuard()->getUrl_AdminPage(),
+						'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
+					],
+				]
 			],
 			'scan_results' => [
 			],
@@ -402,5 +408,15 @@ class UI extends Base\ShieldUI {
 		}
 
 		return $aWarnings;
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'scans' ),
+				'title' => __( 'Run Scans', 'wp-simple-firewall' ),
+			]
+		];
 	}
 }
