@@ -112,7 +112,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 				case 'notes':
 				case 'scans':
-				case 'logs':
+				case 'audit':
+				case 'traffic':
 				case 'ips':
 				case 'debug':
 				case 'users':
@@ -155,7 +156,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
-					if ( in_array( $iNav, [ 'logs' ] ) ) {
+					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
 						$sUnique = $con->prefix( 'datepicker' );
 						wp_register_script(
 							$sUnique, //TODO: use an includes services for CNDJS

@@ -7,12 +7,12 @@
 
 		<div class="col">
 			{% if flags.is_dashboard %}
-				<h6 class="mt-4">{{ strings.dashboard_shield }}</h6>
+				<h5 class="mt-3">{{ strings.dashboard_shield }}</h5>
 			{% else %}
-				<h6 class="mt-4">
+				<h5 class="mt-3">
 					{{ strings.page_title }}
 					<br />
-					<small class="mt-2 d-inline-block">
+					<p class="mb-1 mt-2 d-inline-block" style="font-size: small">
 						<a href="{{ hrefs.back_to_dash }}">&laquo; {{ strings.dashboard }}</a>
 						{% if vars.related_hrefs|default([]) is not empty %}
 							{% for related_href in vars.related_hrefs %}
@@ -21,10 +21,8 @@
 								{{ related_href.title }}</a>
 							{% endfor %}
 						{% endif %}
-					</small>
-				</h6>
-				<p class="mt-3">
-				</p>
+					</p>
+				</h5>
 			{% endif %}
 		</div>
 
