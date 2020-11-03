@@ -12,54 +12,36 @@ use FernleafSystems\Wordpress\Services\Services;
 class UI extends Base\ShieldUI {
 
 	public function buildInsightsVars_Docs() :array {
-		return $this->buildInsightsVars();
-	}
-
-	private function buildInsightsVars() :array {
 		$con = $this->getCon();
-
-		/** @var Shield\Modules\Reporting\UI $uiReporting */
-		$uiReporting = $con->getModule_Reporting()->getUIHandler();
-
 		return [
 			'content' => [
 				'tab_updates'   => $this->renderTabUpdates(),
 				'tab_freetrial' => $this->renderFreeTrial(),
-				'summary_stats' => $uiReporting->renderSummaryStats()
 			],
+			'flags'   => [
+				'is_pro' => $con->isPremiumActive(),
+			],
+			'strings' => [
+				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
+				'tab_updates'   => __( 'Updates and Changes', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	private function buildInsightsVars_Overview() :array {
+		return [
 			'vars'    => [
 				'overview_cards' => ( new OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
 			],
-			'hrefs'   => [
-				'shield_pro_url'           => 'https://shsec.io/shieldpro',
-				'shield_pro_more_info_url' => 'https://shsec.io/shld1',
-			],
-			'flags'   => [
-				'show_ads'              => false,
-				'show_standard_options' => false,
-				'show_alt_content'      => true,
-				'is_pro'                => $con->isPremiumActive(),
-			],
 			'strings' => [
-				'tab_security_glance' => __( 'Security At A Glance', 'wp-simple-firewall' ),
-				'tab_freetrial'       => __( 'Free Trial', 'wp-simple-firewall' ),
-				'tab_updates'         => __( 'Updates and Changes', 'wp-simple-firewall' ),
-				'tab_summary_stats'   => __( 'Summary Stats', 'wp-simple-firewall' ),
-				'click_clear_filter'  => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
-				'discover'            => __( 'Discover where your site security is doing well or areas that can be improved', 'wp-simple-firewall' ),
-				'clear_filter'        => __( 'Clear Filter', 'wp-simple-firewall' ),
-				'click_to_toggle'     => __( 'click to toggle', 'wp-simple-firewall' ),
-				'go_to_options'       => sprintf(
+				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
+				'clear_filter'       => __( 'Clear Filter', 'wp-simple-firewall' ),
+				'go_to_options'      => sprintf(
 					__( 'Go To %s', 'wp-simple-firewall' ),
 					__( 'Options' )
 				),
-				'key'                 => __( 'Key' ),
-				'key_positive'        => __( 'Positive Security', 'wp-simple-firewall' ),
-				'key_warning'         => __( 'Potential Warning', 'wp-simple-firewall' ),
-				'key_danger'          => __( 'Potential Danger', 'wp-simple-firewall' ),
-				'key_information'     => __( 'Information', 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -70,7 +52,7 @@ class UI extends Base\ShieldUI {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$sNavSection = $req->query( 'inav', 'overview' );
+		$sNavSection = $req->query( 'inav', 'dashboard' );
 		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
@@ -197,7 +179,7 @@ class UI extends Base\ShieldUI {
 
 			case 'overview':
 			case 'index':
-				$data = $this->buildInsightsVars();
+				$data = $this->buildInsightsVars_Overview();
 				break;
 			default:
 				throw new \Exception( 'Not available' );
@@ -276,7 +258,7 @@ class UI extends Base\ShieldUI {
 					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $modPlugin->getIfShowIntroVideo(),
 					'tours'            => [
-						'insights_overview' => $oTourManager->canShow( 'insights_overview' )
+						'insights_overview' => false && $oTourManager->canShow( 'insights_overview' )
 					],
 					'is_advanced'      => $modPlugin->isShowAdvanced()
 				],
