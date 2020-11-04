@@ -1,8 +1,11 @@
 <?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
-class ICWP_WPSF_FeatureHandler_Integrations extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+
+class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @var Lib\MainWP\Controller
@@ -19,9 +22,5 @@ class ICWP_WPSF_FeatureHandler_Integrations extends ICWP_WPSF_FeatureHandler_Bas
 
 	protected function getProcessorClassName() :string {
 		return $this->getNamespace().'Processor';
-	}
-
-	protected function getNamespaceBase() :string {
-		return 'Integrations';
 	}
 }

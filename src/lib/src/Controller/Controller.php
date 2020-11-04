@@ -1742,7 +1742,7 @@ class Controller {
 		return $this->getModule( 'comments_filter' );
 	}
 
-	public function getModule_Comms() :\ICWP_WPSF_FeatureHandler_Comms {
+	public function getModule_Comms() :Shield\Modules\Comms\ModCon {
 		return $this->getModule( 'comms' );
 	}
 
@@ -1750,7 +1750,7 @@ class Controller {
 		return $this->getModule( 'email' );
 	}
 
-	public function getModule_Events() :\ICWP_WPSF_FeatureHandler_Events {
+	public function getModule_Events() :Shield\Modules\Events\ModCon {
 		return $this->getModule( 'events' );
 	}
 
@@ -1762,7 +1762,7 @@ class Controller {
 		return $this->getModule( 'insights' );
 	}
 
-	public function getModule_Integrations() :\ICWP_WPSF_FeatureHandler_Integrations {
+	public function getModule_Integrations() :Shield\Modules\Integrations\ModCon {
 		return $this->getModule( 'integrations' );
 	}
 
@@ -1802,6 +1802,10 @@ class Controller {
 		return $this->getModule( 'user_management' );
 	}
 
+	public function getModulesNamespace() :string {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
+	}
+
 	/**
 	 * @param array $modProperties
 	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
@@ -1810,7 +1814,7 @@ class Controller {
 	public function loadFeatureHandler( array $modProperties ) {
 		$modSlug = $modProperties[ 'slug' ];
 		$mod = isset( $this->modules[ $modSlug ] ) ? $this->modules[ $modSlug ] : null;
-		if ( $mod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+		if ( $mod instanceof \ICWP_WPSF_FeatureHandler_Base || $mod instanceof Shield\Modules\Base\ModCon ) {
 			return $mod;
 		}
 
@@ -1823,20 +1827,22 @@ class Controller {
 			return null;
 		}
 
-		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
-		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $sFeatureName ); // e.g. oFeatureHandlerPlugin
+		$modName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
+		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $modName ); // e.g. oFeatureHandlerPlugin
 
-		// e.g. \ICWP_WPSF_FeatureHandler_Plugin
-		$sClassName = sprintf( '%s_FeatureHandler_%s', strtoupper( $this->getPluginPrefix( '_' ) ), $sFeatureName );
+		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon', $modName );
+		if ( !@class_exists( $className ) ) {
+			// e.g. \ICWP_WPSF_FeatureHandler_Plugin
+			$className = sprintf( '%s_FeatureHandler_%s', strtoupper( $this->getPluginPrefix( '_' ) ), $modName );
+		}
 
 		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
-		if ( class_exists( $sClassName ) ) {
-			$this->{$sOptionsVarName} = new $sClassName( $this, $modProperties );
-		}
-		else {
-			$sMessage = sprintf( 'Class "%s" is missing', $sClassName );
+		if ( !class_exists( $className ) ) {
+			$sMessage = sprintf( 'Class "%s" is missing', $className );
 			throw new \Exception( $sMessage );
 		}
+
+		$this->{$sOptionsVarName} = new $className( $this, $modProperties );
 
 		$aMs = $this->modules;
 		$aMs[ $modSlug ] = $this->{$sOptionsVarName};

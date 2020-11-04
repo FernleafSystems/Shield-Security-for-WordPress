@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function renderSummaryStats() :string {
 		$con = $this->getCon();

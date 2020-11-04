@@ -6,7 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon {
+/**
+ * Class ModCon
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ */
+abstract class ModCon {
 
 	use Modules\PluginControllerConsumer;
 
@@ -26,12 +30,7 @@ class ModCon {
 	protected $bImportExportWhitelistNotify = false;
 
 	/**
-	 * @var \ICWP_WPSF_FeatureHandler_Email
-	 */
-	private static $oEmailHandler;
-
-	/**
-	 * @var BaseProcessor
+	 * @var Shield\Modules\Base\BaseProcessor
 	 */
 	private $oProcessor;
 
@@ -41,14 +40,14 @@ class ModCon {
 	private $oWizard;
 
 	/**
-	 * @var Shield\Databases\Base\Handler
+	 * @var Shield\Modules\Base\BaseReporting
 	 */
-	private $oDbh;
+	private $oReporting;
 
 	/**
-	 * @var Shield\Modules\Base\Strings
+	 * @var Shield\Modules\Base\UI
 	 */
-	private $oStrings;
+	private $oUI;
 
 	/**
 	 * @var Shield\Modules\Base\Options
@@ -56,20 +55,25 @@ class ModCon {
 	private $oOpts;
 
 	/**
+	 * @var Shield\Modules\Base\WpCli
+	 */
+	private $oWpCli;
+
+	/**
 	 * @var Shield\Databases\Base\Handler[]
 	 */
 	private $aDbHandlers;
 
 	/**
-	 * @param Shield\Controller\Controller $oPlugCon
+	 * @param Shield\Controller\Controller $pluginCon
 	 * @param array                        $aMod
 	 * @throws \Exception
 	 */
-	public function __construct( $oPlugCon, $aMod = [] ) {
-		if ( !$oPlugCon instanceof Shield\Controller\Controller ) {
+	public function __construct( $pluginCon, $aMod = [] ) {
+		if ( !$pluginCon instanceof Shield\Controller\Controller ) {
 			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
-		$this->setCon( $oPlugCon );
+		$this->setCon( $pluginCon );
 
 		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
@@ -81,48 +85,36 @@ class ModCon {
 		}
 
 		if ( $this->verifyModuleMeetRequirements() ) {
+			$this->handleAutoPageRedirects();
 			$this->setupHooks( $aMod );
 			$this->doPostConstruction();
 		}
 	}
 
-	/**
-	 * @param array $aModProps
-	 */
-	protected function setupHooks( $aModProps ) {
-		$oReq = Services::Request();
-
+	protected function setupHooks( array $aModProps ) {
+		$con = $this->getCon();
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
-		add_action( $this->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
+
+		add_action( $con->prefix( 'modules_loaded' ), function () {
+			$this->onModulesLoaded();
+		}, $nRunPriority );
+		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 
-		if ( $this->isModuleRequest() ) {
-
-			if ( Services::WpGeneral()->isAjax() ) {
-				$this->loadAjaxHandler();
-			}
-
-			if ( $oReq->request( 'action' ) == $this->prefix()
-				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
-			) {
-				add_action( $this->prefix( 'mod_request' ), [ $this, 'handleModRequest' ] );
-			}
-		}
-
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
-		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
-		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-		add_filter( $this->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
+		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
+		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
+		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
+		add_filter( $con->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
-		add_filter( $this->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
+		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
-		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		add_action( $con->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		add_action( $con->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
-		// supply our supported plugin events for this module
-		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
+		// supply supported events for this module
+		add_filter( $con->prefix( 'get_all_events' ), function ( $aEvents ) {
 			return array_merge(
 				is_array( $aEvents ) ? $aEvents : [],
 				array_map(
@@ -187,45 +179,45 @@ class ModCon {
 	 * @return Shield\Databases\Base\Handler|mixed|false
 	 */
 	protected function getDbH( $sDbhKey ) {
-		$oDbH = false;
+		$dbh = false;
 
 		if ( !is_array( $this->aDbHandlers ) ) {
 			$this->aDbHandlers = [];
 		}
 
 		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
-			$oDbH = $this->aDbHandlers[ $sDbhKey ];
+			$dbh = $this->aDbHandlers[ $sDbhKey ];
 		}
 		else {
 			$aDbClasses = $this->getAllDbClasses();
 			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
-				/** @var Shield\Databases\Base\Handler $oDbH */
-				$oDbH = new $aDbClasses[ $sDbhKey ]();
+				/** @var Shield\Databases\Base\Handler $dbh */
+				$dbh = new $aDbClasses[ $sDbhKey ]();
 				try {
-					$oDbH->setMod( $this )->tableInit();
+					$dbh->setMod( $this )->tableInit();
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
-			$this->aDbHandlers[ $sDbhKey ] = $oDbH;
+			$this->aDbHandlers[ $sDbhKey ] = $dbh;
 		}
 
-		return $oDbH;
+		return $dbh;
 	}
 
 	/**
 	 * @return string[]
 	 */
 	private function getAllDbClasses() {
-		$aCls = $this->getOptions()->getDef( 'db_classes' );
-		return is_array( $aCls ) ? $aCls : [];
+		$classes = $this->getOptions()->getDef( 'db_classes' );
+		return is_array( $classes ) ? $classes : [];
 	}
 
 	/**
-	 * Should be over-ridden by each new class to handle upgrades.
-	 * Called upon construction and after plugin options are initialized.
+	 * @return false|Shield\Modules\Base\Upgrade|mixed
 	 */
-	protected function updateHandler() {
+	public function getUpgradeHandler() {
+		return $this->loadModElement( 'Upgrade' );
 	}
 
 	/**
@@ -274,10 +266,7 @@ class ModCon {
 		return array_merge( $aAdminNotices, $this->getOptions()->getAdminNotices() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function verifyModuleMeetRequirements() {
+	private function verifyModuleMeetRequirements() :bool {
 		$bMeetsReqs = true;
 
 		$aPhpReqs = $this->getOptions()->getFeatureRequirement( 'php' );
@@ -301,34 +290,67 @@ class ModCon {
 		return $bMeetsReqs;
 	}
 
+	protected function onModulesLoaded() {
+	}
+
 	public function onRunProcessors() {
-		if ( $this->isUpgrading() ) {
-			$this->updateHandler();
-		}
-		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
+		$oOpts = $this->getOptions();
+		if ( $oOpts->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
-		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
-			$this->doExecuteProcessor();
+		try {
+			$bSkip = (bool)$oOpts->getFeatureProperty( 'skip_processor' );
+			if ( !$bSkip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+				$this->doExecuteProcessor();
+			}
+		}
+		catch ( \Exception $e ) {
 		}
 	}
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
+		return !is_null( $this->getProcessor() );
 	}
 
 	protected function doExecuteProcessor() {
 		$this->getProcessor()->execute();
 	}
 
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
 	public function onWpInit() {
-		do_action( $this->prefix( 'mod_request' ) );
+
+		$sShieldAction = $this->getCon()->getShieldAction();
+		if ( !empty( $sShieldAction ) ) {
+			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
+		}
+
+		add_action( 'cli_init', function () {
+			try {
+				$this->getWpCli()->execute();
+			}
+			catch ( \Exception $e ) {
+			}
+		} );
+
+		if ( $this->isModuleRequest() ) {
+
+			if ( Services::WpGeneral()->isAjax() ) {
+				$this->loadAjaxHandler();
+			}
+			else {
+				try {
+					if ( $this->verifyModActionRequest() ) {
+						$this->handleModAction( Services::Request()->request( 'exec' ) );
+					}
+				}
+				catch ( \Exception $e ) {
+					wp_nonce_ays( '' );
+				}
+			}
+		}
 
 		$this->runWizards();
 
@@ -337,6 +359,8 @@ class ModCon {
 			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
+
+		$this->loadDebug();
 	}
 
 	/**
@@ -356,31 +380,37 @@ class ModCon {
 
 	/**
 	 * Override this and adapt per feature
-	 * @return BaseProcessor|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|mixed
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			$sClassName = $this->getProcessorClassName();
-			if ( !class_exists( $sClassName ) ) {
+			try {
+				// TODO: Remove 'abstract' from base processor after transition to new processors is complete
+				$class = $this->findElementClass( 'Processor', true );
+			}
+			catch ( \Exception $e ) {
+				$class = $this->getProcessorClassName();
+			}
+			if ( !@class_exists( $class ) ) {
 				return null;
 			}
-			$this->oProcessor = new $sClassName( $this );
+			$this->oProcessor = new $class( $this );
 		}
 		return $this->oProcessor;
 	}
 
 	/**
-	 * Override this and adapt per feature
-	 * @return string
+	 * This is the old method
+	 * @deprecated 10.1
 	 */
-	protected function getProcessorClassName() {
-		return implode( '_',
-			[
-				strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
-				'Processor',
-				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
-			]
-		);
+	protected function getProcessorClassName() :string {
+		return '\\'.implode( '_',
+				[
+					strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
+					'Processor',
+					str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
+				]
+			);
 	}
 
 	/**
@@ -397,10 +427,7 @@ class ModCon {
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isUpgrading() {
+	public function isUpgrading() :bool {
 		return $this->getCon()->getIsRebuildOptionsFromFile() || $this->getOptions()->getRebuildFromFile();
 	}
 
@@ -417,24 +444,18 @@ class ModCon {
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getOptionsStorageKey() {
+	public function getOptionsStorageKey() :string {
 		return $this->getCon()->prefixOption( $this->sOptionsStoreKey ).'_options';
 	}
 
 	/**
-	 * @return BaseProcessor|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|\FernleafSystems\Utilities\Logic\OneTimeExecute|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getUrl_AdminPage() {
+	public function getUrl_AdminPage() :string {
 		return Services::WpGeneral()
 					   ->getUrl_AdminPage(
 						   $this->getModSlug(),
@@ -443,40 +464,81 @@ class ModCon {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $sAction
 	 * @return string
 	 */
-	public function getUrl_DirectLinkToOption( $sOptKey ) {
-		$sUrl = $this->getUrl_AdminPage();
-		$aDef = $this->getOptions()->getOptDefinition( $sOptKey );
-		if ( !empty( $aDef[ 'section' ] ) ) {
-			$sUrl = $this->getUrl_DirectLinkToSection( $aDef[ 'section' ] );
-		}
-		return $sUrl;
+	public function buildAdminActionNonceUrl( $sAction ) {
+		$aActionNonce = $this->getNonceActionData( $sAction );
+		$aActionNonce[ 'ts' ] = Services::Request()->ts();
+		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
+	}
+
+	protected function getModActionParams( string $action ) :array {
+		$con = $this->getCon();
+		return [
+			'action'     => $con->prefix(),
+			'exec'       => $action,
+			'mod_slug'   => $this->getModSlug(),
+			'ts'         => Services::Request()->ts(),
+			'exec_nonce' => substr(
+				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getSiteInstallationId() )
+				, 0, 6 )
+		];
 	}
 
 	/**
-	 * @param string $sSection
-	 * @return string
+	 * @return bool
+	 * @throws \Exception
 	 */
-	public function getUrl_DirectLinkToSection( $sSection ) {
-		if ( $sSection == 'primary' ) {
-			$aSec = $this->getOptions()->getPrimarySection();
-			$sSection = $aSec[ 'slug' ];
+	protected function verifyModActionRequest() :bool {
+		$bValid = false;
+
+		$con = $this->getCon();
+		$req = Services::Request();
+
+		$sExec = $req->request( 'exec' );
+		if ( !empty( $sExec ) && $req->request( 'action' ) == $con->prefix() ) {
+
+
+			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $sExec ) && $con->getMeetsBasePermissions() ) {
+				$bValid = true;
+			}
+			else {
+				$bValid = $req->request( 'exec_nonce' ) ===
+						  substr( hash_hmac( 'md5', $sExec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
+			}
+			if ( !$bValid ) {
+				throw new \Exception( 'Invalid request' );
+			}
 		}
-		return $this->getUrl_AdminPage().'#tab-'.$sSection;
+
+		return $bValid;
+	}
+
+	public function getUrl_DirectLinkToOption( string $key ) :string {
+		$url = $this->getUrl_AdminPage();
+		$def = $this->getOptions()->getOptDefinition( $key );
+		if ( !empty( $def[ 'section' ] ) ) {
+			$url = $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
+		}
+		return $url;
+	}
+
+	public function getUrl_DirectLinkToSection( string $section ) :string {
+		if ( $section == 'primary' ) {
+			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];
+		}
+		return $this->getUrl_AdminPage().'#tab-'.$section;
 	}
 
 	/**
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return \ICWP_WPSF_FeatureHandler_Email
 	 * @throws \Exception
+	 * @deprecated 10.1
 	 */
 	public function getEmailHandler() {
-		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = $this->getCon()->getModule( 'email' );
-		}
-		return self::$oEmailHandler;
+		return $this->getCon()->getModule( 'email' );
 	}
 
 	/**
@@ -487,69 +549,55 @@ class ModCon {
 	}
 
 	/**
-	 * @param bool $bEnable
+	 * @param bool $enable
 	 * @return $this
 	 */
-	public function setIsMainFeatureEnabled( $bEnable ) {
-		return $this->setOpt( 'enable_'.$this->getSlug(), $bEnable ? 'Y' : 'N' );
+	public function setIsMainFeatureEnabled( bool $enable ) {
+		$this->getOptions()->setOpt( 'enable_'.$this->getSlug(), $enable ? 'Y' : 'N' );
+		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleEnabled() {
-		$oOpts = $this->getOptions();
+	public function isModuleEnabled() :bool {
 		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
 		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
-			$bEnabled = true;
+			$enabled = true;
 		}
 		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
-			$bEnabled = false;
+			$enabled = false;
 		}
-		elseif ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
-			$bEnabled = false;
+		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true
+				 && !$this->isPremium() ) {
+			$enabled = false;
 		}
 		else {
-			$bEnabled = $this->isModOptEnabled();
+			$enabled = $this->isModOptEnabled();
 		}
 
-		return $bEnabled;
+		return $enabled;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isModOptEnabled() {
-		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
+	public function isModOptEnabled() :bool {
+		$opts = $this->getOptions();
+		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' )
+			   || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getEnableModOptKey() {
+	public function getEnableModOptKey() :string {
 		return 'enable_'.$this->getSlug();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMainFeatureName() {
+	public function getMainFeatureName() :string {
 		return __( $this->getOptions()->getFeatureProperty( 'name' ), 'wp-simple-firewall' );
 	}
 
-	/**
-	 * @param bool $bWithPrefix
-	 * @return string
-	 */
-	public function getModSlug( $bWithPrefix = true ) {
-		return $bWithPrefix ? $this->prefix( $this->getSlug() ) : $this->getSlug();
+	public function getModSlug( bool $prefix = true ) :string {
+		return $prefix ? $this->prefix( $this->getSlug() ) : $this->getSlug();
 	}
 
 	/**
@@ -592,21 +640,38 @@ class ModCon {
 			if ( !empty( $aAdditionalItems ) && is_array( $aAdditionalItems ) ) {
 
 				foreach ( $aAdditionalItems as $aMenuItem ) {
-
-					if ( empty( $aMenuItem[ 'callback' ] ) || !method_exists( $this, $aMenuItem[ 'callback' ] ) ) {
-						continue;
-					}
-
 					$sMenuPageTitle = $sHumanName.' - '.$aMenuItem[ 'title' ];
 					$aItems[ $sMenuPageTitle ] = [
-						$aMenuItem[ 'title' ],
+						__( $aMenuItem[ 'title' ], 'wp-simple-firewall' ),
 						$this->prefix( $aMenuItem[ 'slug' ] ),
-						[ $this, $aMenuItem[ 'callback' ] ]
+						[ $this, $aMenuItem[ 'callback' ] ],
+						true
 					];
 				}
 			}
 		}
 		return $aItems;
+	}
+
+	/**
+	 * Handles the case where we want to redirect certain menu requests to other pages
+	 * of the plugin automatically. It lets us create custom menu items.
+	 * This can of course be extended for any other types of redirect.
+	 */
+	public function handleAutoPageRedirects() {
+		$aConf = $this->getOptions()->getRawData_FullFeatureConfig();
+		if ( !empty( $aConf[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
+			foreach ( $aConf[ 'custom_redirects' ] as $aRedirect ) {
+				if ( Services::Request()->query( 'page' ) == $this->prefix( $aRedirect[ 'source_mod_page' ] ) ) {
+					Services::Response()->redirect(
+						$this->getCon()->getModule( $aRedirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
+						$aRedirect[ 'query_args' ],
+						true,
+						false
+					);
+				}
+			}
+		}
 	}
 
 	/**
@@ -617,37 +682,66 @@ class ModCon {
 	}
 
 	/**
-	 * @param array $aSummaryData
+	 * TODO: not the place for this method.
+	 * @return array[]
+	 */
+	public function getModulesSummaryData() {
+		return array_map(
+			function ( $mod ) {
+				return $mod->buildSummaryData();
+			},
+			$this->getCon()->modules
+		);
+	}
+
+	/**
 	 * @return array
 	 */
-	public function addModuleSummaryData( $aSummaryData ) {
-		if ( $this->getIfShowModuleLink() ) {
-			$aSummaryData[ $this->getModSlug( false ) ] = $this->buildSummaryData();
+	public function buildSummaryData() {
+		$opts = $this->getOptions();
+		$sMenuTitle = $opts->getFeatureProperty( 'menu_title' );
+
+		$aSections = $opts->getSections();
+		foreach ( $aSections as $sSlug => $aSection ) {
+			try {
+				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
+				foreach ( $aStrings as $sKey => $sVal ) {
+					unset( $aSection[ $sKey ] );
+					$aSection[ $sKey ] = $sVal;
+				}
+			}
+			catch ( \Exception $e ) {
+			}
 		}
-		return $aSummaryData;
-	}
 
-	/**
-	 * @param array $aAllNotices
-	 * @return array
-	 */
-	public function addInsightsNoticeData( $aAllNotices ) {
-		return $aAllNotices;
-	}
+		$aSum = [
+			'slug'          => $this->getSlug(),
+			'enabled'       => $this->getUIHandler()->isEnabledForUiSummary(),
+			'active'        => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
+			'name'          => $this->getMainFeatureName(),
+			'sidebar_name'  => $opts->getFeatureProperty( 'sidebar_name' ),
+			'menu_title'    => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
+			'href'          => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
+			'sections'      => $aSections,
+			'options'       => [],
+			'show_mod_opts' => $this->getIfShowModuleOpts(),
+		];
 
-	/**
-	 * @param array $aAllData
-	 * @return array
-	 */
-	public function addInsightsConfigData( $aAllData ) {
-		return $aAllData;
-	}
+		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
+			try {
+				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
+				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
+				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+			}
+			catch ( \Exception $e ) {
+			}
+		}
 
-	/**
-	 * @return bool
-	 */
-	protected function isEnabledForUiSummary() {
-		return $this->isModuleEnabled();
+		$aSum[ 'tooltip' ] = sprintf(
+			'%s',
+			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
+		);
+		return $aSum;
 	}
 
 	/**
@@ -660,24 +754,17 @@ class ModCon {
 	/**
 	 * @return bool
 	 */
-	public function getIfShowModuleLink() {
+	public function getIfShowModuleOpts() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function getIfUseSessions() {
-		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
-	}
-
-	/**
 	 * Get config 'definition'.
-	 * @param string $sKey
+	 * @param string $key
 	 * @return mixed|null
 	 */
-	public function getDef( $sKey ) {
-		return $this->getOptions()->getDef( $sKey );
+	public function getDef( string $key ) {
+		return $this->getOptions()->getDef( $key );
 	}
 
 	/**
@@ -692,51 +779,24 @@ class ModCon {
 	 * @param string $sGlue
 	 * @return string|array
 	 */
-	public function getLastErrors( $bAsString = true, $sGlue = " " ) {
-		$aErrors = $this->getOpt( 'last_errors' );
-		if ( !is_array( $aErrors ) ) {
-			$aErrors = [];
+	public function getLastErrors( $bAsString = false, $sGlue = " " ) {
+		$errors = $this->getOptions()->getOpt( 'last_errors' );
+		if ( !is_array( $errors ) ) {
+			$errors = [];
 		}
-		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+		return $bAsString ? implode( $sGlue, $errors ) : $errors;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasLastErrors() {
+	public function hasLastErrors() :bool {
 		return count( $this->getLastErrors( false ) ) > 0;
 	}
 
-	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mDefault
-	 * @return mixed
-	 */
-	public function getOpt( $sOptionKey, $mDefault = false ) {
-		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mValueToTest
-	 * @param bool   $bStrict
-	 * @return bool
-	 */
-	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
-		$mOptionValue = $this->getOptions()->getOpt( $sOptionKey );
-		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
-	}
-
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOpt( $sOptKey ) {
-		$sValue = $this->getOpt( $sOptKey, 'default' );
+	public function getTextOpt( string $key ) :string {
+		$sValue = $this->getOptions()->getOpt( $key, 'default' );
 		if ( $sValue == 'default' ) {
-			$sValue = $this->getTextOptDefault( $sOptKey );
+			$sValue = $this->getTextOptDefault( $key );
 		}
-		return $sValue;
+		return __( $sValue, 'wp-simple-firewall' );
 	}
 
 	/**
@@ -761,42 +821,25 @@ class ModCon {
 				$mErrors = [];
 			}
 		}
-		return $this->setOpt( 'last_errors', $mErrors );
-	}
-
-	/**
-	 * Sets the value for the given option key
-	 * Note: We also set the ability to bypass admin access since setOpt() is a protected function
-	 * @param string $sOptionKey
-	 * @param mixed  $mValue
-	 * @return $this
-	 */
-	protected function setOpt( $sOptionKey, $mValue ) {
-		$this->getOptions()->setOpt( $sOptionKey, $mValue );
+		$this->getOptions()->setOpt( 'last_errors', $mErrors );
 		return $this;
 	}
 
-	/**
-	 * @param array $aOptions
-	 */
-	public function setOptions( $aOptions ) {
-		$oVO = $this->getOptions();
-		foreach ( $aOptions as $sKey => $mValue ) {
-			$oVO->setOpt( $sKey, $mValue );
+	public function setOptions( array $options ) {
+		$opts = $this->getOptions();
+		foreach ( $options as $key => $value ) {
+			$opts->setOpt( $key, $value );
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isModuleRequest() {
-		return ( $this->getModSlug() == Services::Request()->request( 'mod_slug' ) );
+	public function isModuleRequest() :bool {
+		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
 	}
 
 	/**
 	 * @param string $sAction
 	 * @param bool   $bAsJsonEncodedObject
-	 * @return array
+	 * @return array|string
 	 */
 	public function getAjaxActionData( $sAction = '', $bAsJsonEncodedObject = false ) {
 		$aData = $this->getNonceActionData( $sAction );
@@ -817,33 +860,25 @@ class ModCon {
 	/**
 	 * @return string[]
 	 */
-	public function getDismissedNotices() {
-		$aDN = $this->getOpt( 'dismissed_notices' );
-		return is_array( $aDN ) ? $aDN : [];
+	public function getDismissedNotices() :array {
+		$notices = $this->getOptions()->getOpt( 'dismissed_notices' );
+		return is_array( $notices ) ? $notices : [];
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getUiTrack() {
-		$aDN = $this->getOpt( 'ui_track' );
-		return is_array( $aDN ) ? $aDN : [];
+	public function getUiTrack() :array {
+		$a = $this->getOptions()->getOpt( 'ui_track' );
+		return is_array( $a ) ? $a : [];
 	}
 
-	/**
-	 * @param string[] $aDismissed
-	 * @return $this
-	 */
-	public function setDismissedNotices( $aDismissed ) {
-		return $this->setOpt( 'dismissed_notices', $aDismissed );
+	public function setDismissedNotices( array $dis ) {
+		$this->getOptions()->setOpt( 'dismissed_notices', $dis );
 	}
 
-	/**
-	 * @param string[] $aDismissed
-	 * @return $this
-	 */
-	public function setUiTrack( $aDismissed ) {
-		return $this->setOpt( 'ui_track', $aDismissed );
+	public function setUiTrack( array $UI ) {
+		$this->getOptions()->setOpt( 'ui_track', $UI );
 	}
 
 	/**
@@ -862,9 +897,15 @@ class ModCon {
 	}
 
 	/**
+	 * @param bool $bPreProcessOptions
 	 * @return $this
 	 */
-	public function saveModOptions() {
+	public function saveModOptions( $bPreProcessOptions = false ) {
+
+		if ( $bPreProcessOptions ) {
+			$this->preProcessOptions();
+		}
+
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
@@ -875,6 +916,9 @@ class ModCon {
 		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
 		$this->store();
 		return $this;
+	}
+
+	protected function preProcessOptions() {
 	}
 
 	private function store() {
@@ -902,6 +946,11 @@ class ModCon {
 	}
 
 	public function onPluginDelete() {
+		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
+			if ( !empty( $oDbh ) ) {
+				$oDbh->tableDelete();
+			}
+		}
 		$this->getOptions()->deleteStorage();
 	}
 
@@ -911,7 +960,7 @@ class ModCon {
 	protected function getAllFormOptionsAndTypes() {
 		$aOpts = [];
 
-		foreach ( $this->buildOptions() as $aOptionsSection ) {
+		foreach ( $this->getUIHandler()->buildOptions() as $aOptionsSection ) {
 			if ( !empty( $aOptionsSection ) ) {
 				foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
 					$aOpts[ $aOption[ 'key' ] ] = $aOption[ 'type' ];
@@ -922,7 +971,7 @@ class ModCon {
 		return $aOpts;
 	}
 
-	public function handleModRequest() {
+	protected function handleModAction( string $sAction ) {
 	}
 
 	/**
@@ -932,11 +981,17 @@ class ModCon {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
-		$this->doSaveStandardOptions();
-		$this->preProcessOptions();
-	}
 
-	protected function preProcessOptions() {
+		$this->doSaveStandardOptions();
+
+		$this->saveModOptions( true );
+
+		// only use this flag when the options are being updated with a MANUAL save.
+		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
+			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
+				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
+			}
+		}
 	}
 
 	/**
@@ -956,11 +1011,8 @@ class ModCon {
 		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isAdminOptionsPage() {
-		return ( is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage() );
+	protected function isAdminOptionsPage() :bool {
+		return is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage();
 	}
 
 	/**
@@ -1021,23 +1073,20 @@ class ModCon {
 				elseif ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
-				elseif ( $sOptType == 'multiple_select' ) {
-				}
+				/* elseif ( $sOptType == 'multiple_select' ) { } */
 			}
 
 			// Prevent overwriting of non-editable fields
 			if ( !in_array( $sOptType, [ 'noneditable_text' ] ) ) {
-				$this->setOpt( $sKey, $sOptionValue );
+				$this->getOptions()->setOpt( $sKey, $sOptionValue );
 			}
 		}
 
-		$this->saveModOptions();
-
-		// only use this flag when the options are being updated with a MANUAL save.
-		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
-			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
-			}
+		// Handle Import/Export exclusions
+		if ( $this->isPremium() ) {
+			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveExcludedOptions() )
+				->setMod( $this )
+				->save( $aForm );
 		}
 	}
 
@@ -1101,12 +1150,7 @@ class ModCon {
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
-		if ( $this->canDisplayOptionsForm() ) {
-			echo $this->renderModulePage();
-		}
-		else {
-			echo $this->renderRestrictedPage();
-		}
+		echo $this->renderModulePage();
 	}
 
 	/**
@@ -1114,103 +1158,18 @@ class ModCon {
 	 * @param array $aData
 	 * @return string
 	 */
-	protected function renderModulePage( $aData = [] ) {
-		// Get Base Data
-		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
-		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
-
-		return $this->renderTemplate( 'index.php', $aData );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function renderRestrictedPage() {
-		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive(
-							 $this->getBaseDisplayData(),
-							 [
-								 'ajax' => [
-									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
-								 ]
-							 ]
-						 );
-		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getBaseDisplayData() {
-		$oCon = $this->getCon();
-
-		return [
-			'sPluginName'   => $oCon->getHumanName(),
-			'sTagline'      => $this->getOptions()->getFeatureTagline(),
-			'nonce_field'   => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
-			'form_action'   => 'admin.php?page='.$this->getModSlug(),
-			'aPluginLabels' => $oCon->getLabels(),
-			'help_video'    => [
-				'auto_show'   => $this->getIfAutoShowHelpVideo(),
-				'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),
-				'display_id'  => 'ShieldHelpVideo'.$this->getSlug(),
-				'options'     => $this->getHelpVideoOptions(),
-				'displayable' => $this->isHelpVideoDisplayable(),
-				'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
-				'width'       => 772,
-				'height'      => 454,
-			],
-
-			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-			'sPageTitle'    => $this->getMainFeatureName(),
-			'data'          => [
-				'mod_slug'       => $this->getModSlug( true ),
-				'mod_slug_short' => $this->getModSlug( false ),
-				'all_options'    => $this->buildOptions(),
-				'hidden_options' => $this->getOptions()->getHiddenOptions()
-			],
-			'ajax'          => [
-				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
-			],
-			'strings'       => $this->getStrings()->getDisplayStrings(),
-			'flags'         => [
-				'access_restricted'     => !$this->canDisplayOptionsForm(),
-				'show_ads'              => $this->getIsShowMarketing(),
-				'wrap_page_content'     => true,
-				'show_standard_options' => true,
-				'show_content_help'     => true,
-				'show_alt_content'      => false,
-				'has_wizard'            => $this->hasWizard(),
-			],
-			'hrefs'         => [
-				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
-				'goprofooter'    => 'https://shsec.io/goprofooter',
-				'wizard_link'    => $this->getUrl_WizardLanding(),
-				'wizard_landing' => $this->getUrl_WizardLanding()
-			],
-			'content'       => [
-				'options_form'   => '',
-				'alt'            => '',
-				'actions'        => '',
-				'help'           => '',
-				'wizard_landing' => ''
-			]
-		];
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData() );
+	protected function renderModulePage( array $aData = [] ) :string {
+		return $this->renderTemplate(
+			'index.php',
+			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData )
+		);
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getContentWizardLanding() {
-		$aData = $this->getBaseDisplayData();
+		$aData = $this->getUIHandler()->getBaseDisplayData();
 		if ( $this->hasWizard() ) {
 			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
 		}
@@ -1265,7 +1224,7 @@ class ModCon {
 	/**
 	 * @return string
 	 */
-	protected function getUrl_WizardLanding() {
+	public function getUrl_WizardLanding() {
 		return $this->getUrl_Wizard( 'landing' );
 	}
 
@@ -1290,11 +1249,8 @@ class ModCon {
 		return is_array( $aW ) ? $aW : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasWizard() {
-		return ( count( $this->getWizardDefinitions() ) > 0 );
+	public function hasWizard() :bool {
+		return count( $this->getWizardDefinitions() ) > 0;
 	}
 
 	/**
@@ -1309,7 +1265,7 @@ class ModCon {
 	/**
 	 * @return bool
 	 */
-	protected function getIsShowMarketing() {
+	public function getIsShowMarketing() {
 		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
@@ -1329,7 +1285,7 @@ class ModCon {
 			return $this->getCon()
 						->getRenderer()
 						->setTemplate( $sTemplate )
-						->setRenderVars( $this->getBaseDisplayData() )
+						->setRenderVars( $this->getUIHandler()->getBaseDisplayData() )
 						->setTemplateEngineTwig()
 						->render();
 		}
@@ -1341,7 +1297,7 @@ class ModCon {
 	/**
 	 * @return bool
 	 */
-	protected function canDisplayOptionsForm() {
+	public function canDisplayOptionsForm() {
 		return $this->getOptions()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
 	}
 
@@ -1411,32 +1367,32 @@ class ModCon {
 		return $this->renderTemplate( $sTemplate, $aData, $bTwig );
 	}
 
-	/**
-	 * @param string $sTemplate
-	 * @param array  $aData
-	 * @param bool   $bUseTwig
-	 * @return string
-	 */
-	public function renderTemplate( $sTemplate, $aData = [], $bUseTwig = false ) {
-		if ( empty( $aData[ 'unique_render_id' ] ) ) {
-			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
+	public function renderTemplate( string $template, array $data = [], bool $isTwig = false ) :string {
+		if ( empty( $data[ 'unique_render_id' ] ) ) {
+			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
 			$oRndr = $this->getCon()->getRenderer();
-			if ( $bUseTwig || preg_match( '#^.*\.twig$#i', $sTemplate ) ) {
+			if ( $isTwig || preg_match( '#^.*\.twig$#i', $template ) ) {
 				$oRndr->setTemplateEngineTwig();
 			}
 
-			$sOutput = $oRndr->setTemplate( $sTemplate )
-							 ->setRenderVars( $aData )
-							 ->render();
+			$data[ 'strings' ] = Services::DataManipulation()
+										 ->mergeArraysRecursive(
+											 $this->getStrings()->getDisplayStrings(),
+											 $data[ 'strings' ] ?? []
+										 );
+
+			$render = $oRndr->setTemplate( $template )
+							->setRenderVars( $data )
+							->render();
 		}
 		catch ( \Exception $oE ) {
-			$sOutput = $oE->getMessage();
+			$render = $oE->getMessage();
 			error_log( $oE->getMessage() );
 		}
 
-		return $sOutput;
+		return (string)$render;
 	}
 
 	/**
@@ -1451,25 +1407,28 @@ class ModCon {
 		return $aTransferableOptions;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function collectOptionsForTracking() {
-		$oVO = $this->getOptions();
-		$aOptionsData = $this->getOptions()->getOptionsMaskSensitive();
-		foreach ( $aOptionsData as $sOption => $mValue ) {
-			unset( $aOptionsData[ $sOption ] );
+	public function collectOptionsForTracking() :array {
+		$opts = $this->getOptions();
+		$aOptionsData = $this->getOptions()->getOptionsForTracking();
+		foreach ( $aOptionsData as $opt => $mValue ) {
+			unset( $aOptionsData[ $opt ] );
 			// some cleaning to ensure we don't have disallowed characters
-			$sOption = preg_replace( '#[^_a-z]#', '', strtolower( $sOption ) );
-			$sType = $oVO->getOptionType( $sOption );
+			$opt = preg_replace( '#[^_a-z]#', '', strtolower( $opt ) );
+			$sType = $opts->getOptionType( $opt );
 			if ( $sType == 'checkbox' ) { // only want a boolean 1 or 0
-				$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
+				$aOptionsData[ $opt ] = (int)( $mValue == 'Y' );
 			}
 			else {
-				$aOptionsData[ $sOption ] = $mValue;
+				$aOptionsData[ $opt ] = $mValue;
 			}
 		}
 		return $aOptionsData;
+	}
+
+	public function getMainWpData() :array {
+		return [
+			'options' => $this->getOptions()->getTransferableOptions()
+		];
 	}
 
 	/**
@@ -1494,85 +1453,13 @@ class ModCon {
 		return $aData;
 	}
 
-	protected function getHelpVideoOptions() {
-		$aOptions = $this->getOpt( 'help_video_options', [] );
-		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
-			$aOptions = [
-				'closed'    => false,
-				'displayed' => false,
-				'played'    => false,
-			];
-			$this->setOpt( 'help_video_options', $aOptions );
-		}
-		return $aOptions;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getHelpVideoHasBeenClosed() {
-		return (bool)$this->getHelpVideoOption( 'closed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getHelpVideoHasBeenDisplayed() {
-		return (bool)$this->getHelpVideoOption( 'displayed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getVideoHasBeenPlayed() {
-		return (bool)$this->getHelpVideoOption( 'played' );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return mixed|null
-	 */
-	protected function getHelpVideoOption( $sKey ) {
-		$aOpts = $this->getHelpVideoOptions();
-		return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getIfAutoShowHelpVideo() {
-		return !$this->getHelpVideoHasBeenClosed();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getHelpVideoId() {
-		return $this->getDef( 'help_video_id' );
-	}
-
-	/**
-	 * @param string $sId
-	 * @return string
-	 */
-	protected function getHelpVideoUrl( $sId ) {
-		return sprintf( 'https://player.vimeo.com/video/%s', $sId );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isHelpVideoDisplayable() {
-		return false;
-	}
-
 	/**
 	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
 			$oCon = $this->getCon();
-			$this->oOpts = $this->loadOptions()->setMod( $this );
+			$this->oOpts = $this->loadModElement( 'Options' );
 			$this->oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
 						->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 						->setOptionsStorageKey( $this->getOptionsStorageKey() )
@@ -1582,72 +1469,177 @@ class ModCon {
 	}
 
 	/**
-	 * @return string
+	 * @return Shield\Modules\Base\WpCli
+	 * @throws \Exception
 	 */
-	private function getNamespace() {
-		try {
-			$sNS = ( new \ReflectionClass( $this ) )->getNamespaceName();
+	public function getWpCli() {
+		if ( !isset( $this->oWpCli ) ) {
+			$this->oWpCli = $this->loadModElement( 'WpCli' );
+			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
+				throw new \Exception( 'WP-CLI not supported' );
+			}
 		}
-		catch ( \Exception $oE ) {
-			$sNS = __NAMESPACE__;
-		}
-		return rtrim( $sNS, '\\' ).'\\';
+		return $this->oWpCli;
 	}
 
 	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
-		if ( !isset( $this->oStrings ) ) {
-			$this->oStrings = $this->loadStrings()->setMod( $this );
-		}
-		return $this->oStrings;
+		return $this->loadStrings()->setMod( $this );
 	}
 
 	/**
-	 * @return $this;
+	 * @return Shield\Modules\Base\UI
 	 */
-	private function loadAdminNotices() {
-		$oNotices = $this->loadClass( 'AdminNotices' );
-		if ( $oNotices instanceof Shield\Modules\Base\AdminNotices ) {
-			$oNotices->setMod( $this )->run();
+	public function getUIHandler() {
+		if ( !isset( $this->oUI ) ) {
+			$this->oUI = $this->loadModElement( 'UI' );
+			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {
+				// TODO: autoloader for base classes
+				$this->oUI = $this->loadModElement( 'ShieldUI' );
+			}
 		}
-		return $this;
+		return $this->oUI;
 	}
 
 	/**
-	 * All modules have an AJAX handler
-	 * @return $this
+	 * @return Shield\Modules\Base\BaseReporting|mixed|false
 	 */
-	private function loadAjaxHandler() {
-		$oAj = $this->loadClass( 'AjaxHandler' );
+	public function getReportingHandler() {
+		if ( !isset( $this->oReporting ) ) {
+			$this->oReporting = $this->loadModElement( 'Reporting' );
+		}
+		return $this->oReporting;
+	}
+
+	protected function loadAdminNotices() {
+		$N = $this->loadModElement( 'AdminNotices' );
+		if ( $N instanceof Shield\Modules\Base\AdminNotices ) {
+			$N->run();
+		}
+	}
+
+	protected function loadAjaxHandler() {
+		$oAj = $this->loadModElement( 'AjaxHandler' );
 		if ( !$oAj instanceof Shield\Modules\Base\AjaxHandlerBase ) {
-			$oAj = new Shield\Modules\Base\AjaxHandlerShield(); // TODO: Provide a better fallback
+			$this->loadModElement( 'AjaxHandlerShield' );
 		}
-		$oAj->setMod( $this );
-		return $this;
 	}
 
 	/**
 	 * @return Shield\Modules\Base\ShieldOptions|mixed
+	 * @deprecated 10.1
 	 */
 	protected function loadOptions() {
-		return $this->loadClass( 'Options' );
+		return $this->loadModElement( 'Options' );
+	}
+
+	protected function loadDebug() {
+		$req = Services::Request();
+		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
+			 && $this->getCon()->isPluginAdmin() ) {
+			/** @var Shield\Modules\Base\Debug $debug */
+			$debug = $this->loadModElement( 'Debug', true );
+			$debug->run();
+		}
 	}
 
 	/**
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
-		return $this->loadClass( 'Strings' );
+		return $this->loadModElement( 'Strings', true );
+	}
+
+	/**
+	 * @param string $class
+	 * @param false  $injectMod
+	 * @return false|Shield\Modules\ModConsumer
+	 */
+	private function loadModElement( string $class, $injectMod = true ) {
+		$element = false;
+		try {
+			$C = $this->findElementClass( $class, true );
+			/** @var Shield\Modules\ModConsumer $element */
+			$element = @class_exists( $C ) ? new $C() : false;
+			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
+				$element->setMod( $this );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
+		return $element;
 	}
 
 	/**
 	 * @param $sClass
 	 * @return \stdClass|mixed|false
+	 * @deprecated 10.1
 	 */
-	private function loadClass( $sClass ) {
-		$sC = $this->getNamespace().$sClass;
+	private function loadClassFromBase( $sClass ) {
+		$sC = $this->getBaseNamespace().$sClass;
 		return @class_exists( $sC ) ? new $sC() : false;
+	}
+
+	/**
+	 * @param string $element
+	 * @param bool   $bThrowException
+	 * @return string|null
+	 * @throws \Exception
+	 */
+	protected function findElementClass( string $element, $bThrowException = true ) {
+		$theClass = null;
+
+		foreach ( $this->getNamespaceRoots() as $NS ) {
+			$maybe = $NS.$element;
+			if ( @class_exists( $maybe ) ) {
+				if ( ( new \ReflectionClass( $maybe ) )->isInstantiable() ) {
+					$theClass = $maybe;
+					break;
+				}
+			}
+		}
+
+		if ( $bThrowException && is_null( $theClass ) ) {
+			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
+		}
+		return $theClass;
+	}
+
+	protected function getBaseNamespace() {
+		return $this->getCon()->getModulesNamespace().'\\Base\\';
+	}
+
+	protected function getModulesNamespace() :string {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\';
+	}
+
+	protected function getNamespace() :string {
+		return ( new \ReflectionClass( $this ) )->getNamespaceName();
+	}
+
+	protected function getNamespaceRoots() :array {
+		return [
+			$this->getNamespace(),
+			$this->getBaseNamespace()
+		];
+	}
+
+	/**
+	 * @return string
+	 * @throws \ReflectionException
+	 */
+	protected function getNamespaceBase() :string {
+		return ( new \ReflectionClass( $this ) )->getShortName();
+	}
+
+	/**
+	 * Saves the options to the WordPress Options store.
+	 * @return void
+	 * @deprecated 8.4
+	 */
+	public function savePluginOptions() {
+		$this->saveModOptions();
 	}
 }

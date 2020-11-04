@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
+/**
+ * Class ICWP_WPSF_FeatureHandler_Reporting
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Reporting extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
