@@ -4,6 +4,10 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_FeatureHandler_Traffic
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**

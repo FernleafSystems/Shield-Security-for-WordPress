@@ -256,7 +256,7 @@ class ModCon extends Base\ModCon {
 		// Ensure order of namespaces is 'Module', 'BaseShield', then 'Base'
 		return [
 			$this->getNamespace(),
-			$this->getCon()->getModulesNamespace().'\\BaseShield\\',
+			$this->getCon()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
 	}

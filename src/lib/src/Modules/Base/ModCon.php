@@ -1573,16 +1573,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param $sClass
-	 * @return \stdClass|mixed|false
-	 * @deprecated 10.1
-	 */
-	private function loadClassFromBase( $sClass ) {
-		$sC = $this->getBaseNamespace().$sClass;
-		return @class_exists( $sC ) ? new $sC() : false;
-	}
-
-	/**
 	 * @param string $element
 	 * @param bool   $bThrowException
 	 * @return string|null
@@ -1591,7 +1581,11 @@ abstract class ModCon {
 	protected function findElementClass( string $element, $bThrowException = true ) {
 		$theClass = null;
 
-		foreach ( $this->getNamespaceRoots() as $NS ) {
+		$roots = array_map( function ( $root ) {
+			return rtrim( $root, '\\' ).'\\';
+		}, $this->getNamespaceRoots() );
+
+		foreach ( $roots as $NS ) {
 			$maybe = $NS.$element;
 			if ( @class_exists( $maybe ) ) {
 				if ( ( new \ReflectionClass( $maybe ) )->isInstantiable() ) {
@@ -1608,11 +1602,7 @@ abstract class ModCon {
 	}
 
 	protected function getBaseNamespace() {
-		return $this->getCon()->getModulesNamespace().'\\Base\\';
-	}
-
-	protected function getModulesNamespace() :string {
-		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\';
+		return __NAMESPACE__;
 	}
 
 	protected function getNamespace() :string {
@@ -1624,14 +1614,6 @@ abstract class ModCon {
 			$this->getNamespace(),
 			$this->getBaseNamespace()
 		];
-	}
-
-	/**
-	 * @return string
-	 * @throws \ReflectionException
-	 */
-	protected function getNamespaceBase() :string {
-		return ( new \ReflectionClass( $this ) )->getShortName();
 	}
 
 	/**
