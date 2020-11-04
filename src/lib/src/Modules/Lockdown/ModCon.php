@@ -1,18 +1,17 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+
+class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @param string $namespace
 	 * @return bool
 	 */
 	public function isPermittedAnonRestApiNamespace( $namespace ) {
-		/** @var Shield\Modules\Lockdown\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
 	}
@@ -22,18 +21,11 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	private function cleanApiExclusions() {
-		/** @var Shield\Modules\Lockdown\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$opts->setOpt(
 			'api_namespace_exclusions',
 			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' )
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() :string {
-		return 'Lockdown';
 	}
 }

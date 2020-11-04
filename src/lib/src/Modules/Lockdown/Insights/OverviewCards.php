@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Insights;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
-class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
+class OverviewCards extends Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $mod */
+		/** @var Modules\Lockdown\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options $opts */
+		/** @var Modules\Lockdown\Options $opts */
 		$opts = $this->getOptions();
 
 		$cardSection = [

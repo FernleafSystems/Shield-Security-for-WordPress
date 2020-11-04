@@ -108,7 +108,7 @@ class Processor extends BaseShield\Processor {
 	 * @return \WP_Error
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$oWpRest = Services::Rest();
 
