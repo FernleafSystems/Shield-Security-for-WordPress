@@ -1,12 +1,12 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	protected function onModulesLoaded() {
 		$this->maybeRedirectToAdmin();
@@ -32,7 +32,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	protected function renderModulePage( array $aData = [] ) :string {
-		/** @var Shield\Modules\Insights\UI $UI */
+		/** @var UI $UI */
 		$UI = $this->getUIHandler();
 		return $UI->renderPages();
 	}
@@ -200,7 +200,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	private function includeScriptIpDetect() {
 		$con = $this->getCon();
-		/** @var Shield\Modules\Plugin\Options $opts */
+		/** @var Modules\Plugin\Options $opts */
 		$opts = $con->getModule_Plugin()->getOptions();
 		if ( $opts->isIpSourceAutoDetect() ) {
 			wp_register_script(
@@ -218,9 +218,5 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				[ 'ajax' => $con->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
 			);
 		}
-	}
-
-	protected function getNamespaceBase() :string {
-		return 'Insights';
 	}
 }

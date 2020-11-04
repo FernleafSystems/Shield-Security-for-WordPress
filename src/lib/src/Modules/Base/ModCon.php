@@ -744,17 +744,11 @@ abstract class ModCon {
 		return $aSum;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfShowModuleMenuItem() {
+	public function getIfShowModuleMenuItem() :bool {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfShowModuleOpts() {
+	public function getIfShowModuleOpts() :bool {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 

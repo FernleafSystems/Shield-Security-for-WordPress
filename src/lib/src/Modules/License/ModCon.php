@@ -51,10 +51,7 @@ class ModCon extends BaseShield\ModCon {
 		$this->getWpHashesTokenManager()->execute();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfShowModuleMenuItem() {
+	public function getIfShowModuleMenuItem() :bool {
 		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
 	}
 

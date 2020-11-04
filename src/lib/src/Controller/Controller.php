@@ -22,7 +22,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string                                                 $root_file
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
- * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[]               $modules
+ * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
  */
 class Controller {
 
@@ -1758,7 +1758,7 @@ class Controller {
 		return $this->getModule( 'hack_protect' );
 	}
 
-	public function getModule_Insights() :\ICWP_WPSF_FeatureHandler_Insights {
+	public function getModule_Insights() :Shield\Modules\Insights\ModCon {
 		return $this->getModule( 'insights' );
 	}
 

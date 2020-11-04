@@ -48,7 +48,7 @@ class UI extends Base\ShieldUI {
 
 	public function renderPages() :string {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_Insights $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
 
