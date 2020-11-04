@@ -1,14 +1,12 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-/**
- * Class ICWP_WPSF_Processor_Events
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	/**
 	 * @var Events\Lib\StatsWriter

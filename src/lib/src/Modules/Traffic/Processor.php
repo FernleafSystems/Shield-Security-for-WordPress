@@ -1,16 +1,18 @@
-<?php
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
 /**
- * Class ICWP_WPSF_Processor_Traffic
- * @deprecated 10.1
+ * Class Processor
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic
  */
-class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
+class Processor extends Modules\BaseShield\Processor {
 
 	public function run() {
-		/** @var Modules\Traffic\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isTrafficLoggerEnabled() ) {
 			( new Lib\Logger() )

@@ -1,17 +1,14 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ICWP_WPSF_Processor_Lockdown
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	public function run() {
-		/** @var Lockdown\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( $opts->isOptFileEditingDisabled() ) {
@@ -30,7 +27,7 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 		}
 
 		if ( $opts->isOpt( 'clean_wp_rubbish', 'Y' ) ) {
-			( new Lockdown\Lib\CleanRubbish() )
+			( new Lib\CleanRubbish() )
 				->setMod( $this->getMod() )
 				->execute();
 		}
@@ -65,7 +62,7 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function onWpInit() {
-		/** @var Lockdown\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
@@ -107,8 +104,8 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * Understand that if $mCurrentStatus is null, no check has been made. If true, something has
 	 * authenticated the request, and if WP_Error, then an error is already present
-	 * @param WP_Error|true|null $mStatus
-	 * @return WP_Error
+	 * @param \WP_Error|true|null $mStatus
+	 * @return \WP_Error
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $mod */

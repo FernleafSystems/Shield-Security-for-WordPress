@@ -386,9 +386,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			$class = $this->getProcessorClassName();
-			if ( !@class_exists( $class ) ) {
+			try {
+				// TODO: Remove 'abstract' from base processor after transition to new processors is complete
 				$class = $this->findElementClass( 'Processor', true );
+			}
+			catch ( Exception $e ) {
+				$class = $this->getProcessorClassName();
+			}
+			if ( !@class_exists( $class ) ) {
+				return null;
 			}
 			$this->oProcessor = new $class( $this );
 		}

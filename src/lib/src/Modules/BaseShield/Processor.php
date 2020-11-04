@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Processor extends Base\Processor {
+abstract class Processor extends Base\Processor {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
 
