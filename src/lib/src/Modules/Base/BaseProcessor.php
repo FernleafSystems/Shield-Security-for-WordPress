@@ -5,6 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class BaseProcessor
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.1
+ */
 class BaseProcessor {
 
 	use Modules\ModConsumer;
@@ -25,10 +30,10 @@ class BaseProcessor {
 	private $bHasExecuted;
 
 	/**
-	 * @param BaseModCon $oMod
+	 * @param ModCon $mod
 	 */
-	public function __construct( $oMod ) {
-		$this->setMod( $oMod );
+	public function __construct( $mod ) {
+		$this->setMod( $mod );
 
 		add_action( 'init', [ $this, 'onWpInit' ], 9 );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -38,10 +43,10 @@ class BaseProcessor {
 				add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
 			}
 		}
-		add_action( $oMod->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
-		add_action( $oMod->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $oMod->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
-		add_action( $oMod->prefix( 'deactivate_plugin' ), [ $this, 'deactivatePlugin' ] );
+		add_action( $mod->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
+		add_action( $mod->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		add_action( $mod->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		add_action( $mod->prefix( 'deactivate_plugin' ), [ $this, 'deactivatePlugin' ] );
 
 		/**
 		 * 2019-04-19:

@@ -21,7 +21,7 @@ abstract class BaseWpCliCmd {
 		try {
 			$this->addCmds();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 	}
 

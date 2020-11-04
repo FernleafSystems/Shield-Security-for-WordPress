@@ -5,6 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ShieldUI
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.1
+ */
 class ShieldUI extends UI {
 
 	public function getBaseDisplayData() :array {

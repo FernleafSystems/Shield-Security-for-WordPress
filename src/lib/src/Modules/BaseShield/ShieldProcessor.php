@@ -5,14 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ShieldProcessor
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
+ * @deprecated 10.1
+ */
 class ShieldProcessor extends Base\BaseProcessor {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
-
-	/**
-	 * @var bool
-	 */
-	private static $bRecaptchaEnqueue = false;
 
 	/**
 	 * Resets the object values to be re-used anew

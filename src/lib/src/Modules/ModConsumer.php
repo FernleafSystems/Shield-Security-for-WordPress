@@ -24,7 +24,7 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Base|Modules\Base\BaseModCon
+	 * @return \ICWP_WPSF_FeatureHandler_Base|Modules\Base\ModCon
 	 */
 	public function getMod() {
 		return $this->oMod;
@@ -47,7 +47,7 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @param \ICWP_WPSF_FeatureHandler_Base|Modules\Base\BaseModCon $oMod
+	 * @param \ICWP_WPSF_FeatureHandler_Base|Modules\Base\ModCon $oMod
 	 * @return $this
 	 */
 	public function setMod( $oMod ) {

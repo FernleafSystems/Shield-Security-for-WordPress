@@ -16,14 +16,14 @@ class WpCli {
 				$oHandler->setMod( $this->getMod() )->execute();
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 	}
 
 	/**
 	 * @return WpCli[]
 	 */
-	protected function getAllCmdHandlers() {
+	protected function getAllCmdHandlers() :array {
 		return array_merge(
 			[ new ModuleStandard() ],
 			$this->getCmdHandlers()
@@ -33,7 +33,7 @@ class WpCli {
 	/**
 	 * @return WpCli[]
 	 */
-	protected function getCmdHandlers() {
+	protected function getCmdHandlers() :array {
 		return [];
 	}
 }

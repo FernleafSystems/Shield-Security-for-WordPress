@@ -10,7 +10,7 @@ class WpCli extends Base\WpCli {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getCmdHandlers() {
+	protected function getCmdHandlers() :array {
 		return [
 			new Plugin\WpCli\ForceOff(),
 			new Plugin\WpCli\Reset(),

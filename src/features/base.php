@@ -386,17 +386,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			$sClassName = $this->getProcessorClassName();
-			if ( !class_exists( $sClassName ) ) {
-				return null;
+			$class = $this->getProcessorClassName();
+			if ( !@class_exists( $class ) ) {
+				$class = $this->findElementClass( 'Processor', true );
 			}
-			$this->oProcessor = new $sClassName( $this );
+			$this->oProcessor = new $class( $this );
 		}
 		return $this->oProcessor;
 	}
 
 	/**
-	 * Override this and adapt per feature
+	 * This is the old method
+	 * @deprecated 10.1
 	 */
 	protected function getProcessorClassName() :string {
 		return implode( '_',
@@ -1565,7 +1566,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	private function loadModElement( string $class, $injectMod = true ) {
 		$element = false;
 		try {
-			$C = $this->findElementClass( $class, true, true );
+			$C = $this->findElementClass( $class, true );
 			/** @var Shield\Modules\ModConsumer $element */
 			$element = @class_exists( $C ) ? new $C() : false;
 			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
@@ -1590,24 +1591,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param string $element
 	 * @param bool   $bThrowException
-	 * @param bool   $bUseFoundationBase
 	 * @return string|null
 	 * @throws \Exception
 	 */
-	protected function findElementClass( string $element, $bUseFoundationBase = true, $bThrowException = true ) {
-		$namespace = [
-			$this->getNamespace(),
-		];
-		if ( $bUseFoundationBase ) {
-			$namespace[] = $this->getBaseNamespace();
-		}
-
+	protected function findElementClass( string $element, $bThrowException = true ) {
 		$theClass = null;
-		foreach ( $namespace as $NS ) {
+
+		foreach ( $this->getNamespaceRoots() as $NS ) {
 			$maybe = $NS.$element;
 			if ( @class_exists( $maybe ) ) {
-				$theClass = $maybe;
-				break;
+				if ( ( new ReflectionClass( $maybe ) )->isInstantiable() ) {
+					$theClass = $maybe;
+					break;
+				}
 			}
 		}
 
@@ -1618,11 +1614,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	private function getBaseNamespace() {
-		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\\';
+		return $this->getModulesNamespace().'Base\\';
+	}
+
+	protected function getModulesNamespace() :string {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\';
 	}
 
 	protected function getNamespace() :string {
-		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\'.$this->getNamespaceBase().'\\';
+		return $this->getModulesNamespace().$this->getNamespaceBase().'\\';
+	}
+
+	protected function getNamespaceRoots() :array {
+		return [
+			$this->getNamespace(),
+			$this->getBaseNamespace()
+		];
 	}
 
 	protected function getNamespaceBase() :string {

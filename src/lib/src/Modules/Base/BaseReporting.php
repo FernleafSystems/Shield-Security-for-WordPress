@@ -5,6 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
+/**
+ * Class BaseReporting
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.1
+ */
 abstract class BaseReporting {
 
 	use ModConsumer;

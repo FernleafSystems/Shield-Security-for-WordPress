@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+/**
+ * Class AjaxHandlerShield
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.1
+ */
 class AjaxHandlerShield extends AjaxHandlerBase {
 
 	protected function processAjaxAction( string $action ) :array {

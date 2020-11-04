@@ -442,19 +442,6 @@
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
     },
     {
-      "key":         "enable_mainwp",
-      "section":     "section_integrations",
-      "advanced":     true,
-      "premium":     true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "MainWP Integrations",
-      "summary":     "Turn-On Shield's Integration For Both MainWP Server And Client Installations.",
-      "description": "Easily integrate Shield Security to help you manage your site security from within MainWP."
-    },
-    {
       "key":          "tracking_last_sent_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -617,6 +604,10 @@
       {
         "slug":          "sessions",
         "load_priority": 5
+      },
+      {
+        "slug":          "integrations",
+        "load_priority": 20
       },
       {
         "slug":          "license",
