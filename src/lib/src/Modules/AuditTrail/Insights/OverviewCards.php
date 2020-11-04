@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */
+		/** @var AuditTrail\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Shield\Modules\AuditTrail\Options $opts */
+		/** @var AuditTrail\Options $opts */
 		$opts = $this->getOptions();
 
 		$cardSection = [

@@ -25,12 +25,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AddParamToFirewallWhitelist() {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
+	protected function ajaxExec_AddParamToFirewallWhitelist() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 
 		$nId = Services::Request()->post( 'rid' );
@@ -39,9 +36,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 		else {
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			$oEntry = $oMod->getDbHandler_AuditTrail()
-						   ->getQuerySelector()
-						   ->byId( $nId );
+			$oEntry = $mod->getDbHandler_AuditTrail()
+						  ->getQuerySelector()
+						  ->byId( $nId );
 
 			if ( empty( $oEntry ) ) {
 				$sMessage = __( 'Audit entry could not be loaded.', 'wp-simple-firewall' );
@@ -69,15 +66,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableAuditTrail() {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_BuildTableAuditTrail() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
-			->setMod( $oMod )
-			->setDbHandler( $oMod->getDbHandler_AuditTrail() );
+			->setMod( $mod )
+			->setDbHandler( $mod->getDbHandler_AuditTrail() );
 
 		return [
 			'success' => true,

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use WP_CLI;
@@ -63,11 +64,11 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdDisplay( array $null, array $aA ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$oTableBuilder = ( new Tables\Build\AuditTrail() )
-			->setMod( $oMod )
-			->setDbHandler( $oMod->getDbHandler_AuditTrail() );
+			->setMod( $mod )
+			->setDbHandler( $mod->getDbHandler_AuditTrail() );
 		( new Tables\Render\WpCliTable\AuditTrail() )
 			->setDataBuilder( $oTableBuilder )
 			->render();

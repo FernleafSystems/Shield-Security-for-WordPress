@@ -140,8 +140,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $mod */
-		$mod = $con->getModule( 'audit_trail' );
+		$mod = $con->getModule_AuditTrail();
 		if ( !$mod->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}

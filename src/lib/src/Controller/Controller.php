@@ -1734,7 +1734,7 @@ class Controller {
 		return $mod;
 	}
 
-	public function getModule_AuditTrail() :\ICWP_WPSF_FeatureHandler_AuditTrail {
+	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
 		return $this->getModule( 'audit_trail' );
 	}
 

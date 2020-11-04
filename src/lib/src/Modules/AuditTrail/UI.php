@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function renderAuditTrailTable() :string {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Databases\AuditTrail\Select $dbSel */
 		$dbSel = $mod->getDbHandler_AuditTrail()->getQuerySelector();

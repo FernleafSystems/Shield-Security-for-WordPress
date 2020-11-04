@@ -1,12 +1,12 @@
-<?php
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
 		return $this->getDbH( 'audit' );
@@ -17,8 +17,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		return $this->getDbHandler_AuditTrail()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->getDbHandler_AuditTrail()->isReady() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -59,15 +58,14 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		try {
 			/** @var Shield\Databases\AuditTrail\Select $oFinder */
-			$oFinder = $this->getDbHandler_AuditTrail()
-							->getQuerySelector();
+			$oFinder = $this->getDbHandler_AuditTrail()->getQuerySelector();
 			$oFinder->filterByUsername( $oUser->user_login );
 
-			$oWp = Services::WpGeneral();
+			$WP = Services::WpGeneral();
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
 			foreach ( $oFinder->query() as $oEntry ) {
 				$aExportItem[ 'data' ][] = [
-					$sTimeStamp = $oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
+					$sTimeStamp = $WP->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
 					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
 					'value' => sprintf( '[IP:%s] %s', $oEntry->ip, $oEntry->message )
 				];
@@ -77,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$aExportItems[] = $aExportItem;
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 
 		return $aExportItems;
@@ -100,12 +98,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				 ->all();
 			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		return $aData;
-	}
-
-	protected function getNamespaceBase() :string {
-		return 'AuditTrail';
 	}
 }

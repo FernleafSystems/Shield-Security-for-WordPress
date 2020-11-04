@@ -3,6 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 
 class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor {
 
@@ -21,7 +22,7 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 	 */
 	private function loadAuditorWriter() {
 		if ( !isset( $this->oAuditor ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $mod */
+			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$this->oAuditor = ( new AuditWriter( $this->getCon() ) )
 				->setDbHandler( $mod->getDbHandler_AuditTrail() );
