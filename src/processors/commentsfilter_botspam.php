@@ -1,7 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\ShieldProcessor {
@@ -27,9 +27,9 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 	}
 
 	public function onWpEnqueueJs() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		/** @var CommentsFilter\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
+		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 		$con = $this->getCon();
 

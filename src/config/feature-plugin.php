@@ -167,7 +167,7 @@
     {
       "key":           "visitor_address_source",
       "section":       "section_defaults",
-      "advanced":     true,
+      "advanced":      true,
       "sensitive":     false,
       "type":          "select",
       "default":       "AUTO_DETECT_IP",
@@ -309,7 +309,7 @@
     {
       "key":          "importexport_whitelist",
       "section":      "section_importexport",
-      "advanced":    true,
+      "advanced":     true,
       "transferable": false,
       "sensitive":    true,
       "default":      [],
@@ -361,7 +361,7 @@
     {
       "key":         "locale_override",
       "section":     "section_general_plugin_options",
-      "advanced":     true,
+      "advanced":    true,
       "default":     "",
       "type":        "text",
       "link_info":   "https://icwp.io/il",
@@ -544,11 +544,11 @@
     "db_notes_name":          "notes",
     "db_notes_table_columns": {
       "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
-      "note": "TEXT"
+      "note":        "TEXT"
     },
     "geoip_table_name":       "geoip",
     "geoip_table_columns":    {
-      "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
+      "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
       "meta": "TEXT"
     },
     "active_plugin_features": [
@@ -559,11 +559,13 @@
       },
       {
         "slug":          "admin_access_restriction",
+        "namespace":     "SecurityAdmin",
         "load_priority": 11
       },
       {
         "slug":          "ips",
-        "load_priority": 15
+        "load_priority": 15,
+        "namespace":     "IPs"
       },
       {
         "slug":          "audit_trail",
@@ -571,7 +573,7 @@
         "hidden":        false
       },
       {
-        "slug": "hack_protect"
+        "slug":      "hack_protect"
       },
       {
         "slug":          "traffic",

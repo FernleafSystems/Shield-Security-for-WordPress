@@ -88,49 +88,40 @@ class ModCon extends Base\ModCon {
 		);
 	}
 
-	/**
-	 * @return Plugin\Lib\Captcha\CaptchaConfigVO
-	 */
-	public function getCaptchaCfg() {
-		$oPlugMod = $this->getCon()->getModule_Plugin();
-		/** @var Shield\Modules\Plugin\Options $oOpts */
-		$oOpts = $oPlugMod->getOptions();
-		$oCfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
-		$oCfg->invisible = $oCfg->theme === 'invisible';
+	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
+		$plugMod = $this->getCon()->getModule_Plugin();
+		/** @var Shield\Modules\Plugin\Options $plugOpts */
+		$plugOpts = $plugMod->getOptions();
+		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
+		$cfg->invisible = $cfg->theme === 'invisible';
 
-		if ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-			$oCfg->url_api = 'https://www.google.com/recaptcha/api.js';
+		if ( $cfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
+			$cfg->url_api = 'https://www.google.com/recaptcha/api.js';
 		}
-		elseif ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_HCAPTCHA ) {
-			$oCfg->url_api = 'https://hcaptcha.com/1/api.js';
+		elseif ( $cfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_HCAPTCHA ) {
+			$cfg->url_api = 'https://hcaptcha.com/1/api.js';
 		}
 		else {
-			error_log( 'CAPTCHA Provider not supported: '.$oCfg->provider );
+			error_log( 'CAPTCHA Provider not supported: '.$cfg->provider );
 		}
 
-		$oCfg->js_handle = $this->getCon()->prefix( $oCfg->provider );
+		$cfg->js_handle = $this->getCon()->prefix( $cfg->provider );
 
-		return $oCfg;
+		return $cfg;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getSecAdminLoginAjaxData() {
+	public function getSecAdminLoginAjaxData() :array {
 		// We set a custom mod_slug so that this module handles the ajax request
-		$aAjaxData = $this->getAjaxActionData( 'sec_admin_login' );
-		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $aAjaxData;
+		$dat = $this->getAjaxActionData( 'sec_admin_login' );
+		$dat[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $dat;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getSecAdminCheckAjaxData() {
+	protected function getSecAdminCheckAjaxData() :array {
 		// We set a custom mod_slug so that this module handles the ajax request
-		$aAjaxData = $this->getAjaxActionData( 'sec_admin_check' );
-		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $aAjaxData;
+		$dat = $this->getAjaxActionData( 'sec_admin_check' );
+		$dat[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $dat;
 	}
 
 	public function getPluginReportEmail() :string {
@@ -151,10 +142,7 @@ class ModCon extends Base\ModCon {
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function renderRestrictedPage() {
+	protected function renderRestrictedPage() :string {
 		/** @var Shield\Modules\SecurityAdmin\Options $oSecOpts */
 		$oSecOpts = $this->getCon()
 						 ->getModule_SecAdmin()

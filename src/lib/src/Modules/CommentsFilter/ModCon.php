@@ -1,28 +1,25 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 
-	/**
-	 * @return Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO
-	 */
-	public function getCaptchaCfg() {
-		$oCfg = parent::getCaptchaCfg();
+class ModCon extends BaseShield\ModCon {
+
+	public function getCaptchaCfg() :CaptchaConfigVO {
+		$cfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOptions()->getOpt( 'google_recaptcha_style_comments' );
 		if ( $sStyle !== 'default' && $this->isPremium() ) {
-			$oCfg->theme = $sStyle;
-			$oCfg->invisible = $oCfg->theme == 'invisible';
+			$cfg->theme = $sStyle;
+			$cfg->invisible = $cfg->theme == 'invisible';
 		}
-		return $oCfg;
+		return $cfg;
 	}
 
 	public function ensureCorrectCaptchaConfig() {
-		/** @var CommentsFilter\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$sStyle = $opts->getOpt( 'google_recaptcha_style_comments' );
@@ -66,7 +63,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function preProcessOptions() {
-		/** @var CommentsFilter\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		// clean roles
@@ -82,11 +79,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$this->ensureCorrectCaptchaConfig();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledCaptcha() {
-		/** @var CommentsFilter\Options $opts */
+	public function isEnabledCaptcha() :bool {
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $this->isModOptEnabled() && !$opts->isEnabledCaptcha()
 			   && $this->getCaptchaCfg()->ready;
@@ -94,13 +88,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 	public function setEnabledGasp( bool $enabled = true ) {
 		$this->getOptions()->setOpt( 'enable_comments_gasp_protection', $enabled ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() :string {
-		return 'CommentsFilter';
 	}
 
 	/**

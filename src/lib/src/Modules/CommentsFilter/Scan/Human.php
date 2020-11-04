@@ -18,8 +18,8 @@ class Human {
 	 * @return \WP_Error|true
 	 */
 	public function scan( $aCommData ) {
-		/** @var CommentsFilter\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var CommentsFilter\Options $opts */
+		$opts = $this->getOptions();
 
 		$aItemsToCheck = array_intersect_key(
 			[
@@ -30,7 +30,7 @@ class Human {
 				'ip_address'      => Services::IP()->getRequestIp(),
 				'user_agent'      => substr( Services::Request()->getUserAgent(), 0, 254 )
 			],
-			array_flip( $oOpts->getHumanSpamFilterItems() )
+			array_flip( $opts->getHumanSpamFilterItems() )
 		);
 
 		$mResult = true;
@@ -58,11 +58,11 @@ class Human {
 	 * @return string[]
 	 */
 	private function getSpamBlacklist() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var CommentsFilter\ModCon $mod */
+		$mod = $this->getMod();
 		$aList = [];
 		$oFs = Services::WpFs();
-		$sBLFile = $oMod->getSpamBlacklistFile();
+		$sBLFile = $mod->getSpamBlacklistFile();
 
 		// Download if doesn't exist or expired.
 		if ( !$oFs->exists( $sBLFile )
@@ -81,11 +81,11 @@ class Human {
 	}
 
 	private function importBlacklist() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
-		$oFs = Services::WpFs();
-		$sBLFile = $oMod->getSpamBlacklistFile();
-		if ( !$oFs->exists( $sBLFile ) ) {
+		/** @var CommentsFilter\ModCon $mod */
+		$mod = $this->getMod();
+		$FS = Services::WpFs();
+		$sBLFile = $mod->getSpamBlacklistFile();
+		if ( !$FS->exists( $sBLFile ) ) {
 			$sRawList = Services::HttpRequest()->getContent( $this->getOptions()
 																  ->getDef( 'url_spam_blacklist_terms' ) );
 			$sList = '';
@@ -93,7 +93,7 @@ class Human {
 				$sList = implode( "\n", array_map( 'base64_encode', array_filter( array_map( 'trim', explode( "\n", $sRawList ) ) ) ) );
 			}
 			// save the list to disk for the future.
-			$oFs->putFileContent( $sBLFile, $sList, true );
+			$FS->putFileContent( $sBLFile, $sList, true );
 		}
 	}
 }

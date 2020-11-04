@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	}
 
 	public function onWpInit() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		/** @var CommentsFilter\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();

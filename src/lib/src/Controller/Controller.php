@@ -1738,7 +1738,7 @@ class Controller {
 		return $this->getModule( 'audit_trail' );
 	}
 
-	public function getModule_Comments() :\ICWP_WPSF_FeatureHandler_CommentsFilter {
+	public function getModule_Comments() :Shield\Modules\CommentsFilter\ModCon {
 		return $this->getModule( 'comments_filter' );
 	}
 
@@ -1807,27 +1807,30 @@ class Controller {
 	}
 
 	/**
-	 * @param array $modProperties
+	 * @param array $modProps
 	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( array $modProperties ) {
-		$modSlug = $modProperties[ 'slug' ];
+	public function loadFeatureHandler( array $modProps ) {
+		$modSlug = $modProps[ 'slug' ];
 		$mod = isset( $this->modules[ $modSlug ] ) ? $this->modules[ $modSlug ] : null;
 		if ( $mod instanceof \ICWP_WPSF_FeatureHandler_Base || $mod instanceof Shield\Modules\Base\ModCon ) {
 			return $mod;
 		}
 
-		if ( empty( $modProperties[ 'storage_key' ] ) ) {
-			$modProperties[ 'storage_key' ] = $modSlug;
+		if ( empty( $modProps[ 'storage_key' ] ) ) {
+			$modProps[ 'storage_key' ] = $modSlug;
+		}
+		if ( empty( $modProps[ 'namespace' ] ) ) {
+			$modProps[ 'namespace' ] = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
 		}
 
-		if ( !empty( $modProperties[ 'min_php' ] )
-			 && !Services::Data()->getPhpVersionIsAtLeast( $modProperties[ 'min_php' ] ) ) {
+		if ( !empty( $modProps[ 'min_php' ] )
+			 && !Services::Data()->getPhpVersionIsAtLeast( $modProps[ 'min_php' ] ) ) {
 			return null;
 		}
 
-		$modName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
+		$modName = $modProps[ 'namespace' ];
 		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $modName ); // e.g. oFeatureHandlerPlugin
 
 		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon', $modName );
@@ -1842,7 +1845,7 @@ class Controller {
 			throw new \Exception( $sMessage );
 		}
 
-		$this->{$sOptionsVarName} = new $className( $this, $modProperties );
+		$this->{$sOptionsVarName} = new $className( $this, $modProps );
 
 		$aMs = $this->modules;
 		$aMs[ $modSlug ] = $this->{$sOptionsVarName};
