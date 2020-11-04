@@ -144,16 +144,16 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$sModName = $mod->getMainFeatureName();
+		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_login_protect' :
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
 				break;
 
 			case 'rename_wplogin_path' :

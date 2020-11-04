@@ -28,8 +28,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNotice_EmailVerificationSent( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$oNotice->render_data = [
 			'notice_attributes' => [],
@@ -46,8 +46,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'resend_verification_email' => $oMod->getAjaxActionData( 'resend_verification_email', true ),
-				'disable_2fa_email'         => $oMod->getAjaxActionData( 'disable_2fa_email', true ),
+				'resend_verification_email' => $mod->getAjaxActionData( 'resend_verification_email', true ),
+				'disable_2fa_email'         => $mod->getAjaxActionData( 'disable_2fa_email', true ),
 			]
 		];
 	}
@@ -57,16 +57,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		switch ( $oNotice->id ) {
 
 			case 'email-verification-sent':
-				$bNeeded = $oOpts->isEnabledEmailAuth()
-						   && !$oOpts->isEmailAuthenticationActive() && !$oOpts->getIfCanSendEmailVerified();
+				$bNeeded = $opts->isEnabledEmailAuth()
+						   && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
 				break;
 
 			default:

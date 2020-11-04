@@ -20,7 +20,7 @@ class LoginIntentPage {
 	 */
 	public function renderForm() {
 		$oIC = $this->getMfaCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $oIC->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $oIC->getOptions();
@@ -113,7 +113,7 @@ class LoginIntentPage {
 	 */
 	private function renderPage() {
 		$oIC = $this->getMfaCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $oIC->getMod();
 		$con = $oIC->getCon();
 		$req = Services::Request();

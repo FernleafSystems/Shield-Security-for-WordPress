@@ -1,21 +1,20 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	/**
-	 * @var LoginGuard\Lib\TwoFactor\MfaController
+	 * @var Lib\TwoFactor\MfaController
 	 */
 	private $oLoginIntentController;
 
 	protected function preProcessOptions() {
-		/** @var LoginGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		/**
 		 * $oWp = $this->loadWpFunctionsProcessor();
@@ -46,20 +45,20 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	public function ensureCorrectCaptchaConfig() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		$sStyle = $oOpts->getOpt( 'enable_google_recaptcha_login' );
+		$sStyle = $opts->getOpt( 'enable_google_recaptcha_login' );
 		if ( $this->isPremium() ) {
-			$oCfg = $this->getCaptchaCfg();
-			if ( $oCfg->provider == $oCfg::PROV_GOOGLE_RECAP2 ) {
-				if ( !$oCfg->invisible && $sStyle == 'invisible' ) {
-					$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+			$cfg = $this->getCaptchaCfg();
+			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
+				if ( !$cfg->invisible && $sStyle == 'invisible' ) {
+					$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 				}
 			}
 		}
 		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
-			$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+			$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
 	}
 
@@ -77,7 +76,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @uses wp_redirect()
 	 */
 	private function processEmailSendVerify() {
-		/** @var LoginGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$this->setIfCanSendEmail( true );
 		$this->saveModOptions();
@@ -129,7 +128,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	private function cleanLoginUrlPath() {
-		/** @var LoginGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$path = $opts->getCustomLoginPath();
 		if ( !empty( $path ) ) {
@@ -160,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	public function getGaspKey() :string {
-		/** @var LoginGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$sKey = $opts->getOpt( 'gasp_key' );
 		if ( empty( $sKey ) ) {
@@ -170,17 +169,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return $this->prefix( $sKey );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTextImAHuman() {
+	public function getTextImAHuman() :string {
 		return stripslashes( $this->getTextOpt( 'text_imahuman' ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTextPleaseCheckBox() {
+	public function getTextPleaseCheckBox() :string {
 		return stripslashes( $this->getTextOpt( 'text_pleasecheckbox' ) );
 	}
 
@@ -196,25 +189,22 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			   && $this->getCaptchaCfg()->ready;
 	}
 
-	/**
-	 * @return Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO
-	 */
-	public function getCaptchaCfg() {
-		$oCfg = parent::getCaptchaCfg();
+	public function getCaptchaCfg() :CaptchaConfigVO {
+		$cfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOptions()->getOpt( 'enable_google_recaptcha_login' );
 		if ( $sStyle !== 'default' && $this->isPremium() ) {
-			$oCfg->theme = $sStyle;
-			$oCfg->invisible = $oCfg->theme == 'invisible';
+			$cfg->theme = $sStyle;
+			$cfg->invisible = $cfg->theme == 'invisible';
 		}
-		return $oCfg;
+		return $cfg;
 	}
 
 	/**
-	 * @return LoginGuard\Lib\TwoFactor\MfaController
+	 * @return Lib\TwoFactor\MfaController
 	 */
 	public function getLoginIntentController() {
 		if ( !isset( $this->oLoginIntentController ) ) {
-			$this->oLoginIntentController = ( new LoginGuard\Lib\TwoFactor\MfaController() )
+			$this->oLoginIntentController = ( new Lib\TwoFactor\MfaController() )
 				->setMod( $this );
 		}
 		return $this->oLoginIntentController;
@@ -287,9 +277,5 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		);
 		wp_enqueue_script( 'jquery-ui-dialog' );
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
-	}
-
-	protected function getNamespaceBase() :string {
-		return 'LoginGuard';
 	}
 }

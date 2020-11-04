@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\ShieldProcessor {
 
 	public function onWpInit() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 
 		if ( $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
@@ -45,7 +45,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return bool - true if conflict exists
 	 */
 	protected function checkForPluginConflict() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -92,17 +92,17 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return bool
 	 */
 	private function checkForUnsupportedConfiguration() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$sPath = Services::Request()->getPath();
-		if ( empty( $sPath ) ) {
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$path = Services::Request()->getPath();
+		if ( empty( $path ) ) {
 
 			$sNoticeMessage = sprintf(
 				'<strong>%s</strong>: %s',
 				__( 'Warning', 'wp-simple-firewall' ),
 				__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
 			);
-			$oMod->setFlashAdminNotice( $sNoticeMessage, true );
+			$mod->setFlashAdminNotice( $sNoticeMessage, true );
 			return true;
 		}
 		return false;

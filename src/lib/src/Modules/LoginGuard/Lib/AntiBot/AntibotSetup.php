@@ -23,7 +23,7 @@ class AntibotSetup {
 	}
 
 	private function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -40,12 +40,12 @@ class AntibotSetup {
 		}
 
 		if ( $mod->isEnabledCaptcha() ) {
-			$oCfg = $mod->getCaptchaCfg();
-			if ( $oCfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
+			$cfg = $mod->getCaptchaCfg();
+			if ( $cfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
 				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
 					->setMod( $mod );
 			}
-			elseif ( $oCfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
+			elseif ( $cfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
 				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
 					->setMod( $mod );
 			}

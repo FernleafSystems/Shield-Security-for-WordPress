@@ -46,17 +46,17 @@ class Options extends Base\ShieldOptions {
 	 * @return array
 	 */
 	public function getEmail2FaRoles() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', [] );
 		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
-			$aRoles = $oMod->getOptEmailTwoFactorRolesDefaults();
+			$aRoles = $mod->getOptEmailTwoFactorRolesDefaults();
 			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
 		}
 		if ( $this->isPremium() ) {
 			$aRoles = apply_filters( 'odp-shield-2fa_email_user_roles', $aRoles );
 		}
-		return is_array( $aRoles ) ? $aRoles : $oMod->getOptEmailTwoFactorRolesDefaults();
+		return is_array( $aRoles ) ? $aRoles : $mod->getOptEmailTwoFactorRolesDefaults();
 	}
 
 	/**

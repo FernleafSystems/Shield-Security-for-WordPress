@@ -586,7 +586,8 @@
       },
       {
         "slug":        "login_protect",
-        "storage_key": "loginprotect"
+        "storage_key": "loginprotect",
+        "namespace":   "LoginGuard",
       },
       {
         "slug": "user_management"

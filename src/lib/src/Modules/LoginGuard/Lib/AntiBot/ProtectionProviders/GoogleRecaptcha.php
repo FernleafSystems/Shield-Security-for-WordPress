@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha\TestRequest;
 
 class GoogleRecaptcha extends BaseProtectionProvider {
@@ -50,9 +51,9 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	 * @return string
 	 */
 	private function getCaptchaHtml() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->getCaptchaCfg()->invisible ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		if ( $mod->getCaptchaCfg()->invisible ) {
 			$sExtraStyles = '';
 		}
 		else {

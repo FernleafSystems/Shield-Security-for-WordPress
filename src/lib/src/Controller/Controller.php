@@ -1774,7 +1774,7 @@ class Controller {
 		return $this->getModule( 'license' );
 	}
 
-	public function getModule_LoginGuard() :\ICWP_WPSF_FeatureHandler_LoginProtect {
+	public function getModule_LoginGuard() :Shield\Modules\LoginGuard\ModCon {
 		return $this->getModule( 'login_protect' );
 	}
 

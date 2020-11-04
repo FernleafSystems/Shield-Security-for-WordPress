@@ -297,12 +297,12 @@ class MfaController {
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->hasSession() ) {
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		if ( $mod->hasSession() ) {
 			/** @var Update $oUpd */
-			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->updateLoginIntentExpiresAt( $oMod->getSession(), $nExpirationTime );
+			$oUpd = $mod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->updateLoginIntentExpiresAt( $mod->getSession(), $nExpirationTime );
 		}
 		return $this;
 	}

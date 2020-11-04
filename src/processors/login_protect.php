@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 
 		// XML-RPC Compatibility

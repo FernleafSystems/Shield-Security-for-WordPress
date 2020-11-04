@@ -46,7 +46,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthEmail() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$oReq = Services::Request();
 
@@ -97,15 +97,15 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthGa() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$oReq = Services::Request();
+		$req = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 
-		$sCode = $oReq->post( 'gacode' );
-		$bEnableGa = $oReq->post( 'enablega' ) === 'Y';
+		$sCode = $req->post( 'gacode' );
+		$bEnableGa = $req->post( 'enablega' ) === 'Y';
 
 		$sMessage = '';
 		if ( $sCode != 'ignore' ) {
@@ -147,7 +147,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processMultiSelect() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 
 		$bEnabledMulti = Services::Request()->post( 'multiselect' ) === 'Y';
@@ -205,10 +205,10 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$aAdditional = [];
 
@@ -227,7 +227,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'authga':
 				$oUser = Services::WpUsers()->getCurrentWpUser();
 				/** @var TwoFactor\Provider\GoogleAuth $oGA */
-				$oGA = $oMod->getLoginIntentController()
+				$oGA = $mod->getLoginIntentController()
 							->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$sGaUrl = $oGA->getGaRegisterChartUrl( $oUser );
 				$aAdditional = [
@@ -247,7 +247,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'multiselect':
 				$aAdditional = [
 					'flags' => [
-						'has_multiselect' => $oOpts->isChainedAuth(),
+						'has_multiselect' => $opts->isChainedAuth(),
 					]
 				];
 				break;
