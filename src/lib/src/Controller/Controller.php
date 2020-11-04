@@ -1770,7 +1770,7 @@ class Controller {
 		return $this->getModule( 'ips' );
 	}
 
-	public function getModule_License() :\ICWP_WPSF_FeatureHandler_License {
+	public function getModule_License() :Shield\Modules\License\ModCon {
 		return $this->getModule( 'license' );
 	}
 

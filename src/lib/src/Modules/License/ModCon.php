@@ -1,47 +1,36 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	/**
-	 * @var License\Lib\LicenseHandler
+	 * @var Lib\LicenseHandler
 	 */
 	private $oLicHandler;
 
 	/**
-	 * @var License\Lib\WpHashes\ApiTokenManager
+	 * @var Lib\WpHashes\ApiTokenManager
 	 */
 	private $oWpHashesTokenManager;
 
 	/**
-	 * @return License\Lib\LicenseHandler
+	 * @return Lib\LicenseHandler
 	 */
-	public function getProcessor() {
-		return $this->getLicenseHandler();
-	}
-
-	/**
-	 * @return License\Lib\LicenseHandler
-	 */
-	public function getLicenseHandler() {
+	public function getLicenseHandler() :Lib\LicenseHandler {
 		if ( !isset( $this->oLicHandler ) ) {
-			$this->oLicHandler = ( new License\Lib\LicenseHandler() )->setMod( $this );
+			$this->oLicHandler = ( new Lib\LicenseHandler() )->setMod( $this );
 		}
 		return $this->oLicHandler;
 	}
 
-	/**
-	 * @return License\Lib\WpHashes\ApiTokenManager
-	 */
-	public function getWpHashesTokenManager() {
+	public function getWpHashesTokenManager() :Lib\WpHashes\ApiTokenManager {
 		if ( !isset( $this->oWpHashesTokenManager ) ) {
-			$this->oWpHashesTokenManager = ( new License\Lib\WpHashes\ApiTokenManager() )->setMod( $this );
+			$this->oWpHashesTokenManager = ( new Lib\WpHashes\ApiTokenManager() )->setMod( $this );
 		}
 		return $this->oWpHashesTokenManager;
 	}
@@ -73,15 +62,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		try {
 			$this->getLicenseHandler()->verify( false );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		parent::onPluginShutdown();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() :string {
-		return 'License';
 	}
 }

@@ -56,9 +56,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	 * @return array
 	 */
 	private function ajaxExec_LicenseHandling() {
-		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-		$oMod = $this->getMod();
-		$sHandler = $oMod->getLicenseHandler();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$sHandler = $mod->getLicenseHandler();
 
 		$bSuccess = false;
 		$sMessage = 'Unsupported license action';

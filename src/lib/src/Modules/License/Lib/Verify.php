@@ -14,19 +14,19 @@ class Verify {
 	 * @throws \Exception
 	 */
 	public function run() {
-		$oCon = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-		$oMod = $this->getMod();
-		/** @var License\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oHandler = $oMod->getLicenseHandler();
+		$con = $this->getCon();
+		/** @var License\ModCon $mod */
+		$mod = $this->getMod();
+		/** @var License\Options $opts */
+		$opts = $this->getOptions();
+		$oHandler = $mod->getLicenseHandler();
 
 		$this->preVerify();
 
 		$oExisting = $oHandler->getLicense();
 
 		$oLookupLicense = ( new LookupRequest() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->lookup();
 
 		$bSuccessfulApiRequest = false;
@@ -36,11 +36,11 @@ class Verify {
 			$oExisting = $oLookupLicense;
 			$oExisting->updateLastVerifiedAt( true );
 			if ( !$oHandler->isActive() ) {
-				$oOpts->setOptAt( 'license_activated_at' );
+				$opts->setOptAt( 'license_activated_at' );
 			}
-			$oMod->clearLastErrors();
-			$oOpts->setOpt( 'license_data', $oExisting->getRawDataAsArray() ); // need to do this before event
-			$oCon->fireEvent( 'lic_check_success' );
+			$mod->clearLastErrors();
+			$opts->setOpt( 'license_data', $oExisting->getRawDataAsArray() ); // need to do this before event
+			$con->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $oLookupLicense->isReady() ) {
 			$bSuccessfulApiRequest = true;
@@ -50,7 +50,7 @@ class Verify {
 		}
 		elseif ( $oExisting->isReady() ) { // Has a stored license but license HTTP request failed
 
-			$oMod->setLastErrors( [
+			$mod->setLastErrors( [
 				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
 			] );
 
@@ -66,7 +66,7 @@ class Verify {
 				 * We don't remove the license yet, but we warn the user
 				 */
 				( new LicenseEmails() )
-					->setMod( $oMod )
+					->setMod( $mod )
 					->sendLicenseWarningEmail();
 			}
 		}
@@ -76,7 +76,7 @@ class Verify {
 		}
 
 		$oExisting->last_request_at = Services::Request()->ts();
-		$oOpts->setOpt( 'license_data', $oExisting->getRawDataAsArray() );
+		$opts->setOpt( 'license_data', $oExisting->getRawDataAsArray() );
 		$this->getMod()->saveModOptions();
 
 		if ( !$bSuccessfulApiRequest ) {

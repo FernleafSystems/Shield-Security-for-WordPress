@@ -2,18 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	/**
 	 * @return array
 	 */
 	public function buildInsightsVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_License $mod */
-		$mod = $this->getMod();
 		$con = $this->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$opts = $this->getOptions();
 		$WP = Services::WpGeneral();
 		$oCarbon = Services::Request()->carbon();
@@ -86,7 +86,7 @@ class UI extends Base\ShieldUI {
 	}
 
 	public function isEnabledForUiSummary() :bool {
-		/** @var \ICWP_WPSF_FeatureHandler_License $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->getLicenseHandler()->hasValidWorkingLicense();
 	}

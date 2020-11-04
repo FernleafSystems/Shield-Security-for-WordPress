@@ -51,14 +51,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		switch ( $oNotice->id ) {
 
 			case 'wphashes-token-fail':
 				$bNeeded = $this->getCon()->isPremiumActive()
-						   && !$oMod->getWpHashesTokenManager()->hasToken();
+						   && !$mod->getWpHashesTokenManager()->hasToken();
 				break;
 
 			default:

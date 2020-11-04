@@ -4,7 +4,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
 /**
- * Class ICWP_WPSF_FeatureHandler_Firewall
  * @deprecated 10.1
  */
 class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWpsf {
