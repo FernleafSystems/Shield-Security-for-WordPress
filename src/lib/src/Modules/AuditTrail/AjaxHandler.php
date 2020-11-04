@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
+class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 
@@ -54,7 +54,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					$sMessage = __( 'Parameter associated with this audit entry could not be found.', 'wp-simple-firewall' );
 				}
 				else {
-					/** @var \ICWP_WPSF_FeatureHandler_Firewall $oModFire */
+					/** @var Shield\Modules\Firewall\ModCon $oModFire */
 					$oModFire = $this->getCon()->getModule( 'firewall' );
 					$oModFire->addParamToWhitelist( $sParam, $sUri );
 					$sMessage = sprintf( __( 'Parameter "%s" whitelisted successfully', 'wp-simple-firewall' ), $sParam );

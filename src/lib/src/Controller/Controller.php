@@ -1782,7 +1782,7 @@ class Controller {
 		return $this->getModule( 'plugin' );
 	}
 
-	public function getModule_Reporting() :\ICWP_WPSF_FeatureHandler_Reporting {
+	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
 		return $this->getModule( 'reporting' );
 	}
 
@@ -1790,11 +1790,11 @@ class Controller {
 		return $this->getModule( 'admin_access_restriction' );
 	}
 
-	public function getModule_Sessions() :\ICWP_WPSF_FeatureHandler_Sessions {
+	public function getModule_Sessions() :Shield\Modules\Sessions\ModCon {
 		return $this->getModule( 'sessions' );
 	}
 
-	public function getModule_Traffic() :\ICWP_WPSF_FeatureHandler_Traffic {
+	public function getModule_Traffic() :Shield\Modules\Traffic\ModCon {
 		return $this->getModule( 'traffic' );
 	}
 
