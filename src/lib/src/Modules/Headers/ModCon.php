@@ -1,12 +1,11 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		$this->cleanCspHosts();
@@ -14,7 +13,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	private function cleanCustomRules() {
-		/** @var Headers\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$opts->setOpt( 'xcsp_custom', array_unique( array_filter( array_map(
 			function ( $sRule ) {
@@ -29,11 +28,11 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	private function cleanCspHosts() {
-		/** @var Headers\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		$aValidDomains = [];
-		foreach ( $oOpts->getOpt( 'xcsp_hosts', [] ) as $sDomain ) {
+		foreach ( $opts->getOpt( 'xcsp_hosts', [] ) as $sDomain ) {
 			$bValidDomain = false;
 			$sDomain = trim( $sDomain );
 
@@ -86,13 +85,6 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			}
 		}
 		asort( $aValidDomains );
-		$oOpts->setOpt( 'xcsp_hosts', array_unique( $aValidDomains ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() :string {
-		return 'Headers';
+		$opts->setOpt( 'xcsp_hosts', array_unique( $aValidDomains ) );
 	}
 }

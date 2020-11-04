@@ -533,12 +533,12 @@ abstract class ModCon {
 
 	/**
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
-	 * @return \ICWP_WPSF_FeatureHandler_Email
+	 * @return Modules\Email\ModCon
 	 * @throws \Exception
 	 * @deprecated 10.1
 	 */
 	public function getEmailHandler() {
-		return $this->getCon()->getModule( 'email' );
+		return $this->getCon()->getModule_Email();
 	}
 
 	/**

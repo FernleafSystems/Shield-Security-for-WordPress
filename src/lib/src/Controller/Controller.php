@@ -1746,7 +1746,7 @@ class Controller {
 		return $this->getModule( 'comms' );
 	}
 
-	public function getModule_Email() :\ICWP_WPSF_FeatureHandler_Email {
+	public function getModule_Email() :Shield\Modules\Email\ModCon {
 		return $this->getModule( 'email' );
 	}
 
