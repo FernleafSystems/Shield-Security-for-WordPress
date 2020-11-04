@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		/** @var Shield\Modules\SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Shield\Modules\SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();

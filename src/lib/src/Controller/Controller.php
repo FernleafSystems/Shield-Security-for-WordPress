@@ -1786,7 +1786,7 @@ class Controller {
 		return $this->getModule( 'reporting' );
 	}
 
-	public function getModule_SecAdmin() :\ICWP_WPSF_FeatureHandler_AdminAccessRestriction {
+	public function getModule_SecAdmin() :Shield\Modules\SecurityAdmin\ModCon {
 		return $this->getModule( 'admin_access_restriction' );
 	}
 

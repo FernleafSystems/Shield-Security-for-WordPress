@@ -1,13 +1,12 @@
-<?php
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
@@ -17,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private $bValidSecAdminRequest;
 
 	/**
-	 * @var SecurityAdmin\Lib\WhiteLabel\ApplyLabels
+	 * @var Lib\WhiteLabel\ApplyLabels
 	 */
 	private $oWhiteLabelController;
 
@@ -26,9 +25,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
 
-	public function getWhiteLabelController() :SecurityAdmin\Lib\WhiteLabel\ApplyLabels {
-		if ( !$this->oWhiteLabelController instanceof SecurityAdmin\Lib\WhiteLabel\ApplyLabels ) {
-			$this->oWhiteLabelController = ( new SecurityAdmin\Lib\WhiteLabel\ApplyLabels() )
+	public function getWhiteLabelController() :Lib\WhiteLabel\ApplyLabels {
+		if ( !$this->oWhiteLabelController instanceof Lib\WhiteLabel\ApplyLabels ) {
+			$this->oWhiteLabelController = ( new Lib\WhiteLabel\ApplyLabels() )
 				->setMod( $this );
 		}
 		return $this->oWhiteLabelController;
@@ -48,14 +47,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser() {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$sUser = Services::WpUsers()->getCurrentWpUsername();
 		return !empty( $sUser ) && in_array( $sUser, $opts->getSecurityAdminUsers() );
 	}
 
 	protected function preProcessOptions() {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( $this->isValidSecAdminRequest() ) {
@@ -88,7 +87,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$aFiltered = [];
@@ -103,7 +102,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				}
 			}
 
-			if ( $oUser instanceof WP_User && $oUser->ID > 0 && $oWpUsers->isUserAdmin( $oUser ) ) {
+			if ( $oUser instanceof \WP_User && $oUser->ID > 0 && $oWpUsers->isUserAdmin( $oUser ) ) {
 				$aFiltered[] = $oUser->user_login;
 			}
 		}
@@ -144,7 +143,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'remove_secadmin_confirm':
-				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
+				( new Lib\Actions\RemoveSecAdmin() )
 					->setMod( $this )
 					->remove();
 				break;
@@ -158,7 +157,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	public function isEnabledSecurityAdmin() :bool {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $this->isModOptEnabled() &&
 			   ( count( $opts->getSecurityAdminUsers() ) > 0 ||
@@ -187,7 +186,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
 			if ( !empty( $sReqKey ) ) {
-				/** @var SecurityAdmin\Options $opts */
+				/** @var Options $opts */
 				$opts = $this->getOptions();
 				$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sReqKey ) );
 				if ( !$bValid ) {
@@ -214,7 +213,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	public function verifyAccessKey( string $key ) :bool {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
 	}
@@ -267,7 +266,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	public function isWlEnabled() :bool {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEnabledWhitelabel() && $this->isPremium();
 	}
@@ -335,7 +334,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
@@ -388,9 +387,5 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				)
 			);
 		}
-	}
-
-	protected function getNamespaceBase() :string {
-		return 'SecurityAdmin';
 	}
 }

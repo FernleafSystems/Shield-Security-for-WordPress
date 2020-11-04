@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isEnabledWhitelabel() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+			/** @var SecurityAdmin\ModCon $mod */
 			$mod = $this->getMod();
 			$mod->getWhiteLabelController()->execute();
 		}
@@ -28,7 +28,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return bool
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		return $bHasPermission && ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid()
 									|| $mod->testSecAccessKeyRequest() );
@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 
 	public function onWpInit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+			/** @var SecurityAdmin\ModCon $mod */
 			$mod = $this->getMod();
 			/** @var SecurityAdmin\Options $opts */
 			$opts = $this->getOptions();
@@ -417,7 +417,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	}
 
 	public function printAdminAccessAjaxForm() {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
