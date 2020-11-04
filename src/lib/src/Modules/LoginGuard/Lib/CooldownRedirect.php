@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,10 +31,10 @@ class CooldownRedirect {
 	}
 
 	private function renderCooldownPage() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$nTimeRemaining = ( new LoginGuard\Lib\CooldownFlagFile() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->getCooldownRemaining();
 		$aData = [
 			'strings' => [
@@ -56,7 +57,7 @@ class CooldownRedirect {
 		];
 		Services::WpGeneral()
 				->wpDie(
-					$oMod->renderTemplate( '/snippets/cooldown_login_block.twig', $aData, true )
+					$mod->renderTemplate( '/snippets/cooldown_login_block.twig', $aData, true )
 				);
 	}
 }

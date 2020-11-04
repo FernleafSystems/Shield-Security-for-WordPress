@@ -11,7 +11,7 @@ class ProcessOffenses {
 	use ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 
 		$mod->loadOffenseTracker()->setIfCommit( true );
@@ -25,7 +25,7 @@ class ProcessOffenses {
 	}
 
 	private function processOffense() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 
 		$oTracker = $mod->loadOffenseTracker();

@@ -46,7 +46,7 @@ class BlockRequest {
 	}
 
 	private function renderKillPage() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
@@ -124,7 +124,7 @@ class BlockRequest {
 	 * @return string
 	 */
 	private function renderEmailMagicLinkContent() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();

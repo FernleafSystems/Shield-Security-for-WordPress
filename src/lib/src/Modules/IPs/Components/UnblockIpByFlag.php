@@ -11,19 +11,19 @@ class UnblockIpByFlag {
 	use Shield\Modules\ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oFS = Services::WpFs();
+		/** @var IPs\ModCon $mod */
+		$mod = $this->getMod();
+		$FS = Services::WpFs();
 
-		$sPathUnblockFlag = $oFS->findFileInDir( 'unblock', $this->getCon()->getPath_Flags() );
-		if ( $oFS->isFile( $sPathUnblockFlag ) ) {
-			$sContent = $oFS->getFileContent( $sPathUnblockFlag );
+		$sPathUnblockFlag = $FS->findFileInDir( 'unblock', $this->getCon()->getPath_Flags() );
+		if ( $FS->isFile( $sPathUnblockFlag ) ) {
+			$sContent = $FS->getFileContent( $sPathUnblockFlag );
 			if ( !empty( $sContent ) ) {
 
 				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
 				foreach ( $aLines as $sIp ) {
 					$bRemoved = ( new IPs\Lib\Ops\DeleteIp() )
-						->setDbHandler( $oMod->getDbHandler_IPs() )
+						->setDbHandler( $mod->getDbHandler_IPs() )
 						->setIP( $sIp )
 						->fromBlacklist();
 					if ( $bRemoved ) {
@@ -31,7 +31,7 @@ class UnblockIpByFlag {
 					}
 				}
 			}
-			$oFS->deleteFile( $sPathUnblockFlag );
+			$FS->deleteFile( $sPathUnblockFlag );
 		}
 	}
 }

@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Upgrade extends Base\Upgrade {
 
 	protected function upgrade_1010() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Delete $del */
 		$del = $mod->getDbHandler_IPs()->getQueryDeleter();
@@ -17,7 +17,7 @@ class Upgrade extends Base\Upgrade {
 	}
 
 	protected function upgrade_905() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$schema = $mod->getDbHandler_IPs()->getTableSchema();
 		Services::WpDb()->doSql(
@@ -30,7 +30,7 @@ class Upgrade extends Base\Upgrade {
 	 * Support larger transgression counts [smallint(1) => int(10)]
 	 */
 	protected function upgrade_911() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$schema = $mod->getDbHandler_IPs()->getTableSchema();
 		Services::WpDb()->doSql(
@@ -46,12 +46,12 @@ class Upgrade extends Base\Upgrade {
 	 * Support Magic Links for logged-in users.
 	 */
 	protected function upgrade_920() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$current = $oOpts->getOpt( 'user_auto_recover' );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$current = $opts->getOpt( 'user_auto_recover' );
 		if ( !is_array( $current ) ) {
 			$current = ( $current === 'gasp' ) ? [ 'gasp' ] : [];
-			$oOpts->setOpt( 'user_auto_recover', $current );
+			$opts->setOpt( 'user_auto_recover', $current );
 		}
 	}
 }

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+
 class IpBlack extends IpBase {
 
 	/**
@@ -9,7 +11,7 @@ class IpBlack extends IpBase {
 	 * @return string
 	 */
 	public function column_details( $aItem ) {
-		$bAutoBlock = $aItem[ 'list' ] === \ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK;
+		$bAutoBlock = $aItem[ 'list' ] === ModCon::LIST_AUTO_BLACK;
 		return implode( '<br/>', [
 			sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), $aItem[ 'blocked' ] ),
 			sprintf( '%s / %s',

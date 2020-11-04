@@ -17,9 +17,9 @@ class ProcessOffense {
 	use IpAddressConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
-		$mod = $this->getMod();
 		$con = $this->getCon();
+		/** @var IPs\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 

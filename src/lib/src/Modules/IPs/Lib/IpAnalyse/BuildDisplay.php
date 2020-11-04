@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
@@ -20,7 +21,7 @@ class BuildDisplay {
 	 * @throws \Exception
 	 */
 	public function run() :string {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$ip = $this->getIP();

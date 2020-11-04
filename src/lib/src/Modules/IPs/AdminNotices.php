@@ -51,13 +51,13 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		switch ( $oNotice->id ) {
 
 			case 'visitor-whitelisted':
-				$bNeeded = $oMod->isVisitorWhitelisted();
+				$bNeeded = $mod->isVisitorWhitelisted();
 				break;
 
 			default:

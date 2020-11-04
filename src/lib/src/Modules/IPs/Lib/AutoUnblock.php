@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -36,7 +37,7 @@ class AutoUnblock {
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() :bool {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
@@ -96,7 +97,7 @@ class AutoUnblock {
 	 * @throws \Exception
 	 */
 	private function processUserMagicLink() :bool {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
@@ -165,7 +166,7 @@ class AutoUnblock {
 	 * @throws \Exception
 	 */
 	private function sendMagicLinkEmail() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		$user = Services::WpUsers()->getCurrentWpUser();
 

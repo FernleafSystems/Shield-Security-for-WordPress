@@ -1,49 +1,35 @@
-<?php
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	const LIST_MANUAL_WHITE = 'MW';
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
 
 	/**
-	 * @var IPs\Lib\OffenseTracker
+	 * @var Lib\OffenseTracker
 	 */
 	private $oOffenseTracker;
 
 	/**
-	 * @var IPs\Lib\BlacklistHandler
+	 * @var Lib\BlacklistHandler
 	 */
 	private $oBlacklistHandler;
 
-	/**
-	 * @return IPs\Lib\BlacklistHandler
-	 */
-	public function getBlacklistHandler() {
+	public function getBlacklistHandler() :Lib\BlacklistHandler {
 		if ( !isset( $this->oBlacklistHandler ) ) {
-			$this->oBlacklistHandler = ( new IPs\Lib\BlacklistHandler() )->setMod( $this );
+			$this->oBlacklistHandler = ( new Lib\BlacklistHandler() )->setMod( $this );
 		}
 		return $this->oBlacklistHandler;
 	}
 
-	/**
-	 * @return IPs\Lib\BlacklistHandler
-	 */
-	public function getProcessor() {
-		return $this->getBlacklistHandler();
-	}
-
-	/**
-	 * @return false|Shield\Databases\IPs\Handler
-	 */
-	public function getDbHandler_IPs() {
+	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ips' );
 	}
 
@@ -60,22 +46,22 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function preProcessOptions() {
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( !defined( strtoupper( $oOpts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
-			$oOpts->resetOptToDefault( 'auto_expire' );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
+			$opts->resetOptToDefault( 'auto_expire' );
 		}
 
-		$nLimit = $oOpts->getOffenseLimit();
+		$nLimit = $opts->getOffenseLimit();
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
-			$oOpts->resetOptToDefault( 'transgression_limit' );
+			$opts->resetOptToDefault( 'transgression_limit' );
 		}
 
 		$this->cleanPathWhitelist();
 	}
 
 	private function cleanPathWhitelist() {
-		/** @var IPs\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$opts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
 			function ( $sRule ) {
@@ -101,11 +87,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return IPs\Lib\OffenseTracker
+	 * @return Lib\OffenseTracker
 	 */
-	public function loadOffenseTracker() {
+	public function loadOffenseTracker() :Lib\OffenseTracker {
 		if ( !isset( $this->oOffenseTracker ) ) {
-			$this->oOffenseTracker = new IPs\Lib\OffenseTracker( $this->getCon() );
+			$this->oOffenseTracker = new Lib\OffenseTracker( $this->getCon() );
 		}
 		return $this->oOffenseTracker;
 	}
@@ -138,18 +124,5 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 		}
 		return $sText;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() :string {
-		return 'IPs';
-	}
-
-	/**
-	 * @deprecated 10.1
-	 */
-	protected function addFilterIpsToWhiteList() {
 	}
 }

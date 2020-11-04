@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -20,7 +21,7 @@ class AddIp {
 	 * @throws \Exception
 	 */
 	public function toAutoBlacklist() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$oReq = Services::Request();
 
@@ -64,8 +65,8 @@ class AddIp {
 	 * @throws \Exception
 	 */
 	public function toManualBlacklist( $sLabel = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$oIpServ = Services::IP();
 
 		$sIP = $this->getIP();
@@ -78,27 +79,27 @@ class AddIp {
 
 			if ( $oIpServ->isValidIpRange( $sIP ) ) {
 				( new DeleteIp() )
-					->setDbHandler( $oMod->getDbHandler_IPs() )
+					->setDbHandler( $mod->getDbHandler_IPs() )
 					->setIP( $sIP )
 					->fromBlacklist();
 			}
 
 			$oIP = ( new LookupIpOnList() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
+				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setListTypeBlack()
 				->setIP( $sIP )
 				->lookup( false );
 
 			if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-				$oIP = $this->add( $oMod::LIST_MANUAL_BLACK, $sLabel );
+				$oIP = $this->add( $mod::LIST_MANUAL_BLACK, $sLabel );
 			}
 
 			$aUpdateData = [
 				'last_access_at' => Services::Request()->ts()
 			];
 
-			if ( $oIP->list != $oMod::LIST_MANUAL_BLACK ) {
-				$aUpdateData[ 'list' ] = $oMod::LIST_MANUAL_BLACK;
+			if ( $oIP->list != $mod::LIST_MANUAL_BLACK ) {
+				$aUpdateData[ 'list' ] = $mod::LIST_MANUAL_BLACK;
 			}
 			if ( $oIP->label != $sLabel ) {
 				$aUpdateData[ 'label' ] = $sLabel;
@@ -107,7 +108,7 @@ class AddIp {
 				$aUpdateData[ 'blocked_at' ] = Services::Request()->ts();
 			}
 
-			$oMod->getDbHandler_IPs()
+			$mod->getDbHandler_IPs()
 				 ->getQueryUpdater()
 				 ->updateEntry( $oIP, $aUpdateData );
 		}
@@ -121,8 +122,8 @@ class AddIp {
 	 * @throws \Exception
 	 */
 	public function toManualWhitelist( $sLabel = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$oIpServ = Services::IP();
 
 		$sIP = $this->getIP();
@@ -132,22 +133,22 @@ class AddIp {
 
 		if ( $oIpServ->isValidIpRange( $sIP ) ) {
 			( new DeleteIp() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
+				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $sIP )
 				->fromWhiteList();
 		}
 
 		$oIP = ( new LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )
 			->lookup( false );
 		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-			$oIP = $this->add( $oMod::LIST_MANUAL_WHITE, $sLabel );
+			$oIP = $this->add( $mod::LIST_MANUAL_WHITE, $sLabel );
 		}
 
 		$aUpdateData = [];
-		if ( $oIP->list != $oMod::LIST_MANUAL_WHITE ) {
-			$aUpdateData[ 'list' ] = $oMod::LIST_MANUAL_WHITE;
+		if ( $oIP->list != $mod::LIST_MANUAL_WHITE ) {
+			$aUpdateData[ 'list' ] = $mod::LIST_MANUAL_WHITE;
 		}
 		if ( !empty( $sLabel ) && $oIP->label != $sLabel ) {
 			$aUpdateData[ 'label' ] = $sLabel;
@@ -160,7 +161,7 @@ class AddIp {
 		}
 
 		if ( !empty( $aUpdateData ) ) {
-			$oMod->getDbHandler_IPs()
+			$mod->getDbHandler_IPs()
 				 ->getQueryUpdater()
 				 ->updateEntry( $oIP, $aUpdateData );
 		}
@@ -178,11 +179,11 @@ class AddIp {
 	private function add( $sList, $sLabel = '', $nLastAccessAt = null ) {
 		$oIP = null;
 
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		// Never add a reserved IP to any black list
-		$oDbh = $oMod->getDbHandler_IPs();
+		$oDbh = $mod->getDbHandler_IPs();
 
 		/** @var Databases\IPs\EntryVO $oTempIp */
 		$oTempIp = $oDbh->getVo();

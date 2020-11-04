@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
@@ -78,10 +79,8 @@ class Ip extends BaseBuild {
 	 * @return Tables\Render\WpListTable\IpBlack|Tables\Render\WpListTable\IpWhite
 	 */
 	protected function getTableRenderer() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
 		$aLists = $this->getParams()[ 'fLists' ];
-		if ( empty( $aLists ) || in_array( $oMod::LIST_MANUAL_WHITE, $aLists ) ) {
+		if ( empty( $aLists ) || in_array( ModCon::LIST_MANUAL_WHITE, $aLists ) ) {
 			$sTable = new Tables\Render\WpListTable\IpWhite();
 		}
 		else {

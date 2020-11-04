@@ -1766,7 +1766,7 @@ class Controller {
 		return $this->getModule( 'integrations' );
 	}
 
-	public function getModule_IPs() :\ICWP_WPSF_FeatureHandler_Ips {
+	public function getModule_IPs() :Shield\Modules\IPs\ModCon {
 		return $this->getModule( 'ips' );
 	}
 

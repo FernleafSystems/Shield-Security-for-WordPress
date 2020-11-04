@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use WP_CLI;
 
 class Remove extends BaseAddRemove {
@@ -25,11 +25,11 @@ class Remove extends BaseAddRemove {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdIpRemove( array $null, array $aA ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var IPs\ModCon $mod */
+		$mod = $this->getMod();
 
-		$oDel = ( new Ops\DeleteIp() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
+		$oDel = ( new IPs\Lib\Ops\DeleteIp() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setIP( $aA[ 'ip' ] );
 		if ( $aA[ 'list' ] === 'white' ) {
 			$bSuccess = $oDel->fromWhiteList();

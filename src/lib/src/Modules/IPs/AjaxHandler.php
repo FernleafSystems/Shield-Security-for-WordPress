@@ -34,7 +34,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_AddIp() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$oIpServ = Services::IP();
 
@@ -114,15 +114,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_IpDelete() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
-		elseif ( $oMod->getDbHandler_IPs()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $mod->getDbHandler_IPs()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}
@@ -137,17 +137,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_BuildTableIps() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$oDbH = $mod->getDbHandler_IPs();
-		$oDbH->autoCleanDb();
+		$dbh = $mod->getDbHandler_IPs();
+		$dbh->autoCleanDb();
 
 		return [
 			'success' => true,
 			'html'    => ( new Shield\Tables\Build\Ip() )
 				->setMod( $mod )
-				->setDbHandler( $oDbH )
+				->setDbHandler( $dbh )
 				->render()
 		];
 	}

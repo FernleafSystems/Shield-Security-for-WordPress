@@ -13,10 +13,10 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getSectionStrings( string $section ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$sPlugName = $this->getCon()->getHumanName();
-		$sModName = $oMod->getMainFeatureName();
+		$sModName = $mod->getMainFeatureName();
 
 		switch ( $section ) {
 
