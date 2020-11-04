@@ -27,7 +27,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_RenderChart() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$aParams = $this->getAjaxFormParams();
@@ -46,15 +46,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_RenderChartPost() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
 		$oChartReq = new Events\Charts\ChartRequestVO();
-		$oChartReq->render_location = $oReq->post( 'render_location' );
-		$oChartReq->chart_params = $oReq->post( 'chart_params' );
+		$oChartReq->render_location = $req->post( 'render_location' );
+		$oChartReq->chart_params = $req->post( 'chart_params' );
 
 		$aChart = ( new Events\Charts\BuildData() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->build( $oChartReq );
 
 		return [

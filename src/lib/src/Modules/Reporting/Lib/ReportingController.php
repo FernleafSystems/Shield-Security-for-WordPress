@@ -75,7 +75,7 @@ class ReportingController {
 		$record->frequency = $report->interval;
 		$record->interval_end_at = $report->interval_end_at;
 
-		/** @var \ICWP_WPSF_FeatureHandler_Reporting $mod */
+		/** @var Modules\Reporting\ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->getDbHandler_Reports()
 				   ->getQueryInserter()

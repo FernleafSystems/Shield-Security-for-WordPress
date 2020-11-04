@@ -73,9 +73,9 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
-		$oMod = $this->getMod();
-		$sModName = $oMod->getMainFeatureName();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$sModName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 

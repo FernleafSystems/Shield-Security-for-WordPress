@@ -90,7 +90,7 @@ class Logger {
 	}
 
 	private function logTraffic() {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $mod */
+		/** @var Traffic\ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbHandler_Traffic();
 

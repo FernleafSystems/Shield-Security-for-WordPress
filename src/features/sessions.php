@@ -4,7 +4,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class ICWP_WPSF_FeatureHandler_Sessions
  * @deprecated 10.1
  */
 class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWpsf {

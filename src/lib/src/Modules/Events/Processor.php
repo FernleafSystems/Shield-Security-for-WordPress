@@ -23,10 +23,10 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function loadStatsWriter() {
 		if ( !isset( $this->oStatsWriter ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-			$oMod = $this->getMod();
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
 			$this->oStatsWriter = ( new Events\Lib\StatsWriter( $this->getCon() ) )
-				->setDbHandler( $oMod->getDbHandler_Events() );
+				->setDbHandler( $mod->getDbHandler_Events() );
 		}
 		return $this->oStatsWriter;
 	}
@@ -90,11 +90,10 @@ class Processor extends BaseShield\Processor {
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$aData = parent::tracking_DataCollect( $aData );
-		$aData[ $oMod->getSlug() ][ 'stats' ] = $oMod->getDbHandler_Events()
+		$aData[ $mod->getSlug() ][ 'stats' ] = $mod->getDbHandler_Events()
 													 ->getQuerySelector()
 													 ->sumAllEvents();
 		return $aData;

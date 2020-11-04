@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Consolidate;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -24,9 +25,9 @@ class ConsolidateAllEvents {
 	 * @param $sEvent
 	 */
 	protected function consolidateEventIntoHourly( $sEvent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_Events();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$oDbH = $mod->getDbHandler_Events();
 
 		$oTime = Services::Request()
 						 ->carbon()
@@ -76,9 +77,9 @@ class ConsolidateAllEvents {
 	 * @param $sEvent
 	 */
 	protected function consolidateEventIntoDaily( $sEvent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_Events();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$oDbH = $mod->getDbHandler_Events();
 
 		$oTime = Services::Request()
 						 ->carbon()
@@ -125,12 +126,12 @@ class ConsolidateAllEvents {
 	/**
 	 * Consolidates each event in weekly sums. Doesn't process events from the previous 2 whole weeks.
 	 * Processes event for the previous 8 weeks.
-	 * @param $sEvent
+	 * @param $event
 	 */
-	protected function consolidateEventIntoWeekly( $sEvent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_Events();
+	protected function consolidateEventIntoWeekly( $event ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$oDbH = $mod->getDbHandler_Events();
 
 		$oTime = Services::Request()
 						 ->carbon()
@@ -142,7 +143,7 @@ class ConsolidateAllEvents {
 			/** @var Events\Select $oSel */
 			$oSel = $oDbH->getQuerySelector();
 			$nRecords = $oSel->filterByBoundary_Week( $oTime->timestamp )
-							 ->filterByEvent( $sEvent )
+							 ->filterByEvent( $event )
 							 ->count();
 
 			if ( $nRecords > 1 ) {
@@ -150,17 +151,17 @@ class ConsolidateAllEvents {
 				$oSel = $oDbH->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
 				$nSum = $oSel->filterByBoundary_Week( $oTime->timestamp )
-							 ->sumEvent( $sEvent );
+							 ->sumEvent( $event );
 
 				if ( $nSum > 0 ) {
 					/** @var Events\Delete $oDel */
 					$oDel = $oDbH->getQueryDeleter();
 					$oDel->filterByBoundary_Week( $oTime->timestamp )
-						 ->filterByEvent( $sEvent )
+						 ->filterByEvent( $event )
 						 ->query();
 
 					$oEntry = new Events\EntryVO();
-					$oEntry->event = $sEvent;
+					$oEntry->event = $event;
 					$oEntry->count = $nSum;
 					$oEntry->created_at = $oTime->timestamp + 1;
 					/** @var Events\Insert $oQI */
@@ -180,9 +181,9 @@ class ConsolidateAllEvents {
 	 * @param $sEvent
 	 */
 	protected function consolidateEventIntoMonthly( $sEvent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_Events();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbHandler_Events();
 
 		$oTime = Services::Request()
 						 ->carbon()
@@ -192,21 +193,21 @@ class ConsolidateAllEvents {
 		$nMonthCount = 0;
 		do {
 			/** @var Events\Select $oSel */
-			$oSel = $oDbH->getQuerySelector();
+			$oSel = $dbh->getQuerySelector();
 			$nRecords = $oSel->filterByBoundary_Month( $oTime->timestamp )
 							 ->filterByEvent( $sEvent )
 							 ->count();
 
 			if ( $nRecords > 1 ) {
 				/** @var Events\Select $oSel */
-				$oSel = $oDbH->getQuerySelector();
+				$oSel = $dbh->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
 				$nSum = $oSel->filterByBoundary_Month( $oTime->timestamp )
 							 ->sumEvent( $sEvent );
 
 				if ( $nSum > 0 ) {
 					/** @var Events\Delete $oDel */
-					$oDel = $oDbH->getQueryDeleter();
+					$oDel = $dbh->getQueryDeleter();
 					$oDel->filterByBoundary_Month( $oTime->timestamp )
 						 ->filterByEvent( $sEvent )
 						 ->query();
@@ -216,7 +217,7 @@ class ConsolidateAllEvents {
 					$oEntry->count = $nSum;
 					$oEntry->created_at = $oTime->timestamp + 1;
 					/** @var Events\Insert $oQI */
-					$oQI = $oDbH->getQueryInserter();
+					$oQI = $dbh->getQueryInserter();
 					$oQI->insert( $oEntry );
 				}
 			}
@@ -227,12 +228,12 @@ class ConsolidateAllEvents {
 	}
 
 	/**
-	 * @param $sEvent
+	 * @param $event
 	 */
-	protected function consolidateEventIntoYearly( $sEvent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_Events();
+	protected function consolidateEventIntoYearly( $event ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$oDbH = $mod->getDbHandler_Events();
 
 		$oTime = Services::Request()
 						 ->carbon()
@@ -241,13 +242,13 @@ class ConsolidateAllEvents {
 
 		/** @var Events\Select $oSel */
 		$oSel = $oDbH->getQuerySelector();
-		$oOldest = $oSel->getOldestForEvent( $sEvent );
+		$oOldest = $oSel->getOldestForEvent( $event );
 
 		do {
 			/** @var Events\Select $oSel */
 			$oSel = $oDbH->getQuerySelector();
 			$nRecords = $oSel->filterByBoundary_Year( $oTime->timestamp )
-							 ->filterByEvent( $sEvent )
+							 ->filterByEvent( $event )
 							 ->count();
 
 			if ( $nRecords > 1 ) {
@@ -255,17 +256,17 @@ class ConsolidateAllEvents {
 				$oSel = $oDbH->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
 				$nSum = $oSel->filterByBoundary_Year( $oTime->timestamp )
-							 ->sumEvent( $sEvent );
+							 ->sumEvent( $event );
 
 				if ( $nSum > 0 ) {
 					/** @var Events\Delete $oDel */
 					$oDel = $oDbH->getQueryDeleter();
 					$oDel->filterByBoundary_Year( $oTime->timestamp )
-						 ->filterByEvent( $sEvent )
+						 ->filterByEvent( $event )
 						 ->query();
 
 					$oEntry = new Events\EntryVO();
-					$oEntry->event = $sEvent;
+					$oEntry->event = $event;
 					$oEntry->count = $nSum;
 					$oEntry->created_at = $oTime->timestamp + 1;
 					/** @var Events\Insert $oQI */
@@ -282,10 +283,10 @@ class ConsolidateAllEvents {
 	 * @return string[]
 	 */
 	protected function getAllEvents() {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Events\Select $oSel */
-		$oSel = $oMod->getDbHandler_Events()->getQuerySelector();
+		$oSel = $mod->getDbHandler_Events()->getQuerySelector();
 		return $oSel->getAllEvents();
 	}
 }

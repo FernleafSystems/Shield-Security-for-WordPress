@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function renderTrafficTable() :string {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();

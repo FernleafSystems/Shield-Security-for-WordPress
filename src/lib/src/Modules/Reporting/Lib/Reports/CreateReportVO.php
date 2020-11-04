@@ -63,10 +63,10 @@ class CreateReportVO {
 	 * @return $this
 	 */
 	private function setPreviousReport() {
-		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
-		$oMod = $this->getMod();
+		/** @var Reporting\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Reports\Select $oSel */
-		$oSel = $oMod->getDbHandler_Reports()->getQuerySelector();
+		$oSel = $mod->getDbHandler_Reports()->getQuerySelector();
 		/** @var Reports\EntryVO $oLast */
 		$this->rep->previous = $oSel->filterByType( $this->rep->type )
 									->filterByFrequency( $this->rep->interval )
@@ -136,10 +136,10 @@ class CreateReportVO {
 	 * @throws \Exception
 	 */
 	private function setReportId() {
-		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
-		$oMod = $this->getMod();
+		/** @var Reporting\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Reports\Select $oSel */
-		$oSel = $oMod->getDbHandler_Reports()->getQuerySelector();
+		$oSel = $mod->getDbHandler_Reports()->getQuerySelector();
 		$nPrevID = $oSel->getLastReportId();
 		$this->rep->rid = is_numeric( $nPrevID ) ? $nPrevID + 1 : 1;
 		return $this;

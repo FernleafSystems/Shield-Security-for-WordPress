@@ -20,17 +20,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableTraffic() {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_BuildTableTraffic() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		return [
 			'success' => true,
 			'html'    => ( new Shield\Tables\Build\Traffic() )
-				->setMod( $oMod )
-				->setDbHandler( $oMod->getDbHandler_Traffic() )
+				->setMod( $mod )
+				->setDbHandler( $mod->getDbHandler_Traffic() )
 				->render()
 		];
 	}

@@ -11,7 +11,7 @@ class Upgrade extends Base\Upgrade {
 	 * Support full-length IPv6 addresses
 	 */
 	protected function upgrade_922() {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$schema = $mod->getDbHandler_Sessions()->getTableSchema();
 		Services::WpDb()->doSql(

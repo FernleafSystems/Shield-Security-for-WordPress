@@ -3,6 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 
 /**
  * Class ICWP_WPSF_Processor_Events
@@ -25,10 +26,10 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	 */
 	public function loadStatsWriter() {
 		if ( !isset( $this->oStatsWriter ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-			$oMod = $this->getMod();
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
 			$this->oStatsWriter = ( new Events\Lib\StatsWriter( $this->getCon() ) )
-				->setDbHandler( $oMod->getDbHandler_Events() );
+				->setDbHandler( $mod->getDbHandler_Events() );
 		}
 		return $this->oStatsWriter;
 	}
@@ -92,13 +93,12 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$aData = parent::tracking_DataCollect( $aData );
-		$aData[ $oMod->getSlug() ][ 'stats' ] = $oMod->getDbHandler_Events()
-													 ->getQuerySelector()
-													 ->sumAllEvents();
+		$aData[ $mod->getSlug() ][ 'stats' ] = $mod->getDbHandler_Events()
+												   ->getQuerySelector()
+												   ->sumAllEvents();
 		return $aData;
 	}
 
