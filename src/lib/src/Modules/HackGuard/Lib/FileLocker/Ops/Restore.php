@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -23,10 +24,10 @@ class Restore extends BaseOps {
 				->run( $oRecord )
 		);
 		if ( $bReverted ) {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
 			/** @var Databases\FileLocker\Update $oUpd */
-			$oUpd = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
+			$oUpd = $mod->getDbHandler_FileLocker()->getQueryUpdater();
 			$oUpd->markReverted( $oRecord );
 			$this->clearFileLocksCache();
 		}

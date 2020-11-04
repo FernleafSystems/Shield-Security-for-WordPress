@@ -2,19 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CleanAll extends BaseBulk {
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		try {
 			$nBoundary = Services::Request()
 								 ->carbon()
 								 ->subDay()->timestamp;
-			$oDirIt = StandardDirectoryIterator::create( $oMod->getPtgSnapsBaseDir() );
+			$oDirIt = StandardDirectoryIterator::create( $mod->getPtgSnapsBaseDir() );
 			foreach ( $oDirIt as $oFile ) {
 				/** @var \SplFileInfo $oFile */
 				if ( $nBoundary > $oFile->getMTime() ) {

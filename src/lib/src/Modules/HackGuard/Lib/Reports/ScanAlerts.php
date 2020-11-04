@@ -55,7 +55,7 @@ class ScanAlerts extends BaseReporter {
 	}
 
 	private function markAlertsAsNotified() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Scanner\Update $oUpdater */
 		$oUpdater = $mod->getDbHandler_ScanResults()->getQueryUpdater();

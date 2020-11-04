@@ -19,8 +19,4 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $this->mwp;
 	}
-
-	protected function getProcessorClassName() :string {
-		return $this->getNamespace().'Processor';
-	}
 }

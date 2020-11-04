@@ -66,8 +66,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	 * @return array
 	 */
 	private function ajaxExec_BuildTableScan() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$sScanSlug = Services::Request()->post( 'fScan' );
 		switch ( $sScanSlug ) {
@@ -109,8 +109,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 		else {
 			$sHtml = $oTableBuilder
-				->setMod( $oMod )
-				->setDbHandler( $oMod->getDbHandler_ScanResults() )
+				->setMod( $mod )
+				->setDbHandler( $mod->getDbHandler_ScanResults() )
 				->render();
 		}
 
@@ -120,13 +120,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_FileLockerShowDiff() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oFLCon = $oMod->getFileLocker();
+	private function ajaxExec_FileLockerShowDiff() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$oFLCon = $mod->getFileLocker();
 		$FS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
@@ -187,7 +184,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$aData[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
 			$aData[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
-					->setMod( $oMod )
+					->setMod( $mod )
 					->run( $oLock )
 			), 3 );
 			$aData[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $oLock->file ) ?
@@ -242,21 +239,18 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_PluginReinstall() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
+	private function ajaxExec_PluginReinstall() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
 
-		$bReinstall = (bool)$oReq->post( 'reinstall' );
-		$bActivate = (bool)$oReq->post( 'activate' );
-		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
+		$bReinstall = (bool)$req->post( 'reinstall' );
+		$bActivate = (bool)$req->post( 'activate' );
+		$sFile = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
 
 		if ( $bReinstall ) {
 			/** @var Scan\Controller\Ptg $oPtgScan */
-			$oPtgScan = $oMod->getScanCon( 'ptg' );
+			$oPtgScan = $mod->getScanCon( 'ptg' );
 			$bActivate = $oPtgScan->actionPluginReinstall( $sFile );
 		}
 
@@ -272,9 +266,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	 * @param bool   $bIsBulkAction
 	 * @return array
 	 */
-	private function ajaxExec_ScanItemAction( $sAction, $bIsBulkAction = false ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_ScanItemAction( $sAction, $bIsBulkAction = false ) :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$bSuccess = false;
 
@@ -302,12 +296,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					$aSuccessfulItems = [];
 					foreach ( $aItemIdsToProcess as $nId ) {
 						/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-						$oEntry = $oMod->getDbHandler_ScanResults()
-									   ->getQuerySelector()
-									   ->byId( $nId );
+						$oEntry = $mod->getDbHandler_ScanResults()
+									  ->getQuerySelector()
+									  ->byId( $nId );
 						if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
 							$aScanSlugs[] = $oEntry->scan;
-							if ( $oMod->getScanCon( $oEntry->scan )->executeItemAction( $nId, $sAction ) ) {
+							if ( $mod->getScanCon( $oEntry->scan )->executeItemAction( $nId, $sAction ) ) {
 								$aSuccessfulItems[] = $nId;
 							}
 						}
@@ -327,7 +321,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					}
 					else {
 						// rescan
-						$oMod->getScanQueueController()->startScans( $aScanSlugs );
+						$mod->getScanQueueController()->startScans( $aScanSlugs );
 						$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 					}
 				}
@@ -348,14 +342,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	 * @return array
 	 */
 	private function ajaxExec_CheckScans() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Strings $oStrings */
-		$oStrings = $oMod->getStrings();
+		$oStrings = $mod->getStrings();
 		/** @var Shield\Databases\ScanQueue\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanQueue()->getQuerySelector();
+		$oSel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$oQueCon = $oMod->getScanQueueController();
+		$oQueCon = $mod->getScanQueueController();
 		$sCurrent = $oSel->getCurrentScan();
 		$bHasCurrent = !empty( $sCurrent );
 		if ( $bHasCurrent ) {
@@ -369,7 +363,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success' => true,
 			'running' => $oQueCon->getScansRunningStates(),
 			'vars'    => [
-				'progress_html' => $oMod->renderTemplate(
+				'progress_html' => $mod->renderTemplate(
 					'/wpadmin_pages/insights/scans/modal/progress_snippet.twig',
 					[
 						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
@@ -391,7 +385,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	 * @return array
 	 */
 	private function ajaxExec_StartScans() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$bSuccess = false;
 		$bPageReload = false;

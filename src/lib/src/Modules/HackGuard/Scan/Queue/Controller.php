@@ -38,18 +38,18 @@ class Controller {
 	 * @return bool[]
 	 */
 	public function getScansRunningStates() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var ScanQueue\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanQueue()->getQuerySelector();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		/** @var ScanQueue\Select $sel */
+		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
 		// First clean the queue:
 		$this->cleanExpiredFromQueue();
 
-		$aScans = array_fill_keys( $oOpts->getScanSlugs(), false );
-		foreach ( $oSel->getInitiatedScans() as $sInitScan ) {
+		$aScans = array_fill_keys( $opts->getScanSlugs(), false );
+		foreach ( $sel->getInitiatedScans() as $sInitScan ) {
 			$aScans[ $sInitScan ] = true;
 		}
 		return $aScans;
@@ -59,15 +59,15 @@ class Controller {
 	 * @return bool
 	 */
 	protected function cleanExpiredFromQueue() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 		$nExpiredBoundary = Services::Request()
 									->carbon()
-									->subSeconds( $oOpts->getMalQueueExpirationInterval() )->timestamp;
+									->subSeconds( $opts->getMalQueueExpirationInterval() )->timestamp;
 		/** @var ScanQueue\Delete $oDel */
-		$oDel = $oMod->getDbHandler_ScanQueue()->getQueryDeleter();
+		$oDel = $mod->getDbHandler_ScanQueue()->getQueryDeleter();
 		return $oDel->addWhereOlderThan( $nExpiredBoundary )
 					->query();
 	}
@@ -83,18 +83,17 @@ class Controller {
 	 * @return float
 	 */
 	public function getScanJobProgress() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_ScanQueue();
-		/** @var ScanQueue\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		/** @var ScanQueue\Select $sel */
+		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$aUnfinished = $oSel->getUnfinishedScans();
+		$aUnfinished = $sel->getUnfinishedScans();
 		$nProgress = 1;
-		if ( $oSel->getUnfinishedScans() > 0 ) {
-			$nInitiated = count( $oSel->getInitiatedScans() );
+		if ( $sel->getUnfinishedScans() > 0 ) {
+			$nInitiated = count( $sel->getInitiatedScans() );
 			if ( $nInitiated > 0 ) {
-				$nProgress = 1 - ( count( $aUnfinished )/count( $oSel->getInitiatedScans() ) );
+				$nProgress = 1 - ( count( $aUnfinished )/count( $sel->getInitiatedScans() ) );
 			}
 		}
 		else {

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
@@ -48,24 +49,21 @@ abstract class Base {
 	 * @return string
 	 */
 	public function createFileDownloadLink( $oEntryVo ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$aActionNonce = $oMod->getNonceActionData( 'scan_file_download' );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$aActionNonce = $mod->getNonceActionData( 'scan_file_download' );
 		$aActionNonce[ 'rid' ] = $oEntryVo->id;
-		return add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
+		return add_query_arg( $aActionNonce, $mod->getUrl_AdminPage() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getScanHasProblem() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		return $oSel->filterByNotIgnored()
-					->filterByScan( $this->getSlug() )
-					->count() > 0;
+	public function getScanHasProblem() :bool {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Databases\Scanner\Select $sel */
+		$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		return $sel->filterByNotIgnored()
+				   ->filterByScan( $this->getSlug() )
+				   ->count() > 0;
 	}
 
 	/**
@@ -192,15 +190,12 @@ abstract class Base {
 		return $this->isEnabled() && $this->isScanningAvailable();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isScanningAvailable() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oMod->isModuleEnabled() && ( !$this->isPremiumOnly() || $oOpts->isPremium() );
+	public function isScanningAvailable() :bool {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $mod->isModuleEnabled() && ( !$this->isPremiumOnly() || $opts->isPremium() );
 	}
 
 	/**
@@ -252,34 +247,28 @@ abstract class Base {
 		return $this;
 	}
 
-	/**
-	 * @return Databases\Scanner\Handler
-	 */
-	public function getScanResultsDbHandler() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getDbHandler_ScanResults();
+	public function getScanResultsDbHandler():Databases\Scanner\Handler {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getDbHandler_ScanResults();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSlug() {
+	public function getSlug() :string{
 		try {
-			$sSlug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
+			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}
-		catch ( \ReflectionException $oRE ) {
-			$sSlug = '';
+		catch ( \ReflectionException $e ) {
+			$slug = '';
 		}
-		return $sSlug;
+		return $slug;
 	}
 
 	/**
 	 * @return BaseResultItem|mixed
 	 */
 	public function getNewResultItem() {
-		$sClass = $this->getScanNamespace().'ResultItem';
-		return new $sClass();
+		$class = $this->getScanNamespace().'ResultItem';
+		return new $class();
 	}
 
 	/**

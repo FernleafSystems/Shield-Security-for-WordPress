@@ -3,18 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	/**
 	 * @return array
 	 */
 	public function buildInsightsVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -211,11 +210,11 @@ class UI extends Base\ShieldUI {
 	 * @return array
 	 */
 	protected function getFileLockerVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$oLockCon = $mod->getFileLocker();
-		$oLockLoader = ( new LoadFileLocks() )->setMod( $mod );
+		$oLockLoader = ( new Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $mod );
 		$aProblemLocks = $oLockLoader->withProblems();
 		$aGoodLocks = $oLockLoader->withoutProblems();
 
@@ -251,15 +250,15 @@ class UI extends Base\ShieldUI {
 	 * @return array
 	 */
 	private function getInsightVarsScan_Ptg() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
 
 		/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $oMod->getProcessor();
+		$oPro = $mod->getProcessor();
 		$oProPtg = $oPro->getSubProScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()
@@ -267,7 +266,7 @@ class UI extends Base\ShieldUI {
 								 ->query();
 		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
 		$oFullResults = ( new Shield\Modules\HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanController( $oMod->getScanCon( 'ptg' ) )
+			->setScanController( $mod->getScanCon( 'ptg' ) )
 			->fromVOsToResultsSet( $aPtgResults );
 
 		// Process Plugins
@@ -279,7 +278,7 @@ class UI extends Base\ShieldUI {
 			$oIT = array_pop( $aItems );
 			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
 			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $oReq->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
+				$aMeta[ 'ts' ] = $req->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			else {
 				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
@@ -329,7 +328,7 @@ class UI extends Base\ShieldUI {
 			$oIT = array_pop( $aItems );
 			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
 			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $oReq->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
+				$aMeta[ 'ts' ] = $req->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			else {
 				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
@@ -364,14 +363,14 @@ class UI extends Base\ShieldUI {
 
 		return [
 			'flags'   => [
-				'has_items'   => $oMod->isPtgEnabled() ? $oFullResults->hasItems() : false,
+				'has_items'   => $mod->isPtgEnabled() ? $oFullResults->hasItems() : false,
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
 				'show_table'  => false,
 			],
 			'hrefs'   => [],
 			'vars'    => [],
-			'assets'  => $oMod->isPtgEnabled() ? array_merge( $aPlugins, $aThemes ) : [],
+			'assets'  => $mod->isPtgEnabled() ? array_merge( $aPlugins, $aThemes ) : [],
 			'strings' => [
 				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
 				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),

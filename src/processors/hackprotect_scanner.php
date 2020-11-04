@@ -1,11 +1,11 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
+class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor {
 
 	use Shield\Crons\StandardCron;
 
@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	private function runAutoRepair() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -89,7 +89,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	private function cronScan() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();

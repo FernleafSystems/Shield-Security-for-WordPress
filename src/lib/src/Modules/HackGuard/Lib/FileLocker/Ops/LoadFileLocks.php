@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
@@ -23,12 +24,12 @@ class LoadFileLocks {
 	 */
 	public function loadLocks() {
 		if ( is_null( self::$aFileLockRecords ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
 
 			self::$aFileLockRecords = [];
-			if ( $oMod->getFileLocker()->isEnabled() ) {
-				$aAll = $oMod->getDbHandler_FileLocker()->getQuerySelector()->all();
+			if ( $mod->getFileLocker()->isEnabled() ) {
+				$aAll = $mod->getDbHandler_FileLocker()->getQuerySelector()->all();
 				if ( is_array( $aAll ) ) {
 					foreach ( $aAll as $oLock ) {
 						self::$aFileLockRecords[ $oLock->id ] = $oLock;

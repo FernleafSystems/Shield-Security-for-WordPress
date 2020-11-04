@@ -573,7 +573,8 @@
         "hidden":        false
       },
       {
-        "slug":      "hack_protect"
+        "slug":      "hack_protect",
+        "namespace": "HackGuard"
       },
       {
         "slug":          "traffic",
@@ -587,7 +588,7 @@
       {
         "slug":        "login_protect",
         "storage_key": "loginprotect",
-        "namespace":   "LoginGuard",
+        "namespace":   "LoginGuard"
       },
       {
         "slug": "user_management"

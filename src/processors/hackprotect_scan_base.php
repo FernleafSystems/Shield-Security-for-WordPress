@@ -7,16 +7,17 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	use Shield\Scans\Common\ScanActionConsumer;
+
 	const SCAN_SLUG = 'base';
 
 	public function run() {
 		add_action(
 			$this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() ),
 			function () {
-				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-				$oMod = $this->getMod();
-				$oMod->getScanQueueController()
-					 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
+				/** @var HackGuard\ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getScanQueueController()
+					->startScans( [ $this->getThisScanCon()->getSlug() ] );
 			}
 		);
 	}
@@ -46,8 +47,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
 	protected function getThisScanCon() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getScanCon( static::SCAN_SLUG );
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getScanCon( static::SCAN_SLUG );
 	}
 }

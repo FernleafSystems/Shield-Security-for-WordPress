@@ -175,16 +175,16 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$sModName = $mod->getMainFeatureName();
+		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_hack_protect' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
 				break;
 
 			case 'scan_frequency' :

@@ -61,7 +61,7 @@ class ScanCounts {
 	 * @return int[] - key is scan slug
 	 */
 	public function standard() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();

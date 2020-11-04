@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
 /**
@@ -20,15 +21,15 @@ class ScanPtg extends ScanBase {
 	protected function postSelectEntriesFilter( $aEntries ) {
 		$aParams = $this->getParams();
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		if ( !empty( $aParams[ 'fSlug' ] ) ) {
 
 
 			/** @var Shield\Scans\Ptg\ResultsSet $oSlugResults */
 			$oSlugResults = ( new Scan\Results\ConvertBetweenTypes() )
-				->setScanController( $oMod->getScanCon( $aParams[ 'fSlug' ] ) )
+				->setScanController( $mod->getScanCon( $aParams[ 'fSlug' ] ) )
 				->fromVOsToResultsSet( $aEntries );
 			$oSlugResults = $oSlugResults->getResultsSetForSlug( $aParams[ 'fSlug' ] );
 

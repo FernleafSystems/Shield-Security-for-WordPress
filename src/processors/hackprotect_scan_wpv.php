@@ -51,10 +51,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	public function addPluginVulnerabilityRows() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 
-		if ( $oMod->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
+		if ( $mod->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
 			// These 3 add the 'Vulnerable' plugin status view.
 			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
 			add_action( 'pre_current_active_plugins', [ $this, 'addVulnerablePluginStatusView' ], 1000 );

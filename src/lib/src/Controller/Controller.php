@@ -1754,7 +1754,7 @@ class Controller {
 		return $this->getModule( 'events' );
 	}
 
-	public function getModule_HackGuard() :\ICWP_WPSF_FeatureHandler_HackProtect {
+	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
 		return $this->getModule( 'hack_protect' );
 	}
 

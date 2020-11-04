@@ -1,26 +1,26 @@
-<?php
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	/**
-	 * @var HackGuard\Scan\Queue\Controller
+	 * @var Scan\Queue\Controller
 	 */
 	private $oScanQueueController;
 
 	/**
-	 * @var HackGuard\Scan\Controller\Base[]
+	 * @var Scan\Controller\Base[]
 	 */
 	private $aScanCons;
 
 	/**
-	 * @var HackGuard\Lib\FileLocker\FileLockerController
+	 * @var Lib\FileLocker\FileLockerController
 	 */
 	private $oFileLocker;
 
@@ -33,27 +33,27 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->getScanQueueController();
 	}
 
-	public function getFileLocker() :HackGuard\Lib\FileLocker\FileLockerController {
+	public function getFileLocker() :Lib\FileLocker\FileLockerController {
 		if ( !isset( $this->oFileLocker ) ) {
-			$this->oFileLocker = ( new HackGuard\Lib\FileLocker\FileLockerController() )
+			$this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )
 				->setMod( $this );
 		}
 		return $this->oFileLocker;
 	}
 
-	public function getScanQueueController() :HackGuard\Scan\Queue\Controller {
+	public function getScanQueueController() :Scan\Queue\Controller {
 		if ( !isset( $this->oScanQueueController ) ) {
-			$this->oScanQueueController = ( new HackGuard\Scan\Queue\Controller() )
+			$this->oScanQueueController = ( new Scan\Queue\Controller() )
 				->setMod( $this );
 		}
 		return $this->oScanQueueController;
 	}
 
 	/**
-	 * @return HackGuard\Scan\Controller\Base[]
+	 * @return Scan\Controller\Base[]
 	 */
 	public function getAllScanCons() :array {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		foreach ( $opts->getScanSlugs() as $scanSlug ) {
 			$this->getScanCon( $scanSlug );
@@ -63,7 +63,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @param string $slug
-	 * @return HackGuard\Scan\Controller\Base|mixed
+	 * @return Scan\Controller\Base|mixed
 	 */
 	public function getScanCon( string $slug ) {
 		if ( !is_array( $this->aScanCons ) ) {
@@ -72,7 +72,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( !isset( $this->aScanCons[ $slug ] ) ) {
 			$class = $this->getNamespace().'Scan\Controller\\'.ucwords( $slug );
 			if ( @class_exists( $class ) ) {
-				/** @var HackGuard\Scan\Controller\Base $oObj */
+				/** @var Scan\Controller\Base $oObj */
 				$oObj = new $class();
 				$this->aScanCons[ $slug ] = $oObj->setMod( $this );
 			}
@@ -84,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	public function getMainWpData() :array {
-		$issues = ( new HackGuard\Lib\Reports\Query\ScanCounts() )->setMod( $this );
+		$issues = ( new Lib\Reports\Query\ScanCounts() )->setMod( $this );
 		$issues->notified = null;
 		return array_merge( parent::getMainWpData(), [
 			'scan_issues' => array_filter( $issues->all() )
@@ -94,7 +94,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'scan_file_download':
-				( new HackGuard\Lib\Utility\FileDownloadHandler() )
+				( new Lib\Utility\FileDownloadHandler() )
 					->setDbHandler( $this->getDbHandler_ScanResults() )
 					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
 				break;
@@ -108,7 +108,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	protected function preProcessOptions() {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$this->cleanFileExclusions();
@@ -144,9 +144,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return int[] - key is scan slug
 	 */
 	public function getLastScansAt() :array {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var Shield\Databases\Events\Select $oSel */
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		/** @var Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
 					 ->getDbHandler_Events()
@@ -154,7 +154,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aEvents = $oSel->getLatestForAllEvents();
 
 		$aLatest = [];
-		foreach ( $oOpts->getScanSlugs() as $sScan ) {
+		foreach ( $opts->getScanSlugs() as $sScan ) {
 			$sEvt = $sScan.'_scan_run';
 			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
 		}
@@ -162,24 +162,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @param string $scan ptg, wcf, ufc, wpv
 	 * @return int
 	 */
-	public function getLastScanAt( $sScan ) {
-		/** @var Shield\Databases\Events\Select $oSel */
+	public function getLastScanAt( $scan ) {
+		/** @var Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
 					 ->getDbHandler_Events()
 					 ->getQuerySelector();
-		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
-		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
+		$entry = $oSel->getLatestForEvent( $scan.'_scan_run' );
+		return ( $entry instanceof Databases\Events\EntryVO ) ? $entry->created_at : 0;
 	}
 
 	/**
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$freq = $opts->getScanFrequency();
 		Services::WpCron()
@@ -194,7 +194,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	protected function cleanFileExclusions() {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$aExclusions = [];
 
@@ -245,7 +245,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' )
 			 && $opts->isPtgReinstallLinks() && $this->getScanCon( 'ptg' )->isReady() ) {
@@ -289,15 +289,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
 	}
 
-	public function getDbHandler_FileLocker() :Shield\Databases\FileLocker\Handler {
+	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
 		return $this->getDbH( 'file_protect' );
 	}
 
-	public function getDbHandler_ScanQueue() :Shield\Databases\ScanQueue\Handler {
+	public function getDbHandler_ScanQueue() :Databases\ScanQueue\Handler {
 		return $this->getDbH( 'scanq' );
 	}
 
-	public function getDbHandler_ScanResults() :Shield\Databases\Scanner\Handler {
+	public function getDbHandler_ScanResults() :Databases\Scanner\Handler {
 		return $this->getDbH( 'scanresults' );
 	}
 
@@ -306,16 +306,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getDbHandler_ScanQueue() instanceof Shield\Databases\ScanQueue\Handler )
+		return ( $this->getDbHandler_ScanQueue() instanceof Databases\ScanQueue\Handler )
 			   && $this->getDbHandler_ScanQueue()->isReady()
-			   && ( $this->getDbHandler_ScanResults() instanceof Shield\Databases\Scanner\Handler )
+			   && ( $this->getDbHandler_ScanResults() instanceof Databases\Scanner\Handler )
 			   && $this->getDbHandler_ScanQueue()->isReady()
 			   && parent::isReadyToExecute();
 	}
 
 	public function onPluginDeactivate() {
 		// 1. Clean out the scanners
-		/** @var HackGuard\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
 			$this->getScanCon( $sSlug )->purge();
@@ -324,9 +324,5 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->getDbHandler_ScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
-	}
-
-	protected function getNamespaceBase() :string {
-		return 'HackGuard';
 	}
 }

@@ -10,12 +10,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	public function run() {
 		parent::run();
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oMod->getScanCon( 'ptg' )->isEnabled() && $oOpts->isPtgReinstallLinks() ) {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $mod->getScanCon( 'ptg' )->isEnabled() && $opts->isPtgReinstallLinks() ) {
 			add_filter( 'plugin_action_links', [ $this, 'addActionLinkRefresh' ], 50, 2 );
 			add_action( 'admin_footer', [ $this, 'printPluginReinstallDialogs' ] );
 		}

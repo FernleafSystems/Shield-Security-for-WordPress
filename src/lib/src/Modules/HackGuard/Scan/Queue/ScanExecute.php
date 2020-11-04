@@ -19,16 +19,16 @@ class ScanExecute {
 	 * @throws \Exception
 	 */
 	public function execute( $oEntry ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_ScanQueue();
+		/** @var Shield\Modules\HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$oDbH = $mod->getDbHandler_ScanQueue();
 		$oTypeConverter = ( new ConvertBetweenTypes() )->setDbHandler( $oDbH );
 
 		$oAction = $oTypeConverter->fromDbEntryToAction( $oEntry );
 
 		$this->getScanner( $oAction )
 			 ->setScanActionVO( $oAction )
-			 ->setMod( $oMod )
+			 ->setMod( $mod )
 			 ->run();
 
 		if ( $oAction->usleep > 0 ) {

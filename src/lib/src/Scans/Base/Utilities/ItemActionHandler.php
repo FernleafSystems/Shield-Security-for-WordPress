@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 
@@ -11,7 +11,7 @@ abstract class ItemActionHandler {
 
 	use ModConsumer;
 	use ScanItemConsumer;
-	use ScanControllerConsumer;
+	use HackGuard\Scan\Controller\ScanControllerConsumer;
 
 	/**
 	 * @param string $sAction
@@ -61,10 +61,10 @@ abstract class ItemActionHandler {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Scanner\Update $oUp */
-		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		$oUp = $mod->getDbHandler_ScanResults()->getQueryUpdater();
 		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
@@ -90,10 +90,10 @@ abstract class ItemActionHandler {
 		$this->fireRepairEvent( $oItem->repaired );
 
 		if ( $oItem->repaired ) {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
+			/** @var HackGuard\ModCon $mod */
+			$mod = $this->getMod();
 			/** @var Scanner\Delete $oDel */
-			$oDel = $oMod->getDbHandler_ScanResults()->getQueryDeleter();
+			$oDel = $mod->getDbHandler_ScanResults()->getQueryDeleter();
 			$oDel->filterByHash( $oItem->hash )
 				 ->filterByScan( $oItem->scan )
 				 ->query();
@@ -106,10 +106,10 @@ abstract class ItemActionHandler {
 	 * @return Scanner\EntryVO|null
 	 */
 	protected function getEntryVO() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSel = $mod->getDbHandler_ScanResults()->getQuerySelector();
 		return $oSel->filterByHash( $this->getScanItem()->hash )
 					->filterByScan( $this->getScanController()->getSlug() )
 					->first();
