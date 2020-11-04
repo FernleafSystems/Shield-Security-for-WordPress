@@ -220,7 +220,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nScore < $min ) {
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 				$mod->getPassStrengthName( $nScore ), $mod->getPassStrengthName( $min ) ) );

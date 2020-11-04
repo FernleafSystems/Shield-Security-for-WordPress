@@ -3,15 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
+		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 
 		$cardSection = [

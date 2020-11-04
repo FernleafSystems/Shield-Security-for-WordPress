@@ -1798,7 +1798,7 @@ class Controller {
 		return $this->getModule( 'traffic' );
 	}
 
-	public function getModule_UserManagement() :\ICWP_WPSF_FeatureHandler_UserManagement {
+	public function getModule_UserManagement() :Shield\Modules\UserManagement\ModCon {
 		return $this->getModule( 'user_management' );
 	}
 

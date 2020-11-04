@@ -1,13 +1,11 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.
@@ -38,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	}
 
 	protected function preProcessOptions() {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$opts->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
@@ -91,7 +89,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 * @param bool $bAdd - set true to add, false to remove
 	 */
 	public function addRemoveHardSuspendUserId( $nUserId, $bAdd = true ) {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$aIds = $opts->getSuspendHardUserIds();
@@ -127,12 +125,5 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		}
 
 		$opts->setOpt( 'hard_suspended_userids', $aIds );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getNamespaceBase() :string {
-		return 'UserManagement';
 	}
 }

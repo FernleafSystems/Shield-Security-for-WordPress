@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CleanExpired {
@@ -12,12 +13,10 @@ class CleanExpired {
 	use ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
-		$mod = $this->getMod();
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Session\Delete $oTerminator */
-		$oTerminator = $mod->getDbHandler_Sessions()->getQueryDeleter();
+		$oTerminator = $this->getMod()->getDbHandler_Sessions()->getQueryDeleter();
 
 		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
 		// And if User Management is active, then it'll draw in that value.

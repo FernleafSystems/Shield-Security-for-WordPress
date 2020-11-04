@@ -32,7 +32,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_BuildTableSessions() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		( new UserManagement\Lib\CleanExpired() )
@@ -56,18 +56,18 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_BulkItemAction() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oReq = Services::Request();
+		$req = Services::Request();
 
 		$bSuccess = false;
 
-		$aIds = $oReq->post( 'ids' );
+		$aIds = $req->post( 'ids' );
 		if ( empty( $aIds ) || !is_array( $aIds ) ) {
 			$bSuccess = false;
 			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
+		elseif ( !in_array( $req->post( 'bulk_action' ), [ 'delete' ] ) ) {
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
@@ -101,7 +101,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_SessionDelete() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );

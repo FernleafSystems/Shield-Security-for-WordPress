@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function buildInsightsVars() :array {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Select $dbSel */
 		$dbSel = $con->getModule_Sessions()

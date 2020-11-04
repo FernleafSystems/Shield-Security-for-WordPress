@@ -48,21 +48,21 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	private function checkCurrentSession() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		try {
 			if ( $mod->hasValidRequestIP() ) {
 				$this->assessSession();
 			}
 		}
-		catch ( \Exception $oE ) {
-			$sEvent = $oE->getMessage();
+		catch ( \Exception $e ) {
+			$event = $e->getMessage();
 			$this->getCon()
-				 ->fireEvent( $sEvent );
+				 ->fireEvent( $event );
 			$mod->getSessionsProcessor()
 				->terminateCurrentSession();
 			$oU = Services::WpUsers();
-			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $sEvent ] ) : $oU->logoutUser( true );
+			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $oU->logoutUser( true );
 		}
 	}
 
@@ -119,10 +119,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		$nSessionLimit = $oOpts->getOpt( 'session_username_concurrent_limit', 1 );
 		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
 			$this->setLoginCaptured();
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-			$oMod = $this->getMod();
 			try {
-				$oMod->getDbHandler_Sessions()
+				$this->getMod()
+					 ->getDbHandler_Sessions()
 					 ->getQueryDeleter()
 					 ->addWhere( 'wp_username', $oUser->user_login )
 					 ->deleteExcess( $nSessionLimit, 'last_activity_at', true );
