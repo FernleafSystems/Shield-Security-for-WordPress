@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginTelemetry {
@@ -14,7 +14,7 @@ class PluginTelemetry {
 	use OneTimeExecute;
 
 	protected function canRun() {
-		/** @var Options $opts */
+		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet();
 	}
@@ -42,11 +42,8 @@ class PluginTelemetry {
 		$this->sendTrackingData();
 	}
 
-	/**
-	 * @return bool
-	 */
 	private function sendTrackingData() {
-		/** @var Options $opts */
+		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
 		$success = false;
@@ -81,10 +78,41 @@ class PluginTelemetry {
 	 * @return array[]
 	 */
 	public function collectTrackingData() :array {
+		$con = $this->getCon();
+
 		$data = $this->getBaseTrackingData();
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $con->modules as $mod ) {
 			$data[ $mod->getSlug() ] = $this->buildOptionsDataForMod( $mod );
 		}
+
+		if ( !empty( $data[ 'events' ] ) ) {
+			$data[ 'events' ][ 'stats' ] = $con->getModule_Events()
+											   ->getDbHandler_Events()
+											   ->getQuerySelector()
+											   ->sumAllEvents();
+		}
+		if ( !empty( $data[ 'login_protect' ] ) ) {
+			$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] =
+				$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] > 0 ? 1 : 0;
+		}
+		if ( !empty( $data[ 'admin_access_restriction' ] ) ) {
+			$keys= [
+				'admin_access_restrict_plugins',
+				'admin_access_restrict_themes',
+				'admin_access_restrict_posts'
+			];
+			foreach ( $keys as $key ) {
+				$data[ 'admin_access_restriction' ][ 'options' ][ $key ]
+					= empty( $data[ 'admin_access_restriction' ][ 'options' ][ $key ] ) ? 0 : 1;
+			}
+		}
+		if ( !empty( $data[ 'plugin' ] ) ) {
+			/** @var Plugin\ModCon $mod */
+			$mod = $this->getMod();
+			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $mod->getPluginInstallationId();
+			$data[ 'plugin' ][ 'options' ][ 'new_unique_installation_id' ] = $con->getSiteInstallationId();
+		}
+
 		return $data;
 	}
 

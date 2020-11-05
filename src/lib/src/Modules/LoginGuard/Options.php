@@ -22,11 +22,8 @@ class Options extends BaseShield\Options {
 		return (int)$this->getOpt( 'login_limit_interval' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getCustomLoginPath() {
-		return $this->getOpt( 'rename_wplogin_path', '' );
+	public function getCustomLoginPath() :string {
+		return (string)$this->getOpt( 'rename_wplogin_path', '' );
 	}
 
 	/**

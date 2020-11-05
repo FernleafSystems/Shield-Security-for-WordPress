@@ -140,21 +140,4 @@ class Processor extends BaseShield\Processor {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
 	}
-
-	/**
-	 * Override the original collection to then add plugin statistics to the mix
-	 * @param array $data
-	 * @return array
-	 */
-	public function tracking_DataCollect( $data ) {
-		$data = parent::tracking_DataCollect( $data );
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$slug = $mod->getSlug();
-		if ( empty( $data[ $slug ][ 'options' ][ 'unique_installation_id' ] ) ) {
-			$data[ $slug ][ 'options' ][ 'unique_installation_id' ] = $mod->getPluginInstallationId();
-			$data[ $slug ][ 'options' ][ 'new_unique_installation_id' ] = $this->getCon()->getSiteInstallationId();
-		}
-		return $data;
-	}
 }

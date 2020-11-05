@@ -84,18 +84,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getMod()->getSlug();
-
-		$aKeysToBoolean = [
-			'admin_access_restrict_plugins',
-			'admin_access_restrict_themes',
-			'admin_access_restrict_posts'
-		];
-		foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
-			$aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ]
-				= empty( $aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
-		}
 		return $aData;
 	}
 

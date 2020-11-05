@@ -39,10 +39,6 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getMod()->getSlug();
-		$aData[ $sSlug ][ 'options' ][ 'email_can_send_verified_at' ]
-			= ( $aData[ $sSlug ][ 'options' ][ 'email_can_send_verified_at' ] > 0 ) ? 1 : 0;
 		return $aData;
 	}
 

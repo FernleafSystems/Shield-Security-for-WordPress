@@ -86,21 +86,6 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 		);
 	}
 
-	/**
-	 * Override the original collection to then add plugin statistics to the mix
-	 * @param $aData
-	 * @return array
-	 */
-	public function tracking_DataCollect( $aData ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$aData = parent::tracking_DataCollect( $aData );
-		$aData[ $mod->getSlug() ][ 'stats' ] = $mod->getDbHandler_Events()
-												   ->getQuerySelector()
-												   ->sumAllEvents();
-		return $aData;
-	}
-
 	public function runDailyCron() {
 		( new Events\Consolidate\ConsolidateAllEvents() )
 			->setMod( $this->getMod() )

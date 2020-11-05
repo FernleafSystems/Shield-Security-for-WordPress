@@ -73,27 +73,6 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * Override the original collection to then add plugin statistics to the mix
-	 * @param $data
-	 * @return array
-	 */
-	public function tracking_DataCollect( $data ) {
-		$data = parent::tracking_DataCollect( $data );
-		$sSlug = $this->getMod()->getSlug();
-
-		$aKeysToBoolean = [
-			'admin_access_restrict_plugins',
-			'admin_access_restrict_themes',
-			'admin_access_restrict_posts'
-		];
-		foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
-			$data[ $sSlug ][ 'options' ][ $sKeyToBoolean ]
-				= empty( $data[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
-		}
-		return $data;
-	}
-
-	/**
 	 * @param int    $nUserId
 	 * @param string $sRole
 	 */
