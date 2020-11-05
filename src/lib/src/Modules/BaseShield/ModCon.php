@@ -185,7 +185,7 @@ class ModCon extends Base\ModCon {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function isReadyToExecute() {
+	protected function isReadyToExecute() :bool {
 		$opts = $this->getOptions();
 		return ( $opts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
 			   && ( $opts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )

@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function getFilesToLock() :array {
 		$locks = $this->getOpt( 'file_locker', [] );
@@ -83,10 +83,10 @@ class Options extends Base\ShieldOptions {
 	 * @return string[]
 	 */
 	public function getMalSignatures( $sFilename, $sUrl ) {
-		$oWpFs = Services::WpFs();
+		$FS = Services::WpFs();
 		$sFile = $this->getCon()->getPluginCachePath( $sFilename );
-		if ( $oWpFs->exists( $sFile ) ) {
-			$aSigs = explode( "\n", $oWpFs->getFileContent( $sFile, true ) );
+		if ( $FS->exists( $sFile ) ) {
+			$aSigs = explode( "\n", $FS->getFileContent( $sFile, true ) );
 		}
 		else {
 			$aSigs = array_filter(
@@ -99,7 +99,7 @@ class Options extends Base\ShieldOptions {
 			);
 
 			if ( !empty( $aSigs ) ) {
-				$oWpFs->putFileContent( $sFile, implode( "\n", $aSigs ), true );
+				$FS->putFileContent( $sFile, implode( "\n", $aSigs ), true );
 			}
 		}
 		return $aSigs;

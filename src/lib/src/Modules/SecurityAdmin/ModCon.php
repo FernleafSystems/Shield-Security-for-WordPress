@@ -37,7 +37,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function isReadyToExecute() {
+	protected function isReadyToExecute() :bool {
 		return $this->isEnabledSecurityAdmin() && parent::isReadyToExecute();
 	}
 

@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function clearSecurityAdminKey() :self {
 		return $this->setOpt( 'admin_access_key', '' );

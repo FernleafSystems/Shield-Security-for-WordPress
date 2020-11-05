@@ -2,36 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-/**
- * Class Options
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard
- */
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
-	/**
-	 * @return int
-	 */
-	public function getLoginIntentMinutes() {
+	public function getLoginIntentMinutes() :int {
 		return (int)max( 1, apply_filters(
 			$this->getCon()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAntiBotFormSelectors() {
-		$aIds = $this->getOpt( 'antibot_form_ids', [] );
-		return ( $this->isPremium() && is_array( $aIds ) ) ? $aIds : [];
+	public function getAntiBotFormSelectors() :array {
+		$ids = $this->getOpt( 'antibot_form_ids', [] );
+		return ( $this->isPremium() && is_array( $ids ) ) ? $ids : [];
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getCooldownInterval() {
+	public function getCooldownInterval() :int {
 		return (int)$this->getOpt( 'login_limit_interval' );
 	}
 
@@ -59,10 +46,7 @@ class Options extends Base\ShieldOptions {
 		return is_array( $aRoles ) ? $aRoles : $mod->getOptEmailTwoFactorRolesDefaults();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfCanSendEmailVerified() {
+	public function getIfCanSendEmailVerified() :bool {
 		return (int)$this->getOpt( 'email_can_send_verified_at' ) > 0;
 	}
 
@@ -73,74 +57,47 @@ class Options extends Base\ShieldOptions {
 		return DAY_IN_SECONDS*( $this->isPremium() ? (int)$this->getOpt( 'mfa_skip', 0 ) : 0 );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getYubikeyAppId() {
+	public function getYubikeyAppId() :string {
 		return (string)$this->getOpt( 'yubikey_app_id', '' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isMfaSkip() {
+	public function isMfaSkip() :bool {
 		return $this->getMfaSkip() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isChainedAuth() {
+	public function isChainedAuth() :bool {
 		return $this->isOpt( 'enable_chained_authentication', 'Y' );
 	}
 
-	/**
-	 * Also considers whether email sending ability has been verified
-	 * @return bool
-	 */
-	public function isEmailAuthenticationActive() {
+	public function isEmailAuthenticationActive() :bool {
 		return $this->getIfCanSendEmailVerified() && $this->isEnabledEmailAuth();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledEmailAuth() {
+	public function isEnabledEmailAuth() :bool {
 		return $this->isOpt( 'enable_email_authentication', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledCooldown() {
+	public function isEnabledCooldown() :bool {
 		return $this->getCooldownInterval() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledGaspCheck() {
+	public function isEnabledGaspCheck() :bool {
 		return $this->isOpt( 'enable_login_gasp_check', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledEmailAuthAnyUserSet() {
-		return $this->isEmailAuthenticationActive() && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->isPremium();
+	public function isEnabledEmailAuthAnyUserSet() :bool {
+		return $this->isEmailAuthenticationActive()
+			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->isPremium();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledBackupCodes() {
+	public function isEnabledBackupCodes() :bool {
 		return $this->isPremium() && $this->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledGoogleAuthenticator() {
+	public function isEnabledGoogleAuthenticator() :bool {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
@@ -178,26 +135,15 @@ class Options extends Base\ShieldOptions {
 		return in_array( $sLocation, is_array( $aLocs ) ? $aLocs : $this->getOptDefault( 'bot_protection_locations' ) );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isUseLoginIntentPage() {
+	public function isUseLoginIntentPage() :bool {
 		return $this->isOpt( 'use_login_intent_page', true );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledYubikey() {
+	public function isEnabledYubikey() :bool {
 		return $this->isOpt( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isYubikeyConfigReady() {
-		$sAppId = $this->getOpt( 'yubikey_app_id' );
-		$sApiKey = $this->getOpt( 'yubikey_api_key' );
-		return !empty( $sAppId ) && !empty( $sApiKey );
+	private function isYubikeyConfigReady() :bool {
+		return !empty( $this->getOpt( 'yubikey_app_id' ) ) && !empty( $this->getOpt( 'yubikey_api_key' ) );
 	}
 }

@@ -312,7 +312,7 @@ abstract class ModCon {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function isReadyToExecute() {
+	protected function isReadyToExecute() :bool {
 		return !is_null( $this->getProcessor() );
 	}
 

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function getSuspendHardUserIds() :array {
 		$ids = $this->getOpt( 'hard_suspended_userids', [] );

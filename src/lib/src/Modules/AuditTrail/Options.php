@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function getAutoCleanDays() :int {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );

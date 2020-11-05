@@ -1778,7 +1778,7 @@ class Controller {
 		return $this->getModule( 'login_protect' );
 	}
 
-	public function getModule_Plugin() :\ICWP_WPSF_FeatureHandler_Plugin {
+	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
 		return $this->getModule( 'plugin' );
 	}
 

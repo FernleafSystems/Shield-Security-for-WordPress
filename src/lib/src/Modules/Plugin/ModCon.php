@@ -1,24 +1,23 @@
-<?php
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities;
+use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ModCon extends BaseShield\ModCon {
 
 	/**
-	 * @var Plugin\Lib\ImportExport\ImportExportController
+	 * @var Lib\ImportExport\ImportExportController
 	 */
-	private $oImportExportController;
+	private $importExportCon;
 
 	/**
-	 * @var Plugin\Components\PluginBadge
+	 * @var Components\PluginBadge
 	 */
-	private $oPluginBadgeController;
+	private $pluginBadgeCon;
 
 	/**
 	 * @var Shield\Utilities\ReCaptcha\Enqueue
@@ -28,30 +27,30 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @var Shield\ShieldNetApi\ShieldNetApiController
 	 */
-	private $oShieldNetApiController;
+	private $shieldNetCon;
 
-	public function getImpExpController() :Plugin\Lib\ImportExport\ImportExportController {
-		if ( !isset( $this->oImportExportController ) ) {
-			$this->oImportExportController = ( new Plugin\Lib\ImportExport\ImportExportController() )
+	public function getImpExpController() :Lib\ImportExport\ImportExportController {
+		if ( !isset( $this->importExportCon ) ) {
+			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )
 				->setMod( $this );
 		}
-		return $this->oImportExportController;
+		return $this->importExportCon;
 	}
 
-	public function getPluginBadgeCon() :Plugin\Components\PluginBadge {
-		if ( !isset( $this->oPluginBadgeController ) ) {
-			$this->oPluginBadgeController = ( new Plugin\Components\PluginBadge() )
+	public function getPluginBadgeCon() :Components\PluginBadge {
+		if ( !isset( $this->pluginBadgeCon ) ) {
+			$this->pluginBadgeCon = ( new Components\PluginBadge() )
 				->setMod( $this );
 		}
-		return $this->oPluginBadgeController;
+		return $this->pluginBadgeCon;
 	}
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
-		if ( !isset( $this->oShieldNetApiController ) ) {
-			$this->oShieldNetApiController = ( new Shield\ShieldNetApi\ShieldNetApiController() )
+		if ( !isset( $this->shieldNetCon ) ) {
+			$this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )
 				->setMod( $this );
 		}
-		return $this->oShieldNetApiController;
+		return $this->shieldNetCon;
 	}
 
 	protected function doPostConstruction() {
@@ -59,28 +58,25 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	protected function preProcessOptions() {
-		( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
+		( new Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )
 			->checkAll();
 	}
 
 	public function deleteAllPluginCrons() {
 		$con = $this->getCon();
-		$oWpCron = Services::WpCron();
+		$wpCrons = Services::WpCron();
 
-		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
+		foreach ( $wpCrons->getCrons() as $nKey => $aCronArgs ) {
 			foreach ( $aCronArgs as $sHook => $aCron ) {
 				if ( strpos( $sHook, $con->prefix() ) === 0
 					 || strpos( $sHook, $con->prefixOption() ) === 0 ) {
-					$oWpCron->deleteCronJob( $sHook );
+					$wpCrons->deleteCronJob( $sHook );
 				}
 			}
 		}
 	}
 
-	/**
-	 * Hooked to the plugin's main plugin_shutdown action
-	 */
 	public function onPluginShutdown() {
 		$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
 		if ( !empty( $preferred ) ) {
@@ -98,11 +94,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		/** @var Plugin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( !$opts->isIpSourceAutoDetect() ) {
 			Services::IP()->setIpDetector(
-				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
+				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
 		}
 	}
@@ -112,14 +108,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				( new Plugin\Lib\ImportExport\Export() )
+				( new Lib\ImportExport\Export() )
 					->setMod( $this )
 					->toFile();
 				break;
 
 			case 'import_file_upload':
 				try {
-					( new Plugin\Lib\ImportExport\Import() )
+					( new Lib\ImportExport\Import() )
 						->setMod( $this )
 						->fromFileUpload();
 					$bSuccess = true;
@@ -182,7 +178,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		/** @var Plugin\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$this->storeRealInstallDate();
@@ -244,15 +240,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string|null
 	 */
 	public function getOpenSslPublicKey() {
-		$sKey = null;
+		$key = null;
 		if ( $this->hasOpenSslPrivateKey() ) {
 			try {
-				$sKey = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
+				$key = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-		return $sKey;
+		return $key;
 	}
 
 	public function hasOpenSslPrivateKey() :bool {
@@ -263,23 +259,23 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$oWP = Services::WpGeneral();
-		$nNow = Services::Request()->ts();
+		$WP = Services::WpGeneral();
+		$ts = Services::Request()->ts();
 
 		$sOptKey = $this->getCon()->prefixOption( 'install_date' );
 
-		$nWpDate = $oWP->getOption( $sOptKey );
+		$nWpDate = $WP->getOption( $sOptKey );
 		if ( empty( $nWpDate ) ) {
-			$nWpDate = $nNow;
+			$nWpDate = $ts;
 		}
 
 		$nPluginDate = $this->getInstallDate();
 		if ( $nPluginDate == 0 ) {
-			$nPluginDate = $nNow;
+			$nPluginDate = $ts;
 		}
 
 		$nFinal = min( $nPluginDate, $nWpDate );
-		$oWP->updateOption( $sOptKey, $nFinal );
+		$WP->updateOption( $sOptKey, $nFinal );
 		$this->getOptions()->setOpt( 'installation_time', $nPluginDate );
 
 		return $nFinal;
@@ -330,8 +326,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
 	}
 
-	public function getTourManager() :Plugin\Lib\TourManager {
-		return ( new Plugin\Lib\TourManager() )->setMod( $this );
+	public function getTourManager() :Lib\TourManager {
+		return ( new Lib\TourManager() )->setMod( $this );
 	}
 
 	public function setActivatedAt() {
@@ -451,7 +447,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	protected function cleanImportExportMasterImportUrl() {
-		/** @var Plugin\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		$url = Services::Data()->validateSimpleHttpUrl( $oOpts->getImportExportMasterImportUrl() );
 		if ( $url === false ) {
