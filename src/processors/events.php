@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 
 /**
- * Class ICWP_WPSF_Processor_Events
  * @deprecated 10.1
  */
 class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcessor {

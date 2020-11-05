@@ -18,10 +18,7 @@ class ResultsSet extends Base\BaseResultsSet {
 		return count( $this->getAllResultsSetsForUniqueSlugs() );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function countUniqueSlugsForPluginsContext() {
+	public function countUniqueSlugsForPluginsContext() :int {
 		return count( $this->getAllResultsSetsForPluginsContext() );
 	}
 
@@ -36,7 +33,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * Provides a collection of ResultsSets for Plugins.
 	 * @return ResultsSet[]
 	 */
-	public function getAllResultsSetsForPluginsContext() {
+	public function getAllResultsSetsForPluginsContext() :array {
 		return $this->getAllResultsSetsForContext( 'plugins' );
 	}
 
@@ -44,7 +41,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * Provides a collection of ResultsSets for Themes.
 	 * @return ResultsSet[]
 	 */
-	public function getAllResultsSetsForThemesContext() {
+	public function getAllResultsSetsForThemesContext() :array {
 		return $this->getAllResultsSetsForContext( 'themes' );
 	}
 
@@ -52,7 +49,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @param string $sContext
 	 * @return ResultsSet[]
 	 */
-	public function getAllResultsSetsForContext( $sContext ) {
+	public function getAllResultsSetsForContext( $sContext ) :array {
 		$aCollection = [];
 		foreach ( $this->getAllResultsSetsForUniqueSlugs() as $sSlug => $oRS ) {
 			if ( $oRS->getItems()[ 0 ]->context == $sContext ) {

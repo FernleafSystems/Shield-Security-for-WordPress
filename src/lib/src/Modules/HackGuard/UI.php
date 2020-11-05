@@ -252,11 +252,7 @@ class UI extends BaseShield\UI {
 	private function getInsightVarsScan_Ptg() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$req = Services::Request();
 
-		/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $mod->getProcessor();
-		$oProPtg = $oPro->getSubProScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 
@@ -269,98 +265,6 @@ class UI extends BaseShield\UI {
 			->setScanController( $mod->getScanCon( 'ptg' ) )
 			->fromVOsToResultsSet( $aPtgResults );
 
-		// Process Plugins
-		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
-		$oWpPlugins = Services::WpPlugins();
-		foreach ( $aPlugins as $sSlug => $oItemRS ) {
-			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
-			$oIT = array_pop( $aItems );
-			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
-			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $req->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
-			}
-			else {
-				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
-			}
-
-			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
-			$oPlgn = $oWpPlugins->getPluginAsVo( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oPlgn instanceof WpPluginVo && $oPlgn->isWpOrg();
-			$bHasUpdate = $bIsWpOrg && $oPlgn->hasUpdate();
-			$aProfile = [
-				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
-				'name'           => __( 'unknown', 'wp-simple-firewall' ),
-				'version'        => __( 'unknown', 'wp-simple-firewall' ),
-				'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),
-				'slug'           => $sSlug,
-				'is_wporg'       => $bIsWpOrg,
-				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => $bInstalled && ( $sSlug !== $this->getCon()->getPluginBaseFile() ),
-				'has_update'     => $bHasUpdate,
-				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => $aMeta[ 'ts' ],
-			];
-
-			if ( $bInstalled ) {
-				$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
-				$aProfile[ 'name' ] = $oP->Name;
-				$aProfile[ 'version' ] = $oP->Version;
-			}
-			else {
-				// MISSING!
-				if ( is_array( $aMeta ) ) {
-					$aProfile[ 'name' ] = isset( $aMeta[ 'name' ] ) ? $aMeta[ 'name' ] : __( 'unknown', 'wp-simple-firewall' );
-					$aProfile[ 'version' ] = isset( $aMeta[ 'version' ] ) ? $aMeta[ 'version' ] : __( 'unknown', 'wp-simple-firewall' );
-				}
-			}
-			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Plugin' ), $aProfile[ 'name' ] );
-
-			$aPlugins[ $sSlug ] = $aProfile;
-		}
-
-		// Process Themes
-		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = Services::WpThemes();
-		foreach ( $aThemes as $sSlug => $oItemRS ) {
-			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
-			$oIT = array_pop( $aItems );
-			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
-			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $req->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
-			}
-			else {
-				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
-			}
-
-			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
-			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
-			$aProfile = [
-				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
-				'name'           => __( 'unknown', 'wp-simple-firewall' ),
-				'version'        => __( 'unknown', 'wp-simple-firewall' ),
-				'root_dir'       => __( 'unknown', 'wp-simple-firewall' ),
-				'slug'           => $sSlug,
-				'is_wporg'       => $bIsWpOrg,
-				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => false,
-				'has_update'     => $bHasUpdate,
-				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => $aMeta[ 'ts' ],
-			];
-			if ( $bInstalled ) {
-				$oT = $oWpThemes->getTheme( $oIT->slug );
-				$aProfile[ 'name' ] = $oT->get( 'Name' );
-				$aProfile[ 'version' ] = $oT->get( 'Version' );
-				$aProfile[ 'root_dir' ] = $oWpThemes->getInstallationDir( $oIT->slug );
-			}
-			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Theme' ), $aProfile[ 'name' ] );
-
-			$aThemes[ $sSlug ] = $aProfile;
-		}
-
 		return [
 			'flags'   => [
 				'has_items'   => $mod->isPtgEnabled() ? $oFullResults->hasItems() : false,
@@ -370,7 +274,6 @@ class UI extends BaseShield\UI {
 			],
 			'hrefs'   => [],
 			'vars'    => [],
-			'assets'  => $mod->isPtgEnabled() ? array_merge( $aPlugins, $aThemes ) : [],
 			'strings' => [
 				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
 				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),

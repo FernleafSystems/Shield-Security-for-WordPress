@@ -232,10 +232,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnPluginsHighlightEnabled() {
+	public function isWpvulnPluginsHighlightEnabled() :bool {
 		$oWpvCon = $this->getScanCon( 'wpv' );
 		if ( $oWpvCon->isEnabled() ) {
 			$sOpt = apply_filters( 'icwp_shield_wpvuln_scan_display', 'securityadmin' );

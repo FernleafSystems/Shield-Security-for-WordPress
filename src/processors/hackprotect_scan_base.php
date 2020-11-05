@@ -4,40 +4,25 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	const SCAN_SLUG = 'base';
 
-	public function run() {
-		add_action(
-			$this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() ),
-			function () {
-				/** @var HackGuard\ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getScanQueueController()
-					->startScans( [ $this->getThisScanCon()->getSlug() ] );
-			}
-		);
-	}
-
-	public function hookOnDemandScan() {
-		$this->scheduleOnDemandScan();
-	}
-
 	/**
 	 * @param int $nDelay
+	 * @deprecated 10.1
 	 */
 	public function scheduleOnDemandScan( $nDelay = 3 ) {
-		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() );
-		if ( !wp_next_scheduled( $sHook ) ) {
-			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
-		}
 	}
 
 	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
+	 * @deprecated 10.1
 	 */
 	public function getScanActionVO() {
 		return $this->getThisScanCon()->getScanActionVO();
@@ -45,10 +30,17 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 
 	/**
 	 * @return HackGuard\Scan\Controller\Base|mixed
+	 * @deprecated 10.1
 	 */
 	protected function getThisScanCon() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->getScanCon( static::SCAN_SLUG );
+	}
+
+	/**
+	 * @deprecated 10.1
+	 */
+	public function hookOnDemandScan() {
 	}
 }

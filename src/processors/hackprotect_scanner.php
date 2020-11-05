@@ -10,16 +10,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor
 	use Shield\Crons\StandardCron;
 
 	public function run() {
-		$this->getSubPro( 'apc' )->execute();
-		$this->getSubPro( 'ufc' )->execute();
-		$this->getSubPro( 'wcf' )->execute();
-		$this->getSubPro( 'ptg' )->execute();
-		if ( $this->getCon()->isPremiumActive() ) {
-			$this->getSubPro( 'mal' )->execute();
-			$this->getSubPro( 'wpv' )->execute();
-		}
-		$this->setupCron();
-		$this->handlePostScanCron();
 	}
 
 	public function getSubProcessorPtg() :\ICWP_WPSF_Processor_HackProtect_Ptg {
@@ -27,14 +17,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor
 	}
 
 	protected function getSubProMap() :array {
-		return [
-			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
-			'mal' => 'ICWP_WPSF_Processor_HackProtect_Mal',
-			'ptg' => 'ICWP_WPSF_Processor_HackProtect_Ptg',
-			'ufc' => 'ICWP_WPSF_Processor_HackProtect_Ufc',
-			'wcf' => 'ICWP_WPSF_Processor_HackProtect_Wcf',
-			'wpv' => 'ICWP_WPSF_Processor_HackProtect_Wpv',
-		];
+		return [];
 	}
 
 	private function handlePostScanCron() {

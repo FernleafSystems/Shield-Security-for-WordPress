@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
@@ -11,10 +12,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
 	use ModConsumer;
+	use OneTimeExecute;
 
 	const SCAN_SLUG = '';
 
@@ -28,6 +31,17 @@ abstract class Base {
 	 * see dynamic constructors: features/hack_protect.php
 	 */
 	public function __construct() {
+	}
+
+	protected function run() {
+		add_action(
+			$this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() ),
+			function () {
+				/** @var HackGuard\ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getScanQueueController()->startScans( [ $this->getSlug() ] );
+			}
+		);
 	}
 
 	public function cleanStalesResults() {
@@ -125,15 +139,15 @@ abstract class Base {
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	public function getAllResults( $bIncludeIgnored = false ) {
-		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
-		$oSel->filterByScan( $this->getSlug() );
+		/** @var Databases\Scanner\Select $sel */
+		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
+		$sel->filterByScan( $this->getSlug() );
 		if ( !$bIncludeIgnored ) {
-			$oSel->filterByNotIgnored();
+			$sel->filterByNotIgnored();
 		}
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $oSel->query() );
+			->fromVOsToResultsSet( $sel->query() );
 	}
 
 	/**
@@ -289,5 +303,12 @@ abstract class Base {
 			$ns = __NAMESPACE__;
 		}
 		return rtrim( $ns, '\\' ).'\\';
+	}
+
+	protected function scheduleOnDemandScan( int $nDelay = 3 ) {
+		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() );
+		if ( !wp_next_scheduled( $sHook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
+		}
 	}
 }
