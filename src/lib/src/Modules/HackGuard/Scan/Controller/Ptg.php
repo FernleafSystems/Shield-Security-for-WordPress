@@ -40,14 +40,14 @@ class Ptg extends BaseForAssets {
 	}
 
 	/**
-	 * @param Scans\Mal\ResultItem $oItem
+	 * @param Scans\Mal\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $oItem ) {
+	protected function isResultItemStale( $item ) {
 		$bStale = false;
-		$oAsset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
+		$oAsset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
 		if ( empty( $oAsset ) ) {
-			$oAsset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
+			$oAsset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
 			$bStale = empty( $oAsset );
 		}
 		return $bStale;
@@ -89,9 +89,6 @@ class Ptg extends BaseForAssets {
 		return $this->getOptions()->isOpt( 'ptg_enable', 'Y' ) && $this->getOptions()->isOptReqsMet( 'ptg_enable' );
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isScanningAvailable() :bool {
 		return parent::isScanningAvailable()
 			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )

@@ -52,11 +52,11 @@ class Mal extends Base {
 	}
 
 	/**
-	 * @param Scans\Mal\ResultItem $oItem
+	 * @param Scans\Mal\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $oItem ) {
-		return !Services::WpFs()->exists( $oItem->path_full );
+	protected function isResultItemStale( $item ) {
+		return !Services::WpFs()->exists( $item->path_full );
 	}
 
 	/**

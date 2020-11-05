@@ -8,16 +8,16 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseForAssets extends Base {
 
 	/**
-	 * @param Scans\Ptg\ResultItem|Scans\Wpv\ResultItem|Scans\Apc\ResultItem $oItem
+	 * @param Scans\Ptg\ResultItem|Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $oItem ) {
-		if ( $oItem->context == 'plugins' ) {
-			$oAsset = Services::WpPlugins()->getPluginAsVo( $oItem->slug );
+	protected function isResultItemStale( $item ) {
+		if ( $item->context == 'plugins' ) {
+			$oAsset = Services::WpPlugins()->getPluginAsVo( $item->slug );
 			$bAssetExists = empty( $oAsset ) || $oAsset->active;
 		}
 		else {
-			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
+			$oAsset = Services::WpThemes()->getThemeAsVo( $item->slug );
 			$bAssetExists = empty( $oAsset ) || ( $oAsset->active || $oAsset->is_parent );
 		}
 		return !$bAssetExists;
