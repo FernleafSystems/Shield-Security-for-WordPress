@@ -4,7 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\ShieldProcessor {
+class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Processor {
 
 	public function run() {
 		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
@@ -48,6 +48,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	private function checkCurrentSession() {
+		$con = $this->getCon();
 		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		try {
@@ -57,12 +58,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		}
 		catch ( \Exception $e ) {
 			$event = $e->getMessage();
-			$this->getCon()
-				 ->fireEvent( $event );
-			$mod->getSessionsProcessor()
+			$con->fireEvent( $event );
+			$con->getModule_Sessions()
+				->getSessionCon()
 				->terminateCurrentSession();
-			$oU = Services::WpUsers();
-			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $oU->logoutUser( true );
+			$WPU = Services::WpUsers();
+			is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
 		}
 	}
 
@@ -110,35 +111,35 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	protected function enforceSessionLimits( $oUser ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+	protected function enforceSessionLimits( $user ) {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
-		$nSessionLimit = $oOpts->getOpt( 'session_username_concurrent_limit', 1 );
-		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
+		$nSessionLimit = $opts->getOpt( 'session_username_concurrent_limit', 1 );
+		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $user instanceof WP_User ) {
 			$this->setLoginCaptured();
 			try {
 				$this->getMod()
 					 ->getDbHandler_Sessions()
 					 ->getQueryDeleter()
-					 ->addWhere( 'wp_username', $oUser->user_login )
+					 ->addWhere( 'wp_username', $user->user_login )
 					 ->deleteExcess( $nSessionLimit, 'last_activity_at', true );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 	}
 
 	/**
-	 * @param \WP_Error $oError
+	 * @param \WP_Error $error
 	 * @return \WP_Error
 	 */
-	public function addLoginMessage( $oError ) {
+	public function addLoginMessage( $error ) {
 
-		if ( !$oError instanceof \WP_Error ) {
-			$oError = new \WP_Error();
+		if ( !$error instanceof \WP_Error ) {
+			$error = new \WP_Error();
 		}
 
 		$sForceLogout = Services::Request()->query( 'shield-forcelogout' );
@@ -175,8 +176,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 			}
 
 			$sMessage .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
-			$oError->add( 'shield-forcelogout', $sMessage );
+			$error->add( 'shield-forcelogout', $sMessage );
 		}
-		return $oError;
+		return $error;
 	}
 }

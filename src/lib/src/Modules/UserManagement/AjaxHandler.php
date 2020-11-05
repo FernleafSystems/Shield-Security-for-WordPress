@@ -32,6 +32,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_BuildTableSessions() :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -40,13 +41,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			->run();
 
 		/** @var Shield\Modules\SecurityAdmin\Options $optsSecAdmin */
-		$optsSecAdmin = $this->getCon()
-							 ->getModule_SecAdmin()
-							 ->getOptions();
+		$optsSecAdmin = $con->getModule_SecAdmin()->getOptions();
 
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $mod )
-			->setDbHandler( $mod->getDbHandler_Sessions() )
+			->setDbHandler( $con->getModule_Sessions()->getDbHandler_Sessions() )
 			->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() );
 
 		return [
@@ -101,6 +100,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_SessionDelete() :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$bSuccess = false;
@@ -111,7 +111,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		elseif ( $mod->getSession()->id === $nId ) {
 			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
-		elseif ( $mod->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $con->getModule_Sessions()->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}

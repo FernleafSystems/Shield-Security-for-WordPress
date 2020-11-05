@@ -127,7 +127,7 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	public function getSecAdminTimeLeft() :int {
 		$nLeft = 0;
-		if ( $this->hasSession() ) {
+		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
 
 			$nSecAdminAt = $this->getSession()->getSecAdminAt();
 			if ( $this->isRegisteredSecAdminUser() ) {

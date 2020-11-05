@@ -8,6 +8,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	/**
+	 * @var Lib\SessionController
+	 */
+	private $sessionCon;
+
+	public function getSessionCon() :Lib\SessionController {
+		if ( !isset( $this->sessionCon ) ) {
+			$this->sessionCon = ( new  Lib\SessionController() )
+				->setMod( $this );
+		}
+		return $this->sessionCon;
+	}
+
 	public function getDbHandler_Sessions() :Databases\Session\Handler {
 		return $this->getDbH( 'session' );
 	}

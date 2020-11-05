@@ -69,10 +69,10 @@ abstract class Processor {
 	}
 
 	/**
-	 * @param string   $sUsername
+	 * @param string   $username
 	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $user ) {
+	public function onWpLogin( $username, $user ) {
 	}
 
 	/**

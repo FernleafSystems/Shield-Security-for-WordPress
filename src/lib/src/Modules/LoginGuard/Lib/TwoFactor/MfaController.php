@@ -274,7 +274,10 @@ class MfaController {
 	 * @return int
 	 */
 	private function getLoginIntentExpiresAt() {
-		return $this->getMod()->hasSession() ? $this->getMod()->getSession()->login_intent_expires_at : 0;
+		return $this->getCon()
+					->getModule_Sessions()
+					->getSessionCon()
+					->hasSession() ? $this->getMod()->getSession()->login_intent_expires_at : 0;
 	}
 
 	/**
@@ -297,12 +300,12 @@ class MfaController {
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		if ( $mod->hasSession() ) {
-			/** @var Update $oUpd */
-			$oUpd = $mod->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->updateLoginIntentExpiresAt( $mod->getSession(), $nExpirationTime );
+		$sessMod = $this->getCon()->getModule_Sessions();
+		$sessCon = $sessMod->getSessionCon();
+		if ( $sessCon->hasSession() ) {
+			/** @var Update $upd */
+			$upd = $sessMod->getDbHandler_Sessions()->getQueryUpdater();
+			$upd->updateLoginIntentExpiresAt( $sessCon->getCurrent(), $nExpirationTime );
 		}
 		return $this;
 	}

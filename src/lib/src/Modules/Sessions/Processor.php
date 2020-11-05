@@ -1,36 +1,37 @@
 <?php
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
+
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	/**
 	 * @var Session\EntryVO
 	 */
-	private $oCurrent;
+	private $current;
 
 	public function run() {
 		if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
 			add_action( 'clear_auth_cookie', function () {
-				$this->terminateCurrentSession();
+				/** @var ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getSessionCon()->terminateCurrentSession();
 			}, 0 );
 		}
+
 		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 	}
 
 	/**
-	 * @param string   $sUsername
+	 * @param string   $username
 	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $user ) {
+	public function onWpLogin( $username, $user ) {
 		if ( !$user instanceof \WP_User ) {
-			$user = Services::WpUsers()->getUserByUsername( $sUsername );
+			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
 		$this->activateUserSession( $user );
 	}
@@ -52,15 +53,15 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function onModuleShutdown() {
-		/** @var Sessions\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
-			$oSession = $this->getCurrentSession();
-			if ( $oSession instanceof Session\EntryVO ) {
+			$session = $mod->getSessionCon()->getCurrent();
+			if ( $session instanceof Session\EntryVO ) {
 				/** @var Session\Update $oUpd */
 				$oUpd = $mod->getDbHandler_Sessions()->getQueryUpdater();
-				$oUpd->updateLastActivity( $this->getCurrentSession() );
+				$oUpd->updateLastActivity( $session );
 			}
 		}
 
@@ -68,124 +69,117 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function autoAddSession() {
-		/** @var Sessions\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		if ( !$mod->getSession() && $mod->isAutoAddSessions() ) {
-			$this->queryCreateSession(
-				$this->getCon()->getSessionId( true ),
-				Services::WpUsers()->getCurrentWpUsername()
-			);
+		$sessCon = $mod->getSessionCon();
+		if ( !$sessCon->hasSession() && $mod->isAutoAddSessions() ) {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			if ( $user instanceof \WP_User ) {
+				$sessCon->queryCreateSession( $this->getCon()->getSessionId( true ), $user );
+			}
 		}
 	}
 
 	/**
 	 * Only show Go To Admin link for Authors and above.
-	 * @param string $sMessage
+	 * @param string $msg
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function printLinkToAdmin( $sMessage = '' ) {
-		/** @var Sessions\ModCon $mod */
+	public function printLinkToAdmin( $msg = '' ) {
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$user = Services::WpUsers()->getCurrentWpUser();
 
 		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
 			 && ( $user instanceof \WP_User ) && $mod->getSessionCon()->hasSession() ) {
-			$sMessage .= sprintf( '<p class="message">%s<br />%s</p>',
+			$msg .= sprintf( '<p class="message">%s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' )
 				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $user->user_login ),
 				( $user->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
 					Services::WpGeneral()->getAdminUrl(),
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
-		return $sMessage;
+		return $msg;
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	private function activateUserSession( $oUser ) {
-		if ( !$this->isLoginCaptured() && $oUser instanceof \WP_User ) {
+	private function activateUserSession( $user ) {
+		if ( !$this->isLoginCaptured() && $user instanceof \WP_User ) {
 			$this->setLoginCaptured();
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
 			// If they have a currently active session, terminate it (i.e. we replace it)
-			$this->terminateCurrentSession();
-			$this->queryCreateSession( $this->getCon()->getSessionId( true ), $oUser->user_login );
+			$mod->getSessionCon()->terminateCurrentSession();
+			$mod->getSessionCon()->queryCreateSession( $this->getCon()->getSessionId( true ), $user );
 		}
 		return true;
 	}
 
 	/**
 	 * @return bool
+	 * @deprecated 10.1
 	 */
 	public function terminateCurrentSession() {
-		$bSuccess = false;
+		$success = false;
 
 		$oSes = $this->getCurrentSession();
 		if ( $oSes instanceof Session\EntryVO ) {
-			$bSuccess = ( new Sessions\Lib\Ops\Terminate() )
+			$success = ( new Lib\Ops\Terminate() )
 				->setMod( $this->getMod() )
 				->byRecordId( $oSes->id );
 		}
 
-		$this->oCurrent = null;
+		$this->current = null;
 		$this->getCon()->clearSession();
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
 	 * @return Session\EntryVO|null
+	 * @deprecated 10.1
 	 */
 	public function getCurrentSession() {
-		if ( empty( $this->oCurrent ) ) {
-			$this->oCurrent = $this->loadCurrentSession();
-		}
-		return $this->oCurrent;
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return empty( $this->current ) ? $mod->getSessionCon()->getCurrent() : $this->current;
 	}
 
 	/**
 	 * @return Session\EntryVO|null
+	 * @deprecated 10.1
 	 */
 	public function loadCurrentSession() {
-		$oSession = null;
-		$oCon = $this->getCon();
-		if ( did_action( 'init' ) && $oCon->hasSessionId() ) {
-			$oSession = $this->queryGetSession( $oCon->getSessionId() );
+		$sess = null;
+		$con = $this->getCon();
+		if ( did_action( 'init' ) && $con->hasSessionId() ) {
+			$sess = $this->queryGetSession( $con->getSessionId() );
 		}
-		return $oSession;
+		return $sess;
 	}
 
 	/**
-	 * @param string $sSessionId
-	 * @param string $sUsername
+	 * @param string $sessionID
+	 * @param string $username
 	 * @return bool
+	 * @deprecated 10.1
 	 */
-	protected function queryCreateSession( $sSessionId, $sUsername ) {
-		/** @var Sessions\ModCon $mod */
-		$mod = $this->getMod();
-		if ( empty( $sSessionId ) || empty( $sUsername ) ) {
-			return null;
-		}
-
-		$this->getCon()->fireEvent( 'session_start' );
-
-		/** @var Session\Insert $oInsert */
-		$oInsert = $mod->getDbHandler_Sessions()->getQueryInserter();
-		return $oInsert->create( $sSessionId, $sUsername );
+	protected function queryCreateSession( $sessionID, $username ) {
+		return false;
 	}
 
 	/**
 	 * Checks for and gets a user session.
-	 * @param string $sUsername
-	 * @param string $sSessionId
+	 * @param string $username
+	 * @param string $sessionID
 	 * @return Session\EntryVO|null
+	 * @deprecated 10.1
 	 */
-	private function queryGetSession( $sSessionId, $sUsername = '' ) {
-		/** @var Sessions\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Session\Select $oSel */
-		$oSel = $mod->getDbHandler_Sessions()->getQuerySelector();
-		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
+	private function queryGetSession( $sessionID, $username = '' ) {
+		return null;
 	}
 }

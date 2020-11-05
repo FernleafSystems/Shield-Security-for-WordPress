@@ -23,17 +23,19 @@ class ModCon extends Base\ModCon {
 
 	/**
 	 * @return bool
+	 * @deprecated 10.1
 	 */
-	public function canCacheDirWrite() {
+	public function canCacheDirWrite() :bool {
 		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
 			->setMod( $this->getCon()->getModule_Plugin() )
 			->canWrite();
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Sessions
+	 * @return Shield\Modules\Sessions\Processor
+	 * @deprecated 10.1
 	 */
-	public function getSessionsProcessor() {
+	public function getSessionsProcessor() :Shield\Modules\Sessions\Processor {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getProcessor();
@@ -52,14 +54,17 @@ class ModCon extends Base\ModCon {
 	 * @return Shield\Databases\Session\EntryVO|null
 	 */
 	public function getSession() {
-		$oP = $this->getSessionsProcessor();
-		return is_null( $oP ) ? null : $oP->getCurrentSession();
+		return $this->getCon()
+					->getModule_Sessions()
+					->getSessionCon()
+					->getCurrent();
 	}
 
 	/**
 	 * @return bool
+	 * @deprecated 10.1
 	 */
-	public function hasSession() {
+	public function hasSession() :bool {
 		return $this->getSession() instanceof Shield\Databases\Session\EntryVO;
 	}
 
@@ -143,10 +148,10 @@ class ModCon extends Base\ModCon {
 	}
 
 	protected function renderRestrictedPage() :string {
-		/** @var Shield\Modules\SecurityAdmin\Options $oSecOpts */
-		$oSecOpts = $this->getCon()
-						 ->getModule_SecAdmin()
-						 ->getOptions();
+		/** @var Shield\Modules\SecurityAdmin\Options $secOpts */
+		$secOpts = $this->getCon()
+						->getModule_SecAdmin()
+						->getOptions();
 		$aData = Services::DataManipulation()
 						 ->mergeArraysRecursive(
 							 $this->getUIHandler()->getBaseDisplayData(),
@@ -162,7 +167,7 @@ class ModCon extends Base\ModCon {
 									 'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
 								 ],
 								 'flags'   => [
-									 'allow_email_override' => $oSecOpts->isEmailOverridePermitted()
+									 'allow_email_override' => $secOpts->isEmailOverridePermitted()
 								 ]
 							 ]
 						 );
