@@ -1,19 +1,16 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditWriter;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor {
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+
+class Processor extends BaseShield\Processor {
 
 	/**
-	 * @var AuditWriter
+	 * @var Lib\AuditWriter
 	 */
-	private $oAuditor;
+	private $auditWriter;
 
 	public function run() {
 		$this->initAuditors();
@@ -21,16 +18,16 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 	}
 
 	/**
-	 * @return AuditWriter
+	 * @return Lib\AuditWriter
 	 */
-	private function loadAuditorWriter() {
-		if ( !isset( $this->oAuditor ) ) {
+	private function loadAuditorWriter() :Lib\AuditWriter {
+		if ( !isset( $this->auditWriter ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
-			$this->oAuditor = ( new AuditWriter( $this->getCon() ) )
+			$this->auditWriter = ( new Lib\AuditWriter( $this->getCon() ) )
 				->setDbHandler( $mod->getDbHandler_AuditTrail() );
 		}
-		return $this->oAuditor;
+		return $this->auditWriter;
 	}
 
 	private function initAuditors() {
@@ -60,15 +57,9 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_AuditTrail_Auditor|mixed
+	 * @return \ICWP_WPSF_Processor_AuditTrail_Auditor|mixed
 	 */
 	public function getSubProAuditor() {
-		return $this->getSubPro( 'auditor' );
-	}
-
-	protected function getSubProMap() :array {
-		return [
-			'auditor' => 'ICWP_WPSF_Processor_AuditTrail_Auditor',
-		];
+		return new \ICWP_WPSF_Processor_AuditTrail_Auditor( $this->getMod() );
 	}
 }
