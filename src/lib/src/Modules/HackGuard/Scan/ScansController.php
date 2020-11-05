@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,38 +15,59 @@ class ScansController {
 	use OneTimeExecute;
 	use StandardCron;
 
+	private $scanCons;
+
+	public function __construct() {
+		$this->scanCons = [];
+	}
+
 	protected function run() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$this->getSubPro( 'apc' )->execute();
-		$this->getSubPro( 'ufc' )->execute();
-		$this->getSubPro( 'wcf' )->execute();
-		$this->getSubPro( 'ptg' )->execute();
-		if ( $this->getCon()->isPremiumActive() ) {
-			$this->getSubPro( 'mal' )->execute();
-			$this->getSubPro( 'wpv' )->execute();
+		foreach ( $this->getAllScanCons() as $scanCon ) {
+			$scanCon->execute();
 		}
 		$this->setupCron();
 		$this->handlePostScanCron();
 		add_action( $mod->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
 		add_action( $mod->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $mod->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
-
 	}
 
-	public function getSubProcessorPtg() :\ICWP_WPSF_Processor_HackProtect_Ptg {
-		return $this->getSubPro( 'ptg' );
+	/**
+	 * @return Controller\Base[]
+	 */
+	public function getAllScanCons() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		foreach ( $opts->getScanSlugs() as $slug ) {
+			try {
+				$this->getScanCon( $slug );
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+		return $this->scanCons;
 	}
 
-	protected function getSubProMap() :array {
-		return [
-			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
-			'mal' => 'ICWP_WPSF_Processor_HackProtect_Mal',
-			'ptg' => 'ICWP_WPSF_Processor_HackProtect_Ptg',
-			'ufc' => 'ICWP_WPSF_Processor_HackProtect_Ufc',
-			'wcf' => 'ICWP_WPSF_Processor_HackProtect_Wcf',
-			'wpv' => 'ICWP_WPSF_Processor_HackProtect_Wpv',
-		];
+	/**
+	 * @param string $slug
+	 * @return Controller\Base|mixed
+	 * @throws \Exception
+	 */
+	public function getScanCon( string $slug ) {
+		if ( !isset( $this->scanCons[ $slug ] ) ) {
+			$class = __NAMESPACE__.'\\Controller\\'.ucwords( $slug );
+			if ( @class_exists( $class ) ) {
+				/** @var Controller\Base $obj */
+				$obj = new $class();
+				$this->scanCons[ $slug ] = $obj->setMod( $this->getMod() );
+			}
+			else {
+				throw new \Exception( 'Scan slug does not have a class: '.$slug );
+			}
+		}
+		return $this->scanCons[ $slug ];
 	}
 
 	private function handlePostScanCron() {

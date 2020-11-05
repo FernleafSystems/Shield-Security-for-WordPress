@@ -68,32 +68,9 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor
 	 * Cron callback
 	 */
 	public function runCron() {
-		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
 	}
 
 	private function cronScan() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
-		if ( $this->getCanScansExecute() ) {
-			$aScans = [];
-			foreach ( $opts->getScanSlugs() as $sScanSlug ) {
-				$oScanCon = $mod->getScanCon( $sScanSlug );
-				if ( $oScanCon->isScanningAvailable() && $oScanCon->isEnabled() ) {
-					$aScans[] = $sScanSlug;
-				}
-			}
-
-			$opts->setIsScanCron( true );
-			$mod->saveModOptions()
-				->getScanQueueController()
-				->startScans( $aScans );
-		}
-		else {
-			error_log( 'Shield scans cannot execute.' );
-		}
 	}
 
 	/**

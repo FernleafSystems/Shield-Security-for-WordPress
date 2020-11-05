@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
@@ -27,20 +26,31 @@ class WpvAddPluginRows {
 		$this->addPluginVulnerabilityRows();
 	}
 
-	private function addPluginVulnerabilityRows() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getScanController()->getMod();
+	protected function canRun() {
+		return $this->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0;
+	}
 
-		if ( $mod->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
-			// These 3 add the 'Vulnerable' plugin status view.
-			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
-			add_action( 'pre_current_active_plugins', [ $this, 'addVulnerablePluginStatusView' ], 1000 );
-			add_filter( 'all_plugins', [ $this, 'filterPluginsToView' ], 1000 );
-			add_filter( 'views_plugins', [ $this, 'addPluginsStatusViewLink' ], 1000 );
-			add_filter( 'manage_plugins_columns', [ $this, 'fCountColumns' ], 1000 );
-			foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
-				add_action( "after_plugin_row_$file", [ $this, 'attachVulnerabilityWarning' ], 100, 2 );
-			}
+	private function isWpvulnPluginsHighlightEnabled() :bool {
+		$scanCon = $this->getScanController();
+		if ( $scanCon->isEnabled() ) {
+			$opt = apply_filters( 'icwp_shield_wpvuln_scan_display', 'securityadmin' );
+		}
+		else {
+			$opt = 'disabled';
+		}
+		return ( $opt != 'disabled' ) && Services::WpUsers()->isUserAdmin()
+			   && ( ( $opt != 'securityadmin' ) || $scanCon->getCon()->isPluginAdmin() );
+	}
+
+	private function addPluginVulnerabilityRows() {
+		// These 3 add the 'Vulnerable' plugin status view.
+		// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
+		add_action( 'pre_current_active_plugins', [ $this, 'addVulnerablePluginStatusView' ], 1000 );
+		add_filter( 'all_plugins', [ $this, 'filterPluginsToView' ], 1000 );
+		add_filter( 'views_plugins', [ $this, 'addPluginsStatusViewLink' ], 1000 );
+		add_filter( 'manage_plugins_columns', [ $this, 'fCountColumns' ], 1000 );
+		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
+			add_action( "after_plugin_row_$file", [ $this, 'attachVulnerabilityWarning' ], 100, 2 );
 		}
 	}
 

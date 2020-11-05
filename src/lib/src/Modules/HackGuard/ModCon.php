@@ -64,14 +64,10 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @return Scan\Controller\Base[]
+	 * @deprecated 10.1
 	 */
 	public function getAllScanCons() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $scanSlug ) {
-			$this->getScanCon( $scanSlug );
-		}
-		return $this->aScanCons;
+		return $this->aScanCons ?? $this->getScansCon()->getAllScanCons();
 	}
 
 	/**
@@ -79,21 +75,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return Scan\Controller\Base|mixed
 	 */
 	public function getScanCon( string $slug ) {
-		if ( !is_array( $this->aScanCons ) ) {
-			$this->aScanCons = [];
-		}
-		if ( !isset( $this->aScanCons[ $slug ] ) ) {
-			$class = $this->getNamespace().'\\Scan\Controller\\'.ucwords( $slug );
-			if ( @class_exists( $class ) ) {
-				/** @var Scan\Controller\Base $oObj */
-				$oObj = new $class();
-				$this->aScanCons[ $slug ] = $oObj->setMod( $this );
-			}
-			else {
-				$this->aScanCons[ $slug ] = false;
-			}
-		}
-		return $this->aScanCons[ $slug ];
+		return isset( $this->aScanCons[ $slug ] ) ?? $this->getScansCon()->getScanCon( $slug );
 	}
 
 	public function getMainWpData() :array {
@@ -146,7 +128,7 @@ class ModCon extends BaseShield\ModCon {
 			$opts->setOpt( 'file_locker', $lockFiles );
 		}
 
-		foreach ( $this->getAllScanCons() as $con ) {
+		foreach ( $this->getScansCon()->getAllScanCons() as $con ) {
 			if ( !$con->isEnabled() ) {
 				$con->purge();
 			}
@@ -232,18 +214,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
 	}
 
-	public function isWpvulnPluginsHighlightEnabled() :bool {
-		$oWpvCon = $this->getScanCon( 'wpv' );
-		if ( $oWpvCon->isEnabled() ) {
-			$sOpt = apply_filters( 'icwp_shield_wpvuln_scan_display', 'securityadmin' );
-		}
-		else {
-			$sOpt = 'disabled';
-		}
-		return ( $sOpt != 'disabled' ) && Services::WpUsers()->isUserAdmin()
-			   && ( ( $sOpt != 'securityadmin' ) || $this->getCon()->isPluginAdmin() );
-	}
-
 	public function isPtgEnabled() :bool {
 		$opts = $this->getOptions();
 		return $this->isModuleEnabled() && $this->isPremium()
@@ -327,12 +297,20 @@ class ModCon extends BaseShield\ModCon {
 		// 1. Clean out the scanners
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
-			$this->getScanCon( $sSlug )->purge();
+		foreach ( $oOpts->getScanSlugs() as $slug ) {
+			$this->getScanCon( $slug )->purge();
 		}
 		$this->getDbHandler_ScanQueue()->tableDelete();
 		$this->getDbHandler_ScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 10.1
+	 */
+	public function isWpvulnPluginsHighlightEnabled() :bool {
+		return false;
 	}
 }
