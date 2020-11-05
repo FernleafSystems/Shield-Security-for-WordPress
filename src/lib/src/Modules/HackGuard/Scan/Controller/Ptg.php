@@ -92,7 +92,7 @@ class Ptg extends BaseForAssets {
 	/**
 	 * @return bool
 	 */
-	public function isScanningAvailable() {
+	public function isScanningAvailable() :bool {
 		return parent::isScanningAvailable()
 			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
 			   && $this->getMod()->canCacheDirWrite();

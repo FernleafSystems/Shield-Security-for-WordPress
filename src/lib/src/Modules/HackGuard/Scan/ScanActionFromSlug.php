@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class ScanActionFromSlug
@@ -10,26 +10,26 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class ScanActionFromSlug {
 
-	public static function GetAction( string $slug ):Shield\Scans\Base\BaseScanActionVO {
+	public static function GetAction( string $slug ) :Scans\Base\BaseScanActionVO {
 		$VO = null;
 		switch ( $slug ) {
 			case 'apc':
-				$VO = new Shield\Scans\Apc\ScanActionVO();
+				$VO = new Scans\Apc\ScanActionVO();
 				break;
 			case 'mal':
-				$VO = new Shield\Scans\Mal\ScanActionVO();
+				$VO = new Scans\Mal\ScanActionVO();
 				break;
 			case 'ptg':
-				$VO = new Shield\Scans\Ptg\ScanActionVO();
+				$VO = new Scans\Ptg\ScanActionVO();
 				break;
 			case 'ufc':
-				$VO = new Shield\Scans\Ufc\ScanActionVO();
+				$VO = new Scans\Ufc\ScanActionVO();
 				break;
 			case 'wcf':
-				$VO = new Shield\Scans\Wcf\ScanActionVO();
+				$VO = new Scans\Wcf\ScanActionVO();
 				break;
 			case 'wpv':
-				$VO = new Shield\Scans\Wpv\ScanActionVO();
+				$VO = new Scans\Wpv\ScanActionVO();
 				break;
 		}
 		$VO->scan = $slug;

@@ -15,6 +15,11 @@ class ModCon extends BaseShield\ModCon {
 	private $oScanQueueController;
 
 	/**
+	 * @var Scan\ScansController
+	 */
+	private $scanCon;
+
+	/**
 	 * @var Scan\Controller\Base[]
 	 */
 	private $aScanCons;
@@ -39,6 +44,14 @@ class ModCon extends BaseShield\ModCon {
 				->setMod( $this );
 		}
 		return $this->oFileLocker;
+	}
+
+	public function getScansCon() :Scan\ScansController {
+		if ( !isset( $this->scanCon ) ) {
+			$this->scanCon = ( new Scan\ScansController() )
+				->setMod( $this );
+		}
+		return $this->scanCon;
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
@@ -70,7 +83,7 @@ class ModCon extends BaseShield\ModCon {
 			$this->aScanCons = [];
 		}
 		if ( !isset( $this->aScanCons[ $slug ] ) ) {
-			$class = $this->getNamespace().'Scan\Controller\\'.ucwords( $slug );
+			$class = $this->getNamespace().'\\Scan\Controller\\'.ucwords( $slug );
 			if ( @class_exists( $class ) ) {
 				/** @var Scan\Controller\Base $oObj */
 				$oObj = new $class();

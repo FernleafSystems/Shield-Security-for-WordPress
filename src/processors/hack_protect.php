@@ -20,16 +20,10 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		}
 	}
 
-	/**
-	 * @return \ICWP_WPSF_Processor_HackProtect_Scanner|mixed
-	 */
-	public function getSubProScanner() {
+	public function getSubProScanner() :\ICWP_WPSF_Processor_HackProtect_Scanner {
 		return $this->getSubPro( 'scanner' );
 	}
 
-	/**
-	 * @return array
-	 */
 	protected function getSubProMap() :array {
 		return [
 			'scanner' => 'ICWP_WPSF_Processor_HackProtect_Scanner',
