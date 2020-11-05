@@ -3,12 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
 	public function run() {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
@@ -21,21 +23,12 @@ class Processor extends BaseShield\Processor {
 
 		$mod->getPluginBadgeCon()->run();
 
-		if ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() ) {
-			( new \ICWP_WPSF_Processor_Plugin_Tracking( $mod ) )->execute();
-		}
+		( new PluginTelemetry() )
+			->setMod( $mod )
+			->execute();
 
 		if ( $opts->isImportExportPermitted() ) {
 			$mod->getImpExpController()->run();
-		}
-
-		$con = $this->getCon();
-		switch ( $con->getShieldAction() ) {
-			case 'dump_tracking_data':
-				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
-				break;
-			default:
-				break;
 		}
 
 		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
@@ -116,14 +109,6 @@ class Processor extends BaseShield\Processor {
 			echo $this->getMod()->renderTemplate(
 				'snippets/plugin-deactivate-survey.php', $aData
 			);
-		}
-	}
-
-	public function dumpTrackingData() {
-		if ( $this->getCon()->isPluginAdmin() ) {
-			echo sprintf( '<pre><code>%s</code></pre>',
-				print_r( ( new \ICWP_WPSF_Processor_Plugin_Tracking( $this->getMod() ) )->collectTrackingData(), true ) );
-			die();
 		}
 	}
 

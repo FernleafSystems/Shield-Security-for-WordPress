@@ -1401,24 +1401,6 @@ abstract class ModCon {
 		return $aTransferableOptions;
 	}
 
-	public function collectOptionsForTracking() :array {
-		$opts = $this->getOptions();
-		$aOptionsData = $this->getOptions()->getOptionsForTracking();
-		foreach ( $aOptionsData as $opt => $mValue ) {
-			unset( $aOptionsData[ $opt ] );
-			// some cleaning to ensure we don't have disallowed characters
-			$opt = preg_replace( '#[^_a-z]#', '', strtolower( $opt ) );
-			$sType = $opts->getOptionType( $opt );
-			if ( $sType == 'checkbox' ) { // only want a boolean 1 or 0
-				$aOptionsData[ $opt ] = (int)( $mValue == 'Y' );
-			}
-			else {
-				$aOptionsData[ $opt ] = $mValue;
-			}
-		}
-		return $aOptionsData;
-	}
-
 	public function getMainWpData() :array {
 		return [
 			'options' => $this->getOptions()->getTransferableOptions()

@@ -15,15 +15,6 @@ class ShieldProcessor extends Base\BaseProcessor {
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
 
 	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$con = $this->getCon();
-		add_filter( $con->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
-	}
-
-	/**
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
@@ -38,26 +29,5 @@ class ShieldProcessor extends Base\BaseProcessor {
 		}
 
 		return $bIsSubject;
-	}
-
-	/**
-	 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
-	 * - it is not enabled by default.
-	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
-	 * identifiable data.
-	 *
-	 * @param $aData
-	 * @return array
-	 */
-	public function tracking_DataCollect( $aData ) {
-		if ( !is_array( $aData ) ) {
-			$aData = [];
-		}
-		$oMod = $this->getMod();
-		$aOptions = $oMod->collectOptionsForTracking();
-		if ( !empty( $aOptions ) ) {
-			$aData[ $oMod->getSlug() ] = [ 'options' => $oMod->collectOptionsForTracking() ];
-		}
-		return $aData;
 	}
 }

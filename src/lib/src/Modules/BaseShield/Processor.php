@@ -10,15 +10,6 @@ abstract class Processor extends Base\Processor {
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
 
 	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$con = $this->getCon();
-		add_filter( $con->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
-	}
-
-	/**
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
@@ -33,26 +24,5 @@ abstract class Processor extends Base\Processor {
 		}
 
 		return $bIsSubject;
-	}
-
-	/**
-	 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
-	 * - it is not enabled by default.
-	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
-	 * identifiable data.
-	 *
-	 * @param $data
-	 * @return array
-	 */
-	public function tracking_DataCollect( $data ) {
-		if ( !is_array( $data ) ) {
-			$data = [];
-		}
-		$oMod = $this->getMod();
-		$aOptions = $oMod->collectOptionsForTracking();
-		if ( !empty( $aOptions ) ) {
-			$data[ $oMod->getSlug() ] = [ 'options' => $oMod->collectOptionsForTracking() ];
-		}
-		return $data;
 	}
 }
