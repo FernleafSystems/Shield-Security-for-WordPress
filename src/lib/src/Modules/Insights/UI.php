@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function buildInsightsVars_Docs() :array {
 		$con = $this->getCon();

@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 }

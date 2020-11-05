@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
@@ -7,69 +7,61 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class AjaxHandler extends Base\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
-		$aResponse = [];
+		$response = [];
 		$mod = $this->getMod();
 
 		switch ( $action ) {
 
 			case 'mod_opts_form_render':
-				$aResponse = $this->ajaxExec_ModOptionsFormRender();
+				$response = $this->ajaxExec_ModOptionsFormRender();
 				break;
 
 			case 'mod_options':
-				$aResponse = $this->ajaxExec_ModOptions();
+				$response = $this->ajaxExec_ModOptions();
 				break;
 
 			case 'wiz_process_step':
 				if ( $mod->hasWizard() ) {
-					$aResponse = $mod->getWizardHandler()
-									 ->ajaxExec_WizProcessStep();
+					$response = $mod->getWizardHandler()->ajaxExec_WizProcessStep();
 				}
 				break;
 
 			case 'wiz_render_step':
 				if ( $mod->hasWizard() ) {
-					$aResponse = $mod->getWizardHandler()
-									 ->ajaxExec_WizRenderStep();
+					$response = $mod->getWizardHandler()->ajaxExec_WizRenderStep();
 				}
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_ModOptions() {
+	protected function ajaxExec_ModOptions() :array {
 
-		$sName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 
 		try {
 			$this->getMod()->saveOptionsSubmit();
-			$bSuccess = true;
-			$sMessage = sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $sName );
+			$success = true;
+			$msg = sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $name );
 		}
-		catch ( \Exception $oE ) {
-			$bSuccess = false;
-			$sMessage = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $sName )
-						.' '.$oE->getMessage();
+		catch ( \Exception $e ) {
+			$success = false;
+			$msg = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $name )
+						.' '.$e->getMessage();
 		}
 
 		return [
-			'success' => $bSuccess,
+			'success' => $success,
 			'html'    => '', //we reload the page
-			'message' => $sMessage
+			'message' => $msg
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_ModOptionsFormRender() {
+	protected function ajaxExec_ModOptionsFormRender() :array {
 		return [
 			'success' => true,
 			'html'    => $this->getMod()->renderOptionsForm(),

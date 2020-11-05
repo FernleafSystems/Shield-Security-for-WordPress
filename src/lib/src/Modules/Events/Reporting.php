@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\BaseReporting;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\Reports;
 
-class Reporting extends BaseReporting {
+class Reporting extends Base\Reporting {
 
 	/**
 	 * @inheritDoc
