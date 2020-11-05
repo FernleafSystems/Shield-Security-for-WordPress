@@ -113,12 +113,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$this->cleanFileExclusions();
 
-		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
-			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			$oPro->getSubProScanner()->deleteCron();
-		}
-
 		if ( count( $opts->getFilesToLock() ) === 0 || !$this->getCon()
 															 ->getModule_Plugin()
 															 ->getShieldNetApiController()

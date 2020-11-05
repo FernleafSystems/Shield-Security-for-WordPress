@@ -110,9 +110,7 @@ class ModCon extends BaseShield\ModCon {
 		$this->cleanFileExclusions();
 
 		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
-			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			$oPro->getSubProScanner()->deleteCron();
+			$this->getScansCon()->deleteCron();
 		}
 
 		if ( count( $opts->getFilesToLock() ) === 0 || !$this->getCon()

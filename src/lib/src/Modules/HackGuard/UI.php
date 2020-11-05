@@ -35,9 +35,7 @@ class UI extends BaseShield\UI {
 		}
 
 		// Can Scan Checks:
-		$aReasonCantScan = $mod->getProcessor()
-							   ->getSubProScanner()
-							   ->getReasonsScansCantExecute();
+		$aReasonCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();

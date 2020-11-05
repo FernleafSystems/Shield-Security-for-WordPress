@@ -5,6 +5,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor {
 
 	use Shield\Crons\StandardCron;
@@ -21,47 +24,21 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor
 	}
 
 	private function handlePostScanCron() {
-		add_action( $this->getCon()->prefix( 'post_scan' ), function () {
-			$this->runAutoRepair();
-		} );
 	}
 
 	private function runAutoRepair() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $sSlug ) {
-			$oScanCon = $mod->getScanCon( $sSlug );
-			if ( $oScanCon->isCronAutoRepair() ) {
-				$oScanCon->runCronAutoRepair();
-			}
-		}
 	}
 
 	public function runHourlyCron() {
-		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 
 	public function runDailyCron() {
-		( new HackGuard\Lib\Snapshots\StoreAction\CleanAll() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 
 	public function onWpLoaded() {
-		( new HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->hookBuild();
 	}
 
 	public function onModuleShutdown() {
-		parent::onModuleShutdown();
-		( new HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->schedule();
 	}
 
 	/**
@@ -73,17 +50,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends BaseShield\ShieldProcessor
 	private function cronScan() {
 	}
 
-	/**
-	 * @return string[]
-	 */
 	public function getReasonsScansCantExecute() :array {
-		return array_keys( array_filter( [
-			'reason_not_call_self' => !$this->getCon()->getModule_Plugin()->getCanSiteCallToItself()
-		] ) );
+		return [];
 	}
 
 	public function getCanScansExecute() :bool {
-		return count( $this->getReasonsScansCantExecute() ) === 0;
 	}
 
 	protected function getCronFrequency() {
