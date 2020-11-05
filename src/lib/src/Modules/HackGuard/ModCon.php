@@ -75,7 +75,8 @@ class ModCon extends BaseShield\ModCon {
 	 * @return Scan\Controller\Base|mixed
 	 */
 	public function getScanCon( string $slug ) {
-		return isset( $this->aScanCons[ $slug ] ) ?? $this->getScansCon()->getScanCon( $slug );
+		return empty( $this->aScanCons[ $slug ] ) ?
+			$this->getScansCon()->getScanCon( $slug ) : $this->aScanCons[ $slug ];
 	}
 
 	public function getMainWpData() :array {

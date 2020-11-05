@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
@@ -87,7 +86,7 @@ class UI extends BaseShield\UI {
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $aReasonCantScan,
-				'related_hrefs' => [
+				'related_hrefs'       => [
 					[
 						'href'  => $this->getCon()->getModule_HackGuard()->getUrl_AdminPage(),
 						'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
@@ -174,21 +173,21 @@ class UI extends BaseShield\UI {
 			],
 		];
 
-		/** @var Strings $oStrings */
-		$oStrings = $mod->getStrings();
-		$aScanNames = $oStrings->getScanNames();
-		foreach ( $aData[ 'scans' ] as $sSlug => &$aScanData ) {
-			$oScanCon = $mod->getScanCon( $sSlug );
-			$aScanData[ 'flags' ][ 'is_available' ] = $oScanCon->isScanningAvailable();
-			$aScanData[ 'flags' ][ 'is_restricted' ] = !$oScanCon->isScanningAvailable();
-			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanCon->isEnabled();
-			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanCon->isScanningAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
-			$aScanData[ 'flags' ][ 'has_last_scan' ] = $mod->getLastScanAt( $sSlug ) > 0;
-			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
-			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];
-			$aScanData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
-			$aScanData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
-			$aScanData[ 'count' ] = $oSelector->countForScan( $sSlug );
+		/** @var Strings $strings */
+		$strings = $mod->getStrings();
+		$name = $strings->getScanNames();
+		foreach ( $aData[ 'scans' ] as $slug => &$scData ) {
+			$scon = $mod->getScanCon( $slug );
+			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
+			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
+			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
+			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $aUiTrack[ 'selected_scans' ] );
+			$scData[ 'flags' ][ 'has_last_scan' ] = $mod->getLastScanAt( $slug ) > 0;
+			$scData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $slug ];
+			$scData[ 'strings' ][ 'title' ] = $name[ $slug ];
+			$scData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
+			$scData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
+			$scData[ 'count' ] = $oSelector->countForScan( $slug );
 		}
 
 		return $aData;
@@ -260,14 +259,10 @@ class UI extends BaseShield\UI {
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();
-		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
-		$oFullResults = ( new Shield\Modules\HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanController( $mod->getScanCon( 'ptg' ) )
-			->fromVOsToResultsSet( $aPtgResults );
 
 		return [
 			'flags'   => [
-				'has_items'   => $mod->isPtgEnabled() ? $oFullResults->hasItems() : false,
+				'has_items'   => $mod->isPtgEnabled() ? !empty( $aPtgResults ) : false,
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
 				'show_table'  => false,
