@@ -136,7 +136,7 @@ class UI extends BaseShield\UI {
 		return [
 			[
 				'href'  => $modInsights->getUrl_SubInsightsPage( 'ips' ),
-				'title' => __( 'IP Lists', 'wp-simple-firewall' ),
+				'title' => __( 'Analyse & Manage IPs', 'wp-simple-firewall' ),
 			]
 		];
 	}
