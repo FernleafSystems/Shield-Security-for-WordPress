@@ -10,33 +10,29 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class ScanActionFromSlug {
 
-	/**
-	 * @param string $sScanSlug
-	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
-	 */
-	public static function GetAction( $sScanSlug ) {
-		$oVO = null;
-		switch ( $sScanSlug ) {
+	public static function GetAction( string $slug ):Shield\Scans\Base\BaseScanActionVO {
+		$VO = null;
+		switch ( $slug ) {
 			case 'apc':
-				$oVO = new Shield\Scans\Apc\ScanActionVO();
+				$VO = new Shield\Scans\Apc\ScanActionVO();
 				break;
 			case 'mal':
-				$oVO = new Shield\Scans\Mal\ScanActionVO();
+				$VO = new Shield\Scans\Mal\ScanActionVO();
 				break;
 			case 'ptg':
-				$oVO = new Shield\Scans\Ptg\ScanActionVO();
+				$VO = new Shield\Scans\Ptg\ScanActionVO();
 				break;
 			case 'ufc':
-				$oVO = new Shield\Scans\Ufc\ScanActionVO();
+				$VO = new Shield\Scans\Ufc\ScanActionVO();
 				break;
 			case 'wcf':
-				$oVO = new Shield\Scans\Wcf\ScanActionVO();
+				$VO = new Shield\Scans\Wcf\ScanActionVO();
 				break;
 			case 'wpv':
-				$oVO = new Shield\Scans\Wpv\ScanActionVO();
+				$VO = new Shield\Scans\Wpv\ScanActionVO();
 				break;
 		}
-		$oVO->scan = $sScanSlug;
-		return $oVO;
+		$VO->scan = $slug;
+		return $VO;
 	}
 }
