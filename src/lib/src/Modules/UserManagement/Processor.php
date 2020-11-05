@@ -1,22 +1,20 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	/**
 	 * This module is set to "run if whitelisted", so we must ensure any
 	 * actions taken by this module respect whether the current visitor is whitelisted.
 	 */
 	public function run() {
-		/** @var UserManagement\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		// Adds last login indicator column
@@ -31,7 +29,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 		}
 
 		// This controller will handle visitor whitelisted status internally.
-		( new UserManagement\Lib\Suspend\UserSuspendController() )
+		( new Lib\Suspend\UserSuspendController() )
 			->setMod( $this->getMod() )
 			->execute();
 
@@ -39,11 +37,11 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 			/** Everything from this point on must consider XMLRPC compatibility **/
 			if ( $mod->isUserSessionsManagementEnabled() ) {
-				$this->getSubPro( 'sessions' )->execute();
+				( new \ICWP_WPSF_Processor_UserManagement_Sessions( $mod ) )->execute();
 			}
 
 			if ( $opts->isPasswordPoliciesEnabled() ) {
-				$this->getSubPro( 'passwords' )->execute();
+				( new \ICWP_WPSF_Processor_UserManagement_Passwords( $mod ) )->execute();
 			}
 
 			// All newly created users have their first seen and password start date set
@@ -51,7 +49,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 				$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
 			} );
 
-			( new UserManagement\Lib\Registration\EmailValidate() )
+			( new Lib\Registration\EmailValidate() )
 				->setMod( $this->getMod() )
 				->run();
 		}
@@ -65,12 +63,12 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	}
 
 	/**
-	 * @param string   $sUsername
+	 * @param string   $username
 	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $user = null ) {
+	public function onWpLogin( $username, $user = null ) {
 		if ( !$user instanceof \WP_User ) {
-			$user = Services::WpUsers()->getUserByUsername( $sUsername );
+			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
 		$this->setPasswordStartedAt( $user )// used by Password Policies
 			 ->setUserLastLoginTime( $user )
@@ -82,7 +80,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * @return $this
 	 */
 	private function sendLoginNotifications( \WP_User $user ) {
-		/** @var UserManagement\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$aAdminEmails = $mod->getAdminLoginNotificationEmails();
 		$bAdmin = count( $aAdminEmails ) > 0;
@@ -160,7 +158,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
-		/** @var UserManagement\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
 
@@ -254,12 +252,5 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
 				$aMessage
 			);
-	}
-
-	protected function getSubProMap() :array {
-		return [
-			'passwords' => 'ICWP_WPSF_Processor_UserManagement_Passwords',
-			'sessions'  => 'ICWP_WPSF_Processor_UserManagement_Sessions',
-		];
 	}
 }

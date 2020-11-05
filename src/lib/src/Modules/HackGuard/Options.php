@@ -19,22 +19,15 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return int[] - keys are the unique report hash
 	 */
-	public function getMalFalsePositiveReports() {
-		$aFP = $this->getOpt( 'mal_fp_reports', [] );
-		return is_array( $aFP ) ? $aFP : [];
+	public function getMalFalsePositiveReports() :array {
+		$FP = $this->getOpt( 'mal_fp_reports', [] );
+		return is_array( $FP ) ? $FP : [];
 	}
 
-	/**
-	 * @param string $sReportHash
-	 * @return bool
-	 */
-	public function isMalFalsePositiveReported( $sReportHash ) :bool {
-		return isset( $this->getMalFalsePositiveReports()[ $sReportHash ] );
+	public function isMalFalsePositiveReported( string $hash ) :bool {
+		return isset( $this->getMalFalsePositiveReports()[ $hash ] );
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getMalConfidenceBoundary() :int {
 		return (int)apply_filters( 'icwp_shield_fp_confidence_boundary', 50 );
 	}
@@ -78,86 +71,62 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $sFilename
-	 * @param string $sUrl
+	 * @param string $fileName
+	 * @param string $url
 	 * @return string[]
 	 */
-	public function getMalSignatures( $sFilename, $sUrl ) {
+	public function getMalSignatures( string $fileName, string $url ) {
 		$FS = Services::WpFs();
-		$sFile = $this->getCon()->getPluginCachePath( $sFilename );
-		if ( $FS->exists( $sFile ) ) {
-			$aSigs = explode( "\n", $FS->getFileContent( $sFile, true ) );
+		$file = $this->getCon()->getPluginCachePath( $fileName );
+		if ( $FS->exists( $file ) ) {
+			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
 		}
 		else {
-			$aSigs = array_filter(
+			$sigs = array_filter(
 				array_map( 'trim',
-					explode( "\n", Services::HttpRequest()->getContent( $sUrl ) )
+					explode( "\n", Services::HttpRequest()->getContent( $url ) )
 				),
-				function ( $sLine ) {
-					return ( ( strpos( $sLine, '#' ) !== 0 ) && strlen( $sLine ) > 0 );
+				function ( $line ) {
+					return ( ( strpos( $line, '#' ) !== 0 ) && strlen( $line ) > 0 );
 				}
 			);
 
-			if ( !empty( $aSigs ) ) {
-				$FS->putFileContent( $sFile, implode( "\n", $aSigs ), true );
+			if ( !empty( $sigs ) ) {
+				$FS->putFileContent( $file, implode( "\n", $sigs ), true );
 			}
 		}
-		return $aSigs;
+		return $sigs;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairSurgical() {
+	public function isMalAutoRepairSurgical() :bool {
 		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMalUseNetworkIntelligence() {
+	public function isMalUseNetworkIntelligence() :bool {
 		return $this->getMalConfidenceBoundary() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPtgReinstallLinks() {
+	public function isPtgReinstallLinks() :bool {
 		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->isPremium();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isRepairFileAuto() {
+	public function isRepairFileAuto() :bool {
 		return count( $this->getRepairAreas() ) > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isRepairFilePlugin() {
+	public function isRepairFilePlugin() :bool {
 		return in_array( 'plugin', $this->getRepairAreas() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isRepairFileTheme() {
+	public function isRepairFileTheme() :bool {
 		return in_array( 'theme', $this->getRepairAreas() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isRepairFileWP() {
+	public function isRepairFileWP() :bool {
 		return in_array( 'wp', $this->getRepairAreas() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnAutoupdatesEnabled() {
+	public function isWpvulnAutoupdatesEnabled() :bool {
 		return $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
@@ -220,9 +189,9 @@ class Options extends BaseShield\Options {
 	/**
 	 * Provides an array where the key is the root dir, and the value is the specific file types.
 	 * An empty array means all files.
-	 * @return string[]
+	 * @return array[]
 	 */
-	public function getUfcScanDirectories() {
+	public function getUfcScanDirectories() :array {
 		$aDirs = [
 			path_join( ABSPATH, 'wp-admin' )    => [],
 			path_join( ABSPATH, 'wp-includes' ) => []
@@ -249,10 +218,7 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isUfsDeleteFiles() {
+	public function isUfsDeleteFiles() :bool {
 		return $this->getUnrecognisedFileScannerOption() === 'enabled_delete_only';
 	}
 
@@ -301,10 +267,7 @@ class Options extends BaseShield\Options {
 		return $sPattern;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isScanCron() {
+	public function isScanCron() :bool {
 		return (bool)$this->getOpt( 'is_scan_cron' );
 	}
 

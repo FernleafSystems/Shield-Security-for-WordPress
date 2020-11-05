@@ -41,18 +41,18 @@ abstract class Processor extends Base\Processor {
 	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
 	 * identifiable data.
 	 *
-	 * @param $aData
+	 * @param $data
 	 * @return array
 	 */
-	public function tracking_DataCollect( $aData ) {
-		if ( !is_array( $aData ) ) {
-			$aData = [];
+	public function tracking_DataCollect( $data ) {
+		if ( !is_array( $data ) ) {
+			$data = [];
 		}
 		$oMod = $this->getMod();
 		$aOptions = $oMod->collectOptionsForTracking();
 		if ( !empty( $aOptions ) ) {
-			$aData[ $oMod->getSlug() ] = [ 'options' => $oMod->collectOptionsForTracking() ];
+			$data[ $oMod->getSlug() ] = [ 'options' => $oMod->collectOptionsForTracking() ];
 		}
-		return $aData;
+		return $data;
 	}
 }

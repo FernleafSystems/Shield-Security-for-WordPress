@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
 class DashboardCards {
@@ -44,7 +45,7 @@ class DashboardCards {
 
 	public function renderSettingsCard() :string {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 
 		return $mod->renderTemplate(
@@ -80,7 +81,7 @@ class DashboardCards {
 	}
 
 	protected function renderStandardCard( $card ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/dashboard/card_std.twig',

@@ -287,15 +287,15 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNotice_AllowTracking( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$sName = $this->getCon()->getHumanName();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$name = $this->getCon()->getHumanName();
 
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $sName ),
-				'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $sName ),
+				'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $name ),
+				'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $name ),
 				'what_we_collect' => __( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' ),
 				'data_anon'       => __( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
 				'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
@@ -308,11 +308,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'set_plugin_tracking' => $oMod->getAjaxActionData( 'set_plugin_tracking', true ),
+				'set_plugin_tracking' => $mod->getAjaxActionData( 'set_plugin_tracking', true ),
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
-				'link_to_see'      => $oMod->getLinkToTrackingDataDump(),
+				'link_to_see'      => $mod->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
 
 			]

@@ -67,7 +67,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_SendDeactivateSurvey() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$results = [];
 		foreach ( $_POST as $sKey => $sValue ) {
@@ -85,7 +85,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_PluginBadgeClose() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = $mod->getPluginBadgeCon()->setBadgeStateClosed();
 		return [
@@ -104,7 +104,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_BulkItemAction() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
 
@@ -148,7 +148,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_RenderTableAdminNotes() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return [
 			'success' => true,
@@ -160,7 +160,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_AdminNotesDelete() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$sItemId = Services::Request()->post( 'rid' );
@@ -231,7 +231,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_AdminNotesInsert() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
 		$aFormParams = $this->getAjaxFormParams();
@@ -278,7 +278,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_MarkTourFinished() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );
 		return [

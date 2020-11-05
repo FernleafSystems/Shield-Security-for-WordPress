@@ -1,24 +1,23 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	/**
 	 * @var array
 	 */
-	private $aAssetsVersions = [];
+	private $assetsVersions = [];
 
 	/**
 	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
 	public function run() {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$nPriority = $this->getHookPriority();
@@ -54,7 +53,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	public function onWpLoaded() {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$this->disableAllAutoUpdates();
@@ -80,29 +79,26 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		foreach ( array_keys( $oWpThemes->getUpdates() ) as $sFile ) {
 			$aAssVers[ 'themes' ][ $sFile ] = $oWpThemes->getTheme( $sFile )->get( 'Version' );
 		}
-		$this->aAssetsVersions = $aAssVers;
+		$this->assetsVersions = $aAssVers;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getTrackedAssetsVersions() {
-		if ( empty( $this->aAssetsVersions ) || !is_array( $this->aAssetsVersions ) ) {
-			$this->aAssetsVersions = [
+	protected function getTrackedAssetsVersions() :array {
+		if ( empty( $this->assetsVersions ) || !is_array( $this->assetsVersions ) ) {
+			$this->assetsVersions = [
 				'plugins' => [],
 				'themes'  => [],
 			];
 		}
-		return $this->aAssetsVersions;
+		return $this->assetsVersions;
 	}
 
 	/**
-	 * @param stdClass $oUpdates
+	 * @param \stdClass $oUpdates
 	 */
 	public function trackUpdateTimesCore( $oUpdates ) {
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
-			/** @var Modules\Autoupdates\Options $oOpts */
+			/** @var Options $oOpts */
 			$oOpts = $this->getOptions();
 
 			$aTk = $oOpts->getDelayTracking();
@@ -121,25 +117,25 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @param stdClass $oUpdates
+	 * @param \stdClass $oUpdates
 	 */
 	public function trackUpdateTimesPlugins( $oUpdates ) {
 		$this->trackUpdateTimeCommon( $oUpdates, 'plugins' );
 	}
 
 	/**
-	 * @param stdClass $oUpdates
+	 * @param \stdClass $oUpdates
 	 */
 	public function trackUpdateTimesThemes( $oUpdates ) {
 		$this->trackUpdateTimeCommon( $oUpdates, 'themes' );
 	}
 
 	/**
-	 * @param stdClass $oUpdates
-	 * @param string   $sContext - plugins/themes
+	 * @param \stdClass $oUpdates
+	 * @param string    $sContext - plugins/themes
 	 */
 	protected function trackUpdateTimeCommon( $oUpdates, $sContext ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->response ) && is_array( $oUpdates->response ) ) {
@@ -170,7 +166,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_core_major( $bUpdate ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		if ( $oOpts->isDisableAllAutoUpdates() || $oOpts->isAutoUpdateCoreNever() ) {
@@ -190,7 +186,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_core_minor( $bUpdate ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		if ( $oOpts->isDisableAllAutoUpdates() || $oOpts->isAutoUpdateCoreNever() ) {
@@ -208,7 +204,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		if ( $oOpts->isDisableAllAutoUpdates() ) {
@@ -227,7 +223,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		if ( $oOpts->isDisableAllAutoUpdates() ) {
@@ -257,12 +253,12 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @param bool            $bDoAutoUpdate
-	 * @param stdClass|string $mItem
+	 * @param bool             $bDoAutoUpdate
+	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
-		/** @var Modules\Autoupdates\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( $opts->isDisableAllAutoUpdates() ) {
@@ -283,12 +279,12 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @param string|stdClass $sSlug
-	 * @param string          $sContext
+	 * @param string|\stdClass $sSlug
+	 * @param string           $sContext
 	 * @return bool
 	 */
 	private function isDelayed( $sSlug, $sContext = 'plugins' ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$bDelayed = false;
@@ -299,7 +295,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 			$sVersion = '';
 			if ( $sContext == 'core' ) {
-				$sVersion = $sSlug->current; // stdClass from transient update_core
+				$sVersion = $sSlug->current; // \stdClass from transient update_core
 				$sSlug = 'wp';
 			}
 
@@ -328,9 +324,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_send_email( $bSendEmail ) {
-		/** @var Modules\Autoupdates\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isSendAutoupdatesNotificationEmail();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isSendAutoupdatesNotificationEmail();
 	}
 
 	/**
@@ -447,10 +443,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		die();
 	}
 
-	/**
-	 * @return int
-	 */
-	private function getHookPriority() {
-		return $this->getOptions()->getDef( 'action_hook_priority' );
+	private function getHookPriority() :int {
+		return (int)$this->getOptions()->getDef( 'action_hook_priority' );
 	}
 }

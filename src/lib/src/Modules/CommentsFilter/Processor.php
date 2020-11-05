@@ -1,26 +1,24 @@
-<?php
+<?php declare( strict_types=1 );
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	public function run() {
 	}
 
 	public function onWpInit() {
-		/** @var CommentsFilter\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var CommentsFilter\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$oWpUsers = Services::WpUsers();
 
 		$bLoadComProc = !$oWpUsers->isUserLoggedIn() ||
-						!( new CommentsFilter\Scan\IsEmailTrusted() )->trusted(
+						!( new Scan\IsEmailTrusted() )->trusted(
 							$oWpUsers->getCurrentWpUser()->user_email,
 							$opts->getApprovedMinimum(),
 							$opts->getTrustedRoles()
@@ -29,23 +27,23 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 		if ( $bLoadComProc ) {
 
 			if ( $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
-				$this->getSubPro( 'recaptcha' )->execute();
+				( new \ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $mod ) )->execute();
 			}
 
 			if ( Services::Request()->isPost() ) {
-				( new CommentsFilter\Scan\Scanner() )
+				( new Scan\Scanner() )
 					->setMod( $this->getMod() )
 					->run();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
 			elseif ( $opts->isEnabledGaspCheck() ) {
-				$this->getSubPro( 'bot' )->execute();
+				( new \ICWP_WPSF_Processor_CommentsFilter_BotSpam( $mod ) )->execute();
 			}
 		}
 	}
 
 	public function runHourlyCron() {
-		/** @var CommentsFilter\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isEnabledGaspCheck() && function_exists( 'delete_expired_transients' ) ) {
 			delete_expired_transients(); // cleanup unused comment tokens
@@ -57,7 +55,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	 */
 	protected function getSubProMap() :array {
 		return [
-			'bot'       => 'ICWP_WPSF_Processor_CommentsFilter_BotSpam',
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
 		];
 	}

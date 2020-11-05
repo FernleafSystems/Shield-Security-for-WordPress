@@ -1,26 +1,19 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\ShieldProcessor {
-
-	/**
-	 * @var string
-	 */
-	protected $sOptionRegexPattern;
+class Processor extends BaseShield\Processor {
 
 	public function run() {
 		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isEnabledWhitelabel() ) {
-			/** @var SecurityAdmin\ModCon $mod */
+			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$mod->getWhiteLabelController()->execute();
 		}
@@ -31,17 +24,18 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return bool
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
-		/** @var SecurityAdmin\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $bHasPermission && ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid()
-									|| $mod->testSecAccessKeyRequest() );
+		return $bHasPermission &&
+			   ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid()
+				 || $mod->testSecAccessKeyRequest() );
 	}
 
 	public function onWpInit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			/** @var SecurityAdmin\ModCon $mod */
+			/** @var ModCon $mod */
 			$mod = $this->getMod();
-			/** @var SecurityAdmin\Options $opts */
+			/** @var Options $opts */
 			$opts = $this->getOptions();
 
 			if ( !$mod->isUpgrading() && !Services::WpGeneral()->isLoginRequest() ) {
@@ -80,11 +74,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 
 	/**
 	 * Override the original collection to then add plugin statistics to the mix
-	 * @param $aData
+	 * @param $data
 	 * @return array
 	 */
-	public function tracking_DataCollect( $aData ) {
-		$aData = parent::tracking_DataCollect( $aData );
+	public function tracking_DataCollect( $data ) {
+		$data = parent::tracking_DataCollect( $data );
 		$sSlug = $this->getMod()->getSlug();
 
 		$aKeysToBoolean = [
@@ -93,10 +87,10 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 			'admin_access_restrict_posts'
 		];
 		foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
-			$aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ]
-				= empty( $aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
+			$data[ $sSlug ][ 'options' ][ $sKeyToBoolean ]
+				= empty( $data[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
 		}
-		return $aData;
+		return $data;
 	}
 
 	/**
@@ -175,52 +169,51 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @param int $nId
 	 */
 	public function restrictAdminUserDelete( $nId ) {
-		$oWpUsers = Services::WpUsers();
-		$oUserToDelete = $oWpUsers->getUserById( $nId );
-		if ( $oUserToDelete && $oWpUsers->isUserAdmin( $oUserToDelete ) ) {
+		$WPU = Services::WpUsers();
+		$oUserToDelete = $WPU->getUserById( $nId );
+		if ( $oUserToDelete && $WPU->isUserAdmin( $oUserToDelete ) ) {
 			Services::WpGeneral()
 					->wpDie( __( 'Sorry, deleting administrators is currently restricted to your Security Admin', 'wp-simple-firewall' ) );
 		}
 	}
 
 	/**
-	 * @param array[] $aAllRoles
+	 * @param array[] $roles
 	 * @return array[]
 	 */
-	public function restrictEditableRoles( $aAllRoles ) {
-		if ( isset( $aAllRoles[ 'administrator' ] ) ) {
-			unset( $aAllRoles[ 'administrator' ] );
+	public function restrictEditableRoles( $roles ) {
+		if ( isset( $roles[ 'administrator' ] ) ) {
+			unset( $roles[ 'administrator' ] );
 		}
-		return $aAllRoles;
+		return $roles;
 	}
 
 	/**
 	 * This hooked function captures the attempts to modify the user role using the standard
 	 * WordPress profile edit pages. It doesn't sufficiently capture the AJAX request to
 	 * modify user roles. (see user role hooks)
-	 * @param array $aAllCaps
+	 * @param array $allCaps
 	 * @param       $cap
-	 * @param array $aArgs
+	 * @param array $args
 	 * @return array
 	 */
-	public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
-		/** @var string $sUserCap */
-		$sUserCap = $aArgs[ 0 ];
+	public function restrictAdminUserChanges( $allCaps, $cap, $args ) {
+		/** @var string $userCap */
+		$userCap = $args[ 0 ];
 
-		$aReleventCaps = [ 'edit_users', 'create_users' ];
+		$aRelevantCaps = [ 'edit_users', 'create_users' ];
 
 		// If we're registered with Admin Access we don't modify anything
-		if ( in_array( $sUserCap, $aReleventCaps ) ) {
+		if ( in_array( $userCap, $aRelevantCaps ) ) {
 			$bBlockCapability = false;
 
-			$oReq = Services::Request();
+			$req = Services::Request();
 			$oWpUsers = Services::WpUsers();
 
-			// Find the WP_User for the POST
 			$oPostUser = false;
-			$sPostUserlogin = $oReq->post( 'user_login' );
+			$sPostUserlogin = $req->post( 'user_login' );
 			if ( empty( $sPostUserlogin ) ) {
-				$nPostUserId = $oReq->post( 'user_id' );
+				$nPostUserId = $req->post( 'user_id' );
 				if ( !empty( $nPostUserId ) ) {
 					$oPostUser = $oWpUsers->getUserById( $nPostUserId );
 				}
@@ -229,9 +222,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				$oPostUser = $oWpUsers->getUserByUsername( $sPostUserlogin );
 			}
 
-			$sRequestRole = strtolower( $oReq->post( 'role', '' ) );
+			$sRequestRole = strtolower( $req->post( 'role', '' ) );
 
-			if ( $oPostUser instanceof WP_User ) {
+			if ( $oPostUser instanceof \WP_User ) {
 				// editing an existing user other than yourself?
 				if ( $oPostUser->user_login != $oWpUsers->getCurrentWpUsername() ) {
 
@@ -245,11 +238,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 			}
 
 			if ( $bBlockCapability ) {
-				$aAllCaps[ $sUserCap ] = false;
+				$allCaps[ $userCap ] = false;
 			}
 		}
 
-		return $aAllCaps;
+		return $allCaps;
 	}
 
 	protected function getUserPagesToRestrict() :array {
@@ -286,7 +279,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	}
 
 	private function isOptionRestricted( string $key ) :bool {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getAdminAccessArea_Options()
 			   && in_array( $key, $opts->getOptionsToRestrict() );
@@ -299,7 +292,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return array
 	 */
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$req = Services::Request();
 
@@ -339,7 +332,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 			return $aAllCaps;
 		}
 
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		/** @var string $sRequestedCapability */
@@ -373,7 +366,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 			return $aAllCaps;
 		}
 
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		/** @var string $sRequestedCapability */
@@ -407,22 +400,14 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		return $aAllCaps;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getOptionRegexPattern() {
-		if ( !isset( $this->sOptionRegexPattern ) ) {
-			$this->sOptionRegexPattern = sprintf( '/^%s.*_options$/',
-				$this->getCon()->getOptionStoragePrefix()
-			);
-		}
-		return $this->sOptionRegexPattern;
+	private function getOptionRegexPattern() :string {
+		return sprintf( '/^%s.*_options$/', $this->getCon()->getOptionStoragePrefix() );
 	}
 
 	public function printAdminAccessAjaxForm() {
-		/** @var SecurityAdmin\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var SecurityAdmin\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$aRenderData = [

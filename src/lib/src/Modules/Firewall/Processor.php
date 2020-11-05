@@ -1,13 +1,11 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	/**
 	 * @var array
@@ -29,7 +27,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 *
 	 * @var array
 	 */
-	private $aPageParams;
+	private $params;
 
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
@@ -47,7 +45,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 	private function getIfPerformFirewallScan() :bool {
 		$bPerformScan = true;
-		/** @var Modules\Firewall\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$sPath = Services::Request()->getPath();
@@ -102,7 +100,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	protected function doPassCheckBlockExeFileUploads() :bool {
-		/** @var Firewall\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$sKey = 'exefile';
@@ -117,7 +115,12 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 			$aMatchTerms = $this->getFirewallPatterns( 'exefile' );
 			if ( isset( $aMatchTerms[ 'regex' ] ) && is_array( $aMatchTerms[ 'regex' ] ) ) {
 
-				$aMatchTerms[ 'regex' ] = array_map( [ $this, 'prepRegexTerms' ], $aMatchTerms[ 'regex' ] );
+				$aMatchTerms[ 'regex' ] = array_map(
+					function ( $term ) {
+						return '/'.$term.'/i';
+					},
+					$aMatchTerms[ 'regex' ]
+				);
 				foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
 					foreach ( $aFileNames as $sParam => $mValue ) {
 						if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
@@ -151,7 +154,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	private function doPassCheck( string $sBlockKey ) :bool {
-		/** @var Firewall\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$aMatchTerms = $this->getFirewallPatterns( $sBlockKey );
@@ -177,7 +180,12 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		}
 
 		if ( !$bFAIL && isset( $aMatchTerms[ 'regex' ] ) && is_array( $aMatchTerms[ 'regex' ] ) ) {
-			$aMatchTerms[ 'regex' ] = array_map( [ $this, 'prepRegexTerms' ], $aMatchTerms[ 'regex' ] );
+			$aMatchTerms[ 'regex' ] = array_map(
+				function ( $term ) {
+					return '/'.$term.'/i';
+				},
+				$aMatchTerms[ 'regex' ]
+			);
 			foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
 				foreach ( $aParamValues as $sParam => $mValue ) {
 					if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
@@ -230,16 +238,8 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		return $this->aPatterns;
 	}
 
-	/**
-	 * @param string $sTerm
-	 * @return string
-	 */
-	private function prepRegexTerms( $sTerm ) {
-		return '/'.$sTerm.'/i';
-	}
-
 	private function doPreFirewallBlock() {
-		/** @var Modules\Firewall\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isSendBlockEmail() ) {
 			$recipient = $this->getMod()->getPluginReportEmail();
@@ -252,7 +252,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function doFirewallBlock() {
-		/** @var Firewall\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		switch ( $mod->getBlockResponse() ) {
@@ -303,14 +303,14 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function getParamsToCheck() :array {
-		if ( isset( $this->aPageParams ) ) {
-			return $this->aPageParams;
+		if ( isset( $this->params ) ) {
+			return $this->params;
 		}
 
-		/** @var Modules\Firewall\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$this->aPageParams = $this->getRawRequestParams();
+		$this->params = $this->getRawRequestParams();
 		$aWhitelist = Services::DataManipulation()
 							  ->mergeArraysRecursive( $opts->getDef( 'default_whitelist' ), $opts->getCustomWhitelist() );
 
@@ -319,21 +319,21 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 			foreach ( $aWhitelist[ '*' ] as $sWhitelistParam ) {
 
 				if ( preg_match( '#^/.+/$#', $sWhitelistParam ) ) {
-					foreach ( array_keys( $this->aPageParams ) as $sParamKey ) {
+					foreach ( array_keys( $this->params ) as $sParamKey ) {
 						if ( preg_match( $sWhitelistParam, $sParamKey ) ) {
-							unset( $this->aPageParams[ $sParamKey ] );
+							unset( $this->params[ $sParamKey ] );
 						}
 					}
 				}
-				elseif ( isset( $this->aPageParams[ $sWhitelistParam ] ) ) {
-					unset( $this->aPageParams[ $sWhitelistParam ] );
+				elseif ( isset( $this->params[ $sWhitelistParam ] ) ) {
+					unset( $this->params[ $sWhitelistParam ] );
 				}
 			}
 		}
 
 		// If the parameters to check is already empty, we return it to save any further processing.
-		if ( empty( $this->aPageParams ) ) {
-			return $this->aPageParams;
+		if ( empty( $this->params ) ) {
+			return $this->params;
 		}
 
 		// Now we run through the list of whitelist pages
@@ -345,13 +345,13 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 				// if the page has no particular parameters specified there is nothing to check since the whole page is white listed.
 				if ( empty( $aWhitelistPageParams ) ) {
-					$this->aPageParams = [];
+					$this->params = [];
 				}
 				else {
 					// Otherwise we run through any whitelisted parameters and remove them.
 					foreach ( $aWhitelistPageParams as $sWhitelistParam ) {
-						if ( array_key_exists( $sWhitelistParam, $this->aPageParams ) ) {
-							unset( $this->aPageParams[ $sWhitelistParam ] );
+						if ( array_key_exists( $sWhitelistParam, $this->params ) ) {
+							unset( $this->params[ $sWhitelistParam ] );
 						}
 					}
 				}
@@ -359,7 +359,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 			}
 		}
 
-		return $this->aPageParams;
+		return $this->params;
 	}
 
 	private function getRawRequestParams() :array {
@@ -367,7 +367,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function sendBlockEmail( string $recipient ) :bool {
-		$bSuccess = false;
+		$success = false;
 		if ( !empty( $this->aAuditBlockMessage ) ) {
 			$sIp = Services::IP()->getRequestIp();
 			$aMessage = array_merge(
@@ -389,10 +389,10 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 				]
 			);
 
-			$bSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $recipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
+			$success = $this->getEmailProcessor()
+							->sendEmailWithWrap( $recipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	private function getFirewallBlockKeyName( string $blockKey ) :string {

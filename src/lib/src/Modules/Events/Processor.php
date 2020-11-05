@@ -86,17 +86,17 @@ class Processor extends BaseShield\Processor {
 
 	/**
 	 * Override the original collection to then add plugin statistics to the mix
-	 * @param $aData
+	 * @param $data
 	 * @return array
 	 */
-	public function tracking_DataCollect( $aData ) {
+	public function tracking_DataCollect( $data ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$aData = parent::tracking_DataCollect( $aData );
-		$aData[ $mod->getSlug() ][ 'stats' ] = $mod->getDbHandler_Events()
-													 ->getQuerySelector()
-													 ->sumAllEvents();
-		return $aData;
+		$data = parent::tracking_DataCollect( $data );
+		$data[ $mod->getSlug() ][ 'stats' ] = $mod->getDbHandler_Events()
+												  ->getQuerySelector()
+												  ->sumAllEvents();
+		return $data;
 	}
 
 	public function runDailyCron() {

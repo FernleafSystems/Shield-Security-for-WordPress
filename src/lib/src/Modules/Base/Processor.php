@@ -150,36 +150,6 @@ abstract class Processor {
 		return $this->getMod()->getEmailProcessor();
 	}
 
-	/**
-	 * @param string $key
-	 * @return BaseProcessor|mixed|null
-	 */
-	protected function getSubPro( string $key ) {
-		$aProcessors = $this->getSubProcessors();
-		if ( !isset( $aProcessors[ $key ] ) ) {
-			$aMap = $this->getSubProMap();
-			if ( !isset( $aMap[ $key ] ) ) {
-				error_log( 'Sub processor key not set: '.$key );
-			}
-			$aProcessors[ $key ] = new $aMap[ $key ]( $this->getMod() );
-		}
-		return $aProcessors[ $key ];
-	}
-
-	protected function getSubProMap() :array {
-		return [];
-	}
-
 	public function deactivatePlugin() {
-	}
-
-	/**
-	 * @return BaseProcessor[]
-	 */
-	protected function getSubProcessors() {
-		if ( !isset( $this->aSubPros ) ) {
-			$this->aSubPros = [];
-		}
-		return $this->aSubPros;
 	}
 }

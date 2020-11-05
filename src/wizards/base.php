@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -295,15 +296,15 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array
 	 */
 	protected function getRenderData_PageWizard() {
-		$oCon = $this->getMod()->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		$con = $this->getMod()->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		return Services::DataManipulation()->mergeArraysRecursive(
-			$oMod->getUIHandler()->getBaseDisplayData(),
+			$mod->getUIHandler()->getBaseDisplayData(),
 			[
 				'strings' => [
 					'page_title'  => $this->getPageTitle(),
-					'plugin_name' => $oCon->getHumanName()
+					'plugin_name' => $con->getHumanName()
 				],
 				'data'    => [
 					'wizard_slug'       => $this->getWizardSlug(),
@@ -311,13 +312,13 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [
-					'dashboard'   => $oMod->getUrl_AdminPage(),
+					'dashboard'   => $mod->getUrl_AdminPage(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
-					'content'       => $oMod->getAjaxActionData( 'wiz_process_step' ),
-					'steps'         => $oMod->getAjaxActionData( 'wiz_render_step' ),
-					'steps_as_json' => $oMod->getAjaxActionData( 'wiz_render_step', true ),
+					'content'       => $mod->getAjaxActionData( 'wiz_process_step' ),
+					'steps'         => $mod->getAjaxActionData( 'wiz_render_step' ),
+					'steps_as_json' => $mod->getAjaxActionData( 'wiz_render_step', true ),
 				]
 			]
 		);

@@ -62,10 +62,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableScan() {
+	private function ajaxExec_BuildTableScan() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -209,10 +206,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_FileLockerFileAction() {
+	private function ajaxExec_FileLockerFileAction() :array {
 		$oReq = Services::Request();
 		$bSuccess = false;
 
@@ -262,19 +256,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @param bool   $bIsBulkAction
 	 * @return array
 	 */
-	private function ajaxExec_ScanItemAction( $sAction, $bIsBulkAction = false ) :array {
+	private function ajaxExec_ScanItemAction( $action, $bIsBulkAction = false ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$bSuccess = false;
+		$success = false;
 
-		if ( $sAction == 'download' ) {
+		if ( $action == 'download' ) {
 			// A special case since this action is handled using Javascript
-			$bSuccess = true;
+			$success = true;
 			$sMessage = __( 'File download has started.', 'wp-simple-firewall' );
 		}
 		else {
@@ -295,20 +289,20 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					$aScanSlugs = [];
 					$aSuccessfulItems = [];
 					foreach ( $aItemIdsToProcess as $nId ) {
-						/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-						$oEntry = $mod->getDbHandler_ScanResults()
-									  ->getQuerySelector()
-									  ->byId( $nId );
-						if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
-							$aScanSlugs[] = $oEntry->scan;
-							if ( $mod->getScanCon( $oEntry->scan )->executeItemAction( $nId, $sAction ) ) {
+						/** @var Shield\Databases\Scanner\EntryVO $entry */
+						$entry = $mod->getDbHandler_ScanResults()
+									 ->getQuerySelector()
+									 ->byId( $nId );
+						if ( $entry instanceof Shield\Databases\Scanner\EntryVO ) {
+							$aScanSlugs[] = $entry->scan;
+							if ( $mod->getScanCon( $entry->scan )->executeItemAction( $nId, $action ) ) {
 								$aSuccessfulItems[] = $nId;
 							}
 						}
 					}
 
 					if ( count( $aSuccessfulItems ) === count( $aItemIdsToProcess ) ) {
-						$bSuccess = true;
+						$success = true;
 						$sMessage = __( 'Action successful.' );
 					}
 					else {
@@ -316,7 +310,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					}
 
 					// We don't rescan for ignores.
-					if ( in_array( $sAction, [ 'ignore' ] ) ) {
+					if ( in_array( $action, [ 'ignore' ] ) ) {
 						$sMessage .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
 					}
 					else {
@@ -332,16 +326,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return [
-			'success'     => $bSuccess,
-			'page_reload' => !in_array( $sAction, [ 'download' ] ),
+			'success'     => $success,
+			'page_reload' => !in_array( $action, [ 'download' ] ),
 			'message'     => $sMessage,
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_CheckScans() {
+	private function ajaxExec_CheckScans() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Strings $oStrings */
@@ -381,10 +372,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_StartScans() {
+	private function ajaxExec_StartScans() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$bSuccess = false;

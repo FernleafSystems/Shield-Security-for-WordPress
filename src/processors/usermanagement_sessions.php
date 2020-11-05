@@ -21,12 +21,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Pro
 	}
 
 	/**
-	 * @param string   $sUsername
+	 * @param string   $username
 	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $user ) {
+	public function onWpLogin( $username, $user ) {
 		if ( !$user instanceof \WP_User ) {
-			$user = Services::WpUsers()->getUserByUsername( $sUsername );
+			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
 		$this->enforceSessionLimits( $user );
 	}

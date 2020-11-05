@@ -1668,7 +1668,7 @@ class Controller {
 
 	/**
 	 * We let the \Exception from the core plugin feature to bubble up because it's critical.
-	 * @return \ICWP_WPSF_FeatureHandler_Plugin
+	 * @return Shield\Modules\Plugin\ModCon
 	 * @throws \Exception from loadFeatureHandler()
 	 */
 	public function loadCorePluginFeatureHandler() {
@@ -1835,7 +1835,6 @@ class Controller {
 
 		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon', $modName );
 		if ( !@class_exists( $className ) ) {
-			// e.g. \ICWP_WPSF_FeatureHandler_Plugin
 			$className = sprintf( '%s_FeatureHandler_%s', strtoupper( $this->getPluginPrefix( '_' ) ), $modName );
 		}
 

@@ -63,7 +63,7 @@ class UI extends BaseShield\UI {
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$opts = $this->getOptions();
 		$warnings = [];

@@ -109,11 +109,8 @@ class ImportExportController {
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	public function buildInsightsVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+	public function buildInsightsVars() :array {
+		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 		return [
 			'vars'    => [
