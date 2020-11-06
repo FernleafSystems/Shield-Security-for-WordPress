@@ -542,7 +542,7 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Email
+	 * @return Modules\Email\Processor
 	 */
 	public function getEmailProcessor() {
 		return $this->getEmailHandler()->getProcessor();

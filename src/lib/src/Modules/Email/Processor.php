@@ -1,32 +1,24 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Email;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
+class Processor extends BaseShield\Processor {
 
 	const Slug = 'email';
 
-	/**
-	 * @return array
-	 */
-	protected function getEmailHeader() {
+	protected function getEmailHeader() :array {
 		return [
 			__( 'Hi !', 'wp-simple-firewall' ),
 			'',
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getEmailFooter() {
+	protected function getEmailFooter() :array {
 		$con = $this->getCon();
-		$oWp = Services::WpGeneral();
+		$WP = Services::WpGeneral();
 
 		{
 			$aGoProPhrases = [
@@ -49,7 +41,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			shuffle( $aBenefits );
 		}
 
-		$aFooter = [
+		$footer = [
 			$this->getMod()
 				 ->renderTemplate( '/email/footer.twig', [
 					 'strings' => [
@@ -59,10 +51,10 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'sent_from' => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 							 $this->getCon()->getHumanName(),
 							 $this->getCon()->getVersion(),
-							 $oWp->getHomeUrl()
+							 $WP->getHomeUrl()
 						 ),
 						 'delays'    => __( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-						 'time_sent' => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
+						 'time_sent' => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
 					 ],
 					 'hrefs'   => [
 						 'upgrade'   => 'https://shsec.io/buyshieldproemailfooter',
@@ -75,24 +67,24 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 				 ] ),
 		];
 
-		return apply_filters( 'icwp_shield_email_footer', $aFooter );
+		return apply_filters( 'icwp_shield_email_footer', $footer );
 	}
 
 	/**
 	 * Wraps up a message with header and footer
-	 * @param string $sAddress
-	 * @param string $sSubject
-	 * @param array  $aMessage
+	 * @param string $to
+	 * @param string $subject
+	 * @param array  $message
 	 * @return bool
 	 */
-	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) :bool {
-		$oWP = Services::WpGeneral();
+	public function sendEmailWithWrap( $to = '', $subject = '', $message = [] ) :bool {
+		$WP = Services::WpGeneral();
 		return $this->send(
-			$sAddress,
-			sprintf( '[%s] %s', html_entity_decode( $oWP->getSiteName(), ENT_QUOTES ), $sSubject ),
+			$to,
+			sprintf( '[%s] %s', html_entity_decode( $WP->getSiteName(), ENT_QUOTES ), $subject ),
 			sprintf( '<html lang="%s">%s</html>',
-				$oWP->getLocale( '-' ),
-				implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) )
+				$WP->getLocale( '-' ),
+				implode( "<br />", array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
 			)
 		);
 	}
@@ -117,30 +109,30 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @param string $sAddress
-	 * @param string $sSubject
-	 * @param string $sMessageBody
+	 * @param string $to
+	 * @param string $subject
+	 * @param string $body
 	 * @return bool
 	 * @uses wp_mail
 	 */
-	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) :bool {
+	public function send( $to = '', $subject = '', $body = '' ) :bool {
 
 		$this->emailFilters( true );
-		$bSuccess = wp_mail(
-			$this->verifyEmailAddress( $sAddress ),
-			$sSubject,
-			$sMessageBody
+		$success = wp_mail(
+			$this->verifyEmailAddress( $to ),
+			$subject,
+			$body
 		);
 		$this->emailFilters( false );
 
-		return (bool)$bSuccess;
+		return (bool)$success;
 	}
 
 	/**
-	 * @param $bAdd - true to add, false to remove
+	 * @param $add - true to add, false to remove
 	 */
-	protected function emailFilters( $bAdd ) {
-		if ( $bAdd ) {
+	private function emailFilters( bool $add ) {
+		if ( $add ) {
 			add_filter( 'wp_mail_from', [ $this, 'setMailFrom' ], 100 );
 			add_filter( 'wp_mail_from_name', [ $this, 'setMailFromName' ], 100 );
 			add_filter( 'wp_mail_content_type', [ $this, 'setMailContentType' ], 100, 0 );
@@ -152,67 +144,64 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	public function setMailContentType() {
+	public function setMailContentType() :string {
 		return 'text/html';
 	}
 
 	/**
-	 * @param string $sFrom
+	 * @param string $from
 	 * @return string
 	 */
-	public function setMailFrom( $sFrom ) {
-		$oDP = Services::Data();
-		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
-		if ( $oDP->validEmail( $sProposedFrom ) ) {
-			$sFrom = $sProposedFrom;
+	public function setMailFrom( $from ) {
+		$DP = Services::Data();
+		$proposed = apply_filters( 'icwp_shield_from_email', '' );
+		if ( $DP->validEmail( $proposed ) ) {
+			$from = $proposed;
 		}
 		// We help out by trying to correct any funky "from" addresses
 		// So, at the very least, we don't fail on this for our emails.
-		if ( !$oDP->validEmail( $sFrom ) ) {
-			$aUrlParts = @parse_url( Services::WpGeneral()->getWpUrl() );
-			if ( !empty( $aUrlParts[ 'host' ] ) ) {
-				$sProposedFrom = 'wordpress@'.$aUrlParts[ 'host' ];
-				if ( $oDP->validEmail( $sProposedFrom ) ) {
-					$sFrom = $sProposedFrom;
+		if ( !$DP->validEmail( $from ) ) {
+			$urlParts = @parse_url( Services::WpGeneral()->getWpUrl() );
+			if ( !empty( $urlParts[ 'host' ] ) ) {
+				$proposed = 'wordpress@'.$urlParts[ 'host' ];
+				if ( $DP->validEmail( $proposed ) ) {
+					$from = $proposed;
 				}
 			}
 		}
-		return $sFrom;
+		return $from;
 	}
 
 	/**
-	 * @param string $sFromName
+	 * @param string $name
 	 * @return string
 	 */
-	public function setMailFromName( $sFromName ) {
-		$sProposedFromName = apply_filters( 'icwp_shield_from_email_name', '' );
-		if ( !empty( $sProposedFromName ) ) {
-			$sFromName = $sProposedFromName;
+	public function setMailFromName( $name ) :string {
+		$proposed = apply_filters( 'icwp_shield_from_email_name', '' );
+		if ( !empty( $proposed ) ) {
+			$name = $proposed;
 		}
 		else {
-			$sFromName = sprintf( '%s - %s', $sFromName, $this->getCon()->getHumanName() );
+			$name = sprintf( '%s - %s', $name, $this->getCon()->getHumanName() );
 		}
-		return $sFromName;
+		return $name;
 	}
 
 	/**
 	 * Will send email to the default recipient setup in the object.
-	 * @param string $sEmailSubject
-	 * @param array  $aMessage
+	 * @param string $subject
+	 * @param array  $message
 	 * @return bool
 	 */
-	public function sendEmail( $sEmailSubject, $aMessage ) {
-		return $this->sendEmailWithWrap( null, $sEmailSubject, $aMessage );
+	public function sendEmail( $subject, $message ) {
+		return $this->sendEmailWithWrap( null, $subject, $message );
 	}
 
 	/**
-	 * @param string $sEmail
+	 * @param string $email
 	 * @return string
 	 */
-	public function verifyEmailAddress( $sEmail = '' ) {
-		return Services::Data()->validEmail( $sEmail ) ? $sEmail : Services::WpGeneral()->getSiteAdminEmail();
+	public function verifyEmailAddress( $email = '' ) {
+		return Services::Data()->validEmail( $email ) ? $email : Services::WpGeneral()->getSiteAdminEmail();
 	}
 }
