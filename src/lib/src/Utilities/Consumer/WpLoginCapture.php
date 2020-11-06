@@ -49,7 +49,8 @@ trait WpLoginCapture {
 	 */
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
 		$user = Services::WpUsers()->getUserById( $userID );
-		if ( $user instanceof \WP_User ) {
+		if ( !$this->isLoginCaptured() && $user instanceof \WP_User ) {
+			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
 	}
@@ -59,7 +60,8 @@ trait WpLoginCapture {
 	 * @param \WP_User $user
 	 */
 	public function onWpLogin( $username, $user ) {
-		if ( $user instanceof \WP_User ) {
+		if ( !$this->isLoginCaptured() && $user instanceof \WP_User ) {
+			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
 	}

@@ -14,8 +14,6 @@ class Processor extends BaseShield\Processor {
 	public function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -28,26 +26,27 @@ class Processor extends BaseShield\Processor {
 			return;
 		}
 
+		/** Everything from this point on must consider XMLRPC compatibility **/
+
 		// This controller handles visitor whitelisted status internally.
 		( new Lib\Suspend\UserSuspendController() )
 			->setMod( $this->getMod() )
 			->execute();
 
+		// All newly created users have their first seen and password start date set
+		add_action( 'user_register', function ( $nUserId ) {
+			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+		} );
+
 		if ( !$mod->isVisitorWhitelisted() ) {
 
-			/** Everything from this point on must consider XMLRPC compatibility **/
-			if ( $mod->isUserSessionsManagementEnabled() ) {
-				( new \ICWP_WPSF_Processor_UserManagement_Sessions( $mod ) )->execute();
-			}
-
-			( new Lib\Password\UserPasswordHandler() )
-				->setMod( $mod )
+			( new Lib\Session\UserSessionHandler() )
+				->setMod( $this->getMod() )
 				->execute();
 
-			// All newly created users have their first seen and password start date set
-			add_action( 'user_register', function ( $nUserId ) {
-				$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
-			} );
+			( new Lib\Password\UserPasswordHandler() )
+				->setMod( $this->getMod() )
+				->execute();
 
 			( new Lib\Registration\EmailValidate() )
 				->setMod( $this->getMod() )
@@ -252,5 +251,11 @@ class Processor extends BaseShield\Processor {
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
 				$aMessage
 			);
+	}
+
+	public function runDailyCron() {
+		( new Lib\CleanExpired() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 }

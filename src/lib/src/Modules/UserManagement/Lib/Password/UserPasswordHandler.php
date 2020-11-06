@@ -41,9 +41,7 @@ class UserPasswordHandler {
 	protected function captureLogin( \WP_User $user ) {
 		$password = $this->getLoginPassword();
 
-		if ( Services::Request()->isPost() && !$this->isLoginCaptured() && !empty( $password ) ) {
-
-			$this->setLoginCaptured();
+		if ( Services::Request()->isPost() && !empty( $password ) ) {
 			try {
 				$this->applyPasswordChecks( $password );
 				$failed = false;

@@ -1,47 +1,36 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
+
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Processor {
+class UserSessionHandler {
 
-	public function run() {
+	use ModConsumer;
+	use OneTimeExecute;
+	use WpLoginCapture;
+
+	protected function canRun() {
+		return $this->getCon()
+					->getModule_Sessions()
+					->getDbHandler_Sessions()
+					->isReady();
+	}
+
+	protected function run() {
+		$this->setupLoginCaptureHooks();
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
 		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
 	}
 
-	/**
-	 * Cron callback
-	 */
-	public function runDailyCron() {
-		( new UserManagement\Lib\CleanExpired() )
-			->setMod( $this->getMod() )
-			->run();
-	}
-
-	/**
-	 * @param string   $username
-	 * @param \WP_User $user
-	 */
-	public function onWpLogin( $username, $user ) {
-		if ( !$user instanceof \WP_User ) {
-			$user = Services::WpUsers()->getUserByUsername( $username );
-		}
+	protected function captureLogin( \WP_User $user ) {
 		$this->enforceSessionLimits( $user );
-	}
-
-	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
-	 */
-	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->enforceSessionLimits( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	public function onWpLoaded() {
@@ -74,29 +63,32 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Pro
 	 * @throws \Exception
 	 */
 	private function assessSession() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
-		$sess = $this->getMod()->getSession();
-		if ( empty( $sess ) ) {
+		$sess = $this->getCon()
+					 ->getModule_Sessions()
+					 ->getSessionCon()
+					 ->getCurrent();
+		if ( !$sess instanceof EntryVO ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
-		$nTime = Services::Request()->ts();
+		$ts = Services::Request()->ts();
 
-		if ( $oOpts->hasMaxSessionTimeout() && ( $nTime - $sess->logged_in_at > $oOpts->getMaxSessionTime() ) ) {
+		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess->logged_in_at > $opts->getMaxSessionTime() ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 
-		if ( $oOpts->hasSessionIdleTimeout() && ( $nTime - $sess->last_activity_at > $oOpts->getIdleTimeoutInterval() ) ) {
+		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess->last_activity_at > $opts->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
 
-		$oIP = Services::IP();
-		if ( $oOpts->isLockToIp() && $oIP->getRequestIp() != $sess->ip ) {
+		$srvIP = Services::IP();
+		if ( $opts->isLockToIp() && $srvIP->getRequestIp() != $sess->ip ) {
 			// We force-refresh the server IPs just to be sure.
 			Services::IP()->getServerPublicIPs( true );
-			if ( !$oIP->isLoopback() ) {
+			if ( !$srvIP->isLoopback() ) {
 				throw new \Exception( 'session_iplock' );
 			}
 		}
@@ -104,31 +96,31 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Pro
 	}
 
 	/**
-	 * @param int $nTimeout
+	 * @param int $timeout
 	 * @return int
 	 */
-	public function setMaxAuthCookieExpiration( $nTimeout ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->hasMaxSessionTimeout() ? min( $nTimeout, $oOpts->getMaxSessionTime() ) : $nTimeout;
+	public function setMaxAuthCookieExpiration( $timeout ) {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->hasMaxSessionTimeout() ? min( $timeout, $opts->getMaxSessionTime() ) : $timeout;
 	}
 
 	/**
 	 * @param \WP_User $user
 	 */
-	protected function enforceSessionLimits( $user ) {
+	private function enforceSessionLimits( \WP_User $user ) {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 
-		$nSessionLimit = $opts->getOpt( 'session_username_concurrent_limit', 1 );
-		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $user instanceof WP_User ) {
-			$this->setLoginCaptured();
+		$sessionLimit = (int)$opts->getOpt( 'session_username_concurrent_limit', 1 );
+		if ( $sessionLimit > 0 ) {
 			try {
-				$this->getMod()
+				$this->getCon()
+					 ->getModule_Sessions()
 					 ->getDbHandler_Sessions()
 					 ->getQueryDeleter()
 					 ->addWhere( 'wp_username', $user->user_login )
-					 ->deleteExcess( $nSessionLimit, 'last_activity_at', true );
+					 ->deleteExcess( $sessionLimit, 'last_activity_at', true );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -140,15 +132,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Pro
 	 * @return \WP_Error
 	 */
 	public function addLoginMessage( $error ) {
-
 		if ( !$error instanceof \WP_Error ) {
 			$error = new \WP_Error();
 		}
 
-		$sForceLogout = Services::Request()->query( 'shield-forcelogout' );
-		if ( $sForceLogout ) {
+		$forceLogoutParam = Services::Request()->query( 'shield-forcelogout' );
+		if ( $forceLogoutParam ) {
 
-			switch ( $sForceLogout ) {
+			switch ( $forceLogoutParam ) {
 				case 'session_expired':
 					$sMessage = __( 'Your session has expired.', 'wp-simple-firewall' );
 					break;

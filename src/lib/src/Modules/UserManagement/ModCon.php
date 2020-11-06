@@ -61,6 +61,10 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'email_checks', array_unique( $aChecks ) );
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 10.1
+	 */
 	public function isUserSessionsManagementEnabled() :bool {
 		return $this->isModOptEnabled() && $this->getDbHandler_Sessions()->isReady();
 	}
