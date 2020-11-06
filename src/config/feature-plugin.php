@@ -155,7 +155,7 @@
     },
     {
       "key":         "show_advanced",
-      "section":     "section_defaults",
+      "section":     "section_non_ui",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "",
