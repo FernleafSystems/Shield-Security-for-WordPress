@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Cont
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\ExtensionSettingsPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 
 class Init {
 
@@ -18,11 +18,11 @@ class Init {
 	 */
 	public function run() :string {
 		$con = $this->getCon();
-		/** @var Options $pluginOpts */
-		$pluginOpts = $con->getModule_Plugin()->getOptions();
+		/** @var Options $integOpts */
+		$integOpts = $con->getModule_Integrations()->getOptions();
 
 		// TODO: Consider have an "error" screen message to show it's not enabled instead?
-		if ( !$pluginOpts->isEnabledMainWP() ) {
+		if ( !$integOpts->isEnabledMainWP() ) {
 			throw new \Exception( 'MainWP Extension is not enabled' );
 		}
 

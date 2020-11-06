@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
@@ -10,10 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 class Controller {
 
 	use ModConsumer;
+	use OneTimeExecute;
 
 	const MIN_VERSION_MAINWP = '4.1';
 
-	public function run() {
+	protected function run() {
 		try {
 			$this->runServerSide();
 		}

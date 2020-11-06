@@ -10,6 +10,6 @@ class Processor extends BaseShield\Processor {
 		$this->getCon()
 			 ->getModule_Integrations()
 			 ->getControllerMWP()
-			 ->run();
+			 ->execute();
 	}
 }

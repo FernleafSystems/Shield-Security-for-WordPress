@@ -47,15 +47,8 @@ class Options extends BaseShield\Options {
 		return $this->getIpSource() == 'AUTO_DETECT_IP';
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPluginGloballyDisabled() {
+	public function isPluginGloballyDisabled() :bool {
 		return !$this->isOpt( 'global_enable_plugin_features', 'Y' );
-	}
-
-	public function isEnabledMainWP() :bool {
-		return $this->isOpt( 'enable_mainwp', 'Y' );
 	}
 
 	public function isTrackingEnabled() :bool {
