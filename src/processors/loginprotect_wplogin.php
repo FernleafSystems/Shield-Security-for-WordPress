@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\ShieldProcessor {
 
 	public function onWpInit() {

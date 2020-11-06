@@ -28,7 +28,7 @@ class Processor extends BaseShield\Processor {
 			return;
 		}
 
-		// This controller will handle visitor whitelisted status internally.
+		// This controller handles visitor whitelisted status internally.
 		( new Lib\Suspend\UserSuspendController() )
 			->setMod( $this->getMod() )
 			->execute();
@@ -40,9 +40,9 @@ class Processor extends BaseShield\Processor {
 				( new \ICWP_WPSF_Processor_UserManagement_Sessions( $mod ) )->execute();
 			}
 
-			if ( $opts->isPasswordPoliciesEnabled() ) {
-				( new \ICWP_WPSF_Processor_UserManagement_Passwords( $mod ) )->execute();
-			}
+			( new Lib\Password\UserPasswordHandler() )
+				->setMod( $mod )
+				->execute();
 
 			// All newly created users have their first seen and password start date set
 			add_action( 'user_register', function ( $nUserId ) {

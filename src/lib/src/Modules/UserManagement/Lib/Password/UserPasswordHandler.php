@@ -1,48 +1,47 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
+
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @deprecated 10.1
+ * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
+ * Class UserPasswordController
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password
  */
-class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\ShieldProcessor {
+class UserPasswordHandler {
 
-	public function run() {
-		add_action( 'password_reset', [ $this, 'onPasswordReset' ], 100, 1 );
+	use ModConsumer;
+	use OneTimeExecute;
+	use WpLoginCapture;
+
+	protected function canRun() {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isPasswordPoliciesEnabled();
+	}
+
+	protected function run() {
+		$this->setupLoginCaptureHooks();
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( 'password_reset', function ( $user ) {
+			if ( $user instanceof \WP_User ) {
+				$this->onPasswordReset( $user );
+			}
+		}, 100, 1 );
 		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
 	}
 
-	/**
-	 * @param string   $sUsername
-	 * @param \WP_User $user
-	 */
-	public function onWpLogin( $sUsername, $user ) {
-		$this->captureLogin( $user );
-	}
-
-	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
-	 */
-	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->captureLogin( Services::WpUsers()->getUserById( $nUserId ) );
-	}
-
-	/**
-	 * @param \WP_User $user
-	 */
-	private function captureLogin( $user ) {
+	protected function captureLogin( \WP_User $user ) {
 		$password = $this->getLoginPassword();
 
-		if ( $user instanceof \WP_User
-			 && Services::Request()->isPost()
-			 && !$this->isLoginCaptured() && !empty( $password ) ) {
+		if ( Services::Request()->isPost() && !$this->isLoginCaptured() && !empty( $password ) ) {
 
 			$this->setLoginCaptured();
 			try {
@@ -64,11 +63,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		}
 	}
 
-	/**
-	 * @param \WP_User $user
-	 */
-	public function onPasswordReset( $user ) {
-		if ( $user instanceof \WP_User && $user->ID > 0 ) {
+	private function onPasswordReset( \WP_User $user ) {
+		if ( $user->ID > 0 ) {
 			$meta = $this->getCon()->getUserMeta( $user );
 			unset( $meta->pass_hash );
 			$meta->pass_started_at = 0;
@@ -76,15 +72,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processExpiredPassword() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isPassExpirationEnabled() ) {
-			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
-			if ( $nPassStartedAt > 0 ) {
-				if ( Services::Request()->ts() - $nPassStartedAt > $oOpts->getPassExpireTimeout() ) {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isPassExpirationEnabled() ) {
+			$passStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
+			if ( $passStartedAt > 0 ) {
+				if ( Services::Request()->ts() - $passStartedAt > $opts->getPassExpireTimeout() ) {
 					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oOpts->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getPassExpireDays() )
 					);
 				}
 			}
@@ -92,12 +88,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processFailedCheckPassword() {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		$oMeta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->getCurrentUserMeta();
 
-		$checkFailed = $opts->isPassForceUpdateExisting()
-					   && isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
+		$checkFailed = $this->getOptions()->isOpt( 'pass_force_existing', 'Y' )
+					   && isset( $meta->pass_check_failed_at ) && $meta->pass_check_failed_at > 0;
 
 		if ( $checkFailed ) {
 			$this->redirectToResetPassword(
@@ -110,10 +104,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * IMPORTANT: User must be logged-in for this to work correctly
 	 * We have a 2 minute delay between redirects because some custom user forms redirect to custom
 	 * password reset pages. This prevents users following this flow.
-	 * @param string $sMessage
+	 * @param string $msg
 	 * @uses wp_redirect()
 	 */
-	private function redirectToResetPassword( $sMessage ) {
+	private function redirectToResetPassword( string $msg ) {
 		$nNow = Services::Request()->ts();
 
 		$oMeta = $this->getCon()->getCurrentUserMeta();
@@ -127,9 +121,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 			$oUser = $oWpUsers->getCurrentWpUser();
 			if ( $oUser && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
-				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
+				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
-					 ->setFlashAdminNotice( $sMessage, true, true );
+					 ->setFlashAdminNotice( $msg, true, true );
 				$this->getCon()->fireEvent( 'password_policy_force_change' );
 				Services::Response()->redirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
 			}
@@ -137,11 +131,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param \WP_Error $oErrors
+	 * @param \WP_Error $wpErrors
 	 * @return \WP_Error
 	 */
-	public function checkPassword( $oErrors ) {
-		$aExistingCodes = $oErrors->get_error_code();
+	public function checkPassword( $wpErrors ) {
+		$aExistingCodes = $wpErrors->get_error_code();
 		if ( empty( $aExistingCodes ) ) {
 			$password = $this->getLoginPassword();
 			if ( !empty( $password ) ) {
@@ -150,9 +144,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 					$this->applyPasswordChecks( $password );
 					$bChecksPassed = true;
 				}
-				catch ( \Exception $oE ) {
-					$bChecksPassed = ( $oE->getCode() === 999 );
-					$aFailureMsg = $oE->getMessage();
+				catch ( \Exception $e ) {
+					$bChecksPassed = ( $e->getCode() === 999 );
+					$aFailureMsg = $e->getMessage();
 				}
 
 				if ( $bChecksPassed ) {
@@ -161,24 +155,24 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 					}
 				}
 				else {
-					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
+					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
 					if ( !empty( $aFailureMsg ) ) {
-						$sMessage .= '<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$aFailureMsg );
+						$msg .= '<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$aFailureMsg );
 					}
-					$oErrors->add( 'shield_password_policy', $sMessage );
+					$wpErrors->add( 'shield_password_policy', $msg );
 					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
 			}
 		}
 
-		return $oErrors;
+		return $wpErrors;
 	}
 
 	/**
 	 * @param string $password
 	 * @throws \Exception
 	 */
-	protected function applyPasswordChecks( string $password ) {
+	private function applyPasswordChecks( string $password ) {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 
@@ -305,20 +299,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		}
 
 		return true;
-	}
-
-	private function getLoginPassword() :string {
-		$sPass = '';
-
-		// Edd: edd_user_pass; Woo: password;
-		foreach ( [ 'pwd', 'pass1' ] as $key ) {
-			$sP = Services::Request()->post( $key );
-			if ( !empty( $sP ) ) {
-				$sPass = $sP;
-				break;
-			}
-		}
-		return $sPass;
 	}
 
 	/**

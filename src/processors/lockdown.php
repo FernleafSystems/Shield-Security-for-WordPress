@@ -5,7 +5,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class ICWP_WPSF_Processor_Lockdown
  * @deprecated 10.1
  */
 class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {

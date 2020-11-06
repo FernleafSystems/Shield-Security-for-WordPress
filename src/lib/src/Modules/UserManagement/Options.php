@@ -83,6 +83,10 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 10.1
+	 */
 	public function isPassForceUpdateExisting() :bool {
 		return $this->isOpt( 'pass_force_existing', 'Y' );
 	}

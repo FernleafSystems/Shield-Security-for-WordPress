@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class ICWP_WPSF_Processor_Lockdown
  * @deprecated 10.1
  */
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
