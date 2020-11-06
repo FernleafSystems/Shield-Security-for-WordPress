@@ -221,34 +221,6 @@ class ModCon extends BaseShield\ModCon {
 			   && $this->canCacheDirWrite();
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' )
-			 && $opts->isPtgReinstallLinks() && $this->getScanCon( 'ptg' )->isReady() ) {
-			wp_localize_script(
-				$this->prefix( 'global-plugin' ),
-				'icwp_wpsf_vars_hp',
-				[
-					'ajax_plugin_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
-					'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
-					'strings'               => [
-						'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
-											 .'. '.__( 'Then Activate', 'wp-simple-firewall' ),
-						'okay_reinstall'  => sprintf( '%s, %s',
-							__( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
-						'activate_only'   => __( 'Activate Only', 'wp-simple-firewall' ),
-						'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
-					]
-				]
-			);
-			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
-			wp_enqueue_style( 'wp-jquery-ui-dialog' );
-		}
-	}
-
 	/**
 	 * @return string|false
 	 */

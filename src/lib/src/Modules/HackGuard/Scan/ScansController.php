@@ -29,9 +29,6 @@ class ScansController {
 		}
 		$this->setupCron();
 		$this->handlePostScanCron();
-		add_action( $mod->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
-		add_action( $mod->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $mod->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 	}
 
 	/**
@@ -87,30 +84,6 @@ class ScansController {
 				$oScanCon->runCronAutoRepair();
 			}
 		}
-	}
-
-	public function runHourlyCron() {
-		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
-			->setMod( $this->getMod() )
-			->run();
-	}
-
-	public function runDailyCron() {
-		( new HackGuard\Lib\Snapshots\StoreAction\CleanAll() )
-			->setMod( $this->getMod() )
-			->run();
-	}
-
-	public function onWpLoaded() {
-		( new HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->hookBuild();
-	}
-
-	public function onModuleShutdown() {
-		( new HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->schedule();
 	}
 
 	/**

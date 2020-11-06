@@ -240,16 +240,16 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$bReinstall = (bool)$req->post( 'reinstall' );
 		$bActivate = (bool)$req->post( 'activate' );
-		$sFile = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
+		$file = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
 
 		if ( $bReinstall ) {
-			/** @var Scan\Controller\Ptg $oPtgScan */
-			$oPtgScan = $mod->getScanCon( 'ptg' );
-			$bActivate = $oPtgScan->actionPluginReinstall( $sFile );
+			/** @var Scan\Controller\Ptg $scan */
+			$scan = $mod->getScansCon()->getScanCon( 'ptg' );
+			$bActivate = $scan->actionPluginReinstall( $file );
 		}
 
 		if ( $bActivate ) {
-			Services::WpPlugins()->activate( $sFile );
+			Services::WpPlugins()->activate( $file );
 		}
 
 		return [ 'success' => true ];

@@ -11,6 +11,13 @@ class Ptg extends BaseForAssets {
 
 	const SCAN_SLUG = 'ptg';
 
+	protected function run() {
+		parent::run();
+		( new HackGuard\Scan\Utilities\PtgAddReinstallLinks() )
+			->setScanController( $this )
+			->execute();
+	}
+
 	/**
 	 * @return Scans\Ptg\ResultsSet
 	 */
@@ -18,19 +25,19 @@ class Ptg extends BaseForAssets {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		/** @var Scans\Ptg\ResultsSet $oRes */
-		$oRes = parent::getItemsToAutoRepair();
+		/** @var Scans\Ptg\ResultsSet $results */
+		$results = parent::getItemsToAutoRepair();
 
 		if ( !$opts->isRepairFilePlugin() || !$opts->isRepairFileTheme() ) {
 			if ( $opts->isRepairFileTheme() ) {
-				$oRes = $oRes->getResultsForThemesContext();
+				$results = $results->getResultsForThemesContext();
 			}
 			elseif ( $opts->isRepairFilePlugin() ) {
-				$oRes = $oRes->getResultsForPluginsContext();
+				$results = $results->getResultsForPluginsContext();
 			}
 		}
 
-		return $oRes;
+		return $results;
 	}
 
 	public function isCronAutoRepair() :bool {
@@ -60,31 +67,24 @@ class Ptg extends BaseForAssets {
 		return new Scans\Ptg\Utilities\ItemActionHandler();
 	}
 
-	/**
-	 * @param string $sBaseFile
-	 * @return bool
-	 */
-	public function actionPluginReinstall( $sBaseFile ) {
-		$bSuccess = false;
-		$oWpPs = Services::WpPlugins();
-		$oPl = $oWpPs->getPluginAsVo( $sBaseFile );
-		if ( $oPl->isWpOrg() && $oWpPs->reinstall( $oPl->file ) ) {
+	public function actionPluginReinstall( string $file ) :bool {
+		$success = false;
+		$WPP = Services::WpPlugins();
+		$plugin = $WPP->getPluginAsVo( $file );
+		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
 			try {
 				( new HackGuard\Lib\Snapshots\StoreAction\Build() )
 					->setMod( $this->getMod() )
-					->setAsset( $oPl )
+					->setAsset( $plugin )
 					->run();
-				$bSuccess = true;
+				$success = true;
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-		return $bSuccess;
+		return $success;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isEnabled() :bool {
 		return $this->getOptions()->isOpt( 'ptg_enable', 'Y' ) && $this->getOptions()->isOptReqsMet( 'ptg_enable' );
 	}

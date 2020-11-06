@@ -33,13 +33,18 @@ class PtgAddReinstallLinks {
 		add_action( 'admin_footer', function () {
 			$this->printPluginReinstallDialogs();
 		} );
+		add_action( 'admin_enqueue_scripts', function ( $hook ) {
+			if ( $hook === 'plugins.php' ) {
+				$this->insertCustomJsVars();
+			}
+		}, 9 ); // >5 && <10
 	}
 
 	protected function canRun() {
 		$scanCon = $this->getScanController();
 		/** @var HackGuard\Options $opts */
 		$opts = $scanCon->getOptions();
-		return $scanCon->isEnabled() && $opts->isPtgReinstallLinks();
+		return $scanCon->isReady() && $opts->isPtgReinstallLinks();
 	}
 
 	private function addActionLinkRefresh( array $links, string $file ) :array {
@@ -52,6 +57,28 @@ class PtgAddReinstallLinks {
 		}
 
 		return $links;
+	}
+
+	private function insertCustomJsVars() {
+		$scanCon = $this->getScanController();
+		wp_localize_script(
+			$scanCon->getCon()->prefix( 'global-plugin' ),
+			'icwp_wpsf_vars_hp',
+			[
+				'ajax_plugin_reinstall' => $scanCon->getMod()->getAjaxActionData( 'plugin_reinstall' ),
+				'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
+				'strings'               => [
+					'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
+										 .'. '.__( 'Then Activate', 'wp-simple-firewall' ),
+					'okay_reinstall'  => sprintf( '%s, %s',
+						__( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
+					'activate_only'   => __( 'Activate Only', 'wp-simple-firewall' ),
+					'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
+				]
+			]
+		);
+		wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	}
 
 	private function printPluginReinstallDialogs() {
@@ -74,7 +101,7 @@ class PtgAddReinstallLinks {
 								 'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 								 'download'           => sprintf(
 									 __( 'For best security practices, %s will download and re-install the latest available version of this plugin.', 'wp-simple-firewall' ),
-									 $scanCon->getHumanName()
+									 $scanCon->getCon()->getHumanName()
 								 )
 							 ],
 							 'js_snippets' => []
