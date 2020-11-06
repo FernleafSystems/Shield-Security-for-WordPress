@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\PluginStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -40,13 +40,13 @@ class SitesListTableHandler extends BaseRender {
 		$con = $this->getCon();
 
 		$sync = LoadShieldSyncData::Load( $this->workingSite );
-		$status = ( new PluginStatus() )
+		$status = ( new ClientPluginStatus() )
 			->setMod( $this->getMod() )
 			->setMwpSite( $this->workingSite )
 			->detect();
 
 		$statusKey = key( $status );
-		$isActive = $statusKey === PluginStatus::ACTIVE;
+		$isActive = $statusKey === ClientPluginStatus::ACTIVE;
 		if ( $isActive ) {
 			$issuesCount = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 		}
@@ -57,13 +57,13 @@ class SitesListTableHandler extends BaseRender {
 		return [
 			'flags'   => [
 				'is_active'           => $isActive,
-				'is_sync_rqd'         => $statusKey === PluginStatus::NEED_SYNC,
-				'is_inactive'         => $statusKey === PluginStatus::INACTIVE,
-				'is_notpro'           => $statusKey === PluginStatus::NOT_PRO,
-				'is_mwpnoton'         => $statusKey === PluginStatus::MWP_NOT_ON,
+				'is_sync_rqd'         => $statusKey === ClientPluginStatus::NEED_SYNC,
+				'is_inactive'         => $statusKey === ClientPluginStatus::INACTIVE,
+				'is_notpro'           => $statusKey === ClientPluginStatus::NOT_PRO,
+				'is_mwpnoton'         => $statusKey === ClientPluginStatus::MWP_NOT_ON,
 				'is_version_mismatch' => in_array( $statusKey, [
-					PluginStatus::VERSION_NEWER_THAN_SERVER,
-					PluginStatus::VERSION_OLDER_THAN_SERVER,
+					ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
+					ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 				] ),
 			],
 			'vars'    => [

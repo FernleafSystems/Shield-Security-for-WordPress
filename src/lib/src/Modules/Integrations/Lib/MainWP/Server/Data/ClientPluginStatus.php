@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\Consumers\MWPSiteConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-class PluginStatus {
+class ClientPluginStatus {
 
 	use ModConsumer;
 	use MWPSiteConsumer;

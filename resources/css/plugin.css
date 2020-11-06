@@ -662,7 +662,6 @@ input:checked + .icwp-slider:before {
 }
 .carousel-item {
 	transition: -webkit-transform 0.3s ease;
-	transition: transform 0.2s ease;
 	transition: transform 0.2s ease, -webkit-transform 0.2s ease;
 }
 #AuditTrailTabs .tab-content {
@@ -1195,9 +1194,6 @@ a:hover {
 }
 a:focus .gravatar, a:focus, a:focus .media-icon img {
 	box-shadow: none !important;
-}
-.wp-core-ui select {
-	min-height: 38px;
 }
 .col-form-label {
 	font-weight: bold;

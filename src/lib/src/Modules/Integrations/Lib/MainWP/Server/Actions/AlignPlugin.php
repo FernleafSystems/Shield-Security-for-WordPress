@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Common\Consumers\MWPSiteConsumer,
-	Server\Data\PluginStatus};
+	Server\Data\ClientPluginStatus};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Api;
 use MainWP\Dashboard\MainWP_Connect;
@@ -16,34 +16,34 @@ class AlignPlugin {
 	use MWPSiteConsumer;
 
 	public function run() {
-		$oStatus = ( new PluginStatus() )
+		$oStatus = ( new ClientPluginStatus() )
 			->setMod( $this->getMod() )
 			->setMwpSite( $this->getMwpSite() );
 
 		switch ( $oStatus->status() ) {
 
-			case PluginStatus::INACTIVE:
+			case ClientPluginStatus::INACTIVE:
 				if ( $this->activate() ) {
 					$this->sync();
 				}
 				break;
 
-			case PluginStatus::NEED_SYNC:
+			case ClientPluginStatus::NEED_SYNC:
 				$this->sync();
 				break;
 
-			case PluginStatus::VERSION_OLDER_THAN_SERVER:
+			case ClientPluginStatus::VERSION_OLDER_THAN_SERVER:
 				$this->sync();
 				$this->upgrade();
 				$this->sync();
 				break;
 
-			case PluginStatus::NOT_INSTALLED:
+			case ClientPluginStatus::NOT_INSTALLED:
 				$this->install();
 				$this->sync();
 				break;
 
-			case PluginStatus::ACTIVE:
+			case ClientPluginStatus::ACTIVE:
 			default:
 				// nothing
 				break;
@@ -57,7 +57,7 @@ class AlignPlugin {
 			'plugin_action',
 			[
 				'action' => 'activate',
-				'plugin' => ( new PluginStatus() )
+				'plugin' => ( new ClientPluginStatus() )
 								->setMod( $this->getMod() )
 								->setMwpSite( $this->getMwpSite() )
 								->getInstalledPlugin()[ 'slug' ],
@@ -100,7 +100,7 @@ class AlignPlugin {
 			'upgradeplugintheme',
 			[
 				'type' => 'plugin',
-				'list' => ( new PluginStatus() )
+				'list' => ( new ClientPluginStatus() )
 							  ->setMod( $this->getMod() )
 							  ->setMwpSite( $this->getMwpSite() )
 							  ->getInstalledPlugin()[ 'slug' ],

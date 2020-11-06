@@ -20,6 +20,17 @@ class Init {
 				}
 				return $information;
 			}, 10, 2 );
+
+			add_filter( 'mainwp_child_extra_execution', function ( $information, $post ) {
+				$con = $this->getCon();
+				if ( !empty( $post[ $con->prefix( 'mainwp-action' ) ] ) ) {
+					$information[ $con->prefix( 'mainwp-action' ) ] =
+						wp_json_encode( ( new ActionInit() )
+							->setMod( $this->getMod() )
+							->run( $post[ $con->prefix( 'mainwp-action' ) ] ) );
+				}
+				return $information;
+			}, 10, 2 );
 		}
 	}
 }

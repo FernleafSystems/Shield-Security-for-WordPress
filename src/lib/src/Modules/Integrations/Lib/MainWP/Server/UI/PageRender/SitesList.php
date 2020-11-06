@@ -3,8 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Actions\Action;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\PluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
@@ -33,22 +34,21 @@ class SitesList extends BaseRender {
 			$meta = $sync->meta;
 
 			$shd = $sync->getRawDataAsArray();
-
-			$status = ( new PluginStatus() )
+			$status = ( new ClientPluginStatus() )
 				->setMod( $this->getMod() )
 				->setMwpSite( $mwpSite )
 				->detect();
 			$shd[ 'status_key' ] = key( $status );
 			$shd[ 'status' ] = current( $status );
 
-			$shd[ 'is_active' ] = $shd[ 'status_key' ] === PluginStatus::ACTIVE;
-			$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === PluginStatus::INACTIVE;
-			$shd[ 'is_notpro' ] = $shd[ 'status_key' ] === PluginStatus::NOT_PRO;
-			$shd[ 'is_mwpnoton' ] = $shd[ 'status_key' ] === PluginStatus::MWP_NOT_ON;
-			$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === PluginStatus::NEED_SYNC;
+			$shd[ 'is_active' ] = $shd[ 'status_key' ] === ClientPluginStatus::ACTIVE;
+			$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === ClientPluginStatus::INACTIVE;
+			$shd[ 'is_notpro' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_PRO;
+			$shd[ 'is_mwpnoton' ] = $shd[ 'status_key' ] === ClientPluginStatus::MWP_NOT_ON;
+			$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === ClientPluginStatus::NEED_SYNC;
 			$shd[ 'is_version_mismatch' ] = in_array( $shd[ 'status_key' ], [
-				PluginStatus::VERSION_NEWER_THAN_SERVER,
-				PluginStatus::VERSION_OLDER_THAN_SERVER,
+				ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
+				ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 			] );
 
 			if ( $shd[ 'is_active' ] ) {
