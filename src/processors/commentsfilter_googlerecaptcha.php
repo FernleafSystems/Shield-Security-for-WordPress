@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {

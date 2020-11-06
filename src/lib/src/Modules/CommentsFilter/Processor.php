@@ -26,18 +26,20 @@ class Processor extends BaseShield\Processor {
 
 		if ( $bLoadComProc ) {
 
-			if ( $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
-				( new \ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $mod ) )->execute();
-			}
+			( new Forms\GoogleRecaptcha() )
+				->setMod( $this->getMod() )
+				->execute();
 
 			if ( Services::Request()->isPost() ) {
 				( new Scan\Scanner() )
 					->setMod( $this->getMod() )
-					->run();
+					->execute();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
-			elseif ( $opts->isEnabledGaspCheck() ) {
-				( new \ICWP_WPSF_Processor_CommentsFilter_BotSpam( $mod ) )->execute();
+			else {
+				( new Forms\Gasp() )
+					->setMod( $this->getMod() )
+					->execute();
 			}
 		}
 	}

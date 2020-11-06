@@ -33,9 +33,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 			}
 
 			if ( Services::Request()->isPost() ) {
-				( new CommentsFilter\Scan\Scanner() )
-					->setMod( $this->getMod() )
-					->run();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
 			elseif ( $opts->isEnabledGaspCheck() ) {

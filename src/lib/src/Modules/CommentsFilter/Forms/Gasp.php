@@ -1,31 +1,40 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Forms;
+
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 10.1
- */
-class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\ShieldProcessor {
+class Gasp {
+
+	use ModConsumer;
+	use OneTimeExecute;
 
 	/**
 	 * The unique comment token assigned to this page
 	 * @var string
 	 */
-	private $sFormId;
+	private $formID;
 
 	/**
 	 * @var bool
 	 */
 	private $bFormItemPrinted = false;
 
-	public function run() {
-		add_action( 'wp', [ $this, 'onWp' ] );
+	protected function canRun() {
+		/** @var CommentsFilter\Options $opts */
+		$opts = $this->getOptions();
+		return !Services::Request()->isPost() && $opts->isEnabledGaspCheck() && !Services::WpUsers()->isUserLoggedIn();
+	}
+
+	protected function run() {
+		add_action( 'wp', [ $this, 'onWP' ] );
 		add_action( 'wp_footer', [ $this, 'maybeDequeueScript' ] );
 	}
 
-	public function onWp() {
+	public function onWP() {
 		add_action( 'comment_form', [ $this, 'printGaspFormItems' ], 1 );
 	}
 
@@ -37,23 +46,23 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 		$con = $this->getCon();
 
 		$sAsset = 'shield-comments';
-		$sUnique = $con->prefix( 'shield-comments' );
+		$handle = $con->prefix( 'shield-comments' );
 		wp_register_script(
-			$sUnique,
+			$handle,
 			$con->getPluginUrl_Js( $sAsset ),
 			[ 'jquery' ],
 			$con->getVersion(),
 			true
 		);
-		wp_enqueue_script( $sUnique );
+		wp_enqueue_script( $handle );
 
-		$nTs = Services::Request()->ts();
+		$ts = Services::Request()->ts();
 		$aNonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
-		$aNonce[ 'ts' ] = $nTs;
+		$aNonce[ 'ts' ] = $ts;
 		$aNonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
 
 		wp_localize_script(
-			$sUnique,
+			$handle,
 			'shield_comments',
 			[
 				'ajax'    => [
@@ -61,7 +70,7 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 				],
 				'vars'    => [
 					'cbname'   => 'cb_nombre'.rand(),
-					'botts'    => $nTs,
+					'botts'    => $ts,
 					'token'    => 'not created',
 					'uniq'     => $this->getUniqueFormId(),
 					'cooldown' => $opts->getTokenCooldown(),
@@ -100,17 +109,14 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 				  );
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getUniqueFormId() {
-		if ( !isset( $this->sFormId ) ) {
-			$oDp = Services::Data();
-			$sId = $oDp->generateRandomLetter().$oDp->generateRandomString( rand( 7, 23 ), 7 );
-			$this->sFormId = preg_replace(
+	private function getUniqueFormId() :string {
+		if ( !isset( $this->formID ) ) {
+			$DP = Services::Data();
+			$id = $DP->generateRandomLetter().$DP->generateRandomString( rand( 7, 23 ), 7 );
+			$this->formID = preg_replace(
 				'#[^a-zA-Z0-9]#', '',
-				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
+				apply_filters( 'icwp_shield_cf_gasp_uniqid', $id ) );
 		}
-		return $this->sFormId;
+		return $this->formID;
 	}
 }

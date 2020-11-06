@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
@@ -10,6 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	use ModConsumer;
+	use OneTimeExecute;
 
 	/**
 	 * @var string|int|null
@@ -21,7 +23,11 @@ class Scanner {
 	 */
 	private $sCommentExplanation;
 
-	public function run() {
+	protected function canRun() {
+		return Services::Request()->isPost();
+	}
+
+	protected function run() {
 		if ( Services::WpComments()->isCommentSubmission() ) {
 			add_filter( 'preprocess_comment', [ $this, 'checkComment' ], 5 );
 		}
