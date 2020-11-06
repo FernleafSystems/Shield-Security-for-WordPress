@@ -40,7 +40,7 @@ class Controller {
 			throw new \Exception( 'MainWP Child not active' );
 		}
 
-		( new Client\Init() )
+		( new Client\Actions\Init() )
 			->setMod( $this->getMod() )
 			->run();
 

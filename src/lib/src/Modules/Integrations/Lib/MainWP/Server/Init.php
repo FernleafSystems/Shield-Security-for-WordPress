@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\ExtensionSettingsPage;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Init {
 
@@ -26,12 +26,13 @@ class Init {
 			throw new \Exception( 'MainWP Extension is not enabled' );
 		}
 
-		add_filter( 'mainwp_getextensions', function ( $exts ) {
+		$extensionsPage = ( new ExtensionSettingsPage() )->setMod( $this->getMod() );
+		add_filter( 'mainwp_getextensions', function ( $exts ) use ( $extensionsPage ) {
 			$con = $this->getCon();
 			$exts[] = [
 				'plugin'   => $this->getCon()->getRootFile(),
 				// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
-				'callback' => [ ( new ExtensionSettingsPage() )->setMod( $this->getMod() ), 'render' ],
+				'callback' => [ $extensionsPage, 'render' ],
 				'icon'     => $con->getPluginUrl_Image( 'pluginlogo_col_32x32.png' ),
 			];
 			return $exts;
@@ -50,6 +51,7 @@ class Init {
 			( new UI\ManageSites\SitesListTableHandler() )
 				->setMod( $this->getMod() )
 				->execute();
+			$extensionsPage->execute();
 		}
 
 		return $key;

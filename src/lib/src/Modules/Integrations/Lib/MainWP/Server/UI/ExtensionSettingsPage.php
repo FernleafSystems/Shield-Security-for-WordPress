@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -10,6 +11,15 @@ use FernleafSystems\Wordpress\Services\Services;
 class ExtensionSettingsPage {
 
 	use ModConsumer;
+	use OneTimeExecute;
+
+	protected function run() {
+		add_action( 'admin_enqueue_scripts', function ( $hook ) {
+			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
+				// enqueue your JS
+			}
+		} );
+	}
 
 	public function render() {
 		$con = $this->getCon();

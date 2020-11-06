@@ -6,16 +6,11 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use MainWP\Dashboard\MainWP_Extensions_Handler;
 
 /**
- * Class MainwpVO
+ * Class MWPExtensionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
- * @property string         $child_key
- * @property string         $child_file
- * @property bool           $is_client
- * @property bool           $is_server
- * @property array          $official_extension_data
- * @property MWPExtensionVO $extension
+ * @property string $page - e.g. Extensions-Wp-Simple-Firewall
  */
-class MainWPVO {
+class MWPExtensionVO {
 
 	use StdClassAdapter {
 		__get as __adapterGet;
@@ -32,9 +27,6 @@ class MainWPVO {
 		switch ( $property ) {
 			case 'official_extension_data':
 				$mValue = $this->findOfficialExtensionData();
-				break;
-			case 'extension':
-				$mValue = ( new MWPExtensionVO() )->applyFromArray( $this->official_extension_data );
 				break;
 			default:
 				break;
