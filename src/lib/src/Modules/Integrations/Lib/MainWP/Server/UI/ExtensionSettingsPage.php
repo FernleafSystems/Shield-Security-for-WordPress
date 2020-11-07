@@ -15,8 +15,17 @@ class ExtensionSettingsPage {
 
 	protected function run() {
 		add_action( 'admin_enqueue_scripts', function ( $hook ) {
-			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
-				// enqueue your JS
+			$con = $this->getCon();
+			if ( 'mainwp_page_'.$con->mwpVO->extension->page === $hook ) {
+				$handle = $con->prefix( 'mainwp-extension' );
+				wp_register_script(
+					$handle,
+					$con->getPluginUrl_Js( 'shield/mainwp-extension.js' ),
+					[ 'jquery' ],
+					$con->getVersion(),
+					true
+				);
+				wp_enqueue_script( $handle );
 			}
 		} );
 	}
