@@ -10,7 +10,7 @@ class PluginOutOfDate extends BaseRender {
 	protected function getData() :array {
 		return [
 			'strings' => [
-				'update'  => __( 'The Shield Security plugin on this site needs updated.' ),
+				'update'  => __( 'The Shield Security plugin on this site needs to be upgraded.' ),
 				'go_here' => __( 'Go to WordPress Updates' )
 			],
 			'hrefs'   => [

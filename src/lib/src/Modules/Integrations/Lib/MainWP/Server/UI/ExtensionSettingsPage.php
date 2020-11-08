@@ -26,10 +26,21 @@ class ExtensionSettingsPage {
 					true
 				);
 				wp_enqueue_script( $handle );
+
+				wp_register_style(
+					$handle,
+					$con->getPluginUrl_Css( 'mainwp.css' ),
+					[],
+					$con->getVersion()
+				);
+				wp_enqueue_style( $handle );
 			}
 		} );
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function render() {
 		$con = $this->getCon();
 		$req = Services::Request();
@@ -46,6 +57,7 @@ class ExtensionSettingsPage {
 		do_action( 'mainwp_pagefooter_extensions', $this->getCon()->getRootFile() );
 		$mainwpFooter = ob_get_clean();
 
+		$currentTab = empty( $req->query( 'tab' ) ) ? 'sites' : $req->query( 'tab' );
 		if ( !$con->isPremiumActive() ) {
 			$pageRenderer = new PageRender\NotShieldPro();
 		}
@@ -56,12 +68,12 @@ class ExtensionSettingsPage {
 			$pageRenderer = new PageRender\MwpOutOfDate();
 		}
 		else {
-			$currentTab = empty( $req->query( 'tab' ) ) ? 'sites' : $req->query( 'tab' );
 			switch ( $currentTab ) {
 				case 'sites':
-				default:
 					$pageRenderer = new PageRender\SitesList();
 					break;
+				default:
+					throw new \Exception( 'Not a supported tab' );
 			}
 		}
 
@@ -86,7 +98,8 @@ class ExtensionSettingsPage {
 								  ],
 							  ]
 						  ],
-						  true );
+						  true
+					  );
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );

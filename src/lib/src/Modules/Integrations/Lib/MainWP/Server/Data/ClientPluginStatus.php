@@ -90,7 +90,7 @@ class ClientPluginStatus {
 		return !empty( $this->getInstalledPlugin() );
 	}
 
-	public function getStatusText() {
+	public function getStatusText() :array {
 		return [
 			self::ACTIVE                    => __( 'Active' ),
 			self::NOT_PRO                   => __( 'Not Pro' ),

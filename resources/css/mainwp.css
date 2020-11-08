@@ -1,0 +1,8 @@
+﻿
+table.mainwp-shield-ext-table {
+}
+table.mainwp-shield-ext-table td.cell-span-issue {
+	background-color: rgba(0, 0, 0, 0.1);
+	font-size: smaller;
+	text-align: center;
+}

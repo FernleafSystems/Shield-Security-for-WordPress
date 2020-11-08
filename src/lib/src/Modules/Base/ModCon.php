@@ -831,14 +831,14 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sAction
-	 * @param bool   $bAsJsonEncodedObject
+	 * @param string $action
+	 * @param bool   $asJson
 	 * @return array|string
 	 */
-	public function getAjaxActionData( $sAction = '', $bAsJsonEncodedObject = false ) {
-		$aData = $this->getNonceActionData( $sAction );
-		$aData[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
-		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
+	public function getAjaxActionData( string $action = '', $asJson = false ) {
+		$data = $this->getNonceActionData( $action );
+		$data[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
+		return $asJson ? json_encode( (object)$data ) : $data;
 	}
 
 	/**

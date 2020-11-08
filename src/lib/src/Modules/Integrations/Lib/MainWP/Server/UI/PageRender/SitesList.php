@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Actions\Action;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
@@ -13,6 +12,7 @@ use MainWP\Dashboard\MainWP_DB;
 class SitesList extends BaseRender {
 
 	protected function getData() :array {
+		$mod = $this->getMod();
 		$mwp = $this->getCon()->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
@@ -90,7 +90,16 @@ class SitesList extends BaseRender {
 				'sites'      => $sites,
 				'stats_head' => $statsHead,
 			],
+			'ajax'    => [
+				'mwp_sh_activate'   => $mod->getAjaxActionData( 'mwp_sh_activate' ),
+				'mwp_sh_align'      => $mod->getAjaxActionData( 'mwp_sh_align' ),
+				'mwp_sh_deactivate' => $mod->getAjaxActionData( 'mwp_sh_deactivate' ),
+				'mwp_sh_install'    => $mod->getAjaxActionData( 'mwp_sh_install' ),
+				'mwp_sh_uninstall'  => $mod->getAjaxActionData( 'mwp_sh_uninstall' ),
+				'mwp_sh_upgrade'    => $mod->getAjaxActionData( 'mwp_sh_upgrade' ),
+			],
 			'strings' => [
+				'actions'             => __( 'Actions', 'wp-simple-firewall' ),
 				'site'                => __( 'Site', 'wp-simple-firewall' ),
 				'url'                 => __( 'URL', 'wp-simple-firewall' ),
 				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
@@ -108,6 +117,13 @@ class SitesList extends BaseRender {
 				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
 				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
 				'st_not_detected'     => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
+				'act_sync'            => __( 'Sync Shield', 'wp-simple-firewall' ),
+				'act_activate'        => __( 'Activate Shield', 'wp-simple-firewall' ),
+				'act_align'           => __( 'Align Shield', 'wp-simple-firewall' ),
+				'act_deactivate'      => __( 'Deactivate Shield', 'wp-simple-firewall' ),
+				'act_install'         => __( 'Install Shield', 'wp-simple-firewall' ),
+				'act_upgrade'         => __( 'Upgrade Shield', 'wp-simple-firewall' ),
+				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
 			]
 		];
 	}
