@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 
 use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Services\Services;
+use MainWP\Dashboard\MainWP_DB;
 
 /**
  * Class MWPSiteVO
@@ -16,6 +17,21 @@ class MWPSiteVO {
 
 	use StdClassAdapter {
 		__get as __adapterGet;
+	}
+
+	/**
+	 * @param int $siteID
+	 * @return MWPSiteVO
+	 * @throws \Exception
+	 */
+	public static function LoadByID( int $siteID ) :MWPSiteVO {
+		$raw = MainWP_DB::instance()->get_website_by_id( $siteID );
+		if ( empty( $raw ) ) {
+			throw new \Exception( 'Invalid Site ID' );
+		}
+		return ( new MWPSiteVO() )->applyFromArray(
+			Services::DataManipulation()->convertStdClassToArray( $raw )
+		);
 	}
 
 	/**

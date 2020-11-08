@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Serv
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
-use MainWP\Dashboard\MainWP_DB;
 
 class SitesList extends BaseRender {
 
@@ -25,11 +24,7 @@ class SitesList extends BaseRender {
 		];
 		$sites = apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 		foreach ( $sites as &$site ) {
-			$mwpSite = ( new MWPSiteVO() )->applyFromArray(
-				Services::DataManipulation()->convertStdClassToArray(
-					MainWP_DB::instance()->get_website_by_id( $site[ 'id' ] )
-				)
-			);
+			$mwpSite = MWPSiteVO::LoadByID( (int)$site[ 'id' ] );
 			$sync = LoadShieldSyncData::Load( $mwpSite );
 			$meta = $sync->meta;
 
@@ -91,12 +86,13 @@ class SitesList extends BaseRender {
 				'stats_head' => $statsHead,
 			],
 			'ajax'    => [
-				'mwp_sh_activate'   => $mod->getAjaxActionData( 'mwp_sh_activate' ),
-				'mwp_sh_align'      => $mod->getAjaxActionData( 'mwp_sh_align' ),
-				'mwp_sh_deactivate' => $mod->getAjaxActionData( 'mwp_sh_deactivate' ),
-				'mwp_sh_install'    => $mod->getAjaxActionData( 'mwp_sh_install' ),
-				'mwp_sh_uninstall'  => $mod->getAjaxActionData( 'mwp_sh_uninstall' ),
-				'mwp_sh_upgrade'    => $mod->getAjaxActionData( 'mwp_sh_upgrade' ),
+				'mwp_sh_sync'       => $mod->getAjaxActionData( 'mwp_sh_sync', true ),
+				'mwp_sh_activate'   => $mod->getAjaxActionData( 'mwp_sh_activate', true ),
+				'mwp_sh_align'      => $mod->getAjaxActionData( 'mwp_sh_align', true ),
+				'mwp_sh_deactivate' => $mod->getAjaxActionData( 'mwp_sh_deactivate', true ),
+				'mwp_sh_install'    => $mod->getAjaxActionData( 'mwp_sh_install', true ),
+				'mwp_sh_uninstall'  => $mod->getAjaxActionData( 'mwp_sh_uninstall', true ),
+				'mwp_sh_upgrade'    => $mod->getAjaxActionData( 'mwp_sh_upgrade', true ),
 			],
 			'strings' => [
 				'actions'             => __( 'Actions', 'wp-simple-firewall' ),

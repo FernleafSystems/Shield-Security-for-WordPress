@@ -1497,10 +1497,7 @@ abstract class ModCon {
 	}
 
 	protected function loadAjaxHandler() {
-		$oAj = $this->loadModElement( 'AjaxHandler' );
-		if ( !$oAj instanceof Shield\Modules\Base\AjaxHandlerBase ) {
-			$this->loadModElement( 'AjaxHandlerShield' );
-		}
+		$this->loadModElement( 'AjaxHandler' );
 	}
 
 	/**

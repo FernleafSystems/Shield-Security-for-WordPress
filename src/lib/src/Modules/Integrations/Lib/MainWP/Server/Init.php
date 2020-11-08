@@ -3,10 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Ajax\AjaxHandlerMainwp;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\ExtensionSettingsPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Init {
 
@@ -52,6 +54,10 @@ class Init {
 				->setMod( $this->getMod() )
 				->execute();
 			$extensionsPage->execute();
+
+			if ( $this->getMod()->isModuleRequest() && Services::WpGeneral()->isAjax() ) {
+				( new AjaxHandlerMainwp() )->setMod( $this->getMod() );
+			}
 		}
 
 		return $key;

@@ -32,7 +32,7 @@
 	</div>
 </div>
 
-<table id="mainwp-shield-sites-table" class="mainwp-shield-ext-table ui single line table" style="width:100%">
+<table id="mainwp-shield-extension-table-sites" class="mainwp-shield-ext-table ui single line table" style="width:100%">
 	<thead>
 		<tr>
 			<th class="collapsing no-sort check-column">
@@ -90,20 +90,24 @@
 				<td colspan="4" class="cell-span-issue">{{ strings.st_not_detected }}</td>
 			{% endif %}
 			<td>
-				<div class="ui left pointing dropdown icon mini basic green button" style="z-index: 999;" tabindex="0">
+				<div class="site-dropdown ui left pointing dropdown icon mini basic green button"
+					 style="z-index: 999;" tabindex="0">
 					<i class="ellipsis horizontal icon"></i>
-					<div class="menu" tabindex="-1">
+					<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
 						<a href="#"
-						   class="item {% if not site.shield.is_active %}disabled{% endif %}"
+						   data-saction="sync"
+						   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
 						>{{ strings.act_sync }}</a>
 
 						{% if site.shield.is_inactive %}
 							<a href="#"
-							   class="item {% if not site.shield.is_inactive %}disabled{% endif %}"
+							   data-saction="activate"
+							   class="item site_action {% if not site.shield.is_inactive %}disabled{% endif %}"
 							>{{ strings.act_activate }}</a>
 						{% else %}
 							<a href="#"
-							   class="item {% if not site.shield.is_inactive %}disabled{% endif %}"
+							   data-saction="deactivate"
+							   class="item site_action {% if not site.shield.is_inactive %}disabled{% endif %}"
 							>{{ strings.act_deactivate }}</a>
 						{% endif %}
 					</div>
@@ -113,3 +117,17 @@
 	{% endfor %}
 	</tbody>
 </table>
+
+<script type="text/javascript">
+	jQuery( document ).ready( function () {
+		jQuery( '#mainwp-shield-extension-table-sites' ).icwpWpsfMainwpExt( {
+			'ajax_sh_sync': {{ ajax.mwp_sh_sync|raw }},
+			'ajax_sh_activate': {{ ajax.mwp_sh_activate|raw }},
+			'ajax_sh_align': {{ ajax.mwp_sh_align|raw }},
+			'ajax_sh_deactivate': {{ ajax.mwp_sh_deactivate|raw }},
+			'ajax_sh_install': {{ ajax.mwp_sh_install|raw }},
+			'ajax_sh_uninstall': {{ ajax.mwp_sh_uninstall|raw }},
+			'ajax_sh_upgrade': {{ ajax.mwp_sh_upgrade|raw }},
+		} );
+	} );
+</script>

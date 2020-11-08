@@ -5,7 +5,7 @@
 	function Ob_TableActions( element, options ) {
 		this.element = element;
 		this._name = pluginName;
-		this._defaults = $.fn.icwpWpsfTableActions.defaults;
+		this._defaults = $.fn.icwpWpsfMainwpExt.defaults;
 		this.options = $.extend(
 			{
 				'forms': {
@@ -38,13 +38,15 @@
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
-					'button.action.delete',
+					'.site-dropdown a.site_action',
 					function ( evt ) {
 						evt.preventDefault();
-						if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
-							plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-							plugin.deleteEntry.call( plugin );
-						}
+
+						plugin.options[ 'req_params' ] = $.extend(
+							plugin.options[ 'ajax_sh_' + $( this ).data( 'saction' ) ],
+							{ 'sid': $( this ).parent().data( 'sid' ) }
+						);
+						plugin.site_action.call( plugin );
 					}
 				);
 
@@ -161,40 +163,26 @@
 			},
 
 			bulkAction: function () {
-				let aRequestData = this.options[ 'ajax_bulk_action' ];
-				this.sendReq( aRequestData );
+				let reqData = this.options[ 'ajax_bulk_action' ];
+				this.sendReq( reqData );
 			},
 
-			deleteEntry: function () {
-				let aRequestData = this.options[ 'ajax_item_delete' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( aRequestData );
+			site_action: function () {
+				this.sendReq();
 			},
 
 			insertEntry: function () {
-				let requestData = this.options[ 'ajax_item_insert' ];
-				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
-				this.sendReq( requestData );
+				let reqData = this.options[ 'ajax_item_insert' ];
+				reqData[ 'form_params' ] = this.$oFormInsert.serialize();
+				this.sendReq( reqData );
 				this.$oFormInsert[ 0 ].reset();
 			},
 
-			ignoreEntry: function () {
-				let aRequestData = this.options[ 'ajax_item_ignore' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( aRequestData );
-			},
-
-			repairEntry: function () {
-				let aRequestData = this.options[ 'ajax_item_repair' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( aRequestData );
-			},
-
 			itemAction: function () {
-				let aRequestData = this.options[ 'ajax_item_action' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				aRequestData[ 'item_action' ] = this.options[ 'working_item_action' ];
-				this.sendReq( aRequestData );
+				let reqData = this.options[ 'ajax_item_action' ];
+				reqData[ 'rid' ] = this.options[ 'working_rid' ];
+				reqData[ 'item_action' ] = this.options[ 'working_item_action' ];
+				this.sendReq( reqData );
 			},
 
 			customAction: function () {
@@ -209,12 +197,12 @@
 				return false;
 			},
 
-			sendReq: function ( aRequestData ) {
+			sendReq: function ( reqData = {} ) {
 				iCWP_WPSF_BodyOverlay.show();
 
 				var plugin = this;
 
-				$.post( ajaxurl, $.extend( aRequestData, plugin.options[ 'req_params' ] ),
+				$.post( ajaxurl, $.extend( reqData, plugin.options[ 'req_params' ] ),
 					function ( oResponse ) {
 
 						if ( oResponse.success ) {
@@ -246,17 +234,17 @@
 		}
 	);
 
-	$.fn.icwpWpsfTableActions = function ( aOptions ) {
+	$.fn.icwpWpsfMainwpExt = function ( options ) {
 		return this.each(
 			function () {
 				if ( !$.data( this, "plugin_" + pluginName ) ) {
-					$.data( this, "plugin_" + pluginName, new Ob_TableActions( this, aOptions ) );
+					$.data( this, "plugin_" + pluginName, new Ob_TableActions( this, options ) );
 				}
 			}
 		);
 	};
 
-	$.fn.icwpWpsfTableActions.defaults = {
+	$.fn.icwpWpsfMainwpExt.defaults = {
 		'custom_actions_ajax': {},
 		'req_params': {}
 	};
