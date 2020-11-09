@@ -65,11 +65,11 @@ class BlockRequest {
 						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
 		$bCanAutoRecover = $bCanUauGasp || $bCanUauMagic;
 
-		$aData = [
+		$data = [
 			'strings' => [
 				'title'   => sprintf( __( "You've been blocked by the %s plugin", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
+						$con->getLabels()[ 'url_home' ],
 						$con->getHumanName()
 					)
 				),
@@ -116,7 +116,7 @@ class BlockRequest {
 		];
 		Services::WpGeneral()
 				->wpDie(
-					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $aData, true )
+					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $data, true )
 				);
 	}
 
