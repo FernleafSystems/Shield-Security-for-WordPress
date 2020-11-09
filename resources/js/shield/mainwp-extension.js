@@ -43,40 +43,13 @@
 						evt.preventDefault();
 
 						plugin.options[ 'req_params' ] = $.extend(
-							plugin.options[ 'ajax_sh_' + $( this ).data( 'saction' ) ],
-							{ 'sid': $( this ).parent().data( 'sid' ) }
+							plugin.options[ 'ajax_sh_site_action' ],
+							{
+								'sid': $( this ).parent().data( 'sid' ),
+								'saction': $( this ).data( 'saction' )
+							}
 						);
 						plugin.site_action.call( plugin );
-					}
-				);
-
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'button.action.ignore',
-					function ( evt ) {
-						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.ignoreEntry.call( plugin );
-					}
-				);
-
-				if ( typeof this.$oFormInsert !== 'undefined' && this.$oFormInsert.length ) {
-					this.$oFormInsert.on(
-						'submit' + '.' + plugin._name,
-						function ( evt ) {
-							evt.preventDefault();
-							plugin.insertEntry.call( plugin );
-						}
-					);
-				}
-
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'button.action.repair',
-					function ( evt ) {
-						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.repairEntry.call( plugin );
 					}
 				);
 
@@ -171,20 +144,6 @@
 				this.sendReq();
 			},
 
-			insertEntry: function () {
-				let reqData = this.options[ 'ajax_item_insert' ];
-				reqData[ 'form_params' ] = this.$oFormInsert.serialize();
-				this.sendReq( reqData );
-				this.$oFormInsert[ 0 ].reset();
-			},
-
-			itemAction: function () {
-				let reqData = this.options[ 'ajax_item_action' ];
-				reqData[ 'rid' ] = this.options[ 'working_rid' ];
-				reqData[ 'item_action' ] = this.options[ 'working_item_action' ];
-				this.sendReq( reqData );
-			},
-
 			customAction: function () {
 				this.sendReq( this.options[ 'working_custom_action' ] );
 			},
@@ -203,29 +162,26 @@
 				var plugin = this;
 
 				$.post( ajaxurl, $.extend( reqData, plugin.options[ 'req_params' ] ),
-					function ( oResponse ) {
-
-						if ( oResponse.success ) {
-							iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
-							if ( oResponse.data.page_reload ) {
-								location.reload();
-							}
-							else {
-								plugin.options[ 'table' ].reloadTable();
-								iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
-								iCWP_WPSF_BodyOverlay.hide();
+					function ( oR ) {
+						if ( oR.success ) {
+							iCWP_WPSF_Growl.showMessage( oR.data.message, oR.success );
+							if ( oR.data.page_reload ) {
+								setTimeout( function () {
+									location.reload();
+								}, 1500 );
 							}
 						}
 						else {
-							let sMessage = 'Communications error with site.';
-							if ( oResponse.data.message !== undefined ) {
-								sMessage = oResponse.data.message;
+							let msg = 'Communications error with site.';
+							if ( oR.data.message !== undefined ) {
+								msg = oR.data.message;
 							}
-							alert( sMessage );
+							alert( msg );
 							iCWP_WPSF_BodyOverlay.hide();
 						}
 					}
 				).always( function () {
+						iCWP_WPSF_BodyOverlay.hide();
 					}
 				);
 			},

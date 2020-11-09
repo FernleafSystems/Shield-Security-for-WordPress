@@ -25,7 +25,7 @@ class Init {
 				$con = $this->getCon();
 				if ( !empty( $post[ $con->prefix( 'mainwp-action' ) ] ) ) {
 					$information[ $con->prefix( 'mainwp-action' ) ] =
-						wp_json_encode( ( new ActionInit() )
+						wp_json_encode( ( new ApiActionInit() )
 							->setMod( $this->getMod() )
 							->run( $post[ $con->prefix( 'mainwp-action' ) ] ) );
 				}

@@ -94,6 +94,7 @@
 					 style="z-index: 999;" tabindex="0">
 					<i class="ellipsis horizontal icon"></i>
 					<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
+
 						<a href="#"
 						   data-saction="sync"
 						   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
@@ -110,6 +111,12 @@
 							   class="item site_action"
 							>{{ strings.act_deactivate }}</a>
 						{% endif %}
+
+						<a href="#"
+						   data-saction="license"
+						   class="item site_action {% if not site.shield.is_notpro %}disabled{% endif %}"
+						>{{ strings.act_license }}</a>
+
 					</div>
 				</div>
 			</td>
@@ -121,13 +128,7 @@
 <script type="text/javascript">
 	jQuery( document ).ready( function () {
 		jQuery( '#mainwp-shield-extension-table-sites' ).icwpWpsfMainwpExt( {
-			'ajax_sh_sync': {{ ajax.mwp_sh_sync|raw }},
-			'ajax_sh_activate': {{ ajax.mwp_sh_activate|raw }},
-			'ajax_sh_align': {{ ajax.mwp_sh_align|raw }},
-			'ajax_sh_deactivate': {{ ajax.mwp_sh_deactivate|raw }},
-			'ajax_sh_install': {{ ajax.mwp_sh_install|raw }},
-			'ajax_sh_uninstall': {{ ajax.mwp_sh_uninstall|raw }},
-			'ajax_sh_upgrade': {{ ajax.mwp_sh_upgrade|raw }},
+			'ajax_sh_site_action': {{ ajax.mwp_sh_site_action|raw }},
 		} );
 	} );
 </script>

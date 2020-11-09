@@ -86,13 +86,7 @@ class SitesList extends BaseRender {
 				'stats_head' => $statsHead,
 			],
 			'ajax'    => [
-				'mwp_sh_sync'       => $mod->getAjaxActionData( 'mwp_sh_sync', true ),
-				'mwp_sh_activate'   => $mod->getAjaxActionData( 'mwp_sh_activate', true ),
-				'mwp_sh_align'      => $mod->getAjaxActionData( 'mwp_sh_align', true ),
-				'mwp_sh_deactivate' => $mod->getAjaxActionData( 'mwp_sh_deactivate', true ),
-				'mwp_sh_install'    => $mod->getAjaxActionData( 'mwp_sh_install', true ),
-				'mwp_sh_uninstall'  => $mod->getAjaxActionData( 'mwp_sh_uninstall', true ),
-				'mwp_sh_upgrade'    => $mod->getAjaxActionData( 'mwp_sh_upgrade', true ),
+				'mwp_sh_site_action' => $mod->getAjaxActionData( 'mwp_sh_site_action', true ),
 			],
 			'strings' => [
 				'actions'             => __( 'Actions', 'wp-simple-firewall' ),
@@ -120,6 +114,7 @@ class SitesList extends BaseRender {
 				'act_install'         => __( 'Install Shield', 'wp-simple-firewall' ),
 				'act_upgrade'         => __( 'Upgrade Shield', 'wp-simple-firewall' ),
 				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
+				'act_license'         => __( 'Check For ShieldPRO License', 'wp-simple-firewall' ),
 			]
 		];
 	}

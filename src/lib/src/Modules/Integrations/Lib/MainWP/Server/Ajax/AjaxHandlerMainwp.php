@@ -4,85 +4,56 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 
-	/**
-	 * @var MainWP\Common\MWPSiteVO|null
-	 */
-	private $site;
-
 	protected function processAjaxAction( string $action ) :array {
+		$req = Services::Request();
 
-		if ( strpos( $action, 'mwp_sh_' ) === 0 ) {
-			$siteID = (int)Services::Request()->post( 'sid' );
-			if ( empty( $siteID ) ) {
-				//TODO - proper ajax response
-				throw new \Exception( 'invalid site ID' );
+		// This allows us to provide a specific MainWP error message
+		if ( strpos( $action, 'mwp_' ) === 0 ) {
+
+			if ( $action === 'mwp_sh_site_action' ) {
+				$action = $req->post( 'saction' );
 			}
 
-			$this->site = MWPSiteVO::LoadByID( $siteID );
+			switch ( $action ) {
+				case 'activate':
+				case 'deactivate':
+				case 'sync':
+				case 'license':
+					$siteID = (int)$req->post( 'sid' );
+					try {
+						if ( empty( $siteID ) ) {
+							throw new \Exception( 'invalid site ID' );
+						}
+						$site = MainWP\Common\MWPSiteVO::LoadByID( $siteID );
+						$resp = ( new PerformSiteAction() )
+							->setMwpSite( $site )
+							->setMod( $this->getMod() )
+							->run( $action );
+					}
+					catch ( \Exception $e ) {
+						$resp = [
+							'success' => false,
+							'message' => $e->getMessage()
+						];
+					}
+					break;
+
+				default:
+					$resp = [
+						'success' => false,
+						'message' => sprintf( __( 'Not a supported MainWP+%s action.' ),
+							$this->getCon()->getHumanName() )
+					];
+			}
 		}
-
-		switch ( $action ) {
-			case 'mwp_sh_activate':
-				$resp = $this->ajaxExec_Activate();
-				break;
-			case 'mwp_sh_deactivate':
-				$resp = $this->ajaxExec_Deactivate();
-				break;
-
-			default:
-				$resp = parent::processAjaxAction( $action );
+		else {
+			$resp = [];
 		}
 
 		return $resp;
-	}
-
-	private function ajaxExec_Activate() :array {
-		$actioner = ( new Server\Actions\ShieldPluginAction() )
-			->setMod( $this->getMod() )
-			->setMwpSite( $this->site );
-		try {
-			$success = $actioner->activate();
-			$actioner->sync();
-		}
-		catch ( \Exception $e ) {
-			$msg = $e->getMessage();
-			$success = false;
-			$response = $msg;
-		}
-
-		return [
-			'success'     => $success,
-			'message'     => $msg,
-			'page_reload' => true,
-			'html'        => $response,
-		];
-	}
-
-	private function ajaxExec_Deactivate() :array {
-		$actioner = ( new Server\Actions\ShieldPluginAction() )
-			->setMod( $this->getMod() )
-			->setMwpSite( $this->site );
-		try {
-			$success = $actioner->deactivate();
-			$actioner->sync();
-		}
-		catch ( \Exception $e ) {
-			$msg = $e->getMessage();
-			$success = false;
-			$response = $msg;
-		}
-
-		return [
-			'success'     => $success,
-			'message'     => $msg,
-			'page_reload' => true,
-			'html'        => $response,
-		];
 	}
 }
