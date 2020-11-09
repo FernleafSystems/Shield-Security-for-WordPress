@@ -10,12 +10,12 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Api;
 use MainWP\Dashboard\MainWP_Connect;
 use MainWP\Dashboard\MainWP_Sync;
 
-class AlignPlugin {
+class ShieldPluginAction {
 
 	use ModConsumer;
 	use MWPSiteConsumer;
 
-	public function run() {
+	public function alignByStatus() {
 		$oStatus = ( new ClientPluginStatus() )
 			->setMod( $this->getMod() )
 			->setMwpSite( $this->getMwpSite() );
@@ -57,6 +57,24 @@ class AlignPlugin {
 			'plugin_action',
 			[
 				'action' => 'activate',
+				'plugin' => ( new ClientPluginStatus() )
+								->setMod( $this->getMod() )
+								->setMwpSite( $this->getMwpSite() )
+								->getInstalledPlugin()[ 'slug' ],
+			]
+		);
+
+		$status = $info[ 'status' ] ?? false;
+		return $status === 'SUCCESS';
+	}
+
+	public function deactivate() :bool {
+		$siteObj = $this->getMwpSite()->siteobj;
+		$info = MainWP_Connect::fetch_url_authed(
+			$siteObj,
+			'plugin_action',
+			[
+				'action' => 'deactivate',
 				'plugin' => ( new ClientPluginStatus() )
 								->setMod( $this->getMod() )
 								->setMwpSite( $this->getMwpSite() )

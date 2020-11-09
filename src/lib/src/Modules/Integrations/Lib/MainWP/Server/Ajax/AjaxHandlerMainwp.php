@@ -31,6 +31,9 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 			case 'mwp_sh_activate':
 				$resp = $this->ajaxExec_Activate();
 				break;
+			case 'mwp_sh_deactivate':
+				$resp = $this->ajaxExec_Deactivate();
+				break;
 
 			default:
 				$resp = parent::processAjaxAction( $action );
@@ -40,11 +43,12 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_Activate() :array {
+		$actioner = ( new Server\Actions\ShieldPluginAction() )
+			->setMod( $this->getMod() )
+			->setMwpSite( $this->site );
 		try {
-			( new Server\Actions\AlignPlugin() )
-				->setMod( $this->getMod() )
-				->setMwpSite( $this->site )
-				->activate();
+			$success = $actioner->activate();
+			$actioner->sync();
 		}
 		catch ( \Exception $e ) {
 			$msg = $e->getMessage();
@@ -53,18 +57,20 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return [
-			'success' => $success,
-			'message' => $msg,
-			'html'    => $response,
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => true,
+			'html'        => $response,
 		];
 	}
 
 	private function ajaxExec_Deactivate() :array {
+		$actioner = ( new Server\Actions\ShieldPluginAction() )
+			->setMod( $this->getMod() )
+			->setMwpSite( $this->site );
 		try {
-			( new Server\Actions\AlignPlugin() )
-				->setMod( $this->getMod() )
-				->setMwpSite( $this->site )
-				->de();
+			$success = $actioner->deactivate();
+			$actioner->sync();
 		}
 		catch ( \Exception $e ) {
 			$msg = $e->getMessage();
@@ -73,9 +79,10 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return [
-			'success' => $success,
-			'message' => $msg,
-			'html'    => $response,
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => true,
+			'html'        => $response,
 		];
 	}
 }
