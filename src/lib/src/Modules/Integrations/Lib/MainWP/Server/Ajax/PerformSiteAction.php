@@ -73,6 +73,18 @@ class PerformSiteAction {
 	 * @return string
 	 * @throws \Exception
 	 */
+	private function mwp() :string {
+		$resp = $this->getApiActioner()->mwpEnable();
+		if ( empty( $resp[ 'success' ] ) ) {
+			throw new \Exception( $resp[ 'message' ] );
+		}
+		return $resp[ 'message' ];
+	}
+
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
 	private function sync() :string {
 		if ( !$this->getPluginActioner()->sync() ) {
 			throw new \Exception( sprintf( __( 'Failed to sync with %s plugin.' ), $this->getCon()->getHumanName() ) );

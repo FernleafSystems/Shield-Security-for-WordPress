@@ -103,7 +103,7 @@ class SitesList extends BaseRender {
 				'needs_update'        => __( 'Needs Update', 'wp-simple-firewall' ),
 				'st_inactive'         => __( 'Shield Security plugin is installed but not activated.', 'wp-simple-firewall' ),
 				'st_notpro'           => __( "ShieldPRO isn't activated on this site.", 'wp-simple-firewall' ),
-				'st_mwpnoton'         => __( "Shield's MainWP option isn't switch on for this site.", 'wp-simple-firewall' ),
+				'st_mwpnoton'         => __( "Shield's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ),
 				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
 				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
 				'st_not_detected'     => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
@@ -114,7 +114,8 @@ class SitesList extends BaseRender {
 				'act_install'         => __( 'Install Shield', 'wp-simple-firewall' ),
 				'act_upgrade'         => __( 'Upgrade Shield', 'wp-simple-firewall' ),
 				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
-				'act_license'         => __( 'Check For ShieldPRO License', 'wp-simple-firewall' ),
+				'act_license'         => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
+				'act_mwp'             => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
 			]
 		];
 	}

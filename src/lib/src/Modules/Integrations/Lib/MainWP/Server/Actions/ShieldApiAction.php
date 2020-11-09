@@ -12,6 +12,10 @@ class ShieldApiAction {
 	use ModConsumer;
 	use MWPSiteConsumer;
 
+	public function mwpEnable() :array {
+		return $this->runAction( 'mwp_enable' );
+	}
+
 	public function licenseCheck() :array {
 		return $this->runAction( 'license_check' );
 	}

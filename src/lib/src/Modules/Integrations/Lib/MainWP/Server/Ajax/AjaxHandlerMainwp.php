@@ -23,6 +23,7 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 				case 'deactivate':
 				case 'sync':
 				case 'license':
+				case 'mwp':
 					$siteID = (int)$req->post( 'sid' );
 					try {
 						if ( empty( $siteID ) ) {

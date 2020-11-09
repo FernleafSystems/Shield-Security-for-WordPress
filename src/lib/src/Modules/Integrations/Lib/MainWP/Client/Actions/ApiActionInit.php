@@ -24,6 +24,19 @@ class ApiActionInit {
 				];
 				break;
 
+			case 'mwp_enable':
+				$intMod = $this->getCon()->getModule_Integrations();
+				$intOpts = $intMod->getOptions();
+				$intOpts->setOpt( 'enable_mainwp', 'Y' );
+				$intMod->saveModOptions();
+				$valid = $intOpts->isOpt( 'enable_mainwp', 'Y' );
+				$response = [
+					'success' => $intOpts->isOpt( 'enable_mainwp', 'Y' ),
+					'message' => $valid ? __( 'MainWP Integration Enabled', 'wp-simple-firewall' )
+						: __( "MainWP Integration couldn't be enabled.", 'wp-simple-firewall' )
+				];
+				break;
+
 			default:
 				$response = [
 					'success' => false,
