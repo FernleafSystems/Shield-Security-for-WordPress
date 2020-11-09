@@ -306,7 +306,7 @@ class DashboardCards {
 
 			'notes' => [
 				'title'   => __( 'Admin Notes', 'wp-simple-firewall' ),
-				'img'     => $con->getPluginUrl_Image( 'bootstrap/stickies.svg' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/pencil-square.svg' ),
 				'paras'   => [
 					__( "Use these to keep note of important items or to-dos.", 'wp-simple-firewall' ),
 					$latestNote
@@ -315,6 +315,37 @@ class DashboardCards {
 					[
 						'text' => __( "Manage Admin Notes", 'wp-simple-firewall' ),
 						'href' => $modInsights->getUrl_SubInsightsPage( 'notes' ),
+					],
+				]
+			],
+
+			'whitelabel' => [
+				'title'   => __( 'Whitelabel', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/sticky.svg' ),
+				'paras'   => [
+					__( "Re-brand the Shield Security plugin your image.", 'wp-simple-firewall' ),
+					__( "Use this to enhance and solidify your brand with your clients and visitors.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "Manage White Label", 'wp-simple-firewall' ),
+						'href' => $con->getModule_SecAdmin()
+									  ->getUrl_DirectLinkToSection( 'section_whitelabel' ),
+					],
+				]
+			],
+
+			'integrations' => [
+				'title'   => __( '3rd Party Integrations', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/link-45deg.svg' ),
+				'paras'   => [
+					__( "Shield integrates with 3rd party plugins and services.", 'wp-simple-firewall' ),
+					__( "Determine what integrations Shield should use and manage the settings for them.", 'wp-simple-firewall' ),
+				],
+				'actions' => [
+					[
+						'text' => __( "Manage Integrations", 'wp-simple-firewall' ),
+						'href' => $con->getModule_Integrations()->getUrl_AdminPage(),
 					],
 				]
 			],
@@ -353,7 +384,6 @@ class DashboardCards {
 
 	/**
 	 * Allows us to order Dashboard cards
-	 * @return string[]
 	 */
 	private function getAllCardSlugs() :array {
 		return [
@@ -369,7 +399,9 @@ class DashboardCards {
 			'comments',
 			'import',
 			'license',
+			'integrations',
 			'notes',
+			'whitelabel',
 			'docs',
 			'debug',
 		];
