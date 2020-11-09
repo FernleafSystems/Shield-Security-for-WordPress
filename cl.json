@@ -1,4 +1,56 @@
 {
+  "10.1": {
+    "version":     "10.1",
+    "released_at": 1604930618,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease101",
+      "upgrade": "https://shsec.io/shieldupgradeguide101"
+    },
+    "href":        "https://shsec.io/",
+    "title":       "Enhanced Dashboard + MainWP Integration",
+    "description": [
+      "We're continuing our improvements to the Shield UI with a brand new Dashboard.",
+      "The Dashboard is your primary launchpad for all things WordPress Security and Shield.",
+      "We're also delighted to bring our first major 3rd party integration - MainWP."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Brand New Shield Dashboard",
+        "description": [
+          "With the help of some feedback from clients, we've made significant enhancements to the Shield UI.",
+          "A brand-new Shield dashboard centralises everything related to Shield giving you a consistent, clean launchpad to perform security tasks."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "MainWP Integration/Extension",
+        "description": [
+          "You can now manage your Shield Security plugin directly from within your MainWP WordPress management control panel.",
+          "The Shield Security Extension page will highlight all sites with any scan results or issues that need your attention.",
+          "The functionality is limited to installing, activating and deactivating the Shield plugin."
+        ],
+        "href":        "https://icwp.io/im"
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Huge Codebase Refactor",
+        "description": [
+          "With our earlier move to PHP 7.0, we're continuing with our codebase cleanup and optimisations."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Shield Overview Styles",
+        "description": [
+          "With some feedback and suggestions provided by clients, we've improved our Shield Overview design."
+        ]
+      }
+    ]
+  },
   "10.0": {
     "version":     "10.0",
     "released_at": 1603281600,
