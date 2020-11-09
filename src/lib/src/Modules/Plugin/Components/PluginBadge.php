@@ -68,7 +68,7 @@ class PluginBadge {
 
 		if ( $secAdminOpts->isEnabledWhitelabel() && $secAdminOpts->isReplacePluginBadge() ) {
 			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
-			$name = $secAdminOpts->getOpt( 'wl_namemenu' );
+			$name = $secAdminOpts->getOpt( 'wl_pluginnamemain' );
 			$logo = $secAdminOpts->getOpt( 'wl_dashboardlogourl' );
 		}
 		else {

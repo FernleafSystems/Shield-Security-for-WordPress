@@ -986,22 +986,19 @@ class Controller {
 		return $aPlugins;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getLabels() {
+	public function getLabels() :array {
 
-		$aLabels = array_map( 'stripslashes', apply_filters( $this->prefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
+		$labels = array_map( 'stripslashes', apply_filters( $this->prefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
 
 		$oDP = Services::Data();
-		foreach ( [ '16x16', '32x32', '128x128' ] as $sSize ) {
-			$sKey = 'icon_url_'.$sSize;
-			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->isValidWebUrl( $aLabels[ $sKey ] ) ) {
-				$aLabels[ $sKey ] = $this->getPluginUrl_Image( $aLabels[ $sKey ] );
+		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
+			$key = 'icon_url_'.$dimension;
+			if ( !empty( $labels[ $key ] ) && !$oDP->isValidWebUrl( $labels[ $key ] ) ) {
+				$labels[ $key ] = $this->getPluginUrl_Image( $labels[ $key ] );
 			}
 		}
 
-		return $aLabels;
+		return $labels;
 	}
 
 	/**
@@ -1232,8 +1229,8 @@ class Controller {
 	 * @return string
 	 */
 	public function getHumanName() {
-		$aLabels = $this->getLabels();
-		return empty( $aLabels[ 'Name' ] ) ? $this->getPluginSpec_Property( 'human_name' ) : $aLabels[ 'Name' ];
+		$labels = $this->getLabels();
+		return empty( $labels[ 'Name' ] ) ? $this->getPluginSpec_Property( 'human_name' ) : $labels[ 'Name' ];
 	}
 
 	/**
