@@ -32,6 +32,7 @@ class Gasp {
 	protected function run() {
 		add_action( 'wp', [ $this, 'onWP' ] );
 		add_action( 'wp_footer', [ $this, 'maybeDequeueScript' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
 	}
 
 	public function onWP() {

@@ -11,8 +11,6 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function onWpInit() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$oWpUsers = Services::WpUsers();
@@ -52,9 +50,6 @@ class Processor extends BaseShield\Processor {
 		}
 	}
 
-	/**
-	 * @return array
-	 */
 	protected function getSubProMap() :array {
 		return [
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
