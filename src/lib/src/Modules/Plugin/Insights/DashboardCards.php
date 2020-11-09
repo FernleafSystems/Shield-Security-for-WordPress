@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 class DashboardCards {
 
@@ -92,6 +92,7 @@ class DashboardCards {
 
 	private function buildStandardCards() :array {
 		$con = $this->getCon();
+		$modComments = $con->getModule_Comments();
 		$modInsights = $con->getModule_Insights();
 		$modPlugin = $con->getModule_Plugin();
 
@@ -241,6 +242,29 @@ class DashboardCards {
 				]
 			],
 
+			'comments' => [
+				'title'   => __( 'Comment SPAM', 'wp-simple-firewall' ),
+				'img'     => $con->getPluginUrl_Image( 'bootstrap/chat-right-dots-fill.svg' ),
+				'paras'   => [
+					__( "Shield blocks 100% of all automated comments by bots (the most common type of SPAM).", 'wp-simple-firewall' ).
+					' '.__( "The Human SPAM filter will look for common spam words and content.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s',
+						__( "Privacy Note", 'wp-simple-firewall' ),
+						__( "Unlike Akismet, your comments and data are never sent off-site for analysis.", 'wp-simple-firewall' )
+					)
+				],
+				'actions' => [
+					[
+						'text' => __( "Bot SPAM Settings", 'wp-simple-firewall' ),
+						'href' => $modComments->getUrl_DirectLinkToSection( 'section_bot_comment_spam_protection_filter' ),
+					],
+					[
+						'text' => __( "Human SPAM Settings", 'wp-simple-firewall' ),
+						'href' => $modComments->getUrl_DirectLinkToSection( 'section_human_spam_filter' ),
+					],
+				]
+			],
+
 			'import' => [
 				'title'   => __( 'Import/Export', 'wp-simple-firewall' ),
 				'img'     => $con->getPluginUrl_Image( 'bootstrap/arrow-down-up.svg' ),
@@ -342,6 +366,7 @@ class DashboardCards {
 			'audit_trail',
 			'traffic',
 			'users',
+			'comments',
 			'import',
 			'license',
 			'notes',

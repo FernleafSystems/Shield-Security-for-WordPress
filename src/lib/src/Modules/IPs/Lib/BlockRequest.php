@@ -65,11 +65,18 @@ class BlockRequest {
 						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
 		$bCanAutoRecover = $bCanUauGasp || $bCanUauMagic;
 
+		if ( !empty( $con->getLabels()[ 'PluginURI' ] ) ) {
+			$homeURL = $con->getLabels()[ 'PluginURI' ];
+		}
+		else {
+			$homeURL = $con->getPluginSpec()[ 'meta' ][ 'url_repo_home' ];
+		}
+
 		$data = [
 			'strings' => [
 				'title'   => sprintf( __( "You've been blocked by the %s plugin", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->getLabels()[ 'url_home' ],
+						$homeURL,
 						$con->getHumanName()
 					)
 				),
