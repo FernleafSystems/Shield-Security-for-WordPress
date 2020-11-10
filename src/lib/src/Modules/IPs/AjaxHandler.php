@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
@@ -11,26 +13,30 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		switch ( $action ) {
 			case 'ip_insert':
-				$aResponse = $this->ajaxExec_AddIp();
+				$response = $this->ajaxExec_AddIp();
 				break;
 
 			case 'ip_delete':
-				$aResponse = $this->ajaxExec_IpDelete();
+				$response = $this->ajaxExec_IpDelete();
 				break;
 
 			case 'render_table_ip':
-				$aResponse = $this->ajaxExec_BuildTableIps();
+				$response = $this->ajaxExec_BuildTableIps();
 				break;
 
 			case 'build_ip_analyse':
-				$aResponse = $this->ajaxExec_BuildIpAnalyse();
+				$response = $this->ajaxExec_BuildIpAnalyse();
+				break;
+
+			case 'ip_analyse_action':
+				$response = $this->ajaxExec_IpAnalyseAction();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	private function ajaxExec_AddIp() :array {
@@ -149,6 +155,91 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				->setMod( $mod )
 				->setDbHandler( $dbh )
 				->render()
+		];
+	}
+
+	private function ajaxExec_IpAnalyseAction() :array {
+		$req = Services::Request();
+
+		$ip = $req->post( 'ip' );
+
+		$ipIdentifier = new IpIdentify( $ip );
+		try {
+			$ipID = $ipIdentifier->run();
+			$ipKey = key( $ipID );
+			$validIP = true;
+		}
+		catch ( \Exception $e ) {
+			$ipKey = IpIdentify::UNKNOWN;
+			$validIP = false;
+		}
+
+		$success = false;
+
+		if ( $ipKey !== IpIdentify::UNKNOWN ) {
+			$msg = sprintf( __( "IP can't be processed from this page as it's a known service IP: %s" ), $ipIdentifier->getName( $ipKey ) );
+		}
+		elseif ( !$validIP ) {
+			$msg = __( "IP provided was invalid.", 'wp-simple-firewall' );
+		}
+		else {
+			$dbh = $this->getCon()->getModule_IPs()->getDbHandler_IPs();
+			switch ( $req->post( 'ip_action' ) ) {
+
+				case 'block':
+					try {
+						$success = ( new Ops\AddIp() )
+									   ->setMod( $this->getMod() )
+									   ->setIP( $ip )
+									   ->toManualBlacklist() instanceof Shield\Databases\IPs\EntryVO;
+					}
+					catch ( \Exception $e ) {
+					}
+					$msg = $success ? __( 'IP address blocked.', 'wp-simple-firewall' )
+						: __( "IP address couldn't be blocked at this time.", 'wp-simple-firewall' );
+					break;
+
+				case 'unblock':
+					$success = ( new Ops\DeleteIp() )
+						->setDbHandler( $dbh )
+						->setIP( $ip )
+						->fromBlacklist();
+					$msg = $success ? __( 'IP address unblocked.', 'wp-simple-firewall' )
+						: __( "IP address couldn't be unblocked at this time.", 'wp-simple-firewall' );
+					break;
+
+				case 'bypass':
+					try {
+						$success = ( new Ops\AddIp() )
+									   ->setMod( $this->getMod() )
+									   ->setIP( $ip )
+									   ->toManualWhitelist() instanceof Shield\Databases\IPs\EntryVO;
+					}
+					catch ( \Exception $e ) {
+					}
+					$msg = $success ? __( 'IP address added to Bypass list.', 'wp-simple-firewall' )
+						: __( "IP address couldn't be added to Bypass list at this time.", 'wp-simple-firewall' );
+					break;
+
+				case 'unbypass':
+					$success = ( new Ops\DeleteIp() )
+						->setDbHandler( $dbh )
+						->setIP( $ip )
+						->fromWhiteList();
+					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )
+						: __( "IP address couldn't be removed from Bypass list at this time.", 'wp-simple-firewall' );
+					break;
+
+				default:
+					$msg = __( 'Unsupported Action.', 'wp-simple-firewall' );
+					break;
+			}
+		}
+
+		return [
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => true,
 		];
 	}
 

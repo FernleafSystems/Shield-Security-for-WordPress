@@ -16,7 +16,7 @@ class ReproduceClientAuthByKey {
 	public static function Auth() :bool {
 		$req = Services::Request();
 		return (bool)MainWP_Connect::instance()->auth(
-			rawurldecode( $req->post( 'mainwpsignature' ) ),
+			rawurldecode( (string)$req->post( 'mainwpsignature', '' ) ),
 			sanitize_text_field( $req->post( 'function' ) ),
 			sanitize_text_field( $req->post( 'nonce' ) ),
 			sanitize_text_field( $req->post( 'nonce' ) )

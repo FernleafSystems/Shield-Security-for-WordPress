@@ -29,9 +29,10 @@
 {% block section_table_js %}
 	<script type="text/javascript">
 		jQuery( document ).ready( function () {
-			jQuery( '#IpReviewSelect' ).icwpWpsfIpAnalyse(
+			jQuery( 'document' ).icwpWpsfIpAnalyse(
 				{
-					'build_ip_analyse':{{ ajax.build_ip_analyse|raw }}
+					'ajax_build_ip_analyse':{{ ajax.build_ip_analyse|raw }},
+					'ajax_ip_analyse_action':{{ ajax.ip_analyse_action|raw }}
 				}
 			);
 		} );

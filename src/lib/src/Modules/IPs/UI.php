@@ -61,7 +61,7 @@ class UI extends BaseShield\UI {
 				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'related_hrefs' => [
+				'related_hrefs'    => [
 					[
 						'href'  => $mod->getUrl_AdminPage(),
 						'title' => __( 'IP Block Settings', 'wp-simple-firewall' ),
@@ -113,7 +113,8 @@ class UI extends BaseShield\UI {
 			'/wpadmin_pages/insights/ips/ip_analyse/index.twig',
 			[
 				'ajax'    => [
-					'build_ip_analyse' => $mod->getAjaxActionData( 'build_ip_analyse', true ),
+					'build_ip_analyse'  => $mod->getAjaxActionData( 'build_ip_analyse', true ),
+					'ip_analyse_action' => $mod->getAjaxActionData( 'ip_analyse_action', true ),
 				],
 				'strings' => [
 					'select_ip'     => __( 'Select IP To Analyse', 'wp-simple-firewall' ),

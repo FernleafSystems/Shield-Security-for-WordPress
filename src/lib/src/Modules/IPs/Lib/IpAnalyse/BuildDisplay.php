@@ -108,6 +108,11 @@ class BuildDisplay {
 					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
 					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
+					'block_ip'    => __( 'Block IP', 'wp-simple-firewall' ),
+					'unblock_ip'  => __( 'Unblock IP', 'wp-simple-firewall' ),
+					'bypass_ip'   => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+					'unbypass_ip' => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+
 					'status' => [
 						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
 						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
