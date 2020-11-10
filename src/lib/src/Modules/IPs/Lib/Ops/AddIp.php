@@ -117,24 +117,24 @@ class AddIp {
 	}
 
 	/**
-	 * @param string $sLabel
+	 * @param string $label
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	public function toManualWhitelist( $sLabel = '' ) {
+	public function toManualWhitelist( $label = '' ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$oIpServ = Services::IP();
 
-		$sIP = $this->getIP();
-		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
+		$ip = $this->getIP();
+		if ( !$oIpServ->isValidIp( $ip ) && !$oIpServ->isValidIpRange( $ip ) ) {
 			throw new \Exception( "IP address isn't valid." );
 		}
 
-		if ( $oIpServ->isValidIpRange( $sIP ) ) {
+		if ( $oIpServ->isValidIpRange( $ip ) ) {
 			( new DeleteIp() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
-				->setIP( $sIP )
+				->setIP( $ip )
 				->fromWhiteList();
 		}
 
@@ -143,15 +143,15 @@ class AddIp {
 			->setIP( $this->getIP() )
 			->lookup( false );
 		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-			$oIP = $this->add( $mod::LIST_MANUAL_WHITE, $sLabel );
+			$oIP = $this->add( $mod::LIST_MANUAL_WHITE, $label );
 		}
 
 		$aUpdateData = [];
 		if ( $oIP->list != $mod::LIST_MANUAL_WHITE ) {
 			$aUpdateData[ 'list' ] = $mod::LIST_MANUAL_WHITE;
 		}
-		if ( !empty( $sLabel ) && $oIP->label != $sLabel ) {
-			$aUpdateData[ 'label' ] = $sLabel;
+		if ( !empty( $label ) && $oIP->label != $label ) {
+			$aUpdateData[ 'label' ] = $label;
 		}
 		if ( $oIP->blocked_at > 0 ) {
 			$aUpdateData[ 'blocked_at' ] = 0;

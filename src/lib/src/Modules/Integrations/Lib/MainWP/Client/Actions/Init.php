@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddIp;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Init {
 
@@ -11,6 +13,18 @@ class Init {
 
 	public function run() {
 		if ( Controller::isMainWPChildVersionSupported() ) {
+
+			add_action( 'mainwp_child_site_stats', function () {
+				try {
+					( new AddIp() )
+						->setMod( $this->getCon()->getModule_IPs() )
+						->setIP( Services::IP()->getRequestIp() )
+						->toManualWhitelist( 'MainWP Server' );
+				}
+				catch ( \Exception $e ) {
+				}
+			}, 10, 0 );
+
 			add_filter( 'mainwp_site_sync_others_data', function ( $information, $othersData ) {
 				$con = $this->getCon();
 				if ( isset( $othersData[ $con->prefix( 'mainwp-sync' ) ] ) ) {

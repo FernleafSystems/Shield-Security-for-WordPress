@@ -43,17 +43,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$bSuccess = false;
 		$sMessage = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
-		$sIp = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
+		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 
-		$bAcceptableIp = $oIpServ->isValidIp( $sIp )
-						 || $oIpServ->isValidIp4Range( $sIp )
-						 || $oIpServ->isValidIp6Range( $sIp );
+		$bAcceptableIp = $oIpServ->isValidIp( $ip )
+						 || $oIpServ->isValidIp4Range( $ip )
+						 || $oIpServ->isValidIp6Range( $ip );
 
 		$bIsBlackList = $sList != $mod::LIST_MANUAL_WHITE;
 
 		// TODO: Bring this IP verification out of here and make it more accessible
-		if ( empty( $sIp ) ) {
+		if ( empty( $ip ) ) {
 			$sMessage = __( "IP address not provided", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $sList ) ) {
@@ -65,22 +65,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		elseif ( $bIsBlackList && !$mod->isPremium() ) {
 			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && $oIpServ->checkIp( $oIpServ->getRequestIp(), $sIp ) ) {
+		elseif ( $bIsBlackList && $oIpServ->checkIp( $oIpServ->getRequestIp(), $ip ) ) {
 			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && in_array( $sIp, Services::IP()->getServerPublicIPs() ) ) {
+		elseif ( $bIsBlackList && in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
 			$sMessage = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
-			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
+			$label = $aFormParams[ 'label' ] ?? '';
 			$oIP = null;
 			switch ( $sList ) {
 				case $mod::LIST_MANUAL_WHITE:
 					try {
 						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
 							->setMod( $mod )
-							->setIP( $sIp )
-							->toManualWhitelist( $sLabel );
+							->setIP( $ip )
+							->toManualWhitelist( (string)$label );
 					}
 					catch ( \Exception $oE ) {
 					}
@@ -90,8 +90,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					try {
 						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
 							->setMod( $mod )
-							->setIP( $sIp )
-							->toManualBlacklist( $sLabel );
+							->setIP( $ip )
+							->toManualBlacklist( (string)$label );
 					}
 					catch ( \Exception $oE ) {
 					}

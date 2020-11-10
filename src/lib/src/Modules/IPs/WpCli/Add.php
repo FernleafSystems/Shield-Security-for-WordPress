@@ -34,17 +34,17 @@ class Add extends BaseAddRemove {
 	 */
 	public function cmdIpAdd( array $null, array $aA ) {
 
-		$sLabel = isset( $aA[ 'label' ] ) ? $aA[ 'label' ] : 'none';
+		$label = $aA[ 'label' ] ?? 'none';
 
 		$oAdder = ( new Ops\AddIp() )
 			->setMod( $this->getMod() )
 			->setIP( $aA[ 'ip' ] );
 		try {
 			if ( $aA[ 'list' ] === 'white' ) {
-				$oAdder->toManualWhitelist( $sLabel );
+				$oAdder->toManualWhitelist( $label );
 			}
 			else {
-				$oAdder->toManualBlacklist( $sLabel );
+				$oAdder->toManualBlacklist( $label );
 			}
 		}
 		catch ( \Exception $oE ) {
