@@ -15,11 +15,18 @@ class ReproduceClientAuthByKey {
 
 	public static function Auth() :bool {
 		$req = Services::Request();
+
+		// 'function' for actions, 'where' for login
+		$functionOrWhere = $req->request( 'function' );
+		if ( empty( $functionOrWhere ) ) {
+			$functionOrWhere = $req->request( 'where' );
+		}
+
 		return (bool)MainWP_Connect::instance()->auth(
-			rawurldecode( (string)$req->post( 'mainwpsignature', '' ) ),
-			sanitize_text_field( $req->post( 'function' ) ),
-			sanitize_text_field( $req->post( 'nonce' ) ),
-			sanitize_text_field( $req->post( 'nonce' ) )
+			rawurldecode( (string)$req->request( 'mainwpsignature', '' ) ),
+			sanitize_text_field( $functionOrWhere ),
+			sanitize_text_field( $req->request( 'nonce' ) ),
+			sanitize_text_field( $req->request( 'nossl' ) )
 		);
 	}
 }

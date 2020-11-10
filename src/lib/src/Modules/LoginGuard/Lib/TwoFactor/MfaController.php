@@ -248,7 +248,7 @@ class MfaController {
 	 * @param \WP_User $user
 	 * @return bool
 	 */
-	private function canUserMfaSkip( $user ) {
+	private function canUserMfaSkip( $user ) :bool {
 		$canSkip = ( new MfaSkip() )
 			->setMod( $this->getMod() )
 			->canMfaSkip( $user );
