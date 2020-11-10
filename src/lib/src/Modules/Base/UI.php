@@ -148,7 +148,11 @@ class UI {
 		return $aOptParams;
 	}
 
-	public function buildSearchSelectData() :array {
+	public function buildSelectData_ModuleSettings() :array {
+		return $this->getMod()->getModulesSummaryData();
+	}
+
+	public function buildSelectData_OptionsSearch() :array {
 		$modsToSearch = array_filter(
 			$this->getMod()->getModulesSummaryData(),
 			function ( $modSummary ) {

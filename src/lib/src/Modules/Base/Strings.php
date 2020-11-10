@@ -69,6 +69,7 @@ class Strings {
 				'select'            => __( 'Select' ),
 				'filters_clear'     => __( 'Clear Filters', 'wp-simple-firewall' ),
 				'filters_apply'     => __( 'Apply Filters', 'wp-simple-firewall' ),
+				'jump_to_module'    => __( 'Jump To Module Settings', 'wp-simple-firewall' ),
 				'jump_to_option'    => __( 'Find Plugin Option', 'wp-simple-firewall' ),
 				'type_below_search' => __( 'Type below to search all plugin options', 'wp-simple-firewall' ),
 				'pro_only_option'   => __( 'Pro Only', 'wp-simple-firewall' ),

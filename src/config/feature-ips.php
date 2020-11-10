@@ -16,6 +16,22 @@
     "run_if_wpcli":          false,
     "order":                 100
   },
+  "menu_items":       [
+    {
+      "title":    "IP Lists",
+      "slug":     "ips-redirect",
+      "callback": ""
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "ips-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "ips"
+      }
+    }
+  ],
   "admin_notices": {
     "visitor-whitelisted": {
       "id":               "visitor-whitelisted",

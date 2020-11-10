@@ -16,6 +16,22 @@
     "run_if_wpcli":          true,
     "order":                 110
   },
+  "menu_items":       [
+    {
+      "title":    "Audit Trail",
+      "slug":     "audit-redirect",
+      "callback": ""
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "audit-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "audit"
+      }
+    }
+  ],
   "sections":    [
     {
       "slug":        "section_audit_trail_options",

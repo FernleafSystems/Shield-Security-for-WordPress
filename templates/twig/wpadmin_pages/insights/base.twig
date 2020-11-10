@@ -6,24 +6,26 @@
 	<div class="row">
 
 		<div class="col">
-			{% if flags.is_dashboard %}
-				<h5 class="mt-3">{{ strings.dashboard_shield }}</h5>
-			{% else %}
-				<h5 class="mt-3">
-					{{ strings.page_title }}
-					<br />
-					<p class="mb-1 mt-2 d-inline-block" style="font-size: small">
-						<a href="{{ hrefs.back_to_dash }}">&laquo; {{ strings.dashboard }}</a>
-						{% if vars.related_hrefs|default([]) is not empty %}
-							{% for related_href in vars.related_hrefs %}
-								| <a href="{{ related_href.href }}"
-									 {% if related_href.new|default(false) %}target="_blank"{% endif %}>
-								{{ related_href.title }}</a>
-							{% endfor %}
-						{% endif %}
-					</p>
-				</h5>
-			{% endif %}
+			<h5 class="mt-3">
+				{% block page_head_titlemenu %}
+					{% if flags.is_dashboard %}
+						{{ strings.dashboard_shield }}
+					{% else %}
+						{{ strings.page_title }}
+						<br />
+						<p class="mb-1 mt-2 d-inline-block" style="font-size: small">
+							<a href="{{ hrefs.back_to_dash }}">&laquo; {{ strings.dashboard }}</a>
+							{% if vars.related_hrefs|default([]) is not empty %}
+								{% for related_href in vars.related_hrefs %}
+									| <a href="{{ related_href.href }}"
+										 {% if related_href.new|default(false) %}target="_blank"{% endif %}>
+									{{ related_href.title }}</a>
+								{% endfor %}
+							{% endif %}
+						</p>
+					{% endif %}
+				{% endblock page_head_titlemenu %}
+			</h5>
 		</div>
 
 		<div class="col">

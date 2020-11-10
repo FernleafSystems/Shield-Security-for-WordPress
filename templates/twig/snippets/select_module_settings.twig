@@ -1,0 +1,8 @@
+<select class="" onchange="location = this.value;">
+	<option value="-">-- {{ strings.jump_to_module }} --</option>
+	{% for mod in vars.mods %}
+		{% if mod.show_mod_opts %}
+			<option value="{{ mod.href }}">{{ mod.name }}</option>
+		{% endif %}
+	{% endfor %}
+</select>

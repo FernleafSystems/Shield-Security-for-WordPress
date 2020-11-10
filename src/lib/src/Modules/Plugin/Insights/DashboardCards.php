@@ -73,8 +73,8 @@ class DashboardCards {
 					'select' => __( "Select Module", 'wp-simple-firewall' )
 				],
 				'vars'    => [
-					'mods'          => $mod->getModulesSummaryData(),
-					'search_select' => $mod->getUIHandler()->buildSearchSelectData()
+					'mods'          => $mod->getUIHandler()->buildSelectData_ModuleSettings(),
+					'search_select' => $mod->getUIHandler()->buildSelectData_OptionsSearch()
 				]
 			],
 			true

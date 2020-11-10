@@ -251,7 +251,8 @@ class UI extends BaseShield\UI {
 				],
 				'vars'    => [
 					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
-					'search_select' => $this->buildSearchSelectData()
+					'mods'          => $this->buildSelectData_ModuleSettings(),
+					'search_select' => $this->buildSelectData_OptionsSearch()
 				],
 			],
 			$data

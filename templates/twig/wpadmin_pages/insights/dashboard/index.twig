@@ -12,16 +12,3 @@
 		<div class="col" style="height: 80px"></div>
 	</div>
 {% endblock %}
-
-{% block inline_scripts %}
-	<script type="text/javascript">
-		jQuery( document ).ready( function () {
-			let $oTheSelect = jQuery( 'select#DashboardModSettingsSelect' );
-			$oTheSelect.on( 'change', function ( evt ) {
-				if ( $oTheSelect.val() !== '-' ) {
-					window.location.href = jQuery( "option:selected", $oTheSelect ).data( 'href' );
-				}
-			} );
-		} );
-	</script>
-{% endblock %}

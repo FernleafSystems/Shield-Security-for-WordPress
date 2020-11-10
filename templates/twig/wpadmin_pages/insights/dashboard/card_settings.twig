@@ -3,17 +3,8 @@
 {% block footer %}
 	<div class="card-footer">
 		<ul class="list-group list-group-flush">
-			<li class="list-group-item">
-				<select class="w-100" id="DashboardModSettingsSelect">
-					<option value="-">-- {{ strings.select }} --</option>
-					{% for mod in vars.mods %}
-						{% if mod.show_mod_opts %}
-							<option value="{{ mod.slug }}"
-									data-href="{{ mod.href }}"
-							>{{ mod.name }}</option>
-						{% endif %}
-					{% endfor %}
-				</select>
+			<li class="list-group-item" id="Dashboard_ModSettingsSelect">
+				{% include '/snippets/select_module_settings.twig' %}
 			</li>
 			<li class="list-group-item" id="SearchOptionsLaunch">
 				<div class="text-nowrap">
@@ -23,5 +14,4 @@
 			</li>
 		</ul>
 	</div>
-
 {% endblock %}

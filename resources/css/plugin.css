@@ -1510,3 +1510,6 @@ a.card_help {
 #DashboardFeatureCards .card-title img {
 	vertical-align: text-bottom;
 }
+#Dashboard_ModSettingsSelect > select {
+	width: 100%;
+}
