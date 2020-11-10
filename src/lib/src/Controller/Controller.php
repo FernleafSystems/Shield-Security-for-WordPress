@@ -71,11 +71,6 @@ class Controller {
 	protected static $sRequestId;
 
 	/**
-	 * @var string
-	 */
-	private $sConfigOptionsHashWhenLoaded;
-
-	/**
 	 * @var bool
 	 */
 	private $bMeetsBasePermissions;
@@ -196,16 +191,16 @@ class Controller {
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function readPluginSpecification() {
-		$aSpec = [];
-		$sContents = Services::Data()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
-		if ( !empty( $sContents ) ) {
-			$aSpec = json_decode( $sContents, true );
-			if ( empty( $aSpec ) ) {
-				throw new \Exception( 'Could not load to process the plugin spec configuration.' );
+	private function readPluginSpecification() :array {
+		$spec = [];
+		$content = Services::Data()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
+		if ( !empty( $content ) ) {
+			$spec = json_decode( $content, true );
+			if ( empty( $spec ) || !is_array( $spec ) ) {
+				throw new \Exception( 'Could not load plugin spec configuration.' );
 			}
 		}
-		return $aSpec;
+		return $spec;
 	}
 
 	/**
@@ -888,28 +883,28 @@ class Controller {
 	/**
 	 * This will hook into the saving of plugin update information and if there is an update for this plugin, it'll add
 	 * a data stamp to state when the update was first detected.
-	 * @param \stdClass $oPluginUpdateData
+	 * @param \stdClass $updateData
 	 * @return \stdClass
 	 */
-	public function setUpdateFirstDetectedAt( $oPluginUpdateData ) {
+	public function setUpdateFirstDetectedAt( $updateData ) {
 
-		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
-			 && isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
+		if ( !empty( $updateData ) && !empty( $updateData->response )
+			 && isset( $updateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
 
-			$sNewVersion = Services::WpPlugins()->getUpdateNewVersion( $this->getPluginBaseFile() );
-			if ( !empty( $sNewVersion ) ) {
-				$oConOptions = $this->getPluginControllerOptions();
-				if ( !isset( $oConOptions->update_first_detected ) || ( count( $oConOptions->update_first_detected ) > 3 ) ) {
-					$oConOptions->update_first_detected = [];
+			$new = Services::WpPlugins()->getUpdateNewVersion( $this->getPluginBaseFile() );
+			if ( !empty( $new ) ) {
+				$opts = $this->getPluginControllerOptions();
+				if ( !isset( $opts->update_first_detected ) || ( count( $opts->update_first_detected ) > 3 ) ) {
+					$opts->update_first_detected = [];
 				}
-				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
-					$oConOptions->update_first_detected[ $sNewVersion ] = Services::Request()->ts();
+				if ( !isset( $opts->update_first_detected[ $new ] ) ) {
+					$opts->update_first_detected[ $new ] = Services::Request()->ts();
 				}
 			}
 		}
 
-		return $oPluginUpdateData;
+		return $updateData;
 	}
 
 	/**
@@ -1001,9 +996,6 @@ class Controller {
 		return $labels;
 	}
 
-	/**
-	 * Hooked to 'shutdown'
-	 */
 	public function onWpShutdown() {
 		$this->getSiteInstallationId();
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
@@ -1019,12 +1011,12 @@ class Controller {
 	}
 
 	protected function deleteFlags() {
-		$oFS = Services::WpFs();
-		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
-			$oFS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		$FS = Services::WpFs();
+		if ( $FS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
+			$FS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
 		if ( $this->getIsResetPlugin() ) {
-			$oFS->deleteFile( $this->getPath_Flags( 'reset' ) );
+			$FS->deleteFile( $this->getPath_Flags( 'reset' ) );
 		}
 	}
 
@@ -1251,35 +1243,26 @@ class Controller {
 		return Services::WpGeneral()->getCurrentWpAdminPage() === $this->getPluginPrefix();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIsRebuildOptionsFromFile() {
-		if ( isset( $this->bRebuildOptions ) ) {
-			return $this->bRebuildOptions;
+	public function getIsRebuildOptionsFromFile() :bool {
+		if ( isset( $this->rebuild_options ) ) {
+			return $this->rebuild_options;
 		}
 
 		// The first choice is to look for the file hash. If it's "always" empty, it means we could never
 		// hash the file in the first place so it's not ever effectively used and it falls back to the rebuild file
-		$oConOptions = $this->getPluginControllerOptions();
-		$sSpecPath = $this->getPathPluginSpec();
-		$sCurrentHash = @md5_file( $sSpecPath );
-		$sModifiedTime = Services::WpFs()->getModifiedTime( $sSpecPath );
+		$opts = $this->getPluginControllerOptions();
+		$specPath = $this->getPathPluginSpec();
+		$specHash = @sha1_file( $specPath );
+		$specModTS = Services::WpFs()->getModifiedTime( $specPath );
 
-		$this->bRebuildOptions = true;
+		$this->rebuild_options =
+			( $this->getVersion() !== Services::WpPlugins()->getPluginAsVo( $this->getPluginBaseFile() )->Version )
+			|| ( empty( $opts->hash ) || !hash_equals( $opts->hash, $specHash ) )
+			|| ( empty( $opts->mod_time || $opts->mod_time < $specModTS ) );
 
-		if ( isset( $oConOptions->hash ) && is_string( $oConOptions->hash )
-			 && hash_equals( $oConOptions->hash, $sCurrentHash ) ) {
-			$this->bRebuildOptions = false;
-		}
-		elseif ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
-			$this->bRebuildOptions = false;
-		}
-
-		$oConOptions->hash = $sCurrentHash;
-		$oConOptions->mod_time = $sModifiedTime;
-		$this->rebuild_options = $this->bRebuildOptions;
-		return $this->bRebuildOptions;
+		$opts->hash = $specHash;
+		$opts->mod_time = $specModTS;
+		return $this->rebuild_options;
 	}
 
 	public function getIsResetPlugin() :bool {
@@ -1475,20 +1458,14 @@ class Controller {
 		return $opts->previous_version;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getVersionNumeric() {
-		$aParts = explode( '.', $this->getVersion() );
-		return ( $aParts[ 0 ]*100 + $aParts[ 1 ]*10 + $aParts[ 2 ] );
+	public function getVersionNumeric() :int {
+		$parts = explode( '.', $this->getVersion() );
+		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getShieldAction() {
-		$sAction = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
-		return empty( $sAction ) ? '' : $sAction;
+	public function getShieldAction() :string {
+		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
+		return empty( $action ) ? '' : $action;
 	}
 
 	/**
@@ -1500,11 +1477,6 @@ class Controller {
 			self::$oControllerOptions = Services::WpGeneral()->getOption( $this->getPluginControllerOptionsKey() );
 			if ( !is_object( self::$oControllerOptions ) ) {
 				self::$oControllerOptions = new \stdClass();
-			}
-
-			// Used at the time of saving during WP Shutdown to determine whether saving is necessary. TODO: Extend to plugin options
-			if ( empty( $this->sConfigOptionsHashWhenLoaded ) ) {
-				$this->sConfigOptionsHashWhenLoaded = md5( serialize( self::$oControllerOptions ) );
 			}
 
 			if ( $this->getIsRebuildOptionsFromFile() ) {
@@ -1546,16 +1518,16 @@ class Controller {
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
-		$oWP = Services::WpGeneral();
+		$WP = Services::WpGeneral();
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		if ( $this->plugin_deleting ) {
-			$oWP->deleteOption( $this->getPluginControllerOptionsKey() );
+			$WP->deleteOption( $this->getPluginControllerOptionsKey() );
 		}
 		else {
-			$oOptions = $this->getPluginControllerOptions();
-			if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-				$oWP->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
-			}
+			$WP->updateOption(
+				$this->getPluginControllerOptionsKey(),
+				$this->getPluginControllerOptions()
+			);
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
