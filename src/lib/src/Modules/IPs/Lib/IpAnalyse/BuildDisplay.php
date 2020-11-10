@@ -78,11 +78,27 @@ class BuildDisplay {
 		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
 
 		$sRDNS = gethostbyaddr( $ip );
+
+		$ipIdentifier = new IpIdentify( $ip );
 		try {
-			$ipID = current( ( new IpIdentify( $ip ) )->run() );
+			$ipWhoIs = $ipIdentifier->run();
+			$ipIdKey = key( $ipWhoIs );
+			$ipID = current( $ipWhoIs );
 		}
 		catch ( \Exception $e ) {
-			$ipID = 'Unknown';
+			$ipIdKey = IpIdentify::UNKNOWN;
+			$ipID = $ipIdentifier->getName( $ipIdKey );
+		}
+
+		if ( $ipIdKey === IpIdentify::UNKNOWN ) {
+			$ipEntry = ( new LookupIpOnList() )
+				->setDbHandler( $dbh )
+				->setIP( $ip )
+				->setListTypeWhite()
+				->lookup();
+			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
+				$ipID = $ipEntry->label;
+			}
 		}
 
 		return $this->getMod()->renderTemplate(
