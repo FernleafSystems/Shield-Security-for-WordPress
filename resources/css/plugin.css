@@ -367,11 +367,20 @@ label input[type=checkbox] {
 #SearchOptionsLaunch > a {
 	text-decoration: none !important;
 }
-#SearchOptionsLaunch span {
+#SearchOptionsLaunch .dashicons {
 	width: 24px;
 	content: "\f179";
 	font-size: 24px;
 	color: #008000 !important;
+	line-height: 40px;
+}
+.bootstrap-select > button.dropdown-toggle,
+.bootstrap-select.show > button.dropdown-toggle {
+	background-color: transparent;
+	color: black !important;
+}
+.dropdown-item {
+	font-size: 1.05rem;
 }
 .dropdown-item .module-icon:before {
 	font-size: 1.6rem;

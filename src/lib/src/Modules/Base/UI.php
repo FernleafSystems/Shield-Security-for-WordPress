@@ -148,6 +148,20 @@ class UI {
 		return $aOptParams;
 	}
 
+	public function buildSearchSelectData() :array {
+		$modsToSearch = array_filter(
+			$this->getMod()->getModulesSummaryData(),
+			function ( $modSummary ) {
+				return !empty( $modSummary[ 'show_mod_opts' ] );
+			}
+		);
+		$searchSelect = [];
+		foreach ( $modsToSearch as $slug => $summary ) {
+			$searchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+		}
+		return $searchSelect;
+	}
+
 	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();

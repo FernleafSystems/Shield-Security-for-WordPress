@@ -16,12 +16,10 @@
 				</select>
 			</li>
 			<li class="list-group-item" id="SearchOptionsLaunch">
-				<a href="#"
-				   class="btn btn-block text-left px-0"
-				   data-toggle="modal" data-target="#OptionsSearch">
+				<div class="text-nowrap">
 					<span class="dashicons dashicons-search"></span>
-					Search For Option
-				</a>
+					{% include '/snippets/select_search_options.twig' %}
+				</div>
 			</li>
 		</ul>
 	</div>

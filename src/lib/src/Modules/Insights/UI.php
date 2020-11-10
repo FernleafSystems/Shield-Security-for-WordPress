@@ -217,10 +217,6 @@ class UI extends BaseShield\UI {
 				return !empty( $modSummary[ 'show_mod_opts' ] );
 			}
 		);
-		$aSearchSelect = [];
-		foreach ( $modsToSearch as $slug => $summary ) {
-			$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
-		}
 
 		$pageTitle = $availablePages[ $sNavSection ];
 		if ( !empty( $subNavSection ) ) {
@@ -255,7 +251,7 @@ class UI extends BaseShield\UI {
 				],
 				'vars'    => [
 					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
-					'search_select' => $aSearchSelect
+					'search_select' => $this->buildSearchSelectData()
 				],
 			],
 			$data
