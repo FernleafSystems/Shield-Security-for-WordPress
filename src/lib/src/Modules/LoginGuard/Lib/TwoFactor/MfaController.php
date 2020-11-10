@@ -69,20 +69,20 @@ class MfaController {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	private function captureLoginIntent( $oUser ) {
-		if ( empty( $this->bLoginAttemptCaptured ) && $oUser instanceof \WP_User ) {
+	private function captureLoginIntent( $user ) {
+		if ( empty( $this->bLoginAttemptCaptured ) && $user instanceof \WP_User ) {
 			$this->bLoginAttemptCaptured = true;
 
 			/** @var LoginGuard\Options $opts */
 			$opts = $this->getOptions();
-			if ( $this->isSubjectToLoginIntent( $oUser ) && !$this->canUserMfaSkip( $oUser ) ) {
+			if ( $this->isSubjectToLoginIntent( $user ) && !$this->canUserMfaSkip( $user ) ) {
 
-				$aProviders = $this->getProvidersForUser( $oUser );
+				$aProviders = $this->getProvidersForUser( $user );
 				if ( !empty( $aProviders ) ) {
 					foreach ( $aProviders as $oProvider ) {
-						$oProvider->captureLoginAttempt( $oUser );
+						$oProvider->captureLoginAttempt( $user );
 					}
 
 					$this->setLoginIntentExpiresAt(
@@ -245,29 +245,30 @@ class MfaController {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	private function canUserMfaSkip( $oUser ) {
-		$bCanSkip = ( new MfaSkip() )
+	private function canUserMfaSkip( $user ) {
+		$canSkip = ( new MfaSkip() )
 			->setMod( $this->getMod() )
-			->canMfaSkip( $oUser );
+			->canMfaSkip( $user );
 
-		if ( !$bCanSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
+		if ( !$canSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
-			$oMeta = $this->getCon()->getUserMeta( $oUser );
-			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
+			$meta = $this->getCon()->getUserMeta( $user );
+			$canSkip = isset( $meta->wc_social_login_valid ) ? $meta->wc_social_login_valid : false;
 		}
 
-		return apply_filters( 'odp-shield-2fa_skip', $bCanSkip );
+		return (bool)apply_filters( 'icwp_shield_2fa_skip',
+			apply_filters( 'odp-shield-2fa_skip', $canSkip ) );
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @return bool
 	 */
-	private function isSubjectToLoginIntent( $oUser ) {
-		return count( $this->getProvidersForUser( $oUser, true ) ) > 0;
+	private function isSubjectToLoginIntent( $user ) :bool {
+		return count( $this->getProvidersForUser( $user, true ) ) > 0;
 	}
 
 	/**
