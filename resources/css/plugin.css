@@ -1513,3 +1513,13 @@ a.card_help {
 #Dashboard_ModSettingsSelect > select {
 	width: 100%;
 }
+#ModuleSettingsJump select,
+#ModuleSettingsJump select:focus,
+#ModuleSettingsJump select:active {
+	background: transparent;
+	border: 0 none !important;
+	color: #008000;
+	vertical-align: inherit;
+	padding-left: 2px;
+	padding-right: 2px;
+}

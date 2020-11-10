@@ -2,8 +2,10 @@
 
 {% block page_head_titlemenu %}
 	{{ parent() }}
-	<div class="d-inline-block" id="">
-		{% include '/snippets/select_module_settings.twig' %}
+	<div class="d-inline-block" id="ModuleSettingsJump">
+		<p class="mb-1 mt-2 d-inline-block" style="font-size: small">
+			| {% include '/snippets/select_module_settings.twig' %}
+		</p>
 	</div>
 {% endblock page_head_titlemenu %}
 

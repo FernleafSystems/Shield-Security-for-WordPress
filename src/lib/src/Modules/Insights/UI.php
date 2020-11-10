@@ -250,9 +250,10 @@ class UI extends BaseShield\UI {
 					'page_title' => $pageTitle
 				],
 				'vars'    => [
-					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
-					'mods'          => $this->buildSelectData_ModuleSettings(),
-					'search_select' => $this->buildSelectData_OptionsSearch()
+					'changelog_id'           => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
+					'mods'                   => $this->buildSelectData_ModuleSettings(),
+					'search_select'          => $this->buildSelectData_OptionsSearch(),
+					'active_module_settings' => $subNavSection
 				],
 			],
 			$data

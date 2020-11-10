@@ -16,11 +16,22 @@
     "run_if_wpcli":          false,
     "order":                 110
   },
-  "requirements": {
-    "php": {
-      "version": "5.4"
+  "menu_items":       [
+    {
+      "title":    "Traffic Log",
+      "slug":     "traffic-redirect",
+      "callback": ""
     }
-  },
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "traffic-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "traffic"
+      }
+    }
+  ],
   "sections":     [
     {
       "slug":        "section_traffic_options",
