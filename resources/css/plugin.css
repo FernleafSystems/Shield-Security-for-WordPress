@@ -1507,33 +1507,44 @@ a.card_help {
 	padding-right: 2px;
 }
 
-#wpbody-content {
-	padding-bottom: 0;
-}
 #wpfooter {
 	display: none;
 }
-#FooterWizardBanner {
+#FooterBannerGoPro {
 	width: 100%;
-	z-index: 5;
-}
-#FooterWizardBanner .text-left {
-	margin-bottom: 0;
-}
-#FooterWizardBanner .offset-1 {
-	margin-left: 12%;
-}
-#WizardBanner {
 	background-color: white;
-	border-top: 1px solid #bbbbbb;
-	padding: 15px 0;
+	border-color: transparent;
+	border-width: 1px 1px 0 1px;
+	margin: auto;
+	padding-top: 15px;
 	text-align: center;
 	word-break: keep-all;
 	white-space: nowrap;
 	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+
+	position: absolute;
+	bottom: 0;
+	padding-left: 160px;
+	transition: 0.5s ease;
 }
-#WizardBanner p {
-	margin: 0;
-	line-height: 20px;
-	text-align: left;
+body.folded #FooterBannerGoPro {
+	padding-left: 40px;
+}
+@media (max-width: 1200px) {
+	#FooterBannerGoPro h6{
+		font-size: 14px;
+		letter-spacing: -1px;
+	}
+	#FooterBannerGoPro p{
+		font-size: 12px;
+		letter-spacing: -1px;
+	}
+}
+@media (max-width: 960px) {
+	#FooterBannerGoPro{
+		padding-left: 40px;
+	}
+}
+#odp-PageFoot {
+	height: 100px;
 }

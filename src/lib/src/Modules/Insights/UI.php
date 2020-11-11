@@ -61,7 +61,6 @@ class UI extends BaseShield\UI {
 			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
-		$bIsPro = $con->isPremiumActive();
 		switch ( $sNavSection ) {
 
 			case 'audit':
@@ -233,7 +232,6 @@ class UI extends BaseShield\UI {
 				],
 				'flags'   => [
 					'is_dashboard'     => $sNavSection === 'dashboard',
-					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $modPlugin->getIfShowIntroVideo(),
 					'tours'            => [
 						'insights_overview' => false && $oTourManager->canShow( 'insights_overview' )
@@ -258,6 +256,9 @@ class UI extends BaseShield\UI {
 			],
 			$data
 		);
+
+		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
+
 		return $mod->renderTemplate(
 			sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ),
 			$data,
@@ -320,5 +321,67 @@ class UI extends BaseShield\UI {
 						],
 						true
 					);
+	}
+
+	public function printAdminFooterItems() {
+		$this->printGoProFooter();
+		$this->printToastTemplate();
+	}
+
+	private function printGoProFooter() {
+		$con = $this->getCon();
+		$nav = Services::Request()->query( 'inav', 'dashboard' );
+		if ( !in_array( $nav, [ 'scans' ] ) ) {
+			echo $this->getMod()->renderTemplate(
+				'snippets/go_pro_banner.twig',
+				[
+					'flags' => [
+						'show_promo' => !$con->isPremiumActive(),
+					],
+					'hrefs' => [
+						'go_pro' => 'https://shsec.io/shieldgoprofeature',
+					]
+				]
+			);
+		}
+	}
+
+	private function printToastTemplate() {
+		if ( $this->getCon()->isModulePage() ) {
+			echo $this->getMod()->renderTemplate(
+				'snippets/toaster.twig',
+				[
+					'strings'     => [
+						'title' => $this->getCon()->getHumanName(),
+					],
+					'js_snippets' => []
+				]
+			);
+		}
+	}
+
+	private function printPluginDeactivateSurvey() {
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
+
+			$opts = [
+				'reason_confusing'   => "It's too confusing",
+				'reason_expected'    => "It's not what I expected",
+				'reason_accident'    => "I downloaded it accidentally",
+				'reason_alternative' => "I'm already using an alternative",
+				'reason_trust'       => "I don't trust the developer :(",
+				'reason_not_work'    => "It doesn't work",
+				'reason_errors'      => "I'm getting errors",
+			];
+
+			echo $this->getMod()->renderTemplate( 'snippets/plugin-deactivate-survey.php', [
+				'strings'     => [
+					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
+				],
+				'inputs'      => [
+					'checkboxes' => Services::DataManipulation()->shuffleArray( $opts )
+				],
+				'js_snippets' => []
+			] );
+		}
 	}
 }

@@ -201,7 +201,7 @@ class Strings extends Base\Strings {
 
 			case 'track_loginfailed' :
 				$sName = __( 'Failed Login', 'wp-simple-firewall' );
-				$sSummary = __( 'Detect Failed Login Attempts Using Valid Usernames', 'wp-simple-firewall' );
+				$sSummary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
 				$sDescription = __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' );
 				break;
 

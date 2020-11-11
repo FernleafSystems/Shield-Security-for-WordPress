@@ -43,7 +43,6 @@ class ShieldUI extends UI {
 					'sec_admin_login' => $mod->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'show_promo'  => !$con->isPremiumActive(),
 					'has_session' => $mod->hasSession()
 				],
 				'hrefs'   => [
