@@ -14,13 +14,13 @@ class EventsService {
 	private $aEvents;
 
 	/**
-	 * @param string $sEventTag
-	 * @param array  $aMetaData
+	 * @param string $event
+	 * @param array  $meta
 	 * @return $this
 	 */
-	public function fireEvent( $sEventTag, $aMetaData = [] ) {
-		if ( $this->isSupportedEvent( $sEventTag ) ) {
-			do_action( $this->getCon()->prefix( 'event' ), $sEventTag, $aMetaData );
+	public function fireEvent( $event, $meta = [] ) {
+		if ( $this->isSupportedEvent( $event ) ) {
+			do_action( $this->getCon()->prefix( 'event' ), $event, $meta );
 		}
 		return $this;
 	}
@@ -30,41 +30,46 @@ class EventsService {
 	 */
 	public function getEvents() :array {
 		if ( empty( $this->aEvents ) ) {
-			$aEvts = apply_filters( $this->getCon()->prefix( 'get_all_events' ), [] );
-			$this->aEvents = is_array( $aEvts ) ? $this->buildEvents( $aEvts ) : [];
+			$events = [];
+			foreach ( $this->getCon()->modules as $mod ) {
+				$events = array_merge(
+					$events,
+					array_map(
+						function ( $evt ) use ( $mod ) {
+							$evt[ 'context' ] = $mod->getSlug();
+							return $evt;
+						},
+						is_array( $mod->getDef( 'events' ) ) ? $mod->getDef( 'events' ) : []
+					)
+				);
+			}
+			$this->aEvents = $this->buildEvents( $events );
 		}
 		return $this->aEvents;
 	}
 
 	/**
-	 * @param string $sEventKey
+	 * @param string $eventKey
 	 * @return array|null
 	 */
-	public function getEventDef( $sEventKey ) {
-		return $this->isSupportedEvent( $sEventKey ) ? $this->getEvents()[ $sEventKey ] : null;
+	public function getEventDef( string $eventKey ) {
+		return $this->isSupportedEvent( $eventKey ) ? $this->getEvents()[ $eventKey ] : null;
 	}
 
 	/**
 	 * @return string[]
+	 * @deprecated 10.1
 	 */
 	public function getEventKeys() {
 		return array_keys( $this->getEvents() );
 	}
 
-	/**
-	 * @param string $sEventKey
-	 * @return bool
-	 */
-	public function isSupportedEvent( $sEventKey ) {
-		return in_array( $sEventKey, $this->getEventKeys() );
+	public function isSupportedEvent( string $eventKey ) :bool {
+		return in_array( $eventKey, array_keys( $this->getEvents() ) );
 	}
 
-	/**
-	 * @param array[] $aEvents
-	 * @return array[]
-	 */
-	protected function buildEvents( $aEvents ) {
-		$aDefaults = [
+	private function buildEvents( array $events ) :array {
+		$defaults = [
 			'cat'              => 1,
 			'stat'             => true,
 			'audit'            => true,
@@ -73,10 +78,10 @@ class EventsService {
 			'audit_multiple'   => false, // allow multiple audit entries in the same request
 			'suppress_offense' => false, // events that normally trigger offense can be forcefully suppressed
 		];
-		foreach ( $aEvents as $sEventKey => $aEvt ) {
-			$aEvents[ $sEventKey ] = array_merge( $aDefaults, $aEvt );
-			$aEvents[ $sEventKey ][ 'key' ] = $sEventKey;
+		foreach ( $events as $eventKey => $evt ) {
+			$events[ $eventKey ] = array_merge( $defaults, $evt );
+			$events[ $eventKey ][ 'key' ] = $eventKey;
 		}
-		return $aEvents;
+		return $events;
 	}
 }

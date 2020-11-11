@@ -17,16 +17,16 @@ class AuditWriter extends EventsListener {
 	private $aAuditLogs;
 
 	/**
-	 * @param string $sEvent
+	 * @param string $evt
 	 * @param array  $aMeta
 	 */
-	protected function captureEvent( $sEvent, $aMeta = [] ) {
+	protected function captureEvent( $evt, $aMeta = [] ) {
 		$oCon = $this->getCon();
-		$aDef = $oCon->loadEventsService()->getEventDef( $sEvent );
+		$aDef = $oCon->loadEventsService()->getEventDef( $evt );
 		if ( $aDef[ 'audit' ] && empty( $aMeta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
 			$oEntry = new AuditTrail\EntryVO();
 			$oEntry->rid = $this->getCon()->getShortRequestId();
-			$oEntry->event = $sEvent;
+			$oEntry->event = $evt;
 			$oEntry->category = $aDef[ 'cat' ];
 			$oEntry->context = $aDef[ 'context' ];
 			$oEntry->meta = isset( $aMeta[ 'audit' ] ) ? $aMeta[ 'audit' ] : [];
@@ -38,7 +38,7 @@ class AuditWriter extends EventsListener {
 				$aLogs[] = $oEntry;
 			}
 			else {
-				$aLogs[ $sEvent ] = $oEntry;
+				$aLogs[ $evt ] = $oEntry;
 			}
 
 			$this->setLogs( $aLogs );

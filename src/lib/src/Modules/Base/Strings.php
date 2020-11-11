@@ -56,7 +56,7 @@ class Strings {
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'save_all_settings' => __( 'Save Settings', 'wp-simple-firewall' ),
 				'plugin_name'       => $con->getHumanName(),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
@@ -114,7 +114,7 @@ class Strings {
 				'pro_features'       => __( 'Pro features include', 'wp-simple-firewall' ),
 				'join_thousands_H'   => __( "Join The 1,000s Who've Already Upgraded Their WordPress Security To Better Protect Their Sites.", 'wp-simple-firewall' ),
 				'join_thousands_P'   => implode( ', ', $aProFeaturesDisplay ),
-				'get_pro_protection' => __( 'Upgrade To Pro Protection', 'wp-simple-firewall' ),
+				'get_pro_protection' => __( 'Get Pro Protection', 'wp-simple-firewall' ),
 
 				'recommendation'      => ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 				'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),

@@ -24,26 +24,27 @@
 				</div>
 			</div>
 		{% endblock %}
+
+
+		{% block pro_promo %}
+			{% if flags.show_promo %}
+				<div id="FooterWizardBanner">
+					<div id="WizardBanner" class="row justify-content-center">
+						<div class="col-7">
+							<h6 class="text-left">{{ strings.join_thousands_H }}</h6>
+							   <p>{{ strings.pro_features }}: {{ strings.join_thousands_P }}</p>
+						</div>
+						<div class="col text-right">
+							<a href="{{ hrefs.go_pro }}" target="_blank" class="btn btn-success">
+								{{ strings.get_pro_protection }} </a>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+		{% endblock %}
 		</div>
 	</div>
 </div>
-
-{% block pro_promo %}
-	{% if flags.show_promo %}
-		<div id="FooterWizardBanner" class="container-fluid">
-		<div id="WizardBanner" class="row">
-			<div class="col-xl-5 offset-xl-1 col-6">
-				<h6 class="text-left">{{ strings.join_thousands_H }}</h6>
-				   <p>{{ strings.pro_features }}: {{ strings.join_thousands_P }}</p>
-			</div>
-			<div class="offset-1 col-3">
-				<a href="{{ hrefs.go_pro }}" target="_blank" class="btn btn-success">
-					{{ strings.get_pro_protection }} </a>
-			</div>
-		</div>
-	</div>
-	{% endif %}
-{% endblock %}
 
 {% block inline_scripts %}
 {% endblock %}

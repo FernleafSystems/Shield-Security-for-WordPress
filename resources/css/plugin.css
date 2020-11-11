@@ -710,13 +710,6 @@ input:checked + .icwp-slider:before {
 		left: -17px;
 	}
 }
-#FooterWizardBanner {
-	position: fixed;
-	bottom: 0;
-	height: 66px;
-	width: 100%;
-	z-index: 5;
-}
 #FooterWizardBanner .text-left {
 	margin-bottom: 0;
 }
@@ -727,21 +720,6 @@ input:checked + .icwp-slider:before {
 	height: 40px;
 	background-color: #fafafa;
 	background: linear-gradient(to top, rgba(250, 250, 250, 0.95), rgba(250, 250, 250, 0.7));
-}
-#WizardBanner {
-	height: 66px;
-	background-color: white;
-	border-top: 1px solid #bbbbbb;
-	padding-top: 15px;
-	text-align: center;
-	word-break: keep-all;
-	white-space: nowrap;
-	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-}
-#WizardBanner p {
-	margin: 0;
-	line-height: 20px;
-	text-align: left;
 }
 .icon-flag {
 	vertical-align: text-bottom;
@@ -1527,4 +1505,35 @@ a.card_help {
 	vertical-align: inherit;
 	padding-left: 2px;
 	padding-right: 2px;
+}
+
+#wpbody-content {
+	padding-bottom: 0;
+}
+#wpfooter {
+	display: none;
+}
+#FooterWizardBanner {
+	width: 100%;
+	z-index: 5;
+}
+#FooterWizardBanner .text-left {
+	margin-bottom: 0;
+}
+#FooterWizardBanner .offset-1 {
+	margin-left: 12%;
+}
+#WizardBanner {
+	background-color: white;
+	border-top: 1px solid #bbbbbb;
+	padding: 15px 0;
+	text-align: center;
+	word-break: keep-all;
+	white-space: nowrap;
+	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+}
+#WizardBanner p {
+	margin: 0;
+	line-height: 20px;
+	text-align: left;
 }

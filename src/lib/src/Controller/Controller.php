@@ -42,6 +42,7 @@ class Controller {
 
 	/**
 	 * @var string
+	 * @deprecated 10.1
 	 */
 	private $sRootFile;
 
@@ -52,6 +53,7 @@ class Controller {
 
 	/**
 	 * @var string
+	 * @deprecated 10.1
 	 */
 	private $sPluginBaseFile;
 
@@ -96,12 +98,12 @@ class Controller {
 	private $oEventsService;
 
 	/**
-	 * @param string $sEventTag
-	 * @param array  $aMetaData
+	 * @param string $event
+	 * @param array  $meta
 	 * @return $this
 	 */
-	public function fireEvent( $sEventTag, $aMetaData = [] ) {
-		$this->loadEventsService()->fireEvent( $sEventTag, $aMetaData );
+	public function fireEvent( string $event, $meta = [] ) :self {
+		$this->loadEventsService()->fireEvent( $event, $meta );
 		return $this;
 	}
 
@@ -146,7 +148,7 @@ class Controller {
 	protected function __construct( string $rootFile ) {
 		$this->sRootFile = $rootFile;
 		$this->root_file = $rootFile;
-		$this->base_file = $this->getRootFile();
+		$this->base_file = $this->getPluginBaseFile();
 		$this->modules = [];
 
 		$this->loadServices();
@@ -1286,14 +1288,11 @@ class Controller {
 		return $this->getPluginSpec_Property( 'slug_parent' );
 	}
 
-	/**
-	 * Path to the main plugin file relative to the WordPress plugins directory.
-	 */
 	public function getPluginBaseFile() :string {
-		if ( !isset( $this->sPluginBaseFile ) ) {
-			$this->sPluginBaseFile = plugin_basename( $this->getRootFile() );
+		if ( !isset( $this->base_file ) ) {
+			$this->base_file = plugin_basename( $this->getRootFile() );
 		}
-		return $this->sPluginBaseFile;
+		return $this->base_file;
 	}
 
 	public function getPluginSlug() :string {
@@ -1403,18 +1402,11 @@ class Controller {
 		return path_join( $this->getRootDir(), 'plugin-spec.php' );
 	}
 
-	/**
-	 * Get the root directory for the plugin with the trailing slash
-	 * @return string
-	 */
-	public function getRootDir() {
+	public function getRootDir() :string {
 		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getRootFile() {
+	public function getRootFile() :string {
 		if ( empty( $this->root_file ) ) {
 			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
 				->findPluginFromFile( __FILE__ );

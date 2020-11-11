@@ -89,7 +89,7 @@ class BuildData {
 			}
 		}
 
-		$aAll = array_keys( $this->getCon()->getAllEvents() );
+		$aAll = array_keys( $this->getCon()->loadEventsService()->getEvents() );
 		if ( !empty( $oReq->chart_params[ 'stat_id' ] ) ) {
 			switch ( $oReq->chart_params[ 'stat_id' ] ) {
 				case 'comment_block':

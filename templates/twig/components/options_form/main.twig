@@ -6,13 +6,13 @@
 		{% for opt_sect_key,opt_section in data.all_options %}
 			<li class="nav-item">
 
-			<a href="#tab-{{ opt_section.slug }}"
-			   class="nav-link {{ opt_section.primary ? 'active' : '' }}"
-			   {% if opt_section.primary %}aria-selected="true"{% endif %}
-			   id="tab-navlink-{{ opt_section.slug }}"
-			   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
-					<span>{{ opt_section.title_short }}</span>
-			</a>
+				<a href="#tab-{{ opt_section.slug }}"
+				   class="nav-link {{ opt_section.primary ? 'active' : '' }}"
+				   {% if opt_section.primary %}aria-selected="true"{% endif %}
+				   id="tab-navlink-{{ opt_section.slug }}"
+				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
+						<span>{{ opt_section.title_short }}</span>
+				</a>
 			</li>
 		{% endfor %}
 		</ul>
@@ -69,12 +69,10 @@
 		</div>
 		{% endfor %}
 	</div>
-	<div class="container-fluid footer-form-actions" id="OptionsFormActions">
 		<div class="row">
-			<div class="col">
-				<button type="submit" class="btn btn-primary btn-lg icwp-form-button"
+			<div class="col text-left">
+				<button type="submit" class="button button-primary ml-3 mt-3 icwp-form-button"
 						name="submit">{{ strings.save_all_settings }}</button>
 			</div>
 		</div>
-	</div>
 </form>

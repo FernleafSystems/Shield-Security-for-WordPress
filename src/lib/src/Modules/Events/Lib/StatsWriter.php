@@ -16,12 +16,12 @@ class StatsWriter extends EventsListener {
 	private $aEventStats;
 
 	/**
-	 * @param string $sEvent
+	 * @param string $evt
 	 * @param array  $aMeta
 	 */
-	protected function captureEvent( $sEvent, $aMeta = [] ) {
+	protected function captureEvent( $evt, $aMeta = [] ) {
 		$aStats = $this->getEventStats();
-		$aStats[ $sEvent ] = isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : Services::Request()->ts();
+		$aStats[ $evt ] = isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : Services::Request()->ts();
 		$this->setEventStats( $aStats );
 	}
 
