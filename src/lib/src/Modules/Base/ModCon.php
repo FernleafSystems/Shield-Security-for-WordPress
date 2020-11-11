@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class ModCon {
 
 	use Modules\PluginControllerConsumer;
+	use Shield\Crons\PluginCronsConsumer;
 
 	/**
 	 * @var string
@@ -110,9 +111,6 @@ abstract class ModCon {
 
 		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
-		add_action( $con->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $con->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
-
 		// supply supported events for this module
 		add_filter( $con->prefix( 'get_all_events' ), function ( $aEvents ) {
 			return array_merge(
@@ -150,13 +148,10 @@ abstract class ModCon {
 		$this->cleanupDatabases();
 	}
 
-	public function runHourlyCron() {
-	}
-
 	protected function cleanupDatabases() {
-		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-				$oDbh->autoCleanDb();
+		foreach ( $this->getDbHandlers( true ) as $dbh ) {
+			if ( $dbh instanceof Shield\Databases\Base\Handler && $dbh->isReady() ) {
+				$dbh->autoCleanDb();
 			}
 		}
 	}
@@ -175,31 +170,31 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sDbhKey
+	 * @param string $dbhKey
 	 * @return Shield\Databases\Base\Handler|mixed|false
 	 */
-	protected function getDbH( $sDbhKey ) {
+	protected function getDbH( $dbhKey ) {
 		$dbh = false;
 
 		if ( !is_array( $this->aDbHandlers ) ) {
 			$this->aDbHandlers = [];
 		}
 
-		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
-			$dbh = $this->aDbHandlers[ $sDbhKey ];
+		if ( !empty( $this->aDbHandlers[ $dbhKey ] ) ) {
+			$dbh = $this->aDbHandlers[ $dbhKey ];
 		}
 		else {
 			$aDbClasses = $this->getAllDbClasses();
-			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
+			if ( isset( $aDbClasses[ $dbhKey ] ) ) {
 				/** @var Shield\Databases\Base\Handler $dbh */
-				$dbh = new $aDbClasses[ $sDbhKey ]();
+				$dbh = new $aDbClasses[ $dbhKey ]();
 				try {
 					$dbh->setMod( $this )->tableInit();
 				}
 				catch ( \Exception $e ) {
 				}
 			}
-			$this->aDbHandlers[ $sDbhKey ] = $dbh;
+			$this->aDbHandlers[ $dbhKey ] = $dbh;
 		}
 
 		return $dbh;

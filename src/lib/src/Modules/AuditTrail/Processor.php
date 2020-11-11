@@ -12,7 +12,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	private $auditWriter;
 
-	public function run() {
+	protected function run() {
 		$this->initAuditors();
 		$this->getSubProAuditor()->execute();
 	}

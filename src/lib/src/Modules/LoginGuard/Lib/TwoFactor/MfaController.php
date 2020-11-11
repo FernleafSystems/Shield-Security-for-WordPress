@@ -25,11 +25,8 @@ class MfaController {
 
 	public function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
-		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
-		if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
-			add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
-		}
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 10, 2 );
+		$this->setupLoginCaptureHooks();
 	}
 
 	public function onWpInit() {
@@ -49,16 +46,10 @@ class MfaController {
 		} );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 */
 	protected function captureLogin( \WP_User $user ) {
 		$this->captureLoginIntent( $user );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 */
 	private function captureLoginIntent( \WP_User $user ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -211,14 +202,14 @@ class MfaController {
 	 */
 	private function validateLoginIntentRequest() {
 		try {
-			$bValid = ( new ValidateLoginIntentRequest() )
+			$valid = ( new ValidateLoginIntentRequest() )
 				->setMfaController( $this )
 				->run();
 		}
-		catch ( \Exception $oE ) {
-			$bValid = true;
+		catch ( \Exception $e ) {
+			$valid = true;
 		}
-		return $bValid;
+		return $valid;
 	}
 
 	private function canUserMfaSkip( \WP_User $user ) :bool {
@@ -236,7 +227,7 @@ class MfaController {
 			apply_filters( 'odp-shield-2fa_skip', $canSkip ) );
 	}
 
-	private function isSubjectToLoginIntent( \WP_User $user ) :bool {
+	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
 		return count( $this->getProvidersForUser( $user, true ) ) > 0;
 	}
 

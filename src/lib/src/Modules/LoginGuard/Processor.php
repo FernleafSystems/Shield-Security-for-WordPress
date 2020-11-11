@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
-	public function run() {
+	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -17,7 +17,7 @@ class Processor extends BaseShield\Processor {
 		}
 
 		( new Lib\Rename\RenameLogin() )
-			->setMod( $this->getMod() )
+			->setMod( $mod )
 			->execute();
 
 		if ( !$mod->isVisitorWhitelisted() ) {

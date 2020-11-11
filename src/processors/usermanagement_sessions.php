@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @deprecated 10.1
  */
-class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Processor {
+class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );

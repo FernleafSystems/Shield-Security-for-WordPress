@@ -125,24 +125,27 @@ class Controller {
 	}
 
 	/**
-	 * @param string $sRootFile
+	 * @param string $rootFile
 	 * @return Controller
 	 * @throws \Exception
 	 */
-	public static function GetInstance( $sRootFile = null ) {
+	public static function GetInstance( $rootFile = null ) {
 		if ( !isset( static::$oInstance ) ) {
-			static::$oInstance = new static( $sRootFile );
+			if ( empty( $rootFile ) ) {
+				throw new \Exception( 'Empty root file provided for instantiation' );
+			}
+			static::$oInstance = new static( $rootFile );
 		}
 		return static::$oInstance;
 	}
 
 	/**
-	 * @param string $sRootFile
+	 * @param string $rootFile
 	 * @throws \Exception
 	 */
-	protected function __construct( $sRootFile ) {
-		$this->sRootFile = $sRootFile;
-		$this->root_file = $sRootFile;
+	protected function __construct( string $rootFile ) {
+		$this->sRootFile = $rootFile;
+		$this->root_file = $rootFile;
 		$this->base_file = $this->getRootFile();
 		$this->modules = [];
 
@@ -1412,17 +1415,17 @@ class Controller {
 	 * @return string
 	 */
 	public function getRootFile() {
-		if ( empty( $this->sRootFile ) ) {
+		if ( empty( $this->root_file ) ) {
 			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
 				->findPluginFromFile( __FILE__ );
 			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
-				$this->sRootFile = path_join( WP_PLUGIN_DIR, $VO->file );
+				$this->root_file = path_join( WP_PLUGIN_DIR, $VO->file );
 			}
 			else {
-				$this->sRootFile = __FILE__;
+				$this->root_file = __FILE__;
 			}
 		}
-		return $this->sRootFile;
+		return $this->root_file;
 	}
 
 	/**

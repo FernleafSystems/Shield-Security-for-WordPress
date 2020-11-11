@@ -1304,6 +1304,11 @@ dl.pro-features dd {
 	background-color: rgba(69, 119, 0, 0.3);
 	border-color: rgba(69, 119, 0, 0.3);
 }
+.custom-control.custom-checkbox .custom-control-input:disabled,
+.custom-control.custom-radio .custom-control-input:disabled,
+.option-checkbox.custom-switch .custom-control-input:disabled {
+	opacity: 0;
+}
 .importexport-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
 	background-color: rgba(119, 107, 12, 1);
 	border-color: rgba(119, 107, 12, 1);

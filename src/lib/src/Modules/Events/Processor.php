@@ -13,7 +13,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	private $oStatsWriter;
 
-	public function run() {
+	protected function run() {
 		$this->loadStatsWriter()->setIfCommit( true );
 		add_action( $this->getCon()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
 	}

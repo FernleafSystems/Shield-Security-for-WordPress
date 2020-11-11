@@ -11,7 +11,7 @@ class Processor extends BaseShield\Processor {
 	 * This module is set to "run if whitelisted", so we must ensure any
 	 * actions taken by this module respect whether the current visitor is whitelisted.
 	 */
-	public function run() {
+	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -27,6 +27,8 @@ class Processor extends BaseShield\Processor {
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
+
+		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
 
 		// This controller handles visitor whitelisted status internally.
 		( new Lib\Suspend\UserSuspendController() )
@@ -94,8 +96,14 @@ class Processor extends BaseShield\Processor {
 		if ( $bAdmin ) {
 			$this->sendAdminLoginEmailNotification( $user );
 		}
-		if ( $bUser && !$this->isUserSubjectToLoginIntent( $user ) ) {
-			$this->sendUserLoginEmailNotification( $user );
+		if ( $bUser ) {
+			$hasLoginIntent = $this->getCon()
+								   ->getModule_LoginGuard()
+								   ->getLoginIntentController()
+								   ->isSubjectToLoginIntent( $user );
+			if ( !$hasLoginIntent ) {
+				$this->sendUserLoginEmailNotification( $user );
+			}
 		}
 		return $this;
 	}

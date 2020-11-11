@@ -29,7 +29,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	private $params;
 
-	public function run() {
+	protected function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
 			// Hooked here to ensure "plugins_loaded" has completely finished as some mailers aren't init'd.
 			add_action( 'init', function () {
@@ -370,7 +370,7 @@ class Processor extends BaseShield\Processor {
 		$success = false;
 		if ( !empty( $this->aAuditBlockMessage ) ) {
 			$sIp = Services::IP()->getRequestIp();
-			$aMessage = array_merge(
+			$message = array_merge(
 				[
 					sprintf( __( '%s has blocked a page visit to your site.', 'wp-simple-firewall' ), $this->getCon()
 																										   ->getHumanName() ),
@@ -389,8 +389,13 @@ class Processor extends BaseShield\Processor {
 				]
 			);
 
-			$success = $this->getEmailProcessor()
-							->sendEmailWithWrap( $recipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
+			$success = $this->getMod()
+							->getEmailProcessor()
+							->sendEmailWithWrap(
+								$recipient,
+								__( 'Firewall Block Alert', 'wp-simple-firewall' ),
+								$message
+							);
 		}
 		return $success;
 	}

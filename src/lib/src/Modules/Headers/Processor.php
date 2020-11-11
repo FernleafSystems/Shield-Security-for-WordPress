@@ -16,7 +16,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	private $headers;
 
-	public function run() {
+	protected function run() {
 		if ( $this->getPushHeadersEarly() ) {
 			$this->sendHeaders();
 		}

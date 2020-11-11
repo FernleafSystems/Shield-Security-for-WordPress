@@ -4,16 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
+
+	use WpLoginCapture;
 
 	/**
 	 * @var Session\EntryVO
 	 */
 	private $current;
 
-	public function run() {
+	protected function run() {
 		if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
 			add_action( 'clear_auth_cookie', function () {
 				/** @var ModCon $mod */
@@ -23,27 +26,11 @@ class Processor extends BaseShield\Processor {
 		}
 
 		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
+		$this->setupLoginCaptureHooks();
 	}
 
-	/**
-	 * @param string   $username
-	 * @param \WP_User $user
-	 */
-	public function onWpLogin( $username, $user ) {
-		if ( !$user instanceof \WP_User ) {
-			$user = Services::WpUsers()->getUserByUsername( $username );
-		}
+	protected function captureLogin( \WP_User $user ) {
 		$this->activateUserSession( $user );
-	}
-
-	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
-	 */
-	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->activateUserSession( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	public function onWpLoaded() {
@@ -103,20 +90,12 @@ class Processor extends BaseShield\Processor {
 		return $msg;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	private function activateUserSession( $user ) {
-		if ( !$this->isLoginCaptured() && $user instanceof \WP_User ) {
-			$this->setLoginCaptured();
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			// If they have a currently active session, terminate it (i.e. we replace it)
-			$mod->getSessionCon()->terminateCurrentSession();
-			$mod->getSessionCon()->queryCreateSession( $this->getCon()->getSessionId( true ), $user );
-		}
-		return true;
+	private function activateUserSession( \WP_User $user ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		// If they have a currently active session, terminate it (i.e. we replace it)
+		$mod->getSessionCon()->terminateCurrentSession();
+		$mod->getSessionCon()->queryCreateSession( $this->getCon()->getSessionId( true ), $user );
 	}
 
 	/**

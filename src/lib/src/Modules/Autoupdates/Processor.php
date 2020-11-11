@@ -16,7 +16,7 @@ class Processor extends BaseShield\Processor {
 	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
-	public function run() {
+	protected function run() {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
@@ -53,9 +53,9 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function onWpLoaded() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isDisableAllAutoUpdates() ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isDisableAllAutoUpdates() ) {
 			$this->disableAllAutoUpdates();
 		}
 	}
@@ -353,7 +353,7 @@ class Processor extends BaseShield\Processor {
 		// Are there really updates?
 		$bReallyUpdates = false;
 
-		$aBody = [
+		$body = [
 			sprintf(
 				__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName()
@@ -385,7 +385,7 @@ class Processor extends BaseShield\Processor {
 
 			if ( $bHasPluginUpdates ) {
 				$bReallyUpdates = true;
-				$aBody = array_merge( $aBody, $aTempContent );
+				$body = array_merge( $body, $aTempContent );
 			}
 		}
 
@@ -410,7 +410,7 @@ class Processor extends BaseShield\Processor {
 
 			if ( $bHasThemesUpdates ) {
 				$bReallyUpdates = true;
-				$aBody = array_merge( $aBody, $aTempContent );
+				$body = array_merge( $body, $aTempContent );
 			}
 		}
 
@@ -427,7 +427,7 @@ class Processor extends BaseShield\Processor {
 
 			if ( $bHasCoreUpdates ) {
 				$bReallyUpdates = true;
-				$aBody = array_merge( $aBody, $aTempContent );
+				$body = array_merge( $body, $aTempContent );
 			}
 		}
 
@@ -435,11 +435,15 @@ class Processor extends BaseShield\Processor {
 			return;
 		}
 
-		$aBody[] = __( 'Thank you.', 'wp-simple-firewall' );
+		$body[] = __( 'Thank you.', 'wp-simple-firewall' );
 
-		$sTitle = sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) );
-		$this->getEmailProcessor()
-			 ->sendEmailWithWrap( $this->getOptions()->getOpt( 'override_email_address' ), $sTitle, $aBody );
+		$this->getMod()
+			 ->getEmailProcessor()
+			 ->sendEmailWithWrap(
+			 	$this->getOptions()->getOpt( 'override_email_address' ),
+				 sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) ),
+				$body
+			 );
 		die();
 	}
 

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
-	public function run() {
+	protected function run() {
 		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
 		/** @var Options $opts */
@@ -23,7 +23,7 @@ class Processor extends BaseShield\Processor {
 	 * @param bool $bHasPermission
 	 * @return bool
 	 */
-	public function adjustUserAdminPermissions( $bHasPermission = true ) {
+	public function adjustUserAdminPermissions( $bHasPermission = true ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $bHasPermission &&

@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
  */
 class Processor extends Modules\BaseShield\Processor {
 
-	public function run() {
+	protected function run() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isTrafficLoggerEnabled() ) {

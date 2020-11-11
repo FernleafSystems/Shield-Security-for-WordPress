@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
-	public function run() {
+	protected function run() {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

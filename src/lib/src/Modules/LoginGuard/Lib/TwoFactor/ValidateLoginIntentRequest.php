@@ -15,53 +15,53 @@ class ValidateLoginIntentRequest {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function run() {
+	public function run() :bool {
 		$oMfaCon = $this->getMfaCon();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $oMfaCon->getOptions();
+		/** @var LoginGuard\Options $opts */
+		$opts = $oMfaCon->getOptions();
 
-		$oUser = Services::WpUsers()->getCurrentWpUser();
-		if ( !$oUser instanceof \WP_User ) {
+		$user = Services::WpUsers()->getCurrentWpUser();
+		if ( !$user instanceof \WP_User ) {
 			throw new \Exception( 'No user logged-in.' );
 		}
-		$aProviders = $oMfaCon->getProvidersForUser( $oUser, true );
-		if ( empty( $aProviders ) ) {
+		$providers = $oMfaCon->getProvidersForUser( $user, true );
+		if ( empty( $providers ) ) {
 			throw new \Exception( 'No valid providers' );
 		}
 
 		$aSuccessfulProviders = [];
 
-		$bValidated = false;
+		$validated = false;
 		{ // Backup code is special case
-			if ( isset( $aProviders[ Provider\Backup::SLUG ] ) ) {
-				if ( $aProviders[ Provider\Backup::SLUG ]->validateLoginIntent( $oUser ) ) {
-					$bValidated = true;
-					$aSuccessfulProviders[] = $aProviders[ Provider\Backup::SLUG ];
+			if ( isset( $providers[ Provider\Backup::SLUG ] ) ) {
+				if ( $providers[ Provider\Backup::SLUG ]->validateLoginIntent( $user ) ) {
+					$validated = true;
+					$aSuccessfulProviders[] = $providers[ Provider\Backup::SLUG ];
 				}
-				unset( $aProviders[ Provider\Backup::SLUG ] );
+				unset( $providers[ Provider\Backup::SLUG ] );
 			}
 		}
 
-		if ( !$bValidated ) {
+		if ( !$validated ) {
 			$aStates = [];
-			foreach ( $aProviders as $sSlug => $oProvider ) {
-				$aStates[ $sSlug ] = $oProvider->validateLoginIntent( $oUser );
+			foreach ( $providers as $sSlug => $provider ) {
+				$aStates[ $sSlug ] = $provider->validateLoginIntent( $user );
 				if ( $aStates[ $sSlug ] ) {
-					$aSuccessfulProviders[] = $oProvider;
+					$aSuccessfulProviders[] = $provider;
 				}
 			}
 
 			$nSuccessful = count( array_filter( $aStates ) );
-			$bValidated = $oOpts->isChainedAuth() ? $nSuccessful == count( $aProviders ) : $nSuccessful > 0;
+			$validated = $opts->isChainedAuth() ? $nSuccessful == count( $providers ) : $nSuccessful > 0;
 		}
 
-		if ( $bValidated ) {
+		if ( $validated ) {
 			// Some cleanup can only run if login is completely tested and completely valid.
-			foreach ( $aSuccessfulProviders as $oProvider ) {
-				$oProvider->postSuccessActions( $oUser );
+			foreach ( $aSuccessfulProviders as $provider ) {
+				$provider->postSuccessActions( $user );
 			}
 		}
 
-		return $bValidated;
+		return $validated;
 	}
 }
