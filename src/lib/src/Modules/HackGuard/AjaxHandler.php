@@ -375,49 +375,55 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_StartScans() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$bSuccess = false;
-		$bPageReload = false;
-		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
-		$aFormParams = $this->getAjaxFormParams();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$success = false;
+		$reloadPage = false;
+		$msg = __( 'No scans were selected', 'wp-simple-firewall' );
+		$formParams = $this->getAjaxFormParams();
 
-		$oScanCon = $mod->getScanQueueController();
+		$scanCon = $mod->getScanQueueController();
 
-		if ( !empty( $aFormParams ) ) {
-			$aSelectedScans = array_keys( $aFormParams );
+		if ( !empty( $formParams ) ) {
+			$selected = array_keys( $formParams );
 
 			$aUiTrack = $mod->getUiTrack();
-			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
+			$aUiTrack[ 'selected_scans' ] = array_intersect( array_keys( $formParams ), $opts->getScanSlugs() );
 			$mod->setUiTrack( $aUiTrack );
 
-			$aScansToStart = [];
-			foreach ( $aSelectedScans as $sScanSlug ) {
-				$oThisScanCon = $mod->getScanCon( $sScanSlug );
-				if ( !empty( $oThisScanCon ) && $oThisScanCon->isScanningAvailable() ) {
+			$toScan = [];
+			foreach ( $selected as $slug ) {
+				try {
+					$thisScanCon = $mod->getScanCon( $slug );
+					if ( $thisScanCon->isScanningAvailable() ) {
 
-					$aScansToStart[] = $sScanSlug;
+						$toScan[] = $slug;
 
-					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
-						$oThisScanCon->resetIgnoreStatus();
+						if ( isset( $formParams[ 'opt_clear_ignore' ] ) ) {
+							$thisScanCon->resetIgnoreStatus();
+						}
+						if ( isset( $formParams[ 'opt_clear_notification' ] ) ) {
+							$thisScanCon->resetNotifiedStatus();
+						}
+
+						$success = true;
+						$reloadPage = true;
+						$msg = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
 					}
-					if ( isset( $aFormParams[ 'opt_clear_notification' ] ) ) {
-						$oThisScanCon->resetNotifiedStatus();
-					}
-
-					$bSuccess = true;
-					$bPageReload = true;
-					$sMessage = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
+				}
+				catch ( \Exception $e ) {
 				}
 			}
-			$oScanCon->startScans( $aScansToStart );
+			$scanCon->startScans( $toScan );
 		}
 
-		$bScansRunning = $oScanCon->hasRunningScans();
+		$isScanRunning = $scanCon->hasRunningScans();
 
 		return [
-			'success'       => $bSuccess,
-			'scans_running' => $bScansRunning,
-			'page_reload'   => $bPageReload && !$bScansRunning,
-			'message'       => $sMessage,
+			'success'       => $success,
+			'scans_running' => $isScanRunning,
+			'page_reload'   => $reloadPage && !$isScanRunning,
+			'message'       => $msg,
 		];
 	}
 }

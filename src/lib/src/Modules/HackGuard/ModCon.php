@@ -73,6 +73,7 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @param string $slug
 	 * @return Scan\Controller\Base|mixed
+	 * @throws \Exception
 	 */
 	public function getScanCon( string $slug ) {
 		return empty( $this->aScanCons[ $slug ] ) ?
