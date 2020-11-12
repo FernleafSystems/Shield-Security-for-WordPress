@@ -134,7 +134,7 @@ abstract class ModCon {
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 //		}
-
+		$this->setupCronHooks();
 		$this->setupCustomHooks();
 	}
 
@@ -289,12 +289,12 @@ abstract class ModCon {
 	}
 
 	public function onRunProcessors() {
-		$oOpts = $this->getOptions();
-		if ( $oOpts->getFeatureProperty( 'auto_load_processor' ) ) {
+		$opts = $this->getOptions();
+		if ( $opts->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
 		try {
-			$bSkip = (bool)$oOpts->getFeatureProperty( 'skip_processor' );
+			$bSkip = (bool)$opts->getFeatureProperty( 'skip_processor' );
 			if ( !$bSkip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 				$this->doExecuteProcessor();
 			}

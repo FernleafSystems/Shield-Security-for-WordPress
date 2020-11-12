@@ -20,6 +20,7 @@ abstract class Processor {
 		add_action( 'init', [ $this, 'onWpInit' ], 9 );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( $mod->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
+		$this->setupCronHooks();
 	}
 
 	public function onWpInit() {

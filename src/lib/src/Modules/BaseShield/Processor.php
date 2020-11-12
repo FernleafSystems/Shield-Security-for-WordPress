@@ -4,6 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-abstract class Processor extends Base\Processor {
+class Processor extends Base\Processor {
 
 }
