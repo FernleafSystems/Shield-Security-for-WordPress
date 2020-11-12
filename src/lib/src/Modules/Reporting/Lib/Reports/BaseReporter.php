@@ -28,11 +28,11 @@ abstract class BaseReporter {
 	}
 
 	/**
-	 * @param ReportVO $oRep
+	 * @param ReportVO $rep
 	 * @return $this
 	 */
-	public function setReport( ReportVO $oRep ) {
-		$this->rep = $oRep;
+	public function setReport( ReportVO $rep ) {
+		$this->rep = $rep;
 		return $this;
 	}
 }

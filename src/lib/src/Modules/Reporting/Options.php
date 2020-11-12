@@ -16,9 +16,9 @@ class Options extends BaseShield\Options {
 
 	private function getFrequency( string $type ) :string {
 		$key = 'frequency_'.$type;
-		$sDefault = $this->getOptDefault( $key );
-		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $sDefault ] ) )
+		$default = $this->getOptDefault( $key );
+		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
 			? $this->getOpt( $key )
-			: $sDefault;
+			: $default;
 	}
 }

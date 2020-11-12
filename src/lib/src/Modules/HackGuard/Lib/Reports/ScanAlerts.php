@@ -13,7 +13,7 @@ class ScanAlerts extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
-		$aAlerts = [];
+		$alerts = [];
 
 		/** @var HackGuard\Strings $strings */
 		$strings = $this->getMod()->getStrings();
@@ -32,7 +32,7 @@ class ScanAlerts extends BaseReporter {
 					'name'  => $strings->getScanNames()[ $slug ],
 				];
 			}
-			$aAlerts[] = $this->getMod()->renderTemplate(
+			$alerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/hack_protect/alert_scanresults.twig',
 				[
 					'vars'    => [
@@ -51,7 +51,7 @@ class ScanAlerts extends BaseReporter {
 			$this->markAlertsAsNotified();
 		}
 
-		return $aAlerts;
+		return $alerts;
 	}
 
 	private function markAlertsAsNotified() {

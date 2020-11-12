@@ -25,17 +25,14 @@ abstract class BaseBuilder {
 	 */
 	public function build() {
 		if ( $this->isReadyToSend() ) {
-			$aData = $this->gather();
-			if ( !empty( $aData ) ) {
-				$this->rep->content = $this->render( $aData );
+			$data = $this->gather();
+			if ( !empty( $data ) ) {
+				$this->rep->content = $this->render( $data );
 			}
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isReadyToSend() {
+	protected function isReadyToSend() :bool {
 		return !Services::WpGeneral()->isCron()
 			   || empty( $this->rep->previous )
 			   || Services::Request()->ts() > $this->rep->interval_end_at;
@@ -57,6 +54,9 @@ abstract class BaseBuilder {
 		$oCEnd = Services::Request()->carbon( true )->setTimestamp( $this->rep->interval_end_at );
 
 		switch ( $this->rep->interval ) {
+			case 'no_time': // TODO
+				$sTime = __( 'No Time Interval', 'wp-simple-firewall' );
+				break;
 			case 'hourly':
 				$sTime = sprintf( 'The full hour from %s until %s on %s.',
 					$oCStart->format( 'H:i' ),

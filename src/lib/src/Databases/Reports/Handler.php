@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Options;
 
 class Handler extends Base\Handler {
 

@@ -17,12 +17,11 @@ class CreateReportVO {
 	private $rep;
 
 	/**
-	 * CreateReportVO constructor.
-	 * @param string $sReportType
+	 * @param string $reportType
 	 */
-	public function __construct( $sReportType ) {
+	public function __construct( string $reportType ) {
 		$this->rep = new ReportVO();
-		$this->rep->type = $sReportType;
+		$this->rep->type = $reportType;
 	}
 
 	/**
@@ -42,19 +41,18 @@ class CreateReportVO {
 	 * @throws \Exception
 	 */
 	private function setReportInterval() {
-		/** @var Reporting\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Reporting\Options $opts */
+		$opts = $this->getOptions();
 
 		switch ( $this->rep->type ) {
 			case Reports\Handler::TYPE_ALERT:
-				$this->rep->interval = $oOpts->getFrequencyAlert();
+				$this->rep->interval = $opts->getFrequencyAlert();
 				break;
 			case Reports\Handler::TYPE_INFO:
-				$this->rep->interval = $oOpts->getFrequencyInfo();
+				$this->rep->interval = $opts->getFrequencyInfo();
 				break;
 			default:
 				throw new \Exception( 'Not a supported report type: '.$this->rep->type );
-				break;
 		}
 		return $this;
 	}
@@ -65,13 +63,12 @@ class CreateReportVO {
 	private function setPreviousReport() {
 		/** @var Reporting\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Reports\Select $oSel */
-		$oSel = $mod->getDbHandler_Reports()->getQuerySelector();
-		/** @var Reports\EntryVO $oLast */
-		$this->rep->previous = $oSel->filterByType( $this->rep->type )
-									->filterByFrequency( $this->rep->interval )
-									->setOrderBy( 'sent_at', 'DESC' )
-									->first();
+		/** @var Reports\Select $sel */
+		$sel = $mod->getDbHandler_Reports()->getQuerySelector();
+		$this->rep->previous = $sel->filterByType( $this->rep->type )
+								   ->filterByFrequency( $this->rep->interval )
+								   ->setOrderBy( 'sent_at', 'DESC' )
+								   ->first();
 		return $this;
 	}
 
@@ -84,49 +81,52 @@ class CreateReportVO {
 	 */
 	private function setIntervalBoundaries() {
 
-		$oC = Services::Request()->carbon( true );
+		$carbon = Services::Request()->carbon( true );
 		$nAddition = -1; // the previous hour, day, week, month
 
 		switch ( $this->rep->interval ) {
 //			case 'realtime':
 //				break;
+			case 'no_time': // TODO
+				$start = 0;
+				$end = $carbon->timestamp;
+				break;
 			case 'hourly':
-				$oC->addHours( $nAddition );
-				$nStart = $oC->startOfHour()->timestamp;
-				$nEnd = $oC->endOfHour()->timestamp;
+				$carbon->addHours( $nAddition );
+				$start = $carbon->startOfHour()->timestamp;
+				$end = $carbon->endOfHour()->timestamp;
 				break;
 			case 'daily':
-				$oC->addDays( $nAddition );
-				$nStart = $oC->startOfDay()->timestamp;
-				$nEnd = $oC->endOfDay()->timestamp;
+				$carbon->addDays( $nAddition );
+				$start = $carbon->startOfDay()->timestamp;
+				$end = $carbon->endOfDay()->timestamp;
 				break;
 			case 'weekly':
-				$oC->addWeeks( $nAddition );
-				$nStart = $oC->startOfWeek()->timestamp;
-				$nEnd = $oC->endOfWeek()->timestamp;
+				$carbon->addWeeks( $nAddition );
+				$start = $carbon->startOfWeek()->timestamp;
+				$end = $carbon->endOfWeek()->timestamp;
 				break;
 			case 'monthly':
-				$oC->addMonths( $nAddition );
-				$nStart = $oC->startOfMonth()->timestamp;
-				$nEnd = $oC->endOfMonth()->timestamp;
+				$carbon->addMonths( $nAddition );
+				$start = $carbon->startOfMonth()->timestamp;
+				$end = $carbon->endOfMonth()->timestamp;
 				break;
 			case 'yearly':
-				$oC->addYears( $nAddition );
-				$nStart = $oC->startOfYear()->timestamp;
-				$nEnd = $oC->endOfYear()->timestamp;
+				$carbon->addYears( $nAddition );
+				$start = $carbon->startOfYear()->timestamp;
+				$end = $carbon->endOfYear()->timestamp;
 				break;
 			default:
 				throw new \Exception( 'Not a supported frequency' );
-				break;
 		}
 
 		if ( $this->rep->previous instanceof Reports\EntryVO
-			 && $nEnd <= $this->rep->previous->interval_end_at ) {
+			 && $end <= $this->rep->previous->interval_end_at ) {
 			throw new \Exception( 'Attempting to create a duplicate report based on interval.' );
 		}
 
-		$this->rep->interval_start_at = $nStart;
-		$this->rep->interval_end_at = $nEnd;
+		$this->rep->interval_start_at = $start;
+		$this->rep->interval_end_at = $end;
 
 		return $this;
 	}

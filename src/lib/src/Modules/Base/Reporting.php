@@ -42,8 +42,8 @@ abstract class Reporting {
 	 * @return array
 	 */
 	protected function assignMod( array $aReporters ) :array {
-		return array_map( function ( $oReporter ) {
-			return $oReporter->setMod( $this->getMod() );
+		return array_map( function ( $reporter ) {
+			return $reporter->setMod( $this->getMod() );
 		}, $aReporters );
 	}
 }

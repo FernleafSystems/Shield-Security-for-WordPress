@@ -41,7 +41,7 @@ abstract class ModCon {
 	private $oWizard;
 
 	/**
-	 * @var Shield\Modules\Base\BaseReporting
+	 * @var Shield\Modules\Base\Reporting
 	 */
 	private $oReporting;
 
@@ -1461,7 +1461,7 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\BaseReporting|mixed|false
+	 * @return Shield\Modules\Base\Reporting|mixed|false
 	 */
 	public function getReportingHandler() {
 		if ( !isset( $this->oReporting ) ) {
