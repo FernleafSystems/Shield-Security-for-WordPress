@@ -1,10 +1,12 @@
-<div id="FooterBannerGoPro" class="row justify-content-center">
-	<div class="col-7 text-left">
-		<h6>{{ strings.join_thousands_H }}</h6>
-		<p>{{ strings.pro_features }}: {{ strings.join_thousands_P }}</p>
+{% if flags.show_promo %}
+	<div id="FooterBannerGoPro" class="row justify-content-center">
+		<div class="col-7 text-left">
+			<h6>{{ strings.join_thousands_H }}</h6>
+			<p>{{ strings.pro_features }}: {{ strings.join_thousands_P }}</p>
+		</div>
+		<div class="col text-right">
+			<a href="{{ hrefs.go_pro }}" target="_blank" class="btn btn-success">
+				{{ strings.get_pro_protection }} </a>
+		</div>
 	</div>
-	<div class="col text-right">
-		<a href="{{ hrefs.go_pro }}" target="_blank" class="btn btn-success">
-			{{ strings.get_pro_protection }} </a>
-	</div>
-</div>
+{% endif %}

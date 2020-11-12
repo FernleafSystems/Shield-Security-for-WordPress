@@ -331,19 +331,18 @@ class UI extends BaseShield\UI {
 	private function printGoProFooter() {
 		$con = $this->getCon();
 		$nav = Services::Request()->query( 'inav', 'dashboard' );
-		if ( !in_array( $nav, [ 'scans' ] ) ) {
-			echo $this->getMod()->renderTemplate(
-				'snippets/go_pro_banner.twig',
-				[
-					'flags' => [
-						'show_promo' => !$con->isPremiumActive(),
-					],
-					'hrefs' => [
-						'go_pro' => 'https://shsec.io/shieldgoprofeature',
-					]
+		echo $this->getMod()->renderTemplate(
+			'snippets/go_pro_banner.twig',
+			[
+				'flags' => [
+					'show_promo' => !$con->isPremiumActive()
+									&& ( !in_array( $nav, [ 'scans' ] ) ),
+				],
+				'hrefs' => [
+					'go_pro' => 'https://shsec.io/shieldgoprofeature',
 				]
-			);
-		}
+			]
+		);
 	}
 
 	private function printToastTemplate() {
