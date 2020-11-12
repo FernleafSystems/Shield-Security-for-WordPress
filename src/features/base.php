@@ -115,20 +115,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		add_action( $con->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $con->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
-		// supply supported events for this module
-		add_filter( $con->prefix( 'get_all_events' ), function ( $aEvents ) {
-			return array_merge(
-				is_array( $aEvents ) ? $aEvents : [],
-				array_map(
-					function ( $aEvt ) {
-						$aEvt[ 'context' ] = $this->getSlug();
-						return $aEvt;
-					},
-					is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : []
-				)
-			);
-		} );
-
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
 		if ( is_admin() || is_network_admin() ) {
@@ -323,46 +309,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	public function onWpInit() {
-
-		$sShieldAction = $this->getCon()->getShieldAction();
-		if ( !empty( $sShieldAction ) ) {
-			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
-		}
-
-		add_action( 'cli_init', function () {
-			try {
-				$this->getWpCli()->execute();
-			}
-			catch ( \Exception $e ) {
-			}
-		} );
-
-		if ( $this->isModuleRequest() ) {
-
-			if ( Services::WpGeneral()->isAjax() ) {
-				$this->loadAjaxHandler();
-			}
-			else {
-				try {
-					if ( $this->verifyModActionRequest() ) {
-						$this->handleModAction( Services::Request()->request( 'exec' ) );
-					}
-				}
-				catch ( \Exception $e ) {
-					wp_nonce_ays( '' );
-				}
-			}
-		}
-
-		$this->runWizards();
-
-		// GDPR
-		if ( $this->isPremium() ) {
-			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
-			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
-		}
-
-		$this->loadDebug();
 	}
 
 	/**

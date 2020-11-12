@@ -257,8 +257,6 @@ class UI extends BaseShield\UI {
 			$data
 		);
 
-		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
-
 		return $mod->renderTemplate(
 			sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ),
 			$data,
@@ -335,7 +333,8 @@ class UI extends BaseShield\UI {
 			'snippets/go_pro_banner.twig',
 			[
 				'flags' => [
-					'show_promo' => !$con->isPremiumActive()
+					'show_promo' => $con->isModulePage()
+									&& !$con->isPremiumActive()
 									&& ( !in_array( $nav, [ 'scans' ] ) ),
 				],
 				'hrefs' => [

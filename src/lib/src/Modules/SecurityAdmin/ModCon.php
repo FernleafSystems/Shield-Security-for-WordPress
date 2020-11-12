@@ -21,7 +21,6 @@ class ModCon extends BaseShield\ModCon {
 	private $oWhiteLabelController;
 
 	protected function setupCustomHooks() {
-		parent::setupCustomHooks();
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
 

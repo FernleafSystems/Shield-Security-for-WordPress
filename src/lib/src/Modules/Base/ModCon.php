@@ -111,20 +111,6 @@ abstract class ModCon {
 
 		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
-		// supply supported events for this module
-		add_filter( $con->prefix( 'get_all_events' ), function ( $aEvents ) {
-			return array_merge(
-				is_array( $aEvents ) ? $aEvents : [],
-				array_map(
-					function ( $aEvt ) {
-						$aEvt[ 'context' ] = $this->getSlug();
-						return $aEvt;
-					},
-					is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : []
-				)
-			);
-		} );
-
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
 		if ( is_admin() || is_network_admin() ) {
@@ -317,9 +303,9 @@ abstract class ModCon {
 
 	public function onWpInit() {
 
-		$sShieldAction = $this->getCon()->getShieldAction();
-		if ( !empty( $sShieldAction ) ) {
-			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
+		$shieldAction = $this->getCon()->getShieldAction();
+		if ( !empty( $shieldAction ) ) {
+			do_action( $this->getCon()->prefix( 'shield_action' ), $shieldAction );
 		}
 
 		add_action( 'cli_init', function () {

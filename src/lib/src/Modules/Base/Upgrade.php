@@ -28,12 +28,11 @@ class Upgrade {
 	 */
 	protected function upgradeModule() {
 		$con = $this->getCon();
-		$sPreviousVersion = $con->getPreviousVersion();
-		foreach ( $con->getPluginSpec()[ 'version_upgrades' ] as $sVersion ) {
-			$sMethod = 'upgrade_'.str_replace( '.', '', $sVersion );
-			if ( version_compare( $sPreviousVersion, $sVersion, '<' )
-				 && method_exists( $this, $sMethod ) ) {
-				$this->{$sMethod}();
+		$previous = $con->getPreviousVersion();
+		foreach ( $con->getPluginSpec()[ 'version_upgrades' ] as $version ) {
+			$upgradeMethod = 'upgrade_'.str_replace( '.', '', $version );
+			if ( version_compare( $previous, $version, '<' ) && method_exists( $this, $upgradeMethod ) ) {
+				$this->{$upgradeMethod}();
 			}
 		}
 	}

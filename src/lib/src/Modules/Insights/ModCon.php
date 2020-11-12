@@ -8,6 +8,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	protected function setupCustomHooks() {
+		add_action( 'admin_footer', function () {
+			/** @var UI $UI */
+			$UI = $this->getUIHandler();
+			$UI->printAdminFooterItems();
+		}, 100, 0 );
+	}
+
 	protected function onModulesLoaded() {
 		$this->maybeRedirectToAdmin();
 	}
