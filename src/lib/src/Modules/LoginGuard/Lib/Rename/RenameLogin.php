@@ -13,7 +13,7 @@ class RenameLogin {
 	use Modules\ModConsumer;
 	use OneTimeExecute;
 
-	public function run() {
+	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], 9 );
 	}
 

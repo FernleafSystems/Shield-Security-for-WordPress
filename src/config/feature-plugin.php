@@ -578,8 +578,7 @@
       },
       {
         "slug":          "traffic",
-        "load_priority": 12,
-        "min_php":       "5.4"
+        "load_priority": 12
       },
       {
         "slug":          "firewall",
