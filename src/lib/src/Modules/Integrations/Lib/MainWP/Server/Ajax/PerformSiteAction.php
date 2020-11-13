@@ -61,6 +61,18 @@ class PerformSiteAction {
 	 * @return string
 	 * @throws \Exception
 	 */
+	private function install() :string {
+		if ( !$this->getPluginActioner()->install() ) {
+			throw new \Exception( sprintf( __( 'Failed to install %s plugin.' ), $this->getCon()->getHumanName() ) );
+		}
+		return sprintf( __( 'Successfully installed %s plugin.', 'wp-simple-firewall' ),
+			$this->getCon()->getHumanName() );
+	}
+
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
 	private function license() :string {
 		$resp = $this->getApiActioner()->licenseCheck();
 		if ( empty( $resp[ 'success' ] ) ) {

@@ -21,17 +21,17 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 			switch ( $action ) {
 				case 'activate':
 				case 'deactivate':
-				case 'sync':
+				case 'install':
 				case 'license':
 				case 'mwp':
+				case 'sync':
 					$siteID = (int)$req->post( 'sid' );
 					try {
 						if ( empty( $siteID ) ) {
 							throw new \Exception( 'invalid site ID' );
 						}
-						$site = MainWP\Common\MWPSiteVO::LoadByID( $siteID );
 						$resp = ( new PerformSiteAction() )
-							->setMwpSite( $site )
+							->setMwpSite( MainWP\Common\MWPSiteVO::LoadByID( $siteID ) )
 							->setMod( $this->getMod() )
 							->run( $action );
 					}

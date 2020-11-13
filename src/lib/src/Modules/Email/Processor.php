@@ -19,12 +19,12 @@ class Processor extends BaseShield\Processor {
 		$WP = Services::WpGeneral();
 
 		{
-			$aGoProPhrases = [
+			$goPro = [
 				'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;',
 				'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;',
 				'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;',
 			];
-			$aBenefits = [
+			$benefits = [
 				'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere',
 				'MainWP Integration',
 				'Powerful, Auto-Learning Malware Scanner',
@@ -37,16 +37,16 @@ class Processor extends BaseShield\Processor {
 				'Exclusive Customer Support',
 				'That Warm And Fuzzy Feeling That Comes From Supporting Future Development',
 			];
-			shuffle( $aBenefits );
+			shuffle( $benefits );
 		}
 
 		$footer = [
 			$this->getMod()
 				 ->renderTemplate( '/email/footer.twig', [
 					 'strings' => [
-						 'benefits'  => $aBenefits,
+						 'benefits'  => $benefits,
 						 'much_more' => 'And So Much More',
-						 'upgrade'   => $aGoProPhrases[ array_rand( $aGoProPhrases ) ],
+						 'upgrade'   => $goPro[ array_rand( $goPro ) ],
 						 'sent_from' => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 							 $this->getCon()->getHumanName(),
 							 $this->getCon()->getVersion(),

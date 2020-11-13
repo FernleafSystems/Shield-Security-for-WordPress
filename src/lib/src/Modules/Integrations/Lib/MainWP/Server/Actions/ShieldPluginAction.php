@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Common\Consumers\MWPSiteConsumer,
-	Server\Data\ClientPluginStatus};
+	Server\Data\ClientPluginStatus
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Api;
 use MainWP\Dashboard\MainWP_Connect;
@@ -87,24 +88,21 @@ class ShieldPluginAction {
 	}
 
 	public function install() :bool {
-		$siteObj = [ $this->getMwpSite()->siteobj ];
 		$urlInstall = ( new Api() )
 			->setWorkingSlug( 'wp-simple-firewall' )
 			->getInfo()->download_link;
 
-		$info = MainWP_Connect::fetch_urls_authed(
-			$siteObj,
+		$info = MainWP_Connect::fetch_url_authed(
+			$this->getMwpSite()->siteobj,
 			'installplugintheme',
 			[
 				'type'           => 'plugin',
 				'url'            => wp_json_encode( $urlInstall ),
 				'activatePlugin' => 'yes',
 				'overwrite'      => true,
-			],
-			null,
-			$o
+			]
 		);
-		return (bool)$info;
+		return !empty( $info[ 'installation' ] ) && $info[ 'installation' ] === 'SUCCESS';
 	}
 
 	public function sync() :bool {

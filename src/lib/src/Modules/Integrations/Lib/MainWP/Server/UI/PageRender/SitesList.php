@@ -38,6 +38,7 @@ class SitesList extends BaseRender {
 
 			$shd[ 'is_active' ] = $shd[ 'status_key' ] === ClientPluginStatus::ACTIVE;
 			$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === ClientPluginStatus::INACTIVE;
+			$shd[ 'is_notinstalled' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_INSTALLED;
 			$shd[ 'is_notpro' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_PRO;
 			$shd[ 'is_mwpnoton' ] = $shd[ 'status_key' ] === ClientPluginStatus::MWP_NOT_ON;
 			$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === ClientPluginStatus::NEED_SYNC;
@@ -102,11 +103,12 @@ class SitesList extends BaseRender {
 				'with_issues'         => __( 'With Issues', 'wp-simple-firewall' ),
 				'needs_update'        => __( 'Needs Update', 'wp-simple-firewall' ),
 				'st_inactive'         => __( 'Shield Security plugin is installed but not activated.', 'wp-simple-firewall' ),
+				'st_notinstalled'     => __( "Shield Security plugin not detected in last sync.", 'wp-simple-firewall' ),
 				'st_notpro'           => __( "ShieldPRO isn't activated on this site.", 'wp-simple-firewall' ),
 				'st_mwpnoton'         => __( "Shield's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ),
 				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
 				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
-				'st_not_detected'     => __( 'Shield Security plugin not detected in last sync.', 'wp-simple-firewall' ),
+				'st_unknown'          => __( "Couldn't determine Shield plugin status.", 'wp-simple-firewall' ),
 				'act_sync'            => __( 'Sync Shield', 'wp-simple-firewall' ),
 				'act_activate'        => __( 'Activate Shield', 'wp-simple-firewall' ),
 				'act_align'           => __( 'Align Shield', 'wp-simple-firewall' ),

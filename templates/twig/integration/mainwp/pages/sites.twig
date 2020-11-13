@@ -13,24 +13,24 @@
 	</div>
 </div>
 
-{#<div class="mainwp-actions-bar">#}
-{#	<div class="ui grid">#}
-{#		<div class="ui one column row">#}
-{#			<div class="column">#}
-{#				<input type="hidden" id="" value="TODO: NONCE" />#}
-{#				<div id="sites_bulk_action" class="actions ui mini form">#}
-{#					<select name="bulk_action" class="ui mini dropdown">#}
-{#						<option value="-1" selected="selected">Bulk Actions</option>#}
-{#						<option value="start">Upgrade</option>#}
-{#						<option value="pause">Install</option>#}
-{#						<option value="delete">Uninstall</option>#}
-{#					</select>#}
-{#					<a href="#" class="ui mini button disabled">Apply</a>#}
-{#				</div>#}
-{#			</div>#}
-{#		</div>#}
-{#	</div>#}
-{#</div>#}
+{# <div class="mainwp-actions-bar"> #}
+{# <div class="ui grid"> #}
+{# <div class="ui one column row"> #}
+{# <div class="column"> #}
+{# <input type="hidden" id="" value="TODO: NONCE" /> #}
+{# <div id="sites_bulk_action" class="actions ui mini form"> #}
+{# <select name="bulk_action" class="ui mini dropdown"> #}
+{# <option value="-1" selected="selected">Bulk Actions</option> #}
+{# <option value="start">Upgrade</option> #}
+{# <option value="pause">Install</option> #}
+{# <option value="delete">Uninstall</option> #}
+{# </select> #}
+{# <a href="#" class="ui mini button disabled">Apply</a> #}
+{# </div> #}
+{# </div> #}
+{# </div> #}
+{# </div> #}
+{# </div> #}
 
 <table id="mainwp-shield-extension-table-sites" class="mainwp-shield-ext-table ui single line table" style="width:100%">
 	<thead>
@@ -84,10 +84,11 @@
 			{% elseif site.shield.is_sync_rqd %}
 				<td colspan="4" class="cell-span-issue">{{ strings.st_sync_rqd }}</td>
 			{% elseif site.shield.is_version_mismatch %}
-				<td colspan="4"
-					class="cell-span-issue">{{ strings.st_version_mismatch }}</td>
+				<td colspan="4" class="cell-span-issue">{{ strings.st_version_mismatch }}</td>
+			{% elseif site.shield.is_notinstalled %}
+				<td colspan="4" class="cell-span-issue">{{ strings.st_notinstalled }}</td>
 			{% else %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_not_detected }}</td>
+				<td colspan="4" class="cell-span-issue">{{ strings.st_unknown }}</td>
 			{% endif %}
 			<td>
 				<div class="site-dropdown ui left pointing dropdown icon mini basic green button"
@@ -97,7 +98,7 @@
 
 						<a href="#"
 						   data-saction="sync"
-						   class="item site_action"
+						   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
 						>{{ strings.act_sync }}</a>
 
 						{% if site.shield.is_inactive %}
@@ -105,6 +106,13 @@
 							   data-saction="activate"
 							   class="item site_action"
 							>{{ strings.act_activate }}</a>
+
+						{% elseif site.shield.is_notinstalled %}
+							<a href="#"
+							   data-saction="install"
+							   class="item site_action"
+							>{{ strings.act_install }}</a>
+
 						{% else %}
 							<a href="#"
 							   data-saction="deactivate"
@@ -113,12 +121,11 @@
 						{% endif %}
 
 						<a href="#"
-						   class="item site_action"
+						   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
 								{% if site.shield.is_mwpnoton %}
 									data-saction="mwp"
 									{% set linktxt = strings.act_mwp %}
 								{% else %}
-									{# {% elseif site.shield.is_notpro %} #}
 									data-saction="license"
 									{% set linktxt = strings.act_license %}
 								{% endif %}
