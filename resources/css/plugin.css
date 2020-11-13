@@ -1493,9 +1493,28 @@ a.card_help {
 #DashboardFeatureCards .card-title img {
 	vertical-align: text-bottom;
 }
+#Dashboard_ModSettingsSelect .bootstrap-select,
 #Dashboard_ModSettingsSelect > select {
 	width: 100%;
 }
+#ModuleSettingsJump .bootstrap-select button {
+	padding: 0;
+	line-height: 15px;
+	background: transparent !important;
+	border: 0 none !important;
+	outline: 0 none !important;
+	box-shadow: 0 0 transparent !important;
+}
+#ModuleSettingsJump .bootstrap-select button::after {
+	content: none !important;
+}
+#ModuleSettingsJump .bootstrap-select button .filter-option-inner-inner {
+	font-size: 13px;
+	line-height: 20px;
+	color: #008000 !important;
+	font-weight: 500;
+}
+#ModuleSettingsJump .bootstrap-select,
 #ModuleSettingsJump select,
 #ModuleSettingsJump select:focus,
 #ModuleSettingsJump select:active {
@@ -1503,8 +1522,6 @@ a.card_help {
 	border: 0 none !important;
 	color: #008000;
 	vertical-align: inherit;
-	padding-left: 2px;
-	padding-right: 2px;
 }
 
 #wpfooter {
