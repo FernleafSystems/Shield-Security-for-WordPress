@@ -64,23 +64,23 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$opts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
-			function ( $sRule ) {
-				$sRule = strtolower( trim( $sRule ) );
-				if ( !empty( $sRule ) ) {
-					$aToCheck = [
-						parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ),
-						parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ),
-					];
-					$sRegEx = sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
-					foreach ( $aToCheck as $sPath ) {
-						$sSlashPath = rtrim( $sPath, '/' ).'/';
-						if ( preg_match( $sRegEx, $sPath ) || preg_match( $sRegEx, $sSlashPath ) ) {
-							$sRule = false;
+			function ( $rule ) {
+				$rule = strtolower( trim( $rule ) );
+				if ( !empty( $rule ) ) {
+					$toCheck = array_unique( [
+						(string)parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ),
+						(string)parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ),
+					] );
+					$regEx = sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $rule ), '#' ) ) );
+					foreach ( $toCheck as $path ) {
+						$slashPath = rtrim( $path, '/' ).'/';
+						if ( preg_match( $regEx, $path ) || preg_match( $regEx, $slashPath ) ) {
+							$rule = false;
 							break;
 						}
 					}
 				}
-				return $sRule;
+				return $rule;
 			},
 			$opts->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
 		) ) ) );
