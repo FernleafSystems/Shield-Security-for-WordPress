@@ -214,9 +214,9 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		$oEmailer = $this->getMod()
 						 ->getEmailProcessor();
-		foreach ( $mod->getAdminLoginNotificationEmails() as $sEmail ) {
+		foreach ( $mod->getAdminLoginNotificationEmails() as $to ) {
 			$oEmailer->sendEmailWithWrap(
-				$sEmail,
+				$to,
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);

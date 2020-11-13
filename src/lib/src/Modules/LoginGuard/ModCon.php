@@ -96,35 +96,38 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @param string $sEmail
+	 * @param string $to
 	 * @param bool   $bSendAsLink
 	 * @return bool
 	 */
-	public function sendEmailVerifyCanSend( $sEmail = null, $bSendAsLink = true ) {
+	public function sendEmailVerifyCanSend( $to = null, $bSendAsLink = true ) {
 
-		if ( !Services::Data()->validEmail( $sEmail ) ) {
-			$sEmail = get_bloginfo( 'admin_email' );
+		if ( !Services::Data()->validEmail( $to ) ) {
+			$to = get_bloginfo( 'admin_email' );
 		}
 
-		$aMessage = [
+		$msg = [
 			__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.', 'wp-simple-firewall' ),
 			__( 'This verifies your website can send email and that your account can receive emails sent from your site.', 'wp-simple-firewall' ),
 			''
 		];
 
 		if ( $bSendAsLink ) {
-			$aMessage[] = sprintf(
+			$msg[] = sprintf(
 				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
 				add_query_arg( $this->getModActionParams( 'email_send_verify' ), Services::WpGeneral()->getHomeUrl() )
 			);
 		}
 		else {
-			$aMessage[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );
+			$msg[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );
 		}
 
-		$sEmailSubject = __( 'Email Sending Verification', 'wp-simple-firewall' );
 		return $this->getEmailProcessor()
-					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
+					->sendEmailWithWrap(
+						$to,
+						__( 'Email Sending Verification', 'wp-simple-firewall' ),
+						$msg
+					);
 	}
 
 	private function cleanLoginUrlPath() {

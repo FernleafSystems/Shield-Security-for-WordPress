@@ -81,7 +81,7 @@ class Processor extends BaseShield\Processor {
 		$WP = Services::WpGeneral();
 		return $this->send(
 			$to,
-			sprintf( '[%s] %s', html_entity_decode( $WP->getSiteName(), ENT_QUOTES ), $subject ),
+			$subject,
 			sprintf( '<html lang="%s">%s</html>',
 				$WP->getLocale( '-' ),
 				implode( "<br />", array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
@@ -120,7 +120,7 @@ class Processor extends BaseShield\Processor {
 		$this->emailFilters( true );
 		$success = wp_mail(
 			$this->verifyEmailAddress( $to ),
-			$subject,
+			sprintf( '[%s] %s', html_entity_decode( Services::WpGeneral()->getSiteName(), ENT_QUOTES ), $subject ),
 			$body
 		);
 		$this->emailFilters( false );
