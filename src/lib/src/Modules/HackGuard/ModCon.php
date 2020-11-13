@@ -10,19 +10,19 @@ use FernleafSystems\Wordpress\Services\Services;
 class ModCon extends BaseShield\ModCon {
 
 	/**
-	 * @var Scan\Queue\Controller
-	 */
-	private $oScanQueueController;
-
-	/**
 	 * @var Scan\ScansController
 	 */
 	private $scanCon;
 
 	/**
+	 * @var Scan\Queue\Controller
+	 */
+	private $scanQueueCon;
+
+	/**
 	 * @var Scan\Controller\Base[]
 	 */
-	private $aScanCons;
+	private $scansCons;
 
 	/**
 	 * @var Lib\FileLocker\FileLockerController
@@ -55,11 +55,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		if ( !isset( $this->oScanQueueController ) ) {
-			$this->oScanQueueController = ( new Scan\Queue\Controller() )
+		if ( !isset( $this->scanQueueCon ) ) {
+			$this->scanQueueCon = ( new Scan\Queue\Controller() )
 				->setMod( $this );
 		}
-		return $this->oScanQueueController;
+		return $this->scanQueueCon;
 	}
 
 	/**
@@ -67,7 +67,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @deprecated 10.1
 	 */
 	public function getAllScanCons() :array {
-		return $this->aScanCons ?? $this->getScansCon()->getAllScanCons();
+		return $this->scansCons ?? $this->getScansCon()->getAllScanCons();
 	}
 
 	/**
@@ -76,8 +76,8 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	public function getScanCon( string $slug ) {
-		return empty( $this->aScanCons[ $slug ] ) ?
-			$this->getScansCon()->getScanCon( $slug ) : $this->aScanCons[ $slug ];
+		return empty( $this->scansCons[ $slug ] ) ?
+			$this->getScansCon()->getScanCon( $slug ) : $this->scansCons[ $slug ];
 	}
 
 	public function getMainWpData() :array {
@@ -88,8 +88,8 @@ class ModCon extends BaseShield\ModCon {
 		] );
 	}
 
-	protected function handleModAction( string $sAction ) {
-		switch ( $sAction ) {
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
 			case  'scan_file_download':
 				( new Lib\Utility\FileDownloadHandler() )
 					->setDbHandler( $this->getDbHandler_ScanResults() )
@@ -133,41 +133,6 @@ class ModCon extends BaseShield\ModCon {
 				$con->purge();
 			}
 		}
-	}
-
-	/**
-	 * @return int[] - key is scan slug
-	 */
-	public function getLastScansAt() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		/** @var Databases\Events\Select $oSel */
-		$oSel = $this->getCon()
-					 ->getModule_Events()
-					 ->getDbHandler_Events()
-					 ->getQuerySelector();
-		$aEvents = $oSel->getLatestForAllEvents();
-
-		$aLatest = [];
-		foreach ( $opts->getScanSlugs() as $sScan ) {
-			$sEvt = $sScan.'_scan_run';
-			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
-		}
-		return $aLatest;
-	}
-
-	/**
-	 * @param string $scan ptg, wcf, ufc, wpv
-	 * @return int
-	 */
-	public function getLastScanAt( $scan ) {
-		/** @var Databases\Events\Select $oSel */
-		$oSel = $this->getCon()
-					 ->getModule_Events()
-					 ->getDbHandler_Events()
-					 ->getQuerySelector();
-		$entry = $oSel->getLatestForEvent( $scan.'_scan_run' );
-		return ( $entry instanceof Databases\Events\EntryVO ) ? $entry->created_at : 0;
 	}
 
 	/**

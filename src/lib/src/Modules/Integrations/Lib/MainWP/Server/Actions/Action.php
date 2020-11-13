@@ -2,16 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
-	Common\Consumers\MWPSiteConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use MainWP\Dashboard\MainWP_Connect;
 
 class Action {
 
 	use ModConsumer;
-	use MWPSiteConsumer;
+	use MainWP\Common\Consumers\MWPSiteConsumer;
 
 	/**
 	 * @param string $actionToExecute

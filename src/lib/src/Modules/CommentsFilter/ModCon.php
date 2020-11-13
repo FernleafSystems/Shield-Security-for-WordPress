@@ -36,30 +36,26 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOptDefault( $sOptKey ) {
+	public function getTextOptDefault( string $key ) :string {
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 			case 'custom_message_checkbox':
-				$sText = __( "I'm not a spammer.", 'wp-simple-firewall' );
+				$text = __( "I'm not a spammer.", 'wp-simple-firewall' );
 				break;
 			case 'custom_message_alert':
-				$sText = __( "Please check the box to confirm you're not a spammer.", 'wp-simple-firewall' );
+				$text = __( "Please check the box to confirm you're not a spammer.", 'wp-simple-firewall' );
 				break;
 			case 'custom_message_comment_wait':
-				$sText = __( "Please wait %s seconds before posting your comment.", 'wp-simple-firewall' );
+				$text = __( "Please wait %s seconds before posting your comment.", 'wp-simple-firewall' );
 				break;
 			case 'custom_message_comment_reload':
-				$sText = __( "Please reload this page to post a comment.", 'wp-simple-firewall' );
+				$text = __( "Please reload this page to post a comment.", 'wp-simple-firewall' );
 				break;
 			default:
-				$sText = parent::getTextOptDefault( $sOptKey );
+				$text = parent::getTextOptDefault( $key );
 				break;
 		}
-		return $sText;
+		return $text;
 	}
 
 	protected function preProcessOptions() {

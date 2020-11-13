@@ -18,18 +18,18 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @var Lib\WhiteLabel\ApplyLabels
 	 */
-	private $oWhiteLabelController;
+	private $whitelabelCon;
 
 	protected function setupCustomHooks() {
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\ApplyLabels {
-		if ( !$this->oWhiteLabelController instanceof Lib\WhiteLabel\ApplyLabels ) {
-			$this->oWhiteLabelController = ( new Lib\WhiteLabel\ApplyLabels() )
+		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\ApplyLabels ) {
+			$this->whitelabelCon = ( new Lib\WhiteLabel\ApplyLabels() )
 				->setMod( $this );
 		}
-		return $this->oWhiteLabelController;
+		return $this->whitelabelCon;
 	}
 
 	/**
@@ -62,15 +62,9 @@ class ModCon extends BaseShield\ModCon {
 
 		// Verify whitelabel images
 		if ( $this->isWlEnabled() ) {
-			$aImages = [
-				'wl_menuiconurl',
-				'wl_dashboardlogourl',
-				'wl_login2fa_logourl',
-			];
-			$oOpts = $this->getOptions();
-			foreach ( $aImages as $sKey ) {
-				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $sKey ) ) ) {
-					$oOpts->resetOptToDefault( $sKey );
+			foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
+				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $key ) ) ) {
+					$opts->resetOptToDefault( $key );
 				}
 			}
 		}
@@ -84,31 +78,31 @@ class ModCon extends BaseShield\ModCon {
 	 * @return string[]
 	 */
 	private function verifySecAdminUsers( $aSecUsers ) {
-		$oDP = Services::Data();
-		$oWpUsers = Services::WpUsers();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
+		$DP = Services::Data();
+		$WPU = Services::WpUsers();
 
 		$aFiltered = [];
 		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
-			if ( $oDP->validEmail( $sUsernameOrEmail ) ) {
-				$oUser = $oWpUsers->getUserByEmail( $sUsernameOrEmail );
+			if ( $DP->validEmail( $sUsernameOrEmail ) ) {
+				$user = $WPU->getUserByEmail( $sUsernameOrEmail );
 			}
 			else {
-				$oUser = $oWpUsers->getUserByUsername( $sUsernameOrEmail );
-				if ( is_null( $oUser ) && is_numeric( $sUsernameOrEmail ) ) {
-					$oUser = $oWpUsers->getUserById( $sUsernameOrEmail );
+				$user = $WPU->getUserByUsername( $sUsernameOrEmail );
+				if ( is_null( $user ) && is_numeric( $sUsernameOrEmail ) ) {
+					$user = $WPU->getUserById( $sUsernameOrEmail );
 				}
 			}
 
-			if ( $oUser instanceof \WP_User && $oUser->ID > 0 && $oWpUsers->isUserAdmin( $oUser ) ) {
-				$aFiltered[] = $oUser->user_login;
+			if ( $user instanceof \WP_User && $user->ID > 0 && $WPU->isUserAdmin( $user ) ) {
+				$aFiltered[] = $user->user_login;
 			}
 		}
 
 		// We now run a bit of a sanity check to ensure that the current user is
 		// not adding users here that aren't themselves without a key to still gain access
-		$oCurrent = $oWpUsers->getCurrentWpUser();
+		$oCurrent = $WPU->getCurrentWpUser();
 		if ( !empty( $aFiltered ) && !$opts->hasSecurityPIN() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
 			$aFiltered[] = $oCurrent->user_login;
 		}
@@ -139,8 +133,8 @@ class ModCon extends BaseShield\ModCon {
 		return (int)max( 0, $nLeft );
 	}
 
-	protected function handleModAction( string $sAction ) {
-		switch ( $sAction ) {
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
 			case  'remove_secadmin_confirm':
 				( new Lib\Actions\RemoveSecAdmin() )
 					->setMod( $this )
@@ -219,15 +213,15 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getWhitelabelOptions() :array {
 		$opts = $this->getOptions();
-		$sMain = $opts->getOpt( 'wl_pluginnamemain' );
-		$sMenu = $opts->getOpt( 'wl_namemenu' );
-		if ( empty( $sMenu ) ) {
-			$sMenu = $sMain;
+		$main = $opts->getOpt( 'wl_pluginnamemain' );
+		$menu = $opts->getOpt( 'wl_namemenu' );
+		if ( empty( $menu ) ) {
+			$menu = $main;
 		}
 
 		return [
-			'name_main'            => $sMain,
-			'name_menu'            => $sMenu,
+			'name_main'            => $main,
+			'name_menu'            => $menu,
 			'name_company'         => $opts->getOpt( 'wl_companyname' ),
 			'description'          => $opts->getOpt( 'wl_description' ),
 			'url_home'             => $opts->getOpt( 'wl_homeurl' ),

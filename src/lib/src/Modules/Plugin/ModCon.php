@@ -103,8 +103,8 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	protected function handleModAction( string $sAction ) {
-		switch ( $sAction ) {
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );

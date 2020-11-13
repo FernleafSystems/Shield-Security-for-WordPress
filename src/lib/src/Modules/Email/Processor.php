@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
-	const Slug = 'email';
-
 	protected function getEmailHeader() :array {
 		return [
 			__( 'Hi !', 'wp-simple-firewall' ),
@@ -28,6 +26,7 @@ class Processor extends BaseShield\Processor {
 			];
 			$aBenefits = [
 				'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere',
+				'MainWP Integration',
 				'Powerful, Auto-Learning Malware Scanner',
 				'Plugin and Theme File Guard',
 				'Vulnerability Scanner',
@@ -124,7 +123,6 @@ class Processor extends BaseShield\Processor {
 			$body
 		);
 		$this->emailFilters( false );
-
 		return (bool)$success;
 	}
 

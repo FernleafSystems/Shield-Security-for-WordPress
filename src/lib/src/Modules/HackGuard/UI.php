@@ -8,26 +8,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
 
-	/**
-	 * @return array
-	 */
-	public function buildInsightsVars() {
+	public function buildInsightsVars() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		$aLatestScans = array_map(
-			function ( $nTime ) {
-				return sprintf(
-					__( 'Last Scan: %s', 'wp-simple-firewall' ),
-					( $nTime > 0 ) ?
-						Services::Request()->carbon()->setTimestamp( $nTime )->diffForHumans()
-						: __( 'Never', 'wp-simple-firewall' )
-				);
-			},
-			$mod->getLastScansAt()
-		);
 
 		$aUiTrack = $mod->getUiTrack();
 		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
@@ -39,7 +24,7 @@ class UI extends BaseShield\UI {
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
-		$aData = [
+		$data = [
 			'ajax'         => [
 				'scans_start'           => $mod->getAjaxActionData( 'scans_start', true ),
 				'scans_check'           => $mod->getAjaxActionData( 'scans_check', true ),
@@ -174,21 +159,34 @@ class UI extends BaseShield\UI {
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 		$name = $strings->getScanNames();
-		foreach ( $aData[ 'scans' ] as $slug => &$scData ) {
-			$scon = $mod->getScanCon( $slug );
+		foreach ( $data[ 'scans' ] as $slug => &$scData ) {
+			try {
+				$scon = $mod->getScanCon( $slug );
+			}
+			catch ( \Exception $e ) {
+				continue;
+			}
+			$lastScanAt = $scon->getLastScanAt();
+
 			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
 			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
 			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
 			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $aUiTrack[ 'selected_scans' ] );
-			$scData[ 'flags' ][ 'has_last_scan' ] = $mod->getLastScanAt( $slug ) > 0;
-			$scData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $slug ];
+			$scData[ 'vars' ][ 'last_scan_at_ts' ] = $lastScanAt;
+			$scData[ 'flags' ][ 'has_last_scan' ] = $lastScanAt > 0;
+			$scData[ 'vars' ][ 'last_scan_at' ] = sprintf(
+				__( 'Last Scan: %s', 'wp-simple-firewall' ),
+				( $lastScanAt > 0 ) ?
+					Services::Request()->carbon()->setTimestamp( $lastScanAt )->diffForHumans()
+					: __( 'Never', 'wp-simple-firewall' )
+			);
 			$scData[ 'strings' ][ 'title' ] = $name[ $slug ];
 			$scData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
 			$scData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
 			$scData[ 'count' ] = $oSelector->countForScan( $slug );
 		}
 
-		return $aData;
+		return $data;
 	}
 
 	/**

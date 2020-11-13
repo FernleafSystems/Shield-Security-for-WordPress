@@ -33,15 +33,11 @@ class ModCon extends BaseShield\ModCon {
 		return !empty( $response ) ? $response : 'redirect_die_message'; // TODO: use default
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOptDefault( $sOptKey ) {
+	public function getTextOptDefault( string $key ) :string {
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 			case 'text_firewalldie':
-				$sText = sprintf(
+				$text = sprintf(
 					__( "You were blocked by the %s.", 'wp-simple-firewall' ),
 					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
 																										->getHumanName().'</a>'
@@ -49,9 +45,9 @@ class ModCon extends BaseShield\ModCon {
 				break;
 
 			default:
-				$sText = parent::getTextOptDefault( $sOptKey );
+				$text = parent::getTextOptDefault( $key );
 				break;
 		}
-		return $sText;
+		return $text;
 	}
 }

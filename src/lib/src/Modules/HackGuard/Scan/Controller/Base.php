@@ -66,6 +66,16 @@ abstract class Base {
 		return add_query_arg( $aActionNonce, $mod->getUrl_AdminPage() );
 	}
 
+	public function getLastScanAt() :int {
+		/** @var Databases\Events\Select $sel */
+		$sel = $this->getCon()
+					->getModule_Events()
+					->getDbHandler_Events()
+					->getQuerySelector();
+		$entry = $sel->getLatestForEvent( $this->getSlug().'_scan_run' );
+		return ( $entry instanceof Databases\Events\EntryVO ) ? (int)$entry->created_at : 0;
+	}
+
 	public function getScanHasProblem() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

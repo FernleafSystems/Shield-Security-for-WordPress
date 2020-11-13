@@ -774,12 +774,7 @@ abstract class ModCon {
 		return __( $sValue, 'wp-simple-firewall' );
 	}
 
-	/**
-	 * Override this on each feature that has Text field options to supply the text field defaults
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOptDefault( $sOptKey ) {
+	public function getTextOptDefault( string $key ) :string {
 		return 'Undefined Text Opt Default';
 	}
 
@@ -946,7 +941,7 @@ abstract class ModCon {
 		return $aOpts;
 	}
 
-	protected function handleModAction( string $sAction ) {
+	protected function handleModAction( string $action ) {
 	}
 
 	/**

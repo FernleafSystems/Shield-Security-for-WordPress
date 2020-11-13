@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -45,6 +46,27 @@ class ScansController {
 			}
 		}
 		return $this->scanCons;
+	}
+
+	/**
+	 * @return int[] - key is scan slug
+	 */
+	public function getLastScansAt() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		/** @var Databases\Events\Select $oSel */
+		$oSel = $this->getCon()
+					 ->getModule_Events()
+					 ->getDbHandler_Events()
+					 ->getQuerySelector();
+		$aEvents = $oSel->getLatestForAllEvents();
+
+		$aLatest = [];
+		foreach ( $opts->getScanSlugs() as $slug ) {
+			$event = $slug.'_scan_run';
+			$aLatest[ $slug ] = isset( $aEvents[ $event ] ) ? (int)$aEvents[ $event ]->created_at : 0;
+		}
+		return $aLatest;
 	}
 
 	/**

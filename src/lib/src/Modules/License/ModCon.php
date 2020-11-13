@@ -11,28 +11,28 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @var Lib\LicenseHandler
 	 */
-	private $oLicHandler;
+	private $licenseHandler;
 
 	/**
 	 * @var Lib\WpHashes\ApiTokenManager
 	 */
-	private $oWpHashesTokenManager;
+	private $wpHashesTokenManager;
 
 	/**
 	 * @return Lib\LicenseHandler
 	 */
 	public function getLicenseHandler() :Lib\LicenseHandler {
-		if ( !isset( $this->oLicHandler ) ) {
-			$this->oLicHandler = ( new Lib\LicenseHandler() )->setMod( $this );
+		if ( !isset( $this->licenseHandler ) ) {
+			$this->licenseHandler = ( new Lib\LicenseHandler() )->setMod( $this );
 		}
-		return $this->oLicHandler;
+		return $this->licenseHandler;
 	}
 
 	public function getWpHashesTokenManager() :Lib\WpHashes\ApiTokenManager {
-		if ( !isset( $this->oWpHashesTokenManager ) ) {
-			$this->oWpHashesTokenManager = ( new Lib\WpHashes\ApiTokenManager() )->setMod( $this );
+		if ( !isset( $this->wpHashesTokenManager ) ) {
+			$this->wpHashesTokenManager = ( new Lib\WpHashes\ApiTokenManager() )->setMod( $this );
 		}
-		return $this->oWpHashesTokenManager;
+		return $this->wpHashesTokenManager;
 	}
 
 	protected function redirectToInsightsSubPage() {

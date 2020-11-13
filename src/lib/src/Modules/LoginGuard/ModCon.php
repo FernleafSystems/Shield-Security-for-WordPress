@@ -11,7 +11,7 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @var Lib\TwoFactor\MfaController
 	 */
-	private $oLoginIntentController;
+	private $loginIntentCon;
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
@@ -62,8 +62,8 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	protected function handleModAction( string $sAction ) {
-		switch ( $sAction ) {
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
 			case 'email_send_verify':
 				$this->processEmailSendVerify();
 				break;
@@ -206,11 +206,11 @@ class ModCon extends BaseShield\ModCon {
 	 * @return Lib\TwoFactor\MfaController
 	 */
 	public function getLoginIntentController() {
-		if ( !isset( $this->oLoginIntentController ) ) {
-			$this->oLoginIntentController = ( new Lib\TwoFactor\MfaController() )
+		if ( !isset( $this->loginIntentCon ) ) {
+			$this->loginIntentCon = ( new Lib\TwoFactor\MfaController() )
 				->setMod( $this );
 		}
-		return $this->oLoginIntentController;
+		return $this->loginIntentCon;
 	}
 
 	public function setIsChainedAuth( bool $isChained ) {
@@ -241,26 +241,22 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getCon()->prefix( 'login-intent-request' );
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOptDefault( $sOptKey ) {
+	public function getTextOptDefault( string $key ) :string {
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 			case 'text_imahuman':
-				$sText = __( "I'm a human.", 'wp-simple-firewall' );
+				$text = __( "I'm a human.", 'wp-simple-firewall' );
 				break;
 
 			case 'text_pleasecheckbox':
-				$sText = __( "Please check the box to show us you're a human.", 'wp-simple-firewall' );
+				$text = __( "Please check the box to show us you're a human.", 'wp-simple-firewall' );
 				break;
 
 			default:
-				$sText = parent::getTextOptDefault( $sOptKey );
+				$text = parent::getTextOptDefault( $key );
 				break;
 		}
-		return $sText;
+		return $text;
 	}
 
 	public function setEnabledGaspCheck( bool $enable ) {

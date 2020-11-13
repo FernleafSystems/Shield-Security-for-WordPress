@@ -86,9 +86,6 @@ class ModCon extends BaseShield\ModCon {
 		) ) ) );
 	}
 
-	/**
-	 * @return Lib\OffenseTracker
-	 */
 	public function loadOffenseTracker() :Lib\OffenseTracker {
 		if ( !isset( $this->oOffenseTracker ) ) {
 			$this->oOffenseTracker = new Lib\OffenseTracker( $this->getCon() );
@@ -96,23 +93,19 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oOffenseTracker;
 	}
 
-	/**
-	 * @param string $sOptKey
-	 * @return string
-	 */
-	public function getTextOptDefault( $sOptKey ) {
+	public function getTextOptDefault( string $key ) :string {
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'text_loginfailed':
-				$sText = sprintf( '%s: %s',
+				$text = sprintf( '%s: %s',
 					__( 'Warning', 'wp-simple-firewall' ),
 					__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' )
 				);
 				break;
 
 			case 'text_remainingtrans':
-				$sText = sprintf( '%s: %s',
+				$text = sprintf( '%s: %s',
 					__( 'Warning', 'wp-simple-firewall' ),
 					__( 'You have %s remaining offenses(s) against this site and then your IP address will be completely blocked.', 'wp-simple-firewall' )
 					.'<br/><strong>'.__( 'Seriously, stop repeating what you are doing or you will be locked out.', 'wp-simple-firewall' ).'</strong>'
@@ -120,9 +113,9 @@ class ModCon extends BaseShield\ModCon {
 				break;
 
 			default:
-				$sText = parent::getTextOptDefault( $sOptKey );
+				$text = parent::getTextOptDefault( $key );
 				break;
 		}
-		return $sText;
+		return $text;
 	}
 }
