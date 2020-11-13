@@ -34,6 +34,23 @@ class ExtensionSettingsPage {
 					$con->getVersion()
 				);
 				wp_enqueue_style( $handle );
+
+//				$handle = 'semantic-ui-datatables-select';
+//				wp_register_script(
+//					$handle,
+//					'https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js',
+//					[ 'semantic-ui-datatables' ],
+//					$con->getVersion(),
+//					true
+//				);
+//				wp_enqueue_script( 'semantic-ui-datatables-select' );
+//				wp_register_style(
+//					$handle,
+//					'https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css',
+//					[ 'semantic-ui-datatables' ],
+//					$con->getVersion()
+//				);
+//				wp_enqueue_style( 'semantic-ui-datatables-select' );
 			}
 		} );
 	}

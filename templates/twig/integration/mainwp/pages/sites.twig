@@ -32,111 +32,118 @@
 {# </div> #}
 {# </div> #}
 
-<table id="mainwp-shield-extension-table-sites" class="mainwp-shield-ext-table ui single line table" style="width:100%">
-	<thead>
-		<tr>
-			<th class="collapsing no-sort check-column">
-				<span class="ui checkbox">
-					<input type="checkbox" name="checkall" class="url_checkall" id="url_checkall" />
-				</span>
-			</th>
-			<th>{{ strings.site }}</th>
-			<th>{{ strings.url }}</th>
-			<th>{{ strings.status }}</th>
-			<th>{{ strings.issues }}</th>
-			<th>{{ strings.version }}</th>
-			<th>{{ strings.last_sync }}</th>
-			<th>&nbsp;</th>
-		</tr>
-	</thead>
-	<tbody>
-	{% for site in vars.sites %}
-		<tr class="shield_site_row" data-shield_status="{{ site.shield.status_key }}">
-			<td class="check-column">
-				<span class="ui checkbox"><input type="checkbox" name="checkbox_url" class="checkbox_url"></span>
-			</td>
-			<td>{{ site.name }}</td>
-			<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
-			{% if site.shield.is_active %}
-				<td>
-					{{ site.shield.status }}
-				</td>
 
-				<td>
-					<a href="{{ site.shield.issues_href }}"
-					   class="ui mini compact button {{ site.shield.has_issues ? 'red':'green' }}"
-					   target="_blank">{{ site.shield.issues }}</a>
-				</td>
+<div class="row">
+	<div class="sixteen wide column">
 
-				<td>
-					{{ site.shield.meta.version }}
-				</td>
-				<td>
-					{{ site.shield.sync_at_diff }}
-					<br /><small>{{ site.shield.sync_at_text }}</small>
-				</td>
-			{% elseif site.shield.is_inactive %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_inactive }}</td>
-			{% elseif site.shield.is_notpro %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_notpro }}</td>
-			{% elseif site.shield.is_mwpnoton %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_mwpnoton }}</td>
-			{% elseif site.shield.is_sync_rqd %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_sync_rqd }}</td>
-			{% elseif site.shield.is_version_mismatch %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_version_mismatch }}</td>
-			{% elseif site.shield.is_notinstalled %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_notinstalled }}</td>
-			{% else %}
-				<td colspan="4" class="cell-span-issue">{{ strings.st_unknown }}</td>
-			{% endif %}
-			<td>
-				<div class="site-dropdown ui left pointing dropdown icon mini basic green button"
-					 style="z-index: 999;" tabindex="0">
-					<i class="ellipsis horizontal icon"></i>
-					<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
+		<table id="mainwp-shield-extension-table-sites" class="mainwp-shield-ext-table ui single line table" style="width:100%">
+			<thead>
+				<tr>
+					<th class="collapsing no-sort check-column">
+						<span class="ui checkbox">
+							<input type="checkbox" name="checkall" class="url_checkall" id="url_checkall" />
+						</span>
+					</th>
+					<th>{{ strings.site }}</th>
+					<th>{{ strings.url }}</th>
+					<th>{{ strings.status }}</th>
+					<th>{{ strings.issues }}</th>
+					<th>{{ strings.version }}</th>
+					<th>{{ strings.last_sync }}</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for site in vars.sites %}
+				<tr class="shield_site_row" data-shield_status="{{ site.shield.status_key }}">
+					<td class="check-column">
+						<span class="ui checkbox"><input type="checkbox" name="checkbox_url" class="checkbox_url"></span>
+					</td>
+					<td>{{ site.name }}</td>
+					<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
+					{% if site.shield.is_active %}
+						<td>
+							{{ site.shield.status }}
+						</td>
 
-						<a href="#"
-						   data-saction="sync"
-						   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
-						>{{ strings.act_sync }}</a>
+						<td>
+							<a href="{{ site.shield.issues_href }}"
+							   class="ui mini compact button {{ site.shield.has_issues ? 'red':'green' }}"
+							   target="_blank">{{ site.shield.issues }}</a>
+						</td>
 
-						{% if site.shield.is_inactive %}
-							<a href="#"
-							   data-saction="activate"
-							   class="item site_action"
-							>{{ strings.act_activate }}</a>
+						<td>
+							{{ site.shield.meta.version }}
+						</td>
+						<td>
+							{{ site.shield.sync_at_diff }}
+							<br /><small>{{ site.shield.sync_at_text }}</small>
+						</td>
+					{% elseif site.shield.is_inactive %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_inactive }}</td>
+					{% elseif site.shield.is_notpro %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_notpro }}</td>
+					{% elseif site.shield.is_mwpnoton %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_mwpnoton }}</td>
+					{% elseif site.shield.is_sync_rqd %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_sync_rqd }}</td>
+					{% elseif site.shield.is_version_mismatch %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_version_mismatch }}</td>
+					{% elseif site.shield.is_notinstalled %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_notinstalled }}</td>
+					{% else %}
+						<td colspan="4" class="cell-span-issue">{{ strings.st_unknown }}</td>
+					{% endif %}
+					<td>
+						<div class="site-dropdown ui left pointing dropdown icon mini basic green button"
+							 style="z-index: 999;" tabindex="0">
+							<i class="ellipsis horizontal icon"></i>
+							<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
 
-						{% elseif site.shield.is_notinstalled %}
-							<a href="#"
-							   data-saction="install"
-							   class="item site_action"
-							>{{ strings.act_install }}</a>
+								<a href="#"
+								   data-saction="sync"
+								   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
+								>{{ strings.act_sync }}</a>
 
-						{% else %}
-							<a href="#"
-							   data-saction="deactivate"
-							   class="item site_action"
-							>{{ strings.act_deactivate }}</a>
-						{% endif %}
+								{% if site.shield.is_inactive %}
+									<a href="#"
+									   data-saction="activate"
+									   class="item site_action"
+									>{{ strings.act_activate }}</a>
 
-						<a href="#"
-						   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
-								{% if site.shield.is_mwpnoton %}
-									data-saction="mwp"
-									{% set linktxt = strings.act_mwp %}
+								{% elseif site.shield.is_notinstalled %}
+									<a href="#"
+									   data-saction="install"
+									   class="item site_action"
+									>{{ strings.act_install }}</a>
+
 								{% else %}
-									data-saction="license"
-									{% set linktxt = strings.act_license %}
+									<a href="#"
+									   data-saction="deactivate"
+									   class="item site_action"
+									>{{ strings.act_deactivate }}</a>
 								{% endif %}
-						>{{ linktxt }}</a>
-					</div>
-				</div>
-			</td>
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+
+								<a href="#"
+								   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
+										{% if site.shield.is_mwpnoton %}
+											data-saction="mwp"
+											{% set linktxt = strings.act_mwp %}
+										{% else %}
+											data-saction="license"
+											{% set linktxt = strings.act_license %}
+										{% endif %}
+								>{{ linktxt }}</a>
+							</div>
+						</div>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
 
 <script type="text/javascript">
 	jQuery( document ).ready( function () {

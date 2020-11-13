@@ -191,6 +191,20 @@
 	);
 
 	$.fn.icwpWpsfMainwpExt = function ( options ) {
+/*
+		jQuery( '#mainwp-shield-extension-table-sites' ).DataTable( {
+			columnDefs: [ {
+				orderable: false,
+				className: 'select-checkbox',
+				targets: 0
+			} ],
+			select: {
+				style: 'os',
+				selector: 'td:first-child'
+			},
+			order: [ [ 1, 'asc' ] ]
+		} );
+*/
 		return this.each(
 			function () {
 				if ( !$.data( this, "plugin_" + pluginName ) ) {
