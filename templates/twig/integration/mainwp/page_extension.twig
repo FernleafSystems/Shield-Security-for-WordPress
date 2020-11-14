@@ -1,13 +1,17 @@
 {{ content.mainwp_header|raw }}
 
-<div class="ui labeled icon inverted menu mainwp-sub-submenu" id="mainwp-shield-menu">
-	{% for submenu_item in vars.submenu %}
-		{# admin.php?page=Extensions-Advanced-Uptime-Monitor-Extension&tab=monitors #}
-		{# <a href="admin.php?page=Extensions-Advanced-Uptime-Monitor-Extension&tab=settings" #}
-		<a href="{{ submenu_item.href }}"
-		   class="item {% if submenu_item.active %}active{% endif %}">
-			<i class="{{ submenu_item.icon }} icon"></i>{{ submenu_item.title }}</a>
-	{% endfor %}
+<div class="row">
+	<div class="column one">
+		<div class="ui labeled icon inverted menu mainwp-sub-submenu" id="mainwp-shield-menu">
+			{% for submenu_item in vars.submenu %}
+				{# admin.php?page=Extensions-Advanced-Uptime-Monitor-Extension&tab=monitors #}
+				{# <a href="admin.php?page=Extensions-Advanced-Uptime-Monitor-Extension&tab=settings" #}
+				<a href="{{ submenu_item.href }}"
+				   class="item {% if submenu_item.active %}active{% endif %}">
+					<i class="{{ submenu_item.icon }} icon"></i>{{ submenu_item.title }}</a>
+			{% endfor %}
+		</div>
+	</div>
 </div>
 
 {{ content.page_inner|raw }}

@@ -1,4 +1,8 @@
 ﻿
+#mainwp-shield-extension-table-sites_wrapper {
+	padding: 0 1rem;
+}
+
 table.mainwp-shield-ext-table {
 }
 table.mainwp-shield-ext-table td.cell-span-issue {

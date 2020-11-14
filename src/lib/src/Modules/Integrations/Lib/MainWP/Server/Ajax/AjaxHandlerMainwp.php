@@ -9,38 +9,18 @@ use FernleafSystems\Wordpress\Services\Services;
 class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
-		$req = Services::Request();
+		$resp = [];
 
 		// This allows us to provide a specific MainWP error message
 		if ( strpos( $action, 'mwp_' ) === 0 ) {
 
-			if ( $action === 'mwp_sh_site_action' ) {
-				$action = $req->post( 'saction' );
-			}
-
 			switch ( $action ) {
-				case 'activate':
-				case 'deactivate':
-				case 'install':
-				case 'license':
-				case 'mwp':
-				case 'sync':
-					$siteID = (int)$req->post( 'sid' );
-					try {
-						if ( empty( $siteID ) ) {
-							throw new \Exception( 'invalid site ID' );
-						}
-						$resp = ( new PerformSiteAction() )
-							->setMwpSite( MainWP\Common\MWPSiteVO::LoadByID( $siteID ) )
-							->setMod( $this->getMod() )
-							->run( $action );
-					}
-					catch ( \Exception $e ) {
-						$resp = [
-							'success' => false,
-							'message' => $e->getMessage()
-						];
-					}
+				case 'mwp_sh_ext_table':
+					$resp = $this->ajaxExec_SiteAction();
+					break;
+
+				case 'mwp_sh_site_action':
+					$resp = $this->ajaxExec_ExtensionTableSites();
 					break;
 
 				default:
@@ -51,10 +31,35 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 					];
 			}
 		}
-		else {
-			$resp = [];
+
+		return $resp;
+	}
+
+	private function ajaxExec_SiteAction() :array {
+		$req = Services::Request();
+
+		$siteID = (int)$req->post( 'sid' );
+		$action = $req->post( 'saction' );
+		try {
+			if ( empty( $siteID ) ) {
+				throw new \Exception( 'invalid site ID' );
+			}
+			$resp = ( new PerformSiteAction() )
+				->setMwpSite( MainWP\Common\MWPSiteVO::LoadByID( $siteID ) )
+				->setMod( $this->getMod() )
+				->run( $action );
+		}
+		catch ( \Exception $e ) {
+			$resp = [
+				'success' => false,
+				'message' => $e->getMessage()
+			];
 		}
 
 		return $resp;
+	}
+
+	private function ajaxExec_ExtensionTableSites() {
+
 	}
 }

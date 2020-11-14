@@ -193,16 +193,23 @@
 	$.fn.icwpWpsfMainwpExt = function ( options ) {
 /*
 		jQuery( '#mainwp-shield-extension-table-sites' ).DataTable( {
-			columnDefs: [ {
-				orderable: false,
-				className: 'select-checkbox',
-				targets: 0
-			} ],
-			select: {
-				style: 'os',
-				selector: 'td:first-child'
+			serverSide: true,
+			"ajax": {
+				"url": ajaxurl,
+				"type": "POST",
+				"data": function ( d ) {
+					return $.extend( {}, d, this.options[ 'ajax_sh_site_action' ] );
+				},
+				"dataSrc": function ( json ) {
+					for ( var i = 0, ien = json.data.length; i < ien; i++ ) {
+						json.data[ i ].syncError = json.rowsInfo[ i ].syncError ? json.rowsInfo[ i ].syncError : false;
+						json.data[ i ].rowClass = json.rowsInfo[ i ].rowClass;
+						json.data[ i ].siteID = json.rowsInfo[ i ].siteID;
+						json.data[ i ].siteUrl = json.rowsInfo[ i ].siteUrl;
+					}
+					return json.data;
+				}
 			},
-			order: [ [ 1, 'asc' ] ]
 		} );
 */
 		return this.each(

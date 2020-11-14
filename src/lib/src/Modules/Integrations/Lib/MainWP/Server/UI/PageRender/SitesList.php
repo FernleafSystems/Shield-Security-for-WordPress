@@ -88,6 +88,7 @@ class SitesList extends BaseRender {
 			],
 			'ajax'    => [
 				'mwp_sh_site_action' => $mod->getAjaxActionData( 'mwp_sh_site_action', true ),
+				'mwp_sh_ext_table'   => $mod->getAjaxActionData( 'mwp_sh_ext_table', true ),
 			],
 			'strings' => [
 				'actions'             => __( 'Actions', 'wp-simple-firewall' ),
