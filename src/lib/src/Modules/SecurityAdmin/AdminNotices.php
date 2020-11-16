@@ -3,40 +3,37 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
-	protected function processNotice( $oNotice ) {
+	protected function processNotice( NoticeVO $notice ) {
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'admin-users-restricted':
-				$this->buildNotice_AdminUsersRestricted( $oNotice );
+				$this->buildNotice_AdminUsersRestricted( $notice );
 				break;
 
 			case 'certain-options-restricted':
-				$this->buildNotice_CertainOptionsRestricted( $oNotice );
+				$this->buildNotice_CertainOptionsRestricted( $notice );
 				break;
 
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_CertainOptionsRestricted( $oNotice ) {
+	private function buildNotice_CertainOptionsRestricted( NoticeVO $notice ) {
 		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
@@ -54,14 +51,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_AdminUsersRestricted( $oNotice ) {
+	private function buildNotice_AdminUsersRestricted( NoticeVO $notice ) {
 		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
@@ -85,31 +79,27 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 * @return bool
-	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$sCurrentPage = Services::WpPost()->getCurrentPage();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'admin-users-restricted':
-				$bNeeded = in_array( $sCurrentPage, $oOpts->getDef( 'restricted_pages_users' ) );
+				$needed = in_array( $sCurrentPage, $oOpts->getDef( 'restricted_pages_users' ) );
 				break;
 
 			case 'certain-options-restricted':
 				$sCurrentGetPage = Services::Request()->query( 'page' );
-				$bNeeded = empty( $sCurrentGetPage ) && in_array( $sCurrentPage, $oOpts->getOptionsPagesToRestrict() );
+				$needed = empty( $sCurrentGetPage ) && in_array( $sCurrentPage, $oOpts->getOptionsPagesToRestrict() );
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

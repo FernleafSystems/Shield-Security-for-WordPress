@@ -59,14 +59,6 @@
       "can_dismiss":      false,
       "type":             "warning"
     },
-    "cloudflare-apo":             {
-      "id":               "cloudflare-apo",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
     "wizard_welcome":             {
       "id":       "wizard_welcome",
       "per_user": false,
