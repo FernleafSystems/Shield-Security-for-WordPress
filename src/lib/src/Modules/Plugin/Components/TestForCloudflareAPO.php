@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TestForCloudflareAPO {
 
-	public function run() {
+	public function run() :bool {
 		$req = Services::Request();
 		$srvIP = Services::IP();
 		$visitorIP = $srvIP->getRequestIp();

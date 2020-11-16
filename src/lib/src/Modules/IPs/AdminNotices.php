@@ -3,24 +3,25 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @throws \Exception
 	 */
-	protected function processNotice( $oNotice ) {
+	protected function processNotice( NoticeVO $notice ) {
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'visitor-whitelisted':
-				$this->buildNotice_VisitorWhitelisted( $oNotice );
+				$this->buildNotice_VisitorWhitelisted( $notice );
 				break;
 
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
@@ -47,23 +48,23 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( Shield\Utilities\AdminNotices\NoticeVO $notice ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'visitor-whitelisted':
-				$bNeeded = $mod->isVisitorWhitelisted();
+				$needed = $mod->isVisitorWhitelisted();
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

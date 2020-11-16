@@ -3,35 +3,33 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param NoticeVO $notice
 	 * @throws \Exception
 	 */
-	protected function processNotice( $oNotice ) {
+	protected function processNotice( NoticeVO $notice ) {
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'email-verification-sent':
-				$this->buildNotice_EmailVerificationSent( $oNotice );
+				$this->buildNotice_EmailVerificationSent( $notice );
 				break;
 
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_EmailVerificationSent( $oNotice ) {
+	private function buildNotice_EmailVerificationSent( NoticeVO $notice ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'             => $this->getCon()->getHumanName()
@@ -53,24 +51,24 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'email-verification-sent':
-				$bNeeded = $opts->isEnabledEmailAuth()
-						   && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
+				$needed = $opts->isEnabledEmailAuth()
+						  && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

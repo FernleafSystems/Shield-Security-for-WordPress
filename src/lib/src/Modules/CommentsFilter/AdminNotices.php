@@ -3,35 +3,33 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @throws \Exception
 	 */
-	protected function processNotice( $oNotice ) {
+	protected function processNotice( NoticeVO $notice ) {
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'akismet-running':
-				$this->buildNotice_AkismetRunning( $oNotice );
+				$this->buildNotice_AkismetRunning( $notice );
 				break;
 
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_AkismetRunning( $oNotice ) {
+	private function buildNotice_AkismetRunning( NoticeVO $notice ) {
 		$oWpPlugins = Services::WpPlugins();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'                   => ucwords( __( 'Akismet Anti-SPAM plugin is also running', 'wp-simple-firewall' ) ),
@@ -46,28 +44,28 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( Shield\Utilities\AdminNotices\NoticeVO $notice ) :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'akismet-running':
 				$oWpPlugins = Services::WpPlugins();
 				$sPluginFile = $oWpPlugins->findPluginFileFromDirName( 'akismet' );
-				$bNeeded = $this->getMod()->isModuleEnabled()
-						   && !empty( $sPluginFile )
-						   && $oWpPlugins->isActive( $sPluginFile )
-						   && $opts->isEnabledHumanCheck();
+				$needed = $this->getMod()->isModuleEnabled()
+						  && !empty( $sPluginFile )
+						  && $oWpPlugins->isActive( $sPluginFile )
+						  && $opts->isEnabledHumanCheck();
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

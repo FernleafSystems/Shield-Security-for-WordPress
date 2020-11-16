@@ -3,29 +3,27 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param NoticeVO $notice
 	 * @throws \Exception
 	 */
-	protected function processNotice( $oNotice ) {
-		switch ( $oNotice->id ) {
+	protected function processNotice( NoticeVO $notice ) {
+		switch ( $notice->id ) {
 			case 'wphashes-token-fail':
-				$this->buildNotice_WpHashesTokenFailure( $oNotice );
+				$this->buildNotice_WpHashesTokenFailure( $notice );
 				break;
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_WpHashesTokenFailure( $oNotice ) {
-		$oNotice->render_data = [
+	private function buildNotice_WpHashesTokenFailure( NoticeVO $notice ) {
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'           => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
@@ -47,24 +45,24 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'wphashes-token-fail':
-				$bNeeded = $this->getCon()->isPremiumActive()
-						   && !$mod->getWpHashesTokenManager()->hasToken();
+				$needed = $this->getCon()->isPremiumActive()
+						  && !$mod->getWpHashesTokenManager()->hasToken();
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

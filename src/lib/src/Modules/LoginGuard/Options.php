@@ -32,25 +32,22 @@ class Options extends BaseShield\Options {
 	public function getEmail2FaRoles() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', [] );
-		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
-			$aRoles = $mod->getOptEmailTwoFactorRolesDefaults();
-			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
+		$roles = $this->getOpt( 'two_factor_auth_user_roles', [] );
+		if ( empty( $roles ) || !is_array( $roles ) ) {
+			$roles = $mod->getOptEmailTwoFactorRolesDefaults();
+			$this->setOpt( 'two_factor_auth_user_roles', $roles );
 		}
 		if ( $this->isPremium() ) {
-			$aRoles = apply_filters( 'odp-shield-2fa_email_user_roles', $aRoles );
+			$roles = apply_filters( 'odp-shield-2fa_email_user_roles', $roles );
 		}
-		return is_array( $aRoles ) ? $aRoles : $mod->getOptEmailTwoFactorRolesDefaults();
+		return is_array( $roles ) ? $roles : $mod->getOptEmailTwoFactorRolesDefaults();
 	}
 
 	public function getIfCanSendEmailVerified() :bool {
 		return (int)$this->getOpt( 'email_can_send_verified_at' ) > 0;
 	}
 
-	/**
-	 * @return int - seconds
-	 */
-	public function getMfaSkip() {
+	public function getMfaSkip() :int { // seconds
 		return DAY_IN_SECONDS*( $this->isPremium() ? (int)$this->getOpt( 'mfa_skip', 0 ) : 0 );
 	}
 
@@ -58,9 +55,6 @@ class Options extends BaseShield\Options {
 		return (string)$this->getOpt( 'yubikey_app_id', '' );
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isMfaSkip() :bool {
 		return $this->getMfaSkip() > 0;
 	}
@@ -124,12 +118,12 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $sLocation - see config for keys, e.g. login, register, password, checkout_woo
+	 * @param string $location - see config for keys, e.g. login, register, password, checkout_woo
 	 * @return bool
 	 */
-	public function isProtect( $sLocation ) {
+	public function isProtect( $location ) {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );
-		return in_array( $sLocation, is_array( $aLocs ) ? $aLocs : $this->getOptDefault( 'bot_protection_locations' ) );
+		return in_array( $location, is_array( $aLocs ) ? $aLocs : $this->getOptDefault( 'bot_protection_locations' ) );
 	}
 
 	public function isUseLoginIntentPage() :bool {
