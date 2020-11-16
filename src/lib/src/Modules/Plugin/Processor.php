@@ -37,7 +37,7 @@ class Processor extends BaseShield\Processor {
 
 		add_action( $con->prefix( 'dashboard_widget_content' ), function () {
 			$this->printDashboardWidget();
-		} );
+		}, 11 );
 	}
 
 	private function printDashboardWidget() {

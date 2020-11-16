@@ -18,14 +18,14 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param array $aAjaxResponse
+	 * @param array $ajaxResponse
 	 * @return array
 	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-		if ( empty( $aAjaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
-			$aAjaxResponse = $this->ajaxExec_DismissAdminNotice();
+	public function handleAuthAjax( array $ajaxResponse ) :array {
+		if ( empty( $ajaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
+			$ajaxResponse = $this->ajaxExec_DismissAdminNotice();
 		}
-		return $aAjaxResponse;
+		return $ajaxResponse;
 	}
 
 	protected function ajaxExec_DismissAdminNotice() :array {

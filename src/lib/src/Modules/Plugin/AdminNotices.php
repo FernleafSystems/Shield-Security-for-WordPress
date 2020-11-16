@@ -63,24 +63,24 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	/**
-	 * @param array $aAjaxResponse
+	 * @param array $ajaxResponse
 	 * @return array
 	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
+	public function handleAuthAjax( array $ajaxResponse ) :array {
 
-		if ( empty( $aAjaxResponse ) ) {
+		if ( empty( $ajaxResponse ) ) {
 			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'set_plugin_tracking':
-					$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
+					$ajaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
 					break;
 
 				default:
-					$aAjaxResponse = parent::handleAuthAjax( $aAjaxResponse );
+					$ajaxResponse = parent::handleAuthAjax( $ajaxResponse );
 					break;
 			}
 		}
-		return $aAjaxResponse;
+		return $ajaxResponse;
 	}
 
 	/**

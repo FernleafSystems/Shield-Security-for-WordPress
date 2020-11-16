@@ -539,10 +539,10 @@ class Controller {
 	}
 
 	public function onWpDashboardSetup() {
-		$bShow = apply_filters( $this->prefix( 'show_dashboard_widget' ),
+		$show = apply_filters( $this->prefix( 'show_dashboard_widget' ),
 			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )
 		);
-		if ( $bShow ) {
+		if ( $show ) {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
@@ -581,29 +581,29 @@ class Controller {
 	}
 
 	public function ajaxAction() {
-		$sNonceAction = Services::Request()->request( 'exec' );
-		check_ajax_referer( $sNonceAction, 'exec_nonce' );
+		$nonceAction = Services::Request()->request( 'exec' );
+		check_ajax_referer( $nonceAction, 'exec_nonce' );
 
 		ob_start();
-		$aResponseData = apply_filters(
+		$response = apply_filters(
 			$this->prefix( Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction' ),
-			[], $sNonceAction
+			[], $nonceAction
 		);
-		$sNoise = ob_get_clean();
+		$noise = ob_get_clean();
 
-		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {
-			$bSuccess = $aResponseData[ 'success' ];
+		if ( is_array( $response ) && isset( $response[ 'success' ] ) ) {
+			$bSuccess = $response[ 'success' ];
 		}
 		else {
 			$bSuccess = false;
-			$aResponseData = [];
+			$response = [];
 		}
 
 		wp_send_json(
 			[
 				'success' => $bSuccess,
-				'data'    => $aResponseData,
-				'noise'   => $sNoise
+				'data'    => $response,
+				'noise'   => $noise
 			]
 		);
 	}

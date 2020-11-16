@@ -18,47 +18,37 @@ abstract class AjaxHandler {
 		add_filter( $this->getCon()->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
 	}
 
-	/**
-	 * @param array  $aAjaxResponse
-	 * @param string $sAjaxAction
-	 * @return array
-	 */
-	public function handleAjaxAuth( $aAjaxResponse, $sAjaxAction ) {
-		if ( !empty( $sAjaxAction ) && ( empty( $aAjaxResponse ) || !is_array( $aAjaxResponse ) ) ) {
-			$aAjaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $sAjaxAction ) );
+	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) {
+		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
+			$ajaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $ajaxAction ) );
 		}
-		return $aAjaxResponse;
+		return $ajaxResponse;
+	}
+
+	public function handleAjaxNonAuth( array $ajaxResponse, string $ajaxAction ) :array {
+		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
+			$ajaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $ajaxAction ) );
+		}
+		return $ajaxResponse;
 	}
 
 	/**
-	 * @param array  $aAjaxResponse
-	 * @param string $sAjaxAction
+	 * @param string $encoding
 	 * @return array
 	 */
-	public function handleAjaxNonAuth( $aAjaxResponse, $sAjaxAction ) {
-		if ( !empty( $sAjaxAction ) && ( empty( $aAjaxResponse ) || !is_array( $aAjaxResponse ) ) ) {
-			$aAjaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $sAjaxAction ) );
-		}
-		return $aAjaxResponse;
-	}
-
-	/**
-	 * @param string $sEncoding
-	 * @return array
-	 */
-	protected function getAjaxFormParams( $sEncoding = 'none' ) {
-		$oReq = Services::Request();
+	protected function getAjaxFormParams( $encoding = 'none' ) {
+		$req = Services::Request();
 		$aFormParams = [];
-		$sRaw = $oReq->post( 'form_params', '' );
+		$sRaw = $req->post( 'form_params', '' );
 
 		if ( !empty( $sRaw ) ) {
 
-			$sMaybeEncoding = $oReq->post( 'enc_params' );
+			$sMaybeEncoding = $req->post( 'enc_params' );
 			if ( in_array( $sMaybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
-				$sEncoding = $sMaybeEncoding;
+				$encoding = $sMaybeEncoding;
 			}
 
-			switch ( $sEncoding ) {
+			switch ( $encoding ) {
 				case 'lz-string':
 					$sRaw = \LZCompressor\LZString::decompress( base64_decode( $sRaw ) );
 					break;
@@ -85,21 +75,21 @@ abstract class AjaxHandler {
 	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
 	 * so if we send something back non-empty, it'll be treated like a "handled" response and
 	 * processing will finish
-	 * @param array $aAjaxResponse
+	 * @param array $ajaxResponse
 	 * @return array
 	 */
-	protected function normaliseAjaxResponse( $aAjaxResponse ) {
-		if ( !empty( $aAjaxResponse ) ) {
-			$aAjaxResponse = array_merge(
+	protected function normaliseAjaxResponse( array $ajaxResponse ) {
+		if ( !empty( $ajaxResponse ) ) {
+			$ajaxResponse = array_merge(
 				[
 					'success'     => false,
 					'page_reload' => false,
 					'message'     => 'Unknown',
 					'html'        => '',
 				],
-				$aAjaxResponse
+				$ajaxResponse
 			);
 		}
-		return $aAjaxResponse;
+		return $ajaxResponse;
 	}
 }
