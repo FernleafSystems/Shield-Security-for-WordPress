@@ -8,8 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param NoticeVO $notice
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	protected function processNotice( NoticeVO $notice ) {
 		switch ( $notice->id ) {
@@ -44,10 +43,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return bool
-	 */
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

@@ -9,8 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	protected function processNotice( NoticeVO $notice ) {
 
@@ -26,11 +25,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_VisitorWhitelisted( $oNotice ) {
-		$oNotice->render_data = [
+	private function buildNotice_VisitorWhitelisted( NoticeVO $notice ) {
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'             => sprintf(
@@ -47,11 +43,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
-	 * @return bool
-	 */
-	protected function isDisplayNeeded( Shield\Utilities\AdminNotices\NoticeVO $notice ) :bool {
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

@@ -9,8 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	protected function processNotice( NoticeVO $notice ) {
 
