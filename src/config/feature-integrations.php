@@ -38,8 +38,8 @@
       "section":     "section_integrations",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/ea",
-      "link_blog":   "https://shsec.io/wpsf26",
+      "link_info":   "https://shsec.io/ir",
+      "link_blog":   "",
       "name":        "Enable MainWP",
       "summary":     "Enable The Built-In MainWP Extension",
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."

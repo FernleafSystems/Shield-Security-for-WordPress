@@ -1,7 +1,7 @@
 {
   "10.1": {
     "version":     "10.1",
-    "released_at": 1604930618,
+    "released_at": 1605523788,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease101",
       "upgrade": "https://shsec.io/shieldupgradeguide101"
@@ -29,10 +29,29 @@
         "title":       "MainWP Integration/Extension",
         "description": [
           "You can now manage your Shield Security plugin directly from within your MainWP WordPress management control panel.",
-          "The Shield Security Extension page will highlight all sites with any scan results or issues that need your attention.",
-          "The functionality is limited to installing, activating and deactivating the Shield plugin."
+          "The Shield Security Extension page will highlight all sites with any scan issues that need your attention.",
+          "For now, the functionality is limited to installing, activating and deactivating the Shield plugin."
         ],
-        "href":        "https://icwp.io/im"
+        "href":        "https://shsec.io/ir"
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "IP Analyse Tool Enhancements",
+        "description": [
+          "Based on customer feedback we've added links to the IP Analyse tool to let you quickly perform blocks or bypass on an IP.",
+          "The identification of a 'known' IP address now also draws information from the IP Bypass labels."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Enhanced Plugin Badge",
+        "description": [
+          "Based on customer feedback we've added the ability to customize the plugin badge based on Whitelabel settings.",
+          "You'll may also use a WordPress filter to make fine adjustments to settings and styles of the badge."
+        ],
+        "href":        "https://shsec.io/is"
       },
       {
         "type":        "improved",
