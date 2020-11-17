@@ -4,12 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 abstract class Processor {
 
-	use Modules\ModConsumer;
 	use Shield\Crons\PluginCronsConsumer;
+	use Shield\Modules\ModConsumer;
 	use OneTimeExecute;
 
 	/**
@@ -30,31 +29,5 @@ abstract class Processor {
 	}
 
 	public function onModuleShutdown() {
-	}
-
-	/**
-	 * @deprecated 10.1
-	 */
-	public function deactivatePlugin() {
-	}
-
-	/**
-	 * @var BaseProcessor[]
-	 * @deprecated 10.1
-	 */
-	protected $aSubPros;
-
-	/**
-	 * @deprecated 10.1
-	 */
-	public function onWpEnqueueJs() {
-	}
-
-	/**
-	 * @return Modules\Email\Processor
-	 * @deprecated 10.1
-	 */
-	public function getEmailProcessor() {
-		return $this->getMod()->getEmailProcessor();
 	}
 }

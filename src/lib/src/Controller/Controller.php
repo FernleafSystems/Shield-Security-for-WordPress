@@ -41,21 +41,9 @@ class Controller {
 	public static $oInstance;
 
 	/**
-	 * @var string
-	 * @deprecated 10.1
-	 */
-	private $sRootFile;
-
-	/**
 	 * @var bool
 	 */
 	protected $bRebuildOptions;
-
-	/**
-	 * @var string
-	 * @deprecated 10.1
-	 */
-	private $sPluginBaseFile;
 
 	/**
 	 * @var array
@@ -146,7 +134,6 @@ class Controller {
 	 * @throws \Exception
 	 */
 	protected function __construct( string $rootFile ) {
-		$this->sRootFile = $rootFile;
 		$this->root_file = $rootFile;
 		$this->base_file = $this->getPluginBaseFile();
 		$this->modules = [];

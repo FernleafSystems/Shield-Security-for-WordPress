@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class BaseProcessor
  * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
- * @deprecated 10.1
+ * @deprecated 10.2
  */
 class BaseProcessor {
 

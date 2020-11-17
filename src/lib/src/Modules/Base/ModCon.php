@@ -361,37 +361,19 @@ abstract class ModCon {
 
 	/**
 	 * Override this and adapt per feature
-	 * @return Shield\Modules\Base\BaseProcessor|mixed
+	 * @return Shield\Modules\Base\Processor|mixed
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			try {
-				// TODO: Remove 'abstract' from base processor after transition to new processors is complete
 				$class = $this->findElementClass( 'Processor', true );
 			}
 			catch ( \Exception $e ) {
-				$class = $this->getProcessorClassName();
-			}
-			if ( !@class_exists( $class ) ) {
 				return null;
 			}
 			$this->oProcessor = new $class( $this );
 		}
 		return $this->oProcessor;
-	}
-
-	/**
-	 * This is the old method
-	 * @deprecated 10.1
-	 */
-	protected function getProcessorClassName() :string {
-		return '\\'.implode( '_',
-				[
-					strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
-					'Processor',
-					str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
-				]
-			);
 	}
 
 	/**
@@ -516,7 +498,7 @@ abstract class ModCon {
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return Modules\Email\ModCon
 	 * @throws \Exception
-	 * @deprecated 10.1
+	 * @deprecated 10.2
 	 */
 	public function getEmailHandler() {
 		return $this->getCon()->getModule_Email();
@@ -1406,7 +1388,7 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
+	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
@@ -1474,14 +1456,6 @@ abstract class ModCon {
 
 	protected function loadAjaxHandler() {
 		$this->loadModElement( 'AjaxHandler' );
-	}
-
-	/**
-	 * @return Shield\Modules\Base\ShieldOptions|mixed
-	 * @deprecated 10.1
-	 */
-	protected function loadOptions() {
-		return $this->loadModElement( 'Options' );
 	}
 
 	protected function loadDebug() {
