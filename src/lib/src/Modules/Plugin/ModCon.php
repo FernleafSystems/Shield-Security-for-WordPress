@@ -1,4 +1,4 @@
-<?php declare( strict_types=1 );
+<?php
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
@@ -68,10 +68,10 @@ class ModCon extends BaseShield\ModCon {
 		$wpCrons = Services::WpCron();
 
 		foreach ( $wpCrons->getCrons() as $nKey => $aCronArgs ) {
-			foreach ( $aCronArgs as $sHook => $aCron ) {
-				if ( strpos( $sHook, $con->prefix() ) === 0
-					 || strpos( $sHook, $con->prefixOption() ) === 0 ) {
-					$wpCrons->deleteCronJob( $sHook );
+			foreach ( $aCronArgs as $hook => $aCron ) {
+				if ( strpos( (string)$hook, $con->prefix() ) === 0
+					 || strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
+					$wpCrons->deleteCronJob( $hook );
 				}
 			}
 		}
