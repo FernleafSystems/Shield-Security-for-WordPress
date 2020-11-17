@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 
@@ -16,11 +17,11 @@ class ScanAggregate extends ScanBase {
 	 * @return $this
 	 */
 	protected function preBuildTable() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 
 		foreach ( $this->getIncludedScanSlugs() as $sScan ) {
-			$oMod->getScanCon( $sScan )->cleanStalesResults();
+			$mod->getScanCon( $sScan )->cleanStalesResults();
 		}
 
 		return $this;
@@ -63,11 +64,10 @@ class ScanAggregate extends ScanBase {
 	private function processEntriesGroup( $aEntries ) {
 		$aProcessedEntries = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
-		/** @var Shield\Modules\HackGuard\Strings $oStrings */
-		$oStrings = $oMod->getStrings();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Strings $oStrings */
+		$oStrings = $mod->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 
 		$aScanRowTracker = [];
@@ -79,7 +79,7 @@ class ScanAggregate extends ScanBase {
 					'title'      => $aScanNames[ $oEntry->scan ],
 				];
 			}
-			$aProcessedEntries[ $nKey ] = $oMod
+			$aProcessedEntries[ $nKey ] = $mod
 				->getScanCon( $oEntry->scan )
 				->getTableEntryFormatter()
 				->setMod( $this->getMod() )

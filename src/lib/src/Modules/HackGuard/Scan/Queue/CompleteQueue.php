@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,7 +22,7 @@ class CompleteQueue {
 	 * Take care here not to confuse the 2x DB Handlers
 	 */
 	public function complete() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
 		/** @var Databases\ScanQueue\Handler $oDbH */

@@ -5,6 +5,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
 /**
  * Class ICWP_WPSF_Processor_Traffic
+ * @deprecated 10.1
  */
 class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
 

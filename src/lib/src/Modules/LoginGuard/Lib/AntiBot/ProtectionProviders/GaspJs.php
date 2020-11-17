@@ -22,13 +22,13 @@ class GaspJs extends BaseProtectionProvider {
 			return;
 		}
 
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$this->setFactorTested( true );
 
-		$oReq = Services::Request();
-		$sGaspCheckBox = $oReq->post( $oMod->getGaspKey() );
-		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
+		$req = Services::Request();
+		$sGaspCheckBox = $req->post( $mod->getGaspKey() );
+		$sHoney = $req->post( 'icwp_wpsf_login_email' );
 
 		$sUsername = $oForm->getUserToAudit();
 		$sActionAttempted = $oForm->getActionToAudit();
@@ -71,10 +71,10 @@ class GaspJs extends BaseProtectionProvider {
 
 	public function onWpEnqueueJs() {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$sAsset = 'shield-antibot';
 		$sUnique = $con->prefix( $sAsset );
@@ -90,7 +90,7 @@ class GaspJs extends BaseProtectionProvider {
 			$sUnique,
 			'icwp_wpsf_vars_lpantibot',
 			[
-				'form_selectors' => implode( ',', $oOpts->getAntiBotFormSelectors() ),
+				'form_selectors' => implode( ',', $opts->getAntiBotFormSelectors() ),
 				'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
 				'cbname'         => $mod->getGaspKey(),
 				'strings'        => [
@@ -99,7 +99,7 @@ class GaspJs extends BaseProtectionProvider {
 					'loading' => __( 'Loading', 'wp-simple-firewall' )
 				],
 				'flags'          => [
-					'gasp'    => $oOpts->isEnabledGaspCheck(),
+					'gasp'    => $opts->isEnabledGaspCheck(),
 					'captcha' => $mod->isEnabledCaptcha(),
 				]
 			]

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
@@ -12,6 +13,7 @@ class ReportingController {
 
 	use Modules\ModConsumer;
 	use OneTimeExecute;
+	use PluginCronsConsumer;
 
 	/**
 	 * @return bool
@@ -23,7 +25,7 @@ class ReportingController {
 	}
 
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		$this->setupCronHooks();
 	}
 
 	public function runHourlyCron() {
@@ -75,7 +77,7 @@ class ReportingController {
 		$record->frequency = $report->interval;
 		$record->interval_end_at = $report->interval_end_at;
 
-		/** @var \ICWP_WPSF_FeatureHandler_Reporting $mod */
+		/** @var Modules\Reporting\ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->getDbHandler_Reports()
 				   ->getQueryInserter()

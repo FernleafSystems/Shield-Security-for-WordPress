@@ -4,60 +4,39 @@
 
 {% block page_head %}
 	<div class="row">
-		<div class="col-12">
-			<nav class="navbar navbar-expand-md navbar-light bg-light">
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-						aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-					<ul class="navbar-nav">
-						{% for navkey,navdata in hrefs.top_nav %}
-							{% if navdata.subnavs is empty %}
-								<li class="nav-item" id="NavItem-{{ navkey }}">
-									<a class="nav-link{% if navdata.active %} active{% endif %}"
-									   href="{{ navdata.href }}">{{ navdata.name }}
-										{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
-								</li>
-							{% else %}
-								<li class="nav-item dropdown" id="NavItem-{{ navkey }}">
-									<a class="nav-link dropdown-toggle{% if navdata.active %} active{% endif %}"
-									   data-toggle="dropdown" href="#" role="button"
-									   aria-haspopup="true" aria-expanded="false">
-										{{ navdata.name }}
-									</a>
-									<div class="dropdown-menu">
-										{% for subnavslug,subnavdata in navdata.subnavs %}
-											<a class="dropdown-item {% if subnavdata.active %} active{% endif %}"
-											   href="{{ subnavdata.href }}">
-												<span class="module-icon module-icon-{{ subnavslug }}"></span>
-												<span class="module-name">{{ subnavdata.name }}</span>
-											</a>
-										{% endfor %}
-									</div>
-								</li>
+
+		<div class="col">
+			<h5 class="mt-3">
+				{% block page_head_titlemenu %}
+					{% if flags.is_dashboard %}
+						{{ strings.dashboard_shield }}
+					{% else %}
+						{{ strings.page_title }}
+						<br />
+						<p class="mb-1 mt-2 d-inline-block" style="font-size: small">
+							<a href="{{ hrefs.back_to_dash }}">&laquo; {{ strings.dashboard }}</a>
+							{% if vars.related_hrefs|default([]) is not empty %}
+								{% for related_href in vars.related_hrefs %}
+									| <a href="{{ related_href.href }}"
+										 {% if related_href.new|default(false) %}target="_blank"{% endif %}>
+									{{ related_href.title }}</a>
+								{% endfor %}
 							{% endif %}
-						{% endfor %}
+						</p>
+					{% endif %}
+				{% endblock page_head_titlemenu %}
+			</h5>
+		</div>
 
-						<li class="nav-item" id="NavItem-SearchOptionsLaunch">
-							<a class="nav-link dashicons dashicons-search" href="#"
-							   data-toggle="modal" data-target="#OptionsSearch">&nbsp;</a>
-						</li>
-
-					</ul>
-				</div>
-				{#<form class="form-inline">#}
-				{#<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">#}
-				{#<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>#}
-				{#</form>#}
-				<a class="navbar-brand" href="{{ hrefs.nav_home }}" id="navbar-bannerlogo"
-				   style="background-image: url('{{ hrefs.img_banner }}');"
-				>&nbsp;</a>
-			</nav>
+		<div class="col">
+			<a class="navbar-brand float-right mt-3"
+			   href="{{ hrefs.nav_home }}"
+			   id="navbar-bannerlogo"
+			   style="background-image: url('{{ hrefs.img_banner }}');"
+			>&nbsp;</a>
 		</div>
 	</div>
 
-	{% include '/snippets/modal/search_options.twig' %}
 	<script>
 	  jQuery( document ).ready( function () {
 		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';

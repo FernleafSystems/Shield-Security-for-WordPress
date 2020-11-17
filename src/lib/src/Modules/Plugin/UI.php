@@ -2,14 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
+
+	public function buildInsightsVars_Dashboard() :array {
+		return [
+			'content' => [
+				'dashboard_cards' => ( new Insights\DashboardCards() )
+					->setMod( $this->getMod() )
+					->renderAll(),
+			],
+		];
+	}
 
 	public function buildInsightsVars_Debug() :array {
 		return [
@@ -25,9 +34,6 @@ class UI extends Base\ShieldUI {
 				'recent_events' => ( new RecentEvents() )
 					->setMod( $this->getMod() )
 					->build(),
-				'admin_notes'   => ( new AdminNotes() )
-					->setMod( $this->getMod() )
-					->build()
 			]
 		];
 	}
@@ -57,10 +63,10 @@ class UI extends Base\ShieldUI {
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$opts = $this->getOptions();
-		$aWarnings = [];
+		$warnings = [];
 
 		switch ( $section ) {
 			case 'section_third_party_captcha':
@@ -71,7 +77,7 @@ class UI extends Base\ShieldUI {
 							->checkAll();
 					}
 					if ( $opts->getOpt( 'captcha_checked_at' ) == 0 ) {
-						$aWarnings[] = sprintf(
+						$warnings[] = sprintf(
 							__( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
 							.__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' )
 						);
@@ -80,6 +86,16 @@ class UI extends Base\ShieldUI {
 				break;
 		}
 
-		return $aWarnings;
+		return $warnings;
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
+				'title' => __( 'Run Import/Export', 'wp-simple-firewall' ),
+			]
+		];
 	}
 }

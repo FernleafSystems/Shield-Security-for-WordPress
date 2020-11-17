@@ -109,19 +109,22 @@ class ImportExportController {
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	public function buildInsightsVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+	public function buildInsightsVars() :array {
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
 		return [
 			'vars'    => [
-				'file_upload_nonce' => $oMod->getNonceActionData( 'import_file_upload' ),
-				'form_action'       => $oMod->getUrl_AdminPage()
+				'file_upload_nonce' => $mod->getNonceActionData( 'import_file_upload' ),
+				'form_action'       => $mod->getUrl_AdminPage(),
+				'related_hrefs'     => [
+					[
+						'href'  => $mod->getUrl_DirectLinkToSection( 'section_importexport' ),
+						'title' => __( 'Import/Export Settings', 'wp-simple-firewall' ),
+					]
+				]
 			],
 			'ajax'    => [
-				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),
+				'import_from_site' => $mod->getAjaxActionData( 'import_from_site', true ),
 			],
 			'flags'   => [
 				'can_importexport' => $this->getCon()->isPremiumActive(),
@@ -130,8 +133,8 @@ class ImportExportController {
 				'export_file_download' => $this->createExportFileDownloadLink()
 			],
 			'strings' => [
-				'tab_by_file'           => __( 'Import From File', 'wp-simple-firewall' ),
-				'tab_by_site'           => __( 'Import From Another Site', 'wp-simple-firewall' ),
+				'tab_by_file'          => __( 'Import From File', 'wp-simple-firewall' ),
+				'tab_by_site'          => __( 'Import From Another Site', 'wp-simple-firewall' ),
 				'title_import_file'    => __( 'Import From File', 'wp-simple-firewall' ),
 				'subtitle_import_file' => __( 'Upload an exported options file you downloaded from another site', 'wp-simple-firewall' ),
 				'select_import_file'   => __( 'Select file to import options from', 'wp-simple-firewall' ),

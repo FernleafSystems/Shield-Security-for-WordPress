@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
+/**
+ * Class ICWP_WPSF_FeatureHandler_Events
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Events extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**

@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -51,7 +51,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	}
 
 	private function getCardsForWcf() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -95,7 +95,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	}
 
 	private function getCardsForUfc() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -137,7 +137,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	}
 
 	private function getCardsForPtg() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Ptg::SCAN_SLUG );
 
@@ -168,7 +168,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	}
 
 	private function getCardsForMal() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Mal::SCAN_SLUG );
 
@@ -198,7 +198,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	}
 
 	private function getCardsForApc() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Apc::SCAN_SLUG );
 
@@ -227,7 +227,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	}
 
 	private function getCardsForWpv() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Wpv::SCAN_SLUG );
 

@@ -1,16 +1,8 @@
-<div class="row mb-2">
-	<div class="col">
-		<h4>
-			<small class="d-block">{{ strings.discover }}</small>
-		</h4>
-	</div>
-</div>
-
 <div class="row mb-4">
 	<div class="col-12">
-		<h6>{{ strings.click_filter_status }}
-			<small><a href="#" id="ClearFilterState">{{ strings.clear_filter }}</a></small>
-		</h6>
+		<p>{{ strings.click_clear_filter }}
+			<a href="#" id="ClearFilterStateArea">{{ strings.clear_filter }}</a>
+		</p>
 	</div>
 	<div class="col-12">
 		<div class="btn-group filter-states" role="group" aria-label="Basic example">
@@ -21,17 +13,8 @@
 			{% endfor %}
 		</div>
 	</div>
-</div>
-
-<div class="row mb-4">
 	<div class="col-12">
-		<h6>
-			{{ strings.click_filter_area }}
-			<small><a href="#" id="ClearFilterArea">{{ strings.clear_filter }}</a></small>
-		</h6>
-	</div>
-	<div class="col-12">
-		<div class="btn-group filter-groups" role="group" aria-label="Basic example">
+		<div class="btn-group filter-groups list-group list-group-horizontal mt-3" role="group" aria-label="Basic example">
 			{% for card_group_key,card_group_name in vars.overview_cards.mod_groups %}
 				<button type="button" class="btn btn-outline-dark"
 						data-category="mod"
@@ -53,7 +36,7 @@
 
 			 data-state="{{ card.state }}"
 		>
-			<div class="text-center overview card mb-3
+			<div class="text-left overview card mb-3
 				{% if card.state == 'danger' %}
 				state-danger
 				{% elseif card.state == 'warning' %}
@@ -67,32 +50,25 @@
 				 id="overviewcard-{{ card.id }}"
 				 {% if card.summary is defined %}title="{{ card.summary }}"{% endif %}
 			>
-					<div class="card-header font-weight-bolder">
-						{{ card.name }}
-					</div>
-					<div class="card-body">
-						{{ card.summary }}
-					</div>
-					<div class="card-footer ">
-						<div class="w-25 d-inline-block">
-							{% if card.help|default('') is not empty %}
-								<a class="card_help"
-								   data-toggle="popover"
-								   data-content="{{ card.help }}" data-original-title="" title="">
-									<span class="dashicons dashicons-info"></span>
-								</a>
-							{% endif %}
+					<div class="card-header font-weight-bolder p-2">
+
+						<div class="w-75 d-inline-block">
+							<span class="dashicons title-icon"></span>
+							<span class="card-title">{{ card.name }}</span>
 						</div>
-						<div class="w-25 d-inline-block">
-							&nbsp;
-							{# <span class="badge badge-secondary">{{ card.mod }}</span> #}
-						</div>
-						<div class="w-25 d-inline-block">
+						<div class="d-inline-block text-right float-right">
 							{% if card.href|default('') is not empty %}
 								<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
 								   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
 							{% endif %}
 						</div>
+
+					</div>
+					<div class="card-body p-2">
+						<p class="m-0">{{ card.summary }}</p>
+						{% if card.help|default('') is not empty %}
+							<p class="text-muted mb-0 mt-1">{{ card.help }}</p>
+						{% endif %}
 					</div>
 				</div>
 			</div>
@@ -107,23 +83,18 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		'.card-deck .card-item'
 	);
 
-	document.getElementById( "ClearFilterArea" ).addEventListener( 'click', function ( evt ) {
-		var filterByArea = document.querySelector( '.filter-groups' );
+	document.getElementById( "ClearFilterStateArea" ).addEventListener( 'click', function ( evt ) {
+		var filterByArea = document.querySelector( '.filter-states' );
 		if ( filterByArea ) {
-			var filterStatesButtons = Array.from( filterByArea.children );
-			filterStatesButtons.forEach( function ( button ) {
+			Array.from( filterByArea.children ).forEach( function ( button ) {
 				if ( button.classList.contains( "active" ) ) {
 					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 				}
 			} );
 		}
-	} );
-
-	document.getElementById( "ClearFilterState" ).addEventListener( 'click', function ( evt ) {
-		var filterByArea = document.querySelector( '.filter-states' );
+		filterByArea = document.querySelector( '.filter-groups' );
 		if ( filterByArea ) {
-			var filterStatesButtons = Array.from( filterByArea.children );
-			filterStatesButtons.forEach( function ( button ) {
+			Array.from( filterByArea.children ).forEach( function ( button ) {
 				if ( button.classList.contains( "active" ) ) {
 					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 				}

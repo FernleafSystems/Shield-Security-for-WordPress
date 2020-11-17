@@ -94,9 +94,9 @@
 	</div>
 </form>
 
-<div class="row">
+<div class="row justify-content-center">
 	<div class="col">
-		<p id="TimeRemaining" class="text-center alert alert-warning">
+		<p id="TimeRemaining" class="text-center text-dark">
 			{{ strings.time_remaining }}:
 			<span id="countdown">{{ strings.calculating }}</span>
 		</p>
@@ -114,6 +114,7 @@
 				timeRemainingText = '{{ strings.login_expired }}';
 				clearInterval( x );
 				loginExpired();
+				document.getElementById( "TimeRemaining" ).innerHTML = timeRemainingText;
 			}
 			else {
 				var minutes = Math.floor( timeRemaining / 60 );
@@ -126,8 +127,8 @@
 					timeRemainingText = timeRemaining.toFixed( 0 )
 						+ " {{ strings.seconds }}";
 				}
+				document.getElementById( "countdown" ).innerHTML = timeRemainingText;
 			}
-			document.getElementById( "countdown" ).innerHTML = timeRemainingText;
 		},
 		1000
 	);

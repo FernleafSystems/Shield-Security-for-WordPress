@@ -2,14 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+
 trait CommonFilters {
 
 	/**
-	 * @param string $sIp
+	 * @param string $ip
 	 * @return $this
 	 */
-	public function filterByIp( $sIp ) {
-		return $this->addWhereEquals( 'ip', $sIp );
+	public function filterByIp( $ip ) {
+		return $this->addWhereEquals( 'ip', $ip );
 	}
 
 	/**
@@ -25,8 +27,8 @@ trait CommonFilters {
 	 */
 	public function filterByBlacklist() {
 		return $this->filterByLists( [
-			\ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-			\ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+			ModCon::LIST_AUTO_BLACK,
+			ModCon::LIST_MANUAL_BLACK
 		] );
 	}
 
@@ -34,7 +36,7 @@ trait CommonFilters {
 	 * @return $this
 	 */
 	public function filterByWhitelist() {
-		return $this->filterByList( \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+		return $this->filterByList( ModCon::LIST_MANUAL_WHITE );
 	}
 
 	/**
@@ -43,6 +45,10 @@ trait CommonFilters {
 	 */
 	public function filterByIsRange( $bIsRange ) {
 		return $this->addWhereEquals( 'is_range', $bIsRange ? 1 : 0 );
+	}
+
+	public function filterByLabel( string $label ) :self {
+		return $this->addWhereEquals( 'label', $label );
 	}
 
 	/**

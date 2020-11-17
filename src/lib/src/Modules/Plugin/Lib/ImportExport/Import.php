@@ -99,18 +99,18 @@ class Import {
 	 * @throws \Exception
 	 */
 	public function fromSite( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null ) {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
-		$oDP = Services::Data();
+		$DP = Services::Data();
 
 		if ( empty( $sMasterSiteUrl ) ) {
-			$sMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
+			$sMasterSiteUrl = $opts->getImportExportMasterImportUrl();
 		}
 
-		$sOriginalMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
-		$bHadMasterSiteUrl = $oOpts->hasImportExportMasterImportUrl();
+		$sOriginalMasterSiteUrl = $opts->getImportExportMasterImportUrl();
+		$bHadMasterSiteUrl = $opts->hasImportExportMasterImportUrl();
 		$bCheckKeyFormat = !$bHadMasterSiteUrl;
 		$sSecretKey = sanitize_key( $sSecretKey );
 
@@ -135,13 +135,13 @@ class Import {
 		if ( !$bHasParts ) {
 			throw new \Exception( "Couldn't parse the URL into its parts", 4 );
 		}
-		$sMasterSiteUrl = $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
+		$sMasterSiteUrl = $DP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
 		if ( empty( $sMasterSiteUrl ) ) {
 			throw new \Exception( "Couldn't validate the URL.", 4 );
 		}
 
 		// Begin the handshake process.
-		$oOpts->setOpt(
+		$opts->setOpt(
 			'importexport_handshake_expires_at',
 			Services::Request()->ts() + 30
 		);
@@ -186,7 +186,7 @@ class Import {
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
 		if ( is_null( $bEnableNetwork ) ) {
-			if ( $bHadMasterSiteUrl && !$oOpts->hasImportExportMasterImportUrl() ) {
+			if ( $bHadMasterSiteUrl && !$opts->hasImportExportMasterImportUrl() ) {
 				$mod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
 			}
 		}

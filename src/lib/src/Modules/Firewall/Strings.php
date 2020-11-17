@@ -183,7 +183,7 @@ class Strings extends Base\Strings {
 	 * @return string[][]
 	 */
 	protected function getAuditMessages() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$aMsgs = [

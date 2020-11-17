@@ -2,8 +2,8 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 	var runAnalysis = function () {
 		let newUrl = window.location.href.replace( /&analyse_ip=(\d{1,3}\.){3}\d{1,3}/i, "" );
-		if ( $oThis.val().length > 0 ) {
-			newUrl += "&analyse_ip=" + $oThis.val();
+		if ( $oIpSelect.val().length > 0 ) {
+			newUrl += "&analyse_ip=" + $oIpSelect.val();
 		}
 		window.history.replaceState(
 			{},
@@ -11,7 +11,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 			newUrl
 		);
 
-		sendReq( { 'fIp': $oThis.val() } );
+		sendReq( { 'fIp': $oIpSelect.val() } );
 	};
 
 	var clearAnalyseIpParam = function () {
@@ -27,7 +27,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 		jQuery( '#IpReviewContent' ).html( 'loading IP info ...' );
 
-		var aReqData = aOpts[ 'build_ip_analyse' ];
+		var aReqData = aOpts[ 'ajax_build_ip_analyse' ];
 		jQuery.post( ajaxurl, jQuery.extend( aReqData, params ),
 			function ( oResponse ) {
 
@@ -61,12 +61,25 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		} );
 
 		jQuery( document ).ready( function () {
-			$oThis.on( 'change', runAnalysis );
+
+			var $aIpActions = jQuery( document ).on( 'click', 'a.ip_analyse_action', function ( evt ) {
+				evt.preventDefault();
+				if ( confirm( 'Are you sure?' ) ) {
+					let $oThis = jQuery( this );
+					let params = aOpts[ 'ajax_ip_analyse_action' ];
+					params.ip = $oThis.data( 'ip' );
+					params.ip_action = $oThis.data( 'ip_action' );
+					iCWP_WPSF_StandardAjax.send_ajax_req( params );
+				}
+				return false;
+			} );
+
+			$oIpSelect.on( 'change', runAnalysis );
 
 			let urlParams = new URLSearchParams( window.location.search );
 			let theIP = urlParams.get( 'analyse_ip' );
 			if ( theIP ) {
-				$oThis.selectpicker( 'val', theIP );
+				$oIpSelect.selectpicker( 'val', theIP );
 				runAnalysis();
 			}
 			else {
@@ -79,7 +92,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		} );
 	};
 
-	var $oThis = this;
+	var $oIpSelect = jQuery( '#IpReviewSelect' );
 	var aOpts = jQuery.extend( {}, options );
 	initialise();
 

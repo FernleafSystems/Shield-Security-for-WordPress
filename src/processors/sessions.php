@@ -5,6 +5,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	/**
@@ -49,14 +52,14 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function onModuleShutdown() {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
+		/** @var Sessions\ModCon $mod */
+		$mod = $this->getMod();
 
 		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
 			$oSession = $this->getCurrentSession();
 			if ( $oSession instanceof Session\EntryVO ) {
 				/** @var Session\Update $oUpd */
-				$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+				$oUpd = $mod->getDbHandler_Sessions()->getQueryUpdater();
 				$oUpd->updateLastActivity( $this->getCurrentSession() );
 			}
 		}
@@ -65,9 +68,9 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function autoAddSession() {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
-		if ( !$oMod->getSession() && $oMod->isAutoAddSessions() ) {
+		/** @var Sessions\ModCon $mod */
+		$mod = $this->getMod();
+		if ( !$mod->getSession() && $mod->isAutoAddSessions() ) {
 			$this->queryCreateSession(
 				$this->getCon()->getSessionId( true ),
 				Services::WpUsers()->getCurrentWpUsername()
@@ -82,16 +85,16 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 * @throws \Exception
 	 */
 	public function printLinkToAdmin( $sMessage = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
-		$oU = Services::WpUsers()->getCurrentWpUser();
+		/** @var Sessions\ModCon $mod */
+		$mod = $this->getMod();
+		$user = Services::WpUsers()->getCurrentWpUser();
 
 		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
-			 && ( $oU instanceof \WP_User ) && $oMod->hasSession() ) {
+			 && ( $user instanceof \WP_User ) && $mod->getSessionCon()->hasSession() ) {
 			$sMessage .= sprintf( '<p class="message">%s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' )
-				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oU->user_login ),
-				( $oU->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
+				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $user->user_login ),
+				( $user->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
 					Services::WpGeneral()->getAdminUrl(),
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
@@ -159,8 +162,8 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	protected function queryCreateSession( $sSessionId, $sUsername ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
+		/** @var Sessions\ModCon $mod */
+		$mod = $this->getMod();
 		if ( empty( $sSessionId ) || empty( $sUsername ) ) {
 			return null;
 		}
@@ -168,7 +171,7 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		$this->getCon()->fireEvent( 'session_start' );
 
 		/** @var Session\Insert $oInsert */
-		$oInsert = $oMod->getDbHandler_Sessions()->getQueryInserter();
+		$oInsert = $mod->getDbHandler_Sessions()->getQueryInserter();
 		return $oInsert->create( $sSessionId, $sUsername );
 	}
 
@@ -179,10 +182,10 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 * @return Session\EntryVO|null
 	 */
 	private function queryGetSession( $sSessionId, $sUsername = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
+		/** @var Sessions\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Session\Select $oSel */
-		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
+		$oSel = $mod->getDbHandler_Sessions()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
 	}
 }

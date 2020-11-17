@@ -111,13 +111,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isWlEnabled() {
-		return $this->getCon()->getModule_SecAdmin()->isWlEnabled();
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getSecAdminLoginAjaxData() {
@@ -254,5 +247,16 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			}
 		}
 		return array_unique( array_filter( $aCleaned ) );
+	}
+
+	protected function getNamespaceRoots() :array {
+		// Ensure order of namespaces is 'Module', 'Shield', then 'Base'
+		return array_unique( array_merge(
+			[
+				$this->getNamespace(),
+				$this->getModulesNamespace().'BaseShield\\',
+			],
+			parent::getNamespaceRoots()
+		) );
 	}
 }

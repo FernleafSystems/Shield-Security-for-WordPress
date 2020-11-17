@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Upgrade extends Base\Upgrade {
 
 	protected function runEveryUpgrade() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oMod->deleteAllPluginCrons();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->deleteAllPluginCrons();
 	}
 }

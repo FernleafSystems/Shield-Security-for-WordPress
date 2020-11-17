@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
+class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 
@@ -38,26 +38,23 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_SecAdminCheck() {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		return [
-			'timeleft' => $oMod->getSecAdminTimeLeft(),
-			'success'  => $oMod->isSecAdminSessionValid()
+			'timeleft' => $mod->getSecAdminTimeLeft(),
+			'success'  => $mod->isSecAdminSessionValid()
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_SecAdminLogin() {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_SecAdminLogin() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 		$sHtml = '';
 
-		if ( $oMod->testSecAccessKeyRequest() ) {
+		if ( $mod->testSecAccessKeyRequest() ) {
 
-			if ( $oMod->setSecurityAdminStatusOnOff( true ) ) {
+			if ( $mod->setSecurityAdminStatusOnOff( true ) ) {
 				$bSuccess = true;
 				$sMsg = __( 'Security Admin PIN Accepted.', 'wp-simple-firewall' )
 						.' '.__( 'Please wait', 'wp-simple-firewall' ).' ...';
@@ -117,17 +114,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return string
 	 */
 	private function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
-
-		$aData = [
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->renderTemplate( 'snippets/admin_access_login', [
 			'ajax'    => [
-				'sec_admin_login' => json_encode( $oMod->getSecAdminLoginAjaxData() )
+				'sec_admin_login' => json_encode( $mod->getSecAdminLoginAjaxData() )
 			],
 			'strings' => [
 				'access_message' => empty( $sMessage ) ? __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ) : $sMessage
 			]
-		];
-		return $oMod->renderTemplate( 'snippets/admin_access_login', $aData );
+		] );
 	}
 }

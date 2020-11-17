@@ -16,6 +16,22 @@
     "run_if_wpcli":          false,
     "order":                 100
   },
+  "menu_items":       [
+    {
+      "title":    "IP Lists",
+      "slug":     "ips-redirect",
+      "callback": ""
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "ips-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "ips"
+      }
+    }
+  ],
   "admin_notices": {
     "visitor-whitelisted": {
       "id":               "visitor-whitelisted",
@@ -111,6 +127,7 @@
     {
       "key":         "enable_ips",
       "section":     "section_enable_plugin_feature_ips",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ea",
@@ -133,6 +150,7 @@
     {
       "key":           "auto_expire",
       "section":       "section_auto_black_list",
+      "advanced":      true,
       "default":       "day",
       "type":          "select",
       "value_options": [
@@ -166,6 +184,7 @@
     {
       "key":           "user_auto_recover",
       "section":       "section_auto_black_list",
+      "advanced":      true,
       "premium":       true,
       "default":       [],
       "type":          "multiple_select",
@@ -188,6 +207,7 @@
     {
       "key":         "request_whitelist",
       "section":     "section_auto_black_list",
+      "advanced":    true,
       "premium":     true,
       "default":     [],
       "type":        "array",

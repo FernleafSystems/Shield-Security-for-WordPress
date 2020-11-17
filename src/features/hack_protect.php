@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -80,6 +83,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->aScanCons[ $slug ];
 	}
 
+	public function getMainWpData() :array {
+		$issues = ( new HackGuard\Lib\Reports\Query\ScanCounts() )->setMod( $this );
+		$issues->notified = null;
+		return array_merge( parent::getMainWpData(), [
+			'scan_issues' => array_filter( $issues->all() )
+		] );
+	}
+
 	protected function handleModAction( string $sAction ) {
 		switch ( $sAction ) {
 			case  'scan_file_download':
@@ -101,12 +112,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$opts = $this->getOptions();
 
 		$this->cleanFileExclusions();
-
-		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
-			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			$oPro->getSubProScanner()->deleteCron();
-		}
 
 		if ( count( $opts->getFilesToLock() ) === 0 || !$this->getCon()
 															 ->getModule_Plugin()
@@ -151,16 +156,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @param string $scan ptg, wcf, ufc, wpv
 	 * @return int
 	 */
-	public function getLastScanAt( $sScan ) {
+	public function getLastScanAt( $scan ) {
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
 					 ->getDbHandler_Events()
 					 ->getQuerySelector();
-		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
+		$oEntry = $oSel->getLatestForEvent( $scan.'_scan_run' );
 		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
 	}
 

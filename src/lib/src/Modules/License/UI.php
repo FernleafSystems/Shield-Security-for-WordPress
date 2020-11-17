@@ -2,18 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	/**
 	 * @return array
 	 */
 	public function buildInsightsVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_License $mod */
-		$mod = $this->getMod();
 		$con = $this->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$opts = $this->getOptions();
 		$WP = Services::WpGeneral();
 		$oCarbon = Services::Request()->carbon();
@@ -55,7 +55,8 @@ class UI extends Base\ShieldUI {
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
 				'activation_url' => $WP->getHomeUrl(),
-				'error'          => $mod->getLastErrors( true )
+				'error'          => $mod->getLastErrors( true ),
+				'related_hrefs'  => $this->getSettingsRelatedLinks()
 			],
 			'inputs'  => [
 				'license_key' => [
@@ -68,10 +69,9 @@ class UI extends Base\ShieldUI {
 				'connection_debug' => $mod->getAjaxActionData( 'connection_debug' )
 			],
 			'aHrefs'  => [
-				'shield_pro_url'           => 'https://shsec.io/shieldpro',
-				'shield_pro_more_info_url' => 'https://shsec.io/shld1',
-				'iframe_url'               => $opts->getDef( 'landing_page_url' ),
-				'keyless_cp'               => $opts->getDef( 'keyless_cp' ),
+				'shield_pro_url' => 'https://shsec.io/shieldpro',
+				'iframe_url'     => $opts->getDef( 'landing_page_url' ),
+				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
 			],
 			'flags'   => [
 				'show_ads'              => false,
@@ -85,12 +85,31 @@ class UI extends Base\ShieldUI {
 		];
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isEnabledForUiSummary() :bool {
-		/** @var \ICWP_WPSF_FeatureHandler_License $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->getLicenseHandler()->hasValidWorkingLicense();
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		$links = [];
+		if ( !$this->getCon()->isPremiumActive() ) {
+			$links[] = [
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'free_trial' ),
+				'title' => __( 'Free Trial', 'wp-simple-firewall' ),
+			];
+		}
+		$links[] = [
+			'href'  => 'https://shsec.io/c5',
+			'title' => __( 'License Activation', 'wp-simple-firewall' ),
+			'new'   => true,
+		];
+		$links[] = [
+			'href'  => 'https://shsec.io/gp',
+			'title' => __( 'ShieldPRO Features', 'wp-simple-firewall' ),
+			'new'   => true,
+		];
+		return $links;
 	}
 }

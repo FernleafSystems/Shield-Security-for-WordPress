@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
+class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 
@@ -25,12 +25,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AddParamToFirewallWhitelist() {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
+	protected function ajaxExec_AddParamToFirewallWhitelist() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$bSuccess = false;
 
 		$nId = Services::Request()->post( 'rid' );
@@ -39,9 +36,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			$oEntry = $oMod->getDbHandler_AuditTrail()
-						   ->getQuerySelector()
-						   ->byId( $nId );
+			$oEntry = $mod->getDbHandler_AuditTrail()
+						  ->getQuerySelector()
+						  ->byId( $nId );
 
 			if ( empty( $oEntry ) ) {
 				$sMessage = __( 'Audit entry could not be loaded.', 'wp-simple-firewall' );
@@ -54,7 +51,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					$sMessage = __( 'Parameter associated with this audit entry could not be found.', 'wp-simple-firewall' );
 				}
 				else {
-					/** @var \ICWP_WPSF_FeatureHandler_Firewall $oModFire */
+					/** @var Shield\Modules\Firewall\ModCon $oModFire */
 					$oModFire = $this->getCon()->getModule( 'firewall' );
 					$oModFire->addParamToWhitelist( $sParam, $sUri );
 					$sMessage = sprintf( __( 'Parameter "%s" whitelisted successfully', 'wp-simple-firewall' ), $sParam );
@@ -69,15 +66,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BuildTableAuditTrail() {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_BuildTableAuditTrail() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
-			->setMod( $oMod )
-			->setDbHandler( $oMod->getDbHandler_AuditTrail() );
+			->setMod( $mod )
+			->setDbHandler( $mod->getDbHandler_AuditTrail() );
 
 		return [
 			'success' => true,

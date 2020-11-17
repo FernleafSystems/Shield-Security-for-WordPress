@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless;
 
-class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
+class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 
@@ -56,9 +56,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_LicenseHandling() {
-		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-		$oMod = $this->getMod();
-		$sHandler = $oMod->getLicenseHandler();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$sHandler = $mod->getLicenseHandler();
 
 		$bSuccess = false;
 		$sMessage = 'Unsupported license action';

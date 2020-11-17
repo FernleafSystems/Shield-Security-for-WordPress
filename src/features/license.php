@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**

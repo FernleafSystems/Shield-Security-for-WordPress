@@ -13,25 +13,30 @@ class ScanAlerts extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
-		$aAlerts = [];
+		$alerts = [];
 
-		/** @var HackGuard\Strings $oStrings */
-		$oStrings = $this->getMod()->getStrings();
-		$aScanNames = $oStrings->getScanNames();
+		/** @var HackGuard\Strings $strings */
+		$strings = $this->getMod()->getStrings();
 
-		$aScanItemCounts = array_filter( $this->countItemsForEachScan() );
-		if ( !empty( $aScanItemCounts ) ) {
-			foreach ( $aScanItemCounts as $sScan => $nCount ) {
-				$aScanItemCounts[ $sScan ] = [
-					'count' => $nCount,
-					'name'  => $aScanNames[ $sScan ],
+		$rep = $this->getReport();
+		$scanCounts = array_filter(
+			( new Query\ScanCounts( $rep->interval_start_at, $rep->interval_end_at ) )
+				->setMod( $this->getMod() )
+				->standard()
+		);
+
+		if ( !empty( $scanCounts ) ) {
+			foreach ( $scanCounts as $slug => $count ) {
+				$scanCounts[ $slug ] = [
+					'count' => $count,
+					'name'  => $strings->getScanNames()[ $slug ],
 				];
 			}
-			$aAlerts[] = $this->getMod()->renderTemplate(
+			$alerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/hack_protect/alert_scanresults.twig',
 				[
 					'vars'    => [
-						'scan_counts' => $aScanItemCounts
+						'scan_counts' => $scanCounts
 					],
 					'strings' => [
 						'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),
@@ -46,14 +51,14 @@ class ScanAlerts extends BaseReporter {
 			$this->markAlertsAsNotified();
 		}
 
-		return $aAlerts;
+		return $alerts;
 	}
 
 	private function markAlertsAsNotified() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Scanner\Update $oUpdater */
-		$oUpdater = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		$oUpdater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
 		$oUpdater
 			->setUpdateWheres( [
 				'ignored_at'  => 0,
@@ -63,36 +68,5 @@ class ScanAlerts extends BaseReporter {
 				'notified_at' => Services::Request()->ts()
 			] )
 			->query();
-	}
-
-	/**
-	 * TODO: As class that can be used by ShieldCentral also
-	 * @return int[] - key is scan slug
-	 */
-	private function countItemsForEachScan() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-
-		$aCounts = [];
-
-		$oRep = $this->getReport();
-
-		foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
-			$oSel->filterByScan( $sScanSlug )
-				 ->filterByNotNotified()
-				 ->filterByNotIgnored();
-			if ( !is_null( $oRep->interval_start_at ) ) {
-				$oSel->filterByCreatedAt( $oRep->interval_start_at, '>' );
-			}
-			if ( !is_null( $oRep->interval_end_at ) ) {
-				$oSel->filterByCreatedAt( $oRep->interval_end_at, '<' );
-			}
-			$aCounts[ $sScanSlug ] = $oSel->count();
-		}
-		return $aCounts;
 	}
 }

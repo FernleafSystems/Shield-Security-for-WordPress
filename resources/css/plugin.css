@@ -364,11 +364,23 @@ label input[type=checkbox] {
 .module-icon-support:before {
 	content: "\f525";
 }
-#NavItem-SearchOptionsLaunch > a {
-	width: 35px;
+#SearchOptionsLaunch > a {
+	text-decoration: none !important;
+}
+#SearchOptionsLaunch .dashicons {
+	width: 24px;
 	content: "\f179";
 	font-size: 24px;
 	color: #008000 !important;
+	line-height: 40px;
+}
+.bootstrap-select > button.dropdown-toggle,
+.bootstrap-select.show > button.dropdown-toggle {
+	background-color: transparent;
+	color: black !important;
+}
+.dropdown-item {
+	font-size: 1.05rem;
 }
 .dropdown-item .module-icon:before {
 	font-size: 1.6rem;
@@ -659,7 +671,6 @@ input:checked + .icwp-slider:before {
 }
 .carousel-item {
 	transition: -webkit-transform 0.3s ease;
-	transition: transform 0.2s ease;
 	transition: transform 0.2s ease, -webkit-transform 0.2s ease;
 }
 #AuditTrailTabs .tab-content {
@@ -699,13 +710,6 @@ input:checked + .icwp-slider:before {
 		left: -17px;
 	}
 }
-#FooterWizardBanner {
-	position: fixed;
-	bottom: 0;
-	height: 66px;
-	width: 100%;
-	z-index: 5;
-}
 #FooterWizardBanner .text-left {
 	margin-bottom: 0;
 }
@@ -716,21 +720,6 @@ input:checked + .icwp-slider:before {
 	height: 40px;
 	background-color: #fafafa;
 	background: linear-gradient(to top, rgba(250, 250, 250, 0.95), rgba(250, 250, 250, 0.7));
-}
-#WizardBanner {
-	height: 66px;
-	background-color: #eaffea;
-	border-top: 1px solid #bbbbbb;
-	padding-top: 15px;
-	text-align: center;
-	word-break: keep-all;
-	white-space: nowrap;
-	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-}
-#WizardBanner p {
-	margin: 0;
-	line-height: 20px;
-	text-align: left;
 }
 .icon-flag {
 	vertical-align: text-bottom;
@@ -800,8 +789,6 @@ th.column-request_info {
 }
 #odp-PageHead .nav-link.active {
 	font-weight: bold;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 3px;
 	color: #008000;
 }
 .nav-link.module.notenabled span.module-name {
@@ -824,7 +811,7 @@ th.column-request_info {
 .odp-outercontainer.icwp-wpsf-insights.settings #odp-PageMain {
 }
 .insights_section {
-	margin-top: 20px;
+	/*margin-top: 20px;*/
 }
 .insights_widget .card-body {
 	padding: 0 0 0 0;
@@ -957,7 +944,7 @@ table.scan-table.wp-list-table button.toggle-row {
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link {
 	color: #666666;
-	font-size: 1.4rem;
+	font-size: 0.9rem;
 	margin-right: 1rem;
 	background-color: rgba(0, 0, 0, 0.05);
 	border-color: rgba(0, 0, 0, 0.1);
@@ -1195,9 +1182,6 @@ a:hover {
 a:focus .gravatar, a:focus, a:focus .media-icon img {
 	box-shadow: none !important;
 }
-.wp-core-ui select {
-	min-height: 38px;
-}
 .col-form-label {
 	font-weight: bold;
 	padding-top: 0;
@@ -1298,6 +1282,11 @@ dl.pro-features dd {
 	background-color: rgba(69, 119, 0, 0.3);
 	border-color: rgba(69, 119, 0, 0.3);
 }
+.custom-control.custom-checkbox .custom-control-input:disabled,
+.custom-control.custom-radio .custom-control-input:disabled,
+.option-checkbox.custom-switch .custom-control-input:disabled {
+	opacity: 0;
+}
 .importexport-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
 	background-color: rgba(119, 107, 12, 1);
 	border-color: rgba(119, 107, 12, 1);
@@ -1312,7 +1301,15 @@ dl.pro-features dd {
 #FileLockerDiffContents .card-body {
 	padding: 1.25rem;
 }
-.overview.card {
+#odp-PageContainer .overview.card {
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
+}
+.overview.card,
+.overview.card .card-header,
+.overview.card .card-body {
+	border: 2px solid white !important;
+}
+.overview.card > .card-header {
 }
 .overview.card > .card-footer {
 	padding: 10px 15px;
@@ -1324,25 +1321,57 @@ dl.pro-features dd {
 .overview.card > .card-footer > a .dashicons {
 	font-size: 24px;
 }
+.overview.card.state-good .title-icon:before,
+.overview.card.state-good .card-title,
+.overview.card.state-good .card-header .card-link .dashicons {
+	color: #015b01;
+}
+.overview.card.state-ok .title-icon:before,
+.overview.card.state-ok .card-title,
+.overview.card.state-ok .card-header .card-link .dashicons {
+	color: #345c83;
+}
+.overview.card.state-warning .title-icon:before,
+.overview.card.state-warning .card-title,
+.overview.card.state-warning .card-header .card-link .dashicons {
+	color: #ae5403;
+}
+.overview.card.state-danger .title-icon:before,
+.overview.card.state-danger .card-title,
+.overview.card.state-danger .card-header .card-link .dashicons {
+	color: #811313;
+}
+.overview.card.state-danger .title-icon:before {
+	content: "\f153";
+}
+.overview.card.state-warning .title-icon:before {
+	content: "\f534";
+}
+.overview.card.state-ok .title-icon:before {
+	content: "\f348";
+}
+.overview.card.state-good .title-icon:before {
+	content: "\f12a";
+}
 .overview.card.state-danger,
 .overview.card.state-danger > .card-header,
 .overview.card.state-danger > .card-footer {
-	border-color: #cf0000;
+	/*border-color: #cf0000;*/
 }
 .overview.card.state-warning,
 .overview.card.state-warning > .card-header,
 .overview.card.state-warning > .card-footer {
-	border-color: #d26605;
+	/*border-color: #d26605;*/
 }
 .overview.card.state-ok,
 .overview.card.state-ok > .card-header,
 .overview.card.state-ok > .card-footer {
-	border-color: #0579d2;
+	/*border-color: #0579d2;*/
 }
 .overview.card.state-good,
 .overview.card.state-good > .card-header,
 .overview.card.state-good > .card-footer {
-	border-color: #008000;
+	/*border-color: #008000;*/
 }
 .overview.card.state-good > .card-header {
 	background-color: rgba(98, 214, 83, 0.2);
@@ -1438,4 +1467,101 @@ a.card_help {
 }
 #DynamicChangelog dd p {
 	margin-bottom: 5px;
+}
+#DashboardFeatureCards .card-footer {
+	background-color: transparent;
+}
+#DashboardFeatureCards .list-group-item {
+	border: 0 none;
+	padding: .3rem 0.2rem;
+}
+#DashboardFeatureCards .card.highlighted img {
+	filter: invert(100%);
+}
+#DashboardFeatureCards .card.highlighted .list-group-item {
+	background-color: transparent;
+}
+#DashboardFeatureCards .card.highlighted .list-group-item a {
+	color: white;
+}
+#DashboardFeatureCards .img-holder {
+	text-align: center;
+}
+#DashboardFeatureCards .img-holder .card-img-top {
+	width: 16%;
+}
+#DashboardFeatureCards .card-title img {
+	vertical-align: text-bottom;
+}
+#Dashboard_ModSettingsSelect .bootstrap-select,
+#Dashboard_ModSettingsSelect > select {
+	width: 100%;
+}
+#ModuleSettingsJump .bootstrap-select button {
+	padding: 0;
+	line-height: 15px;
+	background: transparent !important;
+	border: 0 none !important;
+	outline: 0 none !important;
+	box-shadow: 0 0 transparent !important;
+}
+#ModuleSettingsJump .bootstrap-select button::after {
+	content: none !important;
+}
+#ModuleSettingsJump .bootstrap-select button .filter-option-inner-inner {
+	font-size: 13px;
+	line-height: 20px;
+	color: #008000 !important;
+	font-weight: 500;
+}
+#ModuleSettingsJump .bootstrap-select,
+#ModuleSettingsJump select,
+#ModuleSettingsJump select:focus,
+#ModuleSettingsJump select:active {
+	background: transparent;
+	border: 0 none !important;
+	color: #008000;
+	vertical-align: inherit;
+}
+
+#wpfooter {
+	display: none;
+}
+#FooterBannerGoPro {
+	width: 100%;
+	background-color: white;
+	border-color: transparent;
+	border-width: 1px 1px 0 1px;
+	margin: auto;
+	padding-top: 15px;
+	text-align: center;
+	word-break: keep-all;
+	white-space: nowrap;
+	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+
+	position: absolute;
+	bottom: 0;
+	padding-left: 160px;
+	transition: 0.5s ease;
+}
+body.folded #FooterBannerGoPro {
+	padding-left: 40px;
+}
+@media (max-width: 1200px) {
+	#FooterBannerGoPro h6{
+		font-size: 14px;
+		letter-spacing: -1px;
+	}
+	#FooterBannerGoPro p{
+		font-size: 12px;
+		letter-spacing: -1px;
+	}
+}
+@media (max-width: 960px) {
+	#FooterBannerGoPro{
+		padding-left: 40px;
+	}
+}
+#odp-PageFoot {
+	height: 100px;
 }

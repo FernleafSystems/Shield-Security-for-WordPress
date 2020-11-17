@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 
 	const Slug = 'email';
@@ -22,7 +25,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		$oWp = Services::WpGeneral();
 
 		{
@@ -66,8 +69,8 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'much_more' => 'https://shsec.io/gp'
 					 ],
 					 'flags'   => [
-						 'is_pro'           => $oCon->isPremiumActive(),
-						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
+						 'is_pro'           => $con->isPremiumActive(),
+						 'is_whitelabelled' => $con->getModule_SecAdmin()->isWlEnabled()
 					 ]
 				 ] ),
 		];
@@ -94,28 +97,22 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		);
 	}
 
-	/**
-	 * @param string $templ
-	 * @param string $to
-	 * @param string $subject
-	 * @param array  $aBody
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function sendEmailWithTemplate( string $templ, string $to, string $subject, array $aBody ) {
-		$aData = [
-			'header' => $this->getEmailHeader(),
-			'body'   => $aBody,
-			'footer' => $this->getEmailFooter(),
-			'vars'   => [
-				'lang' => Services::WpGeneral()->getLocale( '-' )
-			]
-		];
-
+	public function sendEmailWithTemplate( string $templ, string $to, string $subject, array $body ) :bool {
 		return $this->send(
 			$to,
 			$subject,
-			$this->getMod()->renderTemplate( $templ, $aData, true )
+			$this->getMod()->renderTemplate(
+				$templ,
+				[
+					'header' => $this->getEmailHeader(),
+					'body'   => $body,
+					'footer' => $this->getEmailFooter(),
+					'vars'   => [
+						'lang' => Services::WpGeneral()->getLocale( '-' )
+					]
+				],
+				true
+			)
 		);
 	}
 

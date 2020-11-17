@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
@@ -11,10 +12,10 @@ class AssessLocks extends BaseOps {
 	 * @return int[]
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		/** @var FileLocker\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
+		$oUpd = $mod->getDbHandler_FileLocker()->getQueryUpdater();
 
 		$this->removeDuplicates();
 
@@ -47,11 +48,11 @@ class AssessLocks extends BaseOps {
 		$aPaths = [];
 		foreach ( $this->getFileLocks() as $oLock ) {
 			if ( in_array( $oLock->file, $aPaths ) ) {
-				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-				$oMod = $this->getMod();
-				$oMod->getDbHandler_FileLocker()
-					 ->getQueryDeleter()
-					 ->deleteById( $oLock->id );
+				/** @var ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getDbHandler_FileLocker()
+					->getQueryDeleter()
+					->deleteById( $oLock->id );
 			}
 			else {
 				$aPaths[] = $oLock->file;

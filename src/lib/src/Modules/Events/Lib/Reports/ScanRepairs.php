@@ -15,12 +15,12 @@ class ScanRepairs extends BaseReporter {
 	public function build() {
 		$aAlerts = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
+		/** @var Events\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var DBEvents\Select $oSelEvts */
-		$oSelEvts = $oMod->getDbHandler_Events()->getQuerySelector();
+		$oSelEvts = $mod->getDbHandler_Events()->getQuerySelector();
 		/** @var Events\Strings $oStrings */
-		$oStrings = $oMod->getStrings();
+		$oStrings = $mod->getStrings();
 
 		$oRep = $this->getReport();
 

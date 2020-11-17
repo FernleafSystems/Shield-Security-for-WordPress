@@ -14,8 +14,8 @@ class FileLockerAlerts extends BaseReporter {
 	public function build() {
 		$aAlerts = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 
 		$oLockOps = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )
 			->setMod( $this->getMod() );
@@ -26,7 +26,7 @@ class FileLockerAlerts extends BaseReporter {
 				'/components/reports/mod/hack_protect/alert_filelocker.twig',
 				[
 					'vars'    => [
-						'count' => $oMod->getFileLocker()->countProblems()
+						'count' => $mod->getFileLocker()->countProblems()
 					],
 					'strings' => [
 						'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
@@ -50,10 +50,10 @@ class FileLockerAlerts extends BaseReporter {
 	 * @param FileLocker\EntryVO[] $aNotNotified
 	 */
 	private function markAlertsAsNotified( $aNotNotified ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var FileLocker\Update $oUpdater */
-		$oUpdater = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
+		$oUpdater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
 		foreach ( $aNotNotified as $oEntry ) {
 			$oUpdater->markNotified( $oEntry );
 		}

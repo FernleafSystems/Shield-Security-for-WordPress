@@ -1,8 +1,12 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 	/**
@@ -98,7 +102,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	protected function doPassCheckBlockExeFileUploads() :bool {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
+		/** @var Firewall\ModCon $mod */
 		$mod = $this->getMod();
 
 		$sKey = 'exefile';
@@ -147,8 +151,8 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	private function doPassCheck( string $sBlockKey ) :bool {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
-		$oMod = $this->getMod();
+		/** @var Firewall\ModCon $mod */
+		$mod = $this->getMod();
 
 		$aMatchTerms = $this->getFirewallPatterns( $sBlockKey );
 		$aParamValues = $this->getParamsToCheck();
@@ -202,7 +206,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 						 'audit' => [
 							 'param'         => $sParam,
 							 'val'           => $mValue,
-							 'blockresponse' => $oMod->getBlockResponse(),
+							 'blockresponse' => $mod->getBlockResponse(),
 							 'blockkey'      => $sBlockKey,
 						 ]
 					 ]
@@ -248,7 +252,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	private function doFirewallBlock() {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
+		/** @var Firewall\ModCon $mod */
 		$mod = $this->getMod();
 
 		switch ( $mod->getBlockResponse() ) {

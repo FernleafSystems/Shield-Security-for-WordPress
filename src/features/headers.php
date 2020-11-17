@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function preProcessOptions() {

@@ -3,35 +3,32 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
-	protected function processNotice( $oNotice ) {
+	protected function processNotice( NoticeVO $notice ) {
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'email-verification-sent':
-				$this->buildNotice_EmailVerificationSent( $oNotice );
+				$this->buildNotice_EmailVerificationSent( $notice );
 				break;
 
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_EmailVerificationSent( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+	private function buildNotice_EmailVerificationSent( NoticeVO $notice ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'             => $this->getCon()->getHumanName()
@@ -46,33 +43,27 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'resend_verification_email' => $oMod->getAjaxActionData( 'resend_verification_email', true ),
-				'disable_2fa_email'         => $oMod->getAjaxActionData( 'disable_2fa_email', true ),
+				'resend_verification_email' => $mod->getAjaxActionData( 'resend_verification_email', true ),
+				'disable_2fa_email'         => $mod->getAjaxActionData( 'disable_2fa_email', true ),
 			]
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 * @return bool
-	 */
-	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'email-verification-sent':
-				$bNeeded = $oOpts->isEnabledEmailAuth()
-						   && !$oOpts->isEmailAuthenticationActive() && !$oOpts->getIfCanSendEmailVerified();
+				$needed = $opts->isEnabledEmailAuth()
+						  && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

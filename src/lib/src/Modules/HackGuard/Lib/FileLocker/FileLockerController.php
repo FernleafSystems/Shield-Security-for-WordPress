@@ -18,9 +18,9 @@ class FileLockerController {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return ( count( $oOpts->getFilesToLock() ) > 0 )
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return ( count( $opts->getFilesToLock() ) > 0 )
 			   && $this->getCon()
 					   ->getModule_Plugin()
 					   ->getShieldNetApiController()
@@ -31,10 +31,9 @@ class FileLockerController {
 	 * @return bool
 	 */
 	protected function canRun() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $this->isEnabled()
-			   && $oMod->getDbHandler_FileLocker()->isReady();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		return $this->isEnabled() && $mod->getDbHandler_FileLocker()->isReady();
 	}
 
 	protected function run() {
@@ -80,18 +79,18 @@ class FileLockerController {
 	}
 
 	/**
-	 * @param FileLocker\EntryVO $oVO
+	 * @param FileLocker\EntryVO $VO
 	 * @return string[]
 	 */
-	public function createFileDownloadLinks( $oVO ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+	public function createFileDownloadLinks( $VO ) {
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$aLinks = [];
 		foreach ( [ 'original', 'current' ] as $sType ) {
-			$aActionNonce = $oMod->getNonceActionData( 'filelocker_download_'.$sType );
-			$aActionNonce[ 'rid' ] = $oVO->id;
+			$aActionNonce = $mod->getNonceActionData( 'filelocker_download_'.$sType );
+			$aActionNonce[ 'rid' ] = $VO->id;
 			$aActionNonce[ 'rand' ] = rand();
-			$aLinks[ $sType ] = add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
+			$aLinks[ $sType ] = add_query_arg( $aActionNonce, $mod->getUrl_AdminPage() );
 		}
 		return $aLinks;
 	}
@@ -124,13 +123,13 @@ class FileLockerController {
 	}
 
 	public function deleteAllLocks() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getDbHandler_FileLocker()->tableDelete( true );
 	}
 
 	public function purge() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getDbHandler_FileLocker()->tableDelete();
 	}
@@ -220,14 +219,5 @@ class FileLockerController {
 		$oFile->max_levels = $nLevels;
 		$oFile->max_paths = $nMaxPaths;
 		return $oFile;
-	}
-
-	/**
-	 * @return FileLocker\Handler
-	 */
-	private function getDbHandler() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getDbHandler_FileLocker();
 	}
 }

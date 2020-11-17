@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta;
 
@@ -17,15 +18,11 @@ class AdminNotices {
 		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
 	}
 
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-		if ( empty( $aAjaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
-			$aAjaxResponse = $this->ajaxExec_DismissAdminNotice();
+	public function handleAuthAjax( array $ajaxResponse ) :array {
+		if ( empty( $ajaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
+			$ajaxResponse = $this->ajaxExec_DismissAdminNotice();
 		}
-		return $aAjaxResponse;
+		return $ajaxResponse;
 	}
 
 	protected function ajaxExec_DismissAdminNotice() :array {
@@ -33,13 +30,13 @@ class AdminNotices {
 
 		$sNoticeId = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
 
-		foreach ( $this->getAdminNotices() as $oNotice ) {
-			if ( $sNoticeId == $oNotice->id ) {
-				$this->setNoticeDismissed( $oNotice );
+		foreach ( $this->getAdminNotices() as $notice ) {
+			if ( $sNoticeId == $notice->id ) {
+				$this->setNoticeDismissed( $notice );
 				$aAjaxResponse = [
 					'success'   => true,
 					'message'   => 'Admin notice dismissed', //not currently seen
-					'notice_id' => $oNotice->id,
+					'notice_id' => $notice->id,
 				];
 				break;
 			}
@@ -81,37 +78,34 @@ class AdminNotices {
 	}
 
 	/**
-	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
+	 * @return NoticeVO[]
 	 */
-	protected function getAdminNotices() {
+	protected function getAdminNotices() :array {
 		return array_map(
-			function ( $aNotDef ) {
-				$aNotDef = Services::DataManipulation()
-								   ->mergeArraysRecursive(
-									   [
-										   'schedule'         => 'conditions',
-										   'type'             => 'promo',
-										   'plugin_page_only' => true,
-										   'valid_admin'      => true,
-										   'plugin_admin'     => 'yes',
-										   'can_dismiss'      => true,
-										   'per_user'         => false,
-										   'display'          => false,
-										   'min_install_days' => 0,
-										   'twig'             => true,
-									   ],
-									   $aNotDef
-								   );
-				return ( new Shield\Utilities\AdminNotices\NoticeVO() )->applyFromArray( $aNotDef );
+			function ( $noticeDef ) {
+				$noticeDef = Services::DataManipulation()
+									 ->mergeArraysRecursive(
+										 [
+											 'schedule'         => 'conditions',
+											 'type'             => 'promo',
+											 'plugin_page_only' => true,
+											 'valid_admin'      => true,
+											 'plugin_admin'     => 'yes',
+											 'can_dismiss'      => true,
+											 'per_user'         => false,
+											 'display'          => false,
+											 'min_install_days' => 0,
+											 'twig'             => true,
+										 ],
+										 $noticeDef
+									 );
+				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},
 			$this->getOptions()->getAdminNotices()
 		);
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
-	 */
-	protected function preProcessNotice( $notice ) {
+	protected function preProcessNotice( NoticeVO $notice ) {
 		$con = $this->getCon();
 		$opts = $this->getOptions();
 
@@ -152,7 +146,7 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
+	 * @param NoticeVO $notice
 	 * @return bool
 	 */
 	protected function isNoticeDismissed( $notice ) {
@@ -169,15 +163,15 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param NoticeVO $notice
 	 * @return bool
 	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		return true;
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
+	 * @param NoticeVO $notice
 	 * @return bool
 	 */
 	protected function isNoticeDismissedForCurrentUser( $notice ) {
@@ -201,15 +195,15 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param NoticeVO $notice
 	 * @throws \Exception
 	 */
-	protected function processNotice( $oNotice ) {
-		throw new \Exception( 'Unsupported Notice ID: '.$oNotice->id );
+	protected function processNotice( NoticeVO $notice ) {
+		throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
+	 * @param NoticeVO $notice
 	 * @return $this
 	 */
 	protected function setNoticeDismissed( $notice ) {
@@ -238,7 +232,7 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
+	 * @param NoticeVO $notice
 	 * @return string
 	 */
 	private function getNoticeMetaKey( $notice ) {

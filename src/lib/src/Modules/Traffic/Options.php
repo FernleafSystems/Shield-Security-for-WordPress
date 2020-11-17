@@ -2,36 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
-	/**
-	 * @return int
-	 */
-	public function getAutoCleanDays() {
+	public function getAutoCleanDays() :int {
 		return (int)$this->getOpt( 'auto_clean' );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getCustomExclusions() {
-		$aEx = $this->getOpt( 'custom_exclusions' );
-		return is_array( $aEx ) ? $aEx : [];
+	public function getCustomExclusions() :array {
+		$ex = $this->getOpt( 'custom_exclusions' );
+		return is_array( $ex ) ? $ex : [];
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getLimitRequestCount() {
+	public function getLimitRequestCount() :int {
 		return (int)$this->getOpt( 'limit_requests' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getLimitTimeSpan() {
+	public function getLimitTimeSpan() :int {
 		return (int)$this->getOpt( 'limit_time_span' );
 	}
 
@@ -39,35 +27,18 @@ class Options extends Base\ShieldOptions {
 		return (int)$this->getOpt( 'max_entries' );
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getReqTypeExclusions() {
-		$aEx = $this->getOpt( 'type_exclusions' );
-		return is_array( $aEx ) ? $aEx : [];
+	public function getReqTypeExclusions() :array {
+		$ex = $this->getOpt( 'type_exclusions' );
+		return is_array( $ex ) ? $ex : [];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isTrafficLoggerEnabled() {
+	public function isTrafficLoggerEnabled() :bool {
 		return $this->isOpt( 'enable_traffic', 'Y' ) && $this->isOpt( 'enable_logger', 'Y' )
 			   && $this->getMaxEntries() > 0 && $this->getAutoCleanDays() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isTrafficLimitEnabled() {
+	public function isTrafficLimitEnabled() :bool {
 		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_TrafficLog() {
-		return $this->getCon()->prefixOption( $this->getDef( 'traffic_table_name' ) );
 	}
 }

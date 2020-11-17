@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 
 /**
  * Class PerformAction
@@ -17,8 +18,8 @@ class PerformAction extends BaseOps {
 	 * @throws \Exception
 	 */
 	public function run( $nLockID, $sAction ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		if ( !in_array( $sAction, [ 'accept', 'restore', 'diff' ] ) ) {
 			throw new \Exception( __( 'Not a supported file lock action.', 'wp-simple-firewall' ) );
@@ -26,7 +27,7 @@ class PerformAction extends BaseOps {
 		if ( !is_numeric( $nLockID ) ) {
 			throw new \Exception( __( 'Please select a valid file.', 'wp-simple-firewall' ) );
 		}
-		$oLock = $oMod->getDbHandler_FileLocker()
+		$oLock = $mod->getDbHandler_FileLocker()
 					  ->getQuerySelector()
 					  ->byId( (int)$nLockID );
 		if ( !$oLock instanceof Databases\FileLocker\EntryVO ) {

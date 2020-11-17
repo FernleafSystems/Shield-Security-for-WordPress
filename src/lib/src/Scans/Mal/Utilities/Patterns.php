@@ -18,11 +18,11 @@ class Patterns {
 	 * @return string[][]
 	 */
 	public function retrieve() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var Modules\HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 
 		$oCacheDef = new Cache\CacheDefVO();
-		$oCacheDef->dir = $oMod->getTempDir();
+		$oCacheDef->dir = $mod->getTempDir();
 		if ( !empty( $oCacheDef->dir ) ) {
 			$oCacheDef->file_fragment = 'cache_patterns.txt';
 			$oCacheDef->expiration = HOUR_IN_SECONDS;

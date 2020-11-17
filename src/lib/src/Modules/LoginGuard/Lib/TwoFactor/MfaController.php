@@ -11,16 +11,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class MfaController {
 
 	use Shield\Modules\ModConsumer;
+	use Shield\Utilities\Consumer\WpLoginCapture;
 
 	/**
 	 * @var Provider\BaseProvider[]
 	 */
 	private $aProviders;
-
-	/**
-	 * @var bool
-	 */
-	protected $bLoginAttemptCaptured;
 
 	/**
 	 * @var LoginIntentPage
@@ -29,23 +25,15 @@ class MfaController {
 
 	public function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
-		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
-		if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
-			add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
-		}
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 10, 2 );
+		$this->setupLoginCaptureHooks();
 	}
 
 	public function onWpInit() {
-		$this->assessLoginIntent();
-	}
-
-	/**
-	 * @param string   $sUsername
-	 * @param \WP_User $oUser
-	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		$this->captureLoginIntent( $oUser );
+		$user = Services::WpUsers()->getCurrentWpUser();
+		if ( $user instanceof \WP_User ) {
+			$this->assessLoginIntent( $user );
+		}
 	}
 
 	public function onWpLoaded() {
@@ -58,51 +46,34 @@ class MfaController {
 		} );
 	}
 
-	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
-	 */
-	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->captureLoginIntent( Services::WpUsers()->getUserById( $nUserId ) );
+	protected function captureLogin( \WP_User $user ) {
+		$this->captureLoginIntent( $user );
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 */
-	private function captureLoginIntent( $oUser ) {
-		if ( empty( $this->bLoginAttemptCaptured ) && $oUser instanceof \WP_User ) {
-			$this->bLoginAttemptCaptured = true;
+	private function captureLoginIntent( \WP_User $user ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $this->isSubjectToLoginIntent( $user ) && !$this->canUserMfaSkip( $user ) ) {
 
-			/** @var LoginGuard\Options $opts */
-			$opts = $this->getOptions();
-			if ( $this->isSubjectToLoginIntent( $oUser ) && !$this->canUserMfaSkip( $oUser ) ) {
-
-				$aProviders = $this->getProvidersForUser( $oUser );
-				if ( !empty( $aProviders ) ) {
-					foreach ( $aProviders as $oProvider ) {
-						$oProvider->captureLoginAttempt( $oUser );
-					}
-
-					$this->setLoginIntentExpiresAt(
-						Services::Request()
-								->carbon()
-								->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
-					);
+			$providers = $this->getProvidersForUser( $user );
+			if ( !empty( $providers ) ) {
+				foreach ( $providers as $provider ) {
+					$provider->captureLoginAttempt( $user );
 				}
+
+				$this->setLoginIntentExpiresAt(
+					Services::Request()
+							->carbon()
+							->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
+				);
 			}
 		}
 	}
 
-	/**
-	 * Deals with the scenario when the user session has a login intent.
-	 */
-	private function assessLoginIntent() {
-		$oUser = Services::WpUsers()->getCurrentWpUser();
-		if ( $oUser instanceof \WP_User && $this->hasLoginIntent() ) {
+	private function assessLoginIntent( \WP_User $user ) {
+		if ( $this->getLoginIntentExpiresAt() > 0 ) {
 
-			if ( $this->isSubjectToLoginIntent( $oUser ) ) {
+			if ( $this->isSubjectToLoginIntent( $user ) ) {
 
 				if ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() ) {
 					$this->processActiveLoginIntent();
@@ -120,10 +91,7 @@ class MfaController {
 		}
 	}
 
-	/**
-	 * @return LoginIntentPage
-	 */
-	private function getLoginIntentPageHandler() {
+	private function getLoginIntentPageHandler() :LoginIntentPage {
 		if ( !isset( $this->oLoginIntentPageHandler ) ) {
 			$this->oLoginIntentPageHandler = ( new LoginIntentPage() )->setMfaController( $this );
 		}
@@ -133,7 +101,7 @@ class MfaController {
 	/**
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProviders() {
+	public function getProviders() :array {
 		if ( !is_array( $this->aProviders ) ) {
 			$this->aProviders = [
 				Provider\Email::SLUG      => ( new Provider\Email() )->setMod( $this->getMod() ),
@@ -148,81 +116,81 @@ class MfaController {
 
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 * @param bool     $bOnlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProvidersForUser( $oUser, $bOnlyActiveProfiles = false ) {
-		$aPs = array_filter( $this->getProviders(),
-			function ( $oProvider ) use ( $oUser, $bOnlyActiveProfiles ) {
+	public function getProvidersForUser( $user, $bOnlyActiveProfiles = false ) {
+		$Ps = array_filter( $this->getProviders(),
+			function ( $oProvider ) use ( $user, $bOnlyActiveProfiles ) {
 				/** @var Provider\BaseProvider $oProvider */
-				return $oProvider->isProviderAvailableToUser( $oUser )
-					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $oUser ) );
+				return $oProvider->isProviderAvailableToUser( $user )
+					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $user ) );
 			}
 		);
 
 		// Neither BackupCode NOR U2F should EVER be the only 1 provider available.
-		if ( count( $aPs ) === 1 ) {
+		if ( count( $Ps ) === 1 ) {
 			/** @var Provider\BaseProvider $oFirst */
-			$oFirst = reset( $aPs );
+			$oFirst = reset( $Ps );
 			if ( !$oFirst::STANDALONE ) {
-				$aPs = [];
+				$Ps = [];
 			}
 		}
-		return $aPs;
+		return $Ps;
 	}
 
 	/**
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
 	private function processActiveLoginIntent() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oCon = $this->getCon();
-		$oReq = Services::Request();
-		$oWpResp = Services::Response();
-		$oWpUsers = Services::WpUsers();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$con = $this->getCon();
+		$req = Services::Request();
+		$WPResp = Services::Response();
+		$WPUsers = Services::WpUsers();
 
 		// Is 2FA/login-intent submit
-		if ( $oReq->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
+		if ( $req->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
 
-			if ( $oReq->post( 'cancel' ) == 1 ) {
-				$oWpUsers->logoutUser(); // clears the login and login intent
-				$sRedirectHref = $oReq->post( 'cancel_href' );
-				empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( $sRedirectHref );
+			if ( $req->post( 'cancel' ) == 1 ) {
+				$WPUsers->logoutUser(); // clears the login and login intent
+				$sRedirectHref = $req->post( 'cancel_href' );
+				empty( $sRedirectHref ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $sRedirectHref );
 			}
 			elseif ( $this->validateLoginIntentRequest() ) {
 
-				if ( $oReq->post( 'skip_mfa' ) === 'Y' ) {
+				if ( $req->post( 'skip_mfa' ) === 'Y' ) {
 					( new MfaSkip() )
 						->setMod( $this->getMod() )
-						->addMfaSkip( $oWpUsers->getCurrentWpUser() );
+						->addMfaSkip( $WPUsers->getCurrentWpUser() );
 				}
 
-				$oCon->fireEvent( '2fa_success' );
+				$con->fireEvent( '2fa_success' );
 
 				$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
-				if ( $oOpts->isEnabledBackupCodes() ) {
+				if ( $opts->isEnabledBackupCodes() ) {
 					$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
 				}
 				$this->getMod()->setFlashAdminNotice( $sFlash );
 
 				$this->removeLoginIntent();
 
-				$sRedirectHref = $oReq->post( 'redirect_to' );
-				empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
+				$sRedirectHref = $req->post( 'redirect_to' );
+				empty( $sRedirectHref ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $sRedirectHref ) );
 			}
 			else {
-				$oCon->getAdminNotices()
-					 ->addFlash(
-						 __( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
-						 true
-					 );
+				$con->getAdminNotices()
+					->addFlash(
+						__( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
+						true
+					);
 				// We don't protect against loops here to prevent bypassing of the login intent page.
 				Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
 			}
 		}
-		elseif ( $oOpts->isUseLoginIntentPage() ) {
+		elseif ( $opts->isUseLoginIntentPage() ) {
 			$this->getLoginIntentPageHandler()->loadPage();
 		}
 		die();
@@ -234,54 +202,40 @@ class MfaController {
 	 */
 	private function validateLoginIntentRequest() {
 		try {
-			$bValid = ( new ValidateLoginIntentRequest() )
+			$valid = ( new ValidateLoginIntentRequest() )
 				->setMfaController( $this )
 				->run();
 		}
-		catch ( \Exception $oE ) {
-			$bValid = true;
+		catch ( \Exception $e ) {
+			$valid = true;
 		}
-		return $bValid;
+		return $valid;
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	private function canUserMfaSkip( $oUser ) {
-		$bCanSkip = ( new MfaSkip() )
+	private function canUserMfaSkip( \WP_User $user ) :bool {
+		$canSkip = ( new MfaSkip() )
 			->setMod( $this->getMod() )
-			->canMfaSkip( $oUser );
+			->canMfaSkip( $user );
 
-		if ( !$bCanSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
+		if ( !$canSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
-			$oMeta = $this->getCon()->getUserMeta( $oUser );
-			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
+			$meta = $this->getCon()->getUserMeta( $user );
+			$canSkip = isset( $meta->wc_social_login_valid ) ? $meta->wc_social_login_valid : false;
 		}
 
-		return apply_filters( 'odp-shield-2fa_skip', $bCanSkip );
+		return (bool)apply_filters( 'icwp_shield_2fa_skip',
+			apply_filters( 'odp-shield-2fa_skip', $canSkip ) );
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	private function isSubjectToLoginIntent( $oUser ) {
-		return count( $this->getProvidersForUser( $oUser, true ) ) > 0;
+	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
+		return count( $this->getProvidersForUser( $user, true ) ) > 0;
 	}
 
-	/**
-	 * @return int
-	 */
-	private function getLoginIntentExpiresAt() {
-		return $this->getMod()->hasSession() ? $this->getMod()->getSession()->login_intent_expires_at : 0;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function hasLoginIntent() {
-		return $this->getLoginIntentExpiresAt() > 0;
+	private function getLoginIntentExpiresAt() :int {
+		return $this->getCon()
+					->getModule_Sessions()
+					->getSessionCon()
+					->hasSession() ? (int)$this->getMod()->getSession()->login_intent_expires_at : 0;
 	}
 
 	/**
@@ -292,25 +246,26 @@ class MfaController {
 		return $this->setLoginIntentExpiresAt( 0 );
 	}
 
-	/**
-	 * @param int $nExpirationTime
-	 * @return $this
-	 */
-	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->hasSession() ) {
-			/** @var Update $oUpd */
-			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->updateLoginIntentExpiresAt( $oMod->getSession(), $nExpirationTime );
+	protected function setLoginIntentExpiresAt( int $expiresAt ) :self {
+		$sessMod = $this->getCon()->getModule_Sessions();
+		$sessCon = $sessMod->getSessionCon();
+		if ( $sessCon->hasSession() ) {
+			/** @var Update $upd */
+			$upd = $sessMod->getDbHandler_Sessions()->getQueryUpdater();
+			$upd->updateLoginIntentExpiresAt( $sessCon->getCurrent(), $expiresAt );
 		}
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getLoginIntentRequestFlag() {
+	private function getLoginIntentRequestFlag() :string {
 		return $this->getCon()->prefix( 'login-intent-request' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 10.1
+	 */
+	private function hasLoginIntent() :bool {
+		return $this->getLoginIntentExpiresAt() > 0;
 	}
 }

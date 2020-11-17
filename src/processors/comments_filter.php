@@ -4,13 +4,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 	}
 
 	public function onWpInit() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		/** @var CommentsFilter\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
@@ -30,9 +33,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 			}
 
 			if ( Services::Request()->isPost() ) {
-				( new CommentsFilter\Scan\Scanner() )
-					->setMod( $this->getMod() )
-					->run();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
 			elseif ( $opts->isEnabledGaspCheck() ) {

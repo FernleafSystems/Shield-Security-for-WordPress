@@ -1,0 +1,38 @@
+<div class="card h-100 {{ c.classes|default([]) is empty ? 'border-success' : c.classes|join(" ") }}">
+
+	{% block header %}
+{#		<div class="card-header">{{ c.title }}</div>#}
+	{% endblock %}
+
+	{% block body %}
+		<div class="card-body">
+			<h5 class="card-title">
+
+				{% if c.img|default('') is not empty %}
+					<img src="{{ c.img }}"
+						 class="img-fluid"
+						 width="24px"
+						 alt="...">
+				{% endif %}
+				{{ c.title }}
+			</h5>
+			{% for p in c.paras %}
+				<p class="card-text">{{ p }}</p>
+			{% endfor %}
+		</div>
+	{% endblock %}
+
+	{% block footer %}
+		<div class="card-footer">
+			<ul class="list-group list-group-flush">
+			{% for action in c.actions %}
+				<li class="list-group-item">
+					<a href="{{ action.href }}"
+					   {% if action.new|default(false) %}target="_blank"{% endif %}
+					>{{ action.text }}</a>
+				</li>
+			{% endfor %}
+			</ul>
+		</div>
+	{% endblock %}
+</div>

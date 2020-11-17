@@ -5,12 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ShieldUI
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.1
+ */
 class ShieldUI extends UI {
 
-	/**
-	 * @return array
-	 */
-	public function getBaseDisplayData() {
+	public function getBaseDisplayData() :array {
+		$con = $this->getCon();
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $mod */
 		$mod = $this->getMod();
 
@@ -40,11 +43,10 @@ class ShieldUI extends UI {
 					'sec_admin_login' => $mod->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'show_promo'  => !$this->getCon()->isPremiumActive(),
 					'has_session' => $mod->hasSession()
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $mod->isWlEnabled() ?
+					'aar_forget_key' => $con->getModule_SecAdmin()->isWlEnabled() ?
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
 				],
 				'classes' => [
@@ -55,7 +57,14 @@ class ShieldUI extends UI {
 						Services::Request()->query( 'inav', '' )
 					] ) )
 				],
+				'vars'    => [
+					'related_hrefs' => $this->getSettingsRelatedLinks()
+				]
 			]
 		);
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		return [];
 	}
 }

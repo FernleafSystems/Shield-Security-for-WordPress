@@ -364,10 +364,7 @@ class Options {
 		return $aKeys;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getOptionsForPluginUse() {
+	public function getOptionsForPluginUse() :array {
 
 		$aOptionsData = [];
 
@@ -562,18 +559,15 @@ class Options {
 	}
 
 	/**
-	 * @param string $sOptKey
-	 * @param string $sProperty
+	 * @param string $key
+	 * @param string $prop
 	 * @return mixed|null
 	 */
-	public function getOptProperty( $sOptKey, $sProperty ) {
-		$aOpt = $this->getRawData_SingleOption( $sOptKey );
-		return ( is_array( $aOpt ) && isset( $aOpt[ $sProperty ] ) ) ? $aOpt[ $sProperty ] : null;
+	public function getOptProperty( string $key, string $prop ) {
+		$opt = $this->getRawData_SingleOption( $key );
+		return $opt[ $prop ] ?? null;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getStoredOptions() :array {
 		try {
 			return $this->loadOptionsValuesFromStorage();
@@ -590,22 +584,14 @@ class Options {
 		return $this->aRawOptionsConfigData;
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @return array
-	 */
-	protected function getRawData_AllOptions() {
-		$aRaw = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRaw[ 'options' ] ) && is_array( $aRaw[ 'options' ] ) ) ? $aRaw[ 'options' ] : [];
+	protected function getRawData_AllOptions() :array {
+		$raw = $this->getRawData_FullFeatureConfig();
+		return $raw[ 'options' ] ?? [];
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @return array
-	 */
-	protected function getRawData_OptionsSections() {
-		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'sections' ] ) ? $aAllRawOptions[ 'sections' ] : [];
+	protected function getRawData_OptionsSections() :array {
+		$raw = $this->getRawData_FullFeatureConfig();
+		return $raw[ 'sections' ] ?? [];
 	}
 
 	protected function getRawData_Requirements() :array {
@@ -613,27 +599,18 @@ class Options {
 		return $raw[ 'requirements' ] ?? [];
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @return array
-	 */
-	protected function getRawData_MenuItems() {
-		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'menu_items' ] ) ? $aAllRawOptions[ 'menu_items' ] : [];
+	protected function getRawData_MenuItems() :array {
+		$raw = $this->getRawData_FullFeatureConfig();
+		return $raw[ 'menu_items' ] ?? [];
 	}
 
-	/**
-	 * Return the section of the Raw config that is the "options" key only.
-	 * @param string $key
-	 * @return array
-	 */
-	public function getRawData_SingleOption( $key ) {
-		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( isset( $aOption[ 'key' ] ) && ( $key == $aOption[ 'key' ] ) ) {
-				return $aOption;
+	public function getRawData_SingleOption( string $key ) :array {
+		foreach ( $this->getRawData_AllOptions() as $opt ) {
+			if ( isset( $opt[ 'key' ] ) && ( $key == $opt[ 'key' ] ) ) {
+				return $opt;
 			}
 		}
-		return null;
+		return [];
 	}
 
 	public function getRebuildFromFile() :bool {
@@ -644,11 +621,11 @@ class Options {
 	 * @param string $key
 	 * @return string
 	 */
-	public function getSelectOptionValueText( $key ) {
+	public function getSelectOptionValueText( string $key ) {
 		$sText = '';
-		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $aOpt ) {
-			if ( $aOpt[ 'value_key' ] == $this->getOpt( $key ) ) {
-				$sText = $aOpt[ 'text' ];
+		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
+			if ( $opt[ 'value_key' ] == $this->getOpt( $key ) ) {
+				$sText = $opt[ 'text' ];
 				break;
 			}
 		}
@@ -678,16 +655,20 @@ class Options {
 		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
 	}
 
+	public function isOptAdvanced( string $key ) :bool {
+		return (bool)$this->getOptProperty( $key, 'advanced' );
+	}
+
 	public function isOptChanged( string $key ) :bool {
 		return is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
 	}
 
-	public function isOptPremium( string $optKey ) :bool {
-		return (bool)$this->getOptProperty( $optKey, 'premium' );
+	public function isOptPremium( string $key ) :bool {
+		return (bool)$this->getOptProperty( $key, 'premium' );
 	}
 
-	public function resetOptToDefault( string $optKey ) :self {
-		return $this->setOpt( $optKey, $this->getOptDefault( $optKey ) );
+	public function resetOptToDefault( string $key ) :self {
+		return $this->setOpt( $key, $this->getOptDefault( $key ) );
 	}
 
 	/**

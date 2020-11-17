@@ -81,13 +81,13 @@ if ( typeof icwp_wpsf_vars_tourmanager !== 'undefined' ) {
 
 var iCWP_WPSF_Toaster = new function () {
 
-	this.showMessage = function ( sMessage, bSuccess ) {
+	this.showMessage = function ( msg, success ) {
 		let $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
 		let $oToastBody = jQuery( '.toast-body', $oNewToast );
 		$oToastBody.html( '' );
 
-		jQuery( '<span></span>' ).html( sMessage )
-								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
+		jQuery( '<span></span>' ).html( msg )
+								 .addClass( success ? 'text-dark' : 'text-danger' )
 								 .appendTo( $oToastBody );
 
 		$oNewToast.css( 'z-index', 1000 );

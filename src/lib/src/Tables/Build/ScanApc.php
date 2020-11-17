@@ -18,8 +18,8 @@ class ScanApc extends ScanBase {
 	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 
 		$oCarbon = Services::Request()->carbon();
 
@@ -30,7 +30,7 @@ class ScanApc extends ScanBase {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			/** @var Shield\Scans\Apc\ResultItem $oIt */
 			$oIt = $oConverter
-				->setScanController( $oMod->getScanCon( $oEntry->scan ) )
+				->setScanController( $mod->getScanCon( $oEntry->scan ) )
 				->convertVoToResultItem( $oEntry );
 			$oPlugin = $oWpPlugins->getPluginAsVo( $oIt->slug );
 			$aE = $oEntry->getRawDataAsArray();

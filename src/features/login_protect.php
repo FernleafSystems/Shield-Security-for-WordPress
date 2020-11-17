@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -286,18 +289,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getNamespaceBase() :string {
 		return 'LoginGuard';
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getCustomLoginPath() {
-		return $this->getOptions()->getOpt( 'rename_wplogin_path', '' );
 	}
 }

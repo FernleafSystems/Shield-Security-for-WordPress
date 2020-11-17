@@ -63,6 +63,7 @@
     {
       "key":         "enable_lockdown",
       "section":     "section_enable_plugin_feature_wordpress_lockdown",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4r",
@@ -85,6 +86,7 @@
     {
       "key":         "disable_anonymous_restapi",
       "section":     "section_apixml",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",

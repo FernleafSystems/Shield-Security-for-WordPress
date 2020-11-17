@@ -73,6 +73,7 @@
     {
       "key":         "enable_firewall",
       "section":     "section_enable_plugin_feature_wordpress_firewall",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/43",
@@ -84,6 +85,7 @@
     {
       "key":         "include_cookie_checks",
       "section":     "section_firewall_blocking_options",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -161,6 +163,7 @@
     {
       "key":         "block_leading_schema",
       "section":     "section_firewall_blocking_options",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -172,6 +175,7 @@
     {
       "key":         "block_aggressive",
       "section":     "section_firewall_blocking_options",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -183,6 +187,7 @@
     {
       "key":           "block_response",
       "section":       "section_choose_firewall_block_response",
+      "advanced":      true,
       "default":       "redirect_die_message",
       "type":          "select",
       "value_options": [
@@ -223,6 +228,7 @@
     {
       "key":         "page_params_whitelist",
       "section":     "section_whitelist",
+      "advanced":    true,
       "default":     "",
       "type":        "comma_separated_lists",
       "link_info":   "https://shsec.io/2a",
@@ -234,6 +240,7 @@
     {
       "key":         "whitelist_admins",
       "section":     "section_whitelist",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",

@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
@@ -21,12 +24,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	/**
-	 * @param string   $sUsername
+	 * @param string   $username
 	 * @param \WP_User $user
 	 */
-	public function onWpLogin( $sUsername, $user ) {
+	public function onWpLogin( $username, $user ) {
 		if ( !$user instanceof \WP_User ) {
-			$user = Services::WpUsers()->getUserByUsername( $sUsername );
+			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
 		$this->enforceSessionLimits( $user );
 	}
@@ -48,21 +51,22 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	private function checkCurrentSession() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$con = $this->getCon();
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		try {
 			if ( $mod->hasValidRequestIP() ) {
 				$this->assessSession();
 			}
 		}
-		catch ( \Exception $oE ) {
-			$sEvent = $oE->getMessage();
-			$this->getCon()
-				 ->fireEvent( $sEvent );
-			$mod->getSessionsProcessor()
+		catch ( \Exception $e ) {
+			$event = $e->getMessage();
+			$con->fireEvent( $event );
+			$con->getModule_Sessions()
+				->getSessionCon()
 				->terminateCurrentSession();
-			$oU = Services::WpUsers();
-			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $sEvent ] ) : $oU->logoutUser( true );
+			$WPU = Services::WpUsers();
+			is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
 		}
 	}
 
@@ -110,36 +114,35 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	protected function enforceSessionLimits( $oUser ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+	protected function enforceSessionLimits( $user ) {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
-		$nSessionLimit = $oOpts->getOpt( 'session_username_concurrent_limit', 1 );
-		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
+		$nSessionLimit = $opts->getOpt( 'session_username_concurrent_limit', 1 );
+		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $user instanceof WP_User ) {
 			$this->setLoginCaptured();
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-			$oMod = $this->getMod();
 			try {
-				$oMod->getDbHandler_Sessions()
+				$this->getMod()
+					 ->getDbHandler_Sessions()
 					 ->getQueryDeleter()
-					 ->addWhere( 'wp_username', $oUser->user_login )
+					 ->addWhere( 'wp_username', $user->user_login )
 					 ->deleteExcess( $nSessionLimit, 'last_activity_at', true );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 	}
 
 	/**
-	 * @param \WP_Error $oError
+	 * @param \WP_Error $error
 	 * @return \WP_Error
 	 */
-	public function addLoginMessage( $oError ) {
+	public function addLoginMessage( $error ) {
 
-		if ( !$oError instanceof \WP_Error ) {
-			$oError = new \WP_Error();
+		if ( !$error instanceof \WP_Error ) {
+			$error = new \WP_Error();
 		}
 
 		$sForceLogout = Services::Request()->query( 'shield-forcelogout' );
@@ -176,8 +179,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 			}
 
 			$sMessage .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
-			$oError->add( 'shield-forcelogout', $sMessage );
+			$error->add( 'shield-forcelogout', $sMessage );
 		}
-		return $oError;
+		return $error;
 	}
 }

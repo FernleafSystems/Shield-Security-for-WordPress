@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use WP_CLI;
 
 class Enumerate extends BaseWpCliCmd {
@@ -32,11 +33,11 @@ class Enumerate extends BaseWpCliCmd {
 	}
 
 	public function cmdPrint( $null, $aA ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$oRtr = ( new Ops\RetrieveIpsForLists() )
-			->setDbHandler( $oMod->getDbHandler_IPs() );
+			->setDbHandler( $mod->getDbHandler_IPs() );
 		$aIPs = $aA[ 'list' ] === 'white' ? $oRtr->white() : $oRtr->black();
 		$aIPs = array_map(
 			function ( $sIP ) {

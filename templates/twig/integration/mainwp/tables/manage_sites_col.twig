@@ -1,0 +1,56 @@
+{% if flags.is_active %}
+
+	<span data-tooltip="{{ strings.tooltip_issues_found }}: {{ vars.issues_count }}"
+		  data-position="left center">
+		<a class="ui mini compact button {{ vars.issues_count > 0 ? 'red':'green' }}"
+		   href="{{ hrefs.this_extension }}">{{ vars.issues_count }}</a>
+	</span>
+
+{% elseif flags.is_sync_rqd %}
+	<span data-tooltip="{{ strings.tooltip_sync_required }}"
+		  data-position="left center">
+			<a href="{{ hrefs.this_extension }}">
+				<i class="circular inverted orange exclamation icon"></i>
+			</a>
+		</span>
+
+{% elseif flags.is_notpro %}
+	<span data-tooltip="{{ strings.tooltip_notpro }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}">
+			<i class="circular inverted orange icon exclamation"></i>
+		</a>
+	</span>
+
+{% elseif flags.is_mwpnoton %}
+	<span data-tooltip="{{ strings.tooltip_mwpnoton }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}">
+			<i class="circular inverted orange icon exclamation"></i>
+		</a>
+	</span>
+
+{% elseif flags.is_inactive %}
+	<span data-tooltip="{{ strings.tooltip_inactive }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}">
+			<i class="circular inverted red icon exclamation"></i>
+		</a>
+	</span>
+
+{% elseif flags.is_version_mismatch %}
+	<span data-tooltip="{{ strings.tooltip_version_mismatch }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}">
+			<i class="circular inverted orange exclamation icon"></i>
+		</a>
+	</span>
+
+{% else %}
+	<span data-tooltip="{{ strings.tooltip_not_installed }}"
+		  data-position="left center">
+		<a href="{{ hrefs.this_extension }}">
+			<i class="circular inverted red icon exclamation"></i>
+		</a>
+	</span>
+{% endif %}

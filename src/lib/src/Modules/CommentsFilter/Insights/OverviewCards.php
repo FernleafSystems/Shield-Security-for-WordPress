@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		/** @var CommentsFilter\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
+		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
 		$cardSection = [

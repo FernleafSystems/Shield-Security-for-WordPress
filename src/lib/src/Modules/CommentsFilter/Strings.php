@@ -87,14 +87,14 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
-		$sModName = $this->getMod()->getMainFeatureName();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_comments_filter' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$sSummary = __( 'Enable (or Disable) The Comment SPAM Protection Feature', 'wp-simple-firewall' );
 				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
 				break;
@@ -154,7 +154,7 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA, when you upgrade to PRO.', 'wp-simple-firewall' )
 				];
-				if ( !$oMod->getCaptchaCfg()->ready ) {
+				if ( !$mod->getCaptchaCfg()->ready ) {
 					$sDescription[] = sprintf( '<a href="%s">%s</a>',
 						$this->getCon()
 							 ->getModule_Plugin()

@@ -24,11 +24,11 @@ class CheckCaptchaSettings {
 	}
 
 	public function verifyKeys() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oCfg = $oMod->getCaptchaCfg();
+		$oCfg = $mod->getCaptchaCfg();
 
 		$nAt = -1;
 		if ( $oCfg->ready && $oOpts->getOpt( 'captcha_checked_at' ) <= 0 ) {
@@ -50,9 +50,9 @@ class CheckCaptchaSettings {
 	 * @return bool
 	 */
 	private function verifyHcaptcha() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oCfg = $oMod->getCaptchaCfg();
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
+		$oCfg = $mod->getCaptchaCfg();
 		return substr_count( $oCfg->key, '-' ) > 1
 			   && strpos( $oCfg->secret, '0x' ) === 0;
 	}
@@ -60,24 +60,24 @@ class CheckCaptchaSettings {
 	/**
 	 * @return bool
 	 */
-	private function verifyRecaptcha() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+	private function verifyRecaptcha() :bool {
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
 
 		$sResponse = Services::HttpRequest()->getContent( add_query_arg(
 			[
-				'secret'   => $oMod->getCaptchaCfg()->secret,
+				'secret'   => $mod->getCaptchaCfg()->secret,
 				'response' => rand(),
 			],
 			'https://www.google.com/recaptcha/api/siteverify'
 		) );
 
-		$bValid = false;
+		$valid = false;
 		if ( !empty( $sResponse ) ) {
 			$aDec = json_decode( $sResponse, true );
-			$bValid = is_array( $aDec ) && is_array( $aDec[ 'error-codes' ] )
-					  && !in_array( 'invalid-input-secret', $aDec[ 'error-codes' ] );
+			$valid = is_array( $aDec ) && is_array( $aDec[ 'error-codes' ] )
+					 && !in_array( 'invalid-input-secret', $aDec[ 'error-codes' ] );
 		}
-		return $bValid;
+		return $valid;
 	}
 }

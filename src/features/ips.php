@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	const LIST_MANUAL_WHITE = 'MW';
@@ -138,56 +141,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * Hooked to the plugin's main plugin_shutdown action
-	 */
-	public function onPluginShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
-			$this->addFilterIpsToWhiteList();
-		}
-		parent::onPluginShutdown();
-	}
-
-	protected function addFilterIpsToWhiteList() {
-		$aIps = [];
-		$oSp = Services::ServiceProviders();
-
-		if ( @class_exists( '\MwpWorkerResponder' ) ) {
-			foreach ( array_flip( $oSp->getIps_ManageWp( true ) ) as $sIp => $n ) {
-				$aIps[ $sIp ] = 'ManageWP';
-			}
-		}
-
-		if ( class_exists( 'ICWP_Plugin' ) ) {
-			foreach ( array_flip( $oSp->getIps_iControlWP( true ) ) as $sIp => $n ) {
-				$aIps[ $sIp ] = 'iControlWP';
-			}
-		}
-
-		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
-
-		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			$aWhiteIps = ( new IPs\Lib\Ops\RetrieveIpsForLists() )
-				->setDbHandler( $this->getDbHandler_IPs() )
-				->white();
-			foreach ( $aIps as $sIP => $sLabel ) {
-				if ( !in_array( $sIP, $aWhiteIps ) ) {
-					try {
-						( new IPs\Lib\Ops\AddIp() )
-							->setMod( $this )
-							->setIP( $sIP )
-							->toManualWhitelist( $sLabel );
-					}
-					catch ( Exception $oE ) {
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() :string {
 		return 'IPs';
+	}
+
+	/**
+	 * @deprecated 10.1
+	 */
+	protected function addFilterIpsToWhiteList() {
 	}
 }

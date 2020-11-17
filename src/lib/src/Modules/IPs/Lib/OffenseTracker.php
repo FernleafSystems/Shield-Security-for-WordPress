@@ -17,13 +17,13 @@ class OffenseTracker extends EventsListener {
 	private $nOffenseCount = 0;
 
 	/**
-	 * @param string $sEvent
+	 * @param string $evt
 	 * @param array  $aMeta
 	 */
-	protected function captureEvent( $sEvent, $aMeta = [] ) {
+	protected function captureEvent( $evt, $aMeta = [] ) {
 		$aDef = $this->getCon()
 					 ->loadEventsService()
-					 ->getEventDef( $sEvent );
+					 ->getEventDef( $evt );
 
 		if ( !empty( $aDef ) && !empty( $aDef[ 'offense' ] ) && empty( $aMeta[ 'suppress_offense' ] ) ) {
 			$this->incrementCount( isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1 );

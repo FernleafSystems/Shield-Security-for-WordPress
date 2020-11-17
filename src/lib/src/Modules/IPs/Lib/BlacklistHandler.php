@@ -13,7 +13,7 @@ class BlacklistHandler {
 	use OneTimeExecute;
 
 	protected function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
@@ -47,7 +47,7 @@ class BlacklistHandler {
 	}
 
 	public function loadBotDetectors() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();

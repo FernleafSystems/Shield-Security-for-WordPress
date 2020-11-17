@@ -99,6 +99,7 @@
     {
       "key":         "enable_hack_protect",
       "section":     "section_enable_plugin_feature_hack_protection_tools",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/wpsf38",
@@ -309,6 +310,7 @@
     {
       "key":         "ufc_scan_uploads",
       "section":     "section_scan_ufc",
+      "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/he",
@@ -320,6 +322,7 @@
     {
       "key":         "ufc_exclusions",
       "section":     "section_scan_ufc",
+      "advanced":    true,
       "default":     [
         "error_log",
         "php_error_log",

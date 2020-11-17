@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -15,7 +15,7 @@ class PluginBadge {
 	use Modules\ModConsumer;
 
 	public function run() {
-		/** @var Options $opts */
+		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		$bDisplay = $opts->isOpt( 'display_plugin_badge', 'Y' )
 					&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
@@ -37,18 +37,15 @@ class PluginBadge {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		if ( !empty( $oMod ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
+		if ( !empty( $mod ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
 			 && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			register_widget( new BadgeWidget( $oMod ) );
+			register_widget( new BadgeWidget( $mod ) );
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getCookieIdBadgeState() {
+	private function getCookieIdBadgeState() :string {
 		return $this->getCon()->prefix( 'badgeState' );
 	}
 
@@ -61,75 +58,86 @@ class PluginBadge {
 	}
 
 	/**
-	 * @param bool $bFloating
+	 * @param bool $isFloating
 	 * @return string
 	 */
-	public function render( $bFloating = false ) {
+	public function render( $isFloating = false ) {
 		$con = $this->getCon();
-		$sName = $con->getHumanName();
-
-		$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
 		/** @var Modules\SecurityAdmin\Options $secAdminOpts */
 		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
-		if ( $secAdminOpts->isEnabledWhitelabel() && $secAdminOpts->isReplaceBadgeUrl() ) {
+
+		if ( $secAdminOpts->isEnabledWhitelabel() && $secAdminOpts->isReplacePluginBadge() ) {
 			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
+			$name = $secAdminOpts->getOpt( 'wl_pluginnamemain' );
+			$logo = $secAdminOpts->getOpt( 'wl_dashboardlogourl' );
+		}
+		else {
+			$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
+			$name = $con->getHumanName();
+			$logo = $con->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' );
+
+			$lic = $con->getModule_License()
+					   ->getLicenseHandler()
+					   ->getLicense();
+			if ( !empty( $lic->aff_ref ) ) {
+				$badgeUrl = add_query_arg( [ 'ref' => $lic->aff_ref ], $badgeUrl );
+			}
 		}
 
-		$lic = $con->getModule_License()
-				   ->getLicenseHandler()
-				   ->getLicense();
-		if ( !empty( $lic->aff_ref ) ) {
-			$badgeUrl = add_query_arg( [ 'ref' => $lic->aff_ref ], $badgeUrl );
+		$badgeAttrs = [
+			'name'         => $name,
+			'url'          => $badgeUrl,
+			'logo'         => $logo,
+			'protected_by' => apply_filters( 'icwp_shield_plugin_badge_text',
+				sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
+					'<br/><span class="plugin-badge-name">'.$name.'</span>' )
+			),
+			'custom_css'   => '',
+		];
+		if ( $con->isPremiumActive() ) {
+			$badgeAttrs = apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $isFloating );
 		}
 
-		$aData = [
+		$data = [
 			'ajax'    => [
 				'plugin_badge_close' => $this->getMod()->getAjaxActionData( 'plugin_badge_close', true ),
 			],
+			'content' => [
+				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
+			],
 			'flags'   => [
 				'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-				'is_floating' => $bFloating
+				'is_floating' => $isFloating
 			],
 			'hrefs'   => [
-				'badge' => $badgeUrl,
-				'logo'  => $con->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
+				'badge' => $badgeAttrs[ 'url' ],
+				'logo'  => $badgeAttrs[ 'logo' ],
 			],
 			'strings' => [
-				'protected' => apply_filters( 'icwp_shield_plugin_badge_text',
-					sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-						'<br/><span class="plugin-badge-name">'.$sName.'</span>' )
-				),
-				'name'      => $sName,
+				'protected' => $badgeAttrs[ 'protected_by' ],
+				'name'      => $badgeAttrs[ 'name' ],
 			],
 		];
 
 		try {
-			$sRender = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $aData, true );
+			$render = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $data, true );
 		}
 		catch ( \Exception $oE ) {
-			$sRender = 'Could not generate badge: '.$oE->getMessage();
+			$render = 'Could not generate badge: '.$oE->getMessage();
 		}
-
-		return $sRender;
+		return $render;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function setBadgeStateClosed() {
-		return Services::Response()
-					   ->cookieSet(
-						   $this->getCookieIdBadgeState(),
-						   'closed',
-						   DAY_IN_SECONDS
-					   );
+	public function setBadgeStateClosed() :bool {
+		return (bool)Services::Response()
+							 ->cookieSet(
+								 $this->getCookieIdBadgeState(),
+								 'closed',
+								 DAY_IN_SECONDS
+							 );
 	}
 
-	/**
-	 * @param bool $bDisplay
-	 * @return void
-	 */
-	public function setIsDisplayPluginBadge( $bDisplay ) {
-		$this->getOptions()->setOpt( 'display_plugin_badge', $bDisplay ? 'Y' : 'N' );
+	public function setIsDisplayPluginBadge( bool $isDisplay ) {
+		$this->getOptions()->setOpt( 'display_plugin_badge', $isDisplay ? 'Y' : 'N' );
 	}
 }

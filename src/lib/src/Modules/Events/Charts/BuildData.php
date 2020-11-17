@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Charts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,17 +12,17 @@ class BuildData {
 	use ModConsumer;
 
 	/**
-	 * @param ChartRequestVO $oReq
+	 * @param ChartRequestVO $req
 	 * @return array
 	 */
-	public function build( ChartRequestVO $oReq ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
+	public function build( ChartRequestVO $req ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
-		$this->preProcessRequest( $oReq );
+		$this->preProcessRequest( $req );
 
 		/** @var Events\Handler $oDbhEvts */
-		$oDbhEvts = $oMod->getDbHandler_Events();
+		$oDbhEvts = $mod->getDbHandler_Events();
 
 		$nTick = 0;
 		$oTime = Services::Request()->carbon();
@@ -33,7 +34,7 @@ class BuildData {
 
 			/** @var Events\Select $oSelEvts */
 			$oSelEvts = $oDbhEvts->getQuerySelector();
-			switch ( $oReq->interval ) {
+			switch ( $req->interval ) {
 				case 'hourly':
 					$oSelEvts->filterByBoundary_Hour( $oTime->timestamp );
 					$oTime->subHour();
@@ -56,10 +57,10 @@ class BuildData {
 					break;
 			}
 
-			$aSeries[] = $oSelEvts->sumEvents( $oReq->events );
+			$aSeries[] = $oSelEvts->sumEvents( $req->events );
 
 			$nTick++;
-		} while ( $nTick < $oReq->ticks );
+		} while ( $nTick < $req->ticks );
 
 		return [
 			'data'         => [
@@ -88,7 +89,7 @@ class BuildData {
 			}
 		}
 
-		$aAll = array_keys( $this->getCon()->getAllEvents() );
+		$aAll = array_keys( $this->getCon()->loadEventsService()->getEvents() );
 		if ( !empty( $oReq->chart_params[ 'stat_id' ] ) ) {
 			switch ( $oReq->chart_params[ 'stat_id' ] ) {
 				case 'comment_block':

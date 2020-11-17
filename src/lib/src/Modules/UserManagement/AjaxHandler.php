@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
+class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 
@@ -32,7 +32,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	}
 
 	private function ajaxExec_BuildTableSessions() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$con = $this->getCon();
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		( new UserManagement\Lib\CleanExpired() )
@@ -40,13 +41,11 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			->run();
 
 		/** @var Shield\Modules\SecurityAdmin\Options $optsSecAdmin */
-		$optsSecAdmin = $this->getCon()
-							 ->getModule_SecAdmin()
-							 ->getOptions();
+		$optsSecAdmin = $con->getModule_SecAdmin()->getOptions();
 
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $mod )
-			->setDbHandler( $mod->getDbHandler_Sessions() )
+			->setDbHandler( $con->getModule_Sessions()->getDbHandler_Sessions() )
 			->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() );
 
 		return [
@@ -56,18 +55,18 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	}
 
 	private function ajaxExec_BulkItemAction() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oReq = Services::Request();
+		$req = Services::Request();
 
 		$bSuccess = false;
 
-		$aIds = $oReq->post( 'ids' );
+		$aIds = $req->post( 'ids' );
 		if ( empty( $aIds ) || !is_array( $aIds ) ) {
 			$bSuccess = false;
 			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
+		elseif ( !in_array( $req->post( 'bulk_action' ), [ 'delete' ] ) ) {
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
@@ -101,7 +100,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	}
 
 	private function ajaxExec_SessionDelete() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$con = $this->getCon();
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
@@ -111,7 +111,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		elseif ( $mod->getSession()->id === $nId ) {
 			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
-		elseif ( $mod->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $con->getModule_Sessions()->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -31,26 +32,26 @@ class CreateFileLocks extends BaseOps {
 	}
 
 	/**
-	 * @param string $sPath
+	 * @param string $path
 	 * @throws \Exception
 	 */
-	private function processPath( $sPath ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+	private function processPath( $path ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
-		if ( Services::WpFs()->isFile( $sPath ) ) {
+		if ( Services::WpFs()->isFile( $path ) ) {
 			$oEntry = new FileLocker\EntryVO();
-			$oEntry->file = $sPath;
-			$oEntry->hash_original = hash_file( 'sha1', $sPath );
+			$oEntry->file = $path;
+			$oEntry->hash_original = hash_file( 'sha1', $path );
 
 			$aPublicKey = $this->getPublicKey();
 			$oEntry->public_key_id = key( $aPublicKey );
 			$oEntry->content = ( new BuildEncryptedFilePayload() )
-				->setMod( $oMod )
-				->build( $sPath, reset( $aPublicKey ) );
+				->setMod( $mod )
+				->build( $path, reset( $aPublicKey ) );
 
 			/** @var FileLocker\Insert $oInserter */
-			$oInserter = $oMod->getDbHandler_FileLocker()->getQueryInserter();
+			$oInserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
 			$oInserter->insert( $oEntry );
 
 			$this->clearFileLocksCache();

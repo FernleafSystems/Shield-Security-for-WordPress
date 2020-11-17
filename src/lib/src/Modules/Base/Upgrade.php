@@ -27,13 +27,12 @@ class Upgrade {
 	 * version is less than the upgrade version, run the upgrade code.
 	 */
 	protected function upgradeModule() {
-		$oCon = $this->getCon();
-		$sPreviousVersion = $oCon->getPreviousVersion();
-		foreach ( $oCon->getPluginSpec()[ 'version_upgrades' ] as $sVersion ) {
-			$sMethod = 'upgrade_'.str_replace( '.', '', $sVersion );
-			if ( version_compare( $sPreviousVersion, $sVersion, '<' )
-				 && method_exists( $this, $sMethod ) ) {
-				$this->{$sMethod}();
+		$con = $this->getCon();
+		$previous = $con->getPreviousVersion();
+		foreach ( $con->getPluginSpec()[ 'version_upgrades' ] as $version ) {
+			$upgradeMethod = 'upgrade_'.str_replace( '.', '', $version );
+			if ( version_compare( $previous, $version, '<' ) && method_exists( $this, $upgradeMethod ) ) {
+				$this->{$upgradeMethod}();
 			}
 		}
 	}

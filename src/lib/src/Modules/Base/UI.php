@@ -17,8 +17,10 @@ class UI {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function buildOptions() {
+		$con = $this->getCon();
 
-		$bPremiumEnabled = $this->getCon()->isPremiumExtensionsEnabled();
+		$bPremiumEnabled = $con->isPremiumExtensionsEnabled();
+		$bShowAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		$opts = $this->getOptions();
 		$aOptions = $opts->getOptionsForPluginUse();
@@ -30,7 +32,8 @@ class UI {
 				foreach ( $aSection[ 'options' ] as $nKey => $aOption ) {
 					$aOption[ 'is_value_default' ] = ( $aOption[ 'value' ] === $aOption[ 'default' ] );
 					$bIsPrem = isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ];
-					if ( !$bIsPrem || $bPremiumEnabled ) {
+					$bIsAdv = isset( $aOption[ 'advanced' ] ) && $aOption[ 'advanced' ];
+					if ( ( !$bIsPrem || $bPremiumEnabled ) && ( !$bIsAdv || $bShowAdvanced ) ) {
 						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOption );
 					}
 					else {
@@ -50,20 +53,22 @@ class UI {
 								 ->getSectionStrings( $aSection[ 'slug' ] )
 						);
 					}
-					catch ( \Exception $oE ) {
+					catch ( \Exception $e ) {
 					}
 					$aOptions[ $nSectionKey ] = $aSection;
 				}
 
-				$aWarnings = [];
-				if ( !$opts->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
+				if ( isset( $aOptions[ $nSectionKey ] ) ) {
+					$aWarnings = [];
+					if ( !$opts->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
+						$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
+					}
+					$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
+						$aWarnings,
+						$this->getSectionWarnings( $aSection[ 'slug' ] )
+					);
+					$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
 				}
-				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
-					$aWarnings,
-					$this->getSectionWarnings( $aSection[ 'slug' ] )
-				);
-				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
 			}
 		}
 
@@ -143,10 +148,25 @@ class UI {
 		return $aOptParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getBaseDisplayData() {
+	public function buildSelectData_ModuleSettings() :array {
+		return $this->getMod()->getModulesSummaryData();
+	}
+
+	public function buildSelectData_OptionsSearch() :array {
+		$modsToSearch = array_filter(
+			$this->getMod()->getModulesSummaryData(),
+			function ( $modSummary ) {
+				return !empty( $modSummary[ 'show_mod_opts' ] );
+			}
+		);
+		$searchSelect = [];
+		foreach ( $modsToSearch as $slug => $summary ) {
+			$searchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+		}
+		return $searchSelect;
+	}
+
+	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();
 
@@ -187,7 +207,9 @@ class UI {
 				'hidden_options' => $this->getOptions()->getHiddenOptions()
 			],
 			'ajax'       => [
-				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
+				'mod_options'          => $mod->getAjaxActionData( 'mod_options', true ),
+				'mod_opts_form_render' => $mod->getAjaxActionData( 'mod_opts_form_render', true ),
+				//				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
 			],
 			'vendors'    => [
 				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */

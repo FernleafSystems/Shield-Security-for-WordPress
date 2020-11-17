@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
-class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
+class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 		switch ( $action ) {
@@ -66,92 +66,77 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return $aResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_SendDeactivateSurvey() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$aResults = [];
+	private function ajaxExec_SendDeactivateSurvey() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$results = [];
 		foreach ( $_POST as $sKey => $sValue ) {
 			if ( strpos( $sKey, 'reason_' ) === 0 ) {
-				$aResults[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
+				$results[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
 			}
 		}
-		$oMod->getEmailProcessor()
-			 ->send(
-				 $oMod->getSurveyEmail(),
-				 'Shield Deactivation Survey',
-				 implode( "\n<br/>", $aResults )
-			 );
+		$mod->getEmailProcessor()
+			->send(
+				$mod->getSurveyEmail(),
+				'Shield Deactivation Survey',
+				implode( "\n<br/>", $results )
+			);
 		return [ 'success' => true ];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_PluginBadgeClose() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$bSuccess = $oMod->getPluginBadgeCon()->setBadgeStateClosed();
+	private function ajaxExec_PluginBadgeClose() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$success = $mod->getPluginBadgeCon()->setBadgeStateClosed();
 		return [
-			'success' => $bSuccess,
-			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'
+			'success' => $success,
+			'message' => $success ? 'Badge Closed' : 'Badge Not Closed'
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_SetPluginTrackingPerm() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( !$oOpts->isTrackingPermissionSet() ) {
-			$oOpts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+	private function ajaxExec_SetPluginTrackingPerm() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( !$opts->isTrackingPermissionSet() ) {
+			$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		}
 		return [ 'success' => true ];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BulkItemAction() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
+	private function ajaxExec_BulkItemAction() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
 
-		$bSuccess = false;
+		$success = false;
 
-		$aIds = $oReq->post( 'ids' );
+		$aIds = $req->post( 'ids' );
 		if ( empty( $aIds ) || !is_array( $aIds ) ) {
-			$bSuccess = false;
-			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
+			$success = false;
+			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
-			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
+		elseif ( !in_array( $req->post( 'bulk_action' ), [ 'delete' ] ) ) {
+			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var Shield\Databases\AdminNotes\Delete $oDel */
-			$oDel = $oMod->getDbHandler_Notes()->getQueryDeleter();
+			$oDel = $mod->getDbHandler_Notes()->getQueryDeleter();
 			foreach ( $aIds as $nId ) {
 				if ( is_numeric( $nId ) ) {
 					$oDel->deleteById( $nId );
 				}
 			}
-			$bSuccess = true;
-			$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );
+			$success = true;
+			$msg = __( 'Selected items were deleted.', 'wp-simple-firewall' );
 		}
 
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_DeleteForceOff() {
+	private function ajaxExec_DeleteForceOff() :array {
 		$bStillActive = $this->getCon()
 							 ->deleteForceOffFile()
 							 ->getIfForceOffActive();
@@ -162,61 +147,52 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [ 'success' => !$bStillActive ];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_RenderTableAdminNotes() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_RenderTableAdminNotes() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		return [
 			'success' => true,
 			'html'    => ( new Shield\Tables\Build\AdminNotes() )
-				->setMod( $oMod )
-				->setDbHandler( $oMod->getDbHandler_Notes() )
+				->setMod( $mod )
+				->setDbHandler( $mod->getDbHandler_Notes() )
 				->render()
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_AdminNotesDelete() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+	private function ajaxExec_AdminNotesDelete() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$sItemId = Services::Request()->post( 'rid' );
 		if ( empty( $sItemId ) ) {
-			$sMessage = __( 'Note not found.', 'wp-simple-firewall' );
+			$msg = __( 'Note not found.', 'wp-simple-firewall' );
 		}
 		else {
 			try {
-				$bSuccess = $oMod->getDbHandler_Notes()
-								 ->getQueryDeleter()
-								 ->deleteById( $sItemId );
+				$bSuccess = $mod->getDbHandler_Notes()
+								->getQueryDeleter()
+								->deleteById( $sItemId );
 
 				if ( $bSuccess ) {
-					$sMessage = __( 'Note deleted', 'wp-simple-firewall' );
+					$msg = __( 'Note deleted', 'wp-simple-firewall' );
 				}
 				else {
-					$sMessage = __( "Note couldn't be deleted", 'wp-simple-firewall' );
+					$msg = __( "Note couldn't be deleted", 'wp-simple-firewall' );
 				}
 			}
 			catch ( \Exception $oE ) {
-				$sMessage = $oE->getMessage();
+				$msg = $oE->getMessage();
 			}
 		}
 
 		return [
 			'success' => true,
-			'message' => $sMessage
+			'message' => $msg
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ImportFromSite() {
-		$bSuccess = false;
+	private function ajaxExec_ImportFromSite() :array {
+		$success = false;
 		$aFormParams = array_merge(
 			[
 				'confirm' => 'N'
@@ -244,60 +220,51 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			catch ( \Exception $oE ) {
 				$nCode = $oE->getCode();
 			}
-			$bSuccess = $nCode == 0;
-			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
+			$success = $nCode == 0;
+			$sMessage = $success ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
 
 		return [
-			'success' => $bSuccess,
+			'success' => $success,
 			'message' => $sMessage
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_AdminNotesInsert() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+	private function ajaxExec_AdminNotesInsert() :array {
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$bSuccess = false;
+		$success = false;
 		$aFormParams = $this->getAjaxFormParams();
 
 		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
 		if ( !$mod->getCanAdminNotes() ) {
-			$sMessage = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
+			$msg = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $sNote ) ) {
-			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
+			$msg = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
 			$oInserter = $mod->getDbHandler_Notes()->getQueryInserter();
-			$bSuccess = $oInserter->create( $sNote );
-			$sMessage = $bSuccess ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
+			$success = $oInserter->create( $sNote );
+			$msg = $success ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage
+			'success' => $success,
+			'message' => $msg
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_TurnOffSiteGroundOptions() {
-		$bSuccess = ( new Plugin\Components\SiteGroundPluginCompatibility() )->switchOffOptions();
+	private function ajaxExec_TurnOffSiteGroundOptions() :array {
+		$success = ( new Plugin\Components\SiteGroundPluginCompatibility() )->switchOffOptions();
 		return [
-			'success' => $bSuccess,
-			'message' => $bSuccess ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )
+			'success' => $success,
+			'message' => $success ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )
 				: __( 'Switching-off conflicting options appears to have failed.', 'wp-simple-firewall' )
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_IpDetect() {
+	private function ajaxExec_IpDetect() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
@@ -310,13 +277,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_MarkTourFinished() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oMod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );
+	private function ajaxExec_MarkTourFinished() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );
 		return [
 			'success' => true,
 			'message' => 'Tour Finished'

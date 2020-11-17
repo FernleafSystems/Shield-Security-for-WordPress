@@ -210,13 +210,13 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param int    $nTs
-	 * @param string $sComparison
+	 * @param int    $ts
+	 * @param string $comparisonOp
 	 * @return $this
 	 */
-	public function filterByCreatedAt( $nTs, $sComparison ) {
-		if ( !preg_match( '#[^=<>]#', $sComparison ) && is_numeric( $nTs ) ) {
-			$this->addWhere( 'created_at', (int)$nTs, $sComparison );
+	public function filterByCreatedAt( $ts, $comparisonOp ) {
+		if ( !preg_match( '#[^=<>]#', $comparisonOp ) && is_numeric( $ts ) ) {
+			$this->addWhere( 'created_at', (int)$ts, $comparisonOp );
 		}
 		return $this;
 	}

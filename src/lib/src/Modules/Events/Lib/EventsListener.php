@@ -22,9 +22,9 @@ abstract class EventsListener {
 		$this->setCon( $con );
 
 		add_action( $con->prefix( 'event' ),
-			function ( $sEvent, $aMeta = [] ) use ( $con ) {
-				if ( $con->loadEventsService()->isSupportedEvent( $sEvent ) ) {
-					$this->captureEvent( $sEvent, $aMeta );
+			function ( $event, $meta = [] ) use ( $con ) {
+				if ( $con->loadEventsService()->isSupportedEvent( $event ) ) {
+					$this->captureEvent( $event, $meta );
 				}
 			}, 10, 2 );
 
@@ -34,10 +34,10 @@ abstract class EventsListener {
 	}
 
 	/**
-	 * @param string $sEvent
+	 * @param string $evt
 	 * @param array  $aMeta
 	 */
-	abstract protected function captureEvent( $sEvent, $aMeta = [] );
+	abstract protected function captureEvent( $evt, $aMeta = [] );
 
 	protected function onShutdown() {
 

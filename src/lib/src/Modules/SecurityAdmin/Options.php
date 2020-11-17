@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function clearSecurityAdminKey() :self {
 		return $this->setOpt( 'admin_access_key', '' );
@@ -91,7 +91,7 @@ class Options extends Base\ShieldOptions {
 		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
-	public function isReplaceBadgeUrl() :bool {
+	public function isReplacePluginBadge() :bool {
 		return $this->isOpt( 'wl_replace_badge_url', 'Y' );
 	}
 }

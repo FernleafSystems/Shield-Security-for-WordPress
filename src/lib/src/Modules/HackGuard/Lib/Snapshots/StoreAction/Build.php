@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,10 +32,8 @@ class Build extends BaseAction {
 		}
 
 		if ( !empty( $aHashes ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
 			$oStore = ( new CreateNew() )
-				->setMod( $oMod )
+				->setMod( $this->getMod() )
 				->setAsset( $oAsset )
 				->run();
 			$oStore->setSnapData( $aHashes )

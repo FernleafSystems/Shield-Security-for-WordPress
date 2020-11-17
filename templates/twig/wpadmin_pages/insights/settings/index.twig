@@ -1,29 +1,47 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
+{% block page_head_titlemenu %}
+	{{ parent() }}
+	<p class="d-inline">|</p>
+	<div class="d-inline-block" id="ModuleSettingsJump">
+		{% include '/snippets/select_module_settings.twig' %}
+	</div>
+{% endblock page_head_titlemenu %}
+
 {% block page_main %}
 	<div class="row" id="ModulePageTopRow">
-		<div class="modules smoothwidth" id="ColumnModules">
+{#		<div class="modules smoothwidth" id="ColumnModules">#}
+{#			<div class="nav flex-column">#}
+{#				<div>#}
+{#					<a id="ModeToggle" href="#" class="btn btn-block btn-outline-primary text-nowrap"#}
+{#					   data-txthoverin="{{ strings.mode_switchto }}" data-txthoverout="{{ strings.mode_switchfrom }}"#}
+{#					>#}
+{#						{{ strings.mode }}: <span class="font-weight-bold">#}
+{#							{{ attribute(strings,flags.is_advanced ? 'mode_advanced':'mode_simple') }}#}
+{#						</span>#}
+{#					</a>#}
+{#				</div>#}
 
-			<div class="nav flex-column">
-				<h5 class="mt-3 border-bottom"
-					style="font-variant: small-caps;font-weight: normal">Shield Modules</h5>
-				{% for mod_summary in aSummaryData %}
-					<a class="nav-link module
-					{% if mod_summary.active %}active{% endif %}
-					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
-					   id="tab-{{ mod_summary.slug }}"
-					   href="{{ mod_summary.href }}" role="tab">
-						<div>
-							<span class="module-icon module-icon-{{ mod_summary.slug }}"
-								  id="module-{{ mod_summary.slug }}"></span>
-							<span class="module-name">
-								{{ mod_summary.tooltip }}
-							</span>
-						</div>
-					</a>
-				{% endfor %}
-			</div>
-		</div>
+{#				<h5 class="mt-3 border-bottom"#}
+{#					style="font-variant: small-caps;font-weight: normal">Shield Modules</h5>#}
+{#				{% for mod_summary in aSummaryData %}#}
+{#					<a class="nav-link module#}
+{#					{% if mod_summary.active %}active{% endif %}#}
+{#					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"#}
+{#					   id="tab-{{ mod_summary.slug }}"#}
+{#					   href="{{ mod_summary.href }}" role="tab">#}
+{#						<div>#}
+{#							<span class="module-icon module-icon-{{ mod_summary.slug }}"#}
+{#								  id="module-{{ mod_summary.slug }}"></span>#}
+{#							<span class="module-name">#}
+{#								{{ mod_summary.tooltip }}#}
+{#							</span>#}
+{#						</div>#}
+{#					</a>#}
+{#				{% endfor %}#}
+{#			</div>#}
+{#		</div>#}
+
 		<div class="col" id="ColumnOptions">
 			<div class="content-options"> {{ strings.loading }} ... </div>
 		</div>
@@ -39,5 +57,20 @@
 			placement: 'right',
 			trigger: 'hover'
 		} );
+
+		jQuery( 'a#ModeToggle' ).hover(
+			function ( evt ) {
+				let $this = jQuery( this );
+				$this.text( $this.data( 'txthoverin' ) );
+				$this.addClass( 'btn-warning' )
+					 .removeClass( 'btn-outline-primary' );
+			},
+			function ( evt ) {
+				let $this = jQuery( this );
+				$this.text( $this.data( 'txthoverout' ) );
+				$this.addClass( 'btn-outline-primary' )
+					 .removeClass( 'btn-warning' );
+			}
+		);
 	</script>
 {% endblock %}

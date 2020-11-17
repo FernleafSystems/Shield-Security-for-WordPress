@@ -4,102 +4,88 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
-	protected function processNotice( $oNotice ) {
+	protected function processNotice( NoticeVO $notice ) {
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'php7':
-				$this->buildNotice_Php7( $oNotice );
+				$this->buildNotice_Php7( $notice );
 				break;
 
 			case 'override-forceoff':
-				$this->buildNotice_OverrideForceoff( $oNotice );
+				$this->buildNotice_OverrideForceoff( $notice );
 				break;
 
 			case 'plugin-disabled':
-				$this->buildNotice_PluginDisabled( $oNotice );
+				$this->buildNotice_PluginDisabled( $notice );
 				break;
 
 			case 'update-available':
-				$this->buildNotice_UpdateAvailable( $oNotice );
+				$this->buildNotice_UpdateAvailable( $notice );
 				break;
 
 			case 'compat-sgoptimize':
-				$this->buildNotice_CompatSgOptimize( $oNotice );
-				break;
-
-			case 'cloudflare-apo':
-				$this->buildNotice_CloudflareAPO( $oNotice );
+				$this->buildNotice_CompatSgOptimize( $notice );
 				break;
 
 			case 'plugin-mailing-list-signup':
-				$this->buildNotice_PluginMailingListSignup( $oNotice );
+				$this->buildNotice_PluginMailingListSignup( $notice );
 				break;
 
 			case 'wizard_welcome':
-				$this->buildNotice_WelcomeWizard( $oNotice );
+				$this->buildNotice_WelcomeWizard( $notice );
 				break;
 
 			case 'allow-tracking':
-				$this->buildNotice_AllowTracking( $oNotice );
+				$this->buildNotice_AllowTracking( $notice );
 				break;
 
 			case 'rate-plugin':
-				$this->buildNotice_RatePlugin( $oNotice );
+				$this->buildNotice_RatePlugin( $notice );
 				break;
 
 			default:
-				parent::processNotice( $oNotice );
+				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
+	public function handleAuthAjax( array $ajaxResponse ) :array {
 
-		if ( empty( $aAjaxResponse ) ) {
+		if ( empty( $ajaxResponse ) ) {
 			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'set_plugin_tracking':
-					$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
+					$ajaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
 					break;
 
 				default:
-					$aAjaxResponse = parent::handleAuthAjax( $aAjaxResponse );
+					$ajaxResponse = parent::handleAuthAjax( $ajaxResponse );
 					break;
 			}
 		}
-		return $aAjaxResponse;
+		return $ajaxResponse;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_SetPluginTrackingPerm() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+	private function ajaxExec_SetPluginTrackingPerm() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		return $this->ajaxExec_DismissAdminNotice();
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_Php7( $oNotice ) {
+	private function buildNotice_Php7( NoticeVO $notice ) {
 		$sName = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'     => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
@@ -120,13 +106,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_OverrideForceoff( $oNotice ) {
+	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
 		$sName = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $sName ) ),
@@ -143,16 +126,13 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_PluginDisabled( $oNotice ) {
-		$sName = $this->getCon()->getHumanName();
+	private function buildNotice_PluginDisabled( NoticeVO $notice ) {
+		$name = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $sName ) ),
+				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
 				'message'        => implode( ' ', [
 					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
 					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
@@ -165,13 +145,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_CompatSgOptimize( $oNotice ) {
+	private function buildNotice_CompatSgOptimize( NoticeVO $notice ) {
 		$sName = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'               => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
@@ -190,34 +167,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
-	 */
-	private function buildNotice_CloudflareAPO( $notice ) {
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					__( "CloudFlare APO Conflict/Bug", 'wp-simple-firewall' ) ),
-				'message' => [
-					__( "CloudFlare's Automatic Platform Optimisation for WordPress breaks the ability to correctly detect visitor IP addresses.", 'wp-simple-firewall' ),
-					__( 'Until they fix this, please switch off APO for this domain on your CloudFlare control panel.', 'wp-simple-firewall' ),
-				],
-			],
-		];
-	}
-
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_PluginMailingListSignup( $oNotice ) {
+	private function buildNotice_PluginMailingListSignup( NoticeVO $notice ) {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$sName = $this->getCon()->getHumanName();
 		$oUser = Services::WpUsers()->getCurrentWpUser();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'yes'            => "Yes please! I'd love to join in and learn more",
@@ -241,17 +198,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'vars'              => [
 				'name'         => $oUser->first_name,
 				'user_email'   => $oUser->user_email,
-				'drip_form_id' => $oNotice->drip_form_id
+				'drip_form_id' => $notice->drip_form_id
 			]
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_UpdateAvailable( $oNotice ) {
+	private function buildNotice_UpdateAvailable( NoticeVO $notice ) {
 		$sName = $this->getCon()->getHumanName();
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'        => sprintf( __( 'Update available for the %s plugin', 'wp-simple-firewall' ), $sName ),
@@ -264,12 +218,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_WelcomeWizard( $oNotice ) {
+	private function buildNotice_WelcomeWizard( NoticeVO $notice ) {
 		$sName = $this->getCon()->getHumanName();
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'dismiss' => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
@@ -283,19 +234,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_AllowTracking( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$sName = $this->getCon()->getHumanName();
+	private function buildNotice_AllowTracking( NoticeVO $notice ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$name = $this->getCon()->getHumanName();
 
-		$oNotice->render_data = [
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $sName ),
-				'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $sName ),
+				'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $name ),
+				'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $name ),
 				'what_we_collect' => __( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' ),
 				'data_anon'       => __( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
 				'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
@@ -308,22 +256,19 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'set_plugin_tracking' => $oMod->getAjaxActionData( 'set_plugin_tracking', true ),
+				'set_plugin_tracking' => $mod->getAjaxActionData( 'set_plugin_tracking', true ),
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
-				'link_to_see'      => $oMod->getLinkToTrackingDataDump(),
+				'link_to_see'      => $mod->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
 
 			]
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 */
-	private function buildNotice_RatePlugin( $oNotice ) {
-		$oNotice->render_data = [
+	private function buildNotice_RatePlugin( NoticeVO $notice ) {
+		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'   => __( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
@@ -335,49 +280,41 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
-	 * @return bool
-	 */
-	protected function isDisplayNeeded( $oNotice ) {
+	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$oCon = $this->getCon();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		switch ( $oNotice->id ) {
+		switch ( $notice->id ) {
 
 			case 'override-forceoff':
-				$bNeeded = $oCon->getIfForceOffActive();
+				$needed = $oCon->getIfForceOffActive();
 				break;
 
 			case 'php7':
-				$bNeeded = !Services::Data()->getPhpVersionIsAtLeast( '7.0' );
+				$needed = !Services::Data()->getPhpVersionIsAtLeast( '7.0' );
 				break;
 
 			case 'plugin-disabled':
-				$bNeeded = $oOpts->isPluginGloballyDisabled();
+				$needed = $oOpts->isPluginGloballyDisabled();
 				break;
 
 			case 'update-available':
-				$bNeeded = Services::WpPlugins()->isUpdateAvailable( $oCon->getPluginBaseFile() );
+				$needed = Services::WpPlugins()->isUpdateAvailable( $oCon->getPluginBaseFile() );
 				break;
 
 			case 'compat-sgoptimize':
-				$bNeeded = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
-				break;
-
-			case 'cloudflare-apo':
-				$bNeeded = ( new Plugin\Components\TestForCloudflareAPO() )->run();
+				$needed = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
 				break;
 
 			case 'allow-tracking':
-				$bNeeded = !$oOpts->isTrackingPermissionSet();
+				$needed = !$oOpts->isTrackingPermissionSet();
 				break;
 
 			default:
-				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				$needed = parent::isDisplayNeeded( $notice );
 				break;
 		}
-		return $bNeeded;
+		return $needed;
 	}
 }

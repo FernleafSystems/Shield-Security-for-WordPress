@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function getFrequencyAlert() :string {
 		return $this->getFrequency( 'alert' );
@@ -16,17 +16,9 @@ class Options extends Base\ShieldOptions {
 
 	private function getFrequency( string $type ) :string {
 		$key = 'frequency_'.$type;
-		$sDefault = $this->getOptDefault( $key );
-		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $sDefault ] ) )
+		$default = $this->getOptDefault( $key );
+		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
 			? $this->getOpt( $key )
-			: $sDefault;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_Reports() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
+			: $default;
 	}
 }

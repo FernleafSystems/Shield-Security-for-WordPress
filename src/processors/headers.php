@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
+/**
+ * Class ICWP_WPSF_Processor_Lockdown
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 
 	/**

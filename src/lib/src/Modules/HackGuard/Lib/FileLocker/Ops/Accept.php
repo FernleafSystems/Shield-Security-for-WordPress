@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -17,16 +18,16 @@ class Accept extends BaseOps {
 	 * @throws \ErrorException
 	 */
 	public function run( $oLock ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$aPublicKey = $this->getPublicKey();
 		$sRawContent = ( new BuildEncryptedFilePayload() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->build( $oLock->file, reset( $aPublicKey ) );
 
 		/** @var FileLocker\Update $oUpdater */
-		$oUpdater = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
+		$oUpdater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
 		$bSuccess = $oUpdater->updateEntry( $oLock, [
 			'hash_original' => hash_file( 'sha1', $oLock->file ),
 			'content'       => base64_encode( $sRawContent ),

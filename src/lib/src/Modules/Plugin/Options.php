@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function getCaptchaConfig() :array {
 		return [
@@ -47,17 +47,11 @@ class Options extends Base\ShieldOptions {
 		return $this->getIpSource() == 'AUTO_DETECT_IP';
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPluginGloballyDisabled() {
+	public function isPluginGloballyDisabled() :bool {
 		return !$this->isOpt( 'global_enable_plugin_features', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isTrackingEnabled() {
+	public function isTrackingEnabled() :bool {
 		return $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
@@ -96,29 +90,5 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function setVisitorAddressSource( $sSource ) {
 		return $this->setOpt( 'visitor_address_source', $sSource );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 10.0
-	 */
-	public function isOnFloatingPluginBadge() {
-		return $this->isOpt( 'display_plugin_badge', 'Y' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_GeoIp() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'geoip_table_name' ) );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_Notes() :string {
-		return $this->getCon()->prefixOption( $this->getDef( 'db_notes_name' ) );
 	}
 }

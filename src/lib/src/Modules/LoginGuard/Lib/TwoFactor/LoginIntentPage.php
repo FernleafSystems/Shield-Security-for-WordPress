@@ -20,7 +20,7 @@ class LoginIntentPage {
 	 */
 	public function renderForm() {
 		$oIC = $this->getMfaCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var LoginGuard\ModCon $mod */
 		$mod = $oIC->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $oIC->getOptions();
@@ -96,7 +96,7 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
-				'show_branded_links' => !$mod->isWlEnabled(), // white label mitigation
+				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
 			]
 		];
 
@@ -113,34 +113,34 @@ class LoginIntentPage {
 	 */
 	private function renderPage() {
 		$oIC = $this->getMfaCon();
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $oIC->getMod();
-		$oCon = $oIC->getCon();
-		$oReq = Services::Request();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $oIC->getMod();
+		$con = $oIC->getCon();
+		$req = Services::Request();
 
-		$aLabels = $oCon->getLabels();
-		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
-		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
+		$aLabels = $con->getLabels();
+		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $con->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
+		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
 		$aDisplayData = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
-				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
 			],
 			'data'    => [
 				'time_remaining' => $nTimeRemaining,
 			],
 			'hrefs'   => [
-				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
-				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
+				'css_bootstrap' => $con->getPluginUrl_Css( 'bootstrap4.min' ),
+				'js_bootstrap'  => $con->getPluginUrl_Js( 'bootstrap4.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 			],
 			'imgs'    => [
 				'banner'  => $sBannerUrl,
-				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'favicon' => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
+				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
 				'has_u2f'            => isset( $oIC->getProvidersForUser(
 						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
@@ -154,17 +154,17 @@ class LoginIntentPage {
 			$aDisplayData[ 'head' ] = [
 				'scripts' => [
 					[
-						'src' => $oCon->getPluginUrl_Js( 'u2f-bundle.js' ),
+						'src' => $con->getPluginUrl_Js( 'u2f-bundle.js' ),
 					],
 					[
-						'src' => $oCon->getPluginUrl_Js( 'u2f-frontend.js' ),
+						'src' => $con->getPluginUrl_Js( 'u2f-frontend.js' ),
 					]
 				]
 			];
 		}
 
-		return $oMod->renderTemplate( '/pages/login_intent/index.twig',
+		return $mod->renderTemplate( '/pages/login_intent/index.twig',
 			Services::DataManipulation()->mergeArraysRecursive(
-				$oMod->getUIHandler()->getBaseDisplayData(), $aDisplayData ), true );
+				$mod->getUIHandler()->getBaseDisplayData(), $aDisplayData ), true );
 	}
 }

@@ -1,0 +1,17 @@
+{% extends '/wpadmin_pages/insights/dashboard/card_std.twig' %}
+
+{% block footer %}
+	<div class="card-footer">
+		<ul class="list-group list-group-flush">
+			<li class="list-group-item" id="Dashboard_ModSettingsSelect">
+				{% include '/snippets/select_module_settings.twig' %}
+			</li>
+			<li class="list-group-item" id="SearchOptionsLaunch">
+				<div class="text-nowrap">
+					<span class="dashicons dashicons-search"></span>
+					{% include '/snippets/select_search_options.twig' %}
+				</div>
+			</li>
+		</ul>
+	</div>
+{% endblock %}

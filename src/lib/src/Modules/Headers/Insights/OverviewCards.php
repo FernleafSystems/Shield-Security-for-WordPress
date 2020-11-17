@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers\Options;
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Headers $mod */
+		/** @var Shield\Modules\Headers\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();

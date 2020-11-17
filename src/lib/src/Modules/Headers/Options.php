@@ -2,15 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
-	/**
-	 * @return array
-	 */
-	public function getCspCustomRules() {
-		return $this->isPremium() ? $this->getOpt( 'xcsp_custom' ) : [];
+	public function getCspCustomRules() :array {
+		$csp = $this->getOpt( 'xcsp_custom' );
+		return $this->isPremium() && is_array( $csp ) ? $csp : [];
 	}
 
 	/**

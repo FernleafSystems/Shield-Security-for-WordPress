@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -43,10 +44,10 @@ class LicenseHandler {
 
 		// performs the license check on-demand
 		add_action( $oCon->prefix( 'adhoc_cron_license_check' ), function () {
-			/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-			$oMod = $this->getMod();
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
 			try {
-				$oMod->getLicenseHandler()->verify( true );
+				$mod->getLicenseHandler()->verify( true );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -126,16 +127,16 @@ class LicenseHandler {
 	 * @return int
 	 */
 	public function getRegistrationExpiresAt() {
-		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-		$oMod = $this->getMod();
-		$oOpts = $this->getOptions();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$opts = $this->getOptions();
 
-		$nVerifiedExpiredDays = $oOpts->getDef( 'lic_verify_expire_days' )
-								+ $oOpts->getDef( 'lic_verify_expire_grace_days' );
+		$nVerifiedExpiredDays = $opts->getDef( 'lic_verify_expire_days' )
+								+ $opts->getDef( 'lic_verify_expire_grace_days' );
 
-		$oLic = $oMod->getLicenseHandler()->getLicense();
+		$oLic = $mod->getLicenseHandler()->getLicense();
 		return (int)min(
-			$oLic->getExpiresAt() + $oOpts->getDef( 'lic_verify_expire_grace_days' )*DAY_IN_SECONDS,
+			$oLic->getExpiresAt() + $opts->getDef( 'lic_verify_expire_grace_days' )*DAY_IN_SECONDS,
 			$oLic->last_verified_at + $nVerifiedExpiredDays*DAY_IN_SECONDS
 		);
 	}

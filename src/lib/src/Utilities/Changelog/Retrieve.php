@@ -24,7 +24,7 @@ class Retrieve {
 		$cl = Transient::Get( 'shield_cl' );
 		if ( empty( $cl ) ) {
 			$raw = Services::HttpRequest()
-						   ->getContent( 'https://raw.githubusercontent.com/FernleafSystems/Shield-Security-for-WordPress/develop/cl.json' );
+						   ->getContent( 'https://raw.githubusercontent.com/FernleafSystems/Shield-Security-for-WordPress/master/cl.json' );
 			if ( empty( $raw ) ) {
 				throw new \Exception( "Couldn't retrieve changelog" );
 			}

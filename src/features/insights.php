@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function onModulesLoaded() {
@@ -24,183 +27,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	public function getUrl_SubInsightsPage( string $subPage ) :string {
 		return add_query_arg(
 			[ 'inav' => sanitize_key( $subPage ) ],
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
+			$this->getUrl_AdminPage()
 		);
 	}
 
 	protected function renderModulePage( array $aData = [] ) :string {
-		$con = $this->getCon();
-		$oReq = Services::Request();
-
-		$sNavSection = $oReq->query( 'inav', 'overview' );
-		$sSubNavSection = $oReq->query( 'subnav' );
-
-		$oModPlugin = $con->getModule_Plugin();
-		$oTourManager = $oModPlugin->getTourManager();
-		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 600 ) {
-			$oTourManager->setCompleted( 'insights_overview' );
-		}
-
-		$bIsPro = $this->isPremium();
-		switch ( $sNavSection ) {
-
-			case 'audit':
-				/** @var Shield\Modules\AuditTrail\UI $UI */
-				$UI = $con->getModule_AuditTrail()->getUIHandler();
-				$aData = $UI->buildInsightsVars();
-				break;
-
-			case 'debug':
-				/** @var Shield\Modules\Plugin\UI $UI */
-				$UI = $con->getModule_Plugin()->getUIHandler();
-				$aData = $UI->buildInsightsVars_Debug();
-				break;
-
-			case 'ips':
-				/** @var Shield\Modules\IPs\UI $UI */
-				$UI = $con->getModule_IPs()->getUIHandler();
-				$aData = $UI->buildInsightsVars();
-				break;
-
-			case 'traffic':
-				/** @var Shield\Modules\Traffic\UI $UI */
-				$UI = $con->getModule_Traffic()->getUIHandler();
-				$aData = $UI->buildInsightsVars();
-				break;
-
-			case 'license':
-				/** @var Shield\Modules\License\UI $UILicense */
-				$UILicense = $con->getModule_License()->getUIHandler();
-				$aData = $UILicense->buildInsightsVars();
-				break;
-
-			case 'scans':
-				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
-				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
-				$aData = $UIHackGuard->buildInsightsVars();
-				break;
-
-			case 'importexport':
-				$aData = $oModPlugin->getImpExpController()->buildInsightsVars();
-				break;
-
-			case 'reports':
-				/** @var Shield\Modules\Reporting\UI $UIReporting */
-				$UIReporting = $con->getModule_Reporting()->getUIHandler();
-				$aData = $UIReporting->buildInsightsVars();
-				break;
-
-			case 'users':
-				/** @var Shield\Modules\UserManagement\UI $UIUsers */
-				$UIUsers = $con->getModule( 'user_management' )->getUIHandler();
-				$aData = $UIUsers->buildInsightsVars();
-				break;
-
-			case 'settings':
-				$aData = [
-					'ajax' => [
-						'mod_options'          => $con->getModule( Services::Request()->query( 'subnav' ) )
-													  ->getAjaxActionData( 'mod_options', true ),
-						'mod_opts_form_render' => $con->getModule( Services::Request()->query( 'subnav' ) )
-													  ->getAjaxActionData( 'mod_opts_form_render', true ),
-					],
-				];
-				break;
-
-			default:
-			case 'overview':
-			case 'index':
-				/** @var Shield\Modules\Insights\UI $UIInsights */
-				$UIInsights = $this->getUIHandler();
-				$aData = $UIInsights->buildInsightsVars();
-				break;
-		}
-
-		$aTopNav = [
-			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
-			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
-			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
-			'ips'          => __( 'IPs', 'wp-simple-firewall' ),
-			'audit'        => __( 'Logs', 'wp-simple-firewall' ),
-			'users'        => __( 'Users', 'wp-simple-firewall' ),
-			'license'      => __( 'Pro', 'wp-simple-firewall' ),
-			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
-			'importexport' => __( 'Import', 'wp-simple-firewall' ),
-			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
-			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
-			//			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-		];
-		if ( $bIsPro ) {
-			unset( $aTopNav[ 'license' ] );
-			$aTopNav[ 'license' ] = __( 'Pro', 'wp-simple-firewall' );
-		}
-
-		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sNavSection ) {
-			$sName = [
-				'href'    => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
-				'name'    => $sName,
-				'slug'    => $sKey,
-				'active'  => $sKey === $sNavSection,
-				'subnavs' => [],
-				'icon'    => ''
-			];
-		} );
-
-		$aSearchSelect = [];
-		$aSettingsSubNav = [];
-		foreach ( $this->getModulesSummaryData() as $slug => $summary ) {
-			if ( $summary[ 'show_mod_opts' ] ) {
-				$aSettingsSubNav[ $slug ] = [
-					'href'   => add_query_arg( [ 'subnav' => $slug ], $aTopNav[ 'settings' ][ 'href' ] ),
-					'name'   => $summary[ 'name' ],
-					'active' => $slug === $sSubNavSection,
-					'slug'   => $slug
-				];
-
-				$aSearchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
-			}
-		}
-
-		if ( empty( $aSettingsSubNav ) ) {
-			unset( $aTopNav[ 'settings' ] );
-		}
-		else {
-			$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
-		}
-
-		$DP = Services::DataManipulation();
-		$aData = $DP->mergeArraysRecursive(
-			$this->getUIHandler()->getBaseDisplayData(),
-			[
-				'classes' => [
-					'page_container' => 'page-insights page-'.$sNavSection
-				],
-				'flags'   => [
-					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
-					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
-					'tours'            => [
-						'insights_overview' => $oTourManager->canShow( 'insights_overview' )
-					]
-				],
-				'hrefs'   => [
-					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
-					'nav_home'   => $this->getUrl_AdminPage(),
-					'top_nav'    => $aTopNav,
-					'img_banner' => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
-				],
-				'strings' => $this->getStrings()->getDisplayStrings(),
-				'vars'    => [
-					'changelog_id'  => $con->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
-					'search_select' => $aSearchSelect
-				],
-			],
-			$aData
-		);
-		return $this->renderTemplate(
-			sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ),
-			$aData,
-			true
-		);
+		/** @var Shield\Modules\Insights\UI $UI */
+		$UI = $this->getUIHandler();
+		return $UI->renderPages();
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -210,11 +44,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			$con = $this->getCon();
 			$aStdDepsJs = [ $con->prefix( 'plugin' ) ];
-			$sNav = Services::Request()->query( 'inav', 'overview' );
+			$iNav = Services::Request()->query( 'inav', 'overview' );
 
 			$oModPlugin = $con->getModule_Plugin();
 			$oTourManager = $oModPlugin->getTourManager();
-			switch ( $sNav ) {
+			switch ( $iNav ) {
 
 				case 'importexport':
 
@@ -279,11 +113,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$this->includeScriptIpDetect();
 					break;
 
+				case 'notes':
 				case 'scans':
 				case 'audit':
+				case 'traffic':
 				case 'ips':
 				case 'debug':
-				case 'traffic':
 				case 'users':
 
 					$sAsset = 'shield-tables';
@@ -298,7 +133,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_enqueue_script( $sUnique );
 
 					$aStdDepsJs[] = $sUnique;
-					if ( $sNav == 'scans' ) {
+					if ( $iNav == 'scans' ) {
 						$sAsset = 'shield-scans';
 						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
@@ -311,7 +146,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
-					if ( $sNav == 'ips' ) {
+					if ( $iNav == 'ips' ) {
 						$sAsset = 'shield/ipanalyse';
 						$sUnique = $con->prefix( $sAsset );
 						wp_register_script(
@@ -324,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
-					if ( $sNav == 'audit' ) {
+					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
 						$sUnique = $con->prefix( 'datepicker' );
 						wp_register_script(
 							$sUnique, //TODO: use an includes services for CNDJS

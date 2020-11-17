@@ -29,18 +29,16 @@ class RetrieveActive {
 	 * @return Session\Select
 	 */
 	private function getSelector() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var UserManagement\Options $opt */
+		$opt = $this->getOptions();
 
 		/** @var Session\Select $oSel */
-		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
+		$oSel = $this->getMod()->getDbHandler_Sessions()->getQuerySelector();
 
-		if ( $oOpts->hasMaxSessionTimeout() ) {
+		if ( $opt->hasMaxSessionTimeout() ) {
 			$oSel->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
 		}
-		if ( $oOpts->hasSessionIdleTimeout() ) {
+		if ( $opt->hasSessionIdleTimeout() ) {
 			$oSel->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
 		}
 		return $oSel;

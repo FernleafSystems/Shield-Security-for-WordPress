@@ -3,9 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 /**
  * Class QueryRemainingOffenses
@@ -20,20 +19,20 @@ class QueryRemainingOffenses {
 	 * @return int
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oBlackIp = ( new Ops\LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
+		/** @var IPs\ModCon $mod */
+		$mod = $this->getMod();
+		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlack()
 			->setIP( $this->getIP() )
 			->lookup( false );
 
 		$nOffenses = 0;
-		if ( $oBlackIp instanceof IPs\EntryVO ) {
+		if ( $oBlackIp instanceof Databases\IPs\EntryVO ) {
 			$nOffenses = (int)$oBlackIp->transgressions;
 		}
 
-		/** @var Options $oOpts */
+		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->getOffenseLimit() - $nOffenses - 1;
 	}

@@ -5,6 +5,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -203,6 +206,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	public function getInstallDate() :int {
 		return (int)$this->getOptions()->getOpt( 'installation_time', 0 );
+	}
+
+	public function isShowAdvanced() :bool {
+		return $this->getOptions()->isOpt( 'show_advanced', 'Y' );
 	}
 
 	/**

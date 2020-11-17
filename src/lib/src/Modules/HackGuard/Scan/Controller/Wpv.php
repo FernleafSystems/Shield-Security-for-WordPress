@@ -4,10 +4,56 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Wpv extends BaseForAssets {
 
 	const SCAN_SLUG = 'wpv';
+
+	protected function run() {
+		parent::run();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+
+		add_action( 'upgrader_process_complete', function () {
+			$this->scheduleOnDemandScan();
+		}, 10, 0 );
+		add_action( 'deleted_plugin', function () {
+			$this->scheduleOnDemandScan();
+		}, 10, 0 );
+		add_action( 'load-plugins.php', function () {
+			( new HackGuard\Scan\Utilities\WpvAddPluginRows() )
+				->setScanController( $this )
+				->execute();
+		}, 10, 2 );
+
+		if ( $opts->isWpvulnAutoupdatesEnabled() ) {
+			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
+		}
+	}
+
+	/**
+	 * @param bool             $bDoAutoUpdate
+	 * @param \stdClass|string $mItem
+	 * @return bool
+	 */
+	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
+		$itemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
+		return $bDoAutoUpdate || count( $this->getPluginVulnerabilities( $itemFile ) ) > 0;
+	}
+
+	/**
+	 * @param string $file
+	 * @return Scans\Wpv\WpVulnDb\WpVulnVO[]
+	 */
+	public function getPluginVulnerabilities( $file ) {
+		return array_map(
+			function ( $item ) {
+				return $item->getWpVulnVo();
+			},
+			$this->getAllResults()->getItemsForSlug( $file )
+		);
+	}
 
 	/**
 	 * @return Scans\Wpv\Utilities\ItemActionHandler

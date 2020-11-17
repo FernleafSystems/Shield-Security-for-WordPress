@@ -54,17 +54,17 @@ class FalsePositiveReporter {
 	public function reportPath( $sFullPath, $bIsFalsePositive = true ) {
 		$bReported = false;
 
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
 
-			$sReportHash = md5( serialize( [
+			$reportHash = md5( serialize( [
 				basename( $sFullPath ),
 				sha1( Services::DataManipulation()->convertLineEndingsDosToLinux( $sFullPath ) ),
 				$bIsFalsePositive
 			] ) );
 
-			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
+			if ( !$opts->isMalFalsePositiveReported( $reportHash ) ) {
 				$sApiToken = $this->getCon()
 								  ->getModule_License()
 								  ->getWpHashesTokenManager()
@@ -73,7 +73,7 @@ class FalsePositiveReporter {
 							 ( new Malware\Whitelist\ReportFalsePositive( $sApiToken ) )
 								 ->report( $sFullPath, static::HASH_ALGO, $bIsFalsePositive );
 			}
-			$this->updateReportedCache( $sReportHash );
+			$this->updateReportedCache( $reportHash );
 		}
 		return $bReported;
 	}

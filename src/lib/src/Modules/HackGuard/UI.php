@@ -3,33 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
-	/**
-	 * @return array
-	 */
-	public function buildInsightsVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+	public function buildInsightsVars() :array {
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		$aLatestScans = array_map(
-			function ( $nTime ) {
-				return sprintf(
-					__( 'Last Scan: %s', 'wp-simple-firewall' ),
-					( $nTime > 0 ) ?
-						Services::Request()->carbon()->setTimestamp( $nTime )->diffForHumans()
-						: __( 'Never', 'wp-simple-firewall' )
-				);
-			},
-			$mod->getLastScansAt()
-		);
 
 		$aUiTrack = $mod->getUiTrack();
 		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
@@ -37,13 +20,11 @@ class UI extends Base\ShieldUI {
 		}
 
 		// Can Scan Checks:
-		$aReasonCantScan = $mod->getProcessor()
-							   ->getSubProScanner()
-							   ->getReasonsScansCantExecute();
+		$aReasonCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
-		$aData = [
+		$data = [
 			'ajax'         => [
 				'scans_start'           => $mod->getAjaxActionData( 'scans_start', true ),
 				'scans_check'           => $mod->getAjaxActionData( 'scans_check', true ),
@@ -87,7 +68,13 @@ class UI extends Base\ShieldUI {
 			],
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
-				'cannot_scan_reasons' => $aReasonCantScan
+				'cannot_scan_reasons' => $aReasonCantScan,
+				'related_hrefs'       => [
+					[
+						'href'  => $this->getCon()->getModule_HackGuard()->getUrl_AdminPage(),
+						'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
+					],
+				]
 			],
 			'scan_results' => [
 			],
@@ -169,24 +156,37 @@ class UI extends Base\ShieldUI {
 			],
 		];
 
-		/** @var Strings $oStrings */
-		$oStrings = $mod->getStrings();
-		$aScanNames = $oStrings->getScanNames();
-		foreach ( $aData[ 'scans' ] as $sSlug => &$aScanData ) {
-			$oScanCon = $mod->getScanCon( $sSlug );
-			$aScanData[ 'flags' ][ 'is_available' ] = $oScanCon->isScanningAvailable();
-			$aScanData[ 'flags' ][ 'is_restricted' ] = !$oScanCon->isScanningAvailable();
-			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanCon->isEnabled();
-			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanCon->isScanningAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
-			$aScanData[ 'flags' ][ 'has_last_scan' ] = $mod->getLastScanAt( $sSlug ) > 0;
-			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
-			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];
-			$aScanData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
-			$aScanData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
-			$aScanData[ 'count' ] = $oSelector->countForScan( $sSlug );
+		/** @var Strings $strings */
+		$strings = $mod->getStrings();
+		$name = $strings->getScanNames();
+		foreach ( $data[ 'scans' ] as $slug => &$scData ) {
+			try {
+				$scon = $mod->getScanCon( $slug );
+			}
+			catch ( \Exception $e ) {
+				continue;
+			}
+			$lastScanAt = $scon->getLastScanAt();
+
+			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
+			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
+			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
+			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $aUiTrack[ 'selected_scans' ] );
+			$scData[ 'vars' ][ 'last_scan_at_ts' ] = $lastScanAt;
+			$scData[ 'flags' ][ 'has_last_scan' ] = $lastScanAt > 0;
+			$scData[ 'vars' ][ 'last_scan_at' ] = sprintf(
+				__( 'Last Scan: %s', 'wp-simple-firewall' ),
+				( $lastScanAt > 0 ) ?
+					Services::Request()->carbon()->setTimestamp( $lastScanAt )->diffForHumans()
+					: __( 'Never', 'wp-simple-firewall' )
+			);
+			$scData[ 'strings' ][ 'title' ] = $name[ $slug ];
+			$scData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
+			$scData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
+			$scData[ 'count' ] = $oSelector->countForScan( $slug );
 		}
 
-		return $aData;
+		return $data;
 	}
 
 	/**
@@ -205,11 +205,11 @@ class UI extends Base\ShieldUI {
 	 * @return array
 	 */
 	protected function getFileLockerVars() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$oLockCon = $mod->getFileLocker();
-		$oLockLoader = ( new LoadFileLocks() )->setMod( $mod );
+		$oLockLoader = ( new Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $mod );
 		$aProblemLocks = $oLockLoader->withProblems();
 		$aGoodLocks = $oLockLoader->withoutProblems();
 
@@ -245,127 +245,26 @@ class UI extends Base\ShieldUI {
 	 * @return array
 	 */
 	private function getInsightVarsScan_Ptg() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
-		/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $oMod->getProcessor();
-		$oProPtg = $oPro->getSubProScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();
-		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
-		$oFullResults = ( new Shield\Modules\HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanController( $oMod->getScanCon( 'ptg' ) )
-			->fromVOsToResultsSet( $aPtgResults );
-
-		// Process Plugins
-		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
-		$oWpPlugins = Services::WpPlugins();
-		foreach ( $aPlugins as $sSlug => $oItemRS ) {
-			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
-			$oIT = array_pop( $aItems );
-			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
-			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $oReq->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
-			}
-			else {
-				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
-			}
-
-			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
-			$oPlgn = $oWpPlugins->getPluginAsVo( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oPlgn instanceof WpPluginVo && $oPlgn->isWpOrg();
-			$bHasUpdate = $bIsWpOrg && $oPlgn->hasUpdate();
-			$aProfile = [
-				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
-				'name'           => __( 'unknown', 'wp-simple-firewall' ),
-				'version'        => __( 'unknown', 'wp-simple-firewall' ),
-				'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),
-				'slug'           => $sSlug,
-				'is_wporg'       => $bIsWpOrg,
-				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => $bInstalled && ( $sSlug !== $this->getCon()->getPluginBaseFile() ),
-				'has_update'     => $bHasUpdate,
-				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => $aMeta[ 'ts' ],
-			];
-
-			if ( $bInstalled ) {
-				$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
-				$aProfile[ 'name' ] = $oP->Name;
-				$aProfile[ 'version' ] = $oP->Version;
-			}
-			else {
-				// MISSING!
-				if ( is_array( $aMeta ) ) {
-					$aProfile[ 'name' ] = isset( $aMeta[ 'name' ] ) ? $aMeta[ 'name' ] : __( 'unknown', 'wp-simple-firewall' );
-					$aProfile[ 'version' ] = isset( $aMeta[ 'version' ] ) ? $aMeta[ 'version' ] : __( 'unknown', 'wp-simple-firewall' );
-				}
-			}
-			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Plugin' ), $aProfile[ 'name' ] );
-
-			$aPlugins[ $sSlug ] = $aProfile;
-		}
-
-		// Process Themes
-		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = Services::WpThemes();
-		foreach ( $aThemes as $sSlug => $oItemRS ) {
-			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
-			$oIT = array_pop( $aItems );
-			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
-			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $oReq->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
-			}
-			else {
-				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
-			}
-
-			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
-			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
-			$aProfile = [
-				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
-				'name'           => __( 'unknown', 'wp-simple-firewall' ),
-				'version'        => __( 'unknown', 'wp-simple-firewall' ),
-				'root_dir'       => __( 'unknown', 'wp-simple-firewall' ),
-				'slug'           => $sSlug,
-				'is_wporg'       => $bIsWpOrg,
-				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => false,
-				'has_update'     => $bHasUpdate,
-				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => $aMeta[ 'ts' ],
-			];
-			if ( $bInstalled ) {
-				$oT = $oWpThemes->getTheme( $oIT->slug );
-				$aProfile[ 'name' ] = $oT->get( 'Name' );
-				$aProfile[ 'version' ] = $oT->get( 'Version' );
-				$aProfile[ 'root_dir' ] = $oWpThemes->getInstallationDir( $oIT->slug );
-			}
-			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Theme' ), $aProfile[ 'name' ] );
-
-			$aThemes[ $sSlug ] = $aProfile;
-		}
 
 		return [
 			'flags'   => [
-				'has_items'   => $oMod->isPtgEnabled() ? $oFullResults->hasItems() : false,
+				'has_items'   => $mod->isPtgEnabled() ? !empty( $aPtgResults ) : false,
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
 				'show_table'  => false,
 			],
 			'hrefs'   => [],
 			'vars'    => [],
-			'assets'  => $oMod->isPtgEnabled() ? array_merge( $aPlugins, $aThemes ) : [],
 			'strings' => [
 				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
 				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),
@@ -402,5 +301,15 @@ class UI extends Base\ShieldUI {
 		}
 
 		return $aWarnings;
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'scans' ),
+				'title' => __( 'Run Scans', 'wp-simple-firewall' ),
+			]
+		];
 	}
 }

@@ -20,7 +20,7 @@ class Strings extends Base\Strings {
 	 * @return string[]
 	 */
 	public function getEventNames( $bAuto = true ) {
-		$aNames = [
+		$names = [
 			'test_cron_run'                => __( 'Test Cron Run', 'wp-simple-firewall' ),
 			'import_notify_sent'           => __( 'Import Notify Sent', 'wp-simple-firewall' ),
 			'import_notify_received'       => __( 'Import Notify Received', 'wp-simple-firewall' ),
@@ -237,9 +237,11 @@ class Strings extends Base\Strings {
 			'session_terminate'            => __( 'Session Terminated', 'wp-simple-firewall' ),
 			'plugin_activated'             => __( 'Plugin Activated', 'wp-simple-firewall' ),
 			'plugin_deactivated'           => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
+			'plugin_upgraded'              => __( 'Plugin Upgraded', 'wp-simple-firewall' ),
 			'plugin_file_edited'           => __( 'Plugin File Edited', 'wp-simple-firewall' ),
 			'theme_activated'              => __( 'Theme Activated', 'wp-simple-firewall' ),
 			'theme_file_edited'            => __( 'Theme File Edited', 'wp-simple-firewall' ),
+			'theme_upgraded'               => __( 'Theme Upgraded', 'wp-simple-firewall' ),
 			'core_updated'                 => __( 'WP Core Updated', 'wp-simple-firewall' ),
 			'permalinks_structure'         => __( 'Permalinks Updated', 'wp-simple-firewall' ),
 			'post_deleted'                 => __( 'Post Deleted', 'wp-simple-firewall' ),
@@ -260,13 +262,13 @@ class Strings extends Base\Strings {
 		];
 
 		if ( $bAuto ) {
-			foreach ( $aNames as $sKey => $sName ) {
-				if ( empty( $sName ) ) {
-					$aNames[ $sKey ] = ucwords( str_replace( '_', ' ', $sKey ) );
+			foreach ( $names as $key => $name ) {
+				if ( empty( $name ) ) {
+					$names[ $key ] = ucwords( str_replace( '_', ' ', $key ) );
 				}
 			}
 		}
 
-		return $aNames;
+		return $names;
 	}
 }

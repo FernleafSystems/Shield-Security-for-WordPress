@@ -36,9 +36,9 @@ class CustomForms {
 	 */
 	private function renderCustomProfileFormOutput( array $aPs ) {
 		$oMC = $this->getMfaCon();
-		$oUser = $this->getWpUser();
+		$user = $this->getWpUser();
 
-		$aProviders = $oMC->getProvidersForUser( $oUser, true );
+		$aProviders = $oMC->getProvidersForUser( $user, true );
 		if ( !empty( $aPs ) ) {
 			$aProviders = array_filter(
 				$aProviders,

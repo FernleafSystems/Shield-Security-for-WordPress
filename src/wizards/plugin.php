@@ -140,8 +140,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $mod */
-		$mod = $con->getModule( 'audit_trail' );
+		$mod = $con->getModule_AuditTrail();
 		if ( !$mod->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}
@@ -445,10 +444,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = __( "Security PINs don't match.", 'wp-simple-firewall' );
 		}
 		else {
-			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-			$oModule = $this->getCon()->getModule( 'admin_access_restriction' );
+			$mod = $this->getCon()->getModule_SecAdmin();
 			try {
-				$oModule->setNewPinManually( $pin )
+				$mod->setNewPinManually( $pin )
 						->setSecurityAdminStatusOnOff( true );
 				$bSuccess = true;
 				$sMessage = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );

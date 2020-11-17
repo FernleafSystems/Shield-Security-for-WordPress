@@ -42,6 +42,7 @@
     {
       "key":         "enable_reporting",
       "section":     "section_enable_mod_reporting",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/hb",

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	public function getSuspendHardUserIds() :array {
 		$ids = $this->getOpt( 'hard_suspended_userids', [] );
@@ -83,6 +83,10 @@ class Options extends Base\ShieldOptions {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 10.1
+	 */
 	public function isPassForceUpdateExisting() :bool {
 		return $this->isOpt( 'pass_force_existing', 'Y' );
 	}

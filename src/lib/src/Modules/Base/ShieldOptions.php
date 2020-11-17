@@ -4,6 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ShieldOptions
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
+ * @deprecated 10.1
+ */
 class ShieldOptions extends Options {
 
 	public function getInstallationDays() :int {

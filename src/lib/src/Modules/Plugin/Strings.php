@@ -104,6 +104,11 @@ class Strings extends Base\Strings {
 				$titleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
+			case 'section_integrations' :
+				$title = __( '3rd Party Integrations', 'wp-simple-firewall' );
+				$titleShort = __( 'Integrations', 'wp-simple-firewall' );
+				break;
+
 			case 'section_third_party_captcha' :
 				$title = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$titleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
@@ -143,23 +148,32 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$sPlugName = $this->getCon()->getHumanName();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$plugName = $this->getCon()->getHumanName();
 
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :
-				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $sPlugName );
+				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $plugName );
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $sPlugName ),
+					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $plugName ),
 					sprintf( '<a href="%s">%s</a>',
 						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'debug' ),
 						'Launch Debug Info Page'
 					)
+				];
+				break;
+
+			case 'show_advanced' :
+				$name = __( 'Show All Options', 'wp-simple-firewall' );
+				$summary = __( 'Show All Options Including Those Marked As Advanced', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Shield hides advanced options from view to simplify display.', 'wp-simple-firewall' ),
+					__( 'Turn this option on to display advanced options at all times.', 'wp-simple-firewall' )
 				];
 				break;
 
@@ -169,7 +183,7 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', $oMod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" target="_blank">%s</a>', $mod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -180,7 +194,7 @@ class Strings extends Base\Strings {
 						.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
 						.'<br />'.sprintf(
 							__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
-							'<strong>'.$oOpts->getIpSource().'</strong>',
+							'<strong>'.$opts->getIpSource().'</strong>',
 							Services::IP()->getRequestIp()
 						)
 						.sprintf(

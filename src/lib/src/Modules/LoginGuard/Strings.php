@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
@@ -145,98 +144,98 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$sModName = $mod->getMainFeatureName();
+		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_login_protect' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
 				break;
 
 			case 'rename_wplogin_path' :
-				$sName = __( 'Hide WP Login Page', 'wp-simple-firewall' );
-				$sSummary = __( 'Hide The WordPress Login Page', 'wp-simple-firewall' );
-				$sDescription = __( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' )
-								.'<br />'
-								.sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' )
-								.'<br />'
-								.sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' );
+				$name = __( 'Hide WP Login Page', 'wp-simple-firewall' );
+				$summary = __( 'Hide The WordPress Login Page', 'wp-simple-firewall' );
+				$desc = __( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' )
+						.'<br />'
+						.sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' )
+						.'<br />'
+						.sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' );
 				break;
 
 			case 'enable_chained_authentication' :
-				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Multi-Factor Authentication', 'wp-simple-firewall' ) );
-				$sSummary = __( 'Require All Active Authentication Factors', 'wp-simple-firewall' );
-				$sDescription = __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' );
+				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Multi-Factor Authentication', 'wp-simple-firewall' ) );
+				$summary = __( 'Require All Active Authentication Factors', 'wp-simple-firewall' );
+				$desc = __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' );
 				break;
 
 			case 'mfa_skip' :
-				$sName = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
-				$sSummary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
+				$name = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
+				$summary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
+				$desc = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'allow_backupcodes' :
-				$sName = __( 'Allow Backup Codes', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Users To Generate A Backup Code', 'wp-simple-firewall' );
-				$sDescription = __( 'Allow users to generate a backup code that can be used to login if MFA factors are unavailable.', 'wp-simple-firewall' );
+				$name = __( 'Allow Backup Codes', 'wp-simple-firewall' );
+				$summary = __( 'Allow Users To Generate A Backup Code', 'wp-simple-firewall' );
+				$desc = __( 'Allow users to generate a backup code that can be used to login if MFA factors are unavailable.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_google_authenticator' :
-				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) );
-				$sSummary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
-				$sDescription = __( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' );
+				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) );
+				$summary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
+				$desc = __( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_email_authentication' :
-				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
-				$sSummary = sprintf( __( 'Two-Factor Login Authentication By %s', 'wp-simple-firewall' ), __( 'Email', 'wp-simple-firewall' ) );
-				$sDescription = __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' );
+				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
+				$summary = sprintf( __( 'Two-Factor Login Authentication By %s', 'wp-simple-firewall' ), __( 'Email', 'wp-simple-firewall' ) );
+				$desc = __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' );
 				break;
 
 			case 'email_any_user_set' :
-				$sName = __( 'Allow Any User', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Any User To Turn-On Two-Factor Authentication By Email.', 'wp-simple-firewall' );
-				$sDescription = __( 'Any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' );
+				$name = __( 'Allow Any User', 'wp-simple-firewall' );
+				$summary = __( 'Allow Any User To Turn-On Two-Factor Authentication By Email.', 'wp-simple-firewall' );
+				$desc = __( 'Any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' );
 				break;
 
 			case 'two_factor_auth_user_roles' :
-				$sName = sprintf( '%s - %s', __( 'Enforce', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
-				$sSummary = __( 'All User Roles Subject To Email Authentication', 'wp-simple-firewall' );
-				$sDescription = __( 'Enforces email-based authentication on all users with the selected roles.', 'wp-simple-firewall' )
-								.'<br /><strong>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'This setting only applies to %s.', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) ) ).'</strong>';
+				$name = sprintf( '%s - %s', __( 'Enforce', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
+				$summary = __( 'All User Roles Subject To Email Authentication', 'wp-simple-firewall' );
+				$desc = __( 'Enforces email-based authentication on all users with the selected roles.', 'wp-simple-firewall' )
+						.'<br /><strong>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'This setting only applies to %s.', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) ) ).'</strong>';
 				break;
 
 			case 'enable_google_recaptcha_login' :
-				$sName = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$sSummary = __( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' );
-				$sDescription = __( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
-								.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
-								.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
-								.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
+				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
+				$summary = __( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' );
+				$desc = __( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
+						.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
+						.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
+						.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
 				break;
 
 			case 'bot_protection_locations' :
-				$sName = __( 'Protection Locations', 'wp-simple-firewall' );
-				$sSummary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
-				$sDescription = __( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ).'<br />'
-								.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) );
+				$name = __( 'Protection Locations', 'wp-simple-firewall' );
+				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
+				$desc = __( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ).'<br />'
+						.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) );
 				break;
 
 			case 'enable_login_gasp_check' :
-				$sName = __( 'Bot Protection', 'wp-simple-firewall' );
-				$sSummary = __( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' );
-				$sDescription = __( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
+				$name = __( 'Bot Protection', 'wp-simple-firewall' );
+				$summary = __( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' );
+				$desc = __( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' )
+						.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
 				break;
 
 			case 'antibot_form_ids' :
-				$sName = __( 'AntiBot Forms', 'wp-simple-firewall' );
-				$sSummary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
+				$summary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Provide DOM selectors to attached AntiBot protection to any form.', 'wp-simple-firewall' ),
 					__( 'IDs are prefixed with "#".', 'wp-simple-firewall' ),
 					__( 'Classes are prefixed with ".".', 'wp-simple-firewall' ),
@@ -245,83 +244,80 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'login_limit_interval' :
-				$sName = __( 'Cooldown Period', 'wp-simple-firewall' );
-				$sSummary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
-				$sDescription = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
-								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getOptions()
-																									->getOptDefault( 'login_limit_interval' ) );
+				$name = __( 'Cooldown Period', 'wp-simple-firewall' );
+				$summary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
+				$desc = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
+						.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
+						.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getOptions()
+																							->getOptDefault( 'login_limit_interval' ) );
 				break;
 
 			case 'enable_user_register_checking' :
-				$sName = __( 'User Registration', 'wp-simple-firewall' );
-				$sSummary = __( 'Apply Brute Force Protection To User Registration And Lost Passwords', 'wp-simple-firewall' );
-				$sDescription = __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' );
+				$name = __( 'User Registration', 'wp-simple-firewall' );
+				$summary = __( 'Apply Brute Force Protection To User Registration And Lost Passwords', 'wp-simple-firewall' );
+				$desc = __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_u2f' :
-				$sName = __( 'Allow U2F', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Registration Of U2F Devices', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Allow U2F', 'wp-simple-firewall' );
+				$summary = __( 'Allow Registration Of U2F Devices', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
 					__( "Currently only U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' ),
 					__( "Beta! This may only be used when at least 1 other 2FA option is enabled on a user account.", 'wp-simple-firewall' ),
 				];
-				if ( !Services::Data()->getPhpVersionIsAtLeast( '7.0' ) ) {
-					$sDescription[] = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Requires PHP 7.0 or later.", 'wp-simple-firewall' ) );
-				}
 				break;
 
 			case 'enable_yubikey' :
-				$sName = __( 'Allow Yubikey OTP', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Yubikey Registration For One Time Passwords', 'wp-simple-firewall' );
-				$sDescription = __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' );
+				$name = __( 'Allow Yubikey OTP', 'wp-simple-firewall' );
+				$summary = __( 'Allow Yubikey Registration For One Time Passwords', 'wp-simple-firewall' );
+				$desc = __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_app_id' :
-				$sName = __( 'Yubikey App ID', 'wp-simple-firewall' );
-				$sSummary = __( 'Your Unique Yubikey App ID', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Yubikey App ID', 'wp-simple-firewall' );
+				$summary = __( 'Your Unique Yubikey App ID', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' ),
 					__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' )
 				];
 				break;
 
 			case 'yubikey_api_key' :
-				$sName = __( 'Yubikey API Key', 'wp-simple-firewall' );
-				$sSummary = __( 'Your Unique Yubikey App API Key', 'wp-simple-firewall' );
-				$sDescription = __( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
+				$name = __( 'Yubikey API Key', 'wp-simple-firewall' );
+				$summary = __( 'Your Unique Yubikey App API Key', 'wp-simple-firewall' );
+				$desc = __( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.', 'wp-simple-firewall' )
+						.'<br />'.__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_unique_keys' :
-				$sName = __( 'Yubikey Unique Keys', 'wp-simple-firewall' );
-				$sSummary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
-				$sDescription = '<strong>'.sprintf( '%s: %s', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ).'</strong>'
-								.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
-								.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
-								.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' );
+				$name = __( 'Yubikey Unique Keys', 'wp-simple-firewall' );
+				$summary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
+				$desc = '<strong>'.sprintf( '%s: %s', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ).'</strong>'
+						.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
+						.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
+						.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' );
 				break;
 
 			case 'text_imahuman' :
-				$sName = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
-				$sSummary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
-				$sDescription = __( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_imahuman' ) );
+				$name = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
+				$summary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
+				$desc = __( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' )
+						.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_imahuman' ) );
 				break;
 
 			case 'text_pleasecheckbox' :
-				$sName = __( 'GASP Alert Text', 'wp-simple-firewall' );
-				$sSummary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
-				$sDescription = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_pleasecheckbox' ) );
+				$name = __( 'GASP Alert Text', 'wp-simple-firewall' );
+				$summary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
+				$desc = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
+						.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_pleasecheckbox' ) );
 				break;
 
 			// removed 9.0
 			case 'enable_antibot_js' :
-				$sName = __( 'AntiBot JS', 'wp-simple-firewall' );
-				$sSummary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
-				$sDescription = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
+				$name = __( 'AntiBot JS', 'wp-simple-firewall' );
+				$summary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
+				$desc = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -329,9 +325,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $desc,
 		];
 	}
 }

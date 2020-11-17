@@ -2,18 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
 	use ModConsumer;
+	use OneTimeExecute;
 
 	const SCAN_SLUG = '';
 
@@ -29,65 +33,79 @@ abstract class Base {
 	public function __construct() {
 	}
 
+	protected function run() {
+		add_action(
+			$this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() ),
+			function () {
+				/** @var HackGuard\ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getScanQueueController()->startScans( [ $this->getSlug() ] );
+			}
+		);
+	}
+
 	public function cleanStalesResults() {
-		$oResults = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+		$results = ( new HackGuard\Scan\Results\ResultsRetrieve() )
 			->setScanController( $this )
 			->retrieve();
-		foreach ( $oResults->getItems() as $oItem ) {
-			if ( !$this->isResultItemStale( $oItem ) ) {
-				$oResults->removeItemByHash( $oItem->hash );
+		foreach ( $results->getItems() as $item ) {
+			if ( !$this->isResultItemStale( $item ) ) {
+				$results->removeItemByHash( $item->hash );
 			}
 		}
 		( new HackGuard\Scan\Results\ResultsDelete() )
 			->setScanController( $this )
-			->delete( $oResults );
+			->delete( $results );
+	}
+
+	public function createFileDownloadLink( Databases\Scanner\EntryVO $entry ) :string {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$aActionNonce = $mod->getNonceActionData( 'scan_file_download' );
+		$aActionNonce[ 'rid' ] = $entry->id;
+		return add_query_arg( $aActionNonce, $mod->getUrl_AdminPage() );
+	}
+
+	public function getLastScanAt() :int {
+		/** @var Databases\Events\Select $sel */
+		$sel = $this->getCon()
+					->getModule_Events()
+					->getDbHandler_Events()
+					->getQuerySelector();
+		$entry = $sel->getLatestForEvent( $this->getSlug().'_scan_run' );
+		return ( $entry instanceof Databases\Events\EntryVO ) ? (int)$entry->created_at : 0;
+	}
+
+	public function getScanHasProblem() :bool {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Databases\Scanner\Select $sel */
+		$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		return $sel->filterByNotIgnored()
+				   ->filterByScan( $this->getSlug() )
+				   ->count() > 0;
 	}
 
 	/**
-	 * @param Databases\Scanner\EntryVO $oEntryVo
-	 * @return string
-	 */
-	public function createFileDownloadLink( $oEntryVo ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$aActionNonce = $oMod->getNonceActionData( 'scan_file_download' );
-		$aActionNonce[ 'rid' ] = $oEntryVo->id;
-		return add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
-	}
-
-	/**
+	 * @param BaseResultItem|mixed $item
 	 * @return bool
 	 */
-	public function getScanHasProblem() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		return $oSel->filterByNotIgnored()
-					->filterByScan( $this->getSlug() )
-					->count() > 0;
-	}
+	abstract protected function isResultItemStale( $item );
 
 	/**
-	 * @param BaseResultItem|mixed $oItem
-	 * @return bool
-	 */
-	abstract protected function isResultItemStale( $oItem );
-
-	/**
-	 * @param int|string $sItemId
-	 * @param string     $sAction
+	 * @param int|string $itemID
+	 * @param string     $action
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function executeItemAction( $sItemId, $sAction ) {
+	public function executeItemAction( $itemID, $action ) {
 		$bSuccess = false;
 
-		if ( is_numeric( $sItemId ) ) {
+		if ( is_numeric( $itemID ) ) {
 			/** @var Databases\Scanner\EntryVO $oEntry */
 			$oEntry = $this->getScanResultsDbHandler()
 						   ->getQuerySelector()
-						   ->byId( $sItemId );
+						   ->byId( $itemID );
 			if ( empty( $oEntry ) ) {
 				throw new \Exception( 'Item could not be found.' );
 			}
@@ -98,7 +116,7 @@ abstract class Base {
 
 			$bSuccess = $this->getItemActionHandler()
 							 ->setScanItem( $oItem )
-							 ->process( $sAction );
+							 ->process( $action );
 		}
 
 		return $bSuccess;
@@ -108,22 +126,22 @@ abstract class Base {
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
-		$oSel->filterByScan( $this->getSlug() )
-			 ->filterByNotIgnored();
+		/** @var Databases\Scanner\Select $sel */
+		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
+		$sel->filterByScan( $this->getSlug() )
+			->filterByNotIgnored();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $oSel->query() );
+			->fromVOsToResultsSet( $sel->query() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function updateAllAsNotified() {
-		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
-		return $oUpd->setAllNotifiedForScan( $this->getSlug() );
+		/** @var Databases\Scanner\Update $updater */
+		$updater = $this->getScanResultsDbHandler()->getQueryUpdater();
+		return $updater->setAllNotifiedForScan( $this->getSlug() );
 	}
 
 	/**
@@ -131,15 +149,15 @@ abstract class Base {
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	public function getAllResults( $bIncludeIgnored = false ) {
-		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
-		$oSel->filterByScan( $this->getSlug() );
+		/** @var Databases\Scanner\Select $sel */
+		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
+		$sel->filterByScan( $this->getSlug() );
 		if ( !$bIncludeIgnored ) {
-			$oSel->filterByNotIgnored();
+			$sel->filterByNotIgnored();
 		}
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $oSel->query() );
+			->fromVOsToResultsSet( $sel->query() );
 	}
 
 	/**
@@ -172,9 +190,6 @@ abstract class Base {
 		return $strings->getScanNames()[ static::SCAN_SLUG ];
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isCronAutoRepair() :bool {
 		return false;
 	}
@@ -185,22 +200,16 @@ abstract class Base {
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isReady() {
+	public function isReady() :bool {
 		return $this->isEnabled() && $this->isScanningAvailable();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isScanningAvailable() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oMod->isModuleEnabled() && ( !$this->isPremiumOnly() || $oOpts->isPremium() );
+	public function isScanningAvailable() :bool {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $mod->isModuleEnabled() && ( !$this->isPremiumOnly() || $opts->isPremium() );
 	}
 
 	/**
@@ -252,66 +261,64 @@ abstract class Base {
 		return $this;
 	}
 
-	/**
-	 * @return Databases\Scanner\Handler
-	 */
-	public function getScanResultsDbHandler() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getDbHandler_ScanResults();
+	public function getScanResultsDbHandler() :Databases\Scanner\Handler {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getDbHandler_ScanResults();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSlug() {
+	public function getSlug() :string {
 		try {
-			$sSlug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
+			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}
-		catch ( \ReflectionException $oRE ) {
-			$sSlug = '';
+		catch ( \ReflectionException $e ) {
+			$slug = '';
 		}
-		return $sSlug;
+		return $slug;
 	}
 
 	/**
 	 * @return BaseResultItem|mixed
 	 */
 	public function getNewResultItem() {
-		$sClass = $this->getScanNamespace().'ResultItem';
-		return new $sClass();
+		$class = $this->getScanNamespace().'ResultItem';
+		return new $class();
 	}
 
 	/**
 	 * @return BaseResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
-		$sClass = $this->getScanNamespace().'ResultsSet';
-		return new $sClass();
+		$class = $this->getScanNamespace().'ResultsSet';
+		return new $class();
 	}
 
 	/**
 	 * @return BaseEntryFormatter|mixed
 	 */
 	public function getTableEntryFormatter() {
-		$sClass = $this->getScanNamespace().'Table\\EntryFormatter';
-		/** @var BaseEntryFormatter $oF */
-		$oF = new $sClass();
-		return $oF->setScanController( $this )
-				  ->setMod( $this->getMod() )
-				  ->setScanActionVO( $this->getScanActionVO() );
+		$class = $this->getScanNamespace().'Table\\EntryFormatter';
+		/** @var BaseEntryFormatter $formatter */
+		$formatter = new $class();
+		return $formatter->setScanController( $this )
+						 ->setMod( $this->getMod() )
+						 ->setScanActionVO( $this->getScanActionVO() );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getScanNamespace() {
+	public function getScanNamespace() :string {
 		try {
-			$sName = ( new \ReflectionClass( $this->getScanActionVO() ) )->getNamespaceName();
+			$ns = ( new \ReflectionClass( $this->getScanActionVO() ) )->getNamespaceName();
 		}
-		catch ( \Exception $oE ) {
-			$sName = __NAMESPACE__;
+		catch ( \Exception $e ) {
+			$ns = __NAMESPACE__;
 		}
-		return rtrim( $sName, '\\' ).'\\';
+		return rtrim( $ns, '\\' ).'\\';
+	}
+
+	protected function scheduleOnDemandScan( int $nDelay = 3 ) {
+		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() );
+		if ( !wp_next_scheduled( $sHook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
+		}
 	}
 }

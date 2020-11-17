@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
+use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 use FernleafSystems\Wordpress\Services\Services;
@@ -10,6 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	use ModConsumer;
+	use OneTimeExecute;
 
 	/**
 	 * @var string|int|null
@@ -21,7 +23,11 @@ class Scanner {
 	 */
 	private $sCommentExplanation;
 
-	public function run() {
+	protected function canRun() {
+		return Services::Request()->isPost();
+	}
+
+	protected function run() {
 		if ( Services::WpComments()->isCommentSubmission() ) {
 			add_filter( 'preprocess_comment', [ $this, 'checkComment' ], 5 );
 		}
@@ -117,9 +123,9 @@ class Scanner {
 	 * @return true|\WP_Error|null
 	 */
 	private function runScans( $aCommData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $mod */
+		/** @var CommentsFilter\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
+		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
 		$mResult = true;
@@ -163,7 +169,7 @@ class Scanner {
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
-		/** @var Options $opts */
+		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 		$post = Services::WpPost()->getById( $nPostId );
 		return $post instanceof \WP_Post

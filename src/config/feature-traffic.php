@@ -16,11 +16,22 @@
     "run_if_wpcli":          false,
     "order":                 110
   },
-  "requirements": {
-    "php": {
-      "version": "5.4"
+  "menu_items":       [
+    {
+      "title":    "Traffic Log",
+      "slug":     "traffic-redirect",
+      "callback": ""
     }
-  },
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "traffic-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "traffic"
+      }
+    }
+  ],
   "sections":     [
     {
       "slug":        "section_traffic_options",
@@ -59,6 +70,7 @@
     {
       "key":         "enable_traffic",
       "section":     "section_enable_plugin_feature_traffic",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ed",
@@ -82,6 +94,7 @@
       "key":           "type_exclusions",
       "section":       "section_traffic_options",
       "type":          "multiple_select",
+      "advanced":      true,
       "default":       [
         "logged_in",
         "cron",
@@ -127,6 +140,7 @@
     {
       "key":         "custom_exclusions",
       "section":     "section_traffic_options",
+      "advanced":    true,
       "premium":     true,
       "default":     [],
       "type":        "array",
@@ -139,6 +153,7 @@
     {
       "key":         "auto_clean",
       "section":     "section_traffic_options",
+      "advanced":    true,
       "default":     3,
       "min":         1,
       "type":        "integer",
@@ -151,6 +166,7 @@
     {
       "key":         "max_entries",
       "section":     "section_traffic_options",
+      "advanced":    true,
       "premium":     true,
       "default":     1000,
       "min":         0,
@@ -199,18 +215,18 @@
     }
   ],
   "definitions":  {
-    "db_classes":             {
+    "db_classes":            {
       "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
     },
     "traffic_table_name":    "traffic",
     "traffic_table_columns": {
-      "rid": "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
-      "uid": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID'",
-      "ip": "varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address'",
-      "path": "text NOT NULL DEFAULT '' COMMENT 'Request Path or URI'",
-      "code": "int(5) NOT NULL DEFAULT '200' COMMENT 'HTTP Response Code'",
-      "verb": "varchar(10) NOT NULL DEFAULT 'get' COMMENT 'HTTP Method'",
-      "ua": "text COMMENT 'Browser User Agent String'",
+      "rid":   "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
+      "uid":   "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID'",
+      "ip":    "varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address'",
+      "path":  "text NOT NULL DEFAULT '' COMMENT 'Request Path or URI'",
+      "code":  "int(5) NOT NULL DEFAULT '200' COMMENT 'HTTP Response Code'",
+      "verb":  "varchar(10) NOT NULL DEFAULT 'get' COMMENT 'HTTP Method'",
+      "ua":    "text COMMENT 'Browser User Agent String'",
       "trans": "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Trangression'"
     },
     "events":                {

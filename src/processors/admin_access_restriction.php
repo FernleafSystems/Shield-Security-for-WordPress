@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\ShieldProcessor {
 
 	/**
@@ -17,7 +20,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isEnabledWhitelabel() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+			/** @var SecurityAdmin\ModCon $mod */
 			$mod = $this->getMod();
 			$mod->getWhiteLabelController()->execute();
 		}
@@ -28,7 +31,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return bool
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		return $bHasPermission && ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid()
 									|| $mod->testSecAccessKeyRequest() );
@@ -36,7 +39,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 
 	public function onWpInit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+			/** @var SecurityAdmin\ModCon $mod */
 			$mod = $this->getMod();
 			/** @var SecurityAdmin\Options $opts */
 			$opts = $this->getOptions();
@@ -81,18 +84,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getMod()->getSlug();
-
-		$aKeysToBoolean = [
-			'admin_access_restrict_plugins',
-			'admin_access_restrict_themes',
-			'admin_access_restrict_posts'
-		];
-		foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
-			$aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ]
-				= empty( $aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
-		}
 		return $aData;
 	}
 
@@ -417,7 +408,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	}
 
 	public function printAdminAccessAjaxForm() {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();

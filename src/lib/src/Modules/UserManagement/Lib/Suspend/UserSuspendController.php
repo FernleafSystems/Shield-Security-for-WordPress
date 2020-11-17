@@ -20,7 +20,7 @@ class UserSuspendController {
 	}
 
 	protected function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
@@ -158,7 +158,7 @@ class UserSuspendController {
 
 		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $con->isPluginAdmin() ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
 			$mod->addRemoveHardSuspendUserId( $uid, $isSuspend );
 

@@ -2,44 +2,43 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Users extends Base {
 
+	use WpLoginCapture;
+
 	public function run() {
-		add_action( 'wp_login', [ $this, 'auditUserLoginSuccess' ] );
+		$this->setupLoginCaptureHooks();
 		add_action( 'user_register', [ $this, 'auditNewUserRegistered' ] );
 		add_action( 'delete_user', [ $this, 'auditDeleteUser' ], 30, 2 );
 	}
 
-	/**
-	 * @param string $sUsername
-	 */
-	public function auditUserLoginSuccess( $sUsername ) {
-		if ( !empty( $sUsername ) ) {
-			$this->getCon()->fireEvent(
-				'user_login',
-				[
-					'audit' => [
-						'user' => sanitize_user( $sUsername ),
-					]
-				]
-			);
-		}
+	protected function captureLogin( \WP_User $user ) {
+		$this->auditUserLoginSuccess( $user );
 	}
 
-	/**
-	 * @param int $nUserId
-	 */
-	public function auditNewUserRegistered( $nUserId ) {
-		$oUser = empty( $nUserId ) ? null : Services::WpUsers()->getUserById( $nUserId );
-		if ( $oUser instanceof \WP_User ) {
+	public function auditUserLoginSuccess( \WP_User $user ) {
+		$this->getCon()->fireEvent(
+			'user_login',
+			[
+				'audit' => [
+					'user' => $user->user_login,
+				]
+			]
+		);
+	}
+
+	public function auditNewUserRegistered( int $userID ) {
+		$user = empty( $userID ) ? null : Services::WpUsers()->getUserById( $userID );
+		if ( $user instanceof \WP_User ) {
 			$this->getCon()->fireEvent(
 				'user_registered',
 				[
 					'audit' => [
-						'user'  => sanitize_user( $oUser->user_login ),
-						'email' => $oUser->user_email,
+						'user'  => sanitize_user( $user->user_login ),
+						'email' => $user->user_email,
 					]
 				]
 			);
@@ -47,20 +46,20 @@ class Users extends Base {
 	}
 
 	/**
-	 * @param int $nUserId
+	 * @param int $userID
 	 * @param int $nReassigned
 	 */
-	public function auditDeleteUser( $nUserId, $nReassigned ) {
+	public function auditDeleteUser( $userID, $nReassigned ) {
 		$oWpUsers = Services::WpUsers();
 
-		$oUser = empty( $nUserId ) ? null : $oWpUsers->getUserById( $nUserId );
-		if ( $oUser instanceof \WP_User ) {
+		$user = empty( $userID ) ? null : $oWpUsers->getUserById( $userID );
+		if ( $user instanceof \WP_User ) {
 			$this->getCon()->fireEvent(
 				'user_deleted',
 				[
 					'audit' => [
-						'user'  => sanitize_user( $oUser->user_login ),
-						'email' => $oUser->user_email,
+						'user'  => sanitize_user( $user->user_login ),
+						'email' => $user->user_email,
 					]
 				]
 			);

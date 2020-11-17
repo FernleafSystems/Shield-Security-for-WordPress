@@ -2,19 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+
 class BadgeWidget extends \WP_Widget {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 	/**
 	 * BadgeWidget constructor.
-	 * @param \ICWP_WPSF_FeatureHandler_Base $oMod
+	 * @param ModCon $mod
 	 */
-	public function __construct( $oMod ) {
-		if ( empty( $oMod ) ) {
+	public function __construct( $mod ) {
+		if ( empty( $mod ) ) {
 			return;
 		}
-		$this->setMod( $oMod );
+		$this->setMod( $mod );
 		$oCon = $this->getCon();
 
 		$sName = $oCon->getHumanName();

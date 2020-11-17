@@ -114,6 +114,7 @@
     {
       "key":         "enable_login_protect",
       "section":     "section_enable_plugin_feature_login_protection",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/51",
@@ -125,6 +126,7 @@
     {
       "key":         "rename_wplogin_path",
       "section":     "section_rename_wplogin",
+      "advanced":    true,
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -195,6 +197,7 @@
     {
       "key":           "two_factor_auth_user_roles",
       "section":       "section_2fa_email",
+      "advanced":      true,
       "type":          "multiple_select",
       "default":       [
         "contributor",
@@ -352,6 +355,7 @@
     {
       "key":         "antibot_form_ids",
       "section":     "section_brute_force_login_protection",
+      "advanced":    true,
       "premium":     true,
       "type":        "array",
       "default":     [

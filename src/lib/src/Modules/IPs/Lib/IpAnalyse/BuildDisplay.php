@@ -6,8 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class BuildDisplay {
 
@@ -19,7 +21,7 @@ class BuildDisplay {
 	 * @throws \Exception
 	 */
 	public function run() :string {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$ip = $this->getIP();
@@ -77,12 +79,39 @@ class BuildDisplay {
 
 		$sRDNS = gethostbyaddr( $ip );
 
+		$ipIdentifier = new IpIdentify( $ip );
+		try {
+			$ipWhoIs = $ipIdentifier->run();
+			$ipIdKey = key( $ipWhoIs );
+			$ipID = current( $ipWhoIs );
+		}
+		catch ( \Exception $e ) {
+			$ipIdKey = IpIdentify::UNKNOWN;
+			$ipID = $ipIdentifier->getName( $ipIdKey );
+		}
+
+		if ( $ipIdKey === IpIdentify::UNKNOWN ) {
+			$ipEntry = ( new LookupIpOnList() )
+				->setDbHandler( $dbh )
+				->setIP( $ip )
+				->setListTypeWhite()
+				->lookup();
+			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
+				$ipID = $ipEntry->label;
+			}
+		}
+
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
 			[
 				'strings' => [
 					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
 					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
+
+					'block_ip'    => __( 'Block IP', 'wp-simple-firewall' ),
+					'unblock_ip'  => __( 'Unblock IP', 'wp-simple-firewall' ),
+					'bypass_ip'   => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+					'unbypass_ip' => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
 
 					'status' => [
 						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
@@ -117,9 +146,7 @@ class BuildDisplay {
 						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
 					],
 					'identity' => [
-						'who_is_it'    => Services::IP()
-												  ->getIpDetector()
-												  ->getIPIdentity(),
+						'who_is_it'    => $ipID,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
 						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),

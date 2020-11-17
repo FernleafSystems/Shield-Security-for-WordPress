@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 class WooCommerce extends BaseFormProvider {
 
 	public function run() {
 		parent::run();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isProtect( 'checkout_woo' ) ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isProtect( 'checkout_woo' ) ) {
 			$this->woocheckout();
 		}
 	}
@@ -50,10 +50,10 @@ class WooCommerce extends BaseFormProvider {
 	 * @return void
 	 */
 	public function formInsertsPrint_WooLogin() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$sInserts = $this->formInsertsBuild();
-		if ( $oMod->getCaptchaCfg()->invisible ) {
+		if ( $mod->getCaptchaCfg()->invisible ) {
 			$sInserts .= '<input type="hidden" name="login" value="Log in" />';
 		}
 		echo $sInserts;
@@ -63,10 +63,10 @@ class WooCommerce extends BaseFormProvider {
 	 * @return void
 	 */
 	public function formInsertsPrint_WooRegister() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$sInserts = $this->formInsertsBuild();
-		if ( $oMod->getCaptchaCfg()->invisible ) {
+		if ( $mod->getCaptchaCfg()->invisible ) {
 			$sInserts .= '<input type="hidden" name="register" value="Register" />';
 		}
 		echo $sInserts;

@@ -40,7 +40,7 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 
 var iCWP_WPSF_ParseAjaxResponse = new function () {
 	this.parseIt = function ( raw ) {
-		let parsed = {};
+		var parsed = {};
 		try {
 			parsed = JSON.parse( raw );
 		}
@@ -63,7 +63,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 			data: reqData,
 			dataType: "text",
 			success: function ( raw ) {
-				let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+				var resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
 				if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
 					iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
@@ -334,7 +334,7 @@ var iCWP_WPSF_Growl = new function () {
 
 var iCWP_WPSF_BodyOverlay = new function () {
 
-	let nOverlays = 0;
+	var nOverlays = 0;
 
 	this.show = function () {
 		nOverlays++;

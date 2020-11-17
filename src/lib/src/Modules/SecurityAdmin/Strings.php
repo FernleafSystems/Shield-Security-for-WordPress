@@ -200,6 +200,11 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'The Name Of The Plugin', 'wp-simple-firewall' );
 				$sDescription = __( 'The name of the plugin that will be displayed to your site users.', 'wp-simple-firewall' );
 				break;
+			case 'wl_replace_badge_url' :
+				$sName = __( 'Replace Plugin Badge', 'wp-simple-firewall' );
+				$sSummary = __( 'Replace Plugin Badge URL and Images', 'wp-simple-firewall' );
+				$sDescription = __( 'When using the plugin badge, replace the URL and link with your Whitelabel settings.', 'wp-simple-firewall' );
+				break;
 			case 'wl_namemenu' :
 				$sName = __( 'Menu Title', 'wp-simple-firewall' );
 				$sSummary = __( 'The Main Menu Title Of The Plugin', 'wp-simple-firewall' );

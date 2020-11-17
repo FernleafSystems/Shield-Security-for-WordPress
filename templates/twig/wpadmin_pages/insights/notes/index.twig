@@ -2,14 +2,8 @@
 
 {% block page_main %}
 	<div class="row">
-		{% if flags.can_adminnotes %}
-			<div class="col-12 insights_section">
-			{% include '/wpadmin_pages/insights/notes/admin_notes.twig' %}
-			</div>
-		{% else %}
-			<div class="col-12 insights_section">
-				{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
-			</div>
-		{% endif %}
+		<div class="col insights_section">
+			{{ content.notes|raw }}
+		</div>
 	</div>
 {% endblock %}

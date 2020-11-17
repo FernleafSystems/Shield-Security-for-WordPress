@@ -16,19 +16,26 @@
     "run_if_wpcli":          true,
     "order":                 110
   },
+  "menu_items":       [
+    {
+      "title":    "Audit Trail",
+      "slug":     "audit-redirect",
+      "callback": ""
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "audit-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "audit"
+      }
+    }
+  ],
   "sections":    [
     {
-      "slug":        "section_enable_audit_contexts",
-      "primary":     true,
-      "title":       "Enable Audit Contexts",
-      "title_short": "Audit Contexts",
-      "summary":     [
-        "Purpose - Specify which types of actions on your site are logged.",
-        "Recommendation - These settings are dependent on your requirements."
-      ]
-    },
-    {
       "slug":        "section_audit_trail_options",
+      "primary":     true,
       "title":       "Audit Trail Options",
       "title_short": "Options",
       "summary":     [
@@ -64,6 +71,7 @@
     {
       "key":         "enable_audit_trail",
       "section":     "section_enable_plugin_feature_audit_trail",
+      "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/5p",
@@ -96,83 +104,6 @@
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",
       "description": "Automatically remove any audit trail entries when this limit is exceeded."
-    },
-    {
-      "key":         "enable_audit_context_users",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Users And Logins",
-      "summary":     "Enable Audit Context - Users And Logins",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Users And Logins"
-    },
-    {
-      "key":         "enable_audit_context_plugins",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Plugins",
-      "summary":     "Enable Audit Context - Plugins",
-      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Plugins"
-    },
-    {
-      "key":         "enable_audit_context_themes",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Themes",
-      "summary":     "Enable Audit Context - Themes",
-      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Themes"
-    },
-    {
-      "key":         "enable_audit_context_posts",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Posts And Pages",
-      "summary":     "Enable Audit Context - Posts And Pages",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Editing and publishing of posts and pages"
-    },
-    {
-      "key":         "enable_audit_context_wordpress",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "WordPress And Settings",
-      "summary":     "Enable Audit Context - WordPress And Settings",
-      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress upgrades and changes to particular WordPress settings"
-    },
-    {
-      "key":         "enable_audit_context_emails",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a3",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Emails",
-      "summary":     "Enable Audit Context - Emails",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Email Sending"
-    },
-    {
-      "key":         "enable_audit_context_wpsf",
-      "section":     "section_enable_audit_contexts",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/a4",
-      "link_blog":   "https://shsec.io/a1",
-      "name":        "Shield",
-      "summary":     "Enable Audit Context - Shield",
-      "description": "When this context is enabled, the audit trail will track activity relating to: Shield"
     },
     {
       "key":           "enable_change_tracking",
@@ -232,12 +163,12 @@
     }
   ],
   "definitions": {
-    "db_classes":                   {
+    "db_classes":                         {
       "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
-    "audit_trail_free_max_entries": 100,
-    "audit_trail_table_name":       "audit_trail",
-    "audit_trail_table_columns":    {
+    "audit_trail_free_max_entries":       100,
+    "audit_trail_table_name":             "audit_trail",
+    "audit_trail_table_columns":          {
       "rid":         "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
       "ip":          "varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address'",
       "wp_username": "varchar(255) NOT NULL DEFAULT '-' COMMENT 'WP User'",
@@ -252,15 +183,15 @@
     "audittrail_table_timestamp_columns": {
       "updated_at": "Updated"
     },
-    "table_name_changetracking":    "changetracking",
-    "table_columns_changetracking": [
+    "table_name_changetracking":          "changetracking",
+    "table_columns_changetracking":       [
       "id",
       "data",
       "meta",
       "created_at",
       "deleted_at"
     ],
-    "events":                       {
+    "events":                             {
       "plugin_activated":        {
         "context":        "plugins",
         "audit_multiple": true
@@ -272,10 +203,16 @@
       "plugin_file_edited":      {
         "context": "plugins"
       },
+      "plugin_upgraded":         {
+        "context": "plugins"
+      },
       "theme_activated":         {
         "context": "themes"
       },
       "theme_file_edited":       {
+        "context": "themes"
+      },
+      "theme_upgraded":          {
         "context": "themes"
       },
       "core_updated":            {

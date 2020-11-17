@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,8 +19,8 @@ class ScanWpv extends ScanBase {
 	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
@@ -33,7 +34,7 @@ class ScanWpv extends ScanBase {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			/** @var Shield\Scans\Wpv\ResultItem $oIt */
 			$oIt = $oConverter
-				->setScanController( $oMod->getScanCon( $oEntry->scan ) )
+				->setScanController( $mod->getScanCon( $oEntry->scan ) )
 				->convertVoToResultItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			if ( $oIt->context == 'plugins' ) {

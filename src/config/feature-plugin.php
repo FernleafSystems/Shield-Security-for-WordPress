@@ -59,14 +59,6 @@
       "can_dismiss":      false,
       "type":             "warning"
     },
-    "cloudflare-apo":             {
-      "id":               "cloudflare-apo",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
     "wizard_welcome":             {
       "id":       "wizard_welcome",
       "per_user": false,
@@ -116,6 +108,11 @@
       "title_short": "Import / Export"
     },
     {
+      "slug":        "section_integrations",
+      "title":       "Integrations",
+      "title_short": "Integrations"
+    },
+    {
       "slug":        "section_global_security_options",
       "title":       "Global Plugin Security Options",
       "title_short": "Disable Shield"
@@ -149,8 +146,20 @@
       "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
     },
     {
+      "key":         "show_advanced",
+      "section":     "section_non_ui",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Show All Options",
+      "summary":     "Show All Options Including Those Marked As Advanced",
+      "description": "Shield hides advanced options from view to simplify display. Turn this option on to display advanced options at all times."
+    },
+    {
       "key":           "visitor_address_source",
       "section":       "section_defaults",
+      "advanced":      true,
       "sensitive":     false,
       "type":          "select",
       "default":       "AUTO_DETECT_IP",
@@ -243,6 +252,7 @@
     {
       "key":         "enable_wpcli",
       "section":     "section_general_plugin_options",
+      "advanced":    true,
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
@@ -266,6 +276,7 @@
     {
       "key":         "importexport_enable",
       "section":     "section_importexport",
+      "advanced":    true,
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
@@ -278,6 +289,7 @@
     {
       "key":         "importexport_masterurl",
       "section":     "section_importexport",
+      "advanced":    true,
       "default":     "",
       "type":        "text",
       "link_info":   "",
@@ -289,6 +301,7 @@
     {
       "key":          "importexport_whitelist",
       "section":      "section_importexport",
+      "advanced":     true,
       "transferable": false,
       "sensitive":    true,
       "default":      [],
@@ -302,6 +315,7 @@
     {
       "key":         "importexport_whitelist_notify",
       "section":     "section_importexport",
+      "advanced":    true,
       "sensitive":   true,
       "default":     "N",
       "type":        "checkbox",
@@ -314,6 +328,7 @@
     {
       "key":          "importexport_secretkey",
       "section":      "section_importexport",
+      "advanced":     true,
       "transferable": false,
       "sensitive":    true,
       "default":      "",
@@ -338,6 +353,7 @@
     {
       "key":         "locale_override",
       "section":     "section_general_plugin_options",
+      "advanced":    true,
       "default":     "",
       "type":        "text",
       "link_info":   "https://icwp.io/il",
@@ -520,11 +536,11 @@
     "db_notes_name":          "notes",
     "db_notes_table_columns": {
       "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
-      "note": "TEXT"
+      "note":        "TEXT"
     },
     "geoip_table_name":       "geoip",
     "geoip_table_columns":    {
-      "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
+      "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
       "meta": "TEXT"
     },
     "active_plugin_features": [
@@ -535,11 +551,13 @@
       },
       {
         "slug":          "admin_access_restriction",
+        "namespace":     "SecurityAdmin",
         "load_priority": 11
       },
       {
         "slug":          "ips",
-        "load_priority": 15
+        "load_priority": 15,
+        "namespace":     "IPs"
       },
       {
         "slug":          "audit_trail",
@@ -547,12 +565,12 @@
         "hidden":        false
       },
       {
-        "slug": "hack_protect"
+        "slug":      "hack_protect",
+        "namespace": "HackGuard"
       },
       {
         "slug":          "traffic",
-        "load_priority": 12,
-        "min_php":       "5.4"
+        "load_priority": 12
       },
       {
         "slug":          "firewall",
@@ -560,7 +578,8 @@
       },
       {
         "slug":        "login_protect",
-        "storage_key": "loginprotect"
+        "storage_key": "loginprotect",
+        "namespace":   "LoginGuard"
       },
       {
         "slug": "user_management"
@@ -580,6 +599,10 @@
       {
         "slug":          "sessions",
         "load_priority": 5
+      },
+      {
+        "slug":          "integrations",
+        "load_priority": 20
       },
       {
         "slug":          "license",

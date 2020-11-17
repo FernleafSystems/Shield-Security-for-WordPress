@@ -32,17 +32,17 @@ class Export {
 	}
 
 	public function toJson() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oReq = Services::Request();
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
 
-		$sSecretKey = $oReq->query( 'secret', '' );
+		$sSecretKey = $req->query( 'secret', '' );
 
-		$sNetworkOpt = $oReq->query( 'network', '' );
+		$sNetworkOpt = $req->query( 'network', '' );
 		$bDoNetwork = !empty( $sNetworkOpt );
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
 
-		if ( !$oMod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
+		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
 
@@ -66,14 +66,14 @@ class Export {
 
 			if ( $bDoNetwork ) {
 				if ( $sNetworkOpt === 'Y' ) {
-					$oMod->addUrlToImportExportWhitelistUrls( $sUrl );
+					$mod->addUrlToImportExportWhitelistUrls( $sUrl );
 					$this->getCon()->fireEvent(
 						'whitelist_site_added',
 						[ 'audit' => [ 'site' => $sUrl ] ]
 					);
 				}
 				else {
-					$oMod->removeUrlFromImportExportWhitelistUrls( $sUrl );
+					$mod->removeUrlFromImportExportWhitelistUrls( $sUrl );
 					$this->getCon()->fireEvent(
 						'whitelist_site_removed',
 						[ 'audit' => [ 'site' => $sUrl ] ]

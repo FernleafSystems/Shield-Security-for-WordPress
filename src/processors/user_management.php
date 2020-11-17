@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 10.1
+ */
 class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
 
 	/**
@@ -11,7 +14,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * actions taken by this module respect whether the current visitor is whitelisted.
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
@@ -79,7 +82,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * @return $this
 	 */
 	private function sendLoginNotifications( \WP_User $user ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		$aAdminEmails = $mod->getAdminLoginNotificationEmails();
 		$bAdmin = count( $aAdminEmails ) > 0;
@@ -157,7 +160,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
 
@@ -211,9 +214,9 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		$oEmailer = $this->getMod()
 						 ->getEmailProcessor();
-		foreach ( $mod->getAdminLoginNotificationEmails() as $sEmail ) {
+		foreach ( $mod->getAdminLoginNotificationEmails() as $to ) {
 			$oEmailer->sendEmailWithWrap(
-				$sEmail,
+				$to,
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);

@@ -2,16 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function buildInsightsVars() :array {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -61,6 +61,12 @@ class UI extends Base\ShieldUI {
 				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
+				'related_hrefs'    => [
+					[
+						'href'  => $mod->getUrl_AdminPage(),
+						'title' => __( 'IP Block Settings', 'wp-simple-firewall' ),
+					],
+				],
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
 					->setDbHandler( $mod->getDbHandler_IPs() )
 					->black(),
@@ -107,7 +113,8 @@ class UI extends Base\ShieldUI {
 			'/wpadmin_pages/insights/ips/ip_analyse/index.twig',
 			[
 				'ajax'    => [
-					'build_ip_analyse' => $mod->getAjaxActionData( 'build_ip_analyse', true ),
+					'build_ip_analyse'  => $mod->getAjaxActionData( 'build_ip_analyse', true ),
+					'ip_analyse_action' => $mod->getAjaxActionData( 'ip_analyse_action', true ),
 				],
 				'strings' => [
 					'select_ip'     => __( 'Select IP To Analyse', 'wp-simple-firewall' ),
@@ -123,5 +130,15 @@ class UI extends Base\ShieldUI {
 			],
 			true
 		);
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'ips' ),
+				'title' => __( 'Analyse & Manage IPs', 'wp-simple-firewall' ),
+			]
+		];
 	}
 }

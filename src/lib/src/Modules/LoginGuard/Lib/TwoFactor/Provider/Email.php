@@ -142,8 +142,7 @@ class Email extends BaseProvider {
 	 */
 	private function sendEmailTwoFactorVerify( \WP_User $user ) {
 		$sureCon = $this->getCon()->getModule_Comms()->getSureSendController();
-		$useSureSend = $sureCon->isEnabled2Fa()
-					   && $sureCon->canUserSend( $user );
+		$useSureSend = $sureCon->isEnabled2Fa() && $sureCon->canUserSend( $user );
 
 		try {
 			$code = $this->genNewCode( $user );

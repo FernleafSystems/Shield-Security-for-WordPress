@@ -75,7 +75,7 @@ class ApplyLabels {
 	 * @return array
 	 */
 	public function applyPluginLabels( $pluginLabels ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $mod */
+		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 
 		$labels = $mod->getWhitelabelOptions();

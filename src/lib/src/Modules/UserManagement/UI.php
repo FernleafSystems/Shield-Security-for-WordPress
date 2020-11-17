@@ -3,18 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	public function buildInsightsVars() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$con = $this->getCon();
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Select $dbSel */
-		$dbSel = $this->getCon()
-					  ->getModule_Sessions()
-					  ->getDbHandler_Sessions()
-					  ->getQuerySelector();
+		$dbSel = $con->getModule_Sessions()
+					 ->getDbHandler_Sessions()
+					 ->getQuerySelector();
 
 		return [
 			'ajax'    => [
@@ -32,9 +32,25 @@ class UI extends Base\ShieldUI {
 				'username'            => __( 'Username', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'unique_ips'   => $dbSel->getDistinctIps(),
-				'unique_users' => $dbSel->getDistinctUsernames(),
+				'unique_ips'    => $dbSel->getDistinctIps(),
+				'unique_users'  => $dbSel->getDistinctUsernames(),
+				'related_hrefs' => [
+					[
+						'href'  => $con->getModule_UserManagement()->getUrl_AdminPage(),
+						'title' => __( 'User Settings', 'wp-simple-firewall' ),
+					]
+				]
 			],
+		];
+	}
+
+	protected function getSettingsRelatedLinks() :array {
+		$modInsights = $this->getCon()->getModule_Insights();
+		return [
+			[
+				'href'  => $modInsights->getUrl_SubInsightsPage( 'users' ),
+				'title' => __( 'User Sessions', 'wp-simple-firewall' ),
+			]
 		];
 	}
 }

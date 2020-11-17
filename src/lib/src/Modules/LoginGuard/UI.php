@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class UI extends Base\ShieldUI {
+class UI extends BaseShield\UI {
 
 	protected function getSectionWarnings( string $section ) :array {
 		$aWarnings = [];

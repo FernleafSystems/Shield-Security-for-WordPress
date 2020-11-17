@@ -16,9 +16,9 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
 	 * @return AuditTrail\EntryVO[]
 	 */
 	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
-		$oSelect = $oMod->getDbHandler_AuditTrail()
+		/** @var Shield\Modules\AuditTrail\ModCon $mod */
+		$mod = $this->getMod();
+		$oSelect = $mod->getDbHandler_AuditTrail()
 						->getQuerySelector()
 						->setOrderBy( $sOrderBy, $sOrder )
 						->setLimit( $nLimit )

@@ -5,8 +5,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
- * Class ICWP_WPSF_Processor_UserManagement_Passwords
+ * @deprecated 10.1
  */
 class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\ShieldProcessor {
 
@@ -97,10 +96,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		$opts = $this->getOptions();
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 
-		$bPassCheckFailed = $opts->isPassForceUpdateExisting()
-							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
+		$checkFailed = $opts->isPassForceUpdateExisting()
+					   && isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
-		if ( $bPassCheckFailed ) {
+		if ( $checkFailed ) {
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -220,7 +219,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nScore < $min ) {
-			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 				$mod->getPassStrengthName( $nScore ), $mod->getPassStrengthName( $min ) ) );

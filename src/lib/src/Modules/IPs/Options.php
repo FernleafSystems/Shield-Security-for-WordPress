@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends Base\ShieldOptions {
+class Options extends BaseShield\Options {
 
 	/**
 	 * @return int
@@ -162,13 +162,5 @@ class Options extends Base\ShieldOptions {
 	 */
 	protected function isSelectOptionEnabled( $key ) {
 		return !$this->isOpt( $key, 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.0
-	 */
-	public function getDbTable_IPs() {
-		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
 	}
 }

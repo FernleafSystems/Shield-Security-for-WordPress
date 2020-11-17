@@ -3,11 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModCon;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options $opts */
 		$opts = $this->getOptions();

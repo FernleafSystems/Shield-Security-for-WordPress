@@ -3,12 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
 class AdminNotes {
 
 	use ModConsumer;
 
-	public function build() :string {
+	public function render() :string {
 		return $this->getMod()
 					->renderTemplate(
 						'/wpadmin_pages/insights/notes/admin_notes.twig',
@@ -18,8 +19,7 @@ class AdminNotes {
 	}
 
 	private function buildData() :array {
-		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		return [
@@ -29,9 +29,6 @@ class AdminNotes {
 				'item_delete'             => $mod->getAjaxActionData( 'note_delete', true ),
 				'item_insert'             => $mod->getAjaxActionData( 'note_insert', true ),
 				'bulk_action'             => $mod->getAjaxActionData( 'bulk_action', true ),
-			],
-			'flags'   => [
-				'can_adminnotes' => $con->isPremiumActive(),
 			],
 			'strings' => [
 				'note_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),
