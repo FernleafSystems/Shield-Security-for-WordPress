@@ -67,6 +67,14 @@
         "description": [
           "With some feedback and suggestions provided by clients, we've improved our Shield Overview design."
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "iControlWP Whitelist",
+        "description": [
+          "Fix to ensure iControlWP is properly whitelisted."
+        ],
+        "patch":       "10.1.1"
       }
     ]
   },

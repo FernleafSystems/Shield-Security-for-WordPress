@@ -202,6 +202,7 @@ class ModCon extends Base\ModCon {
 			catch ( \Exception $e ) {
 				$ipID = IpIdentify::UNKNOWN;
 			}
+
 			self::$bVisitorIsWhitelisted =
 				in_array( $ipID, [ IpIdentify::ICONTROLWP ] )
 				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
