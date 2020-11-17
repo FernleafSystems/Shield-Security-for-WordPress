@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.5
-Stable tag: 10.1.0
+Stable tag: 10.1.1
 
 The highest rated WordPress Security plugin, delivering unparalleled, all-in-one protection for you and your customers.
 
@@ -367,9 +367,3 @@ ShieldPRO delivers exclusive security features to the serious site administrator
 You'll also have direct access to our technical support team.
 
 [Go Pro from just $1/month](https://shsec.io/aa).
-
-10.1
-- Remove Audit Trail Areas
-- MainWP
-- Track plugin/theme upgrades in Audit Trail
-- Admin notes are no longer premium only

@@ -177,13 +177,22 @@ class ModCon extends Base\ModCon {
 
 	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
+			try {
+				$ipID = ( new IpIdentify( Services::IP()->getRequestIp() ) )->run();
+				$ipID = key( $ipID );
+			}
+			catch ( \Exception $e ) {
+				$ipID = IpIdentify::UNKNOWN;
+			}
+
 			self::$bVisitorIsWhitelisted =
-				( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-					->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-					->setIP( Services::IP()->getRequestIp() )
-					->setListTypeWhite()
-					->lookup()
-				instanceof Shield\Databases\IPs\EntryVO;
+				in_array( $ipID, [ IpIdentify::ICONTROLWP ] )
+				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+					   ->setIP( Services::IP()->getRequestIp() )
+					   ->setListTypeWhite()
+					   ->lookup()
+				   instanceof Shield\Databases\IPs\EntryVO;
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
