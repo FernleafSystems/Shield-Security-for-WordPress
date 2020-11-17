@@ -2,9 +2,9 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Processor;
 
-class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
+class ICWP_WPSF_Processor_AuditTrail_Auditor extends Processor {
 
 	/**
 	 * @CENTRAL

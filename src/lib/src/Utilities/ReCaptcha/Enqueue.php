@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -23,7 +24,7 @@ class Enqueue {
 	}
 
 	public function onWpEnqueueJs() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
+		/** @var ModCon $oMod */
 		$oMod = $this->getMod();
 		$oCFG = $oMod->getCaptchaCfg();
 
@@ -62,7 +63,7 @@ class Enqueue {
 	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
+		/** @var ModCon $oMod */
 		$oMod = $this->getMod();
 		$oCFG = $oMod->getCaptchaCfg();
 

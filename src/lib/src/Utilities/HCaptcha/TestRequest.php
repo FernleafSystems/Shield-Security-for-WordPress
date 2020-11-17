@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\HCaptcha;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 
@@ -14,8 +15,8 @@ class TestRequest extends ReCaptcha\TestRequest {
 	 * @throws \Exception
 	 */
 	protected function runTest() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
-		$oMod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$sCaptchaResponse = Services::Request()->post( 'h-captcha-response' );
 
@@ -26,7 +27,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 			$oHTTP = Services::HttpRequest();
 			$bSuccess = $oHTTP->post( self::URL_VERIFY, [
 					'body' => [
-						'secret'   => $oMod->getCaptchaCfg()->secret,
+						'secret'   => $mod->getCaptchaCfg()->secret,
 						'response' => $sCaptchaResponse,
 						'remoteip' => Services::IP()->getRequestIp(),
 					]

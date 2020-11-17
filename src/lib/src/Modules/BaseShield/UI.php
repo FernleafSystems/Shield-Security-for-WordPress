@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\UI {
 
 	public function getBaseDisplayData() :array {
 		$con = $this->getCon();
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
@@ -39,7 +39,9 @@ class UI extends Base\UI {
 					'sec_admin_login' => $mod->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'has_session' => $mod->hasSession()
+					'has_session' => $con->getModule_Sessions()
+										 ->getSessionCon()
+										 ->hasSession()
 				],
 				'hrefs'   => [
 					'aar_forget_key' => $con->getModule_SecAdmin()->isWlEnabled() ?
