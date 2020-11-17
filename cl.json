@@ -75,6 +75,12 @@
           "Fix to ensure iControlWP is properly whitelisted."
         ],
         "patch":       "10.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Bug with PHP Type Error in some cases",
+        "description": [],
+        "patch":       "10.1.2"
       }
     ]
   },
