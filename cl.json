@@ -81,6 +81,12 @@
         "title":       "Bug with PHP Type Error in some cases",
         "description": [],
         "patch":       "10.1.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Bug with MainWP site actions not working in all cases",
+        "description": [],
+        "patch":       "10.1.3"
       }
     ]
   },
