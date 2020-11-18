@@ -16,11 +16,11 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 
 			switch ( $action ) {
 				case 'mwp_sh_ext_table':
-					$resp = $this->ajaxExec_SiteAction();
+					$resp = $this->ajaxExec_ExtensionTableSites();
 					break;
 
 				case 'mwp_sh_site_action':
-					$resp = $this->ajaxExec_ExtensionTableSites();
+					$resp = $this->ajaxExec_SiteAction();
 					break;
 
 				default:

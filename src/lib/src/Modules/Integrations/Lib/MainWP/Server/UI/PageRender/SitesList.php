@@ -46,6 +46,10 @@ class SitesList extends BaseRender {
 				ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 				ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 			] );
+			$shd[ 'can_sync' ] = in_array( $shd[ 'status_key' ], [
+				ClientPluginStatus::ACTIVE,
+				ClientPluginStatus::NEED_SYNC,
+			] );
 
 			if ( $shd[ 'is_active' ] ) {
 
