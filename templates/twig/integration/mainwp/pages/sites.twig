@@ -90,7 +90,7 @@
 
 									<a href="#"
 									   data-saction="sync"
-									   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
+									   class="item site_action {% if not site.shield.can_sync %}disabled{% endif %}"
 									>{{ strings.act_sync }}</a>
 
 									{% if site.shield.is_inactive %}
