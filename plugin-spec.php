@@ -19,7 +19,7 @@
     "enable_premium":          true
   },
   "requirements":     {
-    "php":       "5.4.0",
+    "php":       "7.0.0",
     "wordpress": "3.5.2"
   },
   "upgrade_reqs":     {

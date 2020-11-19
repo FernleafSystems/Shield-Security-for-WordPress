@@ -12,7 +12,7 @@ class Upgrade {
 	protected function run() {
 		$con = $this->getCon();
 
-		if ( $con->getPreviousVersion() !== $con->getVersion() ) {
+		if ( $con->cfg->previous_version !== $con->getVersion() ) {
 			foreach ( $con->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
 				if ( $H instanceof Shield\Modules\Base\Upgrade ) {
@@ -21,6 +21,6 @@ class Upgrade {
 			}
 		}
 
-		$con->getPluginControllerOptions()->previous_version = $con->getVersion();
+		$con->cfg->previous_version = $con->getVersion();
 	}
 }
