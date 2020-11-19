@@ -1,6 +1,6 @@
 {
-  "slug":        "audit_trail",
-  "properties":  {
+  "slug":             "audit_trail",
+  "properties":       {
     "slug":                  "audit_trail",
     "name":                  "Audit Trail",
     "sidebar_name":          "Audit Trail",
@@ -32,7 +32,7 @@
       }
     }
   ],
-  "sections":    [
+  "sections":         [
     {
       "slug":        "section_audit_trail_options",
       "primary":     true,
@@ -67,7 +67,7 @@
       "hidden": true
     }
   ],
-  "options":     [
+  "options":          [
     {
       "key":         "enable_audit_trail",
       "section":     "section_enable_plugin_feature_audit_trail",
@@ -162,7 +162,7 @@
       "default":      0
     }
   ],
-  "definitions": {
+  "definitions":      {
     "db_classes":                         {
       "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
@@ -246,6 +246,9 @@
         "audit_multiple": true
       },
       "user_login":              {
+        "context": "users"
+      },
+      "user_login_app":          {
         "context": "users"
       },
       "user_registered":         {

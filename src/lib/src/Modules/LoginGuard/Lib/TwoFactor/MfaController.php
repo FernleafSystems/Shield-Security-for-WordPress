@@ -53,7 +53,8 @@ class MfaController {
 	private function captureLoginIntent( \WP_User $user ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
-		if ( $this->isSubjectToLoginIntent( $user ) && !$this->isApplicationAuth() && !$this->canUserMfaSkip( $user ) ) {
+		if ( $this->isSubjectToLoginIntent( $user )
+			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
 			$providers = $this->getProvidersForUser( $user );
 			if ( !empty( $providers ) ) {
@@ -225,10 +226,6 @@ class MfaController {
 
 		return (bool)apply_filters( 'icwp_shield_2fa_skip',
 			apply_filters( 'odp-shield-2fa_skip', $canSkip ) );
-	}
-
-	private function isApplicationAuth() :bool {
-		return did_action( 'application_password_did_authenticate' ) > 0;
 	}
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
