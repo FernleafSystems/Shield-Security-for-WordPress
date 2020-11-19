@@ -29,7 +29,7 @@ class Strings extends Base\Strings {
 			'theme_file_edited'       => [
 				__( 'An attempt was made to edit the theme file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
 			],
-			'theme_upgraded'         => [
+			'theme_upgraded'          => [
 				__( 'Theme "%s" was upgraded from version %s to version %s.', 'wp-simple-firewall' )
 			],
 			'core_updated'            => [
@@ -63,6 +63,9 @@ class Strings extends Base\Strings {
 			],
 			'user_login'              => [
 				__( 'Attempted user login by "%s" was successful.', 'wp-simple-firewall' ),
+			],
+			'user_login_app'          => [
+				__( 'Attempted login by "%s" using application password was successful.', 'wp-simple-firewall' ),
 			],
 			'user_registered'         => [
 				__( 'New WordPress user registered.', 'wp-simple-firewall' )

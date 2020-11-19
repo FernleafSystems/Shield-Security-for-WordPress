@@ -251,6 +251,7 @@ class Strings extends Base\Strings {
 			'post_published'               => __( 'Post Published', 'wp-simple-firewall' ),
 			'post_unpublished'             => __( 'Post Unpublished', 'wp-simple-firewall' ),
 			'user_login'                   => __( 'User Login', 'wp-simple-firewall' ),
+			'user_login_app'               => __( 'User Login By App Password', 'wp-simple-firewall' ),
 			'user_registered'              => __( 'User Registered', 'wp-simple-firewall' ),
 			'user_deleted'                 => __( 'User Deleted', 'wp-simple-firewall' ),
 			'user_deleted_reassigned'      => __( 'User Deleted And Reassigned', 'wp-simple-firewall' ),

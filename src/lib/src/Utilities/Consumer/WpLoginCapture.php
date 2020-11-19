@@ -11,6 +11,11 @@ trait WpLoginCapture {
 	 */
 	private $isLoginCaptured = false;
 
+	/**
+	 * @var bool
+	 */
+	private $isCaptureApplicationLogin = false;
+
 	abstract protected function captureLogin( \WP_User $user );
 
 	protected function getLoginPassword() :string {
@@ -25,12 +30,29 @@ trait WpLoginCapture {
 		return $pass;
 	}
 
+	protected function isCaptureApplicationLogin() :bool {
+		return $this->isCaptureApplicationLogin;
+	}
+
 	protected function isLoginCaptured() :bool {
 		return $this->isLoginCaptured;
 	}
 
+	/**
+	 * By default, will only capture logins if it's not an API request, or it's set to capture api requests also.
+	 * @return bool
+	 */
+	protected function isLoginToBeCaptured() :bool {
+		return !Services::WpGeneral()->isApplicationPasswordApiRequest() || $this->isCaptureApplicationLogin();
+	}
+
 	protected function setLoginCaptured( bool $captured = true ) :self {
 		$this->isLoginCaptured = $captured;
+		return $this;
+	}
+
+	protected function setToCaptureApplicationLogin( bool $capture = true ) :self {
+		$this->isCaptureApplicationLogin = $capture;
 		return $this;
 	}
 
@@ -49,7 +71,7 @@ trait WpLoginCapture {
 	 */
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
 		$user = Services::WpUsers()->getUserById( $userID );
-		if ( !$this->isLoginCaptured() && $user instanceof \WP_User ) {
+		if ( $this->isLoginToBeCaptured() && !$this->isLoginCaptured() && $user instanceof \WP_User ) {
 			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
@@ -60,7 +82,7 @@ trait WpLoginCapture {
 	 * @param \WP_User $user
 	 */
 	public function onWpLogin( $username, $user ) {
-		if ( !$this->isLoginCaptured() && $user instanceof \WP_User ) {
+		if ( $this->isLoginToBeCaptured() && !$this->isLoginCaptured() && $user instanceof \WP_User ) {
 			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
