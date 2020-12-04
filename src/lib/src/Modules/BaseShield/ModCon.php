@@ -178,7 +178,10 @@ class ModCon extends Base\ModCon {
 	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
 			try {
-				$ipID = ( new IpIdentify( (string)Services::IP()->getRequestIp() ) )->run();
+				$ipID = ( new IpIdentify(
+					(string)Services::IP()->getRequestIp(),
+					(string)Services::Request()->getUserAgent()
+				) )->run();
 				$ipID = key( $ipID );
 			}
 			catch ( \Exception $e ) {
