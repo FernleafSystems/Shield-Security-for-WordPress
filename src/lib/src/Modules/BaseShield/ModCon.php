@@ -207,7 +207,7 @@ class ModCon extends Base\ModCon {
 			}
 
 			self::$bVisitorIsWhitelisted =
-				in_array( $ipID, [ IpIdentify::ICONTROLWP ] )
+				in_array( $ipID, [ IpIdentify::ICONTROLWP, IpIdentify::MANAGEWP ] )
 				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
 					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
 					   ->setIP( Services::IP()->getRequestIp() )
