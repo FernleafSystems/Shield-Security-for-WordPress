@@ -106,7 +106,19 @@
       },
       {
         "type":        "fixed",
-        "title":       "504 Gateway Timeout error on servers with malconfigured rDNS",
+        "title":       "504 Gateway Timeout error on servers with malconfigured rDNS lookups.",
+        "description": [],
+        "patch":       "10.1.4"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Ensure requests from ManageWP bypass Shield protections, where possible.",
+        "description": [],
+        "patch":       "10.1.4"
+      },
+      {
+        "type":        "new",
+        "title":       "Add a new WordPress admin notice for when the Shield plugin version gets too old.",
         "description": [],
         "patch":       "10.1.4"
       }
