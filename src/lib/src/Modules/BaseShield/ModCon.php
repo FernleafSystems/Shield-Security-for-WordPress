@@ -196,7 +196,10 @@ class ModCon extends Base\ModCon {
 	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
 			try {
-				$ipID = ( new IpIdentify( (string)Services::IP()->getRequestIp() ) )->run();
+				$ipID = ( new IpIdentify(
+					(string)Services::IP()->getRequestIp(),
+					(string)Services::Request()->getUserAgent()
+				) )->run();
 				$ipID = key( $ipID );
 			}
 			catch ( \Exception $e ) {
@@ -204,7 +207,7 @@ class ModCon extends Base\ModCon {
 			}
 
 			self::$bVisitorIsWhitelisted =
-				in_array( $ipID, [ IpIdentify::ICONTROLWP ] )
+				in_array( $ipID, [ IpIdentify::ICONTROLWP, IpIdentify::MANAGEWP ] )
 				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
 					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
 					   ->setIP( Services::IP()->getRequestIp() )

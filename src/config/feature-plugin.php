@@ -18,6 +18,14 @@
     "order":                 10
   },
   "admin_notices": {
+    "plugin-too-old":             {
+      "id":               "plugin-too-old",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": false,
+      "can_dismiss":      true,
+      "type":             "error"
+    },
     "override-forceoff":          {
       "id":               "override-forceoff",
       "schedule":         "conditions",

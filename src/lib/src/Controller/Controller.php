@@ -5,10 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
  * Class Controller
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
+ * @property Config\ConfigVO                                        $cfg
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
  * @property bool                                                   $modules_loaded
@@ -47,11 +49,6 @@ class Controller {
 	private $sRootFile;
 
 	/**
-	 * @var bool
-	 */
-	protected $bRebuildOptions;
-
-	/**
 	 * @var string
 	 * @deprecated 10.1
 	 */
@@ -73,17 +70,12 @@ class Controller {
 	protected static $sRequestId;
 
 	/**
-	 * @var bool
-	 */
-	private $bMeetsBasePermissions;
-
-	/**
 	 * @var string
 	 */
 	protected $sAdminNoticeError = '';
 
 	/**
-	 * @var \ICWP_WPSF_FeatureHandler_Base[]
+	 * @var Shield\Modules\BaseShield\ModCon[]
 	 */
 	protected $aModules;
 
@@ -152,6 +144,8 @@ class Controller {
 		$this->modules = [];
 
 		$this->loadServices();
+		$this->loadConfig();
+
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
 
@@ -168,6 +162,12 @@ class Controller {
 		$val = $this->__adapterGet( $key );
 
 		switch ( $key ) {
+
+			case 'cfg':
+				if ( !$val instanceof Config\ConfigVO ) {
+					$val = $this->loadConfig();
+				}
+				break;
 
 			case 'is_debug':
 				if ( is_null( $val ) ) {
@@ -195,6 +195,7 @@ class Controller {
 	/**
 	 * @return array
 	 * @throws \Exception
+	 * @deprecated 10.1.4
 	 */
 	private function readPluginSpecification() :array {
 		$spec = [];
@@ -220,19 +221,19 @@ class Controller {
 		$bMeetsRequirements = true;
 		$aRequirementsMessages = $this->getRequirementsMessages();
 
-		$sMinimumPhp = $this->getPluginSpec_Requirement( 'php' );
-		if ( !empty( $sMinimumPhp ) ) {
-			if ( version_compare( Services::Data()->getPhpVersion(), $sMinimumPhp, '<' ) ) {
-				$aRequirementsMessages[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $sMinimumPhp );
+		$php = $this->cfg->requirements[ 'php' ];
+		if ( !empty( $php ) ) {
+			if ( version_compare( Services::Data()->getPhpVersion(), $php, '<' ) ) {
+				$aRequirementsMessages[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $php );
 				$bMeetsRequirements = false;
 			}
 		}
 
-		$sMinimumWp = $this->getPluginSpec_Requirement( 'wordpress' );
-		if ( !empty( $sMinimumWp ) ) {
+		$wp = $this->cfg->requirements[ 'wordpress' ];
+		if ( !empty( $wp ) ) {
 			$sWpVersion = Services::WpGeneral()->getVersion( true );
-			if ( version_compare( $sWpVersion, $sMinimumWp, '<' ) ) {
-				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
+			if ( version_compare( $sWpVersion, $wp, '<' ) ) {
+				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $wp );
 				$bMeetsRequirements = false;
 			}
 		}
@@ -513,8 +514,7 @@ class Controller {
 	 */
 	public function onWpAdminBarMenu( $oAdminBar ) {
 		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
-			$this->isValidAdminArea( true )
-			&& (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
+			$this->isValidAdminArea( true ) && $this->cfg->properties[ 'show_admin_bar_menu' ]
 		);
 		if ( $bShow ) {
 			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
@@ -540,7 +540,7 @@ class Controller {
 
 	public function onWpDashboardSetup() {
 		$show = apply_filters( $this->prefix( 'show_dashboard_widget' ),
-			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )
+			$this->isValidAdminArea() && $this->cfg->properties[ 'show_dashboard_widget' ]
 		);
 		if ( $show ) {
 			wp_add_dashboard_widget(
@@ -612,22 +612,22 @@ class Controller {
 	 * @return bool
 	 */
 	protected function createPluginMenu() {
+		$menu = $this->cfg->menu;
 
-		$bHideMenu = apply_filters( $this->prefix( 'filter_hidePluginMenu' ), !$this->getPluginSpec_Menu( 'show' ) );
-		if ( $bHideMenu ) {
+		if ( apply_filters( $this->prefix( 'filter_hidePluginMenu' ), !$menu[ 'show' ] ) ) {
 			return true;
 		}
 
-		if ( $this->getPluginSpec_Menu( 'top_level' ) ) {
+		if ( $menu[ 'top_level' ] ) {
 
-			$aLabels = $this->getLabels();
-			$sMenuTitle = empty( $aLabels[ 'MenuTitle' ] ) ? $this->getPluginSpec_Menu( 'title' ) : $aLabels[ 'MenuTitle' ];
+			$labels = $this->getLabels();
+			$sMenuTitle = empty( $labels[ 'MenuTitle' ] ) ? $menu[ 'title' ] : $labels[ 'MenuTitle' ];
 			if ( is_null( $sMenuTitle ) ) {
 				$sMenuTitle = $this->getHumanName();
 			}
 
-			$sMenuIcon = $this->getPluginUrl_Image( $this->getPluginSpec_Menu( 'icon_image' ) );
-			$sIconUrl = empty( $aLabels[ 'icon_url_16x16' ] ) ? $sMenuIcon : $aLabels[ 'icon_url_16x16' ];
+			$sMenuIcon = $this->getPluginUrl_Image( $menu[ 'icon_image' ] );
+			$sIconUrl = empty( $labels[ 'icon_url_16x16' ] ) ? $sMenuIcon : $labels[ 'icon_url_16x16' ];
 
 			$sFullParentMenuId = $this->getPluginPrefix();
 			add_menu_page(
@@ -635,15 +635,15 @@ class Controller {
 				$sMenuTitle,
 				$this->getBasePermissions(),
 				$sFullParentMenuId,
-				[ $this, $this->getPluginSpec_Menu( 'callback' ) ],
+				[ $this, $menu[ 'callback' ] ],
 				$sIconUrl
 			);
 
-			if ( $this->getPluginSpec_Menu( 'has_submenu' ) ) {
+			if ( $menu[ 'has_submenu' ] ) {
 
-				$aPluginMenuItems = apply_filters( $this->prefix( 'submenu_items' ), [] );
-				if ( !empty( $aPluginMenuItems ) ) {
-					foreach ( $aPluginMenuItems as $sMenuTitle => $aMenu ) {
+				$menuItems = apply_filters( $this->prefix( 'submenu_items' ), [] );
+				if ( !empty( $menuItems ) ) {
+					foreach ( $menuItems as $sMenuTitle => $aMenu ) {
 						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack, $bShowItem ) = $aMenu;
 						add_submenu_page(
 							$bShowItem ? $sFullParentMenuId : null,
@@ -657,7 +657,7 @@ class Controller {
 				}
 			}
 
-			if ( $this->getPluginSpec_Menu( 'do_submenu_fix' ) ) {
+			if ( $menu[ 'do_submenu_fix' ] ) {
 				$this->fixSubmenu();
 			}
 		}
@@ -688,7 +688,7 @@ class Controller {
 
 		if ( $sPluginFile == $this->getPluginBaseFile() ) {
 			$sTemplate = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $this->getPluginSpec_PluginMeta() as $aHref ) {
+			foreach ( $this->cfg->plugin_meta as $aHref ) {
 				array_push( $aPluginMeta, sprintf( $sTemplate, $aHref[ 'href' ], $aHref[ 'name' ] ) );
 			}
 		}
@@ -707,13 +707,13 @@ class Controller {
 				unset( $aActionLinks[ 'edit' ] );
 			}
 
-			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
-			if ( is_array( $aLinksToAdd ) ) {
+			$links = $this->cfg->action_links[ 'add' ];
+			if ( is_array( $links ) ) {
 
 				$bPro = $this->isPremiumActive();
 				$oDP = Services::Data();
 				$sLinkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
-				foreach ( $aLinksToAdd as $aLink ) {
+				foreach ( $links as $aLink ) {
 					$aLink = array_merge(
 						[
 							'highlight' => false,
@@ -755,11 +755,11 @@ class Controller {
 	}
 
 	public function onWpEnqueueFrontendCss() {
-		$aFrontendIncludes = $this->getPluginSpec_Include( 'frontend' );
-		if ( isset( $aFrontendIncludes[ 'css' ] ) && !empty( $aFrontendIncludes[ 'css' ] ) && is_array( $aFrontendIncludes[ 'css' ] ) ) {
+		$includes = $this->cfg->includes[ 'frontend' ];
+		if ( isset( $includes[ 'css' ] ) && !empty( $includes[ 'css' ] ) && is_array( $includes[ 'css' ] ) ) {
 
 			$aDeps = [];
-			foreach ( $aFrontendIncludes[ 'css' ] as $sAsset ) {
+			foreach ( $includes[ 'css' ] as $sAsset ) {
 				$sUrl = $this->getPluginUrl_Css( $sAsset );
 				if ( !empty( $sUrl ) ) {
 					$sAsset = $this->prefix( $sAsset );
@@ -775,39 +775,37 @@ class Controller {
 
 		$aIncludes = [];
 		if ( $this->getIsPage_PluginAdmin() ) {
-			$aAdminIncludes = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( !empty( $aAdminIncludes[ 'js' ] ) && is_array( $aAdminIncludes[ 'js' ] ) ) {
-				$aIncludes = $aAdminIncludes[ 'js' ];
+			$includes = $this->cfg->includes[ 'plugin_admin' ];
+			if ( !empty( $includes[ 'js' ] ) && is_array( $includes[ 'js' ] ) ) {
+				$aIncludes = $includes[ 'js' ];
 			}
 		}
 		elseif ( $this->isValidAdminArea() ) {
-			$aAdminIncludes = $this->getPluginSpec_Include( 'admin' );
-			if ( !empty( $aAdminIncludes[ 'js' ] ) && is_array( $aAdminIncludes[ 'js' ] ) ) {
-				$aIncludes = $aAdminIncludes[ 'js' ];
+			$includes = $this->cfg->includes[ 'admin' ];
+			if ( !empty( $includes[ 'js' ] ) && is_array( $includes[ 'js' ] ) ) {
+				$aIncludes = $includes[ 'js' ];
 			}
 		}
 
-		$aBuiltIn = [
-			'jquery'
-		];
+		$nativeWP = [ 'jquery' ];
 
 		$aDeps = [];
-		foreach ( $aIncludes as $sAsset ) {
+		foreach ( $aIncludes as $asset ) {
 
 			// Built-in handles
-			if ( in_array( $sAsset, $aBuiltIn ) ) {
-				if ( wp_script_is( $sAsset, 'registered' ) ) {
-					wp_enqueue_script( $sAsset );
-					$aDeps[] = $sAsset;
+			if ( in_array( $asset, $nativeWP ) ) {
+				if ( wp_script_is( $asset, 'registered' ) ) {
+					wp_enqueue_script( $asset );
+					$aDeps[] = $asset;
 				}
 			}
 			else {
-				$sUrl = $this->getPluginUrl_Js( $sAsset );
+				$sUrl = $this->getPluginUrl_Js( $asset );
 				if ( !empty( $sUrl ) ) {
-					$sAsset = $this->prefix( $sAsset );
-					wp_register_script( $sAsset, $sUrl, $aDeps, $this->getVersion() );
-					wp_enqueue_script( $sAsset );
-					$aDeps[] = $sAsset;
+					$asset = $this->prefix( $asset );
+					wp_register_script( $asset, $sUrl, $aDeps, $this->getVersion() );
+					wp_enqueue_script( $asset );
+					$aDeps[] = $asset;
 				}
 			}
 		}
@@ -817,26 +815,26 @@ class Controller {
 
 		$aIncludes = [];
 		if ( $this->getIsPage_PluginAdmin() ) {
-			$aAdminIncludes = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( !empty( $aAdminIncludes[ 'css' ] ) && is_array( $aAdminIncludes[ 'css' ] ) ) {
-				$aIncludes = $aAdminIncludes[ 'css' ];
+			$includes = $this->cfg->includes[ 'plugin_admin' ];
+			if ( !empty( $includes[ 'css' ] ) && is_array( $includes[ 'css' ] ) ) {
+				$aIncludes = $includes[ 'css' ];
 			}
 		}
 		elseif ( $this->isValidAdminArea() ) {
-			$aAdminIncludes = $this->getPluginSpec_Include( 'admin' );
-			if ( !empty( $aAdminIncludes[ 'css' ] ) && is_array( $aAdminIncludes[ 'css' ] ) ) {
-				$aIncludes = $aAdminIncludes[ 'css' ];
+			$includes = $this->cfg->includes[ 'admin' ];
+			if ( !empty( $includes[ 'css' ] ) && is_array( $includes[ 'css' ] ) ) {
+				$aIncludes = $includes[ 'css' ];
 			}
 		}
 
 		$aDeps = [];
-		foreach ( $aIncludes as $sAsset ) {
-			$sUrl = $this->getPluginUrl_Css( $sAsset );
+		foreach ( $aIncludes as $asset ) {
+			$sUrl = $this->getPluginUrl_Css( $asset );
 			if ( !empty( $sUrl ) ) {
-				$sAsset = $this->prefix( $sAsset );
-				wp_register_style( $sAsset, $sUrl, $aDeps, $this->getVersion() );
-				wp_enqueue_style( $sAsset );
-				$aDeps[] = $sAsset;
+				$asset = $this->prefix( $asset );
+				wp_register_style( $asset, $sUrl, $aDeps, $this->getVersion() );
+				wp_enqueue_style( $asset );
+				$aDeps[] = $asset;
 			}
 		}
 	}
@@ -888,72 +886,70 @@ class Controller {
 	/**
 	 * This will hook into the saving of plugin update information and if there is an update for this plugin, it'll add
 	 * a data stamp to state when the update was first detected.
-	 * @param \stdClass $updateData
+	 * @param \stdClass $data
 	 * @return \stdClass
 	 */
-	public function setUpdateFirstDetectedAt( $updateData ) {
+	public function setUpdateFirstDetectedAt( $data ) {
 
-		if ( !empty( $updateData ) && !empty( $updateData->response )
-			 && isset( $updateData->response[ $this->getPluginBaseFile() ] ) ) {
-			// i.e. there's an update available
+		if ( !empty( $data ) && !empty( $data->response ) && isset( $data->response[ $this->getPluginBaseFile() ] ) ) {
+			// i.e. update available
 
 			$new = Services::WpPlugins()->getUpdateNewVersion( $this->getPluginBaseFile() );
-			if ( !empty( $new ) ) {
-				$opts = $this->getPluginControllerOptions();
-				if ( !isset( $opts->update_first_detected ) || ( count( $opts->update_first_detected ) > 3 ) ) {
-					$opts->update_first_detected = [];
+			if ( !empty( $new ) && isset( $this->cfg ) ) {
+				$updates = $this->cfg->update_first_detected;
+				if ( count( $updates ) > 3 ) {
+					$updates = [];
 				}
-				if ( !isset( $opts->update_first_detected[ $new ] ) ) {
-					$opts->update_first_detected[ $new ] = Services::Request()->ts();
+				if ( !isset( $updates[ $new ] ) ) {
+					$updates[ $new ] = Services::Request()->ts();
 				}
+				$this->cfg->update_first_detected = $updates;
 			}
 		}
 
-		return $updateData;
+		return $data;
 	}
 
 	/**
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.
-	 * @param bool          $bDoAutoUpdate
+	 * @param bool          $isAutoUpdate
 	 * @param string|object $mItem
 	 * @return bool
 	 */
-	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
-		$oWp = Services::WpGeneral();
+	public function onWpAutoUpdate( $isAutoUpdate, $mItem ) {
+		$WP = Services::WpGeneral();
 		$oWpPlugins = Services::WpPlugins();
 
-		$sFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
+		$sFile = $WP->getFileFromAutomaticUpdateItem( $mItem );
 
 		// The item in question is this plugin...
 		if ( $sFile === $this->getPluginBaseFile() ) {
-			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
+			$autoupdateSelf = $this->cfg->properties[ 'autoupdate' ];
 
-			$oConOptions = $this->getPluginControllerOptions();
-
-			if ( !$oWp->isRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
-				$sAutoupdateSpec = 'yes'; // so that we appear to be automatically updating
+			if ( !$WP->isRunningAutomaticUpdates() && $autoupdateSelf == 'confidence' ) {
+				$autoupdateSelf = 'yes'; // so that we appear to be automatically updating
 			}
 
-			$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
+			$new = $oWpPlugins->getUpdateNewVersion( $sFile );
 
-			switch ( $sAutoupdateSpec ) {
+			switch ( $autoupdateSelf ) {
 
 				case 'yes' :
-					$bDoAutoUpdate = true;
+					$isAutoUpdate = true;
 					break;
 
 				case 'block' :
-					$bDoAutoUpdate = false;
+					$isAutoUpdate = false;
 					break;
 
 				case 'confidence' :
-					$bDoAutoUpdate = false;
-					$nAutoupdateDays = $this->getPluginSpec_Property( 'autoupdate_days' );
-					if ( !empty( $sNewVersion ) ) {
-						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
-						$nTimeUpdateAvailable = Services::Request()->ts() - $nFirstDetected;
-						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS*$nAutoupdateDays ) );
+					$isAutoUpdate = false;
+					if ( !empty( $new ) ) {
+						$firstDetected = $this->cfg->update_first_detected[ $new ] ?? 0;
+						$availableFor = Services::Request()->ts() - $firstDetected;
+						$isAutoUpdate = $firstDetected > 0
+										&& $availableFor > DAY_IN_SECONDS*$this->cfg->properties[ 'autoupdate_days' ];
 					}
 					break;
 
@@ -962,7 +958,7 @@ class Controller {
 					break;
 			}
 		}
-		return $bDoAutoUpdate;
+		return $isAutoUpdate;
 	}
 
 	/**
@@ -988,7 +984,10 @@ class Controller {
 
 	public function getLabels() :array {
 
-		$labels = array_map( 'stripslashes', apply_filters( $this->prefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
+		$labels = array_map(
+			'stripslashes',
+			apply_filters( $this->prefix( 'plugin_labels' ), $this->cfg->labels )
+		);
 
 		$oDP = Services::Data();
 		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
@@ -1028,21 +1027,14 @@ class Controller {
 	/**
 	 * Added to a WordPress filter ('all_plugins') which will remove this particular plugin from the
 	 * list of all plugins based on the "plugin file" name.
-	 * @param array $aPlugins
+	 * @param array $plugins
 	 * @return array
 	 */
-	public function filter_hidePluginFromTableList( $aPlugins ) {
-
-		$bHide = apply_filters( $this->prefix( 'hide_plugin' ), false );
-		if ( !$bHide ) {
-			return $aPlugins;
+	public function filter_hidePluginFromTableList( $plugins ) {
+		if ( apply_filters( $this->prefix( 'hide_plugin' ), false ) ) {
+			unset( $plugins[ $this->getPluginBaseFile() ] );
 		}
-
-		$sPluginBaseFileName = $this->getPluginBaseFile();
-		if ( isset( $aPlugins[ $sPluginBaseFileName ] ) ) {
-			unset( $aPlugins[ $sPluginBaseFileName ] );
-		}
-		return $aPlugins;
+		return $plugins;
 	}
 
 	/**
@@ -1050,37 +1042,29 @@ class Controller {
 	 * from the WordPress Admin UI.
 	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
 	 * the list of plugins if DOING_CRON is set to true.
-	 * @param \stdClass $oPlugins
+	 * @param \stdClass $plugins
 	 * @return \stdClass
-	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 */
-	public function filter_hidePluginUpdatesFromUI( $oPlugins ) {
-
-		if ( Services::WpGeneral()->isCron() ) {
-			return $oPlugins;
+	public function filter_hidePluginUpdatesFromUI( $plugins ) {
+		if ( !Services::WpGeneral()->isCron() && apply_filters( $this->prefix( 'hide_plugin_updates' ), false ) ) {
+			unset( $plugins->response[ $this->getPluginBaseFile() ] );
 		}
-		if ( !apply_filters( $this->prefix( 'hide_plugin_updates' ), false ) ) {
-			return $oPlugins;
-		}
-		if ( isset( $oPlugins->response[ $this->getPluginBaseFile() ] ) ) {
-			unset( $oPlugins->response[ $this->getPluginBaseFile() ] );
-		}
-		return $oPlugins;
+		return $plugins;
 	}
 
 	/**
-	 * @param string $sSuffix
-	 * @param string $sGlue
+	 * @param string $suffix
+	 * @param string $glue
 	 * @return string
 	 */
-	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		$sPrefix = $this->getPluginPrefix( $sGlue );
+	public function prefix( $suffix = '', $glue = '-' ) {
+		$sPrefix = $this->getPluginPrefix( $glue );
 
-		if ( $sSuffix == $sPrefix || strpos( $sSuffix, $sPrefix.$sGlue ) === 0 ) { //it already has the full prefix
-			return $sSuffix;
+		if ( $suffix == $sPrefix || strpos( $suffix, $sPrefix.$glue ) === 0 ) { //it already has the full prefix
+			return $suffix;
 		}
 
-		return sprintf( '%s%s%s', $sPrefix, empty( $sSuffix ) ? '' : $sGlue, empty( $sSuffix ) ? '' : $sSuffix );
+		return sprintf( '%s%s%s', $sPrefix, empty( $suffix ) ? '' : $glue, empty( $suffix ) ? '' : $suffix );
 	}
 
 	public function prefixOption( string $suffix = '' ) :string {
@@ -1088,12 +1072,33 @@ class Controller {
 	}
 
 	/**
+	 * @return Config\ConfigVO
+	 * @throws \Exception
+	 */
+	private function loadConfig() :Config\ConfigVO {
+		$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
+			->setCon( $this )
+			->run();
+		$this->rebuild_options = $this->cfg->rebuilt;
+		return $this->cfg;
+	}
+
+	/**
 	 * @return array
+	 * @deprecated 10.2
 	 */
 	public function getPluginSpec() {
+		if ( isset( $this->cfg ) ) {
+			return $this->cfg->getRawDataAsArray();
+		}
 		return $this->getPluginControllerOptions()->plugin_spec;
 	}
 
+	/**
+	 * @param string $key
+	 * @return array
+	 * @deprecated 10.1.4
+	 */
 	protected function getPluginSpec_ActionLinks( string $key ) :array {
 		$aData = $this->getPluginSpec()[ 'action_links' ];
 		return $aData[ $key ] ?? [];
@@ -1102,6 +1107,7 @@ class Controller {
 	/**
 	 * @param string $key
 	 * @return mixed|null
+	 * @deprecated 10.1.4
 	 */
 	protected function getPluginSpec_Include( string $key ) {
 		$aData = $this->getPluginSpec()[ 'includes' ];
@@ -1111,6 +1117,7 @@ class Controller {
 	/**
 	 * @param string $key
 	 * @return array|string
+	 * @deprecated 10.1.4
 	 */
 	protected function getPluginSpec_Labels( string $key = '' ) {
 		$oSpec = $this->getPluginSpec();
@@ -1126,6 +1133,7 @@ class Controller {
 	/**
 	 * @param string $key
 	 * @return mixed|null
+	 * @deprecated 10.1.4
 	 */
 	protected function getPluginSpec_Menu( string $key ) {
 		$aData = $this->getPluginSpec()[ 'menu' ];
@@ -1137,6 +1145,9 @@ class Controller {
 	 * @return string|null
 	 */
 	public function getPluginSpec_Path( string $key ) {
+		if ( isset( $this->cfg ) ) {
+			return $this->cfg->paths[ $key ];
+		}
 		$aData = $this->getPluginSpec()[ 'paths' ];
 		return $aData[ $key ] ?? null;
 	}
@@ -1145,13 +1156,26 @@ class Controller {
 	 * @param string $key
 	 * @return mixed|null
 	 */
+	protected function getCfgProperty( string $key ) {
+		return $this->cfg->properties[ $key ] ?? null;
+	}
+
+	/**
+	 * @param string $key
+	 * @return mixed|null
+	 * @deprecated 10.1.4 - getCfgProperty()
+	 */
 	protected function getPluginSpec_Property( string $key ) {
+		if ( isset( $this->cfg ) ) {
+			return $this->cfg->properties[ $key ];
+		}
 		$data = $this->getPluginSpec()[ 'properties' ];
 		return $data[ $key ] ?? null;
 	}
 
 	/**
 	 * @return array
+	 * @deprecated 10.1.4
 	 */
 	protected function getPluginSpec_PluginMeta() {
 		$aSpec = $this->getPluginSpec();
@@ -1161,6 +1185,7 @@ class Controller {
 	/**
 	 * @param string $key
 	 * @return mixed|null
+	 * @deprecated 10.1.4
 	 */
 	protected function getPluginSpec_Requirement( string $key ) {
 		$aData = $this->getPluginSpec()[ 'requirements' ];
@@ -1168,6 +1193,9 @@ class Controller {
 	}
 
 	public function getBasePermissions() :string {
+		if ( isset( $this->cfg ) ) {
+			return $this->cfg->properties[ 'base_permissions' ];
+		}
 		return $this->getPluginSpec_Property( 'base_permissions' );
 	}
 
@@ -1206,9 +1234,8 @@ class Controller {
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
 	 */
 	public function getMeetsBasePermissions() :bool {
-		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
+		if ( did_action( 'init' ) && !isset( $this->user_can_base_permissions ) ) {
 			$this->user_can_base_permissions = current_user_can( $this->getBasePermissions() );
-			$this->bMeetsBasePermissions = $this->user_can_base_permissions;
 		}
 		return (bool)$this->user_can_base_permissions;
 	}
@@ -1248,25 +1275,11 @@ class Controller {
 		return Services::WpGeneral()->getCurrentWpAdminPage() === $this->getPluginPrefix();
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 10.1.4
+	 */
 	public function getIsRebuildOptionsFromFile() :bool {
-		if ( isset( $this->rebuild_options ) ) {
-			return $this->rebuild_options;
-		}
-
-		// The first choice is to look for the file hash. If it's "always" empty, it means we could never
-		// hash the file in the first place so it's not ever effectively used and it falls back to the rebuild file
-		$opts = $this->getPluginControllerOptions();
-		$specPath = $this->getPathPluginSpec();
-		$specHash = @sha1_file( $specPath );
-		$specModTS = Services::WpFs()->getModifiedTime( $specPath );
-
-		$this->rebuild_options =
-			( $this->getVersion() !== Services::WpPlugins()->getPluginAsVo( $this->getPluginBaseFile() )->Version )
-			|| ( empty( $opts->hash ) || !hash_equals( $opts->hash, $specHash ) )
-			|| ( empty( $opts->mod_time || $opts->mod_time < $specModTS ) );
-
-		$opts->hash = $specHash;
-		$opts->mod_time = $specModTS;
 		return $this->rebuild_options;
 	}
 
@@ -1445,6 +1458,10 @@ class Controller {
 		return $this->getPluginSpec_Property( 'version' );
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 10.1.4
+	 */
 	public function getPreviousVersion() :string {
 		$opts = $this->getPluginControllerOptions();
 		if ( empty( $opts->previous_version ) ) {
@@ -1467,17 +1484,6 @@ class Controller {
 	 * @return \stdClass
 	 */
 	public function getPluginControllerOptions() {
-		if ( !isset( self::$oControllerOptions ) ) {
-
-			self::$oControllerOptions = Services::WpGeneral()->getOption( $this->getPluginControllerOptionsKey() );
-			if ( !is_object( self::$oControllerOptions ) ) {
-				self::$oControllerOptions = new \stdClass();
-			}
-
-			if ( $this->getIsRebuildOptionsFromFile() ) {
-				self::$oControllerOptions->plugin_spec = $this->readPluginSpecification();
-			}
-		}
 		return self::$oControllerOptions;
 	}
 
@@ -1515,10 +1521,15 @@ class Controller {
 	protected function saveCurrentPluginControllerOptions() {
 		$WP = Services::WpGeneral();
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+
 		if ( $this->plugin_deleting ) {
-			$WP->deleteOption( $this->getPluginControllerOptionsKey() );
+			Transient::Delete( $this->getConfigStoreKey() );
+		}
+		elseif ( isset( $this->cfg ) ) {
+			Config\Ops\Save::ToWp( $this->cfg, $this->getConfigStoreKey() );
 		}
 		else {
+			/* @deprecated 10.1.4 */
 			$WP->updateOption(
 				$this->getPluginControllerOptionsKey(),
 				$this->getPluginControllerOptions()
@@ -1537,8 +1548,13 @@ class Controller {
 		return $this;
 	}
 
+	private function getConfigStoreKey() :string {
+		return 'aptoweb_controller_'.substr( md5( get_class() ), 0, 6 );
+	}
+
 	/**
 	 * @return string
+	 * @deprecated 10.1.4
 	 */
 	private function getPluginControllerOptionsKey() {
 		return strtolower( get_class() );
@@ -1938,34 +1954,33 @@ class Controller {
 	private function buildPrivacyPolicyContent() {
 		try {
 			if ( $this->getModule_SecAdmin()->isWlEnabled() ) {
-				$sName = $this->getHumanName();
-				$sHref = $this->getLabels()[ 'PluginURI' ];
+				$name = $this->getHumanName();
+				$href = $this->getLabels()[ 'PluginURI' ];
 			}
 			else {
-				$sName = $this->getPluginSpec_Menu( 'title' );
-				$sHref = $this->getPluginSpec()[ 'meta' ][ 'privacy_policy_href' ];
+				$name = $this->cfg->menu[ 'title' ];
+				$href = $this->cfg->meta[ 'privacy_policy_href' ];
 			}
 
 			/** @var Shield\Modules\AuditTrail\Options $oOpts */
-			$oOpts = $this->getModule_AuditTrail()
-						  ->getOptions();
+			$oOpts = $this->getModule_AuditTrail()->getOptions();
 
-			$sContent = $this->getRenderer()
-							 ->setTemplate( 'snippets/privacy_policy' )
-							 ->setTemplateEngineTwig()
-							 ->setRenderVars(
-								 [
-									 'name'             => $sName,
-									 'href'             => $sHref,
-									 'audit_trail_days' => $oOpts->getAutoCleanDays()
-								 ]
-							 )
-							 ->render();
+			$content = $this->getRenderer()
+							->setTemplate( 'snippets/privacy_policy' )
+							->setTemplateEngineTwig()
+							->setRenderVars(
+								[
+									'name'             => $name,
+									'href'             => $href,
+									'audit_trail_days' => $oOpts->getAutoCleanDays()
+								]
+							)
+							->render();
 		}
-		catch ( \Exception $oE ) {
-			$sContent = '';
+		catch ( \Exception $e ) {
+			$content = '';
 		}
-		return empty( $sContent ) ? '' : wp_kses_post( wpautop( $sContent, false ) );
+		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
 	}
 
 	private function runTests() {

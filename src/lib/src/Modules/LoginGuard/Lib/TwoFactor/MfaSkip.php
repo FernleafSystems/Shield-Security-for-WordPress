@@ -38,18 +38,18 @@ class MfaSkip {
 	 * @return bool
 	 */
 	public function canMfaSkip( \WP_User $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oReq = Services::Request();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$req = Services::Request();
 
 		$bCanSkip = false;
 
-		if ( $oOpts->isMfaSkip() ) {
+		if ( $opts->isMfaSkip() ) {
 			$sAgentHash = $this->getAgentHash();
 			$oMeta = $this->getCon()->getUserMeta( $oUser );
 			$aHashes = is_array( $oMeta->hash_loginmfa ) ? $oMeta->hash_loginmfa : [];
 			$bCanSkip = isset( $aHashes[ $sAgentHash ] )
-						&& ( (int)$aHashes[ $sAgentHash ] + $oOpts->getMfaSkip() ) > $oReq->ts();
+						&& ( (int)$aHashes[ $sAgentHash ] + $opts->getMfaSkip() ) > $req->ts();
 		}
 
 		return $bCanSkip;

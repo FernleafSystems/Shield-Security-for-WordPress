@@ -53,7 +53,8 @@ class MfaController {
 	private function captureLoginIntent( \WP_User $user ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
-		if ( $this->isSubjectToLoginIntent( $user ) && !$this->canUserMfaSkip( $user ) ) {
+		if ( $this->isSubjectToLoginIntent( $user )
+			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
 			$providers = $this->getProvidersForUser( $user );
 			if ( !empty( $providers ) ) {

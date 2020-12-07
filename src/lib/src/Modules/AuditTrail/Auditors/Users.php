@@ -11,6 +11,8 @@ class Users extends Base {
 
 	public function run() {
 		$this->setupLoginCaptureHooks();
+		$this->setToCaptureApplicationLogin( true );
+
 		add_action( 'user_register', [ $this, 'auditNewUserRegistered' ] );
 		add_action( 'delete_user', [ $this, 'auditDeleteUser' ], 30, 2 );
 	}
@@ -21,7 +23,7 @@ class Users extends Base {
 
 	public function auditUserLoginSuccess( \WP_User $user ) {
 		$this->getCon()->fireEvent(
-			'user_login',
+			Services::WpUsers()->isAppPasswordAuth() ? 'user_login_app' : 'user_login',
 			[
 				'audit' => [
 					'user' => $user->user_login,

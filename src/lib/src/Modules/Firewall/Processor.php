@@ -40,7 +40,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function getIfDoFirewallBlock() :bool {
-		return !$this->isVisitorRequestPermitted();
+		return apply_filters( 'icwp_shield_do_firewall_block', !$this->isVisitorRequestPermitted() );
 	}
 
 	private function getIfPerformFirewallScan() :bool {

@@ -69,7 +69,7 @@ class BlockRequest {
 			$homeURL = $con->getLabels()[ 'PluginURI' ];
 		}
 		else {
-			$homeURL = $con->getPluginSpec()[ 'meta' ][ 'url_repo_home' ];
+			$homeURL = $con->cfg->meta[ 'url_repo_home' ];
 		}
 
 		$data = [
