@@ -317,7 +317,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $notice->id ) {
 
 			case 'plugin-too-old':
-				$needed = true||$this->isNeeded_PluginTooOld();
+				$needed = $this->isNeeded_PluginTooOld();
 				break;
 
 			case 'override-forceoff':
