@@ -135,7 +135,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'summary' => $nCount > 0 ?
 				sprintf( __( 'There are %s inactive and unused themes', 'wp-simple-firewall' ), $nCount )
 				: __( "There appears to be no unused themes", 'wp-simple-firewall' ),
-			'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
+			'href'    => Services::WpGeneral()->getAdminUrl_Themes( true ),
 			'help'    => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
 		];
 

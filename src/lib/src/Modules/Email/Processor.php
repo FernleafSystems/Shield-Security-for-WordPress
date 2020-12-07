@@ -179,6 +179,9 @@ class Processor extends BaseShield\Processor {
 		if ( !empty( $proposed ) ) {
 			$name = $proposed;
 		}
+		elseif ( empty( $name ) ) {
+			$name = $this->getCon()->getHumanName();
+		}
 		else {
 			$name = sprintf( '%s - %s', $name, $this->getCon()->getHumanName() );
 		}

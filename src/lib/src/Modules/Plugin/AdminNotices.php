@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
@@ -15,6 +16,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {
+
+			case 'plugin-too-old':
+				$this->buildNotice_PluginTooOld( $notice );
+				break;
 
 			case 'php7':
 				$this->buildNotice_Php7( $notice );
@@ -82,18 +87,42 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		return $this->ajaxExec_DismissAdminNotice();
 	}
 
-	private function buildNotice_Php7( NoticeVO $notice ) {
-		$sName = $this->getCon()->getHumanName();
+	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
+		$name = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'     => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s 10+ Wont Be Available For Your Site", 'wp-simple-firewall' ), $sName ) ),
+					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
+				'lines'     => [
+					sprintf(
+						__( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ),
+						$name
+					),
+					__( "We recommended keeping your Shield plugin up-to-date with the latest features.", 'wp-simple-firewall' )
+					.' '.__( "We can't support old versions of Shield and certain features may not be working properly as our API develops.", 'wp-simple-firewall' ),
+				],
+				'click_update' => __( 'Click here to go to the WordPress updates page', 'wp-simple-firewall' )
+			],
+			'hrefs'             => [
+				'click_update' => Services::WpGeneral()->getAdminUrl_Updates()
+			]
+		];
+	}
+
+	private function buildNotice_Php7( NoticeVO $notice ) {
+		$name = $this->getCon()->getHumanName();
+
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'     => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( "%s 10+ Wont Be Available For Your Site", 'wp-simple-firewall' ), $name ) ),
 				'lines'     => [
 					sprintf(
 						__( '%s 10 wont support old versions of PHP, including yours (PHP: %s).', 'wp-simple-firewall' ),
-						$sName, Services::Data()->getPhpVersionCleaned( true ), '10'
+						$name, Services::Data()->getPhpVersionCleaned( true )
 					),
 					__( "We recommended updating your server's PHP version ASAP.", 'wp-simple-firewall' )
 					.' '.__( "Your webhost will be able to help guide you in this.", 'wp-simple-firewall' ),
@@ -107,16 +136,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
-		$sName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $sName ) ),
+				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
 				'message' => sprintf(
 					__( 'Please delete the "%s" file to reactivate %s protection', 'wp-simple-firewall' ),
 					'forceOff',
-					$sName
+					$name
 				),
 				'delete'  => __( 'Click here to automatically delete the file', 'wp-simple-firewall' )
 			],
@@ -146,16 +175,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_CompatSgOptimize( NoticeVO $notice ) {
-		$sName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'               => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( 'Site Ground Optimizer plugin has a conflict', 'wp-simple-firewall' ), $sName ) ),
+					sprintf( __( 'Site Ground Optimizer plugin has a conflict', 'wp-simple-firewall' ), $name ) ),
 				'message'             => sprintf(
 											 __( 'The SG Optimizer plugin has 2 settings which are breaking your site and certain %s features.', 'wp-simple-firewall' ),
-											 $sName
+											 $name
 										 )
 										 .' '.sprintf( 'The problematic options are: "Defer Render-blocking JS" and "Remove Query Strings From Static Resources".' ),
 				'learn_more'          => sprintf( 'Click here to learn more' ),
@@ -171,8 +200,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$sName = $this->getCon()->getHumanName();
-		$oUser = Services::WpUsers()->getCurrentWpUser();
+		$name = $this->getCon()->getHumanName();
+		$user = Services::WpUsers()->getCurrentWpUser();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -184,7 +213,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'signup'         => __( 'Sign-Up', 'wp-simple-firewall' ),
 				'dismiss'        => "No thanks, I'm not interested in such informative groups",
 				'summary'        => sprintf( 'The %s team is helping raise awareness of WP Security issues
-				and to provide guidance with the %s plugin.', $sName, $sName ),
+				and to provide guidance with the %s plugin.', $name, $name ),
 				'privacy_policy' => sprintf(
 					'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
 					$oOpts->getDef( 'href_privacy_policy' )
@@ -196,19 +225,19 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'install_days'      => $oOpts->getInstallationDays(),
 			'vars'              => [
-				'name'         => $oUser->first_name,
-				'user_email'   => $oUser->user_email,
+				'name'         => $user->first_name,
+				'user_email'   => $user->user_email,
 				'drip_form_id' => $notice->drip_form_id
 			]
 		];
 	}
 
 	private function buildNotice_UpdateAvailable( NoticeVO $notice ) {
-		$sName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'        => sprintf( __( 'Update available for the %s plugin', 'wp-simple-firewall' ), $sName ),
+				'title'        => sprintf( __( 'Update available for the %s plugin', 'wp-simple-firewall' ), $name ),
 				'click_update' => __( 'Please click to update immediately', 'wp-simple-firewall' ),
 				'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
 			],
@@ -219,14 +248,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_WelcomeWizard( NoticeVO $notice ) {
-		$sName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
 				'dismiss' => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
-				'title'   => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $sName ),
-				'setup'   => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $sName ),
-				'launch'  => sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $sName ),
+				'title'   => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $name ),
+				'setup'   => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $name ),
+				'launch'  => sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $name ),
 			],
 			'hrefs'             => [
 				'wizard' => $this->getMod()->getUrl_Wizard( 'welcome' ),
@@ -287,6 +316,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
+			case 'plugin-too-old':
+				$needed = true||$this->isNeeded_PluginTooOld();
+				break;
+
 			case 'override-forceoff':
 				$needed = $oCon->getIfForceOffActive();
 				break;
@@ -314,6 +347,23 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			default:
 				$needed = parent::isDisplayNeeded( $notice );
 				break;
+		}
+		return $needed;
+	}
+
+	private function isNeeded_PluginTooOld() :bool {
+		$needed = false;
+		$con = $this->getCon();
+		if ( Services::WpPlugins()->isUpdateAvailable( $con->getPluginBaseFile() ) ) {
+			$versions = Transient::Get( $con->prefix( 'releases' ) );
+			if ( !is_array( $versions ) ) {
+				$versions = ( new Shield\Utilities\Github\ListTags() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
+				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
+			}
+			array_splice( $versions, array_search( $con->getVersion(), $versions ) );
+			$needed = count( array_unique( array_map( function ( $version ) {
+					return substr( $version, 0, strrpos( $version, '.' ) );
+				}, $versions ) ) ) > 2;
 		}
 		return $needed;
 	}

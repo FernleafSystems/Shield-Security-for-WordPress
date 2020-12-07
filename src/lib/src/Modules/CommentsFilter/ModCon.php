@@ -78,7 +78,7 @@ class ModCon extends BaseShield\ModCon {
 	public function isEnabledCaptcha() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $this->isModOptEnabled() && !$opts->isEnabledCaptcha()
+		return $this->isModOptEnabled() && $opts->isEnabledCaptcha()
 			   && $this->getCaptchaCfg()->ready;
 	}
 

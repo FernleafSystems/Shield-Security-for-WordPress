@@ -1,11 +1,11 @@
 {
   "properties":       {
     "version":                 "10.1.4",
-    "release_timestamp":       1607089135,
-    "build":                   "202012.0401",
+    "release_timestamp":       1607337143,
+    "build":                   "202012.0701",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
-    "human_name":              "Shield",
+    "human_name":              "Shield Security",
     "menu_title":              "Shield",
     "text_domain":             "wp-simple-firewall",
     "base_permissions":        "manage_options",
@@ -86,7 +86,7 @@
     "has_submenu":    true
   },
   "labels":           {
-    "Name":             "Shield",
+    "Name":             "Shield Security",
     "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Audit Trail, Security Admin, and so much more.",
     "Title":            "Shield Security",
     "Author":           "Shield Security",
