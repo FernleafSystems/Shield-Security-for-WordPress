@@ -55,7 +55,7 @@ elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 	register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
 }
 else {
-	add_action( 'admin_notices', function() {
+	add_action( 'admin_notices', function () {
 		echo sprintf( '<div class="error"><h4>%s</h4><p>%s</p></div>',
 			'Shield Security Plugin - Broken Installation',
 			implode( '<br/>', [
