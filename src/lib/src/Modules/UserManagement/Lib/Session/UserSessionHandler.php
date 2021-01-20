@@ -49,13 +49,18 @@ class UserSessionHandler {
 			}
 		}
 		catch ( \Exception $e ) {
-			$event = $e->getMessage();
-			$con->fireEvent( $event );
-			$con->getModule_Sessions()
-				->getSessionCon()
-				->terminateCurrentSession();
-			$WPU = Services::WpUsers();
-			is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
+			// We force-refresh the server IPs just to be sure.
+			$srvIP = Services::IP();
+			$srvIP->getServerPublicIPs( true );
+			if ( !$srvIP->isLoopback() ) {
+				$event = $e->getMessage();
+				$con->fireEvent( $event );
+				$con->getModule_Sessions()
+					->getSessionCon()
+					->terminateCurrentSession();
+				$WPU = Services::WpUsers();
+				is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
+			}
 		}
 	}
 
@@ -86,11 +91,7 @@ class UserSessionHandler {
 
 		$srvIP = Services::IP();
 		if ( $opts->isLockToIp() && $srvIP->getRequestIp() != $sess->ip ) {
-			// We force-refresh the server IPs just to be sure.
-			Services::IP()->getServerPublicIPs( true );
-			if ( !$srvIP->isLoopback() ) {
-				throw new \Exception( 'session_iplock' );
-			}
+			throw new \Exception( 'session_iplock' );
 		}
 		// TODO: 'session_browserlock';
 	}
