@@ -15,11 +15,9 @@ class LicenseHandler {
 	use OneTimeExecute;
 
 	protected function run() {
-		$oCon = $this->getCon();
-
-		add_action( $oCon->prefix( 'shield_action' ), function ( $sAction ) {
-			$oCon = $this->getCon();
-			switch ( $sAction ) {
+		add_action( $this->getCon()->prefix( 'shield_action' ), function ( $action ) {
+			$con = $this->getCon();
+			switch ( $action ) {
 
 				case 'keyless_handshake':
 				case 'snapi_handshake':
@@ -34,16 +32,16 @@ class LicenseHandler {
 					break;
 
 				case 'license_check':
-					if ( !wp_next_scheduled( $oCon->prefix( 'adhoc_cron_license_check' ) ) ) {
+					if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 						wp_schedule_single_event( Services::Request()
-														  ->ts() + 20, $oCon->prefix( 'adhoc_cron_license_check' ) );
+														  ->ts() + 20, $con->prefix( 'adhoc_cron_license_check' ) );
 					}
 					break;
 			}
 		} );
 
 		// performs the license check on-demand
-		add_action( $oCon->prefix( 'adhoc_cron_license_check' ), function () {
+		add_action( $this->getCon()->prefix( 'adhoc_cron_license_check' ), function () {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			try {
@@ -54,10 +52,7 @@ class LicenseHandler {
 		} );
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function canCheck() {
+	private function canCheck() :bool {
 		return !in_array( $this->getCon()->getShieldAction(), [ 'keyless_handshake', 'license_check' ] )
 			   && $this->getIsLicenseNotCheckedFor( 20 )
 			   && $this->canLicenseCheck_FileFlag();
