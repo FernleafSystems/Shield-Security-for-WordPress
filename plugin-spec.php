@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "10.1.5",
-    "release_timestamp":       1607348838,
-    "build":                   "202012.0702",
+    "version":                 "10.1.6",
+    "release_timestamp":       1611222790,
+    "build":                   "202101.2101",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -19,7 +19,7 @@
     "enable_premium":          true
   },
   "requirements":     {
-    "php":       "7.0.0",
+    "php":       "7.0",
     "wordpress": "3.5.2"
   },
   "upgrade_reqs":     {

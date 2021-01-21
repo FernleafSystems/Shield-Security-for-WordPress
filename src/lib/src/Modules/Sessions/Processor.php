@@ -17,7 +17,7 @@ class Processor extends BaseShield\Processor {
 	private $current;
 
 	protected function run() {
-		if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
+		if ( !Services::WpUsers()->isProfilePage() && !Services::IP()->isLoopback() ) { // only on logout
 			add_action( 'clear_auth_cookie', function () {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();

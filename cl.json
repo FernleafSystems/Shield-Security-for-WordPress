@@ -127,6 +127,12 @@
         "title":       "Stop notice showing when it's not required.",
         "description": [],
         "patch":       "10.1.5"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Prevent warnings and logouts when loading WordPress Site Health tool.",
+        "description": [],
+        "patch":       "10.1.6"
       }
     ]
   },

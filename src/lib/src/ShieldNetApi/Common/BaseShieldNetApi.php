@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class BaseShieldNetApi extends BaseApi {
 
 	use ModConsumer;
-	const DEFAULT_URL_STUB = 'https://net.shieldsecurity.io/wp-json/apto-snapi/v1';
+	const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v1';
 
 	/**
 	 * @param string $sProperty

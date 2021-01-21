@@ -20,7 +20,8 @@ class RenameLogin {
 	protected function canRun() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return !empty( $opts->getCustomLoginPath() )
+		return !Services::IP()->isLoopback()
+			   && !empty( $opts->getCustomLoginPath() )
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 
