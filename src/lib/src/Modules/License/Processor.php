@@ -11,4 +11,10 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$mod->getLicenseHandler()->execute();
 	}
+
+	public function onWpLoaded() {
+		( new Lib\PluginNameSuffix() )
+			->setMod( $this->getMod() )
+			->execute();
+	}
 }
