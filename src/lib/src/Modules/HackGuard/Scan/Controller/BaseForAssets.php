@@ -11,15 +11,15 @@ abstract class BaseForAssets extends Base {
 	 * @param Scans\Ptg\ResultItem|Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) {
+	protected function isResultItemStale( $item ) :bool {
 		if ( $item->context == 'plugins' ) {
-			$oAsset = Services::WpPlugins()->getPluginAsVo( $item->slug );
-			$bAssetExists = empty( $oAsset ) || $oAsset->active;
+			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
+			$stale = empty( $asset ) || !$asset->active;
 		}
 		else {
-			$oAsset = Services::WpThemes()->getThemeAsVo( $item->slug );
-			$bAssetExists = empty( $oAsset ) || ( $oAsset->active || $oAsset->is_parent );
+			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
+			$stale = empty( $asset ) || ( !$asset->active && !$asset->is_parent );
 		}
-		return !$bAssetExists;
+		return $stale;
 	}
 }

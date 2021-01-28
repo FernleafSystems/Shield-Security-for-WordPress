@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScansController {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 	use StandardCron;
 
 	private $scanCons;
@@ -23,8 +23,6 @@ class ScansController {
 	}
 
 	protected function run() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
 		foreach ( $this->getAllScanCons() as $scanCon ) {
 			$scanCon->execute();
 		}

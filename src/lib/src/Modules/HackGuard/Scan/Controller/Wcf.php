@@ -21,10 +21,9 @@ class Wcf extends Base {
 	 * @param Scans\Wcf\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) {
-		$oCFH = Services::CoreFileHashes();
-		return !$oCFH->isCoreFile( $item->path_full )
-			   || Services::CoreFileHashes()->isCoreFileHashValid( $item->path_full );
+	protected function isResultItemStale( $item ) :bool {
+		$CFH = Services::CoreFileHashes();
+		return !$CFH->isCoreFile( $item->path_full ) || $CFH->isCoreFileHashValid( $item->path_full );
 	}
 
 	public function isCronAutoRepair() :bool {

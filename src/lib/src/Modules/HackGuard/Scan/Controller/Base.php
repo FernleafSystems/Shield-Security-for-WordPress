@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
@@ -17,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	const SCAN_SLUG = '';
 
@@ -90,7 +90,7 @@ abstract class Base {
 	 * @param BaseResultItem|mixed $item
 	 * @return bool
 	 */
-	abstract protected function isResultItemStale( $item );
+	abstract protected function isResultItemStale( $item ) :bool;
 
 	/**
 	 * @param int|string $itemID
