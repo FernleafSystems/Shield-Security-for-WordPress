@@ -486,17 +486,17 @@ class ModCon extends BaseShield\ModCon {
 
 		$con = $this->getCon();
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$sFile = $con->getPluginBaseFile();
+			$file = $con->base_file;
 			wp_localize_script(
 				$con->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				[
-					'file'  => $sFile,
+					'file'  => $file,
 					'ajax'  => [
 						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
 					],
 					'hrefs' => [
-						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $sFile ),
+						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $file ),
 					],
 				]
 			);

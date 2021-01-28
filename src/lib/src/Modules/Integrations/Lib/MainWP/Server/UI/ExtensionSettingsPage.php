@@ -124,8 +124,6 @@ class ExtensionSettingsPage {
 	}
 
 	private function serverPluginNeedsUpdate() :bool {
-		return Services::WpPlugins()->isUpdateAvailable(
-			$this->getCon()->getPluginBaseFile()
-		);
+		return Services::WpPlugins()->isUpdateAvailable( $this->getCon()->base_file );
 	}
 }

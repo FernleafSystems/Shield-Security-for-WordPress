@@ -238,7 +238,7 @@ class Processor extends BaseShield\Processor {
 			elseif ( $oOpts->isAutoupdateAllPlugins() ) {
 				$bDoAutoUpdate = true;
 			}
-			elseif ( $file === $this->getCon()->getPluginBaseFile() ) {
+			elseif ( $file === $this->getCon()->base_file ) {
 				$sAuto = $oOpts->getSelfAutoUpdateOpt();
 				if ( $sAuto === 'immediate' ) {
 					$bDoAutoUpdate = true;

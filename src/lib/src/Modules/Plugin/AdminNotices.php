@@ -242,7 +242,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'upgrade_link' => Services::WpPlugins()->getUrl_Upgrade( $this->getCon()->getPluginBaseFile() )
+				'upgrade_link' => Services::WpPlugins()->getUrl_Upgrade( $this->getCon()->base_file )
 			]
 		];
 	}
@@ -310,7 +310,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
@@ -321,7 +321,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'override-forceoff':
-				$needed = $oCon->getIfForceOffActive();
+				$needed = $con->getIfForceOffActive();
 				break;
 
 			case 'php7':
@@ -333,7 +333,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'update-available':
-				$needed = Services::WpPlugins()->isUpdateAvailable( $oCon->getPluginBaseFile() );
+				$needed = Services::WpPlugins()->isUpdateAvailable( $con->base_file );
 				break;
 
 			case 'compat-sgoptimize':
@@ -354,7 +354,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	private function isNeeded_PluginTooOld() :bool {
 		$needed = false;
 		$con = $this->getCon();
-		if ( Services::WpPlugins()->isUpdateAvailable( $con->getPluginBaseFile() ) ) {
+		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
 			$versions = Transient::Get( $con->prefix( 'releases' ) );
 			if ( !is_array( $versions ) ) {
 				$versions = ( new Shield\Utilities\Github\ListTags() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );

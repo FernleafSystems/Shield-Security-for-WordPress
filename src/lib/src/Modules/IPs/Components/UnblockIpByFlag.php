@@ -15,9 +15,9 @@ class UnblockIpByFlag {
 		$mod = $this->getMod();
 		$FS = Services::WpFs();
 
-		$sPathUnblockFlag = $FS->findFileInDir( 'unblock', $this->getCon()->getPath_Flags() );
-		if ( $FS->isFile( $sPathUnblockFlag ) ) {
-			$sContent = $FS->getFileContent( $sPathUnblockFlag );
+		$path = $FS->findFileInDir( 'unblock', $this->getCon()->getPath_Flags() );
+		if ( !empty( $path ) && $FS->isFile( $path ) ) {
+			$sContent = $FS->getFileContent( $path );
 			if ( !empty( $sContent ) ) {
 
 				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
@@ -31,7 +31,7 @@ class UnblockIpByFlag {
 					}
 				}
 			}
-			$FS->deleteFile( $sPathUnblockFlag );
+			$FS->deleteFile( $path );
 		}
 	}
 }

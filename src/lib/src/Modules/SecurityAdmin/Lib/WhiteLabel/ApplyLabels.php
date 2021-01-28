@@ -55,8 +55,8 @@ class ApplyLabels {
 	 */
 	public function adjustUpdateDataCount( $aUpdateData ) {
 
-		$sFile = $this->getCon()->getPluginBaseFile();
-		if ( Services::WpPlugins()->isUpdateAvailable( $sFile ) ) {
+		$file = $this->getCon()->base_file;
+		if ( Services::WpPlugins()->isUpdateAvailable( $file ) ) {
 			$aUpdateData[ 'counts' ][ 'total' ]--;
 			$aUpdateData[ 'counts' ][ 'plugins' ]--;
 		}
@@ -66,8 +66,8 @@ class ApplyLabels {
 
 	public function hideFromPluginEditor() {
 		$con = $this->getCon();
-		$sJs = Services::Data()->readFileContentsUsingInclude( $con->getPath_AssetJs( 'whitelabel.js' ) );
-		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $sJs, $con->getPluginBaseFile() ) );
+		$js = Services::Data()->readFileContentsUsingInclude( $con->getPath_AssetJs( 'whitelabel.js' ) );
+		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $js, $con->base_file ) );
 	}
 
 	/**
@@ -112,11 +112,11 @@ class ApplyLabels {
 	/**
 	 * @filter
 	 * @param array  $aPluginMeta
-	 * @param string $sPluginBaseFileName
+	 * @param string $pluginBaseFile
 	 * @return array
 	 */
-	public function removePluginMetaLinks( $aPluginMeta, $sPluginBaseFileName ) {
-		if ( $sPluginBaseFileName == $this->getCon()->getPluginBaseFile() ) {
+	public function removePluginMetaLinks( $aPluginMeta, $pluginBaseFile ) {
+		if ( $pluginBaseFile == $this->getCon()->base_file ) {
 			unset( $aPluginMeta[ 2 ] ); // View details
 			unset( $aPluginMeta[ 3 ] ); // Rate 5*
 		}
@@ -125,15 +125,15 @@ class ApplyLabels {
 
 	/**
 	 * Hides the update if the page loaded is the plugins page or the updates page.
-	 * @param \stdClass $oPlugins
+	 * @param \stdClass $plugins
 	 * @return \stdClass
 	 */
-	public function hidePluginUpdatesFromUI( $oPlugins ) {
-		$sFile = $this->getCon()->getPluginBaseFile();
-		if ( isset( $oPlugins->response[ $sFile ] ) ) {
-			unset( $oPlugins->response[ $sFile ] );
+	public function hidePluginUpdatesFromUI( $plugins ) {
+		$file = $this->getCon()->base_file;
+		if ( isset( $plugins->response[ $file ] ) ) {
+			unset( $plugins->response[ $file ] );
 		}
-		return $oPlugins;
+		return $plugins;
 	}
 
 	private function isNeedToHideUpdates() :bool {
