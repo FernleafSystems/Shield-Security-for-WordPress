@@ -88,9 +88,6 @@ class Options {
 		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getAllOptionsValues() :array {
 		return $this->getStoredOptions();
 	}
@@ -519,10 +516,7 @@ class Options {
 		return null;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getOptionsKeys() {
+	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
 			$this->aOptionsKeys = [];
 			foreach ( $this->getRawData_AllOptions() as $aOption ) {
@@ -894,21 +888,21 @@ class Options {
 	}
 
 	/**
-	 * @param bool $bReload
+	 * @param bool $reload
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function loadOptionsValuesFromStorage( bool $bReload = false ) :array {
+	private function loadOptionsValuesFromStorage( bool $reload = false ) :array {
 
-		if ( $bReload || empty( $this->aOptionsValues ) ) {
+		if ( $reload || empty( $this->aOptionsValues ) ) {
 
 			if ( $this->getIfLoadOptionsFromStorage() ) {
 
-				$sStorageKey = $this->getOptionsStorageKey();
-				if ( empty( $sStorageKey ) ) {
+				$key = $this->getOptionsStorageKey();
+				if ( empty( $key ) ) {
 					throw new \Exception( 'Options Storage Key Is Empty' );
 				}
-				$this->aOptionsValues = Services::WpGeneral()->getOption( $sStorageKey, [] );
+				$this->aOptionsValues = Services::WpGeneral()->getOption( $key, [] );
 			}
 		}
 		if ( !is_array( $this->aOptionsValues ) ) {
@@ -921,34 +915,34 @@ class Options {
 	private function readConfiguration() :array {
 		$WP = Services::WpGeneral();
 
-		$sStorageKey = $this->getConfigStorageKey();
-		$aConfig = $WP->getOption( $sStorageKey );
+		$cfgStorageKey = $this->getConfigStorageKey();
+		$cfg = $WP->getOption( $cfgStorageKey );
 
-		$bRebuild = $this->getRebuildFromFile() || empty( $aConfig );
-		if ( !$bRebuild && !empty( $aConfig ) && is_array( $aConfig ) ) {
+		$bRebuild = $this->getRebuildFromFile() || empty( $cfg );
+		if ( !$bRebuild && !empty( $cfg ) && is_array( $cfg ) ) {
 
-			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
-				$aConfig[ 'meta_modts' ] = 0;
+			if ( !isset( $cfg[ 'meta_modts' ] ) ) {
+				$cfg[ 'meta_modts' ] = 0;
 			}
-			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
+			$bRebuild = $this->getConfigModTime() > $cfg[ 'meta_modts' ];
 		}
 
 		if ( $bRebuild ) {
 			try {
-				$aConfig = $this->readConfigurationJson();
+				$cfg = $this->readConfigurationJson();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				if ( Services::WpGeneral()->isDebug() ) {
-					trigger_error( $oE->getMessage() );
+					trigger_error( $e->getMessage() );
 				}
-				$aConfig = [];
+				$cfg = [];
 			}
-			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
-			$WP->updateOption( $sStorageKey, $aConfig );
+			$cfg[ 'meta_modts' ] = $this->getConfigModTime();
+			$WP->updateOption( $cfgStorageKey, $cfg );
 		}
 
 		$this->setRebuildFromFile( $bRebuild );
-		return $aConfig;
+		return $cfg;
 	}
 
 	/**
@@ -974,7 +968,7 @@ class Options {
 		return Services::Data()->readFileContentsUsingInclude( $this->getPathToConfig() );
 	}
 
-	private function getConfigStorageKey() :string {
+	public function getConfigStorageKey() :string {
 		return 'shield_mod_config_'.md5(
 				str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $this->getPathToConfig() ) )
 			);

@@ -1380,7 +1380,6 @@ class Controller {
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
-		$WP = Services::WpGeneral();
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 
 		if ( $this->plugin_deleting ) {
