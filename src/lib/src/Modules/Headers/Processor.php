@@ -9,7 +9,7 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * @var bool
 	 */
-	private $bHeadersPushed;
+	private $pushed = false;
 
 	/**
 	 * @var array
@@ -77,7 +77,7 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * @return string[] - array of all previously sent headers. Keys are header names, values are header values.
 	 */
-	private function getAlreadySentHeaders() {
+	private function getAlreadySentHeaders() :array {
 		$headers = [];
 
 		if ( function_exists( 'headers_list' ) ) {
@@ -127,30 +127,7 @@ class Processor extends BaseShield\Processor {
 	private function setContentSecurityPolicyHeader() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		$aDefaultSrcDirectives = [];
-
-		if ( $opts->isOpt( 'xcsp_self', 'Y' ) ) {
-			$aDefaultSrcDirectives[] = "'self'";
-		}
-		if ( $opts->isOpt( 'xcsp_data', 'Y' ) ) {
-			$aDefaultSrcDirectives[] = "data:";
-		}
-		if ( $opts->isOpt( 'xcsp_inline', 'Y' ) ) {
-			$aDefaultSrcDirectives[] = "'unsafe-inline'";
-		}
-		if ( $opts->isOpt( 'xcsp_eval', 'Y' ) ) {
-			$aDefaultSrcDirectives[] = "'unsafe-eval'";
-		}
-		if ( $opts->isOpt( 'xcsp_https', 'Y' ) ) {
-			$aDefaultSrcDirectives[] = "https:";
-		}
-
-		$aDefaultSrcDirectives[] = implode( " ", $opts->getOpt( 'xcsp_hosts', [] ) );
-
-		$rules = $opts->getCspCustomRules();
-		array_unshift( $rules, sprintf( 'default-src %s;', implode( " ", $aDefaultSrcDirectives ) ) );
-		return [ 'Content-Security-Policy' => implode( ' ', $rules ) ];
+		return [ 'Content-Security-Policy' => implode( ' ', $opts->getCspCustomRules() ) ];
 	}
 
 	private function gatherSecurityHeaders() :array {
@@ -189,11 +166,11 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function isHeadersPushed() :bool {
-		return (bool)$this->bHeadersPushed;
+		return (bool)$this->pushed;
 	}
 
 	private function setHeadersPushed( bool $pushed ) :self {
-		$this->bHeadersPushed = $pushed;
+		$this->pushed = $pushed;
 		return $this;
 	}
 }
