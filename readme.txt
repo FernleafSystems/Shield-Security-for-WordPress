@@ -84,6 +84,8 @@ Shield does exactly this. It's your Silent Guardian.
 * [Full Traffic Log and Request Monitoring](https://shsec.io/j7)
 * [HTTP Security Headers & Content Security Policies (CSP)](https://shsec.io/j6)
 
+#### [Full Shield Security Features List](https://shsec.io/shieldfeatures)
+
 ### Dedicated Premium Support When You Go PRO
 
 The Shield Security team prioritises email technical support over the WordPress.org forums.
@@ -265,4 +267,4 @@ The full Shield Changelog can be viewed from our home page:
 ShieldPRO delivers exclusive security features to the serious site administrator to maximise site security
 You'll also have direct access to our technical support team.
 
-[Go Pro from just $1/month](https://shsec.io/aa).
+[Go Pro](https://shsec.io/aa).
