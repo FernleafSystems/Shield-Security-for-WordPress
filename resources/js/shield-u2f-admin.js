@@ -44,15 +44,13 @@ if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 
 	} );
 
-
 	jQuery.fn.icwpWpsfProfileU2f = function () {
 
 		var initialise = function () {
 			jQuery( document ).ready( function () {
 				jQuery( 'a.icwpWpsf-U2FRemove' ).on( 'click', function ( evt ) {
 					evt.preventDefault();
-					icwp_wpsf_vars_u2f.ajax.u2f_remove.u2fid =
-						jQuery( evt.target ).data( 'u2fid' );
+					icwp_wpsf_vars_u2f.ajax.u2f_remove.u2fid = jQuery( evt.currentTarget ).data( 'u2fid' );
 					iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_u2f.ajax.u2f_remove );
 					return false;
 				} )

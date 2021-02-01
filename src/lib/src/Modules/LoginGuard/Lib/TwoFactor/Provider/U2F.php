@@ -314,10 +314,10 @@ class U2F extends BaseProvider {
 	 * @return $this
 	 */
 	public function removeRegisteredU2fId( \WP_User $user, $sU2fID ) {
-		$aRegs = $this->getRegistrations( $user );
-		if ( isset( $aRegs[ $sU2fID ] ) ) {
-			unset( $aRegs[ $sU2fID ] );
-			$this->storeRegistrations( $user, $aRegs );
+		$regs = $this->getRegistrations( $user );
+		if ( isset( $regs[ $sU2fID ] ) ) {
+			unset( $regs[ $sU2fID ] );
+			$this->storeRegistrations( $user, $regs );
 		}
 		return $this;
 	}
