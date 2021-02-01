@@ -1,4 +1,52 @@
 {
+  "10.2": {
+    "version":     "10.2",
+    "released_at": 1612200622,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease102",
+      "upgrade": "https://shsec.io/shieldupgradeguide102"
+    },
+    "href":        "https://shsec.io/",
+    "title":       "Removal of simple Content Security Policy settings and bugfixes",
+    "description": [
+      "We've decided to remove our simple Content Security Policy options as this feature is too complex.",
+      "We've also fixed a number of bugs and optimised how Shield loads and stores options and configurations."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Removed Content Security Policy Settings",
+        "description": [
+          "Due to the complexity of CSP and the superficial nature of our CSP implementation, we've decided to remove these options.",
+          "We explore the issue in full detail in our blog post on this topic."
+        ],
+        "href":        "https://shsec.io/jb"
+      },
+      {
+        "type":        "improved",
+        "title":       "Upgrade Bootstrap Library to latest 4.6.0",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Significant code cleanup.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Added cleanup code to remove stale entries in the WP Options table.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "U2F Removal Bug",
+        "description": [
+          "A javascript issue prevented removal of U2F keys from user profiles."
+        ]
+      }
+    ]
+  },
   "10.1": {
     "version":     "10.1",
     "released_at": 1605606920,
