@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\OptValueSanitize;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class Options {
 
@@ -283,26 +284,23 @@ class Options {
 		return $aSections;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getPrimarySection() {
-		$aSec = [];
+	public function getPrimarySection() :array {
+		$section = [];
 		foreach ( $this->getSections() as $aS ) {
 			if ( isset( $aS[ 'primary' ] ) && $aS[ 'primary' ] ) {
-				$aSec = $aS;
+				$section = $aS;
 				break;
 			}
 		}
-		return $aSec;
+		return $section;
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $slug
 	 * @return array
 	 */
-	public function getSection_Requirements( $sSlug ) {
-		$aSection = $this->getSection( $sSlug );
+	public function getSection_Requirements( $slug ) {
+		$aSection = $this->getSection( $slug );
 		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : [];
 		return array_merge(
 			[
@@ -323,27 +321,27 @@ class Options {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $slug
 	 * @return bool
 	 */
-	public function isSectionReqsMet( $sSectionSlug ) {
-		$aReqs = $this->getSection_Requirements( $sSectionSlug );
-		return Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
-			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
+	public function isSectionReqsMet( $slug ) :bool {
+		$reqs = $this->getSection_Requirements( $slug );
+		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
+			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $optKey
 	 * @return bool
 	 */
-	public function isOptReqsMet( $sOptKey ) {
-		return $this->isSectionReqsMet( $this->getOptProperty( $sOptKey, 'section' ) );
+	public function isOptReqsMet( $optKey ) :bool {
+		return $this->isSectionReqsMet( $this->getOptProperty( $optKey, 'section' ) );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getVisibleOptionsKeys() {
+	public function getVisibleOptionsKeys() :array {
 		$aKeys = [];
 
 		foreach ( $this->getRawData_AllOptions() as $aOptionDef ) {
@@ -389,15 +387,15 @@ class Options {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $slug
 	 * @return array[]
 	 */
-	protected function getOptionsForSection( $sSectionSlug ) {
+	protected function getOptionsForSection( $slug ) :array {
 
 		$aAllOptions = [];
 		foreach ( $this->getRawData_AllOptions() as $aOptionDef ) {
 
-			if ( ( $aOptionDef[ 'section' ] != $sSectionSlug ) || ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) ) {
+			if ( ( $aOptionDef[ 'section' ] != $slug ) || ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) ) {
 				continue;
 			}
 
@@ -429,10 +427,7 @@ class Options {
 		return $aAllOptions;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAdditionalMenuItems() {
+	public function getAdditionalMenuItems() :array {
 		return $this->getRawData_MenuItems();
 	}
 
@@ -494,24 +489,24 @@ class Options {
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @param mixed  $mValueToTest
-	 * @param bool   $bStrict
+	 * @param bool   $strict
 	 * @return bool
 	 */
-	public function isOpt( $sKey, $mValueToTest, $bStrict = false ) :bool {
-		$mOptionValue = $this->getOpt( $sKey );
-		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
+	public function isOpt( string $key, $mValueToTest, $strict = false ) :bool {
+		$mOptionValue = $this->getOpt( $key );
+		return $strict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return string|null
 	 */
-	public function getOptionType( $sKey ) {
-		$aDef = $this->getRawData_SingleOption( $sKey );
-		if ( !empty( $aDef ) && isset( $aDef[ 'type' ] ) ) {
-			return $aDef[ 'type' ];
+	public function getOptionType( $key ) {
+		$def = $this->getRawData_SingleOption( $key );
+		if ( !empty( $def ) && isset( $def[ 'type' ] ) ) {
+			return $def[ 'type' ];
 		}
 		return null;
 	}
@@ -913,14 +908,10 @@ class Options {
 	}
 
 	private function readConfiguration() :array {
-		$WP = Services::WpGeneral();
+		$cfg = Transient::Get( $this->getConfigStorageKey() );
 
-		$cfgStorageKey = $this->getConfigStorageKey();
-		$cfg = $WP->getOption( $cfgStorageKey );
-
-		$bRebuild = $this->getRebuildFromFile() || empty( $cfg );
-		if ( !$bRebuild && !empty( $cfg ) && is_array( $cfg ) ) {
-
+		$bRebuild = $this->getRebuildFromFile() || empty( $cfg ) || !is_array( $cfg );
+		if ( !$bRebuild ) {
 			if ( !isset( $cfg[ 'meta_modts' ] ) ) {
 				$cfg[ 'meta_modts' ] = 0;
 			}
@@ -938,7 +929,7 @@ class Options {
 				$cfg = [];
 			}
 			$cfg[ 'meta_modts' ] = $this->getConfigModTime();
-			$WP->updateOption( $cfgStorageKey, $cfg );
+			Transient::Set( $this->getConfigStorageKey(), $cfg );
 		}
 
 		$this->setRebuildFromFile( $bRebuild );
