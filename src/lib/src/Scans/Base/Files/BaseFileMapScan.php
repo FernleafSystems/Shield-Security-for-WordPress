@@ -14,20 +14,20 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 	 * @return $this
 	 */
 	protected function scanSlice() {
-		/** @var Base\BaseScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+		/** @var Base\BaseScanActionVO $action */
+		$action = $this->getScanActionVO();
 
 		$oTempRs = $this->getScanFromFileMap()
-						->setScanActionVO( $oAction )
+						->setScanActionVO( $action )
 						->run();
 
-		$aNewItems = [];
+		$newItems = [];
 		if ( $oTempRs->hasItems() ) {
 			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$aNewItems[] = $oItem->getRawDataAsArray();
+				$newItems[] = $oItem->getRawDataAsArray();
 			}
 		}
-		$oAction->results = $aNewItems;
+		$action->results = $newItems;
 
 		return $this;
 	}

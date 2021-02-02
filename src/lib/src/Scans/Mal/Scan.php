@@ -20,16 +20,18 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		/** @var ScanActionVO $oScanVO */
-		$oScanVO = $this->getScanActionVO();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
-		$oScanVO->confidence_threshold = $oOpts->getMalConfidenceBoundary();
+		$action->confidence_threshold = $oOpts->getMalConfidenceBoundary();
 
-		$aPatterns = ( new Utilities\Patterns() )
+		$patterns = ( new Utilities\Patterns() )
 			->setMod( $this->getMod() )
 			->retrieve();
-		$oScanVO->patterns_simple = $aPatterns[ 'simple' ];
-		$oScanVO->patterns_regex = $aPatterns[ 'regex' ];
+		$action->patterns_simple = $patterns[ 'simple' ];
+		$action->patterns_regex = $patterns[ 'regex' ];
+		error_log( var_export( $action->patterns_simple, true ) );
+		error_log( var_export( $action->patterns_regex, true ) );
 	}
 
 	/**

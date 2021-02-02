@@ -13,17 +13,17 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
-	public function scan( $sFullPath ) {
+	public function scan( $fullPath ) {
 		$oResult = null;
 		$oHashes = Services::CoreFileHashes();
 
 		/** @var ResultItem $oRes */
 		$oRes = $this->getScanActionVO()->getNewResultItem();
-		$oRes->path_full = $sFullPath;
-		$oRes->path_fragment = $oHashes->getFileFragment( $sFullPath );
+		$oRes->path_full = $fullPath;
+		$oRes->path_fragment = $oHashes->getFileFragment( $fullPath );
 		$oRes->md5_file_wp = $oHashes->getFileHash( $oRes->path_fragment );
 		$oRes->is_missing = !Services::WpFs()->exists( $oRes->path_full );
 		$oRes->is_checksumfail = !$oRes->is_missing && $this->isChecksumFail( $oRes );

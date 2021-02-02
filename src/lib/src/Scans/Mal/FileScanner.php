@@ -16,22 +16,22 @@ use FernleafSystems\Wordpress\Services\Utilities;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
-	public function scan( $sFullPath ) {
+	public function scan( $fullPath ) {
 		$oItem = null;
 
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
 		try {
-			$oLocator = ( new Utilities\File\LocateStrInFile() )->setPath( $sFullPath );
+			$locator = ( new Utilities\File\LocateStrInFile() )->setPath( $fullPath );
 
 			{ // Simple Patterns first
-				$oLocator->setIsRegEx( false );
-				foreach ( $oAction->patterns_simple as $sSig ) {
-					$oItem = $this->scanForSig( $oLocator, $sSig );
+				$locator->setIsRegEx( false );
+				foreach ( $action->patterns_simple as $sSig ) {
+					$oItem = $this->scanForSig( $locator, $sSig );
 					if ( $oItem instanceof ResultItem ) {
 						return $oItem;
 					}
@@ -39,16 +39,16 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			}
 
 			{ // RegEx Patterns
-				$oLocator->setIsRegEx( true );
-				foreach ( $oAction->patterns_regex as $sSig ) {
-					$oItem = $this->scanForSig( $oLocator, $sSig );
+				$locator->setIsRegEx( true );
+				foreach ( $action->patterns_regex as $sSig ) {
+					$oItem = $this->scanForSig( $locator, $sSig );
 					if ( $oItem instanceof ResultItem ) {
 						return $oItem;
 					}
 				}
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 
 		return $oItem;
@@ -56,44 +56,45 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
 	 * @param Utilities\File\LocateStrInFile $oLocator
-	 * @param string                         $sSig
+	 * @param string                         $signature
 	 * @return ResultItem|null
 	 */
-	private function scanForSig( $oLocator, $sSig ) {
+	private function scanForSig( $oLocator, $signature ) {
 		$oResultItem = null;
 
-		$aLines = $oLocator->setNeedle( $sSig )
+		$aLines = $oLocator->setNeedle( $signature )
 						   ->run();
-		$sFullPath = $oLocator->getPath();
+
+		$fullPath = $oLocator->getPath();
 		if ( !empty( $aLines ) ) {
 
-			if ( $this->canExcludeFile( $sFullPath ) ) { // we report false positives: file and lines
+			if ( $this->canExcludeFile( $fullPath ) ) { // we report false positives: file and lines
 				$oReporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
 				foreach ( $aLines as $nLine => $sLine ) {
-					$oReporter->reportLine( $sFullPath, $sLine, true );
+					$oReporter->reportLine( $fullPath, $sLine, true );
 				}
-				$oReporter->reportPath( $sFullPath, true );
+				$oReporter->reportPath( $fullPath, true );
 			}
 			else {
-				/** @var ScanActionVO $oAction */
-				$oAction = $this->getScanActionVO();
+				/** @var ScanActionVO $action */
+				$action = $this->getScanActionVO();
 
-				if ( $oAction->confidence_threshold > 0 ) {
-					$bReportItem = false;
+				if ( $action->confidence_threshold > 0 ) {
+					$reportItem = false;
 					// 1. First check whether the FP of the whole file means we can filter it
 					$nFalsePositiveConfidence = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
 						->setMod( $this->getMod() )
-						->queryPath( $sFullPath );
-					if ( $nFalsePositiveConfidence < $oAction->confidence_threshold ) {
+						->queryPath( $fullPath );
+					if ( $nFalsePositiveConfidence < $action->confidence_threshold ) {
 						// 2. Check each line and filter out fp confident lines
 						$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
 							->setMod( $this->getMod() )
-							->queryFileLines( $sFullPath, array_keys( $aLines ) );
+							->queryFileLines( $fullPath, array_keys( $aLines ) );
 						$aLines = array_filter(
 							$aLineScores,
-							function ( $nScore ) use ( $oAction ) {
-								return $nScore < $oAction->confidence_threshold;
+							function ( $nScore ) use ( $action ) {
+								return $nScore < $action->confidence_threshold;
 							}
 						);
 
@@ -101,19 +102,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 							// Now send False Positive report for entire file based on all file lines being FPs.
 							( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 								->setMod( $this->getMod() )
-								->reportPath( $sFullPath, true );
+								->reportPath( $fullPath, true );
 						}
 						else {
-							$bReportItem = true;
+							$reportItem = true;
 						}
 					}
 				}
 				else {
-					$bReportItem = true;
+					$reportItem = true;
 				}
 
-				if ( $bReportItem ) {
-					$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $sFullPath, $sSig );
+				if ( $reportItem ) {
+					$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $fullPath, $signature );
 				}
 			}
 		}

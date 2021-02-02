@@ -21,31 +21,31 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	private $oAssetStore;
 
 	/**
-	 * @param string $sFullPath - in this case it's relative to ABSPATH
+	 * @param string $fullPath - in this case it's relative to ABSPATH
 	 * @return ResultItem|null
 	 */
-	public function scan( $sFullPath ) {
+	public function scan( $fullPath ) {
 		$oItem = null;
 		// file paths are stored in the queue relatives to ABSPATH
-		$sFullPath = path_join( wp_normalize_path( ABSPATH ), $sFullPath );
+		$fullPath = path_join( wp_normalize_path( ABSPATH ), $fullPath );
 		try {
-			$oAsset = ( new Plugin\Files() )->findPluginFromFile( $sFullPath );
+			$oAsset = ( new Plugin\Files() )->findPluginFromFile( $fullPath );
 			if ( empty( $oAsset ) ) {
-				$oAsset = ( new Theme\Files() )->findThemeFromFile( $sFullPath );
+				$oAsset = ( new Theme\Files() )->findThemeFromFile( $fullPath );
 			}
 			if ( empty( $oAsset ) ) {
 				throw new \Exception( 'Could not load asset' );
 			}
 
 			$aHashes = $this->getHashes( $oAsset );
-			$sPathFragment = str_replace( $oAsset->getInstallDir(), '', $sFullPath );
+			$sPathFragment = str_replace( $oAsset->getInstallDir(), '', $fullPath );
 			if ( empty( $aHashes[ $sPathFragment ] ) ) {
-				$oItem = $this->getNewItem( $oAsset, $sFullPath );
+				$oItem = $this->getNewItem( $oAsset, $fullPath );
 				$oItem->path_fragment = $sPathFragment;
 				$oItem->is_unrecognised = true;
 			}
-			elseif ( !( new CompareHash() )->isEqualFileMd5( $sFullPath, $aHashes[ $sPathFragment ] ) ) {
-				$oItem = $this->getNewItem( $oAsset, $sFullPath );
+			elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $aHashes[ $sPathFragment ] ) ) {
+				$oItem = $this->getNewItem( $oAsset, $fullPath );
 				$oItem->path_fragment = $sPathFragment;
 				$oItem->is_different = true;
 			}
