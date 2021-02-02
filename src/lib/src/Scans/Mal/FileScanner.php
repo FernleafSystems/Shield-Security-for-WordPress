@@ -16,34 +16,43 @@ use FernleafSystems\Wordpress\Services\Utilities;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
+	 * @var Utilities\File\LocateStrInFile
+	 */
+	private $locator;
+
+	public function __construct() {
+		$this->locator = new Utilities\File\LocateStrInFile();
+	}
+
+	/**
 	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
 	public function scan( $fullPath ) {
-		$oItem = null;
+		$item = null;
 
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
 		try {
-			$locator = ( new Utilities\File\LocateStrInFile() )->setPath( $fullPath );
+			$this->locator->setPath( $fullPath );
 
 			{ // Simple Patterns first
-				$locator->setIsRegEx( false );
-				foreach ( $action->patterns_simple as $sSig ) {
-					$oItem = $this->scanForSig( $locator, $sSig );
-					if ( $oItem instanceof ResultItem ) {
-						return $oItem;
+				$this->locator->setIsRegEx( false );
+				foreach ( $action->patterns_simple as $signature ) {
+					$item = $this->scanForSig( $signature );
+					if ( $item instanceof ResultItem ) {
+						return $item;
 					}
 				}
 			}
 
 			{ // RegEx Patterns
-				$locator->setIsRegEx( true );
-				foreach ( $action->patterns_regex as $sSig ) {
-					$oItem = $this->scanForSig( $locator, $sSig );
-					if ( $oItem instanceof ResultItem ) {
-						return $oItem;
+				$this->locator->setIsRegEx( true );
+				foreach ( $action->patterns_regex as $signature ) {
+					$item = $this->scanForSig( $signature );
+					if ( $item instanceof ResultItem ) {
+						return $item;
 					}
 				}
 			}
@@ -51,28 +60,26 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		catch ( \Exception $e ) {
 		}
 
-		return $oItem;
+		return $item;
 	}
 
 	/**
-	 * @param Utilities\File\LocateStrInFile $oLocator
-	 * @param string                         $signature
+	 * @param string $signature
 	 * @return ResultItem|null
 	 */
-	private function scanForSig( $oLocator, $signature ) {
-		$oResultItem = null;
+	private function scanForSig( string $signature ) {
+		$resultItem = null;
+		$lines = $this->locator->setNeedle( $signature )->run();
 
-		$aLines = $oLocator->setNeedle( $signature )
-						   ->run();
+		if ( !empty( $lines ) ) {
 
-		$fullPath = $oLocator->getPath();
-		if ( !empty( $aLines ) ) {
+			$fullPath = $this->locator->getPath();
 
 			if ( $this->canExcludeFile( $fullPath ) ) { // we report false positives: file and lines
 				$oReporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
-				foreach ( $aLines as $nLine => $sLine ) {
-					$oReporter->reportLine( $fullPath, $sLine, true );
+				foreach ( $lines as $linNum => $line ) {
+					$oReporter->reportLine( $fullPath, $line, true );
 				}
 				$oReporter->reportPath( $fullPath, true );
 			}
@@ -90,15 +97,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 						// 2. Check each line and filter out fp confident lines
 						$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
 							->setMod( $this->getMod() )
-							->queryFileLines( $fullPath, array_keys( $aLines ) );
-						$aLines = array_filter(
+							->queryFileLines( $fullPath, array_keys( $lines ) );
+						$lines = array_filter(
 							$aLineScores,
 							function ( $nScore ) use ( $action ) {
 								return $nScore < $action->confidence_threshold;
 							}
 						);
 
-						if ( empty( $aLines ) ) {
+						if ( empty( $lines ) ) {
 							// Now send False Positive report for entire file based on all file lines being FPs.
 							( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 								->setMod( $this->getMod() )
@@ -114,112 +121,112 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				}
 
 				if ( $reportItem ) {
-					$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $fullPath, $signature );
+					$resultItem = $this->getResultItemFromLines( array_keys( $lines ), $fullPath, $signature );
 				}
 			}
 		}
-		return $oResultItem;
+		return $resultItem;
 	}
 
 	/**
-	 * @param string[] $aLines
-	 * @param string   $sFullPath
-	 * @param string   $sSig
+	 * @param string[] $lines
+	 * @param string   $fullPath
+	 * @param string   $signature
 	 * @return ResultItem
 	 */
-	private function getResultItemFromLines( $aLines, $sFullPath, $sSig ) {
+	private function getResultItemFromLines( array $lines, string $fullPath, string $signature ) :ResultItem {
 		$oResultItem = new ResultItem();
-		$oResultItem->path_full = wp_normalize_path( $sFullPath );
+		$oResultItem->path_full = wp_normalize_path( $fullPath );
 		$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
 		$oResultItem->is_mal = true;
-		$oResultItem->mal_sig = base64_encode( $sSig );
+		$oResultItem->mal_sig = base64_encode( $signature );
 		$oResultItem->fp_confidence = 0;
-		$oResultItem->file_lines = $aLines;
+		$oResultItem->file_lines = $lines;
 		return $oResultItem;
 	}
 
 	/**
-	 * @param string $sFullPath - normalized
+	 * @param string $fullPath - normalized
 	 * @return bool
 	 */
-	private function canExcludeFile( $sFullPath ) {
-		return $this->isValidCoreFile( $sFullPath )
-			   || $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
+	private function canExcludeFile( string $fullPath ) :bool {
+		return $this->isValidCoreFile( $fullPath )
+			   || $this->isPluginFileValid( $fullPath ) || $this->isThemeFileValid( $fullPath );
 	}
 
 	/**
-	 * @param string $sFullPath - normalized
+	 * @param string $fullPath - normalized
 	 * @return bool
 	 */
-	private function isPluginFileValid( $sFullPath ) {
-		$bIsValidFile = false;
+	private function isPluginFileValid( string $fullPath ) :bool {
+		$valid = false;
 		try {
 			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
-			$oPlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
-			if ( $oPlugin instanceof WpPluginVo ) {
-				$bIsValidFile = $oPlugin->isWpOrg() ?
-					$oPluginFiles->verifyFileContents( $sFullPath )
-					: $this->verifyPremiumAssetFile( $sFullPath, $oPlugin );
+			$plugin = $oPluginFiles->findPluginFromFile( $fullPath );
+			if ( $plugin instanceof WpPluginVo ) {
+				$valid = $plugin->isWpOrg() ?
+					$oPluginFiles->verifyFileContents( $fullPath )
+					: $this->verifyPremiumAssetFile( $fullPath, $plugin );
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 
-		return $bIsValidFile;
+		return $valid;
 	}
 
 	/**
-	 * @param string $sFullPath - normalized
+	 * @param string $fullPath - normalized
 	 * @return bool
 	 */
-	private function isThemeFileValid( $sFullPath ) {
-		$bIsValidFile = false;
+	private function isThemeFileValid( string $fullPath ) :bool {
+		$valid = false;
 		try {
 			$oThemeFiles = new Utilities\WpOrg\Theme\Files();
-			$oTheme = $oThemeFiles->findThemeFromFile( $sFullPath );
-			if ( $oTheme instanceof WpThemeVo ) {
-				$bIsValidFile = $oTheme->isWpOrg() ?
-					$oThemeFiles->verifyFileContents( $sFullPath )
-					: $this->verifyPremiumAssetFile( $sFullPath, $oTheme );
+			$theme = $oThemeFiles->findThemeFromFile( $fullPath );
+			if ( $theme instanceof WpThemeVo ) {
+				$valid = $theme->isWpOrg() ?
+					$oThemeFiles->verifyFileContents( $fullPath )
+					: $this->verifyPremiumAssetFile( $fullPath, $theme );
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 
-		return $bIsValidFile;
+		return $valid;
 	}
 
 	/**
-	 * @param string               $sFullPath
+	 * @param string               $fullPath
 	 * @param WpPluginVo|WpThemeVo $oPluginOrTheme
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private function verifyPremiumAssetFile( $sFullPath, $oPluginOrTheme ) {
-		$bIsValidFile = false;
-		$aHashes = ( new Lib\Snapshots\Build\BuildHashesFromApi() )
+	private function verifyPremiumAssetFile( $fullPath, $oPluginOrTheme ) :bool {
+		$valid = false;
+		$hashes = ( new Lib\Snapshots\Build\BuildHashesFromApi() )
 			->build( $oPluginOrTheme );
-		$sFragment = str_replace( $oPluginOrTheme->getInstallDir(), '', $sFullPath );
-		if ( !empty( $aHashes ) && !empty( $aHashes[ $sFragment ] ) ) {
-			$bIsValidFile = ( new Utilities\File\Compare\CompareHash() )
-				->isEqualFileMd5( $sFullPath, $aHashes[ $sFragment ] );
+		$fragment = str_replace( $oPluginOrTheme->getInstallDir(), '', $fullPath );
+		if ( !empty( $hashes ) && !empty( $hashes[ $fragment ] ) ) {
+			$valid = ( new Utilities\File\Compare\CompareHash() )
+				->isEqualFileMd5( $fullPath, $hashes[ $fragment ] );
 		}
-		return $bIsValidFile;
+		return $valid;
 	}
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @return bool
 	 */
-	private function isValidCoreFile( $sFullPath ) {
-		$sCoreHash = Services::CoreFileHashes()->getFileHash( $sFullPath );
+	private function isValidCoreFile( $fullPath ) :bool {
+		$hash = Services::CoreFileHashes()->getFileHash( $fullPath );
 		try {
-			$bValid = !empty( $sCoreHash )
-					  && ( new Utilities\File\Compare\CompareHash() )->isEqualFileMd5( $sFullPath, $sCoreHash );
+			$valid = !empty( $hash )
+					 && ( new Utilities\File\Compare\CompareHash() )->isEqualFileMd5( $fullPath, $hash );
 		}
-		catch ( \Exception $oE ) {
-			$bValid = false;
+		catch ( \Exception $e ) {
+			$valid = false;
 		}
-		return $bValid;
+		return $valid;
 	}
 }

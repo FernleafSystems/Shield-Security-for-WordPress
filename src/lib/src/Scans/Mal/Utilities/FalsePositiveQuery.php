@@ -36,23 +36,19 @@ class FalsePositiveQuery {
 		return $aScores;
 	}
 
-	/**
-	 * @param string $sFullPath
-	 * @return int
-	 */
-	public function queryPath( $sFullPath ) {
+	public function queryPath( string $fullPath ) :int {
 		$nFpConfidence = 0;
 
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-			$sApiToken = $this->getCon()
-							  ->getModule_License()
-							  ->getWpHashesTokenManager()
-							  ->getToken();
-			$aData = ( new Malware\Confidence\Retrieve( $sApiToken ) )->retrieveForFile( $sFullPath );
-			if ( isset( $aData[ 'score' ] ) ) {
-				$nFpConfidence = (int)$aData[ 'score' ];
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
+			$apiToken = $this->getCon()
+							 ->getModule_License()
+							 ->getWpHashesTokenManager()
+							 ->getToken();
+			$data = ( new Malware\Confidence\Retrieve( $apiToken ) )->retrieveForFile( $fullPath );
+			if ( isset( $data[ 'score' ] ) ) {
+				$nFpConfidence = (int)$data[ 'score' ];
 			}
 		}
 		return $nFpConfidence;

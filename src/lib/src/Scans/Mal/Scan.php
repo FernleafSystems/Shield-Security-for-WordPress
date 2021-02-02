@@ -30,8 +30,7 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 			->retrieve();
 		$action->patterns_simple = $patterns[ 'simple' ];
 		$action->patterns_regex = $patterns[ 'regex' ];
-		error_log( var_export( $action->patterns_simple, true ) );
-		error_log( var_export( $action->patterns_regex, true ) );
+//		$action->patterns_regex = Signatures::getAll();
 	}
 
 	/**
