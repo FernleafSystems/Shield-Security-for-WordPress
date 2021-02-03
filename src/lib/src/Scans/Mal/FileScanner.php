@@ -46,9 +46,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				}
 			}
 
-			{ // RegEx Patterns
+			// RegEx Patterns
+			if ( empty( $action->patterns_fullregex ) ) {
 				$this->locator->setIsRegEx( true );
 				foreach ( $action->patterns_regex as $signature ) {
+					$item = $this->scanForSig( $signature );
+					if ( $item instanceof ResultItem ) {
+						return $item;
+					}
+				}
+			}
+			else { // Full regex patterns
+				$this->locator->setIsRegEx( true );
+				foreach ( $action->patterns_fullregex as $signature ) {
 					$item = $this->scanForSig( $signature );
 					if ( $item instanceof ResultItem ) {
 						return $item;

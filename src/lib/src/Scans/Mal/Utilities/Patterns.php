@@ -21,40 +21,40 @@ class Patterns {
 		/** @var Modules\HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 
-		$oCacheDef = new Cache\CacheDefVO();
-		$oCacheDef->dir = $mod->getTempDir();
-		if ( !empty( $oCacheDef->dir ) ) {
-			$oCacheDef->file_fragment = 'cache_patterns.txt';
-			$oCacheDef->expiration = HOUR_IN_SECONDS;
+		$cacher = new Cache\CacheDefVO();
+		$cacher->dir = $mod->getTempDir();
+		if ( !empty( $cacher->dir ) ) {
+			$cacher->file_fragment = 'cache_patterns.txt';
+			$cacher->expiration = HOUR_IN_SECONDS;
 			( new Cache\LoadFromCache() )
-				->setCacheDef( $oCacheDef )
+				->setCacheDef( $cacher )
 				->load();
 		}
 
-		if ( empty( $oCacheDef->data ) ) {
-			$sApiToken = $this->getCon()
-							  ->getModule_License()
-							  ->getWpHashesTokenManager()
-							  ->getToken();
+		if ( empty( $cacher->data ) ) {
+			$token = $this->getCon()
+						  ->getModule_License()
+						  ->getWpHashesTokenManager()
+						  ->getToken();
 			// First attempt to download from WP Hashes API.
-			$aPatts = ( new Malware\Patterns\Retrieve( $sApiToken ) )->getPatterns();
+			$patterns = ( new Malware\Patterns\Retrieve( $token ) )->getPatterns();
 
 			// Fallback to original method
-			if ( !is_array( $aPatts ) || empty( $aPatts[ 'simple' ] ) || empty( $aPatts[ 'regex' ] ) ) {
-				/** @var Modules\HackGuard\Options $oOpts */
-				$oOpts = $this->getOptions();
-				$aPatts = [
-					'simple' => $oOpts->getMalSignaturesSimple(),
-					'regex'  => $oOpts->getMalSignaturesRegex(),
+			if ( !is_array( $patterns ) || empty( $patterns[ 'simple' ] ) || empty( $patterns[ 'regex' ] ) ) {
+				/** @var Modules\HackGuard\Options $opts */
+				$opts = $this->getOptions();
+				$patterns = [
+					'simple' => $opts->getMalSignaturesSimple(),
+					'regex'  => $opts->getMalSignaturesRegex(),
 				];
 			}
 
-			$oCacheDef->data = $aPatts;
+			$cacher->data = $patterns;
 			( new Cache\StoreToCache() )
-				->setCacheDef( $oCacheDef )
+				->setCacheDef( $cacher )
 				->store();
 		}
 
-		return $oCacheDef->data;
+		return $cacher->data;
 	}
 }
