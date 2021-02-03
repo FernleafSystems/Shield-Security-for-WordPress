@@ -36,7 +36,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 		try {
 			$this->locator->setPath( $fullPath );
-
 			{ // Simple Patterns first
 				$this->locator->setIsRegEx( false );
 				foreach ( $action->patterns_simple as $signature ) {
@@ -76,12 +75,12 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			$fullPath = $this->locator->getPath();
 
 			if ( $this->canExcludeFile( $fullPath ) ) { // we report false positives: file and lines
-				$oReporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+				$reporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
 				foreach ( $lines as $linNum => $line ) {
-					$oReporter->reportLine( $fullPath, $line, true );
+					$reporter->reportLine( $fullPath, $line, true );
 				}
-				$oReporter->reportPath( $fullPath, true );
+				$reporter->reportPath( $fullPath, true );
 			}
 			else {
 				/** @var ScanActionVO $action */
@@ -100,8 +99,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 							->queryFileLines( $fullPath, array_keys( $lines ) );
 						$lines = array_filter(
 							$aLineScores,
-							function ( $nScore ) use ( $action ) {
-								return $nScore < $action->confidence_threshold;
+							function ( $score ) use ( $action ) {
+								return $score < $action->confidence_threshold;
 							}
 						);
 

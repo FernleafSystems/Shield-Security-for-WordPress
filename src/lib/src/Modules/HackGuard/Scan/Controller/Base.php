@@ -98,28 +98,28 @@ abstract class Base {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function executeItemAction( $itemID, $action ) {
-		$bSuccess = false;
+	public function executeItemAction( $itemID, string $action ) {
+		$success = false;
 
 		if ( is_numeric( $itemID ) ) {
-			/** @var Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $this->getScanResultsDbHandler()
-						   ->getQuerySelector()
-						   ->byId( $itemID );
-			if ( empty( $oEntry ) ) {
+			/** @var Databases\Scanner\EntryVO $entry */
+			$entry = $this->getScanResultsDbHandler()
+						  ->getQuerySelector()
+						  ->byId( $itemID );
+			if ( empty( $entry ) ) {
 				throw new \Exception( 'Item could not be found.' );
 			}
 
-			$oItem = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			$entry = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 				->setScanController( $this )
-				->convertVoToResultItem( $oEntry );
+				->convertVoToResultItem( $entry );
 
-			$bSuccess = $this->getItemActionHandler()
-							 ->setScanItem( $oItem )
-							 ->process( $action );
+			$success = $this->getItemActionHandler()
+							->setScanItem( $entry )
+							->process( $action );
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

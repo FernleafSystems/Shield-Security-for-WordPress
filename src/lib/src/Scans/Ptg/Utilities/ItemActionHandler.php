@@ -11,12 +11,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function process( $sAction ) {
-		switch ( $sAction ) {
+	public function process( $action ) {
+		switch ( $action ) {
 
 			case 'asset_accept':
 				$bSuccess = $this->assetAccept();
@@ -27,7 +27,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 				break;
 
 			default:
-				$bSuccess = parent::process( $sAction );
+				$bSuccess = parent::process( $action );
 				break;
 		}
 

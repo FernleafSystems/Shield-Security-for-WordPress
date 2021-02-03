@@ -10,19 +10,19 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class ItemActionHandlerAssets extends ItemActionHandler {
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function process( $sAction ) {
-		switch ( $sAction ) {
+	public function process( $action ) {
+		switch ( $action ) {
 
 			case 'asset_deactivate':
 				$bSuccess = $this->assetDeactivate();
 				break;
 
 			default:
-				$bSuccess = parent::process( $sAction );
+				$bSuccess = parent::process( $action );
 				break;
 		}
 

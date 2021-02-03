@@ -21,13 +21,13 @@ class Mal extends Base {
 
 		$oRes = new Scans\Mal\ResultsSet();
 
-		/** @var Scans\Mal\ResultItem $oItem */
-		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $oItem ) {
+		/** @var Scans\Mal\ResultItem $item */
+		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $item ) {
 
 			try {
 				if ( $opts->isRepairFilePlugin()
-					 && ( new WpOrg\Plugin\Files() )->isValidFileFromPlugin( $oItem->path_full ) ) {
-					$oRes->addItem( $oItem );
+					 && ( new WpOrg\Plugin\Files() )->isValidFileFromPlugin( $item->path_full ) ) {
+					$oRes->addItem( $item );
 				}
 			}
 			catch ( \InvalidArgumentException $e ) {
@@ -35,16 +35,16 @@ class Mal extends Base {
 
 			try {
 				if ( $opts->isRepairFileTheme()
-					 && ( new WpOrg\Theme\Files() )->isValidFileFromTheme( $oItem->path_full ) ) {
-					$oRes->addItem( $oItem );
+					 && ( new WpOrg\Theme\Files() )->isValidFileFromTheme( $item->path_full ) ) {
+					$oRes->addItem( $item );
 				}
 			}
 			catch ( \InvalidArgumentException $e ) {
 			}
 
 			if ( !$opts->isRepairFileWP()
-				 && Services::CoreFileHashes()->isCoreFile( $oItem->path_full ) ) {
-				$oRes->addItem( $oItem );
+				 && Services::CoreFileHashes()->isCoreFile( $item->path_full ) ) {
+				$oRes->addItem( $item );
 			}
 		}
 
