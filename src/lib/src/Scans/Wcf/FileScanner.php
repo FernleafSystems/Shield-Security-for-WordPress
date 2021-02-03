@@ -16,7 +16,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
-	public function scan( $fullPath ) {
+	public function scan( string $fullPath ) {
 		$oResult = null;
 		$oHashes = Services::CoreFileHashes();
 

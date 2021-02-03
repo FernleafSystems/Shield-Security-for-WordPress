@@ -17,5 +17,5 @@ abstract class BaseFileScanner {
 	 * @param string $fullPath
 	 * @return Shield\Scans\Base\BaseResultItem|null
 	 */
-	abstract public function scan( $fullPath );
+	abstract public function scan( string $fullPath );
 }

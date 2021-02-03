@@ -15,18 +15,18 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
-	public function scan( $fullPath ) {
-		$oResult = null;
+	public function scan( string $fullPath ) {
+		$item = null;
 
 		$fullPath = wp_normalize_path( $fullPath );
 		if ( !$this->isExcluded( $fullPath ) ) {
-			/** @var ResultItem $oResult */
-			$oResult = $this->getScanActionVO()->getNewResultItem();
-			$oResult->path_full = $fullPath;
-			$oResult->path_fragment = Services::CoreFileHashes()->getFileFragment( $fullPath );
+			/** @var ResultItem $item */
+			$item = $this->getScanActionVO()->getNewResultItem();
+			$item->path_full = $fullPath;
+			$item->path_fragment = Services::CoreFileHashes()->getFileFragment( $fullPath );
 		}
 
-		return $oResult;
+		return $item;
 	}
 
 	/**
