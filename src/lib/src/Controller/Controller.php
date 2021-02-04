@@ -676,8 +676,8 @@ class Controller {
 			$links = $this->cfg->action_links[ 'add' ];
 			if ( is_array( $links ) ) {
 
-				$bPro = $this->isPremiumActive();
-				$oDP = Services::Data();
+				$isPro = $this->isPremiumActive();
+				$DP = Services::Data();
 				$sLinkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
 				foreach ( $links as $aLink ) {
 					$aLink = array_merge(
@@ -692,13 +692,13 @@ class Controller {
 						$aLink
 					);
 
-					$sShow = $aLink[ 'show' ];
-					$bShow = ( $sShow == 'always' ) || ( $bPro && $sShow == 'pro' ) || ( !$bPro && $sShow == 'free' );
-					if ( !$oDP->isValidWebUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
+					$show = $aLink[ 'show' ];
+					$bShow = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
+					if ( !$DP->isValidWebUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
 						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
 					}
 
-					if ( !$bShow || !$oDP->isValidWebUrl( $aLink[ 'href' ] )
+					if ( !$bShow || !$DP->isValidWebUrl( $aLink[ 'href' ] )
 						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
 						continue;
 					}

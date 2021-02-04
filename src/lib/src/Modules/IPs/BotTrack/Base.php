@@ -42,10 +42,7 @@ abstract class Base {
 			 );
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getAuditData() {
+	protected function getAuditData() :array {
 		return [
 			'path' => Services::Request()->getPath()
 		];

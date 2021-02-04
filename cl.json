@@ -25,6 +25,13 @@
       },
       {
         "type":        "improved",
+        "title":       "Invalid user login tracking covers empty usernames.",
+        "description": [
+          "When tracking for bots logging in user invalid usernames (i.e. that don't exist) it'll also trigger an offense on empty usernames."
+        ]
+      },
+      {
+        "type":        "improved",
         "title":       "Deleting Malware files doesn't initiate a new scan.",
         "description": [
           "This addresses a reported UX issue where bulk malware deletion isn't yet available and so instead of a full re-scan, the page just reloads."

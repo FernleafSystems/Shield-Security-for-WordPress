@@ -38,10 +38,7 @@ class TrackLoginFailed extends Base {
 			21, 3 ); //right after username/password check
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getAuditData() {
+	protected function getAuditData() :array {
 		return [
 			'login' => $this->user_login
 		];
