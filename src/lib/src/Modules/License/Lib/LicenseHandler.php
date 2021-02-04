@@ -47,7 +47,7 @@ class LicenseHandler {
 			try {
 				$mod->getLicenseHandler()->verify( true );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		} );
 	}

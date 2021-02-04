@@ -35,7 +35,7 @@ class AssessLocks extends BaseOps {
 					}
 				}
 			}
-			catch ( \InvalidArgumentException $oE ) {
+			catch ( \InvalidArgumentException $e ) {
 				$oUpd->markProblem( $oLock );
 				$aProblemIds[] = $oLock->id;
 			}

@@ -122,8 +122,8 @@ class PluginBadge {
 		try {
 			$render = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $data, true );
 		}
-		catch ( \Exception $oE ) {
-			$render = 'Could not generate badge: '.$oE->getMessage();
+		catch ( \Exception $e ) {
+			$render = 'Could not generate badge: '.$e->getMessage();
 		}
 		return $render;
 	}

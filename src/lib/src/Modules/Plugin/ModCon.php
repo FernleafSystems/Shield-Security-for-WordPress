@@ -118,14 +118,14 @@ class ModCon extends BaseShield\ModCon {
 					( new Lib\ImportExport\Import() )
 						->setMod( $this )
 						->fromFileUpload();
-					$bSuccess = true;
-					$sMessage = __( 'Options imported successfully', 'wp-simple-firewall' );
+					$success = true;
+					$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
 				}
-				catch ( \Exception $oE ) {
-					$bSuccess = false;
-					$sMessage = $oE->getMessage();
+				catch ( \Exception $e ) {
+					$success = false;
+					$msg = $e->getMessage();
 				}
-				$this->setFlashAdminNotice( $sMessage, !$bSuccess );
+				$this->setFlashAdminNotice( $msg, !$success );
 				Services::Response()->redirect(
 					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
 				);

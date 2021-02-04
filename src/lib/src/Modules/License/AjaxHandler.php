@@ -60,43 +60,43 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$sHandler = $mod->getLicenseHandler();
 
-		$bSuccess = false;
-		$sMessage = 'Unsupported license action';
+		$success = false;
+		$msg = 'Unsupported license action';
 
 		$sLicenseAction = Services::Request()->post( 'license-action' );
 
 		if ( $sLicenseAction == 'clear' ) {
-			$bSuccess = true;
+			$success = true;
 			$sHandler->deactivate( false );
 			$sHandler->clearLicense();
-			$sMessage = __( 'Success', 'wp-simple-firewall' ).'! '
-						.__( 'Reloading page', 'wp-simple-firewall' ).'...';
+			$msg = __( 'Success', 'wp-simple-firewall' ).'! '
+				   .__( 'Reloading page', 'wp-simple-firewall' ).'...';
 		}
 		elseif ( $sLicenseAction == 'check' ) {
 
 			$nCheckInterval = $sHandler->getLicenseNotCheckedForInterval();
 			if ( $nCheckInterval < 20 ) {
 				$nWait = 20 - $nCheckInterval;
-				$sMessage = sprintf(
+				$msg = sprintf(
 					__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
 					sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
 				);
 			}
 			else {
 				try {
-					$bSuccess = $sHandler->verify( true )
-										 ->hasValidWorkingLicense();
-					$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+					$success = $sHandler->verify( true )
+										->hasValidWorkingLicense();
+					$msg = $success ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 				}
-				catch ( \Exception $oE ) {
-					$sMessage = $oE->getMessage();
+				catch ( \Exception $e ) {
+					$msg = $e->getMessage();
 				}
 			}
 		}
 
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 }

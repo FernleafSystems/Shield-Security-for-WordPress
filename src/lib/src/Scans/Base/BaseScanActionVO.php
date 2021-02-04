@@ -56,11 +56,11 @@ abstract class BaseScanActionVO {
 	 */
 	public function getScanNamespace() {
 		try {
-			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
+			$namespace = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
-		catch ( \Exception $oE ) {
-			$sName = __NAMESPACE__;
+		catch ( \Exception $e ) {
+			$namespace = __NAMESPACE__;
 		}
-		return rtrim( $sName, '\\' ).'\\';
+		return rtrim( $namespace, '\\' ).'\\';
 	}
 }

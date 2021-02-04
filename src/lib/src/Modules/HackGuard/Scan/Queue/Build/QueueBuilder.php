@@ -49,19 +49,19 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param string $sScanSlug .
+	 * @param string $slug .
 	 * @return mixed
 	 */
-	protected function task( $sScanSlug ) {
+	protected function task( $slug ) {
 
 		try {
 			( new HackGuard\Scan\Queue\ScanInitiate() )
 				->setMod( $this->getMod() )
 				->setQueueProcessor( $this->getQueueProcessor() )
-				->init( $sScanSlug );
+				->init( $slug );
 		}
-		catch ( \Exception $oE ) {
-//			error_log( $oE->getMessage() );
+		catch ( \Exception $e ) {
+//			error_log( $e->getMessage() );
 		}
 
 		// deletes the scan from the to-be-built array

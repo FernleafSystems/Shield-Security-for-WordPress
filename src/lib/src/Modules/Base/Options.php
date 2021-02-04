@@ -722,7 +722,7 @@ class Options {
 				->run( $sOptKey, $mNewValue );
 			$bVerified = true;
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$bVerified = false;
 		}
 

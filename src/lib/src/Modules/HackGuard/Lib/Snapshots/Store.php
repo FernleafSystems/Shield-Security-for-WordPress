@@ -115,7 +115,7 @@ class Store {
 		try {
 			$this->aSnapData = $this->readSnapData();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$this->aSnapData = [];
 		}
 		return $this;
@@ -128,7 +128,7 @@ class Store {
 		try {
 			$this->aSnapMeta = $this->readSnapMeta();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$this->aSnapMeta = [];
 		}
 		return $this;

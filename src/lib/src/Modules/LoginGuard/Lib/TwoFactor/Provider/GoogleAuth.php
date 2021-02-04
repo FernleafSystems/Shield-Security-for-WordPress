@@ -167,9 +167,9 @@ class GoogleAuth extends BaseProvider {
 				$valid = (bool)( new GoogleAuthenticator\GoogleAuthenticator() )
 					->authenticate( $this->getSecret( $user ), $otp );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
-			catch ( \Psr\Cache\CacheException $oE ) {
+			catch ( \Psr\Cache\CacheException $e ) {
 			}
 		}
 		return $valid;
@@ -199,7 +199,7 @@ class GoogleAuth extends BaseProvider {
 		try {
 			return $this->getGaSecret( $user )->getSecretKey();
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 			return '';
 		}
 	}

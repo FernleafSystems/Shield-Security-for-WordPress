@@ -149,8 +149,8 @@ class Scanner {
 						->test();
 				}
 			}
-			catch ( \Exception $oE ) {
-				$mResult = new \WP_Error( 'recaptcha', $oE->getMessage(), [] );
+			catch ( \Exception $e ) {
+				$mResult = new \WP_Error( 'recaptcha', $e->getMessage(), [] );
 			}
 		}
 

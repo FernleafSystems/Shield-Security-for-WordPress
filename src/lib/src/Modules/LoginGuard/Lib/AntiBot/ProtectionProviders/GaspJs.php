@@ -76,18 +76,18 @@ class GaspJs extends BaseProtectionProvider {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$sAsset = 'shield-antibot';
-		$sUnique = $con->prefix( $sAsset );
+		$asset = 'shield-antibot';
+		$uniq = $con->prefix( $asset );
 		wp_register_script(
-			$sUnique,
-			$con->getPluginUrl_Js( $sAsset ),
+			$uniq,
+			$con->getPluginUrl_Js( $asset ),
 			[ 'jquery' ],
 			$con->getVersion()
 		);
-		wp_enqueue_script( $sUnique );
+		wp_enqueue_script( $uniq );
 
 		wp_localize_script(
-			$sUnique,
+			$uniq,
 			'icwp_wpsf_vars_lpantibot',
 			[
 				'form_selectors' => implode( ',', $opts->getAntiBotFormSelectors() ),

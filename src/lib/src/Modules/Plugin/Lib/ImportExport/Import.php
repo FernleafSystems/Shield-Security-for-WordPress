@@ -25,21 +25,21 @@ class Import {
 					break;
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		die();
 	}
 
 	/**
-	 * @param string $sPath
+	 * @param string $path
 	 * @throws \Exception
 	 */
-	public function fromFile( $sPath ) {
+	public function fromFile( $path ) {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
 		}
 
-		$sContent = Services::WpFs()->getFileContent( $sPath );
+		$sContent = Services::WpFs()->getFileContent( $path );
 		if ( empty( $sContent ) ) {
 			throw new \Exception( __( 'Uploaded file was empty', 'wp-simple-firewall' ) );
 		}

@@ -14,17 +14,17 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 class ReadOriginalFileContent extends BaseOps {
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $oLock
+	 * @param Databases\FileLocker\EntryVO $lock
 	 * @return string
 	 */
-	public function run( $oLock ) {
+	public function run( $lock ) {
 		try {
-			$sContent = $this->useOriginalFile( $oLock );
+			$content = $this->useOriginalFile( $lock );
 		}
-		catch ( \Exception $oE ) {
-			$sContent = $this->useCacheAndApi( $oLock );
+		catch ( \Exception $e ) {
+			$content = $this->useCacheAndApi( $lock );
 		}
-		return $sContent;
+		return $content;
 	}
 
 	/**

@@ -80,24 +80,24 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @inheritDoc
 	 */
 	protected function getSupportedActions() {
-		$aActions = parent::getSupportedActions();
+		$actions = parent::getSupportedActions();
 
-		/** @var Mal\ResultItem $oIt */
-		$oIt = $this->getResultItem();
+		/** @var Mal\ResultItem $item */
+		$item = $this->getResultItem();
 
 		try {
 			$bCanRepair = ( new Mal\Utilities\Repair() )
 				->setMod( $this->getMod() )
-				->setScanItem( $oIt )
+				->setScanItem( $item )
 				->canRepair();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$bCanRepair = false;
 		}
 
-		$aActions[] = $bCanRepair ? 'repair' : 'delete';
-		$aActions[] = 'download';
+		$actions[] = $bCanRepair ? 'repair' : 'delete';
+		$actions[] = 'download';
 
-		return $aActions;
+		return $actions;
 	}
 }

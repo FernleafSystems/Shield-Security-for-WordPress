@@ -30,8 +30,8 @@ class LearnPress extends BaseFormProvider {
 				$this->setActionToAudit( 'learnpress-login' )
 					 ->checkProviders();
 			}
-			catch ( \Exception $oE ) {
-				$sFieldNameOrError = new \WP_Error( 'shield-fail-login', $oE->getMessage() );
+			catch ( \Exception $e ) {
+				$sFieldNameOrError = new \WP_Error( 'shield-fail-login', $e->getMessage() );
 			}
 		}
 		return $sFieldNameOrError;
@@ -47,8 +47,8 @@ class LearnPress extends BaseFormProvider {
 				$this->setActionToAudit( 'learnpress-register' )
 					 ->checkProviders();
 			}
-			catch ( \Exception $oE ) {
-				$sFieldNameOrError = new \WP_Error( 'shield-fail-register', $oE->getMessage() );
+			catch ( \Exception $e ) {
+				$sFieldNameOrError = new \WP_Error( 'shield-fail-register', $e->getMessage() );
 			}
 		}
 		return $sFieldNameOrError;

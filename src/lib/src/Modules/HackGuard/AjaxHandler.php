@@ -190,8 +190,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
 			$aData[ 'success' ] = true;
 		}
-		catch ( \Exception $oE ) {
-			$aData[ 'error' ] = $oE->getMessage();
+		catch ( \Exception $e ) {
+			$aData[ 'error' ] = $e->getMessage();
 		}
 
 		return [
@@ -207,29 +207,27 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_FileLockerFileAction() :array {
-		$oReq = Services::Request();
-		$bSuccess = false;
+		$req = Services::Request();
+		$success = false;
 
-		if ( $oReq->post( 'confirmed' ) == '1' ) {
-			$nRID = $oReq->post( 'rid' );
-			$sAction = $oReq->post( 'file_action' );
+		if ( $req->post( 'confirmed' ) == '1' ) {
 			try {
-				$bSuccess = ( new FileLocker\Ops\PerformAction() )
+				$success = ( new FileLocker\Ops\PerformAction() )
 					->setMod( $this->getMod() )
-					->run( $nRID, $sAction );
-				$sMessage = __( 'Requested action completed successfully.', 'wp-simple-firewall' );
+					->run( $req->post( 'rid' ), $req->post( 'file_action' ) );
+				$msg = __( 'Requested action completed successfully.', 'wp-simple-firewall' );
 			}
-			catch ( \Exception $oE ) {
-				$sMessage = __( 'Requested action failed.', 'wp-simple-firewall' );
+			catch ( \Exception $e ) {
+				$msg = __( 'Requested action failed.', 'wp-simple-firewall' );
 			}
 		}
 		else {
-			$sMessage = __( 'Please check the box to confirm this action', 'wp-simple-firewall' );
+			$msg = __( 'Please check the box to confirm this action', 'wp-simple-firewall' );
 		}
 
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 

@@ -166,10 +166,9 @@ abstract class Handler {
 
 	public function tableTrimExcess( int $nRowsLimit ) :self {
 		try {
-			$this->getQueryDeleter()
-				 ->deleteExcess( $nRowsLimit );
+			$this->getQueryDeleter()->deleteExcess( $nRowsLimit );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		return $this;
 	}
@@ -228,17 +227,14 @@ abstract class Handler {
 		return $sch;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getNamespace() {
+	private function getNamespace() :string {
 		try {
-			$sNS = ( new \ReflectionClass( $this ) )->getNamespaceName();
+			$namespace = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
-		catch ( \Exception $oE ) {
-			$sNS = __NAMESPACE__;
+		catch ( \Exception $e ) {
+			$namespace = __NAMESPACE__;
 		}
-		return rtrim( $sNS, '\\' ).'\\';
+		return rtrim( $namespace, '\\' ).'\\';
 	}
 
 	/**

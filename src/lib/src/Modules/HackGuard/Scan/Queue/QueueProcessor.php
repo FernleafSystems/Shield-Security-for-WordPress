@@ -54,8 +54,8 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 				->setMod( $this->getMod() )
 				->execute( $oEntry );
 		}
-		catch ( \Exception $oE ) {
-//			error_log( $oE->getMessage() );
+		catch ( \Exception $e ) {
+//			error_log( $e->getMessage() );
 		}
 
 		$oUpd->setFinished( $oEntry );

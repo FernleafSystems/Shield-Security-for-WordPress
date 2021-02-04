@@ -41,7 +41,7 @@ class BuildHashesFromDir {
 				$aSnaps[ $sKey ] = hash_file( $sAlgo, $sFullPath );
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		return $aSnaps;
 	}

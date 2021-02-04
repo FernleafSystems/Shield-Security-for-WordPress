@@ -51,7 +51,7 @@ class ApiTokenManager {
 				try {
 					$aT = array_merge( $aT, $this->solicitApiToken() );
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 				$aT[ 'attempt_at' ] = Services::Request()->ts();
 				$aT[ 'next_attempt_from' ] = Services::Request()->ts() + HOUR_IN_SECONDS;

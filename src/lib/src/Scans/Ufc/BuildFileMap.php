@@ -44,10 +44,10 @@ class BuildFileMap {
 					}
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				error_log(
 					sprintf( 'Shield file scanner (%s) attempted to read directory (%s) but there was error: "%s".',
-						$oAction->scan, $sScanDir, $oE->getMessage() )
+						$oAction->scan, $sScanDir, $e->getMessage() )
 				);
 			}
 		}

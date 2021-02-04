@@ -42,19 +42,19 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairPluginFile( $sPath ) {
-		$bSuccess = false;
+		$success = false;
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
 			if ( $oFiles->isValidFileFromPlugin( $sPath ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $sPath );
+				$success = $oFiles->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = (bool)Services::WpFs()->deleteFile( $sPath );
+				$success = (bool)Services::WpFs()->deleteFile( $sPath );
 			}
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 		}
-		return (bool)$bSuccess;
+		return (bool)$success;
 	}
 
 	/**
@@ -62,19 +62,19 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairThemeFile( $sPath ) {
-		$bSuccess = false;
+		$success = false;
 		$oFiles = new WpOrg\Theme\Files();
 		try {
 			if ( $oFiles->isValidFileFromTheme( $sPath ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $sPath );
+				$success = $oFiles->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = (bool)Services::WpFs()->deleteFile( $sPath );
+				$success = (bool)Services::WpFs()->deleteFile( $sPath );
 			}
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 		}
-		return (bool)$bSuccess;
+		return (bool)$success;
 	}
 
 	/**

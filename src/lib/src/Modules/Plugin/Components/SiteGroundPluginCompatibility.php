@@ -18,43 +18,40 @@ class SiteGroundPluginCompatibility {
 					}
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 		return $bIncompatExist;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSGOptimizerPluginAsExpected() {
-		$bExpected = false;
+	public function isSGOptimizerPluginAsExpected() :bool {
+		$isExpected = false;
 		try {
 			$oRefl = new \ReflectionClass( '\SiteGround_Optimizer\Options\Options' );
-			$bExpected = $oRefl->getMethod( 'is_enabled' )->isStatic()
-						 && $oRefl->getMethod( 'disable_option' )->isStatic();
+			$isExpected = $oRefl->getMethod( 'is_enabled' )->isStatic()
+						  && $oRefl->getMethod( 'disable_option' )->isStatic();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
-		return $bExpected;
+		return $isExpected;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function switchOffOptions() {
-		$bSuccess = false;
+		$success = false;
 		if ( $this->isSGOptimizerPluginAsExpected() ) {
 			try {
 				foreach ( $this->getIncompatOptions() as $sOption ) {
 					\SiteGround_Optimizer\Options\Options::disable_option( $sOption );
 				}
-				$bSuccess = !$this->testIsIncompatible();
+				$success = !$this->testIsIncompatible();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

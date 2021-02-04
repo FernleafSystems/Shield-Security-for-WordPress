@@ -800,13 +800,13 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	public function getNonceActionData( $sAction = '' ) {
-		$aData = $this->getCon()->getNonceActionData( $sAction );
-		$aData[ 'mod_slug' ] = $this->getModSlug();
-		return $aData;
+	public function getNonceActionData( $action = '' ) {
+		$data = $this->getCon()->getNonceActionData( $action );
+		$data[ 'mod_slug' ] = $this->getModSlug();
+		return $data;
 	}
 
 	/**
@@ -910,17 +910,17 @@ abstract class ModCon {
 	 * @return array - map of each option to its option type
 	 */
 	protected function getAllFormOptionsAndTypes() {
-		$aOpts = [];
+		$opts = [];
 
 		foreach ( $this->getUIHandler()->buildOptions() as $aOptionsSection ) {
 			if ( !empty( $aOptionsSection ) ) {
 				foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
-					$aOpts[ $aOption[ 'key' ] ] = $aOption[ 'type' ];
+					$opts[ $aOption[ 'key' ] ] = $aOption[ 'type' ];
 				}
 			}
 		}
 
-		return $aOpts;
+		return $opts;
 	}
 
 	protected function handleModAction( string $action ) {
@@ -947,17 +947,17 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sMsg
-	 * @param bool   $bError
+	 * @param string $msg
+	 * @param bool   $isError
 	 * @param bool   $bShowOnLogin
 	 * @return $this
 	 */
-	public function setFlashAdminNotice( $sMsg, $bError = false, $bShowOnLogin = false ) {
+	public function setFlashAdminNotice( $msg, $isError = false, $bShowOnLogin = false ) {
 		$this->getCon()
 			 ->getAdminNotices()
 			 ->addFlash(
-				 sprintf( '[%s] %s', $this->getCon()->getHumanName(), $sMsg ),
-				 $bError,
+				 sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
+				 $isError,
 				 $bShowOnLogin
 			 );
 		return $this;
@@ -967,10 +967,7 @@ abstract class ModCon {
 		return is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPremium() {
+	public function isPremium() :bool {
 		return $this->getCon()->isPremiumActive();
 	}
 
@@ -1044,47 +1041,32 @@ abstract class ModCon {
 
 	protected function runWizards() {
 		if ( $this->isWizardPage() && $this->hasWizard() ) {
-			$oWiz = $this->getWizardHandler();
-			if ( $oWiz instanceof \ICWP_WPSF_Wizard_Base ) {
-				$oWiz->init();
+			$wiz = $this->getWizardHandler();
+			if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
+				$wiz->init();
 			}
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isThisModulePage() {
+	public function isThisModulePage() :bool {
 		return $this->getCon()->isModulePage()
 			   && Services::Request()->query( 'page' ) == $this->getModSlug();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPage_Insights() {
+	public function isPage_Insights() :bool {
 		return Services::Request()->query( 'page' ) == $this->getCon()->getModule_Insights()->getModSlug();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isPage_InsightsThisModule() {
+	public function isPage_InsightsThisModule() :bool {
 		return $this->isPage_Insights()
 			   && Services::Request()->query( 'subnav' ) == $this->getSlug();
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isModuleOptionsRequest() {
+	protected function isModuleOptionsRequest() :bool {
 		return Services::Request()->post( 'mod_slug' ) === $this->getModSlug();
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isWizardPage() {
+	protected function isWizardPage() :bool {
 		return ( $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage() );
 	}
 
@@ -1241,8 +1223,8 @@ abstract class ModCon {
 						->setTemplateEngineTwig()
 						->render();
 		}
-		catch ( \Exception $oE ) {
-			return 'Error rendering options form: '.$oE->getMessage();
+		catch ( \Exception $e ) {
+			return 'Error rendering options form: '.$e->getMessage();
 		}
 	}
 
@@ -1339,9 +1321,9 @@ abstract class ModCon {
 							->setRenderVars( $data )
 							->render();
 		}
-		catch ( \Exception $oE ) {
-			$render = $oE->getMessage();
-			error_log( $oE->getMessage() );
+		catch ( \Exception $e ) {
+			$render = $e->getMessage();
+			error_log( $e->getMessage() );
 		}
 
 		return (string)$render;

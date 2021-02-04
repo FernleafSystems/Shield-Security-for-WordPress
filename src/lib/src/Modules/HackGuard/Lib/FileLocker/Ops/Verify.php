@@ -12,14 +12,14 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 class Verify {
 
 	/**
-	 * @param EntryVO $oRecord
+	 * @param EntryVO $record
 	 * @return bool
 	 */
-	public function run( $oRecord ) {
+	public function run( $record ) {
 		try {
-			return ( new CompareHash() )->isEqualFileSha1( $oRecord->file, $oRecord->hash );
+			return ( new CompareHash() )->isEqualFileSha1( $record->file, $record->hash );
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 			return false;
 		}
 	}

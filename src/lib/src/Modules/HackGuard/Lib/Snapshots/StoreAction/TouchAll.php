@@ -8,17 +8,17 @@ use FernleafSystems\Wordpress\Services\Services;
 class TouchAll extends BaseBulk {
 
 	public function run() {
-		foreach ( ( new FindAssetsToSnap() )->setMod( $this->getMod() )->run() as $oAsset ) {
+		foreach ( ( new FindAssetsToSnap() )->setMod( $this->getMod() )->run() as $asset ) {
 			try {
 				$oStore = ( new Load() )
 					->setMod( $this->getMod() )
-					->setAsset( $oAsset )
+					->setAsset( $asset )
 					->run();
-				foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $sPath ) {
-					Services::WpFs()->touch( $sPath );
+				foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $path ) {
+					Services::WpFs()->touch( $path );
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 	}

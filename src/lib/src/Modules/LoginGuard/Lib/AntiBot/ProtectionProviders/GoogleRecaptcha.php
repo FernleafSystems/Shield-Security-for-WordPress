@@ -26,9 +26,9 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 					 ->setMod( $this->getMod() )
 					 ->test();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				$this->processFailure();
-				throw $oE;
+				throw $e;
 			}
 		}
 	}

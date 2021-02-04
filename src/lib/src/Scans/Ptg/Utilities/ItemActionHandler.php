@@ -64,38 +64,38 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	 * @throws \Exception
 	 */
 	protected function assetReinstall() {
-		/** @var ResultItem $oItem */
-		$oItem = $this->getScanItem();
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
 
-		$bSuccess = false;
+		$success = false;
 
-		$oWpP = Services::WpPlugins();
-		$oWpT = Services::WpThemes();
-		if ( $oWpP->isInstalled( $oItem->slug ) ) {
-			$oAsset = $oWpP->getPluginAsVo( $oItem->slug );
-			if ( $oAsset->isWpOrg() ) {
-				$bSuccess = $oWpP->reinstall( $oItem->slug );
+		$WPP = Services::WpPlugins();
+		$WPT = Services::WpThemes();
+		if ( $WPP->isInstalled( $item->slug ) ) {
+			$asset = $WPP->getPluginAsVo( $item->slug );
+			if ( $asset->isWpOrg() ) {
+				$success = $WPP->reinstall( $item->slug );
 			}
 		}
-		elseif ( $oWpT->isInstalled( $oItem->slug ) ) {
-			$oAsset = $oWpT->getThemeAsVo( $oItem->slug );
-			if ( $oAsset->isWpOrg() ) {
-				$bSuccess = $oWpT->reinstall( $oItem->slug );
+		elseif ( $WPT->isInstalled( $item->slug ) ) {
+			$asset = $WPT->getThemeAsVo( $item->slug );
+			if ( $asset->isWpOrg() ) {
+				$success = $WPT->reinstall( $item->slug );
 			}
 		}
 
-		if ( $bSuccess ) {
+		if ( $success ) {
 			try {
 				( new Snapshots\StoreAction\Build() )
 					->setMod( $this->getMod() )
-					->setAsset( $this->getAssetFromSlug( $oItem->slug ) )
+					->setAsset( $this->getAssetFromSlug( $item->slug ) )
 					->run();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

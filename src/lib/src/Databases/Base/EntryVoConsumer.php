@@ -21,11 +21,11 @@ trait EntryVoConsumer {
 	}
 
 	/**
-	 * @param EntryVO $oE
+	 * @param EntryVO $entry
 	 * @return $this
 	 */
-	public function setEntryVO( $oE ) {
-		$this->oEntryVO = $oE;
+	public function setEntryVO( $entry ) {
+		$this->oEntryVO = $entry;
 		return $this;
 	}
 }

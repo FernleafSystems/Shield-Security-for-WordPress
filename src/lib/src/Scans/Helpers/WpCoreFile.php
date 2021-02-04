@@ -33,7 +33,7 @@ class WpCoreFile {
 				$oFiles->replaceFileFromVcs( $sPath );
 				$bSuccess = true;
 			}
-			catch ( \InvalidArgumentException $oE ) {
+			catch ( \InvalidArgumentException $e ) {
 			}
 		}
 		return $bSuccess;

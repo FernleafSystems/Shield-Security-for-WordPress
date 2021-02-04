@@ -47,8 +47,8 @@ class Add extends BaseAddRemove {
 				$oAdder->toManualBlacklist( $label );
 			}
 		}
-		catch ( \Exception $oE ) {
-			WP_CLI::error( $oE->getMessage() );
+		catch ( \Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
 		}
 		WP_CLI::success( __( 'IP address added successfully.', 'wp-simple-firewall' ) );
 	}

@@ -82,14 +82,14 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 				$this->runImportFromFile( $sSource, WP_CLI\Utils\get_flag_value( $aA, 'delete-file', false ) );
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			WP_CLI::error_multi_line(
 				[
 					__( 'The import encountered an error.', 'wp-simple-firewall' ),
-					$oE->getMessage(),
+					$e->getMessage(),
 				]
 			);
-			WP_CLI::halt( $oE->getCode() );
+			WP_CLI::halt( $e->getCode() );
 		}
 
 		WP_CLI::success( __( 'Plugin settings imported successfully.', 'wp-simple-firewall' ) );

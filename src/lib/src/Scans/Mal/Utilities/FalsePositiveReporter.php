@@ -106,7 +106,7 @@ class FalsePositiveReporter {
 							->report( $sFile, $sLine, $bIsFalsePositive );
 					}
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
 			$this->updateReportedCache( $sReportHash );

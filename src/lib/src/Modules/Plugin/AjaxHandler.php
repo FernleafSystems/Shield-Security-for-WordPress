@@ -180,8 +180,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					$msg = __( "Note couldn't be deleted", 'wp-simple-firewall' );
 				}
 			}
-			catch ( \Exception $oE ) {
-				$msg = $oE->getMessage();
+			catch ( \Exception $e ) {
+				$msg = $e->getMessage();
 			}
 		}
 
@@ -202,7 +202,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		// TODO: align with wizard AND combine with file upload errors
 		if ( $aFormParams[ 'confirm' ] !== 'Y' ) {
-			$sMessage = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
+			$msg = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
 		}
 		else {
 			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
@@ -213,20 +213,20 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
 			try {
-				$nCode = ( new Plugin\Lib\ImportExport\Import() )
+				$code = ( new Plugin\Lib\ImportExport\Import() )
 					->setMod( $this->getMod() )
 					->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			}
-			catch ( \Exception $oE ) {
-				$nCode = $oE->getCode();
+			catch ( \Exception $e ) {
+				$code = $e->getCode();
 			}
-			$success = $nCode == 0;
-			$sMessage = $success ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
+			$success = $code == 0;
+			$msg = $success ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
 
 		return [
 			'success' => $success,
-			'message' => $sMessage
+			'message' => $msg
 		];
 	}
 

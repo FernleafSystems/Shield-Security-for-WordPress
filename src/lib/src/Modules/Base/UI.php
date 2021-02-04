@@ -143,7 +143,7 @@ class UI {
 			}
 			$aOptParams = Services::DataManipulation()->mergeArraysRecursive( $aOptParams, $aOptStrings );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		return $aOptParams;
 	}
@@ -365,7 +365,7 @@ class UI {
 		try {
 			$NS = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$NS = __NAMESPACE__;
 		}
 

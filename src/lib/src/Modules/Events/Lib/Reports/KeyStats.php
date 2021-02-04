@@ -53,7 +53,7 @@ class KeyStats extends BaseReporter {
 					];
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 

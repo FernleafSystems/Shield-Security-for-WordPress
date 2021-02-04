@@ -23,7 +23,7 @@ class CleanAll extends BaseBulk {
 				}
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 	}
 }

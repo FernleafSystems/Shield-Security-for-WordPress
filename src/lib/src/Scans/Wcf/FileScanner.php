@@ -58,19 +58,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param ResultItem $oRes
+	 * @param ResultItem $item
 	 * @return bool
 	 */
-	private function isChecksumFail( $oRes ) {
-		$bFail = false;
-		if ( !$oRes->is_missing ) {
+	private function isChecksumFail( $item ) {
+		$fail = false;
+		if ( !$item->is_missing ) {
 			try {
-				$bFail = ( strpos( $oRes->path_full, '.php' ) > 0 )
-						 && !( new CompareHash() )->isEqualFileMd5( $oRes->path_full, $oRes->md5_file_wp );
+				$fail = ( strpos( $item->path_full, '.php' ) > 0 )
+						 && !( new CompareHash() )->isEqualFileMd5( $item->path_full, $item->md5_file_wp );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
-		return $bFail;
+		return $fail;
 	}
 }

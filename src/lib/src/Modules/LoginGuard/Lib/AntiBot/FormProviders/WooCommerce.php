@@ -98,9 +98,9 @@ class WooCommerce extends BaseFormProvider {
 					 ->checkProviders();
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oUserOrError = $this->giveMeWpError( $oUserOrError );
-			$oUserOrError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+			$oUserOrError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
 		}
 		return $oUserOrError;
 	}
@@ -116,9 +116,9 @@ class WooCommerce extends BaseFormProvider {
 				 ->setActionToAudit( 'woo-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -134,9 +134,9 @@ class WooCommerce extends BaseFormProvider {
 			$this->setActionToAudit( 'woo-checkout' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
 		}
 		return $oWpError;
 	}

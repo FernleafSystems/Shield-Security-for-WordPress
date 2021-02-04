@@ -244,7 +244,7 @@ abstract class Base {
 						 ->setScanItem( $oItem )
 						 ->repair();
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
 			$this->cleanStalesResults();

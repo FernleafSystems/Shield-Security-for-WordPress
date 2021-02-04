@@ -19,8 +19,8 @@ class PaidMemberSubscriptions extends BaseFormProvider {
 			$this->setActionToAudit( 'paidmembersubscriptions-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			\pms_errors()->add( 'shield-fail-register', $oE->getMessage() );
+		catch ( \Exception $e ) {
+			\pms_errors()->add( 'shield-fail-register', $e->getMessage() );
 		}
 	}
 }

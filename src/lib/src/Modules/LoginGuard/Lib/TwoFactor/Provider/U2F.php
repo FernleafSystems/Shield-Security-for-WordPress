@@ -64,7 +64,7 @@ class U2F extends BaseProvider {
 				]
 			);
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 	}
 
@@ -98,7 +98,7 @@ class U2F extends BaseProvider {
 				]
 			];
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 
 		return $aFieldData;
@@ -312,8 +312,8 @@ class U2F extends BaseProvider {
 			$aReg[ 'used_at' ] = Services::Request()->ts();
 			$this->addRegistration( $user, $aReg );
 		}
-		catch ( \Exception $oE ) {
-			error_log( $oE->getMessage() );
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
 		}
 
 		return !empty( $oRegistration );

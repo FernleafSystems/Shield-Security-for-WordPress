@@ -52,10 +52,10 @@ try {
 	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $sRootFile );
 	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
 }
-catch ( \Exception $oE ) {
+catch ( \Exception $e ) {
 	if ( is_admin() ) {
 		error_log( 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.' );
-		error_log( $oE->getMessage() );
+		error_log( $e->getMessage() );
 	}
 }
 

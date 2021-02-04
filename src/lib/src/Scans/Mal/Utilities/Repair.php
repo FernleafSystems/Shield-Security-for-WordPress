@@ -151,7 +151,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		try {
 			$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 			$bSuccess = false;
 		}
 		return $bSuccess;
@@ -168,7 +168,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 				( new Services\Utilities\File\RemoveLineFromFile() )->run( $oItem->path_full, $nLine );
 				$bSuccess = true;
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				$bSuccess = false;
 				break;
 			}
@@ -181,21 +181,21 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairItemInPlugin( $oItem ) {
-		$bSuccess = false;
+		$success = false;
 
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
 			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
+				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
 			}
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
@@ -203,20 +203,20 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairItemInTheme( $oItem ) {
-		$bSuccess = false;
+		$success = false;
 
 		$oFiles = new WpOrg\Theme\Files();
 		try {
 			if ( $oFiles->isValidFileFromTheme( $oItem->path_full ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
+				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
 			}
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 }

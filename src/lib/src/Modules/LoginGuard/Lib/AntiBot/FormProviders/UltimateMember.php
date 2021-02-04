@@ -32,8 +32,8 @@ class UltimateMember extends BaseFormProvider {
 			$this->setActionToAudit( 'ultimatemember-login' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
+		catch ( \Exception $e ) {
+			\UM()->form()->add_error( 'shield-fail-login', $e->getMessage() );
 		}
 	}
 
@@ -42,8 +42,8 @@ class UltimateMember extends BaseFormProvider {
 			$this->setActionToAudit( 'ultimatemember-lostpassword' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			\UM()->form()->add_error( 'shield-fail-lostpassword', $oE->getMessage() );
+		catch ( \Exception $e ) {
+			\UM()->form()->add_error( 'shield-fail-lostpassword', $e->getMessage() );
 		}
 	}
 
@@ -52,8 +52,8 @@ class UltimateMember extends BaseFormProvider {
 			$this->setActionToAudit( 'ultimatemember-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			\UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
+		catch ( \Exception $e ) {
+			\UM()->form()->add_error( 'shield-fail-register', $e->getMessage() );
 		}
 	}
 }

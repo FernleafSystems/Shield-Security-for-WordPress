@@ -162,8 +162,8 @@ class FileLockerController {
 					->setWorkingFile( $this->getFile( $sFileKey ) )
 					->create();
 			}
-			catch ( \Exception $oE ) {
-				error_log( $oE->getMessage() );
+			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
 			}
 		}
 	}
