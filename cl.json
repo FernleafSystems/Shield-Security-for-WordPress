@@ -47,7 +47,9 @@
       {
         "type":        "improved",
         "title":       "Upgrade Bootstrap Library to latest 4.6.0",
-        "description": []
+        "description": [
+          "Asset enqueuing has been refactored and optimised and also now loading Bootstrap assets from CDNJS."
+        ]
       },
       {
         "type":        "improved",

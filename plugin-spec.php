@@ -67,35 +67,53 @@
     },
     "register":     {
       "css": {
-        "bootstrap4.min":       [],
-        "bootstrap-select.min": [
-          "bootstrap4.min"
-        ],
+        "bootstrap4.min":       {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+        },
+        "bootstrap-select.min": {
+          "deps": [
+            "bootstrap4.min"
+          ]
+        },
         "global-plugin":        [],
-        "plugin":               [
-          "global-plugin",
-          "bootstrap4.min"
-        ],
-        "wizard":               [
-          "bootstrap4.min"
-        ],
+        "plugin":               {
+          "deps": [
+            "bootstrap4.min",
+            "global-plugin"
+          ]
+        },
+        "wizard":               {
+          "deps": [
+            "bootstrap4.min",
+            "global-plugin"
+          ]
+        },
         "featherlight":         []
       },
       "js":  {
-        "bootstrap4.bundle.min": [
-          "wp-jquery"
-        ],
-        "global-plugin":         [
-          "wp-jquery"
-        ],
-        "plugin":                [
-          "bootstrap4.bundle.min",
-          "global-plugin"
-        ],
-        "wizard":                [],
-        "featherlight":          [
-          "wp-jquery"
-        ]
+        "bootstrap4.bundle.min": {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js",
+          "deps": [
+            "wp-jquery"
+          ]
+        },
+        "global-plugin":         {
+          "deps": [
+            "wp-jquery"
+          ]
+        },
+        "plugin":                {
+          "deps": [
+            "bootstrap4.bundle.min",
+            "global-plugin"
+          ]
+        },
+        "wizard":                {},
+        "featherlight":          {
+          "deps": [
+            "wp-jquery"
+          ]
+        }
       }
     }
   },

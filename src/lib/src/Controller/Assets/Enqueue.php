@@ -79,26 +79,26 @@ class Enqueue {
 
 		if ( !empty( $incl[ $type ] ) ) {
 
-			foreach ( $incl[ $type ] as $key => $depends ) {
-
+			foreach ( $incl[ $type ] as $key => $spec ) {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
 					$handle = $con->prefix( $key );
 
 					if ( $type === self::TYPE_CSS ) {
-
+						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Css( $key );
 						$reg = wp_register_style(
 							$handle,
-							$con->getPluginUrl_Css( $key ),
-							$this->prefixKeys( $depends ),
+							$url,
+							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
 							$con->getVersion()
 						);
 					}
 					else {
+						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Js( $key );
 						$reg = wp_register_script(
 							$handle,
-							$con->getPluginUrl_Js( $key ),
-							$this->prefixKeys( $depends ),
+							$url,
+							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
 							$con->getVersion()
 						);
 					}
