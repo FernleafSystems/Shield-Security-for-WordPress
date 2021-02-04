@@ -39,6 +39,13 @@
       },
       {
         "type":        "improved",
+        "title":       "Add a bit more IP status information in the traffic viewer.",
+        "description": [
+          "The traffic table will now display many offenses or whether the IP address is blocked."
+        ]
+      },
+      {
+        "type":        "improved",
         "title":       "Upgrade Bootstrap Library to latest 4.6.0",
         "description": []
       },

@@ -4,13 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Traffic
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
- */
 class Traffic extends BaseBuild {
 
 	/**
@@ -18,36 +16,36 @@ class Traffic extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		$aParams = $this->getParams();
-		/** @var Databases\Traffic\Select $oSelector */
-		$oSelector = $this->getWorkingSelector();
+		$params = $this->getParams();
+		/** @var Databases\Traffic\Select $select */
+		$select = $this->getWorkingSelector();
 
 		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
-		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( inet_pton( $aParams[ 'fIp' ] ) );
+		if ( $oIp->isValidIp( $params[ 'fIp' ] ) ) {
+			$select->filterByIp( inet_pton( $params[ 'fIp' ] ) );
 		}
-		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
-			$oSelector->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
+		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
+			$select->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
 		}
 
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-		if ( !empty( $aParams[ 'fUsername' ] ) ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
+		if ( !empty( $params[ 'fUsername' ] ) ) {
+			$oUser = Services::WpUsers()->getUserByUsername( $params[ 'fUsername' ] );
 			if ( !empty( $oUser ) ) {
-				$oSelector->filterByUserId( $oUser->ID );
+				$select->filterByUserId( $oUser->ID );
 			}
 		}
-		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
+		elseif ( $params[ 'fLoggedIn' ] >= 0 ) {
+			$select->filterByIsLoggedIn( $params[ 'fLoggedIn' ] );
 		}
 
-		if ( $aParams[ 'fOffense' ] >= 0 ) {
-			$oSelector->filterByIsTransgression( $aParams[ 'fOffense' ] );
+		if ( $params[ 'fOffense' ] >= 0 ) {
+			$select->filterByIsTransgression( $params[ 'fOffense' ] );
 		}
 
-		$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
-		$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
+		$select->filterByPathContains( $params[ 'fPath' ] );
+		$select->filterByResponseCode( $params[ 'fResponse' ] );
 
 		return $this;
 	}
@@ -73,7 +71,7 @@ class Traffic extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$aEntries = [];
+		$entries = [];
 
 		$oWpUsers = Services::WpUsers();
 		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $this->getCon()
@@ -82,83 +80,122 @@ class Traffic extends BaseBuild {
 		$srvIP = Services::IP();
 		$you = $srvIP->getRequestIp();
 
-		$aUsers = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Databases\Traffic\EntryVO $oEntry */
-			$ip = $oEntry->ip;
+		$users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
+		$ipInfos = [];
+		foreach ( $this->getEntriesRaw() as $key => $record ) {
+			/** @var Databases\Traffic\EntryVO $record */
+			$ip = $record->ip;
 
-			list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
-			$sQuery = trim( $sQuery, '?' );
-			$sPath = strtoupper( $oEntry->verb ).': <code>'.$sPreQuery
-					 .( empty( $sQuery ) ? '' : '?<br/>'.$sQuery ).'</code>';
+			list( $preQuery, $query ) = explode( '?', $record->path.'?', 2 );
+			$query = trim( $query, '?' );
+			$sPath = strtoupper( $record->verb ).': <code>'.$preQuery
+					 .( empty( $query ) ? '' : '?<br/>'.$query ).'</code>';
 
 			$sCodeType = 'success';
-			if ( $oEntry->code >= 400 ) {
+			if ( $record->code >= 400 ) {
 				$sCodeType = 'danger';
 			}
-			elseif ( $oEntry->code >= 300 ) {
+			elseif ( $record->code >= 300 ) {
 				$sCodeType = 'warning';
 			}
 
-			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'path' ] = $sPath;
-			$aE[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
-			$aE[ 'trans' ] = sprintf(
+			$e = $record->getRawDataAsArray();
+			$e[ 'path' ] = $sPath;
+			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->code );
+			$e[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
-				$oEntry->trans ? 'danger' : 'info',
-				$oEntry->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
+				$record->trans ? 'danger' : 'info',
+				$record->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
-			$aE[ 'ip' ] = $ip;
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$e[ 'ip' ] = $ip;
+			$e[ 'created_at' ] = $this->formatTimestampField( $record->created_at );
 
 			try {
-				$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+				$e[ 'is_you' ] = $srvIP->checkIp( $you, $record->ip );
 			}
 			catch ( \Exception $e ) {
-				$aE[ 'is_you' ] = false;
+				$e[ 'is_you' ] = false;
 			}
-			$sIpLink = sprintf( '%s%s',
-				$this->getIpAnalysisLink( $oEntry->ip ),
-				$aE[ 'is_you' ] ? ' <small>'.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
+			$ipLink = sprintf( '%s%s',
+				$this->getIpAnalysisLink( $record->ip ),
+				$e[ 'is_you' ] ? ' <small>('.__( 'This Is You', 'wp-simple-firewall' ).')</small>' : ''
 			);
 
-			if ( $oEntry->uid > 0 ) {
-				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
-					$oUser = $oWpUsers->getUserById( $oEntry->uid );
-					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+			if ( $record->uid > 0 ) {
+				if ( !isset( $users[ $record->uid ] ) ) {
+					$user = $oWpUsers->getUserById( $record->uid );
+					$users[ $record->uid ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-							$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
+							$oWpUsers->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 				}
 			}
 
-			$oGeoIp = $oGeoIpLookup
+			if ( !empty( $record->ip ) ) {
+				if ( !isset( $ipInfos[ $record->ip ] ) ) {
+					$ipInfos[ $record->ip ] = $this->getIpInfo( $record->ip );
+				}
+			}
+
+			$geoIP = $oGeoIpLookup
 				->setIP( $ip )
 				->lookupIp();
-			$sCountryIso = $oGeoIp->getCountryCode();
-			if ( empty( $sCountryIso ) ) {
-				$sCountry = __( 'Unknown', 'wp-simple-firewall' );
+			$countryISO = $geoIP->getCountryCode();
+			if ( empty( $countryISO ) ) {
+				$country = __( 'Unknown', 'wp-simple-firewall' );
 			}
 			else {
-				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $sCountryIso ) );
-				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $oGeoIp->getCountryName() );
+				$country = sprintf(
+					'<img class="icon-flag" src="%s" alt="%s"/> %s',
+					sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $countryISO ) ),
+					$countryISO,
+					$geoIP->getCountryName()
+				);
 			}
 
-			$aDetails = [
-				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $sIpLink ),
-				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $aUsers[ $oEntry->uid ] ),
-				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $sCountry ),
-				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $oEntry->ua ) ) )
-			];
-			$aE[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
+			$e[ 'visitor' ] = sprintf( '<div>%s</div>', implode( '</div><div>', [
+				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $ipLink ),
+				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $ipInfos[ $record->ip ] ?? 'n/a' ),
+				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $users[ $record->uid ] ),
+				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
+				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $record->ua ) ) ),
+			] ) );
 
-			$aInfo = [
-				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aE[ 'code' ] ),
-				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $aE[ 'trans' ] ),
-			];
-			$aE[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
-			$aEntries[ $nKey ] = $aE;
+			$e[ 'request_info' ] = sprintf( '<div>%s</div>', implode( '</div><div>', [
+				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $e[ 'code' ] ),
+				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $e[ 'trans' ] ),
+			] ) );
+
+			$entries[ $key ] = $e;
 		}
-		return $aEntries;
+		return $entries;
+	}
+
+	private function getIpInfo( string $ip ) :string {
+		$record = ( new LookupIpOnList() )
+			->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+			->setIP( $ip )
+			->lookup();
+
+		$badgeTemplate = '<span class="badge badge-%s">%s</span>';
+		if ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
+			$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
+		}
+		elseif ( $record->list === ModCon::LIST_AUTO_BLACK ) {
+			$status = sprintf( $badgeTemplate,
+				'warning',
+				sprintf( _n( '%s offense', '%s offenses', $record->transgressions, 'wp-simple-firewall' ), $record->transgressions )
+			);
+		}
+		elseif ( $record->list === ModCon::LIST_MANUAL_WHITE ) {
+			$status = sprintf( $badgeTemplate,
+				'success',
+				__( 'Bypass', 'wp-simple-firewall' )
+			);
+		}
+		else {
+			$status = __( 'No Record', 'wp-simple-firewall' );
+		}
+		return $status;
 	}
 
 	/**

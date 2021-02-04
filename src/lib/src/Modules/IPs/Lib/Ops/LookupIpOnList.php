@@ -14,26 +14,26 @@ class LookupIpOnList {
 	/**
 	 * @var string
 	 */
-	private $sListType;
+	private $listType;
 
 	/**
 	 * @var bool
 	 */
-	private $bIsBlocked;
+	private $isBlocked;
 
 	/**
-	 * @param bool $bIncludeRanges
+	 * @param bool $includeRanges
 	 * @return Databases\IPs\EntryVO|null
 	 * @version 8.6.0 - switched to lookup ranges first
 	 */
-	public function lookup( $bIncludeRanges = true ) {
+	public function lookup( $includeRanges = true ) {
 		$IP = null;
 		if ( !empty( $this->getIP() ) ) {
-			if ( $bIncludeRanges ) {
-				foreach ( $this->lookupRange() as $oMaybeIp ) {
+			if ( $includeRanges ) {
+				foreach ( $this->lookupRange() as $maybe ) {
 					try {
-						if ( Services::IP()->checkIp( $this->getIP(), $oMaybeIp->ip ) ) {
-							$IP = $oMaybeIp;
+						if ( Services::IP()->checkIp( $this->getIP(), $maybe->ip ) ) {
+							$IP = $maybe;
 							break;
 						}
 					}
@@ -52,57 +52,57 @@ class LookupIpOnList {
 	 * @return Databases\IPs\EntryVO|null
 	 */
 	public function lookupIp() {
-		/** @var Databases\IPs\Select $oSelect */
-		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var Databases\IPs\Select $select */
+		$select = $this->getDbHandler()->getQuerySelector();
 
 		if ( $this->getListType() == 'white' ) {
-			$oSelect->filterByWhitelist();
+			$select->filterByWhitelist();
 		}
 		elseif ( $this->getListType() == 'black' ) {
-			$oSelect->filterByBlacklist();
+			$select->filterByBlacklist();
 			if ( !is_null( $this->isIpBlocked() ) ) {
-				$oSelect->filterByBlocked( $this->isIpBlocked() );
+				$select->filterByBlocked( $this->isIpBlocked() );
 			}
 		}
 
-		return $oSelect->filterByIsRange( false )
-					   ->filterByIp( $this->getIP() )
-					   ->first();
+		return $select->filterByIsRange( false )
+					  ->filterByIp( $this->getIP() )
+					  ->first();
 	}
 
 	/**
 	 * @return Databases\IPs\EntryVO[]
 	 */
 	public function lookupRange() {
-		/** @var Databases\IPs\Select $oSelect */
-		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var Databases\IPs\Select $select */
+		$select = $this->getDbHandler()->getQuerySelector();
 
 		if ( $this->getListType() == 'white' ) {
-			$oSelect->filterByWhitelist();
+			$select->filterByWhitelist();
 		}
 		elseif ( $this->getListType() == 'black' ) {
-			$oSelect->filterByBlacklist();
+			$select->filterByBlacklist();
 			if ( !is_null( $this->isIpBlocked() ) ) {
-				$oSelect->filterByBlocked( $this->isIpBlocked() );
+				$select->filterByBlocked( $this->isIpBlocked() );
 			}
 		}
 
-		$aIps = $oSelect->filterByIsRange( true )->query();
-		return is_array( $aIps ) ? $aIps : [];
+		$IPs = $select->filterByIsRange( true )->query();
+		return is_array( $IPs ) ? $IPs : [];
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getListType() {
-		return $this->sListType;
+		return $this->listType;
 	}
 
 	/**
 	 * @return bool|null
 	 */
 	public function isIpBlocked() {
-		return $this->bIsBlocked;
+		return $this->isBlocked;
 	}
 
 	/**
@@ -110,7 +110,7 @@ class LookupIpOnList {
 	 * @return $this
 	 */
 	public function setIsIpBlocked( $bIsBlocked ) {
-		$this->bIsBlocked = $bIsBlocked;
+		$this->isBlocked = $bIsBlocked;
 		return $this;
 	}
 
@@ -118,7 +118,7 @@ class LookupIpOnList {
 	 * @return $this
 	 */
 	public function setListTypeBlack() {
-		$this->sListType = 'black';
+		$this->listType = 'black';
 		return $this;
 	}
 
@@ -126,7 +126,7 @@ class LookupIpOnList {
 	 * @return $this
 	 */
 	public function setListTypeWhite() {
-		$this->sListType = 'white';
+		$this->listType = 'white';
 		return $this;
 	}
 }

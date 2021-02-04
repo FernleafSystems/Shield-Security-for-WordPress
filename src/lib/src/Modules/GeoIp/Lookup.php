@@ -24,27 +24,27 @@ class Lookup {
 			return $this->aIP[ $ip ];
 		}
 
-		/** @var Databases\GeoIp\Handler $oDbH */
-		$oDbH = $this->getDbHandler();
-		/** @var Databases\GeoIp\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
-		$oIP = $oSel->byIp( $ip );
+		/** @var Databases\GeoIp\Handler $dbh */
+		$dbh = $this->getDbHandler();
+		/** @var Databases\GeoIp\Select $select */
+		$select = $dbh->getQuerySelector();
+		$IP = $select->byIp( $ip );
 
 		/**
 		 * We look up the IP and if the request fails, we store it anyway so that we don't repeatedly
 		 * bombard the API. The address will eventually be expired over time and lookup will process
 		 * again at a later date, as required
 		 */
-		if ( empty( $oIP ) ) {
-			$oIP = new Databases\GeoIp\EntryVO();
-			$oIP->ip = $ip;
-			$oIP->meta = $this->redirectliIpLookup();
+		if ( empty( $IP ) ) {
+			$IP = new Databases\GeoIp\EntryVO();
+			$IP->ip = $ip;
+			$IP->meta = $this->redirectliIpLookup();
 			/** @var Databases\GeoIp\Insert $oIsrt */
-			$oDbH->getQueryInserter()->insert( $oIP );
+			$dbh->getQueryInserter()->insert( $IP );
 		}
 
-		$this->aIP[ $ip ] = $oIP;
-		return $oIP;
+		$this->aIP[ $ip ] = $IP;
+		return $IP;
 	}
 
 	private function redirectliIpLookup() :array {
