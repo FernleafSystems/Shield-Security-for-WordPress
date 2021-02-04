@@ -12,11 +12,7 @@ class U2F extends BaseProvider {
 	const SLUG = 'u2f';
 	const DEFAULT_SECRET = '[]';
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProfileActive( \WP_User $user ) {
+	public function isProfileActive( \WP_User $user ) :bool {
 		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
@@ -196,8 +192,8 @@ class U2F extends BaseProvider {
 	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $user ) {
-		$bError = false;
-		$sMsg = null;
+		$isError = false;
+		$msg = null;
 
 		$sU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( !empty( $sU2fResponse ) ) {
@@ -225,40 +221,22 @@ class U2F extends BaseProvider {
 				$this->addRegistration( $user, $aConfirmedReg )
 					 ->setProfileValidated( $user );
 
-				$sMsg = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
+				$msg = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
 			}
-			catch ( \Exception $oE ) {
-				$bError = true;
-				$sMsg = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
-					$oE->getMessage() );
+			catch ( \Exception $e ) {
+				$isError = true;
+				$msg = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
+					$e->getMessage() );
 			}
-		}
-		elseif ( Services::Request()->post( 'wpsf_u2f_key_delete' ) === 'Y' ) {
-			$this->processRemovalFromAccount( $user );
-			$sMsg = __( 'U2F Device was removed from your profile.', 'wp-simple-firewall' );
 		}
 
-		if ( !empty( $sMsg ) ) {
-			$this->getMod()->setFlashAdminNotice( $sMsg, $bError );
+		if ( !empty( $msg ) ) {
+			$this->getMod()->setFlashAdminNotice( $msg, $isError );
 		}
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateU2F( $user, $otp );
-	}
-
-	/**
-	 * @param \WP_User $user
-	 * @return $this
-	 */
-	protected function processRemovalFromAccount( $user ) {
-		return $this->setProfileValidated( $user, false )
-					->deleteSecret( $user );
 	}
 
 	/**

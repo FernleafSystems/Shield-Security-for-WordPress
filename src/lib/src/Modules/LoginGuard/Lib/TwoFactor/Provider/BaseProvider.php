@@ -66,27 +66,15 @@ abstract class BaseProvider {
 		return $this->isSecretValid( $this->getSecret( $user ) );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	protected function isEnforced( \WP_User $user ) {
+	protected function isEnforced( \WP_User $user ) :bool {
 		return false;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProfileActive( \WP_User $user ) {
+	public function isProfileActive( \WP_User $user ) :bool {
 		return $this->hasValidSecret( $user );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProviderAvailableToUser( \WP_User $user ) {
+	public function isProviderAvailableToUser( \WP_User $user ) :bool {
 		return $this->isProviderEnabled();
 	}
 
@@ -150,11 +138,6 @@ abstract class BaseProvider {
 		return '';
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	abstract protected function processOtp( \WP_User $user, string $otp ) :bool;
 
 	/**
@@ -194,7 +177,7 @@ abstract class BaseProvider {
 	/**
 	 * @param \WP_User $user
 	 */
-	protected function processRemovalFromAccount( $user ) {
+	protected function processRemovalFromAccount( \WP_User $user ) {
 	}
 
 	/**

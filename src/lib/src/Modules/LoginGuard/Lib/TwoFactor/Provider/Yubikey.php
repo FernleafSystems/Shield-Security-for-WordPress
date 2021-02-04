@@ -138,11 +138,6 @@ class Yubikey extends BaseProvider {
 		return array_filter( array_map( 'trim', explode( ',', $this->getSecret( $user ) ) ) );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		$valid = false;
 

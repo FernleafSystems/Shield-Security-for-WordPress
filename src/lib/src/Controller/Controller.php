@@ -336,10 +336,9 @@ class Controller {
 		add_action( 'admin_menu', [ $this, 'onWpAdminMenu' ] );
 		add_action( 'network_admin_menu', [ $this, 'onWpAdminMenu' ] );
 
-		if ( Services::WpGeneral()->isAjax() ) {
-			add_action( 'wp_ajax_'.$this->prefix(), [ $this, 'ajaxAction' ] );
-			add_action( 'wp_ajax_nopriv_'.$this->prefix(), [ $this, 'ajaxAction' ] );
-		}
+		( new Ajax\Init() )
+			->setCon( $this )
+			->execute();
 
 		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
@@ -547,34 +546,6 @@ class Controller {
 			'exec_nonce' => wp_create_nonce( $sAction ),
 			//			'rand'       => wp_rand( 10000, 99999 )
 		];
-	}
-
-	public function ajaxAction() {
-		$nonceAction = Services::Request()->request( 'exec' );
-		check_ajax_referer( $nonceAction, 'exec_nonce' );
-
-		ob_start();
-		$response = apply_filters(
-			$this->prefix( Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction' ),
-			[], $nonceAction
-		);
-		$noise = ob_get_clean();
-
-		if ( is_array( $response ) && isset( $response[ 'success' ] ) ) {
-			$bSuccess = $response[ 'success' ];
-		}
-		else {
-			$bSuccess = false;
-			$response = [];
-		}
-
-		wp_send_json(
-			[
-				'success' => $bSuccess,
-				'data'    => $response,
-				'noise'   => $noise
-			]
-		);
 	}
 
 	protected function createPluginMenu() :bool {
@@ -1094,11 +1065,11 @@ class Controller {
 			return false;
 		}
 
-		$oWp = Services::WpGeneral();
-		if ( !$oWp->isMultisite() && is_admin() ) {
+		$WP = Services::WpGeneral();
+		if ( !$WP->isMultisite() && is_admin() ) {
 			return true;
 		}
-		elseif ( $oWp->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $oWp->isAjax() ) ) {
+		elseif ( $WP->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $WP->isAjax() ) ) {
 			return true;
 		}
 		return false;
