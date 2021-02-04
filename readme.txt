@@ -1,5 +1,5 @@
 ﻿=== Shield Security: Powerful All-In-One Protection ===
-Contributors: onedollarplugin, paultgoodchild
+Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
