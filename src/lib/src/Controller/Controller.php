@@ -371,8 +371,10 @@ class Controller {
 	public function onWpAdminInit() {
 		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
 		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
+
+		( new Shield\Controller\Assets\Enqueue() )
+			->setCon( $this )
+			->execute();
 
 		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
 			$this->runTests();
@@ -400,8 +402,6 @@ class Controller {
 
 	public function onWpInit() {
 		$this->getMeetsBasePermissions();
-		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueFrontendCss' ], 99 );
-
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
@@ -691,89 +691,22 @@ class Controller {
 		return $aActionLinks;
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function onWpEnqueueFrontendCss() {
-		$includes = $this->cfg->includes[ 'frontend' ];
-		if ( isset( $includes[ 'css' ] ) && !empty( $includes[ 'css' ] ) && is_array( $includes[ 'css' ] ) ) {
-
-			$aDeps = [];
-			foreach ( $includes[ 'css' ] as $sAsset ) {
-				$sUrl = $this->getPluginUrl_Css( $sAsset );
-				if ( !empty( $sUrl ) ) {
-					$sAsset = $this->prefix( $sAsset );
-					wp_register_style( $sAsset, $sUrl, $aDeps, $this->getVersion() );
-					wp_enqueue_style( $sAsset );
-					$aDeps[] = $aDeps;
-				}
-			}
-		}
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function onWpEnqueueAdminJs() {
-
-		$aIncludes = [];
-		if ( $this->getIsPage_PluginAdmin() ) {
-			$includes = $this->cfg->includes[ 'plugin_admin' ];
-			if ( !empty( $includes[ 'js' ] ) && is_array( $includes[ 'js' ] ) ) {
-				$aIncludes = $includes[ 'js' ];
-			}
-		}
-		elseif ( $this->isValidAdminArea() ) {
-			$includes = $this->cfg->includes[ 'admin' ];
-			if ( !empty( $includes[ 'js' ] ) && is_array( $includes[ 'js' ] ) ) {
-				$aIncludes = $includes[ 'js' ];
-			}
-		}
-
-		$nativeWP = [ 'jquery' ];
-
-		$aDeps = [];
-		foreach ( $aIncludes as $asset ) {
-
-			// Built-in handles
-			if ( in_array( $asset, $nativeWP ) ) {
-				if ( wp_script_is( $asset, 'registered' ) ) {
-					wp_enqueue_script( $asset );
-					$aDeps[] = $asset;
-				}
-			}
-			else {
-				$sUrl = $this->getPluginUrl_Js( $asset );
-				if ( !empty( $sUrl ) ) {
-					$asset = $this->prefix( $asset );
-					wp_register_script( $asset, $sUrl, $aDeps, $this->getVersion() );
-					wp_enqueue_script( $asset );
-					$aDeps[] = $asset;
-				}
-			}
-		}
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function onWpEnqueueAdminCss() {
-
-		$aIncludes = [];
-		if ( $this->getIsPage_PluginAdmin() ) {
-			$includes = $this->cfg->includes[ 'plugin_admin' ];
-			if ( !empty( $includes[ 'css' ] ) && is_array( $includes[ 'css' ] ) ) {
-				$aIncludes = $includes[ 'css' ];
-			}
-		}
-		elseif ( $this->isValidAdminArea() ) {
-			$includes = $this->cfg->includes[ 'admin' ];
-			if ( !empty( $includes[ 'css' ] ) && is_array( $includes[ 'css' ] ) ) {
-				$aIncludes = $includes[ 'css' ];
-			}
-		}
-
-		$aDeps = [];
-		foreach ( $aIncludes as $asset ) {
-			$sUrl = $this->getPluginUrl_Css( $asset );
-			if ( !empty( $sUrl ) ) {
-				$asset = $this->prefix( $asset );
-				wp_register_style( $asset, $sUrl, $aDeps, $this->getVersion() );
-				wp_enqueue_style( $asset );
-				$aDeps[] = $asset;
-			}
-		}
 	}
 
 	/**

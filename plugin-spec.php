@@ -23,10 +23,6 @@
     "wordpress": "3.5.2"
   },
   "upgrade_reqs":     {
-    "7.0":  {
-      "php": "5.4",
-      "wp":  "3.5.2"
-    },
     "10.0": {
       "php": "7.0",
       "wp":  "3.5.2"
@@ -48,23 +44,17 @@
         "global-plugin"
       ],
       "js":  [
-        "jquery",
         "global-plugin"
       ]
     },
     "plugin_admin": {
       "css": [
-        "bootstrap4.min",
         "bootstrap-select.min",
-        "global-plugin",
         "plugin",
         "featherlight"
       ],
       "js":  [
-        "bootstrap4.bundle.min",
         "bootstrap-select.min",
-        "jquery",
-        "global-plugin",
         "plugin",
         "base64.min",
         "lz-string.min",
@@ -74,6 +64,39 @@
     },
     "frontend":     {
       "css": null
+    },
+    "register":     {
+      "css": {
+        "bootstrap4.min":       [],
+        "bootstrap-select.min": [
+          "bootstrap4.min"
+        ],
+        "global-plugin":        [],
+        "plugin":               [
+          "global-plugin",
+          "bootstrap4.min"
+        ],
+        "wizard":               [
+          "bootstrap4.min"
+        ],
+        "featherlight":         []
+      },
+      "js":  {
+        "bootstrap4.bundle.min": [
+          "wp-jquery"
+        ],
+        "global-plugin":         [
+          "wp-jquery"
+        ],
+        "plugin":                [
+          "bootstrap4.bundle.min",
+          "global-plugin"
+        ],
+        "wizard":                [],
+        "featherlight":          [
+          "wp-jquery"
+        ]
+      }
     }
   },
   "menu":             {
