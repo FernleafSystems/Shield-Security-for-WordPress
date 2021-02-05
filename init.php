@@ -2,9 +2,8 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-/** @var string $sRootFile */
+/** @var string $rootFile */
 global $oICWP_Wpsf;
-
 if ( isset( $oICWP_Wpsf ) ) {
 	error_log( 'Attempting to load the Shield Plugin twice?' );
 	return;
@@ -49,7 +48,7 @@ class ICWP_WPSF_Shield_Security {
 }
 
 try {
-	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $sRootFile );
+	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $rootFile );
 	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
 }
 catch ( \Exception $e ) {
