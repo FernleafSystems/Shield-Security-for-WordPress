@@ -92,7 +92,7 @@ class Enqueue {
 
 					$handle = $this->normaliseHandle( $key );
 					if ( $type === self::CSS ) {
-						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Css( $key );
+						$url = $spec[ 'url' ] ?? $con->urls->forCss( $key );
 						$reg = wp_register_style(
 							$handle,
 							$url,
@@ -101,7 +101,7 @@ class Enqueue {
 						);
 					}
 					else {
-						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Js( $key );
+						$url = $spec[ 'url' ] ?? $con->urls->forJs( $key );
 						$reg = wp_register_script(
 							$handle,
 							$url,

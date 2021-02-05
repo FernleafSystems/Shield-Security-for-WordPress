@@ -2,7 +2,7 @@
   "properties":       {
     "version":                 "10.1.6",
     "release_timestamp":       1611830119,
-    "build":                   "202102.0503",
+    "build":                   "202102.0504",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -179,6 +179,11 @@
           "deps": [
             "plugin"
           ]
+        },
+        "shield/mainwp-extension":       {
+          "deps": [
+            "jquery"
+          ]
         }
       }
     }
@@ -188,7 +193,6 @@
     "title":          "Shield Security",
     "top_level":      true,
     "do_submenu_fix": true,
-    "callback":       "onDisplayTopMenu",
     "icon_image":     "pluginlogo_16x16.png",
     "has_submenu":    true
   },

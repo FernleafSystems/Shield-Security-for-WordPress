@@ -340,13 +340,6 @@ class Controller {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
-		add_action( 'admin_menu', [ $this, 'onWpAdminMenu' ] );
-		add_action( 'network_admin_menu', [ $this, 'onWpAdminMenu' ] );
-
-		( new Ajax\Init() )
-			->setCon( $this )
-			->execute();
-
 		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
 		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50, 1 );
@@ -376,10 +369,10 @@ class Controller {
 	}
 
 	public function onWpAdminInit() {
-		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
-		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
-
-		( new Shield\Controller\Assets\Enqueue() )
+		( new Admin\AdminBarMenu() )
+			->setCon( $this )
+			->execute();
+		( new Admin\DashboardWidget() )
 			->setCon( $this )
 			->execute();
 
@@ -412,6 +405,9 @@ class Controller {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+		( new Ajax\Init() )
+			->setCon( $this )
+			->execute();
 	}
 
 	/**
@@ -467,6 +463,12 @@ class Controller {
 	public function onWpLoaded() {
 		$this->getAdminNotices();
 		$this->initCrons();
+		( new Shield\Controller\Assets\Enqueue() )
+			->setCon( $this )
+			->execute();
+		( new Admin\MainAdminMenu() )
+			->setCon( $this )
+			->execute();
 	}
 
 	protected function initCrons() {
@@ -476,56 +478,6 @@ class Controller {
 		( new Shield\Crons\DailyCron() )
 			->setCon( $this )
 			->run();
-	}
-
-	public function onWpAdminMenu() {
-		if ( $this->isValidAdminArea() ) {
-			$this->createPluginMenu();
-		}
-	}
-
-	/**
-	 * @param \WP_Admin_Bar $adminBar
-	 */
-	public function onWpAdminBarMenu( $adminBar ) {
-		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
-			$this->isValidAdminArea( true ) && $this->cfg->properties[ 'show_admin_bar_menu' ]
-		);
-		if ( $bShow ) {
-			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
-			if ( !empty( $aMenuItems ) && is_array( $aMenuItems ) ) {
-				$nCountWarnings = 0;
-				foreach ( $aMenuItems as $aMenuItem ) {
-					$nCountWarnings += isset( $aMenuItem[ 'warnings' ] ) ? $aMenuItem[ 'warnings' ] : 0;
-				}
-
-				$sNodeId = $this->prefix( 'adminbarmenu' );
-				$adminBar->add_node( [
-					'id'    => $sNodeId,
-					'title' => $this->getHumanName()
-							   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountWarnings ),
-				] );
-				foreach ( $aMenuItems as $aMenuItem ) {
-					$aMenuItem[ 'parent' ] = $sNodeId;
-					$adminBar->add_menu( $aMenuItem );
-				}
-			}
-		}
-	}
-
-	public function onWpDashboardSetup() {
-		$show = apply_filters( $this->prefix( 'show_dashboard_widget' ),
-			$this->isValidAdminArea() && $this->cfg->properties[ 'show_dashboard_widget' ]
-		);
-		if ( $show ) {
-			wp_add_dashboard_widget(
-				$this->prefix( 'dashboard_widget' ),
-				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
-				function () {
-					do_action( $this->prefix( 'dashboard_widget_content' ) );
-				}
-			);
-		}
 	}
 
 	/**
@@ -553,74 +505,6 @@ class Controller {
 			'exec_nonce' => wp_create_nonce( $sAction ),
 			//			'rand'       => wp_rand( 10000, 99999 )
 		];
-	}
-
-	protected function createPluginMenu() :bool {
-		$menu = $this->cfg->menu;
-
-		if ( apply_filters( $this->prefix( 'filter_hidePluginMenu' ), !$menu[ 'show' ] ) ) {
-			return true;
-		}
-
-		if ( $menu[ 'top_level' ] ) {
-
-			$labels = $this->getLabels();
-			$sMenuTitle = empty( $labels[ 'MenuTitle' ] ) ? $menu[ 'title' ] : $labels[ 'MenuTitle' ];
-			if ( is_null( $sMenuTitle ) ) {
-				$sMenuTitle = $this->getHumanName();
-			}
-
-			$sMenuIcon = $this->getPluginUrl_Image( $menu[ 'icon_image' ] );
-			$sIconUrl = empty( $labels[ 'icon_url_16x16' ] ) ? $sMenuIcon : $labels[ 'icon_url_16x16' ];
-
-			$sFullParentMenuId = $this->getPluginPrefix();
-			add_menu_page(
-				$this->getHumanName(),
-				$sMenuTitle,
-				$this->getBasePermissions(),
-				$sFullParentMenuId,
-				[ $this, $menu[ 'callback' ] ],
-				$sIconUrl
-			);
-
-			if ( $menu[ 'has_submenu' ] ) {
-
-				$menuItems = apply_filters( $this->prefix( 'submenu_items' ), [] );
-				if ( !empty( $menuItems ) ) {
-					foreach ( $menuItems as $sMenuTitle => $aMenu ) {
-						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack, $bShowItem ) = $aMenu;
-						add_submenu_page(
-							$bShowItem ? $sFullParentMenuId : null,
-							$sMenuTitle,
-							$sMenuItemText,
-							$this->getBasePermissions(),
-							$sMenuItemId,
-							$aMenuCallBack
-						);
-					}
-				}
-			}
-
-			if ( $menu[ 'do_submenu_fix' ] ) {
-				$this->fixSubmenu();
-			}
-		}
-		return true;
-	}
-
-	protected function fixSubmenu() {
-		global $submenu;
-		$sFullParentMenuId = $this->getPluginPrefix();
-		if ( isset( $submenu[ $sFullParentMenuId ] ) ) {
-			unset( $submenu[ $sFullParentMenuId ][ 0 ] );
-		}
-	}
-
-	/**
-	 * Displaying all views now goes through this central function and we work out
-	 * what to display based on the name of current hook/filter being processed.
-	 */
-	public function onDisplayTopMenu() {
 	}
 
 	/**
@@ -696,24 +580,6 @@ class Controller {
 			}
 		}
 		return $aActionLinks;
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueFrontendCss() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueAdminJs() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueAdminCss() {
 	}
 
 	/**
@@ -1759,5 +1625,62 @@ class Controller {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	public function onWpAdminMenu() {
+	}
+
+	/**
+	 * @param \WP_Admin_Bar $adminBar
+	 * @deprecated 10.2
+	 */
+	public function onWpAdminBarMenu( $adminBar ) {
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	public function onWpDashboardSetup() {
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	protected function createPluginMenu() :bool {
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	protected function fixSubmenu() {
+	}
+
+	/**
+	 * Displaying all views now goes through this central function and we work out
+	 * what to display based on the name of current hook/filter being processed.
+	 * @deprecated 10.2
+	 */
+	public function onDisplayTopMenu() {
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	public function onWpEnqueueFrontendCss() {
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	public function onWpEnqueueAdminJs() {
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	public function onWpEnqueueAdminCss() {
 	}
 }
