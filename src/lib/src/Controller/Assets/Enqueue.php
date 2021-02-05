@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 
@@ -46,17 +46,29 @@ class Enqueue {
 
 	protected function enqueue() {
 
+		// Register all plugin assets
 		$this->registerAssets();
 
+		// Get standard enqueues
 		if ( current_action() == 'admin_enqueue_scripts' ) {
-			$this->enqueueAdminType( self::TYPE_JS );
-			$this->enqueueAdminType( self::TYPE_CSS );
+			$assets = $this->getAdminAssetsToEnq();
 		}
 		else {
-			$this->enqueueFrontendType( self::TYPE_JS );
-			$this->enqueueFrontendType( self::TYPE_CSS );
+			$assets = $this->getFrontendAssetsToEnq();
 		}
 
+		// Get custom enqueues from modules
+		$customAssets = $this->getCustomEnqueues();
+
+		// Combine enqueues and enqueue assets
+		foreach ( [ self::TYPE_CSS, self::TYPE_JS ] as $type ) {
+			if ( !empty( $customAssets[ $type ] ) ) {
+				$assets[ $type ] = array_unique( array_merge( $assets[ $type ], $customAssets[ $type ] ) );
+			}
+			$this->runEnqueueOnAssets( $type, $assets[ $type ] );
+		}
+
+		// Get module localisations
 		$this->localise();
 	}
 
@@ -79,26 +91,21 @@ class Enqueue {
 	 * plugin to cater for most shared assets.
 	 */
 	private function registerAssets() {
-		$this->registerAssetsByType( self::TYPE_CSS )
-			 ->registerAssetsByType( self::TYPE_JS );
-	}
-
-	private function registerAssetsByType( string $type ) :self {
 		$con = $this->getCon();
-		$incl = $con->cfg->includes[ 'register' ];
 
 		$assetKeys = [
 			self::TYPE_CSS => [],
 			self::TYPE_JS  => [],
 		];
 
-		if ( !empty( $incl[ $type ] ) ) {
+		$incl = $con->cfg->includes[ 'register' ];
+		foreach ( array_keys( $assetKeys ) as $type ) {
 
 			foreach ( $incl[ $type ] as $key => $spec ) {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
 					$handle = $con->prefix( $key );
-					error_log( $handle );
+//					error_log( $handle );
 					if ( $type === self::TYPE_CSS ) {
 						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Css( $key );
 						$reg = wp_register_style(
@@ -124,35 +131,47 @@ class Enqueue {
 				}
 			}
 		}
+	}
+
+	private function registerAssetsByType( string $type ) :self {
 
 		return $this;
+	}
+
+	private function getCustomEnqueues() :array {
+		$enqueues = [
+			self::TYPE_CSS => [],
+			self::TYPE_JS  => [],
+		];
+		foreach ( $this->getCon()->modules as $module ) {
+			$custom = $module->getCustomEnqueues();
+			foreach ( array_keys( $enqueues ) as $type ) {
+				if ( !empty( $custom[ $type ] ) ) {
+					$enqueues[ $type ] = array_merge( $enqueues[ $type ], $custom[ $type ] );
+				}
+			}
+		}
+		return $enqueues;
+	}
+
+	private function getCustomRegistrations() :array {
 	}
 
 	private function prefixKeys( array $keys ) :array {
 		return array_map( function ( $dependency ) {
 			return strpos( $dependency, 'wp-' ) === 0 ?
-				str_replace( 'wp-', '', $dependency )
+				preg_replace( '#^wp-#', '', $dependency )
 				: $this->getCon()->prefix( $dependency );
 		}, $keys );
 	}
 
-	private function enqueueFrontendType( string $type ) {
-		$assets = $this->getCon()->cfg->includes[ 'frontend' ][ $type ] ?? [];
-		$this->runEnqueueOnAssets( $type, $assets );
+	private function getAdminAssetsToEnq() {
+		$con = $this->getCon();
+		return $con->cfg->includes[ $con->getIsPage_PluginAdmin() ? 'plugin_admin' : 'admin' ];
 	}
 
-	private function enqueueAdminType( string $type ) {
-		$con = $this->getCon();
-
-		$assets = $con->cfg->includes[ 'admin' ][ $type ];
-		if ( $con->getIsPage_PluginAdmin() ) {
-			$assets = array_merge(
-				$assets,
-				$con->cfg->includes[ 'plugin_admin' ][ $type ]
-			);
-		}
-
-		$this->runEnqueueOnAssets( $type, $assets );
+	private function getFrontendAssetsToEnq() :array {
+		return $this->getCon()->cfg->includes[ 'frontend' ] ?? [];
 	}
 
 	private function runEnqueueOnAssets( string $type, array $asset ) {

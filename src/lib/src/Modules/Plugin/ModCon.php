@@ -521,11 +521,30 @@ class ModCon extends BaseShield\ModCon {
 		return $locals;
 	}
 
-	public function insertCustomJsVars_Admin() {
+	public function getCustomEnqueues() :array {
+		$enqs = [];
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
-			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+			$enqs[ 'css' ] = [
+				'wp-wp-jquery-ui-dialog'
+			];
+			$enqs[ 'js' ] = [
+				'wp-jquery-ui-dialog'
+			];
 		}
+		return $enqs;
+	}
+
+	public function getCustomScriptRegistration() :array {
+		$enqs = [];
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
+			$enqs[ 'css' ] = [
+				'wp-wp-jquery-ui-dialog'
+			];
+			$enqs[ 'js' ] = [
+				'wp-jquery-ui-dialog'
+			];
+		}
+		return $enqs;
 	}
 
 	public function getDbHandler_GeoIp() :Shield\Databases\GeoIp\Handler {

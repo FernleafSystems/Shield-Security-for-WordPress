@@ -1249,6 +1249,10 @@ abstract class ModCon {
 		];
 	}
 
+	public function getCustomEnqueues() :array {
+		return [];
+	}
+
 	/**
 	 * Override this with custom JS vars for your particular module.
 	 */

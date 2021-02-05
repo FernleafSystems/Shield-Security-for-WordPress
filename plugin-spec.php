@@ -63,7 +63,8 @@
       ]
     },
     "frontend":     {
-      "css": null
+      "css": [],
+      "js":  []
     },
     "register":     {
       "css": {
@@ -113,9 +114,9 @@
             "global-plugin"
           ]
         },
-        "base64.min":                {},
-        "lz-string.min":                {},
-        "jquery.fileDownload":                {},
+        "base64.min":            {},
+        "lz-string.min":         {},
+        "jquery.fileDownload":   {},
         "wizard":                {},
         "featherlight":          {
           "deps": [
