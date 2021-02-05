@@ -27,7 +27,6 @@ if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 												   .css( 'color', 'green' );
 									} )
 									.catch( function ( response ) {
-										console.log( response );
 										$oU2fStatus.text( icwp_wpsf_vars_u2f.strings.failed );
 										$oU2fStatus.css( 'font-weight', 'bolder' )
 												   .css( 'color', 'red' );

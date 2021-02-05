@@ -2,7 +2,7 @@
   "properties":       {
     "version":                 "10.1.6",
     "release_timestamp":       1611830119,
-    "build":                   "202102.0506",
+    "build":                   "202102.0507",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -105,67 +105,67 @@
         "introjs.min":            {}
       },
       "js":  {
-        "bootstrap4.bundle.min":  {
+        "bootstrap4.bundle.min":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
         },
-        "bootstrap-select.min":   {
+        "bootstrap-select.min":    {
           "deps": [
             "bootstrap4.bundle.min"
           ]
         },
-        "bootstrap-datepicker":   {
+        "bootstrap-datepicker":    {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
           "deps": [
             "bootstrap4.bundle.min"
           ]
         },
-        "global-plugin":          {
+        "global-plugin":           {
           "deps": [
             "wp-jquery"
           ]
         },
-        "plugin":                 {
+        "plugin":                  {
           "deps": [
             "bootstrap4.bundle.min",
             "global-plugin"
           ]
         },
-        "base64.min":             {},
-        "lz-string.min":          {},
-        "jquery.fileDownload":    {},
-        "wizard":                 {},
-        "featherlight":           {
+        "base64.min":              {},
+        "lz-string.min":           {},
+        "jquery.fileDownload":     {},
+        "wizard":                  {},
+        "featherlight":            {
           "deps": [
             "wp-jquery"
           ]
         },
-        "chartist.min":           {},
-        "chartist-plugin-legend": {
+        "chartist.min":            {},
+        "chartist-plugin-legend":  {
           "deps": [
             "chartist.min"
           ]
         },
-        "charts":                 {
+        "charts":                  {
           "deps": [
             "chartist-plugin-legend"
           ]
         },
-        "shuffle":                {},
-        "shield-card-shuffle":    {
+        "shuffle":                 {},
+        "shield-card-shuffle":     {
           "deps": [
             "shuffle"
           ]
         },
-        "introjs.min":            {},
-        "shield/tables":          {
+        "introjs.min":             {},
+        "shield/tables":           {
           "deps": [
             "plugin"
           ]
         },
-        "shield/scans":           {
+        "shield/scans":            {
           "deps": [
             "shield/tables"
           ]
@@ -175,19 +175,26 @@
             "plugin"
           ]
         },
-        "shield/ipanalyse":       {
+        "shield/ipanalyse":        {
           "deps": [
             "plugin"
           ]
         },
-        "shield/mainwp-extension":       {
+        "shield/mainwp-extension": {
           "deps": [
             "jquery"
           ]
         },
-        "shield/userprofile":       {
+        "shield/userprofile":      {
           "deps": [
             "global-plugin"
+          ]
+        },
+        "u2f-bundle":              {},
+        "shield/u2f-admin":        {
+          "deps": [
+            "u2f-bundle",
+            "wp-jquery"
           ]
         }
       }

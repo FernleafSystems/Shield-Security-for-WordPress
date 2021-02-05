@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
@@ -17,55 +18,45 @@ class U2F extends BaseProvider {
 	}
 
 	public function setupProfile() {
-		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
-			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
-				$this->enqueueAdminU2f();
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
+			if ( in_array( $hook, [ 'profile.php', ] ) ) {
+
+				$enqueues[ Enqueue::JS ][] = 'shield/u2f-admin';
+
+				add_filter( 'shield/custom_localisations', function ( array $localz ) {
+					$user = Services::WpUsers()->getCurrentWpUser();
+					list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );
+					$localz[] = [
+						'shield/u2f-admin',
+						'icwp_wpsf_vars_u2f',
+						[
+							'reg_request' => $reg,
+							'signs'       => $signs,
+							'ajax'        => [
+								'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' )
+							],
+							'flags'       => [
+								'has_validated' => $this->hasValidatedProfile( $user )
+							],
+							'strings'     => [
+								'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+								'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
+													   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
+													   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+								'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
+													   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
+								'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
+								'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+								'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+							]
+						]
+					];
+					return $localz;
+				} );
 			}
-		} );
-	}
 
-	private function enqueueAdminU2f() {
-		$aDeps = [];
-		foreach ( [ 'u2f-bundle', 'shield-u2f-admin' ] as $sScript ) {
-			wp_enqueue_script(
-				$this->getCon()->prefix( $sScript ),
-				$this->getCon()->getPluginUrl_Js( $sScript ),
-				$aDeps
-			);
-			$aDeps[] = $this->getCon()->prefix( $sScript );
-		}
-
-		$user = Services::WpUsers()->getCurrentWpUser();
-		try {
-			list( $oReg, $aSigns ) = $this->createNewU2fRegistrationRequest( $user );
-			wp_localize_script(
-				$this->getCon()->prefix( 'shield-u2f-admin' ),
-				'icwp_wpsf_vars_u2f',
-				[
-					'reg_request' => $oReg,
-					'signs'       => $aSigns,
-					'ajax'        => [
-						'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' )
-					],
-					'flags'       => [
-						'has_validated' => $this->hasValidatedProfile( $user )
-					],
-					'strings'     => [
-						'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
-						'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
-											   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
-											   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
-						'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
-											   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
-						'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
-						'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
-						'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
-					]
-				]
-			);
-		}
-		catch ( \Exception $e ) {
-		}
+			return $enqueues;
+		}, 10, 2 );
 	}
 
 	/**
