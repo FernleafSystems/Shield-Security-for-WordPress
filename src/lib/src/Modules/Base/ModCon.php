@@ -1230,10 +1230,6 @@ abstract class ModCon {
 		return $this->getOptions()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
 	}
 
-	public function localiseScripts() {
-		$this->insertCustomJsVars_Admin();
-	}
-
 	public function getScriptLocalisations() :array {
 		return [
 			[
@@ -1249,12 +1245,17 @@ abstract class ModCon {
 		];
 	}
 
-	public function getCustomEnqueues() :array {
+	public function getCustomScriptEnqueues() :array {
+		return [];
+	}
+
+	public function getCustomScriptRegistration() :array {
 		return [];
 	}
 
 	/**
 	 * Override this with custom JS vars for your particular module.
+	 * @deprecated 10.2
 	 */
 	public function insertCustomJsVars_Admin() {
 	}

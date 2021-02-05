@@ -276,8 +276,16 @@ class ModCon extends BaseShield\ModCon {
 		return $locals;
 	}
 
-	public function insertCustomJsVars_Admin() {
-		wp_enqueue_script( 'jquery-ui-dialog' );
-		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+	public function getCustomScriptEnqueues() :array {
+		$enqs = [];
+		if ( is_admin() || is_network_admin() ) {
+			$enqs[ 'css' ] = [
+				'wp-wp-jquery-ui-dialog'
+			];
+			$enqs[ 'js' ] = [
+				'wp-jquery-ui-dialog'
+			];
+		}
+		return $enqs;
 	}
 }

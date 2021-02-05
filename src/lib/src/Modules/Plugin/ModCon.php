@@ -521,20 +521,7 @@ class ModCon extends BaseShield\ModCon {
 		return $locals;
 	}
 
-	public function getCustomEnqueues() :array {
-		$enqs = [];
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$enqs[ 'css' ] = [
-				'wp-wp-jquery-ui-dialog'
-			];
-			$enqs[ 'js' ] = [
-				'wp-jquery-ui-dialog'
-			];
-		}
-		return $enqs;
-	}
-
-	public function getCustomScriptRegistration() :array {
+	public function getCustomScriptEnqueues() :array {
 		$enqs = [];
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 			$enqs[ 'css' ] = [

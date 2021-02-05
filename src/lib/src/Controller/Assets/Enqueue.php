@@ -11,8 +11,8 @@ class Enqueue {
 	use PluginControllerConsumer;
 	use ExecOnce;
 
-	const TYPE_CSS = 'css';
-	const TYPE_JS = 'js';
+	const CSS = 'css';
+	const JS = 'js';
 
 	/**
 	 * @var string - unique string to separate our enqueues from everyone else's
@@ -61,7 +61,7 @@ class Enqueue {
 		$customAssets = $this->getCustomEnqueues();
 
 		// Combine enqueues and enqueue assets
-		foreach ( [ self::TYPE_CSS, self::TYPE_JS ] as $type ) {
+		foreach ( [ self::CSS, self::JS ] as $type ) {
 			if ( !empty( $customAssets[ $type ] ) ) {
 				$assets[ $type ] = array_unique( array_merge( $assets[ $type ], $customAssets[ $type ] ) );
 			}
@@ -94,19 +94,23 @@ class Enqueue {
 		$con = $this->getCon();
 
 		$assetKeys = [
-			self::TYPE_CSS => [],
-			self::TYPE_JS  => [],
+			self::CSS => [],
+			self::JS  => [],
 		];
 
 		$incl = $con->cfg->includes[ 'register' ];
+
+		$customRegisters = $this->getCustomRegistrations();
+
+
 		foreach ( array_keys( $assetKeys ) as $type ) {
 
 			foreach ( $incl[ $type ] as $key => $spec ) {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
 					$handle = $con->prefix( $key );
-//					error_log( $handle );
-					if ( $type === self::TYPE_CSS ) {
+					error_log( $handle );
+					if ( $type === self::CSS ) {
 						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Css( $key );
 						$reg = wp_register_style(
 							$handle,
@@ -133,18 +137,13 @@ class Enqueue {
 		}
 	}
 
-	private function registerAssetsByType( string $type ) :self {
-
-		return $this;
-	}
-
 	private function getCustomEnqueues() :array {
 		$enqueues = [
-			self::TYPE_CSS => [],
-			self::TYPE_JS  => [],
+			self::CSS => [],
+			self::JS  => [],
 		];
 		foreach ( $this->getCon()->modules as $module ) {
-			$custom = $module->getCustomEnqueues();
+			$custom = $module->getCustomScriptEnqueues();
 			foreach ( array_keys( $enqueues ) as $type ) {
 				if ( !empty( $custom[ $type ] ) ) {
 					$enqueues[ $type ] = array_merge( $enqueues[ $type ], $custom[ $type ] );
@@ -155,6 +154,19 @@ class Enqueue {
 	}
 
 	private function getCustomRegistrations() :array {
+		$regs = [
+			self::CSS => [],
+			self::JS  => [],
+		];
+		foreach ( $this->getCon()->modules as $module ) {
+			$custom = $module->getCustomScriptRegistration();
+			foreach ( array_keys( $regs ) as $type ) {
+				if ( !empty( $custom[ $type ] ) ) {
+					$regs[ $type ] = array_merge( $regs[ $type ], $custom[ $type ] );
+				}
+			}
+		}
+		return $regs;
 	}
 
 	private function prefixKeys( array $keys ) :array {
@@ -176,7 +188,7 @@ class Enqueue {
 
 	private function runEnqueueOnAssets( string $type, array $asset ) {
 		array_map(
-			$type == self::TYPE_CSS ? 'wp_enqueue_style' : 'wp_enqueue_script',
+			$type == self::CSS ? 'wp_enqueue_style' : 'wp_enqueue_script',
 			$this->prefixKeys( $asset )
 		);
 	}

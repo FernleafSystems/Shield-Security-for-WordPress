@@ -68,59 +68,116 @@
     },
     "register":     {
       "css": {
-        "bootstrap4.min":       {
+        "bootstrap4.min":         {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
         },
-        "bootstrap-select.min": {
+        "bootstrap-select.min":   {
           "deps": [
             "bootstrap4.min"
           ]
         },
-        "global-plugin":        [],
-        "plugin":               {
+        "bootstrap-datepicker":   {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
+          "deps": [
+            "bootstrap4.min"
+          ]
+        },
+        "global-plugin":          [],
+        "plugin":                 {
           "deps": [
             "bootstrap4.min",
             "global-plugin"
           ]
         },
-        "wizard":               {
+        "wizard":                 {
           "deps": [
             "bootstrap4.min",
             "global-plugin"
           ]
         },
-        "featherlight":         []
+        "featherlight":           {},
+        "chartist.min":           {},
+        "chartist-plugin-legend": {
+          "deps": [
+            "chartist.min"
+          ]
+        },
+        "introjs.min":            {}
       },
       "js":  {
-        "bootstrap4.bundle.min": {
+        "bootstrap4.bundle.min":  {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
         },
-        "bootstrap-select.min":  {
+        "bootstrap-select.min":   {
           "deps": [
             "bootstrap4.bundle.min"
           ]
         },
-        "global-plugin":         {
+        "bootstrap-datepicker":   {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
+          "deps": [
+            "bootstrap4.bundle.min"
+          ]
+        },
+        "global-plugin":          {
           "deps": [
             "wp-jquery"
           ]
         },
-        "plugin":                {
+        "plugin":                 {
           "deps": [
             "bootstrap4.bundle.min",
             "global-plugin"
           ]
         },
-        "base64.min":            {},
-        "lz-string.min":         {},
-        "jquery.fileDownload":   {},
-        "wizard":                {},
-        "featherlight":          {
+        "base64.min":             {},
+        "lz-string.min":          {},
+        "jquery.fileDownload":    {},
+        "wizard":                 {},
+        "featherlight":           {
           "deps": [
             "wp-jquery"
+          ]
+        },
+        "chartist.min":           {},
+        "chartist-plugin-legend": {
+          "deps": [
+            "chartist.min"
+          ]
+        },
+        "charts":                 {
+          "deps": [
+            "chartist-plugin-legend"
+          ]
+        },
+        "shuffle":                {},
+        "shield-card-shuffle":    {
+          "deps": [
+            "shuffle"
+          ]
+        },
+        "introjs.min":            {},
+        "shield-tables":          {
+          "deps": [
+            "plugin"
+          ]
+        },
+        "shield-scans":           {
+          "deps": [
+            "shield-tables"
+          ]
+        },
+        "shield/import":           {
+          "deps": [
+            "plugin"
+          ]
+        },
+        "shield/ipanalyse":       {
+          "deps": [
+            "plugin"
           ]
         }
       }
@@ -159,9 +216,6 @@
     }
   ],
   "version_upgrades": [
-    "9.0.0",
-    "9.0.3",
-    "9.0.5",
     "9.1.1",
     "9.2.0",
     "9.2.2",
