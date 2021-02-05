@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class PtgAddReinstallLinks {
 
 	use Controller\ScanControllerConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	/**
 	 * @var int
@@ -33,14 +33,32 @@ class PtgAddReinstallLinks {
 		add_action( 'admin_footer', function () {
 			$this->printPluginReinstallDialogs();
 		} );
-		add_action( 'admin_enqueue_scripts', function ( $hook ) {
-			if ( $hook === 'plugins.php' ) {
-				$this->insertCustomJsVars();
+
+		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
+			if ( in_array( $hook, [ 'plugins.php', ] ) ) {
+				$localz[] = [
+					'global-plugin',
+					'icwp_wpsf_vars_hp',
+					[
+						'ajax_plugin_reinstall' => $this->getScanController()->getMod()
+														->getAjaxActionData( 'plugin_reinstall' ),
+						'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
+						'strings'               => [
+							'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
+												 .'. '.__( 'Then Activate', 'wp-simple-firewall' ),
+							'okay_reinstall'  => sprintf( '%s, %s',
+								__( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
+							'activate_only'   => __( 'Activate Only', 'wp-simple-firewall' ),
+							'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
+						]
+					]
+				];
 			}
-		}, 9 ); // >5 && <10
+			return $localz;
+		}, 10, 2 );
 	}
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		$scanCon = $this->getScanController();
 		/** @var HackGuard\Options $opts */
 		$opts = $scanCon->getOptions();
@@ -57,28 +75,6 @@ class PtgAddReinstallLinks {
 		}
 
 		return $links;
-	}
-
-	private function insertCustomJsVars() {
-		$scanCon = $this->getScanController();
-		wp_localize_script(
-			$scanCon->getCon()->prefix( 'global-plugin' ),
-			'icwp_wpsf_vars_hp',
-			[
-				'ajax_plugin_reinstall' => $scanCon->getMod()->getAjaxActionData( 'plugin_reinstall' ),
-				'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
-				'strings'               => [
-					'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
-										 .'. '.__( 'Then Activate', 'wp-simple-firewall' ),
-					'okay_reinstall'  => sprintf( '%s, %s',
-						__( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
-					'activate_only'   => __( 'Activate Only', 'wp-simple-firewall' ),
-					'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
-				]
-			]
-		);
-		wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
-		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	}
 
 	private function printPluginReinstallDialogs() {

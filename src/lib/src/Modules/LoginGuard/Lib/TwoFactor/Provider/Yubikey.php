@@ -17,18 +17,18 @@ class Yubikey extends BaseProvider {
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
 			if ( in_array( $hook, [ 'profile.php', ] ) ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
+
+				add_filter( 'shield/custom_localisations', function ( array $localz ) {
+					$localz[] = [
+						'shield/userprofile',
+						'icwp_wpsf_vars_profileyubikey',
+						[ 'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
+					];
+					return $localz;
+				} );
 			}
 			return $enqueues;
 		}, 10, 2 );
-
-		add_filter( 'shield/custom_localisations', function ( array $localz ) {
-			$localz[] = [
-				'shield/userprofile',
-				'icwp_wpsf_vars_profileyubikey',
-				[ 'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
-			];
-			return $localz;
-		} );
 	}
 
 	public function renderUserProfileOptions( \WP_User $user ) :string {

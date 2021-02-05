@@ -68,7 +68,7 @@ class Enqueue {
 			}
 		}
 
-		$localz = apply_filters( 'shield/custom_localisations', $localz );
+		$localz = apply_filters( 'shield/custom_localisations', $localz, $this->adminHookSuffix );
 
 		foreach ( $localz as $local ) {
 			if ( is_array( $local ) && count( $local ) === 3 ) { //sanity
