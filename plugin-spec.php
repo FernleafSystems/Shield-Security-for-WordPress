@@ -97,6 +97,11 @@
             "wp-jquery"
           ]
         },
+        "bootstrap-select.min":  {
+          "deps": [
+            "bootstrap4.bundle.min"
+          ]
+        },
         "global-plugin":         {
           "deps": [
             "wp-jquery"
@@ -108,6 +113,9 @@
             "global-plugin"
           ]
         },
+        "base64.min":                {},
+        "lz-string.min":                {},
+        "jquery.fileDownload":                {},
         "wizard":                {},
         "featherlight":          {
           "deps": [

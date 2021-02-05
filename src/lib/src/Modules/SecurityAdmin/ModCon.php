@@ -314,13 +314,11 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 
-		if ( !empty( $aInsertData ) ) {
-			wp_localize_script(
-				$this->prefix( 'plugin' ),
-				'icwp_wpsf_vars_secadmin',
-				$aInsertData
-			);
-		}
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_secadmin',
+			$aInsertData
+		);
 	}
 
 	/**

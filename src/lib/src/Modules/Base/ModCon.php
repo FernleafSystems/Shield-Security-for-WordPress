@@ -111,7 +111,7 @@ abstract class ModCon {
 
 		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
-		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
+		add_action( $con->prefix( 'script_localise' ), [ $this, 'localiseScripts' ], 100 );
 
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
@@ -1228,14 +1228,11 @@ abstract class ModCon {
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canDisplayOptionsForm() {
+	public function canDisplayOptionsForm() :bool {
 		return $this->getOptions()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
 	}
 
-	public function onWpEnqueueAdminJs() {
+	public function localiseScripts() {
 		$this->insertCustomJsVars_Admin();
 	}
 

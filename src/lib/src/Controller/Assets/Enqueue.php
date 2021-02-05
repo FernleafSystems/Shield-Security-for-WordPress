@@ -56,6 +56,12 @@ class Enqueue {
 			$this->enqueueFrontendType( self::TYPE_JS );
 			$this->enqueueFrontendType( self::TYPE_CSS );
 		}
+
+		$this->localise();
+	}
+
+	private function localise() {
+		do_action( $this->getCon()->prefix( 'script_localise' ) );
 	}
 
 	/**
@@ -64,11 +70,11 @@ class Enqueue {
 	 * plugin to cater for most shared assets.
 	 */
 	private function registerAssets() {
-		$this->registerAssetsType( self::TYPE_CSS )
-			 ->registerAssetsType( self::TYPE_JS );
+		$this->registerAssetsByType( self::TYPE_CSS )
+			 ->registerAssetsByType( self::TYPE_JS );
 	}
 
-	private function registerAssetsType( string $type ) :self {
+	private function registerAssetsByType( string $type ) :self {
 		$con = $this->getCon();
 		$incl = $con->cfg->includes[ 'register' ];
 
@@ -83,7 +89,7 @@ class Enqueue {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
 					$handle = $con->prefix( $key );
-
+					error_log( $handle );
 					if ( $type === self::TYPE_CSS ) {
 						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Css( $key );
 						$reg = wp_register_style(
