@@ -286,11 +286,11 @@ class ModCon extends BaseShield\ModCon {
 		return $this->saveModOptions();
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
+	public function getScriptLocalisations() :array {
+		$locals = parent::getScriptLocalisations();
 
 		if ( $this->getSecAdminTimeLeft() > 0 ) {
-			$aInsertData = [
+			$data = [
 				'ajax'         => [
 					'check' => $this->getSecAdminCheckAjaxData(),
 				],
@@ -304,7 +304,7 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 		else {
-			$aInsertData = [
+			$data = [
 				'ajax'    => [
 					'req_email_remove' => $this->getAjaxActionData( 'req_email_remove' ),
 				],
@@ -314,11 +314,13 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 
-		wp_localize_script(
+		$locals[] = [
 			$this->prefix( 'plugin' ),
 			'icwp_wpsf_vars_secadmin',
-			$aInsertData
-		);
+			$data
+		];
+
+		return $locals;
 	}
 
 	/**

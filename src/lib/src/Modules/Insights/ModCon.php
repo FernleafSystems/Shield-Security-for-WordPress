@@ -45,8 +45,24 @@ class ModCon extends BaseShield\ModCon {
 		return $UI->renderPages();
 	}
 
+	public function getScriptLocalisations() :array {
+		$locals = parent::getScriptLocalisations();
+		$locals[] = [
+			$this->getCon()->prefix( 'plugin' ),
+			'icwp_wpsf_vars_insights',
+			[
+				'strings' => [
+					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+					'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
+				],
+			]
+		];
+		return $locals;
+	}
+
 	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {
 
@@ -60,16 +76,16 @@ class ModCon extends BaseShield\ModCon {
 
 				case 'importexport':
 
-					$sAsset = 'shield/import';
-					$sUnique = $con->prefix( $sAsset );
+					$aset = 'shield/import';
+					$uniq = $con->prefix( $aset );
 					wp_register_script(
-						$sUnique,
-						$con->getPluginUrl_Js( $sAsset ),
+						$uniq,
+						$con->getPluginUrl_Js( $aset ),
 						$aStdDepsJs,
 						$con->getVersion(),
 						false
 					);
-					wp_enqueue_script( $sUnique );
+					wp_enqueue_script( $uniq );
 					break;
 
 				case 'overview':
@@ -87,17 +103,17 @@ class ModCon extends BaseShield\ModCon {
 					if ( $oTourManager->canShow( 'insights_overview' ) ) {
 						array_unshift( $aJsAssets, 'introjs.min.js' );
 					}
-					foreach ( $aJsAssets as $sAsset ) {
-						$sUnique = $con->prefix( $sAsset );
+					foreach ( $aJsAssets as $aset ) {
+						$uniq = $con->prefix( $aset );
 						wp_register_script(
-							$sUnique,
-							$con->getPluginUrl_Js( $sAsset ),
+							$uniq,
+							$con->getPluginUrl_Js( $aset ),
 							$aDeps,
 							$con->getVersion(),
 							false
 						);
-						wp_enqueue_script( $sUnique );
-						$aDeps[] = $sUnique;
+						wp_enqueue_script( $uniq );
+						$aDeps[] = $uniq;
 					}
 
 					$aDeps = [];
@@ -105,17 +121,17 @@ class ModCon extends BaseShield\ModCon {
 					if ( $oTourManager->canShow( 'insights_overview' ) ) {
 						array_unshift( $aCssAssets, 'introjs.min.css' );
 					}
-					foreach ( $aCssAssets as $sAsset ) {
-						$sUnique = $con->prefix( $sAsset );
+					foreach ( $aCssAssets as $aset ) {
+						$uniq = $con->prefix( $aset );
 						wp_register_style(
-							$sUnique,
-							$con->getPluginUrl_Css( $sAsset ),
+							$uniq,
+							$con->getPluginUrl_Css( $aset ),
 							$aDeps,
 							$con->getVersion(),
 							false
 						);
-						wp_enqueue_style( $sUnique );
-						$aDeps[] = $sUnique;
+						wp_enqueue_style( $uniq );
+						$aDeps[] = $uniq;
 					}
 
 					$this->includeScriptIpDetect();
@@ -129,63 +145,63 @@ class ModCon extends BaseShield\ModCon {
 				case 'debug':
 				case 'users':
 
-					$sAsset = 'shield-tables';
-					$sUnique = $con->prefix( $sAsset );
+					$aset = 'shield-tables';
+					$uniq = $con->prefix( $aset );
 					wp_register_script(
-						$sUnique,
-						$con->getPluginUrl_Js( $sAsset ),
+						$uniq,
+						$con->getPluginUrl_Js( $aset ),
 						$aStdDepsJs,
 						$con->getVersion(),
 						false
 					);
-					wp_enqueue_script( $sUnique );
+					wp_enqueue_script( $uniq );
 
-					$aStdDepsJs[] = $sUnique;
+					$aStdDepsJs[] = $uniq;
 					if ( $iNav == 'scans' ) {
-						$sAsset = 'shield-scans';
-						$sUnique = $con->prefix( $sAsset );
+						$aset = 'shield-scans';
+						$uniq = $con->prefix( $aset );
 						wp_register_script(
-							$sUnique,
-							$con->getPluginUrl_Js( $sAsset ),
+							$uniq,
+							$con->getPluginUrl_Js( $aset ),
 							array_unique( $aStdDepsJs ),
 							$con->getVersion(),
 							false
 						);
-						wp_enqueue_script( $sUnique );
+						wp_enqueue_script( $uniq );
 					}
 
 					if ( $iNav == 'ips' ) {
-						$sAsset = 'shield/ipanalyse';
-						$sUnique = $con->prefix( $sAsset );
+						$aset = 'shield/ipanalyse';
+						$uniq = $con->prefix( $aset );
 						wp_register_script(
-							$sUnique,
-							$con->getPluginUrl_Js( $sAsset ),
+							$uniq,
+							$con->getPluginUrl_Js( $aset ),
 							array_unique( $aStdDepsJs ),
 							$con->getVersion(),
 							false
 						);
-						wp_enqueue_script( $sUnique );
+						wp_enqueue_script( $uniq );
 					}
 
 					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
-						$sUnique = $con->prefix( 'datepicker' );
+						$uniq = $con->prefix( 'datepicker' );
 						wp_register_script(
-							$sUnique, //TODO: use an includes services for CNDJS
+							$uniq, //TODO: use an includes services for CNDJS
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
 							array_unique( $aStdDepsJs ),
 							$con->getVersion(),
 							false
 						);
-						wp_enqueue_script( $sUnique );
+						wp_enqueue_script( $uniq );
 
 						wp_register_style(
-							$sUnique,
+							$uniq,
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
 							[],
 							$con->getVersion(),
 							false
 						);
-						wp_enqueue_style( $sUnique );
+						wp_enqueue_style( $uniq );
 					}
 
 					break;

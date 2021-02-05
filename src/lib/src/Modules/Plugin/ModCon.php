@@ -481,13 +481,13 @@ class ModCon extends BaseShield\ModCon {
 		return Services::WpUsers()->isUserAdmin();
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
+	public function getScriptLocalisations() :array {
 		$con = $this->getCon();
+		$locals = parent::getScriptLocalisations();
+
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 			$file = $con->base_file;
-			wp_localize_script(
+			$locals[] = [
 				$con->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				[
@@ -499,17 +499,15 @@ class ModCon extends BaseShield\ModCon {
 						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $file ),
 					],
 				]
-			);
-			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
-			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+			];
 		}
 
-		wp_localize_script(
+		$locals[] = [
 			$con->prefix( 'plugin' ),
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
-		);
-		wp_localize_script(
+		];
+		$locals[] = [
 			$con->prefix( 'plugin' ),
 			'icwp_wpsf_vars_plugin',
 			[
@@ -518,7 +516,16 @@ class ModCon extends BaseShield\ModCon {
 					'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 				],
 			]
-		);
+		];
+
+		return $locals;
+	}
+
+	public function insertCustomJsVars_Admin() {
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
+			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+		}
 	}
 
 	public function getDbHandler_GeoIp() :Shield\Databases\GeoIp\Handler {

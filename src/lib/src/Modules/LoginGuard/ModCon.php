@@ -263,17 +263,20 @@ class ModCon extends BaseShield\ModCon {
 		$this->getOptions()->setOpt( 'enable_login_gasp_check', $enable ? 'Y' : 'N' );
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
-		wp_localize_script(
+	public function getScriptLocalisations() :array {
+		$locals = parent::getScriptLocalisations();
+		$locals[] = [
 			$this->getCon()->prefix( 'global-plugin' ),
 			'icwp_wpsf_vars_lg',
 			[
 				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
 				'ajax_del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
 			]
-		);
+		];
+		return $locals;
+	}
+
+	public function insertCustomJsVars_Admin() {
 		wp_enqueue_script( 'jquery-ui-dialog' );
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	}

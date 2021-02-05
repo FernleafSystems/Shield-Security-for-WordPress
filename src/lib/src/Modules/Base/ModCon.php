@@ -111,8 +111,6 @@ abstract class ModCon {
 
 		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
-		add_action( $con->prefix( 'script_localise' ), [ $this, 'localiseScripts' ], 100 );
-
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
 		}
@@ -1236,13 +1234,9 @@ abstract class ModCon {
 		$this->insertCustomJsVars_Admin();
 	}
 
-	/**
-	 * Override this with custom JS vars for your particular module.
-	 */
-	public function insertCustomJsVars_Admin() {
-
-		if ( $this->isThisModulePage() ) {
-			wp_localize_script(
+	public function getScriptLocalisations() :array {
+		return [
+			[
 				$this->prefix( 'plugin' ),
 				'icwp_wpsf_vars_base',
 				[
@@ -1251,8 +1245,14 @@ abstract class ModCon {
 						'mod_opts_form_render' => $this->getAjaxActionData( 'mod_opts_form_render' ),
 					]
 				]
-			);
-		}
+			]
+		];
+	}
+
+	/**
+	 * Override this with custom JS vars for your particular module.
+	 */
+	public function insertCustomJsVars_Admin() {
 	}
 
 	/**

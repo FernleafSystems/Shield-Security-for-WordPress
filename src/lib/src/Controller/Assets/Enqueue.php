@@ -61,7 +61,16 @@ class Enqueue {
 	}
 
 	private function localise() {
-		do_action( $this->getCon()->prefix( 'script_localise' ) );
+		foreach ( $this->getCon()->modules as $module ) {
+			foreach ( $module->getScriptLocalisations() as $localisation ) {
+				if ( is_array( $localisation ) && count( $localisation ) === 3 ) { //sanity
+					wp_localize_script( $localisation[ 0 ], $localisation[ 1 ], $localisation[ 2 ] );
+				}
+				else {
+					error_log( 'Invalid localisation: '.var_export( $localisation, true ) );
+				}
+			}
+		}
 	}
 
 	/**
