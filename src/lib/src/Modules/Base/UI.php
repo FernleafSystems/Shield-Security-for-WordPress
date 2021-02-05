@@ -248,9 +248,10 @@ class UI {
 				'js_wizard'        => $con->getPluginUrl_Js( 'wizard' ),
 			],
 			'imgs'       => [
-				'favicon'       => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'plugin_banner' => $con->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
-				'background'    => $con->getPluginUrl_Image( 'shield/dash-background.jpg' )
+				'favicon'        => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'plugin_banner'  => $con->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
+				'background'     => $con->getPluginUrl_Image( 'shield/dash-background.jpg' ),
+				'background_svg' => $con->getPluginUrl_Image( 'shield/background-blob.svg' )
 			],
 			'content'    => [
 				'options_form'   => '',
