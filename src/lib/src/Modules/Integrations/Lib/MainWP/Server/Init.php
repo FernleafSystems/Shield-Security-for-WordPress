@@ -35,7 +35,7 @@ class Init {
 				'plugin'   => $this->getCon()->getRootFile(),
 				// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
 				'callback' => [ $extensionsPage, 'render' ],
-				'icon'     => $con->getPluginUrl_Image( 'pluginlogo_col_32x32.png' ),
+				'icon'     => $con->urls->forImage( 'pluginlogo_col_32x32.png' ),
 			];
 			return $exts;
 		}, 10, 1 );

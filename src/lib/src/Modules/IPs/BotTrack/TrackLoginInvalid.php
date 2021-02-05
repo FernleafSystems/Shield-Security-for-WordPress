@@ -18,10 +18,13 @@ class TrackLoginInvalid extends Base {
 			/**
 			 * @param null|\WP_User|\WP_Error $user
 			 * @param string                  $login
+			 * @param string                  $pass
 			 * @return null|\WP_User|\WP_Error
 			 */
-			function ( $user, $login ) {
-				if ( is_wp_error( $user ) && ( empty( $login ) || !Services::WpUsers()->exists( $login ) ) ) {
+			function ( $user, $login, $pass ) {
+				if ( Services::Request()->isPost() && is_wp_error( $user ) && !empty( $pass )
+					 && ( empty( $login ) || !Services::WpUsers()->exists( $login ) ) ) {
+
 					if ( empty( $login ) ) {
 						$this->user_login = 'empty username';
 					}
@@ -32,7 +35,7 @@ class TrackLoginInvalid extends Base {
 				}
 				return $user;
 			},
-			21, 2 );
+			21, 3 );
 	}
 
 	protected function getAuditData() :array {
