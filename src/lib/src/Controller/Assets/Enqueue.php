@@ -14,21 +14,6 @@ class Enqueue {
 	const CSS = 'css';
 	const JS = 'js';
 
-	/**
-	 * @var string - unique string to separate our enqueues from everyone else's
-	 */
-	private static $sPrefix;
-
-	/**
-	 * @var array[] - the complete population of assets available to our plugins for enqueue
-	 */
-	private static $aAssetKeys;
-
-	/**
-	 * @var array[] - the complete population of assets available to our plugins for enqueue
-	 */
-	private static $aAdhocKeys;
-
 	protected function canRun() :bool {
 		$WP = Services::WpGeneral();
 		return !$WP->isAjax() && !$WP->isCron()

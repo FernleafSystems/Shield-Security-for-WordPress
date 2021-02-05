@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * Class Controller
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
  * @property Config\ConfigVO                                        $cfg
+ * @property Shield\Controller\Assets\Urls                          $urls
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
  * @property bool                                                   $modules_loaded
@@ -153,6 +154,12 @@ class Controller {
 			case 'cfg':
 				if ( !$val instanceof Config\ConfigVO ) {
 					$val = $this->loadConfig();
+				}
+				break;
+
+			case 'urls':
+				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
+					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
 				}
 				break;
 
@@ -1105,6 +1112,9 @@ class Controller {
 		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function getPluginUrl_Asset( string $asset ) :string {
 		$url = '';
 		$sAssetPath = $this->getPath_Assets( $asset );
@@ -1115,16 +1125,25 @@ class Controller {
 		return $url;
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function getPluginUrl_Css( string $asset ) :string {
-		return $this->getPluginUrl_Asset( 'css/'.Services::Data()->addExtensionToFilePath( $asset, 'css' ) );
+		return $this->urls->forCss( $asset );
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function getPluginUrl_Image( string $asset ) :string {
-		return $this->getPluginUrl_Asset( 'images/'.$asset );
+		return $this->urls->forImage( $asset );
 	}
 
+	/**
+	 * @deprecated 10.2
+	 */
 	public function getPluginUrl_Js( string $asset ) :string {
-		return $this->getPluginUrl_Asset( 'js/'.Services::Data()->addExtensionToFilePath( $asset, 'js' ) );
+		return $this->urls->forJs( $asset );
 	}
 
 	public function getPluginUrl_AdminMainPage() :string {
