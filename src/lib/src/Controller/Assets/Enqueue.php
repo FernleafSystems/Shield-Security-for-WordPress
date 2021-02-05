@@ -14,6 +14,8 @@ class Enqueue {
 	const CSS = 'css';
 	const JS = 'js';
 
+	private $adminHookSuffix = '';
+
 	protected function canRun() :bool {
 		$WP = Services::WpGeneral();
 		return !$WP->isAjax() && !$WP->isCron()
@@ -24,7 +26,8 @@ class Enqueue {
 		add_action( 'wp_enqueue_scripts', function () {
 			$this->enqueue();
 		}, 1000 );
-		add_action( 'admin_enqueue_scripts', function () {
+		add_action( 'admin_enqueue_scripts', function ( $hook_suffix ) {
+			$this->adminHookSuffix = $hook_suffix;
 			$this->enqueue();
 		}, 1000 );
 	}
@@ -42,7 +45,7 @@ class Enqueue {
 			$assets = $this->getFrontendAssetsToEnq();
 		}
 
-		// Get custom enqueues from modules
+		// Get custom enqueues from modules or elsewhere
 		$customAssets = $this->getCustomEnqueues();
 
 		// Combine enqueues and enqueue assets
@@ -131,7 +134,7 @@ class Enqueue {
 				}
 			}
 		}
-		return $enqueues;
+		return apply_filters( 'shield/custom_enqueues', $enqueues, $this->adminHookSuffix );
 	}
 
 	private function prefixKeys( array $keys ) :array {

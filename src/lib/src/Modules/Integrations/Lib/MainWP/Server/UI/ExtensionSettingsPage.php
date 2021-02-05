@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -14,26 +15,13 @@ class ExtensionSettingsPage {
 	use OneTimeExecute;
 
 	protected function run() {
-		add_action( 'admin_enqueue_scripts', function ( $hook ) {
-			$con = $this->getCon();
-			if ( 'mainwp_page_'.$con->mwpVO->extension->page === $hook ) {
-				$handle = $con->prefix( 'mainwp-extension' );
-				wp_register_script(
-					$handle,
-					$con->getPluginUrl_Js( 'shield/mainwp-extension.js' ),
-					[ 'jquery' ],
-					$con->getVersion(),
-					true
-				);
-				wp_enqueue_script( $handle );
 
-				wp_register_style(
-					$handle,
-					$con->getPluginUrl_Css( 'mainwp.css' ),
-					[],
-					$con->getVersion()
-				);
-				wp_enqueue_style( $handle );
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
+
+			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
+
+				$enqueues[ Enqueue::JS ][] = 'shield/mainwp-extension';
+				$enqueues[ Enqueue::CSS ][] = 'mainwp-extension';
 
 //				$handle = 'semantic-ui-datatables-select';
 //				wp_register_script(
@@ -52,7 +40,8 @@ class ExtensionSettingsPage {
 //				);
 //				wp_enqueue_style( 'semantic-ui-datatables-select' );
 			}
-		} );
+			return $enqueues;
+		}, 10,2 );
 	}
 
 	/**
