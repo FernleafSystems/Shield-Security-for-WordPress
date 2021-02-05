@@ -2,7 +2,7 @@
   "properties":       {
     "version":                 "10.1.6",
     "release_timestamp":       1611830119,
-    "build":                   "202102.0402",
+    "build":                   "202102.0501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -160,14 +160,14 @@
           ]
         },
         "introjs.min":            {},
-        "shield-tables":          {
+        "shield/tables":          {
           "deps": [
             "plugin"
           ]
         },
-        "shield-scans":           {
+        "shield/scans":           {
           "deps": [
-            "shield-tables"
+            "shield/tables"
           ]
         },
         "shield/import":           {
