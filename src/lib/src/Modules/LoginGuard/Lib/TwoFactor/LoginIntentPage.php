@@ -133,7 +133,7 @@ class LoginIntentPage {
 				'css_bootstrap' => $con->urls->forCss( 'bootstrap4.min' ),
 				'js_bootstrap'  => $con->urls->forJs( 'bootstrap4.bundle.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
-				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
+				'what_is_this'  => 'https://support.getshieldsecurity.com/support/solutions/articles/3000064840',
 			],
 			'imgs'    => [
 				'banner'  => $sBannerUrl,
