@@ -489,7 +489,7 @@ class ModCon extends BaseShield\ModCon {
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 			$file = $con->base_file;
 			$locals[] = [
-				$con->prefix( 'global-plugin' ),
+				'global-plugin',
 				'icwp_wpsf_vars_plugin',
 				[
 					'file'  => $file,
@@ -504,12 +504,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$locals[] = [
-			$con->prefix( 'plugin' ),
+			'plugin',
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
 		];
+
 		$locals[] = [
-			$con->prefix( 'plugin' ),
+			'plugin',
 			'icwp_wpsf_vars_plugin',
 			[
 				'strings' => [

@@ -1233,7 +1233,7 @@ abstract class ModCon {
 	public function getScriptLocalisations() :array {
 		return [
 			[
-				$this->prefix( 'plugin' ),
+				'plugin',
 				'icwp_wpsf_vars_base',
 				[
 					'ajax' => [

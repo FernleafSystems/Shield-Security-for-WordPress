@@ -49,7 +49,7 @@ class ModCon extends BaseShield\ModCon {
 		$con = $this->getCon();
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [
-			$con->prefix( 'plugin' ),
+			'plugin',
 			'icwp_wpsf_vars_insights',
 			[
 				'strings' => [

@@ -267,7 +267,7 @@ class ModCon extends BaseShield\ModCon {
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [
-			$this->getCon()->prefix( 'global-plugin' ),
+			'global-plugin',
 			'icwp_wpsf_vars_lg',
 			[
 				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),

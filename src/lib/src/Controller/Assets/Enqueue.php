@@ -61,14 +61,21 @@ class Enqueue {
 	}
 
 	private function localise() {
+		$localz = [];
 		foreach ( $this->getCon()->modules as $module ) {
-			foreach ( $module->getScriptLocalisations() as $localisation ) {
-				if ( is_array( $localisation ) && count( $localisation ) === 3 ) { //sanity
-					wp_localize_script( $localisation[ 0 ], $localisation[ 1 ], $localisation[ 2 ] );
-				}
-				else {
-					error_log( 'Invalid localisation: '.var_export( $localisation, true ) );
-				}
+			foreach ( $module->getScriptLocalisations() as $local ) {
+				$localz[] = $local;
+			}
+		}
+
+		$localz = apply_filters( 'shield/custom_localisations', $localz );
+
+		foreach ( $localz as $local ) {
+			if ( is_array( $local ) && count( $local ) === 3 ) { //sanity
+				wp_localize_script( $this->normaliseHandle( $local[ 0 ] ), $local[ 1 ], $local[ 2 ] );
+			}
+			else {
+				error_log( 'Invalid localisation: '.var_export( $local, true ) );
 			}
 		}
 	}

@@ -82,7 +82,7 @@
             "bootstrap4.min"
           ]
         },
-        "global-plugin":          [],
+        "global-plugin":          {},
         "plugin":                 {
           "deps": [
             "bootstrap4.min",
@@ -183,6 +183,11 @@
         "shield/mainwp-extension":       {
           "deps": [
             "jquery"
+          ]
+        },
+        "shield/userprofile":       {
+          "deps": [
+            "global-plugin"
           ]
         }
       }

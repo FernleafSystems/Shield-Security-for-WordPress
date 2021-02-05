@@ -315,7 +315,7 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$locals[] = [
-			$this->prefix( 'plugin' ),
+			'plugin',
 			'icwp_wpsf_vars_secadmin',
 			$data
 		];
