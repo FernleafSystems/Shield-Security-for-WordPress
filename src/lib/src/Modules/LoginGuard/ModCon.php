@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
@@ -279,10 +280,10 @@ class ModCon extends BaseShield\ModCon {
 	public function getCustomScriptEnqueues() :array {
 		$enqs = [];
 		if ( is_admin() || is_network_admin() ) {
-			$enqs[ 'css' ] = [
+			$enqs[ Enqueue::CSS ] = [
 				'wp-wp-jquery-ui-dialog'
 			];
-			$enqs[ 'js' ] = [
+			$enqs[ Enqueue::JS ] = [
 				'wp-jquery-ui-dialog'
 			];
 		}

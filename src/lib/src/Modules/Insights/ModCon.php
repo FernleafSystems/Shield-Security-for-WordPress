@@ -70,7 +70,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCustomScriptEnqueues() :array {
-		$enqs = [
+		$enq = [
 			Enqueue::CSS => [],
 			Enqueue::JS  => [],
 		];
@@ -82,13 +82,13 @@ class ModCon extends BaseShield\ModCon {
 		switch ( $iNav ) {
 
 			case 'importexport':
-				$enqs[ Enqueue::JS ][] = 'shield/import';
+				$enq[ Enqueue::JS ][] = 'shield/import';
 				break;
 
 			case 'overview':
 			case 'reports':
 
-				$enqs[ Enqueue::JS ] = [
+				$enq[ Enqueue::JS ] = [
 					'chartist.min',
 					'chartist-plugin-legend',
 					'charts',
@@ -96,14 +96,14 @@ class ModCon extends BaseShield\ModCon {
 					'shield-card-shuffle',
 					'ip_detect'
 				];
-				$enqs[ Enqueue::CSS ] = [
+				$enq[ Enqueue::CSS ] = [
 					'chartist.min',
 					'chartist-plugin-legend'
 				];
 
 				if ( $oTourManager->canShow( 'insights_overview' ) ) {
-					$enqs[ Enqueue::JS ][] = 'introjs.min';
-					$enqs[ Enqueue::CSS ][] = 'introjs.min';
+					$enq[ Enqueue::JS ][] = 'introjs.min';
+					$enq[ Enqueue::CSS ][] = 'introjs.min';
 				}
 				break;
 
@@ -115,22 +115,22 @@ class ModCon extends BaseShield\ModCon {
 			case 'debug':
 			case 'users':
 
-				$enqs[ Enqueue::JS ][] = 'shield-tables';
+				$enq[ Enqueue::JS ][] = 'shield-tables';
 				if ( $iNav == 'scans' ) {
-					$enqs[ Enqueue::JS ][] = 'shield-scans';
+					$enq[ Enqueue::JS ][] = 'shield-scans';
 				}
 				elseif ( $iNav == 'ips' ) {
-					$enqs[ Enqueue::JS ][] = 'shield/ipanalyse';
+					$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
 				}
 
 				if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
-					$enqs[ Enqueue::JS ][] = 'bootstrap-datepicker';
-					$enqs[ Enqueue::CSS ][] = 'bootstrap-datepicker';
+					$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
+					$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
 				}
 				break;
 		}
 
-		return $enqs;
+		return $enq;
 	}
 
 	/**

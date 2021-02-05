@@ -100,16 +100,12 @@ class Enqueue {
 
 		$incl = $con->cfg->includes[ 'register' ];
 
-		$customRegisters = $this->getCustomRegistrations();
-
-
 		foreach ( array_keys( $assetKeys ) as $type ) {
 
 			foreach ( $incl[ $type ] as $key => $spec ) {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
-					$handle = $con->prefix( $key );
-					error_log( $handle );
+					$handle = $this->normaliseHandle( $key );
 					if ( $type === self::CSS ) {
 						$url = $spec[ 'url' ] ?? $con->getPluginUrl_Css( $key );
 						$reg = wp_register_style(
@@ -153,28 +149,16 @@ class Enqueue {
 		return $enqueues;
 	}
 
-	private function getCustomRegistrations() :array {
-		$regs = [
-			self::CSS => [],
-			self::JS  => [],
-		];
-		foreach ( $this->getCon()->modules as $module ) {
-			$custom = $module->getCustomScriptRegistration();
-			foreach ( array_keys( $regs ) as $type ) {
-				if ( !empty( $custom[ $type ] ) ) {
-					$regs[ $type ] = array_merge( $regs[ $type ], $custom[ $type ] );
-				}
-			}
-		}
-		return $regs;
+	private function prefixKeys( array $keys ) :array {
+		return array_map( function ( $handle ) {
+			return strpos( $handle, 'wp-' ) === 0 ?
+				preg_replace( '#^wp-#', '', $handle )
+				: $this->normaliseHandle( $handle );
+		}, $keys );
 	}
 
-	private function prefixKeys( array $keys ) :array {
-		return array_map( function ( $dependency ) {
-			return strpos( $dependency, 'wp-' ) === 0 ?
-				preg_replace( '#^wp-#', '', $dependency )
-				: $this->getCon()->prefix( $dependency );
-		}, $keys );
+	private function normaliseHandle( string $handle ) :string {
+		return str_replace( '/', '-', $this->getCon()->prefix( $handle ) );
 	}
 
 	private function getAdminAssetsToEnq() {

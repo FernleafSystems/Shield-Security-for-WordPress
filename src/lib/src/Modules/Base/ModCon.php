@@ -1249,10 +1249,6 @@ abstract class ModCon {
 		return [];
 	}
 
-	public function getCustomScriptRegistration() :array {
-		return [];
-	}
-
 	/**
 	 * Override this with custom JS vars for your particular module.
 	 * @deprecated 10.2

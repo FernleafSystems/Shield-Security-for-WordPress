@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
@@ -321,7 +322,7 @@ class ModCon extends BaseShield\ModCon {
 	 * hidden 20200121
 	 * @return bool
 	 */
-	public function getIfShowIntroVideo() {
+	public function getIfShowIntroVideo() :bool {
 		return false && ( $this->getActivateLength() < 8 )
 			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
 	}
@@ -524,10 +525,10 @@ class ModCon extends BaseShield\ModCon {
 	public function getCustomScriptEnqueues() :array {
 		$enqs = [];
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$enqs[ 'css' ] = [
+			$enqs[ Enqueue::CSS ] = [
 				'wp-wp-jquery-ui-dialog'
 			];
-			$enqs[ 'js' ] = [
+			$enqs[ Enqueue::JS ] = [
 				'wp-jquery-ui-dialog'
 			];
 		}
