@@ -39,6 +39,14 @@
       },
       {
         "type":        "improved",
+        "title":       "Malware scanners are more efficient.",
+        "description": [
+          "Malware scanning is involved - every PHP file has to be read and then searched using a large set of patterns.",
+          "So it takes time. Hopefully these tweaks will optimise this process a little and lead to faster scans."
+        ]
+      },
+      {
+        "type":        "improved",
         "title":       "Add a bit more IP status information in the traffic viewer.",
         "description": [
           "The traffic table will now display many offenses or whether the IP address is blocked."
