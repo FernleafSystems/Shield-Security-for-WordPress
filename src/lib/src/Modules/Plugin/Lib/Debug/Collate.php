@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
@@ -60,9 +61,17 @@ class Collate {
 
 		$totalDisk = disk_total_space( ABSPATH );
 		$freeDisk = disk_free_space( ABSPATH );
+		try {
+			$diff = ( new WorldTimeApi() )->diffServerWithReal();
+		}
+		catch ( \Exception $e ) {
+			$diff = 'failed';
+		}
+
 		return [
 			'Host OS'                           => PHP_OS,
 			'Server Hostname'                   => gethostname(),
+			'Server Time Difference'            => $diff,
 			'Server IPs'                        => implode( ', ', $aIPs ),
 			'CloudFlare'                        => empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
 			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
