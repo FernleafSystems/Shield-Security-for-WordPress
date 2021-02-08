@@ -24,7 +24,7 @@
         "href":        "https://shsec.io/jb"
       },
       {
-        "type":        "improved",
+        "type":        "new",
         "title":       "Invalid user login tracking covers empty usernames.",
         "description": [
           "When tracking for bots logging in user invalid usernames (i.e. that don't exist) it'll also trigger an offense on empty usernames."
@@ -47,7 +47,7 @@
       },
       {
         "type":        "improved",
-        "title":       "Add a bit more IP status information in the traffic viewer.",
+        "title":       "Add IP status to information in the traffic viewer.",
         "description": [
           "The traffic table will now display many offenses or whether the IP address is blocked."
         ]
@@ -71,7 +71,7 @@
       },
       {
         "type":        "fixed",
-        "title":       "U2F Removal Bug",
+        "title":       "U2F/Yubikey Removal Bug",
         "description": [
           "A javascript issue prevented removal of U2F keys from user profiles."
         ]

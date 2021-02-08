@@ -149,13 +149,6 @@ class BaseProcessor {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Email
-	 */
-	public function getEmailProcessor() {
-		return $this->getMod()->getEmailProcessor();
-	}
-
-	/**
 	 * @param string $key
 	 * @return BaseProcessor|mixed|null
 	 */
