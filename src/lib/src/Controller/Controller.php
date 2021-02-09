@@ -1286,8 +1286,8 @@ class Controller {
 	 * @throws \Exception from loadFeatureHandler()
 	 */
 	public function loadCorePluginFeatureHandler() {
-		if ( !isset( $this->modules[ 'plugin' ] )
-			 || !$this->modules[ 'plugin' ] instanceof Shield\Modules\Base\ModCon ) {
+		$plugin = $this->modules[ 'plugin' ] ?? null;
+		if ( !$plugin instanceof Shield\Modules\Plugin\ModCon ) {
 			$this->loadFeatureHandler(
 				[
 					'slug'          => 'plugin',
