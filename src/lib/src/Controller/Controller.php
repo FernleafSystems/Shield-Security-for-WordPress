@@ -292,9 +292,9 @@ class Controller {
 
 	public function onWpActivatePlugin() {
 		$this->is_activating = true;
-		$oModPlugin = $this->getModule_Plugin();
-		if ( $oModPlugin instanceof \ICWP_WPSF_FeatureHandler_Base ) {
-			$oModPlugin->setActivatedAt();
+		$modPlugin = $this->getModule_Plugin();
+		if ( $modPlugin instanceof Shield\Modules\Base\ModCon ) {
+			$modPlugin->setActivatedAt();
 		}
 	}
 
@@ -1287,7 +1287,7 @@ class Controller {
 	 */
 	public function loadCorePluginFeatureHandler() {
 		if ( !isset( $this->modules[ 'plugin' ] )
-			 || !$this->modules[ 'plugin' ] instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			 || !$this->modules[ 'plugin' ] instanceof Shield\Modules\Base\ModCon ) {
 			$this->loadFeatureHandler(
 				[
 					'slug'          => 'plugin',
@@ -1331,11 +1331,11 @@ class Controller {
 
 	/**
 	 * @param string $slug
-	 * @return \ICWP_WPSF_FeatureHandler_Base|null|mixed
+	 * @return Shield\Modules\Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
 		$mod = isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : null;
-		if ( !$mod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
 				$mods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
 				if ( isset( $mods[ $slug ] ) ) {
@@ -1422,13 +1422,13 @@ class Controller {
 
 	/**
 	 * @param array $modProps
-	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
+	 * @return Shield\Modules\Base\ModCon|mixed
 	 * @throws \Exception
 	 */
 	public function loadFeatureHandler( array $modProps ) {
 		$modSlug = $modProps[ 'slug' ];
 		$mod = isset( $this->modules[ $modSlug ] ) ? $this->modules[ $modSlug ] : null;
-		if ( $mod instanceof \ICWP_WPSF_FeatureHandler_Base || $mod instanceof Shield\Modules\Base\ModCon ) {
+		if ( $mod instanceof Shield\Modules\Base\ModCon ) {
 			return $mod;
 		}
 

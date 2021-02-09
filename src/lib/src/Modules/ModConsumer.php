@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 trait ModConsumer {
 
 	/**
-	 * @var \ICWP_WPSF_FeatureHandler_Base
+	 * @var Modules\Base\ModCon
 	 */
 	private $oMod;
 
@@ -24,7 +24,7 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Base|Modules\Base\ModCon
+	 * @return Modules\Base\ModCon
 	 */
 	public function getMod() {
 		return $this->oMod;
@@ -38,20 +38,20 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @param Controller $oCon
+	 * @param Controller $con
 	 * @return $this
 	 */
-	public function setCon( $oCon ) {
-		$this->getMod()->setCon( $oCon );
+	public function setCon( $con ) {
+		$this->getMod()->setCon( $con );
 		return $this;
 	}
 
 	/**
-	 * @param \ICWP_WPSF_FeatureHandler_Base|Modules\Base\ModCon $oMod
+	 * @param Modules\Base\ModCon $mod
 	 * @return $this
 	 */
-	public function setMod( $oMod ) {
-		$this->oMod = $oMod;
+	public function setMod( $mod ) {
+		$this->oMod = $mod;
 		return $this;
 	}
 }

@@ -3,15 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 use FernleafSystems\Wordpress\Services\Services;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 	public function build() :array {
-		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $mod */
+		/** @var Autoupdates\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
+		/** @var Autoupdates\Options $opts */
 		$opts = $this->getOptions();
 		$WP = Services::WpGeneral();
 
