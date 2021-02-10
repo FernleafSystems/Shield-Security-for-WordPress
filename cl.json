@@ -70,6 +70,11 @@
         "description": []
       },
       {
+        "type":        "improved",
+        "title":       "Added detection of server clock inconsistencies which break Google Authenticator.",
+        "description": []
+      },
+      {
         "type":        "fixed",
         "title":       "U2F/Yubikey Removal Bug",
         "description": [
