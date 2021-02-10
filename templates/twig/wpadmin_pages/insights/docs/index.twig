@@ -7,14 +7,16 @@
 			<ul class="nav nav-tabs">
 
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab" href="#tabUpdates">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#tabUpdates"
+					   data-bs-toggle="tab">
 						{{ strings.tab_updates }}
 					</a>
 				</li>
 
 				{% if not flags.is_pro %}
 					<li class="nav-item">
-						<a class="nav-link" data-toggle="tab" role="tab" href="#tabFreeTrial">
+						<a class="nav-link" data-toggle="tab" role="tab" href="#tabFreeTrial"
+						   data-bs-toggle="tab">
 							{{ strings.tab_freetrial }}
 						</a>
 					</li>

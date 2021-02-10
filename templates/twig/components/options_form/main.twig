@@ -1,8 +1,8 @@
 <form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
 	  autocomplete="off">
 
-	<div id="ModuleOptionsNav" class="insights-sub-nav" role="tablist" aria-orientation="horizontal">
-		<ul class="nav nav-tabs">
+	<div id="ModuleOptionsNav" class="insights-sub-nav" aria-orientation="horizontal">
+		<ul class="nav nav-tabs" role="tablist">
 		{% for opt_sect_key,opt_section in data.all_options %}
 			<li class="nav-item">
 
