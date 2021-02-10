@@ -251,7 +251,6 @@ class UI {
 			'imgs'       => [
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
-				'background'     => $urlBuilder->forImage( 'shield/dash-background.jpg' ),
 				'background_svg' => $urlBuilder->forImage( 'shield/background-blob.svg' )
 			],
 			'content'    => [
