@@ -75,6 +75,13 @@
         "description": [
           "A javascript issue prevented removal of U2F keys from user profiles."
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "FileLocker would fail to load file contents if it exceeded 64KB.",
+        "description": [
+          "We upgraded the database table definition to allow for much larger files."
+        ]
       }
     ]
   },

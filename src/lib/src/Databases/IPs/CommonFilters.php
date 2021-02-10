@@ -40,14 +40,18 @@ trait CommonFilters {
 	}
 
 	/**
-	 * @param bool $bIsRange
+	 * @param bool $isRange
 	 * @return $this
 	 */
-	public function filterByIsRange( $bIsRange ) {
-		return $this->addWhereEquals( 'is_range', $bIsRange ? 1 : 0 );
+	public function filterByIsRange( bool $isRange ) {
+		return $this->addWhereEquals( 'is_range', $isRange ? 1 : 0 );
 	}
 
-	public function filterByLabel( string $label ) :self {
+	/**
+	 * @param string $label
+	 * @return $this
+	 */
+	public function filterByLabel( string $label ) {
 		return $this->addWhereEquals( 'label', $label );
 	}
 
