@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "10.2.0",
-    "release_timestamp":       1613037000,
-    "build":                   "202102.1107",
+    "version":                 "10.2.1",
+    "release_timestamp":       1613041550,
+    "build":                   "202102.1102",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -236,7 +236,7 @@
     "9.2.0",
     "9.2.2",
     "10.1.0",
-    "10.2.0"
+    "10.2.1"
   ],
   "action_links":     {
     "remove": null,
