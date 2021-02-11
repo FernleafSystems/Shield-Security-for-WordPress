@@ -80,7 +80,7 @@ class Sessions extends BaseBuild {
 			$oWpUsers = Services::WpUsers();
 			$aE[ 'wp_username' ] = sprintf(
 				'<a href="%s">%s</a>',
-				$oWpUsers->getAdminUrl_ProfileEdit( $oWpUsers->getUserByUsername( $aE[ 'wp_username' ] ) ),
+				$oWpUsers->getAdminUrl_ProfileEdit( $oWpUsers->getUserByUsername( $aE[ 'wp_username' ] ?? '' ) ),
 				$aE[ 'wp_username' ]
 			);
 			$aEntries[ $nKey ] = $aE;

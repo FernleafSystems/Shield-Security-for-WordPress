@@ -84,14 +84,18 @@ class ModCon extends BaseShield\ModCon {
 		$WPU = Services::WpUsers();
 
 		$aFiltered = [];
-		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
-			if ( $DP->validEmail( $sUsernameOrEmail ) ) {
-				$user = $WPU->getUserByEmail( $sUsernameOrEmail );
-			}
-			else {
-				$user = $WPU->getUserByUsername( $sUsernameOrEmail );
-				if ( is_null( $user ) && is_numeric( $sUsernameOrEmail ) ) {
-					$user = $WPU->getUserById( $sUsernameOrEmail );
+		foreach ( $aSecUsers as $nCurrentKey => $usernameOrEmail ) {
+			$user = null;
+
+			if ( !empty( $usernameOrEmail ) ) {
+				if ( $DP->validEmail( $usernameOrEmail ) ) {
+					$user = $WPU->getUserByEmail( $usernameOrEmail );
+				}
+				else {
+					$user = $WPU->getUserByUsername( $usernameOrEmail );
+					if ( is_null( $user ) && is_numeric( $usernameOrEmail ) ) {
+						$user = $WPU->getUserById( $usernameOrEmail );
+					}
 				}
 			}
 
