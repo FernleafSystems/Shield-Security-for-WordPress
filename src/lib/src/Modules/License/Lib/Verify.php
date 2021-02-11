@@ -85,10 +85,10 @@ class Verify {
 	}
 
 	private function preVerify() {
-		/** @var License\Options $oOpts */
-		$oOpts = $this->getOptions();
-		Services::WpFs()->touch( $this->getCon()->getPath_Flags( 'license_check' ) );
-		$oOpts->setOptAt( 'license_last_checked_at' );
+		/** @var License\Options $opts */
+		$opts = $this->getOptions();
+		Services::WpFs()->touch( $this->getCon()->paths->forFlag( 'license_check' ) );
+		$opts->setOptAt( 'license_last_checked_at' );
 		$this->getMod()->saveModOptions();
 	}
 }

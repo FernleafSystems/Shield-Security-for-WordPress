@@ -19,7 +19,7 @@ class ImportIpsFromFile {
 	private function runFileImport( string $type ) {
 		$FS = Services::WpFs();
 
-		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->getCon()->getPath_Flags() );
+		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->getCon()->paths->forFlag() );
 		if ( $FS->isFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {

@@ -179,7 +179,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
-		$oConn = $this->getCon();
+		$con = $this->getCon();
 
 		$aAdditional = [];
 
@@ -203,7 +203,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'blog_importexport' => 'https://shsec.io/av'
 						],
 						'imgs'  => [
-							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+							'shieldnetworkmini' => $con->urls->forImage( 'shield/shieldnetworkmini.png' ),
 						]
 					];
 					break;
@@ -227,14 +227,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'how_shield_works':
 					$aAdditional = [
 						'imgs'     => [
-							'how_shield_works' => $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' ),
-							'modules'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' ),
-							'options'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' ),
-							'wizards'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_wizards.png' ),
-							'help'             => $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' ),
-							'actions'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' ),
-							'option_help'      => $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' ),
-							'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
+							'how_shield_works' => $con->urls->forImage( 'wizard/general-shield_where.png' ),
+							'modules'          => $con->urls->forImage( 'wizard/general-shield_modules.png' ),
+							'options'          => $con->urls->forImage( 'wizard/general-shield_options.png' ),
+							'wizards'          => $con->urls->forImage( 'wizard/general-shield_wizards.png' ),
+							'help'             => $con->urls->forImage( 'wizard/general-shield_help.png' ),
+							'actions'          => $con->urls->forImage( 'wizard/general-shield_actions.png' ),
+							'option_help'      => $con->urls->forImage( 'wizard/general-option_help.png' ),
+							'module_onoff'     => $con->urls->forImage( 'wizard/general-module_onoff.png' ),
 						],
 						'headings' => [
 							'how_shield_works' => __( 'Where to find Shield', 'wp-simple-firewall' ),
@@ -247,7 +247,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'module_onoff'     => __( 'Module On/Off Switch', 'wp-simple-firewall' ),
 						],
 						'captions' => [
-							'how_shield_works' => sprintf( __( "You'll find the main %s settings in the left-hand WordPress menu.", 'wp-simple-firewall' ), $oConn->getHumanName() ),
+							'how_shield_works' => sprintf( __( "You'll find the main %s settings in the left-hand WordPress menu.", 'wp-simple-firewall' ), $con->getHumanName() ),
 							'modules'          => __( 'Shield is split up into independent modules for accessing the options of each feature.', 'wp-simple-firewall' ),
 							'options'          => __( 'When you load a module, you can access the options by clicking on the Options Panel link.', 'wp-simple-firewall' ),
 							'wizards'          => __( 'Launch helpful walk-through wizards for modules that have them.', 'wp-simple-firewall' ),
@@ -272,7 +272,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'blog_importexport' => 'https://shsec.io/av'
 						],
 						'imgs'  => [
-							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+							'shieldnetworkmini' => $con->urls->forImage( 'shield/shieldnetworkmini.png' ),
 						]
 					];
 					break;

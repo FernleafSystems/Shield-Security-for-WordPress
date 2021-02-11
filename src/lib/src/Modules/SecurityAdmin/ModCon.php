@@ -252,10 +252,10 @@ class ModCon extends BaseShield\ModCon {
 			$sLogoUrl = $opts->getOpt( $key );
 		}
 		if ( !empty( $sLogoUrl ) && !Services::Data()->isValidWebUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
-			$sLogoUrl = $this->getCon()->getPluginUrl_Image( $sLogoUrl );
+			$sLogoUrl = $this->getCon()->urls->forImage( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
 				$opts->resetOptToDefault( $key );
-				$sLogoUrl = $this->getCon()->getPluginUrl_Image( $opts->getOpt( $key ) );
+				$sLogoUrl = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
 			}
 		}
 

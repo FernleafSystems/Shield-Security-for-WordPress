@@ -30,10 +30,10 @@ class Urls {
 	public function forAsset( string $asset ) :string {
 		$con = $this->getCon();
 
-		$path = $con->getPath_Assets( $asset );
+		$path = $con->paths->forAsset( $asset );
 		if ( Services::WpFs()->exists( $path ) ) {
 			$url = Services::Includes()->addIncludeModifiedParam(
-				$this->forPluginItem( $con->getPluginSpec_Path( 'assets' ).'/'.$asset ),
+				$this->forPluginItem( $con->cfg->paths[ 'assets' ].'/'.$asset ),
 				$path
 			);
 		}

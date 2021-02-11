@@ -220,20 +220,13 @@ class LicenseHandler {
 		return $this;
 	}
 
-	/**
-	 * @param int $nTimePeriod
-	 * @return bool
-	 */
-	private function getIsLicenseNotCheckedFor( $nTimePeriod ) {
+	private function getIsLicenseNotCheckedFor( $nTimePeriod ) :bool {
 		return $this->getLicenseNotCheckedForInterval() > $nTimePeriod;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function canLicenseCheck_FileFlag() {
+	private function canLicenseCheck_FileFlag() :bool {
 		$nMtime = (int)Services::WpFs()->getModifiedTime(
-			$this->getCon()->getPath_Flags( 'license_check' )
+			$this->getCon()->paths->forFlag( 'license_check' )
 		);
 		return ( Services::Request()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
 	}

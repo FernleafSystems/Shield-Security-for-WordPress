@@ -31,7 +31,7 @@ abstract class ModCon {
 	protected $bImportExportWhitelistNotify = false;
 
 	/**
-	 * @var Shield\Modules\Base\BaseProcessor
+	 * @var Shield\Modules\Base\Processor
 	 */
 	private $oProcessor;
 

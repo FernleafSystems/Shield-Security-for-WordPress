@@ -15,7 +15,7 @@ class UnblockIpByFlag {
 		$mod = $this->getMod();
 		$FS = Services::WpFs();
 
-		$path = $FS->findFileInDir( 'unblock', $this->getCon()->getPath_Flags() );
+		$path = $FS->findFileInDir( 'unblock', $this->getCon()->paths->forFlag() );
 		if ( !empty( $path ) && $FS->isFile( $path ) ) {
 			$sContent = $FS->getFileContent( $path );
 			if ( !empty( $sContent ) ) {

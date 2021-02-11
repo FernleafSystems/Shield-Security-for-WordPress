@@ -242,7 +242,7 @@ class UI extends BaseShield\UI {
 					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),
 					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'     => $mod->getUrl_AdminPage(),
-					'img_banner'   => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
+					'img_banner'   => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
 				],
 				'strings' => [
 					'page_title' => $pageTitle

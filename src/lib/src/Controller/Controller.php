@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
  * @property Config\ConfigVO                                        $cfg
  * @property Shield\Controller\Assets\Urls                          $urls
+ * @property Shield\Controller\Assets\Paths                         $paths
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
  * @property bool                                                   $modules_loaded
@@ -160,6 +161,13 @@ class Controller {
 			case 'urls':
 				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
 					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+				}
+				break;
+
+			case 'paths':
+				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
+					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
+					$this->paths = $val;
 				}
 				break;
 
@@ -729,7 +737,7 @@ class Controller {
 		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
 			$key = 'icon_url_'.$dimension;
 			if ( !empty( $labels[ $key ] ) && !$oDP->isValidWebUrl( $labels[ $key ] ) ) {
-				$labels[ $key ] = $this->getPluginUrl_Image( $labels[ $key ] );
+				$labels[ $key ] = $this->urls->forImage( $labels[ $key ] );
 			}
 		}
 
@@ -752,11 +760,11 @@ class Controller {
 
 	protected function deleteFlags() {
 		$FS = Services::WpFs();
-		if ( $FS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
-			$FS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		if ( $FS->exists( $this->paths->forFlag( 'rebuild' ) ) ) {
+			$FS->deleteFile( $this->paths->forFlag( 'rebuild' ) );
 		}
 		if ( $this->getIsResetPlugin() ) {
-			$FS->deleteFile( $this->getPath_Flags( 'reset' ) );
+			$FS->deleteFile( $this->paths->forFlag( 'reset' ) );
 		}
 	}
 
@@ -835,11 +843,7 @@ class Controller {
 	 * @return string|null
 	 */
 	public function getPluginSpec_Path( string $key ) {
-		if ( isset( $this->cfg ) ) {
-			return $this->cfg->paths[ $key ];
-		}
-		$aData = $this->getPluginSpec()[ 'paths' ];
-		return $aData[ $key ] ?? null;
+		return $this->cfg->paths[ $key ];
 	}
 
 	/**
@@ -847,15 +851,6 @@ class Controller {
 	 * @return mixed|null
 	 */
 	protected function getCfgProperty( string $key ) {
-		return $this->cfg->properties[ $key ] ?? null;
-	}
-
-	/**
-	 * @param string $key
-	 * @return mixed|null
-	 * @deprecated 10.2.0 - getCfgProperty()
-	 */
-	protected function getPluginSpec_Property( string $key ) {
 		return $this->cfg->properties[ $key ] ?? null;
 	}
 
@@ -936,17 +931,9 @@ class Controller {
 		return Services::WpGeneral()->getCurrentWpAdminPage() === $this->getPluginPrefix();
 	}
 
-	/**
-	 * @return bool
-	 * @deprecated 10.2
-	 */
-	public function getIsRebuildOptionsFromFile() :bool {
-		return $this->rebuild_options;
-	}
-
 	public function getIsResetPlugin() :bool {
 		if ( !isset( $this->plugin_reset ) ) {
-			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
+			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );
 		}
 		return (bool)$this->plugin_reset;
 	}
@@ -957,17 +944,6 @@ class Controller {
 
 	public function getParentSlug() :string {
 		return $this->getCfgProperty( 'slug_parent' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.2.0
-	 */
-	public function getPluginBaseFile() :string {
-		if ( !isset( $this->base_file ) ) {
-			$this->base_file = plugin_basename( $this->getRootFile() );
-		}
-		return $this->base_file;
 	}
 
 	public function getPluginSlug() :string {
@@ -981,32 +957,12 @@ class Controller {
 	/**
 	 * @deprecated 10.2
 	 */
-	public function getPluginUrl_Asset( string $asset ) :string {
-		$url = '';
-		$sAssetPath = $this->getPath_Assets( $asset );
-		if ( Services::WpFs()->exists( $sAssetPath ) ) {
-			$url = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$asset );
-			return Services::Includes()->addIncludeModifiedParam( $url, $sAssetPath );
-		}
-		return $url;
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function getPluginUrl_Css( string $asset ) :string {
-		return $this->urls->forCss( $asset );
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
 	public function getPluginUrl_Image( string $asset ) :string {
 		return $this->urls->forImage( $asset );
 	}
 
 	/**
-	 * @deprecated 10.2
+	 * @deprecated 10.3
 	 */
 	public function getPluginUrl_Js( string $asset ) :string {
 		return $this->urls->forJs( $asset );
@@ -1017,11 +973,19 @@ class Controller {
 	}
 
 	public function getPath_Assets( string $asset = '' ) :string {
-		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) );
-		return empty( $asset ) ? $base : path_join( $base, $asset );
+		$base = path_join( $this->getRootDir(), $this->cfg->paths[ 'assets' ] );
+		return empty( $asset ) ? $base : path_join( $base, ltrim( $asset, '/' ) );
 	}
 
+	/**
+	 * @param string $flag
+	 * @return string
+	 * @deprecated 10.3
+	 */
 	public function getPath_Flags( string $flag = '' ) :string {
+		if ( isset( $this->paths ) ) {
+			return $this->paths->forFlag( $flag );
+		}
 		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
 		return empty( $flag ) ? $base : path_join( $base, $flag );
 	}
@@ -1072,7 +1036,15 @@ class Controller {
 		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
 	}
 
+	/**
+	 * @param string $sourceFile
+	 * @return string
+	 * @deprecated 10.3
+	 */
 	public function getPath_SourceFile( string $sourceFile ) :string {
+		if ( isset( $this->paths ) ) {
+			return $this->paths->forSource( $sourceFile );
+		}
 		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) );
 		return empty( $sourceFile ) ? $base : path_join( $base, $sourceFile );
 	}
@@ -1081,8 +1053,11 @@ class Controller {
 		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
-	public function getPath_TemplatesFile( string $sTemplate ) :string {
-		return path_join( $this->getPath_Templates(), $sTemplate );
+	public function getPath_TemplatesFile( string $template ) :string {
+		if ( isset( $this->paths ) ) {
+			return $this->paths->forTemplate( $template );
+		}
+		return path_join( $this->getPath_Templates(), $template );
 	}
 
 	private function getPathPluginSpec() :string {
@@ -1625,62 +1600,5 @@ class Controller {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpAdminMenu() {
-	}
-
-	/**
-	 * @param \WP_Admin_Bar $adminBar
-	 * @deprecated 10.2
-	 */
-	public function onWpAdminBarMenu( $adminBar ) {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpDashboardSetup() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	protected function createPluginMenu() :bool {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	protected function fixSubmenu() {
-	}
-
-	/**
-	 * Displaying all views now goes through this central function and we work out
-	 * what to display based on the name of current hook/filter being processed.
-	 * @deprecated 10.2
-	 */
-	public function onDisplayTopMenu() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueFrontendCss() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueAdminJs() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueAdminCss() {
 	}
 }

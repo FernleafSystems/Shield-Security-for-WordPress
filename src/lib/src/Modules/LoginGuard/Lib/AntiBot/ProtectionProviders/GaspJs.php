@@ -80,7 +80,7 @@ class GaspJs extends BaseProtectionProvider {
 		$uniq = $con->prefix( $asset );
 		wp_register_script(
 			$uniq,
-			$con->getPluginUrl_Js( $asset ),
+			$con->urls->forJs( $asset ),
 			[ 'jquery' ],
 			$con->getVersion()
 		);

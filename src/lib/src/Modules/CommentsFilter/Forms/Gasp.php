@@ -50,7 +50,7 @@ class Gasp {
 		$handle = $con->prefix( 'shield-comments' );
 		wp_register_script(
 			$handle,
-			$con->getPluginUrl_Js( $sAsset ),
+			$con->urls->forJs( $sAsset ),
 			[ 'jquery' ],
 			$con->getVersion(),
 			true
