@@ -31,12 +31,13 @@ class LoadConfig {
 	 * @throws \Exception
 	 */
 	public function run() :ConfigVO {
+		$con = $this->getCon();
 		$def = $this->fromWp();
 		$rebuild = empty( $def ) || !is_array( $def );
 
 		$specHash = sha1_file( $this->path );
+		$previousVersion = ( is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
 		if ( !$rebuild ) {
-			$con = $this->getCon();
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 
 			$rebuild = empty( $def[ 'hash' ] ) || !hash_equals( $def[ 'hash' ], $specHash )
@@ -44,9 +45,18 @@ class LoadConfig {
 			$def[ 'hash' ] = $specHash;
 		}
 
-		$cfg = ( new ConfigVO() )->applyFromArray( $rebuild ? $this->fromFile() : $def );
+		if ( $rebuild ) {
+			$def = $this->fromFile();
+			$def[ 'previous_version' ] = $previousVersion;
+		}
+
+		$cfg = ( new ConfigVO() )->applyFromArray( $def );
 		$cfg->hash = $specHash;
 		$cfg->rebuilt = $rebuild;
+
+		if ( empty( $cfg->previous_version ) ) {
+			$cfg->previous_version = $cfg->properties[ 'version' ];
+		}
 
 		return $cfg;
 	}

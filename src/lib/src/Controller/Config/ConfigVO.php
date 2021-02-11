@@ -58,12 +58,6 @@ class ConfigVO {
 				);
 				break;
 
-			case 'previous_version':
-				if ( empty( $val ) ) {
-					$val = $this->properties[ 'version' ];
-				}
-				break;
-
 			case 'update_first_detected':
 				if ( empty( $val ) ) {
 					$val = [];

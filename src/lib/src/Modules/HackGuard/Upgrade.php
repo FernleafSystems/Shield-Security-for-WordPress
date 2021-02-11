@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgrade_1020() {
+	protected function upgrade_1021() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$schema = $mod->getDbHandler_FileLocker()->getTableSchema();
