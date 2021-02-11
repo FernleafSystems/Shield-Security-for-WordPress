@@ -95,6 +95,12 @@
           "Code designed to automatically run when the plugin is upgraded between version wasn't always running."
         ],
         "patch":       "10.2.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fatal error in some cases",
+        "description": [],
+        "patch":       "10.2.2"
       }
     ]
   },
