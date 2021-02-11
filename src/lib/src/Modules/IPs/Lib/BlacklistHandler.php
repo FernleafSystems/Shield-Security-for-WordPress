@@ -80,6 +80,11 @@ class BlacklistHandler {
 						->setMod( $mod )
 						->run();
 				}
+				if ( $opts->isEnabledTrackInvalidScript() ) {
+					( new IPs\BotTrack\TrackDirectFileAccess() )
+						->setMod( $mod )
+						->run();
+				}
 			}
 
 			/** Always run link cheese regardless of the verified bot or not */

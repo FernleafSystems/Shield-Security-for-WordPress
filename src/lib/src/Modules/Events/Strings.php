@@ -44,27 +44,31 @@ class Strings extends Base\Strings {
 			),
 			'bottrack_fakewebcrawler'      => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Fake Web Crawler' )
+				__( 'Fake Web Crawler', 'wp-simple-firewall' )
 			),
 			'bottrack_linkcheese'          => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Link Cheese' )
+				__( 'Link Cheese', 'wp-simple-firewall' )
 			),
 			'bottrack_loginfailed'         => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Failed Login' )
+				__( 'Failed Login', 'wp-simple-firewall' )
 			),
 			'bottrack_logininvalid'        => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Invalid Username Login' )
+				__( 'Invalid Username Login', 'wp-simple-firewall' )
 			),
 			'bottrack_useragent'           => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Invalid User-Agent' )
+				__( 'Invalid User-Agent', 'wp-simple-firewall' )
 			),
 			'bottrack_xmlrpc'              => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
 				'XML-RPC'
+			),
+			'bottrack_invalidscript'       => sprintf( '%s: %s',
+				__( 'Bot Detection', 'wp-simple-firewall' ),
+				__( 'Invalid Script', 'wp-simple-firewall' )
 			),
 			'apc_alert_sent'               => sprintf( '%s: %s',
 				__( 'Alert Sent', 'wp-simple-firewall' ),

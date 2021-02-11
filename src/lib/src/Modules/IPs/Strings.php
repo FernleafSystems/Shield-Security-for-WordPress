@@ -282,6 +282,9 @@ class Strings extends Base\Strings {
 			'bottrack_xmlrpc'         => [
 				__( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' )
 			],
+			'bottrack_invalidscript'         => [
+				__( 'Tried to load an invalid WordPress PHP script "%s".', 'wp-simple-firewall' )
+			],
 		];
 	}
 }

@@ -1,6 +1,6 @@
 {
-  "slug":          "ips",
-  "properties":    {
+  "slug":             "ips",
+  "properties":       {
     "slug":                  "ips",
     "name":                  "Block Bad IPs/Visitors",
     "sidebar_name":          "IP Blocking",
@@ -32,7 +32,7 @@
       }
     }
   ],
-  "admin_notices": {
+  "admin_notices":    {
     "visitor-whitelisted": {
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
@@ -41,7 +41,7 @@
       "type":             "info"
     }
   },
-  "requirements":  {
+  "requirements":     {
     "php": {
       "functions": [
         "filter_var"
@@ -55,7 +55,7 @@
       ]
     }
   },
-  "sections":      [
+  "sections":         [
     {
       "slug":        "section_auto_black_list",
       "primary":     true,
@@ -123,7 +123,7 @@
       "hidden": true
     }
   ],
-  "options":       [
+  "options":          [
     {
       "key":         "enable_ips",
       "section":     "section_enable_plugin_feature_ips",
@@ -333,6 +333,40 @@
       "description":   "If you don't use XML-RPC, why would anyone access it?"
     },
     {
+      "key":           "track_invalid_script",
+      "section":       "section_probes",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "https://shsec.io/fo",
+      "link_blog":     "https://shsec.io/f7",
+      "name":          "Valid Root Script",
+      "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
+      "description":   "WordPress should only be loaded in a limited number of ways."
+    },
+    {
       "key":           "track_loginfailed",
       "section":       "section_logins",
       "default":       "transgression-single",
@@ -495,7 +529,7 @@
       "default":      []
     }
   ],
-  "definitions":   {
+  "definitions":      {
     "db_classes":                      {
       "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
@@ -554,6 +588,10 @@
         "offense": true
       },
       "bottrack_xmlrpc":         {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_invalidscript":         {
         "cat":     2,
         "offense": true
       }

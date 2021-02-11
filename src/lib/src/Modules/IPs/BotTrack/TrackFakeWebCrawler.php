@@ -25,19 +25,18 @@ class TrackFakeWebCrawler extends Base {
 	 * @return false
 	 * @throws \Exception
 	 */
-	private function getIfVisitorIdentifiesAsCrawler() {
-		$bIdentifiesAs = false;
+	private function getIfVisitorIdentifiesAsCrawler() :bool {
+		$identifiesAsCrawler = false;
 
-		$sUserAgent = Services::Request()->getUserAgent();
-		if ( !empty( $sUserAgent ) ) {
-			foreach ( Services::ServiceProviders()->getAllCrawlerUseragents() as $sPossibleAgent ) {
-				if ( stripos( $sUserAgent, $sPossibleAgent ) !== false ) {
-					throw new \Exception( $sPossibleAgent );
-					break;
+		$userAgent = Services::Request()->getUserAgent();
+		if ( !empty( $userAgent ) ) {
+			foreach ( Services::ServiceProviders()->getAllCrawlerUseragents() as $possible ) {
+				if ( stripos( $userAgent, $possible ) !== false ) {
+					throw new \Exception( $possible );
 				}
 			}
 		}
 
-		return $bIdentifiesAs;
+		return $identifiesAsCrawler;
 	}
 }
