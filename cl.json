@@ -1,7 +1,7 @@
 {
   "10.2": {
     "version":     "10.2",
-    "released_at": 1612200622,
+    "released_at": 1613037000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease102",
       "upgrade": "https://shsec.io/shieldupgradeguide102"
@@ -67,6 +67,11 @@
       {
         "type":        "improved",
         "title":       "Added cleanup code to remove stale entries in the WP Options table.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Added detection of server clock inconsistencies which break Google Authenticator.",
         "description": []
       },
       {
