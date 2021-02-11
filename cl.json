@@ -87,6 +87,14 @@
         "description": [
           "We upgraded the database table definition to allow for much larger files."
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Plugin Upgrade Code wasn't always running",
+        "description": [
+          "Code designed to automatically run when the plugin is upgraded between version wasn't always running."
+        ],
+        "patch":       "10.2.1"
       }
     ]
   },
