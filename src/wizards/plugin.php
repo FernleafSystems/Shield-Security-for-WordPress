@@ -624,9 +624,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					}
 				}
 				else {
-					$sUsername = sanitize_user( $sInput );
-					if ( !empty( $sUsername ) ) {
-						$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
+					$username = sanitize_user( $sInput );
+					if ( !empty( $username ) ) {
+						$oUser = Services::WpUsers()->getUserByUsername( $username );
 						if ( $oUser instanceof WP_User ) {
 							$aItems[] = $oUser->user_email;
 						}
