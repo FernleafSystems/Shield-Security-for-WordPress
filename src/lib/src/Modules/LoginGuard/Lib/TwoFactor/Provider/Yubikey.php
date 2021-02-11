@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,29 +13,22 @@ class Yubikey extends BaseProvider {
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	public function setupProfile() {
-		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
-			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
-				$this->enqueueYubikeyJS();
-			}
-		} );
-	}
 
-	/**
-	 * Enqueue the Javascript for removing Yubikey
-	 */
-	private function enqueueYubikeyJS() {
-		$oCon = $this->getCon();
-		$sScript = 'shield-userprofile';
-		wp_enqueue_script(
-			$oCon->prefix( $sScript ),
-			$oCon->getPluginUrl_Js( $sScript ),
-			[ 'jquery', $oCon->prefix( 'global-plugin' ) ]
-		);
-		wp_localize_script(
-			$oCon->prefix( $sScript ),
-			'icwp_wpsf_vars_profileyubikey',
-			[ 'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
-		);
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
+			if ( in_array( $hook, [ 'profile.php', ] ) ) {
+				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
+
+				add_filter( 'shield/custom_localisations', function ( array $localz ) {
+					$localz[] = [
+						'shield/userprofile',
+						'icwp_wpsf_vars_profileyubikey',
+						[ 'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
+					];
+					return $localz;
+				} );
+			}
+			return $enqueues;
+		}, 10, 2 );
 	}
 
 	public function renderUserProfileOptions( \WP_User $user ) :string {
@@ -138,11 +132,6 @@ class Yubikey extends BaseProvider {
 		return array_filter( array_map( 'trim', explode( ',', $this->getSecret( $user ) ) ) );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		$valid = false;
 

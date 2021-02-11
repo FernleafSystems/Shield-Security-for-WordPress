@@ -12,21 +12,21 @@ use FernleafSystems\Wordpress\Services\Services;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
-	public function scan( $sFullPath ) {
-		$oResult = null;
+	public function scan( string $fullPath ) {
+		$item = null;
 
-		$sFullPath = wp_normalize_path( $sFullPath );
-		if ( !$this->isExcluded( $sFullPath ) ) {
-			/** @var ResultItem $oResult */
-			$oResult = $this->getScanActionVO()->getNewResultItem();
-			$oResult->path_full = $sFullPath;
-			$oResult->path_fragment = Services::CoreFileHashes()->getFileFragment( $sFullPath );
+		$fullPath = wp_normalize_path( $fullPath );
+		if ( !$this->isExcluded( $fullPath ) ) {
+			/** @var ResultItem $item */
+			$item = $this->getScanActionVO()->getNewResultItem();
+			$item->path_full = $fullPath;
+			$item->path_fragment = Services::CoreFileHashes()->getFileFragment( $fullPath );
 		}
 
-		return $oResult;
+		return $item;
 	}
 
 	/**

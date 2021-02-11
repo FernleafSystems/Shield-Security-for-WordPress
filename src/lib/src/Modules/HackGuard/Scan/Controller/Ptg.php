@@ -50,14 +50,12 @@ class Ptg extends BaseForAssets {
 	 * @param Scans\Mal\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) {
-		$bStale = false;
-		$oAsset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
-		if ( empty( $oAsset ) ) {
-			$oAsset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
-			$bStale = empty( $oAsset );
+	protected function isResultItemStale( $item ) :bool {
+		$asset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
+		if ( empty( $asset ) ) {
+			$asset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
 		}
-		return $bStale;
+		return empty( $asset );
 	}
 
 	/**

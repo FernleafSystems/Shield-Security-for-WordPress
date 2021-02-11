@@ -13,10 +13,10 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 	 */
 	protected function getBaseData() {
 		$aData = parent::getBaseData();
-		$oIt = $this->getResultItem();
+		$item = $this->getResultItem();
 		$aData[ 'explanation' ] = $this->getExplanation();
-		$aData[ 'path' ] = $oIt->path_fragment;
-		$aData[ 'path_relabs' ] = Services::WpFs()->getPathRelativeToAbsPath( $oIt->path_full );
+		$aData[ 'path' ] = $item->path_fragment;
+		$aData[ 'path_relabs' ] = Services::WpFs()->getPathRelativeToAbsPath( $item->path_full );
 		$aData[ 'path_details' ] = [];
 		$aData[ 'created_at' ] = $this->formatTimestampField( $this->getEntryVO()->created_at );
 		$aData[ 'custom_row' ] = false;

@@ -13,17 +13,17 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
-	public function scan( $sFullPath ) {
+	public function scan( string $fullPath ) {
 		$oResult = null;
 		$oHashes = Services::CoreFileHashes();
 
 		/** @var ResultItem $oRes */
 		$oRes = $this->getScanActionVO()->getNewResultItem();
-		$oRes->path_full = $sFullPath;
-		$oRes->path_fragment = $oHashes->getFileFragment( $sFullPath );
+		$oRes->path_full = $fullPath;
+		$oRes->path_fragment = $oHashes->getFileFragment( $fullPath );
 		$oRes->md5_file_wp = $oHashes->getFileHash( $oRes->path_fragment );
 		$oRes->is_missing = !Services::WpFs()->exists( $oRes->path_full );
 		$oRes->is_checksumfail = !$oRes->is_missing && $this->isChecksumFail( $oRes );
@@ -58,19 +58,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param ResultItem $oRes
+	 * @param ResultItem $item
 	 * @return bool
 	 */
-	private function isChecksumFail( $oRes ) {
-		$bFail = false;
-		if ( !$oRes->is_missing ) {
+	private function isChecksumFail( $item ) {
+		$fail = false;
+		if ( !$item->is_missing ) {
 			try {
-				$bFail = ( strpos( $oRes->path_full, '.php' ) > 0 )
-						 && !( new CompareHash() )->isEqualFileMd5( $oRes->path_full, $oRes->md5_file_wp );
+				$fail = ( strpos( $item->path_full, '.php' ) > 0 )
+						 && !( new CompareHash() )->isEqualFileMd5( $item->path_full, $item->md5_file_wp );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
-		return $bFail;
+		return $fail;
 	}
 }

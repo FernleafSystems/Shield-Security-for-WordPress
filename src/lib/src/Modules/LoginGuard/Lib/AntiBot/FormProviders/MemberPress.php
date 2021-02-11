@@ -35,8 +35,8 @@ class MemberPress extends BaseFormProvider {
 				$this->setActionToAudit( 'memberpress-login' )
 					 ->checkProviders();
 			}
-			catch ( \Exception $oE ) {
-				$aErrors[] = $oE->getMessage();
+			catch ( \Exception $e ) {
+				$aErrors[] = $e->getMessage();
 			}
 		}
 		return $aErrors;
@@ -52,8 +52,8 @@ class MemberPress extends BaseFormProvider {
 				$this->setActionToAudit( 'memberpress-lostpassword' )
 					 ->checkProviders();
 			}
-			catch ( \Exception $oE ) {
-				$aErrors[] = $oE->getMessage();
+			catch ( \Exception $e ) {
+				$aErrors[] = $e->getMessage();
 			}
 		}
 		return $aErrors;
@@ -70,8 +70,8 @@ class MemberPress extends BaseFormProvider {
 				$this->setActionToAudit( 'memberpress-register' )
 					 ->checkProviders();
 			}
-			catch ( \Exception $oE ) {
-				$aErrors[] = $oE->getMessage();
+			catch ( \Exception $e ) {
+				$aErrors[] = $e->getMessage();
 			}
 		}
 		return $aErrors;

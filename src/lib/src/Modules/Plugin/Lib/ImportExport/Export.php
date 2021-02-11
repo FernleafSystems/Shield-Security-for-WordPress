@@ -26,7 +26,7 @@ class Export {
 					break;
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		die();
 	}

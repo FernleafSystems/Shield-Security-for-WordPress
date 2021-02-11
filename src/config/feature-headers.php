@@ -167,6 +167,7 @@
     {
       "key":         "enable_x_content_security_policy",
       "section":     "section_content_security_policy",
+      "premium":     true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/7d",
@@ -174,75 +175,6 @@
       "name":        "Enable Content Security Policy",
       "summary":     "Enable (or Disable) The Content Security Policy module",
       "description": "Allows for permission and restriction of all resources loaded on your site."
-    },
-    {
-      "key":         "xcsp_self",
-      "section":     "section_content_security_policy",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Self",
-      "summary":     "Allow 'self' Directive",
-      "description": "Using 'self' is generally recommended. It essentially means that resources from your own host:protocol are permitted."
-    },
-    {
-      "key":         "xcsp_inline",
-      "section":     "section_content_security_policy",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Inline Entities",
-      "summary":     "Allow Inline Scripts and CSS",
-      "description": "Allows parsing of Javascript and CSS declared in-line in your html document."
-    },
-    {
-      "key":         "xcsp_data",
-      "section":     "section_content_security_policy",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Embedded Data",
-      "summary":     "Allow 'data:' Directives",
-      "description": "Allows use of embedded data directives, most commonly used for images and fonts."
-    },
-    {
-      "key":         "xcsp_eval",
-      "section":     "section_content_security_policy",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Allow eval()",
-      "summary":     "Allow Javascript eval()",
-      "description": "Permits the use of Javascript the eval() function."
-    },
-    {
-      "key":         "xcsp_https",
-      "section":     "section_content_security_policy",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "HTTPS",
-      "summary":     "HTTPS Resource Loading",
-      "description": "Allows loading of any content provided over HTTPS."
-    },
-    {
-      "key":         "xcsp_hosts",
-      "section":     "section_content_security_policy",
-      "sensitive":   true,
-      "default":     [
-        "*"
-      ],
-      "type":        "array",
-      "link_info":   "https://shsec.io/ga",
-      "link_blog":   "",
-      "name":        "Permitted Hosts",
-      "summary":     "Permitted Hosts and Domains",
-      "description": "You can explicitly state which hosts/domain from which content may be loaded. Take great care and test your site as you may block legitimate resources. If in-doubt, leave blank or use '*' only. Note: You can force only HTTPS for a given domain by prefixing it with 'https://'."
     },
     {
       "key":         "xcsp_custom",

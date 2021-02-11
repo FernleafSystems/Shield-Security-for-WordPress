@@ -45,11 +45,6 @@ class Email extends BaseProvider {
 		return $this;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		$valid = false;
 		foreach ( $this->getAllCodes( $user ) as $secret => $expiresAt ) {
@@ -106,11 +101,7 @@ class Email extends BaseProvider {
 		}
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProfileActive( \WP_User $user ) {
+	public function isProfileActive( \WP_User $user ) :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return parent::isProfileActive( $user ) &&
@@ -118,11 +109,7 @@ class Email extends BaseProvider {
 				 ( $this->hasValidatedProfile( $user ) && $opts->isEnabledEmailAuthAnyUserSet() ) );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	protected function isEnforced( \WP_User $user ) {
+	protected function isEnforced( \WP_User $user ) :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return count( array_intersect( $opts->getEmail2FaRoles(), $user->roles ) ) > 0;
@@ -229,11 +216,7 @@ class Email extends BaseProvider {
 		return $opts->isEmailAuthenticationActive();
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProviderAvailableToUser( \WP_User $user ) {
+	public function isProviderAvailableToUser( \WP_User $user ) :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return parent::isProviderAvailableToUser( $user )

@@ -143,7 +143,7 @@ class UI {
 			}
 			$aOptParams = Services::DataManipulation()->mergeArraysRecursive( $aOptParams, $aOptStrings );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		return $aOptParams;
 	}
@@ -169,6 +169,7 @@ class UI {
 	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();
+		$urlBuilder = $con->urls;
 
 		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
 		$oPluginOptions = $con->getModule_Plugin()->getOptions();
@@ -234,23 +235,23 @@ class UI {
 				'wizard_landing' => $mod->getUrl_WizardLanding(),
 
 				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $con->getPluginUrl_Css( 'bootstrap4.min' ),
-				'css_pages'        => $con->getPluginUrl_Css( 'pages' ),
-				'css_steps'        => $con->getPluginUrl_Css( 'jquery.steps' ),
-				'css_fancybox'     => $con->getPluginUrl_Css( 'jquery.fancybox.min' ),
-				'css_globalplugin' => $con->getPluginUrl_Css( 'global-plugin' ),
-				'css_wizard'       => $con->getPluginUrl_Css( 'wizard' ),
+				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap4.min' ),
+				'css_pages'        => $urlBuilder->forCss( 'pages' ),
+				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
+				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
+				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
+				'css_wizard'       => $urlBuilder->forCss( 'wizard' ),
 				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $con->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
-				'js_fancybox'      => $con->getPluginUrl_Js( 'jquery.fancybox.min' ),
-				'js_globalplugin'  => $con->getPluginUrl_Js( 'global-plugin' ),
-				'js_steps'         => $con->getPluginUrl_Js( 'jquery.steps.min' ),
-				'js_wizard'        => $con->getPluginUrl_Js( 'wizard' ),
+				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap4.bundle.min' ),
+				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
+				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
+				'js_steps'         => $urlBuilder->forJs( 'jquery.steps.min' ),
+				'js_wizard'        => $urlBuilder->forJs( 'wizard' ),
 			],
 			'imgs'       => [
-				'favicon'       => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'plugin_banner' => $con->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
-				'background'    => $con->getPluginUrl_Image( 'shield/dash-background.jpg' )
+				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
+				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
+				'background_svg' => $urlBuilder->forImage( 'shield/background-blob.svg' )
 			],
 			'content'    => [
 				'options_form'   => '',
@@ -365,7 +366,7 @@ class UI {
 		try {
 			$NS = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$NS = __NAMESPACE__;
 		}
 

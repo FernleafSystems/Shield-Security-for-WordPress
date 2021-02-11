@@ -56,14 +56,6 @@ class EventsService {
 		return $this->isSupportedEvent( $eventKey ) ? $this->getEvents()[ $eventKey ] : null;
 	}
 
-	/**
-	 * @return string[]
-	 * @deprecated 10.1
-	 */
-	public function getEventKeys() {
-		return array_keys( $this->getEvents() );
-	}
-
 	public function isSupportedEvent( string $eventKey ) :bool {
 		return in_array( $eventKey, array_keys( $this->getEvents() ) );
 	}

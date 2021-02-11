@@ -15,71 +15,67 @@ class FalsePositiveQuery {
 	use Modules\ModConsumer;
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @param int[]  $aLines
 	 * @return int[] - key is the file line number, value is the false positive confidence score
 	 */
-	public function queryFileLines( $sFullPath, $aLines ) {
-		$aScores = [];
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
+	public function queryFileLines( $fullPath, $aLines ) {
+		$scores = [];
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
 			try {
-				$aFile = ( new ExtractLinesFromFile() )->run( $sFullPath, $aLines );
+				$aFile = ( new ExtractLinesFromFile() )->run( $fullPath, $aLines );
 				foreach ( $aFile as $nLineNum => $sLine ) {
-					$aScores[ $nLineNum ] = $this->queryLine( $sFullPath, $sLine );
+					$scores[ $nLineNum ] = $this->queryLine( $fullPath, $sLine );
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
-		return $aScores;
+		return $scores;
 	}
 
-	/**
-	 * @param string $sFullPath
-	 * @return int
-	 */
-	public function queryPath( $sFullPath ) {
+	public function queryPath( string $fullPath ) :int {
 		$nFpConfidence = 0;
 
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-			$sApiToken = $this->getCon()
-							  ->getModule_License()
-							  ->getWpHashesTokenManager()
-							  ->getToken();
-			$aData = ( new Malware\Confidence\Retrieve( $sApiToken ) )->retrieveForFile( $sFullPath );
-			if ( isset( $aData[ 'score' ] ) ) {
-				$nFpConfidence = (int)$aData[ 'score' ];
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
+			$apiToken = $this->getCon()
+							 ->getModule_License()
+							 ->getWpHashesTokenManager()
+							 ->getToken();
+			$data = ( new Malware\Confidence\Retrieve( $apiToken ) )->retrieveForFile( $fullPath );
+			if ( isset( $data[ 'score' ] ) ) {
+				$nFpConfidence = (int)$data[ 'score' ];
 			}
 		}
 		return $nFpConfidence;
 	}
 
 	/**
-	 * @param string $sFile - path to file containing line
-	 * @param string $sLine
+	 * @param string $file - path to file containing line
+	 * @param string $line
 	 * @return int
 	 */
-	public function queryLine( $sFile, $sLine ) {
+	public function queryLine( $file, $line ) {
 		$nFpConfidence = 0;
 
 		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-			$sApiToken = $this->getCon()
+			$token = $this->getCon()
 							  ->getModule_License()
 							  ->getWpHashesTokenManager()
 							  ->getToken();
 			try {
-				$aData = ( new Malware\Confidence\Retrieve( $sApiToken ) )->retrieveForFileLine( $sFile, $sLine );
+				$aData = ( new Malware\Confidence\Retrieve( $token ) )->retrieveForFileLine( $file, $line );
 				if ( isset( $aData[ 'score' ] ) ) {
 					$nFpConfidence = (int)$aData[ 'score' ];
 				}
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 		return $nFpConfidence;

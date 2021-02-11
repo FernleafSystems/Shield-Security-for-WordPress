@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
@@ -17,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	const SCAN_SLUG = '';
 
@@ -90,7 +90,7 @@ abstract class Base {
 	 * @param BaseResultItem|mixed $item
 	 * @return bool
 	 */
-	abstract protected function isResultItemStale( $item );
+	abstract protected function isResultItemStale( $item ) :bool;
 
 	/**
 	 * @param int|string $itemID
@@ -98,28 +98,28 @@ abstract class Base {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function executeItemAction( $itemID, $action ) {
-		$bSuccess = false;
+	public function executeItemAction( $itemID, string $action ) {
+		$success = false;
 
 		if ( is_numeric( $itemID ) ) {
-			/** @var Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $this->getScanResultsDbHandler()
-						   ->getQuerySelector()
-						   ->byId( $itemID );
-			if ( empty( $oEntry ) ) {
+			/** @var Databases\Scanner\EntryVO $entry */
+			$entry = $this->getScanResultsDbHandler()
+						  ->getQuerySelector()
+						  ->byId( $itemID );
+			if ( empty( $entry ) ) {
 				throw new \Exception( 'Item could not be found.' );
 			}
 
-			$oItem = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			$entry = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 				->setScanController( $this )
-				->convertVoToResultItem( $oEntry );
+				->convertVoToResultItem( $entry );
 
-			$bSuccess = $this->getItemActionHandler()
-							 ->setScanItem( $oItem )
-							 ->process( $action );
+			$success = $this->getItemActionHandler()
+							->setScanItem( $entry )
+							->process( $action );
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
@@ -244,7 +244,7 @@ abstract class Base {
 						 ->setScanItem( $oItem )
 						 ->repair();
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
 			$this->cleanStalesResults();

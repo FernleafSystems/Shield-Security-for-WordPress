@@ -14,29 +14,29 @@ abstract class ItemActionHandler {
 	use HackGuard\Scan\Controller\ScanControllerConsumer;
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function process( $sAction ) {
-		switch ( $sAction ) {
+	public function process( $action ) {
+		switch ( $action ) {
 			case 'delete':
-				$bSuccess = $this->delete();
+				$success = $this->delete();
 				break;
 
 			case 'ignore':
-				$bSuccess = $this->ignore();
+				$success = $this->ignore();
 				break;
 
 			case 'repair':
-				$bSuccess = $this->repair();
+				$success = $this->repair();
 				break;
 
 			default:
 				throw new \Exception( 'Unsupported Scan Item Action' );
 				break;
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

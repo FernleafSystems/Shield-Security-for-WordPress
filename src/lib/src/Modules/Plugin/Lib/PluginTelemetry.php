@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
@@ -86,17 +87,18 @@ class PluginTelemetry {
 		}
 
 		if ( !empty( $data[ 'events' ] ) ) {
-			$data[ 'events' ][ 'stats' ] = $con->getModule_Events()
-											   ->getDbHandler_Events()
-											   ->getQuerySelector()
-											   ->sumAllEvents();
+			/** @var Select $select */
+			$select = $con->getModule_Events()
+						  ->getDbHandler_Events()
+						  ->getQuerySelector();
+			$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
 		}
 		if ( !empty( $data[ 'login_protect' ] ) ) {
 			$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] =
 				$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] > 0 ? 1 : 0;
 		}
 		if ( !empty( $data[ 'admin_access_restriction' ] ) ) {
-			$keys= [
+			$keys = [
 				'admin_access_restrict_plugins',
 				'admin_access_restrict_themes',
 				'admin_access_restrict_posts'

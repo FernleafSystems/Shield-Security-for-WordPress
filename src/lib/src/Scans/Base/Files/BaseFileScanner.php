@@ -14,8 +14,8 @@ abstract class BaseFileScanner {
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
-	 * @param string $sFullPath
+	 * @param string $fullPath
 	 * @return Shield\Scans\Base\BaseResultItem|null
 	 */
-	abstract public function scan( $sFullPath );
+	abstract public function scan( string $fullPath );
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
@@ -12,64 +13,50 @@ class U2F extends BaseProvider {
 	const SLUG = 'u2f';
 	const DEFAULT_SECRET = '[]';
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProfileActive( \WP_User $user ) {
+	public function isProfileActive( \WP_User $user ) :bool {
 		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
 	public function setupProfile() {
-		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
-			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
-				$this->enqueueAdminU2f();
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
+			if ( in_array( $hook, [ 'profile.php', ] ) ) {
+
+				$enqueues[ Enqueue::JS ][] = 'shield/u2f-admin';
+
+				add_filter( 'shield/custom_localisations', function ( array $localz ) {
+					$user = Services::WpUsers()->getCurrentWpUser();
+					list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );
+					$localz[] = [
+						'shield/u2f-admin',
+						'icwp_wpsf_vars_u2f',
+						[
+							'reg_request' => $reg,
+							'signs'       => $signs,
+							'ajax'        => [
+								'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' )
+							],
+							'flags'       => [
+								'has_validated' => $this->hasValidatedProfile( $user )
+							],
+							'strings'     => [
+								'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+								'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
+													   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
+													   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+								'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
+													   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
+								'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
+								'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+								'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+							]
+						]
+					];
+					return $localz;
+				} );
 			}
-		} );
-	}
 
-	private function enqueueAdminU2f() {
-		$aDeps = [];
-		foreach ( [ 'u2f-bundle', 'shield-u2f-admin' ] as $sScript ) {
-			wp_enqueue_script(
-				$this->getCon()->prefix( $sScript ),
-				$this->getCon()->getPluginUrl_Js( $sScript ),
-				$aDeps
-			);
-			$aDeps[] = $this->getCon()->prefix( $sScript );
-		}
-
-		$user = Services::WpUsers()->getCurrentWpUser();
-		try {
-			list( $oReg, $aSigns ) = $this->createNewU2fRegistrationRequest( $user );
-			wp_localize_script(
-				$this->getCon()->prefix( 'shield-u2f-admin' ),
-				'icwp_wpsf_vars_u2f',
-				[
-					'reg_request' => $oReg,
-					'signs'       => $aSigns,
-					'ajax'        => [
-						'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' )
-					],
-					'flags'       => [
-						'has_validated' => $this->hasValidatedProfile( $user )
-					],
-					'strings'     => [
-						'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
-						'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
-											   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
-											   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
-						'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
-											   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
-						'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
-						'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
-						'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
-					]
-				]
-			);
-		}
-		catch ( \Exception $oE ) {
-		}
+			return $enqueues;
+		}, 10, 2 );
 	}
 
 	/**
@@ -102,7 +89,7 @@ class U2F extends BaseProvider {
 				]
 			];
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 
 		return $aFieldData;
@@ -196,8 +183,8 @@ class U2F extends BaseProvider {
 	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $user ) {
-		$bError = false;
-		$sMsg = null;
+		$isError = false;
+		$msg = null;
 
 		$sU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( !empty( $sU2fResponse ) ) {
@@ -225,40 +212,22 @@ class U2F extends BaseProvider {
 				$this->addRegistration( $user, $aConfirmedReg )
 					 ->setProfileValidated( $user );
 
-				$sMsg = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
+				$msg = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
 			}
-			catch ( \Exception $oE ) {
-				$bError = true;
-				$sMsg = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
-					$oE->getMessage() );
+			catch ( \Exception $e ) {
+				$isError = true;
+				$msg = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
+					$e->getMessage() );
 			}
-		}
-		elseif ( Services::Request()->post( 'wpsf_u2f_key_delete' ) === 'Y' ) {
-			$this->processRemovalFromAccount( $user );
-			$sMsg = __( 'U2F Device was removed from your profile.', 'wp-simple-firewall' );
 		}
 
-		if ( !empty( $sMsg ) ) {
-			$this->getMod()->setFlashAdminNotice( $sMsg, $bError );
+		if ( !empty( $msg ) ) {
+			$this->getMod()->setFlashAdminNotice( $msg, $isError );
 		}
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateU2F( $user, $otp );
-	}
-
-	/**
-	 * @param \WP_User $user
-	 * @return $this
-	 */
-	protected function processRemovalFromAccount( $user ) {
-		return $this->setProfileValidated( $user, false )
-					->deleteSecret( $user );
 	}
 
 	/**
@@ -314,10 +283,10 @@ class U2F extends BaseProvider {
 	 * @return $this
 	 */
 	public function removeRegisteredU2fId( \WP_User $user, $sU2fID ) {
-		$aRegs = $this->getRegistrations( $user );
-		if ( isset( $aRegs[ $sU2fID ] ) ) {
-			unset( $aRegs[ $sU2fID ] );
-			$this->storeRegistrations( $user, $aRegs );
+		$regs = $this->getRegistrations( $user );
+		if ( isset( $regs[ $sU2fID ] ) ) {
+			unset( $regs[ $sU2fID ] );
+			$this->storeRegistrations( $user, $regs );
 		}
 		return $this;
 	}
@@ -334,8 +303,8 @@ class U2F extends BaseProvider {
 			$aReg[ 'used_at' ] = Services::Request()->ts();
 			$this->addRegistration( $user, $aReg );
 		}
-		catch ( \Exception $oE ) {
-			error_log( $oE->getMessage() );
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
 		}
 
 		return !empty( $oRegistration );

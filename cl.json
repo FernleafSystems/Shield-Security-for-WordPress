@@ -1,4 +1,95 @@
 {
+  "10.2": {
+    "version":     "10.2",
+    "released_at": 1613037000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease102",
+      "upgrade": "https://shsec.io/shieldupgradeguide102"
+    },
+    "href":        "https://shsec.io/",
+    "title":       "Removal of simple Content Security Policy settings and bugfixes",
+    "description": [
+      "We've decided to remove our simple Content Security Policy options as this feature is too complex.",
+      "We've also fixed a number of bugs and optimised how Shield loads and stores options and configurations."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Removed Content Security Policy Settings",
+        "description": [
+          "Due to the complexity of CSP and the superficial nature of our CSP implementation, we've decided to remove these options.",
+          "We explore the issue in full detail in our blog post on this topic."
+        ],
+        "href":        "https://shsec.io/jb"
+      },
+      {
+        "type":        "new",
+        "title":       "Invalid user login tracking covers empty usernames.",
+        "description": [
+          "When tracking for bots logging in user invalid usernames (i.e. that don't exist) it'll also trigger an offense on empty usernames."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Deleting Malware files doesn't initiate a new scan.",
+        "description": [
+          "This addresses a reported UX issue where bulk malware deletion isn't yet available and so instead of a full re-scan, the page just reloads."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Malware scanners are more efficient.",
+        "description": [
+          "Malware scanning is involved - every PHP file has to be read and then searched using a large set of patterns.",
+          "So it takes time. Hopefully these tweaks will optimise this process a little and lead to faster scans."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Add IP status to information in the traffic viewer.",
+        "description": [
+          "The traffic table will now display many offenses or whether the IP address is blocked."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Upgrade Bootstrap Library to latest 4.6.0",
+        "description": [
+          "Asset enqueuing has been refactored and optimised and also now loading Bootstrap assets from CDNJS."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Significant code cleanup.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Added cleanup code to remove stale entries in the WP Options table.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Added detection of server clock inconsistencies which break Google Authenticator.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "U2F/Yubikey Removal Bug",
+        "description": [
+          "A javascript issue prevented removal of U2F keys from user profiles."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "FileLocker would fail to load file contents if it exceeded 64KB.",
+        "description": [
+          "We upgraded the database table definition to allow for much larger files."
+        ]
+      }
+    ]
+  },
   "10.1": {
     "version":     "10.1",
     "released_at": 1605606920,

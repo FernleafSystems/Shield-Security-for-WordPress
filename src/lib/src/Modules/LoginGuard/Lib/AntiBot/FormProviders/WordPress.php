@@ -40,9 +40,9 @@ class WordPress extends BaseFormProvider {
 					 ->checkProviders();
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oUserOrError = $this->giveMeWpError( $oUserOrError );
-			$oUserOrError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+			$oUserOrError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
 		}
 		return $oUserOrError;
 	}
@@ -57,9 +57,9 @@ class WordPress extends BaseFormProvider {
 				 ->setActionToAudit( 'reset-password' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -75,9 +75,9 @@ class WordPress extends BaseFormProvider {
 				 ->setActionToAudit( 'register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
 		}
 		return $oWpError;
 	}

@@ -40,7 +40,7 @@ class LoadConfig {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 
 			$rebuild = empty( $def[ 'hash' ] ) || !hash_equals( $def[ 'hash' ], $specHash )
-					   || ( $version !== Services::WpPlugins()->getPluginAsVo( $con->getPluginBaseFile() )->Version );
+					   || ( $version !== Services::WpPlugins()->getPluginAsVo( $con->base_file )->Version );
 			$def[ 'hash' ] = $specHash;
 		}
 

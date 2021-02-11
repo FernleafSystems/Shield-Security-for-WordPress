@@ -65,11 +65,11 @@ class Pin extends BaseWpCliCmd {
 					sprintf( __( 'Security admin pin set to: "%s"', 'wp-simple-firewall' ), $newPIN )
 				);
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				WP_CLI::error_multi_line(
 					[
 						__( 'Setting Security admin pin failed.', 'wp-simple-firewall' ),
-						$oE->getMessage()
+						$e->getMessage()
 					]
 				);
 				WP_CLI::halt( 1 );

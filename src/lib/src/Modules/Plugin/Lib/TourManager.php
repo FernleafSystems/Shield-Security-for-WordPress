@@ -28,12 +28,12 @@ class TourManager {
 	public function isCompleted( $sTourKey ) {
 		try {
 			$aTrs = $this->getTours();
-			$bShown = isset( $aTrs[ $sTourKey ] ) && $aTrs[ $sTourKey ] > 0;
+			$shown = isset( $aTrs[ $sTourKey ] ) && $aTrs[ $sTourKey ] > 0;
 		}
-		catch ( \Exception $oE ) {
-			$bShown = true; // in-case there's a meta saving issue.
+		catch ( \Exception $e ) {
+			$shown = true; // in-case there's a meta saving issue.
 		}
-		return $bShown;
+		return $shown;
 	}
 
 	/**
@@ -49,7 +49,7 @@ class TourManager {
 				$this->getCon()
 					 ->getCurrentUserMeta()->tours = $aTrs;
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 		return $this;

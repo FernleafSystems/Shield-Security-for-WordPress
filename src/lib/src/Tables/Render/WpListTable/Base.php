@@ -42,12 +42,12 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param object $aItem
-	 * @param string $sColName
+	 * @param object $item
+	 * @param string $colName
 	 * @return string
 	 */
-	public function column_default( $aItem, $sColName ) {
-		return $aItem[ $sColName ];
+	public function column_default( $item, $colName ) {
+		return $item[ $colName ];
 	}
 
 	/**

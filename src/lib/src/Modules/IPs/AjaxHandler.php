@@ -88,7 +88,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 							->setIP( $ip )
 							->toManualWhitelist( (string)$label );
 					}
-					catch ( \Exception $oE ) {
+					catch ( \Exception $e ) {
 					}
 					break;
 
@@ -99,7 +99,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 							->setIP( $ip )
 							->toManualBlacklist( (string)$label );
 					}
-					catch ( \Exception $oE ) {
+					catch ( \Exception $e ) {
 					}
 					break;
 

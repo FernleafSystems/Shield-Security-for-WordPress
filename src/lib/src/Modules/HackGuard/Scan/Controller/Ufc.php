@@ -21,7 +21,7 @@ class Ufc extends Base {
 	 * @param Scans\Mal\ResultItem $item
 	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) {
+	protected function isResultItemStale( $item ) :bool {
 		return !Services::WpFs()->exists( $item->path_full );
 	}
 

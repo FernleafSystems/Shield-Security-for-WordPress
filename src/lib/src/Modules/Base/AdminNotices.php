@@ -69,7 +69,7 @@ class AdminNotices {
 						$aNotices[] = $notice;
 					}
 				}
-				catch ( \Exception $oE ) {
+				catch ( \Exception $e ) {
 				}
 			}
 		}

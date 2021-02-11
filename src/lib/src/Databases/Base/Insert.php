@@ -72,16 +72,16 @@ class Insert extends BaseQuery {
 	public function query() {
 		try {
 			$this->verifyInsertData();
-			$bSuccess = Services::WpDb()
-								->insertDataIntoTable(
-									$this->getDbH()->getTable(),
-									$this->getInsertData()
-								);
+			$success = Services::WpDb()
+							   ->insertDataIntoTable(
+								   $this->getDbH()->getTable(),
+								   $this->getInsertData()
+							   );
 		}
-		catch ( \Exception $oE ) {
-			$bSuccess = false;
+		catch ( \Exception $e ) {
+			$success = false;
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

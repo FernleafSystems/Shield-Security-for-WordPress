@@ -12,34 +12,34 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		switch ( $action ) {
 			case 'gen_backup_codes':
-				$aResponse = $this->ajaxExec_GenBackupCodes();
+				$response = $this->ajaxExec_GenBackupCodes();
 				break;
 
 			case 'del_backup_codes':
-				$aResponse = $this->ajaxExec_DeleteBackupCodes();
+				$response = $this->ajaxExec_DeleteBackupCodes();
 				break;
 
 			case 'disable_2fa_email':
-				$aResponse = $this->ajaxExec_Disable2faEmail();
+				$response = $this->ajaxExec_Disable2faEmail();
 				break;
 
 			case 'resend_verification_email':
-				$aResponse = $this->ajaxExec_ResendEmailVerification();
+				$response = $this->ajaxExec_ResendEmailVerification();
 				break;
 
 			case 'u2f_remove':
-				$aResponse = $this->ajaxExec_ProfileU2fRemove();
+				$response = $this->ajaxExec_ProfileU2fRemove();
 				break;
 
 			case 'yubikey_remove':
-				$aResponse = $this->ajaxExec_ProfileYubikeyRemove();
+				$response = $this->ajaxExec_ProfileYubikeyRemove();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	protected function ajaxExec_GenBackupCodes() :array {
@@ -89,11 +89,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 
 		$key = Services::Request()->post( 'u2fid' );
-		( new TwoFactor\Provider\U2F() )
-			->setMod( $mod )
-			->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $key );
+		if ( !empty( $key ) ) {
+			( new TwoFactor\Provider\U2F() )
+				->setMod( $mod )
+				->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $key );
+		}
 		return [
-			'success'     => true,
+			'success'     => !empty( $key ),
 			'message'     => __( 'Registered U2F device removed from profile.', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];

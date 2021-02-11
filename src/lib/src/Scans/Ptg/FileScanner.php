@@ -21,40 +21,40 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	private $oAssetStore;
 
 	/**
-	 * @param string $sFullPath - in this case it's relative to ABSPATH
+	 * @param string $fullPath - in this case it's relative to ABSPATH
 	 * @return ResultItem|null
 	 */
-	public function scan( $sFullPath ) {
-		$oItem = null;
+	public function scan( string $fullPath ) {
+		$item = null;
 		// file paths are stored in the queue relatives to ABSPATH
-		$sFullPath = path_join( wp_normalize_path( ABSPATH ), $sFullPath );
+		$fullPath = path_join( wp_normalize_path( ABSPATH ), $fullPath );
 		try {
-			$oAsset = ( new Plugin\Files() )->findPluginFromFile( $sFullPath );
-			if ( empty( $oAsset ) ) {
-				$oAsset = ( new Theme\Files() )->findThemeFromFile( $sFullPath );
+			$asset = ( new Plugin\Files() )->findPluginFromFile( $fullPath );
+			if ( empty( $asset ) ) {
+				$asset = ( new Theme\Files() )->findThemeFromFile( $fullPath );
 			}
-			if ( empty( $oAsset ) ) {
-				throw new \Exception( 'Could not load asset' );
+			if ( empty( $asset ) ) {
+				throw new \Exception( sprintf( 'Could not load asset for: %s', $fullPath ) );
 			}
 
-			$aHashes = $this->getHashes( $oAsset );
-			$sPathFragment = str_replace( $oAsset->getInstallDir(), '', $sFullPath );
-			if ( empty( $aHashes[ $sPathFragment ] ) ) {
-				$oItem = $this->getNewItem( $oAsset, $sFullPath );
-				$oItem->path_fragment = $sPathFragment;
-				$oItem->is_unrecognised = true;
+			$assetHashes = $this->getHashes( $asset );
+			$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
+			if ( empty( $assetHashes[ $pathFragment ] ) ) {
+				$item = $this->getNewItem( $asset, $fullPath );
+				$item->path_fragment = $pathFragment;
+				$item->is_unrecognised = true;
 			}
-			elseif ( !( new CompareHash() )->isEqualFileMd5( $sFullPath, $aHashes[ $sPathFragment ] ) ) {
-				$oItem = $this->getNewItem( $oAsset, $sFullPath );
-				$oItem->path_fragment = $sPathFragment;
-				$oItem->is_different = true;
+			elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $assetHashes[ $pathFragment ] ) ) {
+				$item = $this->getNewItem( $asset, $fullPath );
+				$item->path_fragment = $pathFragment;
+				$item->is_different = true;
 			}
 		}
-		catch ( \Exception $oE ) {
-			error_log( $oE->getMessage() );
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
 		}
 
-		return $oItem;
+		return $item;
 	}
 
 	/**

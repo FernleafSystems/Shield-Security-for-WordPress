@@ -15,8 +15,7 @@ class BlockRequest {
 		if ( $this->isBlocked() ) {
 
 			if ( $this->isAutoUnBlocked() ) {
-				// TODO: flash message
-				Services::Response()->redirectToAdmin();
+				Services::Response()->redirectToHome();
 			}
 
 			// don't log killed requests
@@ -26,20 +25,14 @@ class BlockRequest {
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isBlocked() {
+	private function isBlocked() :bool {
 		return ( new IPs\Components\QueryIpBlock() )
 			->setMod( $this->getMod() )
 			->setIp( Services::IP()->getRequestIp() )
 			->run();
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isAutoUnBlocked() {
+	private function isAutoUnBlocked() :bool {
 		return ( new AutoUnblock() )
 			->setMod( $this->getMod() )
 			->run();

@@ -25,19 +25,19 @@ class UserRegistration extends BaseFormProvider {
 	}
 
 	/**
-	 * @param array $aResponse
+	 * @param array $response
 	 * @param array $aFormData
 	 * @param int   $nFormID
 	 * @return mixed
 	 */
-	public function checkRegister( $aResponse, $aFormData, $nFormID ) {
+	public function checkRegister( $response, $aFormData, $nFormID ) {
 		try {
 			$this->setActionToAudit( 'userregistration-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			$aResponse[] = $oE->getMessage();
+		catch ( \Exception $e ) {
+			$response[] = $e->getMessage();
 		}
-		return $aResponse;
+		return $response;
 	}
 }

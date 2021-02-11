@@ -29,7 +29,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getMalConfidenceBoundary() :int {
-		return (int)apply_filters( 'icwp_shield_fp_confidence_boundary', 50 );
+		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
 	}
 
 	/**

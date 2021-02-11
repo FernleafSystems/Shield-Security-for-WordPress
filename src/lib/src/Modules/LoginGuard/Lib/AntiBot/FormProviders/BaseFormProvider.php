@@ -46,21 +46,21 @@ abstract class BaseFormProvider {
 		try {
 			$this->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			Services::WpGeneral()->wpDie( $oE->getMessage() );
+		catch ( \Exception $e ) {
+			Services::WpGeneral()->wpDie( $e->getMessage() );
 		}
 	}
 
 	public function run() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isProtectLogin() ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isProtectLogin() ) {
 			$this->login();
 		}
-		if ( $oOpts->isProtectRegister() ) {
+		if ( $opts->isProtectRegister() ) {
 			$this->register();
 		}
-		if ( $oOpts->isProtectLostPassword() ) {
+		if ( $opts->isProtectLostPassword() ) {
 			$this->lostpassword();
 		}
 	}

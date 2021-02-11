@@ -23,22 +23,12 @@ class ModCon extends Base\ModCon {
 
 	/**
 	 * @return bool
-	 * @deprecated 10.1
+	 * @deprecated 10.2
 	 */
 	public function canCacheDirWrite() :bool {
 		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
 			->setMod( $this->getCon()->getModule_Plugin() )
 			->canWrite();
-	}
-
-	/**
-	 * @return Shield\Modules\Sessions\Processor
-	 * @deprecated 10.1
-	 */
-	public function getSessionsProcessor() :Shield\Modules\Sessions\Processor {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getProcessor();
 	}
 
 	/**
@@ -58,14 +48,6 @@ class ModCon extends Base\ModCon {
 					->getModule_Sessions()
 					->getSessionCon()
 					->getCurrent();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 10.1
-	 */
-	public function hasSession() :bool {
-		return $this->getSession() instanceof Shield\Databases\Session\EntryVO;
 	}
 
 	/**

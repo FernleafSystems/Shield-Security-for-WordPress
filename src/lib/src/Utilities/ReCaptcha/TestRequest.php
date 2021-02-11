@@ -20,9 +20,9 @@ class TestRequest {
 			$this->runTest();
 			$this->getCon()->fireEvent( 'recaptcha_success' );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$this->getCon()->fireEvent( 'recaptcha_fail' );
-			throw $oE;
+			throw $e;
 		}
 		return true;
 	}

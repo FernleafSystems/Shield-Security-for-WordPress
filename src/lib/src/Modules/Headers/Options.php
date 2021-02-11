@@ -2,57 +2,44 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function getCspCustomRules() :array {
 		$csp = $this->getOpt( 'xcsp_custom' );
-		return $this->isPremium() && is_array( $csp ) ? $csp : [];
+		if ( !is_array( $csp ) ) {
+			$csp = [];
+			$this->setOpt( 'xcsp_custom', $csp );
+		}
+		return $this->isPremium() ? array_filter( array_map( 'trim', $csp ) ) : [];
 	}
 
 	/**
 	 * Using this function without first checking isReferrerPolicyEnabled() will result in empty
 	 * referrer policy header in the case of "disabled"
-	 * @return string
 	 */
-	public function getReferrerPolicyValue() {
-		$sValue = $this->getOpt( 'x_referrer_policy' );
-		return in_array( $sValue, [ 'empty', 'disabled' ] ) ? '' : $sValue;
+	public function getReferrerPolicyValue() :string {
+		$value = $this->getOpt( 'x_referrer_policy' );
+		return in_array( $value, [ 'empty', 'disabled' ] ) ? '' : $value;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledContentSecurityPolicy() {
-		return $this->isOpt( 'enable_x_content_security_policy', 'Y' );
+	public function isEnabledContentSecurityPolicy() :bool {
+		return $this->isOpt( 'enable_x_content_security_policy', 'Y' )
+			   && !empty( $this->getCspCustomRules() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledContentTypeHeader() {
+	public function isEnabledContentTypeHeader() :bool {
 		return $this->isOpt( 'x_content_type', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledXssProtection() {
+	public function isEnabledXssProtection() :bool {
 		return $this->isOpt( 'x_xss_protect', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledXFrame() {
+	public function isEnabledXFrame() :bool {
 		return in_array( $this->getOpt( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isReferrerPolicyEnabled() {
+	public function isReferrerPolicyEnabled() :bool {
 		return !$this->isOpt( 'x_referrer_policy', 'disabled' );
 	}
 }

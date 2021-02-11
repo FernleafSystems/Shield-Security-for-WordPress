@@ -8,15 +8,15 @@ class Delete extends BaseAction {
 
 	public function run() {
 		try {
-			$oStore = ( new Load() )
+			$store = ( new Load() )
 				->setMod( $this->getMod() )
 				->setAsset( $this->getAsset() )
 				->run();
-			foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $sPath ) {
-				Services::WpFs()->deleteFile( $sPath );
+			foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
+				Services::WpFs()->deleteFile( $path );
 			}
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 	}
 }

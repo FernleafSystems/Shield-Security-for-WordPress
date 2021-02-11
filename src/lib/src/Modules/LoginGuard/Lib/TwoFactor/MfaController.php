@@ -261,12 +261,4 @@ class MfaController {
 	private function getLoginIntentRequestFlag() :string {
 		return $this->getCon()->prefix( 'login-intent-request' );
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 10.1
-	 */
-	private function hasLoginIntent() :bool {
-		return $this->getLoginIntentExpiresAt() > 0;
-	}
 }

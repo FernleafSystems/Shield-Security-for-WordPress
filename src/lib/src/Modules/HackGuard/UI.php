@@ -241,10 +241,7 @@ class UI extends BaseShield\UI {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getInsightVarsScan_Ptg() {
+	private function getInsightVarsScan_Ptg() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

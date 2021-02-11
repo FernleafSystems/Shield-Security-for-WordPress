@@ -220,20 +220,6 @@ class UserPasswordHandler {
 	}
 
 	/**
-	 * Unused
-	 * @return bool
-	 * private function verifyApiAccess() {
-	 * try {
-	 * $this->sendRequestToPwnedRange( 'P@ssw0rd' );
-	 * }
-	 * catch ( \Exception $oE ) {
-	 * return false;
-	 * }
-	 * return true;
-	 * }
-	 */
-
-	/**
 	 * @param string $password
 	 * @return bool
 	 * @throws \Exception
@@ -244,7 +230,7 @@ class UserPasswordHandler {
 		$sPassHash = strtoupper( hash( 'sha1', $password ) );
 		$sSubHash = substr( $sPassHash, 0, 5 );
 
-		$bSuccess = $oHttpReq->get(
+		$success = $oHttpReq->get(
 			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
@@ -253,7 +239,7 @@ class UserPasswordHandler {
 
 		$sError = '';
 		$nErrorCode = 2; // Default To Error
-		if ( !$bSuccess ) {
+		if ( !$success ) {
 			$sError = 'API request failed';
 			$nErrorCode = 999; // We don't fail PWNED passwords on failed API requests.
 		}

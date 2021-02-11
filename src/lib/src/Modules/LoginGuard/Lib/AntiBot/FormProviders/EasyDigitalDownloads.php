@@ -18,9 +18,9 @@ class EasyDigitalDownloads extends BaseFormProvider {
 			$this->setActionToAudit( 'edd-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			if ( function_exists( 'edd_set_error' ) ) {
-				edd_set_error( $this->getCon()->prefix( rand() ), $oE->getMessage() );
+				edd_set_error( $this->getCon()->prefix( rand() ), $e->getMessage() );
 			}
 		}
 	}

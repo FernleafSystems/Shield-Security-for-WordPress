@@ -136,7 +136,7 @@
       "default":     48,
       "min":         0,
       "type":        "integer",
-      "link_info":   "https://icontrolwp.freshdesk.com/support/solutions/articles/3000070590",
+      "link_info":   "https://support.getshieldsecurity.com/support/solutions/articles/3000070590",
       "link_blog":   "",
       "name":        "Idle Timeout",
       "summary":     "Specify How Many Hours After Inactivity To Automatically Logout User",

@@ -365,27 +365,27 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardLicense() {
 
-		$bSuccess = false;
+		$success = false;
 
 		$mod = $this->getCon()->getModule_License();
 		try {
-			$bSuccess = $mod->getLicenseHandler()
+			$success = $mod->getLicenseHandler()
 							->verify( true )
 							->hasValidWorkingLicense();
-			if ( $bSuccess ) {
-				$sMessage = __( 'License was found and successfully installed.', 'wp-simple-firewall' );
+			if ( $success ) {
+				$msg = __( 'License was found and successfully installed.', 'wp-simple-firewall' );
 			}
 			else {
-				$sMessage = __( 'License could not be found.', 'wp-simple-firewall' );
+				$msg = __( 'License could not be found.', 'wp-simple-firewall' );
 			}
 		}
-		catch ( Exception $oE ) {
-			$sMessage = __( $oE->getMessage(), 'wp-simple-firewall' );
+		catch ( Exception $e ) {
+			$msg = __( $e->getMessage(), 'wp-simple-firewall' );
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
-			->setMessageText( $sMessage );
+			->setSuccessful( $success )
+			->setMessageText( $msg );
 	}
 
 	/**
@@ -403,9 +403,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				->setMod( $this->getMod() )
 				->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork );
 		}
-		catch ( Exception $oE ) {
-			$sSiteResponse = $oE->getMessage();
-			$nCode = $oE->getCode();
+		catch ( Exception $e ) {
+			$sSiteResponse = $e->getMessage();
+			$nCode = $e->getCode();
 		}
 
 		$aErrors = [
@@ -451,8 +451,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$bSuccess = true;
 				$sMessage = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );
 			}
-			catch ( Exception $oE ) {
-				$sMessage = __( $oE->getMessage(), 'wp-simple-firewall' );
+			catch ( \Exception $e ) {
+				$sMessage = __( $e->getMessage(), 'wp-simple-firewall' );
 			}
 		}
 
@@ -762,7 +762,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 									->addWhereSearch( 'message', $sItem )
 									->query();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				$aResults = [];
 			}
 //			$aResults = array_intersect_key( $aResults, array_flip( [ 'wp_username', 'message' ] ) );

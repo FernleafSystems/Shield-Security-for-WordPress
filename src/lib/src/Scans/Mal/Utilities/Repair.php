@@ -19,62 +19,62 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	public function repairItem() {
-		/** @var ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$bSuccess = false;
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+		/** @var Shield\Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$success = false;
 
 		try {
-			$bCanRepair = $this->canRepair();
+			$canRepair = $this->canRepair();
 		}
 		catch ( \Exception $e ) {
-			$bCanRepair = false;
+			$canRepair = false;
 		}
 
-		if ( $bCanRepair ) {
+		if ( $canRepair ) {
 
-			if ( Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
-				$bSuccess = $this->repairCoreItem( $oItem );
+			if ( Services\Services::CoreFileHashes()->isCoreFile( $item->path_fragment ) ) {
+				$success = $this->repairCoreItem( $item );
 			}
 			else {
-				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-				if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
+				$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
+				if ( $plugin instanceof Services\Core\VOs\WpPluginVo && $plugin->isWpOrg() ) {
 
-					$bSuccess = $this->repairItemInPlugin( $oItem );
+					$success = $this->repairItemInPlugin( $item );
 				}
 				else {
-					$oTheme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
-					if ( $oTheme instanceof Services\Core\VOs\WpThemeVo && $oTheme->isWpOrg() ) {
+					$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
+					if ( $theme instanceof Services\Core\VOs\WpThemeVo && $theme->isWpOrg() ) {
 
-						$bSuccess = $this->repairItemInTheme( $oItem );
+						$success = $this->repairItemInTheme( $item );
 					}
-					elseif ( $oOpts->isMalAutoRepairSurgical() ) {
-						$bSuccess = $this->repairSurgicalItem( $oItem );
+					elseif ( $opts->isMalAutoRepairSurgical() ) {
+						$success = $this->repairSurgicalItem( $item );
 					}
 				}
 			}
 		}
 		elseif ( $this->isAllowDelete() ) {
-			$bSuccess = $this->repairItemByDelete( $oItem );
+			$success = $this->repairItemByDelete( $item );
 		}
 
-		if ( $bSuccess ) {
+		if ( $success ) {
 			// 1) Report the file as being malware.
 			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 				->setMod( $this->getMod() )
-				->reportResultItem( $oItem, false );
+				->reportResultItem( $item, false );
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
-	 * @param ResultItem $oItem
+	 * @param ResultItem $item
 	 * @return bool
 	 */
-	private function repairItemByDelete( $oItem ) {
-		return Services\Services::WpFs()->deleteFile( $oItem->path_full );
+	private function repairItemByDelete( $item ) {
+		return Services\Services::WpFs()->deleteFile( $item->path_full );
 	}
 
 	/**
@@ -151,7 +151,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		try {
 			$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 			$bSuccess = false;
 		}
 		return $bSuccess;
@@ -168,7 +168,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 				( new Services\Utilities\File\RemoveLineFromFile() )->run( $oItem->path_full, $nLine );
 				$bSuccess = true;
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 				$bSuccess = false;
 				break;
 			}
@@ -181,21 +181,21 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairItemInPlugin( $oItem ) {
-		$bSuccess = false;
+		$success = false;
 
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
 			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
+				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
 			}
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
@@ -203,20 +203,20 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairItemInTheme( $oItem ) {
-		$bSuccess = false;
+		$success = false;
 
 		$oFiles = new WpOrg\Theme\Files();
 		try {
 			if ( $oFiles->isValidFileFromTheme( $oItem->path_full ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
+				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
 			}
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 }

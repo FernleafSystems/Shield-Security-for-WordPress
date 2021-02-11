@@ -15,11 +15,7 @@ class GoogleAuth extends BaseProvider {
 	 */
 	private $oWorkingSecret;
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function isProfileActive( \WP_User $user ) {
+	public function isProfileActive( \WP_User $user ) :bool {
 		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
@@ -99,7 +95,7 @@ class GoogleAuth extends BaseProvider {
 	 * @param \WP_User $user
 	 * @return $this
 	 */
-	protected function processRemovalFromAccount( $user ) {
+	protected function processRemovalFromAccount( \WP_User $user ) {
 		$this->setProfileValidated( $user, false )
 			 ->resetSecret( $user );
 		return $this;
@@ -155,11 +151,6 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateGaCode( $user, $otp );
 	}
@@ -176,9 +167,9 @@ class GoogleAuth extends BaseProvider {
 				$valid = (bool)( new GoogleAuthenticator\GoogleAuthenticator() )
 					->authenticate( $this->getSecret( $user ), $otp );
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
-			catch ( \Psr\Cache\CacheException $oE ) {
+			catch ( \Psr\Cache\CacheException $e ) {
 			}
 		}
 		return $valid;
@@ -208,7 +199,7 @@ class GoogleAuth extends BaseProvider {
 		try {
 			return $this->getGaSecret( $user )->getSecretKey();
 		}
-		catch ( \InvalidArgumentException $oE ) {
+		catch ( \InvalidArgumentException $e ) {
 			return '';
 		}
 	}

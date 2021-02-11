@@ -104,9 +104,9 @@ class License extends Base\WpCli\BaseWpCliCmd {
 				->hasValidWorkingLicense();
 			$sMessage = $bSuccess ? __( 'Valid license found and installed.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$bSuccess = false;
-			$sMessage = $oE->getMessage();
+			$sMessage = $e->getMessage();
 		}
 
 		$bSuccess ? WP_CLI::success( $sMessage ) : WP_CLI::error( $sMessage );

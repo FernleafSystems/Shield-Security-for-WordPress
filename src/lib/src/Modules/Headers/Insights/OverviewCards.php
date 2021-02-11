@@ -39,7 +39,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$bCsp = $opts->isEnabledContentSecurityPolicy();
 			$cards[ 'csp' ] = [
 				'name'    => __( 'Content Security Policies', 'wp-simple-firewall' ),
-				'state'   => $bCsp ? 1 : -1,
+				'state'   => $bCsp ? 1 : 0,
 				'summary' => $bCsp ?
 					__( 'Content Security Policy is turned on', 'wp-simple-firewall' )
 					: __( "Content Security Policies aren't active", 'wp-simple-firewall' ),

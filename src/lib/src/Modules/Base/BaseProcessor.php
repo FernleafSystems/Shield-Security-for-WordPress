@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class BaseProcessor
  * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
- * @deprecated 10.1
+ * @deprecated 10.2
  */
 class BaseProcessor {
 
@@ -146,13 +146,6 @@ class BaseProcessor {
 	 */
 	protected function getGoogleRecaptchaLocale() {
 		return Services::WpGeneral()->getLocale( '-' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_Email
-	 */
-	public function getEmailProcessor() {
-		return $this->getMod()->getEmailProcessor();
 	}
 
 	/**

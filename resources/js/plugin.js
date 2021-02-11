@@ -126,6 +126,69 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		aAjaxReqParams = aParams;
 	};
 
+	/**
+	 * First try with base64 and failover to lz-string upon abject failure.
+	 * This works around mod_security rules that even unpack b64 encoded params and look
+	 * for patterns within them.
+	 */
+	var sendForm = function ( $oForm, useCompression = false ) {
+
+		let formData = $oForm.serialize();
+		if ( useCompression ) {
+			formData = LZString.compress( formData );
+		}
+
+		let reqs = jQuery.extend(
+			aAjaxReqParams,
+			{
+				'form_params': Base64.encode( formData ),
+				'enc_params': useCompression ? 'lz-string' : 'b64',
+				'apto_wrap_response': 1
+			}
+		);
+
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqs,
+				dataType: "text",
+				success: function ( raw ) {
+					handleResponse( raw );
+				},
+			}
+		).fail( function () {
+			alert( 'fail()' );
+			if ( useCompression ) {
+				handleResponse( raw );
+			}
+			else {
+				iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
+				sendForm( $oForm, true );
+			}
+
+		} ).always( function () {
+			bRequestCurrentlyRunning = false;
+			setTimeout( function () {
+				location.reload();
+			}, 1000 );
+		} );
+
+	};
+
+	var handleResponse = function ( raw ) {
+		let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+		let msg;
+		if ( response === null || typeof response.data === 'undefined'
+			|| typeof response.data.message === 'undefined' ) {
+			msg = response.success ? 'Success' : 'Failure';
+		}
+		else {
+			msg = response.data.message;
+		}
+		iCWP_WPSF_Toaster.showMessage( msg, response.success );
+	};
+
 	var submitOptionsForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
@@ -151,67 +214,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		} );
 
 		if ( $bPasswordsReady ) {
-			/**
-			 * First try with base64 and failover to lz-string upon abject failure.
-			 * This works around mod_security rules that even unpack b64 encoded params and look
-			 * for patterns within them.
-			 */
-			var aReq = jQuery.extend(
-				aAjaxReqParams,
-				{
-					'form_params': Base64.encode( $oForm.serialize() ),
-					'enc_params': 'b64'
-				}
-			);
-
-			jQuery.post( ajaxurl, aReq,
-				function ( oResponse ) {
-					var sMessage;
-					if ( oResponse === null || typeof oResponse.data === 'undefined'
-						|| typeof oResponse.data.message === 'undefined' ) {
-						sMessage = oResponse.success ? 'Success' : 'Failure';
-					}
-					else {
-						sMessage = oResponse.data.message;
-					}
-					iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
-					// iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
-				}
-			).fail(
-				function () {
-					iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
-					aReq = jQuery.extend(
-						aAjaxReqParams,
-						{
-							'form_params': Base64.encode( LZString.compress( $oForm.serialize() ) ),
-							'enc_params': 'lz-string'
-						}
-					);
-					jQuery.post( ajaxurl, aReq,
-						function ( oResponse ) {
-							var sMessage;
-							if ( oResponse === null || typeof oResponse.data === 'undefined'
-								|| typeof oResponse.data.message === 'undefined' ) {
-								sMessage = oResponse.success ? 'Success' : 'Failure';
-							}
-							else {
-								sMessage = oResponse.data.message;
-							}
-							iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
-						}
-					)
-				}
-			).always( function () {
-					bRequestCurrentlyRunning = false;
-					setTimeout( function () {
-						location.reload();
-					}, 1000 );
-				}
-			);
-		}
-		else {
-			bRequestCurrentlyRunning = false;
-			iCWP_WPSF_BodyOverlay.hide();
+			sendForm( $oForm, false );
 		}
 	};
 

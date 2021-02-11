@@ -417,7 +417,7 @@
       "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
       "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
       "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
-      "content":       "blob COMMENT 'Content'",
+      "content":       "MEDIUMBLOB COMMENT 'Content'",
       "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'",
       "detected_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Change Last Detected'",
       "reverted_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Reverted To Backup'",

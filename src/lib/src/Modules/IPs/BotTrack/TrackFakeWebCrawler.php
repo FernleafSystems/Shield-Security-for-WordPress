@@ -16,7 +16,7 @@ class TrackFakeWebCrawler extends Base {
 		try {
 			$this->getIfVisitorIdentifiesAsCrawler(); // TEST this logic
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$this->doTransgression();
 		}
 	}

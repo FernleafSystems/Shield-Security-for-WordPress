@@ -41,20 +41,20 @@ class ScanWpv extends ScanBase {
 	}
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_vulnerability( $aItem ) {
-		/** @var Scans\Wpv\WpVulnDb\WpVulnVO $oVo */
-		$oVo = $aItem[ 'wpvuln_vo' ];
-		$sContent = sprintf( '<span class="vuln-title">%s</span>', $oVo->title );
+	public function column_vulnerability( $item ) {
+		/** @var Scans\Wpv\WpVulnDb\WpVulnVO $vuln */
+		$vuln = $item[ 'wpvuln_vo' ];
+		$sContent = sprintf( '<span class="vuln-title">%s</span>', $vuln->title );
 
-		$aButtons = [
-			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
+		$buttons = [
+			$this->getActionButton_Ignore( $item[ 'id' ] ),
 			sprintf( '<a href="%s" class="btn btn-sm btn-link text-info" target="_blank">%s</a>',
-				$oVo->getUrl(), __( 'More Info', 'wp-simple-firewall' ) ),
+				$vuln->url, __( 'More Info', 'wp-simple-firewall' ) ),
 		];
-		return $sContent.$this->buildActions( $aButtons );
+		return $sContent.$this->buildActions( $buttons );
 	}
 
 	/**

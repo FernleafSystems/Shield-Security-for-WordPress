@@ -77,8 +77,9 @@
 {% block inline_styles %}
 	<style>
 		#wpwrap {
-			background-image: url({{ imgs.background }});
+			background-image: url({{ imgs.background_svg }});
 			background-size:100%;
+			background-repeat:no-repeat;
 		}
 		#wpcontent,
 		#wpbody-content {
@@ -88,5 +89,5 @@
 {% endblock %}
 
 {% block inline_scripts %}
-	{% include '/snippets/js/widget_freshdesk.twig' %}
+	{% include '/snippets/js/freshdesk_chatbot.twig' %}
 {% endblock %}

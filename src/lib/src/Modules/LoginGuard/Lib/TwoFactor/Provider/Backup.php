@@ -80,12 +80,6 @@ class Backup extends BaseProvider {
 		return $this;
 	}
 
-	/**
-	 * Backup Code are 1-time only and if you have MFA, then we need to remove all the other tracking factors
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
 		return $this->validateBackupCode( $user, $otp );
 	}

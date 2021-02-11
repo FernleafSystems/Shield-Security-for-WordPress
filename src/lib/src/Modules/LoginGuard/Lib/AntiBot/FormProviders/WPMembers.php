@@ -28,7 +28,7 @@ class WPMembers extends BaseFormProvider {
 			$this->setActionToAudit( 'wpmembers-lostpassword' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			$args[ 'user' ] = null;
 			$args[ 'email' ] = null;
 		}
@@ -43,9 +43,9 @@ class WPMembers extends BaseFormProvider {
 			$this->setActionToAudit( 'wpmembers-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 			global $wpmem_themsg;
-			$wpmem_themsg = $oE->getMessage();
+			$wpmem_themsg = $e->getMessage();
 		}
 	}
 }

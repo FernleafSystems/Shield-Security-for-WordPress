@@ -18,7 +18,7 @@ trait StandardCron {
 					->setNextRun( $this->getFirstRunTimestamp() )
 					->createCronJob( $this->getCronName(), [ $this, 'runCron' ] );
 		}
-		catch ( \Exception $oE ) {
+		catch ( \Exception $e ) {
 		}
 		add_action( $this->getCon()->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
 	}

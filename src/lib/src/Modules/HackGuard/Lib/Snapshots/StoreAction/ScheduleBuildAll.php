@@ -9,14 +9,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScheduleBuildAll extends BaseBulk {
 
 	public function build() {
-		foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
+		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
 			try {
 				( new Build() )
 					->setMod( $this->getMod() )
-					->setAsset( $oAsset )
+					->setAsset( $asset )
 					->run();
 			}
-			catch ( \Exception $oE ) {
+			catch ( \Exception $e ) {
 			}
 		}
 	}
@@ -43,27 +43,24 @@ class ScheduleBuildAll extends BaseBulk {
 			( new FindAssetsToSnap() )
 				->setMod( $this->getMod() )
 				->run(),
-			function ( $oAsset ) {
-				/** @var VOs\WpPluginVo|VOs\WpThemeVo $oAsset */
+			function ( $asset ) {
+				/** @var VOs\WpPluginVo|VOs\WpThemeVo $asset */
 				try {
-					$aMeta = ( new Load() )
+					$meta = ( new Load() )
 						->setMod( $this->getMod() )
-						->setAsset( $oAsset )
+						->setAsset( $asset )
 						->run()
 						->getSnapMeta();
 				}
-				catch ( \Exception $oE ) {
-					$aMeta = null;
+				catch ( \Exception $e ) {
+					$meta = null;
 				}
-				return ( empty( $aMeta ) || $oAsset->version !== $aMeta[ 'version' ] );
+				return ( empty( $meta ) || $asset->version !== $meta[ 'version' ] );
 			}
 		);
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getCronHook() {
+	private function getCronHook() :string {
 		return $this->getCon()->prefix( 'ptg_build_snapshots' );
 	}
 }

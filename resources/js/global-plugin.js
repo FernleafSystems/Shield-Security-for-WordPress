@@ -45,9 +45,23 @@ var iCWP_WPSF_ParseAjaxResponse = new function () {
 			parsed = JSON.parse( raw );
 		}
 		catch ( e ) {
-			parsed = JSON.parse(
-				raw.substring( raw.indexOf( '{' ), raw.lastIndexOf( '}' ) + 1 )
-			);
+			var openJsonTag = '##APTO_OPEN##';
+			var closeJsonTag = '##APTO_CLOSE##';
+			var start = 0;
+			var end = 0;
+
+			if ( raw.indexOf( openJsonTag ) >= 0 ) {
+				start = raw.indexOf( openJsonTag ) + openJsonTag.length;
+				end = raw.indexOf( closeJsonTag );
+				try {
+					parsed = JSON.parse( raw.substring( start, end ) );
+				}
+				catch ( e ) {
+					start = raw.indexOf( '{' );
+					end = raw.lastIndexOf( '}' ) + 1;
+					parsed = JSON.parse( raw.substring( start, end ) );
+				}
+			}
 		}
 		return parsed;
 	};
@@ -56,6 +70,8 @@ var iCWP_WPSF_ParseAjaxResponse = new function () {
 var iCWP_WPSF_StandardAjax = new function () {
 	this.send_ajax_req = function ( reqData ) {
 		iCWP_WPSF_BodyOverlay.show();
+
+		reqData.apto_wrap_response = 1;
 
 		jQuery.ajax( {
 			type: "POST",
@@ -81,6 +97,8 @@ var iCWP_WPSF_StandardAjax = new function () {
 					iCWP_WPSF_BodyOverlay.hide();
 				}
 			}
+		} ).fail( function () {
+			alert( 'Something went wrong with the request - it was either blocked or there was an error.' );
 		} )
 	};
 }();

@@ -18,20 +18,19 @@ abstract class BaseScanFromFileMap {
 	 * @return Scans\Base\BaseResultsSet
 	 */
 	public function run() {
-		$oAction = $this->getScanActionVO();
-		$oResultSet = $oAction->getNewResultsSet();
+		$action = $this->getScanActionVO();
+		$results = $action->getNewResultsSet();
 
-		if ( is_array( $oAction->items ) ) {
-
-			foreach ( $oAction->items as $nKey => $sFullPath ) {
-				$oItem = $this->getFileScanner()->scan( $sFullPath );
-				if ( $oItem instanceof Scans\Base\BaseResultItem ) {
-					$oResultSet->addItem( $oItem );
+		if ( is_array( $action->items ) ) {
+			foreach ( $action->items as $key => $fullPath ) {
+				$item = $this->getFileScanner()->scan( $fullPath );
+				if ( $item instanceof Scans\Base\BaseResultItem ) {
+					$results->addItem( $item );
 				}
 			}
 		}
 
-		return $oResultSet;
+		return $results;
 	}
 
 	/**

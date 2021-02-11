@@ -71,7 +71,7 @@ class ClientPluginStatus {
 	public function getInstalledPlugin() {
 		$thePlugin = null;
 
-		$baseName = basename( $this->getCon()->getPluginBaseFile() );
+		$baseName = basename( $this->getCon()->base_file );
 		foreach ( $this->getMwpSite()->plugins as $plugin ) {
 			if ( basename( $plugin[ 'slug' ] ) === $baseName ) {
 				$thePlugin = $plugin;

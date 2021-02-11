@@ -119,7 +119,7 @@ class LoginIntentPage {
 		$req = Services::Request();
 
 		$aLabels = $con->getLabels();
-		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $con->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
+		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
 		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
 		$aDisplayData = [
 			'strings' => [
@@ -130,14 +130,14 @@ class LoginIntentPage {
 				'time_remaining' => $nTimeRemaining,
 			],
 			'hrefs'   => [
-				'css_bootstrap' => $con->getPluginUrl_Css( 'bootstrap4.min' ),
-				'js_bootstrap'  => $con->getPluginUrl_Js( 'bootstrap4.min' ),
+				'css_bootstrap' => $con->urls->forCss( 'bootstrap4.min' ),
+				'js_bootstrap'  => $con->urls->forJs( 'bootstrap4.bundle.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
-				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
+				'what_is_this'  => 'https://support.getshieldsecurity.com/support/solutions/articles/3000064840',
 			],
 			'imgs'    => [
 				'banner'  => $sBannerUrl,
-				'favicon' => $con->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
 				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
@@ -154,10 +154,10 @@ class LoginIntentPage {
 			$aDisplayData[ 'head' ] = [
 				'scripts' => [
 					[
-						'src' => $con->getPluginUrl_Js( 'u2f-bundle.js' ),
+						'src' => $con->urls->forJs( 'u2f-bundle.js' ),
 					],
 					[
-						'src' => $con->getPluginUrl_Js( 'u2f-frontend.js' ),
+						'src' => $con->urls->forJs( 'u2f-frontend.js' ),
 					]
 				]
 			];

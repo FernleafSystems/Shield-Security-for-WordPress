@@ -3,19 +3,22 @@
 {% block page_main %}
 	<div class="row">
 		<div class="col insights-sub-nav insights_section">
-			<ul class="nav nav-tabs" id="TabsIps">
+			<ul class="nav nav-tabs" id="TabsIps" role="tablist">
 				<li class="nav-item">
-					<a class="nav-link active" data-toggle="tab" role="tab" href="#ipanalysis">
+					<a class="nav-link active" data-toggle="tab" role="tab" href="#ipanalysis"
+					   data-bs-toggle="tab">
 						{{ strings.tab_ip_analysis }}
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab" href="#blocklist">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#blocklist"
+					   data-bs-toggle="tab">
 						{{ strings.tab_manage_block }}
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="tab" role="tab" href="#allowedlist">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#allowedlist"
+					   data-bs-toggle="tab">
 						{{ strings.tab_manage_bypass }}
 					</a>
 				</li>

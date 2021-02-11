@@ -28,15 +28,15 @@ class Limiter {
 				->setMod( $this->getMod() )
 				->runTest( Services::IP()->getRequestIp() );
 		}
-		catch ( \Exception $oE ) {
-			/** @var Traffic\Options $oOpts */
-			$oOpts = $this->getOptions();
+		catch ( \Exception $e ) {
+			/** @var Traffic\Options $opts */
+			$opts = $this->getOptions();
 			$this->getCon()->fireEvent(
 				'request_limit_exceeded',
 				[
 					'audit' => [
-						'count' => $oOpts->getLimitRequestCount(),
-						'span'  => $oOpts->getLimitTimeSpan(),
+						'count' => $opts->getLimitRequestCount(),
+						'span'  => $opts->getLimitTimeSpan(),
 					]
 				]
 			);

@@ -109,22 +109,34 @@ class WpvAddPluginRows {
 
 		$vulns = $scanCon->getPluginVulnerabilities( $pluginFile );
 		if ( count( $vulns ) > 0 ) {
-			$sOurName = $scanCon->getCon()->getHumanName();
+			$name = $scanCon->getCon()->getHumanName();
 			echo $scanCon->getMod()
 						 ->renderTemplate(
-							 'snippets/plugin-vulnerability.php',
+							 '/snippets/plugin_vulnerability.twig',
 							 [
-								 'strings'  => [
+								 'strings' => [
 									 'known_vuln'     => sprintf( __( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.', 'wp-simple-firewall' ),
-										 $sOurName, '<strong>'.$pData[ 'Name' ].'</strong>' ),
+										 $name, '<strong>'.$pData[ 'Name' ].'</strong>' ),
 									 'name'           => __( 'Vulnerability Name', 'wp-simple-firewall' ),
 									 'type'           => __( 'Vulnerability Type', 'wp-simple-firewall' ),
 									 'fixed_versions' => __( 'Fixed Versions', 'wp-simple-firewall' ),
 									 'more_info'      => __( 'More Info', 'wp-simple-firewall' ),
 								 ],
-								 'vulns'    => $vulns,
-								 'nColspan' => $this->nColumnsCount
-							 ]
+								 'vars'    => [
+									 'vulns'   => array_map(
+										 function ( $vuln ) {
+											 $data = $vuln->getRawData();
+											 if ( empty( $data[ 'url' ] ) ) {
+												 $data[ 'url' ] = $vuln->url;
+											 }
+											 return $data;
+										 },
+										 $vulns
+									 ),
+									 'colspan' => $this->nColumnsCount
+								 ],
+							 ],
+							 true
 						 );
 		}
 	}

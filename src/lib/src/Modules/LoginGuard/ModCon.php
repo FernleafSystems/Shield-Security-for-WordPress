@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
@@ -263,18 +264,29 @@ class ModCon extends BaseShield\ModCon {
 		$this->getOptions()->setOpt( 'enable_login_gasp_check', $enable ? 'Y' : 'N' );
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
-		wp_localize_script(
-			$this->getCon()->prefix( 'global-plugin' ),
+	public function getScriptLocalisations() :array {
+		$locals = parent::getScriptLocalisations();
+		$locals[] = [
+			'global-plugin',
 			'icwp_wpsf_vars_lg',
 			[
 				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
 				'ajax_del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
 			]
-		);
-		wp_enqueue_script( 'jquery-ui-dialog' );
-		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+		];
+		return $locals;
+	}
+
+	public function getCustomScriptEnqueues() :array {
+		$enqs = [];
+		if ( is_admin() || is_network_admin() ) {
+			$enqs[ Enqueue::CSS ] = [
+				'wp-wp-jquery-ui-dialog'
+			];
+			$enqs[ Enqueue::JS ] = [
+				'wp-jquery-ui-dialog'
+			];
+		}
+		return $enqs;
 	}
 }

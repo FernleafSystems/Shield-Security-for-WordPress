@@ -358,10 +358,7 @@
       "advanced":    true,
       "premium":     true,
       "type":        "array",
-      "default":     [
-        "form#ihc_login_form",
-        "form#createuser"
-      ],
+      "default":     [],
       "link_info":   "https://shsec.io/hg",
       "link_blog":   "",
       "name":        "AntiBot Forms",

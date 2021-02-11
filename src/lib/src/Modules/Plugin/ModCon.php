@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
@@ -118,14 +119,14 @@ class ModCon extends BaseShield\ModCon {
 					( new Lib\ImportExport\Import() )
 						->setMod( $this )
 						->fromFileUpload();
-					$bSuccess = true;
-					$sMessage = __( 'Options imported successfully', 'wp-simple-firewall' );
+					$success = true;
+					$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
 				}
-				catch ( \Exception $oE ) {
-					$bSuccess = false;
-					$sMessage = $oE->getMessage();
+				catch ( \Exception $e ) {
+					$success = false;
+					$msg = $e->getMessage();
 				}
-				$this->setFlashAdminNotice( $sMessage, !$bSuccess );
+				$this->setFlashAdminNotice( $msg, !$success );
 				Services::Response()->redirect(
 					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
 				);
@@ -321,7 +322,7 @@ class ModCon extends BaseShield\ModCon {
 	 * hidden 20200121
 	 * @return bool
 	 */
-	public function getIfShowIntroVideo() {
+	public function getIfShowIntroVideo() :bool {
 		return false && ( $this->getActivateLength() < 8 )
 			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
 	}
@@ -481,36 +482,35 @@ class ModCon extends BaseShield\ModCon {
 		return Services::WpUsers()->isUserAdmin();
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
+	public function getScriptLocalisations() :array {
 		$con = $this->getCon();
+		$locals = parent::getScriptLocalisations();
+
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$sFile = $con->getPluginBaseFile();
-			wp_localize_script(
-				$con->prefix( 'global-plugin' ),
+			$file = $con->base_file;
+			$locals[] = [
+				'global-plugin',
 				'icwp_wpsf_vars_plugin',
 				[
-					'file'  => $sFile,
+					'file'  => $file,
 					'ajax'  => [
 						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
 					],
 					'hrefs' => [
-						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $sFile ),
+						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $file ),
 					],
 				]
-			);
-			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
-			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+			];
 		}
 
-		wp_localize_script(
-			$con->prefix( 'plugin' ),
+		$locals[] = [
+			'plugin',
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
-		);
-		wp_localize_script(
-			$con->prefix( 'plugin' ),
+		];
+
+		$locals[] = [
+			'plugin',
 			'icwp_wpsf_vars_plugin',
 			[
 				'strings' => [
@@ -518,7 +518,22 @@ class ModCon extends BaseShield\ModCon {
 					'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 				],
 			]
-		);
+		];
+
+		return $locals;
+	}
+
+	public function getCustomScriptEnqueues() :array {
+		$enqs = [];
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
+			$enqs[ Enqueue::CSS ] = [
+				'wp-wp-jquery-ui-dialog'
+			];
+			$enqs[ Enqueue::JS ] = [
+				'wp-jquery-ui-dialog'
+			];
+		}
+		return $enqs;
 	}
 
 	public function getDbHandler_GeoIp() :Shield\Databases\GeoIp\Handler {

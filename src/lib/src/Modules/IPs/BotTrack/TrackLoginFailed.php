@@ -16,32 +16,29 @@ class TrackLoginFailed extends Base {
 	protected function process() {
 		add_filter( 'authenticate',
 			/**
-			 * @param null|\WP_User|\WP_Error $oUser
-			 * @param string                  $sLogin
-			 * @param string                  $sPass
+			 * @param null|\WP_User|\WP_Error $user
+			 * @param string                  $login
+			 * @param string                  $pass
 			 * @return null|\WP_User|\WP_Error
 			 */
-			function ( $oUser, $sLogin, $sPass ) {
-				if ( is_wp_error( $oUser ) && !empty( $sLogin )
-					 && !empty( $sPass ) && Services::WpUsers()->exists( $sLogin ) ) {
-					$this->user_login = Services::Data()->validEmail( $sLogin ) ? $sLogin : sanitize_user( $sLogin );
+			function ( $user, $login, $pass ) {
+				if ( is_wp_error( $user ) && !empty( $login )
+					 && !empty( $pass ) && Services::WpUsers()->exists( $login ) ) {
+					$this->user_login = Services::Data()->validEmail( $login ) ? $login : sanitize_user( $login );
 					$this->doTransgression();
 
 					// Adds an extra message to login failed
-					$oUser->add(
+					$user->add(
 						$this->getCon()->prefix( 'transgression-warning' ),
 						$this->getMod()->getTextOpt( 'text_loginfailed' )
 					);
 				}
-				return $oUser;
+				return $user;
 			},
 			21, 3 ); //right after username/password check
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getAuditData() {
+	protected function getAuditData() :array {
 		return [
 			'login' => $this->user_login
 		];

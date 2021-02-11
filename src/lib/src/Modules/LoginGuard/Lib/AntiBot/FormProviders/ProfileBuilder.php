@@ -15,18 +15,18 @@ class ProfileBuilder extends BaseFormProvider {
 	}
 
 	/**
-	 * @param array $aErrors
+	 * @param array $errors
 	 * @return array
 	 */
-	public function checkRegister( $aErrors ) {
+	public function checkRegister( $errors ) {
 		try {
 			$this->setActionToAudit( 'profilebuilder-register' )
 				 ->checkProviders();
 		}
-		catch ( \Exception $oE ) {
-			$aErrors[ 'shield-fail-register' ] =
+		catch ( \Exception $e ) {
+			$errors[ 'shield-fail-register' ] =
 				'<span class="wppb-form-error">Bot</span>';
 		}
-		return $aErrors;
+		return $errors;
 	}
 }

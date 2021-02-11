@@ -16,24 +16,29 @@ class TrackLoginInvalid extends Base {
 	protected function process() {
 		add_filter( 'authenticate',
 			/**
-			 * @param null|\WP_User|\WP_Error $oUser
-			 * @param string                  $sLogin
+			 * @param null|\WP_User|\WP_Error $user
+			 * @param string                  $login
+			 * @param string                  $pass
 			 * @return null|\WP_User|\WP_Error
 			 */
-			function ( $oUser, $sLogin ) {
-				if ( !empty( $sLogin ) && !Services::WpUsers()->exists( $sLogin ) ) {
-					$this->user_login = Services::Data()->validEmail( $sLogin ) ? $sLogin : sanitize_user( $sLogin );
+			function ( $user, $login, $pass ) {
+				if ( Services::Request()->isPost() && is_wp_error( $user ) && !empty( $pass )
+					 && ( empty( $login ) || !Services::WpUsers()->exists( $login ) ) ) {
+
+					if ( empty( $login ) ) {
+						$this->user_login = 'empty username';
+					}
+					else {
+						$this->user_login = Services::Data()->validEmail( $login ) ? $login : sanitize_user( $login );
+					}
 					$this->doTransgression();
 				}
-				return $oUser;
+				return $user;
 			},
-			5, 2 );
+			21, 3 );
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getAuditData() {
+	protected function getAuditData() :array {
 		return [
 			'login' => $this->user_login
 		];

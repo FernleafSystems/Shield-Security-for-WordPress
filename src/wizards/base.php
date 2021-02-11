@@ -46,7 +46,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 				$aResponse[ 'message' ] = 'Please login to run this wizard.';
 			}
 		}
-		catch ( Exception $oE ) {
+		catch ( Exception $e ) {
 		}
 
 		return $aResponse;
@@ -70,7 +70,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 
 			Services::WpGeneral()->wpDie( $sDieMessage );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $e ) {
 			if ( $sWizard == 'landing' ) {
 				$this->loadWizardLanding();
 			}
@@ -82,12 +82,12 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	protected function loadWizard() {
 		try {
-			$sContent = $this->renderWizard();
+			$content = $this->renderWizard();
 		}
-		catch ( Exception $oE ) {
-			$sContent = $oE->getMessage();
+		catch ( \Exception $e ) {
+			$content = $e->getMessage();
 		}
-		echo $sContent;
+		echo $content;
 		die();
 	}
 
@@ -96,17 +96,17 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	public function renderWizardLandingPage() {
 		try {
-			$sContent = $this->getMod()
+			$content = $this->getMod()
 							 ->renderTemplate(
 								 'wizard/pages/landing.twig',
 								 $this->getRenderData_PageWizardLanding(),
 								 true
 							 );
 		}
-		catch ( Exception $oE ) {
-			$sContent = $oE->getMessage();
+		catch ( \Exception $e ) {
+			$content = $e->getMessage();
 		}
-		return $sContent;
+		return $content;
 	}
 
 	/**
@@ -114,17 +114,17 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	public function renderWizardLandingSnippet() {
 		try {
-			$sContent = $this->getMod()
+			$content = $this->getMod()
 							 ->renderTemplate(
 								 'wizard/snippets/wizard_landing.twig',
 								 $this->getRenderData_PageWizardLanding(),
 								 true
 							 );
 		}
-		catch ( Exception $oE ) {
-			$sContent = $oE->getMessage();
+		catch ( \Exception $e ) {
+			$content = $e->getMessage();
 		}
-		return $sContent;
+		return $content;
 	}
 
 	/**
@@ -366,8 +366,8 @@ abstract class ICWP_WPSF_Wizard_Base {
 		try {
 			$aNextStepDef[ 'content' ] = $this->renderWizardStep( $aNextStepDef[ 'slug' ] );
 		}
-		catch ( Exception $oE ) {
-			$aNextStepDef[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
+		catch ( \Exception $e ) {
+			$aNextStepDef[ 'content' ] = 'Content could not be displayed due to error: '.$e->getMessage();
 		}
 
 		return $aNextStepDef;

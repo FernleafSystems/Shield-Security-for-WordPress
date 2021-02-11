@@ -20,11 +20,6 @@ class ModCon extends BaseShield\ModCon {
 	private $scanQueueCon;
 
 	/**
-	 * @var Scan\Controller\Base[]
-	 */
-	private $scansCons;
-
-	/**
 	 * @var Lib\FileLocker\FileLockerController
 	 */
 	private $oFileLocker;
@@ -63,21 +58,12 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return Scan\Controller\Base[]
-	 * @deprecated 10.1
-	 */
-	public function getAllScanCons() :array {
-		return $this->scansCons ?? $this->getScansCon()->getAllScanCons();
-	}
-
-	/**
 	 * @param string $slug
 	 * @return Scan\Controller\Base|mixed
 	 * @throws \Exception
 	 */
 	public function getScanCon( string $slug ) {
-		return empty( $this->scansCons[ $slug ] ) ?
-			$this->getScansCon()->getScanCon( $slug ) : $this->scansCons[ $slug ];
+		return $this->getScansCon()->getScanCon( $slug );
 	}
 
 	public function getMainWpData() :array {
@@ -241,13 +227,5 @@ class ModCon extends BaseShield\ModCon {
 		$this->getDbHandler_ScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 10.1
-	 */
-	public function isWpvulnPluginsHighlightEnabled() :bool {
-		return false;
 	}
 }

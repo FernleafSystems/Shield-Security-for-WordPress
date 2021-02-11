@@ -1,5 +1,5 @@
 ﻿=== Shield Security: Powerful All-In-One Protection ===
-Contributors: onedollarplugin, paultgoodchild
+Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.6
-Stable tag: 10.1.6
+Stable tag: 10.2.0
 
 The highest rated WordPress Security plugin, delivering unparalleled, all-in-one protection for you and your customers.
 
@@ -16,7 +16,7 @@ The highest rated WordPress Security plugin, delivering unparalleled, all-in-one
 
 #### Get the highest rated 5* Security Plugin for WordPress
 
-Don't *settle* for the same ol' security plugin just because everyone else does.
+Don't *settle* for the same security plugin just because everyone else does.
 
 #### Shield makes Security for WordPress easy
 
@@ -30,32 +30,43 @@ Wouldn't it be great if your Security plugin took responsibility and handled pro
 
 Shield does exactly this. It's your Silent Guardian.
 
-#### Shield Features You'll Absolutely Love =
+#### Shield Features You'll Absolutely Love
 
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - points-based system (that you control) to detect bad bots and block them.
 * Block Bot Attacks On Important Forms:
     * Login
     * Registration
     * Password Reset
+    * [ShieldPRO] WooCommerce & Easy Digital Downloads
+    * [ShieldPRO] Memberpress, LearnPress, BuddyPress, WP Members, ProfileBuilder
 * [Limit Login Attempts + Login Cooldown System](https://shsec.io/iw)
 * Powerful Firewall Rules
 * Restricted Security Admin Access
    * [Prevents Unauthorized Changes To Site Even By Admins](https://shsec.io/ix).
-* (2FA) [2-Factor Login Authentication](https://shsec.io/iy):
+* (MFA) [Two-Factor / Multi-Factor Login Authentication](https://shsec.io/iy):
     * Email
     * Google Authenticator
     * Yubikey
+    * [ShieldPRO] U2F Keys
+    * [ShieldPRO] Backup Login Codes
+    * [ShieldPRO] Multiple Yubikey per User
+    * [ShieldPRO] Remember Me (reduces 2FA requests for users)
 * [Block XML-RPC](https://shsec.io/iz) (*including* Pingbacks and Trackbacks)
 * Block Anonymous Rest API
-* Block and Bypass IP Addresses
+* Block, Bypass and Analyse IP Addresses
     * [Automatic IP Address Blocking Using Points-Based/Offenses System](https://shsec.io/j0)
     * Block or Bypass individual IPs
     * Block or Bypass IP Subnets
-* Automatic File Scanning
-  * Detect File Changes - [Scan & Repair WordPress Core Files](https://shsec.io/j1)
-  * [Detect Unknown/Suspicious PHP Files](https://shsec.io/j2)
+    * Full IP Analysis in 1 place to see their activity on your sites
+* Complete WordPress Scanning for Intrusions and Hacks
+    * Detect File Changes - [Scan & Repair WordPress Core Files](https://shsec.io/j1)
+    * [Detect Unknown/Suspicious PHP Files](https://shsec.io/j2)
+    * Detect Abandoned Plugins.
+    * [ShieldPRO] Malware Scanner - detects known and unknown malware.
+    * [ShieldPRO] Plugin and Theme file scanning - identify file changes in your plugins/themes.
+    * [ShieldPRO] Detect Plugins/Themes With Known Vulnerabilities.
 * [Create a **Custom Login URL** by hiding wp-login.php](https://shsec.io/j3)
-* Detect (and optionally Block) Comment SPAM.
+* Detect (and optionally Block) [Comment SPAM from Bots and Humans](https://shsec.io/jf).
 * reCAPTCHA & [hCAPTCHA](https://shsec.io/j4) support
 * **Never Block Google**: Automatic Detection and Bypass for GoogleBot, Bing and other Official Search Engines including:
     * Google
@@ -80,9 +91,12 @@ Shield does exactly this. It's your Silent Guardian.
     * Restrict Users Session To IP
     * Block Use Of Pwned Passwords
     * Block User Enumeration (?author=x)
+    * [ShieldPRO] User Suspend - manual and automatic.
 * Full/Automatic Support for All IP Address Sources including Proxy Support
 * [Full Traffic Log and Request Monitoring](https://shsec.io/j7)
 * [HTTP Security Headers & Content Security Policies (CSP)](https://shsec.io/j6)
+
+#### [Full Shield Security Features List](https://shsec.io/shieldfeatures)
 
 ### Dedicated Premium Support When You Go PRO
 
@@ -148,9 +162,11 @@ Any IP address that is on the whitelist will not be subject to **any of the fire
 
 Yes. To specify a range you use CIDR notation.  E.g. ABC.DEF.GHJ.KMP/16
 
-= I want to black list an IP address, where can I do that? =
+= I want to review and manage IP addresses, where can I do that? =
 
-You can't. The plugin runs an automatic black list IP system so you don't need to maintain any manual lists.
+You can use IP Lists section. This is an essential tool you can use to analyse IP address, review information concerning blocked and bypassed IP addresses.
+
+It shows you geo-location information and all the request made to your site by that IP, including offenses and any logged-in users.
 
 = I've locked myself out from my own site! =
 
@@ -175,11 +191,6 @@ Remember: If you leave one of these files on the server, it will override your o
 = Which takes precedence... whitelist or blacklist? =
 
 Whitelist. So if you have the same address in both lists, it'll be whitelisted and allowed to pass before the blacklist comes into effect.
-
-= What changes go into each version? =
-
-The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
- using **(.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(.1)**
 
 = Can I assist with development? =
 
@@ -209,9 +220,11 @@ that are url, param and password will be ignored by the firewall.
 
 = How does the login cooldown work? =
 
-When enabled the plugin will prevent more than 1 login attempt to your site every "so-many" seconds.  So if you enable a login cooldown
+Login Cooldown prevents more than 1 login attempt to your site every "so-many" seconds.  So if you enable a login cooldown
 of 60 seconds, only 1 login attempt will be processed every 60 seconds.  If you login incorrectly, you wont be able to attempt another
 login for a further 60 seconds.
+
+This system completely blocks any level of brute-force login attacks and a cooldown of just 1 second goes a long way.
 
 More Info: https://shsec.io/2t
 
@@ -221,12 +234,36 @@ This is best [described on the blog](https://shsec.io/2u)
 
 = How does the 2-factor authentication work? =
 
-[2-Factor Authentication is best described here](https://shsec.io/2v).
+2-Factor Authentication [is best described here](https://shsec.io/2v).
+
+= I'm not receiving the email with 2FA verification code.? =
+
+Email delivery is a huge problem with WordPress sites and is very common.
+
+Your WordPress is not designed to send emails. The best solution is to use a service that is dedicated to the purpose of sending emails.
+
+[This is what we recommend](https://shsec.io/jj).
 
 = I'm getting an update message although I have auto update enabled? =
 
 The Automatic (Background) WordPress updates happens on a WordPress schedule - it doesn't happen immediately when an update is detected.
 You can either manually upgrade, or WordPress will handle it in due course.
+
+= I'm getting large volumes of comment SPAM. How can I stop this? =
+
+You can block 100% of automated spam bots and also block and analyse human-generated spam. [This is best described here](https://shsec.io/jg).
+
+= Do you offer White Label? =
+
+Yes, we do. You can essentially rename the Shield plugin to whatever you would like it to be.
+
+It ensures a more consistent brand offering and presents your business offering as a more holistic, integrated solution.
+
+We go into [further detail here](https://shsec.io/jh).
+
+= I’d like to customise 2FA emails sent to my site users. How can I do that? =
+
+You can use our custom [templates for this purpose](https://shsec.io/ji).
 
 = How can I remove the WordPress admin footer message that displays my IP address? =
 
@@ -248,6 +285,13 @@ Use the following filter and return the role in the function:
 
 Possible options are: network_admin, administrator, editor, author, contributor, subscriber
 
+= What changes go into each Shield version? =
+
+The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
+ using **(.1)** notation.  So for example, version 10.1**.1** will have changelog items appended with **(.1)**
+
+You can view the entire [Shield changelog here](https://shsec.io/shieldwporgfullchangelog).
+
 == Screenshots ==
 
 1. A top-level dashboard that shows all the important things you need to know at-a-glance.
@@ -265,4 +309,4 @@ The full Shield Changelog can be viewed from our home page:
 ShieldPRO delivers exclusive security features to the serious site administrator to maximise site security
 You'll also have direct access to our technical support team.
 
-[Go Pro from just $1/month](https://shsec.io/aa).
+[Go Pro](https://shsec.io/aa) or grab the [free ShieldPRO Trial](https://shsec.io/shieldfreetrialwporgreadme).

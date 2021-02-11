@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -45,186 +45,97 @@ class ModCon extends BaseShield\ModCon {
 		return $UI->renderPages();
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
+	public function getScriptLocalisations() :array {
+		$con = $this->getCon();
+		$locals = parent::getScriptLocalisations();
+		$locals[] = [
+			'plugin',
+			'icwp_wpsf_vars_insights',
+			[
+				'strings' => [
+					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+					'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
+				],
+			]
+		];
+		$locals[] = [
+			$con->prefix( 'ip_detect' ),
+			'icwp_wpsf_vars_ipdetect',
+			[ 'ajax' => $con->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
+		];
 
-		if ( $this->isThisModulePage() ) {
-
-			$con = $this->getCon();
-			$aStdDepsJs = [ $con->prefix( 'plugin' ) ];
-			$iNav = Services::Request()->query( 'inav', 'overview' );
-
-			$oModPlugin = $con->getModule_Plugin();
-			$oTourManager = $oModPlugin->getTourManager();
-			switch ( $iNav ) {
-
-				case 'importexport':
-
-					$sAsset = 'shield/import';
-					$sUnique = $con->prefix( $sAsset );
-					wp_register_script(
-						$sUnique,
-						$con->getPluginUrl_Js( $sAsset ),
-						$aStdDepsJs,
-						$con->getVersion(),
-						false
-					);
-					wp_enqueue_script( $sUnique );
-					break;
-
-				case 'overview':
-				case 'reports':
-
-					$aDeps = $aStdDepsJs;
-
-					$aJsAssets = [
-						'chartist.min',
-						'chartist-plugin-legend',
-						'charts',
-						'shuffle',
-						'shield-card-shuffle'
-					];
-					if ( $oTourManager->canShow( 'insights_overview' ) ) {
-						array_unshift( $aJsAssets, 'introjs.min.js' );
-					}
-					foreach ( $aJsAssets as $sAsset ) {
-						$sUnique = $con->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$con->getPluginUrl_Js( $sAsset ),
-							$aDeps,
-							$con->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
-						$aDeps[] = $sUnique;
-					}
-
-					$aDeps = [];
-					$aCssAssets = [ 'chartist.min', 'chartist-plugin-legend' ];
-					if ( $oTourManager->canShow( 'insights_overview' ) ) {
-						array_unshift( $aCssAssets, 'introjs.min.css' );
-					}
-					foreach ( $aCssAssets as $sAsset ) {
-						$sUnique = $con->prefix( $sAsset );
-						wp_register_style(
-							$sUnique,
-							$con->getPluginUrl_Css( $sAsset ),
-							$aDeps,
-							$con->getVersion(),
-							false
-						);
-						wp_enqueue_style( $sUnique );
-						$aDeps[] = $sUnique;
-					}
-
-					$this->includeScriptIpDetect();
-					break;
-
-				case 'notes':
-				case 'scans':
-				case 'audit':
-				case 'traffic':
-				case 'ips':
-				case 'debug':
-				case 'users':
-
-					$sAsset = 'shield-tables';
-					$sUnique = $con->prefix( $sAsset );
-					wp_register_script(
-						$sUnique,
-						$con->getPluginUrl_Js( $sAsset ),
-						$aStdDepsJs,
-						$con->getVersion(),
-						false
-					);
-					wp_enqueue_script( $sUnique );
-
-					$aStdDepsJs[] = $sUnique;
-					if ( $iNav == 'scans' ) {
-						$sAsset = 'shield-scans';
-						$sUnique = $con->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$con->getPluginUrl_Js( $sAsset ),
-							array_unique( $aStdDepsJs ),
-							$con->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
-					}
-
-					if ( $iNav == 'ips' ) {
-						$sAsset = 'shield/ipanalyse';
-						$sUnique = $con->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$con->getPluginUrl_Js( $sAsset ),
-							array_unique( $aStdDepsJs ),
-							$con->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
-					}
-
-					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
-						$sUnique = $con->prefix( 'datepicker' );
-						wp_register_script(
-							$sUnique, //TODO: use an includes services for CNDJS
-							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
-							array_unique( $aStdDepsJs ),
-							$con->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
-
-						wp_register_style(
-							$sUnique,
-							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
-							[],
-							$con->getVersion(),
-							false
-						);
-						wp_enqueue_style( $sUnique );
-					}
-
-					break;
-			}
-
-			wp_localize_script(
-				$con->prefix( 'plugin' ),
-				'icwp_wpsf_vars_insights',
-				[
-					'strings' => [
-						'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-						'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-						'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-						'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
-					],
-				]
-			);
-		}
+		return $locals;
 	}
 
-	private function includeScriptIpDetect() {
-		$con = $this->getCon();
-		/** @var Modules\Plugin\Options $opts */
-		$opts = $con->getModule_Plugin()->getOptions();
-		if ( $opts->isIpSourceAutoDetect() ) {
-			wp_register_script(
-				$con->prefix( 'ip_detect' ),
-				$con->getPluginUrl_Js( 'ip_detect.js' ),
-				[],
-				$con->getVersion(),
-				true
-			);
-			wp_enqueue_script( $con->prefix( 'ip_detect' ) );
+	public function getCustomScriptEnqueues() :array {
+		$enq = [
+			Enqueue::CSS => [],
+			Enqueue::JS  => [],
+		];
 
-			wp_localize_script(
-				$con->prefix( 'ip_detect' ),
-				'icwp_wpsf_vars_ipdetect',
-				[ 'ajax' => $con->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
-			);
+		$con = $this->getCon();
+		$iNav = Services::Request()->query( 'inav', 'overview' );
+		$oTourManager = $con->getModule_Plugin()->getTourManager();
+
+		switch ( $iNav ) {
+
+			case 'importexport':
+				$enq[ Enqueue::JS ][] = 'shield/import';
+				break;
+
+			case 'overview':
+			case 'reports':
+
+				$enq[ Enqueue::JS ] = [
+					'chartist.min',
+					'chartist-plugin-legend',
+					'charts',
+					'shuffle',
+					'shield-card-shuffle',
+					'ip_detect'
+				];
+				$enq[ Enqueue::CSS ] = [
+					'chartist.min',
+					'chartist-plugin-legend'
+				];
+
+				if ( $oTourManager->canShow( 'insights_overview' ) ) {
+					$enq[ Enqueue::JS ][] = 'introjs.min';
+					$enq[ Enqueue::CSS ][] = 'introjs.min';
+				}
+				break;
+
+			case 'notes':
+			case 'scans':
+			case 'audit':
+			case 'traffic':
+			case 'ips':
+			case 'debug':
+			case 'users':
+
+				$enq[ Enqueue::JS ][] = 'shield-tables';
+				if ( $iNav == 'scans' ) {
+					$enq[ Enqueue::JS ][] = 'shield-scans';
+				}
+				elseif ( $iNav == 'ips' ) {
+					$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
+				}
+
+				if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
+					$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
+					$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
+				}
+				break;
 		}
+
+		return $enq;
+	}
+
+	/**
+	 * @deprecated 10.2
+	 */
+	private function includeScriptIpDetect() {
 	}
 }
