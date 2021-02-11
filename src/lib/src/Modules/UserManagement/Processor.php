@@ -68,7 +68,7 @@ class Processor extends BaseShield\Processor {
 	 * @param \WP_User $user
 	 */
 	public function onWpLogin( $username, $user = null ) {
-		if ( !$user instanceof \WP_User ) {
+		if ( !$user instanceof \WP_User && !empty( $username ) ) {
 			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
 		$this->setPasswordStartedAt( $user )// used by Password Policies
