@@ -1,7 +1,7 @@
 {
   "10.2": {
     "version":     "10.2",
-    "released_at": 1612200622,
+    "released_at": 1613037000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease102",
       "upgrade": "https://shsec.io/shieldupgradeguide102"
