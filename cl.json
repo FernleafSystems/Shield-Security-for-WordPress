@@ -101,6 +101,12 @@
         "title":       "Fatal error in some cases",
         "description": [],
         "patch":       "10.2.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Certain admin JS and CSS assets were loading on the frontend.",
+        "description": [],
+        "patch":       "10.2.3"
       }
     ]
   },
