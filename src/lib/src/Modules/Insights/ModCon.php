@@ -76,58 +76,60 @@ class ModCon extends BaseShield\ModCon {
 		];
 
 		$con = $this->getCon();
-		$iNav = Services::Request()->query( 'inav', 'overview' );
-		$oTourManager = $con->getModule_Plugin()->getTourManager();
+		$iNav = Services::Request()->query( 'inav' );
 
-		switch ( $iNav ) {
+		if ( $con->getIsPage_PluginAdmin() && !empty( $iNav ) ) {
+			$oTourManager = $con->getModule_Plugin()->getTourManager();
+			switch ( $iNav ) {
 
-			case 'importexport':
-				$enq[ Enqueue::JS ][] = 'shield/import';
-				break;
+				case 'importexport':
+					$enq[ Enqueue::JS ][] = 'shield/import';
+					break;
 
-			case 'overview':
-			case 'reports':
+				case 'overview':
+				case 'reports':
 
-				$enq[ Enqueue::JS ] = [
-					'chartist.min',
-					'chartist-plugin-legend',
-					'charts',
-					'shuffle',
-					'shield-card-shuffle',
-					'ip_detect'
-				];
-				$enq[ Enqueue::CSS ] = [
-					'chartist.min',
-					'chartist-plugin-legend'
-				];
+					$enq[ Enqueue::JS ] = [
+						'chartist.min',
+						'chartist-plugin-legend',
+						'charts',
+						'shuffle',
+						'shield-card-shuffle',
+						'ip_detect'
+					];
+					$enq[ Enqueue::CSS ] = [
+						'chartist.min',
+						'chartist-plugin-legend'
+					];
 
-				if ( $oTourManager->canShow( 'insights_overview' ) ) {
-					$enq[ Enqueue::JS ][] = 'introjs.min';
-					$enq[ Enqueue::CSS ][] = 'introjs.min';
-				}
-				break;
+					if ( $oTourManager->canShow( 'insights_overview' ) ) {
+						$enq[ Enqueue::JS ][] = 'introjs.min';
+						$enq[ Enqueue::CSS ][] = 'introjs.min';
+					}
+					break;
 
-			case 'notes':
-			case 'scans':
-			case 'audit':
-			case 'traffic':
-			case 'ips':
-			case 'debug':
-			case 'users':
+				case 'notes':
+				case 'scans':
+				case 'audit':
+				case 'traffic':
+				case 'ips':
+				case 'debug':
+				case 'users':
 
-				$enq[ Enqueue::JS ][] = 'shield-tables';
-				if ( $iNav == 'scans' ) {
-					$enq[ Enqueue::JS ][] = 'shield-scans';
-				}
-				elseif ( $iNav == 'ips' ) {
-					$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
-				}
+					$enq[ Enqueue::JS ][] = 'shield-tables';
+					if ( $iNav == 'scans' ) {
+						$enq[ Enqueue::JS ][] = 'shield-scans';
+					}
+					elseif ( $iNav == 'ips' ) {
+						$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
+					}
 
-				if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
-					$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
-					$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
-				}
-				break;
+					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
+						$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
+						$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
+					}
+					break;
+			}
 		}
 
 		return $enq;
