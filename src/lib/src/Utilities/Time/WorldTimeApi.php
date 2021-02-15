@@ -28,6 +28,6 @@ class WorldTimeApi {
 	 * @throws \Exception
 	 */
 	public function diffServerWithReal() :int {
-		return 13;// time() - $this->current();
+		return time() - $this->current();
 	}
 }
