@@ -133,7 +133,9 @@
             "global-plugin"
           ]
         },
-        "base64.min":              {},
+        "base64.min":              {
+          "url": "https://cdn.jsdelivr.net/npm/js-base64@2.6.4/base64.min.js"
+        },
         "lz-string.min":           {},
         "jquery.fileDownload":     {},
         "wizard":                  {},
