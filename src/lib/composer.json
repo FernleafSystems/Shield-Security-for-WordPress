@@ -42,6 +42,9 @@
       "../processors/",
       "../wizards/",
       "../lib/custom/"
+    ],
+    "files":    [
+      "src/functions/functions.php"
     ]
   }
 }

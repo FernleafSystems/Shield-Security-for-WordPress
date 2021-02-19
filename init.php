@@ -57,13 +57,3 @@ catch ( \Exception $e ) {
 		error_log( $e->getMessage() );
 	}
 }
-
-if ( !function_exists( 'shield_security_get_plugin' ) ) {
-	/**
-	 * @return ICWP_WPSF_Shield_Security|null
-	 */
-	function shield_security_get_plugin() {
-		global $oICWP_Wpsf;
-		return ( $oICWP_Wpsf instanceof \ICWP_WPSF_Shield_Security ) ? $oICWP_Wpsf : null;
-	}
-}
