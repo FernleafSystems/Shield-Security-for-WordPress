@@ -79,27 +79,22 @@ abstract class BaseFormProvider {
 	 * @return string
 	 */
 	public function formInsertsAppend( $sToAppend ) {
-		return $sToAppend.$this->formInsertsBuild();
+		return $sToAppend.$this->buildFormInsert();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function formInsertsBuild() {
+	public function buildFormInsert() :string {
 		$aInserts = [];
 		if ( is_array( self::$aProtectionProviders ) ) {
 			foreach ( self::$aProtectionProviders as $oProvider ) {
 				$aInserts[] = $oProvider->buildFormInsert( $this );
+				$oProvider->setAsInsertBuilt();
 			}
 		}
 		return implode( "\n", $aInserts );
 	}
 
-	/**
-	 * @return void
-	 */
-	public function formInsertsPrint() {
-		echo $this->formInsertsBuild();
+	public function printFormInsert() {
+		echo $this->buildFormInsert();
 	}
 
 	/**

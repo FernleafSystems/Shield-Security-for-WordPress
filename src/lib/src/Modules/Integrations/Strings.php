@@ -7,6 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function getAuditMessages() :array {
+		return [
+			'contactform7_spam_pass' => [
+				__( 'ContactForm7 form submission passed SPAM check.', 'wp-simple-firewall' ),
+			],
+			'contactform7_spam_fail' => [
+				__( 'ContactForm7 form submission failed SPAM check.', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	/**
 	 * @param string $section
 	 * @return array
 	 * @throws \Exception

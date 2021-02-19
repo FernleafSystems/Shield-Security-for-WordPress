@@ -532,36 +532,36 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardLoginProtect() {
 		$mod = $this->getCon()->getModule_LoginGuard();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $mod->getOptions();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
+		$opts = $mod->getOptions();
 
 		$sInput = Services::Request()->post( 'LoginProtectOption' );
-		$bSuccess = false;
-		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
+		$success = false;
+		$msg = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
 
 		if ( !empty( $sInput ) ) {
-			$bEnabled = $sInput === 'Y';
+			$enabled = $sInput === 'Y';
 
-			if ( $bEnabled ) { // we don't disable the whole module
+			if ( $enabled ) { // we don't disable the whole module
 				$mod->setIsMainFeatureEnabled( true );
 			}
-			$mod->setEnabledGaspCheck( $bEnabled );
+			$mod->setEnabledGaspCheck( $enabled );
 			$mod->saveModOptions();
 
-			$bSuccess = $oOpts->isEnabledGaspCheck() === $bEnabled;
-			if ( $bSuccess ) {
-				$sMessage = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
-					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+			$success = $opts->isEnabledGaspCheck() === $enabled;
+			if ( $success ) {
+				$msg = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
+					$enabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
-				$sMessage = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
+				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
 			}
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
-			->setMessageText( $sMessage );
+			->setSuccessful( $success )
+			->setMessageText( $msg );
 	}
 
 	/**

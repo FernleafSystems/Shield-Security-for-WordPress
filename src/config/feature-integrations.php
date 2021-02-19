@@ -43,10 +43,51 @@
       "name":        "Enable MainWP",
       "summary":     "Enable The Built-In MainWP Extension",
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
+    },
+    {
+      "key":           "cf7",
+      "section":       "section_integrations",
+      "premium":       true,
+      "type":          "multiple_select",
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "antibot",
+          "text":      "Use Shield's AntiBot Detection"
+        },
+        {
+          "value_key": "human",
+          "text":      "Use Shield's Human SPAM Detection"
+        },
+        {
+          "value_key": "offense",
+          "text":      "Register an IP offense when SPAM is detected by any method, not only Shield"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Contact Form 7",
+      "summary":       "Contact Form 7 Integration Configuration",
+      "description":   "Select the options you want to enable in Shield's Contact Form 7 Integration."
     }
   ],
   "definitions": {
     "events": {
+      "contactform7_spam_pass": {
+        "stat":    true,
+        "audit":   true,
+        "offense": false
+      },
+      "contactform7_spam_fail": {
+        "stat":  true,
+        "audit": true,
+        "offense": false
+      },
+      "contactform7_spam":      {
+        "audit":   false,
+        "stat":    false,
+        "offense": true
+      }
     }
   }
 }

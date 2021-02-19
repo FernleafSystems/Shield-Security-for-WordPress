@@ -21,8 +21,18 @@ class Processor extends BaseShield\Processor {
 			->execute();
 
 		if ( !$mod->isVisitorWhitelisted() ) {
-			( new Lib\AntiBot\AntibotSetup() )->setMod( $mod );
+
+			add_action( 'init', function () {
+				$this->launchAntiBot();
+			}, -100 );
+
 			$mod->getLoginIntentController()->run();
 		}
+	}
+
+	private function launchAntiBot() {
+		( new Lib\AntiBot\AntibotSetup() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 }

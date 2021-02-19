@@ -3,13 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\CF7\HandlerCF7;
 
 class Processor extends BaseShield\Processor {
 
 	protected function run() {
-		$this->getCon()
-			 ->getModule_Integrations()
-			 ->getControllerMWP()
-			 ->execute();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getControllerMWP()->execute();
+
+		( new HandlerCF7() )
+			->setMod( $mod )
+			->execute();
 	}
 }

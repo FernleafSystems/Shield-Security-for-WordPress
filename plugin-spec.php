@@ -170,6 +170,11 @@
             "plugin"
           ]
         },
+        "shield/antibot":            {
+          "deps":    [],
+          "dynamic": true,
+          "footer":  true
+        },
         "shield/scans":            {
           "deps": [
             "shield/tables"

@@ -30,6 +30,19 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $shieldNetCon;
 
+	/**
+	 * @var Lib\Bots\AntiBotHandler
+	 */
+	private $handlerAntibot;
+
+	public function getHandlerAntibot() :Lib\Bots\AntiBotHandler {
+		if ( !isset( $this->handlerAntibot ) ) {
+			$this->handlerAntibot = ( new Lib\Bots\AntiBotHandler() )
+				->setMod( $this );
+		}
+		return $this->handlerAntibot;
+	}
+
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		if ( !isset( $this->importExportCon ) ) {
 			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )
@@ -144,19 +157,19 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getActivePluginFeatures() :array {
-		$aActiveFeatures = $this->getDef( 'active_plugin_features' );
+		$features = $this->getDef( 'active_plugin_features' );
 
-		$aPluginFeatures = [];
-		if ( !empty( $aActiveFeatures ) && is_array( $aActiveFeatures ) ) {
+		$available = [];
+		if ( is_array( $features ) ) {
 
-			foreach ( $aActiveFeatures as $nPosition => $aFeature ) {
-				if ( isset( $aFeature[ 'hidden' ] ) && $aFeature[ 'hidden' ] ) {
+			foreach ( $features as $feature ) {
+				if ( isset( $feature[ 'hidden' ] ) && $feature[ 'hidden' ] ) {
 					continue;
 				}
-				$aPluginFeatures[ $aFeature[ 'slug' ] ] = $aFeature;
+				$available[ $feature[ 'slug' ] ] = $feature;
 			}
 		}
-		return $aPluginFeatures;
+		return $available;
 	}
 
 	public function getLinkToTrackingDataDump() :string {

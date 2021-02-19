@@ -11,16 +11,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class UserRegistration extends BaseFormProvider {
 
 	protected function register() {
-		add_action( 'user_registration_after_form_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'user_registration_after_form_fields', [ $this, 'printFormInsert' ], 100 );
 		add_action( 'user_registration_response_array', [ $this, 'checkRegister' ], 5, 3 );
 	}
 
 	/**
 	 * @return void
 	 */
-	public function formInsertsPrint() {
+	public function printFormInsert() {
 		echo '<div class="ur-form-grid">';
-		echo preg_replace( '#class="(.*)"#i', 'class="\\1 ur-frontend-field"', $this->formInsertsBuild() );
+		echo preg_replace( '#class="(.*)"#i', 'class="\\1 ur-frontend-field"', $this->buildFormInsert() );
 		echo '</div>';
 	}
 

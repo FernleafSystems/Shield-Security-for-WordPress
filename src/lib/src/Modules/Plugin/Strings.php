@@ -56,6 +56,12 @@ class Strings extends Base\Strings {
 			'recaptcha_fail'         => [
 				__( 'CAPTCHA Test Fail', 'wp-simple-firewall' )
 			],
+			'antibot_pass'           => [
+				__( 'Request passed the AnitBot test.', 'wp-simple-firewall' ),
+			],
+			'antibot_fail'           => [
+				__( 'Request failed the AnitBot test.', 'wp-simple-firewall' ),
+			],
 		];
 	}
 

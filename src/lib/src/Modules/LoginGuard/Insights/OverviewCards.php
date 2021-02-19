@@ -25,7 +25,8 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
-			$bHasBotCheck = $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
+			$bHasBotCheck = $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha()
+							|| $opts->isEnabledAntiBot();
 
 			$bBotLogin = $bHasBotCheck && $opts->isProtectLogin();
 			$bBotRegister = $bHasBotCheck && $opts->isProtectRegister();

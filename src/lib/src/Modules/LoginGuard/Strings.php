@@ -232,6 +232,14 @@ class Strings extends Base\Strings {
 						.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
 				break;
 
+			case 'enable_antibot_check' :
+				$name = __( 'AntiBot System', 'wp-simple-firewall' );
+				$summary = __( "Use AntiBot System To Detect Bots", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Use Our Experimental AntiBot Detection System in-place of GASP JS', 'wp-simple-firewall' )
+				];
+				break;
+
 			case 'antibot_form_ids' :
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$summary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );

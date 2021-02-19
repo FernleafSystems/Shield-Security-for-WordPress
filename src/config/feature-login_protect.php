@@ -320,6 +320,17 @@
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {
+      "key":         "enable_antibot_check",
+      "section":     "section_brute_force_login_protection",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/3r",
+      "link_blog":   "https://shsec.io/9n",
+      "name":        "AntiBot",
+      "summary":     "Use Experimental AntiBot Detection System",
+      "description": "Use Shield's AntiBot Detection System In-Place of GASP Bot checking."
+    },
+    {
       "key":           "enable_google_recaptcha_login",
       "section":       "section_brute_force_login_protection",
       "default":       "disabled",

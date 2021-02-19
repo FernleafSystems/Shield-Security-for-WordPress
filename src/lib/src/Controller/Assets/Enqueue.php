@@ -23,6 +23,9 @@ class Enqueue {
 	}
 
 	protected function run() {
+		add_action( 'login_enqueue_scripts', function () {
+			$this->enqueue();
+		}, 1000 );
 		add_action( 'wp_enqueue_scripts', function () {
 			$this->enqueue();
 		}, 1000 );
@@ -111,12 +114,13 @@ class Enqueue {
 						);
 					}
 					else {
-						$url = $spec[ 'url' ] ?? $con->urls->forJs( $key );
+						$url = $con->urls->forJs( $key );
 						$reg = wp_register_script(
 							$handle,
 							$url,
 							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
-							$con->getVersion()
+							$con->getVersion(),
+							$spec[ 'footer' ] ?? false
 						);
 					}
 
@@ -167,7 +171,14 @@ class Enqueue {
 
 	private function runEnqueueOnAssets( string $type, array $asset ) {
 		array_map(
-			$type == self::CSS ? 'wp_enqueue_style' : 'wp_enqueue_script',
+			function ( $asset ) use ( $type ) {
+				if ( $type == self::CSS ) {
+					wp_enqueue_style( $asset );
+				}
+				else {
+					wp_enqueue_script( $asset );
+				}
+			},
 			$this->prefixKeys( $asset )
 		);
 	}

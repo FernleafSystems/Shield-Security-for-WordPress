@@ -21,7 +21,7 @@ class Human {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
-		$aItemsToCheck = array_intersect_key(
+		$items = array_intersect_key(
 			[
 				'comment_content' => $aCommData[ 'comment_content' ],
 				'url'             => $aCommData[ 'comment_author_url' ],
@@ -34,16 +34,16 @@ class Human {
 		);
 
 		$mResult = true;
-		foreach ( $this->getSpamBlacklist() as $sBlacklistWord ) {
-			foreach ( $aItemsToCheck as $sKey => $sItem ) {
-				if ( stripos( $sItem, $sBlacklistWord ) !== false ) { //mark as spam and exit;
+		foreach ( $this->getSpamBlacklist() as $word ) {
+			foreach ( $items as $key => $item ) {
+				if ( stripos( $item, $word ) !== false ) {
 					$mResult = new \WP_Error(
 						'human',
 						sprintf( __( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ),
-							$sBlacklistWord, $sKey ),
+							$word, $key ),
 						[
-							'word' => $sBlacklistWord,
-							'key'  => $sKey
+							'word' => $word,
+							'key'  => $key
 						]
 					);
 					break 2;

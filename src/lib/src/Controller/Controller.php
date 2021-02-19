@@ -323,18 +323,25 @@ class Controller {
 	 */
 	private function buildPluginCacheDir() {
 		$bSuccess = false;
-		$sBase = $this->getPath_PluginCache();
-		$oFs = Services::WpFs();
-		if ( $oFs->mkdir( $sBase ) ) {
-			$sHt = path_join( $sBase, '.htaccess' );
-			$sHtContent = "Options -Indexes\ndeny from all";
-			if ( !$oFs->exists( $sHt ) || ( md5_file( $sHt ) != md5( $sHtContent ) ) ) {
-				$oFs->putFileContent( $sHt, $sHtContent );
+		$baseDir = $this->getPath_PluginCache();
+		$FS = Services::WpFs();
+		if ( $FS->mkdir( $baseDir ) ) {
+			$sHt = path_join( $baseDir, '.htaccess' );
+			$htContent = implode( "\n", [
+				"Options -Indexes",
+				"Order allow,deny",
+				"Deny from all",
+				'<FilesMatch "^.*\.(css|js)$">',
+				" Allow from all",
+				'</FilesMatch>',
+			] );
+			if ( !$FS->exists( $sHt ) || ( md5_file( $sHt ) != md5( $htContent ) ) ) {
+				$FS->putFileContent( $sHt, $htContent );
 			}
-			$sIndex = path_join( $sBase, 'index.php' );
+			$index = path_join( $baseDir, 'index.php' );
 			$sIndexContent = "<?php\nhttp_response_code(404);";
-			if ( !$oFs->exists( $sIndex ) || ( md5_file( $sIndex ) != md5( $sIndexContent ) ) ) {
-				$oFs->putFileContent( $sIndex, $sIndexContent );
+			if ( !$FS->exists( $index ) || ( md5_file( $index ) != md5( $sIndexContent ) ) ) {
+				$FS->putFileContent( $index, $sIndexContent );
 			}
 			$bSuccess = true;
 		}
@@ -1309,7 +1316,7 @@ class Controller {
 	 * @return Shield\Modules\Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
-		$mod = isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : null;
+		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
 				$mods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -11,49 +12,48 @@ use FernleafSystems\Wordpress\Services\Services;
 class AntibotSetup {
 
 	use ModConsumer;
+	use ExecOnce;
 
-	public function __construct() {
-		add_action( 'init', [ $this, 'onWpInit' ], -100 );
+	protected function canRun() :bool {
+		return !Services::WpUsers()->isUserLoggedIn();
 	}
 
-	public function onWpInit() {
-		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			$this->run();
-		}
-	}
-
-	private function run() {
+	protected function run() {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$aProtectionProviders = [];
+		$providers = [];
 		if ( $opts->isEnabledCooldown() && $mod->canCacheDirWrite() ) {
-			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
+			$providers[] = ( new AntiBot\ProtectionProviders\CoolDown() )
 				->setMod( $mod );
 		}
 
 		if ( $opts->isEnabledGaspCheck() ) {
-			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GaspJs() )
+			$providers[] = ( new AntiBot\ProtectionProviders\GaspJs() )
+				->setMod( $mod );
+		}
+		if ( $opts->isEnabledAntiBot() ) {
+			$providers[] = ( new AntiBot\ProtectionProviders\AntiBot() )
 				->setMod( $mod );
 		}
 
 		if ( $mod->isEnabledCaptcha() ) {
 			$cfg = $mod->getCaptchaCfg();
 			if ( $cfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
+				$providers[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
 					->setMod( $mod );
 			}
 			elseif ( $cfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
-				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
+				$providers[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
 					->setMod( $mod );
 			}
 		}
 
-		if ( !empty( $aProtectionProviders ) ) {
+		if ( !empty( $providers ) ) {
 
-			AntiBot\FormProviders\WordPress::SetProviders( $aProtectionProviders );
+			AntiBot\FormProviders\WordPress::SetProviders( $providers );
 			/** @var AntiBot\FormProviders\BaseFormProvider[] $aFormProviders */
 			$aFormProviders = [
 				new AntiBot\FormProviders\WordPress()

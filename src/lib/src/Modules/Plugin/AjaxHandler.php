@@ -59,11 +59,23 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$aResponse = $this->ajaxExec_MarkTourFinished();
 				break;
 
+			case 'bit_bot':
+				$aResponse = $this->ajaxExec_CaptureBitBot();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;
+	}
+
+	private function ajaxExec_CaptureBitBot() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return [
+			'success' => $mod->getHandlerAntibot()->setCookie()
+		];
 	}
 
 	private function ajaxExec_SendDeactivateSurvey() :array {

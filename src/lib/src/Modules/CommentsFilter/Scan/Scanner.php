@@ -136,6 +136,17 @@ class Scanner {
 				->scan( $aCommData[ 'comment_post_ID' ] );
 		}
 
+		if ( !is_wp_error( $mResult ) && $opts->isEnabledAntiBot() ) {
+			try {
+				( new AntiBot() )
+					->setMod( $this->getMod() )
+					->scan();
+			}
+			catch ( \Exception $e ) {
+				$mResult = new \WP_Error( 'antibot', $e->getMessage() );
+			}
+		}
+
 		if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
 			try {
 				if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {

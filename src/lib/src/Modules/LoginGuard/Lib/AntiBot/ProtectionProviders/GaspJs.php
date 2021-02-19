@@ -76,13 +76,14 @@ class GaspJs extends BaseProtectionProvider {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$asset = 'shield-antibot';
+		$asset = 'login-antibot';
 		$uniq = $con->prefix( $asset );
 		wp_register_script(
 			$uniq,
 			$con->urls->forJs( $asset ),
 			[ 'jquery' ],
-			$con->getVersion()
+			$con->getVersion(),
+			true
 		);
 		wp_enqueue_script( $uniq );
 
@@ -104,6 +105,8 @@ class GaspJs extends BaseProtectionProvider {
 				]
 			]
 		);
+
+		$this->enqueueHandles[] = $uniq;
 	}
 
 	/**
@@ -118,5 +121,11 @@ class GaspJs extends BaseProtectionProvider {
 				]
 			]
 		);
+	}
+
+	protected function isFactorJsRequired() :bool {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return parent::isFactorJsRequired() || !empty( $opts->getAntiBotFormSelectors() );
 	}
 }

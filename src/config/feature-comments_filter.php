@@ -164,6 +164,17 @@
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
     },
     {
+      "key":         "enable_antibot_check",
+      "section":     "section_bot_comment_spam_protection_filter",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/3r",
+      "link_blog":   "https://shsec.io/9n",
+      "name":        "AntiBot",
+      "summary":     "Use Experimental AntiBot Detection System",
+      "description": "Use Shield's AntiBot Detection System In-Place of GASP Bot checking."
+    },
+    {
       "key":           "comments_default_action_spam_bot",
       "section":       "section_bot_comment_spam_protection_filter",
       "default":       "spam",

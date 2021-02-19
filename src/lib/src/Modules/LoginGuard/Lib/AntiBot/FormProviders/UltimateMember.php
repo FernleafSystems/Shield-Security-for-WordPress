@@ -10,17 +10,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class UltimateMember extends BaseFormProvider {
 
 	protected function login() {
-		add_action( 'um_after_login_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'um_after_login_fields', [ $this, 'printFormInsert' ], 100 );
 		add_action( 'um_submit_form_login', [ $this, 'checkLogin' ], 100 );
 	}
 
 	protected function register() {
-		add_action( 'um_after_register_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'um_after_register_fields', [ $this, 'printFormInsert' ], 100 );
 		add_action( 'um_submit_form_register', [ $this, 'checkRegister' ], 5, 0 );
 	}
 
 	protected function lostpassword() {
-		add_action( 'um_after_password_reset_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'um_after_password_reset_fields', [ $this, 'printFormInsert' ], 100 );
 		add_action( 'um_submit_form_password_reset', [ $this, 'checkLostPassword' ], 5, 0 );
 	}
 

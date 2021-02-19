@@ -9,23 +9,25 @@ abstract class BaseProtectionProvider {
 
 	use ModConsumer;
 
+	private $factorTested = false;
+
+	protected $factorBuilt = false;
+
 	/**
-	 * @var bool
+	 * @var string[]
 	 */
-	private $bFactorTested;
+	protected $enqueueHandles = [];
 
 	public function __construct() {
 		add_action( 'wp_loaded', [ $this, 'setup' ], 0 ); // 0 to ensure WPS Hide Login doesn't fire before us.
+		add_action( 'wp_footer', [ $this, 'maybeDequeueScript' ] );
 	}
 
 	public function setup() {
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isFactorTested() {
-		return (bool)$this->bFactorTested;
+	public function isFactorTested() :bool {
+		return $this->factorTested;
 	}
 
 	/**
@@ -34,6 +36,11 @@ abstract class BaseProtectionProvider {
 	 */
 	abstract public function buildFormInsert( $oFormProvider );
 
+	public function setAsInsertBuilt() :self {
+		$this->factorBuilt = true;
+		return $this;
+	}
+
 	/**
 	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $oForm
 	 * @throws \Exception
@@ -41,11 +48,11 @@ abstract class BaseProtectionProvider {
 	abstract public function performCheck( $oForm );
 
 	/**
-	 * @param bool $bFactorTested
+	 * @param bool $tested
 	 * @return $this
 	 */
-	public function setFactorTested( $bFactorTested ) {
-		$this->bFactorTested = $bFactorTested;
+	public function setFactorTested( bool $tested ) {
+		$this->factorTested = $tested;
 		return $this;
 	}
 
@@ -57,5 +64,17 @@ abstract class BaseProtectionProvider {
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
 		$this->getCon()->fireEvent( 'login_block' );
 		return $this;
+	}
+
+	public function maybeDequeueScript() {
+		if ( !$this->isFactorJsRequired() ) {
+			foreach ( $this->enqueueHandles as $handle ) {
+				wp_dequeue_script( $handle );
+			}
+		}
+	}
+
+	protected function isFactorJsRequired() :bool {
+		return $this->factorBuilt;
 	}
 }

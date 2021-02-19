@@ -50,10 +50,7 @@ class Enqueue {
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getCaptchaHtml() {
+	public function getCaptchaHtml() :string {
 		return '<div class="icwpg-recaptcha"></div>';
 	}
 

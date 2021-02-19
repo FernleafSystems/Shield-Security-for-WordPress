@@ -43,9 +43,9 @@ var iCWP_WPSF_LoginGuard_Gasp = new function () {
 	};
 
 	var cleanDuplicates = function ( form ) {
-		let $oPlaceholders = jQuery( 'p.shield_gasp_placeholder', form );
-		if ( $oPlaceholders.length > 1 ) {
-			$oPlaceholders.each(
+		let $placeHolders = jQuery( 'p.shield_gasp_placeholder', form );
+		if ( $placeHolders.length > 1 ) {
+			$placeHolders.each(
 				function ( nkey ) {
 					if ( nkey > 0 && this !== null ) {
 						jQuery( this ).remove();
@@ -65,39 +65,47 @@ var iCWP_WPSF_LoginGuard_Gasp = new function () {
 	};
 
 	var processPlaceHolder_Gasp = function ( shiep ) {
-		var shishoney = document.createElement( "input" );
-		shishoney.type = "hidden";
-		shishoney.name = "icwp_wpsf_login_email";
-
-		shiep.innerHTML = '';
-		shiep.appendChild( shishoney );
-
 		var shieThe_lab = document.createElement( "label" );
 		var shieThe_txt = document.createTextNode( ' ' + icwp_wpsf_vars_lpantibot.strings.label );
 		var shieThe_cb = document.createElement( "input" );
+
+		shiep.style.display = "inherit";
+
+		let $oPH = jQuery( shiep );
+		if ( [ 'p', 'P' ].includes( $oPH.parent()[ 0 ].nodeName ) ) {
+			/** prevent nested paragraphs */
+			jQuery( shiep ).insertBefore( $oPH.parent() )
+		}
+
+		let parentForm = $oPH.closest( 'form' );
+		if ( parentForm.length > 0 ) {
+			parentForm[ 0 ].addEventListener( "mouseover", function () {
+				if ( !shieThe_cb.checked ) {
+					// shieThe_cb.checked = true;
+				}
+			} );
+			parentForm[ 0 ].onsubmit = function () {
+				if ( !shieThe_cb.checked ) {
+					alert( icwp_wpsf_vars_lpantibot.strings.alert );
+					shiep.style.display = "inherit";
+				}
+				return shieThe_cb.checked;
+			};
+
+			var shishoney = document.createElement( "input" );
+			shishoney.type = "hidden";
+			shishoney.name = "icwp_wpsf_login_email";
+			parentForm[ 0 ].appendChild( shishoney );
+		}
+
+		shiep.innerHTML = '';
+
 		shieThe_cb.type = "checkbox";
 		shieThe_cb.name = icwp_wpsf_vars_lpantibot.cbname;
 		shieThe_cb.id = '_' + shieThe_cb.name;
 		shiep.appendChild( shieThe_lab );
 		shieThe_lab.appendChild( shieThe_cb );
 		shieThe_lab.appendChild( shieThe_txt );
-
-		let $oPH = jQuery( shiep );
-		if ( [ 'p', 'P' ].includes( $oPH.parent()[ 0 ].nodeName ) ) {
-			/** try to prevent nested paragraphs */
-			jQuery( shiep ).insertBefore( $oPH.parent() )
-		}
-
-		let $oParentForm = $oPH.closest( 'form' );
-		if ( $oParentForm.length > 0 ) {
-			$oParentForm[ 0 ].onsubmit = function () {
-				if ( shieThe_cb.checked !== true ) {
-					alert( icwp_wpsf_vars_lpantibot.strings.alert );
-					return false;
-				}
-				return true;
-			};
-		}
 	};
 }();
 iCWP_WPSF_LoginGuard_Gasp.initialise();
