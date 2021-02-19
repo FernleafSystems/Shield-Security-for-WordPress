@@ -44,7 +44,7 @@
       "../lib/custom/"
     ],
     "files":    [
-      "src/functions/functions.php"
+      "./functions/functions.php"
     ]
   }
 }
