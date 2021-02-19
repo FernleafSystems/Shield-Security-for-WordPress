@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Charts;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
  * Class ChartRequestVO
@@ -16,5 +16,5 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 class ChartRequestVO {
 
 	const LOCATION_STATCARD = 'insights-overview-statcard';
-	use StdClassAdapter;
+	use DynProperties;
 }

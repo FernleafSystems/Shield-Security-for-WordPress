@@ -1,8 +1,6 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
-
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * Class ResultItem
@@ -15,12 +13,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property string $is_different
  * @property string $is_missing
  */
-class ResultItem extends Base\BaseResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem {
 
-	/**
-	 * @return string
-	 */
-	public function generateHash() {
+	public function generateHash() :string {
 		return md5( $this->path_full );
 	}
 }

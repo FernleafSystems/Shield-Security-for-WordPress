@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
 
@@ -13,11 +13,7 @@ use MainWP\Dashboard\MainWP_DB;
  * @property array[] $plugins
  * @property array[] $themes
  */
-class MWPSiteVO {
-
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
+class MWPSiteVO extends DynPropertiesClass {
 
 	/**
 	 * @param int $siteID
@@ -35,25 +31,25 @@ class MWPSiteVO {
 	}
 
 	/**
-	 * @param string $property
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $property ) {
+	public function __get( string $key ) {
 
-		$mValue = $this->__adapterGet( $property );
+		$value = parent::__get( $key );
 
-		switch ( $property ) {
+		switch ( $key ) {
 			case 'siteobj':
-				$mValue = Services::DataManipulation()->convertArrayToStdClass( $this->getRawDataAsArray() );
+				$value = Services::DataManipulation()->convertArrayToStdClass( $this->getRawData() );
 				break;
 			case 'plugins':
 			case 'themes':
-				$mValue = json_decode( $mValue ?? '[]', true );
+				$value = json_decode( $value ?? '[]', true );
 				break;
 			default:
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 }

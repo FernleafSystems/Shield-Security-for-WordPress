@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * Class CaptchaConfigVO
@@ -16,32 +16,29 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string $url_api
  * @property string $js_handle
  */
-class CaptchaConfigVO {
+class CaptchaConfigVO extends DynPropertiesClass {
 
 	const PROV_GOOGLE_RECAP2 = 'grecaptcha';
 	const PROV_HCAPTCHA = 'hcaptcha';
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mValue = $this->__adapterGet( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'ready':
-				$mValue = !empty( $this->key ) && !empty( $this->secret );
+				$value = !empty( $this->key ) && !empty( $this->secret );
 				break;
 
 			default:
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 }

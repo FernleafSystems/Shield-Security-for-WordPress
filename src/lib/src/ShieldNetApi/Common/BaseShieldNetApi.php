@@ -17,14 +17,14 @@ class BaseShieldNetApi extends BaseApi {
 	const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v1';
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mValue = parent::__get( $sProperty );
+		$mValue = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'params_query':
 				if ( $this->request_method == 'get' ) {

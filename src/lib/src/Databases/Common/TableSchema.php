@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class TableBuilder
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
+ * Class TableSchema
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Common
  * @property string   $table
  * @property string   $primary_key
  * @property string[] $cols_ids
@@ -17,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class TableSchema {
 
 	const PRIMARY_KEY = 'id';
-	use StdClassAdapter;
+	use DynProperties;
 
 	public function buildCreate() :string {
 		$cols = [];

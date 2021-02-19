@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * Class ShieldNetApiDataVO
@@ -12,38 +12,34 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int   $handshake_fail_count
  * @property int[] $nonces
  */
-class ShieldNetApiDataVO {
-
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
+class ShieldNetApiDataVO extends DynPropertiesClass {
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mValue = $this->__adapterGet( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'nonces':
-				if ( !is_array( $mValue ) ) {
-					$mValue = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
 				break;
 
 			case 'last_handshake_at':
 			case 'last_handshake_attempt_at':
 			case 'handshake_fail_count':
-				$mValue = (int)$mValue;
+				$value = (int)$value;
 				break;
 
 			default:
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 }

@@ -14,14 +14,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class EntryVO extends Base\EntryVO {
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get(string $key ) {
 
-		$mVal = parent::__get( $sProperty );
+		$mVal = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'data':
 				$mVal = json_decode( \WP_Http_Encoding::decompress( $mVal ), true );
@@ -35,22 +35,22 @@ class EntryVO extends Base\EntryVO {
 	}
 
 	/**
-	 * @param string $sProperty
-	 * @param mixed  $mValue
+	 * @param string $key
+	 * @param mixed  $value
 	 * @return $this|mixed
 	 */
-	public function __set( $sProperty, $mValue ) {
+	public function __set( string $key, $value ) {
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'data':
-				$mValue = \WP_Http_Encoding::compress( json_encode( $mValue ) );
+				$value = \WP_Http_Encoding::compress( json_encode( $value ) );
 				break;
 
 			default:
 				break;
 		}
 
-		return parent::__set( $sProperty, $mValue );
+		return parent::__set( $key, $value );
 	}
 }

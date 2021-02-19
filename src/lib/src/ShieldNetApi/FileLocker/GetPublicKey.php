@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker;
 
@@ -13,9 +13,9 @@ class GetPublicKey extends BaseShieldNetApi {
 	 */
 	public function retrieve() {
 		$aKey = null;
-		$aRaw = $this->sendReq();
-		if ( is_array( $aRaw ) && !empty( $aRaw[ 'data' ][ 'key_id' ] ) ) {
-			$aKey[ $aRaw[ 'data' ][ 'key_id' ] ] = $aRaw[ 'data' ][ 'pub_key' ];
+		$raw = $this->sendReq();
+		if ( is_array( $raw ) && !empty( $raw[ 'data' ][ 'key_id' ] ) ) {
+			$aKey[ $raw[ 'data' ][ 'key_id' ] ] = $raw[ 'data' ][ 'pub_key' ];
 		}
 		return $aKey;
 	}

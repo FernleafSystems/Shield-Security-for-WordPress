@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb;
 
-use FernleafSystems\Utilities\Data\Adapter\DynamicPropertiesClass;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * Class WpVulnVO
@@ -17,7 +17,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynamicPropertiesClass;
  * @property int    $created_at
  * @property int    $published_date
  */
-class WpVulnVO extends DynamicPropertiesClass {
+class WpVulnVO extends DynPropertiesClass {
 
 	const URL_BASE = 'https://wpscan.com/vulnerability/%s';
 

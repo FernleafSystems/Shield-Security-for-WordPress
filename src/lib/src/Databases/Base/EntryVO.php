@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * Class BaseEntryVO
@@ -12,40 +12,32 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int   $created_at
  * @property int   $deleted_at
  */
-class EntryVO {
+class EntryVO extends DynPropertiesClass {
 
-	use StdClassAdapter {
-		__get as __adapterGet;
-		__set as __adapterSet;
+	public function __construct( array $row = [] ) {
+		$this->applyFromArray( $row );
 	}
 
 	/**
-	 * @param array $aRow
-	 */
-	public function __construct( $aRow = null ) {
-		$this->applyFromArray( $aRow );
-	}
-
-	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mVal = $this->__adapterGet( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'meta':
-				if ( is_string( $mVal ) && !empty( $mVal ) ) {
-					$mVal = base64_decode( $mVal );
-					if ( !empty( $mVal ) ) {
-						$mVal = @json_decode( $mVal, true );
+				if ( is_string( $value ) && !empty( $value ) ) {
+					$value = base64_decode( $value );
+					if ( !empty( $value ) ) {
+						$value = @json_decode( $value, true );
 					}
 				}
 
-				if ( !is_array( $mVal ) ) {
-					$mVal = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
 				break;
 
@@ -53,50 +45,40 @@ class EntryVO {
 				break;
 		}
 
-		return $mVal;
+		if ( preg_match( '#^.*_at$#i', $key ) ) {
+			$value = (int)$value;
+		}
+
+		return $value;
 	}
 
 	/**
-	 * @param string $sProperty
-	 * @param mixed  $mValue
-	 * @return $this|mixed
+	 * @param string $key
+	 * @param mixed  $value
 	 */
-	public function __set( $sProperty, $mValue ) {
+	public function __set( string $key, $value ) {
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'meta':
-				if ( !is_array( $mValue ) ) {
-					$mValue = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
-				$mValue = base64_encode( json_encode( $mValue ) );
+				$value = base64_encode( json_encode( $value ) );
 				break;
 
 			default:
 				break;
 		}
 
-		return $this->__adapterSet( $sProperty, $mValue );
+		parent::__set( $key, $value );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getCreatedAt() {
+	public function getCreatedAt() :int {
 		return (int)$this->created_at;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getMeta() {
-		return (int)$this->created_at;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isDeleted() {
+	public function isDeleted() :bool {
 		return $this->deleted_at > 0;
 	}
 }

@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
@@ -13,12 +13,9 @@ use FernleafSystems\Wordpress\Services\Services;
  * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi
  * @property ShieldNetApiDataVO $vo
  */
-class ShieldNetApiController {
+class ShieldNetApiController extends DynPropertiesClass {
 
 	use ModConsumer;
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
 
 	/**
 	 * Automatically throttles request because otherwise PRO-nulled versions of Shield will cause
@@ -62,24 +59,24 @@ class ShieldNetApiController {
 	}
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
+	public function __get( string $key ) {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
 
-		$mValue = $this->__adapterGet( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'vo':
-				if ( empty( $mValue ) ) {
-					$aData = $oOpts->getOpt( 'snapi_data', [] );
-					$mValue = ( new ShieldNetApiDataVO() )->applyFromArray(
-						is_array( $aData ) ? $aData : []
+				if ( empty( $value ) ) {
+					$data = $opts->getOpt( 'snapi_data', [] );
+					$value = ( new ShieldNetApiDataVO() )->applyFromArray(
+						is_array( $data ) ? $data : []
 					);
-					$this->vo = $mValue;
+					$this->vo = $value;
 				}
 				break;
 
@@ -87,6 +84,6 @@ class ShieldNetApiController {
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 }

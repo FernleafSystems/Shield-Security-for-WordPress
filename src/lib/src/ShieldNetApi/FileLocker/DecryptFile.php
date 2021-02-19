@@ -17,7 +17,7 @@ class DecryptFile extends BaseShieldNetApi {
 	 * @return string|null
 	 */
 	public function retrieve( OpenSslEncryptVo $oOpenSslVO, $nPublicKeyId ) {
-		$sContent = null;
+		$content = null;
 
 		$this->request_method = 'post';
 		$this->params_body = [
@@ -26,10 +26,10 @@ class DecryptFile extends BaseShieldNetApi {
 			'sealed_pass' => $oOpenSslVO->sealed_password,
 		];
 
-		$aRaw = $this->sendReq();
-		if ( is_array( $aRaw ) && !empty( $aRaw[ 'data' ] ) ) {
-			$sContent = base64_decode( $aRaw[ 'data' ][ 'opened_data' ] );
+		$raw = $this->sendReq();
+		if ( is_array( $raw ) && !empty( $raw[ 'data' ] ) ) {
+			$content = base64_decode( $raw[ 'data' ][ 'opened_data' ] );
 		}
-		return $sContent;
+		return $content;
 	}
 }

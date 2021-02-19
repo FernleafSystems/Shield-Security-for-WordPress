@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * Class SyncVO
@@ -10,21 +10,17 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property array[]    $modules
  * @property SyncMetaVO $meta
  */
-class SyncVO {
-
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
+class SyncVO extends DynPropertiesClass {
 
 	/**
-	 * @param string $property
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $property ) {
+	public function __get( string $key ) {
 
-		$mValue = $this->__adapterGet( $property );
+		$mValue = parent::__get( $key );
 
-		switch ( $property ) {
+		switch ( $key ) {
 			case 'meta':
 				$mValue = ( new SyncMetaVO() )->applyFromArray( $mValue );
 				break;

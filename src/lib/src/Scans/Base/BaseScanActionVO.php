@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 
 /**
@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
  */
 abstract class BaseScanActionVO {
 
-	use StdClassAdapter;
+	use DynProperties;
 
 	const QUEUE_GROUP_SIZE_LIMIT = 1;
 	const DEFAULT_SLEEP_SECONDS = 0;
@@ -29,32 +29,29 @@ abstract class BaseScanActionVO {
 	 * @return BaseResultItem|mixed
 	 */
 	public function getNewResultItem() {
-		$sClass = $this->getScanNamespace().'ResultItem';
-		return new $sClass();
+		$class = $this->getScanNamespace().'ResultItem';
+		return new $class();
 	}
 
 	/**
 	 * @return BaseResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
-		$sClass = $this->getScanNamespace().'ResultsSet';
-		return new $sClass();
+		$class = $this->getScanNamespace().'ResultsSet';
+		return new $class();
 	}
 
 	/**
 	 * @return BaseEntryFormatter|mixed
 	 */
 	public function getTableEntryFormatter() {
-		$sClass = $this->getScanNamespace().'Table\\EntryFormatter';
-		/** @var BaseEntryFormatter $oF */
-		$oF = new $sClass();
-		return $oF->setScanActionVO( $this );
+		$class = $this->getScanNamespace().'Table\\EntryFormatter';
+		/** @var BaseEntryFormatter $formatter */
+		$formatter = new $class();
+		return $formatter->setScanActionVO( $this );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getScanNamespace() {
+	public function getScanNamespace() :string {
 		try {
 			$namespace = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
