@@ -32,11 +32,25 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_IpAnalyseAction();
 				break;
 
+			case 'not_bot':
+				$response = $this->ajaxExec_CaptureNotBot();
+				break;
+
 			default:
 				$response = parent::processAjaxAction( $action );
 		}
 
 		return $response;
+	}
+
+	private function ajaxExec_CaptureNotBot() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return [
+			'success' => $mod->getBotSignalsController()
+							 ->getHandlerNotBot()
+							 ->registerAsNotBot()
+		];
 	}
 
 	private function ajaxExec_AddIp() :array {

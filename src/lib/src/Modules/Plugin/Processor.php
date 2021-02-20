@@ -40,12 +40,6 @@ class Processor extends BaseShield\Processor {
 		}, 11 );
 	}
 
-	public function onWpInit() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getHandlerAntibot()->execute();
-	}
-
 	private function printDashboardWidget() {
 		$con = $this->getCon();
 		/** @var Options $opts */

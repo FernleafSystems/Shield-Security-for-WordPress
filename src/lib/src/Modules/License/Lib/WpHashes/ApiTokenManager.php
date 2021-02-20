@@ -18,8 +18,8 @@ class ApiTokenManager {
 	private $bCanRequestOverride = false;
 
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'event' ), function ( $sEventTag ) {
-			switch ( $sEventTag ) {
+		add_action( $this->getCon()->prefix( 'event' ), function ( $eventTag ) {
+			switch ( $eventTag ) {
 				case 'lic_check_success':
 					$this->setCanRequestOverride( true )->getToken();
 					break;

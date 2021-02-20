@@ -40,9 +40,7 @@ class EntryVO extends Base\EntryVO {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
-	 * @return $this
+	 * @inheritDoc
 	 */
 	public function __set( string $key, $value ) {
 
@@ -57,6 +55,6 @@ class EntryVO extends Base\EntryVO {
 				break;
 		}
 
-		return parent::__set( $key, $value );
+		parent::__set( $key, $value );
 	}
 }

@@ -22,11 +22,28 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $oBlacklistHandler;
 
+	/**
+	 * @var Lib\Bots\BotSignalsController
+	 */
+	private $botSignalsCon;
+
+	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
+		if ( !isset( $this->botSignalsCon ) ) {
+			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
+				->setMod( $this );
+		}
+		return $this->botSignalsCon;
+	}
+
 	public function getBlacklistHandler() :Lib\BlacklistHandler {
 		if ( !isset( $this->oBlacklistHandler ) ) {
 			$this->oBlacklistHandler = ( new Lib\BlacklistHandler() )->setMod( $this );
 		}
 		return $this->oBlacklistHandler;
+	}
+
+	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
+		return $this->getDbH( 'botsignals' );
 	}
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {

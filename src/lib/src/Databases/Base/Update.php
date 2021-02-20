@@ -52,22 +52,22 @@ class Update extends Insert {
 	}
 
 	/**
-	 * @param EntryVO $oEntry
-	 * @param array   $aUpdateData
+	 * @param EntryVO $entryVO
+	 * @param array   $updateData
 	 * @return bool
 	 */
-	public function updateEntry( $oEntry, $aUpdateData = [] ) {
+	public function updateEntry( $entryVO, $updateData = [] ) {
 		$success = false;
 
-		if ( $oEntry instanceof EntryVO ) {
-			if ( empty( $aUpdateData ) ) {
-				$aUpdateData = $oEntry->getRawDataAsArray();
+		if ( $entryVO instanceof EntryVO ) {
+			if ( empty( $updateData ) ) {
+				$updateData = $entryVO->getRawData();
 			}
-			$success = $this->updateById( $oEntry->id, $aUpdateData );
+			$success = $this->updateById( $entryVO->id, $updateData );
 			// TODO: run through update data and determine if anything actually needs updating
 			if ( $success ) {
-				foreach ( $aUpdateData as $col => $mVal ) {
-					$oEntry->{$col} = $mVal;
+				foreach ( $updateData as $col => $mVal ) {
+					$entryVO->{$col} = $mVal;
 				}
 			}
 		}

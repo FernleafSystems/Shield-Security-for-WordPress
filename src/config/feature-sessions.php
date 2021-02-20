@@ -79,6 +79,11 @@
       "session_terminate": {
         "audit":  false,
         "recent": true
+      },
+      "login_success":         {
+        "offense": false,
+        "audit":   false,
+        "stat":    false
       }
     }
   }

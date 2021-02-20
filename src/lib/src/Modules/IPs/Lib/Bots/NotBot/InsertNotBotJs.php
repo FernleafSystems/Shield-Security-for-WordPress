@@ -1,16 +1,17 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Bots;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Resources\Dynamic;
 use FernleafSystems\Wordpress\Services\Services;
 
-class InsertJs {
+class InsertNotBotJs {
 
 	use ModConsumer;
 
+	// TODO: Workaround in-case cache space isn't writable
 	public function run() {
 		$this->enqueueJS();
 		$this->buildJS();
@@ -34,15 +35,15 @@ class InsertJs {
 	}
 
 	private function renderJs() :string {
-		$ajaxData = $this->getMod()->getAjaxActionData( 'bit_bot' );
+		$ajaxData = $this->getMod()->getAjaxActionData( 'not_bot' );
 		$ajaxHref = $ajaxData[ 'ajaxurl' ];
 		unset( $ajaxData[ 'ajaxurl' ] );
 
 		$lines = preg_split( '/\r\n|\r|\n/', $this->getMod()->renderTemplate(
-			'/snippets/anti_bot/bit_bot.twig',
+			'/snippets/anti_bot/not_bot.twig',
 			[
 				'ajax'  => [
-					'bit_bot' => http_build_query( $ajaxData )
+					'not_bot' => http_build_query( $ajaxData )
 				],
 				'hrefs' => [
 					'ajax' => $ajaxHref

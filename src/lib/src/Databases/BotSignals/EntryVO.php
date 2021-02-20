@@ -1,25 +1,17 @@
-<?php
+<?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
-
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals;
 
 /**
  * Class EntryVO
- * @property string $rid
- * @property int    $uid
  * @property string $ip
- * @property string $path
- * @property string $code
- * @property string $ua
- * @property string $verb
- * @property bool   $trans
+ * @property int    $notbot_at
+ * @property int    $updated_at
  */
-class EntryVO extends Base\EntryVO {
+class EntryVO extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVO {
 
 	/**
-	 * @param string $key
-	 * @return mixed
+	 * @inheritDoc
 	 */
 	public function __get( string $key ) {
 		switch ( $key ) {

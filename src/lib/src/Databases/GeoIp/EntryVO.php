@@ -58,21 +58,18 @@ class EntryVO extends Base\EntryVO {
 	 */
 	public function __get( string $key ) {
 		switch ( $key ) {
-
 			case 'ip':
-				$mVal = inet_ntop( parent::__get( $key ) );
+				$value = inet_ntop( parent::__get( $key ) );
 				break;
 
 			default:
-				$mVal = parent::__get( $key );
+				$value = parent::__get( $key );
 		}
-		return $mVal;
+		return $value;
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
-	 * @return $this
+	 * @inheritDoc
 	 */
 	public function __set( string $key, $value ) {
 
@@ -86,6 +83,6 @@ class EntryVO extends Base\EntryVO {
 				break;
 		}
 
-		return parent::__set( $key, $value );
+		parent::__set( $key, $value );
 	}
 }

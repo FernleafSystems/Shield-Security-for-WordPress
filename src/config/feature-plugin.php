@@ -536,29 +536,29 @@
     }
   ],
   "definitions":   {
-    "survey_email":           "c3VwcG9ydEBvbmVkb2xsYXJwbHVnaW4uY29t",
-    "help_video_id":          "",
-    "tracking_cron_handle":   "plugin_tracking_cron",
-    "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
-    "importexport_cron_name": "autoimport",
-    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
-    "db_classes":             {
+    "survey_email":                    "c3VwcG9ydEBvbmVkb2xsYXJwbHVnaW4uY29t",
+    "help_video_id":                   "",
+    "tracking_cron_handle":            "plugin_tracking_cron",
+    "tracking_post_url":               "https://tracking.icontrolwp.com/track/plugin/shield",
+    "importexport_cron_name":          "autoimport",
+    "href_privacy_policy":             "https://shsec.io/wpshieldprivacypolicy",
+    "db_classes":                      {
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
     },
-    "db_autoexpire_notes":    0,
-    "db_autoexpire_geoip":    30,
-    "db_notes_name":          "notes",
-    "db_notes_table_columns": {
+    "db_autoexpire_notes":             0,
+    "db_autoexpire_geoip":             30,
+    "db_notes_name":                   "notes",
+    "db_notes_table_columns":          {
       "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
       "note":        "TEXT"
     },
-    "geoip_table_name":       "geoip",
-    "geoip_table_columns":    {
+    "geoip_table_name":                "geoip",
+    "geoip_table_columns":             {
       "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
       "meta": "TEXT"
     },
-    "active_plugin_features": [
+    "active_plugin_features":          [
       {
         "slug":          "insights",
         "load_priority": 1,
@@ -639,7 +639,7 @@
         "slug": "email"
       }
     ],
-    "events":                 {
+    "events":                          {
       "test_cron_run":          {
         "audit":  false,
         "recent": true
@@ -682,7 +682,7 @@
         "audit": true
       }
     },
-    "wizards":                {
+    "wizards":                         {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
         "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",

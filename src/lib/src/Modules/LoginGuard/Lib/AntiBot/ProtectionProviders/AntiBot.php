@@ -12,8 +12,9 @@ class AntiBot extends BaseProtectionProvider {
 			return;
 		}
 		$valid = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getHandlerAntibot()
+					  ->getModule_IPs()
+					  ->getBotSignalsController()
+					  ->getHandlerNotBot()
 					  ->verify();
 		if ( !$valid ) {
 			$this->processFailure();

@@ -30,19 +30,6 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $shieldNetCon;
 
-	/**
-	 * @var Lib\Bots\AntiBotHandler
-	 */
-	private $handlerAntibot;
-
-	public function getHandlerAntibot() :Lib\Bots\AntiBotHandler {
-		if ( !isset( $this->handlerAntibot ) ) {
-			$this->handlerAntibot = ( new Lib\Bots\AntiBotHandler() )
-				->setMod( $this );
-		}
-		return $this->handlerAntibot;
-	}
-
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		if ( !isset( $this->importExportCon ) ) {
 			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )

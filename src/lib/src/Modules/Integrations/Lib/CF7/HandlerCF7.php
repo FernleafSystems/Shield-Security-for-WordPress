@@ -47,8 +47,9 @@ class HandlerCF7 {
 
 	private function checkAntiBotIsSPAM() :bool {
 		return !$this->getCon()
-					 ->getModule_Plugin()
-					 ->getHandlerAntibot()
+					 ->getModule_IPs()
+					 ->getBotSignalsController()
+					 ->getHandlerNotBot()
 					 ->verify();
 	}
 

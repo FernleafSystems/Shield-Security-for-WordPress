@@ -15,39 +15,36 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class EntryVO extends Base\EntryVO {
 
 	/**
-	 * @param string $key
-	 * @return mixed
+	 * @inheritDoc
 	 */
 	public function __get( string $key ) {
 
-		$mVal = parent::__get( $key );
+		$value = parent::__get( $key );
 
 		switch ( $key ) {
 
 			case 'items':
 			case 'results':
-				if ( is_string( $mVal ) && !empty( $mVal ) ) {
-					$mVal = base64_decode( $mVal );
-					if ( !empty( $mVal ) ) {
-						$mVal = @json_decode( $mVal, true );
+				if ( is_string( $value ) && !empty( $value ) ) {
+					$value = base64_decode( $value );
+					if ( !empty( $value ) ) {
+						$value = @json_decode( $value, true );
 					}
 				}
 
-				if ( !is_array( $mVal ) ) {
-					$mVal = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
 				break;
 
 			default:
 				break;
 		}
-		return $mVal;
+		return $value;
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
-	 * @return $this
+	 * @inheritDoc
 	 */
 	public function __set( string $key, $value ) {
 
@@ -65,6 +62,6 @@ class EntryVO extends Base\EntryVO {
 				break;
 		}
 
-		return parent::__set( $key, $value );
+		parent::__set( $key, $value );
 	}
 }

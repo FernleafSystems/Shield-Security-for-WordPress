@@ -10,5 +10,6 @@ class Processor extends BaseShield\Processor {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getBlacklistHandler()->execute();
+		$mod->getBotSignalsController()->execute();
 	}
 }

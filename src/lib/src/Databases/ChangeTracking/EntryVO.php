@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
- *
  * @property string ip
  * @property array  data
  * @property array  meta
@@ -35,9 +34,7 @@ class EntryVO extends Base\EntryVO {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
-	 * @return $this|mixed
+	 * @inheritDoc
 	 */
 	public function __set( string $key, $value ) {
 
@@ -51,6 +48,6 @@ class EntryVO extends Base\EntryVO {
 				break;
 		}
 
-		return parent::__set( $key, $value );
+		parent::__set( $key, $value );
 	}
 }

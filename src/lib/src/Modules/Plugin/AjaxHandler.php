@@ -12,70 +12,58 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	protected function processAjaxAction( string $action ) :array {
 		switch ( $action ) {
 			case 'bulk_action':
-				$aResponse = $this->ajaxExec_BulkItemAction();
+				$response = $this->ajaxExec_BulkItemAction();
 				break;
 
 			case 'delete_forceoff':
-				$aResponse = $this->ajaxExec_DeleteForceOff();
+				$response = $this->ajaxExec_DeleteForceOff();
 				break;
 
 			case 'render_table_adminnotes':
-				$aResponse = $this->ajaxExec_RenderTableAdminNotes();
+				$response = $this->ajaxExec_RenderTableAdminNotes();
 				break;
 
 			case 'note_delete':
-				$aResponse = $this->ajaxExec_AdminNotesDelete();
+				$response = $this->ajaxExec_AdminNotesDelete();
 				break;
 
 			case 'note_insert':
-				$aResponse = $this->ajaxExec_AdminNotesInsert();
+				$response = $this->ajaxExec_AdminNotesInsert();
 				break;
 
 			case 'import_from_site':
-				$aResponse = $this->ajaxExec_ImportFromSite();
+				$response = $this->ajaxExec_ImportFromSite();
 				break;
 
 			case 'plugin_badge_close':
-				$aResponse = $this->ajaxExec_PluginBadgeClose();
+				$response = $this->ajaxExec_PluginBadgeClose();
 				break;
 
 			case 'set_plugin_tracking':
-				$aResponse = $this->ajaxExec_SetPluginTrackingPerm();
+				$response = $this->ajaxExec_SetPluginTrackingPerm();
 				break;
 
 			case 'send_deactivate_survey':
-				$aResponse = $this->ajaxExec_SendDeactivateSurvey();
+				$response = $this->ajaxExec_SendDeactivateSurvey();
 				break;
 
 			case 'sgoptimizer_turnoff':
-				$aResponse = $this->ajaxExec_TurnOffSiteGroundOptions();
+				$response = $this->ajaxExec_TurnOffSiteGroundOptions();
 				break;
 
 			case 'ipdetect':
-				$aResponse = $this->ajaxExec_IpDetect();
+				$response = $this->ajaxExec_IpDetect();
 				break;
 
 			case 'mark_tour_finished':
-				$aResponse = $this->ajaxExec_MarkTourFinished();
-				break;
-
-			case 'bit_bot':
-				$aResponse = $this->ajaxExec_CaptureBitBot();
+				$response = $this->ajaxExec_MarkTourFinished();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
-	}
-
-	private function ajaxExec_CaptureBitBot() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return [
-			'success' => $mod->getHandlerAntibot()->setCookie()
-		];
+		return $response;
 	}
 
 	private function ajaxExec_SendDeactivateSurvey() :array {

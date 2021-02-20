@@ -14,8 +14,9 @@ class AntiBot {
 	 */
 	public function scan() :bool {
 		$verified = $this->getCon()
-						 ->getModule_Plugin()
-						 ->getHandlerAntibot()
+						 ->getModule_IPs()
+						 ->getBotSignalsController()
+						 ->getHandlerNotBot()
 						 ->verify();
 		if ( !$verified ) {
 			throw new \Exception( __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );

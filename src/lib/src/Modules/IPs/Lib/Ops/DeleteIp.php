@@ -12,10 +12,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
  */
 class DeleteIp {
 
+	// TODO Add ModConsumer for events
 	use Databases\Base\HandlerConsumer;
 	use IPs\Components\IpAddressConsumer;
 
 	public function fromBlacklist() :bool {
+//		$this->getCon()->fireEvent( 'ip_unblock' );
 		return (bool)$this->getDeleter()
 						  ->filterByBlacklist()
 						  ->query();

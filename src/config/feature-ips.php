@@ -531,7 +531,8 @@
   ],
   "definitions":      {
     "db_classes":                      {
-      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
+      "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
+      "ips":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name":             "ip_lists",
     "ip_list_table_columns":           {
@@ -545,6 +546,28 @@
     "ip_list_table_timestamp_columns": {
       "last_access_at": "Last Access By IP",
       "blocked_at":     "IP Blocked"
+    },
+    "db_botsignals_autoexpire":        0,
+    "db_botsignals_table":             "botsignals",
+    "db_botsignals_columns":           {
+      "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
+    },
+    "db_botsignals_timestamp_columns": {
+      "notbot_at":          "NotBot",
+      "bt404_at":           "BotTrack 404",
+      "btfake_at":          "BotTrack FakeWebCrawler",
+      "btcheese_at":        "BotTrack LinkCheese",
+      "btloginfail_at":     "BotTrack LoginFailed",
+      "btua_at":            "BotTrack Useragent Fail",
+      "btxml_at":           "BotTrack XMLRPC Access",
+      "btlogininvalid_at":  "BotTrack LoginInvalid",
+      "btinvalidscript_at": "BotTrack InvalidScript",
+      "auth_at":            "Successful Login",
+      "offense_at":         "Last Offense",
+      "blocked_at":         "Last Block",
+      "unblocked_at":       "Unblocked",
+      "bypass_at":          "Bypass",
+      "updated_at":         "Updated"
     },
     "events":                          {
       "custom_offense":          {
@@ -560,8 +583,24 @@
       "ip_blocked":              {
         "cat": 2
       },
+      "ip_unblock":         {
+        "offense": false,
+        "audit":   false,
+        "stat":    false
+      },
+      "ip_bypass":         {
+        "offense": false,
+        "audit":   false,
+        "stat":    false
+      },
       "ip_unblock_flag":         {
         "cat": 1
+      },
+      "bottrack_notbot":         {
+        "cat":     0,
+        "offense": false,
+        "audit":   false,
+        "stat":    false
       },
       "bottrack_404":            {
         "cat":     2,
@@ -591,7 +630,7 @@
         "cat":     2,
         "offense": true
       },
-      "bottrack_invalidscript":         {
+      "bottrack_invalidscript":  {
         "cat":     2,
         "offense": true
       }

@@ -1,15 +1,15 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Bots;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AntiBotHandler {
+class NotBotHandler {
 
 	const LIFETIME = 600;
-	const SLUG = 'bitbot';
+	const SLUG = 'notbot';
 	use ModConsumer;
 	use ExecOnce;
 
@@ -21,7 +21,7 @@ class AntiBotHandler {
 	}
 
 	protected function run() {
-		( new InsertJs() )
+		( new InsertNotBotJs() )
 			->setMod( $this->getMod() )
 			->run();
 		$this->maybeDeleteCookie();
@@ -34,13 +34,14 @@ class AntiBotHandler {
 		}
 	}
 
-	public function setCookie() :bool {
+	public function registerAsNotBot() :bool {
 		$ts = Services::Request()->ts() + self::LIFETIME;
 		Services::Response()->cookieSet(
 			$this->getMod()->prefix( self::SLUG ),
 			sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
 			self::LIFETIME
 		);
+		$this->getCon()->fireEvent( 'bottrack_notbot' );
 		return true;
 	}
 
@@ -97,9 +98,9 @@ class AntiBotHandler {
 	private function getCookieParts() :array {
 		$parts = [];
 		$req = Services::Request();
-		$bitBot = $req->cookie( $this->getMod()->prefix( self::SLUG ), '' );
-		if ( !empty( $bitBot ) && strpos( $bitBot, 'z' ) ) {
-			list( $ts, $hash ) = explode( 'z', $bitBot );
+		$notBot = $req->cookie( $this->getMod()->prefix( self::SLUG ), '' );
+		if ( !empty( $notBot ) && strpos( $notBot, 'z' ) ) {
+			list( $ts, $hash ) = explode( 'z', $notBot );
 			$parts[ 'ts' ] = $ts;
 			$parts[ 'hash' ] = $hash;
 		}
