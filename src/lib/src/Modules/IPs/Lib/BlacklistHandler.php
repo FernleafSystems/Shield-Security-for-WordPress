@@ -58,32 +58,32 @@ class BlacklistHandler {
 				if ( $opts->isEnabledTrackXmlRpc() ) {
 					( new IPs\BotTrack\TrackXmlRpc() )
 						->setMod( $mod )
-						->run();
+						->execute();
 				}
 				if ( $opts->isEnabledTrack404() ) {
 					( new IPs\BotTrack\Track404() )
 						->setMod( $mod )
-						->run();
+						->execute();
 				}
 				if ( $opts->isEnabledTrackLoginFailed() ) {
 					( new IPs\BotTrack\TrackLoginFailed() )
 						->setMod( $mod )
-						->run();
+						->execute();
 				}
 				if ( $opts->isEnabledTrackLoginInvalid() ) {
 					( new IPs\BotTrack\TrackLoginInvalid() )
 						->setMod( $mod )
-						->run();
+						->execute();
 				}
 				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
 					( new IPs\BotTrack\TrackFakeWebCrawler() )
 						->setMod( $mod )
-						->run();
+						->execute();
 				}
 				if ( $opts->isEnabledTrackInvalidScript() ) {
 					( new IPs\BotTrack\TrackDirectFileAccess() )
 						->setMod( $mod )
-						->run();
+						->execute();
 				}
 			}
 
@@ -91,9 +91,14 @@ class BlacklistHandler {
 			if ( $opts->isEnabledTrackLinkCheese() ) {
 				( new IPs\BotTrack\TrackLinkCheese() )
 					->setMod( $mod )
-					->run();
+					->execute();
 			}
 		}
+
+		// Capture when admins un/mark comments as spam
+		( new IPs\BotTrack\TrackCommentSpam() )
+			->setMod( $mod )
+			->execute();
 	}
 
 	/**

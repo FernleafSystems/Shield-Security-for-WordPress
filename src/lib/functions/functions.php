@@ -12,7 +12,7 @@ function shield_security_get_plugin() :ICWP_WPSF_Shield_Security {
 }
 
 function shield_get_bot_probability_score() :int {
-	return ( new Shield\Modules\IPs\Lib\Bots\BotProbabilityCalculator() )
+	return ( new Shield\Modules\IPs\Lib\Bots\Calculator\CalculateBotProbability() )
 		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
 		->setIP( Services::IP()->getRequestIp() )
 		->calculate();

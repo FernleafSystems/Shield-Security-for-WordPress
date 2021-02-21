@@ -26,7 +26,7 @@ class TrackDirectFileAccess extends Base {
 		// There should only ever be 1.  More than 1 means a strange configuration which we wont touch.
 		if ( count( $scripts ) === 1 ) {
 			$script = array_shift( $scripts );
-			if ( preg_match( '#[/\\\\]#', $script ) === 0 && !in_array( $script, $this->getAllowedScripts() ) ) {
+			if ( !in_array( $script, $this->getAllowedScripts() ) ) {
 				$this->script = $script;
 				$this->doTransgression();
 			}

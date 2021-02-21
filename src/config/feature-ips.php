@@ -562,6 +562,8 @@
       "btxml_at":           "BotTrack XMLRPC Access",
       "btlogininvalid_at":  "BotTrack LoginInvalid",
       "btinvalidscript_at": "BotTrack InvalidScript",
+      "markspam_at":        "Mark Comment As SPAM",
+      "unmarkspam_at":      "Unmark Comment As SPAM",
       "auth_at":            "Successful Login",
       "offense_at":         "Last Offense",
       "blocked_at":         "Last Block",
@@ -633,6 +635,15 @@
       "bottrack_invalidscript":  {
         "cat":     2,
         "offense": true
+      },
+      "comment_markspam":  {
+        "cat":     2,
+        "offense": true
+      },
+      "comment_unmarkspam":  {
+        "audit": false,
+        "offense": false,
+        "stat": false
       }
     }
   }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
@@ -9,10 +10,11 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base {
 
 	use Shield\Modules\ModConsumer;
+	use ExecOnce;
 
 	const OPT_KEY = '';
 
-	public function run() {
+	protected function run() {
 		$this->process();
 	}
 
