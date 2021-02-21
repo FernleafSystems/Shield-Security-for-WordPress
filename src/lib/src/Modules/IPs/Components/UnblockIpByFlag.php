@@ -23,7 +23,7 @@ class UnblockIpByFlag {
 				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
 				foreach ( $aLines as $sIp ) {
 					$bRemoved = ( new IPs\Lib\Ops\DeleteIp() )
-						->setDbHandler( $mod->getDbHandler_IPs() )
+						->setMod( $mod )
 						->setIP( $sIp )
 						->fromBlacklist();
 					if ( $bRemoved ) {

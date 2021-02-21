@@ -57,7 +57,7 @@ class QueryIpBlock {
 				 && $oIP->last_access_at < Services::Request()->ts() - $oOpts->getAutoExpireTime() ) {
 
 				( new IPs\Lib\Ops\DeleteIp() )
-					->setDbHandler( $mod->getDbHandler_IPs() )
+					->setMod( $mod )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
 			}

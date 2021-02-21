@@ -83,7 +83,7 @@ class AutoUnblock {
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
+				->setMod( $mod )
 				->setIP( $sIP )
 				->fromBlacklist();
 			$unblocked = true;
@@ -149,7 +149,7 @@ class AutoUnblock {
 			}
 			elseif ( $linkParts[ 1 ] === 'go' ) {
 				( new IPs\Lib\Ops\DeleteIp() )
-					->setDbHandler( $mod->getDbHandler_IPs() )
+					->setMod( $mod )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
 				$unblocked = true;

@@ -136,23 +136,31 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_IpDelete() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$bSuccess = false;
-		$nId = Services::Request()->post( 'rid', -1 );
+		$success = false;
+		$ID = (int)Services::Request()->post( 'rid', -1 );
 
-		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
-		}
-		elseif ( $mod->getDbHandler_IPs()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
-			$bSuccess = true;
+		if ( $ID < 0 ) {
+			$msg = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
 		else {
-			$sMessage = __( "IP address wasn't deleted from the list", 'wp-simple-firewall' );
+			/** @var Shield\Databases\IPs\EntryVO $IP */
+			$IP = $mod->getDbHandler_IPs()
+					  ->getQuerySelector()
+					  ->byId( $ID );
+			if ( $IP instanceof Shield\Databases\IPs\EntryVO ) {
+				$del = ( new Ops\DeleteIp() )
+					->setMod( $this->getMod() )
+					->setIP( $IP->ip );
+				$success = ( $IP->list == $mod::LIST_MANUAL_WHITE ) ?
+					$del->fromWhiteList() : $del->fromBlacklist();
+			}
+			$msg = $success ? __( 'IP address deleted', 'wp-simple-firewall' )
+				: __( "IP address wasn't deleted from the list", 'wp-simple-firewall' );
 		}
 
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 
@@ -197,7 +205,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( "IP provided was invalid.", 'wp-simple-firewall' );
 		}
 		else {
-			$dbh = $this->getCon()->getModule_IPs()->getDbHandler_IPs();
 			switch ( $req->post( 'ip_action' ) ) {
 
 				case 'block':
@@ -215,7 +222,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 				case 'unblock':
 					$success = ( new Ops\DeleteIp() )
-						->setDbHandler( $dbh )
+						->setMod( $this->getMod() )
 						->setIP( $ip )
 						->fromBlacklist();
 					$msg = $success ? __( 'IP address unblocked.', 'wp-simple-firewall' )
@@ -237,7 +244,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 				case 'unbypass':
 					$success = ( new Ops\DeleteIp() )
-						->setDbHandler( $dbh )
+						->setMod( $this->getMod() )
 						->setIP( $ip )
 						->fromWhiteList();
 					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )

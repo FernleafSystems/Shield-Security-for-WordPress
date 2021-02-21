@@ -50,11 +50,11 @@ class AddIp {
 		if ( $oIP->transgressions > 0
 			 && ( $oReq->ts() - $oOpts->getAutoExpireTime() > (int)$oIP->last_access_at ) ) {
 			$mod->getDbHandler_IPs()
-				 ->getQueryUpdater()
-				 ->updateEntry( $oIP, [
-					 'last_access_at' => Services::Request()->ts(),
-					 'transgressions' => 0
-				 ] );
+				->getQueryUpdater()
+				->updateEntry( $oIP, [
+					'last_access_at' => Services::Request()->ts(),
+					'transgressions' => 0
+				] );
 		}
 		return $oIP;
 	}
@@ -79,7 +79,7 @@ class AddIp {
 
 			if ( $oIpServ->isValidIpRange( $sIP ) ) {
 				( new DeleteIp() )
-					->setDbHandler( $mod->getDbHandler_IPs() )
+					->setMod( $mod )
 					->setIP( $sIP )
 					->fromBlacklist();
 			}
@@ -109,8 +109,8 @@ class AddIp {
 			}
 
 			$mod->getDbHandler_IPs()
-				 ->getQueryUpdater()
-				 ->updateEntry( $oIP, $aUpdateData );
+				->getQueryUpdater()
+				->updateEntry( $oIP, $aUpdateData );
 		}
 
 		return $oIP;
@@ -133,7 +133,7 @@ class AddIp {
 
 		if ( $oIpServ->isValidIpRange( $ip ) ) {
 			( new DeleteIp() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
+				->setMod( $mod )
 				->setIP( $ip )
 				->fromWhiteList();
 		}
@@ -143,6 +143,7 @@ class AddIp {
 			->setIP( $this->getIP() )
 			->lookup( false );
 		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
+			$this->getCon()->fireEvent( 'ip_bypass' );
 			$oIP = $this->add( $mod::LIST_MANUAL_WHITE, $label );
 		}
 
@@ -162,21 +163,21 @@ class AddIp {
 
 		if ( !empty( $aUpdateData ) ) {
 			$mod->getDbHandler_IPs()
-				 ->getQueryUpdater()
-				 ->updateEntry( $oIP, $aUpdateData );
+				->getQueryUpdater()
+				->updateEntry( $oIP, $aUpdateData );
 		}
 
 		return $oIP;
 	}
 
 	/**
-	 * @param string   $sList
+	 * @param string   $list
 	 * @param string   $sLabel
 	 * @param int|null $nLastAccessAt
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	private function add( $sList, $sLabel = '', $nLastAccessAt = null ) {
+	private function add( string $list, $sLabel = '', $nLastAccessAt = null ) {
 		$oIP = null;
 
 		/** @var ModCon $mod */
@@ -188,7 +189,7 @@ class AddIp {
 		/** @var Databases\IPs\EntryVO $oTempIp */
 		$oTempIp = $oDbh->getVo();
 		$oTempIp->ip = $this->getIP();
-		$oTempIp->list = $sList;
+		$oTempIp->list = $list;
 		$oTempIp->label = empty( $sLabel ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $sLabel );
 		if ( is_numeric( $nLastAccessAt ) && $nLastAccessAt > 0 ) {
 			$oTempIp->last_access_at = $nLastAccessAt;

@@ -29,7 +29,7 @@ class Remove extends BaseAddRemove {
 		$mod = $this->getMod();
 
 		$oDel = ( new IPs\Lib\Ops\DeleteIp() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+			->setMod( $mod )
 			->setIP( $aA[ 'ip' ] );
 		if ( $aA[ 'list' ] === 'white' ) {
 			$bSuccess = $oDel->fromWhiteList();
