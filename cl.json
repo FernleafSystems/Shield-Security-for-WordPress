@@ -113,6 +113,18 @@
         "title":       "Shield would report the server time was out-of-sync when it wasn't.",
         "description": [],
         "patch":       "10.2.4"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Replaced corrupted Javascript library (base64.min.js).",
+        "description": [],
+        "patch":       "10.2.5"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Link Cheese shouldn't run if there's an actual robots.txt file present.",
+        "description": [],
+        "patch":       "10.2.5"
       }
     ]
   },
