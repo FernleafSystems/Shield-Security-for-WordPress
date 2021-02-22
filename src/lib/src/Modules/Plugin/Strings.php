@@ -57,10 +57,12 @@ class Strings extends Base\Strings {
 				__( 'CAPTCHA Test Fail', 'wp-simple-firewall' )
 			],
 			'antibot_pass'           => [
-				__( 'Request passed the AnitBot test.', 'wp-simple-firewall' ),
+				__( 'Request passed the AnitBot Test with a Bot Probability Score of %s.', 'wp-simple-firewall' ),
+				__( 'AntiBot Score Threshold: %s', 'wp-simple-firewall' ),
 			],
 			'antibot_fail'           => [
-				__( 'Request failed the AnitBot test.', 'wp-simple-firewall' ),
+				__( 'Request failed the AnitBot Test with a Bot Probability Score of %s.', 'wp-simple-firewall' ),
+				__( 'AntiBot Score Threshold: %s', 'wp-simple-firewall' ),
 			],
 		];
 	}

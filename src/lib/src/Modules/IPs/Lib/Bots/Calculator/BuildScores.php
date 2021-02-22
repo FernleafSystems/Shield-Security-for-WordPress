@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculato
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVoConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class BuildScores {
 
@@ -17,7 +18,18 @@ class BuildScores {
 				$scores[ $field ] = $this->{'score_'.$field}();
 			}
 		}
+		$scores[ 'known' ] = $this->score_known();
 		return $scores;
+	}
+
+	private function score_known() :int {
+		try {
+			$id = key( ( new IpIdentify( $this->getRecord()->ip ) )->run() );
+		}
+		catch ( \Exception $e ) {
+			$id = null;
+		}
+		return ( empty( $id ) || $id === IpIdentify::UNKNOWN ) ? 0 : -100;
 	}
 
 	private function score_auth() :int {
@@ -151,13 +163,7 @@ class BuildScores {
 	}
 
 	private function score_bypass() :int {
-		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
-			$score = 0;
-		}
-		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -150 : -100;
-		}
-		return $score;
+		return $this->lastAtTs( __FUNCTION__ ) > 0 ? -150 : 0;
 	}
 
 	private function score_markspam() :int {
@@ -165,7 +171,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 50 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? 50 : 25;
 		}
 		return $score;
 	}
@@ -175,7 +181,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -75 : -35;
+			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? -75 : -35;
 		}
 		return $score;
 	}
