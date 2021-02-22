@@ -1,4 +1,4 @@
-﻿=== Shield Security: Powerful All-In-One Protection ===
+﻿=== Shield Security - Powerful All-In-One Protection ===
 Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
@@ -16,31 +16,86 @@ The highest rated WordPress Security plugin, delivering unparalleled, all-in-one
 
 #### Get the highest rated 5* Security Plugin for WordPress
 
-Don't *settle* for the same security plugin just because everyone else does.
+Per download, Shield Security [has the highest 5* rating](https://shsec.io/jl) in the WordPress plugin repository.
+
+## Our Mission
+
+Our singular mission is to liberate you from unnecessarily repetitive work, by automating as much as possible for you.
+
+We have three rules that apply to everything we do, and you'll see these when you use our products or contact us for help:
+
+1.  Make everything as simple and easy-to-use as possible (and no simpler!).
+1.  Be reliable – we make sure our products do what they promise.
+1.  Take ownership for resolving problems - we will solve the problem if we can, or point you towards the solution.
+
+### 2 Key WordPress Security Strategies
+
+Shield Security uses 2 simple key strategies to protect your WordPress sites:
+
+1. Prevention
+1. Cure
+
+#### Key Security Strategy #1: Hacking Prevention
+
+Blocking malicious bots before they can do damage is by-far the the most effective strategy to enhance Security on a WordPress site.
+
+Many Shield features focus on detecting these malicious visitors, then blocking access to your site altogether. This involves analysing different bot-signals and combining them to confidently identify a visitor as malicious.
+
+These signals include:
+
+* site probes that generate 404 errors
+* failed logins
+* logins with invalid usernames
+* xml-rpc access
+* fake search engine web crawlers
+* and many more signals our security team have identified...
+
+Early identification and blocking of malicious bots reduces your WordPress site's susceptibility to attack.
+
+#### Key Strategy #2: Hacking Cure
+
+Sometimes, even with best efforts, a site can get hacked. This typically involves file modification: either a hack file is added, or an existing file is modified.
+
+There are 3 key WordPress assets whose files can be hacked:
+
+1. WordPress Core
+1. WordPress Plugins
+1. WordPress Themes
+
+Almost every security plugin can now do #1 - it's easy because WordPress.org provides *file fingerprints* for core files.
+
+But, there are no hashes available for plugins and themes, so they can't do it.
+
+Shield, however, is **the only WordPress security plugin** that offers full and accurate detection of file modifications for plugins and themes because we **build our own file fingerprints**.
+
+Shield can compare the file contents of every plugin & theme in the WordPress.org repository, looking for changed or new files
+
+And, if you're a ShieldPRO client, you can protect premium plugins/themes too, including Yoast SEO and Advanced Custom Fields Pro.
+
+Where possible, Shield will repair any unrecognised or modified files it detects in those 3 key WordPress areas.
 
 #### Shield makes Security for WordPress easy
 
-There's no reason for security to be so complicated.
+There's really no reason for your WordPress security to be so complicated.
 
-Shield is the easiest security plugin to setup - you simply activate it and as you learn more, you can tweak the settings to suit your needs best.
+Shield Security is the easiest security plugin to setup - you simply activate it and off you go! As you learn more, you can tweak the settings to suit your needs.
 
+#### Non-stop Security Notifications Are Never Okay.
+Your security plugin should be smarter, and take responsibility for decisions so you don't have to.
 
-#### Non-stop Notifications Are Not Okay.
-Wouldn't it be great if your Security plugin took responsibility and handled problems for you without non-stop email notifications?
+Shield handles many problems for you, making intelligent security decisions without noisy email notifications.
 
-Shield does exactly this. It's your Silent Guardian.
-
-#### Shield Features You'll Absolutely Love
+#### WordPress Security Features You'll Absolutely Love
 
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - points-based system (that you control) to detect bad bots and block them.
-* Block Bot Attacks On Important Forms:
+* Add Security To Important Forms To Block Bots:
     * Login
     * Registration
     * Password Reset
     * [ShieldPRO] WooCommerce & Easy Digital Downloads
     * [ShieldPRO] Memberpress, LearnPress, BuddyPress, WP Members, ProfileBuilder
 * [Limit Login Attempts + Login Cooldown System](https://shsec.io/iw)
-* Powerful Firewall Rules
+* Powerful Firewall Security Rules
 * Restricted Security Admin Access
    * [Prevents Unauthorized Changes To Site Even By Admins](https://shsec.io/ix).
 * (MFA) [Two-Factor / Multi-Factor Login Authentication](https://shsec.io/iy):
@@ -148,8 +203,7 @@ Ideally you shouldn't use this along side other Anti-SPAM plugins or security pl
 
 = My server has a firewall, why do I need this plugin? =
 
-This plugin is an application layer firewall, not a server/network firewall.  It is designed to interpret web calls to your site to
-look for attempts to circumvent it and gain unauthorized access.
+This plugin is an application layer firewall, not a server/network firewall.  It is designed to interpret web calls to your site to look for attempts to circumvent it and gain unauthorized access.
 
 Your network firewall is designed to restrict access to your server based on certain types of network traffic.  The Shield
 is designed to restrict access to your site, based on certain type of web calls.
@@ -184,13 +238,11 @@ Here's how:
 1.	Load any page on your WordPress site.
 1.	After this, you'll find your Shield has been switched off.
 
-If you want to turn the firewall on in the same way, create a file called "forceOn".
-
 Remember: If you leave one of these files on the server, it will override your on/off settings, so you should delete it when you no longer need it.
 
-= Which takes precedence... whitelist or blacklist? =
+= Which takes precedence... bypass list or block list? =
 
-Whitelist. So if you have the same address in both lists, it'll be whitelisted and allowed to pass before the blacklist comes into effect.
+Bypass List: so if you have the same address in both lists, it'll be bypassed and never be blocked.
 
 = Can I assist with development? =
 
@@ -220,9 +272,7 @@ that are url, param and password will be ignored by the firewall.
 
 = How does the login cooldown work? =
 
-Login Cooldown prevents more than 1 login attempt to your site every "so-many" seconds.  So if you enable a login cooldown
-of 60 seconds, only 1 login attempt will be processed every 60 seconds.  If you login incorrectly, you wont be able to attempt another
-login for a further 60 seconds.
+Login Cooldown prevents more than 1 login attempt to your site every "so-many" seconds.  So if you enable a login cooldown of 60 seconds, only 1 login attempt will be processed every 60 seconds.  If you login incorrectly, you wont be able to attempt another login for a further 60 seconds.
 
 This system completely blocks any level of brute-force login attacks and a cooldown of just 1 second goes a long way.
 

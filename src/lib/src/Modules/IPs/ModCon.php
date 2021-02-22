@@ -77,6 +77,15 @@ class ModCon extends BaseShield\ModCon {
 		$this->cleanPathWhitelist();
 	}
 
+	public function canLinkCheese() :bool {
+		$FS = Services::WpFs();
+		$WP = Services::WpGeneral();
+		$isSplit = trim( parse_url( $WP->getHomeUrl(), PHP_URL_PATH ), '/' )
+				   !== trim( parse_url( $WP->getWpUrl(), PHP_URL_PATH ), '/' );
+		return !$FS->exists( path_join( ABSPATH, 'robots.txt' ) )
+			   && ( !$isSplit || !$FS->exists( path_join( dirname( ABSPATH ), 'robots.txt' ) ) );
+	}
+
 	private function cleanPathWhitelist() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

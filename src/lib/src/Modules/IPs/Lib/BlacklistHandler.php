@@ -88,7 +88,7 @@ class BlacklistHandler {
 			}
 
 			/** Always run link cheese regardless of the verified bot or not */
-			if ( $opts->isEnabledTrackLinkCheese() ) {
+			if ( $opts->isEnabledTrackLinkCheese() && $mod->canLinkCheese() ) {
 				( new IPs\BotTrack\TrackLinkCheese() )
 					->setMod( $mod )
 					->execute();
