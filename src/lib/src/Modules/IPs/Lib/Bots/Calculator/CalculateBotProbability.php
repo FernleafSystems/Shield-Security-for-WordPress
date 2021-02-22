@@ -13,23 +13,21 @@ class CalculateBotProbability {
 	use IpAddressConsumer;
 	use ModConsumer;
 
-	/**
-	 * @var EntryVO
-	 */
-	private $entry = null;
-
 	private $scores = [];
 
-	public function calculate() :int {
-		$this->entry = $this->loadEntry();
-
+	public function scores() :array {
 		$this->scores = ( new BuildScores() )
-			->setEntryVO( $this->entry )
+			->setEntryVO( $this->loadEntry() )
 			->build();
+		return $this->getActiveScores();
+	}
 
-		$score = array_sum( $this->getActiveScores() );
+	public function total() :int {
+		return (int)array_sum( $this->scores() );
+	}
 
-		return (int)max( 0, $score );
+	public function probability() :int {
+		return (int)max( 0, min( 100, $this->total() ) );
 	}
 
 	private function getActiveScores() :array {
@@ -39,29 +37,6 @@ class CalculateBotProbability {
 				return $score !== -1;
 			}
 		);
-	}
-
-	private function getAllFields( $filterForMethods = false ) :array {
-		$fields = array_map(
-			function ( $col ) {
-				return str_replace( '_at', '', $col );
-			},
-			array_filter(
-				array_keys( $this->entry->getRawData() ),
-				function ( $col ) {
-					return preg_match( '#_at$#', $col ) &&
-						   !in_array( $col, [ 'updated_at', 'created_at', 'deleted_at' ] );
-				}
-			)
-		);
-
-		if ( $filterForMethods ) {
-			$fields = array_filter( $fields, function ( $field ) {
-				return method_exists( $this, 'score_'.$field );
-			} );
-		}
-
-		return $fields;
 	}
 
 	private function loadEntry() :EntryVO {
@@ -79,7 +54,7 @@ class CalculateBotProbability {
 			$entry = new EntryVO();
 			$entry->ip = $ip;
 		}
-		$this->entry = $entry;
+
 		return $entry;
 	}
 }
