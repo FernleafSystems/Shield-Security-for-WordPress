@@ -14,6 +14,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals;
  * @property int    $btlogininvalid_at
  * @property int    $btua_at
  * @property int    $btxml_at
+ * @property int    $cooldown_at
  * @property int    $auth_at
  * @property int    $offense_at
  * @property int    $blocked_at

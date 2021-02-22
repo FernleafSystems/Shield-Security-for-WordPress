@@ -45,6 +45,7 @@ class EventListener {
 				'bottrack_xmlrpc'         => 'btxml',
 				'bottrack_logininvalid'   => 'btlogininvalid',
 				'bottrack_invalidscript'  => 'btinvalidscript',
+				'cooldown_fail'           => 'cooldown',
 				'comment_markspam'        => 'markspam',
 				'comment_unmarkspam'      => 'unmarkspam',
 				'ip_offense'              => 'offense',

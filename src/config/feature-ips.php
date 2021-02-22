@@ -562,6 +562,7 @@
       "btxml_at":           "BotTrack XMLRPC Access",
       "btlogininvalid_at":  "BotTrack LoginInvalid",
       "btinvalidscript_at": "BotTrack InvalidScript",
+      "cooldown_at":        "Triggered Cooldown",
       "markspam_at":        "Mark Comment As SPAM",
       "unmarkspam_at":      "Unmark Comment As SPAM",
       "auth_at":            "Successful Login",
