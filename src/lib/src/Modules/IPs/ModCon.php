@@ -63,8 +63,8 @@ class ModCon extends BaseShield\ModCon {
 	public function canLinkCheese() :bool {
 		$FS = Services::WpFs();
 		$WP = Services::WpGeneral();
-		$isSplit = trim( parse_url( $WP->getHomeUrl(), PHP_URL_PATH ), '/' )
-				   !== trim( parse_url( $WP->getWpUrl(), PHP_URL_PATH ), '/' );
+		$isSplit = trim( (string)parse_url( $WP->getHomeUrl(), PHP_URL_PATH ), '/' )
+				   !== trim( (string)parse_url( $WP->getWpUrl(), PHP_URL_PATH ), '/' );
 		return !$FS->exists( path_join( ABSPATH, 'robots.txt' ) )
 			   && ( !$isSplit || !$FS->exists( path_join( dirname( ABSPATH ), 'robots.txt' ) ) );
 	}
