@@ -142,10 +142,10 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	}
 
 	public function handleExpiredItems() {
-		$nBoundary = Services::Request()
-							 ->carbon()
-							 ->subSeconds( $this->getExpirationInterval() )->timestamp;
-		$this->getDbHandler()->deleteRowsOlderThan( $nBoundary );
+		$boundary = Services::Request()
+							->carbon()
+							->subSeconds( $this->getExpirationInterval() )->timestamp;
+		$this->getDbHandler()->deleteRowsOlderThan( $boundary );
 	}
 
 	/**

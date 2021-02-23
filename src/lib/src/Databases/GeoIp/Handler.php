@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		$this->tableCleanExpired( $this->getOptions()->getDef( 'db_autoexpire_geoip' ) );
+		$this->tableCleanExpired( (int)$this->getOptions()->getDef( 'db_autoexpire_geoip' ) );
 	}
 
 	public function getCustomColumns() :array {

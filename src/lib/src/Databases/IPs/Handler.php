@@ -20,12 +20,12 @@ class Handler extends Base\Handler {
 	}
 
 	/**
-	 * @param int $nTimeStamp
+	 * @param int $timestamp
 	 * @return bool
 	 */
-	public function deleteRowsOlderThan( $nTimeStamp ) {
+	public function deleteRowsOlderThan( $timestamp ) :bool {
 		return $this->getQueryDeleter()
-					->addWhereOlderThan( $nTimeStamp, 'last_access_at' )
+					->addWhereOlderThan( $timestamp, 'last_access_at' )
 					->addWhere( 'list', ModCon::LIST_MANUAL_WHITE, '!=' )
 					->query();
 	}

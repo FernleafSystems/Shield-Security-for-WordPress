@@ -31,35 +31,35 @@ abstract class Handler {
 	public function autoCleanDb() {
 	}
 
-	/**
-	 * @param int $nAutoExpireDays
-	 * @return $this
-	 */
-	public function tableCleanExpired( $nAutoExpireDays ) {
-		$nAutoExpire = $nAutoExpireDays*DAY_IN_SECONDS;
-		if ( $nAutoExpire > 0 ) {
-			$this->deleteRowsOlderThan( Services::Request()->ts() - $nAutoExpire );
+	public function tableCleanExpired( int $autoExpireDays ) {
+		if ( $autoExpireDays > 0 ) {
+			$this->deleteRowsOlderThan( Services::Request()->ts() - $autoExpireDays*DAY_IN_SECONDS );
 		}
-		return $this;
+	}
+
+	protected function getColumnForOlderThanComparison() :string {
+		return 'created_at';
 	}
 
 	/**
-	 * @param int $nTimeStamp
+	 * @param int $timestamp
 	 * @return bool
 	 */
-	public function deleteRowsOlderThan( $nTimeStamp ) {
-		return $this->isReady() && $this->getQueryDeleter()
-										->addWhereOlderThan( $nTimeStamp )
-										->query();
+	public function deleteRowsOlderThan( $timestamp ) :bool {
+		return $this->isReady() &&
+			   $this->getQueryDeleter()
+					->addWhereOlderThan( $timestamp, $this->getColumnForOlderThanComparison() )
+					->query();
 	}
 
 	public function getTable() :string {
 		return Services::WpDb()->getPrefix()
-			   .esc_sql( $this->getCon()->prefixOption( $this->getTableSlug() ) );
+			   .esc_sql( $this->getCon()->prefixOption( $this->getDefaultTableName() ) );
 	}
 
 	/**
 	 * @return string
+	 * @deprecated 10.3
 	 */
 	protected function getTableSlug() {
 		return empty( $this->sTable ) ? $this->getDefaultTableName() : $this->sTable;
@@ -194,11 +194,6 @@ abstract class Handler {
 		}
 
 		return $this->bIsReady;
-	}
-
-	public function setTable( string $sTable ) :self {
-		$this->sTable = $sTable;
-		return $this;
 	}
 
 	protected function getDefaultTableName() :string {

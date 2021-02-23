@@ -7,7 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		$this->tableCleanExpired( $this->getOptions()->getDef( 'db_botsignals_autoexpire' ) );
+		$this->tableCleanExpired( (int)$this->getOptions()->getDef( 'db_botsignals_autoexpire' ) );
+	}
+
+	protected function getColumnForOlderThanComparison() :string {
+		return 'updated_at';
 	}
 
 	public function getCustomColumns() :array {
