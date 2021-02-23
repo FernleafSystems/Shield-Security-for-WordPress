@@ -1,7 +1,7 @@
 jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 	var runAnalysis = function () {
-		let newUrl = window.location.href.replace( /&analyse_ip=(\d{1,3}\.){3}\d{1,3}/i, "" );
+		let newUrl = window.location.href.replace( /&analyse_ip=.+/i, "" );
 		if ( $oIpSelect.val().length > 0 ) {
 			newUrl += "&analyse_ip=" + $oIpSelect.val();
 		}
@@ -18,7 +18,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		window.history.replaceState(
 			{},
 			document.title,
-			window.location.href.replace( /&analyse_ip=(\d{1,3}\.){3}\d{1,3}/i, "" )
+			window.location.href.replace( /&analyse_ip=.*/i, "" )
 		);
 	};
 
@@ -79,7 +79,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 			let urlParams = new URLSearchParams( window.location.search );
 			let theIP = urlParams.get( 'analyse_ip' );
 			if ( theIP ) {
-				$oIpSelect.val();
+				$oIpSelect.val( theIP );
 				runAnalysis();
 			}
 			else {
