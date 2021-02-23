@@ -117,7 +117,7 @@ class AuditTrail extends BaseBuild {
 			}
 
 			if ( !isset( $aEntries[ $oEntry->rid ] ) ) {
-				$aE = $oEntry->getRawDataAsArray();
+				$aE = $oEntry->getRawData();
 				$aE[ 'meta' ] = $oEntry->meta;
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 				$aE[ 'message' ] = $sMsg;

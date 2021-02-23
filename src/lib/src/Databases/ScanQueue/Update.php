@@ -8,12 +8,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class Update extends Base\Update {
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function storeResults( $oEntry ) {
-		return isset( $oEntry->results ) &&
-			   $this->updateEntry( $oEntry, [ 'results' => gzcompress( $oEntry->getRawDataAsArray()[ 'results' ] ) ] );
+	public function storeResults( $entry ) {
+		return isset( $entry->results ) &&
+			   $this->updateEntry( $entry, [ 'results' => gzcompress( $entry->getRawData()[ 'results' ] ) ] );
 	}
 
 	/**

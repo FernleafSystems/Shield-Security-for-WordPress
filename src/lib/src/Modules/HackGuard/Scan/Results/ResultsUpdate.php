@@ -39,7 +39,7 @@ class ResultsUpdate {
 		$oConverter = ( new ConvertBetweenTypes() )->setScanController( $oSCon );
 		foreach ( $oConverter->fromResultsToVOs( $oExisting ) as $oVo ) {
 			$oUp->reset()
-				->setUpdateData( $oVo->getRawDataAsArray() )
+				->setUpdateData( $oVo->getRawData() )
 				->setUpdateWheres(
 					[
 						'scan' => $oSCon->getSlug(),

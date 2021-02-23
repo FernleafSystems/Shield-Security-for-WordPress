@@ -99,7 +99,7 @@ class Traffic extends BaseBuild {
 				$sCodeType = 'warning';
 			}
 
-			$e = $record->getRawDataAsArray();
+			$e = $record->getRawData();
 			$e[ 'path' ] = $sPath;
 			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->code );
 			$e[ 'trans' ] = sprintf(

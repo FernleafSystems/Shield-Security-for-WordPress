@@ -61,7 +61,7 @@ abstract class BaseEntryFormatter {
 	 * @return array
 	 */
 	protected function getBaseData() {
-		return $this->getEntryVO()->getRawDataAsArray();
+		return $this->getEntryVO()->getRawData();
 	}
 
 	/**

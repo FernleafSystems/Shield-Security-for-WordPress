@@ -17,11 +17,11 @@ class AdminNotes extends BaseBuild {
 	public function getEntriesFormatted() :array {
 		$aEntries = [];
 
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var EntryVO $oEntry */
-			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			$aEntries[ $nKey ] = $aE;
+		foreach ( $this->getEntriesRaw() as $key => $entry ) {
+			/** @var EntryVO $entry */
+			$e = $entry->getRawData();
+			$e[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
+			$aEntries[ $key ] = $e;
 		}
 
 		return $aEntries;

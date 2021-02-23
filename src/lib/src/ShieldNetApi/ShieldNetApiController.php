@@ -54,7 +54,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function storeVoData() {
-		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
+		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawData() );
 		$this->getMod()->saveModOptions();
 	}
 

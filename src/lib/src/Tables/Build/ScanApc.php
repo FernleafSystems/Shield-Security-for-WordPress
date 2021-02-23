@@ -26,20 +26,20 @@ class ScanApc extends ScanBase {
 		$oConverter = new Scan\Results\ConvertBetweenTypes();
 
 		$oWpPlugins = Services::WpPlugins();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
+			/** @var Shield\Databases\Scanner\EntryVO $entry */
 			/** @var Shield\Scans\Apc\ResultItem $oIt */
 			$oIt = $oConverter
-				->setScanController( $mod->getScanCon( $oEntry->scan ) )
-				->convertVoToResultItem( $oEntry );
+				->setScanController( $mod->getScanCon( $entry->scan ) )
+				->convertVoToResultItem( $entry );
 			$oPlugin = $oWpPlugins->getPluginAsVo( $oIt->slug );
-			$aE = $oEntry->getRawDataAsArray();
+			$aE = $entry->getRawData();
 			$aE[ 'plugin' ] = sprintf( '%s (%s)', $oPlugin->Name, $oPlugin->Version );
 			$aE[ 'status' ] = sprintf( '%s: %s',
 				__( 'Abandoned', 'wp-simple-firewall' ), $oCarbon->setTimestamp( $oIt->last_updated_at )
 																 ->diffForHumans() );
-			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $entry );
+			$aE[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
 			$aEntries[ $nKey ] = $aE;
 		}
 

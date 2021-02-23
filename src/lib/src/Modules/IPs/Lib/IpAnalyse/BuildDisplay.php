@@ -178,7 +178,7 @@ class BuildDisplay {
 						->query();
 
 		foreach ( $sessions as $key => $session ) {
-			$asArray = $session->getRawDataAsArray();
+			$asArray = $session->getRawData();
 			$asArray[ 'logged_in_at' ] = $this->formatTimestampField( (int)$session->logged_in_at );
 			$asArray[ 'last_activity_at' ] = $this->formatTimestampField( (int)$session->last_activity_at );
 			$asArray[ 'is_sec_admin' ] = $session->secadmin_at > 0;
@@ -216,7 +216,7 @@ class BuildDisplay {
 						->query();
 
 		foreach ( $requests as $key => $request ) {
-			$asArray = $request->getRawDataAsArray();
+			$asArray = $request->getRawData();
 			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$request->created_at );
 			if ( strpos( $request->path, '?' ) === false ) {
 				$request->path .= '?';
@@ -260,7 +260,7 @@ class BuildDisplay {
 					->query();
 
 		foreach ( $logs as $key => $log ) {
-			$asArray = $log->getRawDataAsArray();
+			$asArray = $log->getRawData();
 
 			$module = $con->getModule( $log->context );
 			if ( empty( $module ) ) {

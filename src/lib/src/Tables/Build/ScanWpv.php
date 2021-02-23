@@ -30,13 +30,13 @@ class ScanWpv extends ScanBase {
 		$oWpThemes->getUpdates( true );
 
 		$oConverter = new Scan\Results\ConvertBetweenTypes();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
+			/** @var Shield\Databases\Scanner\EntryVO $entry */
 			/** @var Shield\Scans\Wpv\ResultItem $oIt */
 			$oIt = $oConverter
-				->setScanController( $mod->getScanCon( $oEntry->scan ) )
-				->convertVoToResultItem( $oEntry );
-			$aE = $oEntry->getRawDataAsArray();
+				->setScanController( $mod->getScanCon( $entry->scan ) )
+				->convertVoToResultItem( $entry );
+			$aE = $entry->getRawData();
 			if ( $oIt->context == 'plugins' ) {
 				$oAsset = $oWpPlugins->getPluginAsVo( $oIt->slug );
 				$aE[ 'asset' ] = $oAsset;
@@ -55,8 +55,8 @@ class ScanWpv extends ScanBase {
 			}
 			$aE[ 'slug' ] = $oIt->slug;
 			$aE[ 'wpvuln_vo' ] = $oIt->getWpVulnVo();
-			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $entry );
+			$aE[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
 			$aEntries[ $nKey ] = $aE;
 		}
 

@@ -59,21 +59,21 @@ class Sessions extends BaseBuild {
 
 		$srvIP = Services::IP();
 		$you = $srvIP->getRequestIp();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Session\EntryVO $oEntry */
-			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'is_secadmin' ] = $this->isSecAdminSession( $oEntry ) ? __( 'Yes' ) : __( 'No' );
-			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
-			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );
+		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
+			/** @var Session\EntryVO $entry */
+			$aE = $entry->getRawData();
+			$aE[ 'is_secadmin' ] = $this->isSecAdminSession( $entry ) ? __( 'Yes' ) : __( 'No' );
+			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $entry->last_activity_at );
+			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $entry->logged_in_at );
 
 			try {
-				$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+				$aE[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
 			}
 			catch ( \Exception $e ) {
 				$aE[ 'is_you' ] = false;
 			}
 			$aE[ 'ip' ] = sprintf( '%s%s',
-				$this->getIpAnalysisLink( $oEntry->ip ),
+				$this->getIpAnalysisLink( $entry->ip ),
 				$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
 			);
 

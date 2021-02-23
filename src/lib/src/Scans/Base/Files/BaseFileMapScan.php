@@ -24,7 +24,7 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 		$newItems = [];
 		if ( $oTempRs->hasItems() ) {
 			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$newItems[] = $oItem->getRawDataAsArray();
+				$newItems[] = $oItem->getRawData();
 			}
 		}
 		$action->results = $newItems;

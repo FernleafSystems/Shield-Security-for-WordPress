@@ -22,7 +22,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
 			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$aNewItems[] = $oItem->getRawDataAsArray();
+				$aNewItems[] = $oItem->getRawData();
 			}
 		}
 		$oAction->results = $aNewItems;

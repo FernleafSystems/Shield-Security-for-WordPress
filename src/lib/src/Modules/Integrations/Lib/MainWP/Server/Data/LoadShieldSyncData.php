@@ -12,7 +12,7 @@ class LoadShieldSyncData {
 
 	public static function Load( MWPSiteVO $site ) :SyncVO {
 		$data = MainWP_DB::instance()->get_website_option(
-			$site->getRawDataAsArray(),
+			$site->getRawData(),
 			Controller::GetInstance()->prefix( 'mainwp-sync' )
 		);
 		if ( empty( $data ) ) {
