@@ -415,3 +415,11 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 		} );
 	} );
 }
+
+
+
+jQuery( document ).ready( function () {
+	jQuery( '.select2picker' ).select2({
+		width: 'resolve'
+	});
+} );

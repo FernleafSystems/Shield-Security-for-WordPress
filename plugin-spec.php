@@ -49,12 +49,12 @@
     },
     "plugin_admin": {
       "css": [
-        "bootstrap-select.min",
+        "select2.min",
         "plugin",
         "featherlight"
       ],
       "js":  [
-        "bootstrap-select.min",
+        "select2.min",
         "plugin",
         "featherlight",
         "jquery.fileDownload"
@@ -69,9 +69,10 @@
         "bootstrap4.min":         {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
         },
-        "bootstrap-select.min":   {
+        "select2.min":   {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css",
           "deps": [
-            "bootstrap4.min"
+            "plugin"
           ]
         },
         "bootstrap-datepicker":   {
@@ -109,9 +110,10 @@
             "wp-jquery"
           ]
         },
-        "bootstrap-select.min":    {
+        "select2.min":    {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js",
           "deps": [
-            "bootstrap4.bundle.min"
+            "plugin"
           ]
         },
         "bootstrap-datepicker":    {

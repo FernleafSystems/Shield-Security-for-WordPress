@@ -79,7 +79,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 			let urlParams = new URLSearchParams( window.location.search );
 			let theIP = urlParams.get( 'analyse_ip' );
 			if ( theIP ) {
-				$oIpSelect.selectpicker( 'val', theIP );
+				$oIpSelect.val();
 				runAnalysis();
 			}
 			else {
