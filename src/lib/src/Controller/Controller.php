@@ -510,14 +510,14 @@ class Controller {
 	}
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	public function getNonceActionData( $sAction = '' ) {
+	public function getNonceActionData( $action = '' ) {
 		return [
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $sAction,
-			'exec_nonce' => wp_create_nonce( $sAction ),
+			'exec'       => $action,
+			'exec_nonce' => wp_create_nonce( $action ),
 			//			'rand'       => wp_rand( 10000, 99999 )
 		];
 	}

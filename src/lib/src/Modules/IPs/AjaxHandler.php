@@ -32,12 +32,21 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_IpAnalyseAction();
 				break;
 
+			default:
+				$response = parent::processAjaxAction( $action );
+		}
+
+		return $response;
+	}
+
+	protected function processNonAuthAjaxAction( string $action ) :array {
+
+		switch ( $action ) {
 			case 'not_bot':
 				$response = $this->ajaxExec_CaptureNotBot();
 				break;
-
 			default:
-				$response = parent::processAjaxAction( $action );
+				$response = parent::processNonAuthAjaxAction( $action );
 		}
 
 		return $response;
@@ -60,8 +69,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$aFormParams = $this->getAjaxFormParams();
 
-		$bSuccess = false;
-		$sMessage = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
+		$success = false;
+		$msg = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
 		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
@@ -74,22 +83,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		// TODO: Bring this IP verification out of here and make it more accessible
 		if ( empty( $ip ) ) {
-			$sMessage = __( "IP address not provided", 'wp-simple-firewall' );
+			$msg = __( "IP address not provided", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $sList ) ) {
-			$sMessage = __( "IP list not provided", 'wp-simple-firewall' );
+			$msg = __( "IP list not provided", 'wp-simple-firewall' );
 		}
 		elseif ( !$bAcceptableIp ) {
-			$sMessage = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
+			$msg = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
 		}
 		elseif ( $bIsBlackList && !$mod->isPremium() ) {
-			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
+			$msg = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
 		elseif ( $bIsBlackList && $oIpServ->checkIp( $oIpServ->getRequestIp(), $ip ) ) {
-			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
+			$msg = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
 		elseif ( $bIsBlackList && in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
-			$sMessage = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
+			$msg = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
 			$label = $aFormParams[ 'label' ] ?? '';
@@ -122,14 +131,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			}
 
 			if ( !empty( $oIP ) ) {
-				$sMessage = __( 'IP address added successfully', 'wp-simple-firewall' );
-				$bSuccess = true;
+				$msg = __( 'IP address added successfully', 'wp-simple-firewall' );
+				$success = true;
 			}
 		}
 
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 

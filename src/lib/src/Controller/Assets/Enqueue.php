@@ -105,19 +105,17 @@ class Enqueue {
 
 					$handle = $this->normaliseHandle( $key );
 					if ( $type === self::CSS ) {
-						$url = $spec[ 'url' ] ?? $con->urls->forCss( $key );
 						$reg = wp_register_style(
 							$handle,
-							$url,
+							$con->urls->forCss( $key ),
 							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
 							$con->getVersion()
 						);
 					}
 					else {
-						$url = $con->urls->forJs( $key );
 						$reg = wp_register_script(
 							$handle,
-							$url,
+							$con->urls->forJs( $key ),
 							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
 							$con->getVersion(),
 							$spec[ 'footer' ] ?? false
