@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\RetrieveIpBotRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
@@ -26,7 +28,7 @@ class BuildDisplay {
 
 		$ip = $this->getIP();
 		if ( !Services::IP()->isValidIp( $ip ) ) {
-			throw new \Exception( "A valid IP address was not provided." );
+			throw new \Exception( "A valid IP address wasn't provided." );
 		}
 
 		return $mod->renderTemplate(
@@ -34,6 +36,7 @@ class BuildDisplay {
 			[
 				'strings' => [
 					'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
+					'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
 					'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
 					'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
 					'nav_audit'    => __( 'Audit Trail', 'wp-simple-firewall' ),
@@ -44,6 +47,7 @@ class BuildDisplay {
 				],
 				'content' => [
 					'general'     => $this->renderForGeneral(),
+					'signals'     => $this->renderForBotSignals(),
 					'sessions'    => $this->renderForSessions(),
 					'audit_trail' => $this->renderForAuditTrail(),
 					'traffic'     => $this->renderForTraffic(),
@@ -243,6 +247,59 @@ class BuildDisplay {
 				'vars'    => [
 					'requests'       => $requests,
 					'total_requests' => count( $requests ),
+				],
+			],
+			true
+		);
+	}
+
+	private function renderForBotSignals() :string {
+		/** @var Strings $strings */
+		$strings = $this->getMod()->getStrings();
+		$names = $strings->getBotSignalNames();
+
+		try {
+			$record = ( new RetrieveIpBotRecord() )
+				->setMod( $this->getMod() )
+				->forIP( $this->getIP() );
+
+			$signals = [];
+			foreach ( array_keys( $record->getRawData() ) as $column ) {
+				$field = str_replace( '_at', '', $column );
+				if ( array_key_exists( $field, $names ) && !empty( $record->{$column} ) ) {
+					$signals[ $field ] = Services::Request()
+												 ->carbon()
+												 ->setTimestamp( $record->{$column} )->diffForHumans();
+				}
+			}
+		}
+		catch ( \Exception $e ) {
+			$signals = [];
+		}
+
+		$scores = shield_get_bot_scores( $this->getIP() );
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig',
+			[
+				'strings' => [
+					'title'           => __( 'Bot Signals', 'wp-simple-firewall' ),
+					'signal'          => __( 'Signal', 'wp-simple-firewall' ),
+					'score'           => __( 'Score', 'wp-simple-firewall' ),
+					'total_score'     => __( 'Total Bot Score', 'wp-simple-firewall' ),
+					'when'            => __( 'When', 'wp-simple-firewall' ),
+					'bot_probability' => __( 'Bot Probability', 'wp-simple-firewall' ),
+					'signal_names'    => $names,
+					'no_signals'      => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
+				],
+				'flags'   => [
+					'has_signals' => !empty( $signals ),
+				],
+				'vars'    => [
+					'signals'       => $signals,
+					'total_signals' => count( $signals ),
+					'scores'        => $scores,
+					'total_score'   => array_sum( $scores ),
+					'probability'   => (int)max( 0, min( 100, array_sum( $scores ) ) )
 				],
 			],
 			true

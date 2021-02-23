@@ -237,6 +237,35 @@ class Strings extends Base\Strings {
 		];
 	}
 
+	public function getBotSignalName( $field ) :string {
+		return $this->getBotSignalNames()[ str_replace( '_at', '', $field ) ] ?? 'Unknown';
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getBotSignalNames() :array {
+		return [
+			'notbot'          => __( 'Registered as "Not Bot"', 'wp-simple-firewall' ),
+			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
+			'btfake'          => __( 'Fake Web Crawler', 'wp-simple-firewall' ),
+			'btcheese'        => __( 'Link Cheese', 'wp-simple-firewall' ),
+			'btloginfail'     => __( 'Login Fail', 'wp-simple-firewall' ),
+			'btua'            => __( 'Invalid User Agent', 'wp-simple-firewall' ),
+			'btxml'           => __( 'XMLRPC Access', 'wp-simple-firewall' ),
+			'btlogininvalid'  => __( 'Invalid Login Username', 'wp-simple-firewall' ),
+			'btinvalidscript' => __( 'Invalid Script Access', 'wp-simple-firewall' ),
+			'cooldown'        => __( 'Cooldown Triggered', 'wp-simple-firewall' ),
+			'markspam'        => __( 'Comment Marked As SPAM', 'wp-simple-firewall' ),
+			'unmarkspam'      => __( 'Comment Unmarked As SPAM', 'wp-simple-firewall' ),
+			'auth'            => __( 'Authenticated With Site', 'wp-simple-firewall' ),
+			'offense'         => __( 'Offense Triggered', 'wp-simple-firewall' ),
+			'blocked'         => __( 'IP Blocked', 'wp-simple-firewall' ),
+			'unblocked'       => __( 'IP Unblocked', 'wp-simple-firewall' ),
+			'bypass'          => __( 'IP Bypassed', 'wp-simple-firewall' ),
+		];
+	}
+
 	/**
 	 * @return string[][]
 	 */
@@ -282,7 +311,7 @@ class Strings extends Base\Strings {
 			'bottrack_xmlrpc'         => [
 				__( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' )
 			],
-			'bottrack_invalidscript'         => [
+			'bottrack_invalidscript'  => [
 				__( 'Tried to load an invalid WordPress PHP script "%s".', 'wp-simple-firewall' )
 			],
 		];
