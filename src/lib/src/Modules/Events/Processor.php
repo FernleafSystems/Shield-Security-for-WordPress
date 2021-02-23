@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
 class Processor extends BaseShield\Processor {
@@ -32,16 +32,16 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function statsWidget() {
-		/** @var Databases\Events\Select $oSelEvents */
-		$oSelEvents = $this->getCon()
-						   ->getModule_Events()
-						   ->getDbHandler_Events()
-						   ->getQuerySelector();
+		/** @var Databases\Events\Select $selector */
+		$selector = $this->getCon()
+						 ->getModule_Events()
+						 ->getDbHandler_Events()
+						 ->getQuerySelector();
 
 		$aKeyStats = [
 			'comments'          => [
 				__( 'Comment Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvents( [
+				$selector->clearWheres()->sumEvents( [
 					'spam_block_bot',
 					'spam_block_human',
 					'spam_block_recaptcha'
@@ -49,38 +49,36 @@ class Processor extends BaseShield\Processor {
 			],
 			'firewall'          => [
 				__( 'Firewall Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( 'firewall_block' )
+				$selector->clearWheres()->sumEvent( 'firewall_block' )
 			],
 			'login_fail'        => [
 				__( 'Login Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( 'login_block' )
+				$selector->clearWheres()->sumEvent( 'login_block' )
 			],
 			'login_verified'    => [
 				__( 'Login Verified', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( '2fa_success' )
+				$selector->clearWheres()->sumEvent( '2fa_success' )
 			],
 			'session_start'     => [
 				__( 'User Sessions', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( 'session_start' )
+				$selector->clearWheres()->sumEvent( 'session_start' )
 			],
 			'ip_killed'         => [
 				__( 'IP Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( 'conn_kill' )
+				$selector->clearWheres()->sumEvent( 'conn_kill' )
 			],
 			'ip_transgressions' => [
 				__( 'Total Offenses', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( 'ip_offense' )
+				$selector->clearWheres()->sumEvent( 'ip_offense' )
 			],
-		];
-
-		$aDisplayData = [
-			'sHeading'  => sprintf( __( '%s Statistics', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
-			'aKeyStats' => $aKeyStats,
 		];
 
 		echo $this->getMod()->renderTemplate(
 			'snippets/widget_dashboard_statistics.php',
-			$aDisplayData
+			[
+				'sHeading'  => sprintf( __( '%s Statistics', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
+				'aKeyStats' => $aKeyStats,
+			]
 		);
 	}
 

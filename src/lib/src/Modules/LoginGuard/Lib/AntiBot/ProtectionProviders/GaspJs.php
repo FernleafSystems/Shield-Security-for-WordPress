@@ -24,48 +24,48 @@ class GaspJs extends BaseProtectionProvider {
 
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
+		$req = Services::Request();
+
 		$this->setFactorTested( true );
 
-		$req = Services::Request();
-		$sGaspCheckBox = $req->post( $mod->getGaspKey() );
-		$sHoney = $req->post( 'icwp_wpsf_login_email' );
+		$gasp = $req->post( $mod->getGaspKey() );
 
-		$sUsername = $oForm->getUserToAudit();
-		$sActionAttempted = $oForm->getActionToAudit();
+		$username = $oForm->getUserToAudit();
+		$action = $oForm->getActionToAudit();
 
-		$bValid = false;
-		$sError = '';
-		if ( empty( $sGaspCheckBox ) ) {
+		$valid = false;
+		$errorMsg = '';
+		if ( empty( $gasp ) ) {
 			$this->getCon()->fireEvent(
 				'botbox_fail',
 				[
 					'audit' => [
-						'user_login' => $sUsername,
-						'action'     => $sActionAttempted,
+						'user_login' => $username,
+						'action'     => $action,
 					]
 				]
 			);
-			$sError = __( "Please check that box to say you're human, and not a bot.", 'wp-simple-firewall' );
+			$errorMsg = __( "Please check that box to say you're human, and not a bot.", 'wp-simple-firewall' );
 		}
-		elseif ( !empty( $sHoney ) ) {
+		elseif ( !empty( $req->post( 'icwp_wpsf_login_email' ) ) ) {
 			$this->getCon()->fireEvent(
 				'honeypot_fail',
 				[
 					'audit' => [
-						'user_login' => $sUsername,
-						'action'     => $sActionAttempted,
+						'user_login' => $username,
+						'action'     => $action,
 					]
 				]
 			);
-			$sError = __( 'You appear to be a bot.', 'wp-simple-firewall' );
+			$errorMsg = __( 'You appear to be a bot.', 'wp-simple-firewall' );
 		}
 		else {
-			$bValid = true;
+			$valid = true;
 		}
 
-		if ( !$bValid ) {
+		if ( !$valid ) {
 			$this->processFailure();
-			throw new \Exception( $sError );
+			throw new \Exception( $errorMsg );
 		}
 	}
 

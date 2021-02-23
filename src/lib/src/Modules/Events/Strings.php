@@ -167,7 +167,7 @@ class Strings extends Base\Strings {
 			'cooldown_fail'                => __( '', 'wp-simple-firewall' ),
 			'honeypot_fail'                => __( '', 'wp-simple-firewall' ),
 			'botbox_fail'                  => __( '', 'wp-simple-firewall' ),
-			'login_block'                  => __( '', 'wp-simple-firewall' ),
+			'login_block'                  => __( 'Blocked Login', 'wp-simple-firewall' ),
 			'hide_login_url'               => __( '', 'wp-simple-firewall' ),
 			'2fa_success'                  => __( '', 'wp-simple-firewall' ),
 			'check_skip'                   => __( '', 'wp-simple-firewall' ),
