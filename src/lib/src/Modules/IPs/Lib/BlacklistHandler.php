@@ -81,7 +81,7 @@ class BlacklistHandler {
 						->execute();
 				}
 				if ( $opts->isEnabledTrackInvalidScript() ) {
-					( new IPs\BotTrack\TrackDirectFileAccess() )
+					( new IPs\BotTrack\TrackInvalidScriptLoad() )
 						->setMod( $mod )
 						->execute();
 				}

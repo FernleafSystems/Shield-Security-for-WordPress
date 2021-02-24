@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class TrackDirectFileAccess extends Base {
+class TrackInvalidScriptLoad extends Base {
 
 	const OPT_KEY = 'track_invalidscript';
 
