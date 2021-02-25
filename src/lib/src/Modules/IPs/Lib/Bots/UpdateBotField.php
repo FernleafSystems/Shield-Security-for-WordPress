@@ -47,6 +47,7 @@ class UpdateBotField {
 			$entry->ip = $this->getIP();
 
 			$ipOnList = ( new LookupIpOnList() )
+				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $entry->ip )
 				->lookupIp();
 
