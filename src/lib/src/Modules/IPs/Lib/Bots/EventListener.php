@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,6 +20,12 @@ class EventListener {
 				->setIP( $ip )
 				->run( $events[ $event ] );
 		}
+	}
+
+	protected function canRun() :bool {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return !$mod->isVerifiedBot();
 	}
 
 	protected function run() {
