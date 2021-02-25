@@ -46,6 +46,7 @@ class TrackInvalidScriptLoad extends Base {
 			'wp-signup.php',
 			'wp-trackback.php',
 			'xmlrpc.php',
+			'admin.php',
 		];
 	}
 

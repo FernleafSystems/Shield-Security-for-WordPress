@@ -77,7 +77,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 75 : 35;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 45 : 25;
 		}
 		return $score;
 	}
