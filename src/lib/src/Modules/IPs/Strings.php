@@ -114,15 +114,15 @@ class Strings extends Base\Strings {
 		switch ( $key ) {
 
 			case 'enable_ips' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
+				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
 				break;
 
 			case 'transgression_limit' :
-				$sName = __( 'Offense Limit', 'wp-simple-firewall' );
-				$sSummary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Offense Limit', 'wp-simple-firewall' );
+				$summary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
+				$desc = [
 					sprintf( __( 'An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName ),
 					__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' ),
 					sprintf( __( 'Set this to "0" to turn off the %s feature.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) )
@@ -130,9 +130,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'auto_expire' :
-				$sName = __( 'Auto Block Expiration', 'wp-simple-firewall' );
-				$sSummary = __( 'After 1 "X" a black listed IP will be removed from the black list', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Auto Block Expiration', 'wp-simple-firewall' );
+				$summary = __( 'After 1 "X" a black listed IP will be removed from the black list', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Blocked IP addresses are eventually removed.', 'wp-simple-firewall' )
 					.'<br/>'.__( 'This option lets you specify how long they should be kept.', 'wp-simple-firewall' ),
 					__( 'Large, permanent IP Block Lists will degrade site performance.', 'wp-simple-firewall' ),
@@ -141,74 +141,87 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'user_auto_recover' :
-				$sName = __( 'User Auto Unblock', 'wp-simple-firewall' );
-				$sSummary = __( 'Allow Visitors To Unblock Their IP', 'wp-simple-firewall' );
-				$sDescription = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
+				$name = __( 'User Auto Unblock', 'wp-simple-firewall' );
+				$summary = __( 'Allow Visitors To Unblock Their IP', 'wp-simple-firewall' );
+				$desc = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
 				break;
 
 			case 'request_whitelist' :
-				$sName = __( 'Request Path Whitelist', 'wp-simple-firewall' );
-				$sSummary = __( 'Request Path Whitelist', 'wp-simple-firewall' );
-				$sDescription = __( 'A list of request paths that will never trigger an offense.', 'wp-simple-firewall' )
-								.'<br />- '.__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' )
-								.'<br />- '.__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' )
-								.'<br />- '.__( "All characters will be treated as case-insensitive.", 'wp-simple-firewall' )
-								.'<br />- '.__( "The paths are compared against only the request path, not the query portion.", 'wp-simple-firewall' )
-								.'<br />- '.__( "If a path you add matches your website root (/), it'll be removed automatically.", 'wp-simple-firewall' );
+				$name = __( 'Request Path Whitelist', 'wp-simple-firewall' );
+				$summary = __( 'Request Path Whitelist', 'wp-simple-firewall' );
+				$desc = __( 'A list of request paths that will never trigger an offense.', 'wp-simple-firewall' )
+						.'<br />- '.__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' )
+						.'<br />- '.__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' )
+						.'<br />- '.__( "All characters will be treated as case-insensitive.", 'wp-simple-firewall' )
+						.'<br />- '.__( "The paths are compared against only the request path, not the query portion.", 'wp-simple-firewall' )
+						.'<br />- '.__( "If a path you add matches your website root (/), it'll be removed automatically.", 'wp-simple-firewall' );
 
+				break;
+
+			case 'antibot_threshold' :
+				$name = __( 'AntiBot Barrier', 'wp-simple-firewall' );
+				$summary = __( 'AntiBot Testing Barrier (Percentage)', 'wp-simple-firewall' );
+				$desc = [
+					__( "Every IP address accessing your site gets its own unique bot score - the higher the score, the more likely it's a malicious bot.", 'wp-simple-firewall' ),
+					__( "A score of 100 would mean it's almost certainly a bot, a score of 0 means it's unlikely to be a bot.", 'wp-simple-firewall' ),
+					__( 'When a bot tries to login, or post a comment, we test its bot score.', 'wp-simple-firewall' )
+					.' '.__( 'If the visitor score is higher than your barrier, we prevent the request. If its lower, we let it continue.', 'wp-simple-firewall' ),
+					__( "This means: choose a lower barrier to capture more bots (but maybe block someone that appears to be a bot, but isn't).", 'wp-simple-firewall' )
+					.' '.__( "Or choose a higher threshold to allow through more bots (and reduce the chances of blocking a legitimate visitor).", 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'text_loginfailed' :
-				$sName = __( 'Login Failed', 'wp-simple-firewall' );
-				$sSummary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
-				$sDescription = __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' );
+				$name = __( 'Login Failed', 'wp-simple-firewall' );
+				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
+				$desc = __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' );
 				break;
 
 			case 'text_remainingtrans' :
-				$sName = __( 'Remaining Offenses', 'wp-simple-firewall' );
-				$sSummary = __( 'Visitor Triggers The IP Offenses System Through A Firewall Block', 'wp-simple-firewall' );
-				$sDescription = __( 'This message is displayed if the visitor triggered the IP Offense system and reports how many offenses remain before being blocked.', 'wp-simple-firewall' );
+				$name = __( 'Remaining Offenses', 'wp-simple-firewall' );
+				$summary = __( 'Visitor Triggers The IP Offenses System Through A Firewall Block', 'wp-simple-firewall' );
+				$desc = __( 'This message is displayed if the visitor triggered the IP Offense system and reports how many offenses remain before being blocked.', 'wp-simple-firewall' );
 				break;
 
 			case 'track_404' :
-				$sName = __( '404 Detect', 'wp-simple-firewall' );
-				$sSummary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
-				$sDescription = __( "Detect when a visitor tries to load a non-existent page.", 'wp-simple-firewall' )
-								.'<br/>'.__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s.", 'wp-simple-firewall' );
+				$name = __( '404 Detect', 'wp-simple-firewall' );
+				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
+				$desc = __( "Detect when a visitor tries to load a non-existent page.", 'wp-simple-firewall' )
+						.'<br/>'.__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_xmlrpc' :
-				$sName = __( 'XML-RPC Access', 'wp-simple-firewall' );
-				$sSummary = __( 'Identify A Bot When It Accesses XML-RPC', 'wp-simple-firewall' );
-				$sDescription = __( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' )
-								.'<br/>'.__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' )
-								.'<br/>'.__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' );
+				$name = __( 'XML-RPC Access', 'wp-simple-firewall' );
+				$summary = __( 'Identify A Bot When It Accesses XML-RPC', 'wp-simple-firewall' );
+				$desc = __( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' )
+						.'<br/>'.__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' )
+						.'<br/>'.__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_linkcheese' :
-				$sName = __( 'Link Cheese', 'wp-simple-firewall' );
-				$sSummary = __( 'Tempt A Bot With A Fake Link To Follow', 'wp-simple-firewall' );
-				$sDescription = __( "Detect a bot when it follows a fake 'no-follow' link.", 'wp-simple-firewall' )
-								.'<br/>'.__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives.", 'wp-simple-firewall' );
+				$name = __( 'Link Cheese', 'wp-simple-firewall' );
+				$summary = __( 'Tempt A Bot With A Fake Link To Follow', 'wp-simple-firewall' );
+				$desc = __( "Detect a bot when it follows a fake 'no-follow' link.", 'wp-simple-firewall' )
+						.'<br/>'.__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_logininvalid' :
-				$sName = __( 'Invalid Usernames', 'wp-simple-firewall' );
-				$sSummary = __( "Detect Attempted Logins With Usernames That Don't Exist", 'wp-simple-firewall' );
-				$sDescription = __( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' )
-								.'<br/>'.__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' );
+				$name = __( 'Invalid Usernames', 'wp-simple-firewall' );
+				$summary = __( "Detect Attempted Logins With Usernames That Don't Exist", 'wp-simple-firewall' );
+				$desc = __( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' )
+						.'<br/>'.__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_loginfailed' :
-				$sName = __( 'Failed Login', 'wp-simple-firewall' );
-				$sSummary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
-				$sDescription = __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' );
+				$name = __( 'Failed Login', 'wp-simple-firewall' );
+				$summary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
+				$desc = __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_fakewebcrawler' :
-				$sName = __( 'Fake Web Crawler', 'wp-simple-firewall' );
-				$sSummary = __( 'Detect Fake Search Engine Crawlers', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Fake Web Crawler', 'wp-simple-firewall' );
+				$summary = __( 'Detect Fake Search Engine Crawlers', 'wp-simple-firewall' );
+				$desc = [
 					__( "Identify a visitor as a Bot when it presents as an official web crawler, but analysis shows it's fake.", 'wp-simple-firewall' ),
 					__( "Many bots pretend to be a Google Bot.", 'wp-simple-firewall' )
 					.'<br/>'.__( "We can then know that a bot isn't here for anything good and block them.", 'wp-simple-firewall' ),
@@ -216,9 +229,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'track_useragent' :
-				$sName = __( 'Empty User Agents', 'wp-simple-firewall' );
-				$sSummary = __( 'Detect Requests With Empty User Agents', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Empty User Agents', 'wp-simple-firewall' );
+				$summary = __( 'Detect Requests With Empty User Agents', 'wp-simple-firewall' );
+				$desc = [
 					__( "Identify a bot when the user agent is not provided.", 'wp-simple-firewall' ),
 					sprintf( '%s:<br/><code>%s</code>',
 						__( 'For example, your browser user agent is', 'wp-simple-firewall' ), Services::Request()
@@ -231,9 +244,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $desc,
 		];
 	}
 

@@ -67,6 +67,13 @@
       ]
     },
     {
+      "slug":        "section_antibot",
+      "title":       "AntiBot System",
+      "title_short": "AntiBot System",
+      "summary":     [
+      ]
+    },
+    {
       "slug":        "section_logins",
       "title":       "Capture Login Bots",
       "title_short": "Login Bots",
@@ -135,6 +142,19 @@
       "name":        "Enable IP Manager",
       "summary":     "Enable (or Disable) The IP Manager module",
       "description": "Un-Checking this option will completely disable the IP Manager module"
+    },
+    {
+      "key":         "antibot_threshold",
+      "section":     "section_antibot",
+      "default":     "50",
+      "type":        "integer",
+      "min":         1,
+      "max":         99,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "AntiBot Threshold",
+      "summary":     "AntiBot Testing Threshold (Percentage)",
+      "description": "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
     },
     {
       "key":         "transgression_limit",

@@ -22,7 +22,8 @@ class BotSignalsController {
 
 	public function verifyNotBot() :bool {
 		$score = \shield_get_bot_probability_score();
-		$botScoreThreshold = (int)apply_filters( 'shield/antibot_score_threshold', 50 );
+		$botScoreThreshold = (int)apply_filters( 'shield/antibot_score_threshold',
+			(int)$this->getOptions()->getOpt( 'antibot_threshold', 50 ) );
 		$notBot = $score < $botScoreThreshold;
 
 		$this->getCon()->fireEvent(
