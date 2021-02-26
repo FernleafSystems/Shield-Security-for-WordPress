@@ -11,11 +11,23 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() :array {
 		return [
-			'contactform7_spam_pass' => [
-				__( 'ContactForm7 form submission passed SPAM check.', 'wp-simple-firewall' ),
+			'spam_contactform7_pass' => [
+				sprintf( __( '%s form submission passed SPAM check.', 'wp-simple-firewall' ), 'ContactForm7' ),
 			],
-			'contactform7_spam_fail' => [
-				__( 'ContactForm7 form submission failed SPAM check.', 'wp-simple-firewall' ),
+			'spam_contactform7_fail' => [
+				sprintf( __( '%s form submission failed SPAM check.', 'wp-simple-firewall' ), 'ContactForm7' ),
+			],
+			'spam_wpforms_pass'      => [
+				sprintf( __( '%s form submission passed SPAM check.', 'wp-simple-firewall' ), 'WPForms' ),
+			],
+			'spam_wpforms_fail'      => [
+				sprintf( __( '%s form submission failed SPAM check.', 'wp-simple-firewall' ), 'WPForms' ),
+			],
+			'spam_wpforo_pass'      => [
+				sprintf( __( '%s form submission passed SPAM check.', 'wp-simple-firewall' ), 'wpForo' ),
+			],
+			'spam_wpforo_fail'      => [
+				sprintf( __( '%s form submission failed SPAM check.', 'wp-simple-firewall' ), 'wpForo' ),
 			],
 		];
 	}

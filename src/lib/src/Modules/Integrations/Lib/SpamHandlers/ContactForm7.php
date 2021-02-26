@@ -8,11 +8,7 @@ class ContactForm7 extends Base {
 
 	protected function run() {
 		add_filter( 'wpcf7_spam', function ( $wasSpam, $submission ) {
-
-			$isSpam = $this->isSpamBot();
-			$this->getCon()->fireEvent( 'contactform7_spam_'.( $isSpam ? 'pass' : 'fail' ) );
-
-			return $wasSpam || $isSpam;
+			return $wasSpam || $this->isSpamBot();
 		}, 1000, 2 );
 	}
 

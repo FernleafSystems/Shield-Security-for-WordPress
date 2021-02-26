@@ -68,23 +68,6 @@ class NotBotHandler {
 		return true;
 	}
 
-	public function verify() :bool {
-		$score = \shield_get_bot_probability_score();
-		$botScoreThreshold = (int)apply_filters( 'shield/antibot_score_threshold', 50 );
-		$valid = $score < $botScoreThreshold;
-
-		$this->getCon()->fireEvent(
-			'antibot_'.( $valid ? 'pass' : 'fail' ),
-			[
-				'audit' => [
-					'score'     => $score,
-					'threshold' => $botScoreThreshold,
-				]
-			]
-		);
-		return $valid;
-	}
-
 	public function checkCookie() :bool {
 		$valid = false;
 		$req = Services::Request();

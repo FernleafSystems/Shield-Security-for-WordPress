@@ -20,6 +20,23 @@ class BotSignalsController {
 	 */
 	private $eventListener;
 
+	public function verifyNotBot() :bool {
+		$score = \shield_get_bot_probability_score();
+		$botScoreThreshold = (int)apply_filters( 'shield/antibot_score_threshold', 50 );
+		$notBot = $score < $botScoreThreshold;
+
+		$this->getCon()->fireEvent(
+			'antibot_'.( $notBot ? 'pass' : 'fail' ),
+			[
+				'audit' => [
+					'score'     => $score,
+					'threshold' => $botScoreThreshold,
+				]
+			]
+		);
+		return $notBot;
+	}
+
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
 		if ( !isset( $this->handlerNotBot ) ) {
 			$this->handlerNotBot = ( new NotBot\NotBotHandler() )->setMod( $this->getMod() );

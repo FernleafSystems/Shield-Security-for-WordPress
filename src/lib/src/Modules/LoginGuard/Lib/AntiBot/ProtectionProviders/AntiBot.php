@@ -14,8 +14,7 @@ class AntiBot extends BaseProtectionProvider {
 		$valid = $this->getCon()
 					  ->getModule_IPs()
 					  ->getBotSignalsController()
-					  ->getHandlerNotBot()
-					  ->verify();
+					  ->verifyNotBot();
 		if ( !$valid ) {
 			$this->processFailure();
 			throw new \Exception( __( 'Failed AntiBot Test', 'wp-simple-firewall' ) );

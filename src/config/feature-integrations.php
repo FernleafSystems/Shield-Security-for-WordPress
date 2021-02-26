@@ -72,24 +72,51 @@
       "name":          "WPForo",
       "summary":       "Use AntiBot To Detect SPAM Forum Submissions",
       "description":   "Use AntiBot To Detect SPAM Submissions."
+    },
+    {
+      "key":           "spam_wpforms",
+      "section":       "section_spam_detect",
+      "premium":       true,
+      "type":          "checkbox",
+      "default":       "N",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "WPForms",
+      "summary":       "Use AntiBot To Detect SPAM Contact Form Submissions",
+      "description":   "Use AntiBot To Detect SPAM Contact Form Submissions."
     }
   ],
   "definitions": {
     "events": {
-      "contactform7_spam_pass": {
+      "spam_contactform7_pass": {
         "stat":    true,
         "audit":   true,
         "offense": false
       },
-      "contactform7_spam_fail": {
+      "spam_contactform7_fail": {
         "stat":  true,
         "audit": true,
         "offense": false
       },
-      "contactform7_spam":      {
-        "audit":   false,
-        "stat":    false,
-        "offense": true
+      "spam_wpforms_pass": {
+        "stat":    true,
+        "audit":   true,
+        "offense": false
+      },
+      "spam_wpforms_fail": {
+        "stat":  true,
+        "audit": true,
+        "offense": false
+      },
+      "spam_wpforo_pass": {
+        "stat":    true,
+        "audit":   true,
+        "offense": false
+      },
+      "spam_wpforo_fail": {
+        "stat":  true,
+        "audit": true,
+        "offense": false
       }
     }
   }

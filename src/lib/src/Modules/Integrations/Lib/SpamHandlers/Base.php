@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamH
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-class Base {
+abstract class Base {
 
 	use ModConsumer;
 	use ExecOnce;
@@ -17,11 +17,13 @@ class Base {
 	}
 
 	protected function isSpamBot() :bool {
-		return !$this->getCon()
-					 ->getModule_IPs()
-					 ->getBotSignalsController()
-					 ->getHandlerNotBot()
-					 ->verify();
+		$isSpam = !$this->getCon()
+						->getModule_IPs()
+						->getBotSignalsController()
+						->verifyNotBot();
+		$this->getCon()->fireEvent( sprintf( 'spam_%s_%s',
+			static::SLUG, ( $isSpam ? 'fail' : 'pass' ) ) );
+		return $isSpam;
 	}
 
 	protected function isOptionEnabled() :bool {

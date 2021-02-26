@@ -16,8 +16,7 @@ class AntiBot {
 		$verified = $this->getCon()
 						 ->getModule_IPs()
 						 ->getBotSignalsController()
-						 ->getHandlerNotBot()
-						 ->verify();
+						 ->verifyNotBot();
 		if ( !$verified ) {
 			throw new \Exception( __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
