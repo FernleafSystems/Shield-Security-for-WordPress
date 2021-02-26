@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\CF7\HandlerCF7;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamHandlers\{
+	ContactForm7,
+	WpForo
+};
 
 class Processor extends BaseShield\Processor {
 
@@ -11,9 +14,14 @@ class Processor extends BaseShield\Processor {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getControllerMWP()->execute();
+	}
 
-		( new HandlerCF7() )
-			->setMod( $mod )
+	private function launchSpamHandlers() {
+		( new ContactForm7() )
+			->setMod( $this->getMod() )
+			->execute();
+		( new WpForo() )
+			->setMod( $this->getMod() )
 			->execute();
 	}
 }

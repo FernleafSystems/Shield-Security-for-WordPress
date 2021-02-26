@@ -28,6 +28,11 @@
       "title_short": "Integrations"
     },
     {
+      "slug":        "section_spam_detect",
+      "title":       "SPAM Detection",
+      "title_short": "SPAM Detection"
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -45,30 +50,28 @@
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
     },
     {
-      "key":           "cf7",
-      "section":       "section_integrations",
+      "key":           "spam_contactform7",
+      "section":       "section_spam_detect",
       "premium":       true,
-      "type":          "multiple_select",
-      "default":       [],
-      "value_options": [
-        {
-          "value_key": "antibot",
-          "text":      "Use Shield's AntiBot Detection"
-        },
-        {
-          "value_key": "human",
-          "text":      "Use Shield's Human SPAM Detection"
-        },
-        {
-          "value_key": "offense",
-          "text":      "Register an IP offense when SPAM is detected by any method, not only Shield"
-        }
-      ],
+      "type":          "checkbox",
+      "default":       "N",
       "link_info":     "",
       "link_blog":     "",
       "name":          "Contact Form 7",
-      "summary":       "Contact Form 7 Integration Configuration",
-      "description":   "Select the options you want to enable in Shield's Contact Form 7 Integration."
+      "summary":       "Use AntiBot To Detect SPAM Contact Form Submissions",
+      "description":   "Use AntiBot To Detect SPAM Contact Form Submissions."
+    },
+    {
+      "key":           "spam_wpforo",
+      "section":       "section_spam_detect",
+      "premium":       true,
+      "type":          "checkbox",
+      "default":       "N",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "WPForo",
+      "summary":       "Use AntiBot To Detect SPAM Forum Submissions",
+      "description":   "Use AntiBot To Detect SPAM Submissions."
     }
   ],
   "definitions": {
