@@ -13,6 +13,8 @@ class TrackFakeWebCrawler extends Base {
 
 	const OPT_KEY = 'track_fakewebcrawler';
 
+	private $agentUsed = '';
+
 	protected function process() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -26,14 +28,21 @@ class TrackFakeWebCrawler extends Base {
 
 		$userAgent = Services::Request()->getUserAgent();
 		if ( !empty( $userAgent ) ) {
-			foreach ( Services::ServiceProviders()->getAllCrawlerUseragents() as $possible ) {
-				if ( stripos( $userAgent, $possible ) !== false ) {
+			foreach ( Services::ServiceProviders()->getAllCrawlerUseragents() as $possibleAgent ) {
+				if ( stripos( $userAgent, $possibleAgent ) !== false ) {
 					$identifiesAsCrawler = true;
+					$this->agentUsed = $possibleAgent;
 					break;
 				}
 			}
 		}
 
 		return $identifiesAsCrawler;
+	}
+
+	protected function getAuditData() :array {
+		return [
+			'script' => $this->agentUsed
+		];
 	}
 }

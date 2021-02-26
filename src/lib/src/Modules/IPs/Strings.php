@@ -294,7 +294,8 @@ class Strings extends Base\Strings {
 				__( '404 detected at "%s".', 'wp-simple-firewall' )
 			],
 			'bottrack_fakewebcrawler' => [
-				__( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' )
+				__( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' ),
+				__( 'Fake Crawler misrepresented itself as "%s".', 'wp-simple-firewall' ),
 			],
 			'bottrack_linkcheese'     => [
 				__( 'Link cheese access detected at "%s".', 'wp-simple-firewall' )

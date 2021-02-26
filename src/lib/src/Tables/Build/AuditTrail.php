@@ -88,73 +88,79 @@ class AuditTrail extends BaseBuild {
 		$srvIP = Services::IP();
 		$you = $srvIP->getRequestIp();
 		$oCon = $this->getCon();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
+		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
+			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
 
-			$sMsg = 'Audit message could not be retrieved';
-			if ( empty( $oEntry->message ) ) {
+			$msg = 'Audit message could not be retrieved';
+			if ( empty( $entry->message ) ) {
 				/**
 				 * To cater for the contexts that don't refer to a module, but rather a context
 				 * with the Audit Trail module
 				 */
-				$mod = $oCon->getModule( $oEntry->context );
+				$mod = $oCon->getModule( $entry->context );
 				if ( empty( $mod ) ) {
 					$mod = $oCon->getModule_AuditTrail();
 				}
-				$oStrings = $mod->getStrings();
+				$strings = $mod->getStrings();
 
-				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
-					$sMsg = stripslashes( sanitize_textarea_field(
-						vsprintf(
-							implode( "\n", $oStrings->getAuditMessage( $oEntry->event ) ),
-							$oEntry->meta
-						)
+				if ( $strings instanceof Shield\Modules\Base\Strings ) {
+					$substitutions = $entry->meta;
+					$rawString = implode( "\n", $strings->getAuditMessage( $entry->event ) );
+					$missingCount = substr_count( $rawString, '%s' ) - count( $substitutions );
+					if ( $missingCount > 0 ) {
+						$substitutions = array_merge(
+							$substitutions,
+							array_fill( 0, $missingCount, 'unavailable' )
+						);
+					}
+					$msg = stripslashes( sanitize_textarea_field(
+						vsprintf( $rawString, $substitutions )
 					) );
 				}
 			}
 			else {
-				$sMsg = $oEntry->message;
+				$msg = $entry->message;
 			}
 
-			if ( !isset( $aEntries[ $oEntry->rid ] ) ) {
-				$aE = $oEntry->getRawData();
-				$aE[ 'meta' ] = $oEntry->meta;
-				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
-				$aE[ 'message' ] = $sMsg;
-				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-				if ( $oEntry->wp_username == '-' ) {
+			if ( !isset( $aEntries[ $entry->rid ] ) ) {
+				$aE = $entry->getRawData();
+				$aE[ 'meta' ] = $entry->meta;
+				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $entry->event ) );
+				$aE[ 'message' ] = $msg;
+				$aE[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
+				if ( $entry->wp_username == '-' ) {
 					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
 				}
 
 				try {
-					$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+					$aE[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
 				}
 				catch ( \Exception $e ) {
 					$aE[ 'is_you' ] = false;
 				}
 
-				if ( empty( $oEntry->ip ) ) {
+				if ( empty( $entry->ip ) ) {
 					$aE[ 'ip' ] = '';
 				}
 				else {
 					$aE[ 'ip' ] = sprintf( '%s%s',
-						$this->getIpAnalysisLink( $oEntry->ip ),
+						$this->getIpAnalysisLink( $entry->ip ),
 						$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
 					);
 				}
 			}
 			else {
-				$aE = $aEntries[ $oEntry->rid ];
-				$aE[ 'message' ] .= "\n".$sMsg;
-				$aE[ 'category' ] = max( $aE[ 'category' ], $oEntry->category );
+				$aE = $aEntries[ $entry->rid ];
+				$aE[ 'message' ] .= "\n".$msg;
+				$aE[ 'category' ] = max( $aE[ 'category' ], $entry->category );
 			}
 
-			if ( $oEntry->count > 1 ) {
-				$aE[ 'message' ] = $sMsg."\n"
-								   .sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $oEntry->count );
+			if ( $entry->count > 1 ) {
+				$aE[ 'message' ] = $msg."\n"
+								   .sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $entry->count );
 			}
 
-			$aEntries[ $oEntry->rid ] = $aE;
+			$aEntries[ $entry->rid ] = $aE;
 		}
 		return $aEntries;
 	}
