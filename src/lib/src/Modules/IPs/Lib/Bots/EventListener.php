@@ -14,11 +14,14 @@ class EventListener {
 
 	public function fireEventForIP( $ip, $event ) {
 		$events = $this->getEventsToColumn();
-		if ( array_key_exists( $event, $events ) ) {
-			( new UpdateBotField() )
-				->setMod( $this->getMod() )
-				->setIP( $ip )
-				->run( $events[ $event ] );
+
+		foreach ( $events as $eventTrigger => $column ) {
+			if ( $eventTrigger === $event || preg_match( sprintf( '#^%s$#', $eventTrigger ), $event ) ) {
+				( new UpdateBotField() )
+					->setMod( $this->getMod() )
+					->setIP( $ip )
+					->run( $column );
+			}
 		}
 	}
 
@@ -53,8 +56,12 @@ class EventListener {
 				'bottrack_logininvalid'   => 'btlogininvalid',
 				'bottrack_invalidscript'  => 'btinvalidscript',
 				'cooldown_fail'           => 'cooldown',
+				'recaptcha_success'       => 'captchapass',
+				'recaptcha_fail'          => 'captchafail',
+				'spam_block_human'        => 'humanspam',
 				'comment_markspam'        => 'markspam',
 				'comment_unmarkspam'      => 'unmarkspam',
+				'blockparam_.*'           => 'firewall',
 				'ip_offense'              => 'offense',
 				'ip_blocked'              => 'blocked',
 				'ip_unblock'              => 'unblocked',

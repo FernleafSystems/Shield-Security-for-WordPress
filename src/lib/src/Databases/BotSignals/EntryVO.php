@@ -20,8 +20,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals;
  * @property int    $blocked_at
  * @property int    $unblocked_at
  * @property int    $bypass_at
+ * @property int    $humanspam_at
  * @property int    $markspam_at
  * @property int    $unmarkspam_at
+ * @property int    $captchapass_at
+ * @property int    $captchafail_at
  * @property int    $updated_at
  */
 class EntryVO extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVO {

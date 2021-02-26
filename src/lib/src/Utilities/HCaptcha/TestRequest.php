@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\HCaptcha;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
+use FernleafSystems\Wordpress\Services\Services;
 
 class TestRequest extends ReCaptcha\TestRequest {
 
@@ -24,25 +24,25 @@ class TestRequest extends ReCaptcha\TestRequest {
 			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'CAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
-			$oHTTP = Services::HttpRequest();
-			$bSuccess = $oHTTP->post( self::URL_VERIFY, [
+			$HTTPReq = Services::HttpRequest();
+			$successRequest = $HTTPReq->post( self::URL_VERIFY, [
 					'body' => [
 						'secret'   => $mod->getCaptchaCfg()->secret,
 						'response' => $sCaptchaResponse,
 						'remoteip' => Services::IP()->getRequestIp(),
 					]
 				] )
-						&& !empty( $oHTTP->lastResponse->body );
-			$aResponse = $bSuccess ? json_decode( $oHTTP->lastResponse->body, true ) : [];
+							  && !empty( $HTTPReq->lastResponse->body );
+			$response = $successRequest ? json_decode( $HTTPReq->lastResponse->body, true ) : [];
 
-			if ( empty( $aResponse[ 'success' ] ) ) {
-				$aMsg = [
+			if ( empty( $response[ 'success' ] ) ) {
+				$msg = [
 					__( 'Whoops.', 'wp-simple-firewall' ),
 					__( 'CAPTCHA verification failed.', 'wp-simple-firewall' ),
 					Services::WpGeneral()->isAjax() ?
 						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
 				];
-				throw new \Exception( implode( ' ', $aMsg ), 2 );
+				throw new \Exception( implode( ' ', $msg ), 2 );
 			}
 		}
 		return true;

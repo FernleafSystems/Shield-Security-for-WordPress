@@ -132,6 +132,16 @@ class BuildScores {
 		return $score;
 	}
 
+	private function score_firewall() :int {
+		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
+			$score = 0;
+		}
+		else {
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 45 : 25;
+		}
+		return $score;
+	}
+
 	private function score_offense() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
 			$score = 0;
@@ -166,6 +176,36 @@ class BuildScores {
 		return $this->lastAtTs( __FUNCTION__ ) > 0 ? -150 : 0;
 	}
 
+	private function score_captchapass() :int {
+		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
+			$score = 0;
+		}
+		else {
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -55 : -25;
+		}
+		return $score;
+	}
+
+	private function score_captchafail() :int {
+		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
+			$score = 0;
+		}
+		else {
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 55 : 25;
+		}
+		return $score;
+	}
+
+	private function score_humanspam() :int {
+		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
+			$score = 0;
+		}
+		else {
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 30 : 15;
+		}
+		return $score;
+	}
+
 	private function score_markspam() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
 			$score = 0;
@@ -191,7 +231,7 @@ class BuildScores {
 			$score = 85;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -75 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -85 : -35;
 		}
 		return $score;
 	}
