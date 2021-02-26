@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,20 +17,33 @@ class NotBotHandler {
 	private $hashTested = false;
 
 	protected function canRun() :bool {
-		return (bool)apply_filters( 'shield/can_run_antibot',
-			!Services::WpUsers()->isUserLoggedIn() );
+		return (bool)apply_filters( 'shield/can_run_antibot', !Services::WpUsers()->isUserLoggedIn() );
 	}
 
 	protected function run() {
 		( new InsertNotBotJs() )
 			->setMod( $this->getMod() )
 			->run();
+		$this->registerFrontPageLoad();
 		$this->maybeDeleteCookie();
+	}
+
+	private function registerFrontPageLoad() {
+		add_action( 'wp', function () {
+			$req = Services::Request();
+			if ( $req->isGet() && is_front_page() ) {
+				/** @var ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getBotSignalsController()
+					->getEventListener()
+					->fireEventForIP( Services::IP()->getRequestIp(), 'frontpage_load' );
+			}
+		} );
 	}
 
 	private function maybeDeleteCookie() {
 		$cookie = $this->getCookieParts();
-		if ( !empty( $cookie ) && $cookie[ 'ts' ] - Services::Request()->ts() < 60 ) {
+		if ( !empty( $cookie ) && $cookie[ 'ts' ] - Services::Request()->ts() < 300 ) {
 			$this->clearCookie();
 		}
 	}

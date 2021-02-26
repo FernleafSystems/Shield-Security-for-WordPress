@@ -226,6 +226,16 @@ class BuildScores {
 		return $score;
 	}
 
+	private function score_frontpage() :int {
+		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
+			$score = 15;
+		}
+		else {
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -25 : -15;
+		}
+		return $score;
+	}
+
 	private function score_notbot() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
 			$score = 85;

@@ -15,6 +15,11 @@ class BotSignalsController {
 	 */
 	private $handlerNotBot;
 
+	/**
+	 * @var EventListener
+	 */
+	private $eventListener;
+
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
 		if ( !isset( $this->handlerNotBot ) ) {
 			$this->handlerNotBot = ( new NotBot\NotBotHandler() )->setMod( $this->getMod() );
@@ -22,10 +27,15 @@ class BotSignalsController {
 		return $this->handlerNotBot;
 	}
 
+	public function getEventListener() :EventListener {
+		if ( !isset( $this->eventListener ) ) {
+			$this->eventListener = ( new EventListener() )->setMod( $this->getMod() );
+		}
+		return $this->eventListener;
+	}
+
 	protected function run() {
-		( new EventListener() )
-			->setMod( $this->getMod() )
-			->execute();
+		$this->getEventListener()->execute();
 		add_action( 'init', function () {
 			$this->getHandlerNotBot()->execute();
 		} );

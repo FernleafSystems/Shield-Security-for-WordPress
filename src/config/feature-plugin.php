@@ -680,6 +680,11 @@
       "antibot_fail":           {
         "stat":  true,
         "audit": true
+      },
+      "frontpage_load":         {
+        "offense": false,
+        "stat":    false,
+        "audit":   false
       }
     },
     "wizards":                         {

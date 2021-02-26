@@ -554,6 +554,7 @@
     },
     "db_botsignals_timestamp_columns": {
       "notbot_at":          "NotBot",
+      "frontpage_at":       "Front Page Loaded",
       "bt404_at":           "BotTrack 404",
       "btfake_at":          "BotTrack FakeWebCrawler",
       "btcheese_at":        "BotTrack LinkCheese",

@@ -18,8 +18,10 @@ class TrackCommentSpam {
 		add_action( 'spammed_comment', function ( $id ) {
 			$comment = get_comment( $id );
 			if ( $comment instanceof \WP_Comment && !empty( $comment->comment_author_IP ) ) {
-				( new Shield\Modules\IPs\Lib\Bots\EventListener() )
-					->setMod( $this->getMod() )
+				/** @var Shield\Modules\IPs\ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getBotSignalsController()
+					->getEventListener()
 					->fireEventForIP( $comment->comment_author_IP, 'comment_markspam' );
 			}
 		} );
@@ -27,8 +29,10 @@ class TrackCommentSpam {
 		add_action( 'unspammed_comment', function ( $id ) {
 			$comment = get_comment( $id );
 			if ( $comment instanceof \WP_Comment && !empty( $comment->comment_author_IP ) ) {
-				( new Shield\Modules\IPs\Lib\Bots\EventListener() )
-					->setMod( $this->getMod() )
+				/** @var Shield\Modules\IPs\ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getBotSignalsController()
+					->getEventListener()
 					->fireEventForIP( $comment->comment_author_IP, 'comment_unmarkspam' );
 			}
 		} );

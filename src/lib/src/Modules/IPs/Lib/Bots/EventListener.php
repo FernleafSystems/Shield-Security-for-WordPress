@@ -47,6 +47,7 @@ class EventListener {
 			},
 			[
 				'bottrack_notbot'         => 'notbot',
+				'frontpage_load'          => 'frontpage',
 				'bottrack_404'            => 'bt404',
 				'bottrack_fakewebcrawler' => 'btfake',
 				'bottrack_linkcheese'     => 'btcheese',
