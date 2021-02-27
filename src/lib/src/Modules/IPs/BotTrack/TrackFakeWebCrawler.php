@@ -41,8 +41,8 @@ class TrackFakeWebCrawler extends Base {
 	}
 
 	protected function getAuditData() :array {
-		return [
+		return array_merge( parent::getAuditData(), [
 			'script' => $this->agentUsed
-		];
+		] );
 	}
 }
