@@ -195,12 +195,18 @@ class Collate {
 		$con = $this->getCon();
 		$modPlug = $con->getModule_Plugin();
 
-		$sHome = Services::WpGeneral()->getHomeUrl();
+		try {
+			$loopback = $modPlug->canSiteLoopback() ? 'Yes' : 'No';
+		}
+		catch ( \Exception $e ) {
+			$loopback = 'Unknown - requires WP v5.4+';
+		}
+
 		$data = [
-			sprintf( 'Loopback To %s', $sHome ) => $modPlug->getCanSiteCallToItself() ? 'Yes' : 'No',
-			'Handshake ShieldNET'               => $modPlug->getShieldNetApiController()
-														   ->canHandshake() ? 'Yes' : 'No',
-			'WP Hashes Ping'                    => ( new ApiPing() )->ping() ? 'Yes' : 'No',
+			'Can Loopback Request' => $loopback,
+			'Handshake ShieldNET'  => $modPlug->getShieldNetApiController()
+											  ->canHandshake() ? 'Yes' : 'No',
+			'WP Hashes Ping'       => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
 		$oPing = new Licenses\Keyless\Ping();

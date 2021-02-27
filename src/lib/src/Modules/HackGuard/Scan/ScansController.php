@@ -142,9 +142,15 @@ class ScansController {
 	 * @return string[]
 	 */
 	public function getReasonsScansCantExecute() :array {
-		return array_keys( array_filter( [
-			'reason_not_call_self' => !$this->getCon()->getModule_Plugin()->getCanSiteCallToItself()
-		] ) );
+		try {
+			$reasons = array_keys( array_filter( [
+				'reason_not_call_self' => !$this->getCon()->getModule_Plugin()->canSiteLoopback()
+			] ) );
+		}
+		catch ( \Exception $e ) {
+			$reasons = [];
+		}
+		return $reasons;
 	}
 
 	public function getCanScansExecute() :bool {
