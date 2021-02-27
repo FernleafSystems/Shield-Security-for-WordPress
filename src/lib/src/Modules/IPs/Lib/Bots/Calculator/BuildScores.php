@@ -13,10 +13,8 @@ class BuildScores {
 
 	public function build() :array {
 		$scores = [];
-		if ( !empty( $this->getRecord()->created_at ) ) { // all new IPs start from 0.
-			foreach ( $this->getAllFields( true ) as $field ) {
-				$scores[ $field ] = $this->{'score_'.$field}();
-			}
+		foreach ( $this->getAllFields( true ) as $field ) {
+			$scores[ $field ] = $this->{'score_'.$field}();
 		}
 		$scores[ 'known' ] = $this->score_known();
 		return $scores;
@@ -29,7 +27,8 @@ class BuildScores {
 		catch ( \Exception $e ) {
 			$id = null;
 		}
-		return ( empty( $id ) || $id === IpIdentify::UNKNOWN ) ? 0 : -100;
+		return ( empty( $id ) || in_array( $id, [ IpIdentify::UNKNOWN, IpIdentify::VISITOR ] ) )
+			? 0 : -100;
 	}
 
 	private function score_auth() :int {
@@ -257,12 +256,15 @@ class BuildScores {
 	}
 
 	private function getAllFields( $filterForMethods = false ) :array {
+		$botSignalDBH = shield_security_get_plugin()->getController()
+													->getModule_IPs()
+													->getDbHandler_BotSignals();
 		$fields = array_map(
 			function ( $col ) {
 				return str_replace( '_at', '', $col );
 			},
 			array_filter(
-				array_keys( $this->getRecord()->getRawData() ),
+				$botSignalDBH->getTableSchema()->getColumnNames(),
 				function ( $col ) {
 					return preg_match( '#_at$#', $col ) &&
 						   !in_array( $col, [ 'updated_at', 'created_at', 'deleted_at' ] );
