@@ -20,6 +20,6 @@ class AntiBot {
 		if ( !$verified ) {
 			throw new \Exception( __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
-		return $verified;
+		return true;
 	}
 }

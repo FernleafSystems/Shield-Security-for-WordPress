@@ -259,7 +259,7 @@ class Strings extends Base\Strings {
 	 */
 	public function getBotSignalNames() :array {
 		return [
-			'notbot'          => __( 'Registered as "Not Bot"', 'wp-simple-firewall' ),
+			'notbot'          => __( '"Not Bot" Registration', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
 			'btfake'          => __( 'Fake Web Crawler', 'wp-simple-firewall' ),
 			'btcheese'        => __( 'Link Cheese', 'wp-simple-firewall' ),

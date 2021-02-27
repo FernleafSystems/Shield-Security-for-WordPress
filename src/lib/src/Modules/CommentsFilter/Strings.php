@@ -12,6 +12,7 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() :array {
 		return [
+			'spam_block_antibot'   => [ __( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' ) ],
 			'spam_block_human'     => [
 				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
 				__( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' )

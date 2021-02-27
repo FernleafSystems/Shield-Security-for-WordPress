@@ -567,7 +567,7 @@
       "last_access_at": "Last Access By IP",
       "blocked_at":     "IP Blocked"
     },
-    "db_botsignals_autoexpire":        0,
+    "db_botsignals_autoexpire":        7,
     "db_botsignals_table":             "botsignals",
     "db_botsignals_columns":           {
       "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"

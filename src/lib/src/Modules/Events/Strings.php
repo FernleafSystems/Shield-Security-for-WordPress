@@ -223,7 +223,7 @@ class Strings extends Base\Strings {
 			),
 			'spam_block_recaptcha'         => sprintf( '%s: %s',
 				__( 'SPAM Blocked', 'wp-simple-firewall' ),
-				__( 'reCAPTCHA', 'wp-simple-firewall' )
+				__( 'CAPTCHA', 'wp-simple-firewall' )
 			),
 			'spam_block_human'             => sprintf( '%s: %s',
 				__( 'SPAM Blocked', 'wp-simple-firewall' ),
