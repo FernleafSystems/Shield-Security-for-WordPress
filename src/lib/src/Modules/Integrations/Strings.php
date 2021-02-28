@@ -11,7 +11,7 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() :array {
 		return [
-			'spamform_pass'  => [
+			'spam_form_pass' => [
 				__( '%s form submission passed SPAM check.', 'wp-simple-firewall' ),
 			],
 			'spam_form_fail' => [

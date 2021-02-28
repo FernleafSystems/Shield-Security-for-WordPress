@@ -10,9 +10,7 @@ class Processor extends BaseShield\Processor {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getControllerMWP()->execute();
-	}
-
-	public function onWpInit() {
+		
 		( new Lib\Spam\SpamController() )
 			->setMod( $this->getMod() )
 			->execute();

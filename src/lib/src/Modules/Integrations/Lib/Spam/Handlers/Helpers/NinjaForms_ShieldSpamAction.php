@@ -39,7 +39,7 @@ final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
 	 * @inheritDoc
 	 */
 	public function process( $action_settings, $form_id, $data ) {
-		if ( $this->shieldNinjaFormsHandler->isSpam() ) {
+		if ( !$this->shieldNinjaFormsHandler->isSpam() ) {
 			$data[ 'errors' ][ 'form' ][ 'spam' ] = esc_html__( 'There was an error trying to send your message. Please try again later', 'ninja-forms' );
 		}
 		return $data;

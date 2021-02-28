@@ -11,12 +11,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam\Handle
  * Then you must create a Custom Action class which will handle the action and add it to the
  * registered action.
  *
+ * Unfortunately the action register is executed early and so hooking to Init breaks it.
+ *
  * Class NinjaForms
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam\Handlers
  */
 class NinjaForms extends Base {
 
 	protected function run() {
+
+		add_filter( 'ninja_forms_register_actions', function ( $actions ) {
+			$actions[ 'shieldantibot' ] = ( new NinjaForms_ShieldSpamAction() )
+				->setHandler( $this );
+			return $actions;
+		}, 1000 );
 
 		add_filter( 'ninja_forms_submission_actions', function ( $actions ) {
 			$actions[] = [
@@ -26,12 +34,6 @@ class NinjaForms extends Base {
 					'type'   => 'shieldantibot',
 				]
 			];
-			return $actions;
-		}, 1000 );
-
-		add_filter( 'ninja_forms_register_actions', function ( $actions ) {
-			$actions[ 'shieldantibot' ] = ( new NinjaForms_ShieldSpamAction() )
-				->setHandler( $this );
 			return $actions;
 		}, 1000 );
 	}
