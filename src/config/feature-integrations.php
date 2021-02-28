@@ -94,6 +94,10 @@
           "text":      "Formidable Forms"
         },
         {
+          "value_key": "ninjaforms",
+          "text":      "Ninja Forms"
+        },
+        {
           "value_key": "wpforo",
           "text":      "wpForo"
         },

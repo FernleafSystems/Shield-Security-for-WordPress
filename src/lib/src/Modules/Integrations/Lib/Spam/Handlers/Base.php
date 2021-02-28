@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamHandlers;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam\Handlers;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -16,7 +16,7 @@ abstract class Base {
 		return $this->getCon()->isPremiumActive() && $this->isEnabled() && $this->isPluginInstalled();
 	}
 
-	protected function isSpam() :bool {
+	public function isSpam() :bool {
 		$isSpam = $this->isSpamBot();
 		$this->getCon()->fireEvent(
 			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
