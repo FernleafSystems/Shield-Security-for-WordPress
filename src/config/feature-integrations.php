@@ -28,7 +28,7 @@
       "title_short": "Integrations"
     },
     {
-      "slug":        "section_spam_detect",
+      "slug":        "section_spam",
       "title":       "SPAM Detection",
       "title_short": "SPAM Detection"
     },
@@ -50,52 +50,59 @@
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
     },
     {
-      "key":           "spam_gravityforms",
-      "section":       "section_spam_detect",
-      "premium":       true,
-      "type":          "checkbox",
-      "default":       "N",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Gravity Forms",
-      "summary":       "Use AntiBot To Detect SPAM Contact Form Submissions",
-      "description":   "Use AntiBot To Detect SPAM Contact Form Submissions."
+      "key":         "enable_spam_antibot",
+      "section":     "section_spam",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "AntiBot SPAM Detection",
+      "summary":     "Enable The AntiBot SPAM Detection",
+      "description": "Use Shield's built-in AntiBot detection system to identify contact form SPAM."
     },
     {
-      "key":           "spam_contactform7",
-      "section":       "section_spam_detect",
-      "premium":       true,
-      "type":          "checkbox",
-      "default":       "N",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Contact Form 7",
-      "summary":       "Use AntiBot To Detect SPAM Contact Form Submissions",
-      "description":   "Use AntiBot To Detect SPAM Contact Form Submissions."
+      "key":         "enable_spam_human",
+      "section":     "section_spam",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Human SPAM Detection",
+      "summary":     "Enable The Human SPAM Detection",
+      "description": "Use Shield's built-in human SPAM detection system to identify contact form SPAM."
     },
     {
-      "key":           "spam_wpforo",
-      "section":       "section_spam_detect",
+      "key":           "form_spam_providers",
+      "section":       "section_spam",
       "premium":       true,
-      "type":          "checkbox",
-      "default":       "N",
+      "advanced":      true,
+      "type":          "multiple_select",
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "gravityforms",
+          "text":      "Gravity Forms"
+        },
+        {
+          "value_key": "contactform7",
+          "text":      "Contact Form 7"
+        },
+        {
+          "value_key": "wpforo",
+          "text":      "wpForo"
+        },
+        {
+          "value_key": "wpforms",
+          "text":      "WPForms"
+        }
+      ],
       "link_info":     "",
       "link_blog":     "",
-      "name":          "WPForo",
-      "summary":       "Use AntiBot To Detect SPAM Forum Submissions",
-      "description":   "Use AntiBot To Detect SPAM Submissions."
-    },
-    {
-      "key":           "spam_wpforms",
-      "section":       "section_spam_detect",
-      "premium":       true,
-      "type":          "checkbox",
-      "default":       "N",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "WPForms",
-      "summary":       "Use AntiBot To Detect SPAM Contact Form Submissions",
-      "description":   "Use AntiBot To Detect SPAM Contact Form Submissions."
+      "name":          "SPAM Form Checking",
+      "summary":       "Select The Form Providers That Should Be Checked For SPAM",
+      "description":   "Select The Form Providers That Should Be Checked For SPAM."
     }
   ],
   "definitions": {

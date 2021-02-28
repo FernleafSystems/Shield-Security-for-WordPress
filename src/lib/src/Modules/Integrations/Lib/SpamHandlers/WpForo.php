@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamH
 
 class WpForo extends Base {
 
-	const SLUG = 'wpforo';
-
 	protected function run() {
 		foreach ( $this->getFiltersToMonitor() as $filter ) {
 			add_filter( $filter, function ( array $args, $forum ) {
@@ -32,7 +30,7 @@ class WpForo extends Base {
 		];
 	}
 
-	protected function getFormProvider() :string {
+	protected function getProviderName() :string {
 		return 'wpForo';
 	}
 

@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamHandlers;
 
-class GravityForm extends Base {
-
-	const SLUG = 'gravityforms';
+class GravityForms extends Base {
 
 	protected function run() {
 		add_filter( 'gform_entry_is_spam', function ( $wasSpam ) {
@@ -12,7 +10,7 @@ class GravityForm extends Base {
 		}, 1000 );
 	}
 
-	protected function getFormProvider() :string {
+	protected function getProviderName() :string {
 		return 'Gravity Forms';
 	}
 

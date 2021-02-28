@@ -13,7 +13,7 @@ abstract class Base {
 	const SLUG = '';
 
 	protected function canRun() :bool {
-		return $this->getCon()->isPremiumActive() && $this->isOptionEnabled() && $this->isPluginInstalled();
+		return $this->getCon()->isPremiumActive() && $this->isEnabled() && $this->isPluginInstalled();
 	}
 
 	protected function isSpamBot() :bool {
@@ -25,22 +25,32 @@ abstract class Base {
 			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
 			[
 				'audit' => [
-					'form_provider' => $this->getFormProvider(),
+					'form_provider' => $this->getProviderName(),
 				]
 			]
 		);
 		return $isSpam;
 	}
 
-	protected function isOptionEnabled() :bool {
-		return $this->getOptions()->isOpt( 'spam_'.static::SLUG, 'Y' );
+	protected function isEnabled() :bool {
+		return in_array( $this->getProviderSlug(), $this->getOptions()->getOpt( 'form_spam_providers', [] ) );
 	}
 
 	protected function isPluginInstalled() :bool {
 		return false;
 	}
 
-	protected function getFormProvider() :string {
+	protected function getProviderName() :string {
 		return '';
+	}
+
+	protected function getProviderSlug() :string {
+		try {
+			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
+		}
+		catch ( \Exception $e ) {
+			$slug = '';
+		}
+		return $slug;
 	}
 }

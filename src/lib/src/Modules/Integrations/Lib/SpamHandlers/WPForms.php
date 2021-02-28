@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamHandlers;
 
-class WPFormsLite extends Base {
-
-	const SLUG = 'wpforms';
+class WPForms extends Base {
 
 	private $workingFormID = null;
 
@@ -29,7 +27,7 @@ class WPFormsLite extends Base {
 		}, 1000, 2 );
 	}
 
-	protected function getFormProvider() :string {
+	protected function getProviderName() :string {
 		return 'WP Forms';
 	}
 

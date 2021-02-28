@@ -4,15 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamH
 
 class ContactForm7 extends Base {
 
-	const SLUG = 'contactform7';
-
 	protected function run() {
 		add_filter( 'wpcf7_spam', function ( $wasSpam, $submission ) {
 			return $wasSpam || $this->isSpamBot();
 		}, 1000, 2 );
 	}
 
-	protected function getFormProvider() :string {
+	protected function getProviderName() :string {
 		return 'Contact Form 7';
 	}
 
