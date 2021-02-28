@@ -6,7 +6,7 @@ class GravityForms extends Base {
 
 	protected function run() {
 		add_filter( 'gform_entry_is_spam', function ( $wasSpam ) {
-			return $wasSpam || $this->isSpamBot();
+			return $wasSpam || $this->isSpam();
 		}, 1000 );
 	}
 

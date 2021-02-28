@@ -16,11 +16,8 @@ abstract class Base {
 		return $this->getCon()->isPremiumActive() && $this->isEnabled() && $this->isPluginInstalled();
 	}
 
-	protected function isSpamBot() :bool {
-		$isSpam = !$this->getCon()
-						->getModule_IPs()
-						->getBotSignalsController()
-						->verifyNotBot();
+	protected function isSpam() :bool {
+		$isSpam = $this->isSpamBot();
 		$this->getCon()->fireEvent(
 			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
 			[
@@ -30,6 +27,13 @@ abstract class Base {
 			]
 		);
 		return $isSpam;
+	}
+
+	protected function isSpamBot() :bool {
+		return !$this->getCon()
+					 ->getModule_IPs()
+					 ->getBotSignalsController()
+					 ->verifyNotBot();
 	}
 
 	protected function isEnabled() :bool {

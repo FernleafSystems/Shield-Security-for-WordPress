@@ -17,7 +17,7 @@ class WPForms extends Base {
 
 		add_filter( 'wpforms_process_initial_errors', function ( $errors, $formData ) {
 
-			if ( empty( $errors[ $this->workingFormID ] ) && $this->isSpamBot() ) {
+			if ( empty( $errors[ $this->workingFormID ] ) && $this->isSpam() ) {
 				$errors[ $this->workingFormID ] = [
 					'header' => __( 'Shield detected this as a SPAM Bot submission.' ),
 				];

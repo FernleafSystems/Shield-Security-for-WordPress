@@ -90,6 +90,10 @@
           "text":      "Contact Form 7"
         },
         {
+          "value_key": "formidableforms",
+          "text":      "Formidable Forms"
+        },
+        {
           "value_key": "wpforo",
           "text":      "wpForo"
         },

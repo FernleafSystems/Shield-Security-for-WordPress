@@ -9,7 +9,7 @@ class WpForo extends Base {
 			add_filter( $filter, function ( array $args, $forum ) {
 
 				$status = $args[ 'status' ] ?? null;
-				if ( $status !== 1 && $this->isSpamBot() ) {
+				if ( $status !== 1 && $this->isSpam() ) {
 					if ( !empty( WPF()->current_userid ) ) {
 						WPF()->moderation->ban_for_spam( WPF()->current_userid );
 					}
