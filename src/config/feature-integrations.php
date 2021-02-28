@@ -50,6 +50,18 @@
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
     },
     {
+      "key":           "spam_gravityforms",
+      "section":       "section_spam_detect",
+      "premium":       true,
+      "type":          "checkbox",
+      "default":       "N",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Gravity Forms",
+      "summary":       "Use AntiBot To Detect SPAM Contact Form Submissions",
+      "description":   "Use AntiBot To Detect SPAM Contact Form Submissions."
+    },
+    {
       "key":           "spam_contactform7",
       "section":       "section_spam_detect",
       "premium":       true,
@@ -88,32 +100,12 @@
   ],
   "definitions": {
     "events": {
-      "spam_contactform7_pass": {
+      "spam_form_pass": {
         "stat":    true,
         "audit":   true,
         "offense": false
       },
-      "spam_contactform7_fail": {
-        "stat":  true,
-        "audit": true,
-        "offense": false
-      },
-      "spam_wpforms_pass": {
-        "stat":    true,
-        "audit":   true,
-        "offense": false
-      },
-      "spam_wpforms_fail": {
-        "stat":  true,
-        "audit": true,
-        "offense": false
-      },
-      "spam_wpforo_pass": {
-        "stat":    true,
-        "audit":   true,
-        "offense": false
-      },
-      "spam_wpforo_fail": {
+      "spam_form_fail": {
         "stat":  true,
         "audit": true,
         "offense": false

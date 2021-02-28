@@ -29,6 +29,10 @@ class WPFormsLite extends Base {
 		}, 1000, 2 );
 	}
 
+	protected function getFormProvider() :string {
+		return 'WP Forms';
+	}
+
 	protected function isPluginInstalled() :bool {
 		return defined( 'WPFORMS_VERSION' ) && function_exists( 'wpforms' );
 	}

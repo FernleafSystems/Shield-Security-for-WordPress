@@ -2,21 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SpamHandlers;
 
-class ContactForm7 extends Base {
+class GravityForm extends Base {
 
-	const SLUG = 'contactform7';
+	const SLUG = 'gravityforms';
 
 	protected function run() {
-		add_filter( 'wpcf7_spam', function ( $wasSpam, $submission ) {
+		add_filter( 'gform_entry_is_spam', function ( $wasSpam ) {
 			return $wasSpam || $this->isSpamBot();
-		}, 1000, 2 );
+		}, 1000 );
 	}
 
 	protected function getFormProvider() :string {
-		return 'Contact Form 7';
+		return 'Gravity Forms';
 	}
 
 	protected function isPluginInstalled() :bool {
-		return defined( 'WPCF7_TEXT_DOMAIN' ) && WPCF7_TEXT_DOMAIN === 'contact-form-7';
+		return @class_exists( 'GFForms' ) && isset( GFForms::$version )
+			   && version_compare( GFForms::$version, '2.4.17', '>=' );
 	}
 }

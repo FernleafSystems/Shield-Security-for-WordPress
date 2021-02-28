@@ -21,8 +21,14 @@ abstract class Base {
 						->getModule_IPs()
 						->getBotSignalsController()
 						->verifyNotBot();
-		$this->getCon()->fireEvent( sprintf( 'spam_%s_%s',
-			static::SLUG, ( $isSpam ? 'fail' : 'pass' ) ) );
+		$this->getCon()->fireEvent(
+			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
+			[
+				'audit' => [
+					'form_provider' => $this->getFormProvider(),
+				]
+			]
+		);
 		return $isSpam;
 	}
 
@@ -32,5 +38,9 @@ abstract class Base {
 
 	protected function isPluginInstalled() :bool {
 		return false;
+	}
+
+	protected function getFormProvider() :string {
+		return '';
 	}
 }
