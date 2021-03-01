@@ -17,7 +17,7 @@ abstract class Base {
 	}
 
 	public function isSpam() :bool {
-		$isSpam = $this->isSpamBot();
+		$isSpam = $this->isSpam_Bot();
 		$this->getCon()->fireEvent(
 			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
 			[
@@ -29,11 +29,15 @@ abstract class Base {
 		return $isSpam;
 	}
 
-	protected function isSpamBot() :bool {
+	protected function isSpam_Bot() :bool {
 		return $this->getCon()
 					->getModule_IPs()
 					->getBotSignalsController()
 					->isBot();
+	}
+
+	protected function isSpam_Human() :bool {
+		return false;
 	}
 
 	protected function isEnabled() :bool {
