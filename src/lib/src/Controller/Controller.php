@@ -328,12 +328,14 @@ class Controller {
 		if ( $FS->mkdir( $baseDir ) ) {
 			$sHt = path_join( $baseDir, '.htaccess' );
 			$htContent = implode( "\n", [
+				"# BEGIN SHIELD",
 				"Options -Indexes",
 				"Order allow,deny",
 				"Deny from all",
 				'<FilesMatch "^.*\.(css|js)$">',
 				" Allow from all",
 				'</FilesMatch>',
+				"# END SHIELD"
 			] );
 			if ( !$FS->exists( $sHt ) || ( md5_file( $sHt ) != md5( $htContent ) ) ) {
 				$FS->putFileContent( $sHt, $htContent );

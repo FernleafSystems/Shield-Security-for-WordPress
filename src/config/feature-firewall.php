@@ -318,6 +318,7 @@
         "icwp_wpsf_new_u2f_response",
         "icwp_wpsf_u2f_otp",
         "appId",
+        "/^et_.*/",
         "aioseo-post-settings"
       ]
     },

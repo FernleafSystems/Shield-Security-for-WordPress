@@ -137,10 +137,15 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	public function getCanSiteCallToItself() :bool {
-		$oHttp = Services::HttpRequest();
-		return $oHttp->get( Services::WpGeneral()->getHomeUrl(), [ 'timeout' => 20 ] )
-			   && $oHttp->lastResponse->getCode() < 400;
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function canSiteLoopback() :bool {
+		if ( !@class_exists( '\WP_Site_Health' ) || !method_exists( '\WP_Site_Health', 'get_instance' ) ) {
+			throw new \Exception( 'WP Loopback tests unavailable' );
+		}
+		return \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
 	}
 
 	public function getActivePluginFeatures() :array {
