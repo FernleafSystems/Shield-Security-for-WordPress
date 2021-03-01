@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\RetrieveIpBotRe
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CalculateBotProbability {
+class CalculateVisitorBotScores {
 
 	use IpAddressConsumer;
 	use ModConsumer;

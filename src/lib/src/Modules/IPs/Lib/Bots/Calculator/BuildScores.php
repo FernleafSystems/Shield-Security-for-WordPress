@@ -28,7 +28,7 @@ class BuildScores {
 			$id = null;
 		}
 		return ( empty( $id ) || in_array( $id, [ IpIdentify::UNKNOWN, IpIdentify::VISITOR ] ) )
-			? 0 : -100;
+			? 0 : 100;
 	}
 
 	private function score_auth() :int {
@@ -36,7 +36,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -150 : -100;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 150 : 100;
 		}
 		return $score;
 	}
@@ -46,7 +46,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 45 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -45 : -25;
 		}
 		return $score;
 	}
@@ -56,7 +56,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 100 : 75;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -100 : -75;
 		}
 		return $score;
 	}
@@ -66,7 +66,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 100 : 75;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -100 : -75;
 		}
 		return $score;
 	}
@@ -76,7 +76,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 45 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -45 : -25;
 		}
 		return $score;
 	}
@@ -86,7 +86,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 50 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -50 : -25;
 		}
 		return $score;
 	}
@@ -96,7 +96,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 85 : 55;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -85 : -55;
 		}
 		return $score;
 	}
@@ -106,7 +106,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 35 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -35 : -25;
 		}
 		return $score;
 	}
@@ -116,7 +116,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 75 : 35;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -75 : -35;
 		}
 		return $score;
 	}
@@ -126,7 +126,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? 35 : 15;
+			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? -35 : -15;
 		}
 		return $score;
 	}
@@ -136,7 +136,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 45 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -45 : -25;
 		}
 		return $score;
 	}
@@ -146,7 +146,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 75 : 35;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -75 : -35;
 		}
 		return $score;
 	}
@@ -156,7 +156,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 95 : 55;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -95 : -55;
 		}
 		return $score;
 	}
@@ -166,13 +166,13 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -100 : -75;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 100 : 75;
 		}
 		return $score;
 	}
 
 	private function score_bypass() :int {
-		return $this->lastAtTs( __FUNCTION__ ) > 0 ? -150 : 0;
+		return $this->lastAtTs( __FUNCTION__ ) > 0 ? 150 : 0;
 	}
 
 	private function score_captchapass() :int {
@@ -180,7 +180,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -55 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 55 : 25;
 		}
 		return $score;
 	}
@@ -190,7 +190,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 55 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -55 : -25;
 		}
 		return $score;
 	}
@@ -200,7 +200,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 30 : 15;
+			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -30 : -15;
 		}
 		return $score;
 	}
@@ -210,7 +210,7 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? 50 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? -50 : -25;
 		}
 		return $score;
 	}
@@ -220,27 +220,27 @@ class BuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? -75 : -35;
+			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? 75 : 35;
 		}
 		return $score;
 	}
 
 	private function score_frontpage() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
-			$score = 15;
+			$score = -15;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -25 : -15;
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 25 : 15;
 		}
 		return $score;
 	}
 
 	private function score_notbot() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
-			$score = 85;
+			$score = -15;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -85 : -35;
+			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 125 : 65;
 		}
 		return $score;
 	}

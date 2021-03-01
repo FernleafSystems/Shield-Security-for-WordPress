@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\RetrieveIpBotRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -277,7 +278,11 @@ class BuildDisplay {
 			$signals = [];
 		}
 
-		$scores = shield_get_bot_scores( $this->getIP() );
+		$scores = ( new CalculateVisitorBotScores() )
+			->setMod( $this->getMod() )
+			->setIP( Services::IP()->getRequestIp() )
+			->scores();
+
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig',
 			[
@@ -299,7 +304,8 @@ class BuildDisplay {
 					'total_signals' => count( $signals ),
 					'scores'        => $scores,
 					'total_score'   => array_sum( $scores ),
-					'probability'   => (int)max( 0, min( 100, array_sum( $scores ) ) )
+					'minimum'       => array_sum( $scores ),
+					'probability'   => 100 - (int)max( 0, min( 100, array_sum( $scores ) ) )
 				],
 			],
 			true

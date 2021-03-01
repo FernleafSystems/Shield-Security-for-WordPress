@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController {
 
@@ -20,22 +22,30 @@ class BotSignalsController {
 	 */
 	private $eventListener;
 
-	public function verifyNotBot() :bool {
-		$score = \shield_get_bot_probability_score();
-		$botScoreThreshold = (int)apply_filters( 'shield/antibot_score_threshold',
-			(int)$this->getOptions()->getOpt( 'antibot_threshold', 50 ) );
-		$notBot = $score < $botScoreThreshold;
+	public function isBot( string $IP = '' ) :bool {
+		$score = ( new CalculateVisitorBotScores() )
+			->setMod( $this->getMod() )
+			->setIP( empty( $IP ) ? Services::IP()->getRequestIp() : $IP )
+			->probability();
+		$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum',
+			(int)$this->getOptions()->getOpt( 'antibot_minimum', 50 ) );
+
+		$isBot = $score < $botScoreMinimum;
 
 		$this->getCon()->fireEvent(
-			'antibot_'.( $notBot ? 'pass' : 'fail' ),
+			'antibot_'.( $isBot ? 'fail' : 'pass' ),
 			[
 				'audit' => [
-					'score'     => $score,
-					'threshold' => $botScoreThreshold,
+					'score'   => $score,
+					'minimum' => $botScoreMinimum,
 				]
 			]
 		);
-		return $notBot;
+		return $isBot;
+	}
+
+	public function verifyNotBot( string $IP = '' ) :bool {
+		return !$this->isBot( $IP );
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {

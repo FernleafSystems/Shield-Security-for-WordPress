@@ -30,10 +30,10 @@ abstract class Base {
 	}
 
 	protected function isSpamBot() :bool {
-		return !$this->getCon()
-					 ->getModule_IPs()
-					 ->getBotSignalsController()
-					 ->verifyNotBot();
+		return $this->getCon()
+					->getModule_IPs()
+					->getBotSignalsController()
+					->isBot();
 	}
 
 	protected function isEnabled() :bool {

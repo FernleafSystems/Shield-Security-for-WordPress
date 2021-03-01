@@ -144,7 +144,7 @@
       "description": "Un-Checking this option will completely disable the IP Manager module"
     },
     {
-      "key":         "antibot_threshold",
+      "key":         "antibot_minimum",
       "section":     "section_antibot",
       "default":     "50",
       "type":        "integer",
@@ -567,7 +567,7 @@
       "last_access_at": "Last Access By IP",
       "blocked_at":     "IP Blocked"
     },
-    "db_botsignals_autoexpire":        7,
+    "db_botsignals_autoexpire":        3,
     "db_botsignals_table":             "botsignals",
     "db_botsignals_columns":           {
       "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
