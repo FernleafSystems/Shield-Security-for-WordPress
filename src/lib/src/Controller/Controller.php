@@ -319,7 +319,12 @@ class Controller {
 		$oFs = Services::WpFs();
 		if ( $oFs->mkdir( $sBase ) ) {
 			$sHt = path_join( $sBase, '.htaccess' );
-			$sHtContent = "Options -Indexes\ndeny from all";
+			$sHtContent = implode( "\n", [
+				'# BEGIN SHIELD',
+				'Options -Indexes',
+				'deny from all',
+				'# END SHIELD'
+			] );
 			if ( !$oFs->exists( $sHt ) || ( md5_file( $sHt ) != md5( $sHtContent ) ) ) {
 				$oFs->putFileContent( $sHt, $sHtContent );
 			}
