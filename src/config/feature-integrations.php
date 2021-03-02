@@ -94,6 +94,10 @@
           "text":      "Formidable Forms"
         },
         {
+          "value_key": "forminator",
+          "text":      "Forminator"
+        },
+        {
           "value_key": "kaliforms",
           "text":      "Kali Forms"
         },
