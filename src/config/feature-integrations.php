@@ -90,6 +90,10 @@
           "text":      "Contact Form 7"
         },
         {
+          "value_key": "fluentforms",
+          "text":      "Fluent Forms"
+        },
+        {
           "value_key": "formidableforms",
           "text":      "Formidable Forms"
         },

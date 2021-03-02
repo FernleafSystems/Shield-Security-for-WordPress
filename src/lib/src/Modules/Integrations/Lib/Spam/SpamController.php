@@ -33,6 +33,7 @@ class SpamController {
 		return [
 			new Handlers\ContactForm7(),
 			new Handlers\FormidableForms(),
+			new Handlers\FluentForms(),
 			new Handlers\Forminator(),
 			new Handlers\GravityForms(),
 			new Handlers\KaliForms(),
