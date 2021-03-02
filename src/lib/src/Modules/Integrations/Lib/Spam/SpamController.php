@@ -34,6 +34,7 @@ class SpamController {
 			new Handlers\ContactForm7(),
 			new Handlers\FormidableForms(),
 			new Handlers\GravityForms(),
+			new Handlers\KaliForms(),
 			new Handlers\NinjaForms(),
 			new Handlers\WPForms(),
 			new Handlers\WpForo(),

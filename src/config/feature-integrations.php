@@ -94,6 +94,10 @@
           "text":      "Formidable Forms"
         },
         {
+          "value_key": "kaliforms",
+          "text":      "Kali Forms"
+        },
+        {
           "value_key": "ninjaforms",
           "text":      "Ninja Forms"
         },

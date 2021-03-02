@@ -12,10 +12,10 @@ class Strings extends Base\Strings {
 	protected function getAuditMessages() :array {
 		return [
 			'spam_form_pass' => [
-				__( '%s form submission passed SPAM check.', 'wp-simple-firewall' ),
+				__( '"%s" submission passed SPAM check.', 'wp-simple-firewall' ),
 			],
 			'spam_form_fail' => [
-				__( '%s form submission failed SPAM check.', 'wp-simple-firewall' )
+				__( '"%s" submission failed SPAM check.', 'wp-simple-firewall' )
 			],
 		];
 	}
