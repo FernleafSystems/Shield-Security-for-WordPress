@@ -41,6 +41,13 @@ class FindAllPluginIps {
 				   ->getQuerySelector();
 		$ips = array_merge( $ips, $sel->getDistinctForColumn( 'ip' ) );
 
+		// Bot Signal
+		/** @var Databases\BotSignals\Select $sel */
+		$sel = $con->getModule_IPs()
+				   ->getDbHandler_BotSignals()
+				   ->getQuerySelector();
+		$ips = array_merge( $ips, $sel->getDistinctIps() );
+
 		return IpListSort::Sort( array_unique( $ips ) );
 	}
 }

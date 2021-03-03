@@ -8,18 +8,13 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Select extends Base\Select {
 
+	use Base\Traits\Select_IPTable;
+
 	/**
 	 * @return string[]
 	 */
 	public function getDistinctEvents() {
 		return $this->getDistinct_FilterAndSort( 'event' );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getDistinctIps() {
-		return IpListSort::Sort( $this->getDistinctForColumn( 'ip' ) );
 	}
 
 	/**

@@ -146,8 +146,8 @@ abstract class ModCon {
 	 */
 	protected function getDbHandlers( $bInitAll = false ) {
 		if ( $bInitAll ) {
-			foreach ( $this->getAllDbClasses() as $sDbSlug => $sDbClass ) {
-				$this->getDbH( $sDbSlug );
+			foreach ( $this->getAllDbClasses() as $dbSlug => $dbClass ) {
+				$this->getDbH( $dbSlug );
 			}
 		}
 		return is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
@@ -171,9 +171,15 @@ abstract class ModCon {
 			$aDbClasses = $this->getAllDbClasses();
 			if ( isset( $aDbClasses[ $dbhKey ] ) ) {
 				/** @var Shield\Databases\Base\Handler $dbh */
-				$dbh = new $aDbClasses[ $dbhKey ]();
+				$dbh = new $aDbClasses[ $dbhKey ]( $dbhKey );
 				try {
-					$dbh->setMod( $this )->tableInit();
+					// TODO remove 10.3: method_exists + table init
+					if ( method_exists( $dbh, 'execute' ) ) {
+						$dbh->setMod( $this )->execute();
+					}
+					else {
+						$dbh->setMod( $this )->tableInit();
+					}
 				}
 				catch ( \Exception $e ) {
 				}

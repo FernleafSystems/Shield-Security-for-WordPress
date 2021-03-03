@@ -567,35 +567,39 @@
       "last_access_at": "Last Access By IP",
       "blocked_at":     "IP Blocked"
     },
-    "db_botsignals_autoexpire":        3,
-    "db_botsignals_table":             "botsignals",
-    "db_botsignals_columns":           {
-      "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
-    },
-    "db_botsignals_timestamp_columns": {
-      "notbot_at":          "NotBot",
-      "frontpage_at":       "Front Page Loaded",
-      "bt404_at":           "BotTrack 404",
-      "btfake_at":          "BotTrack FakeWebCrawler",
-      "btcheese_at":        "BotTrack LinkCheese",
-      "btloginfail_at":     "BotTrack LoginFailed",
-      "btua_at":            "BotTrack Useragent Fail",
-      "btxml_at":           "BotTrack XMLRPC Access",
-      "btlogininvalid_at":  "BotTrack LoginInvalid",
-      "btinvalidscript_at": "BotTrack InvalidScript",
-      "cooldown_at":        "Triggered Cooldown",
-      "humanspam_at":       "Comment Marked As Human SPAM",
-      "markspam_at":        "Mark Comment As SPAM",
-      "unmarkspam_at":      "Unmark Comment As SPAM",
-      "captchapass_at":     "Captcha Passed",
-      "captchafail_at":     "Captcha Failed",
-      "auth_at":            "Successful Login",
-      "firewall_at":        "Triggered Firewall",
-      "offense_at":         "Last Offense",
-      "blocked_at":         "Last Block",
-      "unblocked_at":       "Unblocked",
-      "bypass_at":          "Bypass",
-      "updated_at":         "Updated"
+    "db_table_botsignals":             {
+      "autoexpire":      3,
+      "slug":            "botsignals",
+      "primary_key":     "id",
+      "col_older_than":  "updated_at",
+      "cols_custom":     {
+        "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
+      },
+      "cols_timestamps": {
+        "notbot_at":          "NotBot",
+        "frontpage_at":       "Front Page Loaded",
+        "bt404_at":           "BotTrack 404",
+        "btfake_at":          "BotTrack FakeWebCrawler",
+        "btcheese_at":        "BotTrack LinkCheese",
+        "btloginfail_at":     "BotTrack LoginFailed",
+        "btua_at":            "BotTrack Useragent Fail",
+        "btxml_at":           "BotTrack XMLRPC Access",
+        "btlogininvalid_at":  "BotTrack LoginInvalid",
+        "btinvalidscript_at": "BotTrack InvalidScript",
+        "cooldown_at":        "Triggered Cooldown",
+        "humanspam_at":       "Comment Marked As Human SPAM",
+        "markspam_at":        "Mark Comment As SPAM",
+        "unmarkspam_at":      "Unmark Comment As SPAM",
+        "captchapass_at":     "Captcha Passed",
+        "captchafail_at":     "Captcha Failed",
+        "auth_at":            "Successful Login",
+        "firewall_at":        "Triggered Firewall",
+        "offense_at":         "Last Offense",
+        "blocked_at":         "Last Block",
+        "unblocked_at":       "Unblocked",
+        "bypass_at":          "Bypass",
+        "updated_at":         "Updated"
+      }
     },
     "events":                          {
       "custom_offense":          {
@@ -611,12 +615,12 @@
       "ip_blocked":              {
         "cat": 2
       },
-      "ip_unblock":         {
+      "ip_unblock":              {
         "offense": false,
         "audit":   false,
         "stat":    false
       },
-      "ip_bypass":         {
+      "ip_bypass":               {
         "offense": false,
         "audit":   false,
         "stat":    false
@@ -662,14 +666,14 @@
         "cat":     2,
         "offense": true
       },
-      "comment_markspam":  {
+      "comment_markspam":        {
         "cat":     2,
         "offense": true
       },
-      "comment_unmarkspam":  {
-        "audit": false,
+      "comment_unmarkspam":      {
+        "audit":   false,
         "offense": false,
-        "stat": false
+        "stat":    false
       }
     }
   }

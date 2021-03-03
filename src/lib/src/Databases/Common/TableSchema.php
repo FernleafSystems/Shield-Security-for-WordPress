@@ -2,22 +2,41 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class TableSchema
  * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Common
+ * @property string   $slug
  * @property string   $table
  * @property string   $primary_key
  * @property string[] $cols_ids
  * @property string[] $cols_custom
  * @property string[] $cols_timestamps
+ * @property string   $col_older_than
+ * @property int      $autoexpire
+ * @property bool     $has_ip
+ * @property bool     $is_ip_binary
  */
-class TableSchema {
+class TableSchema extends DynPropertiesClass {
 
 	const PRIMARY_KEY = 'id';
-	use DynProperties;
+
+	public function __get( $key ) {
+		switch ( $key ) {
+			case 'has_ip':
+				$val = array_key_exists( 'ip', $this->cols_custom );
+				break;
+			case 'is_ip_binary':
+				$val = $this->has_ip && ( stripos( $this->cols_custom[ 'ip' ], 'varbinary' ) !== false );
+				break;
+			default:
+				$val = parent::__get( $key );
+				break;
+		}
+		return $val;
+	}
 
 	public function buildCreate() :string {
 		$cols = [];

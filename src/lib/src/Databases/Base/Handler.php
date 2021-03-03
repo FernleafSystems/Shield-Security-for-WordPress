@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\AlignTableWithSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -14,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Handler {
 
 	use ModConsumer;
+	use ExecOnce;
 
 	/**
 	 * @var string
@@ -25,7 +27,65 @@ abstract class Handler {
 	 */
 	private $bIsReady;
 
-	public function __construct() {
+	/**
+	 * @var string
+	 */
+	protected $slug;
+
+	/**
+	 * @var TableSchema
+	 */
+	protected $schema;
+
+	public function __construct( $slug = '' ) {
+		$this->slug = $slug;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	protected function run() {
+		$this->tableInit();
+	}
+
+	/**
+	 * @return $this
+	 * @throws \Exception
+	 */
+	public function tableInit() {
+
+		$this->setupTableSchema();
+
+		if ( !$this->isReady() ) {
+
+			$this->tableCreate();
+
+			if ( !$this->isReady( true ) ) {
+				$this->tableDelete();
+				$this->tableCreate();
+			}
+		}
+		return $this;
+	}
+
+	private function setupTableSchema() :TableSchema {
+		$this->schema = new TableSchema();
+
+		$spec = $this->getOptions()->getDef( 'db_table_'.$this->slug );
+
+		if ( empty( $spec ) ) {
+			$this->schema->slug = $this->slug;
+			$this->schema->primary_key = 'id';
+			$this->schema->cols_custom = $this->getCustomColumns();
+			$this->schema->cols_timestamps = $this->getTimestampColumns();
+			$this->schema->autoexpire = 0;
+		}
+		else {
+			$this->schema->applyFromArray( $spec );
+		}
+
+		$this->schema->table = $this->getTable();
+		return $this->schema;
 	}
 
 	public function autoCleanDb() {
@@ -48,7 +108,7 @@ abstract class Handler {
 	public function deleteRowsOlderThan( $timestamp ) :bool {
 		return $this->isReady() &&
 			   $this->getQueryDeleter()
-					->addWhereOlderThan( $timestamp, $this->getColumnForOlderThanComparison() )
+					->addWhereOlderThan( $timestamp, $this->getTableSchema()->col_older_than ?? 'created_at' )
 					->query();
 	}
 
@@ -140,28 +200,8 @@ abstract class Handler {
 		return $mResult !== false;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function tableExists() {
+	public function tableExists() :bool {
 		return Services::WpDb()->getIfTableExists( $this->getTable() );
-	}
-
-	/**
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function tableInit() {
-		if ( !$this->isReady() ) {
-
-			$this->tableCreate();
-
-			if ( !$this->isReady( true ) ) {
-				$this->tableDelete();
-				$this->tableCreate();
-			}
-		}
-		return $this;
 	}
 
 	public function tableTrimExcess( int $nRowsLimit ) :self {
@@ -202,6 +242,7 @@ abstract class Handler {
 
 	/**
 	 * @return string[]
+	 * @deprecated 10.3
 	 */
 	protected function getCustomColumns() :array {
 		return [];
@@ -209,17 +250,22 @@ abstract class Handler {
 
 	/**
 	 * @return string[]
+	 * @deprecated 10.3
 	 */
 	protected function getTimestampColumns() :array {
 		return [];
 	}
 
 	public function getTableSchema() :TableSchema {
-		$sch = new TableSchema();
-		$sch->table = $this->getTable();
-		$sch->cols_custom = $this->getCustomColumns();
-		$sch->cols_timestamps = $this->getTimestampColumns();
-		return $sch;
+		if ( empty( $this->schema ) ) { // TODO: Delete after 10.3
+			$sch = new TableSchema();
+			$sch->table = $this->getTable();
+			$sch->col_older_than = 'created_at';
+			$sch->cols_custom = $this->getCustomColumns();
+			$sch->cols_timestamps = $this->getTimestampColumns();
+			return $sch;
+		}
+		return $this->schema;
 	}
 
 	private function getNamespace() :string {
