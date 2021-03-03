@@ -20,7 +20,7 @@ class ElementorPro extends Base {
 		return 'Elementor Pro';
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return defined( 'ELEMENTOR_PRO_VERSION' ) && @function_exists( 'elementor_pro_load_plugin' );
 	}
 }

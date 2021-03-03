@@ -14,7 +14,7 @@ class GravityForms extends Base {
 		return 'Gravity Forms';
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return @class_exists( 'GFForms' ) && isset( GFForms::$version )
 			   && version_compare( GFForms::$version, '2.4.17', '>=' );
 	}

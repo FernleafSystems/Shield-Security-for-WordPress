@@ -31,7 +31,7 @@ class WPForms extends Base {
 		return 'WP Forms';
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return defined( 'WPFORMS_VERSION' ) && function_exists( 'wpforms' );
 	}
 }

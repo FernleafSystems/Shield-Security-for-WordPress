@@ -22,7 +22,7 @@ class FluentForms extends Base {
 		return 'Fluent Forms';
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return defined( 'FLUENTFORM' ) && @class_exists( '\FluentForm\Framework\Foundation\Bootstrap' );
 	}
 }

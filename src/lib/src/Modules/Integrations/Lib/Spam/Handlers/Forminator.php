@@ -14,7 +14,7 @@ class Forminator extends Base {
 		return 'Forminator';
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return defined( 'FORMINATOR_VERSION' ) && @class_exists( '\Forminator' );
 	}
 }

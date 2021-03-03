@@ -13,7 +13,7 @@ abstract class Base {
 	const SLUG = '';
 
 	protected function canRun() :bool {
-		return $this->getCon()->isPremiumActive() && $this->isEnabled() && $this->isPluginInstalled();
+		return $this->getCon()->isPremiumActive() && $this->isEnabled() && $this->isProviderAvailable();
 	}
 
 	public function isSpam() :bool {
@@ -44,7 +44,7 @@ abstract class Base {
 		return in_array( $this->getProviderSlug(), $this->getOptions()->getOpt( 'form_spam_providers', [] ) );
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return false;
 	}
 

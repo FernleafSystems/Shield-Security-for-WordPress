@@ -42,7 +42,7 @@ class NinjaForms extends Base {
 		return 'Ninja Forms';
 	}
 
-	protected function isPluginInstalled() :bool {
+	protected function isProviderAvailable() :bool {
 		return @class_exists( '\Ninja_Forms' );
 	}
 }
