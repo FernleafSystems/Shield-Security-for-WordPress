@@ -30,14 +30,26 @@ class Handler extends Base\Handler {
 					->query();
 	}
 
+	/**
+	 * @return string[]
+	 * @deprecated 10.3
+	 */
 	protected function getCustomColumns() :array {
 		return $this->getOptions()->getDef( 'ip_list_table_columns' );
 	}
 
+	/**
+	 * @return string[]
+	 * @deprecated 10.3
+	 */
 	protected function getDefaultTableName() :string {
 		return $this->getOptions()->getDef( 'ip_lists_table_name' );
 	}
 
+	/**
+	 * @return string[]
+	 * @deprecated 10.3
+	 */
 	protected function getTimestampColumns() :array {
 		return $this->getOptions()->getDef( 'ip_list_table_timestamp_columns' );
 	}

@@ -552,6 +552,7 @@
   "definitions":      {
     "db_classes":                      {
       "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
+      "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler",
       "ips":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name":             "ip_lists",
@@ -566,6 +567,24 @@
     "ip_list_table_timestamp_columns": {
       "last_access_at": "Last Access By IP",
       "blocked_at":     "IP Blocked"
+    },
+    "db_table_ip_lists":               {
+      "autoexpire":      0,
+      "slug":            "ip_lists",
+      "primary_key":     "id",
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
+        "label":          "varchar(255) NOT NULL DEFAULT '' COMMENT 'Description'",
+        "list":           "varchar(4) NOT NULL DEFAULT '' COMMENT 'Block or Bypass'",
+        "ip6":            "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is IPv6'",
+        "is_range":       "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is Range'",
+        "transgressions": "int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total Offenses'"
+      },
+      "cols_timestamps": {
+        "last_access_at": "Last Access By IP",
+        "blocked_at":     "IP Blocked"
+      }
     },
     "db_table_botsignals":             {
       "autoexpire":      3,

@@ -257,7 +257,7 @@ abstract class Handler {
 	}
 
 	public function getTableSchema() :TableSchema {
-		if ( empty( $this->schema ) ) { // TODO: Delete after 10.3
+		if ( empty( $this->schema ) ) { // TODO: Delete empty test after 10.3
 			$sch = new TableSchema();
 			$sch->table = $this->getTable();
 			$sch->col_older_than = 'created_at';

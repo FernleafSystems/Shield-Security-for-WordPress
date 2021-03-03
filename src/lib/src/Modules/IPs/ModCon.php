@@ -47,7 +47,8 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
-		return $this->getDbH( 'ips' );
+		$old = $this->getDbH( 'ips' );
+		return empty( $old ) ? $this->getDbH( 'ip_lists' ) : $old;
 	}
 
 	/**
