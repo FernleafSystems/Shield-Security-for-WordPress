@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 
@@ -10,18 +10,10 @@ class Handler extends Base\Handler {
 	const TYPE_INFO = 'nfo';
 
 	public function autoCleanDb() {
-		$this->tableCleanExpired( 30 );
-	}
-
-	protected function getCustomColumns() :array {
-		return $this->getOptions()->getDef( 'reports_table_columns' );
+		$this->tableCleanExpired( $this->getTableSchema()->autoexpire );
 	}
 
 	protected function getDefaultTableName() :string {
-		return $this->getOptions()->getDef( 'reports_table_name' );
-	}
-
-	protected function getTimestampColumns() :array {
-		return $this->getOptions()->getDef( 'reports_table_timestamp_columns' );
+		return $this->getTableSchema()->slug;
 	}
 }

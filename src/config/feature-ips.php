@@ -569,10 +569,7 @@
       "blocked_at":     "IP Blocked"
     },
     "db_table_ip_lists":               {
-      "autoexpire":      0,
       "slug":            "ip_lists",
-      "primary_key":     "id",
-      "col_older_than":  "created_at",
       "cols_custom":     {
         "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
         "label":          "varchar(255) NOT NULL DEFAULT '' COMMENT 'Description'",
@@ -589,8 +586,8 @@
     "db_table_botsignals":             {
       "autoexpire":      3,
       "slug":            "botsignals",
-      "primary_key":     "id",
       "col_older_than":  "updated_at",
+      "has_updated_at":  true,
       "cols_custom":     {
         "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
       },
@@ -616,8 +613,7 @@
         "offense_at":         "Last Offense",
         "blocked_at":         "Last Block",
         "unblocked_at":       "Unblocked",
-        "bypass_at":          "Bypass",
-        "updated_at":         "Updated"
+        "bypass_at":          "Bypass"
       }
     },
     "events":                          {

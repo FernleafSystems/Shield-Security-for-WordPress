@@ -81,7 +81,19 @@ abstract class Handler {
 			$this->schema->autoexpire = 0;
 		}
 		else {
-			$this->schema->applyFromArray( $spec );
+			$this->schema->applyFromArray( array_merge(
+				[
+					'slug'            => $this->slug,
+					'primary_key'     => 'id',
+					'cols_custom'     => [],
+					'cols_timestamps' => [],
+					'has_updated_at'  => false,
+					'col_older_than'  => 'created_at',
+					'autoexpire'      => 0,
+					'has_ip_col'      => false,
+				],
+				$spec
+			) );
 		}
 
 		$this->schema->table = $this->getTable();

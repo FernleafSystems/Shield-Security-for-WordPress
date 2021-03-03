@@ -401,8 +401,52 @@
   "definitions":      {
     "db_classes":                          {
       "file_protect": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
+      "filelocker":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
+      "scanner":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
       "scanresults":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
       "scanq":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+    },
+    "db_table_filelocker":                 {
+      "slug":            "filelocker",
+      "has_updated_at":  true,
+      "cols_custom":     {
+        "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
+        "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
+        "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
+        "content":       "MEDIUMBLOB COMMENT 'Content'",
+        "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'"
+      },
+      "cols_timestamps": {
+        "detected_at": "Change Last Detected",
+        "reverted_at": "Reverted To Backup",
+        "notified_at": "Notification Sent"
+      }
+    },
+    "db_table_scanner":                    {
+      "slug":            "scanner",
+      "cols_custom":     {
+        "hash":     "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
+        "meta":     "text COMMENT 'Relevant Item Data'",
+        "scan":     "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
+        "severity": "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'"
+      },
+      "cols_timestamps": {
+        "ignored_at":  "Scan Result Ignored",
+        "notified_at": "Scan Notifiation Sent"
+      }
+    },
+    "db_table_scanq":                      {
+      "slug":            "scanq",
+      "cols_custom":     {
+        "scan":    "varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug'",
+        "items":   "text COMMENT 'Array of scan items'",
+        "results": "text COMMENT 'Array of results'",
+        "meta":    "text COMMENT 'Meta Data'"
+      },
+      "cols_timestamps": {
+        "started_at":  "Scan Started",
+        "finished_at": "Scan Completed"
+      }
     },
     "all_scan_slugs":                      [
       "apc",

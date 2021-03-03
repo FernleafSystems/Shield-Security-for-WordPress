@@ -9,7 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
-		return $this->getDbH( 'audit' );
+		$new = $this->getDbH( 'audit_trail' );
+		return empty( $new ) ? $this->getDbH( 'audit' ) : $new;
 	}
 
 	/**

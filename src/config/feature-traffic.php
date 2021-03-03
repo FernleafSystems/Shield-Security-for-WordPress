@@ -1,6 +1,6 @@
 {
-  "slug":         "traffic",
-  "properties":   {
+  "slug":             "traffic",
+  "properties":       {
     "slug":                  "traffic",
     "name":                  "Traffic Watch",
     "sidebar_name":          "Traffic",
@@ -32,7 +32,7 @@
       }
     }
   ],
-  "sections":     [
+  "sections":         [
     {
       "slug":        "section_traffic_options",
       "primary":     true,
@@ -66,7 +66,7 @@
       "hidden": true
     }
   ],
-  "options":      [
+  "options":          [
     {
       "key":         "enable_traffic",
       "section":     "section_enable_plugin_feature_traffic",
@@ -214,9 +214,22 @@
       "description": "The time limit within which to monitor for excessive requests that exceed the limit."
     }
   ],
-  "definitions":  {
+  "definitions":      {
     "db_classes":            {
       "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
+    },
+    "db_table_traffic":      {
+      "slug":            "traffic",
+      "cols_custom":     {
+        "rid":   "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
+        "uid":   "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID'",
+        "ip":    "varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address'",
+        "path":  "text NOT NULL DEFAULT '' COMMENT 'Request Path or URI'",
+        "code":  "int(5) NOT NULL DEFAULT '200' COMMENT 'HTTP Response Code'",
+        "verb":  "varchar(10) NOT NULL DEFAULT 'get' COMMENT 'HTTP Method'",
+        "ua":    "text COMMENT 'Browser User Agent String'",
+        "trans": "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Trangression'"
+      }
     },
     "traffic_table_name":    "traffic",
     "traffic_table_columns": {

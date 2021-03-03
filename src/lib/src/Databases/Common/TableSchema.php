@@ -15,8 +15,9 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $cols_custom
  * @property string[] $cols_timestamps
  * @property string   $col_older_than
+ * @property bool     $has_updated_at
  * @property int      $autoexpire
- * @property bool     $has_ip
+ * @property bool     $has_ip_col
  * @property bool     $is_ip_binary
  */
 class TableSchema extends DynPropertiesClass {
@@ -25,11 +26,11 @@ class TableSchema extends DynPropertiesClass {
 
 	public function __get( $key ) {
 		switch ( $key ) {
-			case 'has_ip':
-				$val = array_key_exists( 'ip', $this->cols_custom );
+			case 'has_ip_col':
+				$val = array_key_exists( 'ip', $this->enumerateColumns() );
 				break;
 			case 'is_ip_binary':
-				$val = $this->has_ip && ( stripos( $this->cols_custom[ 'ip' ], 'varbinary' ) !== false );
+				$val = $this->has_ip_col && ( stripos( $this->cols_custom[ 'ip' ], 'varbinary' ) !== false );
 				break;
 			default:
 				$val = parent::__get( $key );
@@ -86,16 +87,26 @@ class TableSchema extends DynPropertiesClass {
 	 * @return string[]
 	 */
 	protected function getColumnns_Timestamps() :array {
+
+		$standardTsCols = [
+			'created_at' => 'Created At',
+			'deleted_at' => 'Soft Deleted At',
+		];
+
+		if ( $this->has_updated_at && !array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
+			$standardTsCols = array_merge(
+				[ 'updated_at' => 'Updated At', ],
+				$standardTsCols
+			);
+		}
+
 		return array_map(
 			function ( $comment ) {
 				return $this->getTimestampColDef( $comment );
 			},
 			array_merge(
 				$this->cols_timestamps ?? [],
-				[
-					'created_at' => 'Created At',
-					'deleted_at' => 'Soft Deleted At',
-				]
+				$standardTsCols
 			)
 		);
 	}

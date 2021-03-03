@@ -546,6 +546,22 @@
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
     },
+    "db_table_notes":               {
+      "slug":            "notes",
+      "has_updated_at":  true,
+      "cols_custom":     {
+        "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
+        "note":        "TEXT"
+      }
+    },
+    "db_table_geoip":               {
+      "autoexpire":      30,
+      "slug":            "geoip",
+      "cols_custom":     {
+        "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
+        "meta": "TEXT"
+      }
+    },
     "db_autoexpire_notes":             0,
     "db_autoexpire_geoip":             30,
     "db_notes_name":                   "notes",
