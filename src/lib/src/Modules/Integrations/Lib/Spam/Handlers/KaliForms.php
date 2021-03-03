@@ -6,7 +6,6 @@ class KaliForms extends Base {
 
 	protected function run() {
 		add_filter( 'kaliforms_before_form_process', function ( $data ) {
-			error_log( var_export( $data, true ) );
 			if ( is_array( $data ) && empty( $data[ 'error_bag' ] ) && $this->isSpam() ) {
 				$data[ 'admin_stop_execution' ] = true;
 				$data[ 'admin_stop_reason' ] = __( 'Your entry appears to be spam!', 'wp-simple-firewall' );

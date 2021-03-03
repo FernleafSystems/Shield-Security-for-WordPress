@@ -32,6 +32,7 @@ class SpamController {
 	private function enumProviders() :array {
 		return [
 			new Handlers\ContactForm7(),
+			new Handlers\ElementorPro(),
 			new Handlers\FormidableForms(),
 			new Handlers\FluentForms(),
 			new Handlers\Forminator(),

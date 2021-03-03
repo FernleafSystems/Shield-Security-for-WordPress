@@ -90,6 +90,10 @@
           "text":      "Contact Form 7"
         },
         {
+          "value_key": "elementorpro",
+          "text":      "Elementor Pro"
+        },
+        {
           "value_key": "fluentforms",
           "text":      "Fluent Forms"
         },
