@@ -14,7 +14,7 @@
 
 			{% if aOption.disabled %}
 				<br />
-				<div class="badge badge-success">
+				<div class="badge bg-success">
 					<a href="{{ hrefs.go_pro }}" target="_blank"
 					   class="text-light">{{ strings.pro_only_option }}</a>
 				</div>
@@ -185,7 +185,7 @@
 
 				{% if flags.is_wpcli %}
 					<span href="#" style="cursor:pointer;"
-						  class="float-right"
+						  class="float-end"
 						  title="WP-CLI Option Key: {{ aOption.key }}"
 						  data-toggle="tooltip"
 					>wp-cli:&gt;</span>
@@ -193,7 +193,7 @@
 
 				{% if flags.show_transfer_switch %}
 					{% if attribute(data.xferable_opts, aOption.key) is not same as(false) %}
-						<span class="custom-control custom-switch float-right importexport-checkbox"
+						<span class="custom-control custom-switch float-end importexport-checkbox"
 							  title="{{ strings.is_opt_importexport }}" data-toggle="tooltip"
 						>
 							<input type="checkbox"

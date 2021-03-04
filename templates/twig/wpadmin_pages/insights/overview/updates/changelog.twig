@@ -6,7 +6,7 @@
 				<div class="card-header">
 					<h5 class="m-0">
 						{{ strings.version }}: {{ release.version }}
-						<a class="float-right btn btn-sm btn-outline-dark"
+						<a class="float-end btn btn-sm btn-outline-dark"
 								title="Collapse"
 								data-toggle="collapse" href="#Release-{{ release.released_at }}"
 						>&#9660;</a>
@@ -40,12 +40,12 @@
 							<li class="list-group-item">
 								<dl>
 									<dt class="mb-1">
-										<span class="badge badge-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
+										<span class="badge bg-{{ attribute(vars.badge_types,item.type) }}">{{ item.type|upper }}</span>
 										{% if item.pro_only|default(false) == true %}
-											<span class="badge badge-success">{{ strings.pro_only }}</span>
+											<span class="badge bg-success">{{ strings.pro_only }}</span>
 										{% endif %}
 										{% if item.patch|default('') is not empty %}
-											<span class="badge badge-dark">
+											<span class="badge bg-dark">
 												Patch: {{ item.patch }}
 											</span>
 										{% endif %}

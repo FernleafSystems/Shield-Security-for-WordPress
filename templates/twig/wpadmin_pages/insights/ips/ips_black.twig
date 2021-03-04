@@ -8,7 +8,7 @@
 			<form class="mb-3" id="FilterIpBlack" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="fLists[]" value="MB" />
 				<input type="hidden" name="fLists[]" value="AB" />
-				<div class="form-row">
+				<div class="row">
 					<div class="col mb-2">
 						<select id="_fIpBlack" name="fIp"
 								class="select2picker form-control"
@@ -20,7 +20,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<input id="SubmitForm" class="btn btn-info" style="border-radius: 0;"
 							   type="submit" value="{{ strings.filters_apply }}" />
@@ -36,7 +36,7 @@
 				<input type="hidden" name="list" value="MB" />
 				<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
 
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<input type="text" class="form-control mb-2 mt-2" id="IpAddressNew" name="ip"
 								{% if flags.can_blacklist %}
@@ -48,7 +48,7 @@
 						/>
 					</div>
 				</div>
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<button type="submit" class="btn btn-warning add" style="border-radius: 0;"
 								name="subbutt"

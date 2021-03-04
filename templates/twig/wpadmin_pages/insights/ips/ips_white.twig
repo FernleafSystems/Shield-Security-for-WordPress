@@ -7,7 +7,7 @@
 			<h5><label for="_fIpWhite">{{ strings.ip_filter }}</label></h5>
 			<form class="mb-3" id="FilterIpWhite" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="fLists[]" value="MW" />
-				<div class="form-row">
+				<div class="row">
 					<div class="col mb-2">
 						<select id="_fIpWhite" name="fIp"
 								class="select2picker form-control mb-2"
@@ -19,7 +19,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<input id="SubmitForm" href="#" class="btn btn-info" style="border-radius: 0;"
 							   type="submit" value="{{ strings.filters_apply }}" />
@@ -34,19 +34,19 @@
 				<input type="hidden" name="list" value="MW" />
 				<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
 
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<input type="text" class="form-control mb-2 mt-2" id="IpAddress" name="ip"
 							   placeholder="{{ strings.enter_ip_white }}" />
 					</div>
 				</div>
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<input type="text" class="form-control mb-2" id="Label" name="label"
 							   placeholder="{{ strings.label_for_ip }}" />
 					</div>
 				</div>
-				<div class="form-row">
+				<div class="row">
 					<div class="col">
 						<button type="submit" class="btn btn-info add" style="border-radius: 0;" name="subbutt"
 								title="{{ strings.ip_new }}"><span class="dashicons dashicons-plus"></span>

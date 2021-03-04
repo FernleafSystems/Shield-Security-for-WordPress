@@ -1,6 +1,6 @@
 <h6 class="card-title">
 	{{ strings.title }}
-	<span class="badge badge-info">{{ vars.total_signals }}</span>
+	<span class="badge bg-info">{{ vars.total_signals }}</span>
 </h6>
 {% if not flags.has_signals %}
 	<div class="alert-info alert">{{ strings.no_signals }}</div>
@@ -8,7 +8,7 @@
 	<div class="overflow_container">
 		<p>
 		{{ strings.total_score }}:
-			<span class="badge badge-{{ vars.total_score > 0 ? 'success':'danger' }}">
+			<span class="badge bg-{{ vars.total_score > 0 ? 'success':'danger' }}">
 				{{ vars.total_score }}
 			</span>
 			/ {{ strings.bot_probability }}: {{ vars.probability }}&percnt;
@@ -28,7 +28,7 @@
 						<span>{{ attribute(strings.signal_names, signal) }}</span>
 					</td>
 					<td>
-						<span class="badge badge-{{ attribute(vars.scores, signal) > 0 ? 'success':'danger' }}">
+						<span class="badge bg-{{ attribute(vars.scores, signal) > 0 ? 'success':'danger' }}">
 							{{ attribute(vars.scores, signal) }}
 						</span>
 					</td>
