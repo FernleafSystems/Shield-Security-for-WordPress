@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildDisplay {
 
@@ -84,25 +84,22 @@ class BuildDisplay {
 
 		$sRDNS = gethostbyaddr( $ip );
 
-		$ipIdentifier = new IpIdentify( $ip );
 		try {
-			$ipWhoIs = $ipIdentifier->run();
-			$ipIdKey = key( $ipWhoIs );
-			$ipID = current( $ipWhoIs );
+			list( $ipKey, $ipName ) = ( new IpID( $ip ) )->run();
 		}
 		catch ( \Exception $e ) {
-			$ipIdKey = IpIdentify::UNKNOWN;
-			$ipID = $ipIdentifier->getName( $ipIdKey );
+			$ipKey = IpID::UNKNOWN;
+			$ipName = 'Unknown';
 		}
 
-		if ( $ipIdKey === IpIdentify::UNKNOWN ) {
+		if ( $ipKey === IpID::UNKNOWN ) {
 			$ipEntry = ( new LookupIpOnList() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $ip )
 				->setListTypeWhite()
 				->lookup();
 			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
-				$ipID = $ipEntry->label;
+				$ipName = $ipEntry->label;
 			}
 		}
 
@@ -110,7 +107,7 @@ class BuildDisplay {
 			->setMod( $mod )
 			->setIP( $ip )
 			->probability();
-		$isBot = $mod->getBotSignalsController()->isBot( $ip );
+		$isBot = $mod->getBotSignalsController()->isBot( $ip, false );
 
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
@@ -161,7 +158,7 @@ class BuildDisplay {
 						'is_bot'       => $isBot,
 					],
 					'identity' => [
-						'who_is_it'    => $ipID,
+						'who_is_it'    => $ipName,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
 						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),

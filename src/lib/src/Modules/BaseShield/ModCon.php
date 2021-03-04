@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class ModCon extends Base\ModCon {
 
@@ -156,10 +155,7 @@ class ModCon extends Base\ModCon {
 		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfSupport3rdParty() {
+	public function getIfSupport3rdParty() :bool {
 		return $this->isPremium();
 	}
 
@@ -177,37 +173,29 @@ class ModCon extends Base\ModCon {
 
 	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-			try {
-				$ipID = ( new IpIdentify(
-					(string)Services::IP()->getRequestIp(),
-					(string)Services::Request()->getUserAgent()
-				) )->run();
-				$ipID = key( $ipID );
-			}
-			catch ( \Exception $e ) {
-				$ipID = IpIdentify::UNKNOWN;
-			}
 
+			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
+
+			// iControlWP / ManageWP
 			self::$bVisitorIsWhitelisted =
-				in_array( $ipID, [ IpIdentify::ICONTROLWP, IpIdentify::MANAGEWP ] )
+				in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() )
 				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
 					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
 					   ->setIP( Services::IP()->getRequestIp() )
 					   ->setListTypeWhite()
-					   ->lookup()
-				   instanceof Shield\Databases\IPs\EntryVO;
+					   ->lookup() instanceof Shield\Databases\IPs\EntryVO;
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
 
 	public function isVerifiedBot() :bool {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$srvIP = Services::IP();
-			self::$bIsVerifiedBot = !$srvIP->isLoopback() &&
-									!in_array( $srvIP->getIpDetector()->getIPIdentity(), [
-										IpIdentify::UNKNOWN,
-										IpIdentify::THIS_SERVER,
-										IpIdentify::VISITOR,
+			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
+			self::$bIsVerifiedBot = !Services::IP()->isLoopback() &&
+									!in_array( $ipID, [
+										Utilities\Net\IpID::UNKNOWN,
+										Utilities\Net\IpID::THIS_SERVER,
+										Utilities\Net\IpID::VISITOR,
 									] );
 		}
 		return self::$bIsVerifiedBot;

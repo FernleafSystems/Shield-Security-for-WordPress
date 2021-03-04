@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculato
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVoConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildScores {
 
@@ -22,12 +22,12 @@ class BuildScores {
 
 	private function score_known() :int {
 		try {
-			$id = key( ( new IpIdentify( $this->getRecord()->ip ) )->run() );
+			list( $ipID, $ipName ) = ( new IpID( $this->getRecord()->ip ) )->run();
 		}
 		catch ( \Exception $e ) {
-			$id = null;
+			$ipID = null;
 		}
-		return ( empty( $id ) || in_array( $id, [ IpIdentify::UNKNOWN, IpIdentify::VISITOR ] ) )
+		return ( empty( $ipID ) || in_array( $ipID, [ IpID::UNKNOWN, IpID::VISITOR ] ) )
 			? 0 : 100;
 	}
 
