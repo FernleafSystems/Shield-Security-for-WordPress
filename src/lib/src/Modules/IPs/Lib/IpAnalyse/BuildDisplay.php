@@ -259,29 +259,34 @@ class BuildDisplay {
 		$strings = $this->getMod()->getStrings();
 		$names = $strings->getBotSignalNames();
 
+		$signals = [];
+		$scores = ( new CalculateVisitorBotScores() )
+			->setMod( $this->getMod() )
+			->setIP( $this->getIP() )
+			->scores();
 		try {
 			$record = ( new RetrieveIpBotRecord() )
 				->setMod( $this->getMod() )
 				->forIP( $this->getIP() );
 
-			$signals = [];
 			foreach ( array_keys( $record->getRawData() ) as $column ) {
 				$field = str_replace( '_at', '', $column );
-				if ( array_key_exists( $field, $names ) && !empty( $record->{$column} ) ) {
-					$signals[ $field ] = Services::Request()
-												 ->carbon()
-												 ->setTimestamp( $record->{$column} )->diffForHumans();
+				if ( array_key_exists( $field, $names ) && !empty( $scores[ $field ] ) ) {
+
+					if ( $record->{$column} == 0 ) {
+						$signals[ $field ] = __( 'Never', 'wp-simple-firewall' );
+					}
+					else {
+						$signals[ $field ] = Services::Request()
+													 ->carbon()
+													 ->setTimestamp( $record->{$column} )->diffForHumans();
+					}
 				}
 			}
 		}
 		catch ( \Exception $e ) {
 			$signals = [];
 		}
-
-		$scores = ( new CalculateVisitorBotScores() )
-			->setMod( $this->getMod() )
-			->setIP( Services::IP()->getRequestIp() )
-			->scores();
 
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig',
