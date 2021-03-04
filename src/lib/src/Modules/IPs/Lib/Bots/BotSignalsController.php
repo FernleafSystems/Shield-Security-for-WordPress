@@ -22,7 +22,7 @@ class BotSignalsController {
 	 */
 	private $eventListener;
 
-	public function isBot( string $IP = '' ) :bool {
+	public function isBot( string $IP = '', bool $allowEventFire = true ) :bool {
 		$score = ( new CalculateVisitorBotScores() )
 			->setMod( $this->getMod() )
 			->setIP( empty( $IP ) ? Services::IP()->getRequestIp() : $IP )
@@ -32,20 +32,18 @@ class BotSignalsController {
 
 		$isBot = $score < $botScoreMinimum;
 
-		$this->getCon()->fireEvent(
-			'antibot_'.( $isBot ? 'fail' : 'pass' ),
-			[
-				'audit' => [
-					'score'   => $score,
-					'minimum' => $botScoreMinimum,
+		if ( $allowEventFire ) {
+			$this->getCon()->fireEvent(
+				'antibot_'.( $isBot ? 'fail' : 'pass' ),
+				[
+					'audit' => [
+						'score'   => $score,
+						'minimum' => $botScoreMinimum,
+					]
 				]
-			]
-		);
+			);
+		}
 		return $isBot;
-	}
-
-	public function verifyNotBot( string $IP = '' ) :bool {
-		return !$this->isBot( $IP );
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
