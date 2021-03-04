@@ -2,15 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-
-class Handler extends Base\Handler {
+class Handler extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler {
 
 	public function autoCleanDb() {
 		$this->tableCleanExpired( (int)$this->getTableSchema()->autoexpire );
-	}
-
-	protected function getDefaultTableName() :string {
-		return $this->getTableSchema()->slug;
 	}
 }

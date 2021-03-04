@@ -202,8 +202,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbHandler_ScanResults() :Databases\Scanner\Handler {
-		$new = $this->getDbH( 'scanner' );
-		return empty( $new ) ? $this->getDbH( 'scanresults' ) : $new;
+		return $this->getDbH( 'scanner' );
 	}
 
 	/**

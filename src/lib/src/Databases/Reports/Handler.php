@@ -12,8 +12,4 @@ class Handler extends Base\Handler {
 	public function autoCleanDb() {
 		$this->tableCleanExpired( $this->getTableSchema()->autoexpire );
 	}
-
-	protected function getDefaultTableName() :string {
-		return $this->getTableSchema()->slug;
-	}
 }

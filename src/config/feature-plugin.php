@@ -562,18 +562,6 @@
         "meta": "TEXT"
       }
     },
-    "db_autoexpire_notes":             0,
-    "db_autoexpire_geoip":             30,
-    "db_notes_name":                   "notes",
-    "db_notes_table_columns":          {
-      "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
-      "note":        "TEXT"
-    },
-    "geoip_table_name":                "geoip",
-    "geoip_table_columns":             {
-      "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
-      "meta": "TEXT"
-    },
     "active_plugin_features":          [
       {
         "slug":          "insights",

@@ -226,11 +226,11 @@ abstract class Handler {
 	}
 
 	/**
-	 * @param bool $bReTest
+	 * @param bool $reTest
 	 * @return bool
 	 */
-	public function isReady( $bReTest = false ) {
-		if ( $bReTest ) {
+	public function isReady( bool $reTest = false ) {
+		if ( $reTest ) {
 			$this->reset();
 		}
 
@@ -249,7 +249,7 @@ abstract class Handler {
 	}
 
 	protected function getDefaultTableName() :string {
-		throw new \Exception( 'No table name' );
+		return $this->getTableSchema()->slug;
 	}
 
 	/**
