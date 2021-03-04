@@ -38,9 +38,10 @@ class UpdateBotField {
 		$mod = $this->getMod();
 
 		try {
-			$entry = ( new RetrieveIpBotRecord() )
+			$entry = ( new NotBotRecord() )
 				->setMod( $this->getMod() )
-				->forIP( $this->getIP() );
+				->setIP( $this->getIP() )
+				->retrieve();
 		}
 		catch ( \Exception $e ) {
 			$entry = new EntryVO();

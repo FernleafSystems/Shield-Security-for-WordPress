@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculato
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\RetrieveIpBotRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBotRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -46,9 +46,10 @@ class CalculateVisitorBotScores {
 		}
 		try {
 			$ip = $this->getIP();
-			$entry = ( new RetrieveIpBotRecord() )
+			$entry = ( new NotBotRecord() )
 				->setMod( $this->getMod() )
-				->forIP( $ip );
+				->setIP( $ip )
+				->retrieve();
 		}
 		catch ( \Exception $e ) {
 			$entry = new EntryVO();

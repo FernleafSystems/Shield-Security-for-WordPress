@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\RetrieveIpBotRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBotRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
@@ -60,18 +60,18 @@ class BuildDisplay {
 
 	private function renderForGeneral() :string {
 		$con = $this->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$ip = $this->getIP();
 
-		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
-
 		$oBlockIP = ( new LookupIpOnList() )
-			->setDbHandler( $dbh )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlack()
 			->setIP( $ip )
 			->lookup( true );
 
 		$oBypassIP = ( new LookupIpOnList() )
-			->setDbHandler( $dbh )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeWhite()
 			->setIP( $ip )
 			->lookup( true );
@@ -97,7 +97,7 @@ class BuildDisplay {
 
 		if ( $ipIdKey === IpIdentify::UNKNOWN ) {
 			$ipEntry = ( new LookupIpOnList() )
-				->setDbHandler( $dbh )
+				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $ip )
 				->setListTypeWhite()
 				->lookup();
@@ -106,6 +106,12 @@ class BuildDisplay {
 			}
 		}
 
+		$botScore = ( new CalculateVisitorBotScores() )
+			->setMod( $mod )
+			->setIP( $ip )
+			->probability();
+		$isBot = $mod->getBotSignalsController()->isBot( $ip );
+
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
 			[
@@ -113,16 +119,18 @@ class BuildDisplay {
 					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
 					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
-					'block_ip'    => __( 'Block IP', 'wp-simple-firewall' ),
-					'unblock_ip'  => __( 'Unblock IP', 'wp-simple-firewall' ),
-					'bypass_ip'   => __( 'Add IP Bypass', 'wp-simple-firewall' ),
-					'unbypass_ip' => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+					'block_ip'      => __( 'Block IP', 'wp-simple-firewall' ),
+					'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
+					'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+					'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+					'delete_notbot' => __( 'Reset Score', 'wp-simple-firewall' ),
 
 					'status' => [
-						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
-						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
-						'is_blocked' => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'  => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'is_you'       => __( 'Is It You?', 'wp-simple-firewall' ),
+						'offenses'     => __( 'Number of offenses', 'wp-simple-firewall' ),
+						'is_blocked'   => __( 'Is Blocked', 'wp-simple-firewall' ),
+						'is_bypass'    => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'notbot_score' => __( 'NotBot Score', 'wp-simple-firewall' ),
 					],
 
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
@@ -145,10 +153,12 @@ class BuildDisplay {
 				'vars'    => [
 					'ip'       => $ip,
 					'status'   => [
-						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
-						'is_blocked' => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
-						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
+						'is_you'       => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'offenses'     => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
+						'is_blocked'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
+						'is_bypass'    => $oBypassIP instanceof Databases\IPs\EntryVO,
+						'notbot_score' => $botScore,
+						'is_bot'       => $isBot,
 					],
 					'identity' => [
 						'who_is_it'    => $ipID,
@@ -265,9 +275,10 @@ class BuildDisplay {
 			->setIP( $this->getIP() )
 			->scores();
 		try {
-			$record = ( new RetrieveIpBotRecord() )
+			$record = ( new NotBotRecord() )
 				->setMod( $this->getMod() )
-				->forIP( $this->getIP() );
+				->setIP( $this->getIP() )
+				->retrieve();
 
 			foreach ( array_keys( $record->getRawData() ) as $column ) {
 				$field = str_replace( '_at', '', $column );
@@ -292,14 +303,18 @@ class BuildDisplay {
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig',
 			[
 				'strings' => [
-					'title'           => __( 'Bot Signals', 'wp-simple-firewall' ),
-					'signal'          => __( 'Signal', 'wp-simple-firewall' ),
-					'score'           => __( 'Score', 'wp-simple-firewall' ),
-					'total_score'     => __( 'Total Bot Score', 'wp-simple-firewall' ),
-					'when'            => __( 'When', 'wp-simple-firewall' ),
-					'bot_probability' => __( 'Bot Probability', 'wp-simple-firewall' ),
-					'signal_names'    => $names,
-					'no_signals'      => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
+					'title'            => __( 'Bot Signals', 'wp-simple-firewall' ),
+					'signal'           => __( 'Signal', 'wp-simple-firewall' ),
+					'score'            => __( 'Score', 'wp-simple-firewall' ),
+					'total_score'      => __( 'Total NotBot Score', 'wp-simple-firewall' ),
+					'when'             => __( 'When', 'wp-simple-firewall' ),
+					'bot_probability'  => __( 'Bot Probability', 'wp-simple-firewall' ),
+					'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
+					'signal_names'     => $names,
+					'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
+				],
+				'ajax'    => [
+					'has_signals' => !empty( $signals ),
 				],
 				'flags'   => [
 					'has_signals' => !empty( $signals ),

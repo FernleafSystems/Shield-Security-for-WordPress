@@ -207,7 +207,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$success = false;
 
-		if ( $ipKey !== IpIdentify::UNKNOWN ) {
+		if ( !in_array( $ipKey, [ IpIdentify::UNKNOWN, IpIdentify::VISITOR ] ) ) {
 			$msg = sprintf( __( "IP can't be processed from this page as it's a known service IP: %s" ), $ipIdentifier->getName( $ipKey ) );
 		}
 		elseif ( !$validIP ) {
@@ -258,6 +258,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						->fromWhiteList();
 					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be removed from Bypass list at this time.", 'wp-simple-firewall' );
+					break;
+
+				case 'delete_notbot':
+					$success = ( new Lib\Bots\NotBotRecord() )
+						->setMod( $this->getMod() )
+						->setIP( $ip )
+						->delete();
+					$msg = $success ? __( 'IP NotBot Score Reset.', 'wp-simple-firewall' )
+						: __( "IP NotBot Score couldn't be reset at this time.", 'wp-simple-firewall' );
 					break;
 
 				default:
