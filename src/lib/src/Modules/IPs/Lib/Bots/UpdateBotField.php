@@ -18,18 +18,18 @@ class UpdateBotField {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$IP = $this->getVisitorEntry();
-		$IP->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
+		$notBotRecord = $this->getVisitorEntry();
+		$notBotRecord->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
 
-		if ( empty( $IP->id ) ) {
+		if ( empty( $notBotRecord->id ) ) {
 			$mod->getDbHandler_BotSignals()
 				->getQueryInserter()
-				->insert( $IP );
+				->insert( $notBotRecord );
 		}
 		else {
 			$mod->getDbHandler_BotSignals()
 				->getQueryUpdater()
-				->updateEntry( $IP, $IP->getRawData() );
+				->updateEntry( $notBotRecord, $notBotRecord->getRawData() );
 		}
 	}
 

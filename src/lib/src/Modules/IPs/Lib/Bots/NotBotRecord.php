@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class NotBotRecord {
 
@@ -23,7 +22,7 @@ class NotBotRecord {
 		$mod = $this->getMod();
 		/** @var Select $select */
 		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$entry = $select->filterByIPHuman( $ip )->first();
+		$entry = $select->filterByIPHuman( $this->getIP() )->first();
 		if ( !$entry instanceof EntryVO ) {
 			throw new \Exception( 'IP not registered' );
 		}
