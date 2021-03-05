@@ -65,7 +65,7 @@ class Collate {
 			$diff = ( new WorldTimeApi() )->diffServerWithReal();
 		}
 		catch ( \Exception $e ) {
-			$diff = 'failed';
+			$diff = 'failed: '.$e->getMessage();
 		}
 
 		return [

@@ -12,7 +12,7 @@ class WorldTimeApi {
 	 */
 	public function current() :int {
 		$raw = Services::HttpRequest()
-					   ->getContent( 'https://showcase.api.linx.twenty57.net/UnixTime/tounixtimestamp?datetime=now' );
+					   ->getContent( 'https://api.aptoweb.com/api/v1/time' );
 		if ( empty( $raw ) ) {
 			throw new \Exception( 'Request to World Clock Api Failed' );
 		}
@@ -20,7 +20,7 @@ class WorldTimeApi {
 		if ( empty( $dec ) ) {
 			throw new \Exception( 'Failed to decode World Clock Api response' );
 		}
-		return (int)$dec[ 'UnixTimeStamp' ];
+		return (int)$dec[ 'current' ][ 'seconds' ];
 	}
 
 	/**
