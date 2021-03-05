@@ -173,6 +173,11 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
+		$dbh = $con->getModule_IPs()->getDbHandler_BotSignals();
+		$data[ 'DB Table: Bot Signals' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
 		$dbh = $con->getModule_HackGuard()->getDbHandler_ScanResults();
 		$data[ 'DB Table: Scan' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
@@ -209,9 +214,9 @@ class Collate {
 			'WP Hashes Ping'       => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
-		$oPing = new Licenses\Keyless\Ping();
-		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
-		$data[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
+		$licPing = new Licenses\Keyless\Ping();
+		$licPing->lookup_url_stub = $con->getModule_License()->getOptions()->getDef( 'license_store_url_api' );
+		$data[ 'Ping License Server' ] = $licPing->ping() ? 'Yes' : 'No';
 
 		$sTmpPath = $con->getPluginCachePath();
 		$data[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
