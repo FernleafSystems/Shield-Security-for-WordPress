@@ -1,5 +1,5 @@
 {
-  "name":              "odp-shield/requirements",
+  "name":              "apto-shield/requirements",
   "description":       "shield requirement",
   "authors":           [
     {
@@ -20,7 +20,7 @@
   },
   "require":           {
     "php":                                ">=7.0",
-    "fernleafsystems/wordpress-services": "^2.10",
+    "fernleafsystems/wordpress-services": "^2.11",
     "dolondro/google-authenticator":      "^2.1",
     "fernleafsystems/zxcvbn-php":         "^1.0",
     "nesbot/carbon":                      "^1.39",
