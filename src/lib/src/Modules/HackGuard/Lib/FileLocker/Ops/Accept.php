@@ -13,24 +13,24 @@ use FernleafSystems\Wordpress\Services\Services;
 class Accept extends BaseOps {
 
 	/**
-	 * @param FileLocker\EntryVO $oLock
+	 * @param FileLocker\EntryVO $lock
 	 * @return bool
 	 * @throws \ErrorException
 	 */
-	public function run( $oLock ) {
+	public function run( $lock ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$aPublicKey = $this->getPublicKey();
-		$sRawContent = ( new BuildEncryptedFilePayload() )
+		$raw = ( new BuildEncryptedFilePayload() )
 			->setMod( $mod )
-			->build( $oLock->file, reset( $aPublicKey ) );
+			->build( $lock->file, reset( $aPublicKey ) );
 
-		/** @var FileLocker\Update $oUpdater */
-		$oUpdater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
-		$bSuccess = $oUpdater->updateEntry( $oLock, [
-			'hash_original' => hash_file( 'sha1', $oLock->file ),
-			'content'       => base64_encode( $sRawContent ),
+		/** @var FileLocker\Update $updater */
+		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
+		$success = $updater->updateEntry( $lock, [
+			'hash_original' => hash_file( 'sha1', $lock->file ),
+			'content'       => base64_encode( $raw ),
 			'public_key_id' => key( $aPublicKey ),
 			'detected_at'   => 0,
 			'updated_at'    => Services::Request()->ts(),
@@ -38,6 +38,6 @@ class Accept extends BaseOps {
 		] );
 
 		$this->clearFileLocksCache();
-		return $bSuccess;
+		return $success;
 	}
 }

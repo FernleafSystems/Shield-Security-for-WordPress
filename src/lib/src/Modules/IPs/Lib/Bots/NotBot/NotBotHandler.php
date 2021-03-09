@@ -17,7 +17,7 @@ class NotBotHandler {
 	private $hashTested = false;
 
 	protected function canRun() :bool {
-		return (bool)apply_filters( 'shield/can_run_antibot', !Services::WpUsers()->isUserLoggedIn() );
+		return (bool)apply_filters( 'shield/can_run_antibot', true );
 	}
 
 	protected function run() {

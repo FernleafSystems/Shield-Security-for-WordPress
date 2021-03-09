@@ -51,7 +51,6 @@ class EntryVO extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\En
 	 * @inheritDoc
 	 */
 	public function __set( string $key, $value ) {
-
 		switch ( $key ) {
 
 			case 'ip':

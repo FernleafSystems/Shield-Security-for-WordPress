@@ -17,18 +17,18 @@ class Update extends Base\Update {
 	}
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function setFinished( $oEntry ) {
-		return $this->updateEntry( $oEntry, [ 'finished_at' => Services::Request()->ts() ] );
+	public function setFinished( $entry ) {
+		return $this->updateEntry( $entry, [ 'finished_at' => Services::Request()->ts() ] );
 	}
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function setStarted( $oEntry ) {
-		return $this->updateEntry( $oEntry, [ 'started_at' => Services::Request()->ts() ] );
+	public function setStarted( $entry ) {
+		return $this->updateEntry( $entry, [ 'started_at' => Services::Request()->ts() ] );
 	}
 }

@@ -63,9 +63,9 @@ abstract class ItemActionHandler {
 
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Scanner\Update $oUp */
-		$oUp = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		if ( !$oUp->setIgnored( $oEntry ) ) {
+		/** @var Scanner\Update $updater */
+		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
+		if ( !$updater->setIgnored( $oEntry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
 

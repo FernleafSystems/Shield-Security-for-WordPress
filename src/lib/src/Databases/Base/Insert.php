@@ -50,20 +50,11 @@ class Insert extends BaseQuery {
 	 * @throws \Exception
 	 */
 	protected function verifyInsertData() {
-		$aData = $this->getInsertData();
-
-		if ( !is_array( $aData ) ) {
-			$aData = [];
+		$baseData = [ 'created_at' => Services::Request()->ts() ];
+		if ( $this->getDbH()->hasColumn( 'updated_at' ) ) {
+			$baseData[ 'updated_at' ] = Services::Request()->ts();
 		}
-		$aData = array_merge(
-			[ 'created_at' => Services::Request()->ts(), ],
-			$aData
-		);
-		if ( !isset( $aData[ 'updated_at' ] ) && $this->getDbH()->hasColumn( 'updated_at' ) ) {
-			$aData[ 'updated_at' ] = Services::Request()->ts();
-		}
-
-		return $this->setInsertData( $aData );
+		return $this->setInsertData( array_merge( $baseData, $this->getInsertData() ) );
 	}
 
 	/**

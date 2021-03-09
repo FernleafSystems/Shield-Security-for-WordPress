@@ -46,34 +46,34 @@ class Update extends Base\Update {
 	}
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function setIgnored( $oEntry ) {
-		return $this->updateEntry( $oEntry, [ 'ignored_at' => Services::Request()->ts() ] );
+	public function setIgnored( $entry ) {
+		return $this->updateEntry( $entry, [ 'ignored_at' => Services::Request()->ts() ] );
 	}
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function setNotified( $oEntry ) {
-		return $this->updateEntry( $oEntry, [ 'notified_at' => Services::Request()->ts() ] );
+	public function setNotified( $entry ) {
+		return $this->updateEntry( $entry, [ 'notified_at' => Services::Request()->ts() ] );
 	}
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function setNotIgnored( $oEntry ) {
-		return $this->updateEntry( $oEntry, [ 'ignored_at' => 0 ] );
+	public function setNotIgnored( $entry ) {
+		return $this->updateEntry( $entry, [ 'ignored_at' => 0 ] );
 	}
 
 	/**
-	 * @param EntryVO $oEntry
+	 * @param EntryVO $entry
 	 * @return bool
 	 */
-	public function setNotNotified( $oEntry ) {
-		return $this->updateEntry( $oEntry, [ 'notified_at' => 0 ] );
+	public function setNotNotified( $entry ) {
+		return $this->updateEntry( $entry, [ 'notified_at' => 0 ] );
 	}
 }

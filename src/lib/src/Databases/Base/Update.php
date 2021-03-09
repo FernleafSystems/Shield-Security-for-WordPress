@@ -52,44 +52,52 @@ class Update extends Insert {
 	}
 
 	/**
-	 * @param EntryVO $entryVO
+	 * @param EntryVO $entry
 	 * @param array   $updateData
 	 * @return bool
 	 */
-	public function updateEntry( $entryVO, $updateData = [] ) {
+	public function updateEntry( $entry, $updateData = [] ) :bool {
 		$success = false;
 
-		if ( $entryVO instanceof EntryVO ) {
-			if ( empty( $updateData ) ) {
-				$updateData = $entryVO->getRawData();
+		if ( $entry instanceof EntryVO ) {
+
+			foreach ( $entry->getRawData() as $key => $value ) {
+				if ( isset( $updateData[ $key ] ) && $updateData[ $key ] === $value ) {
+					unset( $updateData[ $key ] );
+				}
 			}
-			$success = $this->updateById( $entryVO->id, $updateData );
-			// TODO: run through update data and determine if anything actually needs updating
-			if ( $success ) {
-				foreach ( $updateData as $col => $mVal ) {
-					$entryVO->{$col} = $mVal;
+
+			if ( empty( $updateData ) ) {
+				$success = true;
+			}
+			else {
+				if ( $this->getDbH()->hasColumn( 'updated_at' ) && !isset( $updateData[ 'updated_at' ] ) ) {
+					$updateData[ 'updated_at' ] = Services::Request()->ts();
+				}
+				if ( $this->updateById( $entry->id, $updateData ) ) {
+					$entry->applyFromArray( array_merge( $entry->getRawData(), $updateData ) );
+					$success = true;
 				}
 			}
 		}
+
 		return $success;
 	}
 
 	/**
-	 * @param int   $nId
-	 * @param array $aUpdateData
+	 * @param int   $id
+	 * @param array $updateData
 	 * @return bool true is success or no update necessary
 	 */
-	public function updateById( $nId, $aUpdateData = [] ) {
-		$bSuccess = true;
+	public function updateById( $id, $updateData = [] ) {
+		$success = true;
 
-		if ( !empty( $aUpdateData ) ) {
-			$mResult = $this
-				->setUpdateId( $nId )
-				->setUpdateData( $aUpdateData )
-				->query();
-			$bSuccess = $mResult === 1;
+		if ( !empty( $updateData ) ) {
+			$success = $this->setUpdateId( $id )
+							->setUpdateData( $updateData )
+							->query() === 1;
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
