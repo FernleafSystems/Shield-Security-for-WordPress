@@ -29,10 +29,10 @@ class LoadFileLocks {
 
 			self::$aFileLockRecords = [];
 			if ( $mod->getFileLocker()->isEnabled() ) {
-				$aAll = $mod->getDbHandler_FileLocker()->getQuerySelector()->all();
-				if ( is_array( $aAll ) ) {
-					foreach ( $aAll as $oLock ) {
-						self::$aFileLockRecords[ $oLock->id ] = $oLock;
+				$all = $mod->getDbHandler_FileLocker()->getQuerySelector()->all();
+				if ( is_array( $all ) ) {
+					foreach ( $all as $lock ) {
+						self::$aFileLockRecords[ $lock->id ] = $lock;
 					}
 				}
 			}
@@ -46,8 +46,8 @@ class LoadFileLocks {
 	public function withProblems() {
 		return array_filter(
 			$this->loadLocks(),
-			function ( $oLock ) {
-				return $oLock->detected_at > 0;
+			function ( $lock ) {
+				return $lock->detected_at > 0;
 			}
 		);
 	}
@@ -58,8 +58,8 @@ class LoadFileLocks {
 	public function withProblemsNotNotified() {
 		return array_filter(
 			$this->withProblems(),
-			function ( $oLock ) {
-				return $oLock->notified_at == 0;
+			function ( $lock ) {
+				return $lock->notified_at == 0;
 			}
 		);
 	}
@@ -70,8 +70,8 @@ class LoadFileLocks {
 	public function withoutProblems() {
 		return array_filter(
 			$this->loadLocks(),
-			function ( $oLock ) {
-				return $oLock->detected_at == 0;
+			function ( $lock ) {
+				return $lock->detected_at == 0;
 			}
 		);
 	}

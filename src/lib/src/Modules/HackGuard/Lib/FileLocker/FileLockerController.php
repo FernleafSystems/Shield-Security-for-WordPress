@@ -14,10 +14,7 @@ class FileLockerController {
 	use Modules\ModConsumer;
 	use OneTimeExecute;
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
+	public function isEnabled() :bool {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		return ( count( $opts->getFilesToLock() ) > 0 )
@@ -37,10 +34,11 @@ class FileLockerController {
 	}
 
 	protected function run() {
-		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+		$con = $this->getCon();
+		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 
-		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-			if ( !$this->getCon()->plugin_deactivating ) {
+		add_action( $con->prefix( 'plugin_shutdown' ), function () {
+			if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
 				if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
 					$this->deleteAllLocks();
 				}
@@ -135,19 +133,22 @@ class FileLockerController {
 	}
 
 	/**
-	 * @param int $nID
+	 * @param int $ID
 	 * @return FileLocker\EntryVO|null
 	 */
-	public function getFileLock( $nID ) {
-		$aLocks = ( new Lib\FileLocker\Ops\LoadFileLocks() )
-			->setMod( $this->getMod() )
-			->loadLocks();
-		return isset( $aLocks[ $nID ] ) ? $aLocks[ $nID ] : null;
+	public function getFileLock( $ID ) {
+		return ( new Lib\FileLocker\Ops\LoadFileLocks() )
+				   ->setMod( $this->getMod() )
+				   ->loadLocks()[ $ID ] ?? null;
 	}
 
 	private function runAnalysis() {
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		if ( did_action( 'upgrader_process_complete' ) ) {
+			return; // @deprecated 10.3 - temporary to prevent upgrade notices/errors
+		}
+
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		// 1. First assess the existing locks for changes.
 		( new Ops\AssessLocks() )
@@ -155,11 +156,11 @@ class FileLockerController {
 			->run();
 
 		// 2. Create new file locks as required
-		foreach ( $oOpts->getFilesToLock() as $sFileKey ) {
+		foreach ( $opts->getFilesToLock() as $fileKey ) {
 			try {
 				( new Ops\CreateFileLocks() )
 					->setMod( $this->getMod() )
-					->setWorkingFile( $this->getFile( $sFileKey ) )
+					->setWorkingFile( $this->getFile( $fileKey ) )
 					->create();
 			}
 			catch ( \Exception $e ) {

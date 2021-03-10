@@ -24,6 +24,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
  * @property string                                                 $root_file
+ * @property bool                                                   $is_my_upgrade
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
@@ -425,6 +426,21 @@ class Controller {
 		( new Ajax\Init() )
 			->setCon( $this )
 			->execute();
+		$this->initUpgraderAptoWeb();
+	}
+
+	private function initUpgraderAptoWeb() {
+		\Puc_v4_Factory::buildUpdateChecker(
+			add_query_arg(
+				[
+					'action' => 'get_metadata',
+					'slug'   => 'wp-simple-firewall',
+				],
+				'https://wpupdates.fernleafsystems.com'
+			),
+			$this->root_file,
+			'wp-simple-firewall'
+		);
 	}
 
 	/**
@@ -484,6 +500,9 @@ class Controller {
 			->setCon( $this )
 			->execute();
 		( new Admin\MainAdminMenu() )
+			->setCon( $this )
+			->execute();
+		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
 	}
