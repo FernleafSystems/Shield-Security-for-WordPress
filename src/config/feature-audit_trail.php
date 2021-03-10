@@ -177,9 +177,7 @@
         "context":     "varchar(32) NOT NULL DEFAULT 'none' COMMENT 'Audit Context'",
         "event":       "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event'",
         "category":    "int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity'",
-        "message":     "text COMMENT 'Audit Event Description'",
         "meta":        "text COMMENT 'Audit Event Data'",
-        "immutable":   "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May or May Not Be Deleted'",
         "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'"
       }
     },
@@ -192,9 +190,7 @@
       "context":     "varchar(32) NOT NULL DEFAULT 'none' COMMENT 'Audit Context'",
       "event":       "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event'",
       "category":    "int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity'",
-      "message":     "text COMMENT 'Audit Event Description'",
       "meta":        "text COMMENT 'Audit Event Data'",
-      "immutable":   "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May Be Deleted'",
       "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'"
     },
     "audittrail_table_timestamp_columns": {

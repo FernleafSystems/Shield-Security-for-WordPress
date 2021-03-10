@@ -45,7 +45,6 @@ class CalculateVisitorBotScores {
 			$ip = Services::IP()->getRequestIp();
 		}
 		try {
-			$ip = $this->getIP();
 			$entry = ( new NotBotRecord() )
 				->setMod( $this->getMod() )
 				->setIP( $ip )

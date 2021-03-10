@@ -141,9 +141,9 @@ abstract class Handler {
 	 * @return Insert|mixed
 	 */
 	public function getQueryInserter() {
-		$sClass = $this->getNamespace().'Insert';
+		$class = $this->getNamespace().'Insert';
 		/** @var Insert $o */
-		$o = new $sClass();
+		$o = new $class();
 		return $o->setDbH( $this );
 	}
 
@@ -151,9 +151,9 @@ abstract class Handler {
 	 * @return Delete|mixed
 	 */
 	public function getQueryDeleter() {
-		$sClass = $this->getNamespace().'Delete';
+		$class = $this->getNamespace().'Delete';
 		/** @var Delete $o */
-		$o = new $sClass();
+		$o = new $class();
 		return $o->setDbH( $this );
 	}
 
@@ -161,9 +161,9 @@ abstract class Handler {
 	 * @return Select|mixed
 	 */
 	public function getQuerySelector() {
-		$sClass = $this->getNamespace().'Select';
+		$class = $this->getNamespace().'Select';
 		/** @var Select $o */
-		$o = new $sClass();
+		$o = new $class();
 		return $o->setDbH( $this )
 				 ->setResultsAsVo( true );
 	}
@@ -172,9 +172,9 @@ abstract class Handler {
 	 * @return Update|mixed
 	 */
 	public function getQueryUpdater() {
-		$sClass = $this->getNamespace().'Update';
+		$class = $this->getNamespace().'Update';
 		/** @var Update $o */
-		$o = new $sClass();
+		$o = new $class();
 		return $o->setDbH( $this );
 	}
 
@@ -182,10 +182,15 @@ abstract class Handler {
 	 * @return EntryVO|mixed
 	 */
 	public function getVo() {
-		$sClass = $this->getNamespace().'EntryVO';
-		return new $sClass();
+		$class = $this->getNamespace().'EntryVO';
+		return new $class();
 	}
 
+	/**
+	 * @param string $col
+	 * @return bool
+	 * @deprecated 10.3 - moved to schema
+	 */
 	public function hasColumn( string $col ) :bool {
 		return in_array( strtolower( $col ), $this->getTableSchema()->getColumnNames() );
 	}
@@ -216,9 +221,9 @@ abstract class Handler {
 		return Services::WpDb()->getIfTableExists( $this->getTable() );
 	}
 
-	public function tableTrimExcess( int $nRowsLimit ) :self {
+	public function tableTrimExcess( int $rowsLimit ) :self {
 		try {
-			$this->getQueryDeleter()->deleteExcess( $nRowsLimit );
+			$this->getQueryDeleter()->deleteExcess( $rowsLimit );
 		}
 		catch ( \Exception $e ) {
 		}

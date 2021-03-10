@@ -1,21 +1,17 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Services\Services;
-
-class Update extends Base\Update {
+class Update extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Update {
 
 	/**
-	 * @param EntryVO $oEntry
-	 * @param int     $nIncrease
+	 * @param EntryVO $entry
+	 * @param int     $increase
 	 * @return bool
 	 */
-	public function updateCount( $oEntry, $nIncrease = 1 ) {
-		return $this->updateEntry( $oEntry, [
-			'count'      => $oEntry->count + $nIncrease,
-			'updated_at' => Services::Request()->ts()
+	public function updateCount( $entry, $increase = 1 ) :bool {
+		return $this->updateEntry( $entry, [
+			'count' => $entry->count + $increase,
 		] );
 	}
 }

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
@@ -30,6 +30,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 			case 'ip_analyse_action':
 				$response = $this->ajaxExec_IpAnalyseAction();
+				break;
+
+			case 'not_bot':
+				$response = $this->ajaxExec_CaptureNotBot();
 				break;
 
 			default:
@@ -194,24 +198,23 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$ip = $req->post( 'ip' );
 
-		$ipIdentifier = new IpIdentify( $ip );
 		try {
-			$ipID = $ipIdentifier->run();
-			$ipKey = key( $ipID );
+			list( $ipKey, $ipName ) = ( new IpID( $ip ) )->run();
 			$validIP = true;
 		}
 		catch ( \Exception $e ) {
-			$ipKey = IpIdentify::UNKNOWN;
+			$ipKey = IpID::UNKNOWN;
+			$ipName = 'Unknown';
 			$validIP = false;
 		}
 
 		$success = false;
 
-		if ( !in_array( $ipKey, [ IpIdentify::UNKNOWN, IpIdentify::VISITOR ] ) ) {
-			$msg = sprintf( __( "IP can't be processed from this page as it's a known service IP: %s" ), $ipIdentifier->getName( $ipKey ) );
-		}
-		elseif ( !$validIP ) {
+		if ( !$validIP ) {
 			$msg = __( "IP provided was invalid.", 'wp-simple-firewall' );
+		}
+		elseif ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
+			$msg = sprintf( __( "IP can't be processed from this page as it's a known service IP: %s" ), $ipName );
 		}
 		else {
 			switch ( $req->post( 'ip_action' ) ) {

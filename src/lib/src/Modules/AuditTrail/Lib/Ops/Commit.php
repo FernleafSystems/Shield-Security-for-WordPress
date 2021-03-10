@@ -15,54 +15,51 @@ class Commit {
 	 */
 	public function commitAudits( $aEvents ) {
 		if ( is_array( $aEvents ) ) {
-			foreach ( $aEvents as $oEntry ) {
-				if ( $oEntry instanceof AuditTrail\EntryVO ) {
-					$this->commitAudit( $oEntry );
+			foreach ( $aEvents as $entry ) {
+				if ( $entry instanceof AuditTrail\EntryVO ) {
+					$this->commitAudit( $entry );
 				}
 			}
 		}
 	}
 
 	/**
-	 * @param AuditTrail\EntryVO $oEntry
+	 * @param AuditTrail\EntryVO $entry
 	 */
-	public function commitAudit( $oEntry ) {
-		$oWp = Services::WpGeneral();
-		$oWpUsers = Services::WpUsers();
+	public function commitAudit( $entry ) {
+		$WP = Services::WpGeneral();
+		$WPU = Services::WpUsers();
 
-		if ( empty( $oEntry->ip ) ) {
-			$oEntry->ip = Services::IP()->getRequestIp();
+		if ( empty( $entry->ip ) ) {
+			$entry->ip = Services::IP()->getRequestIp();
 		}
-		if ( empty( $oEntry->message ) ) {
-			$oEntry->message = '';
-		}
-		if ( empty( $oEntry->wp_username ) ) {
-			if ( $oWpUsers->isUserLoggedIn() ) {
-				$sUser = $oWpUsers->getCurrentWpUsername();
+		if ( empty( $entry->wp_username ) ) {
+			if ( $WPU->isUserLoggedIn() ) {
+				$sUser = $WPU->getCurrentWpUsername();
 			}
-			elseif ( $oWp->isCron() ) {
+			elseif ( $WP->isCron() ) {
 				$sUser = 'WP Cron';
 			}
-			elseif ( $oWp->isWpCli() ) {
+			elseif ( $WP->isWpCli() ) {
 				$sUser = 'WP CLI';
 			}
 			else {
 				$sUser = '-';
 			}
-			$oEntry->wp_username = $sUser;
+			$entry->wp_username = $sUser;
 		}
 
 		$oLatest = null;
-		$bCanCount = in_array( $oEntry->event, $this->getCanCountEvents() );
+		$bCanCount = in_array( $entry->event, $this->getCanCountEvents() );
 		if ( $bCanCount ) {
 			/** @var AuditTrail\Select $oSel */
 			$oSel = $this->getDbHandler()->getQuerySelector();
-			$oLatest = $oSel->filterByEvent( $oEntry->event )
-							->filterByIp( $oEntry->ip )
+			$oLatest = $oSel->filterByEvent( $entry->event )
+							->filterByIp( $entry->ip )
 							->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
 							->first();
 			$bCanCount = ( $oLatest instanceof AuditTrail\EntryVO )
-						 && ( $oLatest->event === $oEntry->event && $oLatest->ip === $oEntry->ip );
+						 && ( $oLatest->event === $entry->event && $oLatest->ip === $entry->ip );
 		}
 
 		if ( $bCanCount ) {
@@ -73,7 +70,7 @@ class Commit {
 		else {
 			/** @var AuditTrail\Insert $oQI */
 			$oQI = $this->getDbHandler()->getQueryInserter();
-			$oQI->insert( $oEntry );
+			$oQI->insert( $entry );
 		}
 	}
 

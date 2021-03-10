@@ -13,19 +13,19 @@ class Insert extends Base\Insert {
 	 */
 	protected function verifyInsertData() {
 		parent::verifyInsertData();
-		$aData = $this->getInsertData();
+		$data = $this->getInsertData();
 
-		if ( !Services::IP()->isValidIpOrRange( $aData[ 'ip' ] ) ) {
+		if ( !Services::IP()->isValidIpOrRange( $data[ 'ip' ] ) ) {
 			throw new \Exception( 'IP address provided is not valid' );
 		}
-		if ( empty( $aData[ 'list' ] ) ) {
+		if ( empty( $data[ 'list' ] ) ) {
 			throw new \Exception( 'An IP address must be assigned to a list' );
 		}
 
-		if ( strpos( $aData[ 'ip' ], '/' ) !== false ) {
-			$aData[ 'is_range' ] = true;
+		if ( strpos( $data[ 'ip' ], '/' ) !== false ) {
+			$data[ 'is_range' ] = true;
 		}
 
-		return $this->setInsertData( $aData );
+		return $this->setInsertData( $data );
 	}
 }

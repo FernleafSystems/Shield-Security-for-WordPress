@@ -18,43 +18,43 @@ class Update extends Base\Update {
 	}
 
 	/**
-	 * @param EntryVO $oIp
-	 * @param int     $nTransCount
+	 * @param EntryVO $IP
+	 * @param int     $offenseCount
 	 * @return bool
 	 */
-	public function updateTransgressions( $oIp, $nTransCount ) {
+	public function updateTransgressions( $IP, $offenseCount ) {
 		return $this->updateEntry(
-			$oIp,
+			$IP,
 			[
-				'transgressions' => max( 0, $nTransCount ),
+				'transgressions' => max( 0, $offenseCount ),
 				'last_access_at' => Services::Request()->ts()
 			]
 		);
 	}
 
 	/**
-	 * @param EntryVO $oIp
-	 * @param string  $sLabel
+	 * @param EntryVO $IP
+	 * @param string  $label
 	 * @return bool
 	 */
-	public function updateLabel( $oIp, $sLabel ) {
-		return $this->updateEntry( $oIp, [ 'label' => trim( $sLabel ) ] );
+	public function updateLabel( $IP, $label ) {
+		return $this->updateEntry( $IP, [ 'label' => trim( $label ) ] );
 	}
 
 	/**
 	 * Also updates last access at
-	 * @param EntryVO $oIp
+	 * @param EntryVO $IP
 	 * @return bool
 	 */
-	public function updateLastAccessAt( $oIp ) {
-		return $this->updateEntry( $oIp, [ 'last_access_at' => Services::Request()->ts() ] );
+	public function updateLastAccessAt( $IP ) {
+		return $this->updateEntry( $IP, [ 'last_access_at' => Services::Request()->ts() ] );
 	}
 
 	/**
-	 * @param EntryVO $oIp
+	 * @param EntryVO $IP
 	 * @return bool
 	 */
-	public function setBlocked( $oIp ) {
-		return $this->updateEntry( $oIp, [ 'blocked_at' => Services::Request()->ts() ] );
+	public function setBlocked( $IP ) {
+		return $this->updateEntry( $IP, [ 'blocked_at' => Services::Request()->ts() ] );
 	}
 }

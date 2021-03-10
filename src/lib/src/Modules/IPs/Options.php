@@ -90,7 +90,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledTrackInvalidScript() :bool {
-		return $this->isSelectOptionEnabled( 'track_invalid_script' );
+		return $this->isSelectOptionEnabled( 'track_invalidscript' );
 	}
 
 	public function isEnabledTrackLoginInvalid() :bool {

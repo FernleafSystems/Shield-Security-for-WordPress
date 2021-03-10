@@ -19,9 +19,10 @@ class UpdateBotField {
 		$mod = $this->getMod();
 
 		$notBotRecord = $this->getVisitorEntry();
-		$notBotRecord->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
+		$ts = is_null( $ts ) ? Services::Request()->ts() : $ts;
 
 		if ( empty( $notBotRecord->id ) ) {
+			$notBotRecord->{$field} = $ts;
 			$mod->getDbHandler_BotSignals()
 				->getQueryInserter()
 				->insert( $notBotRecord );
@@ -29,7 +30,7 @@ class UpdateBotField {
 		else {
 			$mod->getDbHandler_BotSignals()
 				->getQueryUpdater()
-				->updateEntry( $notBotRecord, $notBotRecord->getRawData() );
+				->updateEntry( $notBotRecord, [ $field => $ts ] );
 		}
 	}
 

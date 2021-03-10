@@ -13,11 +13,11 @@ class AntiBot {
 	 * @throws \Exception
 	 */
 	public function scan() :bool {
-		$verified = $this->getCon()
-						 ->getModule_IPs()
-						 ->getBotSignalsController()
-						 ->verifyNotBot();
-		if ( !$verified ) {
+		$isBot = $this->getCon()
+					  ->getModule_IPs()
+					  ->getBotSignalsController()
+					  ->isBot();
+		if ( $isBot ) {
 			throw new \Exception( __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
 		return true;

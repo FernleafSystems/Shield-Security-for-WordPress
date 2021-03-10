@@ -16,53 +16,53 @@ class AuditTrail extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		$aParams = $this->getParams();
-		/** @var Shield\Databases\AuditTrail\Select $oSelector */
-		$oSelector = $this->getWorkingSelector();
+		$params = $this->getParams();
+		/** @var Shield\Databases\AuditTrail\Select $selector */
+		$selector = $this->getWorkingSelector();
 
-		$oSelector->filterByEvent( $aParams[ 'fEvent' ] );
+		$selector->filterByEvent( $params[ 'fEvent' ] );
 
 		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
-		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( $aParams[ 'fIp' ] );
+		if ( $oIp->isValidIp( $params[ 'fIp' ] ) ) {
+			$selector->filterByIp( $params[ 'fIp' ] );
 		}
-		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
-			$oSelector->filterByNotIp( $oIp->getRequestIp() );
+		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
+			$selector->filterByNotIp( $oIp->getRequestIp() );
 		}
 
 		/**
 		 * put this date stuff in the base so we can filter anything
 		 */
-		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
-			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
+		if ( !empty( $params[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $params[ 'fDateFrom' ] ) ) {
+			$aParts = explode( '-', $params[ 'fDateFrom' ] );
 			$sTs = Services::Request()->carbon()
 						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
 						   ->setTime( 0, 0 )
 				->timestamp;
-			$oSelector->filterByCreatedAt( $sTs, '>' );
+			$selector->filterByCreatedAt( $sTs, '>' );
 		}
 
-		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
-			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
+		if ( !empty( $params[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $params[ 'fDateTo' ] ) ) {
+			$aParts = explode( '-', $params[ 'fDateTo' ] );
 			$sTs = Services::Request()->carbon()
 						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
 						   ->setTime( 0, 0 )
 						   ->addDay()
 				->timestamp;
-			$oSelector->filterByCreatedAt( $sTs, '<' );
+			$selector->filterByCreatedAt( $sTs, '<' );
 		}
 
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-		if ( !empty( $aParams[ 'fUsername' ] ) ) {
-			$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
+		if ( !empty( $params[ 'fUsername' ] ) ) {
+			$selector->filterByUsername( $params[ 'fUsername' ] );
 		}
-		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
+		elseif ( $params[ 'fLoggedIn' ] >= 0 ) {
+			$selector->filterByIsLoggedIn( $params[ 'fLoggedIn' ] );
 		}
 
-		$oSelector->setOrderBy( 'updated_at', 'DESC', true )
-				  ->setOrderBy( 'created_at' );
+		$selector->setOrderBy( 'updated_at', 'DESC', true )
+				 ->setOrderBy( 'created_at' );
 
 		return $this;
 	}

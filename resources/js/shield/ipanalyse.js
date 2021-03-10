@@ -35,15 +35,18 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 					jQuery( '#IpSelectContent' ).addClass( "d-none" );
 					jQuery( '#IpReviewContent' ).removeClass( "d-none" )
 												.html( oResponse.data.html );
+					if ( oResponse.page_reload ) {
+						location.reload();
+					}
 				}
 				else {
-					var sMessage = 'Communications error with site.';
+					var msg = 'Communications error with site.';
 					if ( oResponse.data.message !== undefined ) {
-						sMessage = oResponse.data.message;
+						msg = oResponse.data.message;
 					}
 					jQuery( '#IpSelectContent' ).removeClass( "d-none" );
 					jQuery( '#IpReviewContent' ).addClass( "d-none" );
-					alert( sMessage );
+					alert( msg );
 				}
 
 			}

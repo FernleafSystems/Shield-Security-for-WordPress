@@ -68,7 +68,7 @@ class Strings extends Base\Strings {
 			),
 			'bottrack_invalidscript'       => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Invalid Script', 'wp-simple-firewall' )
+				__( 'Invalid Script Load', 'wp-simple-firewall' )
 			),
 			'apc_alert_sent'               => sprintf( '%s: %s',
 				__( 'Alert Sent', 'wp-simple-firewall' ),

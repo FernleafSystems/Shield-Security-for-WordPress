@@ -218,6 +218,17 @@ class Strings extends Base\Strings {
 				$desc = __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' );
 				break;
 
+			case 'track_invalidscript' :
+				$name = __( 'Invalid Script Load', 'wp-simple-firewall' );
+				$summary = __( 'Identify Bot Attempts To Load WordPress In A Non-Standard Way', 'wp-simple-firewall' );
+				$desc = [
+					__( "Detect when a bot tries to load WordPress directly from a file that isn't normally used to load WordPress.", 'wp-simple-firewall' ),
+					__( 'WordPress should only be loaded in a limited number of ways.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
+						sprintf( __( 'Set this option to "%s" and monitor the Audit Trail, since some plugins, themes, or custom integrations may trigger this.', 'wp-simple-firewall' ), __( 'Audit Log Only', 'wp-simple-firewall' ) ) )
+				];
+				break;
+
 			case 'track_fakewebcrawler' :
 				$name = __( 'Fake Web Crawler', 'wp-simple-firewall' );
 				$summary = __( 'Detect Fake Search Engine Crawlers', 'wp-simple-firewall' );

@@ -12,12 +12,12 @@ class Insert extends Base\Insert {
 	 */
 	protected function verifyInsertData() {
 		parent::verifyInsertData();
-		$aData = $this->getInsertData();
 
-		if ( empty( $aData[ 'ip' ] ) ) {
+		$data = $this->getInsertData();
+		if ( empty( $data[ 'ip' ] ) ) {
 			throw new \Exception( 'IP address provided is not valid' );
 		}
 
-		return $this->setInsertData( $aData );
+		return $this->setInsertData( $data );
 	}
 }

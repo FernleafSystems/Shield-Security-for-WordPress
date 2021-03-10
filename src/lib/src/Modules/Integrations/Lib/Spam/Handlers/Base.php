@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam\
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -33,7 +34,7 @@ abstract class Base {
 		return $this->getCon()
 					->getModule_IPs()
 					->getBotSignalsController()
-					->isBot();
+					->isBot( Services::IP()->getRequestIp() );
 	}
 
 	protected function isSpam_Human() :bool {

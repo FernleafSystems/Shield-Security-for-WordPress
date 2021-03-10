@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	/**
 	 * @var string|int|null
@@ -23,7 +23,7 @@ class Scanner {
 	 */
 	private $sCommentExplanation;
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		return Services::Request()->isPost();
 	}
 
@@ -47,37 +47,34 @@ class Scanner {
 	}
 
 	/**
-	 * @param string $sContent
+	 * @param string $content
 	 * @return string
 	 */
-	public function insertStatusExplanation( $sContent ) {
+	public function insertStatusExplanation( $content ) {
 
 		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
 			switch ( $this->mCommentStatus ) {
 				case 'spam':
-					$sHumanStatus = 'SPAM';
+					$humanStatus = 'SPAM';
 					break;
 				case 'trash':
-					$sHumanStatus = __( 'Trash' );
+					$humanStatus = __( 'Trash' );
 					break;
 				default:
 				case '0':
-					$sHumanStatus = __( 'Pending Moderation' );
+					$humanStatus = __( 'Pending Moderation' );
 					break;
 			}
 
-			$sContent =
-				'[* '.sprintf( __( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' )
-							   .' '.__( 'Reason: %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName(),
-					$sHumanStatus,
-					$this->sCommentExplanation
-
-				)." *]\n"
-				.$sContent;
+			$content = sprintf(
+						   "## Comment SPAM Protection: %s %s ##\n",
+						   sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
+							   $this->getCon()->getHumanName(), $humanStatus ),
+						   sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->sCommentExplanation )
+					   ).$content;
 		}
 
-		return $sContent;
+		return $content;
 	}
 
 	/**
@@ -100,17 +97,17 @@ class Scanner {
 					 );
 
 				if ( $mResult->get_error_code() == 'human' ) {
-					$sStatus = $opts->getOpt( 'comments_default_action_human_spam' );
+					$status = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$sStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
+					$status = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
 
-				if ( $sStatus == 'reject' ) {
+				if ( $status == 'reject' ) {
 					Services::Response()->redirectToHome();
 				}
 
-				$this->mCommentStatus = $sStatus;
+				$this->mCommentStatus = $status;
 				$this->sCommentExplanation = $mResult->get_error_message();
 			}
 		}
