@@ -14,18 +14,18 @@ class Insert extends Base\Insert {
 	protected function verifyInsertData() {
 		parent::verifyInsertData();
 
-		$aData = $this->getInsertData();
+		$data = $this->getInsertData();
 
-		if ( is_array( $aData[ 'message' ] ) ) {
-			$aData[ 'message' ] = implode( ' ', $aData[ 'message' ] );
+		if ( is_array( $data[ 'message' ] ) ) {
+			$data[ 'message' ] = implode( ' ', $data[ 'message' ] );
 		}
-		if ( isset( $aData[ 'data' ] ) && !is_string( $aData[ 'data' ] ) ) {
-			$aData[ 'data' ] = '';
+		if ( isset( $data[ 'data' ] ) && !is_string( $data[ 'data' ] ) ) {
+			$data[ 'data' ] = '';
 		}
-		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
-			$aData[ 'ip' ] = '';
+		if ( empty( $data[ 'ip' ] ) || !Services::IP()->isValidIp( $data[ 'ip' ] ) ) {
+			$data[ 'ip' ] = '';
 		}
 
-		return $this->setInsertData( $aData );
+		return $this->setInsertData( $data );
 	}
 }
