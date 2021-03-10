@@ -120,7 +120,7 @@ class BuildDisplay {
 					'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
 					'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
 					'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
-					'delete_notbot' => __( 'Reset Score', 'wp-simple-firewall' ),
+					'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
 
 					'status' => [
 						'is_you'       => __( 'Is It You?', 'wp-simple-firewall' ),
