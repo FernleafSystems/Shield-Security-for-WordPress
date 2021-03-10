@@ -63,12 +63,12 @@ class ModCon extends BaseShield\ModCon {
 			$oFinder->filterByUsername( $oUser->user_login );
 
 			$WP = Services::WpGeneral();
-			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			foreach ( $oFinder->query() as $oEntry ) {
+			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
+			foreach ( $oFinder->query() as $entry ) {
 				$aExportItem[ 'data' ][] = [
-					$sTimeStamp = $WP->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
+					$sTimeStamp = $WP->getTimeStringForDisplay( $entry->getCreatedAt() ),
 					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
-					'value' => sprintf( '[IP:%s] %s', $oEntry->ip, $oEntry->message )
+					'value' => sprintf( '[IP:%s] %s', $entry->ip, $entry->message )
 				];
 			}
 

@@ -16,7 +16,7 @@ class Insert extends Base\Insert {
 
 		$data = $this->getInsertData();
 
-		if ( is_array( $data[ 'message' ] ) ) {
+		if ( isset( $data[ 'message' ] ) && is_array( $data[ 'message' ] ) ) {
 			$data[ 'message' ] = implode( ' ', $data[ 'message' ] );
 		}
 		if ( isset( $data[ 'data' ] ) && !is_string( $data[ 'data' ] ) ) {
