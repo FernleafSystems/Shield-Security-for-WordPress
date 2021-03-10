@@ -16,17 +16,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int    $notified_at
  * @property int    $updated_at
  */
-class EntryVO extends Base\LegacyEntryVO {
+class EntryVO extends Base\EntryVO {
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mValue = parent::__get( $sProperty );
+		$mValue = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'content':
 			case 'file':
@@ -40,23 +40,21 @@ class EntryVO extends Base\LegacyEntryVO {
 	}
 
 	/**
-	 * @param string $sProperty
-	 * @param mixed  $mValue
-	 * @return $this
+	 * @inheritDoc
 	 */
-	public function __set( $sProperty, $mValue ) {
+	public function __set( string $key, $value ) {
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'content':
 			case 'file':
-				$mValue = base64_encode( $mValue );
+				$value = base64_encode( $value );
 				break;
 
 			default:
 				break;
 		}
 
-		return parent::__set( $sProperty, $mValue );
+		parent::__set( $key, $value );
 	}
 }
