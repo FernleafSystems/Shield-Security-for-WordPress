@@ -234,19 +234,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
-		$aFormParams = $this->getAjaxFormParams();
+		$formParams = $this->getAjaxFormParams();
 
-		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
+		$note = trim( $formParams[ 'admin_note' ] ?? '' );
 		if ( !$mod->getCanAdminNotes() ) {
 			$msg = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
-		elseif ( empty( $sNote ) ) {
+		elseif ( empty( $note ) ) {
 			$msg = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
-			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$oInserter = $mod->getDbHandler_Notes()->getQueryInserter();
-			$success = $oInserter->create( $sNote );
+			/** @var Shield\Databases\AdminNotes\Insert $inserter */
+			$inserter = $mod->getDbHandler_Notes()->getQueryInserter();
+			$success = $inserter->create( $note );
 			$msg = $success ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 		return [

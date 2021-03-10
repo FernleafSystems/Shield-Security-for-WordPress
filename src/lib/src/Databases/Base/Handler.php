@@ -186,6 +186,11 @@ abstract class Handler {
 		return new $class();
 	}
 
+	/**
+	 * @param string $col
+	 * @return bool
+	 * @deprecated 10.3 - moved to schema
+	 */
 	public function hasColumn( string $col ) :bool {
 		return in_array( strtolower( $col ), $this->getTableSchema()->getColumnNames() );
 	}
@@ -216,9 +221,9 @@ abstract class Handler {
 		return Services::WpDb()->getIfTableExists( $this->getTable() );
 	}
 
-	public function tableTrimExcess( int $nRowsLimit ) :self {
+	public function tableTrimExcess( int $rowsLimit ) :self {
 		try {
-			$this->getQueryDeleter()->deleteExcess( $nRowsLimit );
+			$this->getQueryDeleter()->deleteExcess( $rowsLimit );
 		}
 		catch ( \Exception $e ) {
 		}

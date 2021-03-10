@@ -26,11 +26,11 @@ class Update extends Insert {
 	}
 
 	/**
-	 * @param array $aSetData
+	 * @param array $data
 	 * @return $this
 	 */
-	public function setUpdateData( $aSetData ) {
-		return $this->setInsertData( $aSetData );
+	public function setUpdateData( $data ) {
+		return $this->setInsertData( $data );
 	}
 
 	/**

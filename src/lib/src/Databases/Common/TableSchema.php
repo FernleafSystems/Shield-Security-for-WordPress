@@ -151,4 +151,8 @@ class TableSchema extends DynPropertiesClass {
 	protected function getPrimaryKeyColumnName() :string {
 		return $this->primary_key ?? static::PRIMARY_KEY;
 	}
+
+	public function hasColumn( string $col ) :bool {
+		return in_array( strtolower( $col ), $this->getColumnNames() );
+	}
 }
