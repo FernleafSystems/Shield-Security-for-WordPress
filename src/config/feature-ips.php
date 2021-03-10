@@ -353,7 +353,7 @@
       "description":   "If you don't use XML-RPC, why would anyone access it?"
     },
     {
-      "key":           "track_invalid_script",
+      "key":           "track_invalidscript",
       "section":       "section_probes",
       "premium":       true,
       "default":       "log",
@@ -382,7 +382,7 @@
       ],
       "link_info":     "https://shsec.io/fo",
       "link_blog":     "https://shsec.io/f7",
-      "name":          "Valid Root Script",
+      "name":          "Invalid Script Load",
       "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
       "description":   "WordPress should only be loaded in a limited number of ways."
     },
