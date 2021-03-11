@@ -288,24 +288,29 @@ class BuildDisplay {
 				->setMod( $this->getMod() )
 				->setIP( $this->getIP() )
 				->retrieve();
-
-			foreach ( array_keys( $record->getRawData() ) as $column ) {
-				$field = str_replace( '_at', '', $column );
-				if ( array_key_exists( $field, $names ) && !empty( $scores[ $field ] ) ) {
-
-					if ( $record->{$column} == 0 ) {
-						$signals[ $field ] = __( 'Never', 'wp-simple-firewall' );
-					}
-					else {
-						$signals[ $field ] = Services::Request()
-													 ->carbon()
-													 ->setTimestamp( $record->{$column} )->diffForHumans();
-					}
-				}
-			}
 		}
 		catch ( \Exception $e ) {
+			$record = null;
 			$signals = [];
+		}
+
+		foreach ( $scores as $scoreKey => $scoreValue ) {
+			$column = $scoreKey.'_at';
+			if ( $scoreValue !== 0 ) {
+				if ( empty( $record ) || empty( $record->{$column} ) ) {
+					if ( in_array( $scoreKey, [ 'known' ] ) ) {
+						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
+					}
+					else {
+						$signals[ $scoreKey ] = __( 'Never Recorded', 'wp-simple-firewall' );
+					}
+				}
+				else {
+					$signals[ $scoreKey ] = Services::Request()
+													->carbon()
+													->setTimestamp( $record->{$column} )->diffForHumans();
+				}
+			}
 		}
 
 		return $this->getMod()->renderTemplate(
