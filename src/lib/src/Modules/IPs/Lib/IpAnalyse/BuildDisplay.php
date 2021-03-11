@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBotRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIp;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
@@ -64,13 +65,13 @@ class BuildDisplay {
 		$mod = $this->getMod();
 		$ip = $this->getIP();
 
-		$oBlockIP = ( new LookupIpOnList() )
+		$blockIP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlack()
 			->setIP( $ip )
 			->lookup( true );
 
-		$oBypassIP = ( new LookupIpOnList() )
+		$bypassIP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeWhite()
 			->setIP( $ip )
@@ -85,7 +86,18 @@ class BuildDisplay {
 		$sRDNS = gethostbyaddr( $ip );
 
 		try {
-			list( $ipKey, $ipName ) = ( new IpID( $ip ) )->run();
+			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
+				->setIgnoreUserAgent( true )
+				->run();
+			// We do a "repair" and unblock previously blocked search providers:
+			if ( $blockIP instanceof Databases\IPs\EntryVO
+				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+				( new DeleteIp() )
+					->setMod( $mod )
+					->setIP( $ip )
+					->fromBlacklist();
+				unset( $blockIP );
+			}
 		}
 		catch ( \Exception $e ) {
 			$ipKey = IpID::UNKNOWN;
@@ -151,9 +163,9 @@ class BuildDisplay {
 					'ip'       => $ip,
 					'status'   => [
 						'is_you'       => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'     => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
-						'is_blocked'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
-						'is_bypass'    => $oBypassIP instanceof Databases\IPs\EntryVO,
+						'offenses'     => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
+						'is_blocked'   => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'    => $bypassIP instanceof Databases\IPs\EntryVO,
 						'notbot_score' => $botScore,
 						'is_bot'       => $isBot,
 					],
