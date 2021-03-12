@@ -14,7 +14,7 @@ class CaptureMyUpgrade {
 		add_action( 'upgrader_process_complete', [ $this, 'captureMyUpgrade' ], 10, 2 );
 	}
 
-	private function captureMyUpgrade( $upgradeHandler, $data ) {
+	public function captureMyUpgrade( $upgradeHandler, $data ) {
 		if ( ( $data[ 'action' ] ?? null === 'update' )
 			 && ( $data[ 'type' ] ?? null === 'plugin' )
 			 && is_array( $data[ 'plugins' ] ?? null ) ) {
