@@ -79,7 +79,6 @@ class ModCon extends BaseShield\ModCon {
 		$iNav = Services::Request()->query( 'inav' );
 
 		if ( $con->getIsPage_PluginAdmin() && !empty( $iNav ) ) {
-			$oTourManager = $con->getModule_Plugin()->getTourManager();
 			switch ( $iNav ) {
 
 				case 'importexport':
@@ -90,22 +89,17 @@ class ModCon extends BaseShield\ModCon {
 				case 'reports':
 
 					$enq[ Enqueue::JS ] = [
-						'chartist.min',
+						'chartist',
 						'chartist-plugin-legend',
-						'charts',
+						'shield/charts',
 						'shuffle',
 						'shield-card-shuffle',
 						'ip_detect'
 					];
 					$enq[ Enqueue::CSS ] = [
-						'chartist.min',
+						'chartist',
 						'chartist-plugin-legend'
 					];
-
-					if ( $oTourManager->canShow( 'insights_overview' ) ) {
-						$enq[ Enqueue::JS ][] = 'introjs.min';
-						$enq[ Enqueue::CSS ][] = 'introjs.min';
-					}
 					break;
 
 				case 'notes':

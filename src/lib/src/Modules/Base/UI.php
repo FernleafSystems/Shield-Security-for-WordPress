@@ -242,7 +242,7 @@ class UI {
 				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
 				'css_wizard'       => $urlBuilder->forCss( 'wizard' ),
 				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap4.bundle.min' ),
+				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap4' ),
 				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
 				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
 				'js_steps'         => $urlBuilder->forJs( 'jquery.steps.min' ),

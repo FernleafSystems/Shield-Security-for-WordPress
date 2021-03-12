@@ -54,6 +54,7 @@ class DashboardCards {
 				'c'       => [
 					'title'   => __( 'Shield Settings', 'wp-simple-firewall' ),
 					'img'     => $con->urls->forImage( 'bootstrap/sliders.svg' ),
+					'introjs' => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ), $con->getHumanName() ),
 					'paras'   => [
 						sprintf( __( "%s settings are arranged into modules.", 'wp-simple-firewall' ), $con->getHumanName() )
 						.' '.__( 'Choose the module you need from the dropdown.', 'wp-simple-firewall' )
@@ -108,8 +109,9 @@ class DashboardCards {
 			'overview' => [
 				'title'   => __( 'Security Overview', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/binoculars.svg' ),
+				'introjs' => sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				'paras'   => [
-					sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Review your entire %s security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
 				'actions' => [
 					[
@@ -122,6 +124,7 @@ class DashboardCards {
 			'scans' => [
 				'title'   => __( 'Scans and Protection', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/shield-shaded.svg' ),
+				'introjs' => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				'paras'   => [
 					sprintf( __( "Use %s Scans to automatically detect and repair intrusions on your site.", 'wp-simple-firewall' ), $con->getHumanName() ),
 					sprintf( __( "%s scans WordPress core files, plugins, themes and will detect Malware (ShieldPRO).", 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -141,6 +144,7 @@ class DashboardCards {
 			'sec_admin' => [
 				'title'   => __( 'Security Admin', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/person-badge.svg' ),
+				'introjs' => sprintf( __( "Lock down access to %s itself to specific WP Administrators.", 'wp-simple-firewall' ), 'ShieldPRO' ),
 				'paras'   => [
 					sprintf( __( "Restrict access to %s itself and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				],
@@ -172,6 +176,7 @@ class DashboardCards {
 			'ips' => [
 				'title'   => __( 'IP Blocking and Bypass', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/diagram-3.svg' ),
+				'introjs' => __( "Protection begins by detecting bad bots - Review and Analyse all visitor IPs that have an impact on your site.", 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Shield automatically detects and blocks bad IP addresses based on your security settings.", 'wp-simple-firewall' ),
 					__( "The IP Analysis Tool shows you all information for a given IP as it relates to your site.", 'wp-simple-firewall' ),
@@ -191,6 +196,7 @@ class DashboardCards {
 			'audit_trail' => [
 				'title'   => __( 'Audit Trail', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/person-lines-fill.svg' ),
+				'introjs' => __( "Track and review all important actions taken on your site - see the Who, What and When.", 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Provides in-depth logging for all major WordPress events.", 'wp-simple-firewall' ),
 				],
@@ -209,6 +215,7 @@ class DashboardCards {
 			'traffic' => [
 				'title'   => __( 'Traffic Logging', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/stoplights.svg' ),
+				'introjs' => __( "Monitor and watch traffic as it hits your site.", 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Use traffic logging to monitor visitor requests to your site.", 'wp-simple-firewall' ),
 					__( "Traffic Rate Limiting lets you throttle requests from any single visitor.", 'wp-simple-firewall' ),
@@ -228,6 +235,7 @@ class DashboardCards {
 			'users' => [
 				'title'   => __( 'WordPress Users', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/people.svg' ),
+				'introjs' => __( "Set user session timeouts and passwords requirements.", 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Adds fine control over user sessions, account re-use, password strength and expiration, and user suspension.", 'wp-simple-firewall' ),
 				],
@@ -246,6 +254,7 @@ class DashboardCards {
 			'comments' => [
 				'title'   => __( 'Comment SPAM', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/chat-right-dots-fill.svg' ),
+				'introjs' => __( "Block all Comment SPAM from bots and even detect SPAMMY human comments.", 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Shield blocks 100% of all automated comments by bots (the most common type of SPAM).", 'wp-simple-firewall' ).
 					' '.__( "The Human SPAM filter will look for common spam words and content.", 'wp-simple-firewall' ),
@@ -308,6 +317,7 @@ class DashboardCards {
 			'notes' => [
 				'title'   => __( 'Admin Notes', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/pencil-square.svg' ),
+				'introjs' => __( "Review and Analyse all visitor IPs that have an impact on your site.", 'wp-simple-firewall' ),
 				'paras'   => [
 					__( "Use these to keep note of important items or to-dos.", 'wp-simple-firewall' ),
 					$latestNote
@@ -338,6 +348,7 @@ class DashboardCards {
 
 			'integrations' => [
 				'title'   => __( '3rd Party Integrations', 'wp-simple-firewall' ),
+				'introjs' => __( "Integrate with your favourite plugins to block SPAM and manage Shield better.", 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/link-45deg.svg' ),
 				'paras'   => [
 					__( "Shield integrates with 3rd party plugins and services.", 'wp-simple-firewall' ),

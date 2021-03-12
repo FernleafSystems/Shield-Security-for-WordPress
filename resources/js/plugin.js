@@ -70,15 +70,6 @@ let iCWP_WPSF_OptsPageRender = new function () {
 	};
 }();
 
-if ( typeof icwp_wpsf_vars_tourmanager !== 'undefined' ) {
-	var iCWP_WPSF_MarkTourFinished = new function () {
-		this.finishedTour = function ( sTourKey ) {
-			icwp_wpsf_vars_tourmanager.ajax[ 'tour_key' ] = sTourKey;
-			jQuery.post( ajaxurl, icwp_wpsf_vars_tourmanager.ajax ).always();
-		};
-	}();
-}
-
 var iCWP_WPSF_Toaster = new function () {
 
 	this.showMessage = function ( msg, success ) {
@@ -158,7 +149,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				},
 			}
 		).fail( function () {
-			alert( 'fail()' );
 			if ( useCompression ) {
 				handleResponse( raw );
 			}
@@ -416,9 +406,8 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 	} );
 }
 
-
-
 jQuery( document ).ready( function () {
+	jQuery( document ).icwpWpsfTours();
 	jQuery( '.select2picker' ).select2({
 		width: 'resolve'
 	});

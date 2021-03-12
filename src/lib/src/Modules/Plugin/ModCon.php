@@ -508,10 +508,15 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 
+		$tourManager = $this->getTourManager();
 		$locals[] = [
-			'plugin',
-			'icwp_wpsf_vars_tourmanager',
-			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
+			'shield/tours',
+			'shield_vars_tourmanager',
+			[
+				'ajax'        => $this->getAjaxActionData( 'mark_tour_finished' ),
+				'tour_states' => $tourManager->getTours(),
+				'tours'       => $tourManager->getAllTours(),
+			]
 		];
 
 		$locals[] = [
