@@ -16,12 +16,12 @@ class Scanner {
 	/**
 	 * @var string|int|null
 	 */
-	private $mCommentStatus;
+	private $spamStatus;
 
 	/**
 	 * @var string
 	 */
-	private $sCommentExplanation;
+	private $spamReason;
 
 	protected function canRun() :bool {
 		return Services::Request()->isPost();
@@ -40,8 +40,8 @@ class Scanner {
 	 * @return int|string|null
 	 */
 	public function setStatus( $mStatus ) {
-		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
-			$mStatus = $this->mCommentStatus;
+		if ( !is_null( $this->spamStatus ) && in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
+			$mStatus = $this->spamStatus;
 		}
 		return $mStatus;
 	}
@@ -52,8 +52,9 @@ class Scanner {
 	 */
 	public function insertStatusExplanation( $content ) {
 
-		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
-			switch ( $this->mCommentStatus ) {
+		if ( !is_null( $this->spamStatus ) && in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
+
+			switch ( $this->spamStatus ) {
 				case 'spam':
 					$humanStatus = 'SPAM';
 					break;
@@ -66,12 +67,18 @@ class Scanner {
 					break;
 			}
 
-			$content = sprintf(
-						   "## Comment SPAM Protection: %s %s ##\n",
-						   sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
-							   $this->getCon()->getHumanName(), $humanStatus ),
-						   sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->sCommentExplanation )
-					   ).$content;
+			$additional = (string)apply_filters(
+				'shield/comment_spam_explanation',
+				sprintf(
+					"## Comment SPAM Protection: %s %s ##\n",
+					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName(), $humanStatus ),
+					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
+				),
+				$this->spamStatus,
+				$this->spamReason
+			);
+			$content = $additional.$content;
 		}
 
 		return $content;
@@ -107,8 +114,8 @@ class Scanner {
 					Services::Response()->redirectToHome();
 				}
 
-				$this->mCommentStatus = $status;
-				$this->sCommentExplanation = $mResult->get_error_message();
+				$this->spamStatus = $status;
+				$this->spamReason = $mResult->get_error_message();
 			}
 		}
 
