@@ -9,7 +9,7 @@ jQuery.fn.icwpWpsfTours = function ( options ) {
 	}
 
 	var setupTour = function ( tour_key ) {
-		introJs().setOptions( getTourSettings( tour_key ), )
+		introJs().setOptions( getTourSettings( tour_key ) )
 				 .onexit( function () {
 					 markTourFinished( tour_key );
 				 } )

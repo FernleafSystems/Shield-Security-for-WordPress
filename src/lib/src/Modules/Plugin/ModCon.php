@@ -514,7 +514,7 @@ class ModCon extends BaseShield\ModCon {
 			'shield_vars_tourmanager',
 			[
 				'ajax'        => $this->getAjaxActionData( 'mark_tour_finished' ),
-				'tour_states' => $tourManager->getTours(),
+				'tour_states' => $tourManager->getUserTourStates(),
 				'tours'       => $tourManager->getAllTours(),
 			]
 		];
