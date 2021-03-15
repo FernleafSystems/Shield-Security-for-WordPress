@@ -852,7 +852,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function getPluginSpec() {
 		if ( isset( $this->cfg ) ) {
-			return $this->cfg->getRawDataAsArray();
+			return $this->cfg->getRawData();
 		}
 		return $this->getPluginControllerOptions()->plugin_spec;
 	}

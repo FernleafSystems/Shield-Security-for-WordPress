@@ -235,7 +235,7 @@ class UI {
 				'wizard_landing' => $mod->getUrl_WizardLanding(),
 
 				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap4.min' ),
+				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap4' ),
 				'css_pages'        => $urlBuilder->forCss( 'pages' ),
 				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
 				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
@@ -246,7 +246,6 @@ class UI {
 				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
 				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
 				'js_steps'         => $urlBuilder->forJs( 'jquery.steps.min' ),
-				'js_wizard'        => $urlBuilder->forJs( 'wizard' ),
 			],
 			'imgs'       => [
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),

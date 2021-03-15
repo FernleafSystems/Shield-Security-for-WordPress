@@ -21,12 +21,12 @@ class LicenseHandler {
 
 				case 'keyless_handshake':
 				case 'snapi_handshake':
-					$sNonce = Services::Request()->query( 'nonce' );
-					if ( !empty( $sNonce ) ) {
+					$nonce = Services::Request()->query( 'nonce' );
+					if ( !empty( $nonce ) ) {
 						die( json_encode( [
 							'success' => ( new HandshakingNonce() )
 								->setMod( $this->getMod() )
-								->verify( $sNonce )
+								->verify( $nonce )
 						] ) );
 					}
 					break;

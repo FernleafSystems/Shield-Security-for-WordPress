@@ -1071,7 +1071,7 @@ abstract class ModCon {
 	}
 
 	protected function isWizardPage() :bool {
-		return ( $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage() );
+		return $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage();
 	}
 
 	/**

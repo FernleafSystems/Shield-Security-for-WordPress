@@ -31,14 +31,14 @@ class ShieldNetApiController extends DynPropertiesClass {
 		$nNow = Services::Request()->ts();
 		if ( $this->vo->last_handshake_at === 0 ) {
 
-			$bCanTry = $nNow - MINUTE_IN_SECONDS*5*$this->vo->handshake_fail_count
+			$canAttempt = $nNow - MINUTE_IN_SECONDS*5*$this->vo->handshake_fail_count
 					   > $this->vo->last_handshake_attempt_at;
-			if ( $bCanTry ) {
-				$bCanHandshake = ( new ShieldNetApi\Handshake\Verify() )
+			if ( $canAttempt ) {
+				$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
 					->setMod( $this->getMod() )
 					->run();
 
-				if ( $bCanHandshake ) {
+				if ( $handshakeSuccess ) {
 					$this->vo->last_handshake_at = $nNow;
 					$this->vo->handshake_fail_count = 0;
 				}
