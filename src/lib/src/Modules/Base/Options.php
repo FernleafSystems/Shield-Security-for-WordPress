@@ -179,9 +179,6 @@ class Options {
 		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $sProperty ] ) ) ? $raw[ 'properties' ][ $sProperty ] : null;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getWpCliCfg() :array {
 		$cfg = $this->getRawData_FullFeatureConfig();
 		return array_merge(

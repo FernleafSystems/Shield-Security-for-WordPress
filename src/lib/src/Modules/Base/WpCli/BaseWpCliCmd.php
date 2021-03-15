@@ -9,7 +9,15 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseWpCliCmd {
 
 	use ModConsumer;
-	use \FernleafSystems\Utilities\Logic\OneTimeExecute;
+	use \FernleafSystems\Utilities\Logic\ExecOnce;
+
+	protected function canRun() :bool {
+		/** @var Options $pluginModOpts */
+		$pluginModOpts = $this->getCon()
+							  ->getModule_Plugin()
+							  ->getOptions();
+		return $this->getOptions()->getWpCliCfg()[ 'enabled' ] && $pluginModOpts->isEnabledWpcli();
+	}
 
 	/**
 	 * @throws \Exception
@@ -26,25 +34,13 @@ abstract class BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $aParts
+	 * @param array $parts
 	 * @return string
 	 */
-	protected function buildCmd( array $aParts ) {
+	protected function buildCmd( array $parts ) {
 		return implode( ' ',
-			array_filter( array_merge( $this->getBaseCmdParts(), $aParts ) )
+			array_filter( array_merge( $this->getBaseCmdParts(), $parts ) )
 		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function canRun() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getOptions();
-		return $this->getOptions()->getWpCliCfg()[ 'enabled' ]
-			   && $oOpts->isEnabledWpcli();
 	}
 
 	/**

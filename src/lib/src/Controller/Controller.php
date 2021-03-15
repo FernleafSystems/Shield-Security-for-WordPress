@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -29,11 +30,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
  */
-class Controller {
-
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
+class Controller extends DynPropertiesClass {
 
 	/**
 	 * @var \stdClass
@@ -148,8 +145,8 @@ class Controller {
 	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $key ) {
-		$val = $this->__adapterGet( $key );
+	public function __get( string $key ) {
+		$val = parent::__get( $key);
 
 		switch ( $key ) {
 
@@ -186,6 +183,15 @@ class Controller {
 		}
 
 		return $val;
+	}
+
+	/**
+	 * @param $key
+	 * @return mixed|null
+	 * @deprecated 10.3
+	 */
+	private function __adapterGet( $key ) {
+		return $this->getRawData()[ $key ] ?? null;
 	}
 
 	/**
@@ -426,21 +432,6 @@ class Controller {
 		( new Ajax\Init() )
 			->setCon( $this )
 			->execute();
-		$this->initUpgraderAptoWeb();
-	}
-
-	private function initUpgraderAptoWeb() {
-		\Puc_v4_Factory::buildUpdateChecker(
-			add_query_arg(
-				[
-					'action' => 'get_metadata',
-					'slug'   => 'wp-simple-firewall',
-				],
-				'https://wpupdates.fernleafsystems.com'
-			),
-			$this->root_file,
-			'wp-simple-firewall'
-		);
 	}
 
 	/**

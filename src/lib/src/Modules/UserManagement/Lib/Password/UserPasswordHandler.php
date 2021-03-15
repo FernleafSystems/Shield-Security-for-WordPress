@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
@@ -16,10 +16,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class UserPasswordHandler {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 	use WpLoginCapture;
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isPasswordPoliciesEnabled();

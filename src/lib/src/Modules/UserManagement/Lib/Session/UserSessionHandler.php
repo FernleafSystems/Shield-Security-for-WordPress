@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
@@ -12,10 +12,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class UserSessionHandler {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 	use WpLoginCapture;
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getDbHandler_Sessions()
