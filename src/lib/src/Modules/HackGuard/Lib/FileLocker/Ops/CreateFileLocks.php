@@ -52,7 +52,7 @@ class CreateFileLocks extends BaseOps {
 
 			/** @var FileLocker\Insert $oInserter */
 			$oInserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
-			$oInserter->insert( $oEntry );
+			$success = $oInserter->insert( $oEntry );
 
 			$this->clearFileLocksCache();
 		}

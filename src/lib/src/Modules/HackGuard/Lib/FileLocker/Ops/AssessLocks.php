@@ -14,30 +14,30 @@ class AssessLocks extends BaseOps {
 	public function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var FileLocker\Update $oUpd */
-		$oUpd = $mod->getDbHandler_FileLocker()->getQueryUpdater();
+		/** @var FileLocker\Update $updater */
+		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
 
 		$this->removeDuplicates();
 
 		$aProblemIds = [];
-		foreach ( $this->getFileLocks() as $oLock ) {
+		foreach ( $this->getFileLocks() as $lock ) {
 			try {
-				if ( ( new CompareHash() )->isEqualFileSha1( $oLock->file, $oLock->hash_original ) ) {
-					if ( !empty( $oLock->hash_current ) ) {
-						$oUpd->updateCurrentHash( $oLock, '' );
+				if ( ( new CompareHash() )->isEqualFileSha1( $lock->file, $lock->hash_original ) ) {
+					if ( !empty( $lock->hash_current ) ) {
+						$updater->updateCurrentHash( $lock, '' );
 					}
 				}
 				else {
-					$sFileHash = hash_file( 'sha1', $oLock->file );
-					if ( empty( $oLock->hash_current ) || !hash_equals( $oLock->hash_current, $sFileHash ) ) {
-						$oUpd->updateCurrentHash( $oLock, $sFileHash );
-						$aProblemIds[] = $oLock->id;
+					$fileHash = hash_file( 'sha1', $lock->file );
+					if ( empty( $lock->hash_current ) || !hash_equals( $lock->hash_current, $fileHash ) ) {
+						$updater->updateCurrentHash( $lock, $fileHash );
+						$aProblemIds[] = $lock->id;
 					}
 				}
 			}
 			catch ( \InvalidArgumentException $e ) {
-				$oUpd->markProblem( $oLock );
-				$aProblemIds[] = $oLock->id;
+				$updater->markProblem( $lock );
+				$aProblemIds[] = $lock->id;
 			}
 		}
 		$this->clearFileLocksCache();
@@ -45,20 +45,20 @@ class AssessLocks extends BaseOps {
 	}
 
 	private function removeDuplicates() {
-		$aPaths = [];
-		foreach ( $this->getFileLocks() as $oLock ) {
-			if ( in_array( $oLock->file, $aPaths ) ) {
+		$paths = [];
+		foreach ( $this->getFileLocks() as $lock ) {
+			if ( in_array( $lock->file, $paths ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
 				$mod->getDbHandler_FileLocker()
 					->getQueryDeleter()
-					->deleteById( $oLock->id );
+					->deleteById( $lock->id );
 			}
 			else {
-				$aPaths[] = $oLock->file;
+				$paths[] = $lock->file;
 			}
 		}
-		if ( count( $this->getFileLocks() ) != count( $aPaths ) ) {
+		if ( count( $this->getFileLocks() ) != count( $paths ) ) {
 			$this->clearFileLocksCache();
 		}
 	}
