@@ -22,13 +22,12 @@ class AuditTrail extends BaseBuild {
 
 		$selector->filterByEvent( $params[ 'fEvent' ] );
 
-		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
-		if ( $oIp->isValidIp( $params[ 'fIp' ] ) ) {
+		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {
 			$selector->filterByIp( $params[ 'fIp' ] );
 		}
 		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
-			$selector->filterByNotIp( $oIp->getRequestIp() );
+			$selector->filterByNotIp( Services::IP()->getRequestIp() );
 		}
 
 		/**
@@ -36,21 +35,19 @@ class AuditTrail extends BaseBuild {
 		 */
 		if ( !empty( $params[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $params[ 'fDateFrom' ] ) ) {
 			$aParts = explode( '-', $params[ 'fDateFrom' ] );
-			$sTs = Services::Request()->carbon()
-						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-						   ->setTime( 0, 0 )
-				->timestamp;
-			$selector->filterByCreatedAt( $sTs, '>' );
+			$ts = Services::Request()->carbon()
+						  ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						  ->setTime( 0, 0 )->timestamp;
+			$selector->filterByCreatedAt( $ts, '>' );
 		}
 
 		if ( !empty( $params[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $params[ 'fDateTo' ] ) ) {
 			$aParts = explode( '-', $params[ 'fDateTo' ] );
-			$sTs = Services::Request()->carbon()
-						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-						   ->setTime( 0, 0 )
-						   ->addDay()
-				->timestamp;
-			$selector->filterByCreatedAt( $sTs, '<' );
+			$ts = Services::Request()->carbon()
+						  ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						  ->setTime( 0, 0 )
+						  ->addDay()->timestamp;
+			$selector->filterByCreatedAt( $ts, '<' );
 		}
 
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
@@ -83,11 +80,11 @@ class AuditTrail extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$aEntries = [];
+		$entries = [];
 
 		$srvIP = Services::IP();
 		$you = $srvIP->getRequestIp();
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
 			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
 
@@ -97,9 +94,9 @@ class AuditTrail extends BaseBuild {
 				 * To cater for the contexts that don't refer to a module, but rather a context
 				 * with the Audit Trail module
 				 */
-				$mod = $oCon->getModule( $entry->context );
+				$mod = $con->getModule( $entry->context );
 				if ( empty( $mod ) ) {
-					$mod = $oCon->getModule_AuditTrail();
+					$mod = $con->getModule_AuditTrail();
 				}
 				$strings = $mod->getStrings();
 
@@ -122,7 +119,7 @@ class AuditTrail extends BaseBuild {
 				$msg = $entry->message;
 			}
 
-			if ( !isset( $aEntries[ $entry->rid ] ) ) {
+			if ( !isset( $entries[ $entry->rid ] ) ) {
 				$aE = $entry->getRawData();
 				$aE[ 'meta' ] = $entry->meta;
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $entry->event ) );
@@ -150,7 +147,7 @@ class AuditTrail extends BaseBuild {
 				}
 			}
 			else {
-				$aE = $aEntries[ $entry->rid ];
+				$aE = $entries[ $entry->rid ];
 				$aE[ 'message' ] .= "\n".$msg;
 				$aE[ 'category' ] = max( $aE[ 'category' ], $entry->category );
 			}
@@ -160,9 +157,9 @@ class AuditTrail extends BaseBuild {
 								   .sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $entry->count );
 			}
 
-			$aEntries[ $entry->rid ] = $aE;
+			$entries[ $entry->rid ] = $aE;
 		}
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

@@ -17,16 +17,16 @@ class CreateFileLocks extends BaseOps {
 	 */
 	public function create() {
 
-		foreach ( $this->oFile->getExistingPossiblePaths() as $sPath ) {
-			$oTheFileLock = null;
-			foreach ( $this->getFileLocks() as $oMaybeFileLock ) {
-				if ( $oMaybeFileLock->file === $sPath ) {
-					$oTheFileLock = $oMaybeFileLock;
+		foreach ( $this->oFile->getExistingPossiblePaths() as $path ) {
+			$theLock = null;
+			foreach ( $this->getFileLocks() as $maybeLock ) {
+				if ( $maybeLock->file === $path ) {
+					$theLock = $maybeLock;
 					break;
 				}
 			}
-			if ( !$oTheFileLock instanceof FileLocker\EntryVO ) {
-				$this->processPath( $sPath );
+			if ( !$theLock instanceof FileLocker\EntryVO ) {
+				$this->processPath( $path );
 			}
 		}
 	}
@@ -35,24 +35,24 @@ class CreateFileLocks extends BaseOps {
 	 * @param string $path
 	 * @throws \Exception
 	 */
-	private function processPath( $path ) {
+	private function processPath( string $path ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		if ( Services::WpFs()->isFile( $path ) ) {
-			$oEntry = new FileLocker\EntryVO();
-			$oEntry->file = $path;
-			$oEntry->hash_original = hash_file( 'sha1', $path );
+			$entry = new FileLocker\EntryVO();
+			$entry->file = $path;
+			$entry->hash_original = hash_file( 'sha1', $path );
 
-			$aPublicKey = $this->getPublicKey();
-			$oEntry->public_key_id = key( $aPublicKey );
-			$oEntry->content = ( new BuildEncryptedFilePayload() )
+			$publicKey = $this->getPublicKey();
+			$entry->public_key_id = key( $publicKey );
+			$entry->content = ( new BuildEncryptedFilePayload() )
 				->setMod( $mod )
-				->build( $path, reset( $aPublicKey ) );
+				->build( $path, reset( $publicKey ) );
 
 			/** @var FileLocker\Insert $oInserter */
 			$oInserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
-			$success = $oInserter->insert( $oEntry );
+			$success = $oInserter->insert( $entry );
 
 			$this->clearFileLocksCache();
 		}

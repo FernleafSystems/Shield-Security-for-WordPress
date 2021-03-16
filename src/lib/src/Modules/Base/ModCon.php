@@ -416,7 +416,7 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\BaseProcessor|\FernleafSystems\Utilities\Logic\OneTimeExecute|mixed
+	 * @return Shield\Modules\Base\Processor|\FernleafSystems\Utilities\Logic\ExecOnce|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
@@ -430,14 +430,10 @@ abstract class ModCon {
 					   );
 	}
 
-	/**
-	 * @param string $sAction
-	 * @return string
-	 */
-	public function buildAdminActionNonceUrl( $sAction ) {
-		$aActionNonce = $this->getNonceActionData( $sAction );
-		$aActionNonce[ 'ts' ] = Services::Request()->ts();
-		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
+	public function buildAdminActionNonceUrl( string $action ) :string {
+		$nonce = $this->getNonceActionData( $action );
+		$nonce[ 'ts' ] = Services::Request()->ts();
+		return add_query_arg( $nonce, $this->getUrl_AdminPage() );
 	}
 
 	protected function getModActionParams( string $action ) :array {
@@ -448,8 +444,8 @@ abstract class ModCon {
 			'mod_slug'   => $this->getModSlug(),
 			'ts'         => Services::Request()->ts(),
 			'exec_nonce' => substr(
-				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getSiteInstallationId() )
-				, 0, 6 )
+				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getSiteInstallationId() ), 0, 6
+			)
 		];
 	}
 

@@ -396,6 +396,14 @@
       "tracking_exclude": true,
       "type":             "array",
       "default":          []
+    },
+    {
+      "key":              "filelocker_state",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     }
   ],
   "definitions":      {
