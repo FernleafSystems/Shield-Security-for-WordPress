@@ -675,7 +675,8 @@
         "audit": false
       },
       "recaptcha_fail":         {
-        "audit": true
+        "offense": true,
+        "audit":   true
       },
       "antibot_pass":           {
         "stat":  true,

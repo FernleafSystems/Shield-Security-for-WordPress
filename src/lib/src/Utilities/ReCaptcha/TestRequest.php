@@ -32,18 +32,17 @@ class TestRequest {
 	 * @throws \Exception
 	 */
 	protected function runTest() {
-		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$sCaptchaResponse = Services::Request()->post( 'g-recaptcha-response' );
+		$captchaResponse = Services::Request()->post( 'g-recaptcha-response' );
 
-		if ( empty( $sCaptchaResponse ) ) {
+		if ( empty( $captchaResponse ) ) {
 			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'CAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
-			$oResponse = ( new ReCaptcha( $mod->getCaptchaCfg()->secret, new WordpressPost() ) )
-				->verify( $sCaptchaResponse, Services::IP()->getRequestIp() );
-			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
+			$response = ( new ReCaptcha( $mod->getCaptchaCfg()->secret, new WordpressPost() ) )
+				->verify( $captchaResponse, Services::IP()->getRequestIp() );
+			if ( empty( $response ) || !$response->isSuccess() ) {
 				$aMsg = [
 					__( 'Whoops.', 'wp-simple-firewall' ),
 					__( 'CAPTCHA verification failed.', 'wp-simple-firewall' ),
