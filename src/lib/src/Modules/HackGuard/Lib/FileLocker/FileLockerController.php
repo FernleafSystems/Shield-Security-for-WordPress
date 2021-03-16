@@ -33,17 +33,13 @@ class FileLockerController {
 	protected function run() {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'processFileLocks' ] );
+	}
 
-		add_action( $con->prefix( 'pre_plugin_shutdown' ), function () {
-			if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
-				if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
-					$this->deleteAllLocks();
-				}
-				else {
-					$this->runAnalysis();
-				}
-			}
-		} );
+	public function processFileLocks() {
+		if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
+			$this->getOptions()->isOptChanged( 'file_locker' ) ? $this->deleteAllLocks() : $this->runAnalysis();
+		}
 	}
 
 	public function addAdminMenuBarItem( array $items ) {
@@ -136,10 +132,6 @@ class FileLockerController {
 	}
 
 	private function runAnalysis() {
-		if ( did_action( 'upgrader_process_complete' ) ) {
-			return; // @deprecated 10.3 - temporary to prevent upgrade notices/errors
-		}
-
 		// 1. First assess the existing locks for changes.
 		( new Ops\AssessLocks() )
 			->setMod( $this->getMod() )

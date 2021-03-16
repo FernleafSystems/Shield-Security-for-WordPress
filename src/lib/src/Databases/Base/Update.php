@@ -59,7 +59,7 @@ class Update extends Insert {
 	public function updateEntry( $entry, $updateData = [] ) :bool {
 		$success = false;
 
-		if ( $entry instanceof EntryVO || $entry instanceof LegacyEntryVO ) {
+		if ( $entry instanceof EntryVO ) {
 
 			foreach ( (array)$entry->getRawData() as $key => $value ) {
 				if ( isset( $updateData[ $key ] ) && $updateData[ $key ] === $value ) {
