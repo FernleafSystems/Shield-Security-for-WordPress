@@ -49,11 +49,11 @@ class AuditTrail extends Base {
 	 * @return string
 	 */
 	public function column_user( $item ) {
-		$sContent = $item[ 'wp_username' ];
+		$content = $item[ 'wp_username' ];
 		if ( isset( $item[ 'meta' ][ 'param' ] ) ) {
-			$sContent .= $this->buildActions( [ $this->getActionButton_AddParam( $item[ 'id' ] ) ] );
+			$content .= $this->buildActions( [ $this->getActionButton_AddParam( $item[ 'id' ] ) ] );
 		}
-		return $sContent;
+		return $content;
 	}
 
 	/**

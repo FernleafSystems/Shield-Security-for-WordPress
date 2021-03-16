@@ -148,6 +148,7 @@ class AuditTrail extends BaseBuild {
 			}
 			else {
 				$aE = $entries[ $entry->rid ];
+				$aE[ 'meta' ] = array_merge( $aE[ 'meta' ], $entry->meta );
 				$aE[ 'message' ] .= "\n".$msg;
 				$aE[ 'category' ] = max( $aE[ 'category' ], $entry->category );
 			}
