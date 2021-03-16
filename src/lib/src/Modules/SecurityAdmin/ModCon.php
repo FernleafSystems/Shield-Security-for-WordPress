@@ -70,6 +70,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$opts->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
+
+		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
+			$opts->clearSecurityAdminKey();
+			$this->setSecurityAdminStatusOnOff( false );
+			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
+			$opts->setOpt( 'sec_admin_users', [] );
+		}
 	}
 
 	/**
@@ -333,11 +340,6 @@ class ModCon extends BaseShield\ModCon {
 	protected function doPrePluginOptionsSave() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
-			$opts->clearSecurityAdminKey();
-			$this->setSecurityAdminStatusOnOff( false );
-		}
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$aPluginsRestrictions = $opts->getAdminAccessArea_Plugins();
