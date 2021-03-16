@@ -152,9 +152,11 @@ class FileLockerController {
 
 		$state = $this->getState();
 		if ( !empty( $filesToLock ) && Services::Request()->ts() - $state[ 'last_locks_created_at' ] > 60 ) {
+
+			$lockCreated = false;
 			foreach ( $opts->getFilesToLock() as $fileKey ) {
 				try {
-					( new Ops\CreateFileLocks() )
+					$lockCreated = ( new Ops\CreateFileLocks() )
 						->setMod( $this->getMod() )
 						->setWorkingFile( $this->getFile( $fileKey ) )
 						->create();
@@ -163,8 +165,10 @@ class FileLockerController {
 					error_log( $e->getMessage() );
 				}
 			}
-			$state[ 'last_locks_created_at' ] = Services::Request()->ts();
-			$this->setState( $state );
+			if ( $lockCreated ) {
+				$state[ 'last_locks_created_at' ] = Services::Request()->ts();
+				$this->setState( $state );
+			}
 		}
 	}
 

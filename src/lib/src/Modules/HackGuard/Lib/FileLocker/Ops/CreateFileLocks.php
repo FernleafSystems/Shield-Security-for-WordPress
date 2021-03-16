@@ -15,8 +15,8 @@ class CreateFileLocks extends BaseOps {
 	/**
 	 * @throws \Exception
 	 */
-	public function create() {
-
+	public function create() :bool {
+		$pathsProcessed = false;
 		foreach ( $this->oFile->getExistingPossiblePaths() as $path ) {
 			$theLock = null;
 			foreach ( $this->getFileLocks() as $maybeLock ) {
@@ -27,8 +27,10 @@ class CreateFileLocks extends BaseOps {
 			}
 			if ( !$theLock instanceof FileLocker\EntryVO ) {
 				$this->processPath( $path );
+				$pathsProcessed = true;
 			}
 		}
+		return $pathsProcessed;
 	}
 
 	/**
