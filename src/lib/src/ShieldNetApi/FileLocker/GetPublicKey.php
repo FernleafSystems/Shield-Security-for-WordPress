@@ -12,11 +12,11 @@ class GetPublicKey extends BaseShieldNetApi {
 	 * @return array|null
 	 */
 	public function retrieve() {
-		$aKey = null;
+		$key = null;
 		$raw = $this->sendReq();
 		if ( is_array( $raw ) && !empty( $raw[ 'data' ][ 'key_id' ] ) ) {
-			$aKey[ $raw[ 'data' ][ 'key_id' ] ] = $raw[ 'data' ][ 'pub_key' ];
+			$key[ $raw[ 'data' ][ 'key_id' ] ] = $raw[ 'data' ][ 'pub_key' ];
 		}
-		return $aKey;
+		return $key;
 	}
 }

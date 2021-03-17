@@ -28,33 +28,33 @@ class ReadOriginalFileContent extends BaseOps {
 	}
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $oLock
+	 * @param Databases\FileLocker\EntryVO $lock
 	 * @return string|null
 	 * @throws \Exception
 	 */
-	private function useOriginalFile( Databases\FileLocker\EntryVO $oLock ) {
-		$oFS = Services::WpFs();
-		if ( empty( $oLock->detected_at ) && empty( $oLock->hash_current )
-			 && $oFS->exists( $oLock->file ) ) {
-			return $oFS->getFileContent( $oLock->file );
+	private function useOriginalFile( Databases\FileLocker\EntryVO $lock ) {
+		$FS = Services::WpFs();
+		if ( empty( $lock->detected_at ) && empty( $lock->hash_current )
+			 && $FS->exists( $lock->file ) ) {
+			return $FS->getFileContent( $lock->file );
 		}
 		throw new \Exception( 'Cannot use original file' );
 	}
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $oLock
+	 * @param Databases\FileLocker\EntryVO $lock
 	 * @return string|null
 	 */
-	private function useCacheAndApi( Databases\FileLocker\EntryVO $oLock ) {
-		$sCacheKey = 'file-content-'.$oLock->id;
-		$sContent = wp_cache_get( $sCacheKey, $this->getCon()->prefix( 'filelocker' ) );
-		if ( $sContent === false ) {
-			$oVO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $oLock->content, true ) );
-			$sContent = ( new DecryptFile() )
+	private function useCacheAndApi( Databases\FileLocker\EntryVO $lock ) {
+		$sCacheKey = 'file-content-'.$lock->id;
+		$content = wp_cache_get( $sCacheKey, $this->getCon()->prefix( 'filelocker' ) );
+		if ( $content === false ) {
+			$VO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $lock->content, true ) );
+			$content = ( new DecryptFile() )
 				->setMod( $this->getMod() )
-				->retrieve( $oVO, $oLock->public_key_id );
-			wp_cache_set( $sCacheKey, $sContent, $this->getCon()->prefix( 'filelocker' ), 3 );
+				->retrieve( $VO, $lock->public_key_id );
+			wp_cache_set( $sCacheKey, $content, $this->getCon()->prefix( 'filelocker' ), 3 );
 		}
-		return $sContent;
+		return $content;
 	}
 }

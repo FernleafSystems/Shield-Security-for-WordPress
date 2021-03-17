@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
 class DecryptFile extends BaseShieldNetApi {
 
-	use ModConsumer;
 	const API_ACTION = 'filelocker/decrypt';
 
 	/**
