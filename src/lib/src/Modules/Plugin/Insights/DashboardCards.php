@@ -48,15 +48,17 @@ class DashboardCards {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 
+		$name = $con->getHumanName();
+
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/dashboard/card_settings.twig',
 			[
 				'c'       => [
 					'title'   => __( 'Shield Settings', 'wp-simple-firewall' ),
 					'img'     => $con->urls->forImage( 'bootstrap/sliders.svg' ),
-					'introjs' => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					'introjs' => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ), $name ),
 					'paras'   => [
-						sprintf( __( "%s settings are arranged into modules.", 'wp-simple-firewall' ), $con->getHumanName() )
+						sprintf( __( "%s settings are arranged into modules.", 'wp-simple-firewall' ), $name )
 						.' '.__( 'Choose the module you need from the dropdown.', 'wp-simple-firewall' )
 					],
 					'actions' => [
@@ -82,7 +84,7 @@ class DashboardCards {
 		);
 	}
 
-	protected function renderStandardCard( $card ) {
+	protected function renderStandardCard( array $card ) :string {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->renderTemplate(
@@ -98,6 +100,8 @@ class DashboardCards {
 		$modInsights = $con->getModule_Insights();
 		$modPlugin = $con->getModule_Plugin();
 
+		$name = $con->getHumanName();
+
 		/** @var AdminNotes\EntryVO $note */
 		$note = $modPlugin->getDbHandler_Notes()->getQuerySelector()->first();
 		$latestNote = $note instanceof AdminNotes\EntryVO ?
@@ -109,9 +113,9 @@ class DashboardCards {
 			'overview' => [
 				'title'   => __( 'Security Overview', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/binoculars.svg' ),
-				'introjs' => sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				'introjs' => sprintf( __( "Review your entire Shield Security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $name ),
 				'paras'   => [
-					sprintf( __( "Review your entire %s security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Review your entire %s security configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $name ),
 				],
 				'actions' => [
 					[
@@ -124,10 +128,10 @@ class DashboardCards {
 			'scans' => [
 				'title'   => __( 'Scans and Protection', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/shield-shaded.svg' ),
-				'introjs' => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				'introjs' => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ), $name ),
 				'paras'   => [
-					sprintf( __( "Use %s Scans to automatically detect and repair intrusions on your site.", 'wp-simple-firewall' ), $con->getHumanName() ),
-					sprintf( __( "%s scans WordPress core files, plugins, themes and will detect Malware (ShieldPRO).", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Use %s Scans to automatically detect and repair intrusions on your site.", 'wp-simple-firewall' ), $name ),
+					sprintf( __( "%s scans WordPress core files, plugins, themes and will detect Malware (ShieldPRO).", 'wp-simple-firewall' ), $name ),
 				],
 				'actions' => [
 					[
@@ -144,9 +148,9 @@ class DashboardCards {
 			'sec_admin' => [
 				'title'   => __( 'Security Admin', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/person-badge.svg' ),
-				'introjs' => sprintf( __( "Lock down access to %s itself to specific WP Administrators.", 'wp-simple-firewall' ), 'ShieldPRO' ),
+				'introjs' => sprintf( __( "Lock down access to %s itself to specific WP Administrators.", 'wp-simple-firewall' ), $name ),
 				'paras'   => [
-					sprintf( __( "Restrict access to %s itself and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Restrict access to %s itself and prevent unwanted changes to your site by other administrators.", 'wp-simple-firewall' ), $name ),
 				],
 				'actions' => [
 					[
@@ -155,6 +159,21 @@ class DashboardCards {
 					],
 				]
 			],
+
+//			'reports' => [
+//				'title'   => __( 'Reports and Stats', 'wp-simple-firewall' ),
+//				'img'     => $con->urls->forImage( 'bootstrap/graph-up.svg' ),
+//				'introjs' => sprintf( __( "See the effect on your site security by %s in numbers", 'wp-simple-firewall' ), $name ),
+//				'paras'   => [
+//					sprintf( __( "Display charts to see how %s is performing over time and in which areas your site has been most impacted.", 'wp-simple-firewall' ), $name ),
+//				],
+//				'actions' => [
+//					[
+//						'text' => __( "View Reports and Stats", 'wp-simple-firewall' ),
+//						'href' => $modInsights->getUrl_SubInsightsPage( 'reports' ),
+//					],
+//				]
+//			],
 
 			'free_trial' => [
 				'title'   => __( 'Free ShieldPRO Trial', 'wp-simple-firewall' ),
@@ -366,7 +385,7 @@ class DashboardCards {
 				'title'   => __( 'Docs', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/book-half.svg' ),
 				'paras'   => [
-					sprintf( __( "Important information about %s releases and changes.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( __( "Important information about %s releases and changes.", 'wp-simple-firewall' ), $name ),
 				],
 				'actions' => [
 					[
@@ -404,6 +423,7 @@ class DashboardCards {
 			'scans',
 			'free_trial',
 			'sec_admin',
+			'reports',
 			'ips',
 			'audit_trail',
 			'traffic',

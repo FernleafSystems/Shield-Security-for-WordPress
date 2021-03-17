@@ -86,15 +86,18 @@ class ModCon extends BaseShield\ModCon {
 					break;
 
 				case 'overview':
-				case 'reports':
+					$enq[ Enqueue::JS ] = [
+						'shuffle',
+						'shield-card-shuffle',
+						'ip_detect'
+					];
+					break;
 
+				case 'reports':
 					$enq[ Enqueue::JS ] = [
 						'chartist',
 						'chartist-plugin-legend',
 						'shield/charts',
-						'shuffle',
-						'shield-card-shuffle',
-						'ip_detect'
 					];
 					$enq[ Enqueue::CSS ] = [
 						'chartist',
@@ -127,11 +130,5 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		return $enq;
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	private function includeScriptIpDetect() {
 	}
 }
