@@ -68,22 +68,11 @@ class NotBotHandler {
 		return true;
 	}
 
-	public function checkCookie() :bool {
-		$valid = false;
-		$req = Services::Request();
+	public function hasCookie() :bool {
 		$cookie = $this->getCookieParts();
-		if ( !$this->hashTested && !empty( $cookie ) ) {
-			$valid = ( $req->ts() < $cookie[ 'ts' ] )
-					 && !array_key_exists( $cookie[ 'hash' ], $this->getBotHashes() )
-					 && hash_equals( $this->getHashForVisitorTS( (int)$cookie[ 'ts' ] ), $cookie[ 'hash' ] );
-			if ( $valid ) {
-				$this->addBotHash( $cookie[ 'hash' ] );
-			}
-			$this->clearCookie();
-			$this->hashTested = true; // we only test hashes once per request
-		}
-		$this->getCon()->fireEvent( 'antibot_'.( $valid ? 'pass' : 'fail' ) );
-		return $valid;
+		return !empty( $cookie )
+			   && ( Services::Request()->ts() < $cookie[ 'ts' ] )
+			   && hash_equals( $this->getHashForVisitorTS( (int)$cookie[ 'ts' ] ), $cookie[ 'hash' ] );
 	}
 
 	protected function getHashForVisitorTS( int $timestamp ) {
@@ -91,22 +80,6 @@ class NotBotHandler {
 			$timestamp.(string)Services::IP()->getRequestIp(),
 			$this->getCon()->getSiteInstallationId()
 		);
-	}
-
-	protected function getBotHashes() :array {
-		$hashes = $this->getOptions()->getOpt( 'used_bot_hashes' );
-		return is_array( $hashes ) ? $hashes : [];
-	}
-
-	protected function addBotHash( $hash ) {
-		$hashes = $this->getBotHashes();
-		$hashes[ $hash ] = Services::Request()->ts();
-		$this->getOptions()->setOpt( 'used_bot_hashes', array_filter(
-			$hashes,
-			function ( $ts ) {
-				return Services::Request()->ts() - self::LIFETIME < $ts;
-			}
-		) );
 	}
 
 	private function getCookieParts() :array {

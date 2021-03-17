@@ -164,21 +164,29 @@ class ScansController {
 	}
 
 	public function getFirstRunTimestamp() :int {
-		$c = Services::Request()->carbon( true );
-		$c->addHours( $c->minute < 40 ? 0 : 1 )
-		  ->minute( $c->minute < 40 ? 45 : 15 )
-		  ->second( 0 );
 
-		if ( $this->getCronFrequency() === 1 ) { // If it's a daily scan only, set to 3am by default
-			$hour = (int)apply_filters( $this->getCon()->prefix( 'daily_scan_cron_hour' ), 3 );
-			if ( $hour < 0 || $hour > 23 ) {
-				$hour = 3;
-			}
-			if ( $c->hour >= $hour ) {
-				$c->addDays( 1 );
-			}
-			$c->hour( $hour );
+		$startHour = (int)apply_filters( 'shield/scan_cron_start_hour', 3 );
+		$startMinute = (int)apply_filters( 'shield/scan_cron_start_minute', (int)rand( 0, 59 ) );
+		if ( $startHour < 0 || $startHour > 23 ) {
+			$startHour = 3;
 		}
+		if ( $startMinute < 1 || $startMinute > 59 ) {
+			$startMinute = (int)rand( 0, 59 );
+		}
+
+		$c = Services::Request()->carbon( true );
+		if ( $c->hour > $startHour ) {
+			$c->addDays( 1 ); // Start on this hour, tomorrow
+		}
+		elseif ( $c->hour === $startHour ) {
+			if ( $c->minute >= $startMinute ) {
+				$c->addDays( 1 ); // Start on this minute, tomorrow
+			}
+		}
+
+		$c->hour( $startHour )
+		  ->minute( $startMinute )
+		  ->second( 0 );
 
 		return $c->timestamp;
 	}

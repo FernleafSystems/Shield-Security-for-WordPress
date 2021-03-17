@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ExtensionSettingsPage {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	protected function run() {
 
@@ -41,7 +41,7 @@ class ExtensionSettingsPage {
 //				wp_enqueue_style( 'semantic-ui-datatables-select' );
 			}
 			return $enqueues;
-		}, 10,2 );
+		}, 10, 2 );
 	}
 
 	/**

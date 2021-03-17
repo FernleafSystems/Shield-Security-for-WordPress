@@ -20,10 +20,6 @@ class ModCon extends Base\ModCon {
 	 */
 	private static $bVisitorIsWhitelisted;
 
-	/**
-	 * @return bool
-	 * @deprecated 10.2
-	 */
 	public function canCacheDirWrite() :bool {
 		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
 			->setMod( $this->getCon()->getModule_Plugin() )

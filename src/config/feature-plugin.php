@@ -526,13 +526,6 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
-    },
-    {
-      "key":          "used_bot_hashes",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "array",
-      "default":      []
     }
   ],
   "definitions":   {
@@ -675,7 +668,8 @@
         "audit": false
       },
       "recaptcha_fail":         {
-        "audit": true
+        "offense": true,
+        "audit":   true
       },
       "antibot_pass":           {
         "stat":  true,

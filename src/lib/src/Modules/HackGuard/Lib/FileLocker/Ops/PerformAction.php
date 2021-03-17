@@ -12,43 +12,43 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 class PerformAction extends BaseOps {
 
 	/**
-	 * @param int    $nLockID
-	 * @param string $sAction
+	 * @param int    $lockID
+	 * @param string $action
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function run( $nLockID, $sAction ) {
+	public function run( $lockID, $action ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( !in_array( $sAction, [ 'accept', 'restore', 'diff' ] ) ) {
+		if ( !in_array( $action, [ 'accept', 'restore', 'diff' ] ) ) {
 			throw new \Exception( __( 'Not a supported file lock action.', 'wp-simple-firewall' ) );
 		}
-		if ( !is_numeric( $nLockID ) ) {
+		if ( !is_numeric( $lockID ) ) {
 			throw new \Exception( __( 'Please select a valid file.', 'wp-simple-firewall' ) );
 		}
-		$oLock = $mod->getDbHandler_FileLocker()
-					  ->getQuerySelector()
-					  ->byId( (int)$nLockID );
-		if ( !$oLock instanceof Databases\FileLocker\EntryVO ) {
+		$lock = $mod->getDbHandler_FileLocker()
+					->getQuerySelector()
+					->byId( (int)$lockID );
+		if ( !$lock instanceof Databases\FileLocker\EntryVO ) {
 			throw new \Exception( __( 'Not valid file lock ID.', 'wp-simple-firewall' ) );
 		}
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 			case 'accept':
 				$mResult = ( new Accept() )
 					->setMod( $this->getMod() )
-					->run( $oLock );
+					->run( $lock );
 				break;
 			case 'diff':
 				$mResult = ( new Diff() )
 					->setMod( $this->getMod() )
-					->run( $oLock );
+					->run( $lock );
 				break;
 			case 'restore':
 				$mResult = ( new Restore() )
 					->setMod( $this->getMod() )
-					->run( $oLock );
+					->run( $lock );
 				break;
 			default:
 				$mResult = false;

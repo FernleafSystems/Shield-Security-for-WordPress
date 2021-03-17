@@ -2,12 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Upgrade {
 
 	use ModConsumer;
-	use \FernleafSystems\Utilities\Logic\OneTimeExecute;
+	use ExecOnce;
 
 	protected function run() {
 		$this->upgradeModule();

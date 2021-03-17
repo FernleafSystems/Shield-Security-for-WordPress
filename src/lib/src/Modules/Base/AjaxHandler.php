@@ -18,7 +18,7 @@ abstract class AjaxHandler {
 		add_filter( $this->getCon()->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
 	}
 
-	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) {
+	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) :array {
 		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
 			$ajaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $ajaxAction ) );
 		}

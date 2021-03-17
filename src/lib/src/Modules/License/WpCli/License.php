@@ -117,8 +117,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 * or you're premium and you haven't switched it off (parent).
 	 * @inheritDoc
 	 */
-	protected function canRun() {
-		return !$this->getCon()->isPremiumActive()
-			   || parent::canRun();
+	protected function canRun() :bool {
+		return !$this->getCon()->isPremiumActive() || parent::canRun();
 	}
 }

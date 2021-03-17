@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "10.2.20",
-    "release_timestamp":       1615389387,
-    "build":                   "202103.1001",
+    "version":                 "10.2.23",
+    "release_timestamp":       1615915598,
+    "build":                   "202103.1602",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -49,15 +49,17 @@
     },
     "plugin_admin": {
       "css": [
-        "select2.min",
-        "plugin",
-        "featherlight"
-      ],
-      "js":  [
-        "select2.min",
+        "select2",
         "plugin",
         "featherlight",
-        "jquery.fileDownload"
+        "introjs"
+      ],
+      "js":  [
+        "select2",
+        "plugin",
+        "featherlight",
+        "jquery.fileDownload",
+        "shield/tours"
       ]
     },
     "frontend":     {
@@ -66,10 +68,10 @@
     },
     "register":     {
       "css": {
-        "bootstrap4.min":         {
+        "bootstrap4":             {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/css/bootstrap.min.css"
         },
-        "select2.min":   {
+        "select2":                {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css",
           "deps": [
             "plugin"
@@ -78,39 +80,43 @@
         "bootstrap-datepicker":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
           "deps": [
-            "bootstrap4.min"
+            "bootstrap4"
           ]
         },
         "global-plugin":          {},
         "plugin":                 {
           "deps": [
-            "bootstrap4.min",
+            "bootstrap4",
             "global-plugin"
           ]
         },
         "wizard":                 {
           "deps": [
-            "bootstrap4.min",
+            "bootstrap4",
             "global-plugin"
           ]
         },
         "featherlight":           {},
-        "chartist.min":           {},
+        "chartist":               {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.css"
+        },
         "chartist-plugin-legend": {
           "deps": [
-            "chartist.min"
+            "chartist"
           ]
         },
-        "introjs.min":            {}
+        "introjs":                {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/introjs.min.css"
+        }
       },
       "js":  {
-        "bootstrap4.bundle.min":   {
+        "bootstrap4":              {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
         },
-        "select2.min":    {
+        "select2":                 {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js",
           "deps": [
             "plugin"
@@ -119,7 +125,7 @@
         "bootstrap-datepicker":    {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
           "deps": [
-            "bootstrap4.bundle.min"
+            "bootstrap4"
           ]
         },
         "global-plugin":           {
@@ -129,7 +135,7 @@
         },
         "plugin":                  {
           "deps": [
-            "bootstrap4.bundle.min",
+            "bootstrap4",
             "global-plugin",
             "base64.min",
             "lz-string.min"
@@ -149,13 +155,18 @@
             "wp-jquery"
           ]
         },
-        "chartist.min":            {},
+        "chartist":                {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.js"
+        },
         "chartist-plugin-legend":  {
           "deps": [
-            "chartist.min"
+            "chartist"
           ]
         },
-        "charts":                  {
+        "introjs":                 {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/intro.min.js"
+        },
+        "shield/charts":           {
           "deps": [
             "chartist-plugin-legend"
           ]
@@ -166,14 +177,19 @@
             "shuffle"
           ]
         },
-        "introjs.min":             {},
         "shield/tables":           {
           "deps": [
             "plugin"
           ]
         },
-        "shield/antibot":            {
-          "footer":  true
+        "shield/tours":            {
+          "deps": [
+            "plugin",
+            "introjs"
+          ]
+        },
+        "shield/antibot":          {
+          "footer": true
         },
         "shield/scans":            {
           "deps": [

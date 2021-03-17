@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
@@ -11,18 +11,18 @@ use FernleafSystems\Wordpress\Services\Services;
 class RenameLogin {
 
 	use Modules\ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
-	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], 9 );
-	}
-
-	protected function canRun() {
+	protected function canRun() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return !Services::IP()->isLoopback()
 			   && !empty( $opts->getCustomLoginPath() )
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
+	}
+
+	protected function run() {
+		add_action( 'init', [ $this, 'onWpInit' ], 9 );
 	}
 
 	public function onWpInit() {

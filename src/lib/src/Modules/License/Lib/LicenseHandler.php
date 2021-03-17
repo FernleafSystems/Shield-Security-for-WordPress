@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class LicenseHandler {
 
 	use Modules\ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'shield_action' ), function ( $action ) {
@@ -21,12 +21,12 @@ class LicenseHandler {
 
 				case 'keyless_handshake':
 				case 'snapi_handshake':
-					$sNonce = Services::Request()->query( 'nonce' );
-					if ( !empty( $sNonce ) ) {
+					$nonce = Services::Request()->query( 'nonce' );
+					if ( !empty( $nonce ) ) {
 						die( json_encode( [
 							'success' => ( new HandshakingNonce() )
 								->setMod( $this->getMod() )
-								->verify( $sNonce )
+								->verify( $nonce )
 						] ) );
 					}
 					break;
@@ -85,33 +85,21 @@ class LicenseHandler {
 		add_filter( $this->getCon()->prefix( 'force_options_resave' ), '__return_true' );
 	}
 
-	/**
-	 * @return int
-	 */
-	protected function getActivatedAt() {
-		return $this->getOptions()->getOpt( 'license_activated_at' );
+	protected function getActivatedAt() :int {
+		return (int)$this->getOptions()->getOpt( 'license_activated_at' );
 	}
 
-	/**
-	 * @return int
-	 */
-	protected function getDeactivatedAt() {
-		return $this->getOptions()->getOpt( 'license_deactivated_at' );
+	protected function getDeactivatedAt() :int {
+		return (int)$this->getOptions()->getOpt( 'license_deactivated_at' );
 	}
 
-	/**
-	 * @return EddLicenseVO
-	 */
-	public function getLicense() {
-		$aData = $this->getOptions()->getOpt( 'license_data', [] );
-		return ( new EddLicenseVO() )->applyFromArray( is_array( $aData ) ? $aData : [] );
+	public function getLicense() :EddLicenseVO {
+		$data = $this->getOptions()->getOpt( 'license_data', [] );
+		return ( new EddLicenseVO() )->applyFromArray( is_array( $data ) ? $data : [] );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getLicenseNotCheckedForInterval() {
-		return Services::Request()->ts() - $this->getOptions()->getOpt( 'license_last_checked_at' );
+	public function getLicenseNotCheckedForInterval() :int {
+		return (int)( Services::Request()->ts() - $this->getOptions()->getOpt( 'license_last_checked_at' ) );
 	}
 
 	/**
@@ -121,7 +109,7 @@ class LicenseHandler {
 	 * plus the grace period.
 	 * @return int
 	 */
-	public function getRegistrationExpiresAt() {
+	public function getRegistrationExpiresAt() :int {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$opts = $this->getOptions();
@@ -151,36 +139,24 @@ class LicenseHandler {
 		return $oLic->isValid() && $this->isActive();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isActive() {
+	public function isActive() :bool {
 		return ( $this->getActivatedAt() > 0 )
 			   && ( $this->getDeactivatedAt() < $this->getActivatedAt() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isLastVerifiedExpired() {
+	public function isLastVerifiedExpired() :bool {
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
 			   > $this->getOptions()->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isLastVerifiedGraceExpired() {
+	public function isLastVerifiedGraceExpired() :bool {
 		$oOpts = $this->getOptions();
 		$nGracePeriod = ( $oOpts->getDef( 'lic_verify_expire_days' )
 						  + $oOpts->getDef( 'lic_verify_expire_grace_days' ) )*DAY_IN_SECONDS;
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at ) > $nGracePeriod;
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isMaybeExpiring() {
+	private function isMaybeExpiring() :bool {
 		return $this->isActive() &&
 			   (
 				   abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
@@ -188,17 +164,11 @@ class LicenseHandler {
 			   );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isWithinVerifiedGraceExpired() {
+	public function isWithinVerifiedGraceExpired() :bool {
 		return $this->isLastVerifiedExpired() && !$this->isLastVerifiedGraceExpired();
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function isVerifyRequired() {
+	private function isVerifyRequired() :bool {
 		return ( $this->isMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
 			   || ( $this->isActive()
 					&& !$this->getLicense()->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )

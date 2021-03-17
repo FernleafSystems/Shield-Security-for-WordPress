@@ -9,7 +9,15 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseWpCliCmd {
 
 	use ModConsumer;
-	use \FernleafSystems\Utilities\Logic\OneTimeExecute;
+	use \FernleafSystems\Utilities\Logic\ExecOnce;
+
+	protected function canRun() :bool {
+		/** @var Options $pluginModOpts */
+		$pluginModOpts = $this->getCon()
+							  ->getModule_Plugin()
+							  ->getOptions();
+		return $this->getOptions()->getWpCliCfg()[ 'enabled' ] && $pluginModOpts->isEnabledWpcli();
+	}
 
 	/**
 	 * @throws \Exception
@@ -25,58 +33,29 @@ abstract class BaseWpCliCmd {
 		}
 	}
 
-	/**
-	 * @param array $aParts
-	 * @return string
-	 */
-	protected function buildCmd( array $aParts ) {
+	protected function buildCmd( array $parts ) :string {
 		return implode( ' ',
-			array_filter( array_merge( $this->getBaseCmdParts(), $aParts ) )
+			array_filter( array_merge( $this->getBaseCmdParts(), $parts ) )
 		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function canRun() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getOptions();
-		return $this->getOptions()->getWpCliCfg()[ 'enabled' ]
-			   && $oOpts->isEnabledWpcli();
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getBaseCmdParts() {
+	protected function getBaseCmdParts() :array {
 		return [ 'shield', $this->getBaseCmdKey() ];
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getBaseCmdKey() {
-		$sRoot = $this->getOptions()->getWpCliCfg()[ 'root' ];
-		return empty( $sRoot ) ? $this->getMod()->getModSlug( false ) : $sRoot;
+	protected function getBaseCmdKey() :string {
+		$root = $this->getOptions()->getWpCliCfg()[ 'root' ];
+		return empty( $root ) ? $this->getMod()->getModSlug( false ) : $root;
 	}
 
-	/**
-	 * @param array $aArgs
-	 * @return array
-	 */
-	protected function mergeCommonCmdArgs( array $aArgs ) {
-		return array_merge(
-			$this->getCommonCmdArgs(),
-			$aArgs
-		);
+	protected function mergeCommonCmdArgs( array $args ) :array {
+		return array_merge( $this->getCommonCmdArgs(), $args );
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getCommonCmdArgs() {
+	protected function getCommonCmdArgs() :array {
 		return [
 			'before_invoke' => function () {
 				$this->beforeInvokeCmd();
@@ -95,36 +74,32 @@ abstract class BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $aA
+	 * @param array $args
 	 * @return \WP_User
 	 * @throws \WP_CLI\ExitException
 	 */
-	protected function loadUserFromArgs( array $aA ) {
+	protected function loadUserFromArgs( array $args ) :\WP_User {
 		$oWpUsers = Services::WpUsers();
 
-		$oU = null;
-		if ( isset( $aA[ 'uid' ] ) ) {
-			$oU = $oWpUsers->getUserById( $aA[ 'uid' ] );
+		$user = null;
+		if ( isset( $args[ 'uid' ] ) ) {
+			$user = $oWpUsers->getUserById( $args[ 'uid' ] );
 		}
-		elseif ( isset( $aA[ 'email' ] ) ) {
-			$oU = $oWpUsers->getUserByEmail( $aA[ 'email' ] );
+		elseif ( isset( $args[ 'email' ] ) ) {
+			$user = $oWpUsers->getUserByEmail( $args[ 'email' ] );
 		}
-		elseif ( isset( $aA[ 'username' ] ) ) {
-			$oU = $oWpUsers->getUserByUsername( $aA[ 'username' ] );
+		elseif ( isset( $args[ 'username' ] ) ) {
+			$user = $oWpUsers->getUserByUsername( $args[ 'username' ] );
 		}
 
-		if ( !$oU instanceof \WP_User || $oU->ID < 1 ) {
+		if ( !$user instanceof \WP_User || $user->ID < 1 ) {
 			\WP_CLI::error( "Couldn't find that user." );
 		}
 
-		return $oU;
+		return $user;
 	}
 
-	/**
-	 * @param array $aA
-	 * @return bool
-	 */
-	protected function isForceFlag( array $aA ) {
-		return (bool)\WP_CLI\Utils\get_flag_value( $aA, 'force', false );
+	protected function isForceFlag( array $args ) :bool {
+		return (bool)\WP_CLI\Utils\get_flag_value( $args, 'force', false );
 	}
 }

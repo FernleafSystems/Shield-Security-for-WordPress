@@ -23,7 +23,9 @@ class Insert extends BaseQuery {
 	 * @return bool
 	 */
 	public function insert( $entry ) :bool {
-		return $this->setInsertData( $entry->getRawData() )->query() === 1;
+		// @deprecated 10.3- get rid of casting after moving filelockerVO to normal VO
+		$data = (array)$entry->getRawData();
+		return $this->setInsertData( $data )->query() === 1;
 	}
 
 	/**

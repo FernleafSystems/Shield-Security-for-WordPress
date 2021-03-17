@@ -29,7 +29,7 @@ class File {
 		return array_filter(
 			$this->getPossiblePaths(),
 			function ( $path ) {
-				return Services::WpFs()->isFile( $path );
+				return !empty( $path ) && Services::WpFs()->isFile( $path );
 			}
 		);
 	}

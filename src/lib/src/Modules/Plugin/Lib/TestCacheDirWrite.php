@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class TestCacheDirWrite
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib
- */
 class TestCacheDirWrite {
 
 	use ModConsumer;
@@ -21,67 +17,67 @@ class TestCacheDirWrite {
 	 * @return $this
 	 */
 	protected function run() {
-		$aD = $this->getTestData();
-		$nNow = Services::Request()->ts();
+		$data = $this->getTestData();
+		$now = Services::Request()->ts();
 
-		if ( ( $aD[ 'last_success_at' ] === 0 || $nNow - WEEK_IN_SECONDS > $aD[ 'last_success_at' ] )
-			 && ( $nNow - HOUR_IN_SECONDS > $aD[ 'last_test_at' ] ) ) {
+		if ( ( $data[ 'last_success_at' ] === 0 || $now - WEEK_IN_SECONDS > $data[ 'last_success_at' ] )
+			 && ( $now - HOUR_IN_SECONDS > $data[ 'last_test_at' ] ) ) {
 
-			$sRoot = $this->getCon()->getPath_PluginCache();
-			$bCanWrite = !empty( $sRoot )
-						 && $this->canCreateWriteDeleteFile()
-						 && $this->canCreateWriteDeleteDir();
+			$rootDir = $this->getCon()->getPath_PluginCache();
+			$canWrite = !empty( $rootDir )
+						&& $this->canCreateWriteDeleteFile()
+						&& $this->canCreateWriteDeleteDir();
 
-			$aD[ 'last_success_at' ] = $bCanWrite ? $nNow : 0;
-			$aD[ 'last_test_at' ] = $nNow;
-			$this->getOptions()->setOpt( 'cache_dir_write_test', $aD );
+			$data[ 'last_success_at' ] = $canWrite ? $now : 0;
+			$data[ 'last_test_at' ] = $now;
+			$this->getOptions()->setOpt( 'cache_dir_write_test', $data );
 		}
 		return $this;
 	}
 
 	private function canCreateWriteDeleteDir() :bool {
-		$bCanWrite = false;
+		$canWrite = false;
 
-		$oFS = Services::WpFs();
+		$FS = Services::WpFs();
 
-		$sTestDir = $this->getCon()->getPluginCachePath( uniqid() );
-		$oFS->mkdir( $sTestDir );
-		if ( $oFS->isDir( $sTestDir ) ) {
-			$sFile = path_join( $sTestDir, uniqid() );
-			$oFS->touch( $sFile );
-			$oFS->deleteDir( $sTestDir );
-			$bCanWrite = !$oFS->isDir( $sTestDir );
+		$testDir = $this->getCon()->getPluginCachePath( uniqid() );
+		$FS->mkdir( $testDir );
+		if ( $FS->isDir( $testDir ) ) {
+			$sFile = path_join( $testDir, uniqid() );
+			$FS->touch( $sFile );
+			$FS->deleteDir( $testDir );
+			$canWrite = !$FS->isDir( $testDir );
 		}
-		return $bCanWrite;
+		return $canWrite;
 	}
 
 	private function canCreateWriteDeleteFile() :bool {
-		$bCanWrite = false;
+		$canWrite = false;
 
-		$oFS = Services::WpFs();
+		$FS = Services::WpFs();
 
-		$sTestFile = $this->getCon()->getPluginCachePath( 'test_write_file.txt' );
-		$oFS->touch( $sTestFile );
+		$testFile = $this->getCon()->getPluginCachePath( 'test_write_file.txt' );
+		$FS->touch( $testFile );
 
-		if ( $oFS->exists( $sTestFile ) ) {
-			$sUniq = uniqid();
-			$oFS->putFileContent( $sTestFile, $sUniq );
-			if ( $oFS->getFileContent( $sTestFile ) == $sUniq ) {
-				$oFS->deleteFile( $sTestFile );
-				$bCanWrite = !$oFS->exists( $sTestFile );
+		if ( $FS->exists( $testFile ) ) {
+			$uniq = uniqid();
+			$FS->putFileContent( $testFile, $uniq );
+			if ( $FS->getFileContent( $testFile ) == $uniq ) {
+				$FS->deleteFile( $testFile );
+				$canWrite = !$FS->exists( $testFile );
 			}
 		}
-		return $bCanWrite;
+		return $canWrite;
 	}
 
 	private function getTestData() :array {
-		$aD = $this->getOptions()->getOpt( 'cache_dir_write_test' );
+		$data = $this->getOptions()->getOpt( 'cache_dir_write_test' );
 		return array_merge(
 			[
 				'last_test_at'    => 0,
 				'last_success_at' => 0,
 			],
-			is_array( $aD ) ? $aD : []
+			is_array( $data ) ? $data : []
 		);
 	}
 }

@@ -22,6 +22,7 @@ class TestContent {
 	public function findSpam( array $itemsToTest, bool $finishAfterFirst = true ) :array {
 		$spamFound = [];
 
+		$itemsToTest = array_map( 'strval', array_filter( $itemsToTest ) );
 		foreach ( $this->getSpamList() as $word ) {
 			foreach ( $itemsToTest as $key => $item ) {
 				if ( stripos( $item, $word ) !== false ) {

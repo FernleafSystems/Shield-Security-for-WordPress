@@ -9,32 +9,25 @@ class HandshakingNonce {
 
 	use ModConsumer;
 
-	/**
-	 * @return string
-	 */
-	public function create() {
-		$aNonces = $this->getNonces();
+	public function create() :string {
+		$nonces = $this->getNonces();
 
-		$sPass = wp_generate_password( 12, false );
-		$aNonces[ $sPass ] = Services::Request()->ts() + 90;
-		$this->storeNonces( $aNonces );
+		$pass = wp_generate_password( 12, false );
+		$nonces[ $pass ] = Services::Request()->ts() + 90;
+		$this->storeNonces( $nonces );
 
-		return $sPass;
+		return $pass;
 	}
 
-	/**
-	 * @param string $sNonce
-	 * @return bool
-	 */
-	public function verify( $sNonce ) {
-		$aNs = $this->getNonces();
-		$bValid = false;
-		if ( isset( $aNs[ $sNonce ] ) ) {
-			$bValid = Services::Request()->ts() <= $aNs[ $sNonce ];
-			unset( $aNs[ $sNonce ] );
-			$this->storeNonces( $aNs );
+	public function verify( string $nonce ) :bool {
+		$nonces = $this->getNonces();
+		$valid = false;
+		if ( isset( $nonces[ $nonce ] ) ) {
+			$valid = Services::Request()->ts() <= $nonces[ $nonce ];
+			unset( $nonces[ $nonce ] );
+			$this->storeNonces( $nonces );
 		}
-		return $bValid;
+		return $valid;
 	}
 
 	/**
@@ -48,20 +41,20 @@ class HandshakingNonce {
 
 	/**
 	 * Also filters out expired nonces on-save
-	 * @param int[] $aNonces
+	 * @param int[] $nonces
 	 * @return $this
 	 */
-	private function storeNonces( array $aNonces ) {
-		$oSnapiCon = $this->getCon()
-						  ->getModule_Plugin()
-						  ->getShieldNetApiController();
-		$oSnapiCon->vo->nonces = array_filter(
-			$aNonces,
-			function ( $nTS ) {
-				return $nTS > Services::Request()->ts();
+	private function storeNonces( array $nonces ) {
+		$snapiCon = $this->getCon()
+						 ->getModule_Plugin()
+						 ->getShieldNetApiController();
+		$snapiCon->vo->nonces = array_filter(
+			$nonces,
+			function ( $ts ) {
+				return $ts > Services::Request()->ts();
 			}
 		);
-		$oSnapiCon->storeVoData();
+		$snapiCon->storeVoData();
 		return $this;
 	}
 }

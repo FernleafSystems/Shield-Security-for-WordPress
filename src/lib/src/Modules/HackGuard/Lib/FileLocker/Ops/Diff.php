@@ -13,34 +13,38 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 class Diff extends BaseOps {
 
 	/**
-	 * @param FileLocker\EntryVO $oLock
+	 * @param FileLocker\EntryVO $lock
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function run( $oLock ) {
+	public function run( $lock ) {
 
 		$oFS = Services::WpFs();
 
-		if ( !$oFS->isFile( $oLock->file ) ) {
+		if ( !$oFS->isFile( $lock->file ) ) {
 			throw new \Exception( __( 'File is missing or could not be read.', 'wp-simple-firewall' ) );
 		}
 
-		$sContent = Services::WpFs()->getFileContent( $oLock->file );
-		if ( empty( $sContent ) ) {
+		$current = Services::WpFs()->getFileContent( $lock->file );
+		if ( empty( $current ) ) {
 			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}
 
-		$sOriginal = ( new ReadOriginalFileContent() )
+		$original = ( new ReadOriginalFileContent() )
 			->setMod( $this->getMod() )
-			->run( $oLock );
+			->run( $lock );
 
-		$sDiff = $this->useWpDiff( $sOriginal, $sContent );
-		// The WP Diff is empty if the only difference is white space
-		if ( empty( $sDiff ) ) {
-			$sDiff = $this->useWpHashes( $sOriginal, $sContent );
-		}
+		/**
+		 * The WP Diff is empty if the only difference is white space
+		 * @since v10.3 always use WP Hashes DIFF
+		 *
+		 * $diff = $this->useWpDiff( $original, $current );
+		 * if ( empty( $diff ) ) {
+		 *  $this->useWpHashes( $original, $current );
+		 * }
+		 */
 
-		return $sDiff;
+		return $this->useWpHashes( $original, $current );
 	}
 
 	/**

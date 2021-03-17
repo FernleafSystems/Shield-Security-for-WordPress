@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class WpvAddPluginRows {
 
 	use Controller\ScanControllerConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	/**
 	 * @var int
@@ -26,7 +26,7 @@ class WpvAddPluginRows {
 		$this->addPluginVulnerabilityRows();
 	}
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		return $this->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0;
 	}
 

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
@@ -12,13 +12,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class ReportingController {
 
 	use Modules\ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 	use PluginCronsConsumer;
 
-	/**
-	 * @return bool
-	 */
-	protected function canRun() {
+	protected function canRun() :bool {
 		/** @var Modules\Reporting\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getFrequencyInfo() !== 'disabled' || $opts->getFrequencyAlert() !== 'disabled';

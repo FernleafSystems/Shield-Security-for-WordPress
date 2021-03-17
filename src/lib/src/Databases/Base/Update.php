@@ -61,7 +61,7 @@ class Update extends Insert {
 
 		if ( $entry instanceof EntryVO ) {
 
-			foreach ( $entry->getRawData() as $key => $value ) {
+			foreach ( (array)$entry->getRawData() as $key => $value ) {
 				if ( isset( $updateData[ $key ] ) && $updateData[ $key ] === $value ) {
 					unset( $updateData[ $key ] );
 				}

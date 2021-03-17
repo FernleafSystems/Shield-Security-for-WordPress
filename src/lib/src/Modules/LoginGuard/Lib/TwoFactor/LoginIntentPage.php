@@ -130,8 +130,8 @@ class LoginIntentPage {
 				'time_remaining' => $nTimeRemaining,
 			],
 			'hrefs'   => [
-				'css_bootstrap' => $con->urls->forCss( 'bootstrap4.min' ),
-				'js_bootstrap'  => $con->urls->forJs( 'bootstrap4.bundle.min' ),
+				'css_bootstrap' => $con->urls->forCss( 'bootstrap4' ),
+				'js_bootstrap'  => $con->urls->forJs( 'bootstrap4' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'what_is_this'  => 'https://support.getshieldsecurity.com/support/solutions/articles/3000064840',
 			],

@@ -12,7 +12,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getPageTitle() {
+	protected function getPageTitle() :string {
 		return sprintf( __( '%s Welcome Wizard', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
 	}
 
@@ -79,7 +79,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string[]
 	 * @throws Exception
 	 */
-	protected function determineWizardSteps() {
+	protected function determineWizardSteps() :array {
 
 		switch ( $this->getWizardSlug() ) {
 			case 'welcome':

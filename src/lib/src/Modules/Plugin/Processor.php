@@ -24,7 +24,7 @@ class Processor extends BaseShield\Processor {
 		$mod->getPluginBadgeCon()->run();
 
 		( new PluginTelemetry() )
-			->setMod( $mod )
+			->setMod( $this->getMod() )
 			->execute();
 
 		if ( $opts->isImportExportPermitted() ) {

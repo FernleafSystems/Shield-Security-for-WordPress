@@ -11,7 +11,15 @@ class CaptureMyUpgrade {
 	use ExecOnce;
 
 	protected function run() {
+		add_filter( 'upgrader_post_install', [ $this, 'captureMyInstall' ], 10, 2 );
 		add_action( 'upgrader_process_complete', [ $this, 'captureMyUpgrade' ], 10, 2 );
+	}
+
+	public function captureMyInstall( $true, $hooksExtra ) {
+		if ( !empty( $hooksExtra[ 'plugin' ] ) && $hooksExtra['plugin'] === $this->getCon()->base_file ) {
+			$this->getCon()->is_my_upgrade = true;
+		}
+		return $true;
 	}
 
 	public function captureMyUpgrade( $upgradeHandler, $data ) {

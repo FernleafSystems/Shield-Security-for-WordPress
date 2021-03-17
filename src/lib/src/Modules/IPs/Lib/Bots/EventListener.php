@@ -17,10 +17,15 @@ class EventListener {
 
 		foreach ( $events as $eventTrigger => $column ) {
 			if ( $eventTrigger === $event || preg_match( sprintf( '#^%s$#', $eventTrigger ), $event ) ) {
-				( new UpdateBotField() )
-					->setMod( $this->getMod() )
-					->setIP( $ip )
-					->run( $column );
+				try {
+					( new BotSignalsRecord() )
+						->setMod( $this->getMod() )
+						->setIP( $ip )
+						->updateSignalField( $column );
+				}
+				catch ( \LogicException $e ) {
+					error_log( 'Error updating bot signal: '.$e->getMessage() );
+				}
 			}
 		}
 	}

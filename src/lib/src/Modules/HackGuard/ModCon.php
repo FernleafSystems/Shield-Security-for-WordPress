@@ -219,9 +219,9 @@ class ModCon extends BaseShield\ModCon {
 
 	public function onPluginDeactivate() {
 		// 1. Clean out the scanners
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $slug ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		foreach ( $opts->getScanSlugs() as $slug ) {
 			$this->getScanCon( $slug )->purge();
 		}
 		$this->getDbHandler_ScanQueue()->tableDelete();
