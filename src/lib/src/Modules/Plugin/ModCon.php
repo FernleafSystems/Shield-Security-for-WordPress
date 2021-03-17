@@ -329,15 +329,6 @@ class ModCon extends BaseShield\ModCon {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
-	/**
-	 * hidden 20200121
-	 * @return bool
-	 */
-	public function getIfShowIntroVideo() :bool {
-		return false && ( $this->getActivateLength() < 8 )
-			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
-	}
-
 	public function getTourManager() :Lib\TourManager {
 		return ( new Lib\TourManager() )->setMod( $this );
 	}

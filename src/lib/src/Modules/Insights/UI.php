@@ -56,10 +56,6 @@ class UI extends BaseShield\UI {
 		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
-		$oTourManager = $modPlugin->getTourManager();
-		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $modPlugin->getActivateLength() > 600 ) {
-			$oTourManager->setCompleted( 'insights_overview' );
-		}
 
 		switch ( $sNavSection ) {
 
@@ -231,12 +227,8 @@ class UI extends BaseShield\UI {
 					'page_container' => 'page-insights page-'.$sNavSection
 				],
 				'flags'   => [
-					'is_dashboard'     => $sNavSection === 'dashboard',
-					'show_guided_tour' => $modPlugin->getIfShowIntroVideo(),
-					'tours'            => [
-						'insights_overview' => false && $oTourManager->canShow( 'insights_overview' )
-					],
-					'is_advanced'      => $modPlugin->isShowAdvanced()
+					'is_dashboard' => $sNavSection === 'dashboard',
+					'is_advanced'  => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
 					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),

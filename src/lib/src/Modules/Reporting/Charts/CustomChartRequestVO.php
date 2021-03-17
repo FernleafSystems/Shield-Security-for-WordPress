@@ -3,11 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
 
 /**
- * Class SummaryChartRequestVO
+ * Class CustomChartRequestVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts
- * @property string $render_location
  */
-class SummaryChartRequestVO extends ChartRequestVO {
+class CustomChartRequestVO extends ChartRequestVO {
 
-	const LOCATION_STATCARD = 'insights-overview-statcard';
 }

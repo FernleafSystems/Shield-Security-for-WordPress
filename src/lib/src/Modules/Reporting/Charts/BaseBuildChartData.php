@@ -6,25 +6,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildData {
+class BaseBuildChartData {
 
 	use ModConsumer;
+	use ChartRequestConsumer;
 
-	public function build( SummaryChartRequestVO $req ) :array {
-		$oDbhEvts =  $this->getCon()->getModule_Events()->getDbHandler_Events();
-
-		$this->preProcessRequest( $req );
+	protected function buildDataForEvents( array $events ) :array {
+		$req = $this->getChartRequest();
+		$dbhEvents = $this->getCon()->getModule_Events()->getDbHandler_Events();
 
 		$tick = 0;
 		$carbon = Services::Request()->carbon();
 
 		$labels = [];
-		$aSeries = [];
+		$dataSeries = [];
 		do {
 			$labels[] = $carbon->toDateString();
 
 			/** @var Events\Select $eventSelect */
-			$eventSelect = $oDbhEvts->getQuerySelector();
+			$eventSelect = $dbhEvents->getQuerySelector();
 			switch ( $req->interval ) {
 				case 'hourly':
 					$eventSelect->filterByBoundary_Hour( $carbon->timestamp );
@@ -48,7 +48,7 @@ class BuildData {
 					break;
 			}
 
-			$aSeries[] = $eventSelect->sumEvents( $req->events );
+			$dataSeries[] = $eventSelect->sumEvents( $events );
 
 			$tick++;
 		} while ( $tick < $req->ticks );
@@ -57,7 +57,7 @@ class BuildData {
 			'data'         => [
 				'labels' => [],
 				'series' => [
-					array_reverse( $aSeries ),
+					array_reverse( $dataSeries ),
 				]
 			],
 			'legend_names' => [],
@@ -65,44 +65,13 @@ class BuildData {
 	}
 
 	/**
-	 * @param SummaryChartRequestVO $req
+	 * @throws \InvalidArgumentException
 	 */
-	protected function preProcessRequest( SummaryChartRequestVO $req ) {
+	protected function preProcessRequest() {
+		$req = $this->getChartRequest();
 
-		if ( empty( $req->interval ) ) {
-			switch ( $req->render_location ) {
-				case $req::LOCATION_STATCARD:
-					$req->interval = 'daily';
-					break;
-				default:
-					$req->interval = 'weekly';
-					break;
-			}
-		}
-
-		$allEvents = array_keys( $this->getCon()->loadEventsService()->getEvents() );
-		if ( !empty( $req->chart_params[ 'stat_id' ] ) ) {
-			switch ( $req->chart_params[ 'stat_id' ] ) {
-				case 'comment_block':
-					$req->events = array_filter(
-						$allEvents,
-						function ( $event ) {
-							return strpos( $event, 'spam_block_' ) === 0;
-						}
-					);
-					break;
-				case 'bot_blocks':
-					$req->events = array_filter(
-						$allEvents,
-						function ( $event ) {
-							return strpos( $event, 'bottrack_' ) === 0;
-						}
-					);
-					break;
-				default:
-					$req->events = (array)$req->chart_params[ 'stat_id' ];
-					break;
-			}
+		if ( empty( $req->events ) ) {
+			throw new \InvalidArgumentException( 'No events selected - please select at least 1 event.' );
 		}
 
 		if ( empty( $req->ticks ) ) {
