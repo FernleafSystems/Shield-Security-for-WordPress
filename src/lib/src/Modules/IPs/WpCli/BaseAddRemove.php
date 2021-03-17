@@ -9,7 +9,7 @@ class BaseAddRemove extends BaseWpCliCmd {
 	/**
 	 * @return array[]
 	 */
-	protected function getCommonIpCmdArgs() {
+	protected function getCommonIpCmdArgs() :array {
 		return [
 			[
 				'type'        => 'assoc',
@@ -22,6 +22,8 @@ class BaseAddRemove extends BaseWpCliCmd {
 				'name'        => 'list',
 				'optional'    => false,
 				'options'     => [
+					'bypass',
+					'block',
 					'white',
 					'black',
 				],

@@ -92,10 +92,10 @@ class ModuleStandard extends BaseWpCliCmd {
 		] ) );
 	}
 
-	public function cmdModAction( $null, $aA ) {
+	public function cmdModAction( $null, $args ) {
 		$oMod = $this->getMod();
 
-		switch ( $aA[ 'action' ] ) {
+		switch ( $args[ 'action' ] ) {
 
 			case 'status':
 				$oMod->isModOptEnabled() ?
@@ -121,13 +121,13 @@ class ModuleStandard extends BaseWpCliCmd {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 */
-	public function cmdOptGet( array $null, array $aA ) {
+	public function cmdOptGet( array $null, array $args ) {
 		$oOpts = $this->getOptions();
 
-		$mVal = $oOpts->getOpt( $aA[ 'key' ], $null );
-		$aOpt = $oOpts->getRawData_SingleOption( $aA[ 'key' ] );
+		$mVal = $oOpts->getOpt( $args[ 'key' ], $null );
+		$aOpt = $oOpts->getRawData_SingleOption( $args[ 'key' ] );
 		if ( !is_numeric( $mVal ) && empty( $mVal ) ) {
 			\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
 		}
@@ -151,20 +151,20 @@ class ModuleStandard extends BaseWpCliCmd {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 */
-	public function cmdOptSet( array $null, array $aA ) {
-		$this->getOptions()->setOpt( $aA[ 'key' ], $aA[ 'value' ] );
+	public function cmdOptSet( array $null, array $args ) {
+		$this->getOptions()->setOpt( $args[ 'key' ], $args[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
 	}
 
-	public function cmdOptList( array $null, array $aA ) {
+	public function cmdOptList( array $null, array $args ) {
 		$oOpts = $this->getOptions();
 		$oStrings = $this->getMod()->getStrings();
-		$aOpts = [];
+		$opts = [];
 		foreach ( $oOpts->getOptionsForWpCli() as $sKey ) {
 			try {
-				$aOpts[] = [
+				$opts[] = [
 					'key'     => $sKey,
 					'name'    => $oStrings->getOptionStrings( $sKey )[ 'name' ],
 					'type'    => $oOpts->getOptionType( $sKey ),
@@ -176,11 +176,11 @@ class ModuleStandard extends BaseWpCliCmd {
 			}
 		}
 
-		if ( empty( $aOpts ) ) {
+		if ( empty( $opts ) ) {
 			\WP_CLI::log( "This module doesn't have any configurable options." );
 		}
 		else {
-			if ( !\WP_CLI\Utils\get_flag_value( $aA, 'full', false ) ) {
+			if ( !\WP_CLI\Utils\get_flag_value( $args, 'full', false ) ) {
 				$aKeys = [
 					'key',
 					'name',
@@ -188,12 +188,12 @@ class ModuleStandard extends BaseWpCliCmd {
 				];
 			}
 			else {
-				$aKeys = array_keys( $aOpts[ 0 ] );
+				$aKeys = array_keys( $opts[ 0 ] );
 			}
 
 			\WP_CLI\Utils\format_items(
-				$aA[ 'format' ],
-				$aOpts,
+				$args[ 'format' ],
+				$opts,
 				$aKeys
 			);
 		}

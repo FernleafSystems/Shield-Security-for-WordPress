@@ -39,7 +39,6 @@ class EntryVO extends Base\EntryVO {
 	 * @inheritDoc
 	 */
 	public function __set( string $key, $value ) {
-
 		switch ( $key ) {
 			case 'content':
 			case 'file':
@@ -49,7 +48,6 @@ class EntryVO extends Base\EntryVO {
 			default:
 				break;
 		}
-
 		parent::__set( $key, $value );
 	}
 }

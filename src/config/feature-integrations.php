@@ -62,18 +62,6 @@
       "description": "Use Shield's built-in AntiBot detection system to identify contact form SPAM."
     },
     {
-      "key":         "enable_spam_human",
-      "section":     "section_spam",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Human SPAM Detection",
-      "summary":     "Enable The Human SPAM Detection",
-      "description": "Use Shield's built-in human SPAM detection system to identify contact form SPAM."
-    },
-    {
       "key":           "form_spam_providers",
       "section":       "section_spam",
       "premium":       true,
@@ -81,10 +69,6 @@
       "type":          "multiple_select",
       "default":       [],
       "value_options": [
-        {
-          "value_key": "gravityforms",
-          "text":      "Gravity Forms"
-        },
         {
           "value_key": "contactform7",
           "text":      "Contact Form 7"
@@ -104,6 +88,10 @@
         {
           "value_key": "forminator",
           "text":      "Forminator"
+        },
+        {
+          "value_key": "gravityforms",
+          "text":      "Gravity Forms"
         },
         {
           "value_key": "kaliforms",

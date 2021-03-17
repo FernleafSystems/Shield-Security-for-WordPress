@@ -78,6 +78,12 @@ class EntryVO extends DynPropertiesClass {
 		return (int)$this->created_at;
 	}
 
+	public function getHash() :string {
+		$data = $this->getRawData();
+		asort( $data );
+		return md5( serialize( $data ) );
+	}
+
 	public function isDeleted() :bool {
 		return $this->deleted_at > 0;
 	}

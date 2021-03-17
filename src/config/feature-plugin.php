@@ -526,13 +526,6 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
-    },
-    {
-      "key":          "used_bot_hashes",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "array",
-      "default":      []
     }
   ],
   "definitions":   {
