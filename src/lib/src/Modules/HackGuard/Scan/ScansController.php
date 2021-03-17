@@ -120,18 +120,18 @@ class ScansController {
 		$opts = $this->getOptions();
 
 		if ( $this->getCanScansExecute() ) {
-			$aScans = [];
-			foreach ( $opts->getScanSlugs() as $sScanSlug ) {
-				$oScanCon = $mod->getScanCon( $sScanSlug );
-				if ( $oScanCon->isScanningAvailable() && $oScanCon->isEnabled() ) {
-					$aScans[] = $sScanSlug;
+			$scans = [];
+			foreach ( $opts->getScanSlugs() as $slug ) {
+				$scanCon = $mod->getScanCon( $slug );
+				if ( $scanCon->isScanningAvailable() && $scanCon->isEnabled() ) {
+					$scans[] = $slug;
 				}
 			}
 
 			$opts->setIsScanCron( true );
 			$mod->saveModOptions()
 				->getScanQueueController()
-				->startScans( $aScans );
+				->startScans( $scans );
 		}
 		else {
 			error_log( 'Shield scans cannot execute.' );

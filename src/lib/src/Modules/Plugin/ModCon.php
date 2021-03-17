@@ -142,10 +142,16 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	public function canSiteLoopback() :bool {
-		if ( !@class_exists( '\WP_Site_Health' ) || !method_exists( '\WP_Site_Health', 'get_instance' ) ) {
-			throw new \Exception( 'WP Loopback tests unavailable' );
+		$canLoopback = false;
+		if ( class_exists( '\WP_Site_Health' ) && method_exists( '\WP_Site_Health', 'get_instance' ) ) {
+			$canLoopback = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
 		}
-		return \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
+		if ( !$canLoopback ) {
+			$canLoopback = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
+				'timeout' => 10
+			] );
+		}
+		return $canLoopback;
 	}
 
 	public function getActivePluginFeatures() :array {
