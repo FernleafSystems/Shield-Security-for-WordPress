@@ -1,6 +1,6 @@
 {
   "properties":       {
-    "version":                 "10.2.23",
+    "version":                 "10.2.24",
     "release_timestamp":       1615915598,
     "build":                   "202103.1602",
     "slug_parent":             "icwp",
@@ -107,6 +107,11 @@
         },
         "introjs":                {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/introjs.min.css"
+        },
+        "shield/charts":           {
+          "deps": [
+            "plugin"
+          ]
         }
       },
       "js":  {
@@ -168,7 +173,9 @@
         },
         "shield/charts":           {
           "deps": [
-            "chartist-plugin-legend"
+            "chartist",
+            "chartist-plugin-legend",
+            "plugin"
           ]
         },
         "shuffle":                 {},

@@ -82,14 +82,16 @@ class UI extends BaseShield\UI {
 			$aStatsData[ $sKey ][ 'tooltip_chart' ] = sprintf( '%s: %s.', __( 'Stats', 'wp-simple-firewall' ), $sSub );
 		}
 
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		return $this->getMod()
 					->renderTemplate(
 						'/wpadmin_pages/insights/reports/summary_stats.twig',
 						[
-							'ajax'    => [
-								'render_chart_post' => $con->getModule_Events()->getAjaxActionData( 'render_chart_post', true ),
+							'ajax' => [
+								'render_summary_chart' => $mod->getAjaxActionData( 'render_summary_chart', true ),
 							],
-							'vars'    => [
+							'vars' => [
 								'stats' => $aStatsData,
 							],
 						],
@@ -98,14 +100,14 @@ class UI extends BaseShield\UI {
 	}
 
 	public function buildInsightsVars() :array {
-		$oEvtsMod = $this->getCon()->getModule_Events();
-		/** @var Events\Strings $oStrs */
-		$oStrs = $oEvtsMod->getStrings();
-		$aEvtNames = $oStrs->getEventNames();
+		$eventsMod = $this->getCon()->getModule_Events();
+		/** @var Events\Strings $strings */
+		$strings = $eventsMod->getStrings();
+		$eventNames = $strings->getEventNames();
 
 		return [
 			'ajax'    => [
-				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
+				'render_chart' => $eventsMod->getAjaxActionData( 'render_chart', true ),
 			],
 			'content' => [
 				'summary_stats' => $this->renderSummaryStats(),
@@ -115,7 +117,7 @@ class UI extends BaseShield\UI {
 			],
 			'vars'    => [
 				'events_options' => array_intersect_key(
-					$aEvtNames,
+					$eventNames,
 					array_flip(
 						[
 							'ip_offense',

@@ -160,20 +160,20 @@ class DashboardCards {
 				]
 			],
 
-//			'reports' => [
-//				'title'   => __( 'Reports and Stats', 'wp-simple-firewall' ),
-//				'img'     => $con->urls->forImage( 'bootstrap/graph-up.svg' ),
-//				'introjs' => sprintf( __( "See the effect on your site security by %s in numbers", 'wp-simple-firewall' ), $name ),
-//				'paras'   => [
-//					sprintf( __( "Display charts to see how %s is performing over time and in which areas your site has been most impacted.", 'wp-simple-firewall' ), $name ),
-//				],
-//				'actions' => [
-//					[
-//						'text' => __( "View Reports and Stats", 'wp-simple-firewall' ),
-//						'href' => $modInsights->getUrl_SubInsightsPage( 'reports' ),
-//					],
-//				]
-//			],
+			'reports' => [
+				'title'   => __( 'Reports and Stats', 'wp-simple-firewall' ),
+				'img'     => $con->urls->forImage( 'bootstrap/graph-up.svg' ),
+				'introjs' => sprintf( __( "See the effect on your site security by %s in numbers", 'wp-simple-firewall' ), $name ),
+				'paras'   => [
+					sprintf( __( "Display charts to see how %s is performing over time and in which areas your site has been most impacted.", 'wp-simple-firewall' ), $name ),
+				],
+				'actions' => [
+					[
+						'text' => __( "View Reports and Stats", 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'reports' ),
+					],
+				]
+			],
 
 			'free_trial' => [
 				'title'   => __( 'Free ShieldPRO Trial', 'wp-simple-firewall' ),

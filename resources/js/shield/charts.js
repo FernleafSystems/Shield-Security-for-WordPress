@@ -10,25 +10,25 @@ jQuery.fn.icwpWpsfChartWithFilters = function ( aOptions ) {
 		jQuery( 'input[type=checkbox]', $oForm ).each( function () {
 			jQuery( this ).prop( 'checked', false );
 		} );
-		aOpts[ 'chart' ].renderChartFromForm( $oForm );
+		opts[ 'chart' ].renderChartFromForm( $oForm );
 	};
 
 	let submitFilters = function ( evt ) {
 		evt.preventDefault();
-		aOpts[ 'chart' ].renderChartFromForm( $oForm );
+		opts[ 'chart' ].renderChartFromForm( $oForm );
 		return false;
 	};
 
 	let initialise = function () {
 		jQuery( document ).ready( function () {
-			$oForm = jQuery( aOpts[ 'selector_filter_form' ] );
+			$oForm = jQuery( opts[ 'selector_filter_form' ] );
 			$oForm.on( 'change', submitFilters );
 			$oForm.on( 'click', 'a#ClearForm', resetFilters );
 		} );
 	};
 
 	let $oThis = this;
-	let aOpts = jQuery.extend( {}, aOptions );
+	let opts = jQuery.extend( {}, aOptions );
 	let $oForm;
 	initialise();
 
@@ -64,13 +64,12 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 		bReqRunning = true;
 
 		$oChartContainer.html( 'Loading...' );
-
 		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aRequestParams ),
 			function ( oResponse ) {
 
-				$oChartContainer.html('');
+				$oChartContainer.html( '' );
 				new Chartist.Line(
-					$oThis.selector+' .icwpAjaxContainerChart',
+					$oThis[ 0 ].querySelectorAll( '.icwpAjaxContainerChart' )[ 0 ],
 					oResponse.data.chart.data,
 					{
 						height: '100px',
@@ -96,9 +95,9 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 							}
 						},
 						plugins: [
-							Chartist.plugins.legend( {
-								legendNames: oResponse.data.chart.legend_names
-							} )
+							// Chartist.plugins.legend( {
+							// 	legendNames: oResponse.data.chart.legend_names
+							// } )
 						]
 					}
 				);

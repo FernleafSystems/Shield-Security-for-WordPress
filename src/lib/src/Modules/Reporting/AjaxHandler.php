@@ -1,9 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
@@ -12,18 +11,18 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		switch ( $action ) {
 			case 'render_chart':
-				$aResponse = $this->ajaxExec_RenderChart();
+				$response = $this->ajaxExec_RenderChart();
 				break;
 
-			case 'render_chart_post':
-				$aResponse = $this->ajaxExec_RenderChartPost();
+			case 'render_summary_chart':
+				$response = $this->ajaxExec_RenderSummaryChart();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	private function ajaxExec_RenderChart() :array {
@@ -31,29 +30,28 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 
 		$aParams = $this->getAjaxFormParams();
-		$oReq = new Events\Charts\ChartRequestVO();
-		$oReq->render_location = $aParams[ 'render_location' ];
-		$oReq->chart_params = $aParams[ 'chart_params' ];
-		$aChart = ( new Events\Charts\BuildData() )
-			->setMod( $mod )
-			->build( $oReq );
+		$chartReq = new Charts\SummaryChartRequestVO();
+		$chartReq->render_location = $aParams[ 'render_location' ];
+		$chartReq->chart_params = $aParams[ 'chart_params' ];
 
 		return [
 			'success' => true,
 			'message' => 'no message',
-			'chart'   => $aChart
+			'chart'   => ( new Charts\BuildData() )
+				->setMod( $mod )
+				->build( $chartReq )
 		];
 	}
 
-	private function ajaxExec_RenderChartPost() :array {
+	private function ajaxExec_RenderSummaryChart() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
-		$oChartReq = new Events\Charts\ChartRequestVO();
+		$oChartReq = new Charts\SummaryChartRequestVO();
 		$oChartReq->render_location = $req->post( 'render_location' );
 		$oChartReq->chart_params = $req->post( 'chart_params' );
 
-		$aChart = ( new Events\Charts\BuildData() )
+		$aChart = ( new Charts\BuildData() )
 			->setMod( $mod )
 			->build( $oChartReq );
 

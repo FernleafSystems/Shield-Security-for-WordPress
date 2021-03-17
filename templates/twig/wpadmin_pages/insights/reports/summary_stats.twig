@@ -23,7 +23,7 @@
 		{% for stat in vars.stats %}
 			jQuery( '#statcard-{{ stat.id }} .card-body .stat-chart' ).icwpWpsfAjaxChart(
 				{
-					'ajax_render':{{ ajax.render_chart_post|raw }},
+					'ajax_render':{{ ajax.render_summary_chart|raw }},
 					'req_params': {
 						'render_location': "insights-overview-statcard",
 						'chart_params': {

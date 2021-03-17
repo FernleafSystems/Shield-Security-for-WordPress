@@ -101,7 +101,8 @@ class ModCon extends BaseShield\ModCon {
 					];
 					$enq[ Enqueue::CSS ] = [
 						'chartist',
-						'chartist-plugin-legend'
+						'chartist-plugin-legend',
+						'shield/charts'
 					];
 					break;
 
