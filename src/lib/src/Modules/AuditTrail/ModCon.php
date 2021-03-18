@@ -14,18 +14,16 @@ class ModCon extends BaseShield\ModCon {
 		return empty( $new ) ? $this->getDbH( 'audit' ) : $new;
 	}
 
-	public function createAuditLogDownloadLink() :string {
-		return add_query_arg( $this->getNonceActionData( 'download_log_audit' ), $this->getUrl_AdminPage() );
+	public function createAuditDbDownloadLink() :string {
+		return $this->createFileDownloadLink( 'db_audit' );
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case  'download_log_audit':
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'db_audit':
 				( new DbTableExport() )
 					->setDbHandler( $this->getDbHandler_AuditTrail() )
 					->toCSV();
-				break;
-			default:
 				break;
 		}
 	}

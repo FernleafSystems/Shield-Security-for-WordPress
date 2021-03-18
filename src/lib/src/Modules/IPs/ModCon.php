@@ -65,17 +65,15 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function createIpLogDownloadLink() :string {
-		return add_query_arg( $this->getNonceActionData( 'download_log_ip' ), $this->getUrl_AdminPage() );
+		return $this->createFileDownloadLink( 'db_ip' );
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case  'download_log_ip':
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'db_ip':
 				( new DbTableExport() )
 					->setDbHandler( $this->getDbHandler_IPs() )
 					->toCSV();
-				break;
-			default:
 				break;
 		}
 	}

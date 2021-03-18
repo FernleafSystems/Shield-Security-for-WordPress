@@ -42,7 +42,7 @@ class FileLockerController {
 		}
 	}
 
-	public function addAdminMenuBarItem( array $items ) {
+	public function addAdminMenuBarItem( array $items ) :array {
 		$problems = $this->countProblems();
 		if ( $problems > 0 ) {
 			$items[] = [
@@ -66,18 +66,19 @@ class FileLockerController {
 	}
 
 	/**
-	 * @param FileLocker\EntryVO $VO
+	 * @param FileLocker\EntryVO $lock
 	 * @return string[]
 	 */
-	public function createFileDownloadLinks( $VO ) {
+	public function createFileDownloadLinks( $lock ) :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
-			$actionNonce = $mod->getNonceActionData( 'filelocker_download_'.$type );
-			$actionNonce[ 'rid' ] = $VO->id;
-			$actionNonce[ 'rand' ] = rand();
-			$links[ $type ] = add_query_arg( $actionNonce, $mod->getUrl_AdminPage() );
+			$links[ $type ] = $mod->createFileDownloadLink( 'filelocker', [
+				'type' => $type,
+				'rid'  => $lock->id,
+				'rand' => uniqid(),
+			] );
 		}
 		return $links;
 	}
@@ -87,7 +88,7 @@ class FileLockerController {
 		$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
 
 		if ( $lock instanceof FileLocker\EntryVO ) {
-			$type = str_replace( 'filelocker_download_', '', $req->query( 'exec' ) );
+			$type = $req->query( 'type' );
 
 			// Note: Download what's on the disk if nothing is changed.
 			if ( $type == 'current' ) {
@@ -97,6 +98,9 @@ class FileLockerController {
 				$content = ( new Lib\FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $this->getMod() )
 					->run( $lock );
+			}
+			else {
+				throw new \Exception( 'Invalid file locker type download' );
 			}
 
 			if ( !empty( $content ) ) {

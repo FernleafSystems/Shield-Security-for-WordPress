@@ -106,9 +106,8 @@ class Export {
 	}
 
 	public function toFile() {
-		$aData = $this->toStandardArray();
 		Services::Response()->downloadStringAsFile(
-			implode( "\n", $aData ),
+			implode( "\n", $this->toStandardArray() ),
 			sprintf( 'shieldexport-%s-%s.json',
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
 				date( 'Ymd_His' )

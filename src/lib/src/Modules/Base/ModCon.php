@@ -454,28 +454,28 @@ abstract class ModCon {
 	 * @throws \Exception
 	 */
 	protected function verifyModActionRequest() :bool {
-		$bValid = false;
+		$valid = false;
 
 		$con = $this->getCon();
 		$req = Services::Request();
 
-		$sExec = $req->request( 'exec' );
-		if ( !empty( $sExec ) && $req->request( 'action' ) == $con->prefix() ) {
+		$exec = $req->request( 'exec' );
+		if ( !empty( $exec ) && $req->request( 'action' ) == $con->prefix() ) {
 
 
-			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $sExec ) && $con->getMeetsBasePermissions() ) {
-				$bValid = true;
+			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $exec ) && $con->getMeetsBasePermissions() ) {
+				$valid = true;
 			}
 			else {
-				$bValid = $req->request( 'exec_nonce' ) ===
-						  substr( hash_hmac( 'md5', $sExec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
+				$valid = $req->request( 'exec_nonce' ) ===
+						 substr( hash_hmac( 'md5', $exec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
 			}
-			if ( !$bValid ) {
+			if ( !$valid ) {
 				throw new \Exception( 'Invalid request' );
 			}
 		}
 
-		return $bValid;
+		return $valid;
 	}
 
 	public function getUrl_DirectLinkToOption( string $key ) :string {
@@ -924,6 +924,27 @@ abstract class ModCon {
 	}
 
 	protected function handleModAction( string $action ) {
+		switch ( $action ) {
+			case 'file_download':
+				$id = Services::Request()->query( 'download_id', '' );
+				if ( !empty( $id ) ) {
+					$this->handleFileDownload( $id );
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	protected function handleFileDownload( string $downloadID ) {
+	}
+
+	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
+		$additionalParams[ 'download_id' ] = $downloadID;
+		return add_query_arg(
+			array_merge( $this->getNonceActionData( 'file_download' ), $additionalParams ),
+			$this->getUrl_AdminPage()
+		);
 	}
 
 	/**

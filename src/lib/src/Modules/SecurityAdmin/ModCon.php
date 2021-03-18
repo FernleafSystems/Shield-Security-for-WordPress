@@ -152,6 +152,7 @@ class ModCon extends BaseShield\ModCon {
 					->remove();
 				break;
 			default:
+				parent::handleModAction( $action );
 				break;
 		}
 	}

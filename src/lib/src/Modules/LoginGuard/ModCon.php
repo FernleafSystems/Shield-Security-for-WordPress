@@ -69,6 +69,7 @@ class ModCon extends BaseShield\ModCon {
 				$this->processEmailSendVerify();
 				break;
 			default:
+				parent::handleModAction( $action );
 				break;
 		}
 	}

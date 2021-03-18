@@ -14,17 +14,15 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function createTrafficLogDownloadLink() :string {
-		return add_query_arg( $this->getNonceActionData( 'download_log_traffic' ), $this->getUrl_AdminPage() );
+		return $this->createFileDownloadLink( 'db_traffic' );
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case  'download_log_traffic':
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'db_traffic':
 				( new DbTableExport() )
 					->setDbHandler( $this->getDbHandler_Traffic() )
 					->toCSV();
-				break;
-			default:
 				break;
 		}
 	}

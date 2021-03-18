@@ -104,16 +104,20 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-
-			case 'export_file_download':
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'plugin_export':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
 				( new Lib\ImportExport\Export() )
 					->setMod( $this )
 					->toFile();
 				break;
+		}
+	}
 
+	protected function handleModAction( string $action ) {
+
+		switch ( $action ) {
 			case 'import_file_upload':
 				try {
 					( new Lib\ImportExport\Import() )
@@ -133,6 +137,7 @@ class ModCon extends BaseShield\ModCon {
 				break;
 
 			default:
+				parent::handleModAction( $action );
 				break;
 		}
 	}
