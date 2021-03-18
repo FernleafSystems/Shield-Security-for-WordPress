@@ -27,7 +27,13 @@
 				'ajax_render':{{ ajax.render_summary_chart|raw }},
 				'req_params': {
 					'render_location': "insights-overview-statcard",
-					'events': [ "{{ stat.id }}" ]
+					'events': [ "{{ stat.id }}" ],
+					'combine_events': true
+				},
+				'chart_options': {
+					axisX: {
+						showLabel: false,
+					},
 				}
 			}
 		);

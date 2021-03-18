@@ -5,25 +5,39 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
 class CustomChartData extends BaseBuildChartData {
 
 	/**
-	 * @return array
-	 * @throws \InvalidArgumentException
+	 * @inheritDoc
 	 */
-	public function build() :array {
-		$this->preProcessRequest();
+	protected function preProcessRequest() {
+		parent::preProcessRequest();
 
-		$allSeries = [];
-		foreach ( $this->getChartRequest()->events as $event ) {
-			$allSeries[] = $this->buildDataForEvents( [ $event ] );
+		/** @var CustomChartRequestVO $req */
+		$req = $this->getChartRequest();
+
+		if ( $req->render_location === static::LOCATION_SUMMARYCARD ) {
+			$req->interval = 'daily';
 		}
-		error_log( var_export( $allSeries, true ) );
-		return [
-			'data'         => [
-				'labels' => [],
-				'series' => [
-					array_map( 'array_reverse', $allSeries ),
-				]
-			],
-			'legend_names' => [],
-		];
+
+		$theEvent = current( $req->events );
+		$possibleEvents = array_keys( $this->getCon()->loadEventsService()->getEvents() );
+		switch ( $theEvent ) {
+			case 'comment_block':
+				$req->events = array_filter(
+					$possibleEvents,
+					function ( $event ) {
+						return strpos( $event, 'spam_block_' ) === 0;
+					}
+				);
+				break;
+			case 'bot_blocks':
+				$req->events = array_filter(
+					$possibleEvents,
+					function ( $event ) {
+						return strpos( $event, 'bottrack_' ) === 0;
+					}
+				);
+				break;
+			default:
+				break;
+		}
 	}
 }

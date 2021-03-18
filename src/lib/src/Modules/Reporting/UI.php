@@ -9,12 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 class UI extends BaseShield\UI {
 
 	public function renderSectionCustomChart() :string {
-
-		$eventsMod = $this->getCon()->getModule_Events();
-		/** @var Events\Strings $strings */
-		$strings = $eventsMod->getStrings();
-		$eventNames = $strings->getEventNames();
-
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $this->getMod()
@@ -30,7 +24,7 @@ class UI extends BaseShield\UI {
 								'build_chart'     => __( 'Build Chart', 'wp-simple-firewall' ),
 							],
 							'vars'    => [
-								'events'   => $eventNames,
+								'events'   => $this->buildPossibleEvents(),
 								'interval' => [
 									'hourly'  => __( 'Hourly', 'wp-simple-firewall' ),
 									'daily'   => __( 'Daily', 'wp-simple-firewall' ),
@@ -42,6 +36,23 @@ class UI extends BaseShield\UI {
 						],
 						true
 					);
+	}
+
+	/**
+	 * Finds all available events logged in the DB and intersects this with all available Event names
+	 * i.e. so you can only build charts of events with actual records
+	 * @return array
+	 */
+	private function buildPossibleEvents() :array {
+		$eventsMod = $this->getCon()->getModule_Events();
+		/** @var Events\Strings $strings */
+		$strings = $eventsMod->getStrings();
+		return array_intersect_key(
+			$strings->getEventNames(),
+			array_flip( $eventsMod->getDbHandler_Events()
+								  ->getQuerySelector()
+								  ->getDistinctForColumn( 'event' ) )
+		);
 	}
 
 	private function renderSectionSummaryStats() :string {

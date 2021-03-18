@@ -36,9 +36,10 @@ jQuery.fn.icwpWpsfAjaxChart = function ( options ) {
 	};
 
 	let createChartContainer = function () {
+		chartTitleContainer = jQuery( '#CustomChartTitle' );
 		chartContainer = jQuery( '<div />' ).appendTo( $oThis );
 		chartContainer.addClass( 'icwpAjaxContainerChart' )
-						.addClass( 'ct-chart' );
+					  .addClass( 'ct-chart' );
 	};
 
 	let refreshChart = function ( event ) {
@@ -58,6 +59,7 @@ jQuery.fn.icwpWpsfAjaxChart = function ( options ) {
 		bReqRunning = true;
 
 		chartContainer.html( 'Loading...' );
+		chartTitleContainer.html( '' );
 		jQuery.post( ajaxurl, jQuery.extend( opts[ 'ajax_render' ], opts[ 'req_params' ], reqParams ),
 			function ( response ) {
 
@@ -65,12 +67,15 @@ jQuery.fn.icwpWpsfAjaxChart = function ( options ) {
 					alert( response.data.message );
 				}
 				else {
+					if ( opts[ 'show_title' ] && typeof response.data.chart.title !== typeof undefined ) {
+						chartTitleContainer.html( response.data.chart.title );
+					}
+
 					chartContainer.html( '' );
 					new Chartist.Line(
 						$oThis[ 0 ].querySelectorAll( '.icwpAjaxContainerChart' )[ 0 ],
 						response.data.chart.data,
-						{
-							height: '100px',
+						jQuery.extend( {
 							fullWidth: true,
 							showArea: false,
 							chartPadding: {
@@ -80,12 +85,10 @@ jQuery.fn.icwpWpsfAjaxChart = function ( options ) {
 								left: 10
 							},
 							axisX: {
-								offset: 5,
-								showLabel: false,
-								showGrid: false,
+								showLabel: true,
+								showGrid: true,
 							},
 							axisY: {
-								offset: 25,
 								onlyInteger: true,
 								showLabel: true,
 								labelInterpolationFnc: function ( value ) {
@@ -94,10 +97,10 @@ jQuery.fn.icwpWpsfAjaxChart = function ( options ) {
 							},
 							plugins: [
 								Chartist.plugins.legend( {
-									legendNames: response.data.chart.legend_names
+									legendNames: response.data.chart.legend
 								} )
 							]
-						}
+						}, opts[ 'chart_options' ] )
 					);
 				}
 			}
@@ -123,9 +126,11 @@ jQuery.fn.icwpWpsfAjaxChart = function ( options ) {
 
 	let $oThis = this;
 	let chartContainer;
+	let chartTitleContainer;
 	let bReqRunning = false;
 	let opts = jQuery.extend( {
-		init_render: true
+		init_render: true,
+		show_title: false
 	}, options );
 	initialise();
 

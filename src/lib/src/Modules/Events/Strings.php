@@ -7,12 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @param string $sKey
+	 * @param string $eventKey
 	 * @return string
 	 */
-	public function getEventName( $sKey ) {
-		$aE = $this->getEventNames();
-		return empty( $aE[ $sKey ] ) ? '' : $aE[ $sKey ];
+	public function getEventName( $eventKey ) {
+		return $this->getEventNames()[ $eventKey ] ?? '';
 	}
 
 	/**

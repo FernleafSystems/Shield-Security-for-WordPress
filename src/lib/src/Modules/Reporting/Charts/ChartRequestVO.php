@@ -10,6 +10,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $interval
  * @property string   $ticks
  * @property string[] $events
+ * @property bool     $combine_events
  * @property array    $chart_params
  */
 class ChartRequestVO extends DynPropertiesClass {

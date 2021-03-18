@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-4 insights_section">
+	<div class="col insights_section">
 		<h5 class="my-3">Chart Your Desired Stats</h5>
 		<form class="" id="CustomChart">
 
@@ -38,7 +38,10 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col">
+	<div class="col-12">
+		<h6 id="CustomChartTitle" class="mb-3 text-center"></h6>
+	</div>
+	<div class="col-10 offset-1">
 		<div id="CustomChartDisplay"></div>
 	</div>
 </div>
@@ -52,8 +55,12 @@
 				{
 					'chart': jQuery( '#CustomChartDisplay' ).icwpWpsfAjaxChart(
 						{
+							'ajax_render':{{ ajax.render_custom_chart|raw }},
 							'init_render': false,
-							'ajax_render':{{ ajax.render_custom_chart|raw }}
+							'show_title': true,
+							'chart_options': {
+								height: '300px',
+							}
 						}
 					),
 					'selector_filter_form': 'form#CustomChart'

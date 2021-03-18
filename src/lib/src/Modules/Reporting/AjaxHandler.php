@@ -25,38 +25,24 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_RenderCustomChart() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$params = $this->getAjaxFormParams();
-		try {
-			$chartData = ( new Charts\CustomChartData() )
-				->setMod( $mod )
-				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $params ) )
-				->build();
-			$msg = 'No message';
-			$success = true;
-		}
-		catch ( \Exception $e ) {
-			$msg = sprintf( '%s: %s', __( 'Error', 'wp-simple-firewall' ), $e->getMessage() );
-			$success = false;
-			$chartData = [];
-		}
-
-		return [
-			'success' => $success,
-			'message' => $msg,
-			'chart'   => $chartData
-		];
+		return $this->renderChart( $this->getAjaxFormParams() );
 	}
 
 	private function ajaxExec_RenderSummaryChart() :array {
+		return $this->renderChart( $_POST );
+	}
+
+	/**
+	 * @param Shield\Modules\Reporting\Charts\ChartRequestVO $req
+	 * @return array
+	 */
+	private function renderChart( array $data ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
-			$chartData = ( new Charts\SummaryChartData() )
+			$chartData = ( new Charts\CustomChartData() )
 				->setMod( $mod )
-				->setChartRequest( ( new Charts\SummaryChartRequestVO() )->applyFromArray( $_POST ) )
+				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $data ) )
 				->build();
 			$msg = 'No message';
 			$success = true;
