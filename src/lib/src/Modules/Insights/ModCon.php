@@ -22,8 +22,8 @@ class ModCon extends BaseShield\ModCon {
 
 	private function maybeRedirectToAdmin() {
 		$con = $this->getCon();
-		$nActiveFor = $con->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $nActiveFor < 4 ) {
+		$activeFor = $con->getModule_Plugin()->getActivateLength();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $activeFor < 4 ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
 	}
@@ -39,7 +39,7 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	protected function renderModulePage( array $aData = [] ) :string {
+	protected function renderModulePage( array $data = [] ) :string {
 		/** @var UI $UI */
 		$UI = $this->getUIHandler();
 		return $UI->renderPages();
@@ -88,7 +88,7 @@ class ModCon extends BaseShield\ModCon {
 				case 'overview':
 					$enq[ Enqueue::JS ] = [
 						'shuffle',
-						'shield-card-shuffle',
+						'shield/shuffle',
 						'ip_detect'
 					];
 					break;

@@ -18,17 +18,17 @@ class Ip extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		$aParams = $this->getParams();
+		$params = $this->getParams();
 
-		/** @var IPs\Select $oSelector */
-		$oSelector = $this->getWorkingSelector();
-		$oSelector->filterByLists( $aParams[ 'fLists' ] );
-		if ( Services::IP()->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( $aParams[ 'fIp' ] );
+		/** @var IPs\Select $selector */
+		$selector = $this->getWorkingSelector();
+		$selector->filterByLists( $params[ 'fLists' ] );
+		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {
+			$selector->filterByIp( $params[ 'fIp' ] );
 		}
 
-		$oSelector->setOrderBy( 'last_access_at', 'DESC', true );
-		$oSelector->setOrderBy( 'created_at', 'DESC', false );
+		$selector->setOrderBy( 'last_access_at', 'DESC', true );
+		$selector->setOrderBy( 'created_at', 'DESC', false );
 
 		return $this;
 	}
@@ -50,9 +50,9 @@ class Ip extends BaseBuild {
 
 		$nTransLimit = $opts->getOffenseLimit();
 		$you = $srvIP->getRequestIp();
-		$aEntries = [];
+		$entries = [];
 
-		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
+		foreach ( $this->getEntriesRaw() as $key => $entry ) {
 			/** @var IPs\EntryVO $entry */
 			$aE = $entry->getRawData();
 			$bBlocked = $entry->blocked_at > 0 || $entry->transgressions >= $nTransLimit;
@@ -70,9 +70,9 @@ class Ip extends BaseBuild {
 				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
-			$aEntries[ $nKey ] = $aE;
+			$entries[ $key ] = $aE;
 		}
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

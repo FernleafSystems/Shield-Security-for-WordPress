@@ -13,10 +13,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'traffic' );
 	}
 
-	public function createTrafficLogDownloadLink() :string {
-		return $this->createFileDownloadLink( 'db_traffic' );
-	}
-
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'db_traffic':

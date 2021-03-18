@@ -20,13 +20,13 @@ class Traffic extends BaseBuild {
 		/** @var Databases\Traffic\Select $select */
 		$select = $this->getWorkingSelector();
 
-		$oIp = Services::IP();
+		$srvIP = Services::IP();
 		// If an IP is specified, it takes priority
-		if ( $oIp->isValidIp( $params[ 'fIp' ] ) ) {
+		if ( $srvIP->isValidIp( $params[ 'fIp' ] ) ) {
 			$select->filterByIp( inet_pton( $params[ 'fIp' ] ) );
 		}
 		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
-			$select->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
+			$select->filterByNotIp( inet_pton( $srvIP->getRequestIp() ) );
 		}
 
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)

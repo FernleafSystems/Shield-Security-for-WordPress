@@ -10,14 +10,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		switch ( $action ) {
 			case 'render_table_traffic':
-				$aResponse = $this->ajaxExec_BuildTableTraffic();
+				$response = $this->ajaxExec_BuildTableTraffic();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	private function ajaxExec_BuildTableTraffic() :array {

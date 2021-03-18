@@ -179,7 +179,7 @@
           ]
         },
         "shuffle":                 {},
-        "shield-card-shuffle":     {
+        "shield/shuffle":     {
           "deps": [
             "shuffle"
           ]

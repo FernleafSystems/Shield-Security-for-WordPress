@@ -83,7 +83,7 @@ class UI extends BaseShield\UI {
 								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
 							],
 							[
-								'href'    => $modAudit->createAuditDbDownloadLink(),
+								'href'    => $modAudit->createFileDownloadLink( 'db_audit' ),
 								'classes' => [ 'shield_file_download' ],
 								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
 							],
@@ -111,7 +111,7 @@ class UI extends BaseShield\UI {
 								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
 							],
 							[
-								'href'    => $modTraffic->createTrafficLogDownloadLink(),
+								'href'    => $modTraffic->createFileDownloadLink( 'db_traffic' ),
 								'classes' => [ 'shield_file_download' ],
 								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
 							],

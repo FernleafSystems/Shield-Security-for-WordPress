@@ -1110,13 +1110,13 @@ abstract class ModCon {
 
 	/**
 	 * Override this to customize anything with the display of the page
-	 * @param array $aData
+	 * @param array $data
 	 * @return string
 	 */
-	protected function renderModulePage( array $aData = [] ) :string {
+	protected function renderModulePage( array $data = [] ) :string {
 		return $this->renderTemplate(
 			'index.php',
-			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $aData )
+			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $data )
 		);
 	}
 
@@ -1152,27 +1152,27 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sWizardSlug
+	 * @param string $wizardSlug
 	 * @return string
 	 * @uses nonce
 	 */
-	public function getUrl_Wizard( $sWizardSlug ) {
-		$aDef = $this->getWizardDefinition( $sWizardSlug );
-		if ( empty( $aDef[ 'min_user_permissions' ] ) ) { // i.e. no login/minimum perms
-			$sUrl = Services::WpGeneral()->getHomeUrl();
+	public function getUrl_Wizard( string $wizardSlug ) :string {
+		$def = $this->getWizardDefinition( $wizardSlug );
+		if ( empty( $def[ 'min_user_permissions' ] ) ) { // i.e. no login/minimum perms
+			$url = Services::WpGeneral()->getHomeUrl();
 		}
 		else {
-			$sUrl = Services::WpGeneral()->getAdminUrl( 'admin.php' );
+			$url = Services::WpGeneral()->getAdminUrl( 'admin.php' );
 		}
 
 		return add_query_arg(
 			[
 				'page'          => $this->getModSlug(),
 				'shield_action' => 'wizard',
-				'wizard'        => $sWizardSlug,
-				'nonwizard'     => wp_create_nonce( 'wizard'.$sWizardSlug )
+				'wizard'        => $wizardSlug,
+				'nonwizard'     => wp_create_nonce( 'wizard'.$wizardSlug )
 			],
-			$sUrl
+			$url
 		);
 	}
 
@@ -1184,44 +1184,31 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sWizardSlug
+	 * @param string $wizardSlug
 	 * @return array
 	 */
-	public function getWizardDefinition( $sWizardSlug ) {
-		$aDef = null;
-		if ( $this->hasWizardDefinition( $sWizardSlug ) ) {
-			$aW = $this->getWizardDefinitions();
-			$aDef = $aW[ $sWizardSlug ];
+	public function getWizardDefinition( string $wizardSlug ) {
+		$def = null;
+		if ( $this->hasWizardDefinition( $wizardSlug ) ) {
+			$def = $this->getWizardDefinitions()[ $wizardSlug ];
 		}
-		return $aDef;
+		return $def;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getWizardDefinitions() {
-		$aW = $this->getDef( 'wizards' );
-		return is_array( $aW ) ? $aW : [];
+	public function getWizardDefinitions() :array {
+		return is_array( $this->getDef( 'wizards' ) ) ? $this->getDef( 'wizards' ) : [];
 	}
 
 	public function hasWizard() :bool {
 		return count( $this->getWizardDefinitions() ) > 0;
 	}
 
-	/**
-	 * @param string $sWizardSlug
-	 * @return bool
-	 */
-	public function hasWizardDefinition( $sWizardSlug ) {
-		$aW = $this->getWizardDefinitions();
-		return !empty( $aW[ $sWizardSlug ] );
+	public function hasWizardDefinition( string $wizardSlug ) :bool {
+		return !empty( $this->getWizardDefinitions()[ $wizardSlug ] );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIsShowMarketing() {
-		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
+	public function getIsShowMarketing() :bool {
+		return (bool)apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
 	/**

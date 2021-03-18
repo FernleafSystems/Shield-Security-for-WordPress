@@ -14,10 +14,6 @@ class ModCon extends BaseShield\ModCon {
 		return empty( $new ) ? $this->getDbH( 'audit' ) : $new;
 	}
 
-	public function createAuditDbDownloadLink() :string {
-		return $this->createFileDownloadLink( 'db_audit' );
-	}
-
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'db_audit':

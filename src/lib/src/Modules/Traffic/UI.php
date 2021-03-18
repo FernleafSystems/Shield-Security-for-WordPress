@@ -48,35 +48,31 @@ class UI extends BaseShield\UI {
 		);
 	}
 
-	/**
-	 * @param string $section
-	 * @return array
-	 */
 	protected function getSectionWarnings( string $section ) :array {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		$aWarnings = [];
+		$warning = [];
 
-		$oIp = Services::IP();
-		if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
-			$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
+		$srvIP = Services::IP();
+		if ( !$srvIP->isValidIp_PublicRange( $srvIP->getRequestIp() ) ) {
+			$warning[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 		}
 
 		switch ( $section ) {
 			case 'section_traffic_limiter':
 				if ( $this->getCon()->isPremiumActive() ) {
-					if ( !$oOpts->isTrafficLoggerEnabled() ) {
-						$aWarnings[] = sprintf( __( '%s may only be enabled if the Traffic Logger feature is also turned on.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
+					if ( !$opts->isTrafficLoggerEnabled() ) {
+						$warning[] = sprintf( __( '%s may only be enabled if the Traffic Logger feature is also turned on.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
 					}
 				}
 				else {
-					$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
+					$warning[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
 				}
 				break;
 		}
 
-		return $aWarnings;
+		return $warning;
 	}
 
 	protected function getSettingsRelatedLinks() :array {

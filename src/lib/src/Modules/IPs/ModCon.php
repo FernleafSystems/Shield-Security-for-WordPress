@@ -64,10 +64,6 @@ class ModCon extends BaseShield\ModCon {
 			   && parent::isReadyToExecute();
 	}
 
-	public function createIpLogDownloadLink() :string {
-		return $this->createFileDownloadLink( 'db_ip' );
-	}
-
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'db_ip':
