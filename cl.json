@@ -1,4 +1,38 @@
 {
+
+  "11.0": {
+    "version":     "11.0",
+    "released_at": 1613037000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease110",
+      "upgrade": "https://shsec.io/shieldupgradeguide110"
+    },
+    "href":        "https://shsec.io/",
+    "title":       "All-New Shield AntiBot Detection Engine",
+    "description": [
+      "WordPress security nearly always starts with bots - detecting bad bots and blocking them.",
+      "This release delivers your new and exclusive AntiBot Detection Engine allowing Shield to more quickly identify bad bots and block their requests."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "AntiBot Detection Engine",
+        "description": [
+          "Detecting bad bots on you WordPress site is a huge challenge, but it's notoriously difficult to do this.",
+          "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
+        ],
+        "href":        "https://shsec.io/jb"
+      },
+      {
+        "type":        "new",
+        "title":       "Charts and Stats.",
+        "description": [
+          "We've added a page in Shield to allow you to chart some of your favourite Shield Stats."
+        ]
+      }
+    ]
+  },
   "10.2": {
     "version":     "10.2",
     "released_at": 1613037000,
