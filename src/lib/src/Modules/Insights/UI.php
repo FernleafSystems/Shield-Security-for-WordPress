@@ -60,8 +60,9 @@ class UI extends BaseShield\UI {
 		switch ( $sNavSection ) {
 
 			case 'audit':
+				$modAudit = $con->getModule_AuditTrail();
 				/** @var Shield\Modules\AuditTrail\UI $auditUI */
-				$auditUI = $con->getModule_AuditTrail()->getUIHandler();
+				$auditUI = $modAudit->getUIHandler();
 				$data = [
 					'content' => [
 						'table_audit' => $auditUI->renderAuditTrailTable(),
@@ -81,14 +82,20 @@ class UI extends BaseShield\UI {
 								'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
 								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
 							],
+							[
+								'href'    => $modAudit->createAuditLogDownloadLink(),
+								'classes' => [ 'shield_file_download' ],
+								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
+							],
 						]
 					]
 				];
 				break;
 
 			case 'traffic':
+				$modTraffic = $con->getModule_Traffic();
 				/** @var Shield\Modules\Traffic\UI $trafficUI */
-				$trafficUI = $con->getModule_Traffic()->getUIHandler();
+				$trafficUI = $modTraffic->getUIHandler();
 				$data = [
 					'content' => [
 						'table_traffic' => $trafficUI->renderTrafficTable(),
@@ -102,6 +109,11 @@ class UI extends BaseShield\UI {
 							[
 								'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
 								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
+							],
+							[
+								'href'    => $modTraffic->createTrafficLogDownloadLink(),
+								'classes' => [ 'shield_file_download' ],
+								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
 							],
 						]
 					]

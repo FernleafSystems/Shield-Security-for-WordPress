@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -61,6 +62,22 @@ class ModCon extends BaseShield\ModCon {
 			   && ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
 			   && $this->getDbHandler_IPs()->isReady()
 			   && parent::isReadyToExecute();
+	}
+
+	public function createIpLogDownloadLink() :string {
+		return add_query_arg( $this->getNonceActionData( 'download_log_ip' ), $this->getUrl_AdminPage() );
+	}
+
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
+			case  'download_log_ip':
+				( new DbTableExport() )
+					->setDbHandler( $this->getDbHandler_IPs() )
+					->toCSV();
+				break;
+			default:
+				break;
+		}
 	}
 
 	protected function preProcessOptions() {

@@ -177,7 +177,11 @@ class Traffic extends BaseBuild {
 			->lookup();
 
 		$badgeTemplate = '<span class="badge badge-%s">%s</span>';
-		if ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
+		$status = __( 'No Record', 'wp-simple-firewall' );
+		if ( !$record instanceof Databases\IPs\EntryVO ) {
+			$status = __( 'No Record', 'wp-simple-firewall' );
+		}
+		elseif ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
 			$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 		}
 		elseif ( $record->list === ModCon::LIST_AUTO_BLACK ) {
@@ -191,9 +195,6 @@ class Traffic extends BaseBuild {
 				'success',
 				__( 'Bypass', 'wp-simple-firewall' )
 			);
-		}
-		else {
-			$status = __( 'No Record', 'wp-simple-firewall' );
 		}
 		return $status;
 	}

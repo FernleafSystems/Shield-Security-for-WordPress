@@ -18,7 +18,9 @@
 							{% if vars.related_hrefs|default([]) is not empty %}
 								{% for related_href in vars.related_hrefs %}
 									| <a href="{{ related_href.href }}"
-										 {% if related_href.new|default(false) %}target="_blank"{% endif %}>
+										 {% if not related_href.id|default('') is empty %}id="{{ related_href.id }}"{% endif %}
+										 class="{{ related_href.classes|default([])|join(' ') }}"
+										{% if related_href.new|default(false) %}target="_blank"{% endif %}>
 									{{ related_href.title }}</a>
 								{% endfor %}
 							{% endif %}

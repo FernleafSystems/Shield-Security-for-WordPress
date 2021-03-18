@@ -66,6 +66,11 @@ class UI extends BaseShield\UI {
 						'href'  => $mod->getUrl_AdminPage(),
 						'title' => __( 'IP Block Settings', 'wp-simple-firewall' ),
 					],
+					[
+						'href'    => $mod->createIpLogDownloadLink(),
+						'classes' => [ 'shield_file_download' ],
+						'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
+					],
 				],
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
 					->setDbHandler( $mod->getDbHandler_IPs() )

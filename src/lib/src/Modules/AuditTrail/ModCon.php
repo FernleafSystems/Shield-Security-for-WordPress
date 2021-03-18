@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -11,6 +12,22 @@ class ModCon extends BaseShield\ModCon {
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
 		$new = $this->getDbH( 'audit_trail' );
 		return empty( $new ) ? $this->getDbH( 'audit' ) : $new;
+	}
+
+	public function createAuditLogDownloadLink() :string {
+		return add_query_arg( $this->getNonceActionData( 'download_log_audit' ), $this->getUrl_AdminPage() );
+	}
+
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
+			case  'download_log_audit':
+				( new DbTableExport() )
+					->setDbHandler( $this->getDbHandler_AuditTrail() )
+					->toCSV();
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**

@@ -4,12 +4,29 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
 		return $this->getDbH( 'traffic' );
+	}
+
+	public function createTrafficLogDownloadLink() :string {
+		return add_query_arg( $this->getNonceActionData( 'download_log_traffic' ), $this->getUrl_AdminPage() );
+	}
+
+	protected function handleModAction( string $action ) {
+		switch ( $action ) {
+			case  'download_log_traffic':
+				( new DbTableExport() )
+					->setDbHandler( $this->getDbHandler_Traffic() )
+					->toCSV();
+				break;
+			default:
+				break;
+		}
 	}
 
 	protected function preProcessOptions() {
