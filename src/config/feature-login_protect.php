@@ -309,6 +309,17 @@
       "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
     },
     {
+      "key":         "enable_antibot_check",
+      "section":     "section_brute_force_login_protection",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/jn",
+      "link_blog":   "https://shsec.io/jo",
+      "name":        "AntiBot",
+      "summary":     "Use Experimental AntiBot Detection Engine",
+      "description": "Use Shield's AntiBot Detection Engine In-Place of GASP/CAPTCHA Bot checking."
+    },
+    {
       "key":         "enable_login_gasp_check",
       "section":     "section_brute_force_login_protection",
       "default":     "N",
@@ -318,17 +329,6 @@
       "name":        "Bot Protection",
       "summary":     "Protect WP Login From Automated Login Attempts By Bots",
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
-    },
-    {
-      "key":         "enable_antibot_check",
-      "section":     "section_brute_force_login_protection",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/3r",
-      "link_blog":   "https://shsec.io/9n",
-      "name":        "AntiBot",
-      "summary":     "Use Experimental AntiBot Detection System",
-      "description": "Use Shield's AntiBot Detection System In-Place of GASP Bot checking."
     },
     {
       "key":           "enable_google_recaptcha_login",

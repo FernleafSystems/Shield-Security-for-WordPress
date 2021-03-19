@@ -59,7 +59,7 @@
       "link_blog":   "",
       "name":        "AntiBot SPAM Detection",
       "summary":     "Enable The AntiBot SPAM Detection",
-      "description": "Use Shield's built-in AntiBot detection system to identify contact form SPAM."
+      "description": "Use Shield's built-in AntiBot Detection Engine to identify contact form SPAM."
     },
     {
       "key":           "form_spam_providers",

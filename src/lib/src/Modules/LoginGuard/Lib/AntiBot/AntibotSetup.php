@@ -30,24 +30,27 @@ class AntibotSetup {
 				->setMod( $mod );
 		}
 
-		if ( $opts->isEnabledGaspCheck() ) {
-			$providers[] = ( new AntiBot\ProtectionProviders\GaspJs() )
-				->setMod( $mod );
-		}
 		if ( $opts->isEnabledAntiBot() ) {
 			$providers[] = ( new AntiBot\ProtectionProviders\AntiBot() )
 				->setMod( $mod );
 		}
+		else {
 
-		if ( $mod->isEnabledCaptcha() ) {
-			$cfg = $mod->getCaptchaCfg();
-			if ( $cfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-				$providers[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
+			if ( $opts->isEnabledGaspCheck() ) {
+				$providers[] = ( new AntiBot\ProtectionProviders\GaspJs() )
 					->setMod( $mod );
 			}
-			elseif ( $cfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
-				$providers[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
-					->setMod( $mod );
+
+			if ( $mod->isEnabledCaptcha() ) {
+				$cfg = $mod->getCaptchaCfg();
+				if ( $cfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
+					$providers[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
+						->setMod( $mod );
+				}
+				elseif ( $cfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
+					$providers[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
+						->setMod( $mod );
+				}
 			}
 		}
 

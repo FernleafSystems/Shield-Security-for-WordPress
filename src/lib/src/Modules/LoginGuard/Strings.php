@@ -218,6 +218,18 @@ class Strings extends Base\Strings {
 						.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
 				break;
 
+			case 'enable_antibot_check' :
+				$name = __( 'AntiBot Detection Engine', 'wp-simple-firewall' );
+				$summary = __( "Use AntiBot Detection Engine To Detect Bots", 'wp-simple-firewall' );
+				$desc = [
+					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
+					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
+						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings for the selected forms.", 'wp-simple-firewall' ) )
+				];
+				break;
+
 			case 'bot_protection_locations' :
 				$name = __( 'Protection Locations', 'wp-simple-firewall' );
 				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
@@ -230,14 +242,6 @@ class Strings extends Base\Strings {
 				$summary = __( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' );
 				$desc = __( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' )
 						.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_antibot_check' :
-				$name = __( 'AntiBot System', 'wp-simple-firewall' );
-				$summary = __( "Use AntiBot System To Detect Bots", 'wp-simple-firewall' );
-				$desc = [
-					__( 'Use Our Experimental AntiBot Detection System in-place of GASP JS', 'wp-simple-firewall' )
-				];
 				break;
 
 			case 'antibot_form_ids' :
