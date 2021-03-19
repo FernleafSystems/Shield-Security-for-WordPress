@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -22,6 +21,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
+ * @property bool                                                   $cache_dir_ready
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
  * @property string                                                 $root_file
@@ -146,7 +146,7 @@ class Controller extends DynPropertiesClass {
 	 * @return mixed
 	 */
 	public function __get( string $key ) {
-		$val = parent::__get( $key);
+		$val = parent::__get( $key );
 
 		switch ( $key ) {
 
@@ -314,26 +314,51 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $sFilePath
+	 * @param string $cachePath
 	 * @return string|false
 	 */
-	public function getPluginCachePath( $sFilePath = '' ) {
-		if ( !$this->buildPluginCacheDir() ) {
-//			throw new \Exception( sprintf( 'Failed to create cache path: "%s"', $this->getPath_PluginCache() ) );
-			return false;
+	public function getPluginCachePath( $cachePath = '' ) {
+		$path = false;
+		if ( $this->hasCacheDir() ) {
+			try {
+				// Never throws an exception if "hasCacheDir" == true
+				$path = $this->buildPluginCacheDir();
+				if ( !empty( $cachePath ) ) {
+					$path = path_join( $path, $cachePath );
+				}
+			}
+			catch ( \Exception $e ) {
+			}
 		}
-		return path_join( $this->getPath_PluginCache(), $sFilePath );
+		return $path;
+	}
+
+	public function hasCacheDir() :bool {
+		try {
+			$buildCacheDir = $this->buildPluginCacheDir();
+		}
+		catch ( \Exception $e ) {
+			$buildCacheDir = false;
+		}
+		return $buildCacheDir;
 	}
 
 	/**
-	 * @return bool
+	 * @return string
+	 * @throws \Exception
 	 */
-	private function buildPluginCacheDir() {
-		$bSuccess = false;
-		$baseDir = $this->getPath_PluginCache();
+	private function buildPluginCacheDir() :string {
 		$FS = Services::WpFs();
-		if ( $FS->mkdir( $baseDir ) ) {
-			$sHt = path_join( $baseDir, '.htaccess' );
+
+		$cacheDirBasename = $this->cfg->paths[ 'cache' ];
+		if ( empty( $cacheDirBasename ) ) {
+			$this->cache_dir_ready = false;
+			throw new \Exception( 'No slug for cache dir' );
+		}
+
+		$cacheDir = path_join( WP_CONTENT_DIR, $cacheDirBasename );
+		if ( empty( $this->cache_dir_ready ) && $FS->mkdir( $cacheDir ) ) {
+			$htFile = path_join( $cacheDir, '.htaccess' );
 			$htContent = implode( "\n", [
 				"# BEGIN SHIELD",
 				"Options -Indexes",
@@ -344,17 +369,17 @@ class Controller extends DynPropertiesClass {
 				'</FilesMatch>',
 				"# END SHIELD"
 			] );
-			if ( !$FS->exists( $sHt ) || ( md5_file( $sHt ) != md5( $htContent ) ) ) {
-				$FS->putFileContent( $sHt, $htContent );
+			if ( !$FS->exists( $htFile ) || ( md5_file( $htFile ) !== md5( $htContent ) ) ) {
+				$FS->putFileContent( $htFile, $htContent );
 			}
-			$index = path_join( $baseDir, 'index.php' );
-			$sIndexContent = "<?php\nhttp_response_code(404);";
-			if ( !$FS->exists( $index ) || ( md5_file( $index ) != md5( $sIndexContent ) ) ) {
-				$FS->putFileContent( $index, $sIndexContent );
+			$index = path_join( $cacheDir, 'index.php' );
+			$indexContent = "<?php\nhttp_response_code(404);";
+			if ( !$FS->exists( $index ) || ( md5_file( $index ) !== md5( $indexContent ) ) ) {
+				$FS->putFileContent( $index, $indexContent );
 			}
-			$bSuccess = true;
+			$this->cache_dir_ready = true;
 		}
-		return $bSuccess;
+		return $cacheDir;
 	}
 
 	protected function doRegisterHooks() {
@@ -862,7 +887,7 @@ class Controller extends DynPropertiesClass {
 	 * @return string|null
 	 */
 	public function getPluginSpec_Path( string $key ) {
-		return $this->cfg->paths[ $key ];
+		return $this->cfg->paths[ $key ] ?? null;
 	}
 
 	/**
@@ -1051,8 +1076,16 @@ class Controller extends DynPropertiesClass {
 		return $this->getPath_SourceFile( $this->getPluginSpec_Path( 'autoload' ) );
 	}
 
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
 	public function getPath_PluginCache() :string {
-		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
+		$cacheSlug = $this->getPluginSpec_Path( 'cache' );
+		if ( empty( $cacheSlug ) ) {
+			throw new \Exception( 'Cache dir slug was empty' );
+		}
+		return path_join( WP_CONTENT_DIR, $cacheSlug );
 	}
 
 	/**

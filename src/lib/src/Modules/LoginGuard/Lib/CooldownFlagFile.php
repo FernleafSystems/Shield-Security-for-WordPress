@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class CooldownFlagFile
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib
- */
 class CooldownFlagFile {
 
 	use Modules\ModConsumer;
@@ -33,16 +29,16 @@ class CooldownFlagFile {
 	 * @return string
 	 */
 	public function getFlagFilePath() {
-		return path_join( $this->getCon()->getPluginCachePath(), 'mode.login_throttled' );
+		return $this->getCon()->getPluginCachePath( 'mode.login_throttled' );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getSecondsSinceLastLogin() {
-		$oFS = Services::WpFs();
-		$sFile = $this->getFlagFilePath();
-		$nLastLogin = $oFS->exists( $sFile ) ? $oFS->getModifiedTime( $sFile ) : 0;
+		$FS = Services::WpFs();
+		$file = $this->getFlagFilePath();
+		$nLastLogin = $FS->exists( $file ) ? $FS->getModifiedTime( $file ) : 0;
 		return ( Services::Request()->ts() - $nLastLogin );
 	}
 
@@ -50,10 +46,10 @@ class CooldownFlagFile {
 	 * @return $this
 	 */
 	public function updateCooldownFlag() {
-		$oFS = Services::WpFs();
-		$sFile = $this->getFlagFilePath();
-		$oFS->deleteFile( $sFile );
-		$oFS->touch( $sFile, Services::Request()->ts() );
+		$FS = Services::WpFs();
+		$file = $this->getFlagFilePath();
+		$FS->deleteFile( $file );
+		$FS->touch( $file, Services::Request()->ts() );
 		return $this;
 	}
 }
