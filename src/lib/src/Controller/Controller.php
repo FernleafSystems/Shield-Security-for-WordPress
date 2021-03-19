@@ -399,7 +399,7 @@ class Controller extends DynPropertiesClass {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ], -1 );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], PHP_INT_MIN );
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR

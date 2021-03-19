@@ -33,17 +33,17 @@ class BlacklistHandler {
 
 			add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
 
-			if ( !$mod->isVisitorWhitelisted()
-				 && !$this->isRequestWhitelisted() && !$mod->isVerifiedBot() ) {
+			if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
 
 				// We setup offenses processing immediately but run the blocks on 'init
 				( new ProcessOffenses() )
 					->setMod( $this->getMod() )
-					->run();
+					->execute();
+
 				add_action( 'init', function () {
 					( new BlockRequest() )
 						->setMod( $this->getMod() )
-						->run();
+						->execute();
 				}, -100000 );
 			}
 		}
