@@ -23,7 +23,7 @@ class TestCacheDirWrite {
 		if ( ( $data[ 'last_success_at' ] === 0 || $now - WEEK_IN_SECONDS > $data[ 'last_success_at' ] )
 			 && ( $now - HOUR_IN_SECONDS > $data[ 'last_test_at' ] ) ) {
 
-			$rootDir = $this->getCon()->getPath_PluginCache();
+			$rootDir = $this->getCon()->getPluginCachePath();
 			$canWrite = !empty( $rootDir )
 						&& $this->canCreateWriteDeleteFile()
 						&& $this->canCreateWriteDeleteDir();

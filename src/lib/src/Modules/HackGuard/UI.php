@@ -20,7 +20,7 @@ class UI extends BaseShield\UI {
 		}
 
 		// Can Scan Checks:
-		$aReasonCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
+		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
@@ -39,7 +39,7 @@ class UI extends BaseShield\UI {
 			],
 			'flags'        => [
 				'is_premium' => $this->getCon()->isPremiumActive(),
-				'can_scan'   => count( $aReasonCantScan ) === 0,
+				'can_scan'   => count( $reasonsCantScan ) === 0,
 			],
 			'strings'      => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
@@ -68,7 +68,7 @@ class UI extends BaseShield\UI {
 			],
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
-				'cannot_scan_reasons' => $aReasonCantScan,
+				'cannot_scan_reasons' => $reasonsCantScan,
 				'related_hrefs'       => [
 					[
 						'href'  => $this->getCon()->getModule_HackGuard()->getUrl_AdminPage(),

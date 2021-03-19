@@ -148,6 +148,14 @@ abstract class Handler {
 	}
 
 	/**
+	 * @return Iterator
+	 */
+	public function getIterator() {
+		$o = new Iterator();
+		return $o->setDbHandler( $this );
+	}
+
+	/**
 	 * @return Delete|mixed
 	 */
 	public function getQueryDeleter() {

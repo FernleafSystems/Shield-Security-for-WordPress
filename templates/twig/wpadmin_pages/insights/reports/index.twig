@@ -1,28 +1,10 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
-
+	<div class="alert alert-warning">
+		Please note that these charts are new and experimental and are provided for early illustration of Shield's activity.
+		<br />They will be enhanced with ongoing development.
+	</div>
 	{{ content.summary_stats|raw }}
-
-{% endblock %}
-{% block inline_styles %}
-	<style>
-		.ct-series-a .ct-line {
-			/* Set the colour of this series line */
-			stroke: green;
-			/* Control the thikness of your lines */
-			stroke-width: 2px;
-			/* Create a dashed line with a pattern */
-			stroke-dasharray: 3px 1px;
-		}
-		/* This selector overrides the points style on line charts. Points on line charts are actually just very short strokes. This allows you to customize even the point size in CSS */
-		.ct-series-a .ct-point {
-			/* Colour of your points */
-			stroke: green;
-			/* Size of your points */
-			stroke-width: 4px;
-			/* Make your points appear as squares */
-			stroke-linecap: square;
-		}
-	</style>
+	{{ content.custom_chart|raw }}
 {% endblock %}

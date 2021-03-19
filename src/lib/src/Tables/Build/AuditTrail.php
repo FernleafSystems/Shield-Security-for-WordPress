@@ -101,18 +101,7 @@ class AuditTrail extends BaseBuild {
 				$strings = $mod->getStrings();
 
 				if ( $strings instanceof Shield\Modules\Base\Strings ) {
-					$substitutions = $entry->meta;
-					$rawString = implode( "\n", $strings->getAuditMessage( $entry->event ) );
-					$missingCount = substr_count( $rawString, '%s' ) - count( $substitutions );
-					if ( $missingCount > 0 ) {
-						$substitutions = array_merge(
-							$substitutions,
-							array_fill( 0, $missingCount, 'unavailable' )
-						);
-					}
-					$msg = stripslashes( sanitize_textarea_field(
-						vsprintf( $rawString, $substitutions )
-					) );
+					$msg = Shield\Modules\AuditTrail\Lib\AuditMessageBuilder::Build( $entry, $strings->getAuditMessage( $entry->event ) );
 				}
 			}
 			else {

@@ -130,7 +130,7 @@ class ImportExportController {
 				'can_importexport' => $this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'export_file_download' => $this->createExportFileDownloadLink()
+				'export_file_download' => $mod->createFileDownloadLink( 'plugin_export' )
 			],
 			'strings' => [
 				'tab_by_file'          => __( 'Import From File', 'wp-simple-firewall' ),
@@ -172,15 +172,5 @@ class ImportExportController {
 				'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 			]
 		];
-	}
-
-	/**
-	 * @return string
-	 */
-	private function createExportFileDownloadLink() {
-		return add_query_arg(
-			$this->getMod()->getNonceActionData( 'export_file_download' ),
-			$this->getMod()->getUrl_AdminPage()
-		);
 	}
 }

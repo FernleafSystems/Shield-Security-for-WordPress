@@ -23,7 +23,16 @@ class TrackLinkCheese extends Base {
 
 	public function testCheese() {
 		if ( is_404() && $this->isCheese() ) {
-			if ( !has_action( 'wp_head', 'wp_no_robots' ) ) {
+
+			if ( function_exists( 'wp_robots_sensitive_page' ) ) {
+				add_filter( 'wp_robots', 'wp_robots_sensitive_page', 1000 );
+			}
+			elseif ( function_exists( 'wp_sensitive_page_meta' ) ) {
+				if ( !has_action( 'wp_head', 'wp_sensitive_page_meta' ) ) {
+					add_action( 'wp_head', 'wp_sensitive_page_meta' );
+				}
+			}
+			elseif ( !has_action( 'wp_head', 'wp_no_robots' ) ) {
 				add_action( 'wp_head', 'wp_no_robots' );
 			}
 			$this->doTransgression();
@@ -43,8 +52,11 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 
 		if ( $WP->isPermalinksEnabled() ) {
-			$isCheese = trim( (string)Services::Request()->getPath(), '/' ) ===
-						trim( (string)parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' );
+			$reqPath = trim( (string)Services::Request()->getPath(), '/' );
+			$isCheese = ( $reqPath ===
+						  trim( (string)parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' ) )
+						|| preg_match( '#icwp-wpsf-[a-z]+-[a-z0-9]{7,9}#', $reqPath ) > 0;
+			/** TODO: 10.3 legacy remove */
 		}
 		else {
 			$isCheese = Services::Request()->query( $this->getCheeseWord() ) === '1';

@@ -59,11 +59,7 @@ abstract class Base {
 	}
 
 	public function createFileDownloadLink( Databases\Scanner\EntryVO $entry ) :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$aActionNonce = $mod->getNonceActionData( 'scan_file_download' );
-		$aActionNonce[ 'rid' ] = $entry->id;
-		return add_query_arg( $aActionNonce, $mod->getUrl_AdminPage() );
+		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $entry->id ] );
 	}
 
 	public function getLastScanAt() :int {

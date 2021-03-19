@@ -20,13 +20,13 @@ class Traffic extends BaseBuild {
 		/** @var Databases\Traffic\Select $select */
 		$select = $this->getWorkingSelector();
 
-		$oIp = Services::IP();
+		$srvIP = Services::IP();
 		// If an IP is specified, it takes priority
-		if ( $oIp->isValidIp( $params[ 'fIp' ] ) ) {
+		if ( $srvIP->isValidIp( $params[ 'fIp' ] ) ) {
 			$select->filterByIp( inet_pton( $params[ 'fIp' ] ) );
 		}
 		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
-			$select->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
+			$select->filterByNotIp( inet_pton( $srvIP->getRequestIp() ) );
 		}
 
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
@@ -177,7 +177,11 @@ class Traffic extends BaseBuild {
 			->lookup();
 
 		$badgeTemplate = '<span class="badge badge-%s">%s</span>';
-		if ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
+		$status = __( 'No Record', 'wp-simple-firewall' );
+		if ( !$record instanceof Databases\IPs\EntryVO ) {
+			$status = __( 'No Record', 'wp-simple-firewall' );
+		}
+		elseif ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
 			$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 		}
 		elseif ( $record->list === ModCon::LIST_AUTO_BLACK ) {
@@ -191,9 +195,6 @@ class Traffic extends BaseBuild {
 				'success',
 				__( 'Bypass', 'wp-simple-firewall' )
 			);
-		}
-		else {
-			$status = __( 'No Record', 'wp-simple-firewall' );
 		}
 		return $status;
 	}

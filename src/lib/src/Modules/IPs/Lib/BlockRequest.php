@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -10,18 +11,19 @@ use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 class BlockRequest {
 
 	use ModConsumer;
+	use ExecOnce;
 
-	public function run() {
+	protected function run() {
 		if ( $this->isBlocked() ) {
 
 			if ( $this->isAutoUnBlocked() ) {
 				Services::Response()->redirectToHome();
 			}
-
-			// don't log killed requests
-			add_filter( $this->getCon()->prefix( 'is_log_traffic' ), '__return_false' );
-			$this->getCon()->fireEvent( 'conn_kill' );
-			$this->renderKillPage();
+			else {
+				add_filter( 'shield/is_log_traffic', '__return_false' ); // don't log killed requests
+				$this->getCon()->fireEvent( 'conn_kill' );
+				$this->renderKillPage();
+			}
 		}
 	}
 

@@ -165,9 +165,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 		try {
 
-			$oLock = $oFLCon->getFileLock( $nRID );
-			$bDiff = $oLock->detected_at > 0;
-			$data[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
+			$lock = $oFLCon->getFileLock( $nRID );
+			$bDiff = $lock->detected_at > 0;
+			$data[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $lock );
 			$data[ 'flags' ][ 'has_diff' ] = $bDiff;
 			$data[ 'html' ][ 'diff' ] = $bDiff ?
 				( new FileLocker\Ops\PerformAction() )
@@ -175,19 +175,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					->run( $nRID, 'diff' ) : '';
 
 			$oCarb = Services::Request()->carbon( true );
-			$data[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
+			$data[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $lock->created_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_modified_at' ] =
-				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $oLock->file ) );
-			$data[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $lock->file ) );
+			$data[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $lock->detected_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $mod )
-					->run( $oLock )
+					->run( $lock )
 			), 3 );
-			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $oLock->file ) ?
-				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $oLock->file ), 3 )
+			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->file ) ?
+				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $lock->file ), 3 )
 				: 0;
-			$data[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
+			$data[ 'vars' ][ 'file_name' ] = basename( $lock->file );
 			$data[ 'success' ] = true;
 		}
 		catch ( \Exception $e ) {

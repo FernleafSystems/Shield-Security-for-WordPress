@@ -218,8 +218,7 @@ class Collate {
 		$licPing->lookup_url_stub = $con->getModule_License()->getOptions()->getDef( 'license_store_url_api' );
 		$data[ 'Ping License Server' ] = $licPing->ping() ? 'Yes' : 'No';
 
-		$sTmpPath = $con->getPluginCachePath();
-		$data[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
+		$data[ 'Write TMP/Cache DIR' ] = $con->hasCacheDir() ?'Yes: '.$con->getPluginCachePath() : 'No' ;
 
 		return $data;
 	}

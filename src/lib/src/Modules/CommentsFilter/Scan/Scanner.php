@@ -134,13 +134,7 @@ class Scanner {
 
 		$mResult = true;
 
-		if ( !is_wp_error( $mResult ) && $opts->isEnabledGaspCheck() ) {
-			$mResult = ( new Bot() )
-				->setMod( $this->getMod() )
-				->scan( $aCommData[ 'comment_post_ID' ] );
-		}
-
-		if ( !is_wp_error( $mResult ) && $opts->isEnabledAntiBot() ) {
+		if ( $opts->isEnabledAntiBot() ) {
 			try {
 				( new AntiBot() )
 					->setMod( $this->getMod() )
@@ -150,22 +144,30 @@ class Scanner {
 				$mResult = new \WP_Error( 'antibot', $e->getMessage() );
 			}
 		}
+		else {
 
-		if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
-			try {
-				if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {
-					( new Utilities\HCaptcha\TestRequest() )
-						->setMod( $this->getMod() )
-						->test();
-				}
-				else {
-					( new Utilities\ReCaptcha\TestRequest() )
-						->setMod( $this->getMod() )
-						->test();
-				}
+			if ( $opts->isEnabledGaspCheck() ) {
+				$mResult = ( new Bot() )
+					->setMod( $this->getMod() )
+					->scan( $aCommData[ 'comment_post_ID' ] );
 			}
-			catch ( \Exception $e ) {
-				$mResult = new \WP_Error( 'recaptcha', $e->getMessage(), [] );
+
+			if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
+				try {
+					if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {
+						( new Utilities\HCaptcha\TestRequest() )
+							->setMod( $this->getMod() )
+							->test();
+					}
+					else {
+						( new Utilities\ReCaptcha\TestRequest() )
+							->setMod( $this->getMod() )
+							->test();
+					}
+				}
+				catch ( \Exception $e ) {
+					$mResult = new \WP_Error( 'recaptcha', $e->getMessage(), [] );
+				}
 			}
 		}
 

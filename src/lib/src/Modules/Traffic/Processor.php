@@ -3,12 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
-/**
- * Class Processor
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic
- */
 class Processor extends Modules\BaseShield\Processor {
 
 	protected function run() {

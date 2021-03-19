@@ -15,16 +15,16 @@ class AdminNotes extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$aEntries = [];
+		$entries = [];
 
 		foreach ( $this->getEntriesRaw() as $key => $entry ) {
 			/** @var EntryVO $entry */
 			$e = $entry->getRawData();
 			$e[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
-			$aEntries[ $key ] = $e;
+			$entries[ $key ] = $e;
 		}
 
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

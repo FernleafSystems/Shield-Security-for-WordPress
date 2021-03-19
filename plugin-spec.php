@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "10.2.23",
-    "release_timestamp":       1615915598,
-    "build":                   "202103.1602",
+    "version":                 "10.2.25",
+    "release_timestamp":       1616065729,
+    "build":                   "202103.1801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -107,6 +107,11 @@
         },
         "introjs":                {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/introjs.min.css"
+        },
+        "shield/charts":           {
+          "deps": [
+            "plugin"
+          ]
         }
       },
       "js":  {
@@ -168,11 +173,13 @@
         },
         "shield/charts":           {
           "deps": [
-            "chartist-plugin-legend"
+            "chartist",
+            "chartist-plugin-legend",
+            "plugin"
           ]
         },
         "shuffle":                 {},
-        "shield-card-shuffle":     {
+        "shield/shuffle":     {
           "deps": [
             "shuffle"
           ]

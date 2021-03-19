@@ -104,16 +104,20 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-
-			case 'export_file_download':
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'plugin_export':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
 				( new Lib\ImportExport\Export() )
 					->setMod( $this )
 					->toFile();
 				break;
+		}
+	}
 
+	protected function handleModAction( string $action ) {
+
+		switch ( $action ) {
 			case 'import_file_upload':
 				try {
 					( new Lib\ImportExport\Import() )
@@ -133,6 +137,7 @@ class ModCon extends BaseShield\ModCon {
 				break;
 
 			default:
+				parent::handleModAction( $action );
 				break;
 		}
 	}
@@ -142,10 +147,16 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	public function canSiteLoopback() :bool {
-		if ( !@class_exists( '\WP_Site_Health' ) || !method_exists( '\WP_Site_Health', 'get_instance' ) ) {
-			throw new \Exception( 'WP Loopback tests unavailable' );
+		$canLoopback = false;
+		if ( class_exists( '\WP_Site_Health' ) && method_exists( '\WP_Site_Health', 'get_instance' ) ) {
+			$canLoopback = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
 		}
-		return \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
+		if ( !$canLoopback ) {
+			$canLoopback = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
+				'timeout' => 10
+			] );
+		}
+		return $canLoopback;
 	}
 
 	public function getActivePluginFeatures() :array {
@@ -321,15 +332,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
-	}
-
-	/**
-	 * hidden 20200121
-	 * @return bool
-	 */
-	public function getIfShowIntroVideo() :bool {
-		return false && ( $this->getActivateLength() < 8 )
-			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
 	}
 
 	public function getTourManager() :Lib\TourManager {

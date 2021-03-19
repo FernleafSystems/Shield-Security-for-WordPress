@@ -22,8 +22,8 @@ class ModCon extends BaseShield\ModCon {
 
 	private function maybeRedirectToAdmin() {
 		$con = $this->getCon();
-		$nActiveFor = $con->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $nActiveFor < 4 ) {
+		$activeFor = $con->getModule_Plugin()->getActivateLength();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $activeFor < 4 ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
 	}
@@ -39,7 +39,7 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	protected function renderModulePage( array $aData = [] ) :string {
+	protected function renderModulePage( array $data = [] ) :string {
 		/** @var UI $UI */
 		$UI = $this->getUIHandler();
 		return $UI->renderPages();
@@ -86,19 +86,23 @@ class ModCon extends BaseShield\ModCon {
 					break;
 
 				case 'overview':
-				case 'reports':
+					$enq[ Enqueue::JS ] = [
+						'shuffle',
+						'shield/shuffle',
+						'ip_detect'
+					];
+					break;
 
+				case 'reports':
 					$enq[ Enqueue::JS ] = [
 						'chartist',
 						'chartist-plugin-legend',
 						'shield/charts',
-						'shuffle',
-						'shield-card-shuffle',
-						'ip_detect'
 					];
 					$enq[ Enqueue::CSS ] = [
 						'chartist',
-						'chartist-plugin-legend'
+						'chartist-plugin-legend',
+						'shield/charts'
 					];
 					break;
 
@@ -127,11 +131,5 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		return $enq;
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	private function includeScriptIpDetect() {
 	}
 }

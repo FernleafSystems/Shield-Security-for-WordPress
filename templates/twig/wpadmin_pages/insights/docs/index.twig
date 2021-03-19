@@ -47,17 +47,6 @@
 			</div>
 		</div>
 	</div>
-
-	<div class="row">
-		{% if flags.show_guided_tour %}
-			<a style="display: none;" class="btn btn-default"
-			   id="IntroVideo"
-			   href="https://player.vimeo.com/video/326357543"
-			   data-featherlight="iframe" data-featherlight-iframe-allowfullscreen="true"
-			   data-featherlight-iframe-width="1200"
-			   data-featherlight-iframe-height="675">&nbsp;</a>
-		{% endif %}
-	</div>
 {% endblock %}
 
 {% block inline_scripts %}
@@ -75,13 +64,5 @@
 		  "selector": ".announcekit-widget",
 		  "version": 2
 	  } )
-	</script>
-
-	<script type="text/javascript">
-		{% if flags.show_guided_tour %}
-		window.onload = function () {
-			jQuery( '#IntroVideo' ).click();
-		};
-		{% endif %}
 	</script>
 {% endblock %}
