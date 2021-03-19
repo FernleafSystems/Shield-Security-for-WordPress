@@ -26,9 +26,50 @@
       },
       {
         "type":        "new",
+        "title":       "Contact Form SPAM Protection",
+        "description": [
+          "With the arrival of our AntiBot Detection Engine, we can now more easily integrate with 3rd party plugins.",
+          "You can add Shield's SPAM protection to Elementor PRO Gravity Forms, Contact Form 7, Ninja Forms, and many more."
+        ]
+      },
+      {
+        "type":        "new",
         "title":       "Charts and Stats.",
         "description": [
           "We've added a page in Shield to allow you to chart some of your favourite Shield Stats."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Download Audit Trail, Traffic Log and IP DB as CSV.",
+        "description": [
+          "A long-requested feature is the ability to download the raw database data - you can now do this with a single click."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Download Audit Trail, Traffic Log and IP DB as CSV.",
+        "description": [
+          "A long-requested feature is the ability to download the raw database data - you can now do this with a single click."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Added some new filters and hooks to allow customisation.",
+        "description": [
+          "For example, you can override the hour at which the Shield crons run, including the scans."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Big improvements in the reliability of Shield's Database handling.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Use CDNJS to deliver several core Javascript/CSS assets.",
+        "description": [
+          "Using a CDN to deliver these assets reduces the plugin footprint on your site, while also speeding up admin page loading."
         ]
       }
     ]

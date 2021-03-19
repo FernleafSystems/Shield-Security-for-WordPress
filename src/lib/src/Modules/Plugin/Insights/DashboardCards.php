@@ -260,12 +260,12 @@ class DashboardCards {
 				],
 				'actions' => [
 					[
-						'text' => __( "User Settings", 'wp-simple-firewall' ),
-						'href' => $con->getModule_UserManagement()->getUrl_AdminPage(),
+						'text' => __( 'View User Sessions', 'wp-simple-firewall' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'users' ),
 					],
 					[
-						'text' => __( "Manage User Sessions", 'wp-simple-firewall' ),
-						'href' => $modInsights->getUrl_SubInsightsPage( 'users' ),
+						'text' => __( 'User Settings', 'wp-simple-firewall' ),
+						'href' => $con->getModule_UserManagement()->getUrl_AdminPage(),
 					],
 				]
 			],
