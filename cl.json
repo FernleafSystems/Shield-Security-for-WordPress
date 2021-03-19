@@ -1,5 +1,4 @@
 {
-
   "11.0": {
     "version":     "11.0",
     "released_at": 1613037000,
@@ -67,9 +66,27 @@
       },
       {
         "type":        "improved",
-        "title":       "Use CDNJS to deliver several core Javascript/CSS assets.",
+        "title":       "Use CDNJS to deliver several important plugin Javascript/CSS assets.",
         "description": [
-          "Using a CDN to deliver these assets reduces the plugin footprint on your site, while also speeding up admin page loading."
+          "Using a CDN to deliver assets reduces the plugin footprint on your site, while also speeding up admin page loading."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "New and improved guided tour upon plugin activation.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Link Cheese Robots additions use enhanced Robots API in WordPress 5.7.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Various bug fixes and enhancements.",
+        "description": [
+          "WP-Config FileLocker system is more reliable with requests in the case of database problems",
+          "Lots of code cleanup"
         ]
       }
     ]
