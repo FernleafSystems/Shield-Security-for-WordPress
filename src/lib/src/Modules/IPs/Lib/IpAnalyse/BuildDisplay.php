@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
@@ -356,22 +357,17 @@ class BuildDisplay {
 		$logs = $sel->filterByIp( $this->getIP() )
 					->query();
 
-		foreach ( $logs as $key => $log ) {
-			$asArray = $log->getRawData();
+		foreach ( $logs as $key => $entry ) {
+			$asArray = $entry->getRawData();
 
-			$module = $con->getModule( $log->context );
+			$module = $con->getModule( $entry->context );
 			if ( empty( $module ) ) {
 				$module = $con->getModule_AuditTrail();
 			}
-			$oStrings = $module->getStrings();
+			$strings = $module->getStrings();
 
-			$asArray[ 'event' ] = stripslashes( sanitize_textarea_field(
-				vsprintf(
-					implode( "\n", $oStrings->getAuditMessage( $log->event ) ),
-					$log->meta
-				)
-			) );
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$log->created_at );
+			$asArray[ 'event' ] = AuditMessageBuilder::Build( $entry, $strings->getAuditMessage( $entry->event ) );
+			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$entry->created_at );
 
 			$logs[ $key ] = $asArray;
 		}
