@@ -72,9 +72,11 @@ class BotSignalsRecord {
 						   ->insert( $entry );
 		}
 		else {
+			$data = $entry->getRawData();
+			$data[ 'updated_at' ] = Services::Request()->ts();
 			$success = $mod->getDbHandler_BotSignals()
 						   ->getQueryUpdater()
-						   ->updateEntry( $entry, $entry->getRawData() );
+						   ->updateById( $entry->id, $data );
 		}
 		return $success;
 	}
@@ -96,9 +98,7 @@ class BotSignalsRecord {
 		$entry = $this->retrieve( false ); // false as we're going to store it anyway
 		$entry->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
 
-		( new BotSignalsRecord() )
-			->setMod( $this->getMod() )
-			->store( $entry );
+		$this->store( $entry );
 
 		return $entry;
 	}
