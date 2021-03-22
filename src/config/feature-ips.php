@@ -610,6 +610,7 @@
         "captchafail_at":     "Captcha Failed",
         "auth_at":            "Successful Login",
         "firewall_at":        "Triggered Firewall",
+        "ratelimit_at":       "Rate Limit Exceeded",
         "offense_at":         "Last Offense",
         "blocked_at":         "Last Block",
         "unblocked_at":       "Unblocked",
