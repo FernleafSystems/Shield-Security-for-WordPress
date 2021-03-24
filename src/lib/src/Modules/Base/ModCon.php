@@ -574,46 +574,47 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param array $aItems
+	 * @param array $items
 	 * @return array
 	 */
-	public function supplySubMenuItem( $aItems ) {
+	public function supplySubMenuItem( $items ) {
 
-		$sTitle = $this->getOptions()->getFeatureProperty( 'menu_title' );
-		$sTitle = empty( $sTitle ) ? $this->getMainFeatureName() : __( $sTitle, 'wp-simple-firewall' );
+		$title = $this->getOptions()->getFeatureProperty( 'menu_title' );
+		$title = empty( $title ) ? $this->getMainFeatureName() : __( $title, 'wp-simple-firewall' );
 
-		if ( !empty( $sTitle ) ) {
+		if ( !empty( $title ) ) {
+			$highlightedTemplate = '<span class="icwp_highlighted">%s</span>';
+			$humanName = $this->getCon()->getHumanName();
 
-			$sHumanName = $this->getCon()->getHumanName();
-
-			$bMenuHighlighted = $this->getOptions()->getFeatureProperty( 'highlight_menu_item' );
-			if ( $bMenuHighlighted ) {
-				$sTitle = sprintf( '<span class="icwp_highlighted">%s</span>', $sTitle );
+			if ( $this->getOptions()->getFeatureProperty( 'highlight_menu_item' ) ) {
+				$title = sprintf( $highlightedTemplate, $title );
 			}
 
-			$sMenuPageTitle = $sTitle.' - '.$sHumanName;
-			$aItems[ $sMenuPageTitle ] = [
-				$sTitle,
+			$menuPageTitle = $title.' - '.$humanName;
+			$items[ $menuPageTitle ] = [
+				$title,
 				$this->getModSlug(),
 				[ $this, 'displayModuleAdminPage' ],
 				$this->getIfShowModuleMenuItem()
 			];
 
-			$aAdditionalItems = $this->getOptions()->getAdditionalMenuItems();
-			if ( !empty( $aAdditionalItems ) && is_array( $aAdditionalItems ) ) {
+			$menuItems = $this->getOptions()->getAdditionalMenuItems();
+			if ( !empty( $menuItems ) && is_array( $menuItems ) ) {
 
-				foreach ( $aAdditionalItems as $aMenuItem ) {
-					$sMenuPageTitle = $sHumanName.' - '.$aMenuItem[ 'title' ];
-					$aItems[ $sMenuPageTitle ] = [
-						__( $aMenuItem[ 'title' ], 'wp-simple-firewall' ),
-						$this->prefix( $aMenuItem[ 'slug' ] ),
-						[ $this, $aMenuItem[ 'callback' ] ],
+				foreach ( $menuItems as $menuItem ) {
+					$title = __( $menuItem[ 'title' ], 'wp-simple-firewall' );
+					$menuPageTitle = $humanName.' - '.$title;
+					$isHighlighted = $menuItem[ 'highlight' ] ?? false;
+					$items[ $menuPageTitle ] = [
+						$isHighlighted ? sprintf( $highlightedTemplate, $title ) : $title,
+						$this->prefix( $menuItem[ 'slug' ] ),
+						[ $this, $menuItem[ 'callback' ] ],
 						true
 					];
 				}
 			}
 		}
-		return $aItems;
+		return $items;
 	}
 
 	/**
