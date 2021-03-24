@@ -598,17 +598,18 @@ abstract class ModCon {
 				$this->getIfShowModuleMenuItem()
 			];
 
-			$menuItems = $this->getOptions()->getAdditionalMenuItems();
-			if ( !empty( $menuItems ) && is_array( $menuItems ) ) {
+			foreach ( $this->getOptions()->getAdditionalMenuItems() as $menuItem ) {
 
-				foreach ( $menuItems as $menuItem ) {
+				// special case: don't show go pro if you're pro.
+				if ( $menuItem[ 'slug' ] !== 'pro-redirect' || !$this->isPremium() ) {
+
 					$title = __( $menuItem[ 'title' ], 'wp-simple-firewall' );
 					$menuPageTitle = $humanName.' - '.$title;
 					$isHighlighted = $menuItem[ 'highlight' ] ?? false;
 					$items[ $menuPageTitle ] = [
 						$isHighlighted ? sprintf( $highlightedTemplate, $title ) : $title,
 						$this->prefix( $menuItem[ 'slug' ] ),
-						[ $this, $menuItem[ 'callback' ] ],
+						[ $this, $menuItem[ 'callback' ] ?? '' ],
 						true
 					];
 				}
@@ -623,26 +624,19 @@ abstract class ModCon {
 	 * This can of course be extended for any other types of redirect.
 	 */
 	public function handleAutoPageRedirects() {
-		$aConf = $this->getOptions()->getRawData_FullFeatureConfig();
-		if ( !empty( $aConf[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
-			foreach ( $aConf[ 'custom_redirects' ] as $aRedirect ) {
-				if ( Services::Request()->query( 'page' ) == $this->prefix( $aRedirect[ 'source_mod_page' ] ) ) {
+		$cfg = $this->getOptions()->getRawData_FullFeatureConfig();
+		if ( !empty( $cfg[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
+			foreach ( $cfg[ 'custom_redirects' ] as $redirect ) {
+				if ( Services::Request()->query( 'page' ) == $this->prefix( $redirect[ 'source_mod_page' ] ) ) {
 					Services::Response()->redirect(
-						$this->getCon()->getModule( $aRedirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
-						$aRedirect[ 'query_args' ],
+						$this->getCon()->getModule( $redirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
+						$redirect[ 'query_args' ],
 						true,
 						false
 					);
 				}
 			}
 		}
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getAdditionalMenuItem() {
-		return [];
 	}
 
 	/**

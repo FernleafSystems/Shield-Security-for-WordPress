@@ -30,8 +30,7 @@
     {
       "title":     "Go PRO!",
       "slug":      "pro-redirect",
-      "highlight": true,
-      "callback":  ""
+      "highlight": true
     }
   ],
   "custom_redirects": [

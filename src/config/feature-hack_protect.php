@@ -22,8 +22,7 @@
   "menu_items":       [
     {
       "title":    "Scans",
-      "slug":     "scans-redirect",
-      "callback": ""
+      "slug":     "scans-redirect"
     }
   ],
   "custom_redirects": [

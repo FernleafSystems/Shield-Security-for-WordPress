@@ -19,8 +19,7 @@
   "menu_items":       [
     {
       "title":    "IP Lists",
-      "slug":     "ips-redirect",
-      "callback": ""
+      "slug":     "ips-redirect"
     }
   ],
   "custom_redirects": [
