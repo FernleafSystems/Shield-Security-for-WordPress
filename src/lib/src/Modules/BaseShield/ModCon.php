@@ -170,14 +170,22 @@ class ModCon extends Base\ModCon {
 
 			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
 
-			// iControlWP / ManageWP
-			self::$bVisitorIsWhitelisted =
-				in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() )
-				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-					   ->setIP( Services::IP()->getRequestIp() )
-					   ->setListTypeWhite()
-					   ->lookup() instanceof Shield\Databases\IPs\EntryVO;
+			$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
+
+			if ( is_array( $untrustedProviders ) && in_array( $ipID, $untrustedProviders ) ) {
+				self::$bVisitorIsWhitelisted = false;
+			}
+			elseif ( in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() ) ) {
+				self::$bVisitorIsWhitelisted = true; // iControlWP / ManageWP
+			}
+			else {
+				self::$bVisitorIsWhitelisted =
+					( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+						->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+						->setIP( Services::IP()->getRequestIp() )
+						->setListTypeWhite()
+						->lookup() instanceof Shield\Databases\IPs\EntryVO;
+			}
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
