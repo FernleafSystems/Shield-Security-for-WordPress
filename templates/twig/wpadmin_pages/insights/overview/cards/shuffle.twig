@@ -56,7 +56,7 @@
 							<span class="dashicons title-icon"></span>
 							<span class="card-title">{{ card.name }}</span>
 						</div>
-						<div class="d-inline-block text-right float-right">
+						<div class="d-inline-block text-right float-end">
 							{% if card.href|default('') is not empty %}
 								<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
 								   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
@@ -100,15 +100,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				}
 			} );
 		}
-	} );
-
-	jQuery( function () {
-		jQuery( '[data-toggle="popover"]' ).popover( {
-			placement: 'top',
-			trigger: 'hover focus',
-			delay: 150,
-			html: false
-		} );
 	} );
 } );
 </script>

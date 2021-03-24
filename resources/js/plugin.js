@@ -30,18 +30,19 @@ var iCWP_WPSF_OptionsPages = new function () {
 		}
 
 		jQuery( function () {
-			jQuery( 'a.section_title_info' ).popover( {
-				placement: 'bottom',
-				trigger: 'click',
-				delay: 50,
-				html: true
-			} );
-			jQuery( '[data-toggle="tooltip"]' ).tooltip( {
-				placement: 'left',
-				trigger: 'hover focus',
-				delay: 150,
-				html: false
-			} );
+			// jQuery( 'a.section_title_info' ).popover( {
+			// 	placement: 'bottom',
+			// 	trigger: 'click',
+			// 	delay: 50,
+			// 	html: true
+			// } );
+
+			// jQuery( '[data-bs-toggle="tooltip"]' ).tooltip( {
+			// 	placement: 'left',
+			// 	trigger: 'hover focus',
+			// 	delay: 150,
+			// 	html: false
+			// } );
 		} );
 	};
 }();
@@ -408,7 +409,16 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 jQuery( document ).ready( function () {
 	jQuery( document ).icwpWpsfTours();
-	jQuery( '.select2picker' ).select2({
+	jQuery( '.select2picker' ).select2( {
 		width: 'resolve'
-	});
+	} );
+
+	var popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
+	var popoverList = popoverTriggerList.map( function ( popoverTriggerEl ) {
+		return new bootstrap.Popover( popoverTriggerEl );
+	} );
+	var tooltipTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="tooltip"]' ) )
+	var tooltipList = tooltipTriggerList.map( function ( tooltipTriggerEl ) {
+		return new bootstrap.Tooltip( tooltipTriggerEl );
+	} );
 } );
