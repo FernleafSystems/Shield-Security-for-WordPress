@@ -46,11 +46,11 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			];
 
-			$bRecap = $mod->getCaptchaCfg()->ready;
+			$captchaReady = $mod->getCaptchaCfg()->ready;
 			$cards[ 'recap' ] = [
 				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
-				'state'   => $bRecap ? 1 : -1,
-				'summary' => $bRecap ?
+				'state'   => $captchaReady ? 1 : 0,
+				'summary' => $captchaReady ?
 					__( 'CAPTCHA keys have been provided', 'wp-simple-firewall' )
 					: __( "CAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),

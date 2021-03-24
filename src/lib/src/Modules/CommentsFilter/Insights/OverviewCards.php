@@ -25,10 +25,11 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
+			$botSpamOn = $opts->isEnabledAntiBot() || $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
 			$cards[ 'bot' ] = [
 				'name'    => __( 'Bot SPAM', 'wp-simple-firewall' ),
-				'state'   => ( $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha() ) ? 1 : -1,
-				'summary' => ( $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha() ) ?
+				'state'   => $botSpamOn ? 1 : -1,
+				'summary' => $botSpamOn ?
 					__( 'Bot SPAM comments are blocked', 'wp-simple-firewall' )
 					: __( 'There is no protection against Bot SPAM comments', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_bot_comment_spam_protection_filter' ),
