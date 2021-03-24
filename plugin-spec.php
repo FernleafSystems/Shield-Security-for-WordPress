@@ -68,7 +68,7 @@
     },
     "register":     {
       "css": {
-        "bootstrap4":             {
+        "bootstrap":             {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
         },
         "select2":                {
@@ -80,19 +80,19 @@
         "bootstrap-datepicker":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
           "deps": [
-            "bootstrap4"
+            "bootstrap"
           ]
         },
         "global-plugin":          {},
         "plugin":                 {
           "deps": [
-            "bootstrap4",
+            "bootstrap",
             "global-plugin"
           ]
         },
         "wizard":                 {
           "deps": [
-            "bootstrap4",
+            "bootstrap",
             "global-plugin"
           ]
         },
@@ -115,7 +115,7 @@
         }
       },
       "js":  {
-        "bootstrap4":              {
+        "bootstrap":              {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
@@ -130,7 +130,7 @@
         "bootstrap-datepicker":    {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
           "deps": [
-            "bootstrap4"
+            "bootstrap"
           ]
         },
         "global-plugin":           {
@@ -140,7 +140,7 @@
         },
         "plugin":                  {
           "deps": [
-            "bootstrap4",
+            "bootstrap",
             "global-plugin",
             "base64.min",
             "lz-string.min"
