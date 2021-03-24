@@ -184,6 +184,12 @@
             "shuffle"
           ]
         },
+        "shield/comments":           {
+          "deps": [
+            "wp-jquery"
+          ],
+          "footer": true
+        },
         "shield/tables":           {
           "deps": [
             "plugin"
@@ -215,7 +221,7 @@
         },
         "shield/mainwp-extension": {
           "deps": [
-            "jquery"
+            "wp-jquery"
           ]
         },
         "shield/userprofile":      {

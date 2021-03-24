@@ -13,7 +13,6 @@ class Yubikey extends BaseProvider {
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	public function setupProfile() {
-
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
 			if ( in_array( $hook, [ 'profile.php', ] ) ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';

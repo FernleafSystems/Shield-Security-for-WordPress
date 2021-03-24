@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Forms;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,7 +22,7 @@ class Gasp {
 	/**
 	 * @var bool
 	 */
-	private $bFormItemPrinted = false;
+	private $formItemsPrinted = false;
 
 	protected function canRun() :bool {
 		/** @var CommentsFilter\Options $opts */
@@ -32,76 +33,73 @@ class Gasp {
 	protected function run() {
 		add_action( 'wp', [ $this, 'onWP' ] );
 		add_action( 'wp_footer', [ $this, 'maybeDequeueScript' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
 	}
 
 	public function onWP() {
+		$this->enqueueJS();
 		add_action( 'comment_form', [ $this, 'printGaspFormItems' ], 1 );
 	}
 
-	public function onWpEnqueueJs() {
-		/** @var CommentsFilter\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-		$con = $this->getCon();
+	protected function enqueueJS() {
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
+			$enqueues[ Enqueue::JS ][] = 'shield/comments';
 
-		$sAsset = 'shield-comments';
-		$handle = $con->prefix( 'shield-comments' );
-		wp_register_script(
-			$handle,
-			$con->urls->forJs( $sAsset ),
-			[ 'jquery' ],
-			$con->getVersion(),
-			true
-		);
-		wp_enqueue_script( $handle );
+			add_filter( 'shield/custom_localisations', function ( array $localz ) {
+				/** @var CommentsFilter\ModCon $mod */
+				$mod = $this->getMod();
+				/** @var CommentsFilter\Options $opts */
+				$opts = $this->getOptions();
 
-		$ts = Services::Request()->ts();
-		$aNonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
-		$aNonce[ 'ts' ] = $ts;
-		$aNonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
+				$ts = Services::Request()->ts();
+				$nonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
+				$nonce[ 'ts' ] = $ts;
+				$nonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
 
-		wp_localize_script(
-			$handle,
-			'shield_comments',
-			[
-				'ajax'    => [
-					'comment_token' => $aNonce,
-				],
-				'vars'    => [
-					'cbname'   => 'cb_nombre'.rand(),
-					'botts'    => $ts,
-					'token'    => 'not created',
-					'uniq'     => $this->getUniqueFormId(),
-					'cooldown' => $opts->getTokenCooldown(),
-					'expires'  => $opts->getTokenExpireInterval(),
-				],
-				'strings' => [
-					'label'           => $mod->getTextOpt( 'custom_message_checkbox' ),
-					'alert'           => $mod->getTextOpt( 'custom_message_alert' ),
-					'comment_reload'  => $mod->getTextOpt( 'custom_message_comment_reload' ),
-					'js_comment_wait' => $mod->getTextOpt( 'custom_message_comment_wait' ),
-				],
-				'flags'   => [
-					'gasp'  => true,
-					'recap' => $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready,
-				]
-			]
-		);
+				$localz[] = [
+					'shield/comments',
+					'shield_comments',
+					[
+						'ajax'    => [
+							'comment_token' => $nonce,
+						],
+						'vars'    => [
+							'cbname'   => 'cb_nombre'.rand(),
+							'botts'    => $ts,
+							'token'    => 'not created',
+							'uniq'     => $this->getUniqueFormId(),
+							'cooldown' => $opts->getTokenCooldown(),
+							'expires'  => $opts->getTokenExpireInterval(),
+						],
+						'strings' => [
+							'label'           => $mod->getTextOpt( 'custom_message_checkbox' ),
+							'alert'           => $mod->getTextOpt( 'custom_message_alert' ),
+							'comment_reload'  => $mod->getTextOpt( 'custom_message_comment_reload' ),
+							'js_comment_wait' => $mod->getTextOpt( 'custom_message_comment_wait' ),
+						],
+						'flags'   => [
+							'gasp'  => true,
+							'recap' => $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready,
+						]
+					]
+				];
+				return $localz;
+			} );
+
+			return $enqueues;
+		} );
 	}
 
 	/**
 	 * If the comment form component hasn't been printed, there's no comment form to protect.
 	 */
 	public function maybeDequeueScript() {
-		if ( empty( $this->bFormItemPrinted ) ) {
-			wp_dequeue_script( $this->getCon()->prefix( 'shield-comments' ) );
+		if ( empty( $this->formItemsPrinted ) ) {
+			wp_dequeue_script( $this->getCon()->prefix( 'shield/comments' ) );
 		}
 	}
 
 	public function printGaspFormItems() {
-		$this->bFormItemPrinted = true;
+		$this->formItemsPrinted = true;
 		echo $this->getMod()
 				  ->renderTemplate(
 					  'snippets/comment_form_botbox.twig',
