@@ -125,7 +125,7 @@ class Strings extends Base\Strings {
 						$this->getCon()->getHumanName() ),
 					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings for the selected forms.", 'wp-simple-firewall' ) )
+						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings.", 'wp-simple-firewall' ) )
 				];
 				break;
 
