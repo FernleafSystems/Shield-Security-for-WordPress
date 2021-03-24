@@ -185,6 +185,16 @@ class BuildScores {
 		return $score;
 	}
 
+	private function score_ratelimit() :int {
+		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
+			$score = 0;
+		}
+		else {
+			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? -55 : -25;
+		}
+		return $score;
+	}
+
 	private function score_captchafail() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
 			$score = 0;

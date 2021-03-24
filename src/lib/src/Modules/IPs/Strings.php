@@ -286,6 +286,7 @@ class Strings extends Base\Strings {
 			'markspam'        => __( 'Comment Marked As SPAM', 'wp-simple-firewall' ),
 			'unmarkspam'      => __( 'Comment Unmarked As SPAM', 'wp-simple-firewall' ),
 			'auth'            => __( 'Authenticated With Site', 'wp-simple-firewall' ),
+			'ratelimit'       => __( 'Rate Limit Exceeded', 'wp-simple-firewall' ),
 			'captchapass'     => __( 'Captcha Verification Passed', 'wp-simple-firewall' ),
 			'captchafail'     => __( 'Captcha Verification Failed', 'wp-simple-firewall' ),
 			'firewall'        => __( 'Firewall Triggered', 'wp-simple-firewall' ),

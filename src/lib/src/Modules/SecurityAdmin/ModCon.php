@@ -32,6 +32,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this->whitelabelCon;
 	}
 
+	public function getSecAdminLoginAjaxData() :array {
+		return $this->getAjaxActionData( 'sec_admin_login' );
+	}
+
 	/**
 	 * @return bool
 	 * @throws \Exception
@@ -270,6 +274,9 @@ class ModCon extends BaseShield\ModCon {
 		return $sLogoUrl;
 	}
 
+	/**
+	 * @deprecated 11.0
+	 */
 	public function isWlEnabled() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -277,7 +284,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function isWlHideUpdates() :bool {
-		return $this->isWlEnabled() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
+		return $this->isEnabledWhitelabel() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
 	/**

@@ -36,15 +36,16 @@ class UI extends Base\UI {
 					'scripts' => []
 				],
 				'ajax'    => [
-					'sec_admin_login' => $mod->getSecAdminLoginAjaxData(),
+					'sec_admin_login' => $con->getModule_SecAdmin()->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'has_session' => $con->getModule_Sessions()
-										 ->getSessionCon()
-										 ->hasSession()
+					'has_session'              => $con->getModule_Sessions()
+													  ->getSessionCon()
+													  ->hasSession(),
+					'display_freshdesk_widget' => !$mod->isEnabledWhitelabel()
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $con->getModule_SecAdmin()->isWlEnabled() ?
+					'aar_forget_key' => $con->getModule_SecAdmin()->isEnabledWhitelabel() ?
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
 				],
 				'classes' => [

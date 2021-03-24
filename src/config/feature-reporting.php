@@ -14,6 +14,21 @@
     "run_if_wpcli":          true,
     "tracking_exclude":      true
   },
+  "menu_items":       [
+    {
+      "title":     "Stats (beta)",
+      "slug":      "stats-redirect"
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "stats-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "reports"
+      }
+    }
+  ],
   "sections":    [
     {
       "slug":        "section_timings",

@@ -19,8 +19,7 @@
   "menu_items":       [
     {
       "title":    "Audit Trail",
-      "slug":     "audit-redirect",
-      "callback": ""
+      "slug":     "audit-redirect"
     }
   ],
   "custom_redirects": [

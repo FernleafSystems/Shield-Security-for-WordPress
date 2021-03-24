@@ -171,8 +171,8 @@ class UI {
 		$con = $this->getCon();
 		$urlBuilder = $con->urls;
 
-		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
-		$oPluginOptions = $con->getModule_Plugin()->getOptions();
+		/** @var Shield\Modules\Plugin\Options $pluginOptions */
+		$pluginOptions = $con->getModule_Plugin()->getOptions();
 
 		return [
 			'sPluginName'   => $con->getHumanName(),
@@ -217,16 +217,16 @@ class UI {
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
-				'access_restricted'     => !$mod->canDisplayOptionsForm(),
-				'show_ads'              => $mod->getIsShowMarketing(),
-				'wrap_page_content'     => true,
-				'show_standard_options' => true,
-				'show_content_help'     => true,
-				'show_alt_content'      => false,
-				'has_wizard'            => $mod->hasWizard(),
-				'is_premium'            => $con->isPremiumActive(),
-				'show_transfer_switch'  => $con->isPremiumActive(),
-				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
+				'access_restricted'        => !$mod->canDisplayOptionsForm(),
+				'show_ads'                 => $mod->getIsShowMarketing(),
+				'wrap_page_content'        => true,
+				'show_standard_options'    => true,
+				'show_content_help'        => true,
+				'show_alt_content'         => false,
+				'has_wizard'               => $mod->hasWizard(),
+				'is_premium'               => $con->isPremiumActive(),
+				'show_transfer_switch'     => $con->isPremiumActive(),
+				'is_wpcli'                 => $pluginOptions->isEnabledWpcli(),
 			],
 			'hrefs'      => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',

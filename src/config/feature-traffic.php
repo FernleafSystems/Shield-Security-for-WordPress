@@ -19,8 +19,7 @@
   "menu_items":       [
     {
       "title":    "Traffic Log",
-      "slug":     "traffic-redirect",
-      "callback": ""
+      "slug":     "traffic-redirect"
     }
   ],
   "custom_redirects": [

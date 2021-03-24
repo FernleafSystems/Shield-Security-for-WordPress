@@ -107,7 +107,6 @@ class ModCon extends BaseShield\ModCon {
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'plugin_export':
-				header( 'Set-Cookie: fileDownload=true; path=/' );
 				( new Lib\ImportExport\Export() )
 					->setMod( $this )
 					->toFile();

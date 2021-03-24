@@ -23,13 +23,10 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function updateTransgressions( $IP, $offenseCount ) {
-		return $this->updateEntry(
-			$IP,
-			[
-				'transgressions' => max( 0, $offenseCount ),
-				'last_access_at' => Services::Request()->ts()
-			]
-		);
+		return $this->updateEntry( $IP, [
+			'transgressions' => max( 0, $offenseCount ),
+			'last_access_at' => Services::Request()->ts()
+		] );
 	}
 
 	/**

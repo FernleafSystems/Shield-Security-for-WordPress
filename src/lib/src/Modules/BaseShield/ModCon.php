@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -26,10 +27,7 @@ class ModCon extends Base\ModCon {
 			->canWrite();
 	}
 
-	/**
-	 * @return Shield\Databases\Session\Handler
-	 */
-	public function getDbHandler_Sessions() {
+	public function getDbHandler_Sessions() :Shield\Databases\Session\Handler {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getDbHandler_Sessions();
@@ -45,11 +43,8 @@ class ModCon extends Base\ModCon {
 					->getCurrent();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasValidRequestIP() {
-		return Services::IP()->isValidIp( Services::IP()->getRequestIp() );
+	public function hasValidRequestIP() :bool {
+		return !empty( Services::IP()->isValidIp( Services::IP()->getRequestIp() ) );
 	}
 
 	public function onWpInit() {
@@ -92,11 +87,14 @@ class ModCon extends Base\ModCon {
 		return $cfg;
 	}
 
+	/**
+	 * @deprecated 11.0
+	 */
 	public function getSecAdminLoginAjaxData() :array {
 		// We set a custom mod_slug so that this module handles the ajax request
-		$dat = $this->getAjaxActionData( 'sec_admin_login' );
-		$dat[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $dat;
+		$data = $this->getAjaxActionData( 'sec_admin_login' );
+		$data[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $data;
 	}
 
 	protected function getSecAdminCheckAjaxData() :array {
@@ -172,14 +170,22 @@ class ModCon extends Base\ModCon {
 
 			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
 
-			// iControlWP / ManageWP
-			self::$bVisitorIsWhitelisted =
-				in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() )
-				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-					   ->setIP( Services::IP()->getRequestIp() )
-					   ->setListTypeWhite()
-					   ->lookup() instanceof Shield\Databases\IPs\EntryVO;
+			$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
+
+			if ( is_array( $untrustedProviders ) && in_array( $ipID, $untrustedProviders ) ) {
+				self::$bVisitorIsWhitelisted = false;
+			}
+			elseif ( in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() ) ) {
+				self::$bVisitorIsWhitelisted = true; // iControlWP / ManageWP
+			}
+			else {
+				self::$bVisitorIsWhitelisted =
+					( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+						->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+						->setIP( Services::IP()->getRequestIp() )
+						->setListTypeWhite()
+						->lookup() instanceof Shield\Databases\IPs\EntryVO;
+			}
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
@@ -195,6 +201,12 @@ class ModCon extends Base\ModCon {
 									] );
 		}
 		return self::$bIsVerifiedBot;
+	}
+
+	public function isEnabledWhitelabel() :bool {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
+		return $opts->isEnabledWhitelabel();
 	}
 
 	public function isXmlrpcBypass() :bool {

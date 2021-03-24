@@ -63,6 +63,7 @@ class EventListener {
 				'bottrack_invalidscript'  => 'btinvalidscript',
 				'cooldown_fail'           => 'cooldown',
 				'recaptcha_success'       => 'captchapass',
+				'request_limit_exceeded'  => 'ratelimit',
 				'recaptcha_fail'          => 'captchafail',
 				'spam_block_human'        => 'humanspam',
 				'comment_markspam'        => 'markspam',
