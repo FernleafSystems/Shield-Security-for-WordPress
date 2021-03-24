@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
+	protected function processNonAuthAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
 			case 'comment_token'.Services::IP()->getRequestIp():

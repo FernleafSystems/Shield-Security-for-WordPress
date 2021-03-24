@@ -62,7 +62,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledCaptcha() :bool {
-		return !$this->isOpt( 'google_recaptcha_style_comments', 'disabled' );
+		return !$this->isOpt( 'google_recaptcha_style_comments', 'disabled' ) && !$this->isEnabledAntiBot();
 	}
 
 	public function isEnabledHumanCheck() :bool {

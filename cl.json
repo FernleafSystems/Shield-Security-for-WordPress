@@ -47,17 +47,16 @@
       },
       {
         "type":        "new",
-        "title":       "Download Audit Trail, Traffic Log and IP DB as CSV.",
-        "description": [
-          "A long-requested feature is the ability to download the raw database data - you can now do this with a single click."
-        ]
-      },
-      {
-        "type":        "new",
         "title":       "Added some new filters and hooks to allow customisation.",
         "description": [
           "For example, you can override the hour at which the Shield crons run, including the scans."
         ]
+      },
+      {
+        "type":        "new",
+        "title":       "Allow webmaster to specify certain web crawlers and search engines aren't automatically whitelisted.",
+        "description": [],
+        "href":        "https://shsec.io/jt"
       },
       {
         "type":        "improved",

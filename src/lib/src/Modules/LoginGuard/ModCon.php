@@ -43,6 +43,11 @@ class ModCon extends BaseShield\ModCon {
 
 		$this->cleanLoginUrlPath();
 		$this->ensureCorrectCaptchaConfig();
+
+		if ( $opts->isEnabledAntiBot() ) {
+			$opts->setOpt( 'enable_google_recaptcha_login', 'disabled' );
+			$opts->setOpt( 'enable_login_gasp_check', 'N' );
+		}
 	}
 
 	public function ensureCorrectCaptchaConfig() {

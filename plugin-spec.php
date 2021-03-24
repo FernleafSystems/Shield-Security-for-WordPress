@@ -68,7 +68,7 @@
     },
     "register":     {
       "css": {
-        "bootstrap":             {
+        "bootstrap":              {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/css/bootstrap.min.css"
         },
         "select2":                {
@@ -108,14 +108,14 @@
         "introjs":                {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/introjs.min.css"
         },
-        "shield/charts":           {
+        "shield/charts":          {
           "deps": [
             "plugin"
           ]
         }
       },
       "js":  {
-        "bootstrap":              {
+        "bootstrap":               {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
@@ -179,9 +179,20 @@
           ]
         },
         "shuffle":                 {},
-        "shield/shuffle":     {
+        "shield/shuffle":          {
           "deps": [
             "shuffle"
+          ]
+        },
+        "shield/comments":         {
+          "deps":   [
+            "wp-jquery"
+          ],
+          "footer": true
+        },
+        "shield/loginbot":         {
+          "deps": [
+            "wp-jquery"
           ]
         },
         "shield/tables":           {
@@ -215,7 +226,7 @@
         },
         "shield/mainwp-extension": {
           "deps": [
-            "jquery"
+            "wp-jquery"
           ]
         },
         "shield/userprofile":      {
@@ -229,6 +240,20 @@
             "u2f-bundle",
             "wp-jquery"
           ]
+        },
+        "tp/grecaptcha":           {
+          "url": "https://www.google.com/recaptcha/api.js",
+          "attributes": {
+            "async": "async",
+            "defer": "defer"
+          }
+        },
+        "tp/hcaptcha":             {
+          "url": "https://hcaptcha.com/1/api.js",
+          "attributes": {
+            "async": "async",
+            "defer": "defer"
+          }
         }
       }
     }

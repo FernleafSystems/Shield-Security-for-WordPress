@@ -98,6 +98,7 @@ class Enqueue {
 
 		$incl = $con->cfg->includes[ 'register' ];
 
+		$includesService = Services::Includes();
 		foreach ( array_keys( $assetKeys ) as $type ) {
 
 			foreach ( $incl[ $type ] as $key => $spec ) {
@@ -120,6 +121,12 @@ class Enqueue {
 							$con->getVersion(),
 							$spec[ 'footer' ] ?? false
 						);
+					}
+
+					if ( !empty( $spec[ 'attributes' ] ) ) {
+						foreach ( $spec[ 'attributes' ] as $attribute => $value ) {
+							$includesService->addIncludeAttribute( $handle, $attribute, $value );
+						}
 					}
 
 					if ( $reg ) {
