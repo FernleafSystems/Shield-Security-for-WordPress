@@ -923,6 +923,7 @@ abstract class ModCon {
 			case 'file_download':
 				$id = Services::Request()->query( 'download_id', '' );
 				if ( !empty( $id ) ) {
+					header( 'Set-Cookie: fileDownload=true; path=/' );
 					$this->handleFileDownload( $id );
 				}
 				break;
