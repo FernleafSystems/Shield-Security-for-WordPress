@@ -23,6 +23,9 @@ class Enqueue {
 		}
 	}
 
+	/**
+	 * TODO: Consider how to move this to our standardised Enqueue system.
+	 */
 	public function onWpEnqueueJs() {
 		/** @var ModCon $oMod */
 		$oMod = $this->getMod();

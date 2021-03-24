@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -9,9 +10,49 @@ class GaspJs extends BaseProtectionProvider {
 
 	public function setup() {
 		if ( Services::Request()->query( 'wp_service_worker', 0 ) != 1 ) {
-			add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
-			add_action( 'login_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
+			add_action( 'wp', [ $this, 'enqueueJS' ] );
+			add_action( 'login_init', [ $this, 'enqueueJS' ] );
 		}
+	}
+
+	public function enqueueJS() {
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
+			$enqueues[ Enqueue::JS ][] = 'shield/loginbot';
+
+			add_filter( 'shield/custom_localisations', function ( array $localz ) {
+				/** @var LoginGuard\ModCon $mod */
+				$mod = $this->getMod();
+				/** @var LoginGuard\Options $opts */
+				$opts = $this->getOptions();
+
+				$ts = Services::Request()->ts();
+				$nonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
+				$nonce[ 'ts' ] = $ts;
+				$nonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
+
+				$localz[] = [
+					'shield/loginbot',
+					'icwp_wpsf_vars_lpantibot',
+					[
+						'form_selectors' => implode( ',', $opts->getAntiBotFormSelectors() ),
+						'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+						'cbname'         => $mod->getGaspKey(),
+						'strings'        => [
+							'label'   => $mod->getTextImAHuman(),
+							'alert'   => $mod->getTextPleaseCheckBox(),
+							'loading' => __( 'Loading', 'wp-simple-firewall' )
+						],
+						'flags'          => [
+							'gasp'    => $opts->isEnabledGaspCheck(),
+							'captcha' => $mod->isEnabledCaptcha(),
+						]
+					]
+				];
+				return $localz;
+			} );
+
+			return $enqueues;
+		} );
 	}
 
 	/**
@@ -67,46 +108,6 @@ class GaspJs extends BaseProtectionProvider {
 			$this->processFailure();
 			throw new \Exception( $errorMsg );
 		}
-	}
-
-	public function onWpEnqueueJs() {
-		$con = $this->getCon();
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-
-		$asset = 'login-antibot';
-		$uniq = $con->prefix( $asset );
-		wp_register_script(
-			$uniq,
-			$con->urls->forJs( $asset ),
-			[ 'jquery' ],
-			$con->getVersion(),
-			true
-		);
-		wp_enqueue_script( $uniq );
-
-		wp_localize_script(
-			$uniq,
-			'icwp_wpsf_vars_lpantibot',
-			[
-				'form_selectors' => implode( ',', $opts->getAntiBotFormSelectors() ),
-				'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-				'cbname'         => $mod->getGaspKey(),
-				'strings'        => [
-					'label'   => $mod->getTextImAHuman(),
-					'alert'   => $mod->getTextPleaseCheckBox(),
-					'loading' => __( 'Loading', 'wp-simple-firewall' )
-				],
-				'flags'          => [
-					'gasp'    => $opts->isEnabledGaspCheck(),
-					'captcha' => $mod->isEnabledCaptcha(),
-				]
-			]
-		);
-
-		$this->enqueueHandles[] = $uniq;
 	}
 
 	/**
