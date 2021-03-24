@@ -178,7 +178,9 @@
             "plugin"
           ]
         },
-        "shuffle":                 {},
+        "shuffle":                 {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/Shuffle/5.3.0/shuffle.min.js"
+        },
         "shield/shuffle":          {
           "deps": [
             "shuffle"
