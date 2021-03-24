@@ -1614,7 +1614,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function buildPrivacyPolicyContent() {
 		try {
-			if ( $this->getModule_SecAdmin()->isWlEnabled() ) {
+			if ( $this->getModule_SecAdmin()->isEnabledWhitelabel() ) {
 				$name = $this->getHumanName();
 				$href = $this->getLabels()[ 'PluginURI' ];
 			}

@@ -96,7 +96,7 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
-				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
+				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
 			]
 		];
 
@@ -140,7 +140,7 @@ class LoginIntentPage {
 				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
+				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
 				'has_u2f'            => isset( $oIC->getProvidersForUser(
 						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
