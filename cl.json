@@ -1,10 +1,10 @@
 {
   "11.0": {
     "version":     "11.0",
-    "released_at": 1613037000,
+    "released_at": 1616666000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease110",
-      "upgrade": "https://shsec.io/shieldupgradeguide110"
+      "release": "https://shsec.io/shieldrelease1100",
+      "upgrade": "https://shsec.io/shieldupgradeguide1100"
     },
     "href":        "https://shsec.io/",
     "title":       "All-New Shield AntiBot Detection Engine",
@@ -50,11 +50,12 @@
         "title":       "Added some new filters and hooks to allow customisation.",
         "description": [
           "For example, you can override the hour at which the Shield crons run, including the scans."
-        ]
+        ],
+        "href":        "https://shsec.io/jv"
       },
       {
         "type":        "new",
-        "title":       "Allow webmaster to specify certain web crawlers and search engines aren't automatically whitelisted.",
+        "title":       "Allow webmaster to specify certain web crawlers and search engines that aren't automatically whitelisted.",
         "description": [],
         "href":        "https://shsec.io/jt"
       },
@@ -65,7 +66,7 @@
       },
       {
         "type":        "improved",
-        "title":       "Use CDNJS to deliver several important plugin Javascript/CSS assets.",
+        "title":       "Use CDNJS to supply important plugin Javascript/CSS assets.",
         "description": [
           "Using a CDN to deliver assets reduces the plugin footprint on your site, while also speeding up admin page loading."
         ]
