@@ -190,8 +190,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
-		$new = $this->getDbH( 'filelocker' );
-		return empty( $new ) ? $this->getDbH( 'file_protect' ) : $new;
+		return $this->getDbH( 'filelocker' );
 	}
 
 	public function getDbHandler_ScanQueue() :Databases\ScanQueue\Handler {

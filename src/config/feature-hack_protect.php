@@ -407,7 +407,6 @@
   ],
   "definitions":      {
     "db_classes":                          {
-      "file_protect": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "filelocker":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "scanner":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
       "scanq":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
@@ -463,17 +462,6 @@
       "ufc"
     ],
     "table_name_filelocker":               "filelocker",
-    "table_columns_filelocker":            {
-      "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
-      "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
-      "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
-      "content":       "MEDIUMBLOB COMMENT 'Content'",
-      "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'",
-      "detected_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Change Last Detected'",
-      "reverted_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Reverted To Backup'",
-      "notified_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Notification Sent'",
-      "updated_at":    "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated'"
-    },
     "url_mal_sigs_simple":                 "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":                  "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "malware_whitelist_paths":             [

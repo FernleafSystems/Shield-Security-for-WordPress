@@ -23,9 +23,7 @@ class Insert extends BaseQuery {
 	 * @return bool
 	 */
 	public function insert( $entry ) :bool {
-		// @deprecated 10.3- get rid of casting after moving filelockerVO to normal VO
-		$data = (array)$entry->getRawData();
-		return $this->setInsertData( $data )->query() === 1;
+		return $this->setInsertData( $entry->getRawData() )->query() === 1;
 	}
 
 	/**
@@ -47,7 +45,7 @@ class Insert extends BaseQuery {
 	 */
 	protected function verifyInsertData() {
 		$baseData = [ 'created_at' => Services::Request()->ts() ];
-		if ( $this->getDbH()->hasColumn( 'updated_at' ) ) {
+		if ( $this->getDbH()->getTableSchema()->hasColumn( 'updated_at' ) ) {
 			$baseData[ 'updated_at' ] = Services::Request()->ts();
 		}
 		return $this->setInsertData( array_merge( $baseData, $this->getInsertData() ) );

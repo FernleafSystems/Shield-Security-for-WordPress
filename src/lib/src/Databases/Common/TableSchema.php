@@ -70,7 +70,7 @@ class TableSchema extends DynPropertiesClass {
 		return array_merge(
 			$this->getColumn_ID(),
 			$this->cols_custom ?? [],
-			method_exists( $this, 'getColumns_Timestamps' ) ? $this->getColumns_Timestamps() : $this->getColumnns_Timestamps()
+			$this->getColumns_Timestamps()
 		);
 	}
 
@@ -87,35 +87,6 @@ class TableSchema extends DynPropertiesClass {
 	 * @return string[]
 	 */
 	protected function getColumns_Timestamps() :array {
-
-		$standardTsCols = [
-			'created_at' => 'Created At',
-			'deleted_at' => 'Soft Deleted At',
-		];
-
-		if ( $this->has_updated_at && !array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
-			$standardTsCols = array_merge(
-				[ 'updated_at' => 'Updated At', ],
-				$standardTsCols
-			);
-		}
-
-		return array_map(
-			function ( $comment ) {
-				return $this->getTimestampColDef( $comment );
-			},
-			array_merge(
-				$this->cols_timestamps ?? [],
-				$standardTsCols
-			)
-		);
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 10.3
-	 */
-	protected function getColumnns_Timestamps() :array {
 
 		$standardTsCols = [
 			'created_at' => 'Created At',

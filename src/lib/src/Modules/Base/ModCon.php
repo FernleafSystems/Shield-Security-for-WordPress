@@ -1256,13 +1256,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * Override this with custom JS vars for your particular module.
-	 * @deprecated 10.2
-	 */
-	public function insertCustomJsVars_Admin() {
-	}
-
-	/**
 	 * @param array  $aData
 	 * @param string $sSubView
 	 */

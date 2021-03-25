@@ -186,15 +186,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param $key
-	 * @return mixed|null
-	 * @deprecated 10.3
-	 */
-	private function __adapterGet( $key ) {
-		return $this->getRawData()[ $key ] ?? null;
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	private function loadServices() {
@@ -872,17 +863,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 10.2
-	 */
-	public function getPluginSpec() {
-		if ( isset( $this->cfg ) ) {
-			return $this->cfg->getRawData();
-		}
-		return $this->getPluginControllerOptions()->plugin_spec;
-	}
-
-	/**
 	 * @param string $key
 	 * @return string|null
 	 */
@@ -998,20 +978,6 @@ class Controller extends DynPropertiesClass {
 		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
 	}
 
-	/**
-	 * @deprecated 10.2
-	 */
-	public function getPluginUrl_Image( string $asset ) :string {
-		return $this->urls->forImage( $asset );
-	}
-
-	/**
-	 * @deprecated 10.3
-	 */
-	public function getPluginUrl_Js( string $asset ) :string {
-		return $this->urls->forJs( $asset );
-	}
-
 	public function getPluginUrl_AdminMainPage() :string {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
@@ -1019,33 +985,6 @@ class Controller extends DynPropertiesClass {
 	public function getPath_Assets( string $asset = '' ) :string {
 		$base = path_join( $this->getRootDir(), $this->cfg->paths[ 'assets' ] );
 		return empty( $asset ) ? $base : path_join( $base, ltrim( $asset, '/' ) );
-	}
-
-	/**
-	 * @param string $flag
-	 * @return string
-	 * @deprecated 10.3
-	 */
-	public function getPath_Flags( string $flag = '' ) :string {
-		if ( isset( $this->paths ) ) {
-			return $this->paths->forFlag( $flag );
-		}
-		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
-		return empty( $flag ) ? $base : path_join( $base, $flag );
-	}
-
-	/**
-	 * @param string $sTmpFile
-	 * @return string
-	 */
-	public function getPath_Temp( $sTmpFile = '' ) {
-		$sTempPath = null;
-
-		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'temp' ) );
-		if ( Services::WpFs()->mkdir( $sBase ) ) {
-			$sTempPath = $sBase;
-		}
-		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
 	}
 
 	public function getPath_AssetCss( string $asset = '' ) :string {

@@ -14,15 +14,11 @@ class Handler extends Base\Handler {
 		$this->tableTrimExcess( $opts->getMaxEntries() );
 	}
 
-	public function getCustomColumns() :array {
-		return $this->getOptions()->getDef( 'audit_trail_table_columns' );
-	}
-
+	/**
+	 * @return string
+	 * @deprecated 11.1
+	 */
 	protected function getDefaultTableName() :string {
 		return $this->getOptions()->getDef( 'audit_trail_table_name' );
-	}
-
-	protected function getTimestampColumns() :array {
-		return $this->getOptions()->getDef( 'audittrail_table_timestamp_columns' );
 	}
 }

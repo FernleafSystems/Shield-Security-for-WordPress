@@ -24,10 +24,4 @@ class ModCon extends BaseShield\ModCon {
 			$opts->getOpt( 'xcsp_custom', [] )
 		) ) ) );
 	}
-
-	/**
-	 * @deprecated 10.3
-	 */
-	private function cleanCspHosts() {
-	}
 }
