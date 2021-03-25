@@ -7,11 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 /**
  * Class EntryVO
  *
- * @property string $$ip
+ * @property int    $rid
+ * @property string $ip
  * @property string $message
  * @property string $wp_username
- * @property string $rid
- * @property string $ip
  * @property string $event
  * @property string $context
  * @property string $category
