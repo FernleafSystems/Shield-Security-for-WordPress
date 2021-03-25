@@ -28,7 +28,7 @@ class WooCommerce extends BaseFormProvider {
 	}
 
 	protected function lostpassword() {
-		add_action( 'woocommerce_lostpassword_form', [ $this, 'formInsertsPrint' ] );
+		add_action( 'woocommerce_lostpassword_form', [ $this, 'printFormInsert' ] );
 	}
 
 	protected function woocheckout() {
@@ -52,7 +52,7 @@ class WooCommerce extends BaseFormProvider {
 	public function formInsertsPrint_WooLogin() {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$sInserts = $this->formInsertsBuild();
+		$sInserts = $this->buildFormInsert();
 		if ( $mod->getCaptchaCfg()->invisible ) {
 			$sInserts .= '<input type="hidden" name="login" value="Log in" />';
 		}
@@ -65,7 +65,7 @@ class WooCommerce extends BaseFormProvider {
 	public function formInsertsPrint_WooRegister() {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$sInserts = $this->formInsertsBuild();
+		$sInserts = $this->buildFormInsert();
 		if ( $mod->getCaptchaCfg()->invisible ) {
 			$sInserts .= '<input type="hidden" name="register" value="Register" />';
 		}
@@ -79,7 +79,7 @@ class WooCommerce extends BaseFormProvider {
 	 */
 	public function formInsertsPrintCheckout( $oCheckout ) {
 		if ( $oCheckout instanceof \WC_Checkout && $oCheckout->is_registration_enabled() ) {
-			$this->formInsertsPrint();
+			$this->printFormInsert();
 		}
 	}
 

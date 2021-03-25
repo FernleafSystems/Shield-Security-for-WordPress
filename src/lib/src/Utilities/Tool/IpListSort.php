@@ -9,21 +9,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 class IpListSort {
 
 	/**
-	 * @param string[] $aIPs
+	 * @param string[] $IPs
 	 * @return array
 	 */
-	public static function Sort( $aIPs ) {
-		if ( is_array( $aIPs ) ) {
-			$aIp4 = array_filter( $aIPs, function ( $sIP ) {
+	public static function Sort( $IPs ) :array {
+		if ( is_array( $IPs ) ) {
+			$ip4 = array_filter( $IPs, function ( $sIP ) {
 				return strpos( $sIP, '.' ) > 0;
 			} );
-			$aIp6 = array_filter( $aIPs, function ( $sIP ) {
+			$ip6 = array_filter( $IPs, function ( $sIP ) {
 				return strpos( $sIP, ':' ) > 0;
 			} );
-			asort( $aIp4 );
-			asort( $aIp6 );
-			$aIPs = array_merge( $aIp4, $aIp6 );
+			asort( $ip4 );
+			asort( $ip6 );
+			$IPs = array_merge( $ip4, $ip6 );
 		}
-		return is_array( $aIPs ) ? $aIPs : [];
+		return is_array( $IPs ) ? $IPs : [];
 	}
 }

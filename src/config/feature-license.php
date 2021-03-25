@@ -1,10 +1,10 @@
 {
-  "slug":          "license",
-  "properties":    {
+  "slug":             "license",
+  "properties":       {
     "slug":                  "license",
     "name":                  "Pro Security",
-    "menu_title":            "Go Pro!",
-    "show_module_menu_item": true,
+    "menu_title":            "",
+    "show_module_menu_item": false,
     "highlight_menu_item":   true,
     "tagline":               "The Best In WordPress Security, Only Better.",
     "auto_enabled":          true,
@@ -16,7 +16,7 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
   },
-  "admin_notices": {
+  "admin_notices":    {
     "wphashes-token-fail": {
       "id":               "wphashes-token-fail",
       "schedule":         "conditions",
@@ -26,13 +26,29 @@
       "type":             "error"
     }
   },
-  "sections":      [
+  "menu_items":       [
+    {
+      "title":     "Go PRO!",
+      "slug":      "pro-redirect",
+      "highlight": true
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "pro-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "license"
+      }
+    }
+  ],
+  "sections":         [
     {
       "slug":   "section_non_ui",
       "hidden": true
     }
   ],
-  "options":       [
+  "options":          [
     {
       "key":          "license_key",
       "section":      "section_non_ui",
@@ -123,7 +139,7 @@
       "default":      []
     }
   ],
-  "definitions":   {
+  "definitions":      {
     "license_store_url_api":        "https://api.getshieldsecurity.com/wp-json/odp-eddkeyless/v1",
     "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",

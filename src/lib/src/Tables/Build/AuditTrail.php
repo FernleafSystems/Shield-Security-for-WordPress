@@ -16,53 +16,50 @@ class AuditTrail extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		$aParams = $this->getParams();
-		/** @var Shield\Databases\AuditTrail\Select $oSelector */
-		$oSelector = $this->getWorkingSelector();
+		$params = $this->getParams();
+		/** @var Shield\Databases\AuditTrail\Select $selector */
+		$selector = $this->getWorkingSelector();
 
-		$oSelector->filterByEvent( $aParams[ 'fEvent' ] );
+		$selector->filterByEvent( $params[ 'fEvent' ] );
 
-		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
-		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( $aParams[ 'fIp' ] );
+		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {
+			$selector->filterByIp( $params[ 'fIp' ] );
 		}
-		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
-			$oSelector->filterByNotIp( $oIp->getRequestIp() );
+		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
+			$selector->filterByNotIp( Services::IP()->getRequestIp() );
 		}
 
 		/**
 		 * put this date stuff in the base so we can filter anything
 		 */
-		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
-			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
-			$sTs = Services::Request()->carbon()
-						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-						   ->setTime( 0, 0 )
-				->timestamp;
-			$oSelector->filterByCreatedAt( $sTs, '>' );
+		if ( !empty( $params[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $params[ 'fDateFrom' ] ) ) {
+			$aParts = explode( '-', $params[ 'fDateFrom' ] );
+			$ts = Services::Request()->carbon()
+						  ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						  ->setTime( 0, 0 )->timestamp;
+			$selector->filterByCreatedAt( $ts, '>' );
 		}
 
-		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
-			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
-			$sTs = Services::Request()->carbon()
-						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-						   ->setTime( 0, 0 )
-						   ->addDay()
-				->timestamp;
-			$oSelector->filterByCreatedAt( $sTs, '<' );
+		if ( !empty( $params[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $params[ 'fDateTo' ] ) ) {
+			$aParts = explode( '-', $params[ 'fDateTo' ] );
+			$ts = Services::Request()->carbon()
+						  ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						  ->setTime( 0, 0 )
+						  ->addDay()->timestamp;
+			$selector->filterByCreatedAt( $ts, '<' );
 		}
 
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-		if ( !empty( $aParams[ 'fUsername' ] ) ) {
-			$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
+		if ( !empty( $params[ 'fUsername' ] ) ) {
+			$selector->filterByUsername( $params[ 'fUsername' ] );
 		}
-		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
+		elseif ( $params[ 'fLoggedIn' ] >= 0 ) {
+			$selector->filterByIsLoggedIn( $params[ 'fLoggedIn' ] );
 		}
 
-		$oSelector->setOrderBy( 'updated_at', 'DESC', true )
-				  ->setOrderBy( 'created_at' );
+		$selector->setOrderBy( 'updated_at', 'DESC', true )
+				 ->setOrderBy( 'created_at' );
 
 		return $this;
 	}
@@ -83,80 +80,75 @@ class AuditTrail extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$aEntries = [];
+		$entries = [];
 
 		$srvIP = Services::IP();
 		$you = $srvIP->getRequestIp();
-		$oCon = $this->getCon();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
+		$con = $this->getCon();
+		foreach ( $this->getEntriesRaw() as $key => $entry ) {
+			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
 
-			$sMsg = 'Audit message could not be retrieved';
-			if ( empty( $oEntry->message ) ) {
+			$msg = 'Audit message could not be retrieved';
+			if ( empty( $entry->message ) ) {
 				/**
 				 * To cater for the contexts that don't refer to a module, but rather a context
 				 * with the Audit Trail module
 				 */
-				$mod = $oCon->getModule( $oEntry->context );
+				$mod = $con->getModule( $entry->context );
 				if ( empty( $mod ) ) {
-					$mod = $oCon->getModule_AuditTrail();
+					$mod = $con->getModule_AuditTrail();
 				}
-				$oStrings = $mod->getStrings();
 
-				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
-					$sMsg = stripslashes( sanitize_textarea_field(
-						vsprintf(
-							implode( "\n", $oStrings->getAuditMessage( $oEntry->event ) ),
-							$oEntry->meta
-						)
-					) );
-				}
+				$msg = Shield\Modules\AuditTrail\Lib\AuditMessageBuilder::Build(
+					$entry, $mod->getStrings()->getAuditMessage( $entry->event )
+				);
 			}
 			else {
-				$sMsg = $oEntry->message;
+				$msg = $entry->message;
 			}
 
-			if ( !isset( $aEntries[ $oEntry->rid ] ) ) {
-				$aE = $oEntry->getRawDataAsArray();
-				$aE[ 'meta' ] = $oEntry->meta;
-				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
-				$aE[ 'message' ] = $sMsg;
-				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-				if ( $oEntry->wp_username == '-' ) {
-					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
+			if ( !isset( $entries[ $entry->rid ] ) ) {
+				$ent = $entry->getRawData();
+				$ent[ 'meta' ] = $entry->meta;
+				$ent[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $entry->event ) );
+				$ent[ 'message' ] = $msg;
+				$ent[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
+				if ( $entry->wp_username == '-' ) {
+					$ent[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
 				}
 
 				try {
-					$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+					$ent[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
 				}
 				catch ( \Exception $e ) {
-					$aE[ 'is_you' ] = false;
+					$ent[ 'is_you' ] = false;
 				}
 
-				if ( empty( $oEntry->ip ) ) {
-					$aE[ 'ip' ] = '';
+				if ( empty( $entry->ip ) ) {
+					$ent[ 'ip' ] = '';
 				}
 				else {
-					$aE[ 'ip' ] = sprintf( '%s%s',
-						$this->getIpAnalysisLink( $oEntry->ip ),
-						$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
+					$ent[ 'ip' ] = sprintf( '%s%s',
+						$this->getIpAnalysisLink( $entry->ip ),
+						$ent[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
 					);
 				}
 			}
 			else {
-				$aE = $aEntries[ $oEntry->rid ];
-				$aE[ 'message' ] .= "\n".$sMsg;
-				$aE[ 'category' ] = max( $aE[ 'category' ], $oEntry->category );
+				$ent = $entries[ $entry->rid ];
+				$ent[ 'meta' ] = Services::DataManipulation()->mergeArraysRecursive( $ent[ 'meta' ], $entry->meta );
+				$ent[ 'message' ] .= "\n".$msg;
+				$ent[ 'category' ] = max( $ent[ 'category' ], $entry->category );
 			}
 
-			if ( $oEntry->count > 1 ) {
-				$aE[ 'message' ] = $sMsg."\n"
-								   .sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $oEntry->count );
+			if ( $entry->count > 1 ) {
+				$ent[ 'message' ] = $msg."\n"
+									.sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $entry->count );
 			}
 
-			$aEntries[ $oEntry->rid ] = $aE;
+			$entries[ $entry->rid ] = $ent;
 		}
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

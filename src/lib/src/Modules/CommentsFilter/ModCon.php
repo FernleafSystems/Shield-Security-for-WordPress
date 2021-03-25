@@ -73,6 +73,11 @@ class ModCon extends BaseShield\ModCon {
 		);
 
 		$this->ensureCorrectCaptchaConfig();
+
+		if ( $opts->isEnabledAntiBot() ) {
+			$opts->setOpt( 'google_recaptcha_style_comments', 'disabled' );
+			$opts->setOpt( 'enable_comments_gasp_protection', 'N' );
+		}
 	}
 
 	public function isEnabledCaptcha() :bool {

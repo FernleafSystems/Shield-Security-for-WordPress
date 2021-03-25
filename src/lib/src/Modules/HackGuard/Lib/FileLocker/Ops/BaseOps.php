@@ -50,14 +50,14 @@ class BaseOps {
 	 * @return array
 	 * @throws \ErrorException
 	 */
-	protected function getPublicKey() {
-		$aPublicKey = ( new GetPublicKey() )
+	protected function getPublicKey() :array {
+		$key = ( new GetPublicKey() )
 			->setMod( $this->getMod() )
 			->retrieve();
-		if ( empty( $aPublicKey ) ) {
+		if ( empty( $key ) || !is_array( $key ) ) {
 			throw new \ErrorException( 'Cannot encrypt without a public key' );
 		}
-		return $aPublicKey;
+		return $key;
 	}
 
 	/**

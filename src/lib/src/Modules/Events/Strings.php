@@ -7,12 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @param string $sKey
+	 * @param string $eventKey
 	 * @return string
 	 */
-	public function getEventName( $sKey ) {
-		$aE = $this->getEventNames();
-		return empty( $aE[ $sKey ] ) ? '' : $aE[ $sKey ];
+	public function getEventName( $eventKey ) {
+		return $this->getEventNames()[ $eventKey ] ?? '';
 	}
 
 	/**
@@ -44,27 +43,31 @@ class Strings extends Base\Strings {
 			),
 			'bottrack_fakewebcrawler'      => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Fake Web Crawler' )
+				__( 'Fake Web Crawler', 'wp-simple-firewall' )
 			),
 			'bottrack_linkcheese'          => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Link Cheese' )
+				__( 'Link Cheese', 'wp-simple-firewall' )
 			),
 			'bottrack_loginfailed'         => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Failed Login' )
+				__( 'Failed Login', 'wp-simple-firewall' )
 			),
 			'bottrack_logininvalid'        => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Invalid Username Login' )
+				__( 'Invalid Username Login', 'wp-simple-firewall' )
 			),
 			'bottrack_useragent'           => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
-				__( 'Invalid User-Agent' )
+				__( 'Invalid User-Agent', 'wp-simple-firewall' )
 			),
 			'bottrack_xmlrpc'              => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
 				'XML-RPC'
+			),
+			'bottrack_invalidscript'       => sprintf( '%s: %s',
+				__( 'Bot Detection', 'wp-simple-firewall' ),
+				__( 'Invalid Script Load', 'wp-simple-firewall' )
 			),
 			'apc_alert_sent'               => sprintf( '%s: %s',
 				__( 'Alert Sent', 'wp-simple-firewall' ),
@@ -163,7 +166,7 @@ class Strings extends Base\Strings {
 			'cooldown_fail'                => __( '', 'wp-simple-firewall' ),
 			'honeypot_fail'                => __( '', 'wp-simple-firewall' ),
 			'botbox_fail'                  => __( '', 'wp-simple-firewall' ),
-			'login_block'                  => __( '', 'wp-simple-firewall' ),
+			'login_block'                  => __( 'Blocked Login', 'wp-simple-firewall' ),
 			'hide_login_url'               => __( '', 'wp-simple-firewall' ),
 			'2fa_success'                  => __( '', 'wp-simple-firewall' ),
 			'check_skip'                   => __( '', 'wp-simple-firewall' ),
@@ -219,7 +222,7 @@ class Strings extends Base\Strings {
 			),
 			'spam_block_recaptcha'         => sprintf( '%s: %s',
 				__( 'SPAM Blocked', 'wp-simple-firewall' ),
-				__( 'reCAPTCHA', 'wp-simple-firewall' )
+				__( 'CAPTCHA', 'wp-simple-firewall' )
 			),
 			'spam_block_human'             => sprintf( '%s: %s',
 				__( 'SPAM Blocked', 'wp-simple-firewall' ),

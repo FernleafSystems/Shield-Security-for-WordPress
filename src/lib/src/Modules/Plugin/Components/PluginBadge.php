@@ -74,7 +74,7 @@ class PluginBadge {
 		else {
 			$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
 			$name = $con->getHumanName();
-			$logo = $con->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' );
+			$logo = $con->urls->forImage( 'shield/shield-security-logo-colour-32px.png' );
 
 			$lic = $con->getModule_License()
 					   ->getLicenseHandler()

@@ -2,22 +2,42 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class TableBuilder
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
+ * Class TableSchema
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Common
+ * @property string   $slug
  * @property string   $table
  * @property string   $primary_key
  * @property string[] $cols_ids
  * @property string[] $cols_custom
  * @property string[] $cols_timestamps
+ * @property string   $col_older_than
+ * @property bool     $has_updated_at
+ * @property int      $autoexpire
+ * @property bool     $has_ip_col
+ * @property bool     $is_ip_binary
  */
-class TableSchema {
+class TableSchema extends DynPropertiesClass {
 
 	const PRIMARY_KEY = 'id';
-	use StdClassAdapter;
+
+	public function __get( $key ) {
+		switch ( $key ) {
+			case 'has_ip_col':
+				$val = array_key_exists( 'ip', $this->enumerateColumns() );
+				break;
+			case 'is_ip_binary':
+				$val = $this->has_ip_col && ( stripos( $this->cols_custom[ 'ip' ], 'varbinary' ) !== false );
+				break;
+			default:
+				$val = parent::__get( $key );
+				break;
+		}
+		return $val;
+	}
 
 	public function buildCreate() :string {
 		$cols = [];
@@ -50,7 +70,7 @@ class TableSchema {
 		return array_merge(
 			$this->getColumn_ID(),
 			$this->cols_custom ?? [],
-			$this->getColumnns_Timestamps()
+			method_exists( $this, 'getColumns_Timestamps' ) ? $this->getColumns_Timestamps() : $this->getColumnns_Timestamps()
 		);
 	}
 
@@ -66,17 +86,56 @@ class TableSchema {
 	/**
 	 * @return string[]
 	 */
-	protected function getColumnns_Timestamps() :array {
+	protected function getColumns_Timestamps() :array {
+
+		$standardTsCols = [
+			'created_at' => 'Created At',
+			'deleted_at' => 'Soft Deleted At',
+		];
+
+		if ( $this->has_updated_at && !array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
+			$standardTsCols = array_merge(
+				[ 'updated_at' => 'Updated At', ],
+				$standardTsCols
+			);
+		}
+
 		return array_map(
 			function ( $comment ) {
 				return $this->getTimestampColDef( $comment );
 			},
 			array_merge(
 				$this->cols_timestamps ?? [],
-				[
-					'created_at' => 'Created At',
-					'deleted_at' => 'Soft Deleted At',
-				]
+				$standardTsCols
+			)
+		);
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 10.3
+	 */
+	protected function getColumnns_Timestamps() :array {
+
+		$standardTsCols = [
+			'created_at' => 'Created At',
+			'deleted_at' => 'Soft Deleted At',
+		];
+
+		if ( $this->has_updated_at && !array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
+			$standardTsCols = array_merge(
+				[ 'updated_at' => 'Updated At', ],
+				$standardTsCols
+			);
+		}
+
+		return array_map(
+			function ( $comment ) {
+				return $this->getTimestampColDef( $comment );
+			},
+			array_merge(
+				$this->cols_timestamps ?? [],
+				$standardTsCols
 			)
 		);
 	}
@@ -91,5 +150,9 @@ class TableSchema {
 
 	protected function getPrimaryKeyColumnName() :string {
 		return $this->primary_key ?? static::PRIMARY_KEY;
+	}
+
+	public function hasColumn( string $col ) :bool {
+		return in_array( strtolower( $col ), $this->getColumnNames() );
 	}
 }

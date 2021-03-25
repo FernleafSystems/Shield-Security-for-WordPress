@@ -23,8 +23,8 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
-			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$aNewItems[] = $oItem->getRawDataAsArray();
+			foreach ( $oTempRs->getAllItems() as $item ) {
+				$aNewItems[] = $item->getRawData();
 			}
 		}
 		$oAction->results = $aNewItems;
@@ -73,7 +73,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			$oItem->slug = $sFile;
 			$oItem->context = $sContext;
 			$oItem->wpvuln_id = $oVo->id;
-			$oItem->wpvuln_vo = $oVo->getRawDataAsArray();
+			$oItem->wpvuln_vo = $oVo->getRawData();
 			$oResultsSet->addItem( $oItem );
 		}
 

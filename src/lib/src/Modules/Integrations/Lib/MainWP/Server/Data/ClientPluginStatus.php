@@ -34,7 +34,7 @@ class ClientPluginStatus {
 
 		if ( $this->isActive() ) {
 
-			if ( empty( $sync->getRawDataAsArray() ) ) {
+			if ( empty( $sync->getRawData() ) ) {
 				$status = self::NEED_SYNC;
 			}
 			elseif ( empty( $m->is_pro ) ) {

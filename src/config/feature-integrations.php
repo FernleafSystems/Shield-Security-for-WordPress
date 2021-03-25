@@ -28,6 +28,11 @@
       "title_short": "Integrations"
     },
     {
+      "slug":        "section_spam",
+      "title":       "SPAM Detection",
+      "title_short": "SPAM Detection"
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -43,10 +48,87 @@
       "name":        "Enable MainWP",
       "summary":     "Enable The Built-In MainWP Extension",
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
+    },
+    {
+      "key":         "enable_spam_antibot",
+      "section":     "section_spam",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "AntiBot SPAM Detection",
+      "summary":     "Enable The AntiBot SPAM Detection",
+      "description": "Use Shield's built-in AntiBot Detection Engine to identify contact form SPAM."
+    },
+    {
+      "key":           "form_spam_providers",
+      "section":       "section_spam",
+      "premium":       true,
+      "advanced":      true,
+      "type":          "multiple_select",
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "contactform7",
+          "text":      "Contact Form 7"
+        },
+        {
+          "value_key": "elementorpro",
+          "text":      "Elementor Pro"
+        },
+        {
+          "value_key": "fluentforms",
+          "text":      "Fluent Forms"
+        },
+        {
+          "value_key": "formidableforms",
+          "text":      "Formidable Forms"
+        },
+        {
+          "value_key": "forminator",
+          "text":      "Forminator"
+        },
+        {
+          "value_key": "gravityforms",
+          "text":      "Gravity Forms"
+        },
+        {
+          "value_key": "kaliforms",
+          "text":      "Kali Forms"
+        },
+        {
+          "value_key": "ninjaforms",
+          "text":      "Ninja Forms"
+        },
+        {
+          "value_key": "wpforo",
+          "text":      "wpForo"
+        },
+        {
+          "value_key": "wpforms",
+          "text":      "WPForms"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "SPAM Form Checking",
+      "summary":       "Select The Form Providers That Should Be Checked For SPAM",
+      "description":   "Select The Form Providers That Should Be Checked For SPAM."
     }
   ],
   "definitions": {
     "events": {
+      "spam_form_pass": {
+        "stat":    true,
+        "audit":   true,
+        "offense": false
+      },
+      "spam_form_fail": {
+        "stat":  true,
+        "audit": true,
+        "offense": false
+      }
     }
   }
 }

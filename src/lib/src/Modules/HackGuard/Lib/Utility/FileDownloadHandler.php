@@ -11,19 +11,19 @@ class FileDownloadHandler {
 	use HandlerConsumer;
 
 	/**
-	 * @param int $nItemId
+	 * @param int $itemID
 	 */
-	public function downloadByItemId( $nItemId ) {
-		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $this->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( (int)$nItemId );
-		if ( $oEntry instanceof Scanner\EntryVO && !empty( $oEntry->meta[ 'path_full' ] ) ) {
-			$sPath = $oEntry->meta[ 'path_full' ];
-			$oFs = Services::WpFs();
-			if ( $oFs->isFile( $sPath ) ) {
+	public function downloadByItemId( int $itemID ) {
+		/** @var Scanner\EntryVO $entry */
+		$entry = $this->getDbHandler()
+					  ->getQuerySelector()
+					  ->byId( (int)$itemID );
+		if ( $entry instanceof Scanner\EntryVO && !empty( $entry->meta[ 'path_full' ] ) ) {
+			$path = $entry->meta[ 'path_full' ];
+			$FS = Services::WpFs();
+			if ( $FS->isFile( $path ) ) {
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				Services::Response()->downloadStringAsFile( $oFs->getFileContent( $sPath ), basename( $sPath ) );
+				Services::Response()->downloadStringAsFile( $FS->getFileContent( $path ), basename( $path ) );
 			}
 		}
 

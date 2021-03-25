@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Handshake;
 
@@ -8,11 +8,8 @@ class Verify extends Common\BaseShieldNetApi {
 
 	const API_ACTION = 'handshake/verify';
 
-	/**
-	 * @return bool
-	 */
-	public function run() {
-		$aRaw = $this->sendReq();
-		return is_array( $aRaw ) && !empty( $aRaw[ 'data' ][ 'success' ] );
+	public function run() :bool {
+		$raw = $this->sendReq();
+		return is_array( $raw ) && !empty( $raw[ 'data' ][ 'success' ] );
 	}
 }

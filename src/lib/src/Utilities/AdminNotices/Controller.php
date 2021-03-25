@@ -18,31 +18,31 @@ class Controller {
 
 	/**
 	 * TODO doesn't handle error message highlighting
-	 * @param string $sMessage
+	 * @param string $msg
 	 * @return string
 	 */
-	public function onLoginMessage( $sMessage ) {
+	public function onLoginMessage( $msg ) {
 		$aM = $this->retrieveFlashMessage();
 		if ( is_array( $aM ) && isset( $aM[ 'show_login' ] ) && $aM[ 'show_login' ] ) {
-			$sMessage .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $aM[ 'message' ] ) );
+			$msg .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $aM[ 'message' ] ) );
 			$this->clearFlashMessage();
 		}
-		return $sMessage;
+		return $msg;
 	}
 
 	/**
-	 * @param string $sMessage
-	 * @param bool   $bIsError
+	 * @param string $msg
+	 * @param bool   $isError
 	 * @param bool   $bShowOnLoginPage
 	 * @return $this
 	 */
-	public function addFlash( $sMessage, $bIsError = false, $bShowOnLoginPage = false ) {
+	public function addFlash( $msg, $isError = false, $bShowOnLoginPage = false ) {
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 		if ( $oMeta instanceof PluginUserMeta ) {
 			$oMeta->flash_msg = [
-				'message'    => sanitize_text_field( $sMessage ),
+				'message'    => sanitize_text_field( $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
-				'error'      => $bIsError,
+				'error'      => $isError,
 				'show_login' => $bShowOnLoginPage,
 			];
 		}

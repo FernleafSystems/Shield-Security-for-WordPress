@@ -97,11 +97,11 @@ abstract class ICWP_WPSF_Wizard_Base {
 	public function renderWizardLandingPage() {
 		try {
 			$content = $this->getMod()
-							 ->renderTemplate(
-								 'wizard/pages/landing.twig',
-								 $this->getRenderData_PageWizardLanding(),
-								 true
-							 );
+							->renderTemplate(
+								'wizard/pages/landing.twig',
+								$this->getRenderData_PageWizardLanding(),
+								true
+							);
 		}
 		catch ( \Exception $e ) {
 			$content = $e->getMessage();
@@ -115,11 +115,11 @@ abstract class ICWP_WPSF_Wizard_Base {
 	public function renderWizardLandingSnippet() {
 		try {
 			$content = $this->getMod()
-							 ->renderTemplate(
-								 'wizard/snippets/wizard_landing.twig',
-								 $this->getRenderData_PageWizardLanding(),
-								 true
-							 );
+							->renderTemplate(
+								'wizard/snippets/wizard_landing.twig',
+								$this->getRenderData_PageWizardLanding(),
+								true
+							);
 		}
 		catch ( \Exception $e ) {
 			$content = $e->getMessage();
@@ -255,10 +255,10 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array[]
 	 */
 	protected function getRenderData_PageWizardLanding() {
-		/** @var ICWP_WPSF_FeatureHandler_Base $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$aWizards = $this->getModuleWizardsForRender();
+		$wizards = $this->getModuleWizardsForRender();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$mod->getUIHandler()->getBaseDisplayData(),
@@ -268,11 +268,13 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'premium_note' => 'Note: This uses features only available to Pro-licensed installations.'
 				],
 				'data'    => [
-					'mod_wizards_count' => count( $aWizards ),
-					'mod_wizards'       => $aWizards
+					'mod_wizards_count' => count( $wizards ),
+					'mod_wizards'       => $wizards
 				],
 				'hrefs'   => [
-					'dashboard'   => $mod->getUrl_AdminPage(),
+					'dashboard'   => $this->getCon()
+										  ->getModule_Insights()
+										  ->getUrl_SubInsightsPage( 'dashboard' ),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
@@ -312,7 +314,9 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [
-					'dashboard'   => $mod->getUrl_AdminPage(),
+					'dashboard'   => $this->getCon()
+										  ->getModule_Insights()
+										  ->getUrl_SubInsightsPage( 'dashboard' ),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
@@ -324,24 +328,19 @@ abstract class ICWP_WPSF_Wizard_Base {
 		);
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getPageTitle() {
+	protected function getPageTitle() :string {
 		return sprintf( __( '%s Wizard', 'wp-simple-firewall' ), $this->getMod()->getCon()->getHumanName() );
 	}
 
-	/**
-	 * @return string[]
-	 */
-	protected function buildSteps() {
+	protected function buildSteps() :array {
 		return $this->getUserCan() ? $this->determineWizardSteps() : [ 'no_access' ];
 	}
 
 	/**
+	 * @return array
 	 * @throws Exception
 	 */
-	protected function determineWizardSteps() {
+	protected function determineWizardSteps() :array {
 		throw new Exception( sprintf( 'Could not determine wizard steps for current wizard: %s', $this->getWizardSlug() ) );
 	}
 
@@ -395,21 +394,20 @@ abstract class ICWP_WPSF_Wizard_Base {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getRenderData_SlideBase() {
-		$oMod = $this->getMod();
+	protected function getRenderData_SlideBase() :array {
+		$mod = $this->getMod();
 		$aWizards = $this->getModuleWizardsForRender();
 		return [
-			'strings' => $oMod->getStrings()->getDisplayStrings()
+			'strings' => $mod->getStrings()->getDisplayStrings()
 			,
 			'flags'   => [
-				'is_premium'        => $oMod->isPremium(),
+				'is_premium'        => $mod->isPremium(),
 				'has_other_wizards' => false
 			],
 			'hrefs'   => [
-				'dashboard' => $oMod->getUrl_AdminPage(),
+				'dashboard' => $this->getCon()
+									->getModule_Insights()
+									->getUrl_SubInsightsPage( 'dashboard' ),
 				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'    => [],

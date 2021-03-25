@@ -14,6 +14,21 @@
     "run_if_wpcli":          true,
     "tracking_exclude":      true
   },
+  "menu_items":       [
+    {
+      "title":     "Stats (beta)",
+      "slug":      "stats-redirect"
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "stats-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "reports"
+      }
+    }
+  ],
   "sections":    [
     {
       "slug":        "section_timings",
@@ -119,20 +134,21 @@
     }
   ],
   "definitions": {
-    "db_classes":                      {
+    "db_classes":       {
       "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Reports\\Handler"
     },
-    "reports_table_name":              "reports",
-    "reports_table_columns":           {
-      "rid":             "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Report ID'",
-      "type":            "varchar(3) NOT NULL DEFAULT '' COMMENT 'Report Type'",
-      "frequency":       "varchar(10) NOT NULL DEFAULT '' COMMENT 'Report Interval/Frequency'",
-      "interval_end_at": "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS of end of interval'",
-      "sent_at":         "int(15) UNSIGNED NOT NULL DEFAULT 0"
-    },
-    "reports_table_timestamp_columns": {
-      "interval_end_at": "Reporting Interval End",
-      "sent_at":         "Report Sent"
+    "db_table_reports": {
+      "slug":            "reports",
+      "autoexpire":      30,
+      "cols_custom":     {
+        "rid":       "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Report ID'",
+        "type":      "varchar(3) NOT NULL DEFAULT '' COMMENT 'Report Type'",
+        "frequency": "varchar(10) NOT NULL DEFAULT '' COMMENT 'Report Interval/Frequency'"
+      },
+      "cols_timestamps": {
+        "interval_end_at": "Reporting Interval End",
+        "sent_at":         "Report Sent"
+      }
     }
   }
 }

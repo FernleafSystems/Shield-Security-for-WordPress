@@ -25,20 +25,20 @@ class CompleteQueue {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
-		/** @var Databases\ScanQueue\Handler $oDbH */
-		$oDbH = $this->getDbHandler();
-		$oSel = $oDbH->getQuerySelector();
+		/** @var Databases\ScanQueue\Handler $dbh */
+		$dbh = $this->getDbHandler();
+		$oSel = $dbh->getQuerySelector();
 
-		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
+		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $scanSlug ) {
 
-			$oScanCon = $mod->getScanCon( $sScanSlug );
+			$oScanCon = $mod->getScanCon( $scanSlug );
 
 			$oResultsSet = ( new CollateResults() )
 				->setScanController( $oScanCon )
-				->setDbHandler( $oDbH )
-				->collate( $sScanSlug );
+				->setDbHandler( $dbh )
+				->collate( $scanSlug );
 
-			$con->fireEvent( $sScanSlug.'_scan_run' );
+			$con->fireEvent( $scanSlug.'_scan_run' );
 
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
@@ -46,14 +46,14 @@ class CompleteQueue {
 					->update( $oResultsSet );
 
 				if ( $oResultsSet->countItems() > 0 ) {
-					$con->fireEvent( $sScanSlug.'_scan_found' );
+					$con->fireEvent( $scanSlug.'_scan_found' );
 				}
 			}
 
-			/** @var Databases\ScanQueue\Delete $oDel */
-			$oDel = $oDbH->getQueryDeleter();
-			$oDel->filterByScan( $sScanSlug )
-				 ->query();
+			/** @var Databases\ScanQueue\Delete $deleter */
+			$deleter = $dbh->getQueryDeleter();
+			$deleter->filterByScan( $scanSlug )
+					->query();
 		}
 
 		/** @var HackGuard\Options $opts */

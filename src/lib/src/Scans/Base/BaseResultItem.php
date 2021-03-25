@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
  * Class BaseResultItem
@@ -14,26 +14,20 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  */
 class BaseResultItem {
 
-	use StdClassAdapter;
+	use DynProperties;
 
-	/**
-	 * @return bool
-	 */
-	public function isReady() {
+	public function isReady() :bool {
 		return false;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function generateHash() {
-		return md5( json_encode( $this->getRawDataAsArray() ) );
+	public function generateHash() :string {
+		return md5( json_encode( $this->getRawData() ) );
 	}
 
 	/**
 	 * @return mixed
 	 */
 	public function getData() {
-		return isset( $this->data ) ? $this->data : $this->getRawDataAsArray();
+		return $this->data ?? $this->getRawData();
 	}
 }

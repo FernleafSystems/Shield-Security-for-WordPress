@@ -27,9 +27,9 @@ class StatsWriter extends EventsListener {
 
 	protected function onShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
-			/** @var Handler $oDbH */
-			$oDbH = $this->getDbHandler();
-			$oDbH->commitEvents( $this->getEventStats() );
+			/** @var Handler $dbh */
+			$dbh = $this->getDbHandler();
+			$dbh->commitEvents( $this->getEventStats() );
 			$this->setEventStats();
 		}
 	}

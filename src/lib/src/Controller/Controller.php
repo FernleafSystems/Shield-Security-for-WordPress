@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
  * @property Config\ConfigVO                                        $cfg
  * @property Shield\Controller\Assets\Urls                          $urls
+ * @property Shield\Controller\Assets\Paths                         $paths
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
  * @property bool                                                   $modules_loaded
@@ -20,18 +21,16 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
+ * @property bool                                                   $cache_dir_ready
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
  * @property string                                                 $root_file
+ * @property bool                                                   $is_my_upgrade
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
  */
-class Controller {
-
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
+class Controller extends DynPropertiesClass {
 
 	/**
 	 * @var \stdClass
@@ -146,8 +145,8 @@ class Controller {
 	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $key ) {
-		$val = $this->__adapterGet( $key );
+	public function __get( string $key ) {
+		$val = parent::__get( $key );
 
 		switch ( $key ) {
 
@@ -160,6 +159,13 @@ class Controller {
 			case 'urls':
 				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
 					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+				}
+				break;
+
+			case 'paths':
+				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
+					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
+					$this->paths = $val;
 				}
 				break;
 
@@ -177,6 +183,15 @@ class Controller {
 		}
 
 		return $val;
+	}
+
+	/**
+	 * @param $key
+	 * @return mixed|null
+	 * @deprecated 10.3
+	 */
+	private function __adapterGet( $key ) {
+		return $this->getRawData()[ $key ] ?? null;
 	}
 
 	/**
@@ -299,38 +314,72 @@ class Controller {
 	}
 
 	/**
-	 * @param string $sFilePath
+	 * @param string $cachePath
 	 * @return string|false
 	 */
-	public function getPluginCachePath( $sFilePath = '' ) {
-		if ( !$this->buildPluginCacheDir() ) {
-//			throw new \Exception( sprintf( 'Failed to create cache path: "%s"', $this->getPath_PluginCache() ) );
-			return false;
+	public function getPluginCachePath( $cachePath = '' ) {
+		$path = false;
+		if ( $this->hasCacheDir() ) {
+			try {
+				// Never throws an exception if "hasCacheDir" == true
+				$path = $this->buildPluginCacheDir();
+				if ( !empty( $cachePath ) ) {
+					$path = path_join( $path, $cachePath );
+				}
+			}
+			catch ( \Exception $e ) {
+			}
 		}
-		return path_join( $this->getPath_PluginCache(), $sFilePath );
+		return $path;
+	}
+
+	public function hasCacheDir() :bool {
+		try {
+			$buildCacheDir = $this->buildPluginCacheDir();
+		}
+		catch ( \Exception $e ) {
+			$buildCacheDir = false;
+		}
+		return $buildCacheDir;
 	}
 
 	/**
-	 * @return bool
+	 * @return string
+	 * @throws \Exception
 	 */
-	private function buildPluginCacheDir() {
-		$bSuccess = false;
-		$sBase = $this->getPath_PluginCache();
-		$oFs = Services::WpFs();
-		if ( $oFs->mkdir( $sBase ) ) {
-			$sHt = path_join( $sBase, '.htaccess' );
-			$sHtContent = "Options -Indexes\ndeny from all";
-			if ( !$oFs->exists( $sHt ) || ( md5_file( $sHt ) != md5( $sHtContent ) ) ) {
-				$oFs->putFileContent( $sHt, $sHtContent );
-			}
-			$sIndex = path_join( $sBase, 'index.php' );
-			$sIndexContent = "<?php\nhttp_response_code(404);";
-			if ( !$oFs->exists( $sIndex ) || ( md5_file( $sIndex ) != md5( $sIndexContent ) ) ) {
-				$oFs->putFileContent( $sIndex, $sIndexContent );
-			}
-			$bSuccess = true;
+	private function buildPluginCacheDir() :string {
+		$FS = Services::WpFs();
+
+		$cacheDirBasename = $this->cfg->paths[ 'cache' ];
+		if ( empty( $cacheDirBasename ) ) {
+			$this->cache_dir_ready = false;
+			throw new \Exception( 'No slug for cache dir' );
 		}
-		return $bSuccess;
+
+		$cacheDir = path_join( WP_CONTENT_DIR, $cacheDirBasename );
+		if ( empty( $this->cache_dir_ready ) && $FS->mkdir( $cacheDir ) ) {
+			$htFile = path_join( $cacheDir, '.htaccess' );
+			$htContent = implode( "\n", [
+				"# BEGIN SHIELD",
+				"Options -Indexes",
+				"Order allow,deny",
+				"Deny from all",
+				'<FilesMatch "^.*\.(css|js)$">',
+				" Allow from all",
+				'</FilesMatch>',
+				"# END SHIELD"
+			] );
+			if ( !$FS->exists( $htFile ) || ( md5_file( $htFile ) !== md5( $htContent ) ) ) {
+				$FS->putFileContent( $htFile, $htContent );
+			}
+			$index = path_join( $cacheDir, 'index.php' );
+			$indexContent = "<?php\nhttp_response_code(404);";
+			if ( !$FS->exists( $index ) || ( md5_file( $index ) !== md5( $indexContent ) ) ) {
+				$FS->putFileContent( $index, $indexContent );
+			}
+			$this->cache_dir_ready = true;
+		}
+		return $cacheDir;
 	}
 
 	protected function doRegisterHooks() {
@@ -350,7 +399,7 @@ class Controller {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ], -1 );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], PHP_INT_MIN );
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR
@@ -469,6 +518,9 @@ class Controller {
 		( new Admin\MainAdminMenu() )
 			->setCon( $this )
 			->execute();
+		( new Utilities\CaptureMyUpgrade() )
+			->setCon( $this )
+			->execute();
 	}
 
 	protected function initCrons() {
@@ -495,14 +547,14 @@ class Controller {
 	}
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	public function getNonceActionData( $sAction = '' ) {
+	public function getNonceActionData( $action = '' ) {
 		return [
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $sAction,
-			'exec_nonce' => wp_create_nonce( $sAction ),
+			'exec'       => $action,
+			'exec_nonce' => wp_create_nonce( $action ),
 			//			'rand'       => wp_rand( 10000, 99999 )
 		];
 	}
@@ -729,7 +781,7 @@ class Controller {
 		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
 			$key = 'icon_url_'.$dimension;
 			if ( !empty( $labels[ $key ] ) && !$oDP->isValidWebUrl( $labels[ $key ] ) ) {
-				$labels[ $key ] = $this->getPluginUrl_Image( $labels[ $key ] );
+				$labels[ $key ] = $this->urls->forImage( $labels[ $key ] );
 			}
 		}
 
@@ -752,11 +804,11 @@ class Controller {
 
 	protected function deleteFlags() {
 		$FS = Services::WpFs();
-		if ( $FS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
-			$FS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		if ( $FS->exists( $this->paths->forFlag( 'rebuild' ) ) ) {
+			$FS->deleteFile( $this->paths->forFlag( 'rebuild' ) );
 		}
 		if ( $this->getIsResetPlugin() ) {
-			$FS->deleteFile( $this->getPath_Flags( 'reset' ) );
+			$FS->deleteFile( $this->paths->forFlag( 'reset' ) );
 		}
 	}
 
@@ -825,7 +877,7 @@ class Controller {
 	 */
 	public function getPluginSpec() {
 		if ( isset( $this->cfg ) ) {
-			return $this->cfg->getRawDataAsArray();
+			return $this->cfg->getRawData();
 		}
 		return $this->getPluginControllerOptions()->plugin_spec;
 	}
@@ -835,11 +887,7 @@ class Controller {
 	 * @return string|null
 	 */
 	public function getPluginSpec_Path( string $key ) {
-		if ( isset( $this->cfg ) ) {
-			return $this->cfg->paths[ $key ];
-		}
-		$aData = $this->getPluginSpec()[ 'paths' ];
-		return $aData[ $key ] ?? null;
+		return $this->cfg->paths[ $key ] ?? null;
 	}
 
 	/**
@@ -847,15 +895,6 @@ class Controller {
 	 * @return mixed|null
 	 */
 	protected function getCfgProperty( string $key ) {
-		return $this->cfg->properties[ $key ] ?? null;
-	}
-
-	/**
-	 * @param string $key
-	 * @return mixed|null
-	 * @deprecated 10.2.0 - getCfgProperty()
-	 */
-	protected function getPluginSpec_Property( string $key ) {
 		return $this->cfg->properties[ $key ] ?? null;
 	}
 
@@ -936,17 +975,9 @@ class Controller {
 		return Services::WpGeneral()->getCurrentWpAdminPage() === $this->getPluginPrefix();
 	}
 
-	/**
-	 * @return bool
-	 * @deprecated 10.2
-	 */
-	public function getIsRebuildOptionsFromFile() :bool {
-		return $this->rebuild_options;
-	}
-
 	public function getIsResetPlugin() :bool {
 		if ( !isset( $this->plugin_reset ) ) {
-			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
+			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );
 		}
 		return (bool)$this->plugin_reset;
 	}
@@ -957,17 +988,6 @@ class Controller {
 
 	public function getParentSlug() :string {
 		return $this->getCfgProperty( 'slug_parent' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.2.0
-	 */
-	public function getPluginBaseFile() :string {
-		if ( !isset( $this->base_file ) ) {
-			$this->base_file = plugin_basename( $this->getRootFile() );
-		}
-		return $this->base_file;
 	}
 
 	public function getPluginSlug() :string {
@@ -981,32 +1001,12 @@ class Controller {
 	/**
 	 * @deprecated 10.2
 	 */
-	public function getPluginUrl_Asset( string $asset ) :string {
-		$url = '';
-		$sAssetPath = $this->getPath_Assets( $asset );
-		if ( Services::WpFs()->exists( $sAssetPath ) ) {
-			$url = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$asset );
-			return Services::Includes()->addIncludeModifiedParam( $url, $sAssetPath );
-		}
-		return $url;
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function getPluginUrl_Css( string $asset ) :string {
-		return $this->urls->forCss( $asset );
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
 	public function getPluginUrl_Image( string $asset ) :string {
 		return $this->urls->forImage( $asset );
 	}
 
 	/**
-	 * @deprecated 10.2
+	 * @deprecated 10.3
 	 */
 	public function getPluginUrl_Js( string $asset ) :string {
 		return $this->urls->forJs( $asset );
@@ -1017,11 +1017,19 @@ class Controller {
 	}
 
 	public function getPath_Assets( string $asset = '' ) :string {
-		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) );
-		return empty( $asset ) ? $base : path_join( $base, $asset );
+		$base = path_join( $this->getRootDir(), $this->cfg->paths[ 'assets' ] );
+		return empty( $asset ) ? $base : path_join( $base, ltrim( $asset, '/' ) );
 	}
 
+	/**
+	 * @param string $flag
+	 * @return string
+	 * @deprecated 10.3
+	 */
 	public function getPath_Flags( string $flag = '' ) :string {
+		if ( isset( $this->paths ) ) {
+			return $this->paths->forFlag( $flag );
+		}
 		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
 		return empty( $flag ) ? $base : path_join( $base, $flag );
 	}
@@ -1068,11 +1076,27 @@ class Controller {
 		return $this->getPath_SourceFile( $this->getPluginSpec_Path( 'autoload' ) );
 	}
 
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
 	public function getPath_PluginCache() :string {
-		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
+		$cacheSlug = $this->getPluginSpec_Path( 'cache' );
+		if ( empty( $cacheSlug ) ) {
+			throw new \Exception( 'Cache dir slug was empty' );
+		}
+		return path_join( WP_CONTENT_DIR, $cacheSlug );
 	}
 
+	/**
+	 * @param string $sourceFile
+	 * @return string
+	 * @deprecated 10.3
+	 */
 	public function getPath_SourceFile( string $sourceFile ) :string {
+		if ( isset( $this->paths ) ) {
+			return $this->paths->forSource( $sourceFile );
+		}
 		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) );
 		return empty( $sourceFile ) ? $base : path_join( $base, $sourceFile );
 	}
@@ -1081,8 +1105,11 @@ class Controller {
 		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
-	public function getPath_TemplatesFile( string $sTemplate ) :string {
-		return path_join( $this->getPath_Templates(), $sTemplate );
+	public function getPath_TemplatesFile( string $template ) :string {
+		if ( isset( $this->paths ) ) {
+			return $this->paths->forTemplate( $template );
+		}
+		return path_join( $this->getPath_Templates(), $template );
 	}
 
 	private function getPathPluginSpec() :string {
@@ -1334,7 +1361,7 @@ class Controller {
 	 * @return Shield\Modules\Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
-		$mod = isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : null;
+		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
 				$mods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
@@ -1587,7 +1614,7 @@ class Controller {
 	 */
 	private function buildPrivacyPolicyContent() {
 		try {
-			if ( $this->getModule_SecAdmin()->isWlEnabled() ) {
+			if ( $this->getModule_SecAdmin()->isEnabledWhitelabel() ) {
 				$name = $this->getHumanName();
 				$href = $this->getLabels()[ 'PluginURI' ];
 			}
@@ -1625,62 +1652,5 @@ class Controller {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpAdminMenu() {
-	}
-
-	/**
-	 * @param \WP_Admin_Bar $adminBar
-	 * @deprecated 10.2
-	 */
-	public function onWpAdminBarMenu( $adminBar ) {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpDashboardSetup() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	protected function createPluginMenu() :bool {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	protected function fixSubmenu() {
-	}
-
-	/**
-	 * Displaying all views now goes through this central function and we work out
-	 * what to display based on the name of current hook/filter being processed.
-	 * @deprecated 10.2
-	 */
-	public function onDisplayTopMenu() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueFrontendCss() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueAdminJs() {
-	}
-
-	/**
-	 * @deprecated 10.2
-	 */
-	public function onWpEnqueueAdminCss() {
 	}
 }

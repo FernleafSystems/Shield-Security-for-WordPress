@@ -124,7 +124,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$FS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
-		$aData = [
+		$data = [
 			'error'   => '',
 			'success' => false,
 			'flags'   => [
@@ -165,42 +165,42 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 		try {
 
-			$oLock = $oFLCon->getFileLock( $nRID );
-			$bDiff = $oLock->detected_at > 0;
-			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
-			$aData[ 'flags' ][ 'has_diff' ] = $bDiff;
-			$aData[ 'html' ][ 'diff' ] = $bDiff ?
+			$lock = $oFLCon->getFileLock( $nRID );
+			$bDiff = $lock->detected_at > 0;
+			$data[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $lock );
+			$data[ 'flags' ][ 'has_diff' ] = $bDiff;
+			$data[ 'html' ][ 'diff' ] = $bDiff ?
 				( new FileLocker\Ops\PerformAction() )
 					->setMod( $this->getMod() )
 					->run( $nRID, 'diff' ) : '';
 
 			$oCarb = Services::Request()->carbon( true );
-			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
-			$aData[ 'vars' ][ 'file_modified_at' ] =
-				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $oLock->file ) );
-			$aData[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
-			$aData[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
+			$data[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $lock->created_at )->diffForHumans();
+			$data[ 'vars' ][ 'file_modified_at' ] =
+				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $lock->file ) );
+			$data[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $lock->detected_at )->diffForHumans();
+			$data[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $mod )
-					->run( $oLock )
+					->run( $lock )
 			), 3 );
-			$aData[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $oLock->file ) ?
-				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $oLock->file ), 3 )
+			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->file ) ?
+				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $lock->file ), 3 )
 				: 0;
-			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
-			$aData[ 'success' ] = true;
+			$data[ 'vars' ][ 'file_name' ] = basename( $lock->file );
+			$data[ 'success' ] = true;
 		}
 		catch ( \Exception $e ) {
-			$aData[ 'error' ] = $e->getMessage();
+			$data[ 'error' ] = $e->getMessage();
 		}
 
 		return [
-			'success' => $aData[ 'success' ],
-			'message' => $aData[ 'error' ],
+			'success' => $data[ 'success' ],
+			'message' => $data[ 'error' ],
 			'html'    => $this->getMod()
 							  ->renderTemplate(
 								  '/wpadmin_pages/insights/scans/realtime/file_locker/file_diff.twig',
-								  $aData,
+								  $data,
 								  true
 							  )
 		];

@@ -18,17 +18,17 @@ class Ip extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		$aParams = $this->getParams();
+		$params = $this->getParams();
 
-		/** @var IPs\Select $oSelector */
-		$oSelector = $this->getWorkingSelector();
-		$oSelector->filterByLists( $aParams[ 'fLists' ] );
-		if ( Services::IP()->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( $aParams[ 'fIp' ] );
+		/** @var IPs\Select $selector */
+		$selector = $this->getWorkingSelector();
+		$selector->filterByLists( $params[ 'fLists' ] );
+		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {
+			$selector->filterByIp( $params[ 'fIp' ] );
 		}
 
-		$oSelector->setOrderBy( 'last_access_at', 'DESC', true );
-		$oSelector->setOrderBy( 'created_at', 'DESC', false );
+		$selector->setOrderBy( 'last_access_at', 'DESC', true );
+		$selector->setOrderBy( 'created_at', 'DESC', false );
 
 		return $this;
 	}
@@ -50,29 +50,29 @@ class Ip extends BaseBuild {
 
 		$nTransLimit = $opts->getOffenseLimit();
 		$you = $srvIP->getRequestIp();
-		$aEntries = [];
+		$entries = [];
 
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var IPs\EntryVO $oEntry */
-			$aE = $oEntry->getRawDataAsArray();
-			$bBlocked = $oEntry->blocked_at > 0 || $oEntry->transgressions >= $nTransLimit;
+		foreach ( $this->getEntriesRaw() as $key => $entry ) {
+			/** @var IPs\EntryVO $entry */
+			$aE = $entry->getRawData();
+			$bBlocked = $entry->blocked_at > 0 || $entry->transgressions >= $nTransLimit;
 			$aE[ 'last_trans_at' ] = Services::Request()
 											 ->carbon( true )
-											 ->setTimestamp( $oEntry->last_access_at )
+											 ->setTimestamp( $entry->last_access_at )
 											 ->diffForHumans();
-			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$aE[ 'last_access_at' ] = $this->formatTimestampField( $entry->last_access_at );
+			$aE[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
 			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
-			$aE[ 'expires_at' ] = $this->formatTimestampField( $oEntry->last_access_at + $opts->getAutoExpireTime() );
-			$aE[ 'is_you' ] = $srvIP->checkIp( $you, $oEntry->ip );
+			$aE[ 'expires_at' ] = $this->formatTimestampField( $entry->last_access_at + $opts->getAutoExpireTime() );
+			$aE[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
 			$aE[ 'ip' ] = sprintf( '%s%s',
-				$this->getIpAnalysisLink( $oEntry->ip ),
+				$this->getIpAnalysisLink( $entry->ip ),
 				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
-			$aEntries[ $nKey ] = $aE;
+			$entries[ $key ] = $aE;
 		}
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

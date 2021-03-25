@@ -106,16 +106,33 @@ class LookupIpOnList {
 	}
 
 	/**
-	 * @param bool $bIsBlocked
+	 * @param bool $blocked
 	 * @return $this
 	 */
-	public function setIsIpBlocked( $bIsBlocked ) {
-		$this->isBlocked = $bIsBlocked;
+	public function setIsIpBlocked( bool $blocked ) {
+		$this->isBlocked = $blocked;
 		return $this;
 	}
 
 	/**
 	 * @return $this
+	 */
+	public function setListTypeBlock() {
+		$this->listType = 'black';
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setListTypeBypass() {
+		$this->listType = 'white';
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 11.0
 	 */
 	public function setListTypeBlack() {
 		$this->listType = 'black';
@@ -124,6 +141,7 @@ class LookupIpOnList {
 
 	/**
 	 * @return $this
+	 * @deprecated 11.0
 	 */
 	public function setListTypeWhite() {
 		$this->listType = 'white';

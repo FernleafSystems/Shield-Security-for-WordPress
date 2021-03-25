@@ -3,13 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIp;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildDisplay {
 
@@ -26,7 +31,7 @@ class BuildDisplay {
 
 		$ip = $this->getIP();
 		if ( !Services::IP()->isValidIp( $ip ) ) {
-			throw new \Exception( "A valid IP address was not provided." );
+			throw new \Exception( "A valid IP address wasn't provided." );
 		}
 
 		return $mod->renderTemplate(
@@ -34,6 +39,7 @@ class BuildDisplay {
 			[
 				'strings' => [
 					'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
+					'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
 					'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
 					'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
 					'nav_audit'    => __( 'Audit Trail', 'wp-simple-firewall' ),
@@ -44,6 +50,7 @@ class BuildDisplay {
 				],
 				'content' => [
 					'general'     => $this->renderForGeneral(),
+					'signals'     => $this->renderForBotSignals(),
 					'sessions'    => $this->renderForSessions(),
 					'audit_trail' => $this->renderForAuditTrail(),
 					'traffic'     => $this->renderForTraffic(),
@@ -55,18 +62,18 @@ class BuildDisplay {
 
 	private function renderForGeneral() :string {
 		$con = $this->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$ip = $this->getIP();
 
-		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
-
-		$oBlockIP = ( new LookupIpOnList() )
-			->setDbHandler( $dbh )
+		$blockIP = ( new LookupIpOnList() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlack()
 			->setIP( $ip )
 			->lookup( true );
 
-		$oBypassIP = ( new LookupIpOnList() )
-			->setDbHandler( $dbh )
+		$bypassIP = ( new LookupIpOnList() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeWhite()
 			->setIP( $ip )
 			->lookup( true );
@@ -79,27 +86,41 @@ class BuildDisplay {
 
 		$sRDNS = gethostbyaddr( $ip );
 
-		$ipIdentifier = new IpIdentify( $ip );
 		try {
-			$ipWhoIs = $ipIdentifier->run();
-			$ipIdKey = key( $ipWhoIs );
-			$ipID = current( $ipWhoIs );
+			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
+				->setIgnoreUserAgent( true )
+				->run();
+			// We do a "repair" and unblock previously blocked search providers:
+			if ( $blockIP instanceof Databases\IPs\EntryVO
+				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+				( new DeleteIp() )
+					->setMod( $mod )
+					->setIP( $ip )
+					->fromBlacklist();
+				unset( $blockIP );
+			}
 		}
 		catch ( \Exception $e ) {
-			$ipIdKey = IpIdentify::UNKNOWN;
-			$ipID = $ipIdentifier->getName( $ipIdKey );
+			$ipKey = IpID::UNKNOWN;
+			$ipName = 'Unknown';
 		}
 
-		if ( $ipIdKey === IpIdentify::UNKNOWN ) {
+		if ( $ipKey === IpID::UNKNOWN ) {
 			$ipEntry = ( new LookupIpOnList() )
-				->setDbHandler( $dbh )
+				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $ip )
 				->setListTypeWhite()
 				->lookup();
 			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
-				$ipID = $ipEntry->label;
+				$ipName = $ipEntry->label;
 			}
 		}
+
+		$botScore = ( new CalculateVisitorBotScores() )
+			->setMod( $mod )
+			->setIP( $ip )
+			->probability();
+		$isBot = $mod->getBotSignalsController()->isBot( $ip, false );
 
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
@@ -108,16 +129,18 @@ class BuildDisplay {
 					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
 					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
-					'block_ip'    => __( 'Block IP', 'wp-simple-firewall' ),
-					'unblock_ip'  => __( 'Unblock IP', 'wp-simple-firewall' ),
-					'bypass_ip'   => __( 'Add IP Bypass', 'wp-simple-firewall' ),
-					'unbypass_ip' => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+					'block_ip'      => __( 'Block IP', 'wp-simple-firewall' ),
+					'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
+					'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+					'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+					'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
 
 					'status' => [
-						'is_you'     => __( 'Is It You?', 'wp-simple-firewall' ),
-						'offenses'   => __( 'Number of offenses', 'wp-simple-firewall' ),
-						'is_blocked' => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'  => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'is_you'       => __( 'Is It You?', 'wp-simple-firewall' ),
+						'offenses'     => __( 'Number of offenses', 'wp-simple-firewall' ),
+						'is_blocked'   => __( 'Is Blocked', 'wp-simple-firewall' ),
+						'is_bypass'    => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'notbot_score' => __( 'NotBot Score', 'wp-simple-firewall' ),
 					],
 
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
@@ -140,13 +163,15 @@ class BuildDisplay {
 				'vars'    => [
 					'ip'       => $ip,
 					'status'   => [
-						'is_you'     => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'   => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->transgressions : 0,
-						'is_blocked' => $oBlockIP instanceof Databases\IPs\EntryVO ? $oBlockIP->blocked_at > 0 : false,
-						'is_bypass'  => $oBypassIP instanceof Databases\IPs\EntryVO,
+						'is_you'       => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'offenses'     => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
+						'is_blocked'   => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'    => $bypassIP instanceof Databases\IPs\EntryVO,
+						'notbot_score' => $botScore,
+						'is_bot'       => $isBot,
 					],
 					'identity' => [
-						'who_is_it'    => $ipID,
+						'who_is_it'    => $ipName,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
 						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
 						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),
@@ -178,7 +203,7 @@ class BuildDisplay {
 						->query();
 
 		foreach ( $sessions as $key => $session ) {
-			$asArray = $session->getRawDataAsArray();
+			$asArray = $session->getRawData();
 			$asArray[ 'logged_in_at' ] = $this->formatTimestampField( (int)$session->logged_in_at );
 			$asArray[ 'last_activity_at' ] = $this->formatTimestampField( (int)$session->last_activity_at );
 			$asArray[ 'is_sec_admin' ] = $session->secadmin_at > 0;
@@ -216,7 +241,7 @@ class BuildDisplay {
 						->query();
 
 		foreach ( $requests as $key => $request ) {
-			$asArray = $request->getRawDataAsArray();
+			$asArray = $request->getRawData();
 			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$request->created_at );
 			if ( strpos( $request->path, '?' ) === false ) {
 				$request->path .= '?';
@@ -249,6 +274,79 @@ class BuildDisplay {
 		);
 	}
 
+	private function renderForBotSignals() :string {
+		/** @var Strings $strings */
+		$strings = $this->getMod()->getStrings();
+		$names = $strings->getBotSignalNames();
+
+		$signals = [];
+		$scores = ( new CalculateVisitorBotScores() )
+			->setMod( $this->getMod() )
+			->setIP( $this->getIP() )
+			->scores();
+		try {
+			$record = ( new BotSignalsRecord() )
+				->setMod( $this->getMod() )
+				->setIP( $this->getIP() )
+				->retrieve();
+		}
+		catch ( \Exception $e ) {
+			$record = null;
+			$signals = [];
+		}
+
+		foreach ( $scores as $scoreKey => $scoreValue ) {
+			$column = $scoreKey.'_at';
+			if ( $scoreValue !== 0 ) {
+				if ( empty( $record ) || empty( $record->{$column} ) ) {
+					if ( in_array( $scoreKey, [ 'known' ] ) ) {
+						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
+					}
+					else {
+						$signals[ $scoreKey ] = __( 'Never Recorded', 'wp-simple-firewall' );
+					}
+				}
+				else {
+					$signals[ $scoreKey ] = Services::Request()
+													->carbon()
+													->setTimestamp( $record->{$column} )->diffForHumans();
+				}
+			}
+		}
+
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig',
+			[
+				'strings' => [
+					'title'            => __( 'Bot Signals', 'wp-simple-firewall' ),
+					'signal'           => __( 'Signal', 'wp-simple-firewall' ),
+					'score'            => __( 'Score', 'wp-simple-firewall' ),
+					'total_score'      => __( 'Total NotBot Score', 'wp-simple-firewall' ),
+					'when'             => __( 'When', 'wp-simple-firewall' ),
+					'bot_probability'  => __( 'Bot Probability', 'wp-simple-firewall' ),
+					'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
+					'signal_names'     => $names,
+					'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
+				],
+				'ajax'    => [
+					'has_signals' => !empty( $signals ),
+				],
+				'flags'   => [
+					'has_signals' => !empty( $signals ),
+				],
+				'vars'    => [
+					'signals'       => $signals,
+					'total_signals' => count( $signals ),
+					'scores'        => $scores,
+					'total_score'   => array_sum( $scores ),
+					'minimum'       => array_sum( $scores ),
+					'probability'   => 100 - (int)max( 0, min( 100, array_sum( $scores ) ) )
+				],
+			],
+			true
+		);
+	}
+
 	private function renderForAuditTrail() :string {
 		$con = $this->getCon();
 		/** @var Databases\AuditTrail\Select $sel */
@@ -259,22 +357,17 @@ class BuildDisplay {
 		$logs = $sel->filterByIp( $this->getIP() )
 					->query();
 
-		foreach ( $logs as $key => $log ) {
-			$asArray = $log->getRawDataAsArray();
+		foreach ( $logs as $key => $entry ) {
+			$asArray = $entry->getRawData();
 
-			$module = $con->getModule( $log->context );
+			$module = $con->getModule( $entry->context );
 			if ( empty( $module ) ) {
 				$module = $con->getModule_AuditTrail();
 			}
-			$oStrings = $module->getStrings();
+			$strings = $module->getStrings();
 
-			$asArray[ 'event' ] = stripslashes( sanitize_textarea_field(
-				vsprintf(
-					implode( "\n", $oStrings->getAuditMessage( $log->event ) ),
-					$log->meta
-				)
-			) );
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$log->created_at );
+			$asArray[ 'event' ] = AuditMessageBuilder::Build( $entry, $strings->getAuditMessage( $entry->event ) );
+			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$entry->created_at );
 
 			$logs[ $key ] = $asArray;
 		}

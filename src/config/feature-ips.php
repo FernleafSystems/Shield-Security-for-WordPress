@@ -1,6 +1,6 @@
 {
-  "slug":          "ips",
-  "properties":    {
+  "slug":             "ips",
+  "properties":       {
     "slug":                  "ips",
     "name":                  "Block Bad IPs/Visitors",
     "sidebar_name":          "IP Blocking",
@@ -19,8 +19,7 @@
   "menu_items":       [
     {
       "title":    "IP Lists",
-      "slug":     "ips-redirect",
-      "callback": ""
+      "slug":     "ips-redirect"
     }
   ],
   "custom_redirects": [
@@ -32,7 +31,7 @@
       }
     }
   ],
-  "admin_notices": {
+  "admin_notices":    {
     "visitor-whitelisted": {
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
@@ -41,7 +40,7 @@
       "type":             "info"
     }
   },
-  "requirements":  {
+  "requirements":     {
     "php": {
       "functions": [
         "filter_var"
@@ -55,7 +54,7 @@
       ]
     }
   },
-  "sections":      [
+  "sections":         [
     {
       "slug":        "section_auto_black_list",
       "primary":     true,
@@ -64,6 +63,13 @@
       "summary":     [
         "Purpose - The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.",
         "Recommendation - Keep the Automatic IP Black List feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_antibot",
+      "title":       "AntiBot System",
+      "title_short": "AntiBot System",
+      "summary":     [
       ]
     },
     {
@@ -123,7 +129,7 @@
       "hidden": true
     }
   ],
-  "options":       [
+  "options":          [
     {
       "key":         "enable_ips",
       "section":     "section_enable_plugin_feature_ips",
@@ -135,6 +141,19 @@
       "name":        "Enable IP Manager",
       "summary":     "Enable (or Disable) The IP Manager module",
       "description": "Un-Checking this option will completely disable the IP Manager module"
+    },
+    {
+      "key":         "antibot_minimum",
+      "section":     "section_antibot",
+      "default":     35,
+      "type":        "integer",
+      "min":         1,
+      "max":         99,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "AntiBot Threshold",
+      "summary":     "AntiBot Testing Threshold (Percentage)",
+      "description": "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
     },
     {
       "key":         "transgression_limit",
@@ -333,6 +352,40 @@
       "description":   "If you don't use XML-RPC, why would anyone access it?"
     },
     {
+      "key":           "track_invalidscript",
+      "section":       "section_probes",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "https://shsec.io/fo",
+      "link_blog":     "https://shsec.io/f7",
+      "name":          "Invalid Script Load",
+      "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
+      "description":   "WordPress should only be loaded in a limited number of ways."
+    },
+    {
       "key":           "track_loginfailed",
       "section":       "section_logins",
       "default":       "transgression-single",
@@ -495,9 +548,11 @@
       "default":      []
     }
   ],
-  "definitions":   {
+  "definitions":      {
     "db_classes":                      {
-      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
+      "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
+      "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler",
+      "ips":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name":             "ip_lists",
     "ip_list_table_columns":           {
@@ -511,6 +566,55 @@
     "ip_list_table_timestamp_columns": {
       "last_access_at": "Last Access By IP",
       "blocked_at":     "IP Blocked"
+    },
+    "db_table_ip_lists":               {
+      "slug":            "ip_lists",
+      "cols_custom":     {
+        "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
+        "label":          "varchar(255) NOT NULL DEFAULT '' COMMENT 'Description'",
+        "list":           "varchar(4) NOT NULL DEFAULT '' COMMENT 'Block or Bypass'",
+        "ip6":            "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is IPv6'",
+        "is_range":       "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is Range'",
+        "transgressions": "int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total Offenses'"
+      },
+      "cols_timestamps": {
+        "last_access_at": "Last Access By IP",
+        "blocked_at":     "IP Blocked"
+      }
+    },
+    "db_table_botsignals":             {
+      "autoexpire":      3,
+      "slug":            "botsignals",
+      "col_older_than":  "updated_at",
+      "has_updated_at":  true,
+      "cols_custom":     {
+        "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
+      },
+      "cols_timestamps": {
+        "notbot_at":          "NotBot",
+        "frontpage_at":       "Front Page Loaded",
+        "bt404_at":           "BotTrack 404",
+        "btfake_at":          "BotTrack FakeWebCrawler",
+        "btcheese_at":        "BotTrack LinkCheese",
+        "btloginfail_at":     "BotTrack LoginFailed",
+        "btua_at":            "BotTrack Useragent Fail",
+        "btxml_at":           "BotTrack XMLRPC Access",
+        "btlogininvalid_at":  "BotTrack LoginInvalid",
+        "btinvalidscript_at": "BotTrack InvalidScript",
+        "cooldown_at":        "Triggered Cooldown",
+        "humanspam_at":       "Comment Marked As Human SPAM",
+        "markspam_at":        "Mark Comment As SPAM",
+        "unmarkspam_at":      "Unmark Comment As SPAM",
+        "captchapass_at":     "Captcha Passed",
+        "captchafail_at":     "Captcha Failed",
+        "auth_at":            "Successful Login",
+        "firewall_at":        "Triggered Firewall",
+        "ratelimit_at":       "Rate Limit Exceeded",
+        "offense_at":         "Last Offense",
+        "blocked_at":         "Last Block",
+        "unblocked_at":       "Unblocked",
+        "bypass_at":          "Bypass"
+      }
     },
     "events":                          {
       "custom_offense":          {
@@ -526,8 +630,24 @@
       "ip_blocked":              {
         "cat": 2
       },
+      "ip_unblock":              {
+        "offense": false,
+        "audit":   false,
+        "stat":    false
+      },
+      "ip_bypass":               {
+        "offense": false,
+        "audit":   false,
+        "stat":    false
+      },
       "ip_unblock_flag":         {
         "cat": 1
+      },
+      "bottrack_notbot":         {
+        "cat":     0,
+        "offense": false,
+        "audit":   false,
+        "stat":    false
       },
       "bottrack_404":            {
         "cat":     2,
@@ -556,6 +676,19 @@
       "bottrack_xmlrpc":         {
         "cat":     2,
         "offense": true
+      },
+      "bottrack_invalidscript":  {
+        "cat":     2,
+        "offense": true
+      },
+      "comment_markspam":        {
+        "cat":     2,
+        "offense": true
+      },
+      "comment_unmarkspam":      {
+        "audit":   false,
+        "offense": false,
+        "stat":    false
       }
     }
   }

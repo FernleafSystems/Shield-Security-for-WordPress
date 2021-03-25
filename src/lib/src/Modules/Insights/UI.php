@@ -56,16 +56,13 @@ class UI extends BaseShield\UI {
 		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
-		$oTourManager = $modPlugin->getTourManager();
-		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $modPlugin->getActivateLength() > 600 ) {
-			$oTourManager->setCompleted( 'insights_overview' );
-		}
 
 		switch ( $sNavSection ) {
 
 			case 'audit':
+				$modAudit = $con->getModule_AuditTrail();
 				/** @var Shield\Modules\AuditTrail\UI $auditUI */
-				$auditUI = $con->getModule_AuditTrail()->getUIHandler();
+				$auditUI = $modAudit->getUIHandler();
 				$data = [
 					'content' => [
 						'table_audit' => $auditUI->renderAuditTrailTable(),
@@ -85,14 +82,20 @@ class UI extends BaseShield\UI {
 								'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
 								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
 							],
+							[
+								'href'    => $modAudit->createFileDownloadLink( 'db_audit' ),
+								'classes' => [ 'shield_file_download' ],
+								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
+							],
 						]
 					]
 				];
 				break;
 
 			case 'traffic':
+				$modTraffic = $con->getModule_Traffic();
 				/** @var Shield\Modules\Traffic\UI $trafficUI */
-				$trafficUI = $con->getModule_Traffic()->getUIHandler();
+				$trafficUI = $modTraffic->getUIHandler();
 				$data = [
 					'content' => [
 						'table_traffic' => $trafficUI->renderTrafficTable(),
@@ -106,6 +109,11 @@ class UI extends BaseShield\UI {
 							[
 								'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
 								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
+							],
+							[
+								'href'    => $modTraffic->createFileDownloadLink( 'db_traffic' ),
+								'classes' => [ 'shield_file_download' ],
+								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
 							],
 						]
 					]
@@ -231,18 +239,14 @@ class UI extends BaseShield\UI {
 					'page_container' => 'page-insights page-'.$sNavSection
 				],
 				'flags'   => [
-					'is_dashboard'     => $sNavSection === 'dashboard',
-					'show_guided_tour' => $modPlugin->getIfShowIntroVideo(),
-					'tours'            => [
-						'insights_overview' => false && $oTourManager->canShow( 'insights_overview' )
-					],
-					'is_advanced'      => $modPlugin->isShowAdvanced()
+					'is_dashboard' => $sNavSection === 'dashboard',
+					'is_advanced'  => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
 					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),
 					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'     => $mod->getUrl_AdminPage(),
-					'img_banner'   => $con->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
+					'img_banner'   => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
 				],
 				'strings' => [
 					'page_title' => $pageTitle

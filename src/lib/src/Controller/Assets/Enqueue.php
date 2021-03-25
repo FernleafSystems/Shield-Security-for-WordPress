@@ -23,6 +23,9 @@ class Enqueue {
 	}
 
 	protected function run() {
+		add_action( 'login_enqueue_scripts', function () {
+			$this->enqueue();
+		}, 1000 );
 		add_action( 'wp_enqueue_scripts', function () {
 			$this->enqueue();
 		}, 1000 );
@@ -95,6 +98,7 @@ class Enqueue {
 
 		$incl = $con->cfg->includes[ 'register' ];
 
+		$includesService = Services::Includes();
 		foreach ( array_keys( $assetKeys ) as $type ) {
 
 			foreach ( $incl[ $type ] as $key => $spec ) {
@@ -102,22 +106,27 @@ class Enqueue {
 
 					$handle = $this->normaliseHandle( $key );
 					if ( $type === self::CSS ) {
-						$url = $spec[ 'url' ] ?? $con->urls->forCss( $key );
 						$reg = wp_register_style(
 							$handle,
-							$url,
+							$con->urls->forCss( $key ),
 							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
 							$con->getVersion()
 						);
 					}
 					else {
-						$url = $spec[ 'url' ] ?? $con->urls->forJs( $key );
 						$reg = wp_register_script(
 							$handle,
-							$url,
+							$con->urls->forJs( $key ),
 							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
-							$con->getVersion()
+							$con->getVersion(),
+							$spec[ 'footer' ] ?? false
 						);
+					}
+
+					if ( !empty( $spec[ 'attributes' ] ) ) {
+						foreach ( $spec[ 'attributes' ] as $attribute => $value ) {
+							$includesService->addIncludeAttribute( $handle, $attribute, $value );
+						}
 					}
 
 					if ( $reg ) {
@@ -167,7 +176,14 @@ class Enqueue {
 
 	private function runEnqueueOnAssets( string $type, array $asset ) {
 		array_map(
-			$type == self::CSS ? 'wp_enqueue_style' : 'wp_enqueue_script',
+			function ( $asset ) use ( $type ) {
+				if ( $type == self::CSS ) {
+					wp_enqueue_style( $asset );
+				}
+				else {
+					wp_enqueue_script( $asset );
+				}
+			},
 			$this->prefixKeys( $asset )
 		);
 	}

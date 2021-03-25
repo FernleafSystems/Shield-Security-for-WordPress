@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 class Select extends Base\Select {
 
 	use BaseGeoIp;
+	use Base\Traits\Select_IPTable;
 
 	/**
 	 * @param string $sIp
@@ -17,17 +18,5 @@ class Select extends Base\Select {
 		return $this->filterByIp( inet_pton( $sIp ) )
 					->setResultsAsVo( true )
 					->first();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getDistinctIps() {
-		return IpListSort::Sort( array_map(
-			function ( $sIp ) {
-				return inet_ntop( $sIp );
-			},
-			$this->getDistinctForColumn( 'ip' )
-		) );
 	}
 }

@@ -9,18 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Select extends Base\Select {
 
 	use BaseTraffic;
-
-	/**
-	 * @return string[]
-	 */
-	public function getDistinctIps() {
-		return IpListSort::Sort( array_map(
-			function ( $sIpBinary ) {
-				return inet_ntop( $sIpBinary );
-			},
-			$this->getDistinctForColumn( 'ip' )
-		) );
-	}
+	use Base\Traits\Select_IPTable;
 
 	/**
 	 * @return string[]

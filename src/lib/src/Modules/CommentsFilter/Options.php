@@ -53,11 +53,16 @@ class Options extends BaseShield\Options {
 
 	public function isEnabledGaspCheck() :bool {
 		return $this->isOpt( 'enable_comments_gasp_protection', 'Y' )
-			   && ( $this->getTokenExpireInterval() > $this->getTokenCooldown() );
+			   && ( $this->getTokenExpireInterval() > $this->getTokenCooldown() )
+			   && !$this->isEnabledAntiBot();
+	}
+
+	public function isEnabledAntiBot() :bool {
+		return $this->isOpt( 'enable_antibot_check', 'Y' );
 	}
 
 	public function isEnabledCaptcha() :bool {
-		return !$this->isOpt( 'google_recaptcha_style_comments', 'disabled' );
+		return !$this->isOpt( 'google_recaptcha_style_comments', 'disabled' ) && !$this->isEnabledAntiBot();
 	}
 
 	public function isEnabledHumanCheck() :bool {

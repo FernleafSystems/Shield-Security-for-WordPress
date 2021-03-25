@@ -12,58 +12,58 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	protected function processAjaxAction( string $action ) :array {
 		switch ( $action ) {
 			case 'bulk_action':
-				$aResponse = $this->ajaxExec_BulkItemAction();
+				$response = $this->ajaxExec_BulkItemAction();
 				break;
 
 			case 'delete_forceoff':
-				$aResponse = $this->ajaxExec_DeleteForceOff();
+				$response = $this->ajaxExec_DeleteForceOff();
 				break;
 
 			case 'render_table_adminnotes':
-				$aResponse = $this->ajaxExec_RenderTableAdminNotes();
+				$response = $this->ajaxExec_RenderTableAdminNotes();
 				break;
 
 			case 'note_delete':
-				$aResponse = $this->ajaxExec_AdminNotesDelete();
+				$response = $this->ajaxExec_AdminNotesDelete();
 				break;
 
 			case 'note_insert':
-				$aResponse = $this->ajaxExec_AdminNotesInsert();
+				$response = $this->ajaxExec_AdminNotesInsert();
 				break;
 
 			case 'import_from_site':
-				$aResponse = $this->ajaxExec_ImportFromSite();
+				$response = $this->ajaxExec_ImportFromSite();
 				break;
 
 			case 'plugin_badge_close':
-				$aResponse = $this->ajaxExec_PluginBadgeClose();
+				$response = $this->ajaxExec_PluginBadgeClose();
 				break;
 
 			case 'set_plugin_tracking':
-				$aResponse = $this->ajaxExec_SetPluginTrackingPerm();
+				$response = $this->ajaxExec_SetPluginTrackingPerm();
 				break;
 
 			case 'send_deactivate_survey':
-				$aResponse = $this->ajaxExec_SendDeactivateSurvey();
+				$response = $this->ajaxExec_SendDeactivateSurvey();
 				break;
 
 			case 'sgoptimizer_turnoff':
-				$aResponse = $this->ajaxExec_TurnOffSiteGroundOptions();
+				$response = $this->ajaxExec_TurnOffSiteGroundOptions();
 				break;
 
 			case 'ipdetect':
-				$aResponse = $this->ajaxExec_IpDetect();
+				$response = $this->ajaxExec_IpDetect();
 				break;
 
 			case 'mark_tour_finished':
-				$aResponse = $this->ajaxExec_MarkTourFinished();
+				$response = $this->ajaxExec_MarkTourFinished();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	private function ajaxExec_SendDeactivateSurvey() :array {
@@ -234,19 +234,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
-		$aFormParams = $this->getAjaxFormParams();
+		$formParams = $this->getAjaxFormParams();
 
-		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
+		$note = trim( $formParams[ 'admin_note' ] ?? '' );
 		if ( !$mod->getCanAdminNotes() ) {
 			$msg = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
-		elseif ( empty( $sNote ) ) {
+		elseif ( empty( $note ) ) {
 			$msg = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
-			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$oInserter = $mod->getDbHandler_Notes()->getQueryInserter();
-			$success = $oInserter->create( $sNote );
+			/** @var Shield\Databases\AdminNotes\Insert $inserter */
+			$inserter = $mod->getDbHandler_Notes()->getQueryInserter();
+			$success = $inserter->create( $note );
 			$msg = $success ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 		return [

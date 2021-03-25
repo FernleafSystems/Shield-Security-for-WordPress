@@ -12,7 +12,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getPageTitle() {
+	protected function getPageTitle() :string {
 		return sprintf( __( '%s Welcome Wizard', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
 	}
 
@@ -79,7 +79,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string[]
 	 * @throws Exception
 	 */
-	protected function determineWizardSteps() {
+	protected function determineWizardSteps() :array {
 
 		switch ( $this->getWizardSlug() ) {
 			case 'welcome':
@@ -179,7 +179,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
-		$oConn = $this->getCon();
+		$con = $this->getCon();
 
 		$aAdditional = [];
 
@@ -203,7 +203,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'blog_importexport' => 'https://shsec.io/av'
 						],
 						'imgs'  => [
-							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+							'shieldnetworkmini' => $con->urls->forImage( 'shield/shieldnetworkmini.png' ),
 						]
 					];
 					break;
@@ -227,14 +227,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'how_shield_works':
 					$aAdditional = [
 						'imgs'     => [
-							'how_shield_works' => $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' ),
-							'modules'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' ),
-							'options'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' ),
-							'wizards'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_wizards.png' ),
-							'help'             => $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' ),
-							'actions'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' ),
-							'option_help'      => $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' ),
-							'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
+							'how_shield_works' => $con->urls->forImage( 'wizard/general-shield_where.png' ),
+							'modules'          => $con->urls->forImage( 'wizard/general-shield_modules.png' ),
+							'options'          => $con->urls->forImage( 'wizard/general-shield_options.png' ),
+							'wizards'          => $con->urls->forImage( 'wizard/general-shield_wizards.png' ),
+							'help'             => $con->urls->forImage( 'wizard/general-shield_help.png' ),
+							'actions'          => $con->urls->forImage( 'wizard/general-shield_actions.png' ),
+							'option_help'      => $con->urls->forImage( 'wizard/general-option_help.png' ),
+							'module_onoff'     => $con->urls->forImage( 'wizard/general-module_onoff.png' ),
 						],
 						'headings' => [
 							'how_shield_works' => __( 'Where to find Shield', 'wp-simple-firewall' ),
@@ -247,7 +247,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'module_onoff'     => __( 'Module On/Off Switch', 'wp-simple-firewall' ),
 						],
 						'captions' => [
-							'how_shield_works' => sprintf( __( "You'll find the main %s settings in the left-hand WordPress menu.", 'wp-simple-firewall' ), $oConn->getHumanName() ),
+							'how_shield_works' => sprintf( __( "You'll find the main %s settings in the left-hand WordPress menu.", 'wp-simple-firewall' ), $con->getHumanName() ),
 							'modules'          => __( 'Shield is split up into independent modules for accessing the options of each feature.', 'wp-simple-firewall' ),
 							'options'          => __( 'When you load a module, you can access the options by clicking on the Options Panel link.', 'wp-simple-firewall' ),
 							'wizards'          => __( 'Launch helpful walk-through wizards for modules that have them.', 'wp-simple-firewall' ),
@@ -272,7 +272,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'blog_importexport' => 'https://shsec.io/av'
 						],
 						'imgs'  => [
-							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+							'shieldnetworkmini' => $con->urls->forImage( 'shield/shieldnetworkmini.png' ),
 						]
 					];
 					break;
@@ -532,36 +532,36 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardLoginProtect() {
 		$mod = $this->getCon()->getModule_LoginGuard();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $mod->getOptions();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
+		$opts = $mod->getOptions();
 
 		$sInput = Services::Request()->post( 'LoginProtectOption' );
-		$bSuccess = false;
-		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
+		$success = false;
+		$msg = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
 
 		if ( !empty( $sInput ) ) {
-			$bEnabled = $sInput === 'Y';
+			$enabled = $sInput === 'Y';
 
-			if ( $bEnabled ) { // we don't disable the whole module
+			if ( $enabled ) { // we don't disable the whole module
 				$mod->setIsMainFeatureEnabled( true );
 			}
-			$mod->setEnabledGaspCheck( $bEnabled );
+			$mod->setEnabledGaspCheck( $enabled );
 			$mod->saveModOptions();
 
-			$bSuccess = $oOpts->isEnabledGaspCheck() === $bEnabled;
-			if ( $bSuccess ) {
-				$sMessage = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
-					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+			$success = $opts->isEnabledGaspCheck() === $enabled;
+			if ( $success ) {
+				$msg = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
+					$enabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
-				$sMessage = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
+				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
 			}
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
-			->setMessageText( $sMessage );
+			->setSuccessful( $success )
+			->setMessageText( $msg );
 	}
 
 	/**

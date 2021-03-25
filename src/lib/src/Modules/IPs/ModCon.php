@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -22,6 +23,19 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $oBlacklistHandler;
 
+	/**
+	 * @var Lib\Bots\BotSignalsController
+	 */
+	private $botSignalsCon;
+
+	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
+		if ( !isset( $this->botSignalsCon ) ) {
+			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
+				->setMod( $this );
+		}
+		return $this->botSignalsCon;
+	}
+
 	public function getBlacklistHandler() :Lib\BlacklistHandler {
 		if ( !isset( $this->oBlacklistHandler ) ) {
 			$this->oBlacklistHandler = ( new Lib\BlacklistHandler() )->setMod( $this );
@@ -29,8 +43,13 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oBlacklistHandler;
 	}
 
+	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
+		return $this->getDbH( 'botsignals' );
+	}
+
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
-		return $this->getDbH( 'ips' );
+		$new = $this->getDbH( 'ip_lists' );
+		return empty( $new ) ? $this->getDbH( 'ips' ) : $new;
 	}
 
 	/**
@@ -43,6 +62,16 @@ class ModCon extends BaseShield\ModCon {
 			   && ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
 			   && $this->getDbHandler_IPs()->isReady()
 			   && parent::isReadyToExecute();
+	}
+
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'db_ip':
+				( new DbTableExport() )
+					->setDbHandler( $this->getDbHandler_IPs() )
+					->toCSV();
+				break;
+		}
 	}
 
 	protected function preProcessOptions() {

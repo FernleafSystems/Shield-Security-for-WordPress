@@ -17,11 +17,11 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string[] $aEvents
+	 * @param string[] $events
 	 * @return int
 	 */
-	public function sumEvents( $aEvents ) {
-		return (int)$this->filterByEvents( $aEvents )
+	public function sumEvents( array $events ) :int {
+		return (int)$this->filterByEvents( $events )
 						 ->setColumnsToSelect( [ 'count' ] )
 						 ->sum();
 	}

@@ -1,4 +1,96 @@
 {
+  "11.0": {
+    "version":     "11.0",
+    "released_at": 1616666000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease1100",
+      "upgrade": "https://shsec.io/shieldupgradeguide1100"
+    },
+    "href":        "https://shsec.io/",
+    "title":       "All-New Shield AntiBot Detection Engine",
+    "description": [
+      "WordPress security nearly always starts with bots - detecting bad bots and blocking them.",
+      "This release delivers your new and exclusive AntiBot Detection Engine allowing Shield to more quickly identify bad bots and block their requests."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "AntiBot Detection Engine",
+        "description": [
+          "Detecting bad bots on you WordPress site is a huge challenge, but it's notoriously difficult to do this.",
+          "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
+        ],
+        "href":        "https://shsec.io/jb"
+      },
+      {
+        "type":        "new",
+        "title":       "Contact Form SPAM Protection",
+        "description": [
+          "With the arrival of our AntiBot Detection Engine, we can now more easily integrate with 3rd party plugins.",
+          "You can add Shield's SPAM protection to Elementor PRO Gravity Forms, Contact Form 7, Ninja Forms, and many more."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Charts and Stats.",
+        "description": [
+          "We've added a page in Shield to allow you to chart some of your favourite Shield Stats."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Download Audit Trail, Traffic Log and IP DB as CSV.",
+        "description": [
+          "A long-requested feature is the ability to download the raw database data - you can now do this with a single click."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Added some new filters and hooks to allow customisation.",
+        "description": [
+          "For example, you can override the hour at which the Shield crons run, including the scans."
+        ],
+        "href":        "https://shsec.io/jv"
+      },
+      {
+        "type":        "new",
+        "title":       "Allow webmaster to specify certain web crawlers and search engines that aren't automatically whitelisted.",
+        "description": [],
+        "href":        "https://shsec.io/jt"
+      },
+      {
+        "type":        "improved",
+        "title":       "Big improvements in the reliability of Shield's Database handling.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Use CDNJS to supply important plugin Javascript/CSS assets.",
+        "description": [
+          "Using a CDN to deliver assets reduces the plugin footprint on your site, while also speeding up admin page loading."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "New and improved guided tour upon plugin activation.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Link Cheese Robots additions use enhanced Robots API in WordPress 5.7.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Various bug fixes and enhancements.",
+        "description": [
+          "WP-Config FileLocker system is more reliable with requests in the case of database problems",
+          "Lots of code cleanup"
+        ]
+      }
+    ]
+  },
   "10.2": {
     "version":     "10.2",
     "released_at": 1613037000,

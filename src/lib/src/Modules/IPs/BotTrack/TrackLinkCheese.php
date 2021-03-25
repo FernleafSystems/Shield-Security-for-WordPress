@@ -13,11 +13,28 @@ use FernleafSystems\Wordpress\Services\Services;
 class TrackLinkCheese extends Base {
 
 	const OPT_KEY = 'track_linkcheese';
+	const CHEESE_WORD = 'link-cheese';
 
 	protected function process() {
 		add_filter( 'robots_txt', [ $this, 'appendRobotsTxt' ], 15 );
 		add_action( 'wp_footer', [ $this, 'insertMouseTrap' ], 0 );
-		if ( $this->isCheese() ) {
+		add_action( 'wp', [ $this, 'testCheese' ], 0 );
+	}
+
+	public function testCheese() {
+		if ( is_404() && $this->isCheese() ) {
+
+			if ( function_exists( 'wp_robots_sensitive_page' ) ) {
+				add_filter( 'wp_robots', 'wp_robots_sensitive_page', 1000 );
+			}
+			elseif ( function_exists( 'wp_sensitive_page_meta' ) ) {
+				if ( !has_action( 'wp_head', 'wp_sensitive_page_meta' ) ) {
+					add_action( 'wp_head', 'wp_sensitive_page_meta' );
+				}
+			}
+			elseif ( !has_action( 'wp_head', 'wp_no_robots' ) ) {
+				add_action( 'wp_head', 'wp_no_robots' );
+			}
 			$this->doTransgression();
 		}
 	}
@@ -26,69 +43,53 @@ class TrackLinkCheese extends Base {
 	 * @param string $robotsText
 	 * @return string
 	 */
-	public function appendRobotsTxt( $robotsText ) {
-		$template = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
-		$robotsText = rtrim( $robotsText, "\n" )."\n";
-		foreach ( $this->getPossibleWords() as $word ) {
-			$robotsText .= sprintf( $template, $this->getCon()->prefix( $word ) );
-		}
-		return $robotsText;
+	public function appendRobotsTxt( $robotsText ) :string {
+		$template = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s/\n" : "Disallow: /*?*%s=\n";
+		return rtrim( $robotsText, "\n" )."\n".sprintf( $template, $this->getCheeseWord() );
 	}
 
-	private function isCheese() {
-		$con = $this->getCon();
-		$req = Services::Request();
+	private function isCheese() :bool {
+		$WP = Services::WpGeneral();
 
-		$bIsCheese = false;
-		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
-			preg_match(
-				sprintf( '#%s-(%s)-([a-z0-9]{7,9})$#i', $con->prefix(), implode( '|', $this->getPossibleWords() ) ),
-				trim( $req->getPath(), '/' ),
-				$aMatches
-			);
-			$bIsCheese = isset( $aMatches[ 2 ] );
+		if ( $WP->isPermalinksEnabled() ) {
+			$reqPath = trim( (string)Services::Request()->getPath(), '/' );
+			$isCheese = ( $reqPath ===
+						  trim( (string)parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' ) )
+						|| preg_match( '#icwp-wpsf-[a-z]+-[a-z0-9]{7,9}#', $reqPath ) > 0;
+			/** TODO: 10.3 legacy remove */
 		}
 		else {
-			foreach ( $this->getPossibleWords() as $word ) {
-				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $req->query( $con->prefix( $word ) ) ) ) {
-					$bIsCheese = true;
-					break;
-				}
-			}
+			$isCheese = Services::Request()->query( $this->getCheeseWord() ) === '1';
 		}
 
-		return $bIsCheese;
+		return $isCheese;
 	}
 
 	public function insertMouseTrap() {
-		$id = chr( rand( 97, 122 ) ).rand( 1000, 10000000 );
 		echo sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
-			$id, $this->buildTrapHref(), 'Click here to see something fantastic',
-			$id, 'Click to access the login or register cheese'
+			'icwpWpsfLinkCheese',
+			$this->buildTrapHref(),
+			'Click here to see something fantastic',
+			'icwpWpsfLinkCheese',
+			'Click to access the login or register cheese'
 		);
 	}
 
-	/**
-	 * @return string
-	 */
-	private function buildTrapHref() {
-		$con = $this->getCon();
+	private function buildTrapHref() :string {
+		$WP = Services::WpGeneral();
+		return $WP->isPermalinksEnabled() ?
+			$WP->getHomeUrl( sprintf( '/%s/', $this->getCheeseWord() ) )
+			: add_query_arg( [ $this->getCheeseWord() => '1' ], $WP->getHomeUrl() );
+	}
 
-		$oWP = Services::WpGeneral();
-		$sKey = substr( md5( wp_generate_password() ), 5, rand( 7, 9 ) );
-		$sWord = $this->getPossibleWords()[ rand( 1, count( $this->getPossibleWords() ) ) - 1 ];
-		if ( $oWP->isPermalinksEnabled() ) {
-			$sLink = $oWP->getHomeUrl( sprintf( '/%s-%s/', $con->prefix( $sWord ), $sKey ) );
-		}
-		else {
-			$sLink = add_query_arg( [ $con->prefix( $sWord ) => $sKey ], $oWP->getHomeUrl() );
-		}
-		return $sLink;
+	private function getCheeseWord() :string {
+		return $this->getCon()->prefix( self::CHEESE_WORD );
 	}
 
 	/**
 	 * @return string[]
+	 * @deprecated 10.3
 	 */
 	private function getPossibleWords() {
 		return [

@@ -33,6 +33,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function captureLogin( \WP_User $user ) {
 		$this->activateUserSession( $user );
+		$this->getCon()->fireEvent( 'login_success' );
 	}
 
 	public function onWpLoaded() {

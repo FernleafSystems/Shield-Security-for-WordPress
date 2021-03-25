@@ -1,4 +1,6 @@
-<div class="card h-100 {{ c.classes|default([]) is empty ? 'border-success' : c.classes|join(" ") }}">
+<div class="card h-100 {{ c.classes|default([]) is empty ? 'border-success' : c.classes|join(" ") }} tour-dashboard_v1"
+	 {% if c.introjs|default('') is not empty %}data-intro="{{ c.introjs }}"{% endif %}
+>
 
 	{% block header %}
 {#		<div class="card-header">{{ c.title }}</div>#}

@@ -24,7 +24,7 @@ class Processor extends BaseShield\Processor {
 		$mod->getPluginBadgeCon()->run();
 
 		( new PluginTelemetry() )
-			->setMod( $mod )
+			->setMod( $this->getMod() )
 			->execute();
 
 		if ( $opts->isImportExportPermitted() ) {
@@ -62,13 +62,13 @@ class Processor extends BaseShield\Processor {
 	public function runDailyCron() {
 		$this->getCon()->fireEvent( 'test_cron_run' );
 
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isImportExportPermitted() ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isImportExportPermitted() ) {
 			try {
 				( new Lib\ImportExport\Import() )
 					->setMod( $this->getMod() )
-					->fromSite( $oOpts->getImportExportMasterImportUrl() );
+					->fromSite( $opts->getImportExportMasterImportUrl() );
 			}
 			catch ( \Exception $e ) {
 			}

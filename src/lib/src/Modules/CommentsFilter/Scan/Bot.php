@@ -15,46 +15,46 @@ class Bot {
 	 * @return true|\WP_Error
 	 */
 	public function scan( $nPostId ) {
-		/** @var CommentsFilter\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var CommentsFilter\Options $opts */
+		$opts = $this->getOptions();
+		$req = Services::Request();
 
-		$oReq = Services::Request();
-		$sFieldCheckboxName = $oReq->post( 'cb_nombre' );
-		$sFieldHoney = $oReq->post( 'sugar_sweet_email' );
-		$nCommentTs = (int)$oReq->post( 'botts' );
-		$sCommentToken = $oReq->post( 'comment_token' );
+		$sFieldCheckboxName = $req->post( 'cb_nombre' );
+		$sFieldHoney = $req->post( 'sugar_sweet_email' );
+		$nCommentTs = (int)$req->post( 'botts' );
+		$sCommentToken = $req->post( 'comment_token' );
 
-		$nCooldown = $oOpts->getTokenCooldown();
-		$nExpire = $oOpts->getTokenExpireInterval();
+		$cooldown = $opts->getTokenCooldown();
+		$expire = $opts->getTokenExpireInterval();
 
-		$sKey = null;
-		$sExplanation = null;
-		if ( !$sFieldCheckboxName || !$oReq->post( $sFieldCheckboxName ) ) {
-			$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'checkbox', 'wp-simple-firewall' ) );
-			$sKey = 'checkbox';
+		$key = null;
+		$explanation = null;
+		if ( !$sFieldCheckboxName || !$req->post( $sFieldCheckboxName ) ) {
+			$explanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'checkbox', 'wp-simple-firewall' ) );
+			$key = 'checkbox';
 		}
 		// honeypot check
 		elseif ( !empty( $sFieldHoney ) ) {
-			$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'honeypot', 'wp-simple-firewall' ) );
-			$sKey = 'honeypot';
+			$explanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'honeypot', 'wp-simple-firewall' ) );
+			$key = 'honeypot';
 		}
-		elseif ( $nCooldown > 0 || $nExpire > 0 ) {
+		elseif ( $cooldown > 0 || $expire > 0 ) {
 
-			if ( $nCooldown > 0 && $oReq->ts() < ( $nCommentTs + $nCooldown ) ) {
-				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'cooldown', 'wp-simple-firewall' ) );
-				$sKey = 'cooldown';
+			if ( $cooldown > 0 && $req->ts() < ( $nCommentTs + $cooldown ) ) {
+				$explanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'cooldown', 'wp-simple-firewall' ) );
+				$key = 'cooldown';
 			}
-			elseif ( $nExpire > 0 && $oReq->ts() > ( $nCommentTs + $nExpire ) ) {
-				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'expired', 'wp-simple-firewall' ) );
-				$sKey = 'expired';
+			elseif ( $expire > 0 && $req->ts() > ( $nCommentTs + $expire ) ) {
+				$explanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'expired', 'wp-simple-firewall' ) );
+				$key = 'expired';
 			}
 			elseif ( !$this->checkTokenHash( $sCommentToken, $nCommentTs, $nPostId ) ) {
-				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'token', 'wp-simple-firewall' ) );
-				$sKey = 'token';
+				$explanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'token', 'wp-simple-firewall' ) );
+				$key = 'token';
 			}
 		}
 
-		return empty( $sKey ) ? true : new \WP_Error( 'bot', $sExplanation, [ 'type' => $sKey ] );
+		return empty( $key ) ? true : new \WP_Error( 'bot', $explanation, [ 'type' => $key ] );
 	}
 
 	/**

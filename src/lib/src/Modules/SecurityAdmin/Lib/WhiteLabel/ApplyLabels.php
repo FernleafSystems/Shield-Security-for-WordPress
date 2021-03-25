@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class ApplyLabels {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEnabledWhitelabel();

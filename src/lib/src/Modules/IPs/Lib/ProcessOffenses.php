@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -9,8 +10,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class ProcessOffenses {
 
 	use ModConsumer;
+	use ExecOnce;
 
-	public function run() {
+	protected function canRun() :bool {
+		return !$this->getMod()->isVerifiedBot();
+	}
+
+	protected function run() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 

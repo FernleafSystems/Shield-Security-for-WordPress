@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -15,21 +15,21 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class File {
 
-	use StdClassAdapter;
+	use DynProperties;
 
-	public function __construct( $sFilename, $sDir = ABSPATH ) {
-		$this->file = $sFilename;
-		$this->dir = wp_normalize_path( $sDir );
+	public function __construct( string $filename, $dir = ABSPATH ) {
+		$this->file = $filename;
+		$this->dir = wp_normalize_path( $dir );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getExistingPossiblePaths() {
+	public function getExistingPossiblePaths() :array {
 		return array_filter(
 			$this->getPossiblePaths(),
-			function ( $sPath ) {
-				return Services::WpFs()->isFile( $sPath );
+			function ( $path ) {
+				return !empty( $path ) && Services::WpFs()->isFile( $path );
 			}
 		);
 	}
@@ -37,7 +37,7 @@ class File {
 	/**
 	 * @return string[]
 	 */
-	public function getPossiblePaths() {
+	public function getPossiblePaths() :array {
 		$paths = [];
 		$dirCount = 0;
 		$workingDir = realpath( $this->dir );
@@ -57,10 +57,7 @@ class File {
 		return $paths;
 	}
 
-	/**
-	 * @return int
-	 */
-	protected function getMaxDirLevels() {
+	protected function getMaxDirLevels() :int {
 		return (int)max( 1, (int)$this->max_levels );
 	}
 }

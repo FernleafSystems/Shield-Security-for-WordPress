@@ -22,8 +22,7 @@
   "menu_items":       [
     {
       "title":    "Scans",
-      "slug":     "scans-redirect",
-      "callback": ""
+      "slug":     "scans-redirect"
     }
   ],
   "custom_redirects": [
@@ -396,13 +395,64 @@
       "tracking_exclude": true,
       "type":             "array",
       "default":          []
+    },
+    {
+      "key":              "filelocker_state",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     }
   ],
   "definitions":      {
     "db_classes":                          {
       "file_protect": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
-      "scanresults":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
+      "filelocker":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
+      "scanner":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
       "scanq":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+    },
+    "db_table_filelocker":                 {
+      "slug":            "filelocker",
+      "has_updated_at":  true,
+      "cols_custom":     {
+        "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
+        "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
+        "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
+        "content":       "MEDIUMBLOB COMMENT 'Content'",
+        "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'"
+      },
+      "cols_timestamps": {
+        "detected_at": "Change Last Detected",
+        "reverted_at": "Reverted To Backup",
+        "notified_at": "Notification Sent"
+      }
+    },
+    "db_table_scanner":                    {
+      "slug":            "scanner",
+      "cols_custom":     {
+        "hash":     "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
+        "meta":     "text COMMENT 'Relevant Item Data'",
+        "scan":     "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
+        "severity": "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'"
+      },
+      "cols_timestamps": {
+        "ignored_at":  "Scan Result Ignored",
+        "notified_at": "Scan Notifiation Sent"
+      }
+    },
+    "db_table_scanq":                      {
+      "slug":            "scanq",
+      "cols_custom":     {
+        "scan":    "varchar(3) NOT NULL DEFAULT '' COMMENT 'Scan Slug'",
+        "items":   "text COMMENT 'Array of scan items'",
+        "results": "text COMMENT 'Array of results'",
+        "meta":    "text COMMENT 'Meta Data'"
+      },
+      "cols_timestamps": {
+        "started_at":  "Scan Started",
+        "finished_at": "Scan Completed"
+      }
     },
     "all_scan_slugs":                      [
       "apc",
@@ -423,28 +473,6 @@
       "reverted_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Reverted To Backup'",
       "notified_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Notification Sent'",
       "updated_at":    "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated'"
-    },
-    "table_name_scanner":                  "scanner",
-    "table_columns_scanner":               {
-      "hash":     "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
-      "meta":     "text COMMENT 'Relevant Item Data'",
-      "scan":     "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
-      "severity": "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'"
-    },
-    "scanresults_table_timestamp_columns": {
-      "ignored_at":  "Scan Result Ignored",
-      "notified_at": "Scan Notifiation Sent"
-    },
-    "table_name_scanqueue":                "scanq",
-    "table_columns_scanqueue":             {
-      "scan":    "varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug'",
-      "items":   "text COMMENT 'Array of scan items'",
-      "results": "text COMMENT 'Array of results'",
-      "meta":    "text COMMENT 'Meta Data'"
-    },
-    "scanqueue_table_timestamp_columns":   {
-      "started_at":  "Scan Started",
-      "finished_at": "Scan Completed"
     },
     "url_mal_sigs_simple":                 "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":                  "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",

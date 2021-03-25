@@ -74,18 +74,15 @@ class ModCon extends BaseShield\ModCon {
 		] );
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case  'scan_file_download':
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'filelocker':
+				$this->getFileLocker()->handleFileDownloadRequest();
+				break;
+			case 'scan_file':
 				( new Lib\Utility\FileDownloadHandler() )
 					->setDbHandler( $this->getDbHandler_ScanResults() )
 					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
-				break;
-			case  'filelocker_download_original':
-			case  'filelocker_download_current':
-				$this->getFileLocker()->handleFileDownloadRequest();
-				break;
-			default:
 				break;
 		}
 	}
@@ -193,7 +190,8 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
-		return $this->getDbH( 'file_protect' );
+		$new = $this->getDbH( 'filelocker' );
+		return empty( $new ) ? $this->getDbH( 'file_protect' ) : $new;
 	}
 
 	public function getDbHandler_ScanQueue() :Databases\ScanQueue\Handler {
@@ -201,7 +199,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbHandler_ScanResults() :Databases\Scanner\Handler {
-		return $this->getDbH( 'scanresults' );
+		return $this->getDbH( 'scanner' );
 	}
 
 	/**
@@ -218,9 +216,9 @@ class ModCon extends BaseShield\ModCon {
 
 	public function onPluginDeactivate() {
 		// 1. Clean out the scanners
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $slug ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		foreach ( $opts->getScanSlugs() as $slug ) {
 			$this->getScanCon( $slug )->purge();
 		}
 		$this->getDbHandler_ScanQueue()->tableDelete();

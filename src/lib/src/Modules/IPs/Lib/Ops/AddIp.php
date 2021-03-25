@@ -23,40 +23,39 @@ class AddIp {
 	public function toAutoBlacklist() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oReq = Services::Request();
+		$req = Services::Request();
 
-		$sIP = $this->getIP();
-		if ( !Services::IP()->isValidIp( $sIP ) ) {
+		$ip = $this->getIP();
+		if ( !Services::IP()->isValidIp( $ip ) ) {
 			throw new \Exception( "IP address isn't valid." );
 		}
-		if ( in_array( $sIP, Services::IP()->getServerPublicIPs() ) ) {
+		if ( in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
 			throw new \Exception( 'Will not black mark our own server IP' );
 		}
 
-		$oIP = ( new LookupIpOnList() )
+		$IP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlack()
-			->setIP( $sIP )
+			->setIP( $ip )
 			->lookup( false );
-		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-			$oIP = $this->add( $mod::LIST_AUTO_BLACK, 'auto', $oReq->ts() );
+		if ( !$IP instanceof Databases\IPs\EntryVO ) {
+			$IP = $this->add( $mod::LIST_AUTO_BLACK, 'auto', $req->ts() );
 		}
 
 		// Edge-case: the IP is on the list but the last access long-enough passed
 		// that it's set to be removed by the cron - the IP is basically expired.
 		// We just reset the transgressions
-		/** @var Modules\IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oIP->transgressions > 0
-			 && ( $oReq->ts() - $oOpts->getAutoExpireTime() > (int)$oIP->last_access_at ) ) {
+		/** @var Modules\IPs\Options $opts */
+		$opts = $this->getOptions();
+		if ( $IP->transgressions > 0 && ( $req->ts() - $opts->getAutoExpireTime() > (int)$IP->last_access_at ) ) {
 			$mod->getDbHandler_IPs()
-				 ->getQueryUpdater()
-				 ->updateEntry( $oIP, [
-					 'last_access_at' => Services::Request()->ts(),
-					 'transgressions' => 0
-				 ] );
+				->getQueryUpdater()
+				->updateEntry( $IP, [
+					'last_access_at' => Services::Request()->ts(),
+					'transgressions' => 0
+				] );
 		}
-		return $oIP;
+		return $IP;
 	}
 
 	/**
@@ -74,46 +73,46 @@ class AddIp {
 			throw new \Exception( "IP address isn't valid." );
 		}
 
-		$oIP = null;
+		$IP = null;
 		if ( !in_array( $sIP, $oIpServ->getServerPublicIPs() ) ) {
 
 			if ( $oIpServ->isValidIpRange( $sIP ) ) {
 				( new DeleteIp() )
-					->setDbHandler( $mod->getDbHandler_IPs() )
+					->setMod( $mod )
 					->setIP( $sIP )
 					->fromBlacklist();
 			}
 
-			$oIP = ( new LookupIpOnList() )
+			$IP = ( new LookupIpOnList() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setListTypeBlack()
 				->setIP( $sIP )
 				->lookup( false );
 
-			if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-				$oIP = $this->add( $mod::LIST_MANUAL_BLACK, $sLabel );
+			if ( !$IP instanceof Databases\IPs\EntryVO ) {
+				$IP = $this->add( $mod::LIST_MANUAL_BLACK, $sLabel );
 			}
 
-			$aUpdateData = [
+			$updateData = [
 				'last_access_at' => Services::Request()->ts()
 			];
 
-			if ( $oIP->list != $mod::LIST_MANUAL_BLACK ) {
-				$aUpdateData[ 'list' ] = $mod::LIST_MANUAL_BLACK;
+			if ( $IP->list != $mod::LIST_MANUAL_BLACK ) {
+				$updateData[ 'list' ] = $mod::LIST_MANUAL_BLACK;
 			}
-			if ( $oIP->label != $sLabel ) {
-				$aUpdateData[ 'label' ] = $sLabel;
+			if ( $IP->label != $sLabel ) {
+				$updateData[ 'label' ] = $sLabel;
 			}
-			if ( $oIP->blocked_at == 0 ) {
-				$aUpdateData[ 'blocked_at' ] = Services::Request()->ts();
+			if ( $IP->blocked_at == 0 ) {
+				$updateData[ 'blocked_at' ] = Services::Request()->ts();
 			}
 
 			$mod->getDbHandler_IPs()
-				 ->getQueryUpdater()
-				 ->updateEntry( $oIP, $aUpdateData );
+				->getQueryUpdater()
+				->updateEntry( $IP, $updateData );
 		}
 
-		return $oIP;
+		return $IP;
 	}
 
 	/**
@@ -133,50 +132,51 @@ class AddIp {
 
 		if ( $oIpServ->isValidIpRange( $ip ) ) {
 			( new DeleteIp() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
+				->setMod( $mod )
 				->setIP( $ip )
 				->fromWhiteList();
 		}
 
-		$oIP = ( new LookupIpOnList() )
+		$IP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )
 			->lookup( false );
-		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
-			$oIP = $this->add( $mod::LIST_MANUAL_WHITE, $label );
+		if ( !$IP instanceof Databases\IPs\EntryVO ) {
+			$this->getCon()->fireEvent( 'ip_bypass' );
+			$IP = $this->add( $mod::LIST_MANUAL_WHITE, $label );
 		}
 
-		$aUpdateData = [];
-		if ( $oIP->list != $mod::LIST_MANUAL_WHITE ) {
-			$aUpdateData[ 'list' ] = $mod::LIST_MANUAL_WHITE;
+		$updateData = [];
+		if ( $IP->list != $mod::LIST_MANUAL_WHITE ) {
+			$updateData[ 'list' ] = $mod::LIST_MANUAL_WHITE;
 		}
-		if ( !empty( $label ) && $oIP->label != $label ) {
-			$aUpdateData[ 'label' ] = $label;
+		if ( !empty( $label ) && $IP->label != $label ) {
+			$updateData[ 'label' ] = $label;
 		}
-		if ( $oIP->blocked_at > 0 ) {
-			$aUpdateData[ 'blocked_at' ] = 0;
+		if ( $IP->blocked_at > 0 ) {
+			$updateData[ 'blocked_at' ] = 0;
 		}
-		if ( $oIP->transgressions > 0 ) {
-			$aUpdateData[ 'transgressions' ] = 0;
+		if ( $IP->transgressions > 0 ) {
+			$updateData[ 'transgressions' ] = 0;
 		}
 
-		if ( !empty( $aUpdateData ) ) {
+		if ( !empty( $updateData ) ) {
 			$mod->getDbHandler_IPs()
-				 ->getQueryUpdater()
-				 ->updateEntry( $oIP, $aUpdateData );
+				->getQueryUpdater()
+				->updateEntry( $IP, $updateData );
 		}
 
-		return $oIP;
+		return $IP;
 	}
 
 	/**
-	 * @param string   $sList
+	 * @param string   $list
 	 * @param string   $sLabel
 	 * @param int|null $nLastAccessAt
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	private function add( $sList, $sLabel = '', $nLastAccessAt = null ) {
+	private function add( string $list, $sLabel = '', $nLastAccessAt = null ) {
 		$oIP = null;
 
 		/** @var ModCon $mod */
@@ -188,7 +188,7 @@ class AddIp {
 		/** @var Databases\IPs\EntryVO $oTempIp */
 		$oTempIp = $oDbh->getVo();
 		$oTempIp->ip = $this->getIP();
-		$oTempIp->list = $sList;
+		$oTempIp->list = $list;
 		$oTempIp->label = empty( $sLabel ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $sLabel );
 		if ( is_numeric( $nLastAccessAt ) && $nLastAccessAt > 0 ) {
 			$oTempIp->last_access_at = $nLastAccessAt;

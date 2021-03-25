@@ -1,7 +1,7 @@
 jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 	var runAnalysis = function () {
-		let newUrl = window.location.href.replace( /&analyse_ip=(\d{1,3}\.){3}\d{1,3}/i, "" );
+		let newUrl = window.location.href.replace( /&analyse_ip=.+/i, "" );
 		if ( $oIpSelect.val().length > 0 ) {
 			newUrl += "&analyse_ip=" + $oIpSelect.val();
 		}
@@ -18,7 +18,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		window.history.replaceState(
 			{},
 			document.title,
-			window.location.href.replace( /&analyse_ip=(\d{1,3}\.){3}\d{1,3}/i, "" )
+			window.location.href.replace( /&analyse_ip=.*/i, "" )
 		);
 	};
 
@@ -35,15 +35,18 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 					jQuery( '#IpSelectContent' ).addClass( "d-none" );
 					jQuery( '#IpReviewContent' ).removeClass( "d-none" )
 												.html( oResponse.data.html );
+					if ( oResponse.page_reload ) {
+						location.reload();
+					}
 				}
 				else {
-					var sMessage = 'Communications error with site.';
+					var msg = 'Communications error with site.';
 					if ( oResponse.data.message !== undefined ) {
-						sMessage = oResponse.data.message;
+						msg = oResponse.data.message;
 					}
 					jQuery( '#IpSelectContent' ).removeClass( "d-none" );
 					jQuery( '#IpReviewContent' ).addClass( "d-none" );
-					alert( sMessage );
+					alert( msg );
 				}
 
 			}
@@ -79,7 +82,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 			let urlParams = new URLSearchParams( window.location.search );
 			let theIP = urlParams.get( 'analyse_ip' );
 			if ( theIP ) {
-				$oIpSelect.selectpicker( 'val', theIP );
+				$oIpSelect.val( theIP );
 				runAnalysis();
 			}
 			else {

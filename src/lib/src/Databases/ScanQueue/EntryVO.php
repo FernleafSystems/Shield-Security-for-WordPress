@@ -15,56 +15,53 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class EntryVO extends Base\EntryVO {
 
 	/**
-	 * @param string $sProperty
-	 * @return mixed
+	 * @inheritDoc
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mVal = parent::__get( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'items':
 			case 'results':
-				if ( is_string( $mVal ) && !empty( $mVal ) ) {
-					$mVal = base64_decode( $mVal );
-					if ( !empty( $mVal ) ) {
-						$mVal = @json_decode( $mVal, true );
+				if ( is_string( $value ) && !empty( $value ) ) {
+					$value = base64_decode( $value );
+					if ( !empty( $value ) ) {
+						$value = @json_decode( $value, true );
 					}
 				}
 
-				if ( !is_array( $mVal ) ) {
-					$mVal = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
 				break;
 
 			default:
 				break;
 		}
-		return $mVal;
+		return $value;
 	}
 
 	/**
-	 * @param string $sProperty
-	 * @param mixed  $mValue
-	 * @return $this
+	 * @inheritDoc
 	 */
-	public function __set( $sProperty, $mValue ) {
+	public function __set( string $key, $value ) {
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'items':
 			case 'results':
-				if ( !is_array( $mValue ) ) {
-					$mValue = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
-				$mValue = base64_encode( json_encode( $mValue ) );
+				$value = base64_encode( json_encode( $value ) );
 				break;
 
 			default:
 				break;
 		}
 
-		return parent::__set( $sProperty, $mValue );
+		parent::__set( $key, $value );
 	}
 }

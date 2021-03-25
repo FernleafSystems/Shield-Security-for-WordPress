@@ -218,6 +218,18 @@ class Strings extends Base\Strings {
 						.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
 				break;
 
+			case 'enable_antibot_check' :
+				$name = __( 'AntiBot Detection Engine', 'wp-simple-firewall' );
+				$summary = __( "Use AntiBot Detection Engine To Detect Bots", 'wp-simple-firewall' );
+				$desc = [
+					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
+					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
+						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings.", 'wp-simple-firewall' ) )
+				];
+				break;
+
 			case 'bot_protection_locations' :
 				$name = __( 'Protection Locations', 'wp-simple-firewall' );
 				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );

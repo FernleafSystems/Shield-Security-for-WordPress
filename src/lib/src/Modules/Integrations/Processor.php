@@ -7,9 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Processor extends BaseShield\Processor {
 
 	protected function run() {
-		$this->getCon()
-			 ->getModule_Integrations()
-			 ->getControllerMWP()
-			 ->execute();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getControllerMWP()->execute();
+		
+		( new Lib\Spam\SpamController() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 }

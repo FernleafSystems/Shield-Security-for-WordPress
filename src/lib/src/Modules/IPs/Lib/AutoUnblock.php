@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,19 +16,40 @@ class AutoUnblock {
 	 */
 	public function run() :bool {
 		try {
-			$bUnblocked = $this->processAutoUnblockRequest();
+			$unblocked = $this->processAutoUnblockRequest();
 		}
 		catch ( \Exception $e ) {
-			$bUnblocked = false;
+			$unblocked = false;
 		}
-		if ( !$bUnblocked ) {
+		if ( !$unblocked ) {
 			try {
-				$bUnblocked = $this->processUserMagicLink();
+				$unblocked = $this->processUserMagicLink();
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-		return $bUnblocked;
+		if ( !$unblocked ) {
+			$unblocked = $this->checkForBlockedServiceBot();
+		}
+		return $unblocked;
+	}
+
+	/**
+	 * @deprecated 10.3 - temporary to ensure that service bots aren't blocked and reduce spurious Audit Trail
+	 */
+	private function checkForBlockedServiceBot() :bool {
+		/** @var IPs\ModCon $mod */
+		$mod = $this->getMod();
+
+		$unblocked = false;
+		if ( $mod->isVerifiedBot() ) {
+			( new IPs\Lib\Ops\DeleteIp() )
+				->setMod( $mod )
+				->setIP( Services::IP()->getRequestIp() )
+				->fromBlacklist();
+			$unblocked = true;
+		}
+		return $unblocked;
 	}
 
 	/**
@@ -83,7 +103,7 @@ class AutoUnblock {
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
+				->setMod( $mod )
 				->setIP( $sIP )
 				->fromBlacklist();
 			$unblocked = true;
@@ -149,7 +169,7 @@ class AutoUnblock {
 			}
 			elseif ( $linkParts[ 1 ] === 'go' ) {
 				( new IPs\Lib\Ops\DeleteIp() )
-					->setDbHandler( $mod->getDbHandler_IPs() )
+					->setMod( $mod )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
 				$unblocked = true;

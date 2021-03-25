@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Profiles;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\MfaControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BaseProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
 
 class CustomForms {
 
-	use OneTimeExecute;
+	use ExecOnce;
 	use MfaControllerConsumer;
 	use WpUserConsumer;
 

@@ -20,13 +20,18 @@ class Init {
 			$this->ajaxAction();
 		} );
 		add_action( 'wp_ajax_nopriv_'.$this->getCon()->prefix(), function () {
-			$this->ajaxAction();
+			$this->ajaxAction( false );
 		} );
 	}
 
-	private function ajaxAction() {
-		$nonceAction = Services::Request()->request( 'exec' );
-		check_ajax_referer( $nonceAction, 'exec_nonce' );
+	private function ajaxAction( bool $forceDie = true ) {
+		$req = Services::Request();
+		$nonceAction = $req->request( 'exec' );
+
+		// if the ajax action is part of the allow list, is may fail the nonce.
+		// This is work around for front-end caching plugin that screw everything up.
+		check_ajax_referer( $nonceAction, 'exec_nonce',
+			$forceDie || !in_array( $nonceAction, $this->getAllowedNoPrivExecs() ) );
 
 		ob_start();
 		$response = apply_filters(
@@ -51,5 +56,9 @@ class Init {
 			],
 			false
 		);
+	}
+
+	private function getAllowedNoPrivExecs() :array {
+		return [];
 	}
 }

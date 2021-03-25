@@ -10,7 +10,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class PaidMemberSubscriptions extends BaseFormProvider {
 
 	protected function register() {
-		add_action( 'pms_register_form_after_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'pms_register_form_after_fields', [ $this, 'printFormInsert' ], 100 );
 		add_filter( 'pms_register_form_validation', [ $this, 'checkRegister' ], 100 );
 	}
 

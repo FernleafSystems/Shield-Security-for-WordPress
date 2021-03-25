@@ -120,6 +120,46 @@
       "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
     },
     {
+      "key":         "enable_antibot_check",
+      "section":     "section_bot_comment_spam_protection_filter",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/jn",
+      "link_blog":   "https://shsec.io/jo",
+      "name":        "AntiBot Detection Engine",
+      "summary":     "Use Experimental AntiBot Detection Engine",
+      "description": "Use Shield's AntiBot Detection Engine In-Place of GASP Bot checking."
+    },
+    {
+      "key":           "comments_default_action_spam_bot",
+      "section":       "section_bot_comment_spam_protection_filter",
+      "default":       "spam",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "0",
+          "text":      "Move To Pending Moderation"
+        },
+        {
+          "value_key": "spam",
+          "text":      "Move To SPAM"
+        },
+        {
+          "value_key": "trash",
+          "text":      "Move To Trash"
+        },
+        {
+          "value_key": "reject",
+          "text":      "Block And Redirect"
+        }
+      ],
+      "link_info":     "https://shsec.io/6j",
+      "link_blog":     "",
+      "name":          "SPAM Action",
+      "summary":       "How To Categorise Comments When Identified To Be SPAM",
+      "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
+    },
+    {
       "key":           "google_recaptcha_style_comments",
       "section":       "section_bot_comment_spam_protection_filter",
       "default":       "disabled",
@@ -162,35 +202,6 @@
       "name":        "GASP Protection",
       "summary":     "Block Bot Comment SPAM",
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
-    },
-    {
-      "key":           "comments_default_action_spam_bot",
-      "section":       "section_bot_comment_spam_protection_filter",
-      "default":       "spam",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "0",
-          "text":      "Move To Pending Moderation"
-        },
-        {
-          "value_key": "spam",
-          "text":      "Move To SPAM"
-        },
-        {
-          "value_key": "trash",
-          "text":      "Move To Trash"
-        },
-        {
-          "value_key": "reject",
-          "text":      "Block And Redirect"
-        }
-      ],
-      "link_info":     "https://shsec.io/6j",
-      "link_blog":     "",
-      "name":          "SPAM Action",
-      "summary":       "How To Categorise Comments When Identified To Be SPAM",
-      "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
     },
     {
       "key":         "enable_comments_human_spam_filter",
@@ -303,6 +314,10 @@
     "comments_expire": 1800,
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
+      "spam_block_antibot":   {
+        "recent":  true,
+        "offense": true
+      },
       "spam_block_bot":       {
         "recent":  true,
         "offense": true

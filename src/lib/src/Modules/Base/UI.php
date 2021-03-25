@@ -171,8 +171,8 @@ class UI {
 		$con = $this->getCon();
 		$urlBuilder = $con->urls;
 
-		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
-		$oPluginOptions = $con->getModule_Plugin()->getOptions();
+		/** @var Shield\Modules\Plugin\Options $pluginOptions */
+		$pluginOptions = $con->getModule_Plugin()->getOptions();
 
 		return [
 			'sPluginName'   => $con->getHumanName(),
@@ -217,16 +217,16 @@ class UI {
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
-				'access_restricted'     => !$mod->canDisplayOptionsForm(),
-				'show_ads'              => $mod->getIsShowMarketing(),
-				'wrap_page_content'     => true,
-				'show_standard_options' => true,
-				'show_content_help'     => true,
-				'show_alt_content'      => false,
-				'has_wizard'            => $mod->hasWizard(),
-				'is_premium'            => $con->isPremiumActive(),
-				'show_transfer_switch'  => $con->isPremiumActive(),
-				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
+				'access_restricted'        => !$mod->canDisplayOptionsForm(),
+				'show_ads'                 => $mod->getIsShowMarketing(),
+				'wrap_page_content'        => true,
+				'show_standard_options'    => true,
+				'show_content_help'        => true,
+				'show_alt_content'         => false,
+				'has_wizard'               => $mod->hasWizard(),
+				'is_premium'               => $con->isPremiumActive(),
+				'show_transfer_switch'     => $con->isPremiumActive(),
+				'is_wpcli'                 => $pluginOptions->isEnabledWpcli(),
 			],
 			'hrefs'      => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
@@ -235,18 +235,17 @@ class UI {
 				'wizard_landing' => $mod->getUrl_WizardLanding(),
 
 				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap4.min' ),
+				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap' ),
 				'css_pages'        => $urlBuilder->forCss( 'pages' ),
 				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
 				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
 				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
 				'css_wizard'       => $urlBuilder->forCss( 'wizard' ),
 				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap4.bundle.min' ),
+				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap' ),
 				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
 				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
 				'js_steps'         => $urlBuilder->forJs( 'jquery.steps.min' ),
-				'js_wizard'        => $urlBuilder->forJs( 'wizard' ),
 			],
 			'imgs'       => [
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),

@@ -23,6 +23,9 @@ class Enqueue {
 		}
 	}
 
+	/**
+	 * TODO: Consider how to move this to our standardised Enqueue system.
+	 */
 	public function onWpEnqueueJs() {
 		/** @var ModCon $oMod */
 		$oMod = $this->getMod();
@@ -50,10 +53,7 @@ class Enqueue {
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getCaptchaHtml() {
+	public function getCaptchaHtml() :string {
 		return '<div class="icwpg-recaptcha"></div>';
 	}
 

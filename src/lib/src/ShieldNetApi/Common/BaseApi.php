@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 
@@ -16,11 +16,8 @@ use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
  * @property array       $params_body
  * @property array       $params_query
  */
-abstract class BaseApi {
+abstract class BaseApi extends DynPropertiesClass {
 
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
 	const DEFAULT_URL_STUB = '';
 	const API_ACTION = '';
 
@@ -75,36 +72,36 @@ abstract class BaseApi {
 	}
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mValue = $this->__adapterGet( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'params_query':
 			case 'params_body':
-				if ( !is_array( $mValue ) ) {
-					$mValue = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
 				break;
 
 			case 'request_method':
-				$mValue = empty( $mValue ) ? 'get' : strtolower( $mValue );
+				$value = empty( $value ) ? 'get' : strtolower( $value );
 				break;
 
 			case 'lookup_url_stub':
-				if ( empty( $mValue ) ) {
-					$mValue = static::DEFAULT_URL_STUB;
+				if ( empty( $value ) ) {
+					$value = static::DEFAULT_URL_STUB;
 				}
-				$mValue = rtrim( $mValue, '/' );
+				$value = rtrim( $value, '/' );
 				break;
 
 			case 'timeout':
-				if ( empty( $mValue ) || !is_numeric( $mValue ) ) {
-					$mValue = 60;
+				if ( empty( $value ) || !is_numeric( $value ) ) {
+					$value = 60;
 				}
 				break;
 
@@ -112,6 +109,6 @@ abstract class BaseApi {
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 }

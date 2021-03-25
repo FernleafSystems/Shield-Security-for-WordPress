@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -12,9 +13,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class PluginTelemetry {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
+	use PluginCronsConsumer;
 
-	protected function canRun() {
+	protected function canRun() :bool  {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet();
@@ -36,7 +38,7 @@ class PluginTelemetry {
 				break;
 		}
 
-		add_action( $this->getCon()->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		$this->setupCronHooks();
 	}
 
 	public function runDailyCron() {

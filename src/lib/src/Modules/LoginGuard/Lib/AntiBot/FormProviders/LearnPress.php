@@ -10,13 +10,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class LearnPress extends BaseFormProvider {
 
 	protected function login() {
-		add_action( 'learn-press/after-form-login-fields', [ $this, 'formInsertsPrint' ], 100 );
-		add_action( 'learn-press/before-checkout-form-login-button', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'learn-press/after-form-login-fields', [ $this, 'printFormInsert' ], 100 );
+		add_action( 'learn-press/before-checkout-form-login-button', [ $this, 'printFormInsert' ], 100 );
 		add_filter( 'learn-press/login-validate-field', [ $this, 'checkLogin' ], 100 );
 	}
 
 	protected function register() {
-		add_action( 'learn-press/after-form-register-fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'learn-press/after-form-register-fields', [ $this, 'printFormInsert' ], 100 );
 		add_filter( 'learn-press/register-validate-field', [ $this, 'checkRegister' ], 100, 1 );
 	}
 

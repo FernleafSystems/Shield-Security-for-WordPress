@@ -96,12 +96,11 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		/** @var ScanQueue\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		$nUnfinished = $oSel->filterByNotStarted()
-							->filterByNotFinished()
-							->count();
-		return $nUnfinished === 0;
+		/** @var ScanQueue\Select $selector */
+		$selector = $this->getDbHandler()->getQuerySelector();
+		return $selector->filterByNotStarted()
+						->filterByNotFinished()
+						->count() === 0;
 	}
 
 	/**
@@ -112,12 +111,12 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	public function save() {
 
 		if ( is_array( $this->data ) ) {
-			/** @var ScanQueue\Insert $oInsert */
-			$oInsert = $this->getDbHandler()->getQueryInserter();
-			foreach ( $this->data as $nKey => $oEntry ) {
-				/** @var ScanQueue\EntryVO $oEntry */
-				if ( $oEntry instanceof ScanQueue\EntryVO ) {
-					$oInsert->insert( $oEntry );
+			/** @var ScanQueue\Insert $inserter */
+			$inserter = $this->getDbHandler()->getQueryInserter();
+			foreach ( $this->data as $nKey => $entry ) {
+				/** @var ScanQueue\EntryVO $entry */
+				if ( $entry instanceof ScanQueue\EntryVO ) {
+					$inserter->insert( $entry );
 				}
 			}
 		}
@@ -134,18 +133,18 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function update( $key, $data ) {
-		/** @var ScanQueue\Update $oUpd */
-		$oUpd = $this->getDbHandler()->getQueryUpdater();
-		$oToUpdate = array_shift( $data );
-		$oUpd->updateEntry( $oToUpdate );
+		/** @var ScanQueue\Update $updater */
+		$updater = $this->getDbHandler()->getQueryUpdater();
+		$entry = array_shift( $data );
+		$updater->updateById( $entry->id, $entry->getRawData() );
 		return $this;
 	}
 
 	public function handleExpiredItems() {
-		$nBoundary = Services::Request()
-							 ->carbon()
-							 ->subSeconds( $this->getExpirationInterval() )->timestamp;
-		$this->getDbHandler()->deleteRowsOlderThan( $nBoundary );
+		$boundary = Services::Request()
+							->carbon()
+							->subSeconds( $this->getExpirationInterval() )->timestamp;
+		$this->getDbHandler()->deleteRowsOlderThan( $boundary );
 	}
 
 	/**

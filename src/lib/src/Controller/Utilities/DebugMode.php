@@ -37,10 +37,10 @@ class DebugMode {
 	public function isActiveViaModeFile() :bool {
 		$con = $this->getCon();
 		$FS = Services::WpFs();
-		$correctPath = $con->getPath_Flags( 'mode.debug' );
+		$correctPath = $con->paths->forFlag( 'mode.debug' );
 
 		// We first look for the presence of the file (which may not be named in all lower-case)
-		$foundFile = $FS->findFileInDir( 'mode.debug', $con->getPath_Flags(), false, false );
+		$foundFile = $FS->findFileInDir( 'mode.debug', $con->paths->forFlag(), false, false );
 		if ( !empty( $foundFile )
 			 && $FS->isFile( $foundFile ) && !$FS->isFile( $correctPath )
 			 && !basename( $correctPath ) !== basename( $foundFile ) ) {
@@ -50,6 +50,6 @@ class DebugMode {
 	}
 
 	private function getPathToModeFile() :string {
-		return $this->getCon()->getPath_Flags( 'mode.debug' );
+		return $this->getCon()->paths->forFlag( 'mode.debug' );
 	}
 }

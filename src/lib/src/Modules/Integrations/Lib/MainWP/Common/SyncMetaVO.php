@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
  * Class SyncVO - property should align with Sync Meta
@@ -16,5 +16,5 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  */
 class SyncMetaVO {
 
-	use StdClassAdapter;
+	use DynProperties;
 }

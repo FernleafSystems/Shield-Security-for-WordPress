@@ -52,10 +52,10 @@ class Update extends Base\Update {
 
 	/**
 	 * @param EntryVO $session
-	 * @param array   $aUpdateData
+	 * @param array   $updateData
 	 * @return bool
 	 */
-	public function updateSession( $session, $aUpdateData = [] ) {
-		return parent::updateEntry( $session, $aUpdateData );
+	public function updateSession( $session, $updateData = [] ) {
+		return parent::updateEntry( $session, $updateData );
 	}
 }

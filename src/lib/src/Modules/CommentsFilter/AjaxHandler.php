@@ -7,32 +7,27 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
+	protected function processNonAuthAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
 			case 'comment_token'.Services::IP()->getRequestIp():
-				$aResponse = $this->ajaxExec_GenCommentToken();
+				$response = $this->ajaxExec_GenCommentToken();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_GenCommentToken() {
-		$oReq = Services::Request();
-		$sToken = ( new Shield\Modules\CommentsFilter\Token\Create() )
-			->setMod( $this->getMod() )
-			->run( $oReq->post( 'ts' ), $oReq->post( 'post_id' ) );
-
+	private function ajaxExec_GenCommentToken() :array {
+		$req = Services::Request();
 		return [
 			'success' => true,
-			'token'   => $sToken,
+			'token'   => ( new Shield\Modules\CommentsFilter\Token\Create() )
+				->setMod( $this->getMod() )
+				->run( $req->post( 'ts' ), $req->post( 'post_id' ) ),
 		];
 	}
 }

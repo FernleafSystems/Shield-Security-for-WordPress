@@ -17,31 +17,31 @@ class BaseShieldNetApi extends BaseApi {
 	const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v1';
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get( string $key ) {
 
-		$mValue = parent::__get( $sProperty );
+		$value = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'params_query':
 				if ( $this->request_method == 'get' ) {
-					$mValue = array_merge( $this->shield_net_params, $mValue );
+					$value = array_merge( $this->shield_net_params, $value );
 				}
 				break;
 
 			case 'params_body':
 				if ( $this->request_method == 'post' ) {
-					$mValue = array_merge( $this->shield_net_params, $mValue );
+					$value = array_merge( $this->shield_net_params, $value );
 				}
 				break;
 
 			case 'shield_net_params':
-				if ( !is_array( $mValue ) ) {
-					$mValue = $this->getShieldNetApiParams();
-					$this->shield_net_params = $mValue;
+				if ( !is_array( $value ) ) {
+					$value = $this->getShieldNetApiParams();
+					$this->shield_net_params = $value;
 				}
 				break;
 
@@ -49,7 +49,7 @@ class BaseShieldNetApi extends BaseApi {
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 
 	/**

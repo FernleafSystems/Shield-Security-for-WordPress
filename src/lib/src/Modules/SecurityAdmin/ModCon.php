@@ -32,6 +32,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this->whitelabelCon;
 	}
 
+	public function getSecAdminLoginAjaxData() :array {
+		return $this->getAjaxActionData( 'sec_admin_login' );
+	}
+
 	/**
 	 * @return bool
 	 * @throws \Exception
@@ -70,6 +74,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$opts->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
+
+		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
+			$opts->clearSecurityAdminKey();
+			$this->setSecurityAdminStatusOnOff( false );
+			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
+			$opts->setOpt( 'sec_admin_users', [] );
+		}
 	}
 
 	/**
@@ -145,6 +156,7 @@ class ModCon extends BaseShield\ModCon {
 					->remove();
 				break;
 			default:
+				parent::handleModAction( $action );
 				break;
 		}
 	}
@@ -252,16 +264,19 @@ class ModCon extends BaseShield\ModCon {
 			$sLogoUrl = $opts->getOpt( $key );
 		}
 		if ( !empty( $sLogoUrl ) && !Services::Data()->isValidWebUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
-			$sLogoUrl = $this->getCon()->getPluginUrl_Image( $sLogoUrl );
+			$sLogoUrl = $this->getCon()->urls->forImage( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
 				$opts->resetOptToDefault( $key );
-				$sLogoUrl = $this->getCon()->getPluginUrl_Image( $opts->getOpt( $key ) );
+				$sLogoUrl = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
 			}
 		}
 
 		return $sLogoUrl;
 	}
 
+	/**
+	 * @deprecated 11.0
+	 */
 	public function isWlEnabled() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -269,7 +284,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function isWlHideUpdates() :bool {
-		return $this->isWlEnabled() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
+		return $this->isEnabledWhitelabel() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
 	/**
@@ -333,11 +348,6 @@ class ModCon extends BaseShield\ModCon {
 	protected function doPrePluginOptionsSave() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
-			$opts->clearSecurityAdminKey();
-			$this->setSecurityAdminStatusOnOff( false );
-		}
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$aPluginsRestrictions = $opts->getAdminAccessArea_Plugins();

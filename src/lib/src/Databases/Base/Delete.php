@@ -32,14 +32,14 @@ class Delete extends BaseQuery {
 
 	/**
 	 * NOTE: Does not reset() before query, so may be customized with where.
-	 * @param int    $nMaxEntries
-	 * @param string $sSortColumn
+	 * @param int    $maxEntries
+	 * @param string $orderByColumn
 	 * @param bool   $bOldestFirst
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function deleteExcess( $nMaxEntries, $sSortColumn = 'created_at', $bOldestFirst = true ) {
-		if ( is_null( $nMaxEntries ) ) {
+	public function deleteExcess( $maxEntries, $orderByColumn = 'created_at', $bOldestFirst = true ) {
+		if ( is_null( $maxEntries ) ) {
 			throw new \Exception( 'Max Entries not specified for table excess delete.' );
 		}
 
@@ -50,10 +50,10 @@ class Delete extends BaseQuery {
 					   ->getQuerySelector()
 					   ->setWheres( $this->getWheres() )
 					   ->count();
-		$nToDelete = $nTotal - $nMaxEntries;
+		$nToDelete = $nTotal - $maxEntries;
 
 		if ( $nToDelete > 0 ) {
-			$nEntriesDeleted = $this->setOrderBy( $sSortColumn, $bOldestFirst ? 'ASC' : 'DESC' )
+			$nEntriesDeleted = $this->setOrderBy( $orderByColumn, $bOldestFirst ? 'ASC' : 'DESC' )
 									->setLimit( $nToDelete )
 									->query();
 		}

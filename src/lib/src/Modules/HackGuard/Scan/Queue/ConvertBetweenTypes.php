@@ -39,7 +39,7 @@ class ConvertBetweenTypes {
 		}
 		unset( $oAction->items );
 		unset( $oAction->results );
-		$entry->meta = $oAction->getRawDataAsArray();
+		$entry->meta = $oAction->getRawData();
 		return $entry;
 	}
 }

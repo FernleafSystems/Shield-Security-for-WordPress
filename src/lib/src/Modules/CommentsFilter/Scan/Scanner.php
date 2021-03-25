@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
@@ -11,19 +11,19 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
 	/**
 	 * @var string|int|null
 	 */
-	private $mCommentStatus;
+	private $spamStatus;
 
 	/**
 	 * @var string
 	 */
-	private $sCommentExplanation;
+	private $spamReason;
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		return Services::Request()->isPost();
 	}
 
@@ -40,44 +40,48 @@ class Scanner {
 	 * @return int|string|null
 	 */
 	public function setStatus( $mStatus ) {
-		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
-			$mStatus = $this->mCommentStatus;
+		if ( !is_null( $this->spamStatus ) && in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
+			$mStatus = $this->spamStatus;
 		}
 		return $mStatus;
 	}
 
 	/**
-	 * @param string $sContent
+	 * @param string $content
 	 * @return string
 	 */
-	public function insertStatusExplanation( $sContent ) {
+	public function insertStatusExplanation( $content ) {
 
-		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
-			switch ( $this->mCommentStatus ) {
+		if ( !is_null( $this->spamStatus ) && in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
+
+			switch ( $this->spamStatus ) {
 				case 'spam':
-					$sHumanStatus = 'SPAM';
+					$humanStatus = 'SPAM';
 					break;
 				case 'trash':
-					$sHumanStatus = __( 'Trash' );
+					$humanStatus = __( 'Trash' );
 					break;
 				default:
 				case '0':
-					$sHumanStatus = __( 'Pending Moderation' );
+					$humanStatus = __( 'Pending Moderation' );
 					break;
 			}
 
-			$sContent =
-				'[* '.sprintf( __( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' )
-							   .' '.__( 'Reason: %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName(),
-					$sHumanStatus,
-					$this->sCommentExplanation
-
-				)." *]\n"
-				.$sContent;
+			$additional = (string)apply_filters(
+				'shield/comment_spam_explanation',
+				sprintf(
+					"## Comment SPAM Protection: %s %s ##\n",
+					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName(), $humanStatus ),
+					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
+				),
+				$this->spamStatus,
+				$this->spamReason
+			);
+			$content = $additional.$content;
 		}
 
-		return $sContent;
+		return $content;
 	}
 
 	/**
@@ -100,18 +104,18 @@ class Scanner {
 					 );
 
 				if ( $mResult->get_error_code() == 'human' ) {
-					$sStatus = $opts->getOpt( 'comments_default_action_human_spam' );
+					$status = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$sStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
+					$status = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
 
-				if ( $sStatus == 'reject' ) {
+				if ( $status == 'reject' ) {
 					Services::Response()->redirectToHome();
 				}
 
-				$this->mCommentStatus = $sStatus;
-				$this->sCommentExplanation = $mResult->get_error_message();
+				$this->spamStatus = $status;
+				$this->spamReason = $mResult->get_error_message();
 			}
 		}
 
@@ -130,27 +134,40 @@ class Scanner {
 
 		$mResult = true;
 
-		if ( !is_wp_error( $mResult ) && $opts->isEnabledGaspCheck() ) {
-			$mResult = ( new Bot() )
-				->setMod( $this->getMod() )
-				->scan( $aCommData[ 'comment_post_ID' ] );
-		}
-
-		if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
+		if ( $opts->isEnabledAntiBot() ) {
 			try {
-				if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {
-					( new Utilities\HCaptcha\TestRequest() )
-						->setMod( $this->getMod() )
-						->test();
-				}
-				else {
-					( new Utilities\ReCaptcha\TestRequest() )
-						->setMod( $this->getMod() )
-						->test();
-				}
+				( new AntiBot() )
+					->setMod( $this->getMod() )
+					->scan();
 			}
 			catch ( \Exception $e ) {
-				$mResult = new \WP_Error( 'recaptcha', $e->getMessage(), [] );
+				$mResult = new \WP_Error( 'antibot', $e->getMessage() );
+			}
+		}
+		else {
+
+			if ( $opts->isEnabledGaspCheck() ) {
+				$mResult = ( new Bot() )
+					->setMod( $this->getMod() )
+					->scan( $aCommData[ 'comment_post_ID' ] );
+			}
+
+			if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
+				try {
+					if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {
+						( new Utilities\HCaptcha\TestRequest() )
+							->setMod( $this->getMod() )
+							->test();
+					}
+					else {
+						( new Utilities\ReCaptcha\TestRequest() )
+							->setMod( $this->getMod() )
+							->test();
+					}
+				}
+				catch ( \Exception $e ) {
+					$mResult = new \WP_Error( 'recaptcha', $e->getMessage(), [] );
+				}
 			}
 		}
 

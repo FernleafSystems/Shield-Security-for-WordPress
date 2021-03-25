@@ -15,7 +15,7 @@ class BaseMergeItems {
 	 * @return BaseResultItem
 	 */
 	public function mergeItemTo( $oBaseItem, $oMergeItem ) {
-		foreach ( $oMergeItem->getRawDataAsArray() as $sKey => $mVal ) {
+		foreach ( $oMergeItem->getRawData() as $sKey => $mVal ) {
 			$oBaseItem->{$sKey} = $mVal;
 		}
 		return $oBaseItem;

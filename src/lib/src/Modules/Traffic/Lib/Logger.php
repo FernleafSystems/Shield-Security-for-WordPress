@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class Logger {
 
@@ -26,7 +25,7 @@ class Logger {
 
 	private function isRequestToBeLogged() :bool {
 		return !$this->getCon()->plugin_deleting
-			   && apply_filters( $this->getCon()->prefix( 'is_log_traffic' ), true )
+			   && apply_filters( 'shield/is_log_traffic', true )
 			   && ( !$this->isCustomExcluded() )
 			   && ( !$this->isRequestTypeExcluded() );
 	}
@@ -68,25 +67,13 @@ class Logger {
 	}
 
 	private function isServiceIp_Search() :bool {
-		return in_array( Services::IP()->getIpDetector()->getIPIdentity(), [
-			IpIdentify::APPLE,
-			IpIdentify::BAIDU,
-			IpIdentify::BING,
-			IpIdentify::DUCKDUCKGO,
-			IpIdentify::GOOGLE,
-			IpIdentify::HUAWEI,
-			IpIdentify::YAHOO,
-			IpIdentify::YANDEX,
-		] );
+		return in_array( Services::IP()->getIpDetector()->getIPIdentity(),
+			Services::ServiceProviders()->getSearchProviders() );
 	}
 
 	private function isServiceIp_Uptime() :bool {
-		return in_array( Services::IP()->getIpDetector()->getIPIdentity(), [
-			IpIdentify::PINGDOM,
-			IpIdentify::STATUSCAKE,
-			IpIdentify::UPTIMEROBOT,
-			IpIdentify::NODEPING
-		] );
+		return in_array( Services::IP()->getIpDetector()->getIPIdentity(),
+			Services::ServiceProviders()->getUptimeProviders() );
 	}
 
 	private function logTraffic() {

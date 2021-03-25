@@ -4,12 +4,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
-		return $this->getDbH( 'audit' );
+		$new = $this->getDbH( 'audit_trail' );
+		return empty( $new ) ? $this->getDbH( 'audit' ) : $new;
+	}
+
+	protected function handleFileDownload( string $downloadID ) {
+		switch ( $downloadID ) {
+			case 'db_audit':
+				( new DbTableExport() )
+					->setDbHandler( $this->getDbHandler_AuditTrail() )
+					->toCSV();
+				break;
+		}
 	}
 
 	/**
@@ -62,12 +74,12 @@ class ModCon extends BaseShield\ModCon {
 			$oFinder->filterByUsername( $oUser->user_login );
 
 			$WP = Services::WpGeneral();
-			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			foreach ( $oFinder->query() as $oEntry ) {
+			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
+			foreach ( $oFinder->query() as $entry ) {
 				$aExportItem[ 'data' ][] = [
-					$sTimeStamp = $WP->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
+					$sTimeStamp = $WP->getTimeStringForDisplay( $entry->getCreatedAt() ),
 					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
-					'value' => sprintf( '[IP:%s] %s', $oEntry->ip, $oEntry->message )
+					'value' => sprintf( '[IP:%s] %s', $entry->ip, $entry->message )
 				];
 			}
 

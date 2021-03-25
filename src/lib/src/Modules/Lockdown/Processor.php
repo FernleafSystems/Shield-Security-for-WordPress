@@ -26,16 +26,16 @@ class Processor extends BaseShield\Processor {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $opts->isOpt( 'clean_wp_rubbish', 'Y' ) ) {
-			( new Lib\CleanRubbish() )
-				->setMod( $this->getMod() )
-				->execute();
-		}
-
 		if ( $opts->isXmlrpcDisabled() ) {
 			add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
 			add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		}
+	}
+
+	public function runDailyCron() {
+		( new Lib\CleanRubbish() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	private function blockFileEditing() {

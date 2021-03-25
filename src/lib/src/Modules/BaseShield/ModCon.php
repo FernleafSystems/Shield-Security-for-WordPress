@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpIdentify;
 
 class ModCon extends Base\ModCon {
 
@@ -21,20 +21,13 @@ class ModCon extends Base\ModCon {
 	 */
 	private static $bVisitorIsWhitelisted;
 
-	/**
-	 * @return bool
-	 * @deprecated 10.2
-	 */
 	public function canCacheDirWrite() :bool {
 		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
 			->setMod( $this->getCon()->getModule_Plugin() )
 			->canWrite();
 	}
 
-	/**
-	 * @return Shield\Databases\Session\Handler
-	 */
-	public function getDbHandler_Sessions() {
+	public function getDbHandler_Sessions() :Shield\Databases\Session\Handler {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getDbHandler_Sessions();
@@ -50,11 +43,8 @@ class ModCon extends Base\ModCon {
 					->getCurrent();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasValidRequestIP() {
-		return Services::IP()->isValidIp( Services::IP()->getRequestIp() );
+	public function hasValidRequestIP() :bool {
+		return !empty( Services::IP()->isValidIp( Services::IP()->getRequestIp() ) );
 	}
 
 	public function onWpInit() {
@@ -97,11 +87,14 @@ class ModCon extends Base\ModCon {
 		return $cfg;
 	}
 
+	/**
+	 * @deprecated 11.0
+	 */
 	public function getSecAdminLoginAjaxData() :array {
 		// We set a custom mod_slug so that this module handles the ajax request
-		$dat = $this->getAjaxActionData( 'sec_admin_login' );
-		$dat[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $dat;
+		$data = $this->getAjaxActionData( 'sec_admin_login' );
+		$data[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $data;
 	}
 
 	protected function getSecAdminCheckAjaxData() :array {
@@ -156,10 +149,7 @@ class ModCon extends Base\ModCon {
 		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfSupport3rdParty() {
+	public function getIfSupport3rdParty() :bool {
 		return $this->isPremium();
 	}
 
@@ -177,40 +167,46 @@ class ModCon extends Base\ModCon {
 
 	public function isVisitorWhitelisted() :bool {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-			try {
-				$ipID = ( new IpIdentify(
-					(string)Services::IP()->getRequestIp(),
-					(string)Services::Request()->getUserAgent()
-				) )->run();
-				$ipID = key( $ipID );
-			}
-			catch ( \Exception $e ) {
-				$ipID = IpIdentify::UNKNOWN;
-			}
 
-			self::$bVisitorIsWhitelisted =
-				in_array( $ipID, [ IpIdentify::ICONTROLWP, IpIdentify::MANAGEWP ] )
-				|| ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-					   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-					   ->setIP( Services::IP()->getRequestIp() )
-					   ->setListTypeWhite()
-					   ->lookup()
-				   instanceof Shield\Databases\IPs\EntryVO;
+			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
+
+			$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
+
+			if ( is_array( $untrustedProviders ) && in_array( $ipID, $untrustedProviders ) ) {
+				self::$bVisitorIsWhitelisted = false;
+			}
+			elseif ( in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() ) ) {
+				self::$bVisitorIsWhitelisted = true; // iControlWP / ManageWP
+			}
+			else {
+				self::$bVisitorIsWhitelisted =
+					( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
+						->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+						->setIP( Services::IP()->getRequestIp() )
+						->setListTypeWhite()
+						->lookup() instanceof Shield\Databases\IPs\EntryVO;
+			}
 		}
 		return self::$bVisitorIsWhitelisted;
 	}
 
 	public function isVerifiedBot() :bool {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$srvIP = Services::IP();
-			self::$bIsVerifiedBot = !$srvIP->isLoopback() &&
-									!in_array( $srvIP->getIpDetector()->getIPIdentity(), [
-										IpIdentify::UNKNOWN,
-										IpIdentify::THIS_SERVER,
-										IpIdentify::VISITOR,
+			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
+			self::$bIsVerifiedBot = !Services::IP()->isLoopback() &&
+									!in_array( $ipID, [
+										Utilities\Net\IpID::UNKNOWN,
+										Utilities\Net\IpID::THIS_SERVER,
+										Utilities\Net\IpID::VISITOR,
 									] );
 		}
 		return self::$bIsVerifiedBot;
+	}
+
+	public function isEnabledWhitelabel() :bool {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
+		return $opts->isEnabledWhitelabel();
 	}
 
 	public function isXmlrpcBypass() :bool {

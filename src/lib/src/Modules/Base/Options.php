@@ -179,9 +179,6 @@ class Options {
 		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $sProperty ] ) ) ? $raw[ 'properties' ][ $sProperty ] : null;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getWpCliCfg() :array {
 		$cfg = $this->getRawData_FullFeatureConfig();
 		return array_merge(
@@ -428,7 +425,7 @@ class Options {
 	}
 
 	public function getAdditionalMenuItems() :array {
-		return $this->getRawData_MenuItems();
+		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
 	}
 
 	public function getNeedSave() :bool {
@@ -588,9 +585,11 @@ class Options {
 		return $raw[ 'requirements' ] ?? [];
 	}
 
+	/**
+	 * @deprecated 11.0
+	 */
 	protected function getRawData_MenuItems() :array {
-		$raw = $this->getRawData_FullFeatureConfig();
-		return $raw[ 'menu_items' ] ?? [];
+		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
 	}
 
 	public function getRawData_SingleOption( string $key ) :array {

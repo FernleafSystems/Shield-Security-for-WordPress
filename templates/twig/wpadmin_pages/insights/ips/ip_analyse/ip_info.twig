@@ -11,6 +11,12 @@
 				</a>
 			</li>
 			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" role="tab" href="#tabIpInfoBotSignals"
+				   data-bs-toggle="pill">
+					{{ strings.nav_signals }}
+				</a>
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" role="tab" href="#tabIpInfoSessions"
 				   data-bs-toggle="pill">
 					{{ strings.nav_sessions }}
@@ -35,6 +41,9 @@
 		<div class="tab-content">
 			<div class="tab-pane show active" id="tabIpInfoGeneral" role="tabpanel" aria-labelledby="tabIpInfoGeneral">
 				{{ content.general|raw }}
+			</div>
+			<div class="tab-pane" id="tabIpInfoBotSignals" role="tabpanel" aria-labelledby="tabIpInfoBotSignals">
+				{{ content.signals|raw }}
 			</div>
 			<div class="tab-pane" id="tabIpInfoSessions" role="tabpanel" aria-labelledby="tabIpInfoSessions">
 				{{ content.sessions|raw }}

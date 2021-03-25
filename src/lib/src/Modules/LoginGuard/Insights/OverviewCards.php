@@ -25,31 +25,31 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'mod' ] = $this->getModDisabledCard();
 		}
 		else {
-			$bHasBotCheck = $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
+			$hasBotCheck = $opts->isEnabledAntiBot() || $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
 
-			$bBotLogin = $bHasBotCheck && $opts->isProtectLogin();
-			$bBotRegister = $bHasBotCheck && $opts->isProtectRegister();
-			$bBotPassword = $bHasBotCheck && $opts->isProtectLostPassword();
+			$boLogin = $hasBotCheck && $opts->isProtectLogin();
+			$botReg = $hasBotCheck && $opts->isProtectRegister();
+			$botPassword = $hasBotCheck && $opts->isProtectLostPassword();
 			$cards[ 'bot_login' ] = [
 				'name'    => __( 'Brute Force Login', 'wp-simple-firewall' ),
-				'state'   => $bBotLogin ? 1 : -1,
-				'summary' => $bBotLogin ?
+				'state'   => $boLogin ? 1 : -1,
+				'summary' => $boLogin ?
 					__( 'Login forms are protected against bot attacks', 'wp-simple-firewall' )
 					: __( "Login forms aren't protected against brute force bot attacks", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 			$cards[ 'bot_register' ] = [
 				'name'    => __( 'Bot User Register', 'wp-simple-firewall' ),
-				'state'   => $bBotRegister ? 1 : -1,
-				'summary' => $bBotRegister ?
+				'state'   => $botReg ? 1 : -1,
+				'summary' => $botReg ?
 					__( 'Registration forms are protected against bot attacks', 'wp-simple-firewall' )
 					: __( "Registration forms aren't protected against automated bots", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 			$cards[ 'bot_password' ] = [
 				'name'    => __( 'Brute Force Lost Password', 'wp-simple-firewall' ),
-				'state'   => $bBotPassword ? 1 : -1,
-				'summary' => $bBotPassword ?
+				'state'   => $botPassword ? 1 : -1,
+				'summary' => $botPassword ?
 					__( 'Lost Password forms are protected against bot attacks', 'wp-simple-firewall' )
 					: __( "Lost Password forms aren't protected against automated bots", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'bot_protection_locations' ),

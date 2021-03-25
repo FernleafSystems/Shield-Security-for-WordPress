@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class EasyDigitalDownloads extends BaseFormProvider {
 
 	protected function login() {
-		add_action( 'edd_login_fields_after', [ $this, 'formInsertsPrint' ], 10 );
+		add_action( 'edd_login_fields_after', [ $this, 'printFormInsert' ], 10 );
 	}
 
 	protected function register() {
-		add_action( 'edd_register_form_fields_before_submit', [ $this, 'formInsertsPrint' ], 10 );
+		add_action( 'edd_register_form_fields_before_submit', [ $this, 'printFormInsert' ], 10 );
 		add_action( 'edd_process_register_form', [ $this, 'checkRegister' ], 10 );
 	}
 

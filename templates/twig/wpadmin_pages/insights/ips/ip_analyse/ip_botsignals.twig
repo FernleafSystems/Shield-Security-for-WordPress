@@ -1,0 +1,41 @@
+<h6 class="card-title">
+	{{ strings.title }}
+	<span class="badge badge-info">{{ vars.total_signals }}</span>
+</h6>
+{% if not flags.has_signals %}
+	<div class="alert-info alert">{{ strings.no_signals }}</div>
+{% else %}
+	<div class="overflow_container">
+		<p>
+		{{ strings.total_score }}:
+			<span class="badge badge-{{ vars.total_score > 0 ? 'success':'danger' }}">
+				{{ vars.total_score }}
+			</span>
+			/ {{ strings.bot_probability }}: {{ vars.probability }}&percnt;
+		</p>
+		<table class="table">
+			<thead class="thead-light">
+			<tr>
+				<th scope="col">{{ strings.signal }}</th>
+				<th scope="col">{{ strings.score }}</th>
+				<th scope="col">{{ strings.when }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for signal,signal_at in vars.signals %}
+				<tr>
+					<td>
+						<span>{{ attribute(strings.signal_names, signal) }}</span>
+					</td>
+					<td>
+						<span class="badge badge-{{ attribute(vars.scores, signal) > 0 ? 'success':'danger' }}">
+							{{ attribute(vars.scores, signal) }}
+						</span>
+					</td>
+					<td class="w-50">{{ signal_at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}

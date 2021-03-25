@@ -309,6 +309,17 @@
       "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
     },
     {
+      "key":         "enable_antibot_check",
+      "section":     "section_brute_force_login_protection",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/jn",
+      "link_blog":   "https://shsec.io/jo",
+      "name":        "AntiBot",
+      "summary":     "Use Experimental AntiBot Detection Engine",
+      "description": "Use Shield's AntiBot Detection Engine In-Place of GASP/CAPTCHA Bot checking."
+    },
+    {
       "key":         "enable_login_gasp_check",
       "section":     "section_brute_force_login_protection",
       "default":     "N",
@@ -490,15 +501,18 @@
       "2fa_email_send_fail":     {
       },
       "cooldown_fail":           {
+        "offense": true
       },
       "honeypot_fail":           {
+        "offense": true
       },
       "botbox_fail":             {
+        "offense": true
       },
       "login_block":             {
         "audit":   false,
         "recent":  true,
-        "offense": true
+        "offense": false
       },
       "hide_login_url":          {
         "audit": false

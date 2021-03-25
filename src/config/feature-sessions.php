@@ -56,7 +56,8 @@
   ],
   "definitions": {
     "db_classes":                       {
-      "session": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
+      "sessions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler",
+      "session":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
     },
     "sessions_table_name":              "sessions",
     "sessions_table_columns":           {
@@ -72,6 +73,22 @@
       "login_intent_expires_at": "2FA Window Expires",
       "secadmin_at":             "Security Admin Authenticated"
     },
+    "db_table_sessions":                {
+      "slug":            "sessions",
+      "cols_custom":     {
+        "session_id":        "varchar(32) NOT NULL DEFAULT ''",
+        "wp_username":       "varchar(255) NOT NULL DEFAULT ''",
+        "ip":                "varchar(60) NOT NULL DEFAULT '0'",
+        "browser":           "varchar(32) NOT NULL DEFAULT ''",
+        "last_activity_uri": "text NOT NULL DEFAULT ''"
+      },
+      "cols_timestamps": {
+        "logged_in_at":            "Session Started",
+        "last_activity_at":        "Last Seen At",
+        "login_intent_expires_at": "2FA Window Expires",
+        "secadmin_at":             "Security Admin Authenticated"
+      }
+    },
     "events":                           {
       "session_start":     {
         "audit": false
@@ -79,6 +96,11 @@
       "session_terminate": {
         "audit":  false,
         "recent": true
+      },
+      "login_success":     {
+        "offense": false,
+        "audit":   false,
+        "stat":    false
       }
     }
   }

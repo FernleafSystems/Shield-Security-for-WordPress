@@ -1,0 +1,109 @@
+<div class="row">
+	<div class="col insights_section">
+		<h5 class="my-3">Chart Your Desired Stats</h5>
+		<form class="" id="CustomChart">
+
+			<div class="form-row">
+
+				<div class="col-auto mb-3">
+					<label class="sr-only" for="_events">{{ strings.select_events }}</label>
+					<select multiple="multiple" name="events[]" id="_events" class="select2picker">
+						{% for event_key,event_name in vars.events %}
+							<option value="{{ event_key }}">{{ event_name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="col-auto mb-3">
+					<label class="sr-only" for="_interval">{{ strings.select_interval }}</label>
+					<select name="interval" id="_interval">
+						<option value="" disabled="disabled" selected="selected">
+							-- {{ strings.select_interval }} --
+						</option>
+						{% for interval_key,interval_name in vars.interval %}
+							<option value="{{ interval_key }}">{{ interval_name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="col-auto mb-3 text-right">
+					<input id="SubmitForm" class="btn btn-primary"
+						   type="submit" value="{{ strings.build_chart }}" />
+					{# <a id="ClearForm" href="#" #}
+					{# class="btn btn-sm btn-link text-dark">{{ strings.filters_clear }}</a> #}
+				</div>
+
+			</div>
+		</form>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+		<h6 id="CustomChartTitle" class="mb-3 text-center"></h6>
+	</div>
+	<div class="col-10 offset-1">
+		<div id="CustomChartDisplay"></div>
+	</div>
+</div>
+
+{% block inline_scripts %}
+
+	<script type="text/javascript">
+		jQuery( document ).ready( function () {
+
+			jQuery( document ).icwpWpsfChartWithFilters(
+				{
+					'chart': jQuery( '#CustomChartDisplay' ).icwpWpsfAjaxChart(
+						{
+							'ajax_render':{{ ajax.render_custom_chart|raw }},
+							'init_render': false,
+							'show_title': true,
+							'chart_options': {
+								height: '300px',
+							}
+						}
+					),
+					'selector_filter_form': 'form#CustomChart'
+				}
+			);
+		} );
+	</script>
+
+	<script type="text/javascript">
+		{# jQuery( document ).ready( function () { #}
+
+		{# let data = {{ chart_data|raw }}; #}
+
+		{# let options = { #}
+		{# // Don't draw the line chart points #}
+		{# showPoint: true, #}
+		{# // Disable line smoothing #}
+		{# lineSmooth: true, #}
+		{# showArea: true, #}
+		{# // X-Axis specific configuration #}
+		{# axisX: { #}
+		{# // We can disable the grid for this axis #}
+		{# showGrid: true, #}
+		{# // and also don't show the label #}
+		{# showLabel: true #}
+		{# }, #}
+		{# // Y-Axis specific configuration #}
+		{# axisY: { #}
+		{# onlyInteger: true, #}
+		{# // The label interpolation function enables you to modify the values #}
+		{# // used for the labels on each axis. Here we are converting the #}
+		{# // values into million pound. #}
+		{# labelInterpolationFnc: function ( value ) { #}
+		{# return value; #}
+		{# } #}
+		{# } #}
+		{# }; #}
+
+		{# // Create a new line chart object where as first parameter we pass in a selector #}
+		{# // that is resolving to our chart container element. The Second parameter #}
+		{# // is the actual data object. #}
+		{# new Chartist.Line( '.ct-chart', data, options ); #}
+
+		{# } ); #}
+	</script>
+{% endblock %}

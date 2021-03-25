@@ -53,13 +53,13 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param string       $sColumn
+	 * @param string       $column
 	 * @param string|array $mValue
-	 * @param string       $sOperator
+	 * @param string       $operator
 	 * @return $this
 	 */
-	public function addWhere( $sColumn, $mValue, $sOperator = '=' ) {
-		if ( !$this->isValidComparisonOperator( $sOperator ) ) {
+	public function addWhere( $column, $mValue, $operator = '=' ) {
+		if ( !$this->isValidComparisonOperator( $operator ) ) {
 			return $this; // Exception?
 		}
 
@@ -70,7 +70,7 @@ abstract class BaseQuery {
 		else {
 			$mValue = esc_sql( $mValue );
 
-			if ( strcasecmp( $sOperator, 'LIKE' ) === 0 ) {
+			if ( strcasecmp( $operator, 'LIKE' ) === 0 ) {
 				$mValue = sprintf( '%%%s%%', $mValue );
 			}
 			if ( is_string( $mValue ) ) {
@@ -78,9 +78,9 @@ abstract class BaseQuery {
 			}
 		}
 
-		$aWhere = $this->getWheres();
-		$aWhere[] = sprintf( '`%s` %s %s', esc_sql( $sColumn ), $sOperator, $mValue );
-		return $this->setWheres( $aWhere );
+		$where = $this->getWheres();
+		$where[] = sprintf( '`%s` %s %s', esc_sql( $column ), $operator, $mValue );
+		return $this->setWheres( $where );
 	}
 
 	/**
@@ -311,10 +311,7 @@ abstract class BaseQuery {
 		return max( (int)$this->nLimit, 0 );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getWheres() {
+	public function getWheres() :array {
 		if ( !is_array( $this->aWheres ) ) {
 			$this->aWheres = [];
 		}
@@ -446,33 +443,33 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param array $aWheres
+	 * @param array $where
 	 * @return $this
 	 */
-	public function setWheres( $aWheres ) {
-		$this->aWheres = $aWheres;
+	public function setWheres( $where ) {
+		$this->aWheres = $where;
 		return $this;
 	}
 
 	/**
-	 * @param EntryVO $oVo
+	 * @param EntryVO $VO
 	 * @return $this
 	 */
-	public function setWheresFromVo( $oVo ) {
-		foreach ( $oVo->getRawDataAsArray() as $sCol => $mVal ) {
-			$this->addWhereEquals( $sCol, $mVal );
+	public function setWheresFromVo( $VO ) {
+		foreach ( $VO->getRawData() as $col => $mVal ) {
+			$this->addWhereEquals( $col, $mVal );
 		}
 		return $this;
 	}
 
 	/**
 	 * Very basic
-	 * @param string $sOp
+	 * @param string $op
 	 * @return bool
 	 */
-	protected function isValidComparisonOperator( $sOp ) {
+	protected function isValidComparisonOperator( $op ) {
 		return in_array(
-			strtoupper( $sOp ),
+			strtoupper( $op ),
 			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
 		);
 	}

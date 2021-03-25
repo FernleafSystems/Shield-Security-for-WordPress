@@ -44,6 +44,17 @@
 					{% endif %}
 				</p>
 			</dd>
+
+			<dt class="mb-1">{{ strings.status.notbot_score }}</dt>
+			<dd>
+				<p>
+					<span class="bigger-badge badge badge-{{ vars.status.is_bot ? 'warning' : 'success' }}">
+						{{ vars.status.notbot_score }}
+					</span>
+					<a href="#" class="ml-2 text-primary ip_analyse_action"
+					   data-ip_action="delete_notbot" data-ip="{{ vars.ip }}">{{ strings.delete_notbot }}</a>
+				</p>
+			</dd>
 		</dl>
 	</div>
 

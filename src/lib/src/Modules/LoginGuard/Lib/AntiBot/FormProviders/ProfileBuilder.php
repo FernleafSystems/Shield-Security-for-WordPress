@@ -10,7 +10,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 class ProfileBuilder extends BaseFormProvider {
 
 	protected function register() {
-		add_action( 'wppb_form_before_submit_button', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'wppb_form_before_submit_button', [ $this, 'printFormInsert' ], 100 );
 		add_filter( 'wppb_output_field_errors_filter', [ $this, 'checkRegister' ], 100 );
 	}
 

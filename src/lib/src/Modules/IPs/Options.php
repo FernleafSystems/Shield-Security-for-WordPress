@@ -69,59 +69,39 @@ class Options extends BaseShield\Options {
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledAutoBlackList() {
+	public function isEnabledAutoBlackList() :bool {
 		return $this->getOffenseLimit() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledAutoVisitorRecover() {
+	public function isEnabledAutoVisitorRecover() :bool {
 		return in_array( 'gasp', (array)$this->getOpt( 'user_auto_recover', [] ) );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledMagicEmailLinkRecover() {
+	public function isEnabledMagicEmailLinkRecover() :bool {
 		return in_array( 'email', (array)$this->getOpt( 'user_auto_recover', [] ) );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrack404() {
+	public function isEnabledTrack404() :bool {
 		return $this->isSelectOptionEnabled( 'track_404' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackFakeWebCrawler() {
+	public function isEnabledTrackFakeWebCrawler() :bool {
 		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackLoginInvalid() {
+	public function isEnabledTrackInvalidScript() :bool {
+		return $this->isSelectOptionEnabled( 'track_invalidscript' );
+	}
+
+	public function isEnabledTrackLoginInvalid() :bool {
 		return $this->isSelectOptionEnabled( 'track_logininvalid' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackLoginFailed() {
+	public function isEnabledTrackLoginFailed() :bool {
 		return $this->isSelectOptionEnabled( 'track_loginfailed' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackLinkCheese() {
+	public function isEnabledTrackLinkCheese() :bool {
 		return $this->isSelectOptionEnabled( 'track_linkcheese' );
 	}
 
@@ -156,11 +136,7 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( $key, 'block' );
 	}
 
-	/**
-	 * @param string $key
-	 * @return bool
-	 */
-	protected function isSelectOptionEnabled( $key ) {
+	protected function isSelectOptionEnabled( string $key ) :bool {
 		return !$this->isOpt( $key, 'disabled' );
 	}
 }

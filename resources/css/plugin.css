@@ -374,11 +374,6 @@ label input[type=checkbox] {
 	color: #008000 !important;
 	line-height: 40px;
 }
-.bootstrap-select > button.dropdown-toggle,
-.bootstrap-select.show > button.dropdown-toggle {
-	background-color: transparent;
-	color: black !important;
-}
 .dropdown-item {
 	font-size: 1.05rem;
 }
@@ -1447,12 +1442,6 @@ a.card_help {
 .card .badge.badge-secondary a {
 	color: white;
 }
-.bootstrap-select.form-control {
-	border: 1px solid rgba(0, 0, 0, 0.4);
-}
-.bootstrap-select.form-control > button {
-	background-color: white;
-}
 .nav-pills a.nav-link.active {
 	background-color: #008000;
 }
@@ -1493,11 +1482,11 @@ a.card_help {
 #DashboardFeatureCards .card-title img {
 	vertical-align: text-bottom;
 }
-#Dashboard_ModSettingsSelect .bootstrap-select,
+#Dashboard_ModSettingsSelect .select2picker,
 #Dashboard_ModSettingsSelect > select {
 	width: 100%;
 }
-#ModuleSettingsJump .bootstrap-select button {
+#ModuleSettingsJump .select2picker button {
 	padding: 0;
 	line-height: 15px;
 	background: transparent !important;
@@ -1505,16 +1494,16 @@ a.card_help {
 	outline: 0 none !important;
 	box-shadow: 0 0 transparent !important;
 }
-#ModuleSettingsJump .bootstrap-select button::after {
+#ModuleSettingsJump .select2picker button::after {
 	content: none !important;
 }
-#ModuleSettingsJump .bootstrap-select button .filter-option-inner-inner {
+#ModuleSettingsJump .select2picker button .filter-option-inner-inner {
 	font-size: 13px;
 	line-height: 20px;
 	color: #008000 !important;
 	font-weight: 500;
 }
-#ModuleSettingsJump .bootstrap-select,
+#ModuleSettingsJump .select2picker,
 #ModuleSettingsJump select,
 #ModuleSettingsJump select:focus,
 #ModuleSettingsJump select:active {
@@ -1523,7 +1512,6 @@ a.card_help {
 	color: #008000;
 	vertical-align: inherit;
 }
-
 #wpfooter {
 	display: none;
 }
@@ -1538,7 +1526,6 @@ a.card_help {
 	word-break: keep-all;
 	white-space: nowrap;
 	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-
 	position: absolute;
 	bottom: 0;
 	padding-left: 160px;
@@ -1548,20 +1535,24 @@ body.folded #FooterBannerGoPro {
 	padding-left: 40px;
 }
 @media (max-width: 1200px) {
-	#FooterBannerGoPro h6{
+	#FooterBannerGoPro h6 {
 		font-size: 14px;
 		letter-spacing: -1px;
 	}
-	#FooterBannerGoPro p{
+
+	#FooterBannerGoPro p {
 		font-size: 12px;
 		letter-spacing: -1px;
 	}
 }
 @media (max-width: 960px) {
-	#FooterBannerGoPro{
+	#FooterBannerGoPro {
 		padding-left: 40px;
 	}
 }
 #odp-PageFoot {
 	height: 100px;
+}
+.select2-selection {
+	font-weight: normal;
 }

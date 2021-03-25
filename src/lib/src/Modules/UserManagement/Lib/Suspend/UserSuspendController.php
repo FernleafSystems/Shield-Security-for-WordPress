@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
-use FernleafSystems\Utilities\Logic\OneTimeExecute;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class UserSuspendController {
 
 	use ModConsumer;
-	use OneTimeExecute;
+	use ExecOnce;
 
-	protected function canRun() {
+	protected function canRun() :bool {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isSuspendEnabled() && $this->getCon()->isPremiumActive();

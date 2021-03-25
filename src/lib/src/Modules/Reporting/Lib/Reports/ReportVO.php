@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports\EntryVO;
 
 /**
@@ -18,5 +18,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports\EntryVO;
  */
 class ReportVO {
 
-	use StdClassAdapter;
+	use DynProperties;
 }

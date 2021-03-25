@@ -32,6 +32,7 @@ class KeyStats extends BaseReporter {
 			'bottrack_loginfailed',
 			'bottrack_logininvalid',
 			'bottrack_xmlrpc',
+			'bottrack_invalidscript',
 			'spam_block_bot',
 			'spam_block_recaptcha',
 			'spam_block_human',

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use MainWP\Dashboard\MainWP_Extensions_Handler;
 
 /**
@@ -10,29 +10,25 @@ use MainWP\Dashboard\MainWP_Extensions_Handler;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
  * @property string $page - e.g. Extensions-Wp-Simple-Firewall
  */
-class MWPExtensionVO {
-
-	use StdClassAdapter {
-		__get as __adapterGet;
-	}
+class MWPExtensionVO extends DynPropertiesClass {
 
 	/**
-	 * @param string $property
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $property ) {
+	public function __get( string $key ) {
 
-		$mValue = $this->__adapterGet( $property );
+		$value = parent::__get( $key );
 
-		switch ( $property ) {
+		switch ( $key ) {
 			case 'official_extension_data':
-				$mValue = $this->findOfficialExtensionData();
+				$value = $this->findOfficialExtensionData();
 				break;
 			default:
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 
 	private function findOfficialExtensionData() :array {

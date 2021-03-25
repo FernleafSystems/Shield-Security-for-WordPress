@@ -1,31 +1,24 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\WpVulnVO;
 
 /**
  * Class ResultItem
- * @property string slug
- * @property string context
- * @property int    wpvuln_id
- * @property array  wpvuln_vo
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv
+ * @property string $slug
+ * @property string $context
+ * @property int    $wpvuln_id
+ * @property array  $wpvuln_vo
  */
-class ResultItem extends Base\BaseResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem {
 
-	/**
-	 * @return string
-	 */
-	public function generateHash() {
+	public function generateHash() :string {
 		return md5( $this->slug.$this->wpvuln_id );
 	}
 
-	/**
-	 * @return WpVulnVO
-	 */
-	public function getWpVulnVo() {
+	public function getWpVulnVo() :WpVulnVO {
 		return ( new WpVulnVO() )->applyFromArray( $this->wpvuln_vo );
 	}
 }

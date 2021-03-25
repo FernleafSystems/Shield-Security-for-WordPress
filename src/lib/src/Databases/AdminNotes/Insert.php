@@ -14,20 +14,16 @@ class Insert extends Base\Insert {
 	protected function verifyInsertData() {
 		parent::verifyInsertData();
 
-		$aData = $this->getInsertData();
-		if ( empty( $aData[ 'wp_username' ] ) ) {
-			$sUser = Services::WpUsers()->getCurrentWpUsername();
-			$aData[ 'wp_username' ] = empty( $sUser ) ? 'unknown' : $sUser;
+		$data = $this->getInsertData();
+		if ( empty( $data[ 'wp_username' ] ) ) {
+			$username = Services::WpUsers()->getCurrentWpUsername();
+			$data[ 'wp_username' ] = empty( $username ) ? 'unknown' : $username;
 		}
 
-		return $this->setInsertData( $aData );
+		return $this->setInsertData( $data );
 	}
 
-	/**
-	 * @param string $sNote
-	 * @return bool
-	 */
-	public function create( $sNote ) {
-		return $this->setInsertData( [ 'note' => esc_sql( $sNote ) ] )->query() === 1;
+	public function create( string $note ) :bool {
+		return $this->setInsertData( [ 'note' => esc_sql( $note ) ] )->query() === 1;
 	}
 }

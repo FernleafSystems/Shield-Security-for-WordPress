@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
  * Class NoticeVO
@@ -24,5 +24,5 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  */
 class NoticeVO {
 
-	use StdClassAdapter;
+	use DynProperties;
 }

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
- *
  * @property string ip
  * @property array  data
  * @property array  meta
@@ -14,14 +13,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class EntryVO extends Base\EntryVO {
 
 	/**
-	 * @param string $sProperty
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get( $sProperty ) {
+	public function __get(string $key ) {
 
-		$mVal = parent::__get( $sProperty );
+		$mVal = parent::__get( $key );
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'data':
 				$mVal = json_decode( \WP_Http_Encoding::decompress( $mVal ), true );
@@ -35,22 +34,20 @@ class EntryVO extends Base\EntryVO {
 	}
 
 	/**
-	 * @param string $sProperty
-	 * @param mixed  $mValue
-	 * @return $this|mixed
+	 * @inheritDoc
 	 */
-	public function __set( $sProperty, $mValue ) {
+	public function __set( string $key, $value ) {
 
-		switch ( $sProperty ) {
+		switch ( $key ) {
 
 			case 'data':
-				$mValue = \WP_Http_Encoding::compress( json_encode( $mValue ) );
+				$value = \WP_Http_Encoding::compress( json_encode( $value ) );
 				break;
 
 			default:
 				break;
 		}
 
-		return parent::__set( $sProperty, $mValue );
+		parent::__set( $key, $value );
 	}
 }

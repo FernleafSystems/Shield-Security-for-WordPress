@@ -10,16 +10,20 @@ class Processor extends BaseShield\Processor {
 	public function onWpInit() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$oWpUsers = Services::WpUsers();
+		$WPU = Services::WpUsers();
 
-		$bLoadComProc = !$oWpUsers->isUserLoggedIn() ||
+		$loadCommentFilter = !$WPU->isUserLoggedIn() ||
 						!( new Scan\IsEmailTrusted() )->trusted(
-							$oWpUsers->getCurrentWpUser()->user_email,
+							$WPU->getCurrentWpUser()->user_email,
 							$opts->getApprovedMinimum(),
 							$opts->getTrustedRoles()
 						);
 
-		if ( $bLoadComProc ) {
+		( new Scan\CommentAdditiveCleaner() )
+			->setMod( $this->getMod() )
+			->execute();
+
+		if ( $loadCommentFilter ) {
 
 			( new Forms\GoogleRecaptcha() )
 				->setMod( $this->getMod() )

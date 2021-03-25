@@ -18,7 +18,7 @@ abstract class AjaxHandler {
 		add_filter( $this->getCon()->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
 	}
 
-	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) {
+	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) :array {
 		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
 			$ajaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $ajaxAction ) );
 		}
@@ -27,7 +27,7 @@ abstract class AjaxHandler {
 
 	public function handleAjaxNonAuth( array $ajaxResponse, string $ajaxAction ) :array {
 		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
-			$ajaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $ajaxAction ) );
+			$ajaxResponse = $this->normaliseAjaxResponse( $this->processNonAuthAjaxAction( $ajaxAction ) );
 		}
 		return $ajaxResponse;
 	}
@@ -71,6 +71,10 @@ abstract class AjaxHandler {
 		return [];
 	}
 
+	protected function processNonAuthAjaxAction( string $action ) :array {
+		return [];
+	}
+
 	/**
 	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
 	 * so if we send something back non-empty, it'll be treated like a "handled" response and
@@ -78,7 +82,7 @@ abstract class AjaxHandler {
 	 * @param array $ajaxResponse
 	 * @return array
 	 */
-	protected function normaliseAjaxResponse( array $ajaxResponse ) {
+	protected function normaliseAjaxResponse( array $ajaxResponse ) :array {
 		if ( !empty( $ajaxResponse ) ) {
 			$ajaxResponse = array_merge(
 				[

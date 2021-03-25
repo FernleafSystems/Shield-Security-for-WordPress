@@ -96,7 +96,7 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
-				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
+				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
 			]
 		];
 
@@ -130,8 +130,8 @@ class LoginIntentPage {
 				'time_remaining' => $nTimeRemaining,
 			],
 			'hrefs'   => [
-				'css_bootstrap' => $con->urls->forCss( 'bootstrap4.min' ),
-				'js_bootstrap'  => $con->urls->forJs( 'bootstrap4.bundle.min' ),
+				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),
+				'js_bootstrap'  => $con->urls->forJs( 'bootstrap' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'what_is_this'  => 'https://support.getshieldsecurity.com/support/solutions/articles/3000064840',
 			],
@@ -140,7 +140,7 @@ class LoginIntentPage {
 				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'show_branded_links' => !$con->getModule_SecAdmin()->isWlEnabled(), // white label mitigation
+				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
 				'has_u2f'            => isset( $oIC->getProvidersForUser(
 						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
