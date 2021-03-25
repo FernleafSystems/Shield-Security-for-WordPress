@@ -19,19 +19,19 @@ class ScanPtg extends ScanBase {
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function postSelectEntriesFilter( $aEntries ) {
-		$aParams = $this->getParams();
+		$params = $this->getParams();
 
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( !empty( $aParams[ 'fSlug' ] ) ) {
+		if ( !empty( $params[ 'fSlug' ] ) ) {
 
 
 			/** @var Shield\Scans\Ptg\ResultsSet $oSlugResults */
 			$oSlugResults = ( new Scan\Results\ConvertBetweenTypes() )
-				->setScanController( $mod->getScanCon( $aParams[ 'fSlug' ] ) )
+				->setScanController( $mod->getScanCon( $params[ 'fSlug' ] ) )
 				->fromVOsToResultsSet( $aEntries );
-			$oSlugResults = $oSlugResults->getResultsSetForSlug( $aParams[ 'fSlug' ] );
+			$oSlugResults = $oSlugResults->getResultsSetForSlug( $params[ 'fSlug' ] );
 
 			foreach ( $aEntries as $key => $oVo ) {
 				if ( !$oSlugResults->getItemExists( $oVo->hash ) ) {
