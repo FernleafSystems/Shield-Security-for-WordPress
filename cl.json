@@ -88,6 +88,13 @@
           "WP-Config FileLocker system is more reliable with requests in the case of database problems",
           "Lots of code cleanup"
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Gravity Form error",
+        "description": [
+        ],
+        "patch":       "11.0.1"
       }
     ]
   },
