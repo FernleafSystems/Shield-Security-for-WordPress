@@ -92,9 +92,14 @@
       {
         "type":        "fixed",
         "title":       "Gravity Form error",
-        "description": [
-        ],
+        "description": [],
         "patch":       "11.0.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Performance issue.",
+        "description": [],
+        "patch":       "11.0.2"
       }
     ]
   },
