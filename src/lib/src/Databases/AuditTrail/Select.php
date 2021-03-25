@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Select extends Base\Select {
@@ -36,14 +35,22 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $sIp
+	 * @param string $ip
 	 * @return $this
 	 */
-	public function filterByIp( $sIp ) {
-		if ( Services::IP()->isValidIp( $sIp ) ) {
-			$this->addWhereEquals( 'ip', trim( $sIp ) );
+	public function filterByIp( $ip ) {
+		if ( Services::IP()->isValidIp( $ip ) ) {
+			$this->addWhereEquals( 'ip', trim( $ip ) );
 		}
 		return $this;
+	}
+
+	/**
+	 * @param int $id
+	 * @return $this
+	 */
+	public function filterByRequestID( int $id ) {
+		return $this->addWhereEquals( 'rid', $id );
 	}
 
 	/**
