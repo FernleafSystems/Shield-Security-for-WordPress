@@ -86,19 +86,4 @@ class TrackLinkCheese extends Base {
 	private function getCheeseWord() :string {
 		return $this->getCon()->prefix( self::CHEESE_WORD );
 	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 10.3
-	 */
-	private function getPossibleWords() {
-		return [
-			'mouse',
-			'cheese',
-			'venus',
-			'stilton',
-			'cheddar',
-			'holey',
-		];
-	}
 }

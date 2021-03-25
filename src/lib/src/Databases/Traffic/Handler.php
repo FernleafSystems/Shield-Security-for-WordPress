@@ -14,11 +14,11 @@ class Handler extends Base\Handler {
 		$this->tableTrimExcess( $opts->getMaxEntries() );
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 11.1
+	 */
 	protected function getDefaultTableName() :string {
 		return $this->getOptions()->getDef( 'traffic_table_name' );
-	}
-
-	protected function getCustomColumns() :array {
-		return $this->getOptions()->getDef( 'traffic_table_columns' );
 	}
 }

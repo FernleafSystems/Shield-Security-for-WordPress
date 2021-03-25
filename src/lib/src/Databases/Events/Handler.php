@@ -37,10 +37,10 @@ class Handler extends Base\Handler {
 		return $QI->insert( $oEvt );
 	}
 
-	public function getCustomColumns() :array {
-		return $this->getOptions()->getDef( 'events_table_columns' );
-	}
-
+	/**
+	 * @return string
+	 * @deprecated 11.1
+	 */
 	protected function getDefaultTableName() :string {
 		return $this->getOptions()->getDef( 'events_table_name' );
 	}
