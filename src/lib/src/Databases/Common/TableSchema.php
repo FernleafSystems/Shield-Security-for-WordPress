@@ -24,7 +24,7 @@ class TableSchema extends DynPropertiesClass {
 
 	const PRIMARY_KEY = 'id';
 
-	public function __get( $key ) {
+	public function __get( string $key ) {
 		switch ( $key ) {
 			case 'has_ip_col':
 				$val = array_key_exists( 'ip', $this->enumerateColumns() );
