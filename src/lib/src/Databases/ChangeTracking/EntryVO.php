@@ -16,7 +16,7 @@ class EntryVO extends Base\EntryVO {
 	 * @param string $key
 	 * @return mixed
 	 */
-	public function __get(string $key ) {
+	public function __get( string $key ) {
 
 		$mVal = parent::__get( $key );
 
