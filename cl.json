@@ -18,7 +18,7 @@
         "pro_only":    false,
         "title":       "AntiBot Detection Engine",
         "description": [
-          "Detecting bad bots on you WordPress site is a huge challenge, but it's notoriously difficult to do this.",
+          "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
           "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
         ],
         "href":        "https://shsec.io/jb"
@@ -100,6 +100,12 @@
         "title":       "Performance issue.",
         "description": [],
         "patch":       "11.0.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "PHP Warning message appears in some scenarios.",
+        "description": [],
+        "patch":       "11.0.3"
       }
     ]
   },
