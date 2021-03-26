@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property bool                                                   $is_my_upgrade
+ * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
@@ -175,6 +176,14 @@ class Controller extends DynPropertiesClass {
 						->setCon( $this )
 						->isDebugMode();
 					$this->is_debug = $val;
+				}
+				break;
+
+			case 'nonce_handler':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Utilities\Nonce\Handler() )
+						->setCon( $this );
+					$this->nonce_handler = $val;
 				}
 				break;
 
@@ -445,9 +454,24 @@ class Controller extends DynPropertiesClass {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+		$this->processShieldNonceActions();
 		( new Ajax\Init() )
 			->setCon( $this )
 			->execute();
+	}
+
+	private function processShieldNonceActions() {
+		$shieldNonceAction = $this->getShieldNonceAction();
+		$shieldNonce = Services::Request()->request( 'shield_nonce' );
+		if ( !empty( $shieldNonceAction ) && !empty( $shieldNonce ) ) {
+			$shieldNonce = Services::Request()->request( 'shield_nonce' );
+			if ( $this->nonce_handler->verify( $shieldNonceAction, $shieldNonce ) ) {
+				do_action( $this->prefix( 'shield_nonce_action' ), $shieldNonceAction );
+			}
+			else {
+				wp_die( 'It appears that this action and nonce has expired. Please retry the action.' );
+			}
+		}
 	}
 
 	/**
@@ -1096,6 +1120,11 @@ class Controller extends DynPropertiesClass {
 
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
+		return empty( $action ) ? '' : $action;
+	}
+
+	public function getShieldNonceAction() :string {
+		$action = sanitize_key( Services::Request()->query( 'shield_nonce_action', '' ) );
 		return empty( $action ) ? '' : $action;
 	}
 

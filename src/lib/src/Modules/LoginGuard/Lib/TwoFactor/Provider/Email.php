@@ -149,7 +149,8 @@ class Email extends BaseProvider {
 											   'code' => $code
 										   ],
 										   'hrefs'   => [
-											   'login_link' => 'https://shsec.io/96'
+											   'login_link' => 'https://shsec.io/96',
+											   'verify_2fa' => $this->genLoginLink( $user, $code )
 										   ],
 										   'strings' => [
 											   'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
@@ -221,6 +222,22 @@ class Email extends BaseProvider {
 		$opts = $this->getOptions();
 		return parent::isProviderAvailableToUser( $user )
 			   && ( $this->isEnforced( $user ) || $opts->isEnabledEmailAuthAnyUserSet() );
+	}
+
+	private function genLoginLink( \WP_User $user, string $otp ) :string {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$action = uniqid( '2fa_verify' );
+		return add_query_arg(
+			[
+				'user'                         => $user->user_login,
+				$this->getLoginFormParameter() => $otp,
+				'shield_nonce_action'          => $action,
+				'shield_nonce'                 => $this->getCon()
+													   ->nonce_handler->create( $action, $opts->getLoginIntentMinutes()*60 ),
+			],
+			Services::WpGeneral()->getHomeUrl()
+		);
 	}
 
 	/**
