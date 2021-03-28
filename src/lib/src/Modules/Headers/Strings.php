@@ -105,7 +105,6 @@ class Strings extends Base\Strings {
 				$sName = __( 'Manual Rules', 'wp-simple-firewall' );
 				$sSummary = __( 'Manual CSP Rules', 'wp-simple-firewall' );
 				$sDescription = [
-					__( 'Manual CSP rules which are not covered by the rules above.', 'wp-simple-firewall' ),
 					'- '.__( 'Take a new line per rule.', 'wp-simple-firewall' ),
 					'- '.__( 'We provide this feature as-is: to allow you to add custom CSP rules to your site.', 'wp-simple-firewall' ),
 					'- '.__( "We don't provide support for creating CSP rules and whether they're correct for your site.", 'wp-simple-firewall' ),

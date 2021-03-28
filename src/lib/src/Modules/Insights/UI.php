@@ -74,18 +74,8 @@ class UI extends BaseShield\UI {
 								'title' => __( 'Audit Trail Settings', 'wp-simple-firewall' ),
 							],
 							[
-								'href'  => 'https://shsec.io/audittrailglossary',
-								'title' => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
-								'new'   => true,
-							],
-							[
 								'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
 								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
-							],
-							[
-								'href'    => $modAudit->createFileDownloadLink( 'db_audit' ),
-								'classes' => [ 'shield_file_download' ],
-								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
 							],
 						]
 					]
@@ -109,11 +99,6 @@ class UI extends BaseShield\UI {
 							[
 								'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
 								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
-							],
-							[
-								'href'    => $modTraffic->createFileDownloadLink( 'db_traffic' ),
-								'classes' => [ 'shield_file_download' ],
-								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
 							],
 						]
 					]
@@ -255,7 +240,10 @@ class UI extends BaseShield\UI {
 					'changelog_id'           => $con->cfg->meta[ 'announcekit_changelog_id' ],
 					'mods'                   => $this->buildSelectData_ModuleSettings(),
 					'search_select'          => $this->buildSelectData_OptionsSearch(),
-					'active_module_settings' => $subNavSection
+					'active_module_settings' => $subNavSection,
+					'navbar_menu'            => ( new Lib\SideMenuBuilder() )
+						->setMod( $this->getMod() )
+						->build()
 				],
 			],
 			$data

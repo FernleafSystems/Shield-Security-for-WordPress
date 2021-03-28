@@ -142,6 +142,7 @@
           "deps": [
             "bootstrap",
             "global-plugin",
+            "shield/navigation",
             "base64.min",
             "lz-string.min"
           ]
@@ -197,6 +198,7 @@
             "wp-jquery"
           ]
         },
+        "shield/navigation":         {},
         "shield/tables":           {
           "deps": [
             "plugin"

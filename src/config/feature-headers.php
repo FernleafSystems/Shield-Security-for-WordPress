@@ -186,7 +186,7 @@
       "link_blog":   "",
       "name":        "Manual Rules",
       "summary":     "Manual CSP Rules",
-      "description": "Manual CSP rules which are not covered by the rules above."
+      "description": "Manual CSP rules."
     }
   ]
 }

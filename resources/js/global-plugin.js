@@ -68,7 +68,8 @@ var iCWP_WPSF_ParseAjaxResponse = new function () {
 }();
 
 var iCWP_WPSF_StandardAjax = new function () {
-	this.send_ajax_req = function ( reqData ) {
+
+	this.send_ajax_req = function ( reqData, triggerEvent = '' ) {
 		iCWP_WPSF_BodyOverlay.show();
 
 		reqData.apto_wrap_response = 1;
@@ -81,14 +82,25 @@ var iCWP_WPSF_StandardAjax = new function () {
 			success: function ( raw ) {
 				var resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
-				if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
-					iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
-				}
-				else {
-					iCWP_WPSF_Growl.showMessage( resp.data.message, resp.success );
+				if ( typeof resp.data.show_toast === typeof undefined || resp.data.show_toast ) {
+
+					if ( typeof resp.data.message === typeof undefined ) {
+						resp.data.message = resp.success ?
+							'The request succeeded' : 'The request failed';
+					}
+
+					if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
+						iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
+					}
+					else {
+						iCWP_WPSF_Growl.showMessage( resp.data.message, resp.success );
+					}
 				}
 
-				if ( resp.data.page_reload ) {
+				if ( triggerEvent.length > 0 ) {
+					jQuery( document ).trigger( triggerEvent, resp );
+				}
+				else if ( resp.data.page_reload ) {
 					setTimeout( function () {
 						location.reload();
 					}, 2000 );
@@ -99,7 +111,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 			}
 		} ).fail( function () {
 			alert( 'Something went wrong with the request - it was either blocked or there was an error.' );
-		} )
+		} );
 	};
 }();
 

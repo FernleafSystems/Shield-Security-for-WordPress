@@ -47,6 +47,8 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getScriptLocalisations() :array {
 		$con = $this->getCon();
+		$modPlugin = $con->getModule_Plugin();
+
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [
 			'plugin',
@@ -60,10 +62,21 @@ class ModCon extends BaseShield\ModCon {
 				],
 			]
 		];
+
 		$locals[] = [
 			$con->prefix( 'ip_detect' ),
 			'icwp_wpsf_vars_ipdetect',
-			[ 'ajax' => $con->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
+			[ 'ajax' => $modPlugin->getAjaxActionData( 'ipdetect' ) ]
+		];
+
+		$locals[] = [
+			'shield/navigation',
+			'shield_vars_navigation',
+			[
+				'ajax' => [
+					'dynamic_load' => $this->getAjaxActionData( 'dynamic_load' )
+				]
+			]
 		];
 
 		return $locals;

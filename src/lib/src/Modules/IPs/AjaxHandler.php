@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -71,13 +72,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$oIpServ = Services::IP();
 
-		$aFormParams = $this->getAjaxFormParams();
+		$formParams = FormParams::Retrieve();
 
 		$success = false;
 		$msg = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
-		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
-		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
+		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $formParams[ 'ip' ] ) ? $formParams[ 'ip' ] : '' ) );
+		$sList = isset( $formParams[ 'list' ] ) ? $formParams[ 'list' ] : '';
 
 		$bAcceptableIp = $oIpServ->isValidIp( $ip )
 						 || $oIpServ->isValidIp4Range( $ip )
@@ -105,7 +106,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
-			$label = $aFormParams[ 'label' ] ?? '';
+			$label = $formParams[ 'label' ] ?? '';
 			$oIP = null;
 			switch ( $sList ) {
 				case $mod::LIST_MANUAL_WHITE:

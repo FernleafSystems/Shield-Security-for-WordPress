@@ -1526,10 +1526,15 @@ a.card_help {
 	word-break: keep-all;
 	white-space: nowrap;
 	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-	position: absolute;
+	position: fixed;
 	bottom: 0;
 	padding-left: 160px;
 	transition: 0.5s ease;
+	z-index: 1;
+}
+#adminmenuback {
+	/** To account for the promo bar at the bottom **/
+	z-index: 2;
 }
 body.folded #FooterBannerGoPro {
 	padding-left: 40px;
@@ -1551,8 +1556,24 @@ body.folded #FooterBannerGoPro {
 	}
 }
 #odp-PageFoot {
-	height: 100px;
+	height: 12px;
 }
 .select2-selection {
 	font-weight: normal;
+}
+#odp-PageHead {
+}
+#apto-PageMainSide {
+	background-color: rgba(85, 178, 87, 0.06);
+	border-color: rgba(85, 178, 87, 0.2);
+	border-width: 1px 1px 1px 0;
+	border-style: solid;
+}
+#NavSideBar a.nav-link:hover {
+	color: black;
+}
+#NavSideBar a.nav-link.active {
+	font-weight: bolder;
+}
+.primary_sub_menu {
 }
