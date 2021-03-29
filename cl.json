@@ -1,4 +1,30 @@
 {
+  "11.1": {
+    "version":     "11.1",
+    "released_at": 1616666000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease1110",
+      "upgrade": "https://shsec.io/shieldupgradeguide1110"
+    },
+    "href":        "https://shsec.io/",
+    "title":       "UI Cleanup and Enhancement",
+    "description": [
+      "With Shield being such a large plugin, it's been a challenge to get a UI that everyone is happy with.",
+      "This release aims to improve the UI and make it easier for everyone to get their security task done as efficiently as possible."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "AntiBot Detection Engine",
+        "description": [
+          "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
+          "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
+        ],
+        "href":        "https://shsec.io/jb"
+      }
+    ]
+  },
   "11.0": {
     "version":     "11.0",
     "released_at": 1616666000,

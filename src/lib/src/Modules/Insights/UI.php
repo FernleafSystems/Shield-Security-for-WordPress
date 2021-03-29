@@ -67,18 +67,6 @@ class UI extends BaseShield\UI {
 					'content' => [
 						'table_audit' => $auditUI->renderAuditTrailTable(),
 					],
-					'vars'    => [
-						'related_hrefs' => [
-							[
-								'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
-								'title' => __( 'Audit Trail Settings', 'wp-simple-firewall' ),
-							],
-							[
-								'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
-								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
-							],
-						]
-					]
 				];
 				break;
 
@@ -90,18 +78,6 @@ class UI extends BaseShield\UI {
 					'content' => [
 						'table_traffic' => $trafficUI->renderTrafficTable(),
 					],
-					'vars'    => [
-						'related_hrefs' => [
-							[
-								'href'  => $con->getModule_Traffic()->getUrl_AdminPage(),
-								'title' => __( 'Traffic Settings', 'wp-simple-firewall' ),
-							],
-							[
-								'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
-								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
-							],
-						]
-					]
 				];
 				break;
 

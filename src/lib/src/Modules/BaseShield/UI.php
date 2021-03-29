@@ -56,14 +56,7 @@ class UI extends Base\UI {
 						Services::Request()->query( 'inav', '' )
 					] ) )
 				],
-				'vars'    => [
-					'related_hrefs' => $this->getSettingsRelatedLinks()
-				]
 			]
 		);
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		return [];
 	}
 }

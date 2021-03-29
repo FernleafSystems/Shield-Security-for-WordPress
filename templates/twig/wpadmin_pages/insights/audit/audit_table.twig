@@ -1,82 +1,78 @@
 <div class="row insights_widget" id="SectionAuditTable">
 
 	<div class="col">
-{#		<p>#}
-{#			<a href="{{ hrefs.audit_trail_glossary }}" target="_blank">{{ strings.audit_trail_glossary }}</a>#}
-{#		</p>#}
 
-				<form id="AuditFilterForm" autocomplete="off" class="px-3 pt-3">
-					<div class="form-row">
+			<form id="AuditFilterForm" autocomplete="off" class="px-3 pt-3">
+				<div class="form-row">
 
-						<div class="col-auto mb-3">
-							<label class="sr-only" for="_fUsername">{{ strings.username }}</label>
-							<select id="_fUsername" name="fUsername" class="form-control">
-								<option value="">-- {{ strings.username }} --</option>
-								{% for uniq_user in vars.unique_users %}
-									<option value="{{ uniq_user }}">{{ uniq_user }}</option>
-								{% endfor %}
-							</select>
-							{# <small id="fUsernameHelp" class="form-text text-muted">{{ strings.username_ignores }}</small> #}
-						</div>
-
-						<div class="col-auto mb-3">
-							<label class="sr-only" for="_fIp">{{ strings.ip_address }}</label>
-							<select id="_fIp" name="fIp" class="form-control">
-								<option value="">-- {{ strings.ip_address }} --</option>
-								{% for unique_ip in vars.unique_ips %}
-									<option value="{{ unique_ip }}">{{ unique_ip }}</option>
-								{% endfor %}
-							</select>
-						</div>
-
-						<div class="col-auto mb-3">
-							<label class="sr-only" for="_fEvent">{{ strings.event }}</label>
-							<select id="_fEvent" name="fEvent" class="form-control">
-								<option value="">-- {{ strings.event }} --</option>
-								{% for event_key,event_name in vars.events_for_select %}
-									<option value="{{ event_key }}">{{ event_name }}</option>
-								{% endfor %}
-							</select>
-						</div>
-
-						{# <div class="col-auto"> #}
-						{# <label for="_fLoggedIn">{{ strings.logged_in }}?</label> #}
-						{# <select id="_fLoggedIn" name="fLoggedIn" class="form-control"> #}
-						{# <option value="-1" selected>-- {{ strings.select }} --</option> #}
-						{# <option value="1">{{ strings.yes }}</option> #}
-						{# <option value="0">{{ strings.no }}</option> #}
-						{# </select> #}
-						{# </div> #}
-
-						<div class="col-auto mb-3 input-daterange">
-							<label class="form-label sr-only" for="_fDateFrom" title="{{ strings.show_after }}...">
-								{{ strings.time_since }}:</label>
-							<input type="text" class="form-control date-picker" id="_fDateFrom"
-								   name="fDateFrom" value=""
-								   placeholder="{{ strings.time_since }} {{ strings.yyyymmdd }}">
-
-						</div>
-
-						<div class="col-auto mb-3 input-daterange">
-							<label class="form-label sr-only" for="_fDateTo" title="{{ strings.show_before }}...">
-								{{ strings.time_until }}:</label>
-							<input type="text" class="form-control date-picker" id="_fDateTo"
-								   name="fDateTo" value=""
-								   placeholder="{{ strings.time_until }} {{ strings.yyyymmdd }}">
-						</div>
-
-						<div class="col-auto mb-3 text-right">
-							<label class="sr-only" for="SubmitForm" title="{{ strings.exclude_your_ip_tooltip }}">
-								{{ strings.exclude_your_ip }}?</label>
-							<input id="SubmitForm" href="#" class="btn btn-primary"
-								   type="submit" value="{{ strings.filters_apply }}" />
-							<a id="ClearForm" href="#"
-							   class="btn btn-sm btn-link text-dark">{{ strings.filters_clear }}</a>
-						</div>
+					<div class="col-auto mb-3">
+						<label class="sr-only" for="_fUsername">{{ strings.username }}</label>
+						<select id="_fUsername" name="fUsername" class="form-control">
+							<option value="">-- {{ strings.username }} --</option>
+							{% for uniq_user in vars.unique_users %}
+								<option value="{{ uniq_user }}">{{ uniq_user }}</option>
+							{% endfor %}
+						</select>
 					</div>
-				</form>
 
-				<div id="TableAuditTrail"></div>
+					<div class="col-auto mb-3">
+						<label class="sr-only" for="_fIp">{{ strings.ip_address }}</label>
+						<select id="_fIp" name="fIp" class="form-control select2picker">
+							<option value="">-- {{ strings.ip_address }} --</option>
+							{% for unique_ip in vars.unique_ips %}
+								<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+							{% endfor %}
+						</select>
+					</div>
+
+					<div class="col-auto mb-3">
+						<label class="sr-only" for="_fEvent">{{ strings.event }}</label>
+						<select id="_fEvent" name="fEvent" class="form-control">
+							<option value="">-- {{ strings.event }} --</option>
+							{% for event_key,event_name in vars.events_for_select %}
+								<option value="{{ event_key }}">{{ event_name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+
+					{# <div class="col-auto"> #}
+					{# <label for="_fLoggedIn">{{ strings.logged_in }}?</label> #}
+					{# <select id="_fLoggedIn" name="fLoggedIn" class="form-control"> #}
+					{# <option value="-1" selected>-- {{ strings.select }} --</option> #}
+					{# <option value="1">{{ strings.yes }}</option> #}
+					{# <option value="0">{{ strings.no }}</option> #}
+					{# </select> #}
+					{# </div> #}
+
+					<div class="col-auto mb-3 input-daterange">
+						<label class="form-label sr-only" for="_fDateFrom" title="{{ strings.show_after }}...">
+							{{ strings.time_since }}:</label>
+						<input type="text" class="form-control date-picker" id="_fDateFrom"
+							   name="fDateFrom" value=""
+							   placeholder="{{ strings.time_since }} {{ strings.yyyymmdd }}">
+
+					</div>
+
+					<div class="col-auto mb-3 input-daterange">
+						<label class="form-label sr-only" for="_fDateTo" title="{{ strings.show_before }}...">
+							{{ strings.time_until }}:</label>
+						<input type="text" class="form-control date-picker" id="_fDateTo"
+							   name="fDateTo" value=""
+							   placeholder="{{ strings.time_until }} {{ strings.yyyymmdd }}">
+					</div>
+
+					<div class="col-auto mb-3 text-right">
+						<label class="sr-only" for="SubmitForm" title="{{ strings.exclude_your_ip_tooltip }}">
+							{{ strings.exclude_your_ip }}?</label>
+						<input id="SubmitForm" href="#" class="btn btn-primary"
+							   type="submit" value="{{ strings.filters_apply }}" />
+						<a id="ClearForm" href="#"
+						   class="btn btn-sm btn-link text-dark">{{ strings.filters_clear }}</a>
+					</div>
+				</div>
+			</form>
+
+		<div id="TableAuditTrail"></div>
 
 	</div>
 

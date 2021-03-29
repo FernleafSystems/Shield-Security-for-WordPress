@@ -69,12 +69,6 @@ class UI extends BaseShield\UI {
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
-				'related_hrefs'       => [
-					[
-						'href'  => $this->getCon()->getModule_HackGuard()->getUrl_AdminPage(),
-						'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
-					],
-				]
 			],
 			'scan_results' => [
 			],
@@ -298,15 +292,5 @@ class UI extends BaseShield\UI {
 		}
 
 		return $aWarnings;
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'scans' ),
-				'title' => __( 'Run Scans', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

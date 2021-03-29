@@ -116,12 +116,6 @@ class ImportExportController {
 			'vars'    => [
 				'file_upload_nonce' => $mod->getNonceActionData( 'import_file_upload' ),
 				'form_action'       => $mod->getUrl_AdminPage(),
-				'related_hrefs'     => [
-					[
-						'href'  => $mod->getUrl_DirectLinkToSection( 'section_importexport' ),
-						'title' => __( 'Import/Export Settings', 'wp-simple-firewall' ),
-					]
-				]
 			],
 			'ajax'    => [
 				'import_from_site' => $mod->getAjaxActionData( 'import_from_site', true ),

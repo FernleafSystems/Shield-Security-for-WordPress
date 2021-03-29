@@ -11,6 +11,8 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 			response.data.page_url
 		);
 
+		document.getElementById( 'PageTitle' ).innerHTML = response.data.page_title;
+
 		let activeLinks = document.querySelectorAll( '#NavSideBar a.nav-link.active' );
 		for ( var i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
@@ -22,7 +24,6 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 			parentNav.querySelector( 'a.nav-link' ).classList.add( 'active' );
 		}
 
-		console.log( currentMenuClickTarget.closest( 'ul' ).closest( 'a.nav-link' ) );
 		iCWP_WPSF_BodyOverlay.hide();
 	};
 

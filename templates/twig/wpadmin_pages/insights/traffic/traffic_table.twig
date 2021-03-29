@@ -13,7 +13,7 @@
 
 				<div class="col-auto mb-3">
 					<label class="sr-only" for="_fIp">{{ strings.ip_address }}</label>
-					<select id="_fIp" name="fIp" class="form-control">
+					<select id="_fIp" name="fIp" class="form-control select2picker">
 						<option value="">-- {{ strings.ip_address }} --</option>
 						{% for unique_ip in vars.unique_ips %}
 							<option value="{{ unique_ip }}">{{ unique_ip }}</option>

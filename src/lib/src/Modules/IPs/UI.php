@@ -61,12 +61,6 @@ class UI extends BaseShield\UI {
 				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'related_hrefs'    => [
-					[
-						'href'  => $mod->getUrl_AdminPage(),
-						'title' => __( 'IP Block Settings', 'wp-simple-firewall' ),
-					],
-				],
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
 					->setDbHandler( $mod->getDbHandler_IPs() )
 					->black(),
@@ -130,15 +124,5 @@ class UI extends BaseShield\UI {
 			],
 			true
 		);
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'ips' ),
-				'title' => __( 'Analyse & Manage IPs', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

@@ -88,14 +88,4 @@ class UI extends BaseShield\UI {
 
 		return $warnings;
 	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
-				'title' => __( 'Run Import/Export', 'wp-simple-firewall' ),
-			]
-		];
-	}
 }

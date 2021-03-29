@@ -21,6 +21,7 @@ class SideMenuBuilder {
 			$this->users(),
 			$this->reports(),
 			$this->integrations(),
+			$this->gopro(),
 			$this->tools(),
 			$this->docs(),
 		];
@@ -60,9 +61,10 @@ class SideMenuBuilder {
 
 		$subItems = [
 			[
-				'slug'  => $slug.'-manage',
-				'title' => __( 'Manage IPs', 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'ips' ),
+				'slug'   => $slug.'-manage',
+				'title'  => __( 'Manage IPs', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'ips' ),
+				'active' => Services::Request()->query( 'inav' ) === $slug,
 			],
 			[
 				'slug'  => $slug.'-blocksettings',
@@ -133,21 +135,24 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$slug = 'scans';
+
 		$subItems = [
 			[
-				'slug'  => 'scans-results',
-				'title' => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'scans' ),
+				'slug'   => $slug.'-results',
+				'title'  => __( 'Scan Results', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'scans' ),
+				'active' => Services::Request()->query( 'inav' ) === $slug,
 			],
 			[
-				'slug'  => 'scans-settings',
+				'slug'  => $slug.'-settings',
 				'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
 			],
 		];
 
 		return [
-			'slug'      => 'scans',
+			'slug'      => $slug,
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'img'       => $this->getCon()->urls->forImage( 'bootstrap/shield-shaded.svg' ),
 			'sub_items' => $subItems,
@@ -225,7 +230,7 @@ class SideMenuBuilder {
 		return [
 			'slug'  => 'reports',
 			'title' => __( 'Reports', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/graph-up.svg' ),
+			'img'   => $this->getCon()->urls->forImage( 'bootstrap/graph-up.svg' ),
 			'href'  => $mod->getUrl_SubInsightsPage( 'reports' ),
 		];
 	}
@@ -236,8 +241,47 @@ class SideMenuBuilder {
 		return [
 			'slug'  => 'docs',
 			'title' => __( "View Docs", 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/book-half.svg' ),
+			'img'   => $this->getCon()->urls->forImage( 'bootstrap/book-half.svg' ),
 			'href'  => $mod->getUrl_SubInsightsPage( 'docs' ),
+		];
+	}
+
+	private function gopro() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$isPro = $this->getCon()->isPremiumActive();
+
+		if ( $isPro ) {
+			$subItems = [];
+		}
+		else {
+			$subItems = [
+				[
+					'slug'  => 'license-gopro',
+					'title' => __( 'Check License', 'wp-simple-firewall' ),
+					'href'  => $mod->getUrl_SubInsightsPage( 'license' ),
+				],
+				[
+					'slug'  => 'license-trial',
+					'title' => __( 'Free Trial', 'wp-simple-firewall' ),
+					'href'  => $mod->getUrl_SubInsightsPage( 'free_trial' ),
+				],
+				[
+					'slug'   => 'license-features',
+					'href'   => 'https://shsec.io/gp',
+					'title'  => __( 'ShieldPRO Features', 'wp-simple-firewall' ),
+					'target' => '_blank',
+				],
+			];
+		}
+
+		return [
+			'slug'      => 'license',
+			'title'     => $isPro ? __( 'ShieldPRO', 'wp-simple-firewall' ) : __( 'Go PRO!', 'wp-simple-firewall' ),
+			'img'       => $this->getCon()->urls->forImage( 'bootstrap/award.svg' ),
+			'href'      => $mod->getUrl_SubInsightsPage( 'license' ),
+			'sub_items' => $subItems,
 		];
 	}
 

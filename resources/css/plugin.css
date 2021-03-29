@@ -1526,7 +1526,7 @@ a.card_help {
 	word-break: keep-all;
 	white-space: nowrap;
 	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-	position: fixed;
+	position: absolute;
 	bottom: 0;
 	padding-left: 160px;
 	transition: 0.5s ease;
