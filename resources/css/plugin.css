@@ -151,17 +151,6 @@ p.code-description {
 .bootstrap-wpadmin .form-horizontal .form-actions {
 	padding-left: 200px;
 }
-/** Section summaries **/
-a.section-help-video {
-	text-decoration: none;
-	margin: 0 12px 0 0;
-}
-a.section-help-video > span {
-	font-size: 28px;
-	color: #008000;
-	margin-top: -2px;
-}
-/** End-Section summaries **/
 .wrap .icon32 {
 	width: 32px;
 }
@@ -1052,7 +1041,7 @@ input[type=checkbox].form-check-input {
 	margin-right: 5px;
 }
 /** copied from bootstrap to override WP admin styles */
-.content-options {
+.icwpOptionsForm {
 	font-size: 14px;
 	padding-top: 10px;
 }
@@ -1092,31 +1081,26 @@ input[type=checkbox].form-check-input {
 	font-style: italic;
 	font-size: 12px;
 }
-.content-options .tab-content {
+.icwpOptionsForm .tab-content {
 	border-top: 0 none;
 	padding-top: 14px;
 }
-.content-options .form-group.row {
+.icwpOptionsForm .form-group.row {
 	/*margin-bottom: 20px;*/
 	padding: 15px 0 25px;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
 }
-.content-options .option-description {
+.icwpOptionsForm .option-description {
 	border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
-.content-options .option-description p {
+.icwpOptionsForm .option-description p {
 	margin-bottom: 5px;
 }
-.content-options .option_label_name {
+.icwpOptionsForm .option_label_name {
 	position: relative;
 	/*display: block;*/
 }
-.content-options .option_link_info {
-	/*position: absolute;*/
-	/*right: -18px;*/
-	/*top: -5px;*/
-}
-.content-options .option_link_info > .dashicons {
+.icwpOptionsForm .option_link_info > .dashicons {
 	font-size: 16px;
 	text-decoration: none;
 	width: 1px;

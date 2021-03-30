@@ -112,7 +112,8 @@
           "deps": [
             "plugin"
           ]
-        }
+        },
+        "shield/mainwp": {}
       },
       "js":  {
         "bootstrap":               {
@@ -228,7 +229,7 @@
             "plugin"
           ]
         },
-        "shield/mainwp-extension": {
+        "shield/mainwp": {
           "deps": [
             "wp-jquery"
           ]

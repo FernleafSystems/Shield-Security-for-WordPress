@@ -20,8 +20,8 @@ class ExtensionSettingsPage {
 
 			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
 
-				$enqueues[ Enqueue::JS ][] = 'shield/mainwp-extension';
-				$enqueues[ Enqueue::CSS ][] = 'mainwp-extension';
+				$enqueues[ Enqueue::JS ][] = 'shield/mainwp';
+				$enqueues[ Enqueue::CSS ][] = 'shield/mainwp';
 
 //				$handle = 'semantic-ui-datatables-select';
 //				wp_register_script(
