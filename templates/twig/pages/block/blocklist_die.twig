@@ -12,7 +12,7 @@
 		color: rgba(0,0,0,0.5);
 	}
 	#UAU h3 {
-		margin: 20px 40px 30px ;
+		margin: 20px 40px 20px ;
 	}
 	.uau {
 		width: 75%;
@@ -22,7 +22,7 @@
 		background-color: rgba(0, 0, 0, 0.02);
 	}
 	.uau p {
-		margin: 10px 0 !important;
+		margin: 0px 0 10px !important;
 	}
 </style>
 {% if flags.is_autorecover %}
@@ -34,7 +34,6 @@
 				<div class="uaug uau">
 					<p>{{ strings.unblock.you_can }}</p>
 					<form method="post" action="#">
-						{{ vars.gasp_element|raw }}
 						<input type="hidden" name="email" value="" />
 						<input type="hidden" name="ip" value="{{ vars.ip }}" />
 						{% for key,val in vars.nonce %}

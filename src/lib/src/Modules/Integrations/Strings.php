@@ -64,6 +64,7 @@ class Strings extends Base\Strings {
 				$name = __( 'MainWP Integration', 'wp-simple-firewall' );
 				$summary = __( "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations", 'wp-simple-firewall' );
 				$desc = [
+					__( 'This is a ShieldPRO-only feature.', 'wp-simple-firewall' ),
 					__( 'Easily integrate Shield Security to help you manage your site security from within MainWP.', 'wp-simple-firewall' ),
 					__( "You don't need to install a separate extension for MainWP.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),

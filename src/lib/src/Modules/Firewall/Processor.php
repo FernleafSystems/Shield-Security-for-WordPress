@@ -48,12 +48,11 @@ class Processor extends BaseShield\Processor {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$sPath = Services::Request()->getPath();
-
+		$path = Services::Request()->getPath();
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
-		elseif ( empty( $sPath ) ) {
+		elseif ( empty( $path ) ) {
 			$this->getCon()->fireEvent( 'firewall_skip' );
 			$bPerformScan = false;
 		}

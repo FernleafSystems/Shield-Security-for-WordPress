@@ -46,19 +46,16 @@ class BlockRequest {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 		$con = $this->getCon();
-		$oLoginMod = $con->getModule_LoginGuard();
 
-		$sUniqId = 'uau'.uniqid();
-
-		$sIP = Services::IP()->getRequestIp();
-		$nTimeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
+		$ip = Services::IP()->getRequestIp();
+		$timeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
 
 		$user = Services::WpUsers()->getCurrentWpUser();
-		$bCanUauGasp = $opts->isEnabledAutoVisitorRecover() && $opts->getCanIpRequestAutoUnblock( $sIP );
-		$bCanUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
+		$canUauBot = $opts->isEnabledAutoVisitorRecover() && !empty( $ip ) && $opts->getCanIpRequestAutoUnblock( $ip );
+		$canUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
 						$user instanceof \WP_User
 						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
-		$bCanAutoRecover = $bCanUauGasp || $bCanUauMagic;
+		$canAutoRecover = $canUauBot || $canUauMagic;
 
 		if ( !empty( $con->getLabels()[ 'PluginURI' ] ) ) {
 			$homeURL = $con->getLabels()[ 'PluginURI' ];
@@ -77,7 +74,7 @@ class BlockRequest {
 				),
 				'lines'   => [
 					sprintf( __( 'Time remaining on black list: %s', 'wp-simple-firewall' ),
-						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
+						sprintf( _n( '%s minute', '%s minutes', $timeRemaining, 'wp-simple-firewall' ), $timeRemaining )
 					),
 					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $opts->getOffenseLimit() ),
 					sprintf( __( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ) ),
@@ -93,27 +90,13 @@ class BlockRequest {
 				'email_unblock' => $this->renderEmailMagicLinkContent()
 			],
 			'vars'    => [
-				'nonce'        => $mod->getNonceActionData( 'uau' ),
-				'ip'           => $sIP,
-				'gasp_element' => $mod->renderTemplate(
-					'snippets/gasp_js.php',
-					[
-						'sCbName'   => $oLoginMod->getGaspKey(),
-						'sLabel'    => $oLoginMod->getTextImAHuman(),
-						'sAlert'    => $oLoginMod->getTextPleaseCheckBox(),
-						'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
-						'sUniqId'   => $sUniqId,
-						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
-						'strings'   => [
-							'loading' => __( 'Loading', 'wp-simple-firewall' )
-						]
-					]
-				),
+				'nonce' => $mod->getNonceActionData( 'uau' ),
+				'ip'    => $ip,
 			],
 			'flags'   => [
-				'is_autorecover'    => $bCanAutoRecover,
-				'is_uaug_permitted' => $bCanUauGasp,
-				'is_uaum_permitted' => $bCanUauMagic,
+				'is_autorecover'    => $canAutoRecover,
+				'is_uaug_permitted' => $canUauBot,
+				'is_uaum_permitted' => $canUauMagic,
 			],
 		];
 		Services::WpGeneral()

@@ -30,14 +30,10 @@ class Options extends BaseShield\Options {
 		return is_array( $aIps ) ? $aIps : [];
 	}
 
-	/**
-	 * @param string $ip
-	 * @return bool
-	 */
-	public function getCanIpRequestAutoUnblock( $ip ) {
+	public function getCanIpRequestAutoUnblock( string $ip ) :bool {
 		$existing = $this->getAutoUnblockIps();
 		return !array_key_exists( $ip, $existing )
-			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $existing[ $ip ] );
+			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $ip ] );
 	}
 
 	/**

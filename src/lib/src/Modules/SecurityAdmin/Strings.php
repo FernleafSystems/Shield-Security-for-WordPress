@@ -196,7 +196,7 @@ class Strings extends Base\Strings {
 			case 'whitelabel_enable' :
 				$name = sprintf( '%s: %s', __( 'Enable', 'wp-simple-firewall' ), __( 'White Label', 'wp-simple-firewall' ) );
 				$summary = __( 'Activate Your White Label Settings', 'wp-simple-firewall' );
-				$description = __( 'Turn on/off the application of your White Label settings.', 'wp-simple-firewall' );
+				$description = __( 'Turn your White Label settings on/off.', 'wp-simple-firewall' );
 				break;
 			case 'wl_hide_updates' :
 				$name = __( 'Hide Updates', 'wp-simple-firewall' );

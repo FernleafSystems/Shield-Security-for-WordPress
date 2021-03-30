@@ -286,6 +286,7 @@ class SideMenuBuilder {
 	}
 
 	private function tools() :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -294,6 +295,11 @@ class SideMenuBuilder {
 				'slug'  => 'tools-importexport',
 				'title' => __( 'Import / Export', 'wp-simple-firewall' ),
 				'href'  => $mod->getUrl_SubInsightsPage( 'importexport' ),
+			],
+			[
+				'slug'  => 'tools-whitelabel',
+				'title' => __( 'White Label', 'wp-simple-firewall' ),
+				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_whitelabel' ),
 			],
 			[
 				'slug'  => 'tools-notes',
