@@ -44,10 +44,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_SetPluginTrackingPerm();
 				break;
 
-			case 'send_deactivate_survey':
-				$response = $this->ajaxExec_SendDeactivateSurvey();
-				break;
-
 			case 'sgoptimizer_turnoff':
 				$response = $this->ajaxExec_TurnOffSiteGroundOptions();
 				break;
@@ -65,24 +61,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return $response;
-	}
-
-	private function ajaxExec_SendDeactivateSurvey() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$results = [];
-		foreach ( $_POST as $sKey => $sValue ) {
-			if ( strpos( $sKey, 'reason_' ) === 0 ) {
-				$results[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
-			}
-		}
-		$mod->getEmailProcessor()
-			->send(
-				$mod->getSurveyEmail(),
-				'Shield Deactivation Survey',
-				implode( "\n<br/>", $results )
-			);
-		return [ 'success' => true ];
 	}
 
 	private function ajaxExec_PluginBadgeClose() :array {

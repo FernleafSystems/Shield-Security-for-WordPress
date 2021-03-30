@@ -325,29 +325,4 @@ class UI extends BaseShield\UI {
 			);
 		}
 	}
-
-	private function printPluginDeactivateSurvey() {
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-
-			$opts = [
-				'reason_confusing'   => "It's too confusing",
-				'reason_expected'    => "It's not what I expected",
-				'reason_accident'    => "I downloaded it accidentally",
-				'reason_alternative' => "I'm already using an alternative",
-				'reason_trust'       => "I don't trust the developer :(",
-				'reason_not_work'    => "It doesn't work",
-				'reason_errors'      => "I'm getting errors",
-			];
-
-			echo $this->getMod()->renderTemplate( 'snippets/plugin-deactivate-survey.php', [
-				'strings'     => [
-					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
-				],
-				'inputs'      => [
-					'checkboxes' => Services::DataManipulation()->shuffleArray( $opts )
-				],
-				'js_snippets' => []
-			] );
-		}
-	}
 }
