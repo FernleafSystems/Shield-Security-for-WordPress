@@ -392,14 +392,14 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 	jQuery( document ).ready( function () {
-		jQuery( document ).on( "click", "a.shield_file_download", function ( evt ) {
+		jQuery( document ).on( 'click', 'a.shield_file_download, li.shield_file_download > a', function ( evt ) {
 			evt.preventDefault();
 			/** Cache busting **/
 			let url = jQuery( this ).attr( 'href' ) + '&rand='
 				+ Math.floor( 10000 * Math.random() );
 			jQuery.fileDownload( url, {
 				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
-				failMessageHtml: icwp_wpsf_vars_plugin.strings.problem_downloading_file
+				failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
 			} );
 			return false;
 		} );

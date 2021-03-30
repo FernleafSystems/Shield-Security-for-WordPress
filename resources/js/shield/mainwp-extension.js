@@ -112,20 +112,6 @@
 					}
 				);
 
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'button.action.href-download',
-					function ( evt ) {
-						evt.preventDefault();
-						var $oButt = $( this );
-						var sHref = $oButt.data( 'href-download' );
-						if ( sHref !== undefined ) {
-							plugin.options[ 'working_href_download' ] = sHref;
-							plugin.hrefDownload.call( plugin );
-						}
-					}
-				);
-
 			},
 			unbindEvents: function () {
 				/*

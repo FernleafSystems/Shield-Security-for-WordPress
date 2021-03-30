@@ -526,7 +526,7 @@ class ModCon extends BaseShield\ModCon {
 			[
 				'strings' => [
 					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-					'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 				],
 			]
 		];

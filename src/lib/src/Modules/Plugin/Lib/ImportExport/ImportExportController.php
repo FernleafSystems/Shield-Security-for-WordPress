@@ -140,30 +140,28 @@ class ImportExportController {
 				'title_download_file'    => __( 'Download Options Export File', 'wp-simple-firewall' ),
 				'subtitle_download_file' => __( 'Use this file to copy options from this site into another site', 'wp-simple-firewall' ),
 
-				'subtitle_import_site'     => __( 'Import options directly from another site', 'wp-simple-firewall' ),
-				'master_site_url'          => __( 'Master Site URL', 'wp-simple-firewall' ),
-				'remember_include'         => sprintf(
+				'subtitle_import_site' => __( 'Import options directly from another site', 'wp-simple-firewall' ),
+				'master_site_url'      => __( 'Master Site URL', 'wp-simple-firewall' ),
+				'remember_include'     => sprintf(
 					__( 'Remember to include %s or %s', 'wp-simple-firewall' ),
 					'<code>https://</code>',
 					'<code>http://</code>'
 				),
-				'secret_key'               => __( 'Secret Key', 'wp-simple-firewall' ),
-				'master_site_key'          => __( 'Master Site Secret Key', 'wp-simple-firewall' ),
-				'create_network'           => __( 'Create Shield Network', 'wp-simple-firewall' ),
-				'key_found_under'          => sprintf( __( 'The secret key is found in: %s', 'wp-simple-firewall' ),
+				'secret_key'           => __( 'Secret Key', 'wp-simple-firewall' ),
+				'master_site_key'      => __( 'Master Site Secret Key', 'wp-simple-firewall' ),
+				'create_network'       => __( 'Create Shield Network', 'wp-simple-firewall' ),
+				'key_found_under'      => sprintf( __( 'The secret key is found in: %s', 'wp-simple-firewall' ),
 					ucwords( sprintf( '%s > %s > %s ', __( 'General Settings', 'wp-simple-firewall' ), __( 'Import/Export', 'wp-simple-firewall' ), __( 'Secret Key', 'wp-simple-firewall' ) ) )
 				),
-				'turn_on'                  => __( 'Turn On', 'wp-simple-firewall' ),
-				'turn_off'                 => __( 'Turn Off', 'wp-simple-firewall' ),
-				'no_change'                => __( 'No Change', 'wp-simple-firewall' ),
-				'network_explain'          => [
+				'turn_on'              => __( 'Turn On', 'wp-simple-firewall' ),
+				'turn_off'             => __( 'Turn Off', 'wp-simple-firewall' ),
+				'no_change'            => __( 'No Change', 'wp-simple-firewall' ),
+				'network_explain'      => [
 					__( 'Checking this option on will link this site to Master site.', 'wp-simple-firewall' ),
 					__( 'Options will be automatically imported from the Master site each night', 'wp-simple-firewall' ),
 					__( 'When you adjust options on the Master site, they will be reflected in this site after the automatic import', 'wp-simple-firewall' ),
 				],
-				'import_options'           => __( 'Import Options', 'wp-simple-firewall' ),
-				'downloading_please_wait'  => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-				'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+				'import_options'       => __( 'Import Options', 'wp-simple-firewall' ),
 			]
 		];
 	}

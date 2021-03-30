@@ -243,8 +243,8 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 
 			hrefDownload: function () {
 				$.fileDownload( this.options[ 'working_href_download' ], {
-					preparingMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file,
-					failMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file_problem
+					preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
+					failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
 				} );
 				return false;
 			},
