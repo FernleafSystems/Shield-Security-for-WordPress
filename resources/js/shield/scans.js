@@ -99,7 +99,6 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 					}, 5000 );
 				}
 				else {
-					alert( 'here: reload' );
 					setTimeout( function () {
 						window.location.href = aOpts[ 'href_scans_results' ];
 					}, 1000 );
