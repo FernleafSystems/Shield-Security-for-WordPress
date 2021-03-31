@@ -166,7 +166,6 @@ class UI extends BaseShield\UI {
 			$lastScanAt = $scon->getLastScanAt();
 
 			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
-			error_log( var_export( $scon->isScanningAvailable(), true ) );
 			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
 			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
 			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $uiTrack[ 'selected_scans' ] );

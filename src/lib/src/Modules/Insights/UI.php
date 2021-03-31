@@ -52,7 +52,7 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$inav = $req->query( 'inav', 'dashboard' );
+		$inav = $req->query( 'inav', 'overview' );
 		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
