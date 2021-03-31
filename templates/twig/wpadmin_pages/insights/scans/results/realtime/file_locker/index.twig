@@ -10,7 +10,7 @@
 			<div class="card-body">
 
 				{% if scan.flags.is_restricted %}
-					{% include '/wpadmin_pages/insights/scans/results/common_unavailable.twig' %}
+					{% include '/wpadmin_pages/insights/scans/results/results/common_unavailable.twig' %}
 				{% else %}
 					{% if scan.flags.is_enabled %}
 						<div class="col mt-3 mb-3">
@@ -40,7 +40,7 @@
 							</div>
 						</div>
 					{% else %}
-						{% include '/wpadmin_pages/insights/scans/results/common_disabled.twig' %}
+						{% include '/wpadmin_pages/insights/scans/results/results/common_disabled.twig' %}
 					{% endif %}
 				{% endif %}
 			</div>

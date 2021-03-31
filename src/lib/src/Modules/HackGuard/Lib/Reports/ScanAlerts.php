@@ -13,6 +13,9 @@ class ScanAlerts extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+
 		$alerts = [];
 
 		/** @var HackGuard\Strings $strings */
@@ -43,7 +46,7 @@ class ScanAlerts extends BaseReporter {
 						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
-						'view_results' => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+						'view_results' => $mod->getUrlForScanResults(),
 					],
 				]
 			);

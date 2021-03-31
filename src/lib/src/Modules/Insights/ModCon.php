@@ -87,10 +87,10 @@ class ModCon extends BaseShield\ModCon {
 		];
 
 		$con = $this->getCon();
-		$iNav = Services::Request()->query( 'inav' );
+		$inav = Services::Request()->query( 'inav' );
 
-		if ( $con->getIsPage_PluginAdmin() && !empty( $iNav ) ) {
-			switch ( $iNav ) {
+		if ( $con->getIsPage_PluginAdmin() && !empty( $inav ) ) {
+			switch ( $inav ) {
 
 				case 'importexport':
 					$enq[ Enqueue::JS ][] = 'shield/import';
@@ -118,7 +118,8 @@ class ModCon extends BaseShield\ModCon {
 					break;
 
 				case 'notes':
-				case 'scans':
+				case 'scans_results':
+				case 'scans_run':
 				case 'audit':
 				case 'traffic':
 				case 'ips':
@@ -126,14 +127,14 @@ class ModCon extends BaseShield\ModCon {
 				case 'users':
 
 					$enq[ Enqueue::JS ][] = 'shield-tables';
-					if ( $iNav == 'scans' ) {
+					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield-scans';
 					}
-					elseif ( $iNav == 'ips' ) {
+					elseif ( $inav == 'ips' ) {
 						$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
 					}
 
-					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
+					if ( in_array( $inav, [ 'audit', 'traffic' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
 						$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
 					}

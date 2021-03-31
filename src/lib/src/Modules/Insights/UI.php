@@ -52,12 +52,12 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$sNavSection = $req->query( 'inav', 'dashboard' );
+		$inav = $req->query( 'inav', 'dashboard' );
 		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
 
-		switch ( $sNavSection ) {
+		switch ( $inav ) {
 
 			case 'audit':
 				$modAudit = $con->getModule_AuditTrail();
@@ -137,7 +137,8 @@ class UI extends BaseShield\UI {
 				$data = $UIReporting->buildInsightsVars();
 				break;
 
-			case 'scans':
+			case 'scans_results':
+			case 'scans_run':
 				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
 				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
 				$data = $UIHackGuard->buildInsightsVars();
@@ -162,21 +163,22 @@ class UI extends BaseShield\UI {
 		}
 
 		$availablePages = [
-			'settings'     => __( 'Plugin Settings', 'wp-simple-firewall' ),
-			'dashboard'    => __( 'Dashboard', 'wp-simple-firewall' ),
-			'overview'     => __( 'Security Overview', 'wp-simple-firewall' ),
-			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
-			'docs'         => __( 'Docs', 'wp-simple-firewall' ),
-			'ips'          => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
-			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
-			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
-			'notes'        => __( 'Admin Notes', 'wp-simple-firewall' ),
-			'users'        => __( 'User Sessions', 'wp-simple-firewall' ),
-			'license'      => __( 'ShieldPRO', 'wp-simple-firewall' ),
-			'importexport' => __( 'Import / Export', 'wp-simple-firewall' ),
-			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
-			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
-			'free_trial'   => __( 'Free Trial', 'wp-simple-firewall' ),
+			'settings'      => __( 'Plugin Settings', 'wp-simple-firewall' ),
+			'dashboard'     => __( 'Dashboard', 'wp-simple-firewall' ),
+			'overview'      => __( 'Security Overview', 'wp-simple-firewall' ),
+			'scans_results' => __( 'Scan Results', 'wp-simple-firewall' ),
+			'scans_run'     => __( 'Run Scans', 'wp-simple-firewall' ),
+			'docs'          => __( 'Docs', 'wp-simple-firewall' ),
+			'ips'           => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
+			'audit'         => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'traffic'       => __( 'Traffic', 'wp-simple-firewall' ),
+			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
+			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),
+			'license'       => __( 'ShieldPRO', 'wp-simple-firewall' ),
+			'importexport'  => __( 'Import / Export', 'wp-simple-firewall' ),
+			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
+			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
+			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
 		];
 
 		$modsToSearch = array_filter(
@@ -186,7 +188,7 @@ class UI extends BaseShield\UI {
 			}
 		);
 
-		$pageTitle = $availablePages[ $sNavSection ];
+		$pageTitle = $availablePages[ $inav ];
 		if ( !empty( $subNavSection ) ) {
 			$pageTitle = sprintf( '%s: %s',
 				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
@@ -197,10 +199,10 @@ class UI extends BaseShield\UI {
 			$this->getBaseDisplayData(),
 			[
 				'classes' => [
-					'page_container' => 'page-insights page-'.$sNavSection
+					'page_container' => 'page-insights page-'.$inav
 				],
 				'flags'   => [
-					'is_dashboard' => $sNavSection === 'dashboard',
+					'is_dashboard' => $inav === 'dashboard',
 					'is_advanced'  => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
@@ -225,8 +227,13 @@ class UI extends BaseShield\UI {
 			$data
 		);
 
+		$templateDir = $inav;
+		if ( strpos( $inav, 'scans_' ) === 0 ) {
+			$templateDir = implode( '/', explode( '_', $inav, 2 ) );
+		}
+
 		return $mod->renderTemplate(
-			sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ),
+			sprintf( '/wpadmin_pages/insights/%s/index.twig', $templateDir ),
 			$data,
 			true
 		);
@@ -303,7 +310,7 @@ class UI extends BaseShield\UI {
 				'flags' => [
 					'show_promo' => $con->isModulePage()
 									&& !$con->isPremiumActive()
-									&& ( !in_array( $nav, [ 'scans' ] ) ),
+									&& ( !in_array( $nav, [ 'scans_results', 'scans_run' ] ) ),
 				],
 				'hrefs' => [
 					'go_pro' => 'https://shsec.io/shieldgoprofeature',

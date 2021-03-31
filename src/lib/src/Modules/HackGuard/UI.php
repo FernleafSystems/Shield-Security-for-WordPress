@@ -14,16 +14,16 @@ class UI extends BaseShield\UI {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$aUiTrack = $mod->getUiTrack();
-		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
-			$aUiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
+		$uiTrack = $mod->getUiTrack();
+		if ( empty( $uiTrack[ 'selected_scans' ] ) ) {
+			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
 		}
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $selector */
+		$selector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 		$data = [
 			'ajax'         => [
 				'scans_start'           => $mod->getAjaxActionData( 'scans_start', true ),
@@ -70,6 +70,9 @@ class UI extends BaseShield\UI {
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
+			'hrefs'        => [
+				'scans_results' => $mod->getUrlForScanResults(),
+			],
 			'scan_results' => [
 			],
 			'aggregate'    => [
@@ -85,9 +88,9 @@ class UI extends BaseShield\UI {
 					'title'    => __( 'File Scan', 'wp-simple-firewall' ),
 					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
 				],
-				'count'   => $oSelector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
-									   ->filterByNotIgnored()
-									   ->count()
+				'count'   => $selector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
+									  ->filterByNotIgnored()
+									  ->count()
 			],
 			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [
@@ -163,9 +166,10 @@ class UI extends BaseShield\UI {
 			$lastScanAt = $scon->getLastScanAt();
 
 			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
+			error_log( var_export( $scon->isScanningAvailable(), true ) );
 			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
 			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
-			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $aUiTrack[ 'selected_scans' ] );
+			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $uiTrack[ 'selected_scans' ] );
 			$scData[ 'vars' ][ 'last_scan_at_ts' ] = $lastScanAt;
 			$scData[ 'flags' ][ 'has_last_scan' ] = $lastScanAt > 0;
 			$scData[ 'vars' ][ 'last_scan_at' ] = sprintf(
@@ -177,7 +181,7 @@ class UI extends BaseShield\UI {
 			$scData[ 'strings' ][ 'title' ] = $name[ $slug ];
 			$scData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
 			$scData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
-			$scData[ 'count' ] = $oSelector->countForScan( $slug );
+			$scData[ 'count' ] = $selector->countForScan( $slug );
 		}
 
 		return $data;

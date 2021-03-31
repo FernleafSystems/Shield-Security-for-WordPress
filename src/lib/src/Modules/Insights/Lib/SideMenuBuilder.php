@@ -33,17 +33,23 @@ class SideMenuBuilder {
 				'href'      => '#',
 				'classes'   => [],
 				'id'        => '',
-				'active'    => false,
+				'active'    => $this->getInav() === $item[ 'slug' ],
 				'sub_items' => [],
 				'target'    => '',
 				'data'      => [],
 				'badge'     => [],
 			], $item );
-			$item[ 'active' ] = Services::Request()->query( 'inav' ) === $item[ 'slug' ];
 
 			if ( !empty( $item[ 'sub_items' ] ) ) {
 				$item[ 'data' ][ 'toggle' ] = 'collapse';
 				$item[ 'href' ] = '#collapse-'.$item[ 'slug' ];
+
+				// Set parent active if any sub-items are active
+				if ( !$item[ 'active' ] ) {
+					$item[ 'active' ] = count( array_filter( $item[ 'sub_items' ], function ( $sub ) {
+						return $sub[ 'active' ] ?? false;
+					} ) );
+				}
 			}
 
 			$menu[ $key ] = $item;
@@ -64,7 +70,7 @@ class SideMenuBuilder {
 				'slug'   => $slug.'-manage',
 				'title'  => __( 'Manage IPs', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( 'ips' ),
-				'active' => Services::Request()->query( 'inav' ) === $slug,
+				'active' => $this->getInav() === $slug,
 			],
 			[
 				'slug'  => $slug.'-blocksettings',
@@ -97,14 +103,16 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$slug = 'audit';
 		$subItems = [
 			[
-				'slug'  => 'audit-log',
-				'title' => __( 'View Log', 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
+				'slug'   => $slug.'-log',
+				'title'  => __( 'View Log', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( $slug ),
+				'active' => $this->getInav() === $slug,
 			],
 			[
-				'slug'  => 'audit-settings',
+				'slug'  => $slug.'-settings',
 				'title' => __( 'Settings', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
 			],
@@ -132,21 +140,26 @@ class SideMenuBuilder {
 
 	private function scans() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$modHG = $con->getModule_HackGuard();
 
 		$slug = 'scans';
 
 		$subItems = [
 			[
+				'slug'   => $slug.'-run',
+				'title'  => __( 'Run Scan', 'wp-simple-firewall' ),
+				'href'   => $modHG->getUrlForScansRun(),
+				'active' => $this->getInav() === 'scans_run',
+			],
+			[
 				'slug'   => $slug.'-results',
 				'title'  => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href'   => $mod->getUrl_SubInsightsPage( 'scans' ),
-				'active' => Services::Request()->query( 'inav' ) === $slug,
+				'href'   => $modHG->getUrlForScanResults(),
+				'active' => $this->getInav() === 'scans_results',
 			],
 			[
 				'slug'  => $slug.'-settings',
-				'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
+				'title' => __( 'Settings: Automatic Scans', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
 			],
 		];
@@ -258,14 +271,16 @@ class SideMenuBuilder {
 		else {
 			$subItems = [
 				[
-					'slug'  => 'license-gopro',
-					'title' => __( 'Check License', 'wp-simple-firewall' ),
-					'href'  => $mod->getUrl_SubInsightsPage( 'license' ),
+					'slug'   => 'license-gopro',
+					'title'  => __( 'Check License', 'wp-simple-firewall' ),
+					'href'   => $mod->getUrl_SubInsightsPage( 'license' ),
+					'active' => $this->getInav() === 'license'
 				],
 				[
-					'slug'  => 'license-trial',
-					'title' => __( 'Free Trial', 'wp-simple-firewall' ),
-					'href'  => $mod->getUrl_SubInsightsPage( 'free_trial' ),
+					'slug'   => 'license-trial',
+					'title'  => __( 'Free Trial', 'wp-simple-firewall' ),
+					'href'   => $mod->getUrl_SubInsightsPage( 'free_trial' ),
+					'active' => $this->getInav() === 'free_trial'
 				],
 				[
 					'slug'   => 'license-features',
@@ -326,14 +341,16 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$slug = 'traffic';
 		$subItems = [
 			[
-				'slug'  => 'traffic-log',
-				'title' => __( 'View Log', 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
+				'slug'   => $slug.'-log',
+				'title'  => __( 'View Log', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( $slug ),
+				'active' => $this->getInav() === $slug,
 			],
 			[
-				'slug'  => 'traffic-ratelimitsettings',
+				'slug'  => $slug.'-ratelimitsettings',
 				'title' => __( 'Settings: Rate Limiting', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_limiter' ),
 			],
@@ -388,5 +405,9 @@ class SideMenuBuilder {
 			'img'       => $this->getCon()->urls->forImage( 'bootstrap/person-badge.svg' ),
 			'sub_items' => $subItems,
 		];
+	}
+
+	private function getInav() :string {
+		return (string)Services::Request()->query( 'inav' );
 	}
 }
