@@ -12,6 +12,7 @@ class SideMenuBuilder {
 
 	public function build() :array {
 		$menu = [
+			$this->search(),
 			$this->overview(),
 			$this->settings(),
 			$this->scans(),
@@ -169,6 +170,22 @@ class SideMenuBuilder {
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'img'       => $this->getCon()->urls->forImage( 'bootstrap/shield-shaded.svg' ),
 			'sub_items' => $subItems,
+		];
+	}
+
+	private function search() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return [
+			'slug'  => 'search',
+			'title' => __( 'Search', 'wp-simple-firewall' ),
+			'img'   => $this->getCon()->urls->forImage( 'bootstrap/search.svg' ),
+			'id'    => 'NavMenuSearch',
+			'href'  => $mod->getUrl_SubInsightsPage( 'overview' ),
+			'data'  => [
+				'toggle' => 'modal',
+				'target' => '#SearchDialog',
+			],
 		];
 	}
 

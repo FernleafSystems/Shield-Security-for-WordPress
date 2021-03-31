@@ -618,10 +618,7 @@ abstract class ModCon {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function buildSummaryData() {
+	public function buildSummaryData() :array {
 		$opts = $this->getOptions();
 		$menuTitle = $opts->getFeatureProperty( 'menu_title' );
 
@@ -638,7 +635,7 @@ abstract class ModCon {
 			}
 		}
 
-		$aSum = [
+		$summary = [
 			'slug'          => $this->getSlug(),
 			'enabled'       => $this->getUIHandler()->isEnabledForUiSummary(),
 			'active'        => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
@@ -651,21 +648,21 @@ abstract class ModCon {
 			'show_mod_opts' => $this->getIfShowModuleOpts(),
 		];
 
-		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
+		foreach ( $opts->getVisibleOptionsKeys() as $optKey ) {
 			try {
-				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+				$optData = $this->getStrings()->getOptionStrings( $optKey );
+				$optData[ 'href' ] = $this->getUrl_DirectLinkToOption( $optKey );
+				$summary[ 'options' ][ $optKey ] = $optData;
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$aSum[ 'tooltip' ] = sprintf(
+		$summary[ 'tooltip' ] = sprintf(
 			'%s',
-			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
+			empty( $summary[ 'sidebar_name' ] ) ? $summary[ 'name' ] : __( $summary[ 'sidebar_name' ], 'wp-simple-firewall' )
 		);
-		return $aSum;
+		return $summary;
 	}
 
 	public function getIfShowModuleMenuItem() :bool {

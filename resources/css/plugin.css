@@ -1561,3 +1561,13 @@ body.folded #FooterBannerGoPro {
 }
 .primary_sub_menu {
 }
+
+#SearchDialog .modal-body {
+	min-height: 450px;
+}
+#SearchDialog .bootstrap-select {
+	width: 100%;
+}
+#SearchDialog .bootstrap-select>.dropdown-toggle.bs-placeholder {
+	color: #333;
+}

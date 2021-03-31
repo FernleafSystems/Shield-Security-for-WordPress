@@ -1,18 +1,16 @@
-<select class="select2picker" data-live-search="true"
+<select class="selectpicker" data-live-search="true"
 		title="Search For Plugin Option"
 		data-size="10"
 		data-header=""
 		onchange="location = this.value;"
 		style="max-width: 100%; width: 100%"
 >
-	<option value="">
-		-- Search For Plugin Setting --
-	</option>
 	{% for select_section_name,select_section_opts in vars.search_select %}
 		<optgroup label="{{ select_section_name }}">
 			{% for select_opt_key,select_opt_data in select_section_opts %}
-				<option value="{{ select_opt_data.href }}" aria-selected="false"
-						data-tokens="{{ select_opt_data.summary }}"
+				<option value="{{ select_opt_data.href }}"
+						aria-selected="false"
+						data-tokens="{{ select_opt_data.summary }} {{ select_opt_data.description|join(' ') }}"
 				>{{ select_opt_data.name }}
 				</option>
 			{% endfor %}

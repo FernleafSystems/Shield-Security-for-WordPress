@@ -3,7 +3,9 @@
 <ul class="nav flex-column mt-4">
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item mb-4 {{ mitem.classes|default([])|join( ' ' ) }}">
+		<li class="nav-item mb-4 {{ mitem.classes|default([])|join( ' ' ) }}"
+			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
+		>
 
 			<a class="nav-link p-0 {% if mitem.active %}active{% endif %}"
 			   href="{{ mitem.href|default('#') }}"
