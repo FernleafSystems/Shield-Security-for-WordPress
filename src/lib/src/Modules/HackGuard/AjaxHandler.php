@@ -200,7 +200,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'message' => $data[ 'error' ],
 			'html'    => $this->getMod()
 							  ->renderTemplate(
-								  '/wpadmin_pages/insights/scans/realtime/file_locker/file_diff.twig',
+								  '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig',
 								  $data,
 								  true
 							  )
