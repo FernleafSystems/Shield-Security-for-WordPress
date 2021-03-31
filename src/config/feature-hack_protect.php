@@ -331,7 +331,9 @@
         "php.ini",
         "web.config",
         "php_mail.log",
-        "mail.log"
+        "mail.log",
+        "wp-content/uploads/bb-plugin/cache/",
+        "wp-content/uploads/cache/wpml/twig/"
       ],
       "type":        "array",
       "link_info":   "https://shsec.io/9z",

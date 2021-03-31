@@ -147,27 +147,29 @@ class ModCon extends BaseShield\ModCon {
 	protected function cleanFileExclusions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$aExclusions = [];
+		$excl = [];
 
-		$aToClean = $opts->getOpt( 'ufc_exclusions', [] );
-		if ( is_array( $aToClean ) ) {
-			foreach ( $aToClean as $nKey => $sExclusion ) {
-				$sExclusion = wp_normalize_path( trim( $sExclusion ) );
+		$toClean = $opts->getOpt( 'ufc_exclusions', [] );
+		if ( is_array( $toClean ) ) {
+			foreach ( $toClean as $exclusion ) {
 
-				if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
-					// ignore it
+				if ( preg_match( '/^#(.+)#$/', $exclusion, $matches ) ) { // it's not regex
+					$exclusion = str_replace( '\\', '\\\\', $exclusion );
 				}
-				elseif ( strpos( $sExclusion, '/' ) === false ) { // filename only
-					$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
+				else {
+					$exclusion = wp_normalize_path( trim( $exclusion ) );
+					if ( strpos( $exclusion, '/' ) === false ) { // filename only
+						$exclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $exclusion ) );
+					}
 				}
 
-				if ( !empty( $sExclusion ) ) {
-					$aExclusions[] = $sExclusion;
+				if ( !empty( $exclusion ) ) {
+					$excl[] = $exclusion;
 				}
 			}
 		}
 
-		$opts->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
+		$opts->setOpt( 'ufc_exclusions', array_unique( $excl ) );
 	}
 
 	public function isPtgEnabled() :bool {
