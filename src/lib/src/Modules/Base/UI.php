@@ -207,26 +207,28 @@ class UI {
 					->build(),
 				'hidden_options' => $this->getOptions()->getHiddenOptions()
 			],
+			'vars'       => [
+				'mod_slug' => $mod->getModSlug( true ),
+			],
 			'ajax'       => [
 				'mod_options'          => $mod->getAjaxActionData( 'mod_options', true ),
 				'mod_opts_form_render' => $mod->getAjaxActionData( 'mod_opts_form_render', true ),
-				//				'mod_options' => $mod->getAjaxActionData( 'mod_options' ),
 			],
 			'vendors'    => [
 				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
-				'access_restricted'        => !$mod->canDisplayOptionsForm(),
-				'show_ads'                 => $mod->getIsShowMarketing(),
-				'wrap_page_content'        => true,
-				'show_standard_options'    => true,
-				'show_content_help'        => true,
-				'show_alt_content'         => false,
-				'has_wizard'               => $mod->hasWizard(),
-				'is_premium'               => $con->isPremiumActive(),
-				'show_transfer_switch'     => $con->isPremiumActive(),
-				'is_wpcli'                 => $pluginOptions->isEnabledWpcli(),
+				'access_restricted'     => !$mod->canDisplayOptionsForm(),
+				'show_ads'              => $mod->getIsShowMarketing(),
+				'wrap_page_content'     => true,
+				'show_standard_options' => true,
+				'show_content_help'     => true,
+				'show_alt_content'      => false,
+				'has_wizard'            => $mod->hasWizard(),
+				'is_premium'            => $con->isPremiumActive(),
+				'show_transfer_switch'  => $con->isPremiumActive(),
+				'is_wpcli'              => $pluginOptions->isEnabledWpcli(),
 			],
 			'hrefs'      => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',

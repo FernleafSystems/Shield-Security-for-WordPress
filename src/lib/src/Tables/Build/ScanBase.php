@@ -63,10 +63,7 @@ class ScanBase extends BaseBuild {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getParamDefaults() {
+	protected function getParamDefaults() :array {
 		return array_merge(
 			parent::getParamDefaults(),
 			[ 'limit' => PHP_INT_MAX ]
@@ -74,11 +71,11 @@ class ScanBase extends BaseBuild {
 	}
 
 	/**
-	 * @param Scanner\EntryVO $oEntry
+	 * @param Scanner\EntryVO $entry
 	 * @return string
 	 */
-	protected function formatIsIgnored( $oEntry ) {
-		return ( $oEntry->ignored_at > 0 && Services::Request()->ts() > $oEntry->ignored_at ) ?
+	protected function formatIsIgnored( $entry ) {
+		return ( $entry->ignored_at > 0 && Services::Request()->ts() > $entry->ignored_at ) ?
 			__( 'Yes' ) : __( 'No' );
 	}
 }

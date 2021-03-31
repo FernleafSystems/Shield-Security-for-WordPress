@@ -102,19 +102,19 @@ iCWP_WPSF_Toaster.initialise();
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	let bRequestCurrentlyRunning = false;
-	var aAjaxReqParams = icwp_wpsf_vars_base.ajax.mod_options;
+	var reqParams = icwp_wpsf_vars_base.ajax.mod_options;
 
-	this.submit = function ( sMessage, bSuccess ) {
-		let $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( sMessage );
+	this.submit = function ( msg, success ) {
+		let $oDiv = createDynDiv( success ? 'success' : 'failed' );
+		$oDiv.fadeIn().html( msg );
 		setTimeout( function () {
 			$oDiv.fadeOut( 5000 );
 			$oDiv.remove();
 		}, 4000 );
 	};
 
-	this.updateAjaxReqParams = function ( aParams ) {
-		aAjaxReqParams = aParams;
+	this.updateAjaxReqParams = function ( params ) {
+		reqParams = params;
 	};
 
 	/**
@@ -122,15 +122,21 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	 * This works around mod_security rules that even unpack b64 encoded params and look
 	 * for patterns within them.
 	 */
-	var sendForm = function ( $oForm, useCompression = false ) {
+	var sendForm = function ( $form, useCompression = false ) {
 
-		let formData = $oForm.serialize();
+		let formData = $form.serialize();
 		if ( useCompression ) {
 			formData = LZString.compress( formData );
 		}
 
+		/** Required since using dynamic AJAX loaded page content **/
+		if ( !$form.data( 'mod_slug' ) ) {
+			alert( 'Missing form data' );
+			return false;
+		}
+		reqParams.mod_slug = $form.data( 'mod_slug' );
 		let reqs = jQuery.extend(
-			aAjaxReqParams,
+			reqParams,
 			{
 				'form_params': Base64.encode( formData ),
 				'enc_params': useCompression ? 'lz-string' : 'b64',
@@ -154,7 +160,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 			else {
 				iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
-				sendForm( $oForm, true );
+				sendForm( $form, true );
 			}
 
 		} ).always( function () {
@@ -188,23 +194,23 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		bRequestCurrentlyRunning = true;
 		event.preventDefault();
 
-		var $oForm = jQuery( this );
+		var $form = jQuery( this );
 
-		var $bPasswordsReady = true;
-		jQuery( 'input[type=password]', $oForm ).each( function () {
+		var $passwordsReady = true;
+		jQuery( 'input[type=password]', $form ).each( function () {
 			var $oPass = jQuery( this );
-			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $oForm );
+			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $form );
 			if ( typeof $oConfirm.attr( 'id' ) !== 'undefined' ) {
 				if ( $oPass.val() && !$oConfirm.val() ) {
 					$oConfirm.addClass( 'is-invalid' );
 					alert( 'Form not submitted due to error: password confirmation field not provided.' );
-					$bPasswordsReady = false;
+					$passwordsReady = false;
 				}
 			}
 		} );
 
-		if ( $bPasswordsReady ) {
-			sendForm( $oForm, false );
+		if ( $passwordsReady ) {
+			sendForm( $form, false );
 		}
 	};
 
@@ -409,7 +415,7 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 jQuery( document ).ready( function () {
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
-	jQuery( '.select2picker' ).select2({
+	jQuery( '.select2picker' ).select2( {
 		width: 'resolve'
-	});
+	} );
 } );

@@ -1180,16 +1180,16 @@ abstract class ModCon {
 	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'components/options_form/main.twig';
+			$template = 'components/options_form/main.twig';
 		}
 		else {
-			$sTemplate = 'subfeature-access_restricted';
+			$template = 'subfeature-access_restricted';
 		}
 
 		try {
 			return $this->getCon()
 						->getRenderer()
-						->setTemplate( $sTemplate )
+						->setTemplate( $template )
 						->setRenderVars( $this->getUIHandler()->getBaseDisplayData() )
 						->setTemplateEngineTwig()
 						->render();

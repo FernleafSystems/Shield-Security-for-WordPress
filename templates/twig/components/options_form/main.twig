@@ -1,5 +1,9 @@
-<form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
-	  autocomplete="off">
+<form action="{{ form_action }}" method="post"
+	  class="icwpOptionsForm form"
+	  novalidate="novalidate"
+	  autocomplete="off"
+	  data-mod_slug="{{ vars.mod_slug }}"
+>
 
 	<div id="ModuleOptionsNav" class="insights-sub-nav" aria-orientation="horizontal">
 		<ul class="nav nav-tabs" role="tablist">
@@ -33,7 +37,7 @@
 								   data-toggle="collapse"
 								   data-target="#collapse-{{ opt_section.slug }}"
 								><span class="dashicons dashicons-info"></span></a>
-								<br/>
+								<br />
 								<div class="collapse mb-3" id="collapse-{{ opt_section.slug }}">
 									<div class="card">
 										<div class="card-body">

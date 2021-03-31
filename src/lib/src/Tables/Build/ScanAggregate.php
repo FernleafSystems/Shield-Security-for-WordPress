@@ -90,10 +90,7 @@ class ScanAggregate extends ScanBase {
 		return $aProcessedEntries;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getParamDefaults() {
+	protected function getParamDefaults() :array {
 		return array_merge(
 			parent::getParamDefaults(),
 			[ 'orderby' => 'scan', ]

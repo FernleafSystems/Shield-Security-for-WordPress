@@ -16,6 +16,7 @@ class FormParams {
 		$req = Services::Request();
 		$formParams = [];
 		$raw = $req->post( 'form_params', '' );
+
 		if ( empty( $raw ) ) {
 			$formParams = $req->post;
 		}
