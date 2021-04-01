@@ -97,6 +97,10 @@ class ModCon extends Base\ModCon {
 		return $data;
 	}
 
+	/**
+	 * @return array
+	 * @deprecated 11.1
+	 */
 	protected function getSecAdminCheckAjaxData() :array {
 		// We set a custom mod_slug so that this module handles the ajax request
 		$dat = $this->getAjaxActionData( 'sec_admin_check' );

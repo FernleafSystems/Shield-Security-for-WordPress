@@ -178,44 +178,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->saveModOptions();
 	}
 
-	public function getScriptLocalisations() :array {
-		$locals = parent::getScriptLocalisations();
-
-		$timeRemaining = $this->getSecurityAdminController()->getSecAdminTimeRemaining();
-		if ( $timeRemaining > 0 ) {
-			$data = [
-				'ajax'         => [
-					'check' => $this->getSecAdminCheckAjaxData(),
-				],
-				'is_sec_admin' => true, // if $nSecTimeLeft > 0
-				'timeleft'     => $timeRemaining, // JS uses milliseconds
-				'strings'      => [
-					'confirm' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
-					'nearly'  => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
-					'expired' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' )
-				]
-			];
-		}
-		else {
-			$data = [
-				'ajax'    => [
-					'req_email_remove' => $this->getAjaxActionData( 'req_email_remove' ),
-				],
-				'strings' => [
-					'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
-				]
-			];
-		}
-
-		$locals[] = [
-			'plugin',
-			'icwp_wpsf_vars_secadmin',
-			$data
-		];
-
-		return $locals;
-	}
-
 	/**
 	 * This is the point where you would want to do any options verification
 	 */

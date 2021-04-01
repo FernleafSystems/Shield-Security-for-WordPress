@@ -214,6 +214,11 @@
           ]
         },
         "shield/navigation":         {},
+        "shield/secadmin":           {
+          "deps": [
+            "wp-jquery"
+          ]
+        },
         "shield/tables":           {
           "deps": [
             "plugin"

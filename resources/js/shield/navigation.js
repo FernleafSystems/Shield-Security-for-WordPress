@@ -2,7 +2,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 
 	let currentMenuClickTarget;
 
-	var handleLoad = function ( evt, response ) {
+	var handleDynamicLoad = function ( evt, response ) {
 		document.querySelector( '#apto-PageMainBody' ).innerHTML = response.data.html;
 
 		window.history.replaceState(
@@ -35,7 +35,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 		document.querySelector( '#apto-PageMainBody' ).innerHTML = 'Loading ...';
 		shield_vars_navigation.ajax.dynamic_load.load_params = params;
 		iCWP_WPSF_StandardAjax.send_ajax_req(
-			shield_vars_navigation.ajax.dynamic_load, 'dynamic_load'
+			shield_vars_navigation.ajax.dynamic_load, false, 'dynamic_load'
 		);
 	};
 
@@ -50,7 +50,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 				return false;
 			} );
 
-			jQuery( document ).on( 'dynamic_load', handleLoad );
+			jQuery( document ).on( 'shield-dynamic_load', handleDynamicLoad );
 		} );
 	};
 

@@ -40,7 +40,7 @@ class RemoveSecAdmin {
 						   sprintf( '%s: %s', __( 'Confirmation link', 'wp-simple-firewall' ),
 							   $mod->buildAdminActionNonceUrl( 'remove_secadmin_confirm' ) ),
 						   '',
-						   __( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin password.", 'wp-simple-firewall' ),
+						   __( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN.", 'wp-simple-firewall' ),
 						   '',
 						   __( "Thank you.", 'wp-simple-firewall' )
 					   ]
@@ -58,7 +58,7 @@ class RemoveSecAdmin {
 							__( 'This was done using a confirmation email sent to the Security Administrator email address.', 'wp-simple-firewall' ),
 							__( 'All restrictions imposed by the Security Admin module have been lifted.', 'wp-simple-firewall' ),
 							'',
-							__( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin password.", 'wp-simple-firewall' ),
+							__( "Please understand that to reinstate the Security Admin features, you'll need to provide a new Security Admin PIN.", 'wp-simple-firewall' ),
 							'',
 							__( "Thank you.", 'wp-simple-firewall' )
 						]

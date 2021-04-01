@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,7 +21,9 @@ class SecurityAdminController {
 	protected function run() {
 
 		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
-
+		add_action( 'admin_init', function () {
+			$this->enqueueJS();
+		} );
 		add_action( 'init', function () {
 			if ( !$this->getCon()->isPluginAdmin() ) {
 				( new Restrictions\WpOptions() )
@@ -42,6 +46,47 @@ class SecurityAdminController {
 					add_action( 'admin_footer', [ $this, 'printAdminAccessAjaxForm' ] );
 				}
 			}
+		} );
+	}
+
+	private function enqueueJS() {
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
+			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
+
+			add_filter( 'shield/custom_localisations', function ( array $localz ) {
+				/** @var ModCon $mod */
+				$mod = $this->getMod();
+
+				$timeRemaining = $this->getSecAdminTimeRemaining();
+				error_log( (string)$timeRemaining );
+				$localz[] = [
+					'shield/secadmin',
+					'shield_vars_secadmin',
+					[
+						'ajax'    => [
+							'sec_admin_check'  => $mod->getAjaxActionData( 'sec_admin_check' ),
+							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
+						],
+						'strings' => [
+							'confirm'      => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
+							'nearly'       => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
+							'expired'      => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
+							'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
+						],
+						'flags'   => [
+							'run_checks' => $this->isEnabledSecAdmin()
+											&& $this->getCon()->getIsPage_PluginAdmin()
+											&& $this->isCurrentSecAdminSessionValid(),
+						],
+						'vars'    => [
+							'time_remaining' => $timeRemaining, // JS uses milliseconds
+						],
+					]
+				];
+				return $localz;
+			} );
+
+			return $enqueues;
 		} );
 	}
 
