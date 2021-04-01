@@ -20,6 +20,11 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $whitelabelCon;
 
+	/**
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminController
+	 */
+	private $securityAdminCon;
+
 	protected function setupCustomHooks() {
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
@@ -30,6 +35,14 @@ class ModCon extends BaseShield\ModCon {
 				->setMod( $this );
 		}
 		return $this->whitelabelCon;
+	}
+
+	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
+		if ( !$this->securityAdminCon instanceof Lib\SecurityAdmin\SecurityAdminController ) {
+			$this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )
+				->setMod( $this );
+		}
+		return $this->securityAdminCon;
 	}
 
 	public function getSecAdminLoginAjaxData() :array {
