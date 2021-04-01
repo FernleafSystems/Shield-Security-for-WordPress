@@ -68,27 +68,27 @@ abstract class ModCon {
 
 	/**
 	 * @param Shield\Controller\Controller $pluginCon
-	 * @param array                        $aMod
+	 * @param array                        $mod
 	 * @throws \Exception
 	 */
-	public function __construct( $pluginCon, $aMod = [] ) {
+	public function __construct( $pluginCon, $mod = [] ) {
 		if ( !$pluginCon instanceof Shield\Controller\Controller ) {
 			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
 		$this->setCon( $pluginCon );
 
-		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
+		if ( empty( $mod[ 'storage_key' ] ) && empty( $mod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
 		}
 
-		$this->sOptionsStoreKey = empty( $aMod[ 'storage_key' ] ) ? $aMod[ 'slug' ] : $aMod[ 'storage_key' ];
-		if ( isset( $aMod[ 'slug' ] ) ) {
-			$this->sModSlug = $aMod[ 'slug' ];
+		$this->sOptionsStoreKey = empty( $mod[ 'storage_key' ] ) ? $mod[ 'slug' ] : $mod[ 'storage_key' ];
+		if ( isset( $mod[ 'slug' ] ) ) {
+			$this->sModSlug = $mod[ 'slug' ];
 		}
 
 		if ( $this->verifyModuleMeetRequirements() ) {
 			$this->handleAutoPageRedirects();
-			$this->setupHooks( $aMod );
+			$this->setupHooks( $mod );
 			$this->doPostConstruction();
 		}
 	}
@@ -856,9 +856,9 @@ abstract class ModCon {
 	}
 
 	public function onPluginDelete() {
-		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			if ( !empty( $oDbh ) ) {
-				$oDbh->tableDelete();
+		foreach ( $this->getDbHandlers( true ) as $dbh ) {
+			if ( !empty( $dbh ) ) {
+				$dbh->tableDelete();
 			}
 		}
 		$this->getOptions()->deleteStorage();

@@ -551,8 +551,7 @@
   "definitions":      {
     "db_classes":                      {
       "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
-      "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler",
-      "ips":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
+      "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name":             "ip_lists",
     "db_table_ip_lists":               {
