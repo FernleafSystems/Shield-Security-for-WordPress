@@ -37,28 +37,25 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_SecAdminCheck() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$secAdminCon = $mod->getSecurityAdminController();
 		return [
-			'timeleft' => $mod->getSecAdminTimeLeft(),
-			'success'  => $mod->isSecAdminSessionValid()
+			'timeleft' => $secAdminCon->getSecAdminTimeRemaining(),
+			'success'  => $secAdminCon->isCurrentSecAdminSessionValid()
 		];
 	}
 
 	private function ajaxExec_SecAdminLogin() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$success = false;
+
+		$success = ( new Lib\SecurityAdmin\Ops\VerifyPinRequest() )
+			->setMod( $mod )
+			->run();
 		$html = '';
 
-		if ( $mod->testSecAccessKeyRequest() ) {
-
-			if ( $mod->setSecurityAdminStatusOnOff( true ) ) {
-				$success = true;
-				$msg = __( 'Security Admin PIN Accepted.', 'wp-simple-firewall' )
-					   .' '.__( 'Please wait', 'wp-simple-firewall' ).' ...';
-			}
-			else {
-				$msg = __( 'Failed to process key - you may need to re-login to WordPress.', 'wp-simple-firewall' );
-			}
+		if ( $success ) {
+			$msg = __( 'Security Admin PIN Accepted.', 'wp-simple-firewall' )
+				   .' '.__( 'Please wait', 'wp-simple-firewall' ).' ...';
 		}
 		else {
 			$remaining = ( new Shield\Modules\IPs\Components\QueryRemainingOffenses() )
@@ -91,7 +88,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_SendEmailRemove() :array {
-		( new Shield\Modules\SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
+		( new Lib\SecurityAdmin\Ops\RemoveSecAdmin() )
 			->setMod( $this->getMod() )
 			->sendConfirmationEmail();
 		return [

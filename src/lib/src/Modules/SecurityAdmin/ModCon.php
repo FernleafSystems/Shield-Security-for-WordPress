@@ -21,7 +21,7 @@ class ModCon extends BaseShield\ModCon {
 	private $whitelabelCon;
 
 	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminController
+	 * @var Lib\SecurityAdmin\SecurityAdminController
 	 */
 	private $securityAdminCon;
 
@@ -49,33 +49,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getAjaxActionData( 'sec_admin_login' );
 	}
 
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function isReadyToExecute() :bool {
-		return $this->isEnabledSecurityAdmin() && parent::isReadyToExecute();
-	}
-
-	/**
-	 * No checking of admin capabilities in-case of infinite loop with
-	 * admin access caps check
-	 * @return bool
-	 */
-	public function isRegisteredSecAdminUser() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$sUser = Services::WpUsers()->getCurrentWpUsername();
-		return !empty( $sUser ) && in_array( $sUser, $opts->getSecurityAdminUsers() );
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		if ( $this->isValidSecAdminRequest() ) {
-			$this->setSecurityAdminStatusOnOff( true );
-		}
 
 		// Verify whitelabel images
 		if ( $this->isWlEnabled() ) {
@@ -86,85 +62,26 @@ class ModCon extends BaseShield\ModCon {
 			}
 		}
 
-		$opts->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
+		$opts->setOpt( 'sec_admin_users',
+			( new Lib\SecurityAdmin\VerifySecurityAdminList() )
+				->setMod( $this )
+				->run( $opts->getSecurityAdminUsers() )
+		);
 
 		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
 			$opts->clearSecurityAdminKey();
-			$this->setSecurityAdminStatusOnOff( false );
+			( new Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
+				->setMod( $this )
+				->turnOff();
 			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
 			$opts->setOpt( 'sec_admin_users', [] );
 		}
 	}
 
-	/**
-	 * Ensures that all entries are valid users.
-	 * @param string[] $aSecUsers
-	 * @return string[]
-	 */
-	private function verifySecAdminUsers( $aSecUsers ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$DP = Services::Data();
-		$WPU = Services::WpUsers();
-
-		$aFiltered = [];
-		foreach ( $aSecUsers as $nCurrentKey => $usernameOrEmail ) {
-			$user = null;
-
-			if ( !empty( $usernameOrEmail ) ) {
-				if ( $DP->validEmail( $usernameOrEmail ) ) {
-					$user = $WPU->getUserByEmail( $usernameOrEmail );
-				}
-				else {
-					$user = $WPU->getUserByUsername( $usernameOrEmail );
-					if ( is_null( $user ) && is_numeric( $usernameOrEmail ) ) {
-						$user = $WPU->getUserById( $usernameOrEmail );
-					}
-				}
-			}
-
-			if ( $user instanceof \WP_User && $user->ID > 0 && $WPU->isUserAdmin( $user ) ) {
-				$aFiltered[] = $user->user_login;
-			}
-		}
-
-		// We now run a bit of a sanity check to ensure that the current user is
-		// not adding users here that aren't themselves without a key to still gain access
-		$oCurrent = $WPU->getCurrentWpUser();
-		if ( !empty( $aFiltered ) && !$opts->hasSecurityPIN() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
-			$aFiltered[] = $oCurrent->user_login;
-		}
-
-		natsort( $aFiltered );
-		return array_unique( $aFiltered );
-	}
-
-	public function getSecAdminTimeout() :int {
-		return (int)$this->getOptions()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
-	}
-
-	/**
-	 * Only returns greater than 0 if you have a valid Sec admin session
-	 */
-	public function getSecAdminTimeLeft() :int {
-		$nLeft = 0;
-		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
-
-			$nSecAdminAt = $this->getSession()->getSecAdminAt();
-			if ( $this->isRegisteredSecAdminUser() ) {
-				$nLeft = 0;
-			}
-			elseif ( $nSecAdminAt > 0 ) {
-				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
-			}
-		}
-		return (int)max( 0, $nLeft );
-	}
-
 	protected function handleModAction( string $action ) {
 		switch ( $action ) {
 			case  'remove_secadmin_confirm':
-				( new Lib\Actions\RemoveSecAdmin() )
+				( new Lib\SecurityAdmin\Ops\RemoveSecAdmin() )
 					->setMod( $this )
 					->remove();
 				break;
@@ -174,72 +91,10 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	public function isSecAdminSessionValid() :bool {
-		return $this->getSecAdminTimeLeft() > 0;
-	}
-
-	public function isEnabledSecurityAdmin() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $this->isModOptEnabled() &&
-			   ( count( $opts->getSecurityAdminUsers() ) > 0 ||
-				 ( $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0 )
-			   );
-	}
-
 	/**
-	 * @param bool $bSetOn
-	 * @return bool
+	 * @return array
+	 * @deprecated 11.1
 	 */
-	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
-		/** @var Shield\Databases\Session\Update $oUpdater */
-		$oUpdater = $this->getDbHandler_Sessions()->getQueryUpdater();
-		return $bSetOn ?
-			$oUpdater->startSecurityAdmin( $this->getSession() )
-			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
-	}
-
-	public function isValidSecAdminRequest() :bool {
-		return $this->isAccessKeyRequest() && $this->testSecAccessKeyRequest();
-	}
-
-	public function testSecAccessKeyRequest() :bool {
-		if ( !isset( $this->bValidSecAdminRequest ) ) {
-			$bValid = false;
-			$sReqKey = Services::Request()->post( 'sec_admin_key' );
-			if ( !empty( $sReqKey ) ) {
-				/** @var Options $opts */
-				$opts = $this->getOptions();
-				$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sReqKey ) );
-				if ( !$bValid ) {
-					$sEscaped = isset( $_POST[ 'sec_admin_key' ] ) ? $_POST[ 'sec_admin_key' ] : '';
-					if ( !empty( $sEscaped ) ) {
-						// Workaround for escaping of passwords
-						$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sEscaped ) );
-						if ( $bValid ) {
-							$opts->setOpt( 'admin_access_key', md5( $sReqKey ) );
-						}
-					}
-				}
-
-				$this->getCon()->fireEvent( $bValid ? 'key_success' : 'key_fail' );
-			}
-
-			$this->bValidSecAdminRequest = $bValid;
-		}
-		return $this->bValidSecAdminRequest;
-	}
-
-	private function isAccessKeyRequest() :bool {
-		return strlen( Services::Request()->post( 'sec_admin_key', '' ) ) > 0;
-	}
-
-	public function verifyAccessKey( string $key ) :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
-	}
-
 	public function getWhitelabelOptions() :array {
 		$opts = $this->getOptions();
 		$main = $opts->getOpt( 'wl_pluginnamemain' );
@@ -301,6 +156,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
+	 * Used by Wizard. TODO: sort out the wizard requests!
 	 * @param string $pin
 	 * @return $this
 	 * @throws \Exception
@@ -315,19 +171,24 @@ class ModCon extends BaseShield\ModCon {
 
 		$this->setIsMainFeatureEnabled( true );
 		$this->getOptions()->setOpt( 'admin_access_key', md5( $pin ) );
+		( new Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
+			->setMod( $this )
+			->turnOn();
+
 		return $this->saveModOptions();
 	}
 
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
 
-		if ( $this->getSecAdminTimeLeft() > 0 ) {
+		$timeRemaining = $this->getSecurityAdminController()->getSecAdminTimeRemaining();
+		if ( $timeRemaining > 0 ) {
 			$data = [
 				'ajax'         => [
 					'check' => $this->getSecAdminCheckAjaxData(),
 				],
 				'is_sec_admin' => true, // if $nSecTimeLeft > 0
-				'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
+				'timeleft'     => $timeRemaining, // JS uses milliseconds
 				'strings'      => [
 					'confirm' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
 					'nearly'  => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
@@ -363,11 +224,11 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 
 		// Restricting Activate Plugins also means restricting the rest.
-		$aPluginsRestrictions = $opts->getAdminAccessArea_Plugins();
-		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
+		$pluginsRestrictions = $opts->getAdminAccessArea_Plugins();
+		if ( in_array( 'activate_plugins', $pluginsRestrictions ) ) {
 			$opts->setOpt(
 				'admin_access_restrict_plugins',
-				array_unique( array_merge( $aPluginsRestrictions, [
+				array_unique( array_merge( $pluginsRestrictions, [
 					'install_plugins',
 					'update_plugins',
 					'delete_plugins'
@@ -376,11 +237,11 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		// Restricting Switch (Activate) Themes also means restricting the rest.
-		$aThemesRestrictions = $opts->getAdminAccessArea_Themes();
-		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
+		$themesRestrictions = $opts->getAdminAccessArea_Themes();
+		if ( in_array( 'switch_themes', $themesRestrictions ) && in_array( 'edit_theme_options', $themesRestrictions ) ) {
 			$opts->setOpt(
 				'admin_access_restrict_themes',
-				array_unique( array_merge( $aThemesRestrictions, [
+				array_unique( array_merge( $themesRestrictions, [
 					'install_themes',
 					'update_themes',
 					'delete_themes'
@@ -388,11 +249,11 @@ class ModCon extends BaseShield\ModCon {
 			);
 		}
 
-		$aPostRestrictions = $opts->getAdminAccessArea_Posts();
-		if ( in_array( 'edit', $aPostRestrictions ) ) {
+		$postRestrictions = $opts->getAdminAccessArea_Posts();
+		if ( in_array( 'edit', $postRestrictions ) ) {
 			$opts->setOpt(
 				'admin_access_restrict_posts',
-				array_unique( array_merge( $aPostRestrictions, [ 'create', 'publish', 'delete' ] ) )
+				array_unique( array_merge( $postRestrictions, [ 'create', 'publish', 'delete' ] ) )
 			);
 		}
 	}
@@ -407,5 +268,117 @@ class ModCon extends BaseShield\ModCon {
 				)
 			);
 		}
+	}
+
+	/**
+	 * No checking of admin capabilities in-case of infinite loop with
+	 * admin access caps check
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	public function isRegisteredSecAdminUser() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$sUser = Services::WpUsers()->getCurrentWpUsername();
+		return !empty( $sUser ) && in_array( $sUser, $opts->getSecurityAdminUsers() );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	public function isEnabledSecurityAdmin() :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $this->isModOptEnabled() &&
+			   ( count( $opts->getSecurityAdminUsers() ) > 0 ||
+				 ( $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0 )
+			   );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	public function isSecAdminSessionValid() :bool {
+		return $this->getSecAdminTimeLeft() > 0;
+	}
+
+	/**
+	 * Only returns greater than 0 if you have a valid Sec admin session
+	 * @deprecated 11.1
+	 */
+	public function getSecAdminTimeLeft() :int {
+		$nLeft = 0;
+		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
+
+			$nSecAdminAt = $this->getSession()->getSecAdminAt();
+			if ( $this->isRegisteredSecAdminUser() ) {
+				$nLeft = 0;
+			}
+			elseif ( $nSecAdminAt > 0 ) {
+				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
+			}
+		}
+		return (int)max( 0, $nLeft );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 11.1
+	 */
+	public function getSecAdminTimeout() :int {
+		return (int)$this->getOptions()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+	}
+
+	/**
+	 * Ensures that all entries are valid users.
+	 * @param string[] $aSecUsers
+	 * @return string[]
+	 * @deprecated 11.1
+	 */
+	private function verifySecAdminUsers( $aSecUsers ) {
+		return $aSecUsers;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	private function isAccessKeyRequest() :bool {
+		return strlen( Services::Request()->post( 'sec_admin_key', '' ) ) > 0;
+	}
+
+	public function verifyAccessKey( string $key ) :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	public function testSecAccessKeyRequest() :bool {
+		return ( new Lib\SecurityAdmin\Ops\VerifyPinRequest() )
+			->setMod( $this )
+			->run();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	public function isValidSecAdminRequest() :bool {
+		return false;
+	}
+
+	/**
+	 * @param bool $bSetOn
+	 * @return bool
+	 * @deprecated 11.1
+	 */
+	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
+		return false;
 	}
 }

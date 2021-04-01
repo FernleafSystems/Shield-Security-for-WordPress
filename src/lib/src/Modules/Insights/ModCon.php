@@ -88,6 +88,9 @@ class ModCon extends BaseShield\ModCon {
 
 		$con = $this->getCon();
 		$inav = Services::Request()->query( 'inav' );
+		if ( empty( $inav ) ) {
+			$inav = 'overview';
+		}
 
 		if ( $con->getIsPage_PluginAdmin() && !empty( $inav ) ) {
 			switch ( $inav ) {

@@ -218,15 +218,15 @@ class Collate {
 		$licPing->lookup_url_stub = $con->getModule_License()->getOptions()->getDef( 'license_store_url_api' );
 		$data[ 'Ping License Server' ] = $licPing->ping() ? 'Yes' : 'No';
 
-		$data[ 'Write TMP/Cache DIR' ] = $con->hasCacheDir() ?'Yes: '.$con->getPluginCachePath() : 'No' ;
+		$data[ 'Write TMP/Cache DIR' ] = $con->hasCacheDir() ? 'Yes: '.$con->getPluginCachePath() : 'No';
 
 		return $data;
 	}
 
 	private function getShieldSummary() :array {
-		$oCon = $this->getCon();
-		$oModLicense = $oCon->getModule_License();
-		$oModPlugin = $oCon->getModule_Plugin();
+		$con = $this->getCon();
+		$oModLicense = $con->getModule_License();
+		$oModPlugin = $con->getModule_Plugin();
 		$oWpHashes = $oModLicense->getWpHashesTokenManager();
 
 		$nPrevAttempt = $oWpHashes->getPreviousAttemptAt();
@@ -241,10 +241,12 @@ class Collate {
 		}
 
 		$aD = [
-			'Version'                => $oCon->getVersion(),
-			'PRO'                    => $oCon->isPremiumActive() ? 'Yes' : 'No',
+			'Version'                => $con->getVersion(),
+			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
 			'WP Hashes Token'        => ( $oWpHashes->hasToken() ? $oWpHashes->getToken() : '' ).' ('.$sPrev.')',
-			'Security Admin Enabled' => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
+			'Security Admin Enabled' => $con->getModule_SecAdmin()
+											->getSecurityAdminController()
+											->isEnabledSecAdmin() ? 'Yes' : 'No',
 		];
 
 		/** @var Options $oOptsIP */

@@ -26,7 +26,7 @@
 <h6>Supply A New Security Access PIN</h6>
 <p><strong>Warning</strong>: You must remember this key to regain access to the Shield plugin.</p>
 <form class="form-horizontal icwp-wizard-form">
-	{{ icwp_macros.formInput_Password( 'AccessKey', '', 'Access PIN', '', 'Do not forget this key' ) }}
+	{{ icwp_macros.formInput_Password( 'sec_admin_key', '', 'Access PIN', '', 'Do not forget this key' ) }}
 	{{ icwp_macros.formInput_Password( 'AccessKeyConfirm', '', 'Confirm PIN', 'Confirm PIN' ) }}
 	{{ icwp_macros.formInput_Hidden( 'wizard-step', 'admin_access_restriction' ) }}
 	{{ icwp_macros.formInput_Submit( 'Turn On Security Admin' ) }}

@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityAdminController {
 
@@ -13,7 +13,7 @@ class SecurityAdminController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return true;
+		return $this->isEnabledSecAdmin();
 	}
 
 	protected function run() {
@@ -45,20 +45,64 @@ class SecurityAdminController {
 		} );
 	}
 
+	public function getSecAdminTimeout() :int {
+		return (int)$this->getOptions()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+	}
+
+	/**
+	 * Only returns greater than 0 if you have a valid Sec admin session
+	 */
+	public function getSecAdminTimeRemaining() :int {
+		$remaining = 0;
+		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
+
+			$secAdminAt = $this->getMod()->getSession()->getSecAdminAt();
+			if ( $this->isRegisteredSecAdminUser() ) {
+				$remaining = 0;
+			}
+			elseif ( $secAdminAt > 0 ) {
+				$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
+			}
+		}
+		return (int)max( 0, $remaining );
+	}
+
+	/**
+	 * @param \WP_User|null $user
+	 * @return bool
+	 */
+	public function isRegisteredSecAdminUser( $user = null ) :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( !$user instanceof \WP_User ) {
+			$user = Services::WpUsers()->getCurrentWpUser();
+		}
+		return $user instanceof \WP_User
+			   && in_array( $user->user_login, $opts->getSecurityAdminUsers() );
+	}
+
+	public function isEnabledSecAdmin() :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $this->getMod()->isModOptEnabled() &&
+			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
+	}
+
+	public function isCurrentSecAdminSessionValid() :bool {
+		return $this->getSecAdminTimeRemaining() > 0;
+	}
+
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return $isPluginAdmin &&
-			   ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid() || $mod->testSecAccessKeyRequest() );
+			   ( $this->isRegisteredSecAdminUser() || $this->isCurrentSecAdminSessionValid() || $this->verifyPinRequest() );
 	}
 
 	public function printAdminAccessAjaxForm() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$aRenderData = [
+		add_thickbox();
+		echo $this->getMod()->renderTemplate( 'snippets/admin_access_login_box.php', [
 			'flags'       => [
 				'restrict_options' => $opts->getAdminAccessArea_Options()
 			],
@@ -75,10 +119,14 @@ class SecurityAdminController {
 				'options_to_restrict' => "'".implode( "','", $opts->getOptionsToRestrict() )."'",
 			],
 			'ajax'        => [
-				'sec_admin_login_box' => $mod->getAjaxActionData( 'sec_admin_login_box', true )
+				'sec_admin_login_box' => $this->getMod()->getAjaxActionData( 'sec_admin_login_box', true )
 			]
-		];
-		add_thickbox();
-		echo $mod->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
+		] );
+	}
+
+	public function verifyPinRequest() :bool {
+		return ( new Ops\VerifyPinRequest() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 }

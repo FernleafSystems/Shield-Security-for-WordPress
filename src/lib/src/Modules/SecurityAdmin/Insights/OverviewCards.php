@@ -21,8 +21,8 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 		$cards = [];
 
-		$bEnabled = $mod->isModuleEnabled() && $mod->isEnabledSecurityAdmin();
-		if ( !$bEnabled ) {
+		$enabled = $mod->getSecurityAdminController()->isEnabledSecAdmin();
+		if ( !$enabled ) {
 			$cards[ 'mod' ] = [
 				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
 				'state'   => -1,
@@ -38,11 +38,11 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_key' ),
 			];
 
-			$bWpOpts = $opts->getAdminAccessArea_Options();
+			$isWPOptsRestricted = $opts->getAdminAccessArea_Options();
 			$cards[ 'wpopts' ] = [
 				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
-				'state'   => $bWpOpts ? 1 : -1,
-				'summary' => $bWpOpts ?
+				'state'   => $isWPOptsRestricted ? 1 : -1,
+				'summary' => $isWPOptsRestricted ?
 					__( 'Important WP options are protected against tampering', 'wp-simple-firewall' )
 					: __( "Important WP options aren't protected against tampering", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),

@@ -25,11 +25,7 @@ class Processor extends BaseShield\Processor {
 	 * @deprecated 11.1
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $bHasPermission &&
-			   ( $mod->isRegisteredSecAdminUser() || $mod->isSecAdminSessionValid()
-				 || $mod->testSecAccessKeyRequest() );
+		return $bHasPermission;
 	}
 
 	public function onWpInit() {
