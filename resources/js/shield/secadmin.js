@@ -48,14 +48,54 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 		}
 	};
 
+	let restrictWPOptions = function () {
+		if ( shield_vars_secadmin.flags.restrict_options ) {
+			shield_vars_secadmin.vars.wp_options_to_restrict.forEach( function ( element ) {
+				let $element = jQuery( 'input[name=' + element + ']' );
+				$element.prop( 'disabled', true );
+				$element.parents( 'tr' ).addClass( 'restricted-option-row' );
+				$element.parents( 'td' ).append(
+					'<div style="clear:both"></div><div class="restricted-option">' +
+					'<span class="dashicons dashicons-lock"></span>' +
+					shield_vars_secadmin.strings.editing_restricted +
+					' ' + shield_vars_secadmin.strings.unlock_link +
+					'</div>' );
+			} );
+		}
+	};
+
+	let performSecAdminDialogLogin = function () {
+
+		let pinInput = document.getElementById( 'SecAdminPinInput' );
+		shield_vars_secadmin.ajax.sec_admin_login.sec_admin_key = pinInput.value;
+		console.log( shield_vars_secadmin.ajax.sec_admin_login );
+
+		let inputContainer = document.getElementById( 'SecAdminPinInputContainer' );
+		inputContainer.innerHTML = '<div class="spinner"></div>';
+
+		jQuery.post( ajaxurl, shield_vars_secadmin.ajax.sec_admin_login, function ( response ) {
+			if ( response.success ) {
+				location.reload();
+			}
+			if ( response.data ) {
+				inputContainer.innerHTML = response.data.html;
+			}
+			else {
+				inputContainer.innerHTML = 'There was an unknown error';
+			}
+		} );
+	};
+
 	this.initialise = function () {
+
+		restrictWPOptions();
 
 		if ( shield_vars_secadmin.flags.run_checks ) {
 			scheduleSecAdminCheck();
 			jQuery( document ).on( 'shield-sec_admin_check', handleSecAdminCheck );
 		}
 
-		jQuery( document ).on( "submit", '#SecurityAdminForm',
+		jQuery( document ).on( 'submit', '#SecurityAdminForm',
 			function ( evt ) {
 				evt.preventDefault();
 				iCWP_WPSF_StandardAjax.send_ajax_req( jQuery( evt.target ).serialize() );
@@ -63,7 +103,7 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 			}
 		);
 
-		jQuery( document ).on( "click", '#SecAdminRemoveConfirmEmail',
+		jQuery( document ).on( 'click', '#SecAdminRemoveConfirmEmail',
 			function ( evt ) {
 				evt.preventDefault();
 				if ( confirm( shield_vars_secadmin.strings.are_you_sure ) ) {
@@ -72,6 +112,8 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 				return false;
 			}
 		);
+
+		jQuery( document ).on( 'click', '#SecAdminDialog button', performSecAdminDialogLogin );
 	};
 }();
 

@@ -487,14 +487,14 @@ abstract class ModCon {
 	}
 
 	public function isModuleEnabled() :bool {
-		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
-		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
+		/** @var Shield\Modules\Plugin\Options $pluginOpts */
+		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
 			$enabled = true;
 		}
-		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
+		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {

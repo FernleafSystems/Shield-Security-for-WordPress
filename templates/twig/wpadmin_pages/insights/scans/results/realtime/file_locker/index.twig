@@ -21,12 +21,13 @@
 									 </label>
 								 </div>
 								<select class="custom-select mw-100" id="FileLockerFileSelect">
-									<option selected value="-">--</option>
+									<option selected value="-" disabled="disabled">--</option>
 									{% for lock_key, file_lock in scan.vars.file_locks.bad %}
 										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.file }}</option>
 									{% endfor %}
 									{% for lock_key, file_lock in scan.vars.file_locks.good %}
-										<option value="{{ lock_key }}" class="text-success">{{ file_lock.file }}</option>
+										<option value="{{ lock_key }}"
+												class="text-success">{{ file_lock.file }}</option>
 									{% endfor %}
 								</select>
 							 </div>
@@ -61,7 +62,7 @@
 </div>
 
 {% if not scan.flags.is_restricted %}
-<script type="text/javascript">
+	<script type="text/javascript">
 	jQuery( '#FileLockerFileSelect' ).on( 'change', function ( e ) {
 		iCWP_WPSF_BodyOverlay.show();
 		let ajax_vars ={{ scan.ajax.filelocker_showdiff|raw }};

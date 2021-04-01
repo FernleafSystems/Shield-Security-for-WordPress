@@ -59,8 +59,8 @@ class Options extends BaseShield\Options {
 	 */
 	public function getOptionsToRestrict( $type = '' ) {
 		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
-		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $type.'_options' ] ) && is_array( $aOptions[ $type.'_options' ] ) ) ? $aOptions[ $type.'_options' ] : [];
+		$options = $this->getRestrictedOptions();
+		return ( isset( $options[ $type.'_options' ] ) && is_array( $options[ $type.'_options' ] ) ) ? $options[ $type.'_options' ] : [];
 	}
 
 	/**

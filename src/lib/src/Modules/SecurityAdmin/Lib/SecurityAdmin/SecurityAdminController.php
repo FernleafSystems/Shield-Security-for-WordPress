@@ -14,6 +14,8 @@ class SecurityAdminController {
 	use ExecOnce;
 	use ModConsumer;
 
+	private $validPinRequest;
+
 	protected function canRun() :bool {
 		return $this->isEnabledSecAdmin();
 	}
@@ -43,10 +45,17 @@ class SecurityAdminController {
 					->execute();
 
 				if ( !$this->getCon()->isThisPluginModuleRequest() ) {
-					add_action( 'admin_footer', [ $this, 'printAdminAccessAjaxForm' ] );
+					add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
 				}
 			}
 		} );
+	}
+
+	public function isEnabledSecAdmin() :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $this->getMod()->isModOptEnabled() &&
+			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
 	}
 
 	private function enqueueJS() {
@@ -56,30 +65,39 @@ class SecurityAdminController {
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
+				/** @var Options $opts */
+				$opts = $this->getOptions();
 
-				$timeRemaining = $this->getSecAdminTimeRemaining();
-				error_log( (string)$timeRemaining );
+				$isCurrentlySecAdmin = $this->isCurrentlySecAdmin();
 				$localz[] = [
 					'shield/secadmin',
 					'shield_vars_secadmin',
 					[
 						'ajax'    => [
 							'sec_admin_check'  => $mod->getAjaxActionData( 'sec_admin_check' ),
+							'sec_admin_login'  => $mod->getAjaxActionData( 'sec_admin_login' ),
 							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
 						],
-						'strings' => [
-							'confirm'      => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
-							'nearly'       => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
-							'expired'      => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
-							'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
-						],
 						'flags'   => [
-							'run_checks' => $this->isEnabledSecAdmin()
-											&& $this->getCon()->getIsPage_PluginAdmin()
-											&& $this->isCurrentSecAdminSessionValid(),
+							'restrict_options' => !$isCurrentlySecAdmin && $opts->getAdminAccessArea_Options(),
+							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isCurrentlySecAdmin,
+						],
+						'strings' => [
+							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
+							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
+							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
+							'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewall' ),
+							'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
+							'unlock_link'        => sprintf(
+								'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
+								'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
+								__( 'Security Admin Login', 'wp-simple-firewall' ),
+								__( 'Unlock', 'wp-simple-firewall' )
+							),
 						],
 						'vars'    => [
-							'time_remaining' => $timeRemaining, // JS uses milliseconds
+							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
+							'wp_options_to_restrict' => $opts->getOptionsToRestrict(),
 						],
 					]
 				];
@@ -122,56 +140,46 @@ class SecurityAdminController {
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 		}
-		return $user instanceof \WP_User
-			   && in_array( $user->user_login, $opts->getSecurityAdminUsers() );
+		return $user instanceof \WP_User && in_array( $user->user_login, $opts->getSecurityAdminUsers() );
 	}
 
-	public function isEnabledSecAdmin() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $this->getMod()->isModOptEnabled() &&
-			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
-	}
-
-	public function isCurrentSecAdminSessionValid() :bool {
-		return $this->getSecAdminTimeRemaining() > 0;
+	public function isCurrentlySecAdmin() :bool {
+		return $this->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
+			   || $this->getSecAdminTimeRemaining() > 0;
 	}
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
 		return $isPluginAdmin &&
-			   ( $this->isRegisteredSecAdminUser() || $this->isCurrentSecAdminSessionValid() || $this->verifyPinRequest() );
+			   ( $this->isCurrentlySecAdmin() || $this->verifyPinRequest() );
 	}
 
-	public function printAdminAccessAjaxForm() {
+	public function printPinLoginForm() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		add_thickbox();
-		echo $this->getMod()->renderTemplate( 'snippets/admin_access_login_box.php', [
-			'flags'       => [
+		echo $mod->renderTemplate( '/components/security_admin/login_box.twig', [
+			'flags'   => [
 				'restrict_options' => $opts->getAdminAccessArea_Options()
 			],
-			'strings'     => [
-				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
-				'unlock_link'        => sprintf(
-					'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
-					'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					__( 'Unlock', 'wp-simple-firewall' )
-				),
+			'strings' => [
+				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
 			],
-			'js_snippets' => [
-				'options_to_restrict' => "'".implode( "','", $opts->getOptionsToRestrict() )."'",
-			],
-			'ajax'        => [
-				'sec_admin_login_box' => $this->getMod()->getAjaxActionData( 'sec_admin_login_box', true )
+			'ajax'    => [
+				'sec_admin_login'     => $mod->getAjaxActionData( 'sec_admin_login', true ),
+				'sec_admin_login_box' => $mod->getAjaxActionData( 'sec_admin_login_box', true )
 			]
 		] );
 	}
 
 	public function verifyPinRequest() :bool {
-		return ( new Ops\VerifyPinRequest() )
-			->setMod( $this->getMod() )
-			->run();
+		if ( !isset( $this->validPinRequest ) ) {
+			$this->validPinRequest = ( new Ops\VerifyPinRequest() )
+				->setMod( $this->getMod() )
+				->run();
+		}
+		return $this->validPinRequest;
 	}
 }

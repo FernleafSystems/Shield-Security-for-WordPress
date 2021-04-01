@@ -46,13 +46,13 @@ class UI extends BaseShield\UI {
 		$aOptParams = parent::buildOptionForUi( $aOptParams );
 		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
 			$newOptions = [];
-			$oIPDet = Services::IP()->getIpDetector();
+			$ipDetector = Services::IP()->getIpDetector();
 			foreach ( $aOptParams[ 'value_options' ] as $valKey => $source ) {
 				if ( $valKey == 'AUTO_DETECT_IP' ) {
 					$newOptions[ $valKey ] = $source;
 				}
 				else {
-					$IPs = implode( ', ', $oIPDet->getIpsFromSource( $source ) );
+					$IPs = implode( ', ', $ipDetector->getIpsFromSource( $source ) );
 					if ( !empty( $IPs ) ) {
 						$newOptions[ $valKey ] = sprintf( '%s (%s)', $source, $IPs );
 					}

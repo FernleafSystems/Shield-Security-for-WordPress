@@ -40,7 +40,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$secAdminCon = $mod->getSecurityAdminController();
 		return [
 			'time_remaining' => $secAdminCon->getSecAdminTimeRemaining(),
-			'success'        => $secAdminCon->isCurrentSecAdminSessionValid()
+			'success'        => $secAdminCon->isCurrentlySecAdmin()
 		];
 	}
 
@@ -48,9 +48,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$success = ( new Lib\SecurityAdmin\Ops\VerifyPinRequest() )
-			->setMod( $mod )
-			->run();
+		$success = $mod->getSecurityAdminController()->verifyPinRequest();
 		$html = '';
 
 		if ( $success ) {

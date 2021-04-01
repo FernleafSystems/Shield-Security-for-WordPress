@@ -1,0 +1,68 @@
+<div id="WpsfAdminAccessLogin" style="display:none;">
+	<div class="bootstrap-wpadmin wpsf-admin-access-login"
+		 id="SecAdminDialog">
+		<div class="input-holder" id="SecAdminPinInputContainer">
+			<label>
+				{{ strings.access_message }}
+				<input id="SecAdminPinInput" type="password" name="sec_admin_key" />
+				<button type="submit">Go!</button>
+			</label>
+		</div>
+
+	</div>
+</div>
+
+<style type="text/css">
+	.input-holder label {
+		font-size: 24px;
+	}
+	.input-holder label {
+		font-size: inherit;
+		display: block;
+		margin: 6% 107px;
+		vertical-align: middle;
+	}
+	.input-holder input {
+		font-size: inherit;
+		height: 60px;
+		vertical-align: middle;
+		width: 180px;
+	}
+</style>
+
+<script type="text/javascript">
+
+{#	let $oThisAAL = jQuery( '#AdminInputHolder' );#}
+{#	let $oInput = jQuery( 'input', $oThisAAL );#}
+{#	jQuery( document ).ready(#}
+{#		function () {#}
+
+{#			jQuery( document ).on( 'click', '#SecAdminDialog button', submit_admin_access );#}
+{#			jQuery( 'input', $oThisAAL ).keypress( function ( e ) {#}
+{#				if ( e.which === 13 ) {#}
+{#					submit_admin_access();#}
+{#				}#}
+{#			} );#}
+{#		}#}
+{#	);#}
+
+{#	function submit_admin_access() {#}
+{#		$oThisAAL.html( '<div class="spinner"></div>' );#}
+{#		jQuery( 'input', $oThisAAL ).prop( 'disabled', true );#}
+
+{#		var requestData = {{ ajax.sec_admin_login|raw }};#}
+{#		requestData[ 'sec_admin_key' ] = $oInput.val();#}
+
+{#		jQuery.post( ajaxurl, requestData, function ( oResponse ) {#}
+{#			if ( oResponse.success ) {#}
+{#				location.reload();#}
+{#			}#}
+{#			if ( oResponse.data ) {#}
+{#				$oThisAAL.html( oResponse.data.html );#}
+{#			}#}
+{#			else {#}
+{#				$oThisAAL.html( 'There was an unknown error' );#}
+{#			}#}
+{#		} );#}
+{#	}#}
+</script>
