@@ -38,8 +38,13 @@ class FileLockerController {
 
 	public function processFileLocks() {
 		if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
-			$this->getOptions()->isOptChanged( 'file_locker' ) ? $this->deleteAllLocks() : $this->runAnalysis();
+			$this->isFileLockerStateChanged() ? $this->deleteAllLocks() : $this->runAnalysis();
 		}
+	}
+
+	private function isFileLockerStateChanged() :bool {
+		return $this->getOptions()->isOptChanged( 'file_locker' )
+			   || $this->getState()[ 'abspath' ] !== ABSPATH;
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
@@ -171,8 +176,10 @@ class FileLockerController {
 			}
 			if ( $lockCreated ) {
 				$state[ 'last_locks_created_at' ] = Services::Request()->ts();
-				$this->setState( $state );
 			}
+
+			$state[ 'abspath' ] = ABSPATH;
+			$this->setState( $state );
 		}
 	}
 
@@ -234,7 +241,8 @@ class FileLockerController {
 		$opts = $this->getOptions();
 		return array_merge(
 			[
-				'last_locks_created_at' => 0
+				'abspath'               => ABSPATH,
+				'last_locks_created_at' => 0,
 			],
 			is_array( $opts->getOpt( 'filelocker_state' ) ) ? $opts->getOpt( 'filelocker_state' ) : []
 		);

@@ -165,6 +165,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			]
 		];
 		try {
+			if ( !is_numeric( $nRID ) ) {
+				throw new \Exception( 'Not a valid file lock request.' );
+			}
 
 			$lock = $oFLCon->getFileLock( $nRID );
 			$bDiff = $lock->detected_at > 0;
@@ -256,10 +259,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	/**
 	 * @param string $action
-	 * @param bool   $bIsBulkAction
+	 * @param bool   $isBulkAction
 	 * @return array
 	 */
-	private function ajaxExec_ScanItemAction( $action, $bIsBulkAction = false ) :array {
+	private function ajaxExec_ScanItemAction( $action, $isBulkAction = false ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -271,7 +274,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( 'File download has started.', 'wp-simple-firewall' );
 		}
 		else {
-			if ( $bIsBulkAction ) {
+			if ( $isBulkAction ) {
 				$itemIDs = (array)Services::Request()->post( 'ids', [] );
 			}
 			else {
