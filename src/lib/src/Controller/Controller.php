@@ -1002,6 +1002,10 @@ class Controller extends DynPropertiesClass {
 		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
 	}
 
+	public function getPluginUrl_DashboardHome() :string {
+		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
+	}
+
 	public function getPluginUrl_AdminMainPage() :string {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}

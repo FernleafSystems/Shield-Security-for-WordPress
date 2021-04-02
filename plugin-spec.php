@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "11.0.15",
-    "release_timestamp":       1617287329,
-    "build":                   "202104.0102",
+    "version":                 "11.0.16",
+    "release_timestamp":       1617358249,
+    "build":                   "202104.0201",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -326,7 +326,7 @@
       {
         "name":   "Security Dashboard",
         "title":  "Go To Security Dashboard",
-        "href":   "getPluginUrl_AdminMainPage",
+        "href":   "getPluginUrl_DashboardHome",
         "target": "_top",
         "show":   "always"
       },

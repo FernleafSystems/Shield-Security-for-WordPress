@@ -37,7 +37,7 @@
   },
   "sections":      [
     {
-      "slug":          "section_admin_access_restriction_settings",
+      "slug":          "section_security_admin_settings",
       "primary":       true,
       "title":         "Security Admin Restriction Settings",
       "title_short":   "Security Admin Settings",
@@ -95,7 +95,7 @@
     },
     {
       "key":         "admin_access_key",
-      "section":     "section_admin_access_restriction_settings",
+      "section":     "section_security_admin_settings",
       "sensitive":   true,
       "default":     "",
       "type":        "password",
@@ -107,7 +107,7 @@
     },
     {
       "key":         "sec_admin_users",
-      "section":     "section_admin_access_restriction_settings",
+      "section":     "section_security_admin_settings",
       "advanced":    true,
       "sensitive":   true,
       "premium":     true,
@@ -121,7 +121,7 @@
     },
     {
       "key":         "admin_access_timeout",
-      "section":     "section_admin_access_restriction_settings",
+      "section":     "section_security_admin_settings",
       "advanced":    true,
       "default":     30,
       "type":        "integer",
@@ -134,7 +134,7 @@
     },
     {
       "key":         "allow_email_override",
-      "section":     "section_admin_access_restriction_settings",
+      "section":     "section_security_admin_settings",
       "advanced":    true,
       "default":     "Y",
       "type":        "checkbox",

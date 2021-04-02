@@ -18,8 +18,8 @@
   },
   "menu_items":       [
     {
-      "title":    "Audit Trail",
-      "slug":     "audit-redirect"
+      "title": "Audit Trail",
+      "slug":  "audit-redirect"
     }
   ],
   "custom_redirects": [
@@ -162,13 +162,13 @@
     }
   ],
   "definitions":      {
-    "db_classes":                         {
+    "db_classes":                   {
       "audit_trail": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
-    "db_table_audit_trail":               {
-      "slug":            "audit_trail",
-      "has_updated_at":  true,
-      "cols_custom":     {
+    "db_table_audit_trail":         {
+      "slug":           "audit_trail",
+      "has_updated_at": true,
+      "cols_custom":    {
         "rid":         "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
         "ip":          "varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address'",
         "wp_username": "varchar(255) NOT NULL DEFAULT '-' COMMENT 'WP User'",
@@ -179,9 +179,9 @@
         "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'"
       }
     },
-    "audit_trail_free_max_entries":       100,
-    "audit_trail_table_name":             "audit_trail",
-    "events":                             {
+    "audit_trail_free_max_entries": 100,
+    "audit_trail_table_name":       "audit_trail",
+    "events":                       {
       "plugin_activated":        {
         "context":        "plugins",
         "audit_multiple": true
@@ -194,7 +194,8 @@
         "context": "plugins"
       },
       "plugin_upgraded":         {
-        "context": "plugins"
+        "context":        "plugins",
+        "audit_multiple": true
       },
       "theme_activated":         {
         "context": "themes"
@@ -203,7 +204,8 @@
         "context": "themes"
       },
       "theme_upgraded":          {
-        "context": "themes"
+        "context":        "themes",
+        "audit_multiple": true
       },
       "core_updated":            {
         "context": "wordpress"

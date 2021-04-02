@@ -75,12 +75,12 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'  => $slug.'-blocksettings',
-				'title' => __( 'Settings: IP Blocking', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'IP Blocking', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_IPs()->getUrl_AdminPage(),
 			],
 			[
 				'slug'  => $slug.'-antibotsettings',
-				'title' => __( 'Settings: AntiBot', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'AntiBot', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
 			[
@@ -160,7 +160,7 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'  => $slug.'-settings',
-				'title' => __( 'Settings: Automatic Scans', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'Automatic Scans', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
 			],
 		];
@@ -322,31 +322,35 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$slug = 'tools';
 		$subItems = [
 			[
-				'slug'  => 'tools-importexport',
-				'title' => __( 'Import / Export', 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'importexport' ),
+				'slug'   => $slug.'-importexport',
+				'title'  => __( 'Import / Export', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'importexport' ),
+				'active' => $this->getInav() === 'importexport'
 			],
 			[
-				'slug'  => 'tools-whitelabel',
+				'slug'  => $slug.'-whitelabel',
 				'title' => __( 'White Label', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_whitelabel' ),
 			],
 			[
-				'slug'  => 'tools-notes',
-				'title' => __( 'Admin Notes', 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'notes' ),
+				'slug'   => $slug.'-notes',
+				'title'  => __( 'Admin Notes', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'notes' ),
+				'active' => $this->getInav() === 'notes'
 			],
 			[
-				'slug'  => 'tools-debug',
-				'title' => __( "Debug Info", 'wp-simple-firewall' ),
-				'href'  => $mod->getUrl_SubInsightsPage( 'debug' ),
+				'slug'   => $slug.'-debug',
+				'title'  => __( "Debug Info", 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'debug' ),
+				'active' => $this->getInav() === 'debug'
 			]
 		];
 
 		return [
-			'slug'      => 'tools',
+			'slug'      => $slug,
 			'title'     => __( 'Tools', 'wp-simple-firewall' ),
 			'img'       => $this->getCon()->urls->forImage( 'bootstrap/tools.svg' ),
 			'sub_items' => $subItems,
@@ -368,7 +372,7 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'  => $slug.'-ratelimitsettings',
-				'title' => __( 'Settings: Rate Limiting', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'Rate Limiting', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_limiter' ),
 			],
 			[
@@ -399,19 +403,24 @@ class SideMenuBuilder {
 				'href'  => $mod->getUrl_SubInsightsPage( 'users' ),
 			],
 			[
+				'slug'  => 'users-secadmin',
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
+				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_security_admin_settings' ),
+			],
+			[
 				'slug'  => 'users-settings',
-				'title' => __( 'Settings: Sessions', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_UserManagement()
 							   ->getUrl_DirectLinkToSection( 'section_user_session_management' ),
 			],
 			[
 				'slug'  => 'users-passwords',
-				'title' => __( 'Settings: Password Policies', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'Password Policies', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_passwords' ),
 			],
 			[
 				'slug'  => 'users-suspend',
-				'title' => __( 'Settings: User Suspension', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Settings', 'wp-simple-firewall' ), __( 'User Suspension', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_suspend' ),
 			],
 		];

@@ -40,7 +40,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_admin_access_restriction_settings' :
+			case 'section_security_admin_settings' :
 				$sTitle = __( 'Security Admin Restriction Settings', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),

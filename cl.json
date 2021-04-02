@@ -16,12 +16,44 @@
       {
         "type":        "new",
         "pro_only":    false,
-        "title":       "AntiBot Detection Engine",
+        "title":       "Improved Dashboard UI and Navigation",
         "description": [
           "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
           "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
         ],
         "href":        "https://shsec.io/jb"
+      },
+      {
+        "type":        "improved",
+        "title":       "Code overhaul for Security Admin system to improve reliability and fix various bugs.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Automatic User Unblock now makes use of Shield's AntiBot Detection Engine.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "File Locker will better handle the scenario where a site is moved/migrated.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "White Label settings that are empty aren't applied and defaults remain.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Audit Trail didn't capture all upgrades when upgrading plugins/themes in-bulk.",
+        "description": [
+          "The Audit Trial would only capture 1 upgrade when a bulk upgrade was performed."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Exclusions for unrecognised file scanner weren't stored correctly in the case of regular expressions.",
+        "description": [ ]
       }
     ]
   },
