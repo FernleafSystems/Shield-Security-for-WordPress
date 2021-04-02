@@ -11,17 +11,19 @@
 
 	{% for scankey,scanvars in scans %}
 		{% if scanvars.flags.show_table %}
-		<li class="nav-item">
-			<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-{{ scankey }}"
-			   role="tab"
-			   aria-controls="h-tabs-{{ scankey }}"
-			   {% if not scanvars.flags.show_table %}disabled="disabled"{% endif %}
-			>
-				<span class="badge badge-{% if scanvars.count > 0 %}danger{% endif %}"
-				>{% if scanvars.count > 0 %}&#33;{% endif %}</span>
-				{{ scanvars.strings.title }}
-			</a>
-		</li>
+			<li class="nav-item">
+				<a class="nav-link"
+				   id="h-tabs-home-tab"
+				   data-toggle="tab"
+				   href="#h-tabs-{{ scankey }}"
+				   role="tab"
+				   aria-controls="h-tabs-{{ scankey }}"
+				>
+					<span class="badge badge-{% if scanvars.count > 0 %}danger{% endif %}"
+					>{% if scanvars.count > 0 %}&#33;{% endif %}</span>
+					{{ scanvars.strings.title }}
+				</a>
+			</li>
 		{% endif %}
 	{% endfor %}
 

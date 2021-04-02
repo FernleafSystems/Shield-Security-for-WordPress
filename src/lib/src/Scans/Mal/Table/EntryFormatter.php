@@ -8,49 +8,45 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 class EntryFormatter extends BaseFileEntryFormatter {
 
-	/**
-	 * @return array
-	 */
-	public function format() {
-		$aE = $this->getBaseData();
-		$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
-		if ( !array_key_exists( 'repair', $aE[ 'actions' ] ) ) {
-			$aE[ 'explanation' ][] = __( 'Repair Unavailable', 'wp-simple-firewall' );
+	public function format() :array {
+		$e = $this->getBaseData();
+		$e[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
+		if ( !array_key_exists( 'repair', $e[ 'actions' ] ) ) {
+			$e[ 'explanation' ][] = __( 'Repair Unavailable', 'wp-simple-firewall' );
 		}
-
-		return $aE;
+		return $e;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getExplanation() {
-		/** @var Mal\ResultItem $oIt */
-		$oIt = $this->getResultItem();
+	protected function getExplanation() :array {
+		/** @var Mal\ResultItem $item */
+		$item = $this->getResultItem();
 
-		$aExpl = [
-			sprintf( '%s: %s', __( 'Pattern Detected' ), $this->getPatternForDisplay( base64_decode( $oIt->mal_sig ) ) ),
+		$expl = [
+			sprintf( '%s: %s', __( 'Pattern Detected' ), $this->getPatternForDisplay( base64_decode( $item->mal_sig ) ) ),
 			sprintf( '%s: %s', __( 'Affected line numbers' ),
 				implode( ', ', array_map(
 					function ( $nLineNumber ) {
 						return $nLineNumber + 1;
 					},
-					$oIt->file_lines // because lines start at ZERO
+					$item->file_lines // because lines start at ZERO
 				) )
 			),
 		];
 
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-			$aExpl[] = sprintf( '%s: %s/100 [%s]',
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
+			$expl[] = sprintf( '%s: %s/100 [%s]',
 				__( 'Likelihood That This Is A False Positive' ),
-				sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ),
+				sprintf( '<strong>%s</strong>', (int)$item->fp_confidence ),
 				sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/isthismalware', __( 'more info', 'wp-simple-firewall' ) )
 			);
 		}
 
-		return $aExpl;
+		return $expl;
 	}
 
 	/**
@@ -79,7 +75,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getSupportedActions() {
+	protected function getSupportedActions() :array {
 		$actions = parent::getSupportedActions();
 
 		/** @var Mal\ResultItem $item */

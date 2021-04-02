@@ -1568,6 +1568,6 @@ body.folded #FooterBannerGoPro {
 #SearchDialog .bootstrap-select {
 	width: 100%;
 }
-#SearchDialog .bootstrap-select>.dropdown-toggle.bs-placeholder {
-	color: #333;
+#SearchDialog .bootstrap-select > .dropdown-toggle.bs-placeholder {
+	color: #333333;
 }

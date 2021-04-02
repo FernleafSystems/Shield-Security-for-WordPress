@@ -7,20 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf\ResultItem;
 
 class EntryFormatter extends BaseFileEntryFormatter {
 
-	/**
-	 * @return array
-	 */
-	public function format() {
-		/** @var ResultItem $oIt */
-		$oIt = $this->getResultItem();
+	public function format() :array {
+		/** @var ResultItem $item */
+		$item = $this->getResultItem();
 
-		$aE = $this->getBaseData();
+		$e = $this->getBaseData();
 
-		$aE[ 'status' ] = $oIt->is_checksumfail ? __( 'Modified', 'wp-simple-firewall' )
-			: ( $oIt->is_missing ? __( 'Missing', 'wp-simple-firewall' ) : __( 'Unknown', 'wp-simple-firewall' ) );
+		$e[ 'status' ] = $item->is_checksumfail ? __( 'Modified', 'wp-simple-firewall' )
+			: ( $item->is_missing ? __( 'Missing', 'wp-simple-firewall' ) : __( 'Unknown', 'wp-simple-firewall' ) );
 
-		if ( $oIt->is_checksumfail ) {
-			$aE[ 'explanation' ] = [
+		if ( $item->is_checksumfail ) {
+			$e[ 'explanation' ] = [
 				__( 'This file is an official WordPress core file.', 'wp-simple-firewall' ),
 				__( "But, it appears to have been modified when compared to the official WordPress distribution.", 'wp-simple-firewall' )
 				.' '.__( "This is not normal in the vast majority of cases.", 'wp-simple-firewall' ),
@@ -29,8 +26,8 @@ class EntryFormatter extends BaseFileEntryFormatter {
 					__( 'Ignore', 'wp-simple-firewall' ), __( 'Repair', 'wp-simple-firewall' ) ),
 			];
 		}
-		elseif ( $oIt->is_missing ) {
-			$aE[ 'explanation' ] = [
+		elseif ( $item->is_missing ) {
+			$e[ 'explanation' ] = [
 				__( 'This file is an official WordPress core file.', 'wp-simple-firewall' ),
 				__( "But, it appears to be missing from your site.", 'wp-simple-firewall' ),
 				__( "You may want to check why this might be missing.", 'wp-simple-firewall' )
@@ -39,18 +36,18 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			];
 		}
 
-		return $aE;
+		return $e;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getExplanation() {
+	protected function getExplanation() :array {
 		/** @var ResultItem $oIt */
 		$oIt = $this->getResultItem();
 
 		if ( $oIt->is_checksumfail ) {
-			$aExpl = [
+			$expl = [
 				__( 'This file is an official WordPress core file.', 'wp-simple-firewall' ),
 				__( "But, it appears to have been modified when compared to the official WordPress distribution.", 'wp-simple-firewall' )
 				.' '.__( "This is not normal in the vast majority of cases.", 'wp-simple-firewall' ),
@@ -60,7 +57,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			];
 		}
 		elseif ( $oIt->is_missing ) {
-			$aExpl = [
+			$expl = [
 				__( 'This file is an official WordPress core file.', 'wp-simple-firewall' ),
 				__( "But, it appears to be missing from your site.", 'wp-simple-firewall' ),
 				__( "You may want to check why this might be missing.", 'wp-simple-firewall' )
@@ -69,24 +66,24 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			];
 		}
 		else {
-			$aExpl = [];
+			$expl = [];
 		}
 
-		return $aExpl;
+		return $expl;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected function getSupportedActions() {
-		$aExtras = [ 'repair' ];
+	protected function getSupportedActions() :array {
+		$extras = [ 'repair' ];
 
 		/** @var ResultItem $oIt */
 		$oIt = $this->getResultItem();
 		if ( $oIt->is_checksumfail ) {
-			$aExtras[] = 'download';
+			$extras[] = 'download';
 		}
 
-		return array_merge( parent::getSupportedActions(), $aExtras );
+		return array_merge( parent::getSupportedActions(), $extras );
 	}
 }
