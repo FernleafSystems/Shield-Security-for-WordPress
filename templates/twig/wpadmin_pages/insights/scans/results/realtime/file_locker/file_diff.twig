@@ -7,6 +7,11 @@
 				<h5 class="card-title">{{ strings.locked_file }}</h5>
 
 				<dl class="row">
+					<dt class="col">{{ strings.relative_path }}</dt>
+					<dd class="col">{{ vars.relative_path }}</dd>
+				</dl>
+
+				<dl class="row">
 					<dt class="col">{{ strings.locked }}</dt>
 					<dd class="col">{{ vars.locked_at }}</dd>
 				</dl>
@@ -17,8 +22,8 @@
 				</dl>
 
 				<dl class="row">
-					<dt class="col">{{ strings.modified_timestamp }}</dt>
-					<dd class="col">{{ vars.file_modified_at }}</dd>
+					<dt class="col">{{ strings.file_modified }}</dt>
+					<dd class="col">{{ vars.file_modified_ago }}<br/>({{ vars.file_modified_at }})</dd>
 				</dl>
 
 				<dl class="row">
