@@ -5,29 +5,25 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 
-/**
- * Class DeleteFileLock
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
- */
 class DeleteFileLock extends BaseOps {
 
 	/**
-	 * @param FileLocker\EntryVO $oLock
+	 * @param FileLocker\EntryVO|null $lock
 	 * @return bool
 	 */
-	public function delete( $oLock = null ) {
+	public function delete( $lock = null ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		if ( empty( $oLock ) ) {
-			$oLock = $this->findLockRecordForFile();
+		if ( empty( $lock ) ) {
+			$lock = $this->findLockRecordForFile();
 		}
-		$bSuccess = $oLock instanceof FileLocker\EntryVO
-					&& $mod->getDbHandler_FileLocker()
-							->getQueryDeleter()
-							->deleteEntry( $oLock );
-		if ( $bSuccess ) {
+		$success = $lock instanceof FileLocker\EntryVO
+				   && $mod->getDbHandler_FileLocker()
+						  ->getQueryDeleter()
+						  ->deleteEntry( $lock );
+		if ( $success ) {
 			$this->clearFileLocksCache();
 		}
-		return $bSuccess;
+		return $success;
 	}
 }

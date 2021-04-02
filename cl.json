@@ -36,7 +36,9 @@
       {
         "type":        "improved",
         "title":       "File Locker will better handle the scenario where a site is moved/migrated.",
-        "description": []
+        "description": [
+          "File Locker for wp-config.php files will also better detect when this file is placed 1 directory higher than the site."
+        ]
       },
       {
         "type":        "improved",
@@ -53,7 +55,7 @@
       {
         "type":        "fixed",
         "title":       "Exclusions for unrecognised file scanner weren't stored correctly in the case of regular expressions.",
-        "description": [ ]
+        "description": []
       }
     ]
   },

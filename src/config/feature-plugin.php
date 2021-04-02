@@ -247,17 +247,6 @@
       "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
     },
     {
-      "key":         "display_plugin_badge",
-      "section":     "section_general_plugin_options",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/5v",
-      "link_blog":   "https://shsec.io/wpsf20",
-      "name":        "Show Plugin Badge",
-      "summary":     "Display Plugin Badge On Your Site",
-      "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
-    },
-    {
       "key":         "enable_wpcli",
       "section":     "section_general_plugin_options",
       "advanced":    true,
@@ -269,6 +258,17 @@
       "name":        "Allow WP-CLI",
       "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
       "description": "Turn off this option to disable this plugin's WP-CLI integration."
+    },
+    {
+      "key":         "display_plugin_badge",
+      "section":     "section_general_plugin_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/5v",
+      "link_blog":   "https://shsec.io/wpsf20",
+      "name":        "Show Plugin Badge",
+      "summary":     "Display Plugin Badge On Your Site",
+      "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
       "key":         "enable_xmlrpc_compatibility",

@@ -22,7 +22,7 @@ class LoadFileLocks {
 	/**
 	 * @return FileLocker\EntryVO[]
 	 */
-	public function loadLocks() {
+	public function loadLocks() :array {
 		if ( is_null( self::$aFileLockRecords ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
