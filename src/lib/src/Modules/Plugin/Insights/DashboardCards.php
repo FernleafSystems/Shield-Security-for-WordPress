@@ -136,7 +136,7 @@ class DashboardCards {
 				'actions' => [
 					[
 						'text' => __( "Run Scans", 'wp-simple-firewall' ),
-						'href' => $modInsights->getUrl_SubInsightsPage( 'scans' ),
+						'href' => $modInsights->getUrl_ScansResults(),
 					],
 					[
 						'text' => __( "Scans & Hack Guard Settings", 'wp-simple-firewall' ),

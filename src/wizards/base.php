@@ -272,9 +272,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'mod_wizards'       => $wizards
 				],
 				'hrefs'   => [
-					'dashboard'   => $this->getCon()
-										  ->getModule_Insights()
-										  ->getUrl_SubInsightsPage( 'dashboard' ),
+					'dashboard'   => $this->getCon()->getPluginUrl_DashboardHome(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
@@ -314,9 +312,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [
-					'dashboard'   => $this->getCon()
-										  ->getModule_Insights()
-										  ->getUrl_SubInsightsPage( 'dashboard' ),
+					'dashboard'   => $this->getCon()->getPluginUrl_DashboardHome(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
@@ -405,9 +401,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 				'has_other_wizards' => false
 			],
 			'hrefs'   => [
-				'dashboard' => $this->getCon()
-									->getModule_Insights()
-									->getUrl_SubInsightsPage( 'dashboard' ),
+				'dashboard' => $this->getCon()->getPluginUrl_DashboardHome(),
 				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'    => [],

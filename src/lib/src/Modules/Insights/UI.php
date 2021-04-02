@@ -202,11 +202,9 @@ class UI extends BaseShield\UI {
 					'page_container' => 'page-insights page-'.$inav
 				],
 				'flags'   => [
-					'is_dashboard' => $inav === 'dashboard',
 					'is_advanced'  => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
-					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),
 					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'     => $mod->getUrl_AdminPage(),
 					'img_banner'   => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
@@ -303,7 +301,7 @@ class UI extends BaseShield\UI {
 
 	private function printGoProFooter() {
 		$con = $this->getCon();
-		$nav = Services::Request()->query( 'inav', 'dashboard' );
+		$nav = Services::Request()->query( 'inav', 'overview' );
 		echo $this->getMod()->renderTemplate(
 			'snippets/go_pro_banner.twig',
 			[

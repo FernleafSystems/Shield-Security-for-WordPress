@@ -8,11 +8,7 @@
 		<div class="col">
 			<h5 class="mt-3" id="PageTitle">
 				{% block page_head_titlemenu %}
-					{% if flags.is_dashboard %}
-						{{ strings.dashboard_shield }}
-					{% else %}
-						{{ strings.page_title }}
-					{% endif %}
+					{{ strings.page_title }}
 				{% endblock page_head_titlemenu %}
 			</h5>
 		</div>

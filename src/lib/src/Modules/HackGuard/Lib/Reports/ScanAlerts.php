@@ -46,7 +46,9 @@ class ScanAlerts extends BaseReporter {
 						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
-						'view_results' => $mod->getUrlForScanResults(),
+						'view_results' => $this->getCon()
+											   ->getModule_Insights()
+											   ->getUrl_ScansResults(),
 					],
 				]
 			);

@@ -54,7 +54,7 @@ class FileLockerController {
 				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
-				'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
 				'warnings' => $problems
 			];
 		}

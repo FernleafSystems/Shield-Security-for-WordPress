@@ -140,6 +140,8 @@ class SideMenuBuilder {
 	}
 
 	private function scans() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$con = $this->getCon();
 		$modHG = $con->getModule_HackGuard();
 
@@ -149,13 +151,13 @@ class SideMenuBuilder {
 			[
 				'slug'   => $slug.'-run',
 				'title'  => __( 'Run Scan', 'wp-simple-firewall' ),
-				'href'   => $modHG->getUrlForScansRun(),
+				'href'   => $mod->getUrl_ScansRun(),
 				'active' => $this->getInav() === 'scans_run',
 			],
 			[
 				'slug'   => $slug.'-results',
 				'title'  => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href'   => $modHG->getUrlForScanResults(),
+				'href'   => $mod->getUrl_ScansResults(),
 				'active' => $this->getInav() === 'scans_results',
 			],
 			[

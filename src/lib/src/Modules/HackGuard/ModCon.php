@@ -74,14 +74,6 @@ class ModCon extends BaseShield\ModCon {
 		] );
 	}
 
-	public function getUrlForScanResults() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans_results' );
-	}
-
-	public function getUrlForScansRun() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans_run' );
-	}
-
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'filelocker':

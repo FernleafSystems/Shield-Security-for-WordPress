@@ -132,7 +132,7 @@ class SitesList extends BaseRender {
 		return str_replace(
 			$WP->getAdminUrl(),
 			'',
-			$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans_results' )
+			$this->getCon()->getModule_Insights()->getUrl_ScansResults()
 		);
 	}
 

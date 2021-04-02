@@ -71,7 +71,9 @@ class UI extends BaseShield\UI {
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
 			'hrefs'        => [
-				'scans_results' => $mod->getUrlForScanResults(),
+				'scans_results' => $this->getCon()
+										->getModule_Insights()
+										->getUrl_ScansResults(),
 			],
 			'scan_results' => [
 			],
