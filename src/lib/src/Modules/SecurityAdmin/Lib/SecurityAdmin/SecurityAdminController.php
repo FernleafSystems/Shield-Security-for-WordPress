@@ -83,7 +83,7 @@ class SecurityAdminController {
 							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isCurrentlySecAdmin,
 						],
 						'strings' => [
-							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
+							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
 							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
 							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
 							'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewall' ),

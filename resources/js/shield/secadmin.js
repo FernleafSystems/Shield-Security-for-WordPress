@@ -27,12 +27,8 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 		else {
 			iCWP_WPSF_BodyOverlay.show();
 			setTimeout( function () {
-				if ( confirm( shield_vars_secadmin.strings.confirm ) ) {
-					window.location.reload();
-				}
-				else {
-					iCWP_WPSF_BodyOverlay.hide(); // Do nothing!
-				}
+				alert( shield_vars_secadmin.strings.confirm )
+				window.location.reload();
 			}, 1500 );
 			iCWP_WPSF_Toaster.showMessage( shield_vars_secadmin.strings.expired, response.success );
 			// iCWP_WPSF_Growl.showMessage( shield_vars_secadmin.strings.expired, response.success );
