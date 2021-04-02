@@ -3,8 +3,22 @@
 		<div class="card card-scan_results">
 
 			<div class="card-header">
-				<h5 class="card-title">{{ scan.strings.title }}</h5>
-				<h6 class="card-subtitle text-muted">{{ scan.strings.subtitle }}</h6>
+				<h5 class="card-title">
+					{{ scan.strings.title }}
+					<a data-toggle="collapse"
+					   data-target="#MoreInfo-{{ scan.vars.slug }}"
+					><span class="dashicons dashicons-info"></span></a>
+				</h5>
+				<h6 class="card-subtitle text-muted">
+					{{ scan.strings.subtitle }}
+				</h6>
+				<div class="collapse mt-3" id="MoreInfo-{{ scan.vars.slug }}">
+					<div class="alert alert-dark">
+						{% for line in scan.strings.explanation %}
+							<p class="mb-2">{{ line }}</p>
+						{% endfor %}
+					</div>
+				</div>
 			</div>
 
 			<div class="card-body">

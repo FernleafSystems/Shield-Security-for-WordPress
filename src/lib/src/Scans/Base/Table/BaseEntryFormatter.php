@@ -15,9 +15,6 @@ abstract class BaseEntryFormatter {
 	use Scan\Controller\ScanControllerConsumer;
 	use ModConsumer;
 
-	/**
-	 * @return array
-	 */
 	abstract public function format() :array;
 
 	/**

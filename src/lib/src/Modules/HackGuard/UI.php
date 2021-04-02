@@ -104,7 +104,14 @@ class UI extends BaseShield\UI {
 					'hrefs'   => [],
 					'vars'    => [],
 					'strings' => [
-						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+						'subtitle'    => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+						'explanation' => [
+							__( 'The files listed below are WordPress Core files - official files that are installed with every WordPress website.', 'wp-simple-firewall' ),
+							__( 'However, they have either been deleted, or their contents have changed in some way.', 'wp-simple-firewall' ),
+							__( 'Under normal circumstances this should never happen.', 'wp-simple-firewall' ),
+							__( 'You should review each file below and repair them. Repair can mean either re-install, or replace contents, with an original.', 'wp-simple-firewall' ),
+							__( "If you know why a file has been changed and you're happy to keep those changes, you can click to Ignore that file.", 'wp-simple-firewall' ),
+						],
 					],
 				],
 				'apc' => [
@@ -115,7 +122,7 @@ class UI extends BaseShield\UI {
 					'hrefs'   => [],
 					'vars'    => [],
 					'strings' => [
-						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' )
+						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
 					],
 				],
 				'ufc' => [
@@ -166,7 +173,7 @@ class UI extends BaseShield\UI {
 				continue;
 			}
 			$lastScanAt = $scon->getLastScanAt();
-
+			$scData[ 'vars' ][ 'slug' ] = $slug;
 			$scData[ 'count' ] = $selector->countForScan( $slug );
 			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
 //			$scData[ 'flags' ][ 'show_table' ] = $scData[ 'count' ] > 0;

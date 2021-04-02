@@ -22,19 +22,19 @@ class ScanBase extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$aEntries = [];
+		$entries = [];
 
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Scanner\EntryVO $oEntry */
-			$aEntries[ $nKey ] = $mod->getScanCon( $oEntry->scan )
-									  ->getTableEntryFormatter()
-									  ->setEntryVO( $oEntry )
-									  ->format();
+		foreach ( $this->getEntriesRaw() as $key => $entry ) {
+			/** @var Scanner\EntryVO $entry */
+			$entries[ $key ] = $mod->getScanCon( $entry->scan )
+								   ->getTableEntryFormatter()
+								   ->setEntryVO( $entry )
+								   ->format();
 		}
 
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

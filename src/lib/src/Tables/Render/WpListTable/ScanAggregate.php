@@ -29,15 +29,15 @@ class ScanAggregate extends ScanBase {
 	}
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_status( $aItem ) {
-		$sStatus = sprintf( '<strong>%s</strong>', $aItem[ 'status' ] );
-		if ( !empty( $aItem[ 'explanation' ] ) ) {
-			$sStatus .= '<ul><li>'.implode( '</li><li>', $aItem[ 'explanation' ] ).'</li></ul>';
+	public function column_status( $item ) {
+		$status = sprintf( '<strong>%s</strong>', $item[ 'status' ] );
+		if ( !empty( $item[ 'explanation' ] ) ) {
+			$status .= '<ul><li>'.implode( '</li><li>', $item[ 'explanation' ] ).'</li></ul>';
 		}
-		return $sStatus;
+		return $status;
 	}
 
 	/**

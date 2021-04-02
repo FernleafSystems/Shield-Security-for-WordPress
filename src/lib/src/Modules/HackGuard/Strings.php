@@ -21,7 +21,7 @@ class Strings extends Base\Strings {
 			'ptg' => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
 			'mal' => __( 'Malware', 'wp-simple-firewall' ),
 			'ufc' => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-			'wcf' => __( 'WP Core Files', 'wp-simple-firewall' ),
+			'wcf' => __( 'WordPress Core Files', 'wp-simple-firewall' ),
 			'wpv' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
 		];
 	}
@@ -30,29 +30,29 @@ class Strings extends Base\Strings {
 	 * @return string[][]
 	 */
 	protected function getAuditMessages() :array {
-		$aMessages = [];
-		foreach ( $this->getScanNames() as $sSlug => $sScanName ) {
-			$aMessages[ $sSlug.'_alert_sent' ] = [
-				sprintf( __( '%s scan alert sent.', 'wp-simple-firewall' ), $sScanName )
+		$messages = [];
+		foreach ( $this->getScanNames() as $slug => $scanName ) {
+			$messages[ $slug.'_alert_sent' ] = [
+				sprintf( __( '%s scan alert sent.', 'wp-simple-firewall' ), $scanName )
 				.' '.__( 'Alert sent to %s via %s.' )
 			];
-			$aMessages[ $sSlug.'_scan_found' ] = [
-				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $sScanName ),
+			$messages[ $slug.'_scan_found' ] = [
+				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $scanName ),
 				sprintf( '%s: %s',
 					__( 'Note', 'wp-simple-firewall' ),
 					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
 				)
 			];
-			$aMessages[ $sSlug.'_item_repair_success' ] = [
-				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $sScanName )
+			$messages[ $slug.'_item_repair_success' ] = [
+				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
 				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
 			];
-			$aMessages[ $sSlug.'_item_repair_fail' ] = [
-				sprintf( __( '%s scan could not repair item.', 'wp-simple-firewall' ), $sScanName )
+			$messages[ $slug.'_item_repair_fail' ] = [
+				sprintf( __( '%s scan could not repair item.', 'wp-simple-firewall' ), $scanName )
 				.' '.__( 'Failed repair item: "%s"', 'wp-simple-firewall' ),
 			];
 		}
-		return $aMessages;
+		return $messages;
 	}
 
 	/**
