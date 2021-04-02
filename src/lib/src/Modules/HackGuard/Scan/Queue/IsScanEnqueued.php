@@ -12,13 +12,9 @@ class IsScanEnqueued {
 
 	use Databases\Base\HandlerConsumer;
 
-	/**
-	 * @param string $sScanSlug
-	 * @return bool
-	 */
-	public function check( $sScanSlug ) {
-		/** @var Databases\ScanQueue\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		return $oSel->countForScan( $sScanSlug ) > 0;
+	public function check( string $scan ) :bool {
+		/** @var Databases\ScanQueue\Select $selector */
+		$selector = $this->getDbHandler()->getQuerySelector();
+		return $selector->countForScan( $scan ) > 0;
 	}
 }

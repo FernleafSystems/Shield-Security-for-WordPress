@@ -7,20 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanAggregate extends ScanBase {
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_path( $aItem ) {
+	public function column_path( $item ) {
 
-		$sContent = parent::column_path( $aItem );
+		$sContent = parent::column_path( $item );
 
-		if ( !empty( $aItem[ 'actions' ] ) ) {
+		if ( !empty( $item[ 'actions' ] ) ) {
 			$sContent .= $this->buildActions(
 				array_map(
 					function ( $aActionDef ) {
 						return $this->buildActionButton_CustomArray( $aActionDef );
 					},
-					$aItem[ 'actions' ]
+					$item[ 'actions' ]
 				)
 			);
 		}

@@ -67,8 +67,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$sScanSlug = Services::Request()->post( 'fScan' );
-		switch ( $sScanSlug ) {
+		switch ( Services::Request()->post( 'fScan', '' ) ) {
 
 			case 'aggregate':
 				$oTableBuilder = new Shield\Tables\Build\ScanAggregate();

@@ -96,6 +96,17 @@ class UI extends BaseShield\UI {
 			],
 			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [
+				'wcf' => [
+					'flags'   => [
+						'has_items'  => false,
+						'show_table' => false,
+					],
+					'hrefs'   => [],
+					'vars'    => [],
+					'strings' => [
+						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+					],
+				],
 				'apc' => [
 					'flags'   => [
 						'has_items'  => true,
@@ -105,17 +116,6 @@ class UI extends BaseShield\UI {
 					'vars'    => [],
 					'strings' => [
 						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' )
-					],
-				],
-				'wcf' => [
-					'flags'   => [
-						'has_items'  => true,
-						'show_table' => false,
-					],
-					'hrefs'   => [],
-					'vars'    => [],
-					'strings' => [
-						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
 					],
 				],
 				'ufc' => [
@@ -167,7 +167,9 @@ class UI extends BaseShield\UI {
 			}
 			$lastScanAt = $scon->getLastScanAt();
 
+			$scData[ 'count' ] = $selector->countForScan( $slug );
 			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
+//			$scData[ 'flags' ][ 'show_table' ] = $scData[ 'count' ] > 0;
 			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
 			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
 			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $uiTrack[ 'selected_scans' ] );
