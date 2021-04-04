@@ -65,9 +65,7 @@ class ApplyLabels {
 	}
 
 	public function hideFromPluginEditor() {
-		$con = $this->getCon();
-		$js = Services::Data()->readFileContentsUsingInclude( $con->getPath_AssetJs( 'whitelabel.js' ) );
-		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $js, $con->base_file ) );
+		// TODO
 	}
 
 	/**

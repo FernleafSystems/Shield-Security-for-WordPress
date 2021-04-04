@@ -362,7 +362,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function getRawRequestParams() :array {
-		return Services::Request()->getRawRequestParams( $this->getOptions()->isOpt( 'include_cookie_checks', 'Y' ) );
+		return Services::Request()->getRawRequestParams( false );
 	}
 
 	private function sendBlockEmail( string $recipient ) :bool {
