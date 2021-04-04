@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Wordpress extends Base {
 
-	public function run() {
+	protected function run() {
 		add_action( '_core_updated_successfully', [ $this, 'auditCoreUpdated' ] );
 		add_action( 'update_option_permalink_structure', [ $this, 'auditPermalinkStructure' ], 10, 2 );
 	}

@@ -102,6 +102,7 @@ class Scanner {
 						 'spam_block_'.$mResult->get_error_code(),
 						 [ 'audit' => $mResult->get_error_data() ]
 					 );
+				$this->getCon()->fireEvent( 'comment_spam_block' );
 
 				if ( $mResult->get_error_code() == 'human' ) {
 					$status = $opts->getOpt( 'comments_default_action_human_spam' );

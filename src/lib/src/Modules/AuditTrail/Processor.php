@@ -35,25 +35,25 @@ class Processor extends BaseShield\Processor {
 
 		( new Auditors\Users() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		( new Auditors\Plugins() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		( new Auditors\Themes() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		( new Auditors\Wordpress() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		( new Auditors\Posts() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		( new Auditors\Emails() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		( new Auditors\Upgrades() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 	}
 
 	/**

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Posts extends Base {
 
-	public function run() {
+	protected function run() {
 		add_action( 'deleted_post', [ $this, 'auditDeletedPost' ] );
 		add_action( 'transition_post_status', [ $this, 'auditPostStatus' ], 30, 3 );
 	}

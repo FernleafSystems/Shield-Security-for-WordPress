@@ -9,7 +9,7 @@ class Users extends Base {
 
 	use WpLoginCapture;
 
-	public function run() {
+	protected function run() {
 		$this->setupLoginCaptureHooks();
 		$this->setToCaptureApplicationLogin( true );
 

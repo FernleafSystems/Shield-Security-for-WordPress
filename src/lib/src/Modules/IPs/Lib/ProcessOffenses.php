@@ -34,9 +34,9 @@ class ProcessOffenses {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 
-		$oTracker = $mod->loadOffenseTracker();
+		$tracker = $mod->loadOffenseTracker();
 		if ( !$this->getCon()->plugin_deleting
-			 && $oTracker->hasVisitorOffended() && $oTracker->isCommit() ) {
+			 && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $mod )
 				->setIp( Services::IP()->getRequestIp() )
