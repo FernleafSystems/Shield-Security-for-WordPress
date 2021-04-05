@@ -61,7 +61,7 @@ class EmailValidate {
 			}
 
 			if ( !empty( $sInvalidBecause ) ) {
-				$sOpt = $opts->getValidateEmailOnRegistration();
+				$opt = $opts->getValidateEmailOnRegistration();
 				$this->getCon()->fireEvent(
 					'reg_email_invalid',
 					[
@@ -69,12 +69,12 @@ class EmailValidate {
 							'email'  => sanitize_email( $email ),
 							'reason' => sanitize_key( $sInvalidBecause ),
 						],
-						'offense_count' => $sOpt == 'log' ? 0 : 1,
-						'block'         => $sOpt == 'block',
+						'offense_count' => $opt == 'log' ? 0 : 1,
+						'block'         => $opt == 'block',
 					]
 				);
 
-				if ( $sOpt == 'block' ) {
+				if ( $opt == 'block' ) {
 					wp_die( 'Attempted user registration with invalid email address has been blocked.' );
 				}
 			}

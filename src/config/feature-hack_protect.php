@@ -521,53 +521,65 @@
         "recent": true
       },
       "apc_scan_found":          {
-        "cat":    2,
-        "recent": true
+        "cat":            2,
+        "audit_multiple": true,
+        "recent":         true
       },
       "mal_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "ptg_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "ufc_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "wcf_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "wpv_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "apc_item_repair_success": {
+        "audit_multiple": true
       },
       "apc_item_repair_fail":    {
       },
       "mal_item_repair_success": {
-        "recent": true
+        "audit_multiple": true,
+        "recent":         true
       },
       "mal_item_repair_fail":    {
       },
       "ptg_item_repair_success": {
+        "audit_multiple": true
       },
       "ptg_item_repair_fail":    {
       },
       "ufc_item_repair_success": {
-        "recent": true
+        "audit_multiple": true,
+        "recent":         true
       },
       "ufc_item_repair_fail":    {
       },
       "wcf_item_repair_success": {
-        "recent": true
+        "audit_multiple": true,
+        "recent":         true
       },
       "wcf_item_repair_fail":    {
       },
       "wpv_item_repair_success": {
+        "audit_multiple": true
       },
       "wpv_item_repair_fail":    {
       }
