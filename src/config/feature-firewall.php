@@ -320,7 +320,10 @@
         "appId",
         "/^et_.*/",
         "ping_sites",
-        "aioseo-post-settings"
+        "aioseo-post-settings",
+        "joe-chnlcustid",
+        "spd-custhash",
+        "joe-custinfo"
       ]
     },
     "firewall_patterns": {

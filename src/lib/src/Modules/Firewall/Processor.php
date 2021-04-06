@@ -10,7 +10,7 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * @var array
 	 */
-	private $aDieMessage;
+	private $dieMessage;
 
 	/**
 	 * @var array
@@ -65,6 +65,13 @@ class Processor extends BaseShield\Processor {
 		}
 
 		return $bPerformScan;
+	}
+
+	private function runScan() :bool {
+		$scanner = ( new Lib\Scan\PerformScan() )
+			->setMod( $this->getMod() );
+		$scanner->execute();
+		$result = $scanner->getCheckResult();
 	}
 
 	private function isVisitorRequestPermitted() :bool {
@@ -276,10 +283,10 @@ class Processor extends BaseShield\Processor {
 	}
 
 	protected function getFirewallDieMessage() :array {
-		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
-			$this->aDieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
+		if ( !isset( $this->dieMessage ) || !is_array( $this->dieMessage ) ) {
+			$this->dieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
 		}
-		return $this->aDieMessage;
+		return $this->dieMessage;
 	}
 
 	protected function getFirewallDieMessageForDisplay() :string {
@@ -291,13 +298,13 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param string $sMessagePart
+	 * @param string $msg
 	 * @return $this
 	 */
-	protected function addToFirewallDieMessage( $sMessagePart ) {
-		$aMessages = $this->getFirewallDieMessage();
-		$aMessages[] = $sMessagePart;
-		$this->aDieMessage = $aMessages;
+	protected function addToFirewallDieMessage( string $msg ) {
+		$messages = $this->getFirewallDieMessage();
+		$messages[] = $msg;
+		$this->dieMessage = $messages;
 		return $this;
 	}
 
