@@ -53,8 +53,8 @@ class BlockRequest {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		$canUauBot = $opts->isEnabledAutoVisitorRecover() && !empty( $ip ) && $opts->getCanIpRequestAutoUnblock( $ip );
 		$canUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
-						$user instanceof \WP_User
-						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
+					   $user instanceof \WP_User
+					   && $opts->getCanRequestAutoUnblockEmailLink( $user );
 		$canAutoRecover = $canUauBot || $canUauMagic;
 
 		if ( !empty( $con->getLabels()[ 'PluginURI' ] ) ) {
@@ -88,6 +88,9 @@ class BlockRequest {
 			],
 			'content' => [
 				'email_unblock' => $this->renderEmailMagicLinkContent()
+			],
+			'hrefs'   => [
+				'home' => Services::WpGeneral()->getHomeUrl()
 			],
 			'vars'    => [
 				'nonce' => $mod->getNonceActionData( 'uau' ),

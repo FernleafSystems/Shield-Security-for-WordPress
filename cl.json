@@ -3,8 +3,8 @@
     "version":     "11.1",
     "released_at": 1616666000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease1110",
-      "upgrade": "https://shsec.io/shieldupgradeguide1110"
+      "release": "https://shsec.io/shieldrelease111",
+      "upgrade": "https://shsec.io/shieldupgradeguide111"
     },
     "href":        "https://shsec.io/",
     "title":       "UI Cleanup and Enhancement",
@@ -63,8 +63,8 @@
     "version":     "11.0",
     "released_at": 1616666000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease1100",
-      "upgrade": "https://shsec.io/shieldupgradeguide1100"
+      "release": "https://shsec.io/shieldrelease110",
+      "upgrade": "https://shsec.io/shieldupgradeguide110"
     },
     "href":        "https://shsec.io/",
     "title":       "All-New Shield AntiBot Detection Engine",

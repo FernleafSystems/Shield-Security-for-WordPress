@@ -9,10 +9,10 @@
 <style>
 	#UAU hr {
 		margin: 40px 40px 30px;
-		color: rgba(0,0,0,0.5);
+		color: rgba(0, 0, 0, 0.5);
 	}
 	#UAU h3 {
-		margin: 20px 40px 20px ;
+		margin: 20px 40px 20px;
 	}
 	.uau {
 		width: 75%;
@@ -22,18 +22,18 @@
 		background-color: rgba(0, 0, 0, 0.02);
 	}
 	.uau p {
-		margin: 0px 0 10px !important;
+		margin: 0 0 10px !important;
 	}
 </style>
 {% if flags.is_autorecover %}
 	<div id="UAU">
-		<hr style=""/>
+		<hr style="" />
 		<div class="auto-recover">
 			<h3 style="">{{ strings.unblock.title }}</h3>
 			{% if flags.is_uaug_permitted %}
 				<div class="uaug uau">
 					<p>{{ strings.unblock.you_can }}</p>
-					<form method="post" action="#">
+					<form method="post" action="{{ hrefs.home }}">
 						<input type="hidden" name="email" value="" />
 						<input type="hidden" name="ip" value="{{ vars.ip }}" />
 						{% for key,val in vars.nonce %}

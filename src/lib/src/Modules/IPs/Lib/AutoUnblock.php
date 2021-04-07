@@ -29,9 +29,6 @@ class AutoUnblock {
 			catch ( \Exception $e ) {
 			}
 		}
-		if ( !$unblocked ) {
-			$unblocked = $this->checkForBlockedServiceBot();
-		}
 		return $unblocked;
 	}
 
