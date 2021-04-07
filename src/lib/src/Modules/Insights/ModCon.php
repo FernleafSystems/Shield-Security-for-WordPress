@@ -18,13 +18,21 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function onModulesLoaded() {
 		$this->maybeRedirectToAdmin();
+		$this->maybeRedirectToOverview();
+	}
+
+	private function maybeRedirectToOverview() {
+		$req = Services::Request();
+		if ( $this->isThisModAdminPage() && empty( $req->query( 'inav' ) ) ) {
+			Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
+		}
 	}
 
 	private function maybeRedirectToAdmin() {
 		$con = $this->getCon();
 		$activeFor = $con->getModule_Plugin()->getActivateLength();
 		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $activeFor < 4 ) {
-			Services::Response()->redirect( $this->getUrl_AdminPage() );
+			Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
 		}
 	}
 
