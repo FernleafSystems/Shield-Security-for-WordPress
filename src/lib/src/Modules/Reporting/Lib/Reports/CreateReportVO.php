@@ -16,9 +16,6 @@ class CreateReportVO {
 	 */
 	private $rep;
 
-	/**
-	 * @param string $reportType
-	 */
 	public function __construct( string $reportType ) {
 		$this->rep = new ReportVO();
 		$this->rep->type = $reportType;
@@ -28,7 +25,7 @@ class CreateReportVO {
 	 * @return ReportVO
 	 * @throws \Exception
 	 */
-	public function create() {
+	public function create() :ReportVO {
 		$this->setReportInterval()
 			 ->setPreviousReport()
 			 ->setIntervalBoundaries()
@@ -82,7 +79,7 @@ class CreateReportVO {
 	private function setIntervalBoundaries() {
 
 		$carbon = Services::Request()->carbon( true );
-		$nAddition = -1; // the previous hour, day, week, month
+		$addition = -1; // the previous hour, day, week, month
 
 		switch ( $this->rep->interval ) {
 //			case 'realtime':
@@ -92,27 +89,28 @@ class CreateReportVO {
 				$end = $carbon->timestamp;
 				break;
 			case 'hourly':
-				$carbon->addHours( $nAddition );
+				$carbon->addHours( $addition );
 				$start = $carbon->startOfHour()->timestamp;
 				$end = $carbon->endOfHour()->timestamp;
 				break;
 			case 'daily':
-				$carbon->addDays( $nAddition );
+				$carbon->addDays( $addition );
 				$start = $carbon->startOfDay()->timestamp;
 				$end = $carbon->endOfDay()->timestamp;
 				break;
 			case 'weekly':
-				$carbon->addWeeks( $nAddition );
+				$carbon->addWeeks( $addition );
 				$start = $carbon->startOfWeek()->timestamp;
 				$end = $carbon->endOfWeek()->timestamp;
 				break;
 			case 'monthly':
-				$carbon->addMonths( $nAddition );
+				$carbon->day( 15 );
+				$carbon->addMonths( $addition );
 				$start = $carbon->startOfMonth()->timestamp;
 				$end = $carbon->endOfMonth()->timestamp;
 				break;
 			case 'yearly':
-				$carbon->addYears( $nAddition );
+				$carbon->addYears( $addition );
 				$start = $carbon->startOfYear()->timestamp;
 				$end = $carbon->endOfYear()->timestamp;
 				break;
@@ -138,10 +136,10 @@ class CreateReportVO {
 	private function setReportId() {
 		/** @var Reporting\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Reports\Select $oSel */
-		$oSel = $mod->getDbHandler_Reports()->getQuerySelector();
-		$nPrevID = $oSel->getLastReportId();
-		$this->rep->rid = is_numeric( $nPrevID ) ? $nPrevID + 1 : 1;
+		/** @var Reports\Select $select */
+		$select = $mod->getDbHandler_Reports()->getQuerySelector();
+		$prevID = $select->getLastReportId();
+		$this->rep->rid = is_numeric( $prevID ) ? $prevID + 1 : 1;
 		return $this;
 	}
 
