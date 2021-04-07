@@ -1572,6 +1572,13 @@ body.folded #FooterBannerGoPro {
 	color: #333333;
 }
 
+#StatsNav {
+	background-color: #f1f1f1;
+	display: inline-block;
+	position: sticky;
+	top: 88px;
+	z-index: 5;
+}
 .stat_box .card-header {
 	text-align: center;
 }

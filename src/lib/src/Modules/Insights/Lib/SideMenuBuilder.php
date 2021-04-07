@@ -13,15 +13,14 @@ class SideMenuBuilder {
 	public function build() :array {
 		$menu = [
 			$this->search(),
-			$this->stats(),
 			$this->overview(),
+			$this->stats(),
 			$this->settings(),
 			$this->scans(),
 			$this->ips(),
 			$this->audit(),
 			$this->traffic(),
 			$this->users(),
-			$this->reports(),
 			$this->integrations(),
 			$this->gopro(),
 			$this->tools(),
@@ -194,11 +193,28 @@ class SideMenuBuilder {
 	private function stats() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
 		return [
-			'slug'  => 'stats',
-			'title' => __( 'Stats', 'wp-simple-firewall' ),
-			'img'   => $this->getCon()->urls->forImage( 'bootstrap/speedometer.svg' ),
-			'href'  => $mod->getUrl_SubInsightsPage( 'stats' ),
+			'slug'      => 'reports',
+			'title'     => __( 'Reports', 'wp-simple-firewall' ),
+			'img'       => $this->getCon()->urls->forImage( 'bootstrap/graph-up.svg' ),
+			'href'      => $mod->getUrl_SubInsightsPage( 'reports' ),
+			'sub_items' => [
+				[
+					'slug'   => 'reports-stats',
+					'title'  => __( 'Stats', 'wp-simple-firewall' ),
+					'href'   => $mod->getUrl_SubInsightsPage( 'stats' ),
+					'active' => $this->getInav() === 'stats'
+				],
+				[
+					'slug'   => 'reports-charts',
+					'title'  => __( 'Charts', 'wp-simple-firewall' ),
+					'href'   => $mod->getUrl_SubInsightsPage( 'reports' ),
+					'active' => $this->getInav() === 'reports'
+				],
+			],
 		];
 	}
 
@@ -245,25 +261,22 @@ class SideMenuBuilder {
 
 	private function integrations() :array {
 		$con = $this->getCon();
-
-		$subItems = [
-			[
-				'slug'  => 'integrations-settings',
-				'title' => __( 'Settings', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_Integrations()->getUrl_AdminPage(),
-			],
-			[
-				'slug'  => 'integrations-spam',
-				'title' => __( 'Contact Form SPAM', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_spam' ),
-			],
-		];
-
 		return [
 			'slug'      => 'integrations',
 			'img'       => $this->getCon()->urls->forImage( 'bootstrap/puzzle-fill.svg' ),
 			'title'     => __( 'Integrations', 'wp-simple-firewall' ),
-			'sub_items' => $subItems,
+			'sub_items' => [
+				[
+					'slug'  => 'integrations-settings',
+					'title' => __( 'Settings', 'wp-simple-firewall' ),
+					'href'  => $con->getModule_Integrations()->getUrl_AdminPage(),
+				],
+				[
+					'slug'  => 'integrations-spam',
+					'title' => __( 'Contact Form SPAM', 'wp-simple-firewall' ),
+					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_spam' ),
+				],
+			],
 		];
 	}
 
