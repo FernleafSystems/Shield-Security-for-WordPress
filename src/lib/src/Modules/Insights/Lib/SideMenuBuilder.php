@@ -13,6 +13,7 @@ class SideMenuBuilder {
 	public function build() :array {
 		$menu = [
 			$this->search(),
+			$this->stats(),
 			$this->overview(),
 			$this->settings(),
 			$this->scans(),
@@ -143,7 +144,6 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
-		$modHG = $con->getModule_HackGuard();
 
 		$slug = 'scans';
 
@@ -188,6 +188,17 @@ class SideMenuBuilder {
 				'toggle' => 'modal',
 				'target' => '#SearchDialog',
 			],
+		];
+	}
+
+	private function stats() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return [
+			'slug'  => 'stats',
+			'title' => __( 'Stats', 'wp-simple-firewall' ),
+			'img'   => $this->getCon()->urls->forImage( 'bootstrap/speedometer.svg' ),
+			'href'  => $mod->getUrl_SubInsightsPage( 'stats' ),
 		];
 	}
 

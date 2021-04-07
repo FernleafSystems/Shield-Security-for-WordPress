@@ -16,12 +16,12 @@ class KeyStats extends BaseReporter {
 
 		/** @var Events\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var DBEvents\Select $oSelEvts */
-		$oSelEvts = $mod->getDbHandler_Events()->getQuerySelector();
-		/** @var Events\Strings $oStrings */
-		$oStrings = $mod->getStrings();
+		/** @var DBEvents\Select $selector */
+		$selector = $mod->getDbHandler_Events()->getQuerySelector();
+		/** @var Events\Strings $strings */
+		$strings = $mod->getStrings();
 
-		$aEventKeys = [
+		$eventKeys = [
 			'ip_offense',
 			'ip_blocked',
 			'conn_kill',
@@ -38,19 +38,18 @@ class KeyStats extends BaseReporter {
 			'spam_block_human',
 		];
 
-		$oRep = $this->getReport();
+		$rep = $this->getReport();
 
-		$aCounts = [];
-		foreach ( $aEventKeys as $sEvent ) {
+		$count = [];
+		foreach ( $eventKeys as $event ) {
 			try {
-				$nCount = $oSelEvts
-					->filterByEvent( $sEvent )
-					->filterByBoundary( $oRep->interval_start_at, $oRep->interval_end_at )
-					->count();
-				if ( $nCount > 0 ) {
-					$aCounts[ $sEvent ] = [
-						'count' => $nCount,
-						'name'  => $oStrings->getEventName( $sEvent ),
+				$count = $selector
+					->filterByBoundary( $rep->interval_start_at, $rep->interval_end_at )
+					->sumEvent( $event );
+				if ( $count > 0 ) {
+					$count[ $event ] = [
+						'count' => $count,
+						'name'  => $strings->getEventName( $event ),
 					];
 				}
 			}
@@ -58,12 +57,12 @@ class KeyStats extends BaseReporter {
 			}
 		}
 
-		if ( count( $aCounts ) > 0 ) {
+		if ( count( $count ) > 0 ) {
 			$aAlerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/events/info_keystats.twig',
 				[
 					'vars'    => [
-						'counts' => $aCounts
+						'counts' => $count
 					],
 					'strings' => [
 						'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),

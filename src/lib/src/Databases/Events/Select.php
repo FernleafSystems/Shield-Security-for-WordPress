@@ -9,11 +9,11 @@ class Select extends Base\Select {
 	use Common;
 
 	/**
-	 * @param string $sEvent
+	 * @param string $event
 	 * @return int
 	 */
-	public function sumEvent( $sEvent ) {
-		return $this->sumEvents( [ $sEvent ] );
+	public function sumEvent( $event ) :int {
+		return $this->sumEvents( [ $event ] );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Select extends Base\Select {
 	/**
 	 * @return string[]
 	 */
-	public function getAllEvents() {
+	public function getAllEvents() :array {
 		return $this->reset()->getDistinctForColumn( 'event' );
 	}
 

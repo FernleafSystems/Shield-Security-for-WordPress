@@ -148,6 +148,12 @@ class UI extends BaseShield\UI {
 				$data = $con->modules[ $subNavSection ]->getUIHandler()->getBaseDisplayData();
 				break;
 
+			case 'stats':
+				/** @var Shield\Modules\Events\UI $UIEvents */
+				$UIEvents = $con->getModule_Events()->getUIHandler();
+				$data = $UIEvents->buildInsightsVars();
+				break;
+
 			case 'users':
 				/** @var Shield\Modules\UserManagement\UI $UIUsers */
 				$UIUsers = $con->modules[ 'user_management' ]->getUIHandler();
@@ -163,6 +169,7 @@ class UI extends BaseShield\UI {
 		}
 
 		$availablePages = [
+			'stats'         => __( 'Quick Stats', 'wp-simple-firewall' ),
 			'settings'      => __( 'Plugin Settings', 'wp-simple-firewall' ),
 			'dashboard'     => __( 'Dashboard', 'wp-simple-firewall' ),
 			'overview'      => __( 'Security Overview', 'wp-simple-firewall' ),
@@ -202,12 +209,12 @@ class UI extends BaseShield\UI {
 					'page_container' => 'page-insights page-'.$inav
 				],
 				'flags'   => [
-					'is_advanced'  => $modPlugin->isShowAdvanced()
+					'is_advanced' => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
-					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
-					'nav_home'     => $mod->getUrl_AdminPage(),
-					'img_banner'   => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
+					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
+					'nav_home'   => $mod->getUrl_AdminPage(),
+					'img_banner' => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
 				],
 				'strings' => [
 					'page_title' => $pageTitle

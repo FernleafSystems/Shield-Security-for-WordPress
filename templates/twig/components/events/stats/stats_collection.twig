@@ -1,0 +1,8 @@
+
+<div class="row">
+	{% for stat in vars.stats %}
+		<div class="col-3 col">
+			{% include '/components/events/stats/stat_box.twig' %}
+		</div>
+	{% endfor %}
+</div>

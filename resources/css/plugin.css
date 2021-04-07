@@ -1571,3 +1571,14 @@ body.folded #FooterBannerGoPro {
 #SearchDialog .bootstrap-select > .dropdown-toggle.bs-placeholder {
 	color: #333333;
 }
+
+.stat_box .card-header {
+	text-align: center;
+}
+.stat_box .card-body {
+	background-color: #c3c3d6;
+}
+.stat_box .stat_count {
+	font-size: 3rem;
+	line-height: 3.5rem;
+}

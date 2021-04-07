@@ -136,6 +136,7 @@ class ModCon extends BaseShield\ModCon {
 				case 'ips':
 				case 'debug':
 				case 'users':
+				case 'stats':
 
 					$enq[ Enqueue::JS ][] = 'shield-tables';
 					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
