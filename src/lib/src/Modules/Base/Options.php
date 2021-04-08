@@ -585,13 +585,6 @@ class Options {
 		return $raw[ 'requirements' ] ?? [];
 	}
 
-	/**
-	 * @deprecated 11.0
-	 */
-	protected function getRawData_MenuItems() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
-	}
-
 	public function getRawData_SingleOption( string $key ) :array {
 		foreach ( $this->getRawData_AllOptions() as $opt ) {
 			if ( isset( $opt[ 'key' ] ) && ( $key == $opt[ 'key' ] ) ) {

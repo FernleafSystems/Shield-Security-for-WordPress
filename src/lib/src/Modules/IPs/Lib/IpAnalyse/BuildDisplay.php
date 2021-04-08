@@ -68,13 +68,13 @@ class BuildDisplay {
 
 		$blockIP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlack()
+			->setListTypeBlock()
 			->setIP( $ip )
 			->lookup( true );
 
 		$bypassIP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeWhite()
+			->setListTypeBypass()
 			->setIP( $ip )
 			->lookup( true );
 
@@ -109,7 +109,7 @@ class BuildDisplay {
 			$ipEntry = ( new LookupIpOnList() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $ip )
-				->setListTypeWhite()
+				->setListTypeBypass()
 				->lookup();
 			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
 				$ipName = $ipEntry->label;

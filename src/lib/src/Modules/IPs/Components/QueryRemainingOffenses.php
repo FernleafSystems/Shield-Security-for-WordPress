@@ -23,7 +23,7 @@ class QueryRemainingOffenses {
 		$mod = $this->getMod();
 		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlack()
+			->setListTypeBlock()
 			->setIP( $this->getIP() )
 			->lookup( false );
 

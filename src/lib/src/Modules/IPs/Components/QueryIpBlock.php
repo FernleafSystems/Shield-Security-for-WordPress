@@ -44,7 +44,7 @@ class QueryIpBlock {
 		$oIP = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )
-			->setListTypeBlack()
+			->setListTypeBlock()
 			->setIsIpBlocked( true )
 			->lookup();
 

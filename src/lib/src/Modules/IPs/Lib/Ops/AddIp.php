@@ -35,7 +35,7 @@ class AddIp {
 
 		$IP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlack()
+			->setListTypeBlock()
 			->setIP( $ip )
 			->lookup( false );
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {
@@ -85,7 +85,7 @@ class AddIp {
 
 			$IP = ( new LookupIpOnList() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
-				->setListTypeBlack()
+				->setListTypeBlock()
 				->setIP( $sIP )
 				->lookup( false );
 
