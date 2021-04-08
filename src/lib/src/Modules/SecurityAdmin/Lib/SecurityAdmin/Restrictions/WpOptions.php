@@ -28,7 +28,6 @@ class WpOptions extends Base {
 	 * @param string $key
 	 * @param mixed  $oldValue
 	 * @return mixed
-	 * @deprecated 11.1
 	 */
 	public function blockOptionsSaves( $newValue, $key, $oldValue ) {
 		/** @var Options $opts */

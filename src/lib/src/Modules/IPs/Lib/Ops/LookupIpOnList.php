@@ -132,7 +132,7 @@ class LookupIpOnList {
 
 	/**
 	 * @return $this
-	 * @deprecated 11.1
+	 * @deprecated 11.1 - only remove if 11.1.1 is released
 	 */
 	public function setListTypeBlack() {
 		$this->listType = 'black';
