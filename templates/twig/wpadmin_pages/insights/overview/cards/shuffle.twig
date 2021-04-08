@@ -102,6 +102,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		}
 	} );
 
+	if ( document.querySelector( '.state-danger' ) !== null ) {
+		document.querySelector('.state-danger').dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
+	}
+	if ( document.querySelector( '.state-warning' ) !== null ) {
+		document.querySelector('.state-warning').dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
+	}
+
 	jQuery( function () {
 		jQuery( '[data-toggle="popover"]' ).popover( {
 			placement: 'top',

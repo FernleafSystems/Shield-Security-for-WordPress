@@ -71,7 +71,7 @@ class Update extends Insert {
 				$success = true;
 			}
 			else {
-				if ( $this->getDbH()->hasColumn( 'updated_at' ) && !isset( $updateData[ 'updated_at' ] ) ) {
+				if ( $this->getDbH()->getTableSchema()->hasColumn( 'updated_at' ) && !isset( $updateData[ 'updated_at' ] ) ) {
 					$updateData[ 'updated_at' ] = Services::Request()->ts();
 				}
 				if ( $this->updateById( $entry->id, $updateData ) ) {

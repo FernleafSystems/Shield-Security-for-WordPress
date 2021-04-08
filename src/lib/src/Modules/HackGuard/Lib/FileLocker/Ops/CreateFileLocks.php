@@ -17,7 +17,7 @@ class CreateFileLocks extends BaseOps {
 	 */
 	public function create() :bool {
 		$pathsProcessed = false;
-		foreach ( $this->oFile->getExistingPossiblePaths() as $path ) {
+		foreach ( $this->file->getExistingPossiblePaths() as $path ) {
 			$theLock = null;
 			foreach ( $this->getFileLocks() as $maybeLock ) {
 				if ( $maybeLock->file === $path ) {
@@ -52,9 +52,9 @@ class CreateFileLocks extends BaseOps {
 				->setMod( $mod )
 				->build( $path, reset( $publicKey ) );
 
-			/** @var FileLocker\Insert $oInserter */
-			$oInserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
-			$success = $oInserter->insert( $entry );
+			/** @var FileLocker\Insert $inserter */
+			$inserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
+			$success = $inserter->insert( $entry );
 
 			$this->clearFileLocksCache();
 		}

@@ -18,27 +18,30 @@ class AuditWriter extends EventsListener {
 
 	/**
 	 * @param string $evt
-	 * @param array  $aMeta
+	 * @param array  $meta
+	 * @param array  $def
 	 */
-	protected function captureEvent( $evt, $aMeta = [] ) {
-		$oCon = $this->getCon();
-		$aDef = $oCon->loadEventsService()->getEventDef( $evt );
-		if ( $aDef[ 'audit' ] && empty( $aMeta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
-			$oEntry = new AuditTrail\EntryVO();
-			$oEntry->rid = $this->getCon()->getShortRequestId();
-			$oEntry->event = $evt;
-			$oEntry->category = $aDef[ 'cat' ];
-			$oEntry->context = $aDef[ 'context' ];
-			$oEntry->meta = isset( $aMeta[ 'audit' ] ) ? $aMeta[ 'audit' ] : [];
+	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
+		$con = $this->getCon();
+		if ( empty( $def ) ) { // TODO: @deprecated 11.1 - remove this if
+			$def = $con->loadEventsService()->getEventDef( $evt );
+		}
+		if ( $def[ 'audit' ] && empty( $meta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
+			$entry = new AuditTrail\EntryVO();
+			$entry->rid = $con->getShortRequestId();
+			$entry->event = $evt;
+			$entry->category = $def[ 'cat' ];
+			$entry->context = $def[ 'context' ];
+			$entry->meta = isset( $meta[ 'audit' ] ) ? $meta[ 'audit' ] : [];
 
 			$aLogs = $this->getLogs();
 
 			// cater for where certain events may happen more than once in the same request
-			if ( !empty( $aDef[ 'audit_multiple' ] ) ) {
-				$aLogs[] = $oEntry;
+			if ( !empty( $def[ 'audit_multiple' ] ) ) {
+				$aLogs[] = $entry;
 			}
 			else {
-				$aLogs[ $evt ] = $oEntry;
+				$aLogs[ $evt ] = $entry;
 			}
 
 			$this->setLogs( $aLogs );

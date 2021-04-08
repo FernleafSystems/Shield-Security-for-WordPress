@@ -40,12 +40,4 @@ class WpVulnVO extends DynPropertiesClass {
 
 		return $val;
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.2
-	 */
-	public function getUrl() {
-		return sprintf( 'https://wpvulndb.com/vulnerabilities/%s', $this->id );
-	}
 }

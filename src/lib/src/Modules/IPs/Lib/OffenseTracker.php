@@ -18,16 +18,19 @@ class OffenseTracker extends EventsListener {
 
 	/**
 	 * @param string $evt
-	 * @param array  $aMeta
+	 * @param array  $meta
+	 * @param array  $def
 	 */
-	protected function captureEvent( $evt, $aMeta = [] ) {
-		$aDef = $this->getCon()
-					 ->loadEventsService()
-					 ->getEventDef( $evt );
+	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
+		if ( empty( $def ) ) {
+			$def = $this->getCon()
+						->loadEventsService()
+						->getEventDef( $evt );
+		}
 
-		if ( !empty( $aDef ) && !empty( $aDef[ 'offense' ] ) && empty( $aMeta[ 'suppress_offense' ] ) ) {
-			$this->incrementCount( isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1 );
-			if ( !empty( $aMeta[ 'block' ] ) ) {
+		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {
+			$this->incrementCount( (int)( $meta[ 'offense_count' ] ?? 1) );
+			if ( !empty( $meta[ 'block' ] ) ) {
 				$this->setIsBlocked( true );
 			}
 		}
@@ -40,43 +43,37 @@ class OffenseTracker extends EventsListener {
 		return $this->isBlocked() || $this->getOffenseCount() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isBlocked() {
+	public function isBlocked() :bool {
 		return (bool)$this->bIsBlocked;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getOffenseCount() {
+	public function getOffenseCount() :int {
 		return (int)$this->nOffenseCount;
 	}
 
 	/**
-	 * @param bool $bIsBlocked
+	 * @param bool $isBlocked
 	 * @return $this
 	 */
-	public function setIsBlocked( $bIsBlocked ) {
-		$this->bIsBlocked = $bIsBlocked;
+	public function setIsBlocked( bool $isBlocked ) {
+		$this->bIsBlocked = $isBlocked;
 		return $this;
 	}
 
 	/**
-	 * @param int $nIncrement
+	 * @param int $increment
 	 * @return $this
 	 */
-	public function incrementCount( $nIncrement = 1 ) {
-		return $this->setOffenseCount( $this->getOffenseCount() + (int)$nIncrement );
+	public function incrementCount( int $increment = 1 ) {
+		return $this->setOffenseCount( $this->getOffenseCount() + (int)$increment );
 	}
 
 	/**
-	 * @param int $nOffenseCount
+	 * @param int $offenseCount
 	 * @return $this
 	 */
-	public function setOffenseCount( $nOffenseCount ) {
-		$this->nOffenseCount = max( $nOffenseCount, (int)$this->nOffenseCount );
+	public function setOffenseCount( int $offenseCount ) {
+		$this->nOffenseCount = max( $offenseCount, (int)$this->nOffenseCount );
 		return $this;
 	}
 }

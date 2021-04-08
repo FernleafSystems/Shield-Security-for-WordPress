@@ -34,9 +34,9 @@ class ProcessOffenses {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 
-		$oTracker = $mod->loadOffenseTracker();
+		$tracker = $mod->loadOffenseTracker();
 		if ( !$this->getCon()->plugin_deleting
-			 && $oTracker->hasVisitorOffended() && $oTracker->isCommit() ) {
+			 && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $mod )
 				->setIp( Services::IP()->getRequestIp() )
@@ -66,14 +66,14 @@ class ProcessOffenses {
 
 	/**
 	 * Allows 3rd parties to trigger Shield offenses
-	 * @param string $sMessage
-	 * @param int    $nOffenseCount
+	 * @param string $message
+	 * @param int    $offenseCount
 	 * @param bool   $bIncludeLoggedIn
 	 */
-	public function processCustomShieldOffense( $sMessage, $nOffenseCount = 1, $bIncludeLoggedIn = true ) {
+	public function processCustomShieldOffense( $message, $offenseCount = 1, $bIncludeLoggedIn = true ) {
 		if ( $this->getCon()->isPremiumActive() ) {
-			if ( empty( $sMessage ) ) {
-				$sMessage = __( 'No custom message provided.', 'wp-simple-firewall' );
+			if ( empty( $message ) ) {
+				$message = __( 'No custom message provided.', 'wp-simple-firewall' );
 			}
 
 			if ( $bIncludeLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
@@ -81,8 +81,8 @@ class ProcessOffenses {
 					 ->fireEvent(
 						 'custom_offense',
 						 [
-							 'audit'         => [ 'message' => $sMessage ],
-							 'offense_count' => $nOffenseCount
+							 'audit'         => [ 'message' => $message ],
+							 'offense_count' => (int)$offenseCount
 						 ]
 					 );
 			}

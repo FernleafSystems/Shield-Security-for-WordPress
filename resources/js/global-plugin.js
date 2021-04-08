@@ -11,33 +11,6 @@ var iCWP_WPSF_JSErrorTrack = new function () {
 }();
 iCWP_WPSF_JSErrorTrack.initialise();
 
-var iCWP_WPSF_SecurityAdmin = new function () {
-
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", '#SecurityAdminForm',
-				function ( event ) {
-					event.preventDefault();
-					iCWP_WPSF_StandardAjax.send_ajax_req( jQuery( event.target ).serialize() );
-					return false;
-				}
-			);
-
-			if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
-				jQuery( document ).on( "click", '#SecAdminRemoveConfirmEmail',
-					function ( event ) {
-						event.preventDefault();
-						if ( confirm( icwp_wpsf_vars_secadmin.strings.are_you_sure ) ) {
-							iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
-						}
-						return false;
-					}
-				);
-			}
-		} );
-	};
-}();
-
 var iCWP_WPSF_ParseAjaxResponse = new function () {
 	this.parseIt = function ( raw ) {
 		var parsed = {};
@@ -68,8 +41,12 @@ var iCWP_WPSF_ParseAjaxResponse = new function () {
 }();
 
 var iCWP_WPSF_StandardAjax = new function () {
-	this.send_ajax_req = function ( reqData ) {
-		iCWP_WPSF_BodyOverlay.show();
+
+	this.send_ajax_req = function ( reqData, quiet = false, triggerEvent = '' ) {
+
+		if ( !quiet ) {
+			iCWP_WPSF_BodyOverlay.show();
+		}
 
 		reqData.apto_wrap_response = 1;
 
@@ -81,14 +58,27 @@ var iCWP_WPSF_StandardAjax = new function () {
 			success: function ( raw ) {
 				var resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
-				if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
-					iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
-				}
-				else {
-					iCWP_WPSF_Growl.showMessage( resp.data.message, resp.success );
+				if ( typeof resp.data.show_toast === typeof undefined || resp.data.show_toast ) {
+
+					if ( typeof resp.data.message === typeof undefined ) {
+						resp.data.message = resp.success ?
+							'The request succeeded' : 'The request failed';
+					}
+
+					if ( !quiet ) {
+						if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
+							iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
+						}
+						else {
+							iCWP_WPSF_Growl.showMessage( resp.data.message, resp.success );
+						}
+					}
 				}
 
-				if ( resp.data.page_reload ) {
+				if ( triggerEvent.length > 0 ) {
+					jQuery( document ).trigger( 'shield-'+triggerEvent, resp );
+				}
+				else if ( resp.data.page_reload ) {
 					setTimeout( function () {
 						location.reload();
 					}, 2000 );
@@ -99,7 +89,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 			}
 		} ).fail( function () {
 			alert( 'Something went wrong with the request - it was either blocked or there was an error.' );
-		} )
+		} );
 	};
 }();
 
@@ -275,54 +265,6 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 	iCWP_WPSF_LoginGuard_BackupCodes.initialise();
 }
 
-/** TODO: THIS AJAX IS NOT COMPLETE **/
-var iCWP_WPSF_Autoupdates = new function () {
-
-	var bRequestCurrentlyRunning = false;
-
-	var togglePluginUpdate = function ( event ) {
-		if ( bRequestCurrentlyRunning ) {
-			return false;
-		}
-
-		$oInput = jQuery( this );
-
-		if ( $oInput.data( 'disabled' ) !== 'no' ) {
-			iCWP_WPSF_Growl.showMessage( $oInput.data( 'disabled' ), false );
-			return false;
-		}
-
-		return sendTogglePluginAutoupdate( $oInput.data( 'pluginfile' ), $oInput.data( 'nonce' ) );
-	};
-
-	var sendTogglePluginAutoupdate = function ( sPluginFile ) {
-		bRequestCurrentlyRunning = true;
-
-		var requestData = {
-			'action': 'icwp_wpsf_TogglePluginAutoupdate',
-			'pluginfile': sPluginFile
-		};
-
-		jQuery.post( ajaxurl, requestData,
-			function ( oResponse ) {
-				iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
-			}
-		).always( function () {
-				bRequestCurrentlyRunning = false;
-			}
-		);
-
-		return true;
-	};
-
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			jQuery( document ).on( "click", "input.icwp-autoupdate-plugin", togglePluginUpdate );
-		} );
-	};
-
-}();
-
 var iCWP_WPSF_Growl = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
@@ -368,99 +310,14 @@ var iCWP_WPSF_BodyOverlay = new function () {
 	};
 
 	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			var $oDiv = jQuery( '<div />' )
-			.attr( 'id', 'icwp-fade-wrapper' )
-			.html( '<div class="icwp-waiting"><div style="width: 4rem; height: 4rem;" class="spinner-grow text-success"></div></div>' )
-			.appendTo( 'body' );
-		} );
+		jQuery( '<div />' )
+		.attr( 'id', 'icwp-fade-wrapper' )
+		.html( '<div class="icwp-waiting"><div style="width: 4rem; height: 4rem;" class="spinner-grow text-success"></div></div>' )
+		.appendTo( 'body' );
 	};
 
 }();
 
-// iCWP_WPSF_Autoupdates.initialise();
-iCWP_WPSF_BodyOverlay.initialise();
-iCWP_WPSF_SecurityAdmin.initialise();
-
-if ( false && typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
-
-	var iCWP_WPSF_Plugin_Deactivate_Survey = new function () {
-
-		this.initialise = function () {
-			jQuery( document ).ready( function () {
-
-				if ( !iCWP_WPSF_JSErrorTrack.hasError() ) {
-					jQuery( document ).on( "click",
-						'[data-plugin="' + icwp_wpsf_vars_plugin.file + '"] span.deactivate a',
-						promptSurvey
-					);
-				}
-
-				var oShareSettings = {
-					title: 'Care To Share?',
-					dialogClass: 'wp-dialog',
-					autoOpen: false,
-					draggable: false,
-					width: 'auto',
-					modal: true,
-					resizable: false,
-					closeOnEscape: true,
-					position: {
-						my: "center",
-						at: "center",
-						of: window
-					},
-					open: function () {
-						// close dialog by clicking the overlay behind it
-						jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
-							jQuery( this ).dialog( 'close' );
-						} )
-					},
-					create: function () {
-						// style fix for WordPress admin
-						jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
-					},
-					close: function () {
-						window.location.href = icwp_wpsf_vars_plugin.hrefs.deactivate;
-					}
-				};
-
-				var $oSurveyDialog = jQuery( '#icwpWpsfSurvey' );
-				oShareSettings[ 'buttons' ] = {
-					"Close (I don't want to help)": function () {
-						jQuery( this ).dialog( "close" );
-					},
-					"Yes (Send my feedback)": function () {
-						send_survey_deactivate();
-						jQuery( this ).dialog( "close" );
-					}
-				};
-				$oSurveyDialog.dialog( oShareSettings );
-			} );
-		};
-
-		var promptSurvey = function ( event ) {
-			event.preventDefault();
-			iCWP_WPSF_BodyOverlay.show();
-			jQuery( '#icwpWpsfSurvey' ).dialog( 'open' );
-			return false;
-		};
-
-		var send_survey_deactivate = function () {
-
-			var $aData = icwp_wpsf_vars_plugin.ajax.send_deactivate_survey;
-			jQuery.each( jQuery( '#icwpWpsfSurveyForm' ).serializeArray(),
-				function ( _, kv ) {
-					$aData[ kv.name ] = kv.value;
-				}
-			);
-
-			jQuery.post( ajaxurl, $aData );
-			setTimeout( function () {
-			}, 2000 ); // give the request time to complete
-
-			return false;
-		};
-	}();
-	iCWP_WPSF_Plugin_Deactivate_Survey.initialise();
-}
+jQuery( document ).ready( function () {
+	iCWP_WPSF_BodyOverlay.initialise();
+} );

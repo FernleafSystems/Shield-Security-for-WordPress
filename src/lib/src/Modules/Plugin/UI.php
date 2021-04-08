@@ -45,19 +45,20 @@ class UI extends BaseShield\UI {
 	protected function buildOptionForUi( $aOptParams ) {
 		$aOptParams = parent::buildOptionForUi( $aOptParams );
 		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
-			$aNewOptions = [];
-			$oIPDet = Services::IP()->getIpDetector();
-			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
-				if ( $sValKey == 'AUTO_DETECT_IP' ) {
-					$aNewOptions[ $sValKey ] = $sSource;
+			$newOptions = [];
+			$ipDetector = Services::IP()->getIpDetector();
+			foreach ( $aOptParams[ 'value_options' ] as $valKey => $source ) {
+				if ( $valKey == 'AUTO_DETECT_IP' ) {
+					$newOptions[ $valKey ] = $source;
 				}
 				else {
-					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
-					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
-						$sSource, empty( $sIPs ) ? '-' : $sIPs );
+					$IPs = implode( ', ', $ipDetector->getIpsFromSource( $source ) );
+					if ( !empty( $IPs ) ) {
+						$newOptions[ $valKey ] = sprintf( '%s (%s)', $source, $IPs );
+					}
 				}
 			}
-			$aOptParams[ 'value_options' ] = $aNewOptions;
+			$aOptParams[ 'value_options' ] = $newOptions;
 		}
 		return $aOptParams;
 	}
@@ -87,15 +88,5 @@ class UI extends BaseShield\UI {
 		}
 
 		return $warnings;
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
-				'title' => __( 'Run Import/Export', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

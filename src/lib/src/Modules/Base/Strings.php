@@ -169,12 +169,12 @@ class Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		$aOpt = $this->getOptions()->getOptDefinition( $key );
-		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
+		$opt = $this->getOptions()->getOptDefinition( $key );
+		if ( is_array( $opt ) && !empty( $opt[ 'name' ] ) && !empty( $opt[ 'summary' ] ) && !empty( $opt[ 'description' ] ) ) {
 			return [
-				'name'        => __( $aOpt[ 'name' ], 'wp-simple-firewall' ),
-				'summary'     => __( $aOpt[ 'summary' ], 'wp-simple-firewall' ),
-				'description' => __( $aOpt[ 'description' ], 'wp-simple-firewall' ),
+				'name'        => __( $opt[ 'name' ], 'wp-simple-firewall' ),
+				'summary'     => __( $opt[ 'summary' ], 'wp-simple-firewall' ),
+				'description' => __( $opt[ 'description' ], 'wp-simple-firewall' ),
 			];
 		}
 		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $key ) );

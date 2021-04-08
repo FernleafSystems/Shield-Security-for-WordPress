@@ -18,7 +18,7 @@ class BotSignalsController {
 	private $handlerNotBot;
 
 	/**
-	 * @var EventListener
+	 * @var BotEventListener
 	 */
 	private $eventListener;
 
@@ -53,9 +53,9 @@ class BotSignalsController {
 		return $this->handlerNotBot;
 	}
 
-	public function getEventListener() :EventListener {
+	public function getEventListener() :BotEventListener {
 		if ( !isset( $this->eventListener ) ) {
-			$this->eventListener = ( new EventListener() )->setMod( $this->getMod() );
+			$this->eventListener = ( new BotEventListener() )->setMod( $this->getMod() );
 		}
 		return $this->eventListener;
 	}

@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Options extends BaseShield\Options {
 
 	public function getCustomWhitelist() :array {
-		$aW = $this->getOpt( 'page_params_whitelist', [] );
-		return is_array( $aW ) ? $aW : [];
+		$w = $this->getOpt( 'page_params_whitelist', [] );
+		return is_array( $w ) ? $w : [];
 	}
 
 	public function isIgnoreAdmin() :bool {

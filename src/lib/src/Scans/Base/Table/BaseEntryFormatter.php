@@ -15,15 +15,12 @@ abstract class BaseEntryFormatter {
 	use Scan\Controller\ScanControllerConsumer;
 	use ModConsumer;
 
-	/**
-	 * @return array
-	 */
-	abstract public function format();
+	abstract public function format() :array;
 
 	/**
 	 * @return string[]
 	 */
-	protected function getSupportedActions() {
+	protected function getSupportedActions() :array {
 		return [
 			'ignore'
 		];
@@ -32,7 +29,7 @@ abstract class BaseEntryFormatter {
 	/**
 	 * @return array[]
 	 */
-	protected function getActionDefinitions() {
+	protected function getActionDefinitions() :array {
 		return [
 			'ignore'   => [
 				'text'    => __( 'Ignore', 'wp-simple-firewall' ),
@@ -57,10 +54,7 @@ abstract class BaseEntryFormatter {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getBaseData() {
+	protected function getBaseData() :array {
 		return $this->getEntryVO()->getRawData();
 	}
 
@@ -74,15 +68,15 @@ abstract class BaseEntryFormatter {
 	}
 
 	/**
-	 * @param int $nTimestamp
+	 * @param int $ts
 	 * @return string
 	 */
-	protected function formatTimestampField( $nTimestamp ) {
+	protected function formatTimestampField( $ts ) {
 		return Services::Request()
 					   ->carbon()
-					   ->setTimestamp( $nTimestamp )
+					   ->setTimestamp( $ts )
 					   ->diffForHumans()
 			   .'<br/><span class="timestamp-small">'
-			   .Services::WpGeneral()->getTimeStringForDisplay( $nTimestamp ).'</span>';
+			   .Services::WpGeneral()->getTimeStringForDisplay( $ts ).'</span>';
 	}
 }

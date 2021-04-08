@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
@@ -66,8 +67,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$sScanSlug = Services::Request()->post( 'fScan' );
-		switch ( $sScanSlug ) {
+		switch ( Services::Request()->post( 'fScan', '' ) ) {
 
 			case 'aggregate':
 				$oTableBuilder = new Shield\Tables\Build\ScanAggregate();
@@ -147,6 +147,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'modified_file'         => __( 'Modified File' ),
 				'locked'                => __( 'Locked' ),
 				'modified_timestamp'    => __( 'File Modified Timestamp' ),
+				'file_modified'         => __( 'File Modified' ),
+				'relative_path'         => __( 'Relative Path' ),
 				'modified'              => __( 'Modified' ),
 				'download'              => __( 'Download' ),
 				'change_detected_at'    => __( 'Change Detected' ),
@@ -156,14 +158,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'download_modified'     => __( 'Download Modified' ),
 				'file_download'         => __( 'File Download' ),
 				'file_info'             => __( 'File Info' ),
-				'file_accept'           => __( 'File Accept' ),
+				'file_accept'           => __( 'Accept File Changes' ),
 				'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?' ),
-				'file_restore'          => __( 'File Restore' ),
+				'file_restore'          => __( 'Restore Original File' ),
 				'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?' ),
 				'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?' ),
 			]
 		];
 		try {
+			if ( !is_numeric( $nRID ) ) {
+				throw new \Exception( 'Not a valid file lock request.' );
+			}
 
 			$lock = $oFLCon->getFileLock( $nRID );
 			$bDiff = $lock->detected_at > 0;
@@ -174,11 +179,24 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					->setMod( $this->getMod() )
 					->run( $nRID, 'diff' ) : '';
 
-			$oCarb = Services::Request()->carbon( true );
-			$data[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $lock->created_at )->diffForHumans();
+			$carb = Services::Request()->carbon( true );
+
+			$absPath = wp_normalize_path( ABSPATH );
+			$filePath = wp_normalize_path( $lock->file );
+			if ( strpos( $filePath, $absPath ) !== false ) {
+				$data[ 'vars' ][ 'relative_path' ] = str_replace( $absPath, '/', $filePath );
+			}
+			else {
+				$data[ 'vars' ][ 'relative_path' ] = '../'.basename( $filePath );
+			}
+
+			$data[ 'vars' ][ 'relative_path' ] = str_replace( wp_normalize_path( ABSPATH ), '/', wp_normalize_path( $lock->file ) );
+			$data[ 'vars' ][ 'locked_at' ] = $carb->setTimestamp( $lock->created_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_modified_at' ] =
 				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $lock->file ) );
-			$data[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $lock->detected_at )->diffForHumans();
+			$data[ 'vars' ][ 'file_modified_ago' ] =
+				$carb->setTimestamp( $FS->getModifiedTime( $lock->file ) )->diffForHumans();
+			$data[ 'vars' ][ 'change_detected_at' ] = $carb->setTimestamp( $lock->detected_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $mod )
@@ -199,7 +217,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'message' => $data[ 'error' ],
 			'html'    => $this->getMod()
 							  ->renderTemplate(
-								  '/wpadmin_pages/insights/scans/realtime/file_locker/file_diff.twig',
+								  '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig',
 								  $data,
 								  true
 							  )
@@ -255,10 +273,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	/**
 	 * @param string $action
-	 * @param bool   $bIsBulkAction
+	 * @param bool   $isBulkAction
 	 * @return array
 	 */
-	private function ajaxExec_ScanItemAction( $action, $bIsBulkAction = false ) :array {
+	private function ajaxExec_ScanItemAction( $action, $isBulkAction = false ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -270,7 +288,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( 'File download has started.', 'wp-simple-firewall' );
 		}
 		else {
-			if ( $bIsBulkAction ) {
+			if ( $isBulkAction ) {
 				$itemIDs = (array)Services::Request()->post( 'ids', [] );
 			}
 			else {
@@ -380,7 +398,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$success = false;
 		$reloadPage = false;
 		$msg = __( 'No scans were selected', 'wp-simple-firewall' );
-		$formParams = $this->getAjaxFormParams();
+		$formParams = FormParams::Retrieve();
 
 		$scanCon = $mod->getScanQueueController();
 

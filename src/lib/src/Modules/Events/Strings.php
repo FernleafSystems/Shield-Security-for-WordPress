@@ -37,6 +37,8 @@ class Strings extends Base\Strings {
 			'ip_offense'                   => __( 'Offense Triggered', 'wp-simple-firewall' ),
 			'ip_blocked'                   => __( 'IP Blocked', 'wp-simple-firewall' ),
 			'ip_unblock_flag'              => __( 'IP Unblocked Using Flag File', 'wp-simple-firewall' ),
+			'antibot_fail'                 => __( 'Fail AntiBot Test', 'wp-simple-firewall' ),
+			'antibot_pass'                 => __( 'Pass AntiBot Test', 'wp-simple-firewall' ),
 			'bottrack_404'                 => sprintf( '%s: %s',
 				__( 'Bot Detection', 'wp-simple-firewall' ),
 				'404'
@@ -216,6 +218,10 @@ class Strings extends Base\Strings {
 			'password_policy_block'        => __( 'Password Change Blocked', 'wp-simple-firewall' ),
 			'user_hard_suspended'          => __( 'User Hard-Suspended', 'wp-simple-firewall' ),
 			'user_hard_unsuspended'        => __( 'User Hard-Unsuspended', 'wp-simple-firewall' ),
+			'spam_block_antibot'           => sprintf( '%s: %s',
+				__( 'SPAM Blocked', 'wp-simple-firewall' ),
+				__( 'AntiBot System', 'wp-simple-firewall' )
+			),
 			'spam_block_bot'               => sprintf( '%s: %s',
 				__( 'SPAM Blocked', 'wp-simple-firewall' ),
 				__( 'Bot', 'wp-simple-firewall' )

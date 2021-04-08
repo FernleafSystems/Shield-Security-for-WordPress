@@ -14,16 +14,16 @@ class UI extends BaseShield\UI {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$aUiTrack = $mod->getUiTrack();
-		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
-			$aUiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
+		$uiTrack = $mod->getUiTrack();
+		if ( empty( $uiTrack[ 'selected_scans' ] ) ) {
+			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
 		}
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $selector */
+		$selector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 		$data = [
 			'ajax'         => [
 				'scans_start'           => $mod->getAjaxActionData( 'scans_start', true ),
@@ -69,12 +69,11 @@ class UI extends BaseShield\UI {
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
-				'related_hrefs'       => [
-					[
-						'href'  => $this->getCon()->getModule_HackGuard()->getUrl_AdminPage(),
-						'title' => __( 'Scan Settings', 'wp-simple-firewall' ),
-					],
-				]
+			],
+			'hrefs'        => [
+				'scans_results' => $this->getCon()
+										->getModule_Insights()
+										->getUrl_ScansResults(),
 			],
 			'scan_results' => [
 			],
@@ -91,12 +90,30 @@ class UI extends BaseShield\UI {
 					'title'    => __( 'File Scan', 'wp-simple-firewall' ),
 					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
 				],
-				'count'   => $oSelector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
-									   ->filterByNotIgnored()
-									   ->count()
+				'count'   => $selector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
+									  ->filterByNotIgnored()
+									  ->count()
 			],
 			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [
+				'wcf' => [
+					'flags'   => [
+						'has_items'  => false,
+						'show_table' => false,
+					],
+					'hrefs'   => [],
+					'vars'    => [],
+					'strings' => [
+						'subtitle'    => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+						'explanation' => [
+							__( 'The files listed below are WordPress Core files - official files that are installed with every WordPress website.', 'wp-simple-firewall' ),
+							__( 'However, they have either been deleted, or their contents have changed in some way.', 'wp-simple-firewall' ),
+							__( 'Under normal circumstances this should never happen.', 'wp-simple-firewall' ),
+							__( 'You should review each file below and repair them. Repair can mean either re-install, or replace contents, with an original.', 'wp-simple-firewall' ),
+							__( "If you know why a file has been changed and you're happy to keep those changes, you can click to Ignore that file.", 'wp-simple-firewall' ),
+						],
+					],
+				],
 				'apc' => [
 					'flags'   => [
 						'has_items'  => true,
@@ -105,18 +122,7 @@ class UI extends BaseShield\UI {
 					'hrefs'   => [],
 					'vars'    => [],
 					'strings' => [
-						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' )
-					],
-				],
-				'wcf' => [
-					'flags'   => [
-						'has_items'  => true,
-						'show_table' => false,
-					],
-					'hrefs'   => [],
-					'vars'    => [],
-					'strings' => [
-						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
 					],
 				],
 				'ufc' => [
@@ -167,11 +173,13 @@ class UI extends BaseShield\UI {
 				continue;
 			}
 			$lastScanAt = $scon->getLastScanAt();
-
+			$scData[ 'vars' ][ 'slug' ] = $slug;
+			$scData[ 'count' ] = $selector->countForScan( $slug );
 			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
+//			$scData[ 'flags' ][ 'show_table' ] = $scData[ 'count' ] > 0;
 			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
 			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
-			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $aUiTrack[ 'selected_scans' ] );
+			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $uiTrack[ 'selected_scans' ] );
 			$scData[ 'vars' ][ 'last_scan_at_ts' ] = $lastScanAt;
 			$scData[ 'flags' ][ 'has_last_scan' ] = $lastScanAt > 0;
 			$scData[ 'vars' ][ 'last_scan_at' ] = sprintf(
@@ -183,7 +191,7 @@ class UI extends BaseShield\UI {
 			$scData[ 'strings' ][ 'title' ] = $name[ $slug ];
 			$scData[ 'hrefs' ][ 'options' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
 			$scData[ 'hrefs' ][ 'please_enable' ] = $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug );
-			$scData[ 'count' ] = $oSelector->countForScan( $slug );
+			$scData[ 'count' ] = $selector->countForScan( $slug );
 		}
 
 		return $data;
@@ -298,15 +306,5 @@ class UI extends BaseShield\UI {
 		}
 
 		return $aWarnings;
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'scans' ),
-				'title' => __( 'Run Scans', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

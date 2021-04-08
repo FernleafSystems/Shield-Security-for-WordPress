@@ -1,0 +1,65 @@
+<div class="row insights_widget" id="SectionScanResultsWcf">
+	<div class="col-12">
+		<div class="card card-scan_results">
+
+			<div class="card-header">
+				<h5 class="card-title">
+					{{ scan.strings.title }}
+					<a data-toggle="collapse"
+					   data-target="#MoreInfo-{{ scan.vars.slug }}"
+					><span class="dashicons dashicons-info"></span></a>
+				</h5>
+				<h6 class="card-subtitle text-muted">
+					{{ scan.strings.subtitle }}
+				</h6>
+				<div class="collapse mt-3" id="MoreInfo-{{ scan.vars.slug }}">
+					<div class="alert alert-dark">
+						{% for line in scan.strings.explanation %}
+							<p class="mb-2">{{ line }}</p>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			<div class="card-body">
+				<div id="TableScanWcf" class="container-scantable"></div>
+			</div>
+
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-sm-6">
+						{{ scan.vars.last_scan_at }}
+					</div>
+					<div class="col-sm-6 text-right">
+						<a href="{{ scan.hrefs.options }}"
+						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<script>
+	let $oTableScanWcf = jQuery( '#TableScanWcf' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'wcf'
+			}
+		}
+	);
+	jQuery( '#SectionScanResultsWcf' ).icwpWpsfTableActions(
+		{
+			'table': $oTableScanWcf,
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'ajax_item_repair':{{ ajax.item_repair|raw }},
+			'req_params': {
+				'fScan': 'wcf'
+			}
+		}
+	);
+</script>

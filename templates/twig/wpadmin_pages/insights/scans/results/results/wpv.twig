@@ -1,0 +1,68 @@
+<div class="row insights_widget" id="SectionScanResultsWpv">
+	<div class="col-12">
+		<div class="card card-scan_results">
+
+			<div class="card-header">
+				<h5 class="card-title">{{ scan.strings.title }}</h5>
+				<h6 class="card-subtitle text-muted">{{ scan.strings.subtitle }}</h6>
+			</div>
+
+			<div class="card-body">
+
+				{% if scan.flags.is_restricted %}
+					{% include '/wpadmin_pages/insights/scans/results/results/common_unavailable.twig' %}
+				{% else %}
+					{% if scan.flags.is_available %}
+
+						{% if not scan.flags.has_items %}
+							<div class="alert alert-success m-0">{{ strings.no_entries_to_display }}</div>
+						{% else %}
+							<div id="TableScanWpv" class="container-scantable"></div>
+						{% endif %}
+
+					{% else %}
+						{% include '/wpadmin_pages/insights/scans/results/results/common_disabled.twig' %}
+					{% endif %}
+				{% endif %}
+
+			</div>
+
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-sm-6">
+						{{ scan.vars.last_scan_at }}
+					</div>
+					<div class="col-sm-6 text-right">
+						<a href="{{ scan.hrefs.options }}"
+						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script>
+	let $oTableScanWpv = jQuery( '#TableScanWpv' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'wpv'
+			}
+		}
+	);
+	jQuery( '#SectionScanResultsWpv' ).icwpWpsfTableActions(
+		{
+			'table': $oTableScanWpv,
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'custom_actions_ajax': {
+				'item_asset_deactivate': {{ ajax.item_asset_deactivate|raw }},
+				'item_repair': {{ ajax.item_repair|raw }}
+			},
+			'req_params': {
+				'fScan': 'wpv'
+			}
+		}
+	);
+</script>

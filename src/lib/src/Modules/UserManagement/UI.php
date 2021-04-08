@@ -34,23 +34,7 @@ class UI extends BaseShield\UI {
 			'vars'    => [
 				'unique_ips'    => $dbSel->getDistinctIps(),
 				'unique_users'  => $dbSel->getDistinctUsernames(),
-				'related_hrefs' => [
-					[
-						'href'  => $con->getModule_UserManagement()->getUrl_AdminPage(),
-						'title' => __( 'User Settings', 'wp-simple-firewall' ),
-					]
-				]
 			],
-		];
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'users' ),
-				'title' => __( 'User Sessions', 'wp-simple-firewall' ),
-			]
 		];
 	}
 }

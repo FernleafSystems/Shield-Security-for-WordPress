@@ -370,8 +370,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$mod = $this->getCon()->getModule_License();
 		try {
 			$success = $mod->getLicenseHandler()
-							->verify( true )
-							->hasValidWorkingLicense();
+						   ->verify( true )
+						   ->hasValidWorkingLicense();
 			if ( $success ) {
 				$msg = __( 'License was found and successfully installed.', 'wp-simple-firewall' );
 			}
@@ -432,33 +432,32 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardSecurityAdmin() {
-		$oReq = Services::Request();
-		$pin = $oReq->post( 'AccessKey' );
-		$sConfirm = $oReq->post( 'AccessKeyConfirm' );
+		$req = Services::Request();
+		$pin = $req->post( 'sec_admin_key' );
+		$confirm = $req->post( 'AccessKeyConfirm' );
 
-		$bSuccess = false;
+		$success = false;
 		if ( empty( $pin ) ) {
-			$sMessage = __( "Security Admin PIN was empty.", 'wp-simple-firewall' );
+			$msg = __( "Security Admin PIN was empty.", 'wp-simple-firewall' );
 		}
-		elseif ( $pin != $sConfirm ) {
-			$sMessage = __( "Security PINs don't match.", 'wp-simple-firewall' );
+		elseif ( $pin != $confirm ) {
+			$msg = __( "Security PINs don't match.", 'wp-simple-firewall' );
 		}
 		else {
 			$mod = $this->getCon()->getModule_SecAdmin();
 			try {
-				$mod->setNewPinManually( $pin )
-						->setSecurityAdminStatusOnOff( true );
-				$bSuccess = true;
-				$sMessage = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );
+				$mod->setNewPinManually( $pin );
+				$success = true;
+				$msg = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );
 			}
 			catch ( \Exception $e ) {
-				$sMessage = __( $e->getMessage(), 'wp-simple-firewall' );
+				$msg = __( $e->getMessage(), 'wp-simple-firewall' );
 			}
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
-			->setMessageText( $sMessage );
+			->setSuccessful( $success )
+			->setMessageText( $msg );
 	}
 
 	/**

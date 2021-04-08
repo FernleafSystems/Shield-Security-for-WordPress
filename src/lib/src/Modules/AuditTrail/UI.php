@@ -50,14 +50,4 @@ class UI extends BaseShield\UI {
 						true
 					);
 	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'audit' ),
-				'title' => __( 'View Audit Trail', 'wp-simple-firewall' ),
-			]
-		];
-	}
 }

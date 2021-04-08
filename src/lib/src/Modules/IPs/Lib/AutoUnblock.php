@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\AntiBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -27,9 +28,6 @@ class AutoUnblock {
 			}
 			catch ( \Exception $e ) {
 			}
-		}
-		if ( !$unblocked ) {
-			$unblocked = $this->checkForBlockedServiceBot();
 		}
 		return $unblocked;
 	}
@@ -75,36 +73,35 @@ class AutoUnblock {
 				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
 
-			$sIP = Services::IP()->getRequestIp();
-			if ( $req->post( 'ip' ) != $sIP ) {
+			$ip = Services::IP()->getRequestIp();
+			if ( empty( $ip ) || $req->post( 'ip' ) !== Services::IP()->getRequestIp() ) {
 				throw new \Exception( 'IP does not match' );
 			}
 
-			$oLoginMod = $this->getCon()->getModule_LoginGuard();
-			$sGasp = $req->post( $oLoginMod->getGaspKey() );
-			if ( empty( $sGasp ) ) {
-				throw new \Exception( 'GASP failed' );
+			if ( !$opts->getCanIpRequestAutoUnblock( $ip ) ) {
+				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
-			if ( !$opts->getCanIpRequestAutoUnblock( $sIP ) ) {
-				throw new \Exception( 'IP already processed in the last 24hrs' );
-			}
+			// Perform the test
+			( new AntiBot() )
+				->setMod( $this->getMod() )
+				->scan();
 
 			{
-				$aExistingIps = $opts->getAutoUnblockIps();
-				$aExistingIps[ $sIP ] = Services::Request()->ts();
+				$existing = $opts->getAutoUnblockIps();
+				$existing[ $ip ] = Services::Request()->ts();
 				$opts->setOpt( 'autounblock_ips',
-					array_filter( $aExistingIps, function ( $nTS ) {
+					array_filter( $existing, function ( $ts ) {
 						return Services::Request()
 									   ->carbon()
-									   ->subDays( 1 )->timestamp < $nTS;
+									   ->subHours( 1 )->timestamp < $ts;
 					} )
 				);
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
 				->setMod( $mod )
-				->setIP( $sIP )
+				->setIP( $ip )
 				->fromBlacklist();
 			$unblocked = true;
 		}

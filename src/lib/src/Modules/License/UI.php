@@ -56,7 +56,6 @@ class UI extends BaseShield\UI {
 				'license_table'  => $aLicenseTableVars,
 				'activation_url' => $WP->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true ),
-				'related_hrefs'  => $this->getSettingsRelatedLinks()
 			],
 			'inputs'  => [
 				'license_key' => [
@@ -89,27 +88,5 @@ class UI extends BaseShield\UI {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->getLicenseHandler()->hasValidWorkingLicense();
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		$links = [];
-		if ( !$this->getCon()->isPremiumActive() ) {
-			$links[] = [
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'free_trial' ),
-				'title' => __( 'Free Trial', 'wp-simple-firewall' ),
-			];
-		}
-		$links[] = [
-			'href'  => 'https://shsec.io/c5',
-			'title' => __( 'License Activation', 'wp-simple-firewall' ),
-			'new'   => true,
-		];
-		$links[] = [
-			'href'  => 'https://shsec.io/gp',
-			'title' => __( 'ShieldPRO Features', 'wp-simple-firewall' ),
-			'new'   => true,
-		];
-		return $links;
 	}
 }

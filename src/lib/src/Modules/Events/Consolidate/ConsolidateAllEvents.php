@@ -12,12 +12,12 @@ class ConsolidateAllEvents {
 	use ModConsumer;
 
 	public function run() {
-		foreach ( $this->getAllEvents() as $sEvent ) {
-			$this->consolidateEventIntoHourly( $sEvent );
-			$this->consolidateEventIntoDaily( $sEvent );
-			$this->consolidateEventIntoWeekly( $sEvent );
-			$this->consolidateEventIntoMonthly( $sEvent );
-			$this->consolidateEventIntoYearly( $sEvent );
+		foreach ( $this->getAllEvents() as $event ) {
+			$this->consolidateEventIntoHourly( $event );
+			$this->consolidateEventIntoDaily( $event );
+			$this->consolidateEventIntoWeekly( $event );
+			$this->consolidateEventIntoMonthly( $event );
+			$this->consolidateEventIntoYearly( $event );
 		}
 	}
 
@@ -178,9 +178,9 @@ class ConsolidateAllEvents {
 	/**
 	 * Consolidates each event in Daily sums. Doesn't process events from the previous 48hrs.
 	 * Processes event for the 7 days previous to the last 48 hours.
-	 * @param $sEvent
+	 * @param $event
 	 */
-	protected function consolidateEventIntoMonthly( $sEvent ) {
+	protected function consolidateEventIntoMonthly( $event ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbHandler_Events();
@@ -192,28 +192,28 @@ class ConsolidateAllEvents {
 
 		$nMonthCount = 0;
 		do {
-			/** @var Events\Select $oSel */
-			$oSel = $dbh->getQuerySelector();
-			$nRecords = $oSel->filterByBoundary_Month( $oTime->timestamp )
-							 ->filterByEvent( $sEvent )
-							 ->count();
+			/** @var Events\Select $select */
+			$select = $dbh->getQuerySelector();
+			$nRecords = $select->filterByBoundary_Month( $oTime->timestamp )
+							   ->filterByEvent( $event )
+							   ->count();
 
 			if ( $nRecords > 1 ) {
 				/** @var Events\Select $oSel */
-				$oSel = $dbh->getQuerySelector();
+				$select = $dbh->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $oSel->filterByBoundary_Month( $oTime->timestamp )
-							 ->sumEvent( $sEvent );
+				$nSum = $select->filterByBoundary_Month( $oTime->timestamp )
+							   ->sumEvent( $event );
 
 				if ( $nSum > 0 ) {
 					/** @var Events\Delete $oDel */
 					$oDel = $dbh->getQueryDeleter();
 					$oDel->filterByBoundary_Month( $oTime->timestamp )
-						 ->filterByEvent( $sEvent )
+						 ->filterByEvent( $event )
 						 ->query();
 
 					$oEntry = new Events\EntryVO();
-					$oEntry->event = $sEvent;
+					$oEntry->event = $event;
 					$oEntry->count = $nSum;
 					$oEntry->created_at = $oTime->timestamp + 1;
 					/** @var Events\Insert $oQI */
@@ -282,11 +282,11 @@ class ConsolidateAllEvents {
 	/**
 	 * @return string[]
 	 */
-	protected function getAllEvents() {
+	protected function getAllEvents() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Events\Select $oSel */
-		$oSel = $mod->getDbHandler_Events()->getQuerySelector();
-		return $oSel->getAllEvents();
+		/** @var Events\Select $select */
+		$select = $mod->getDbHandler_Events()->getQuerySelector();
+		return $select->getAllEvents();
 	}
 }

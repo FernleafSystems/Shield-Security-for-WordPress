@@ -157,18 +157,12 @@ class BaseBuild {
 		return $this->aBuildParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getFormParams() {
-		parse_str( Services::Request()->post( 'form_params', '' ), $aFormParams );
-		return Services::DataManipulation()->arrayMapRecursive( $aFormParams, 'trim' );
+	private function getFormParams() :array {
+		parse_str( Services::Request()->post( 'form_params', '' ), $formParams );
+		return Services::DataManipulation()->arrayMapRecursive( $formParams, 'trim' );
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getParamDefaults() {
+	protected function getParamDefaults() :array {
 		return array_merge(
 			[
 				'paged'   => 1,

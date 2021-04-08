@@ -21,8 +21,8 @@
   },
   "menu_items":       [
     {
-      "title":    "Scans",
-      "slug":     "scans-redirect"
+      "title": "Scans",
+      "slug":  "scans-redirect"
     }
   ],
   "custom_redirects": [
@@ -30,7 +30,7 @@
       "source_mod_page": "scans-redirect",
       "target_mod_page": "insights",
       "query_args":      {
-        "inav": "scans"
+        "inav": "scans_results"
       }
     }
   ],
@@ -331,7 +331,9 @@
         "php.ini",
         "web.config",
         "php_mail.log",
-        "mail.log"
+        "mail.log",
+        "wp-content/uploads/bb-plugin/cache/",
+        "wp-content/uploads/cache/wpml/twig/"
       ],
       "type":        "array",
       "link_info":   "https://shsec.io/9z",
@@ -406,13 +408,12 @@
     }
   ],
   "definitions":      {
-    "db_classes":                          {
-      "file_protect": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
-      "filelocker":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
-      "scanner":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
-      "scanq":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+    "db_classes":                  {
+      "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
+      "scanner":    "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
+      "scanq":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
     },
-    "db_table_filelocker":                 {
+    "db_table_filelocker":         {
       "slug":            "filelocker",
       "has_updated_at":  true,
       "cols_custom":     {
@@ -428,7 +429,7 @@
         "notified_at": "Notification Sent"
       }
     },
-    "db_table_scanner":                    {
+    "db_table_scanner":            {
       "slug":            "scanner",
       "cols_custom":     {
         "hash":     "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
@@ -441,7 +442,7 @@
         "notified_at": "Scan Notifiation Sent"
       }
     },
-    "db_table_scanq":                      {
+    "db_table_scanq":              {
       "slug":            "scanq",
       "cols_custom":     {
         "scan":    "varchar(3) NOT NULL DEFAULT '' COMMENT 'Scan Slug'",
@@ -454,7 +455,7 @@
         "finished_at": "Scan Completed"
       }
     },
-    "all_scan_slugs":                      [
+    "all_scan_slugs":              [
       "apc",
       "mal",
       "ptg",
@@ -462,38 +463,27 @@
       "wcf",
       "ufc"
     ],
-    "table_name_filelocker":               "filelocker",
-    "table_columns_filelocker":            {
-      "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
-      "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
-      "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
-      "content":       "MEDIUMBLOB COMMENT 'Content'",
-      "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'",
-      "detected_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Change Last Detected'",
-      "reverted_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Reverted To Backup'",
-      "notified_at":   "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Notification Sent'",
-      "updated_at":    "int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated'"
-    },
-    "url_mal_sigs_simple":                 "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
-    "url_mal_sigs_regex":                  "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
-    "malware_whitelist_paths":             [
+    "table_name_filelocker":       "filelocker",
+    "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
+    "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
+    "malware_whitelist_paths":     [
       "wp-content/wflogs/",
       "wp-content/cache/",
       "wp-content/icwp/rollback/"
     ],
-    "cron_all_scans":                      "all-scans",
-    "wcf_exclusions":                      [
+    "cron_all_scans":              "all-scans",
+    "wcf_exclusions":              [
       "readme.html",
       "license.txt",
       "licens-sv_SE.txt",
       "wp-config-sample.php",
       "wp-content/"
     ],
-    "wcf_exclusions_missing_only":         [
+    "wcf_exclusions_missing_only": [
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "events":                              {
+    "events":                      {
       "apc_alert_sent":          {
       },
       "mal_alert_sent":          {
@@ -531,53 +521,65 @@
         "recent": true
       },
       "apc_scan_found":          {
-        "cat":    2,
-        "recent": true
+        "cat":            2,
+        "audit_multiple": true,
+        "recent":         true
       },
       "mal_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "ptg_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "ufc_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "wcf_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "wpv_scan_found":          {
-        "cat":    3,
-        "recent": true
+        "cat":            3,
+        "audit_multiple": true,
+        "recent":         true
       },
       "apc_item_repair_success": {
+        "audit_multiple": true
       },
       "apc_item_repair_fail":    {
       },
       "mal_item_repair_success": {
-        "recent": true
+        "audit_multiple": true,
+        "recent":         true
       },
       "mal_item_repair_fail":    {
       },
       "ptg_item_repair_success": {
+        "audit_multiple": true
       },
       "ptg_item_repair_fail":    {
       },
       "ufc_item_repair_success": {
-        "recent": true
+        "audit_multiple": true,
+        "recent":         true
       },
       "ufc_item_repair_fail":    {
       },
       "wcf_item_repair_success": {
-        "recent": true
+        "audit_multiple": true,
+        "recent":         true
       },
       "wcf_item_repair_fail":    {
       },
       "wpv_item_repair_success": {
+        "audit_multiple": true
       },
       "wpv_item_repair_fail":    {
       }

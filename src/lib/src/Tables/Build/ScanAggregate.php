@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 /**
  * Class ScanAggregate
@@ -32,20 +32,20 @@ class ScanAggregate extends ScanBase {
 	 */
 	public function getEntriesFormatted() :array {
 		// first filter out PTG results as we process them a bit separately.
-		$aPtgScanEntries = [];
-		$aRaw = $this->getEntriesRaw();
-		/** @var $oEntry Scanner\EntryVO */
-		foreach ( $aRaw as $nKeyId => $oEntry ) {
-			if ( $oEntry->scan == 'ptg' ) {
-				unset( $aRaw[ $nKeyId ] );
-				$aPtgScanEntries[ $nKeyId ] = $oEntry;
+		$ptgScanEntries = [];
+		/** @var Scanner\EntryVO[] $raw */
+		$raw = $this->getEntriesRaw();
+		foreach ( $raw as $key => $entry ) {
+			if ( $entry->scan == 'ptg' ) {
+				unset( $raw[ $key ] );
+				$ptgScanEntries[ $key ] = $entry;
 			}
 		}
 
-		$aEntries = $this->processEntriesGroup( $aRaw );
+		$aEntries = $this->processEntriesGroup( $raw );
 
 		// Group all PTG entries together
-		usort( $aPtgScanEntries, function ( $oE1, $oE2 ) {
+		usort( $ptgScanEntries, function ( $oE1, $oE2 ) {
 			/** @var $oE1 EntryVO */
 			/** @var $oE2 EntryVO */
 			return strcasecmp( $oE1->meta[ 'path_full' ], $oE2->meta[ 'path_full' ] );
@@ -53,47 +53,44 @@ class ScanAggregate extends ScanBase {
 
 		return array_merge(
 			$aEntries,
-			$this->processEntriesGroup( $aPtgScanEntries )
+			$this->processEntriesGroup( $ptgScanEntries )
 		);
 	}
 
 	/**
-	 * @param Scanner\EntryVO[] $aEntries
+	 * @param Scanner\EntryVO[] $entries
 	 * @return array[]
 	 */
-	private function processEntriesGroup( $aEntries ) {
-		$aProcessedEntries = [];
+	private function processEntriesGroup( array $entries ) {
+		$processed = [];
 
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var HackGuard\Strings $oStrings */
-		$oStrings = $mod->getStrings();
-		$aScanNames = $oStrings->getScanNames();
+		/** @var HackGuard\Strings $strings */
+		$strings = $mod->getStrings();
+		$scanNames = $strings->getScanNames();
 
 		$aScanRowTracker = [];
-		foreach ( $aEntries as $nKey => $oEntry ) {
-			if ( empty( $aScanRowTracker[ $oEntry->scan ] ) ) {
-				$aScanRowTracker[ $oEntry->scan ] = $oEntry->scan;
-				$aProcessedEntries[ $oEntry->scan ] = [
+		foreach ( $entries as $key => $entry ) {
+			if ( empty( $aScanRowTracker[ $entry->scan ] ) ) {
+				$aScanRowTracker[ $entry->scan ] = $entry->scan;
+				$processed[ $entry->scan ] = [
 					'custom_row' => true,
-					'title'      => $aScanNames[ $oEntry->scan ],
+					'title'      => $scanNames[ $entry->scan ],
 				];
 			}
-			$aProcessedEntries[ $nKey ] = $mod
-				->getScanCon( $oEntry->scan )
+			$processed[ $key ] = $mod
+				->getScanCon( $entry->scan )
 				->getTableEntryFormatter()
 				->setMod( $this->getMod() )
-				->setEntryVO( $oEntry )
+				->setEntryVO( $entry )
 				->format();
 		}
 
-		return $aProcessedEntries;
+		return $processed;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getParamDefaults() {
+	protected function getParamDefaults() :array {
 		return array_merge(
 			parent::getParamDefaults(),
 			[ 'orderby' => 'scan', ]

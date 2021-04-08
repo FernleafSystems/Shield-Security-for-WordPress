@@ -314,21 +314,18 @@
     "comments_expire": 1800,
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
-      "spam_block_antibot":   {
-        "recent":  true,
+      "comment_spam_block":   {
+        "audit":   false,
+        "stat":    false,
         "offense": true
+      },
+      "spam_block_antibot":   {
       },
       "spam_block_bot":       {
-        "recent":  true,
-        "offense": true
       },
       "spam_block_recaptcha": {
-        "recent":  true,
-        "offense": true
       },
       "spam_block_human":     {
-        "recent":  true,
-        "offense": true
       }
     }
   }

@@ -10,8 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
-		$new = $this->getDbH( 'audit_trail' );
-		return empty( $new ) ? $this->getDbH( 'audit' ) : $new;
+		return $this->getDbH( 'audit_trail' );
 	}
 
 	protected function handleFileDownload( string $downloadID ) {

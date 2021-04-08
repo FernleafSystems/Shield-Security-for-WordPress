@@ -65,9 +65,7 @@ class ApplyLabels {
 	}
 
 	public function hideFromPluginEditor() {
-		$con = $this->getCon();
-		$js = Services::Data()->readFileContentsUsingInclude( $con->getPath_AssetJs( 'whitelabel.js' ) );
-		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $js, $con->base_file ) );
+		// TODO
 	}
 
 	/**
@@ -81,12 +79,20 @@ class ApplyLabels {
 		$labels = $mod->getWhitelabelOptions();
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
-		$sServiceName = $labels[ 'name_main' ];
-		$pluginLabels[ 'Name' ] = $sServiceName;
-		$pluginLabels[ 'Title' ] = $sServiceName;
-		$pluginLabels[ 'Author' ] = $labels[ 'name_company' ];
-		$pluginLabels[ 'AuthorName' ] = $labels[ 'name_company' ];
-		$pluginLabels[ 'MenuTitle' ] = $labels[ 'name_menu' ];
+		$serviceName = $labels[ 'name_main' ];
+		if ( !empty( $serviceName ) ) {
+			$pluginLabels[ 'Name' ] = $serviceName;
+			$pluginLabels[ 'Title' ] = $serviceName;
+		}
+		$companyName = $labels[ 'name_company' ];
+		if ( !empty( $companyName ) ) {
+			$pluginLabels[ 'Author' ] = $labels[ 'name_company' ];
+			$pluginLabels[ 'AuthorName' ] = $labels[ 'name_company' ];
+		}
+		$menuName = empty( $labels[ 'name_menu' ] ) ? $serviceName : $labels[ 'name_menu' ];
+		if ( !empty( $menuName ) ) {
+			$pluginLabels[ 'MenuTitle' ] = $menuName;
+		}
 
 		if ( !empty( $labels[ 'description' ] ) ) {
 			$pluginLabels[ 'Description' ] = $labels[ 'description' ];

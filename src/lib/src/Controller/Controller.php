@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property bool                                                   $is_my_upgrade
+ * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
@@ -178,20 +179,19 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'nonce_handler':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Utilities\Nonce\Handler() )
+						->setCon( $this );
+					$this->nonce_handler = $val;
+				}
+				break;
+
 			default:
 				break;
 		}
 
 		return $val;
-	}
-
-	/**
-	 * @param $key
-	 * @return mixed|null
-	 * @deprecated 10.3
-	 */
-	private function __adapterGet( $key ) {
-		return $this->getRawData()[ $key ] ?? null;
 	}
 
 	/**
@@ -454,9 +454,24 @@ class Controller extends DynPropertiesClass {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+		$this->processShieldNonceActions();
 		( new Ajax\Init() )
 			->setCon( $this )
 			->execute();
+	}
+
+	private function processShieldNonceActions() {
+		$shieldNonceAction = $this->getShieldNonceAction();
+		$shieldNonce = Services::Request()->request( 'shield_nonce' );
+		if ( !empty( $shieldNonceAction ) && !empty( $shieldNonce ) ) {
+			$shieldNonce = Services::Request()->request( 'shield_nonce' );
+			if ( $this->nonce_handler->verify( $shieldNonceAction, $shieldNonce ) ) {
+				do_action( $this->prefix( 'shield_nonce_action' ), $shieldNonceAction );
+			}
+			else {
+				wp_die( 'It appears that this action and nonce has expired. Please retry the action.' );
+			}
+		}
 	}
 
 	/**
@@ -872,17 +887,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 10.2
-	 */
-	public function getPluginSpec() {
-		if ( isset( $this->cfg ) ) {
-			return $this->cfg->getRawData();
-		}
-		return $this->getPluginControllerOptions()->plugin_spec;
-	}
-
-	/**
 	 * @param string $key
 	 * @return string|null
 	 */
@@ -998,18 +1002,8 @@ class Controller extends DynPropertiesClass {
 		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
 	}
 
-	/**
-	 * @deprecated 10.2
-	 */
-	public function getPluginUrl_Image( string $asset ) :string {
-		return $this->urls->forImage( $asset );
-	}
-
-	/**
-	 * @deprecated 10.3
-	 */
-	public function getPluginUrl_Js( string $asset ) :string {
-		return $this->urls->forJs( $asset );
+	public function getPluginUrl_DashboardHome() :string {
+		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
 	}
 
 	public function getPluginUrl_AdminMainPage() :string {
@@ -1019,33 +1013,6 @@ class Controller extends DynPropertiesClass {
 	public function getPath_Assets( string $asset = '' ) :string {
 		$base = path_join( $this->getRootDir(), $this->cfg->paths[ 'assets' ] );
 		return empty( $asset ) ? $base : path_join( $base, ltrim( $asset, '/' ) );
-	}
-
-	/**
-	 * @param string $flag
-	 * @return string
-	 * @deprecated 10.3
-	 */
-	public function getPath_Flags( string $flag = '' ) :string {
-		if ( isset( $this->paths ) ) {
-			return $this->paths->forFlag( $flag );
-		}
-		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
-		return empty( $flag ) ? $base : path_join( $base, $flag );
-	}
-
-	/**
-	 * @param string $sTmpFile
-	 * @return string
-	 */
-	public function getPath_Temp( $sTmpFile = '' ) {
-		$sTempPath = null;
-
-		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'temp' ) );
-		if ( Services::WpFs()->mkdir( $sBase ) ) {
-			$sTempPath = $sBase;
-		}
-		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
 	}
 
 	public function getPath_AssetCss( string $asset = '' ) :string {
@@ -1157,6 +1124,11 @@ class Controller extends DynPropertiesClass {
 
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
+		return empty( $action ) ? '' : $action;
+	}
+
+	public function getShieldNonceAction() :string {
+		$action = sanitize_key( Services::Request()->query( 'shield_nonce_action', '' ) );
 		return empty( $action ) ? '' : $action;
 	}
 

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -13,13 +13,22 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property int    $max_levels
  * @property int    $max_paths
  */
-class File {
-
-	use DynProperties;
+class File extends DynPropertiesClass {
 
 	public function __construct( string $filename, $dir = ABSPATH ) {
 		$this->file = $filename;
 		$this->dir = wp_normalize_path( $dir );
+	}
+
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+			case 'max_paths':
+			case 'max_level':
+				$value = (int)max( 1, $value );
+				break;
+		}
+		return $value;
 	}
 
 	/**
@@ -50,14 +59,10 @@ class File {
 			$workingDir = dirname( $workingDir );
 			$dirCount++;
 		} while (
-			$dirCount < $this->getMaxDirLevels()
-			&& ( empty( $this->max_paths ) || count( $paths ) < $this->max_paths )
+			$dirCount < $this->max_levels
+			&& ( empty( $this->max_paths ) || count( $paths ) <= $this->max_paths )
 		);
 
 		return $paths;
-	}
-
-	protected function getMaxDirLevels() :int {
-		return (int)max( 1, (int)$this->max_levels );
 	}
 }

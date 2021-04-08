@@ -26,7 +26,7 @@ class Processor extends BaseShield\Processor {
 				$this->launchAntiBot();
 			}, -100 );
 
-			$mod->getLoginIntentController()->run();
+			$mod->getLoginIntentController()->execute();
 		}
 	}
 

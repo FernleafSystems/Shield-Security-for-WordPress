@@ -71,32 +71,22 @@ abstract class Handler {
 	private function setupTableSchema() :TableSchema {
 		$this->schema = new TableSchema();
 
-		$spec = $this->getOptions()->getDef( 'db_table_'.$this->slug );
-
-		if ( empty( $spec ) ) {
-			$this->schema->slug = $this->slug;
-			$this->schema->primary_key = 'id';
-			$this->schema->cols_custom = $this->getCustomColumns();
-			$this->schema->cols_timestamps = $this->getTimestampColumns();
-			$this->schema->autoexpire = 0;
-		}
-		else {
-			$this->schema->applyFromArray( array_merge(
-				[
-					'slug'            => $this->slug,
-					'primary_key'     => 'id',
-					'cols_custom'     => [],
-					'cols_timestamps' => [],
-					'has_updated_at'  => false,
-					'col_older_than'  => 'created_at',
-					'autoexpire'      => 0,
-					'has_ip_col'      => false,
-				],
-				$spec
-			) );
-		}
+		$this->schema->applyFromArray( array_merge(
+			[
+				'slug'            => $this->slug,
+				'primary_key'     => 'id',
+				'cols_custom'     => [],
+				'cols_timestamps' => [],
+				'has_updated_at'  => false,
+				'col_older_than'  => 'created_at',
+				'autoexpire'      => 0,
+				'has_ip_col'      => false,
+			],
+			$this->getOptions()->getDef( 'db_table_'.$this->slug )
+		) );
 
 		$this->schema->table = $this->getTable();
+
 		return $this->schema;
 	}
 
@@ -126,15 +116,7 @@ abstract class Handler {
 
 	public function getTable() :string {
 		return Services::WpDb()->getPrefix()
-			   .esc_sql( $this->getCon()->prefixOption( $this->getDefaultTableName() ) );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 10.3
-	 */
-	protected function getTableSlug() {
-		return empty( $this->sTable ) ? $this->getDefaultTableName() : $this->sTable;
+			   .esc_sql( $this->getCon()->prefixOption( $this->getTableSchema()->slug ) );
 	}
 
 	/**
@@ -195,15 +177,6 @@ abstract class Handler {
 	}
 
 	/**
-	 * @param string $col
-	 * @return bool
-	 * @deprecated 10.3 - moved to schema
-	 */
-	public function hasColumn( string $col ) :bool {
-		return in_array( strtolower( $col ), $this->getTableSchema()->getColumnNames() );
-	}
-
-	/**
 	 * @return $this
 	 * @throws \Exception
 	 */
@@ -261,35 +234,15 @@ abstract class Handler {
 		return $this->bIsReady;
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 11.1
+	 */
 	protected function getDefaultTableName() :string {
 		return $this->getTableSchema()->slug;
 	}
 
-	/**
-	 * @return string[]
-	 * @deprecated 10.3
-	 */
-	protected function getCustomColumns() :array {
-		return [];
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 10.3
-	 */
-	protected function getTimestampColumns() :array {
-		return [];
-	}
-
 	public function getTableSchema() :TableSchema {
-		if ( empty( $this->schema ) ) { // TODO: Delete empty test after 10.3
-			$sch = new TableSchema();
-			$sch->table = $this->getTable();
-			$sch->col_older_than = 'created_at';
-			$sch->cols_custom = $this->getCustomColumns();
-			$sch->cols_timestamps = $this->getTimestampColumns();
-			return $sch;
-		}
 		return $this->schema;
 	}
 

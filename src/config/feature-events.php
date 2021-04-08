@@ -56,10 +56,6 @@
         "count": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total'"
       }
     },
-    "events_table_name":                 "events",
-    "events_table_columns":              {
-      "event": "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Event ID'",
-      "count": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total'"
-    }
+    "events_table_name":                 "events"
   }
 }

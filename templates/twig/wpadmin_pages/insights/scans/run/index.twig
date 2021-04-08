@@ -1,0 +1,11 @@
+{% extends '/wpadmin_pages/insights/base.twig' %}
+
+{% block page_main %}
+
+	<div class="row" id="SectionInsightsScans">
+		<div class="col-12">
+			{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
+		</div>
+	</div>
+	{% include '/wpadmin_pages/insights/scans/modal/progress.twig' %}
+{% endblock %}

@@ -36,21 +36,17 @@ class Select extends Base\Select {
 						 ->setColumnsToSelect( [ 'scan' ] )
 						 ->filterByNotFinished()
 						 ->query();
-		$aScans = [];
-		/** @var EntryVO $oEntry */
-		foreach ( $aResults as $oEntry ) {
-			$aScans[ $oEntry->scan ] = 1;
+		$scans = [];
+		/** @var EntryVO $entry */
+		foreach ( $aResults as $entry ) {
+			$scans[ $entry->scan ] = 1;
 		}
-		return array_keys( $aScans );
+		return array_keys( $scans );
 	}
 
-	/**
-	 * @param string $sScan
-	 * @return int
-	 */
-	public function countForScan( $sScan ) {
+	public function countForScan( string $scan ) :int {
 		return $this->reset()
-					->filterByScan( $sScan )
+					->filterByScan( $scan )
 					->count();
 	}
 }

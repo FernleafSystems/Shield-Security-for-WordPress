@@ -97,6 +97,10 @@ class ModCon extends Base\ModCon {
 		return $data;
 	}
 
+	/**
+	 * @return array
+	 * @deprecated 11.1
+	 */
 	protected function getSecAdminCheckAjaxData() :array {
 		// We set a custom mod_slug so that this module handles the ajax request
 		$dat = $this->getAjaxActionData( 'sec_admin_check' );
@@ -127,26 +131,28 @@ class ModCon extends Base\ModCon {
 		$secOpts = $this->getCon()
 						->getModule_SecAdmin()
 						->getOptions();
-		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive(
-							 $this->getUIHandler()->getBaseDisplayData(),
-							 [
-								 'ajax'    => [
-									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
-								 ],
-								 'strings' => [
-									 'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
-									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
-									 'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
-										 Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
-									 'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
-								 ],
-								 'flags'   => [
-									 'allow_email_override' => $secOpts->isEmailOverridePermitted()
-								 ]
-							 ]
-						 );
-		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
+		return $this->renderTemplate(
+			'/wpadmin_pages/security_admin/index.twig',
+			Services::DataManipulation()
+					->mergeArraysRecursive(
+						$this->getUIHandler()->getBaseDisplayData(),
+						[
+							'ajax'    => [
+								'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
+							],
+							'strings' => [
+								'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
+								'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
+								'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
+									Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
+								'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
+							],
+							'flags'   => [
+								'allow_email_override' => $secOpts->isEmailOverridePermitted()
+							]
+						]
+					),
+			true );
 	}
 
 	public function getIfSupport3rdParty() :bool {

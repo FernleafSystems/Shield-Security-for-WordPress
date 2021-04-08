@@ -50,6 +50,7 @@
 {% endblock %}
 
 {% block inline_scripts %}
+	{{ parent() }}
 
 	<script type="text/javascript">
 	  window.announcekit = (window.announcekit || {

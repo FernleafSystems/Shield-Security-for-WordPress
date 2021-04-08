@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -67,27 +68,27 @@ abstract class ModCon {
 
 	/**
 	 * @param Shield\Controller\Controller $pluginCon
-	 * @param array                        $aMod
+	 * @param array                        $mod
 	 * @throws \Exception
 	 */
-	public function __construct( $pluginCon, $aMod = [] ) {
+	public function __construct( $pluginCon, $mod = [] ) {
 		if ( !$pluginCon instanceof Shield\Controller\Controller ) {
 			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
 		$this->setCon( $pluginCon );
 
-		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
+		if ( empty( $mod[ 'storage_key' ] ) && empty( $mod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
 		}
 
-		$this->sOptionsStoreKey = empty( $aMod[ 'storage_key' ] ) ? $aMod[ 'slug' ] : $aMod[ 'storage_key' ];
-		if ( isset( $aMod[ 'slug' ] ) ) {
-			$this->sModSlug = $aMod[ 'slug' ];
+		$this->sOptionsStoreKey = empty( $mod[ 'storage_key' ] ) ? $mod[ 'slug' ] : $mod[ 'storage_key' ];
+		if ( isset( $mod[ 'slug' ] ) ) {
+			$this->sModSlug = $mod[ 'slug' ];
 		}
 
 		if ( $this->verifyModuleMeetRequirements() ) {
 			$this->handleAutoPageRedirects();
-			$this->setupHooks( $aMod );
+			$this->setupHooks( $mod );
 			$this->doPostConstruction();
 		}
 	}
@@ -203,41 +204,6 @@ abstract class ModCon {
 	 */
 	public function getUpgradeHandler() {
 		return $this->loadModElement( 'Upgrade' );
-	}
-
-	/**
-	 * @param string $sEncoding
-	 * @return array
-	 */
-	public function getAjaxFormParams( $sEncoding = 'none' ) {
-		$oReq = Services::Request();
-		$aFormParams = [];
-		$sRaw = $oReq->post( 'form_params', '' );
-
-		if ( !empty( $sRaw ) ) {
-
-			$sMaybeEncoding = $oReq->post( 'enc_params' );
-			if ( in_array( $sMaybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
-				$sEncoding = $sMaybeEncoding;
-			}
-
-			switch ( $sEncoding ) {
-				case 'lz-string':
-					$sRaw = \LZCompressor\LZString::decompress( base64_decode( $sRaw ) );
-					break;
-
-				case 'b64':
-					$sRaw = base64_decode( $sRaw );
-					break;
-
-				case 'none':
-				default:
-					break;
-			}
-
-			parse_str( $sRaw, $aFormParams );
-		}
-		return $aFormParams;
 	}
 
 	/**
@@ -521,14 +487,14 @@ abstract class ModCon {
 	}
 
 	public function isModuleEnabled() :bool {
-		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
-		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
+		/** @var Shield\Modules\Plugin\Options $pluginOpts */
+		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
 			$enabled = true;
 		}
-		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
+		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
@@ -652,54 +618,51 @@ abstract class ModCon {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function buildSummaryData() {
+	public function buildSummaryData() :array {
 		$opts = $this->getOptions();
-		$sMenuTitle = $opts->getFeatureProperty( 'menu_title' );
+		$menuTitle = $opts->getFeatureProperty( 'menu_title' );
 
-		$aSections = $opts->getSections();
-		foreach ( $aSections as $sSlug => $aSection ) {
+		$sections = $opts->getSections();
+		foreach ( $sections as $slug => $section ) {
 			try {
-				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-				foreach ( $aStrings as $sKey => $sVal ) {
-					unset( $aSection[ $sKey ] );
-					$aSection[ $sKey ] = $sVal;
+				$strings = $this->getStrings()->getSectionStrings( $section[ 'slug' ] );
+				foreach ( $strings as $key => $val ) {
+					unset( $section[ $key ] );
+					$section[ $key ] = $val;
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$aSum = [
+		$summary = [
 			'slug'          => $this->getSlug(),
 			'enabled'       => $this->getUIHandler()->isEnabledForUiSummary(),
 			'active'        => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
 			'name'          => $this->getMainFeatureName(),
 			'sidebar_name'  => $opts->getFeatureProperty( 'sidebar_name' ),
-			'menu_title'    => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
+			'menu_title'    => empty( $menuTitle ) ? $this->getMainFeatureName() : __( $menuTitle, 'wp-simple-firewall' ),
 			'href'          => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'      => $aSections,
+			'sections'      => $sections,
 			'options'       => [],
 			'show_mod_opts' => $this->getIfShowModuleOpts(),
 		];
 
-		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
+		foreach ( $opts->getVisibleOptionsKeys() as $optKey ) {
 			try {
-				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+				$optData = $this->getStrings()->getOptionStrings( $optKey );
+				$optData[ 'href' ] = $this->getUrl_DirectLinkToOption( $optKey );
+				$summary[ 'options' ][ $optKey ] = $optData;
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$aSum[ 'tooltip' ] = sprintf(
+		$summary[ 'tooltip' ] = sprintf(
 			'%s',
-			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
+			empty( $summary[ 'sidebar_name' ] ) ? $summary[ 'name' ] : __( $summary[ 'sidebar_name' ], 'wp-simple-firewall' )
 		);
-		return $aSum;
+		return $summary;
 	}
 
 	public function getIfShowModuleMenuItem() :bool {
@@ -893,9 +856,9 @@ abstract class ModCon {
 	}
 
 	public function onPluginDelete() {
-		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			if ( !empty( $oDbh ) ) {
-				$oDbh->tableDelete();
+		foreach ( $this->getDbHandlers( true ) as $dbh ) {
+			if ( !empty( $dbh ) ) {
+				$dbh->tableDelete();
 			}
 		}
 		$this->getOptions()->deleteStorage();
@@ -980,8 +943,17 @@ abstract class ModCon {
 		return $this;
 	}
 
+	protected function isThisModAdminPage() :bool {
+		return is_admin() && !Services::WpGeneral()->isAjax()
+			   && Services::Request()->isGet() && $this->isThisModulePage();
+	}
+
+	/**
+	 * @deprecated 11.1
+	 */
 	protected function isAdminOptionsPage() :bool {
-		return is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage();
+		return is_admin() && !Services::WpGeneral()->isAjax()
+			   && Services::Request()->isGet() && $this->isThisModulePage();
 	}
 
 	public function isPremium() :bool {
@@ -992,11 +964,12 @@ abstract class ModCon {
 	 * @throws \Exception
 	 */
 	private function doSaveStandardOptions() {
-		$aForm = $this->getAjaxFormParams( 'b64' ); // standard options use b64 and failover to lz-string
+		// standard options use b64 and fail-over to lz-string
+		$form = FormParams::Retrieve( FormParams::ENC_BASE64 );
 
 		foreach ( $this->getAllFormOptionsAndTypes() as $sKey => $sOptType ) {
 
-			$sOptionValue = isset( $aForm[ $sKey ] ) ? $aForm[ $sKey ] : null;
+			$sOptionValue = isset( $form[ $sKey ] ) ? $form[ $sKey ] : null;
 			if ( is_null( $sOptionValue ) ) {
 
 				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
@@ -1026,7 +999,7 @@ abstract class ModCon {
 						continue;
 					}
 
-					$sConfirm = isset( $aForm[ $sKey.'_confirm' ] ) ? $aForm[ $sKey.'_confirm' ] : null;
+					$sConfirm = isset( $form[ $sKey.'_confirm' ] ) ? $form[ $sKey.'_confirm' ] : null;
 					if ( $sTempValue !== $sConfirm ) {
 						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
@@ -1052,7 +1025,7 @@ abstract class ModCon {
 		if ( $this->isPremium() ) {
 			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveExcludedOptions() )
 				->setMod( $this )
-				->save( $aForm );
+				->save( $form );
 		}
 	}
 
@@ -1213,16 +1186,16 @@ abstract class ModCon {
 	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'components/options_form/main.twig';
+			$template = 'components/options_form/main.twig';
 		}
 		else {
-			$sTemplate = 'subfeature-access_restricted';
+			$template = 'subfeature-access_restricted';
 		}
 
 		try {
 			return $this->getCon()
 						->getRenderer()
-						->setTemplate( $sTemplate )
+						->setTemplate( $template )
 						->setRenderVars( $this->getUIHandler()->getBaseDisplayData() )
 						->setTemplateEngineTwig()
 						->render();
@@ -1253,13 +1226,6 @@ abstract class ModCon {
 
 	public function getCustomScriptEnqueues() :array {
 		return [];
-	}
-
-	/**
-	 * Override this with custom JS vars for your particular module.
-	 * @deprecated 10.2
-	 */
-	public function insertCustomJsVars_Admin() {
 	}
 
 	/**

@@ -66,13 +66,4 @@ class ConfigVO extends DynPropertiesClass {
 
 		return $val;
 	}
-
-	/**
-	 * @param $key
-	 * @return mixed|null
-	 * @deprecated 10.3
-	 */
-	private function __adapterGet( $key ) {
-		return $this->getRawData()[ $key ] ?? null;
-	}
 }

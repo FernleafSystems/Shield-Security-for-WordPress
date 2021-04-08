@@ -10,15 +10,11 @@ class Handler extends Base\Handler {
 		$this->tableCleanExpired( 30 );
 	}
 
-	protected function getCustomColumns() :array {
-		return $this->getOptions()->getDef( 'sessions_table_columns' );
-	}
-
+	/**
+	 * @return string
+	 * @deprecated 11.1
+	 */
 	protected function getDefaultTableName() :string {
 		return $this->getOptions()->getDef( 'sessions_table_name' );
-	}
-
-	protected function getTimestampColumns() :array {
-		return $this->getOptions()->getDef( 'sessions_table_timestamp_columns' );
 	}
 }

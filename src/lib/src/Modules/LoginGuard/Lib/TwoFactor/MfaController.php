@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
@@ -12,6 +13,7 @@ class MfaController {
 
 	use Shield\Modules\ModConsumer;
 	use Shield\Utilities\Consumer\WpLoginCapture;
+	use ExecOnce;
 
 	/**
 	 * @var Provider\BaseProvider[]
@@ -23,10 +25,11 @@ class MfaController {
 	 */
 	private $oLoginIntentPageHandler;
 
-	public function run() {
+	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 10, 2 );
 		$this->setupLoginCaptureHooks();
+		$this->handleLoginLink();
 	}
 
 	public function onWpInit() {
@@ -68,6 +71,49 @@ class MfaController {
 							->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
 				);
 			}
+		}
+	}
+
+	private function handleLoginLink() {
+		add_action( $this->getCon()->prefix( 'shield_nonce_action' ), function ( string $action ) {
+			if ( strpos( $action, '2fa_verify' ) === 0 ) {
+				try {
+					$this->processEmail2faLink();
+				}
+				catch ( \Exception $e ) {
+					wp_die( $e->getMessage() );
+				}
+			}
+		} );
+	}
+
+	private function processEmail2faLink() {
+		$req = Services::Request();
+		$user = sanitize_user( $req->query( 'user' ) );
+		if ( empty( $user ) ) {
+			throw new \Exception( 'Not valid data.' );
+		}
+		$user = Services::WpUsers()->getUserByUsername( $user );
+		if ( !$user instanceof \WP_User ) {
+			throw new \Exception( 'Not valid data.' );
+		}
+		$providers = $this->getProvidersForUser( $user, true );
+		if ( !isset( $providers[ Provider\Email::SLUG ] ) ) {
+			throw new \Exception( 'Not a support provider' );
+		}
+		if ( !$providers[ Provider\Email::SLUG ]->validateLoginIntent( $user ) ) {
+			throw new \Exception( 'Login validation failed.' );
+		}
+		$providers[ Provider\Email::SLUG ]->postSuccessActions( $user );
+		if ( (int)$user->ID !== (int)Services::WpUsers()->getCurrentWpUserId() ) {
+			throw new \Exception( 'Action completed successfully. Please refresh your browser where you logged-in.' );
+		}
+
+		if ( $req->query( 'redirect_to' ) ) {
+			Services::Response()->redirect( $req->query( 'redirect_to' ) );
+		}
+		else {
+			Services::Response()->redirectToAdmin();
 		}
 	}
 

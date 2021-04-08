@@ -38,8 +38,13 @@ class FileLockerController {
 
 	public function processFileLocks() {
 		if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
-			$this->getOptions()->isOptChanged( 'file_locker' ) ? $this->deleteAllLocks() : $this->runAnalysis();
+			$this->isFileLockerStateChanged() ? $this->deleteAllLocks() : $this->runAnalysis();
 		}
+	}
+
+	private function isFileLockerStateChanged() :bool {
+		return $this->getOptions()->isOptChanged( 'file_locker' )
+			   || $this->getState()[ 'abspath' ] !== ABSPATH;
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
@@ -49,7 +54,7 @@ class FileLockerController {
 				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
-				'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
 				'warnings' => $problems
 			];
 		}
@@ -171,62 +176,63 @@ class FileLockerController {
 			}
 			if ( $lockCreated ) {
 				$state[ 'last_locks_created_at' ] = Services::Request()->ts();
-				$this->setState( $state );
 			}
+
+			$state[ 'abspath' ] = ABSPATH;
+			$this->setState( $state );
 		}
 	}
 
 	/**
 	 * @param string $fileKey
-	 * @return File|null
+	 * @return File
 	 * @throws \Exception
 	 */
-	private function getFile( $fileKey ) {
-		$oFile = null;
+	private function getFile( string $fileKey ) :File {
+		$file = null;
 
-		$bIsSplitWp = false;
-		$nMaxPaths = 0;
+		$isSplitWpUrl = false; // TODO: is split URL?
+		$maxPaths = 1;
 		switch ( $fileKey ) {
 			case 'wpconfig':
 				$fileKey = 'wp-config.php';
-				$nMaxPaths = 1;
-				$nLevels = $bIsSplitWp ? 3 : 2;
-
+				$maxPaths = 1;
+				$levels = $isSplitWpUrl ? 3 : 2;
 				$openBaseDir = ini_get( 'open_basedir' );
 				if ( !empty( $openBaseDir ) ) {
-					$nLevels--;
+					$levels--;
 				}
-				// TODO: is split URL?
 				break;
 
 			case 'root_htaccess':
 				$fileKey = '.htaccess';
-				$nLevels = $bIsSplitWp ? 2 : 1;
+				$levels = $isSplitWpUrl ? 2 : 1;
 				break;
 
 			case 'root_webconfig':
 				$fileKey = 'Web.Config';
-				$nLevels = $bIsSplitWp ? 2 : 1;
+				$levels = $isSplitWpUrl ? 2 : 1;
 				break;
 
 			case 'root_index':
 				$fileKey = 'index.php';
-				$nLevels = $bIsSplitWp ? 2 : 1;
+				$levels = $isSplitWpUrl ? 2 : 1;
 				break;
 			default:
 				if ( Services::WpFs()->isAbsPath( $fileKey ) && Services::WpFs()->isFile( $fileKey ) ) {
-					$nLevels = 1;
-					$nMaxPaths = 1;
+					$levels = 1;
+					$maxPaths = 1;
 				}
 				else {
 					throw new \Exception( 'Not a supported file lock type' );
 				}
 				break;
 		}
-		$oFile = new File( $fileKey );
-		$oFile->max_levels = $nLevels;
-		$oFile->max_paths = $nMaxPaths;
-		return $oFile;
+
+		$file = new File( $fileKey );
+		$file->max_levels = $levels;
+		$file->max_paths = $maxPaths;
+		return $file;
 	}
 
 	protected function getState() :array {
@@ -234,7 +240,8 @@ class FileLockerController {
 		$opts = $this->getOptions();
 		return array_merge(
 			[
-				'last_locks_created_at' => 0
+				'abspath'               => ABSPATH,
+				'last_locks_created_at' => 0,
 			],
 			is_array( $opts->getOpt( 'filelocker_state' ) ) ? $opts->getOpt( 'filelocker_state' ) : []
 		);

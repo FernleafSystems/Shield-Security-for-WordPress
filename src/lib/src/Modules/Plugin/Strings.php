@@ -196,18 +196,22 @@ class Strings extends Base\Strings {
 			case 'visitor_address_source' :
 				$name = __( 'IP Source', 'wp-simple-firewall' );
 				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
-				$desc = __( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' )
-						.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
-						.'<br />'.sprintf(
-							__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
-							'<strong>'.$opts->getIpSource().'</strong>',
-							Services::IP()->getRequestIp()
-						)
-						.sprintf(
-							'<p class="mt-2"><a href="%s" target="_blank">%s</a></p>',
-							'https://shsec.io/shieldwhatismyip',
-							__( 'What Is My IP Address?', 'wp-simple-firewall' )
-						);
+				$desc = [
+					__( "Knowing the real IP address of your visitors is critical to your security, but many hosts aren't configured correctly to let us find it easily.", 'wp-simple-firewall' ),
+					__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' ),
+					__( 'Use the link below to find your correct IP address, then select the option on the list.', 'wp-simple-firewall' ),
+					sprintf(
+						'<p class="mt-2"><a href="%s" target="_blank">%s</a></p>',
+						'https://shsec.io/shieldwhatismyip',
+						__( 'What Is My IP Address?', 'wp-simple-firewall' )
+					),
+					sprintf(
+						__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
+						'<strong>'.$opts->getIpSource().'</strong>',
+						Services::IP()->getRequestIp()
+					),
+					__( 'If the option you select becomes unavailable at some point, we will revert to auto detection.', 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'block_send_email_address' :

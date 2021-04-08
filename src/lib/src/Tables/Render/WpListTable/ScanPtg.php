@@ -7,15 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanPtg extends ScanBase {
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_path( $aItem ) {
+	public function column_path( $item ) {
 		$aButtons = [];
-		if ( !empty( $aItem[ 'href_download' ] ) ) {
-			$aButtons[] = $this->getActionButton_DownloadFile( $aItem[ 'href_download' ] );
+		if ( !empty( $item[ 'href_download' ] ) ) {
+			$aButtons[] = $this->getActionButton_DownloadFile( $item[ 'href_download' ] );
 		}
-		return parent::column_path( $aItem ).$this->buildActions( $aButtons );
+		return parent::column_path( $item ).$this->buildActions( $aButtons );
 	}
 
 	/**

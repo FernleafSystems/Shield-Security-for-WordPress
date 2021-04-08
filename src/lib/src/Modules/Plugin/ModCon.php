@@ -489,25 +489,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getScriptLocalisations() :array {
-		$con = $this->getCon();
 		$locals = parent::getScriptLocalisations();
-
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$file = $con->base_file;
-			$locals[] = [
-				'global-plugin',
-				'icwp_wpsf_vars_plugin',
-				[
-					'file'  => $file,
-					'ajax'  => [
-						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
-					],
-					'hrefs' => [
-						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $file ),
-					],
-				]
-			];
-		}
 
 		$tourManager = $this->getTourManager();
 		$locals[] = [
@@ -526,7 +508,7 @@ class ModCon extends BaseShield\ModCon {
 			[
 				'strings' => [
 					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-					'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 				],
 			]
 		];
@@ -564,12 +546,5 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSurveyEmail() {
-		return base64_decode( $this->getDef( 'survey_email' ) );
 	}
 }

@@ -501,18 +501,15 @@
       "2fa_email_send_fail":     {
       },
       "cooldown_fail":           {
-        "offense": true
       },
       "honeypot_fail":           {
-        "offense": true
       },
       "botbox_fail":             {
-        "offense": true
       },
       "login_block":             {
         "audit":   false,
         "recent":  true,
-        "offense": false
+        "offense": true
       },
       "hide_login_url":          {
         "audit": false

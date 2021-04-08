@@ -7,16 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanBase extends Base {
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_path( $aItem ) {
+	public function column_path( $item ) {
 		$sOut = sprintf( '<code><span class="font-weight-bolder text-dark" style="font-size: larger">%s</span></code><code>[%s]</code>',
-			$aItem[ 'path' ],
-			sprintf( '%s: %s', __( 'Path', 'wp-simple-firewall' ), trailingslashit( dirname( $aItem[ 'path_relabs' ] ) ) )
+			$item[ 'path' ],
+			sprintf( '%s: %s', __( 'Path', 'wp-simple-firewall' ), trailingslashit( dirname( $item[ 'path_relabs' ] ) ) )
 		);
-		if ( !empty( $aItem[ 'path_details' ] ) ) {
-			$sOut .= '<p class="mb-0">'.implode( '; ', $aItem[ 'path_details' ] ).'</p>';
+		if ( !empty( $item[ 'path_details' ] ) ) {
+			$sOut .= '<p class="mb-0">'.implode( '; ', $item[ 'path_details' ] ).'</p>';
 		}
 		return $sOut;
 	}

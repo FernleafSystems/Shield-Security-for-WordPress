@@ -22,10 +22,9 @@ abstract class EventsListener {
 		$this->setCon( $con );
 
 		add_action( $con->prefix( 'event' ),
-			function ( $event, $meta = [] ) use ( $con ) {
-				if ( $con->loadEventsService()->isSupportedEvent( $event ) ) {
-					$this->captureEvent( $event, $meta );
-				}
+			function ( $event, $meta = [], $def = [] ) use ( $con ) {
+				// TODO @deprecated 11.1 remove ??
+				$this->captureEvent( $event, $meta, $def ?? [] );
 			}, 10, 2 );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), function () {
@@ -35,9 +34,10 @@ abstract class EventsListener {
 
 	/**
 	 * @param string $evt
-	 * @param array  $aMeta
+	 * @param array  $meta
+	 * @param array  $def
 	 */
-	abstract protected function captureEvent( $evt, $aMeta = [] );
+	abstract protected function captureEvent( string $evt, $meta = [], $def = [] );
 
 	protected function onShutdown() {
 

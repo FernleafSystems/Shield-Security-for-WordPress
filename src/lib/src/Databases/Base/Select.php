@@ -14,7 +14,7 @@ class Select extends BaseQuery {
 	/**
 	 * @var bool
 	 */
-	protected $bIsCount = false;
+	protected $isCount = false;
 
 	/**
 	 * @var bool
@@ -85,19 +85,19 @@ class Select extends BaseQuery {
 	 * @return string
 	 */
 	protected function buildSelect() {
-		$aCols = $this->getColumnsToSelect();
+		$cols = $this->getColumnsToSelect();
 
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
 		elseif ( $this->isSum() ) {
-			$sSubstitute = sprintf( 'SUM(%s)', array_shift( $aCols ) );
+			$sSubstitute = sprintf( 'SUM(%s)', array_shift( $cols ) );
 		}
 		elseif ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
-			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $aCols ) );
+			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $cols ) );
 		}
 		elseif ( $this->hasColumnsToSelect() ) {
-			$sSubstitute = implode( ',', $aCols );
+			$sSubstitute = implode( ',', $cols );
 		}
 		elseif ( $this->isCustomSelect() ) {
 			$sSubstitute = $this->sCustomSelect;
@@ -106,6 +106,10 @@ class Select extends BaseQuery {
 			$sSubstitute = '*';
 		}
 		return $sSubstitute;
+	}
+
+	public function sumColumn() :int {
+		return (int)$this->setIsCount( true )->query();
 	}
 
 	public function count() :int {
@@ -163,7 +167,7 @@ class Select extends BaseQuery {
 	}
 
 	public function isCount() :bool {
-		return (bool)$this->bIsCount;
+		return (bool)$this->isCount;
 	}
 
 	public function isSum() :bool {
@@ -286,7 +290,7 @@ class Select extends BaseQuery {
 	}
 
 	public function setIsCount( bool $isCount ) :self {
-		$this->bIsCount = $isCount;
+		$this->isCount = $isCount;
 		return $this;
 	}
 

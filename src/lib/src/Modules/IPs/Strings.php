@@ -21,9 +21,9 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_ips' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'IP Manager', 'wp-simple-firewall' ) ) )
 					.'<br />'.__( 'You should also carefully review the automatic black list settings.', 'wp-simple-firewall' )
@@ -31,9 +31,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_auto_black_list' :
-				$sTitle = __( 'Auto IP Blocking Rules', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Auto Blocking Rules', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Auto IP Blocking Rules', 'wp-simple-firewall' );
+				$titleShort = __( 'Auto Blocking Rules', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of offenses.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) ) ),
 					__( "Think of 'offenses' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
@@ -46,9 +46,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_enable_plugin_feature_bottrap' :
-				$sTitleShort = __( 'Bot-Trap', 'wp-simple-firewall' );
-				$sTitle = __( 'Identify And Capture Bots Based On Their Site Activity', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Bot-Trap', 'wp-simple-firewall' );
+				$title = __( 'Identify And Capture Bots Based On Their Site Activity', 'wp-simple-firewall' );
+				$summary = [
 					__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises.", 'wp-simple-firewall' ),
 					__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots.", 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable as many mouse traps as possible.', 'wp-simple-firewall' ) )
@@ -56,9 +56,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_logins':
-				$sTitleShort = __( 'Login Bots', 'wp-simple-firewall' );
-				$sTitle = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Login Bots', 'wp-simple-firewall' );
+				$title = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -69,9 +69,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_probes':
-				$sTitleShort = __( 'Probing Bots', 'wp-simple-firewall' );
-				$sTitle = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Probing Bots', 'wp-simple-firewall' );
+				$title = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Bots are designed to probe and this feature is dedicated to detecting probing bots.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -80,9 +80,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_behaviours':
-				$sTitleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
-				$sTitle = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
+				$title = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Detect characteristics and behaviour commonly associated with illegitimate bots.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -95,9 +95,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
 		];
 	}
 

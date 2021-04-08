@@ -955,7 +955,7 @@ class Options {
 		if ( !$this->getConfigFileExists() ) {
 			throw new \Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getPathToConfig() ) );
 		}
-		return Services::Data()->readFileContentsUsingInclude( $this->getPathToConfig() );
+		return Services::Data()->readFileWithInclude( $this->getPathToConfig() );
 	}
 
 	public function getConfigStorageKey() :string {

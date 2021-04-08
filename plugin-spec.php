@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "11.0.3",
-    "release_timestamp":       1616776360,
-    "build":                   "202103.2601",
+    "version":                 "11.1.0",
+    "release_timestamp":       1617870687,
+    "build":                   "202104.0801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -52,14 +52,16 @@
         "select2",
         "plugin",
         "featherlight",
-        "introjs"
+        "introjs",
+        "bootstrap-select"
       ],
       "js":  [
         "select2",
         "plugin",
         "featherlight",
         "jquery.fileDownload",
-        "shield/tours"
+        "shield/tours",
+        "bootstrap-select"
       ]
     },
     "frontend":     {
@@ -79,6 +81,12 @@
         },
         "bootstrap-datepicker":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
+          "deps": [
+            "bootstrap"
+          ]
+        },
+        "bootstrap-select":   {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -112,7 +120,8 @@
           "deps": [
             "plugin"
           ]
-        }
+        },
+        "shield/mainwp": {}
       },
       "js":  {
         "bootstrap":               {
@@ -133,6 +142,12 @@
             "bootstrap"
           ]
         },
+        "bootstrap-select":   {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js",
+          "deps": [
+            "bootstrap"
+          ]
+        },
         "global-plugin":           {
           "deps": [
             "wp-jquery"
@@ -142,6 +157,7 @@
           "deps": [
             "bootstrap",
             "global-plugin",
+            "shield/navigation",
             "base64.min",
             "lz-string.min"
           ]
@@ -197,6 +213,12 @@
             "wp-jquery"
           ]
         },
+        "shield/navigation":         {},
+        "shield/secadmin":           {
+          "deps": [
+            "wp-jquery"
+          ]
+        },
         "shield/tables":           {
           "deps": [
             "plugin"
@@ -226,7 +248,7 @@
             "plugin"
           ]
         },
-        "shield/mainwp-extension": {
+        "shield/mainwp": {
           "deps": [
             "wp-jquery"
           ]
@@ -304,7 +326,7 @@
       {
         "name":   "Security Dashboard",
         "title":  "Go To Security Dashboard",
-        "href":   "getPluginUrl_AdminMainPage",
+        "href":   "getPluginUrl_DashboardHome",
         "target": "_top",
         "show":   "always"
       },

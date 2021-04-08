@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
@@ -25,7 +26,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_RenderCustomChart() :array {
-		return $this->renderChart( $this->getAjaxFormParams() );
+		return $this->renderChart( FormParams::Retrieve() );
 	}
 
 	private function ajaxExec_RenderSummaryChart() :array {
