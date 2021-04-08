@@ -178,7 +178,7 @@ class ModCon extends Base\ModCon {
 					( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
 						->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
 						->setIP( Services::IP()->getRequestIp() )
-						->setListTypeWhite()
+						->setListTypeBypass()
 						->lookup() instanceof Shield\Databases\IPs\EntryVO;
 			}
 		}
