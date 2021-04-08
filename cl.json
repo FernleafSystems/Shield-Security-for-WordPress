@@ -24,6 +24,13 @@
         "href":        "https://shsec.io/jb"
       },
       {
+        "type":        "new",
+        "title":       "A new Quick Stats screen is available to see the activity of Shield over time.",
+        "description": [
+          "The implementation is currently basic, but it forms the foundation of future development and offers users the option to offer suggestions."
+        ]
+      },
+      {
         "type":        "improved",
         "title":       "Code overhaul for Security Admin system to improve reliability and fix various bugs.",
         "description": []
@@ -43,6 +50,11 @@
       {
         "type":        "improved",
         "title":       "White Label settings that are empty aren't applied and defaults remain.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Statistics in reporting emails were under-reporting the full stats.",
         "description": []
       },
       {
