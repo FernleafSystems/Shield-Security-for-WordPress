@@ -948,14 +948,6 @@ abstract class ModCon {
 			   && Services::Request()->isGet() && $this->isThisModulePage();
 	}
 
-	/**
-	 * @deprecated 11.1
-	 */
-	protected function isAdminOptionsPage() :bool {
-		return is_admin() && !Services::WpGeneral()->isAjax()
-			   && Services::Request()->isGet() && $this->isThisModulePage();
-	}
-
 	public function isPremium() :bool {
 		return $this->getCon()->isPremiumActive();
 	}

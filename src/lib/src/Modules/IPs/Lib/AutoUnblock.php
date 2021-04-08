@@ -33,24 +33,6 @@ class AutoUnblock {
 	}
 
 	/**
-	 * @deprecated 10.3 - temporary to ensure that service bots aren't blocked and reduce spurious Audit Trail
-	 */
-	private function checkForBlockedServiceBot() :bool {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-
-		$unblocked = false;
-		if ( $mod->isVerifiedBot() ) {
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setMod( $mod )
-				->setIP( Services::IP()->getRequestIp() )
-				->fromBlacklist();
-			$unblocked = true;
-		}
-		return $unblocked;
-	}
-
-	/**
 	 * @return bool
 	 * @throws \Exception
 	 */

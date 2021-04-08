@@ -36,12 +36,4 @@ class Handler extends Base\Handler {
 		$QI = $this->getQueryInserter();
 		return $QI->insert( $oEvt );
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 11.1
-	 */
-	protected function getDefaultTableName() :string {
-		return $this->getOptions()->getDef( 'events_table_name' );
-	}
 }

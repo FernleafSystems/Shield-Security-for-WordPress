@@ -234,14 +234,6 @@ abstract class Handler {
 		return $this->bIsReady;
 	}
 
-	/**
-	 * @return string
-	 * @deprecated 11.1
-	 */
-	protected function getDefaultTableName() :string {
-		return $this->getTableSchema()->slug;
-	}
-
 	public function getTableSchema() :TableSchema {
 		return $this->schema;
 	}
