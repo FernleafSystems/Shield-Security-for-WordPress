@@ -12,7 +12,7 @@ class KeyStats extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
-		$aAlerts = [];
+		$alerts = [];
 
 		/** @var Events\ModCon $mod */
 		$mod = $this->getMod();
@@ -40,15 +40,15 @@ class KeyStats extends BaseReporter {
 
 		$rep = $this->getReport();
 
-		$count = [];
+		$sums = [];
 		foreach ( $eventKeys as $event ) {
 			try {
-				$count = $selector
+				$eventSum = $selector
 					->filterByBoundary( $rep->interval_start_at, $rep->interval_end_at )
 					->sumEvent( $event );
-				if ( $count > 0 ) {
-					$count[ $event ] = [
-						'count' => $count,
+				if ( $eventSum > 0 ) {
+					$sums[ $event ] = [
+						'count' => $eventSum,
 						'name'  => $strings->getEventName( $event ),
 					];
 				}
@@ -57,12 +57,12 @@ class KeyStats extends BaseReporter {
 			}
 		}
 
-		if ( count( $count ) > 0 ) {
-			$aAlerts[] = $this->getMod()->renderTemplate(
+		if ( count( $sums ) > 0 ) {
+			$alerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/events/info_keystats.twig',
 				[
 					'vars'    => [
-						'counts' => $count
+						'counts' => $sums
 					],
 					'strings' => [
 						'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
@@ -73,6 +73,6 @@ class KeyStats extends BaseReporter {
 			);
 		}
 
-		return $aAlerts;
+		return $alerts;
 	}
 }

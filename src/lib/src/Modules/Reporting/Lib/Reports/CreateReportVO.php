@@ -84,7 +84,7 @@ class CreateReportVO {
 		switch ( $this->rep->interval ) {
 //			case 'realtime':
 //				break;
-			case 'no_time': // TODO
+			case 'lifetime': // TODO
 				$start = 0;
 				$end = $carbon->timestamp;
 				break;
