@@ -6,7 +6,7 @@ class WpForo extends Base {
 
 	protected function run() {
 		foreach ( $this->getFiltersToMonitor() as $filter ) {
-			add_filter( $filter, function ( array $args, $forum ) {
+			add_filter( $filter, function ( array $args = [] ) {
 
 				$status = $args[ 'status' ] ?? null;
 				if ( $status !== 1 && $this->isSpam() ) {
@@ -17,7 +17,7 @@ class WpForo extends Base {
 				}
 
 				return $args;
-			}, 1000, 2 );
+			}, 1000 );
 		}
 	}
 
