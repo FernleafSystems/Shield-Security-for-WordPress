@@ -15,7 +15,7 @@ class UI extends BaseShield\UI {
 				'has_stats' => !empty( $stats )
 			],
 			'strings' => [
-				'no_stats' => __('No stats yet. It wont take long though, so check back here soon.')
+				'no_stats' => __( 'No stats yet. It wont take long though, so check back here soon.' )
 			],
 			'vars'    => [
 				'stats'          => $stats,
@@ -62,18 +62,21 @@ class UI extends BaseShield\UI {
 		/** @var Databases\Events\Select $selector */
 		$selector = $mod->getDbHandler_Events()->getQuerySelector();
 		$carbon = Services::Request()->carbon( true );
-		return [
-			'lifetime' => $selector->sumEvent( $event ),
-			'months_1' => $selector
-				->filterByCreatedAt( ( clone $carbon )->subDays( 30 )->startOfDay()->timestamp, '>' )
-				->sumEvent( $event ),
-			'days_7'   => $selector
-				->filterByCreatedAt( ( clone $carbon )->subDays( 7 )->startOfDay()->timestamp, '>' )
-				->sumEvent( $event ),
-			'days_1'   => $selector
-				->filterByCreatedAt( ( clone $carbon )->subHours( 24 )->timestamp, '>' )
-				->sumEvent( $event ),
-		];
+		return array_map(
+			'number_format',
+			[
+				'lifetime' => $selector->sumEvent( $event ),
+				'months_1' => $selector
+					->filterByCreatedAt( ( clone $carbon )->subDays( 30 )->startOfDay()->timestamp, '>' )
+					->sumEvent( $event ),
+				'days_7'   => $selector
+					->filterByCreatedAt( ( clone $carbon )->subDays( 7 )->startOfDay()->timestamp, '>' )
+					->sumEvent( $event ),
+				'days_1'   => $selector
+					->filterByCreatedAt( ( clone $carbon )->subHours( 24 )->timestamp, '>' )
+					->sumEvent( $event ),
+			]
+		);
 	}
 
 	private function getAllEvents() :array {
