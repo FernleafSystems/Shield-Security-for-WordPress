@@ -176,9 +176,7 @@ class ModCon extends Base\ModCon {
 
 			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
 
-			$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
-
-			if ( is_array( $untrustedProviders ) && in_array( $ipID, $untrustedProviders ) ) {
+			if ( in_array( $ipID, $this->getUntrustedProviders() ) ) {
 				self::$bVisitorIsWhitelisted = false;
 			}
 			elseif ( in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() ) ) {
@@ -194,6 +192,16 @@ class ModCon extends Base\ModCon {
 			}
 		}
 		return self::$bVisitorIsWhitelisted;
+	}
+
+	public function isTrustedVerifiedBot() :bool {
+		return $this->isVerifiedBot()
+			   && !in_array( Services::IP()->getIpDetector()->getIPIdentity(), $this->getUntrustedProviders() );
+	}
+
+	protected function getUntrustedProviders() :array {
+		$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
+		return is_array( $untrustedProviders ) ? $untrustedProviders : [];
 	}
 
 	public function isVerifiedBot() :bool {

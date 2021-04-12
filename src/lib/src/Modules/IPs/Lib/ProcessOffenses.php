@@ -13,7 +13,7 @@ class ProcessOffenses {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return !$this->getMod()->isVerifiedBot();
+		return !$this->getMod()->isTrustedVerifiedBot();
 	}
 
 	protected function run() {

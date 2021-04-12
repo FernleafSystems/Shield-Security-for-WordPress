@@ -31,9 +31,7 @@ class BotEventListener {
 	}
 
 	protected function canRun() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return !$mod->isVerifiedBot();
+		return !$this->getMod()->isTrustedVerifiedBot();
 	}
 
 	protected function run() {
