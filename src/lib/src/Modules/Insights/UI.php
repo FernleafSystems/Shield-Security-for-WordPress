@@ -201,6 +201,17 @@ class UI extends BaseShield\UI {
 				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
 		}
 
+		/** @var Shield\Modules\SecurityAdmin\Options $secAdminOpts */
+		$secAdminOpts = $this->getCon()->getModule_SecAdmin()->getOptions();
+		if ( $secAdminOpts->isEnabledWhitelabel() ) {
+			$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
+								 ->setMod( $this->getCon()->getModule_SecAdmin() )
+								 ->build()[ 'url_login2fa_logourl' ];
+		}
+		else {
+			$dashboardLogo = $con->urls->forImage( 'pluginlogo_banner-170x40.png' );
+		}
+
 		$DP = Services::DataManipulation();
 		$data = $DP->mergeArraysRecursive(
 			$this->getBaseDisplayData(),
@@ -214,7 +225,7 @@ class UI extends BaseShield\UI {
 				'hrefs'   => [
 					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'   => $mod->getUrl_AdminPage(),
-					'img_banner' => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
+					'img_banner' => $dashboardLogo
 				],
 				'strings' => [
 					'page_title' => $pageTitle

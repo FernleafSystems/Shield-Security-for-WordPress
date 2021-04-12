@@ -240,15 +240,15 @@ class Strings extends Base\Strings {
 							   .' '.sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'icon', 'wp-simple-firewall' ), '16px x 16px' );
 				break;
 			case 'wl_dashboardlogourl' :
-				$name = __( 'Dashboard Logo', 'wp-simple-firewall' );
-				$summary = __( 'Dashboard Logo URL', 'wp-simple-firewall' );
-				$description = __( 'The URL of the logo to display in the admin pages.', 'wp-simple-firewall' )
+				$name = __( 'Plugin Badge Logo', 'wp-simple-firewall' );
+				$summary = __( 'Plugin Badge Logo URL', 'wp-simple-firewall' );
+				$description = __( 'The URL of the logo to display in the plugin badge.', 'wp-simple-firewall' )
 							   .' '.sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'logo', 'wp-simple-firewall' ), '128px x 128px' );
 				break;
 			case 'wl_login2fa_logourl' :
-				$name = __( '2FA Login Logo URL', 'wp-simple-firewall' );
-				$summary = __( '2FA Login Logo URL', 'wp-simple-firewall' );
-				$description = __( 'The URL of the logo to display on the Two-Factor Authentication login page.', 'wp-simple-firewall' );
+				$name = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
+				$summary = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
+				$description = __( 'The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page.', 'wp-simple-firewall' );
 				break;
 
 			default:

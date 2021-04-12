@@ -36,13 +36,12 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_security_headers' ),
 			];
 
-			$bCsp = $opts->isEnabledContentSecurityPolicy();
 			$cards[ 'csp' ] = [
 				'name'    => __( 'Content Security Policies', 'wp-simple-firewall' ),
-				'state'   => $bCsp ? 1 : 0,
-				'summary' => $bCsp ?
+				'state'   => $opts->isEnabledContentSecurityPolicy() ? 1 : 0,
+				'summary' => $opts->isEnabledContentSecurityPolicy() ?
 					__( 'Content Security Policy is turned on', 'wp-simple-firewall' )
-					: __( "Content Security Policies aren't active", 'wp-simple-firewall' ),
+					: __( "Content Security Policies aren't active or there are no rules provided", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
 			];
 		}

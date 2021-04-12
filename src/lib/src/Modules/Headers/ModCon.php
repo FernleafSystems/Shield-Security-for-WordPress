@@ -23,5 +23,9 @@ class ModCon extends BaseShield\ModCon {
 			},
 			$opts->getOpt( 'xcsp_custom', [] )
 		) ) ) );
+
+		if ( empty( $opts->getOpt( 'xcsp_custom', [] ) ) ) {
+			$opts->setOpt( 'enable_x_content_security_policy', 'N' );
+		}
 	}
 }
