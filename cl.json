@@ -68,6 +68,18 @@
         "type":        "fixed",
         "title":       "Exclusions for unrecognised file scanner weren't stored correctly in the case of regular expressions.",
         "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "SPAM detection for Ninja Forms would report as SPAM when not SPAM.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "wpForo integration produced a PHP Warning in certain circumstances.",
+        "description": [],
+        "patch":       "11.1.1"
       }
     ]
   },
