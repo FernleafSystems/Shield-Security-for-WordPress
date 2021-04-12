@@ -73,10 +73,9 @@ class ApplyLabels {
 	 * @return array
 	 */
 	public function applyPluginLabels( $pluginLabels ) {
-		/** @var SecurityAdmin\ModCon $mod */
-		$mod = $this->getMod();
-
-		$labels = $mod->getWhitelabelOptions();
+		$labels = ( new BuildOptions() )
+			->setMod( $this->getMod() )
+			->build();
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
 		$serviceName = $labels[ 'name_main' ];

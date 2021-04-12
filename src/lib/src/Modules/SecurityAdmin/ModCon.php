@@ -54,7 +54,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 
 		// Verify whitelabel images
-		if ( $this->isWlEnabled() ) {
+		if ( $opts->isEnabledWhitelabel() ) {
 			foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
 				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $key ) ) ) {
 					$opts->resetOptToDefault( $key );
@@ -126,20 +126,20 @@ class ModCon extends BaseShield\ModCon {
 	private function buildWlImageUrl( $key ) {
 		$opts = $this->getOptions();
 
-		$sLogoUrl = $opts->getOpt( $key );
-		if ( empty( $sLogoUrl ) ) {
+		$url = $opts->getOpt( $key );
+		if ( empty( $url ) ) {
 			$opts->resetOptToDefault( $key );
-			$sLogoUrl = $opts->getOpt( $key );
+			$url = $opts->getOpt( $key );
 		}
-		if ( !empty( $sLogoUrl ) && !Services::Data()->isValidWebUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
-			$sLogoUrl = $this->getCon()->urls->forImage( $sLogoUrl );
-			if ( empty( $sLogoUrl ) ) {
+		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && strpos( $url, '/' ) !== 0 ) {
+			$url = $this->getCon()->urls->forImage( $url );
+			if ( empty( $url ) ) {
 				$opts->resetOptToDefault( $key );
-				$sLogoUrl = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
+				$url = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
 			}
 		}
 
-		return $sLogoUrl;
+		return $url;
 	}
 
 	/**

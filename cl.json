@@ -71,6 +71,12 @@
       },
       {
         "type":        "fixed",
+        "title":       "Whitelabel settings were misleading and didn't properly update the dashboard log.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
         "title":       "SPAM detection for Ninja Forms would report as SPAM when not SPAM.",
         "description": [],
         "patch":       "11.1.1"
