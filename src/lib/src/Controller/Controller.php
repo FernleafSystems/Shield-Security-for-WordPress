@@ -33,8 +33,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  */
 class Controller extends DynPropertiesClass {
 
-	use Shield\Crons\PluginCronsConsumer;
-
 	/**
 	 * @var \stdClass
 	 */
@@ -548,14 +546,10 @@ class Controller extends DynPropertiesClass {
 			->setCon( $this )
 			->run();
 		if ( Services::WpGeneral()->isCron() ) {
-			$this->setupCronHooks();
+			( new Shield\Utilities\Htaccess\RootHtaccess() )
+				->setCon( $this )
+				->execute();
 		}
-	}
-
-	public function runDailyCron() {
-		( new Shield\Utilities\Htaccess\RootHtaccess() )
-			->setCon( $this )
-			->run();
 	}
 
 	/**

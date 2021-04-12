@@ -2,14 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Htaccess;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RootHtaccess {
 
+	use ExecOnce;
 	use PluginControllerConsumer;
+	use PluginCronsConsumer;
 
-	public function run() {
+	protected function run() {
+		$this->setupCronHooks();
+	}
+
+	public function runDailyCron() {
 		$hadFile = (bool)Services::WpFs()->exists( $this->getPathToHtaccess() );
 		$couldAccess = $this->testCanAccessURL();
 
