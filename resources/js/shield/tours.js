@@ -8,16 +8,33 @@ jQuery.fn.icwpWpsfTours = function ( options ) {
 		} );
 	}
 
-	var setupTour = function ( tour_key ) {
-		introJs().setOptions( getTourSettings( tour_key ) )
+	var setupTour = function ( tourKey ) {
+		introJs().setOptions( getTourSettings( tourKey ) )
 				 .onexit( function () {
-					 markTourFinished( tour_key );
+					 markTourFinished( tourKey );
 				 } )
 				 .start();
 	}
 
+	var buildStepsForTour = function ( tourKey ) {
+		let steps = [];
+		let tourItems = document.querySelectorAll( '.tour-' + tourKey );
+		for ( var i = 0; i < tourItems.length; i++ ) {
+			let step = {
+				element: tourItems[ i ],
+				intro: tourItems[ i ].dataset.intro
+			};
+			if ( typeof tourItems[ i ].dataset.introtitle !== typeof undefined ) {
+				step.title = tourItems[ i ].dataset.introtitle;
+			}
+			steps.push(step);
+		}
+		return steps;
+	}
+
 	var getTourSettings = function ( tourKey ) {
 		return {
+			steps: buildStepsForTour( tourKey ),
 			overlayOpacity: 0.7,
 			highlightClass: "tour-" + tourKey,
 			tooltipClass: "shield_tour_tooltip",
