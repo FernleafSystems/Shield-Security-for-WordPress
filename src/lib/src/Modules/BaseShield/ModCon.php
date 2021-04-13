@@ -87,16 +87,6 @@ class ModCon extends Base\ModCon {
 		return $cfg;
 	}
 
-	/**
-	 * @deprecated 11.0
-	 */
-	public function getSecAdminLoginAjaxData() :array {
-		// We set a custom mod_slug so that this module handles the ajax request
-		$data = $this->getAjaxActionData( 'sec_admin_login' );
-		$data[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $data;
-	}
-
 	public function getPluginReportEmail() :string {
 		return $this->getCon()
 					->getModule_Plugin()

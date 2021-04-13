@@ -129,22 +129,4 @@ class LookupIpOnList {
 		$this->listType = 'white';
 		return $this;
 	}
-
-	/**
-	 * @return $this
-	 * @deprecated 11.1 - only remove if 11.1.1 is released
-	 */
-	public function setListTypeBlack() {
-		$this->listType = 'black';
-		return $this;
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 11.1
-	 */
-	public function setListTypeWhite() {
-		$this->listType = 'white';
-		return $this;
-	}
 }

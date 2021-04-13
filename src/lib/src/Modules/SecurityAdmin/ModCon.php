@@ -92,30 +92,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 11.1
-	 */
-	public function getWhitelabelOptions() :array {
-		$opts = $this->getOptions();
-		$main = $opts->getOpt( 'wl_pluginnamemain' );
-		$menu = $opts->getOpt( 'wl_namemenu' );
-		if ( empty( $menu ) ) {
-			$menu = $main;
-		}
-
-		return [
-			'name_main'            => $main,
-			'name_menu'            => $menu,
-			'name_company'         => $opts->getOpt( 'wl_companyname' ),
-			'description'          => $opts->getOpt( 'wl_description' ),
-			'url_home'             => $opts->getOpt( 'wl_homeurl' ),
-			'url_icon'             => $this->buildWlImageUrl( 'wl_menuiconurl' ),
-			'url_dashboardlogourl' => $this->buildWlImageUrl( 'wl_dashboardlogourl' ),
-			'url_login2fa_logourl' => $this->buildWlImageUrl( 'wl_login2fa_logourl' ),
-		];
-	}
-
-	/**
 	 * We cater for 3 options:
 	 * Full URL
 	 * Relative path URL: i.e. starts with /
@@ -140,15 +116,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		return $url;
-	}
-
-	/**
-	 * @deprecated 11.0
-	 */
-	public function isWlEnabled() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledWhitelabel() && $this->isPremium();
 	}
 
 	public function isWlHideUpdates() :bool {
