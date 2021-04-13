@@ -23,13 +23,16 @@ class AuditWriter extends EventsListener {
 	 */
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
 		$con = $this->getCon();
+		if ( empty( $def ) ) { // TODO: @deprecated 11.2 - remove this if
+			$def = $con->loadEventsService()->getEventDef( $evt );
+		}
 		if ( $def[ 'audit' ] && empty( $meta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
 			$entry = new AuditTrail\EntryVO();
 			$entry->rid = $con->getShortRequestId();
 			$entry->event = $evt;
 			$entry->category = $def[ 'cat' ];
 			$entry->context = $def[ 'context' ];
-			$entry->meta = $meta[ 'audit' ] ?? [];
+			$entry->meta = isset( $meta[ 'audit' ] ) ? $meta[ 'audit' ] : [];
 
 			$aLogs = $this->getLogs();
 
