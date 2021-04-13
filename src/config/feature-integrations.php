@@ -33,6 +33,11 @@
       "title_short": "SPAM Detection"
     },
     {
+      "slug":        "section_user_forms",
+      "title":       "User Forms",
+      "title_short": "User Forms"
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -115,6 +120,25 @@
       "name":          "SPAM Form Checking",
       "summary":       "Select The Form Providers That Should Be Checked For SPAM",
       "description":   "Select The Form Providers That Should Be Checked For SPAM."
+    },
+    {
+      "key":           "user_form_providers",
+      "section":       "section_user_forms",
+      "premium":       true,
+      "advanced":      true,
+      "type":          "multiple_select",
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "lifterlms",
+          "text":      "LifterLMS"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "User Form Checking",
+      "summary":       "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
+      "description":   "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
     }
   ],
   "definitions": {

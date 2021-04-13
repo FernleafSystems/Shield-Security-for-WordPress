@@ -96,7 +96,7 @@ class AntibotSetup {
 			}
 
 			foreach ( $formProviders as $form ) {
-				$form->setMod( $mod )->run();
+				$form->setMod( $mod )->execute();
 			}
 		}
 	}

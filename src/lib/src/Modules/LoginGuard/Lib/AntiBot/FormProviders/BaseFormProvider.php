@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -9,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseFormProvider {
 
 	use ModConsumer;
+	use ExecOnce;
 
 	/**
 	 * @var string
@@ -25,21 +27,21 @@ abstract class BaseFormProvider {
 	 */
 	private static $aProtectionProviders;
 
-	public static function SetProviders( array $aProviders ) {
-		self::$aProtectionProviders = $aProviders;
+	public static function SetProviders( array $providers ) {
+		self::$aProtectionProviders = $providers;
 	}
 
 	/**
-	 * @return true
 	 * @throws \Exception
 	 */
 	protected function checkProviders() {
-		if ( is_array( self::$aProtectionProviders ) ) {
-			foreach ( self::$aProtectionProviders as $oProvider ) {
-				$oProvider->performCheck( $this );
-			}
+		foreach ( $this->getProtectionProviders() as $provider ) {
+			$provider->performCheck( $this );
 		}
-		return true;
+	}
+
+	protected function getProtectionProviders() :array {
+		return is_array( self::$aProtectionProviders ) ? self::$aProtectionProviders : [];
 	}
 
 	protected function checkThenDie() {
@@ -51,7 +53,7 @@ abstract class BaseFormProvider {
 		}
 	}
 
-	public function run() {
+	protected function run() {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isProtectLogin() ) {
