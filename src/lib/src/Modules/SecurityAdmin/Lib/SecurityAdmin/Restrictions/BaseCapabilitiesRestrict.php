@@ -38,7 +38,7 @@ class BaseCapabilitiesRestrict extends Base {
 	}
 
 	protected function getRestrictedCapabilities() :array {
-		/** @var WpOptions $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getSecAdminAreaCaps( static::AREA_SLUG );
 	}

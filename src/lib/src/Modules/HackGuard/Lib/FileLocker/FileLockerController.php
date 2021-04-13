@@ -38,7 +38,13 @@ class FileLockerController {
 
 	public function processFileLocks() {
 		if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
-			$this->isFileLockerStateChanged() ? $this->deleteAllLocks() : $this->runAnalysis();
+			if ( $this->isFileLockerStateChanged() ) {
+				$this->deleteAllLocks();
+				$this->setState( [] );
+			}
+			else {
+				$this->runAnalysis();
+			}
 		}
 	}
 
@@ -189,8 +195,6 @@ class FileLockerController {
 	 * @throws \Exception
 	 */
 	private function getFile( string $fileKey ) :File {
-		$file = null;
-
 		$isSplitWpUrl = false; // TODO: is split URL?
 		$maxPaths = 1;
 		switch ( $fileKey ) {

@@ -55,7 +55,7 @@ class SecurityAdminController {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $this->getMod()->isModOptEnabled() &&
-			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
+			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 2;
 	}
 
 	private function enqueueJS() {
@@ -80,7 +80,8 @@ class SecurityAdminController {
 						],
 						'flags'   => [
 							'restrict_options' => !$isCurrentlySecAdmin && $opts->getAdminAccessArea_Options(),
-							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isCurrentlySecAdmin,
+							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isCurrentlySecAdmin
+												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
 							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
@@ -130,6 +131,10 @@ class SecurityAdminController {
 		return (int)max( 0, $remaining );
 	}
 
+	public function isCurrentUserRegisteredSecAdmin() :bool {
+		return $this->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() );
+	}
+
 	/**
 	 * @param \WP_User|null $user
 	 * @return bool
@@ -144,6 +149,7 @@ class SecurityAdminController {
 	}
 
 	public function isCurrentlySecAdmin() :bool {
+		// TODO: replace with isCurrentUserRegisteredSecAdmin()
 		return $this->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
 			   || $this->getSecAdminTimeRemaining() > 0;
 	}

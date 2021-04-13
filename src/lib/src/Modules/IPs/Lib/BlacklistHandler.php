@@ -57,7 +57,7 @@ class BlacklistHandler {
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$mod->isVerifiedBot() ) {
+			if ( !$mod->isTrustedVerifiedBot() ) {
 				if ( $opts->isEnabledTrackXmlRpc() ) {
 					( new IPs\BotTrack\TrackXmlRpc() )
 						->setMod( $mod )

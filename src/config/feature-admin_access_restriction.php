@@ -368,8 +368,8 @@
       "type":        "text",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Dashboard Logo",
-      "summary":     "Dashboard Logo URL",
+      "name":        "Plugin Badge Logo",
+      "summary":     "Plugin Badge Logo URL",
       "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     },
     {
@@ -380,8 +380,8 @@
       "type":        "text",
       "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
-      "name":        "Dashboard Logo",
-      "summary":     "Dashboard Logo URL",
+      "name":        "Dashboard and 2FA Logo",
+      "summary":     "Dashboard and 2FA Logo URL",
       "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     }
   ],
