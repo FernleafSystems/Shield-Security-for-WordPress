@@ -64,7 +64,7 @@
       "cols_custom":     {
         "session_id":        "varchar(32) NOT NULL DEFAULT ''",
         "wp_username":       "varchar(255) NOT NULL DEFAULT ''",
-        "ip":                "varchar(60) NOT NULL DEFAULT '0'",
+        "ip":                "varchar(60) NOT NULL DEFAULT ''",
         "browser":           "varchar(32) NOT NULL DEFAULT ''",
         "last_activity_uri": "text NOT NULL DEFAULT ''"
       },

@@ -1238,14 +1238,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param bool $bSetIfNeeded
+	 * @param bool $setIfNeeded
 	 * @return string
 	 */
-	public function getSessionId( $bSetIfNeeded = true ) {
+	public function getSessionId( $setIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
 			$req = Services::Request();
 			self::$sSessionId = $req->cookie( $this->getSessionCookieID(), '' );
-			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
+			if ( empty( self::$sSessionId ) && $setIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
 			}
@@ -1253,10 +1253,10 @@ class Controller extends DynPropertiesClass {
 		return self::$sSessionId;
 	}
 
-	public function getUniqueRequestId( bool $bSetIfNeeded = false ) :string {
+	public function getUniqueRequestId( bool $setIfNeeded = false ) :string {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
-				$this->getSessionId( $bSetIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
+				$this->getSessionId( $setIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
 			);
 		}
 		return self::$sRequestId;

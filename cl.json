@@ -71,6 +71,18 @@
       },
       {
         "type":        "fixed",
+        "title":       "In some rare scenarios, user sessions wouldn't be properly created and user automatically logged-out.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "WP Config FileLocker bug not correctly maintaining its state and resulting in locks not being created.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
         "title":       "The .htaccess file in the root of the Shield plugin directory is only created if its supported.",
         "description": [],
         "patch":       "11.1.1"

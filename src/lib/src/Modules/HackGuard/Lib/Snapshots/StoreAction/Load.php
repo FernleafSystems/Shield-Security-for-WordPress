@@ -12,13 +12,13 @@ class Load extends BaseAction {
 	 * @throws \Exception
 	 */
 	public function run() {
-		$oStore = $this->getNewStore();
+		$store = $this->getNewStore();
 
-		foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $sPath ) {
-			if ( !Services::WpFs()->exists( $sPath ) ) {
-				throw new \Exception( 'Critical store file does not exist: '.$sPath );
+		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
+			if ( !Services::WpFs()->exists( $path ) ) {
+				throw new \Exception( 'Critical store file does not exist: '.$path );
 			}
 		}
-		return $oStore;
+		return $store;
 	}
 }
