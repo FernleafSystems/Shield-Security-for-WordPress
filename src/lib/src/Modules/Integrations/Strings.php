@@ -51,7 +51,7 @@ class Strings extends Base\Strings {
 				$title = __( 'User Forms Bot Checking', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Shield can automatically protect custom user login and registration forms provided by 3rd party plugins.", 'wp-simple-firewall' ) ),
+						__( "Shield can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Only enable the integrations you require.", 'wp-simple-firewall' ) ),
 				];
@@ -95,11 +95,11 @@ class Strings extends Base\Strings {
 				$summary = __( "Select The User Forms Provider That You Use", 'wp-simple-firewall' );
 				$desc = [
 					__( 'This is a ShieldPRO-only feature.', 'wp-simple-firewall' ),
-					__( 'Many 3rd party plugins provide customer user login, registration, and lost password forms.', 'wp-simple-firewall' ),
-					__( "By default, these aren't checked for Bots as they require a custom integration.", 'wp-simple-firewall' ),
-					__( "Select the 3rd party plugin provider you use to have Shield automatically detect Bot requests to these forms.", 'wp-simple-firewall' ),
+					__( 'Many 3rd party plugins provide custom user login, registration, and lost password forms.', 'wp-simple-firewall' )
+					.' '.__( "They aren't normally checked for Bots since they require a custom integration.", 'wp-simple-firewall' ),
+					__( "Select your 3rd party providers to have Shield automatically detect Bot requests to these forms.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-						__( 'Only the form types (login, registration, etc) that you select in the Login Guard module will be checked.', 'wp-simple-firewall' ) ),
+						__( 'Only the form types (login, registration, lost password), that you have selected in the Login Guard module will be checked.', 'wp-simple-firewall' ) ),
 					sprintf( '<a href="%s">%s</a>', $con->getModule_LoginGuard()
 														->getUrl_DirectLinkToSection( 'section_brute_force_login_protection' ),
 						sprintf( __( 'Choose the types of forms you want %s to check', 'wp-simple-firewall' ), $con->getHumanName() ) ),

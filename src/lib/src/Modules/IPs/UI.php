@@ -72,7 +72,7 @@ class UI extends BaseShield\UI {
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
-		$aWarnings = [];
+		$warnings = [];
 
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -81,7 +81,7 @@ class UI extends BaseShield\UI {
 
 			case 'section_auto_black_list':
 				if ( !$opts->isEnabledAutoBlackList() ) {
-					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
+					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
 				}
 				break;
 
@@ -89,16 +89,16 @@ class UI extends BaseShield\UI {
 			case 'section_probes':
 			case 'section_logins':
 				if ( !$opts->isEnabledAutoBlackList() ) {
-					$aWarnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
+					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
 				if ( $section == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$aWarnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
+					$warnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
 				}
 				break;
 		}
 
-		return $aWarnings;
+		return $warnings;
 	}
 
 	private function renderIpAnalyse() :string {

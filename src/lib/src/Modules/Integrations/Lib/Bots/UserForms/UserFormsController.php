@@ -3,12 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserFormsController extends BaseBotDetectionController {
 
 	protected function canRun() :bool {
-		return parent::canRun() && Services::Request()->isPost() && !Services::WpUsers()->isUserLoggedIn();
+		/** @var Options $loginOpts */
+		$loginOpts = $this->getCon()->getModule_LoginGuard()->getOptions();
+		return parent::canRun() && Services::Request()->isPost()
+			   && !Services::WpUsers()->isUserLoggedIn()
+			   && $loginOpts->isEnabledAntiBot();
 	}
 
 	protected function isEnabled() :bool {
