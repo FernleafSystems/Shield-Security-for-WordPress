@@ -94,6 +94,6 @@ abstract class Base extends BaseHandler {
 	}
 
 	protected function getErrorMessage() :string {
-		return sprintf( __( 'Failed %s Bot Check', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
+		return sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
 	}
 }

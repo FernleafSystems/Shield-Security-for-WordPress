@@ -192,6 +192,16 @@
         "stat":  true,
         "audit": true,
         "offense": false
+      },
+      "user_form_bot_pass": {
+        "stat":    true,
+        "audit":   true,
+        "offense": false
+      },
+      "user_form_bot_fail": {
+        "stat":  true,
+        "audit": true,
+        "offense": true
       }
     }
   }

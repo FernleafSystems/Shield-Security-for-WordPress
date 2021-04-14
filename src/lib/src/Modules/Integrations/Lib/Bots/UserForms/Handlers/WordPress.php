@@ -36,6 +36,8 @@ class WordPress extends Base {
 				 ->setAuditUser( $username );
 			if ( $this->checkIsBot() ) {
 				$userOrError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
+				remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
+				remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
 			}
 		}
 		return $userOrError;

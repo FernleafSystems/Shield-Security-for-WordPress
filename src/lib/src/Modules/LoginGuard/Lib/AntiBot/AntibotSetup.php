@@ -30,12 +30,7 @@ class AntibotSetup {
 				->setMod( $mod );
 		}
 
-		if ( $opts->isEnabledAntiBot() ) {
-			$providers[] = ( new AntiBot\ProtectionProviders\AntiBot() )
-				->setMod( $mod );
-		}
-		else {
-
+		if ( !$opts->isEnabledAntiBot() ) {
 			if ( $opts->isEnabledGaspCheck() ) {
 				$providers[] = ( new AntiBot\ProtectionProviders\GaspJs() )
 					->setMod( $mod );
