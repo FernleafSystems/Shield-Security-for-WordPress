@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\UserForms;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -16,7 +16,9 @@ class UserFormsController {
 
 	protected function run() {
 		foreach ( $this->enumProviders() as $provider ) {
-			$provider->setMod( $this->getMod() )->execute();
+			if ( $provider::IsHandlerAvailable() ) {
+				$provider->setMod( $this->getMod() )->execute();
+			}
 		}
 	}
 

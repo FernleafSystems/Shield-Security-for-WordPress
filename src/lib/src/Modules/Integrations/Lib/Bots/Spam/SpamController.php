@@ -1,15 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-/**
- * Class SpamController
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam
- * @deprecated 11.2
- */
 class SpamController {
 
 	use ModConsumer;
@@ -21,7 +16,9 @@ class SpamController {
 
 	protected function run() {
 		foreach ( $this->enumProviders() as $provider ) {
-			$provider->setMod( $this->getMod() )->execute();
+			if ( $provider::IsHandlerAvailable() ) {
+				$provider->setMod( $this->getMod() )->execute();
+			}
 		}
 	}
 

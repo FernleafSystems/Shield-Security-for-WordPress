@@ -11,10 +11,10 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$mod->getControllerMWP()->execute();
 		
-		( new Lib\Spam\SpamController() )
+		( new Lib\Bots\Spam\SpamController() )
 			->setMod( $this->getMod() )
 			->execute();
-		( new Lib\UserForms\UserFormsController() )
+		( new Lib\Bots\UserForms\UserFormsController() )
 			->setMod( $this->getMod() )
 			->execute();
 	}
