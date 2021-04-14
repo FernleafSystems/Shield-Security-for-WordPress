@@ -27,7 +27,7 @@ class MemberPress extends Base {
 	 * @return array
 	 */
 	public function checkLogin_MP( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'memberpress-login' )->isBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'login' )->checkIsBot() ) {
 			$errors = [
 				$this->getErrorMessage()
 			];
@@ -40,7 +40,7 @@ class MemberPress extends Base {
 	 * @return array
 	 */
 	public function checkLostPassword_MP( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'memberpress-lostpassword' )->isBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'lostpassword' )->checkIsBot() ) {
 			$errors = [
 				$this->getErrorMessage()
 			];
@@ -53,7 +53,7 @@ class MemberPress extends Base {
 	 * @return string[]
 	 */
 	public function checkRegister_MP( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'memberpress-register' )->isBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
 			$errors = [
 				$this->getErrorMessage()
 			];
@@ -65,7 +65,7 @@ class MemberPress extends Base {
 		return 'MemberPress';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return function_exists( 'mepr_autoloader' ) || @class_exists( '\MeprAccountCtrl' );
 	}
 }

@@ -51,7 +51,7 @@ class Strings extends Base\Strings {
 				$title = __( 'User Forms Bot Checking', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Shield can automatically integrate with 3rd plugins that provide custom user login and registration forms.", 'wp-simple-firewall' ) ),
+						__( "Shield can automatically protect custom user login and registration forms provided by 3rd party plugins.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Only enable the integrations you require.", 'wp-simple-firewall' ) ),
 				];

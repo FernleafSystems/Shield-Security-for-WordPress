@@ -13,7 +13,7 @@ class EasyDigitalDownloads extends Base {
 	}
 
 	public function checkRegister_EDD() {
-		if ( $this->setAuditAction( 'edd-register' )->isBot() ) {
+		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
 			edd_set_error( $this->getCon()->prefix( rand() ), $this->getErrorMessage() );
 		}
 	}
@@ -22,7 +22,7 @@ class EasyDigitalDownloads extends Base {
 		return 'Easy Digital Downloads';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return function_exists( 'edd_set_error' ) && @class_exists( 'Easy_Digital_Downloads' );
 	}
 }

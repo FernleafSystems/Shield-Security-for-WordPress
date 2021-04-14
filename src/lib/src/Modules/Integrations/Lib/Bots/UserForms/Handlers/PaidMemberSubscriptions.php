@@ -13,7 +13,7 @@ class PaidMemberSubscriptions extends Base {
 	}
 
 	public function checkRegister_PMS() {
-		if ( $this->setAuditAction( 'paidmembersubscriptions-register' )->isBot() ) {
+		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
 			\pms_errors()->add( 'shield-fail-register', $this->getErrorMessage() );
 		}
 	}
@@ -22,7 +22,7 @@ class PaidMemberSubscriptions extends Base {
 		return 'Paid Member Subscriptions';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' );
 	}
 }

@@ -22,7 +22,7 @@ abstract class BaseBotDetectionController {
 			array_filter(
 				$this->enumProviders(),
 				function ( $provider ) {
-					return $provider::IsHandlerAvailable();
+					return $provider::IsProviderInstalled();
 				}
 			)
 		);

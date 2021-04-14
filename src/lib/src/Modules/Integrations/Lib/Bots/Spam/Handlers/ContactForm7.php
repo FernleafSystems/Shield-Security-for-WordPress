@@ -14,7 +14,7 @@ class ContactForm7 extends Base {
 		return 'Contact Form 7';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return defined( 'WPCF7_TEXT_DOMAIN' ) && WPCF7_TEXT_DOMAIN === 'contact-form-7';
 	}
 }

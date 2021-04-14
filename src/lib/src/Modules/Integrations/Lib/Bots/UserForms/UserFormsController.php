@@ -24,6 +24,7 @@ class UserFormsController extends BaseBotDetectionController {
 			new Handlers\ProfileBuilder(),
 			new Handlers\UltimateMember(),
 			new Handlers\WooCommerce(),
+			new Handlers\WordPress(),
 			new Handlers\WPMembers(),
 		];
 	}

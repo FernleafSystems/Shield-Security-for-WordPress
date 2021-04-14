@@ -23,19 +23,19 @@ class UltimateMember extends Base {
 	}
 
 	public function checkLogin_UM() {
-		if ( $this->setAuditAction( 'ultimatemember-login' )->isBot() ) {
+		if ( $this->setAuditAction( 'login' )->checkIsBot() ) {
 			\UM()->form()->add_error( 'shield-fail-login', $this->getErrorMessage() );
 		}
 	}
 
 	public function checkLostPassword_UM() {
-		if ( $this->setAuditAction( 'ultimatemember-lostpassword' )->isBot() ) {
+		if ( $this->setAuditAction( 'lostpassword' )->checkIsBot() ) {
 			\UM()->form()->add_error( 'shield-fail-lostpassword', $this->getErrorMessage() );
 		}
 	}
 
 	public function checkRegister_UM() {
-		if ( $this->setAuditAction( 'ultimatemember-register' )->isBot() ) {
+		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
 			\UM()->form()->add_error( 'shield-fail-register', $this->getErrorMessage() );
 		}
 	}
@@ -44,7 +44,7 @@ class UltimateMember extends Base {
 		return 'Ultimate Member';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return function_exists( '\UM' ) && @class_exists( '\UM' ) && method_exists( '\UM', 'form' );
 	}
 }

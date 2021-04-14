@@ -14,7 +14,8 @@ abstract class BaseHandler {
 	const SLUG = '';
 
 	protected function canRun() :bool {
-		return $this->getCon()->isPremiumActive() && $this->isEnabled() && static::IsHandlerAvailable();
+		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
+			   && $this->isEnabled() && static::IsProviderInstalled();
 	}
 
 	protected function isBot() :bool {
@@ -28,7 +29,7 @@ abstract class BaseHandler {
 		return false;
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return false;
 	}
 
@@ -44,5 +45,9 @@ abstract class BaseHandler {
 			$slug = '';
 		}
 		return $slug;
+	}
+
+	protected function isProOnly() :bool {
+		return true;
 	}
 }

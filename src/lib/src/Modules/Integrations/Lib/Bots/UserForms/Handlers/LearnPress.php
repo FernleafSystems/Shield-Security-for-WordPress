@@ -21,7 +21,7 @@ class LearnPress extends Base {
 	 * @return string|\WP_Error
 	 */
 	public function checkLogin_LP( $maybeError ) {
-		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'learnpress-login' )->isBot() ) {
+		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'login' )->checkIsBot() ) {
 			$maybeError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 		}
 		return $maybeError;
@@ -32,7 +32,7 @@ class LearnPress extends Base {
 	 * @return string|\WP_Error
 	 */
 	public function checkRegister_LP( $maybeError ) {
-		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'learnpress-register' )->isBot() ) {
+		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
 			$maybeError = new \WP_Error( 'shield-fail-register', $this->getErrorMessage() );
 		}
 		return $maybeError;
@@ -42,7 +42,7 @@ class LearnPress extends Base {
 		return 'LearnPress';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'LearnPress' );
 	}
 }

@@ -13,7 +13,7 @@ class Buddypress extends Base {
 	}
 
 	public function checkRegister_BP() {
-		if ( $this->setAuditAction( 'edd-register' )->isBot() ) {
+		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
 			wp_die( $this->getErrorMessage() );
 		}
 	}
@@ -22,7 +22,7 @@ class Buddypress extends Base {
 		return 'BuddyPress';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'BuddyPress' );
 	}
 }

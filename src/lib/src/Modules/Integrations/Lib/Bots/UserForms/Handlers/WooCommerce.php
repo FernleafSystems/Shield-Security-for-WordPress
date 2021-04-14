@@ -25,7 +25,7 @@ class WooCommerce extends Base {
 	 * @param \WP_Error $wpError
 	 */
 	public function checkCheckout_Woo( $data, $wpError ) {
-		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'woo-checkout' )->isBot() ) {
+		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'checkout' )->checkIsBot() ) {
 			$wpError->add( 'shield-user-checkout', $this->getErrorMessage() );
 		}
 	}
@@ -36,7 +36,7 @@ class WooCommerce extends Base {
 	 * @return \WP_User|\WP_Error
 	 */
 	public function checkLogin_Woo( $wpError, $username ) {
-		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'woo-login' )->isBot() ) {
+		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'login' )->checkIsBot() ) {
 			$this->setAuditUser( $username );
 			$wpError->add( 'shield-user-login', $this->getErrorMessage() );
 		}
@@ -49,7 +49,7 @@ class WooCommerce extends Base {
 	 * @return \WP_Error
 	 */
 	public function checkRegister_Woo( $wpError, $username ) {
-		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'woo-register' )->isBot() ) {
+		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
 			$this->setAuditUser( $username );
 			$wpError->add( 'shield-user-register', $this->getErrorMessage() );
 		}
@@ -60,7 +60,7 @@ class WooCommerce extends Base {
 		return 'WooCommerce';
 	}
 
-	public static function IsHandlerAvailable() :bool {
+	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'WooCommerce' );
 	}
 }

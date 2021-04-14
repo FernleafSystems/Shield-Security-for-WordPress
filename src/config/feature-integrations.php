@@ -127,7 +127,7 @@
       "premium":       true,
       "advanced":      true,
       "type":          "multiple_select",
-      "default":       [],
+      "default":       [ "wordpress" ],
       "value_options": [
         {
           "value_key": "buddypress",
@@ -164,6 +164,10 @@
         {
           "value_key": "woocommerce",
           "text":      "WooCommerce"
+        },
+        {
+          "value_key": "wordpress",
+          "text":      "WordPress"
         },
         {
           "value_key": "wpmembers",

@@ -17,6 +17,8 @@ abstract class Base extends BaseHandler {
 	 */
 	private $auditUser;
 
+	private static $isBot = null;
+
 	protected function run() {
 		/** @var Options $opts */
 		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
@@ -45,7 +47,7 @@ abstract class Base extends BaseHandler {
 	}
 
 	public function getAuditAction() :string {
-		return empty( $this->auditAction ) ? 'unknown-action' : $this->auditAction;
+		return sprintf( '%s-%s', $this->getHandlerSlug(), empty( $this->auditAction ) ? 'unknown' : $this->auditAction );
 	}
 
 	public function getAuditUser() :string {
@@ -71,18 +73,20 @@ abstract class Base extends BaseHandler {
 	}
 
 	public function checkIsBot() :bool {
-		$isBot = $this->isBot();
-		$this->getCon()->fireEvent(
-			sprintf( 'user_form_bot_%s', $isBot ? 'fail' : 'pass' ),
-			[
-				'audit' => [
-					'form_provider' => $this->getProviderName(),
-					'action'        => $this->getAuditAction(),
-					'username'      => $this->getAuditUser(),
+		if ( is_null( self::$isBot ) ) {
+			self::$isBot = $this->isBot();
+			$this->getCon()->fireEvent(
+				sprintf( 'user_form_bot_%s', self::$isBot ? 'fail' : 'pass' ),
+				[
+					'audit' => [
+						'form_provider' => $this->getProviderName(),
+						'action'        => $this->getAuditAction(),
+						'username'      => $this->getAuditUser(),
+					]
 				]
-			]
-		);
-		return $isBot;
+			);
+		}
+		return self::$isBot;
 	}
 
 	protected function isEnabled() :bool {
