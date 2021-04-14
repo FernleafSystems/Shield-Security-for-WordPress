@@ -34,8 +34,8 @@
     },
     {
       "slug":        "section_user_forms",
-      "title":       "User Forms",
-      "title_short": "User Forms"
+      "title":       "User Forms Bot Detection",
+      "title_short": "User Forms Bot Detection"
     },
     {
       "slug":   "section_non_ui",
@@ -130,8 +130,44 @@
       "default":       [],
       "value_options": [
         {
+          "value_key": "buddypress",
+          "text":      "BuddyPress"
+        },
+        {
+          "value_key": "easydigitaldownloads",
+          "text":      "Easy Digital Downloads"
+        },
+        {
+          "value_key": "learnpress",
+          "text":      "LearnPress"
+        },
+        {
           "value_key": "lifterlms",
           "text":      "LifterLMS"
+        },
+        {
+          "value_key": "memberpress",
+          "text":      "MemberPress"
+        },
+        {
+          "value_key": "paidmembersubscriptions",
+          "text":      "Paid Member Subscriptions"
+        },
+        {
+          "value_key": "profilebuilder",
+          "text":      "Profile Builder"
+        },
+        {
+          "value_key": "ultimatemember",
+          "text":      "Ultimate Member"
+        },
+        {
+          "value_key": "woocommerce",
+          "text":      "WooCommerce"
+        },
+        {
+          "value_key": "wpmembers",
+          "text":      "WP Members"
         }
       ],
       "link_info":     "",

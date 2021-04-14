@@ -10,12 +10,12 @@ abstract class Base extends BaseHandler {
 	/**
 	 * @var string
 	 */
-	private $actionToAudit;
+	private $auditAction;
 
 	/**
 	 * @var string
 	 */
-	private $userToAudit;
+	private $auditUser;
 
 	protected function run() {
 		/** @var Options $opts */
@@ -29,6 +29,7 @@ abstract class Base extends BaseHandler {
 		if ( $opts->isProtectLostPassword() ) {
 			$this->lostpassword();
 		}
+		$this->checkout();
 	}
 
 	protected function login() {
@@ -40,20 +41,23 @@ abstract class Base extends BaseHandler {
 	protected function lostpassword() {
 	}
 
-	public function getActionToAudit() :string {
-		return empty( $this->actionToAudit ) ? 'unknown-action' : $this->actionToAudit;
+	protected function checkout() {
 	}
 
-	public function getUserToAudit() :string {
-		return empty( $this->userToAudit ) ? 'unknown' : $this->userToAudit;
+	public function getAuditAction() :string {
+		return empty( $this->auditAction ) ? 'unknown-action' : $this->auditAction;
+	}
+
+	public function getAuditUser() :string {
+		return empty( $this->auditUser ) ? 'unknown' : $this->auditUser;
 	}
 
 	/**
 	 * @param string $action
 	 * @return $this
 	 */
-	protected function setActionToAudit( string $action ) {
-		$this->actionToAudit = $action;
+	protected function setAuditAction( string $action ) {
+		$this->auditAction = $action;
 		return $this;
 	}
 
@@ -61,18 +65,20 @@ abstract class Base extends BaseHandler {
 	 * @param string $user
 	 * @return $this
 	 */
-	protected function setUserToAudit( string $user ) {
-		$this->userToAudit = sanitize_user( $user );
+	protected function setAuditUser( string $user ) {
+		$this->auditUser = sanitize_user( $user );
 		return $this;
 	}
 
 	public function checkIsBot() :bool {
 		$isBot = $this->isBot();
 		$this->getCon()->fireEvent(
-			sprintf( 'user_form_%s', $isBot ? 'fail' : 'pass' ),
+			sprintf( 'user_form_bot_%s', $isBot ? 'fail' : 'pass' ),
 			[
 				'audit' => [
 					'form_provider' => $this->getProviderName(),
+					'action'        => $this->getAuditAction(),
+					'username'      => $this->getAuditUser(),
 				]
 			]
 		);

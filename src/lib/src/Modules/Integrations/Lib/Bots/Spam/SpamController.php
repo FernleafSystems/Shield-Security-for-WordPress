@@ -2,36 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
 
-class SpamController {
+class SpamController extends BaseBotDetectionController {
 
-	use ModConsumer;
-	use ExecOnce;
-
-	protected function canRun() :bool {
-		return $this->isEnabledSpamDetect();
-	}
-
-	protected function run() {
-		foreach ( $this->enumProviders() as $provider ) {
-			if ( $provider::IsHandlerAvailable() ) {
-				$provider->setMod( $this->getMod() )->execute();
-			}
-		}
-	}
-
-	private function isEnabledSpamDetect() :bool {
-		$opts = $this->getOptions();
-		return ( $opts->isOpt( 'enable_spam_antibot', 'Y' ) || $opts->isOpt( 'enable_spam_human', 'Y' ) )
-			   && !empty( $opts->getOpt( 'form_spam_providers' ) );
+	protected function isEnabled() :bool {
+		return !empty( $this->getOptions()->getOpt( 'form_spam_providers' ) );
 	}
 
 	/**
 	 * @return Handlers\Base[]
 	 */
-	private function enumProviders() :array {
+	public function enumProviders() :array {
 		return [
 			new Handlers\ContactForm7(),
 			new Handlers\ElementorPro(),

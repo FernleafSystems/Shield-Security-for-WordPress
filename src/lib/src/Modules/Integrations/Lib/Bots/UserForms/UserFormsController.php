@@ -2,36 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
 
-class UserFormsController {
+class UserFormsController extends BaseBotDetectionController {
 
-	use ModConsumer;
-	use ExecOnce;
-
-	protected function canRun() :bool {
-		return $this->isEnabled();
-	}
-
-	protected function run() {
-		foreach ( $this->enumProviders() as $provider ) {
-			if ( $provider::IsHandlerAvailable() ) {
-				$provider->setMod( $this->getMod() )->execute();
-			}
-		}
-	}
-
-	private function isEnabled() :bool {
+	protected function isEnabled() :bool {
 		return !empty( $this->getOptions()->getOpt( 'user_form_providers' ) );
 	}
 
 	/**
 	 * @return Handlers\Base[]
 	 */
-	private function enumProviders() :array {
+	public function enumProviders() :array {
 		return [
+			new Handlers\Buddypress(),
+			new Handlers\EasyDigitalDownloads(),
+			new Handlers\LearnPress(),
 			new Handlers\LifterLMS(),
+			new Handlers\MemberPress(),
+			new Handlers\PaidMemberSubscriptions(),
+			new Handlers\ProfileBuilder(),
+			new Handlers\UltimateMember(),
+			new Handlers\WooCommerce(),
+			new Handlers\WPMembers(),
 		];
 	}
 }
