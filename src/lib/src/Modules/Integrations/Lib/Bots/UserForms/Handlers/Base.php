@@ -89,7 +89,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 		return self::$isBot;
 	}
 
-	protected function isEnabled() :bool {
+	public function isEnabled() :bool {
 		/** @var Integrations\Options $opts */
 		$opts = $this->getOptions();
 		return in_array( $this->getHandlerSlug(), $opts->getUserFormProviders() );

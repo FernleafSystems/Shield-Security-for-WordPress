@@ -26,7 +26,7 @@ abstract class Base extends BaseHandler {
 		return false;
 	}
 
-	protected function isEnabled() :bool {
+	public function isEnabled() :bool {
 		return in_array( $this->getHandlerSlug(), $this->getOptions()->getOpt( 'form_spam_providers', [] ) );
 	}
 }

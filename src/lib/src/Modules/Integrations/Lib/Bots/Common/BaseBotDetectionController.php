@@ -17,7 +17,20 @@ abstract class BaseBotDetectionController {
 	protected function run() {
 		array_map(
 			function ( $provider ) {
-				$provider->setMod( $this->getMod() )->execute();
+				$provider->execute();
+			},
+			$this->getInstalledProviders()
+		);
+	}
+
+	/**
+	 * Inserts the ModCon;
+	 * @return BaseHandler[]
+	 */
+	public function getInstalledProviders() :array {
+		return array_map(
+			function ( $provider ) {
+				return $provider->setMod( $this->getMod() );
 			},
 			array_filter(
 				$this->enumProviders(),

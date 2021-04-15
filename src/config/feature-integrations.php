@@ -5,6 +5,7 @@
     "storage_key":           "integrations",
     "name":                  "Integrations",
     "menu_title":            "Integrations",
+    "sidebar_name":          "3rd Party Integrations",
     "show_module_options":   true,
     "show_module_menu_item": false,
     "auto_enabled":          true,

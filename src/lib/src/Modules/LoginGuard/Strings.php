@@ -144,6 +144,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$modName = $mod->getMainFeatureName();
@@ -223,7 +224,7 @@ class Strings extends Base\Strings {
 				$summary = __( "Use AntiBot Detection Engine To Detect Bots", 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
+						$con->getHumanName() ),
 					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings.", 'wp-simple-firewall' ) )
@@ -233,8 +234,13 @@ class Strings extends Base\Strings {
 			case 'bot_protection_locations' :
 				$name = __( 'Protection Locations', 'wp-simple-firewall' );
 				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
-				$desc = __( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ).'<br />'
-						.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) );
+				$desc = [
+					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
+					sprintf( '<a href="%s">%s</a>', $con->getModule_Integrations()
+														->getUrl_DirectLinkToSection( 'section_user_forms' ),
+						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $con->getHumanName() ) )
+				];
 				break;
 
 			case 'enable_login_gasp_check' :

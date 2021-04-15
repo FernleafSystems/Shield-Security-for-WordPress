@@ -25,7 +25,7 @@ abstract class BaseHandler {
 					->isBot( Services::IP()->getRequestIp() );
 	}
 
-	protected function isEnabled() :bool {
+	public function isEnabled() :bool {
 		return false;
 	}
 
