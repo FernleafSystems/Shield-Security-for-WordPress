@@ -50,10 +50,14 @@ class Strings extends Base\Strings {
 				$titleShort = __( 'User Forms Bot Checking', 'wp-simple-firewall' );
 				$title = __( 'User Forms Bot Checking', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Shield can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Only enable the integrations you require.", 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s %s', __( 'Summary', 'wp-simple-firewall' ),
+						__( "Shield can automatically protect 3rd party login and registration forms against Bots.", 'wp-simple-firewall' ),
+						__( "It uses our exclusive AntiBot Detection Engine to reliably identify bots.", 'wp-simple-firewall' )
+					),
+					sprintf( '%s - %s (%s)', __( 'Recommendation', 'wp-simple-firewall' ),
+						__( "Only enable the integrations you require.", 'wp-simple-firewall' ),
+						__( "WordPress is always enabled.", 'wp-simple-firewall' )
+					),
 				];
 				break;
 

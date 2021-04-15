@@ -248,7 +248,7 @@ class Strings extends Base\Strings {
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$summary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Provide DOM selectors to attached AntiBot protection to any form.', 'wp-simple-firewall' ),
+					__( 'Provide DOM selectors to attach AntiBot protection to any form.', 'wp-simple-firewall' ),
 					__( 'IDs are prefixed with "#".', 'wp-simple-firewall' ),
 					__( 'Classes are prefixed with ".".', 'wp-simple-firewall' ),
 					__( 'IDs are preferred over classes.', 'wp-simple-firewall' )

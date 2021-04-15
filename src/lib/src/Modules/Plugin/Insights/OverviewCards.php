@@ -31,7 +31,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$bHasSupportEmail = Services::Data()->validEmail( $opts->getOpt( 'block_send_email_address' ) );
 			$cards[ 'reports' ] = [
 				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
-				'state'   => $bHasSupportEmail ? 1 : -1,
+				'state'   => $bHasSupportEmail ? 1 : 0,
 				'summary' => $bHasSupportEmail ?
 					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() )
 					: sprintf( __( 'No reporting address provided - defaulting to: %s', 'wp-simple-firewall' ), $mod->getPluginReportEmail() ),
