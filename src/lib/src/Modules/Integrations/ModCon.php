@@ -19,15 +19,4 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $this->mwp;
 	}
-
-	protected function doPrePluginOptionsSave() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$userForms = $opts->getOpt( 'user_form_providers' );
-		if ( !in_array( 'wordpress', $userForms ) ) {
-			$userForms[] = 'wordpress';
-			$opts->setOpt( 'user_form_providers', $userForms );
-		}
-	}
 }

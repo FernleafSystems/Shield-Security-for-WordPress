@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-abstract class Base extends BaseHandler {
+abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 
 	/**
 	 * @var string
@@ -20,7 +20,7 @@ abstract class Base extends BaseHandler {
 	private static $isBot = null;
 
 	protected function run() {
-		/** @var Options $opts */
+		/** @var LoginGuard\Options $opts */
 		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
 		if ( $opts->isProtectLogin() ) {
 			$this->login();
@@ -90,7 +90,9 @@ abstract class Base extends BaseHandler {
 	}
 
 	protected function isEnabled() :bool {
-		return in_array( $this->getHandlerSlug(), $this->getOptions()->getOpt( 'user_form_providers', [] ) );
+		/** @var Integrations\Options $opts */
+		$opts = $this->getOptions();
+		return in_array( $this->getHandlerSlug(), $opts->getUserFormProviders() );
 	}
 
 	protected function getErrorMessage() :string {

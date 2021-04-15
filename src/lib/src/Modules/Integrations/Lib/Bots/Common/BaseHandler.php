@@ -37,7 +37,7 @@ abstract class BaseHandler {
 		return '';
 	}
 
-	protected function getHandlerSlug() :string {
+	public function getHandlerSlug() :string {
 		try {
 			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}

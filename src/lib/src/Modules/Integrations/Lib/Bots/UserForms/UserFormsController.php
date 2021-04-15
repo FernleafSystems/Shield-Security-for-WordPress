@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UserFormsController extends BaseBotDetectionController {
+class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionController {
 
 	protected function canRun() :bool {
 		/** @var Options $loginOpts */
@@ -17,7 +17,9 @@ class UserFormsController extends BaseBotDetectionController {
 	}
 
 	protected function isEnabled() :bool {
-		return !empty( $this->getOptions()->getOpt( 'user_form_providers' ) );
+		/** @var Integrations\Options $opts */
+		$opts = $this->getOptions();
+		return !empty( $opts->getUserFormProviders() );
 	}
 
 	/**
