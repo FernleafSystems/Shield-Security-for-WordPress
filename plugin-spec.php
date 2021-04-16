@@ -258,6 +258,13 @@
             "global-plugin"
           ]
         },
+        "frontend/userprofile":      {
+          "deps": [
+            "u2f-bundle",
+            "wp-jquery"
+          ],
+          "footer": true
+        },
         "u2f-bundle":              {},
         "shield/u2f-admin":        {
           "deps": [

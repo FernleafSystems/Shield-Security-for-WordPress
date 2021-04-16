@@ -154,7 +154,7 @@ class LoginIntentPage {
 						'src' => $con->urls->forJs( 'u2f-bundle.js' ),
 					],
 					[
-						'src' => $con->urls->forJs( 'u2f-frontend.js' ),
+						'src' => $con->urls->forJs( 'login/u2f.js' ),
 					]
 				]
 			];

@@ -23,16 +23,41 @@ class Enqueue {
 	}
 
 	protected function run() {
+
 		add_action( 'login_enqueue_scripts', function () {
 			$this->enqueue();
+			add_action( 'login_footer', function () {
+				$this->dequeue();
+			}, -1000 );
 		}, 1000 );
+
 		add_action( 'wp_enqueue_scripts', function () {
 			$this->enqueue();
+			add_action( 'wp_footer', function () {
+				$this->dequeue();
+			}, -1000 );
 		}, 1000 );
+
 		add_action( 'admin_enqueue_scripts', function ( $hook_suffix ) {
 			$this->adminHookSuffix = $hook_suffix;
 			$this->enqueue();
+			add_action( 'admin_footer', function () {
+				$this->dequeue();
+			}, -1000 );
 		}, 1000 );
+	}
+
+	protected function dequeue() {
+		$customDequeues = apply_filters( 'shield/custom_dequeues', [
+			self::CSS => [],
+			self::JS  => [],
+		] );
+		foreach ( $customDequeues as $type => $assets ) {
+			foreach ( $assets as $asset ) {
+				$handle = $this->normaliseHandle( $asset );
+				$type == self::CSS ? wp_dequeue_style( $handle ) : wp_dequeue_script( $handle );
+			}
+		}
 	}
 
 	protected function enqueue() {

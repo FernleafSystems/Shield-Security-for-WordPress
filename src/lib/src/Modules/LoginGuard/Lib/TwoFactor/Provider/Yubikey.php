@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,7 +22,7 @@ class Yubikey extends BaseProvider {
 					$localz[] = [
 						'shield/userprofile',
 						'icwp_wpsf_vars_profileyubikey',
-						[ 'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
+						$this->getJavascriptVars()
 					];
 					return $localz;
 				} );
@@ -30,10 +31,18 @@ class Yubikey extends BaseProvider {
 		}, 10, 2 );
 	}
 
-	public function renderUserProfileOptions( \WP_User $user ) :string {
-		$con = $this->getCon();
+	public function getJavascriptVars() :array {
+		return [
+			'ajax'           => [
+				'user_yubikey_toggle' => $this->getMod()->getAjaxActionData( 'user_yubikey_toggle' ),
+			],
+			'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' )
+		];
+	}
 
-		$aData = [
+	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+		$con = $this->getCon();
+		return [
 			'vars'    => [
 				'yubi_ids' => $this->getYubiIds( $user ),
 			],
@@ -55,13 +64,6 @@ class Yubikey extends BaseProvider {
 				'remove_more_info'     => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
 			],
 		];
-
-		return $this->getMod()
-					->renderTemplate(
-						'/snippets/user/profile/mfa/mfa_yubikey.twig',
-						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $user ), $aData ),
-						true
-					);
 	}
 
 	/**
@@ -148,56 +150,88 @@ class Yubikey extends BaseProvider {
 	}
 
 	/**
-	 * @param string $sOTP
+	 * @param string $otp
 	 * @return bool
 	 */
-	private function sendYubiOtpRequest( $sOTP ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$sOTP = trim( $sOTP );
-		$bSuccess = false;
+	private function sendYubiOtpRequest( $otp ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$otp = trim( $otp );
+		$success = false;
 
-		if ( preg_match( '#^[a-z]{44}$#', $sOTP ) ) {
-			$aParts = [
-				'otp'   => $sOTP,
+		if ( preg_match( '#^[a-z]{44}$#', $otp ) ) {
+			$parts = [
+				'otp'   => $otp,
 				'nonce' => md5( uniqid( $this->getCon()->getUniqueRequestId() ) ),
-				'id'    => $oOpts->getYubikeyAppId()
+				'id'    => $opts->getYubikeyAppId()
 			];
 
-			$sResp = Services::HttpRequest()->getContent(
-				add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY )
-			);
+			$response = Services::HttpRequest()->getContent( add_query_arg( $parts, self::URL_YUBIKEY_VERIFY ) );
 
-			unset( $aParts[ 'id' ] );
-			$aParts[ 'status' ] = 'OK';
+			unset( $parts[ 'id' ] );
+			$parts[ 'status' ] = 'OK';
 
-			$bSuccess = true;
-			foreach ( $aParts as $sKey => $mVal ) {
-				if ( !preg_match( sprintf( '#%s=%s#', $sKey, $mVal ), $sResp ) ) {
-					$bSuccess = false;
+			$success = true;
+			foreach ( $parts as $key => $value ) {
+				if ( !preg_match( sprintf( '#%s=%s#', $key, $value ), $response ) ) {
+					$success = false;
 					break;
 				}
 			}
 		}
 
-		return $bSuccess;
+		return $success;
+	}
+
+	public function toggleRegisteredYubiID( \WP_User $user, string $key ) :StdResponse {
+		$response = new StdResponse();
+		$response->success = true;
+
+		if ( strlen( $key ) > self::OTP_LENGTH ) {
+			$key = substr( $key, 0, self::OTP_LENGTH );
+		}
+		$IDs = $this->getYubiIds( $user );
+
+		if ( in_array( $key, $IDs ) ) {
+			$IDs = Services::DataManipulation()->removeFromArrayByValue( $IDs, $key );
+			$response->msg_text = sprintf(
+				__( '%s was removed from your profile.', 'wp-simple-firewall' ),
+				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $key )
+			);
+		}
+		else {
+			$IDs[] = $key;
+			$response->msg_text = sprintf(
+				__( '%s was added to your profile.', 'wp-simple-firewall' ),
+				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $key )
+			);
+		}
+
+		$this->setSecret( $user, implode( ',', array_unique( array_filter( $IDs ) ) ) );
+
+		return $response;
 	}
 
 	/**
 	 * @param \WP_User $user
-	 * @param string   $sKey
-	 * @param bool     $bAdd - true to add; false to remove
+	 * @param string   $key
+	 * @param bool     $add - true to add; false to remove
 	 * @return $this
 	 */
-	public function addRemoveRegisteredYubiId( \WP_User $user, $sKey, $bAdd = true ) {
-		$aIDs = $this->getYubiIds( $user );
-		if ( $bAdd ) {
-			$aIDs[] = $sKey;
+	public function addRemoveRegisteredYubiId( \WP_User $user, string $key, $add = true ) {
+		$IDs = $this->getYubiIds( $user );
+
+		if ( strlen( $key ) > self::OTP_LENGTH ) {
+			$key = substr( $key, 0, self::OTP_LENGTH );
+		}
+
+		if ( $add ) {
+			$IDs[] = $key;
 		}
 		else {
-			$aIDs = Services::DataManipulation()->removeFromArrayByValue( $aIDs, $sKey );
+			$IDs = Services::DataManipulation()->removeFromArrayByValue( $IDs, $key );
 		}
-		return $this->setSecret( $user, implode( ',', array_unique( array_filter( $aIDs ) ) ) );
+		return $this->setSecret( $user, implode( ',', array_unique( array_filter( $IDs ) ) ) );
 	}
 
 	/**
@@ -219,7 +253,7 @@ class Yubikey extends BaseProvider {
 	/**
 	 * @return array
 	 */
-	public function getFormField() {
+	public function getFormField() :array {
 		return [
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'text',
@@ -249,5 +283,9 @@ class Yubikey extends BaseProvider {
 			}
 		}
 		return $bValid;
+	}
+
+	protected function getProviderName() :string {
+		return 'Yubikey';
 	}
 }

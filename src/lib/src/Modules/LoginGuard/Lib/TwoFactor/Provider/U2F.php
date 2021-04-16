@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,32 +25,10 @@ class U2F extends BaseProvider {
 				$enqueues[ Enqueue::JS ][] = 'shield/u2f-admin';
 
 				add_filter( 'shield/custom_localisations', function ( array $localz ) {
-					$user = Services::WpUsers()->getCurrentWpUser();
-					list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );
 					$localz[] = [
 						'shield/u2f-admin',
 						'icwp_wpsf_vars_u2f',
-						[
-							'reg_request' => $reg,
-							'signs'       => $signs,
-							'ajax'        => [
-								'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' )
-							],
-							'flags'       => [
-								'has_validated' => $this->hasValidatedProfile( $user )
-							],
-							'strings'     => [
-								'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
-								'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
-													   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
-													   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
-								'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
-													   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
-								'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
-								'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
-								'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
-							]
-						]
+						$this->getJavascriptVars()
 					];
 					return $localz;
 				} );
@@ -59,10 +38,37 @@ class U2F extends BaseProvider {
 		}, 10, 2 );
 	}
 
+	public function getJavascriptVars() :array {
+		$user = Services::WpUsers()->getCurrentWpUser();
+		list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );
+		return [
+			'reg_request' => $reg,
+			'signs'       => $signs,
+			'ajax'        => [
+				'u2f_add'    => $this->getMod()->getAjaxActionData( 'u2f_add' ),
+				'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' ),
+			],
+			'flags'       => [
+				'has_validated' => $this->hasValidatedProfile( $user )
+			],
+			'strings'     => [
+				'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+				'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
+									   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
+									   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+				'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
+									   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
+				'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
+				'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+				'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+			]
+		];
+	}
+
 	/**
 	 * @return array
 	 */
-	public function getFormField() {
+	public function getFormField() :array {
 		$user = Services::WpUsers()->getCurrentWpUser();
 
 		$aFieldData = [];
@@ -101,11 +107,22 @@ class U2F extends BaseProvider {
 	 * @throws \u2flib_server\Error
 	 */
 	private function createNewU2fRegistrationRequest( \WP_User $user ) {
-		$oMeta = $this->getCon()->getUserMeta( $user );
-		list( $oRegRequest, $aSignRequests ) = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
+		$meta = $this->getCon()->getUserMeta( $user );
+		list( $newRegRequest, $signRequests ) = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 			->getRegisterData( $this->getRegistrations( $user ) );
-		$oMeta->u2f_regrequest = json_encode( $oRegRequest );
-		return [ $oRegRequest, $aSignRequests ];
+
+		// Store requests as an array to allow for multiple requests to be kept
+		unset( $meta->u2f_regrequest ); // Old property
+		$userRegRequests = array_filter(
+			is_array( $meta->u2f_regrequests ) ? $meta->u2f_regrequests : [],
+			function ( $ts ) {
+				return Services::Request()->ts() - $ts < MINUTE_IN_SECONDS*10;
+			}
+		);
+		$userRegRequests[ json_encode( $newRegRequest ) ] = Services::Request()->ts();
+		$meta->u2f_regrequests = $userRegRequests;
+
+		return [ $newRegRequest, $signRequests ];
 	}
 
 	/**
@@ -113,12 +130,12 @@ class U2F extends BaseProvider {
 	 * @return \stdClass[]
 	 */
 	private function getRegistrations( \WP_User $user ) {
-		$aRegs = json_decode( $this->getSecret( $user ), true );
+		$regs = json_decode( $this->getSecret( $user ), true );
 		return array_map(
-			function ( $aReg ) {
-				return (object)$aReg;
+			function ( $reg ) {
+				return (object)$reg;
 			},
-			is_array( $aRegs ) ? $aRegs : []
+			is_array( $regs ) ? $regs : []
 		);
 	}
 
@@ -132,18 +149,15 @@ class U2F extends BaseProvider {
 		return sprintf( 'https://%s%s', $aPs[ 'host' ], $sPort );
 	}
 
-	public function renderUserProfileOptions( \WP_User $user ) :string {
-
-		$bValidated = $this->hasValidatedProfile( $user );
-
-		$aData = [
+	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+		return [
 			'strings' => [
 				'title'          => __( 'U2F', 'wp-simple-firewall' ),
 				'button_reg_key' => __( 'Register A New U2F Security Key', 'wp-simple-firewall' ),
 				'prompt'         => __( 'Click To Register A U2F Device.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'is_validated' => $bValidated
+				'is_validated' => $this->hasValidatedProfile( $user )
 			],
 			'vars'    => [
 				'registrations' => array_map(
@@ -163,13 +177,6 @@ class U2F extends BaseProvider {
 				)
 			],
 		];
-
-		return $this->getMod()
-					->renderTemplate(
-						'/snippets/user/profile/mfa/mfa_u2f.twig',
-						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $user ), $aData ),
-						true
-					);
 	}
 
 	/**
@@ -183,47 +190,66 @@ class U2F extends BaseProvider {
 	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $user ) {
-		$isError = false;
-		$msg = null;
+		$rawU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
+		if ( !empty( $rawU2fResponse ) ) {
+			$result = $this->addNewRegistration( $user, json_decode( $rawU2fResponse, true ) );
+			$this->getMod()
+				 ->setFlashAdminNotice( $result->success ? $result->msg_text : $result->error_text, $result->failed );
+		}
+	}
 
-		$sU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
-		if ( !empty( $sU2fResponse ) ) {
-			$oMeta = $this->getCon()->getUserMeta( $user );
+	public function addNewRegistration( \WP_User $user, array $u2fResponse ) :StdResponse {
+		$response = new StdResponse();
 
-			try {
-				$oDecodedResponse = json_decode( $sU2fResponse );
-				$sLabel = preg_replace( '#[^a-z0-9_-]#i', '', $oDecodedResponse->label );
-				if ( strlen( $sLabel ) > 16 ) {
-					throw new \Exception( 'U2F Device label is larger than 16 characters.' );
-				}
-				if ( array_key_exists( $sLabel, $this->getRegistrations( $user ) ) ) {
-					throw new \Exception( 'U2F Device with this label already exists.' );
-				}
+		$meta = $this->getCon()->getUserMeta( $user );
 
-				$oRegRequest = json_decode( $oMeta->u2f_regrequest );
-				$oRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )->doRegister(
-					new RegisterRequest( $oRegRequest->challenge, $oRegRequest->appId ),
-					$oDecodedResponse
-				);
-
-				// attach the device label
-				$aConfirmedReg = get_object_vars( $oRegistration );
-				$aConfirmedReg[ 'label' ] = $sLabel;
-				$this->addRegistration( $user, $aConfirmedReg )
-					 ->setProfileValidated( $user );
-
-				$msg = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
+		try {
+			$u2fResponse = (object)$u2fResponse;
+			$label = preg_replace( '#[^a-z0-9_-]#i', '', $u2fResponse->label );
+			if ( strlen( $label ) > 16 ) {
+				throw new \Exception( 'U2F Device label is larger than 16 characters.' );
 			}
-			catch ( \Exception $e ) {
-				$isError = true;
-				$msg = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
-					$e->getMessage() );
+			if ( array_key_exists( $label, $this->getRegistrations( $user ) ) ) {
+				throw new \Exception( 'U2F Device with this label already exists.' );
 			}
+
+			$U2FRegistration = null;
+			foreach ( $meta->u2f_regrequests as $u2fRequest => $ts ) {
+				try {
+					$regRequest = json_decode( $u2fRequest );
+					$U2FRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )->doRegister(
+						new RegisterRequest( $regRequest->challenge, $regRequest->appId ),
+						$u2fResponse
+					);
+					$regReqs = $meta->u2f_regrequests;
+					unset( $regReqs[ $u2fRequest ] );
+					$meta->u2f_regrequests = $regReqs;
+					break;
+				}
+				catch ( \Exception $e ) {
+				}
+			}
+
+			if ( empty( $U2FRegistration ) ) {
+				throw new \Exception( "Couldn't find a suitable U2F challenge to verify." );
+			}
+
+			// attach the device label
+			$confirmedReg = get_object_vars( $U2FRegistration );
+			$confirmedReg[ 'label' ] = $label;
+			$this->addRegistration( $user, $confirmedReg )
+				 ->setProfileValidated( $user );
+
+			$response->msg_text = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
+			$response->success = true;
+		}
+		catch ( \Exception $e ) {
+			$response->success = false;
+			$response->error_text = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
+				$e->getMessage() );
 		}
 
-		if ( !empty( $msg ) ) {
-			$this->getMod()->setFlashAdminNotice( $msg, $isError );
-		}
+		return $response;
 	}
 
 	protected function processOtp( \WP_User $user, string $otp ) :bool {
@@ -269,12 +295,12 @@ class U2F extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param array    $aRegs
+	 * @param array    $regs
 	 * @return $this
 	 */
-	private function storeRegistrations( \WP_User $user, array $aRegs ) {
-		return $this->setProfileValidated( $user, !empty( $aRegs ) )
-					->setSecret( $user, json_encode( $aRegs ) );
+	private function storeRegistrations( \WP_User $user, array $regs ) {
+		return $this->setProfileValidated( $user, !empty( $regs ) )
+					->setSecret( $user, json_encode( $regs ) );
 	}
 
 	/**
@@ -330,5 +356,9 @@ class U2F extends BaseProvider {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEnabledU2F();
+	}
+
+	protected function getProviderName() :string {
+		return 'U2F';
 	}
 }

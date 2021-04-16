@@ -276,8 +276,10 @@ class ModCon extends BaseShield\ModCon {
 			'global-plugin',
 			'icwp_wpsf_vars_lg',
 			[
-				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
-				'ajax_del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
+				'ajax' => [
+					'gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
+					'del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
+				],
 			]
 		];
 		return $locals;

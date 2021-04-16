@@ -7,21 +7,21 @@ trait WpUserConsumer {
 	/**
 	 * @var \WP_User
 	 */
-	private $oWpUser;
+	private $wpUser;
 
 	/**
-	 * @return \WP_User
+	 * @return \WP_User|null
 	 */
 	public function getWpUser() {
-		return $this->oWpUser;
+		return $this->wpUser;
 	}
 
 	/**
-	 * @param \WP_User $user
+	 * @param \WP_User|null $user
 	 * @return $this
 	 */
-	public function setWpUser( \WP_User $user ) {
-		$this->oWpUser = $user;
+	public function setWpUser( $user ) {
+		$this->wpUser = $user;
 		return $this;
 	}
 }

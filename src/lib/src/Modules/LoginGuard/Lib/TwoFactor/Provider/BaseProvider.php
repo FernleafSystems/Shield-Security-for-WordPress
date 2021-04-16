@@ -26,6 +26,12 @@ abstract class BaseProvider {
 	public function setupProfile() {
 	}
 
+	public function getJavascriptVars() :array {
+		return [];
+	}
+
+	abstract protected function getProviderName() :string;
+
 	/**
 	 * Assumes this is only called on active profiles
 	 * @param \WP_User $user
@@ -110,12 +116,12 @@ abstract class BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $bValidated set true for validated, false for invalidated
+	 * @param bool     $validated set true for validated, false for invalidated
 	 * @return $this
 	 */
-	public function setProfileValidated( $user, $bValidated = true ) {
+	public function setProfileValidated( $user, $validated = true ) {
 		$this->getCon()
-			 ->getUserMeta( $user )->{static::SLUG.'_validated'} = $bValidated;
+			 ->getUserMeta( $user )->{static::SLUG.'_validated'} = $validated;
 		return $this;
 	}
 
@@ -156,7 +162,36 @@ abstract class BaseProvider {
 	 * @return string
 	 */
 	public function renderUserProfileOptions( \WP_User $user ) :string {
-		return '';
+		return $this->getMod()
+					->renderTemplate(
+						sprintf( '/snippets/user/profile/mfa/mfa_%s.twig', static::SLUG ),
+						$this->getProfileRenderData( $user )
+					);
+	}
+
+	/**
+	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
+	 * functions.  Otherwise we need to be careful of mixing up users.
+	 * @param \WP_User $user
+	 * @return string
+	 */
+	public function renderUserProfileCustomForm( \WP_User $user ) :string {
+		return $this->getMod()
+					->renderTemplate(
+						sprintf( '/user/profile/mfa/provider_%s.twig', static::SLUG ),
+						$this->getProfileRenderData( $user )
+					);
+	}
+
+	public function getProfileRenderData( \WP_User $user ) :array {
+		return Services::DataManipulation()->mergeArraysRecursive(
+			$this->getCommonData( $user ),
+			$this->getProviderSpecificRenderData( $user )
+		);
+	}
+
+	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+		return [];
 	}
 
 	/**
@@ -191,10 +226,7 @@ abstract class BaseProvider {
 	public function captureLoginAttempt( \WP_User $user ) {
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getFormField() {
+	public function getFormField() :array {
 		return [];
 	}
 
@@ -242,7 +274,8 @@ abstract class BaseProvider {
 				'otp_field_name' => $this->getLoginFormParameter(),
 			],
 			'strings' => [
-				'is_enforced' => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
+				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
+				'provider_name' => $this->getProviderName()
 			],
 		];
 	}

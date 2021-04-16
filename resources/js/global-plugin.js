@@ -234,12 +234,12 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			event.preventDefault();
 			iCWP_WPSF_BodyOverlay.show();
 
-			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_gen_backup_codes,
-				function ( oResponse ) {
-					alert( 'Your login backup code: ' + oResponse.data.code );
+			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax.gen_backup_codes,
+				function ( response ) {
+					alert( 'Your login backup code: ' + response.data.code );
 				}
 			).always( function () {
-					location.reload( true );
+					location.reload();
 				}
 			);
 
@@ -250,11 +250,11 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			event.preventDefault();
 			iCWP_WPSF_BodyOverlay.show();
 
-			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_del_backup_codes,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax.del_backup_codes,
 				function ( oResponse ) {
 				}
 			).always( function () {
-					location.reload( true );
+					location.reload();
 					// iCWP_WPSF_BodyOverlay.hide();
 				}
 			);

@@ -1,0 +1,38 @@
+<tr>
+	<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
+	<td>
+		{% if flags.is_profile_active %}
+{#			<p>{{ strings.registered_yubi_ids }}</p>#}
+			<ul style=" list-style: circle inside; ">
+				{% for yubi_id in vars.yubi_ids %}
+					<li>
+						<code>{{ yubi_id }}</code>
+						<a href="#"
+						   class="icwpWpsf-YubikeyRemove"
+						   style="text-decoration: none;"
+						   title="Remove"
+						   data-yubikeyid="{{ yubi_id }}">&#10006;</a>
+					</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+{#			<p>{{ strings.no_active_yubi_ids }}</p>#}
+		{% endif %}
+
+{#		<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>#}
+		<input class="regular-text"
+			   style="width: 100%;"
+			   type="text"
+			   id="shield_yubi"
+			   name="{{ vars.otp_field_name }}"
+			   value="" autocomplete="off" />
+		{% if flags.is_profile_active %}
+{#				<p class="description">#}
+{#					{{ strings.to_remove_device }}#}
+{#				</p>#}
+		{% endif %}
+{#			<p class="description">#}
+{#				{{ strings.multiple_for_pro }}#}
+{#			</p>#}
+	</td>
+</tr>

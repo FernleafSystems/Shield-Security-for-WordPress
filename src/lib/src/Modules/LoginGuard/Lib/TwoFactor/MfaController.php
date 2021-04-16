@@ -26,8 +26,8 @@ class MfaController {
 	private $oLoginIntentPageHandler;
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 10, 2 );
+		add_action( 'init', [ $this, 'onWpInit' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		$this->setupLoginCaptureHooks();
 		$this->handleLoginLink();
 	}
@@ -43,6 +43,7 @@ class MfaController {
 		( new UserProfile() )
 			->setMfaController( $this )
 			->run();
+		( new MfaProfilesController() )->setMfaController( $this )->execute();
 
 		add_shortcode( 'SHIELD_2FA_LOGIN', function () {
 			return $this->getLoginIntentPageHandler()->renderForm();
@@ -151,11 +152,11 @@ class MfaController {
 	public function getProviders() :array {
 		if ( !is_array( $this->aProviders ) ) {
 			$this->aProviders = [
-				Provider\Email::SLUG      => ( new Provider\Email() )->setMod( $this->getMod() ),
-				Provider\GoogleAuth::SLUG => ( new Provider\GoogleAuth() )->setMod( $this->getMod() ),
-				Provider\Yubikey::SLUG    => ( new Provider\Yubikey() )->setMod( $this->getMod() ),
-				Provider\Backup::SLUG     => ( new Provider\Backup() )->setMod( $this->getMod() ),
-				Provider\U2F::SLUG        => ( new Provider\U2F() )->setMod( $this->getMod() ),
+				Provider\Email::SLUG       => ( new Provider\Email() )->setMod( $this->getMod() ),
+				Provider\GoogleAuth::SLUG  => ( new Provider\GoogleAuth() )->setMod( $this->getMod() ),
+				Provider\Yubikey::SLUG     => ( new Provider\Yubikey() )->setMod( $this->getMod() ),
+				Provider\BackupCodes::SLUG => ( new Provider\BackupCodes() )->setMod( $this->getMod() ),
+				Provider\U2F::SLUG         => ( new Provider\U2F() )->setMod( $this->getMod() ),
 			];
 		}
 		return $this->aProviders;
@@ -164,15 +165,15 @@ class MfaController {
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
 	 * @param \WP_User $user
-	 * @param bool     $bOnlyActiveProfiles
+	 * @param bool     $onlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProvidersForUser( $user, $bOnlyActiveProfiles = false ) {
+	public function getProvidersForUser( $user, $onlyActiveProfiles = false ) {
 		$Ps = array_filter( $this->getProviders(),
-			function ( $oProvider ) use ( $user, $bOnlyActiveProfiles ) {
-				/** @var Provider\BaseProvider $oProvider */
-				return $oProvider->isProviderAvailableToUser( $user )
-					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $user ) );
+			function ( $provider ) use ( $user, $onlyActiveProfiles ) {
+				/** @var Provider\BaseProvider $provider */
+				return $provider->isProviderAvailableToUser( $user )
+					   && ( !$onlyActiveProfiles || $provider->isProfileActive( $user ) );
 			}
 		);
 
@@ -245,9 +246,8 @@ class MfaController {
 
 	/**
 	 * assume that a user is logged in.
-	 * @return bool
 	 */
-	private function validateLoginIntentRequest() {
+	private function validateLoginIntentRequest() :bool {
 		try {
 			$valid = ( new ValidateLoginIntentRequest() )
 				->setMfaController( $this )

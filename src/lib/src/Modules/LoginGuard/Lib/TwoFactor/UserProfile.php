@@ -36,29 +36,27 @@ class UserProfile {
 	public function addOptionsToUserProfile( $oUser ) {
 		$oMC = $this->getMfaCon();
 		$oWpUsers = Services::WpUsers();
-		$aProviders = $oMC->getProvidersForUser( $oUser );
-		if ( count( $aProviders ) > 0 ) {
-			$aRows = [];
-			foreach ( $aProviders as $oProvider ) {
-				$aRows[ $oProvider::SLUG ] = $oProvider->renderUserProfileOptions( $oUser );
+		$providers = $oMC->getProvidersForUser( $oUser );
+		if ( count( $providers ) > 0 ) {
+			$rows = [];
+			foreach ( $providers as $provider ) {
+				$rows[ $provider::SLUG ] = $provider->renderUserProfileOptions( $oUser );
 			}
-
-			$aData = [
-				'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
-				'i_am_valid_admin'      => $oMC->getCon()->isPluginAdmin(),
-				'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
-				'strings'               => [
-					'title'       => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-					'provided_by' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
-																								->getHumanName() )
-				],
-				'mfa_rows'              => $aRows,
-			];
 
 			echo $oMC->getMod()
 					 ->renderTemplate(
 						 '/snippets/user/profile/mfa/mfa_container.twig',
-						 $aData,
+						 [
+							 'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
+							 'i_am_valid_admin'      => $oMC->getCon()->isPluginAdmin(),
+							 'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
+							 'strings'               => [
+								 'title'       => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
+								 'provided_by' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
+																											 ->getHumanName() )
+							 ],
+							 'mfa_rows'              => $rows,
+						 ],
 						 true
 					 );
 		}
