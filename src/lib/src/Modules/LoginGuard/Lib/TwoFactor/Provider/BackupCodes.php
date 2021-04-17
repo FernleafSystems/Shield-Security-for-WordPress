@@ -10,7 +10,7 @@ class BackupCodes extends BaseProvider {
 	const SLUG = 'backupcode';
 	const STANDALONE = false;
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Backup Codes';
 	}
 

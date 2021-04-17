@@ -6,7 +6,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 	let initGA = function ( shield_vars ) {
 		let $gaCode = jQuery( 'input[type=text]#shield_gacode' );
-		if ($gaCode.length >0 ) {
+		if ( $gaCode.length > 0 ) {
 			jQuery( document ).on( 'change, keyup', $gaCode, function ( evt ) {
 				$gaCode.val( $gaCode.val()
 									.replace( /[^A-F0-9]/gi, '' )
@@ -25,6 +25,15 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			sendReq( shield_vars.ajax.user_ga_toggle );
 		} );
 	}
+
+	let initMfaRemoveAll = function () {
+		jQuery( document ).on( 'click', 'button#ShieldMfaRemoveAll', function ( evt ) {
+			if ( confirm( shield_vars_userprofile.strings.are_you_sure ) ) {
+			}
+			shield_vars_userprofile.ajax.mfa_remove_all.user_id = jQuery( evt.currentTarget ).data( 'user_id' );
+			sendReq( shield_vars_userprofile.ajax.mfa_remove_all );
+		} );
+	};
 
 	let initBackupcodes = function ( shield_vars ) {
 		let $codeGen = jQuery();
@@ -149,6 +158,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			if ( typeof shield_vars_userprofile.vars.providers.backupcode !== typeof undefined ) {
 				initBackupcodes( shield_vars_userprofile.vars.providers.backupcode );
 			}
+			initMfaRemoveAll();
 		} );
 	};
 

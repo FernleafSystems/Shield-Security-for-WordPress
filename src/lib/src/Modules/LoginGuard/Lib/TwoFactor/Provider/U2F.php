@@ -338,7 +338,7 @@ class U2F extends BaseProvider {
 		return $opts->isEnabledU2F();
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'U2F';
 	}
 }

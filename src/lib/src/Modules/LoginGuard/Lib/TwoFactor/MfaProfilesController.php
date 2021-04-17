@@ -32,7 +32,7 @@ class MfaProfilesController {
 		$this->isFrontend = $isFrontend;
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
 
-			if ( $this->isFrontend || in_array( $hook, [ 'profile.php' ] ) ) {
+			if ( $this->isFrontend || in_array( $hook, [ 'profile.php', 'user-edit.php' ] ) ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
 
 				if ( $this->isFrontend ) {
@@ -52,10 +52,16 @@ class MfaProfilesController {
 							'shield/userprofile',
 							'shield_vars_userprofile',
 							[
-								'vars' => [
+								'ajax'    => [
+									'mfa_remove_all' => $mfaCon->getMod()->getAjaxActionData( 'mfa_remove_all' )
+								],
+								'vars'    => [
 									'providers' => array_map( function ( $provider ) {
 										return $provider->getJavascriptVars();
 									}, $providers )
+								],
+								'strings' => [
+									'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
 								],
 							]
 						];

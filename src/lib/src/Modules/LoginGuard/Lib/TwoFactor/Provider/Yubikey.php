@@ -267,7 +267,7 @@ class Yubikey extends BaseProvider {
 		return $bValid;
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Yubikey';
 	}
 }

@@ -27,7 +27,7 @@ abstract class BaseProvider {
 		return [];
 	}
 
-	abstract protected function getProviderName() :string;
+	abstract public function getProviderName() :string;
 
 	/**
 	 * Assumes this is only called on active profiles
@@ -109,6 +109,12 @@ abstract class BaseProvider {
 		$sNewSecret = $this->genNewSecret( $user );
 		$this->setSecret( $user, $sNewSecret );
 		return $sNewSecret;
+	}
+
+	public function remove( \WP_User $user ) {
+		$meta = $this->getCon()->getUserMeta( $user );
+		$meta->{static::SLUG.'_secret'} = null;
+		$this->setProfileValidated( $user, false );
 	}
 
 	/**
@@ -255,7 +261,7 @@ abstract class BaseProvider {
 		return trim( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
 	}
 
-	protected function getCommonData( \WP_User $user ) :array{
+	protected function getCommonData( \WP_User $user ) :array {
 		return [
 			'flags'   => [
 				'has_validated_profile' => $this->hasValidatedProfile( $user ),

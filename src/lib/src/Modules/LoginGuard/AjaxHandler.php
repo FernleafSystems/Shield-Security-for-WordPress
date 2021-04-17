@@ -11,6 +11,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
+			case 'mfa_remove_all':
+				$response = $this->ajaxExec_MfaRemoveAll();
+				break;
+
 			case 'gen_backup_codes':
 				$response = $this->ajaxExec_GenBackupCodes();
 				break;
@@ -49,6 +53,27 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 			default:
 				$response = parent::processAjaxAction( $action );
+		}
+
+		return $response;
+	}
+
+	private function ajaxExec_MfaRemoveAll() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$userID = Services::Request()->post( 'user_id' );
+		if ( !empty( $userID ) ) {
+			$result = $mod->getLoginIntentController()->removeAllFactorsForUser( (int)$userID );
+			$response = [
+				'success' => $result->success,
+				'message' => $result->success ? $result->msg_text : $result->error_text,
+			];
+		}
+		else {
+			$response = [
+				'success' => false,
+				'message' => 'Invalid request with no User ID',
+			];
 		}
 
 		return $response;

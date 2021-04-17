@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update;
@@ -276,6 +277,27 @@ class MfaController {
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
 		return count( $this->getProvidersForUser( $user, true ) ) > 0;
+	}
+
+	public function removeAllFactorsForUser( int $userID ) :StdResponse {
+		$result = new StdResponse();
+
+		$user = Services::WpUsers()->getUserById( $userID );
+		if ( $user instanceof \WP_User ) {
+			foreach ( $this->getProvidersForUser( $user, true ) as $provider ) {
+				$provider->remove( $user );
+			}
+			$result->success = true;
+			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.' ),
+				$userID );
+		}
+		else {
+			$result->success = false;
+			$result->error_text = sprintf( __( "User doesn't exist with ID %s." ),
+				$userID );
+		}
+
+		return $result;
 	}
 
 	private function getLoginIntentExpiresAt() :int {

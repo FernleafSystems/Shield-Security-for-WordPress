@@ -270,7 +270,7 @@ class GoogleAuth extends BaseProvider {
 		return $opts->isEnabledGoogleAuthenticator();
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Google Authenticator';
 	}
 }

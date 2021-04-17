@@ -1,0 +1,45 @@
+<div id="shield-options-mfa-authentication" class="shield-user-options-block">
+	<h3>{{ strings.title }}
+		<small style="margin-left: 10px">({{ strings.provided_by }})</small>
+	</h3>
+
+	<table class="form-table">
+		<tbody>
+		<tr>
+			<th>{{ strings.remove_all }}</th>
+			<td>
+				{% if flags.has_factors %}
+					{{ strings.currently_active }}:
+					<ul style="margin-left: 20px;list-style-type: circle;">
+						{% for factor_name in vars.mfa_factor_names %}
+							<li>{{ factor_name }}</li>
+						{% endfor %}
+					</ul>
+
+					{% if flags.can_remove %}
+						<div>
+							<button class="button"
+									id="ShieldMfaRemoveAll"
+									type="button"
+									data-user_id="{{ vars.user_id }}"
+							>
+								{{ strings.remove_all_from }}
+							</button>
+						</div>
+					{% elseif flags.is_admin_profile %}
+						<p>
+							{{ strings.only_secadmin }}
+							<br />{{ strings.authenticate }}
+						</p>
+					{% else %}
+						{# There's not other scenario here. #}
+					{% endif %}
+
+				{% else %}
+					<p>{{ strings.no_providers }}</p>
+				{% endif %}
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
