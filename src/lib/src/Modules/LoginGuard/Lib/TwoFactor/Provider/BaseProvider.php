@@ -23,9 +23,6 @@ abstract class BaseProvider {
 	public function __construct() {
 	}
 
-	public function setupProfile() {
-	}
-
 	public function getJavascriptVars() :array {
 		return [];
 	}
@@ -164,7 +161,7 @@ abstract class BaseProvider {
 	public function renderUserProfileOptions( \WP_User $user ) :string {
 		return $this->getMod()
 					->renderTemplate(
-						sprintf( '/snippets/user/profile/mfa/mfa_%s.twig', static::SLUG ),
+						sprintf( '/admin/user/profile/mfa/mfa_%s.twig', static::SLUG ),
 						$this->getProfileRenderData( $user )
 					);
 	}
@@ -176,10 +173,12 @@ abstract class BaseProvider {
 	 * @return string
 	 */
 	public function renderUserProfileCustomForm( \WP_User $user ) :string {
+		$data = $this->getProfileRenderData( $user );
+		$data[ 'flags' ][ 'show_explanatory_text' ] = false;
 		return $this->getMod()
 					->renderTemplate(
 						sprintf( '/user/profile/mfa/provider_%s.twig', static::SLUG ),
-						$this->getProfileRenderData( $user )
+						$data
 					);
 	}
 
@@ -256,11 +255,7 @@ abstract class BaseProvider {
 		return trim( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return array
-	 */
-	protected function getCommonData( \WP_User $user ) {
+	protected function getCommonData( \WP_User $user ) :array{
 		return [
 			'flags'   => [
 				'has_validated_profile' => $this->hasValidatedProfile( $user ),
@@ -269,6 +264,7 @@ abstract class BaseProvider {
 				'is_my_user_profile'    => $user->ID == Services::WpUsers()->getCurrentWpUserId(),
 				'i_am_valid_admin'      => $this->getCon()->isPluginAdmin(),
 				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $user ),
+				'show_explanatory_text' => true
 			],
 			'vars'    => [
 				'otp_field_name' => $this->getLoginFormParameter(),

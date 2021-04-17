@@ -47,10 +47,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_UserYubikeyToggle();
 				break;
 
-			case 'yubikey_remove':
-				$response = $this->ajaxExec_ProfileYubikeyRemove();
-				break;
-
 			default:
 				$response = parent::processAjaxAction( $action );
 		}
@@ -61,15 +57,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	protected function ajaxExec_GenBackupCodes() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var TwoFactor\Provider\BackupCodes $oBU */
-		$oBU = $mod->getLoginIntentController()
-				   ->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
-		$pass = $oBU->resetSecret( Services::WpUsers()->getCurrentWpUser() );
-
-		foreach ( [ 20, 15, 10, 5 ] as $pos ) {
-			$pass = substr_replace( $pass, '-', $pos, 0 );
-		}
-
+		/** @var TwoFactor\Provider\BackupCodes $BU */
+		$BU = $mod->getLoginIntentController()
+				  ->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+		$pass = $BU->resetSecret( Services::WpUsers()->getCurrentWpUser() );
+		$pass = implode( '-', str_split( $pass, 5 ) );
 		return [
 			'message' => sprintf( 'Your backup login code is: %s', $pass ),
 			'code'    => $pass,
@@ -187,18 +179,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [
 			'success'     => $result->success,
 			'message'     => $result->success ? $result->msg_text : $result->error_text,
-			'page_reload' => true
-		];
-	}
-
-	private function ajaxExec_ProfileYubikeyRemove() :array {
-		$key = Services::Request()->post( 'yubikeyid' );
-		( new TwoFactor\Provider\Yubikey() )
-			->setMod( $this->getMod() )
-			->addRemoveRegisteredYubiId( Services::WpUsers()->getCurrentWpUser(), $key, false );
-		return [
-			'success'     => true,
-			'message'     => __( 'Yubikey removed from profile.', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];
 	}

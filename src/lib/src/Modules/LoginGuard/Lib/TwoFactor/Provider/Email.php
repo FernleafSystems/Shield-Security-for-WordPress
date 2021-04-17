@@ -18,7 +18,7 @@ class Email extends BaseProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax'    => [
+			'ajax' => [
 				'user_email2fa_toggle' => $this->getMod()->getAjaxActionData( 'user_email2fa_toggle' ),
 			],
 		];
@@ -205,7 +205,7 @@ class Email extends BaseProvider {
 			'strings' => [
 				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
 				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
+				'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
 				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $this->getCon()
 																														   ->getHumanName() )
 			]

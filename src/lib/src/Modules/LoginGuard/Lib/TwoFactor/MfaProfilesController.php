@@ -14,52 +14,58 @@ class MfaProfilesController {
 
 	private $rendered = false;
 
-	protected function canRun() :bool {
-		return true;
-	}
+	private $isFrontend = false;
 
 	protected function run() {
-		$this->defineShortcodes();
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			add_action( 'wp', function () {
-				$this->enqueueAssets();
+				$this->defineShortcodes();
+				$this->enqueueAssets( true );
+			} );
+			add_action( 'admin_init', function () {
+				$this->enqueueAssets( false );
 			} );
 		}
 	}
 
-	private function enqueueAssets() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
+	private function enqueueAssets( bool $isFrontend ) {
+		$this->isFrontend = $isFrontend;
+		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
 
-			$enqueues[ Enqueue::JS ][] = 'frontend/userprofile';
+			if ( $this->isFrontend || in_array( $hook, [ 'profile.php' ] ) ) {
+				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
 
-			add_filter( 'shield/custom_dequeues', function ( $assets ) {
-				if ( !$this->rendered ) {
-					$assets[ Enqueue::JS ][] = 'frontend/userprofile';
+				if ( $this->isFrontend ) {
+					add_filter( 'shield/custom_dequeues', function ( $assets ) {
+						if ( !$this->rendered ) {
+							$assets[ Enqueue::JS ][] = 'shield/userprofile';
+						}
+						return $assets;
+					} );
 				}
-				return $assets;
-			} );
 
-			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$mfaCon = $this->getMfaCon();
-				$providers = $mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() );
-				if ( !empty( $providers ) ) {
-					$localz[] = [
-						'frontend/userprofile',
-						'shield_vars_userprofile',
-						[
-							'vars' => [
-								'providers' => array_map( function ( $provider ) {
-									return $provider->getJavascriptVars();
-								}, $providers )
-							],
-						]
-					];
-				}
-				return $localz;
-			} );
+				add_filter( 'shield/custom_localisations', function ( array $localz ) {
+					$mfaCon = $this->getMfaCon();
+					$providers = $mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() );
+					if ( !empty( $providers ) ) {
+						$localz[] = [
+							'shield/userprofile',
+							'shield_vars_userprofile',
+							[
+								'vars' => [
+									'providers' => array_map( function ( $provider ) {
+										return $provider->getJavascriptVars();
+									}, $providers )
+								],
+							]
+						];
+					}
+					return $localz;
+				} );
+			}
 
 			return $enqueues;
-		} );
+		}, 10, $this->isFrontend ? 1 : 2 );
 	}
 
 	private function loadUserProfileMFA( $attributes = [] ) :string {

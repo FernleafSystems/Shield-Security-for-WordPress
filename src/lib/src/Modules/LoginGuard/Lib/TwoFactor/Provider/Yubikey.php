@@ -13,30 +13,12 @@ class Yubikey extends BaseProvider {
 	const OTP_LENGTH = 12;
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
-	public function setupProfile() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
-			if ( in_array( $hook, [ 'profile.php', ] ) ) {
-				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
-
-				add_filter( 'shield/custom_localisations', function ( array $localz ) {
-					$localz[] = [
-						'shield/userprofile',
-						'icwp_wpsf_vars_profileyubikey',
-						$this->getJavascriptVars()
-					];
-					return $localz;
-				} );
-			}
-			return $enqueues;
-		}, 10, 2 );
-	}
-
 	public function getJavascriptVars() :array {
 		return [
 			'ajax'           => [
 				'user_yubikey_toggle' => $this->getMod()->getAjaxActionData( 'user_yubikey_toggle' ),
+				'user_yubikey_remove' => $this->getMod()->getAjaxActionData( 'user_yubikey_remove' )
 			],
-			'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' )
 		];
 	}
 

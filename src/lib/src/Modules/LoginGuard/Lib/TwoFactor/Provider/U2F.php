@@ -18,26 +18,6 @@ class U2F extends BaseProvider {
 		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
 	}
 
-	public function setupProfile() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
-			if ( in_array( $hook, [ 'profile.php', ] ) ) {
-
-				$enqueues[ Enqueue::JS ][] = 'shield/u2f-admin';
-
-				add_filter( 'shield/custom_localisations', function ( array $localz ) {
-					$localz[] = [
-						'shield/u2f-admin',
-						'icwp_wpsf_vars_u2f',
-						$this->getJavascriptVars()
-					];
-					return $localz;
-				} );
-			}
-
-			return $enqueues;
-		}, 10, 2 );
-	}
-
 	public function getJavascriptVars() :array {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );

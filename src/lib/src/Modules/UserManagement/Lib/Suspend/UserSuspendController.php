@@ -147,7 +147,7 @@ class UserSuspendController {
 				'form_field' => 'shield_suspend_user',
 			]
 		];
-		echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
+		echo $this->getMod()->renderTemplate( '/admin/user/profile/suspend.twig', $aData, true );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {

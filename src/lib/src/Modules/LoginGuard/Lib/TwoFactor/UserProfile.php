@@ -10,20 +10,12 @@ class UserProfile {
 	use MfaControllerConsumer;
 
 	public function run() {
-		if ( is_admin() ) { // TODO: standalone UI based on shortcodes
+		if ( is_admin() ) {
 			add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
 			add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );
 			if ( $this->getMfaCon()->getCon()->isPluginAdmin() ) {
 				add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
 				add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
-			}
-
-			$oWpUsers = Services::WpUsers();
-			if ( $oWpUsers->isUserLoggedIn() ) {
-				$oMC = $this->getMfaCon();
-				foreach ( $oMC->getProvidersForUser( $oWpUsers->getCurrentWpUser(), false ) as $oP ) {
-					$oP->setupProfile();
-				}
 			}
 		}
 	}
@@ -45,7 +37,7 @@ class UserProfile {
 
 			echo $oMC->getMod()
 					 ->renderTemplate(
-						 '/snippets/user/profile/mfa/mfa_container.twig',
+						 '/admin/user/profile/mfa/mfa_container.twig',
 						 [
 							 'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
 							 'i_am_valid_admin'      => $oMC->getCon()->isPluginAdmin(),

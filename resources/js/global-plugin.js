@@ -221,50 +221,6 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 	iCWP_WPSF_HackGuard_Reinstall.initialise();
 }
 
-if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
-	var iCWP_WPSF_LoginGuard_BackupCodes = new function () {
-		this.initialise = function () {
-			jQuery( document ).ready( function () {
-				jQuery( document ).on( "click", "a#IcwpWpsfGenBackupLoginCode", genBackupCode );
-				jQuery( document ).on( "click", "a#IcwpWpsfDelBackupLoginCode", deleteBackupCode );
-			} );
-		};
-
-		var genBackupCode = function ( event ) {
-			event.preventDefault();
-			iCWP_WPSF_BodyOverlay.show();
-
-			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax.gen_backup_codes,
-				function ( response ) {
-					alert( 'Your login backup code: ' + response.data.code );
-				}
-			).always( function () {
-					location.reload();
-				}
-			);
-
-			return false;
-		};
-
-		var deleteBackupCode = function ( event ) {
-			event.preventDefault();
-			iCWP_WPSF_BodyOverlay.show();
-
-			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax.del_backup_codes,
-				function ( oResponse ) {
-				}
-			).always( function () {
-					location.reload();
-					// iCWP_WPSF_BodyOverlay.hide();
-				}
-			);
-
-			return false;
-		};
-	}();
-	iCWP_WPSF_LoginGuard_BackupCodes.initialise();
-}
-
 var iCWP_WPSF_Growl = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
