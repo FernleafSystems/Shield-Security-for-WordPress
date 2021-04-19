@@ -2,7 +2,7 @@
   "properties":       {
     "version":                 "11.1.11",
     "release_timestamp":       1618305000,
-    "build":                   "202104.1901",
+    "build":                   "202104.1902",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -121,6 +121,12 @@
             "plugin"
           ]
         },
+        "shield/dialog":         {
+          "deps":   [
+            "wp-wp-jquery-ui-dialog"
+          ],
+          "footer": true
+        },
         "shield/mainwp": {}
       },
       "js":  {
@@ -202,6 +208,11 @@
             "shuffle"
           ]
         },
+        "shield/dialog":         {
+          "deps":   [
+            "wp-jquery-ui-dialog"
+          ]
+        },
         "shield/comments":         {
           "deps":   [
             "wp-jquery"
@@ -256,7 +267,7 @@
         "shield/userprofile":      {
           "deps": [
             "u2f-bundle",
-            "wp-jquery"
+            "shield/dialog"
           ],
           "footer": true
         },

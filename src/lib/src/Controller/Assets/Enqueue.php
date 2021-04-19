@@ -75,6 +75,7 @@ class Enqueue {
 
 		// Get custom enqueues from modules or elsewhere
 		$customAssets = $this->getCustomEnqueues();
+		error_log( var_export( $customAssets, true ) );
 
 		// Combine enqueues and enqueue assets
 		foreach ( [ self::CSS, self::JS ] as $type ) {

@@ -2,6 +2,7 @@
 jQuery.fn.ShieldUserProfile = function ( options ) {
 
 	let $emailCheckbox = jQuery( 'input[type=checkbox]#shield_enable_mfaemail' );
+	let $dialog = jQuery( '#ShieldMfaDialog' );
 	let $emailStartState;
 
 	let initGA = function ( shield_vars ) {
@@ -36,7 +37,6 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 	};
 
 	let initBackupcodes = function ( shield_vars ) {
-		let $codeGen = jQuery();
 		jQuery( document ).on( 'click', '#IcwpWpsfGenBackupLoginCode', function ( evt ) {
 			sendReq( shield_vars.ajax.gen_backup_codes );
 		} );
@@ -133,12 +133,29 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 					msg = response.data.message;
 				}
 
-				alert( msg + "\n\nReloading page..." );
-				location.reload();
+				showDialog( response.data.success, msg )
 			}
 		).always( function () {
 			}
 		);
+	};
+
+	var showDialog = function ( success, msg ) {
+		jQuery( '.dialog-content', $dialog ).html( msg );
+		Shield_Dialogs.show($dialog, {
+			title: success ? 'Success' : 'Failure',
+			buttons: [
+				{
+					text: 'OK',
+					click: function () {
+						jQuery( this ).dialog( 'close' );
+					}
+				}
+			],
+			close: function ( event, ui ) {
+				location.reload();
+			}
+		});
 	};
 
 	var initialise = function () {

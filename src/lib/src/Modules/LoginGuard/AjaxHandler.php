@@ -89,7 +89,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$pass = implode( '-', str_split( $pass, 5 ) );
 
 		return [
-			'message' => sprintf( 'Your backup login code is: %s', $pass ),
+			'message' => sprintf( 'Your backup login code is:<br/><code>%s</code>', $pass ),
 			'code'    => $pass,
 			'success' => true
 		];

@@ -34,11 +34,13 @@ class MfaProfilesController {
 
 			if ( $this->isFrontend || in_array( $hook, [ 'profile.php', 'user-edit.php' ] ) ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
+				$enqueues[ Enqueue::CSS ][] = 'shield/dialog';
 
 				if ( $this->isFrontend ) {
 					add_filter( 'shield/custom_dequeues', function ( $assets ) {
 						if ( !$this->rendered ) {
 							$assets[ Enqueue::JS ][] = 'shield/userprofile';
+							$assets[ Enqueue::CSS ][] = 'shield/dialog';
 						}
 						return $assets;
 					} );
