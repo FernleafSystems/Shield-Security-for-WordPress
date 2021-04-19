@@ -19,7 +19,7 @@ class MfaController {
 	/**
 	 * @var Provider\BaseProvider[]
 	 */
-	private $aProviders;
+	private $providers;
 
 	/**
 	 * @var LoginIntentPage
@@ -89,16 +89,21 @@ class MfaController {
 		} );
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function processEmail2faLink() {
 		$req = Services::Request();
 		$user = sanitize_user( $req->query( 'user' ) );
 		if ( empty( $user ) ) {
 			throw new \Exception( 'Not valid data.' );
 		}
+
 		$user = Services::WpUsers()->getUserByUsername( $user );
 		if ( !$user instanceof \WP_User ) {
 			throw new \Exception( 'Not valid data.' );
 		}
+
 		$providers = $this->getProvidersForUser( $user, true );
 		if ( !isset( $providers[ Provider\Email::SLUG ] ) ) {
 			throw new \Exception( 'Not a support provider' );
@@ -106,6 +111,7 @@ class MfaController {
 		if ( !$providers[ Provider\Email::SLUG ]->validateLoginIntent( $user ) ) {
 			throw new \Exception( 'Login validation failed.' );
 		}
+
 		$providers[ Provider\Email::SLUG ]->postSuccessActions( $user );
 		if ( (int)$user->ID !== (int)Services::WpUsers()->getCurrentWpUserId() ) {
 			throw new \Exception( 'Action completed successfully. Please refresh your browser where you logged-in.' );
@@ -151,16 +157,21 @@ class MfaController {
 	 * @return Provider\BaseProvider[]
 	 */
 	public function getProviders() :array {
-		if ( !is_array( $this->aProviders ) ) {
-			$this->aProviders = [
-				Provider\Email::SLUG       => ( new Provider\Email() )->setMod( $this->getMod() ),
-				Provider\GoogleAuth::SLUG  => ( new Provider\GoogleAuth() )->setMod( $this->getMod() ),
-				Provider\Yubikey::SLUG     => ( new Provider\Yubikey() )->setMod( $this->getMod() ),
-				Provider\BackupCodes::SLUG => ( new Provider\BackupCodes() )->setMod( $this->getMod() ),
-				Provider\U2F::SLUG         => ( new Provider\U2F() )->setMod( $this->getMod() ),
-			];
+		if ( !is_array( $this->providers ) ) {
+			$this->providers = array_map(
+				function ( $provider ) {
+					return $provider->setMod( $this->getMod() );
+				},
+				[
+					Provider\Email::SLUG       => new Provider\Email(),
+					Provider\GoogleAuth::SLUG  => new Provider\GoogleAuth(),
+					Provider\Yubikey::SLUG     => new Provider\Yubikey(),
+					Provider\BackupCodes::SLUG => new Provider\BackupCodes(),
+					Provider\U2F::SLUG         => new Provider\U2F(),
+				]
+			);
 		}
-		return $this->aProviders;
+		return $this->providers;
 	}
 
 	/**
@@ -169,7 +180,7 @@ class MfaController {
 	 * @param bool     $onlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProvidersForUser( $user, $onlyActiveProfiles = false ) {
+	public function getProvidersForUser( \WP_User $user, $onlyActiveProfiles = false ) :array {
 		$Ps = array_filter( $this->getProviders(),
 			function ( $provider ) use ( $user, $onlyActiveProfiles ) {
 				/** @var Provider\BaseProvider $provider */
@@ -180,9 +191,9 @@ class MfaController {
 
 		// Neither BackupCode NOR U2F should EVER be the only 1 provider available.
 		if ( count( $Ps ) === 1 ) {
-			/** @var Provider\BaseProvider $oFirst */
-			$oFirst = reset( $Ps );
-			if ( !$oFirst::STANDALONE ) {
+			/** @var Provider\BaseProvider $first */
+			$first = reset( $Ps );
+			if ( !$first::STANDALONE ) {
 				$Ps = [];
 			}
 		}

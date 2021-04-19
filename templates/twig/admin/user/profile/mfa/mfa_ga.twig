@@ -10,6 +10,7 @@
 	}
 	#shield_gacode {
 		text-align: center;
+		width: 350px
 	}
 </style>
 
@@ -20,7 +21,7 @@
 		<td>
 			<button type="button" class="button"
 					name="shield_turn_off_ga" id="shield_ga_remove"
-					>{{ strings.remove_google_auth }}</button>
+			>{{ strings.remove_google_auth }}</button>
 			{% if flags.show_explanatory_text %}
 				<p class="description">{{ strings.desc_remove }}</p>
 			{% endif %}
@@ -45,7 +46,6 @@
 				   id="shield_gacode"
 				   name="{{ vars.otp_field_name }}"
 				   placeholder="{{ strings.enter_auth_app_code }}"
-				   style="width: 100%"
 				   value="" autocomplete="off" />
 			{% if flags.show_explanatory_text %}
 				<p class="description">

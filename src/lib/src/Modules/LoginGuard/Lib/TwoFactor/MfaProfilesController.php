@@ -17,9 +17,9 @@ class MfaProfilesController {
 	private $isFrontend = false;
 
 	protected function run() {
+		$this->defineShortcodes();
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			add_action( 'wp', function () {
-				$this->defineShortcodes();
 				$this->enqueueAssets( true );
 			} );
 			add_action( 'admin_init', function () {
@@ -46,26 +46,25 @@ class MfaProfilesController {
 
 				add_filter( 'shield/custom_localisations', function ( array $localz ) {
 					$mfaCon = $this->getMfaCon();
-					$providers = $mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() );
-					if ( !empty( $providers ) ) {
-						$localz[] = [
-							'shield/userprofile',
-							'shield_vars_userprofile',
-							[
-								'ajax'    => [
-									'mfa_remove_all' => $mfaCon->getMod()->getAjaxActionData( 'mfa_remove_all' )
-								],
-								'vars'    => [
-									'providers' => array_map( function ( $provider ) {
-										return $provider->getJavascriptVars();
-									}, $providers )
-								],
-								'strings' => [
-									'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
-								],
-							]
-						];
-					}
+					$user = Services::WpUsers()->getCurrentWpUser();
+					$providers = $user instanceof \WP_User ? $mfaCon->getProvidersForUser( $user ) : [];
+					$localz[] = [
+						'shield/userprofile',
+						'shield_vars_userprofile',
+						[
+							'ajax'    => [
+								'mfa_remove_all' => $mfaCon->getMod()->getAjaxActionData( 'mfa_remove_all' )
+							],
+							'vars'    => [
+								'providers' => array_map( function ( $provider ) {
+									return $provider->getJavascriptVars();
+								}, $providers )
+							],
+							'strings' => [
+								'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
+							],
+						]
+					];
 					return $localz;
 				} );
 			}

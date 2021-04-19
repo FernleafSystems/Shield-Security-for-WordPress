@@ -1,3 +1,8 @@
+<style>
+	#shield_yubi {
+		width: 350px
+	}
+</style>
 <tr>
 	<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
 	<td>
@@ -27,10 +32,10 @@
 			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>
 		{% endif %}
 		<input class="regular-text"
-			   style="width: 100%;"
 			   type="text"
 			   id="shield_yubi"
 			   name="{{ vars.otp_field_name }}"
+			   placeholder="{{ strings.placeholder_enter_otp }}"
 			   value="" autocomplete="off" />
 		{% if flags.show_explanatory_text %}
 			{% if flags.is_profile_active %}

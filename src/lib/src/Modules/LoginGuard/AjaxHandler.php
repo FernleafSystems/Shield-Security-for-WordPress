@@ -82,11 +82,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	protected function ajaxExec_GenBackupCodes() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var TwoFactor\Provider\BackupCodes $BU */
-		$BU = $mod->getLoginIntentController()
-				  ->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
-		$pass = $BU->resetSecret( Services::WpUsers()->getCurrentWpUser() );
+		/** @var TwoFactor\Provider\BackupCodes $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+
+		$pass = $provider->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 		$pass = implode( '-', str_split( $pass, 5 ) );
+
 		return [
 			'message' => sprintf( 'Your backup login code is: %s', $pass ),
 			'code'    => $pass,
@@ -97,11 +98,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_DeleteBackupCodes() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var TwoFactor\Provider\BackupCodes $oBU */
-		$oBU = $mod->getLoginIntentController()
-				   ->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
-		$oBU->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
+		/** @var TwoFactor\Provider\BackupCodes $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+		$provider->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$mod->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
+
 		return [
 			'message' => __( 'Your backup login codes have been deleted.', 'wp-simple-firewall' ),
 			'success' => true
@@ -109,17 +110,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_UserGaToggle() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\GoogleAuth $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+
 		$otp = Services::Request()->post( 'ga_otp', '' );
-		if ( empty( $otp ) ) {
-			$result = ( new TwoFactor\Provider\GoogleAuth() )
-				->setMod( $this->getMod() )
-				->removeGaOnAccount( Services::WpUsers()->getCurrentWpUser() );
-		}
-		else {
-			$result = ( new TwoFactor\Provider\GoogleAuth() )
-				->setMod( $this->getMod() )
-				->activateGaOnAccount( Services::WpUsers()->getCurrentWpUser(), $otp );
-		}
+		$result = empty( $otp ) ?
+			$provider->removeGaOnAccount( Services::WpUsers()->getCurrentWpUser() )
+			: $provider->activateGaOnAccount( Services::WpUsers()->getCurrentWpUser(), $otp );
 
 		return [
 			'success'     => $result->success,
@@ -129,12 +128,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_User2faEmailToggle() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Email $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Email::SLUG ];
 
 		$turnOn = Services::Request()->post( 'direction' ) == 'on';
-		$provider = ( new TwoFactor\Provider\Email() )->setMod( $this->getMod() );
 		$provider->setProfileValidated( Services::WpUsers()->getCurrentWpUser(), $turnOn );
-
 		$success = $turnOn === $provider->isProfileActive( Services::WpUsers()->getCurrentWpUser() );
+
 		if ( $success ) {
 			$msg = $turnOn ? __( 'Email 2FA activated.', 'wp-simple-firewall' )
 				: __( 'Email 2FA deactivated.', 'wp-simple-firewall' );
@@ -142,6 +144,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		else {
 			$msg = __( "Email 2FA settings couldn't be changed.", 'wp-simple-firewall' );
 		}
+
 		return [
 			'success'     => $success,
 			'message'     => $msg,
@@ -161,6 +164,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_ProfileU2fAdd() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\U2F $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
+
 		$u2fReg = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( empty( $u2fReg ) ) {
 			$response = [
@@ -170,9 +178,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			];
 		}
 		else {
-			$result = ( new TwoFactor\Provider\U2F() )
-				->setMod( $this->getMod() )
-				->addNewRegistration( Services::WpUsers()->getCurrentWpUser(), $u2fReg );
+			$result = $provider->addNewRegistration( Services::WpUsers()->getCurrentWpUser(), $u2fReg );
 			$response = [
 				'success'     => $result->success,
 				'message'     => $result->success ? $result->msg_text : $result->error_text,
@@ -183,11 +189,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_ProfileU2fRemove() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\U2F $provider */
+		$provider = $mod->getLoginIntentController()
+						->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
+
 		$key = Services::Request()->post( 'u2fid' );
 		if ( !empty( $key ) ) {
-			( new TwoFactor\Provider\U2F() )
-				->setMod( $this->getMod() )
-				->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $key );
+			$provider->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $key );
 		}
 		return [
 			'success'     => !empty( $key ),
@@ -197,10 +207,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_UserYubikeyToggle() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Yubikey $provider */
+		$provider = $mod->getLoginIntentController()
+						->getProviders()[ TwoFactor\Provider\Yubikey::SLUG ];
+
 		$otp = Services::Request()->post( 'otp', '' );
-		$result = ( new TwoFactor\Provider\Yubikey() )
-			->setMod( $this->getMod() )
-			->toggleRegisteredYubiID( Services::WpUsers()->getCurrentWpUser(), $otp );
+		$result = $provider->toggleRegisteredYubiID( Services::WpUsers()->getCurrentWpUser(), $otp );
 		return [
 			'success'     => $result->success,
 			'message'     => $result->success ? $result->msg_text : $result->error_text,
@@ -216,21 +230,21 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$success = true;
 
 		if ( !$opts->isEnabledEmailAuth() ) {
-			$sMessage = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
+			$msg = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
 			$success = false;
 		}
 		elseif ( $opts->getIfCanSendEmailVerified() ) {
-			$sMessage = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
+			$msg = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		else {
-			$sMessage = __( 'Verification email resent.', 'wp-simple-firewall' );
+			$msg = __( 'Verification email resent.', 'wp-simple-firewall' );
 			$mod->setIfCanSendEmail( false )
 				->sendEmailVerifyCanSend();
 		}
 
 		return [
 			'success' => $success,
-			'message' => $sMessage
+			'message' => $msg
 		];
 	}
 }
