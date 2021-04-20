@@ -21,7 +21,12 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs 
 
 		this.initialise = function () {
 			domReady( function () {
-				fire();
+				sendReq();
+				/**
+				 * @since 11.2 this script is only loaded if a not bot signal doesn't exist for this IP.
+				 * This removes the need for cookies - as used by fire()
+				 */
+				// fire();
 			} );
 		};
 
@@ -58,5 +63,6 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs 
 			if ( parts.length === 2 ) return parts.pop().split( ";" ).shift();
 		};
 	}();
+
 	Shield_Antibot.initialise();
 }

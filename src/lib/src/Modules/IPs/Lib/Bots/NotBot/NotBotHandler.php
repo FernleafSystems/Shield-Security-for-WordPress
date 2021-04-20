@@ -2,16 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NotBotHandler extends ExecOnceModConsumer {
 
 	const LIFETIME = 600;
 	const SLUG = 'notbot';
+
+	private $useCookies = false;
+
+	public function __construct( bool $useCookies = false ) {
+		$this->useCookies = false;
+	}
 
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );
@@ -20,7 +24,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 	protected function run() {
 		( new InsertNotBotJs() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		$this->registerFrontPageLoad();
 		$this->maybeDeleteCookie();
 	}
@@ -46,12 +50,14 @@ class NotBotHandler extends ExecOnceModConsumer {
 	}
 
 	public function registerAsNotBot() :bool {
-		$ts = Services::Request()->ts() + self::LIFETIME;
-		Services::Response()->cookieSet(
-			$this->getMod()->prefix( self::SLUG ),
-			sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
-			self::LIFETIME
-		);
+		if ( $this->useCookies ) {
+			$ts = Services::Request()->ts() + self::LIFETIME;
+			Services::Response()->cookieSet(
+				$this->getMod()->prefix( self::SLUG ),
+				sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
+				self::LIFETIME
+			);
+		}
 		$this->getCon()->fireEvent( 'bottrack_notbot' );
 		return true;
 	}

@@ -12,22 +12,29 @@ trait IpAddressConsumer {
 
 	/**
 	 * @var string
+	 * @deprecated 11.2
 	 */
 	private $sIpAddress;
+
+	/**
+	 * @var string
+	 */
+	private $ipAddress;
 
 	/**
 	 * @return string
 	 */
 	public function getIP() {
-		return $this->sIpAddress;
+		return $this->ipAddress ?? $this->sIpAddress;
 	}
 
 	/**
-	 * @param string $sIP
+	 * @param string $IP
 	 * @return $this
 	 */
-	public function setIP( $sIP ) {
-		$this->sIpAddress = $sIP;
+	public function setIP( $IP ) {
+		$this->ipAddress = $IP;
+		$this->sIpAddress = $IP;
 		return $this;
 	}
 }
