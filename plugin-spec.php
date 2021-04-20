@@ -73,20 +73,26 @@
         "bootstrap":              {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
         },
-        "select2":                {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css",
-          "deps": [
-            "plugin"
-          ]
-        },
         "bootstrap-datepicker":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
           "deps": [
             "bootstrap"
           ]
         },
-        "bootstrap-select":   {
+        "bootstrap-select":       {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css",
+          "deps": [
+            "bootstrap"
+          ]
+        },
+        "select2":                {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css",
+          "deps": [
+            "plugin"
+          ]
+        },
+        "datatables":             {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -94,6 +100,7 @@
         "global-plugin":          {},
         "plugin":                 {
           "deps": [
+            "datatables",
             "bootstrap",
             "global-plugin"
           ]
@@ -121,166 +128,174 @@
             "plugin"
           ]
         },
-        "shield/dialog":         {
+        "shield/dialog":          {
           "deps":   [
             "wp-wp-jquery-ui-dialog"
           ],
           "footer": true
         },
-        "shield/mainwp": {}
+        "shield/mainwp":          {}
       },
       "js":  {
-        "bootstrap":               {
+        "bootstrap":              {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
         },
-        "select2":                 {
+        "select2":                {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js",
           "deps": [
             "plugin"
           ]
         },
-        "bootstrap-datepicker":    {
+        "bootstrap-datepicker":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
           "deps": [
             "bootstrap"
           ]
         },
-        "bootstrap-select":   {
+        "bootstrap-select":       {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js",
           "deps": [
             "bootstrap"
           ]
         },
-        "global-plugin":           {
+        "datatables":             {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js",
+          "deps": [
+            "bootstrap",
+            "wp-jquery"
+          ]
+        },
+        "global-plugin":          {
           "deps": [
             "wp-jquery"
           ]
         },
-        "plugin":                  {
+        "plugin":                 {
           "deps": [
             "bootstrap",
+            "datatables",
             "global-plugin",
             "shield/navigation",
             "base64.min",
             "lz-string.min"
           ]
         },
-        "base64.min":              {
+        "base64.min":             {
           "url": "https://cdn.jsdelivr.net/npm/js-base64@2.6.4/base64.min.js"
         },
-        "lz-string.min":           {},
-        "jquery.fileDownload":     {
+        "lz-string.min":          {},
+        "jquery.fileDownload":    {
           "deps": [
             "wp-jquery"
           ]
         },
-        "featherlight":            {
+        "featherlight":           {
           "deps": [
             "wp-jquery"
           ]
         },
-        "chartist":                {
+        "chartist":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.js"
         },
-        "chartist-plugin-legend":  {
+        "chartist-plugin-legend": {
           "deps": [
             "chartist"
           ]
         },
-        "introjs":                 {
+        "introjs":                {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/intro.min.js"
         },
-        "shield/charts":           {
+        "shield/charts":          {
           "deps": [
             "chartist",
             "chartist-plugin-legend",
             "plugin"
           ]
         },
-        "shuffle":                 {
+        "shuffle":                {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/Shuffle/5.3.0/shuffle.min.js"
         },
-        "shield/shuffle":          {
+        "shield/shuffle":         {
           "deps": [
             "shuffle"
           ]
         },
-        "shield/dialog":         {
-          "deps":   [
+        "shield/dialog":          {
+          "deps": [
             "wp-jquery-ui-dialog"
           ]
         },
-        "shield/comments":         {
+        "shield/comments":        {
           "deps":   [
             "wp-jquery"
           ],
           "footer": true
         },
-        "shield/loginbot":         {
+        "shield/loginbot":        {
           "deps": [
             "wp-jquery"
           ]
         },
-        "shield/navigation":         {},
-        "shield/secadmin":           {
+        "shield/navigation":      {},
+        "shield/secadmin":        {
           "deps": [
             "wp-jquery"
           ]
         },
-        "shield/tables":           {
+        "shield/tables":          {
           "deps": [
             "plugin"
           ]
         },
-        "shield/tours":            {
+        "shield/tours":           {
           "deps": [
             "plugin",
             "introjs"
           ]
         },
-        "shield/antibot":          {
+        "shield/antibot":         {
           "footer": true
         },
-        "shield/scans":            {
+        "shield/scans":           {
           "deps": [
             "shield/tables"
           ]
         },
-        "shield/import":           {
+        "shield/import":          {
           "deps": [
             "plugin"
           ]
         },
-        "shield/ipanalyse":        {
+        "shield/ipanalyse":       {
           "deps": [
             "plugin"
           ]
         },
-        "shield/mainwp": {
+        "shield/mainwp":          {
           "deps": [
             "wp-jquery"
           ]
         },
-        "shield/userprofile":      {
-          "deps": [
+        "shield/userprofile":     {
+          "deps":   [
             "u2f-bundle",
             "shield/dialog"
           ],
           "footer": true
         },
-        "u2f-bundle":              {},
-        "tp/grecaptcha":           {
-          "url": "https://www.google.com/recaptcha/api.js",
+        "u2f-bundle":             {},
+        "tp/grecaptcha":          {
+          "url":        "https://www.google.com/recaptcha/api.js",
           "attributes": {
             "async": "async",
             "defer": "defer"
           }
         },
-        "tp/hcaptcha":             {
-          "url": "https://hcaptcha.com/1/api.js",
+        "tp/hcaptcha":            {
+          "url":        "https://hcaptcha.com/1/api.js",
           "attributes": {
             "async": "async",
             "defer": "defer"

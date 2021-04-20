@@ -109,7 +109,7 @@ class UI extends BaseShield\UI {
 							__( 'The files listed below are WordPress Core files - official files that are installed with every WordPress website.', 'wp-simple-firewall' ),
 							__( 'However, they have either been deleted, or their contents have changed in some way.', 'wp-simple-firewall' ),
 							__( 'Under normal circumstances this should never happen.', 'wp-simple-firewall' ),
-							__( 'You should review each file below and repair them. Repair can mean either re-install, or replace contents, with an original.', 'wp-simple-firewall' ),
+							__( 'You should review each file below and repair them. Repair means to replace file with the original.', 'wp-simple-firewall' ),
 							__( "If you know why a file has been changed and you're happy to keep those changes, you can click to Ignore that file.", 'wp-simple-firewall' ),
 						],
 					],

@@ -22,7 +22,31 @@
 			</div>
 
 			<div class="card-body">
-				<div id="TableScanWcf" class="container-scantable"></div>
+				<div id="TableScanWcf" class="container-scantable">
+					<table id="example" class="display" style="width:100%">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Position</th>
+								<th>Office</th>
+								<th>Extn.</th>
+								<th>Start date</th>
+								<th>Salary</th>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr>
+								<th>Name</th>
+								<th>Position</th>
+								<th>Office</th>
+								<th>Extn.</th>
+								<th>Start date</th>
+								<th>Salary</th>
+							</tr>
+						</tfoot>
+    				</table>
+
+				</div>
 			</div>
 
 			<div class="card-footer">
@@ -42,24 +66,32 @@
 </div>
 
 <script>
-	let $oTableScanWcf = jQuery( '#TableScanWcf' ).icwpWpsfAjaxTable(
-		{
-			'ajax_render':{{ ajax.render_table_scan|raw }},
-			'req_params': {
-				'fScan': 'wcf'
-			}
-		}
-	);
-	jQuery( '#SectionScanResultsWcf' ).icwpWpsfTableActions(
-		{
-			'table': $oTableScanWcf,
-			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
-			'ajax_item_delete':{{ ajax.item_delete|raw }},
-			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
-			'ajax_item_repair':{{ ajax.item_repair|raw }},
-			'req_params': {
-				'fScan': 'wcf'
-			}
-		}
-	);
+
+	jQuery( document ).ready( function () {
+		jQuery( '#TableScanWcf > table' ).DataTable( {
+			'ajax': 'data/arrays.txt'
+		} );
+	} );
+
+
+	{# let $oTableScanWcf = jQuery( '#TableScanWcf' ).icwpWpsfAjaxTable( #}
+	{# { #}
+	{# 'ajax_render':{{ ajax.render_table_scan|raw }}, #}
+	{# 'req_params': { #}
+	{# 'fScan': 'wcf' #}
+	{# } #}
+	{# } #}
+	{# ); #}
+	{# jQuery( '#SectionScanResultsWcf' ).icwpWpsfTableActions( #}
+	{# { #}
+	{# 'table': $oTableScanWcf, #}
+	{# 'ajax_bulk_action':{{ ajax.bulk_action|raw }}, #}
+	{# 'ajax_item_delete':{{ ajax.item_delete|raw }}, #}
+	{# 'ajax_item_ignore':{{ ajax.item_ignore|raw }}, #}
+	{# 'ajax_item_repair':{{ ajax.item_repair|raw }}, #}
+	{# 'req_params': { #}
+	{# 'fScan': 'wcf' #}
+	{# } #}
+	{# } #}
+	{# ); #}
 </script>
