@@ -2,20 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\AlignTableWithSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\TableSchema;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Handler
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
- */
-abstract class Handler {
-
-	use ModConsumer;
-	use ExecOnce;
+abstract class Handler extends ExecOnceModConsumer {
 
 	/**
 	 * @var string

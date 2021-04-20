@@ -2,15 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BotEventListener {
-
-	use ModConsumer;
-	use ExecOnce;
+class BotEventListener extends ExecOnceModConsumer {
 
 	public function fireEventForIP( $ip, $event ) {
 		$events = $this->getEventsToColumn();

@@ -3,18 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class NotBotHandler {
+class NotBotHandler extends ExecOnceModConsumer {
 
 	const LIFETIME = 600;
 	const SLUG = 'notbot';
-	use ModConsumer;
-	use ExecOnce;
-
-	private $hashTested = false;
 
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );

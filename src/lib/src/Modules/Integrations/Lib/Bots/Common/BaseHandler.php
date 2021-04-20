@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseHandler {
-
-	use ModConsumer;
-	use ExecOnce;
+abstract class BaseHandler extends ExecOnceModConsumer {
 
 	const SLUG = '';
 

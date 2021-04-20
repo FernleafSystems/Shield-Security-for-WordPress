@@ -2,15 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ApplyLabels {
-
-	use ModConsumer;
-	use ExecOnce;
+class ApplyLabels extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		/** @var SecurityAdmin\Options $opts */

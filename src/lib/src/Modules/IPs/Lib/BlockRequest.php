@@ -2,16 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
-class BlockRequest {
-
-	use ModConsumer;
-	use ExecOnce;
+class BlockRequest extends ExecOnceModConsumer {
 
 	protected function run() {
 		if ( $this->isBlocked() ) {

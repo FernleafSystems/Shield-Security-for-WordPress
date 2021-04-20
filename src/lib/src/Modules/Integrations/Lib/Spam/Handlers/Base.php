@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam\Handlers;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class Base {
-
-	use ModConsumer;
-	use ExecOnce;
+abstract class Base extends ExecOnceModConsumer {
 
 	const SLUG = '';
 
