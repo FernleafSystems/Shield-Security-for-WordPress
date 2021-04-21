@@ -171,12 +171,12 @@ class Options {
 	}
 
 	/**
-	 * @param $sProperty
+	 * @param $property
 	 * @return null|mixed
 	 */
-	public function getFeatureProperty( $sProperty ) {
+	public function getFeatureProperty( $property ) {
 		$raw = $this->getRawData_FullFeatureConfig();
-		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $sProperty ] ) ) ? $raw[ 'properties' ][ $sProperty ] : null;
+		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $property ] ) ) ? $raw[ 'properties' ][ $property ] : null;
 	}
 
 	public function getWpCliCfg() :array {

@@ -54,6 +54,11 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\Options
 	 */
+	private $opts;
+
+	/**
+	 * @var Shield\Modules\Base\Options
+	 */
 	private $oOpts;
 
 	/**
@@ -93,9 +98,9 @@ abstract class ModCon {
 		}
 	}
 
-	protected function setupHooks( array $aModProps ) {
+	protected function setupHooks( array $modProps ) {
 		$con = $this->getCon();
-		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
+		$nRunPriority = $modProps[ 'load_priority' ] ?? 100;
 
 		add_action( $con->prefix( 'modules_loaded' ), function () {
 			$this->onModulesLoaded();
@@ -103,7 +108,7 @@ abstract class ModCon {
 		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 
-		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
+		$nMenuPri = $modProps[ 'menu_priority' ] ?? 100;
 		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
@@ -114,6 +119,16 @@ abstract class ModCon {
 
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
+		}
+
+		if ( $this->getOptions()->getDef( 'rest_api' ) ) {
+			add_action( 'rest_api_init', function () {
+				try {
+					$this->getRestHandler()->init();
+				}
+				catch ( \Exception $e ) {
+				}
+			} );
 		}
 
 //		if ( $this->isAdminOptionsPage() ) {
@@ -1335,15 +1350,25 @@ abstract class ModCon {
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
-		if ( !isset( $this->oOpts ) ) {
+		$opts = $this->opts ?? $this->oOpts;
+		if ( !$opts instanceof Options ) {
 			$con = $this->getCon();
-			$this->oOpts = $this->loadModElement( 'Options' );
-			$this->oOpts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
-						->setRebuildFromFile( $con->cfg->rebuilt )
-						->setOptionsStorageKey( $this->getOptionsStorageKey() )
-						->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
+			$this->opts = $this->loadModElement( 'Options' );
+			$this->opts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
+					   ->setRebuildFromFile( $con->cfg->rebuilt )
+					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
+					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
+			$opts = $this->opts;
+			/** @deprecated 11.2 */
 		}
-		return $this->oOpts;
+		return $opts;
+	}
+
+	/**
+	 * @return RestHandler|mixed
+	 */
+	public function getRestHandler() {
+		return $this->loadModElement( 'RestHandler' );
 	}
 
 	/**
@@ -1407,7 +1432,7 @@ abstract class ModCon {
 		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
 			 && $this->getCon()->isPluginAdmin() ) {
 			/** @var Shield\Modules\Base\Debug $debug */
-			$debug = $this->loadModElement( 'Debug', true );
+			$debug = $this->loadModElement( 'Debug' );
 			$debug->run();
 		}
 	}
@@ -1416,7 +1441,7 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
-		return $this->loadModElement( 'Strings', true );
+		return $this->loadModElement( 'Strings' );
 	}
 
 	/**
