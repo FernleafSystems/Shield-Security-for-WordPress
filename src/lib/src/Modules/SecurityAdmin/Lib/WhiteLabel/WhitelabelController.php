@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
@@ -6,12 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ApplyLabels extends ExecOnceModConsumer {
+class WhitelabelController extends ExecOnceModConsumer {
+
+	public function isEnabled() :bool {
+		/** @var SecurityAdmin\ModCon $mod */
+		$mod = $this->getMod();
+		return $this->getCon()->isPremiumActive()
+			   && $this->getOptions()->isOpt( 'whitelabel_enable', 'Y' )
+			   && $mod->getSecurityAdminController()->isEnabledSecAdmin();
+	}
 
 	protected function canRun() :bool {
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledWhitelabel();
+		return $this->isEnabled();
 	}
 
 	protected function run() {
@@ -26,7 +32,8 @@ class ApplyLabels extends ExecOnceModConsumer {
 	public function onWpInit() {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
-		if ( $opts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {
+		if ( $opts->isOpt( 'wl_hide_updates', 'Y' ) && $this->isNeedToHideUpdates() && !$this->getCon()
+																							 ->isPluginAdmin() ) {
 			$this->hideUpdates();
 		}
 	}
@@ -68,7 +75,7 @@ class ApplyLabels extends ExecOnceModConsumer {
 	 * @param array $pluginLabels
 	 * @return array
 	 */
-	public function applyPluginLabels( $pluginLabels ) {
+	public function applyPluginLabels( array $pluginLabels ) :array {
 		$labels = ( new BuildOptions() )
 			->setMod( $this->getMod() )
 			->build();
@@ -110,18 +117,33 @@ class ApplyLabels extends ExecOnceModConsumer {
 		return array_merge( $labels, $pluginLabels );
 	}
 
+	public function isReplacePluginBadge() :bool {
+		return $this->getOptions()->isOpt( 'wl_replace_badge_url', 'Y' );
+	}
+
+	public function verifyUrls() {
+		$DP = Services::Data();
+		$opts = $this->getOptions();
+		$optsBuilder = ( new BuildOptions() )->setMod( $this->getMod() );
+		foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
+			if ( $opts->isOptChanged( $key ) && !$DP->isValidWebUrl( $optsBuilder->buildWlImageUrl( $key ) ) ) {
+				$opts->resetOptToDefault( $key );
+			}
+		}
+	}
+
 	/**
 	 * @filter
-	 * @param array  $aPluginMeta
+	 * @param array  $pluginMeta
 	 * @param string $pluginBaseFile
 	 * @return array
 	 */
-	public function removePluginMetaLinks( $aPluginMeta, $pluginBaseFile ) {
+	public function removePluginMetaLinks( $pluginMeta, $pluginBaseFile ) {
 		if ( $pluginBaseFile == $this->getCon()->base_file ) {
-			unset( $aPluginMeta[ 2 ] ); // View details
-			unset( $aPluginMeta[ 3 ] ); // Rate 5*
+			unset( $pluginMeta[ 2 ] ); // View details
+			unset( $pluginMeta[ 3 ] ); // Rate 5*
 		}
-		return $aPluginMeta;
+		return $pluginMeta;
 	}
 
 	/**
@@ -130,10 +152,7 @@ class ApplyLabels extends ExecOnceModConsumer {
 	 * @return \stdClass
 	 */
 	public function hidePluginUpdatesFromUI( $plugins ) {
-		$file = $this->getCon()->base_file;
-		if ( isset( $plugins->response[ $file ] ) ) {
-			unset( $plugins->response[ $file ] );
-		}
+		unset( $plugins->response[ $this->getCon()->base_file ] );
 		return $plugins;
 	}
 

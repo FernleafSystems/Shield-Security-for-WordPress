@@ -13,6 +13,8 @@ class UI extends Base\UI {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getBaseDisplayData(),
 			[
@@ -42,10 +44,10 @@ class UI extends Base\UI {
 					'has_session'              => $con->getModule_Sessions()
 													  ->getSessionCon()
 													  ->hasSession(),
-					'display_freshdesk_widget' => !$mod->isEnabledWhitelabel()
+					'display_freshdesk_widget' => !$isWhitelabelled
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $con->getModule_SecAdmin()->isEnabledWhitelabel() ?
+					'aar_forget_key' => $isWhitelabelled ?
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
 				],
 				'classes' => [

@@ -11,12 +11,7 @@ class ModCon extends BaseShield\ModCon {
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
 	/**
-	 * @var bool
-	 */
-	private $bValidSecAdminRequest;
-
-	/**
-	 * @var Lib\WhiteLabel\ApplyLabels
+	 * @var Lib\WhiteLabel\WhitelabelController
 	 */
 	private $whitelabelCon;
 
@@ -29,9 +24,9 @@ class ModCon extends BaseShield\ModCon {
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
 
-	public function getWhiteLabelController() :Lib\WhiteLabel\ApplyLabels {
-		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\ApplyLabels ) {
-			$this->whitelabelCon = ( new Lib\WhiteLabel\ApplyLabels() )
+	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
+		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
+			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )
 				->setMod( $this );
 		}
 		return $this->whitelabelCon;
@@ -54,13 +49,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 
 		// Verify whitelabel images
-		if ( $opts->isEnabledWhitelabel() ) {
-			foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
-				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $key ) ) ) {
-					$opts->resetOptToDefault( $key );
-				}
-			}
-		}
+		$this->getWhiteLabelController()->verifyUrls();
 
 		$opts->setOpt( 'sec_admin_users',
 			( new Lib\SecurityAdmin\VerifySecurityAdminList() )
@@ -98,6 +87,7 @@ class ModCon extends BaseShield\ModCon {
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
 	 * @param string $key
 	 * @return string
+	 * @deprecated 11.2
 	 */
 	private function buildWlImageUrl( $key ) {
 		$opts = $this->getOptions();
@@ -116,10 +106,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		return $url;
-	}
-
-	public function isWlHideUpdates() :bool {
-		return $this->isEnabledWhitelabel() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
 	/**

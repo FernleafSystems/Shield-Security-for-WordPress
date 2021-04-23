@@ -63,10 +63,11 @@ class PluginBadge {
 	 */
 	public function render( $isFloating = false ) {
 		$con = $this->getCon();
-		/** @var Modules\SecurityAdmin\Options $secAdminOpts */
-		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
+		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
 
-		if ( $secAdminOpts->isEnabledWhitelabel() && $secAdminOpts->isReplacePluginBadge() ) {
+		if ( $wlCon->isEnabled() && $wlCon->isReplacePluginBadge() ) {
+			/** @var Modules\SecurityAdmin\Options $secAdminOpts */
+			$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
 			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
 			$name = $secAdminOpts->getOpt( 'wl_pluginnamemain' );
 			$logo = $secAdminOpts->getOpt( 'wl_dashboardlogourl' );

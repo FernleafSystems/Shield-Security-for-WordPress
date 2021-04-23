@@ -9,13 +9,7 @@ class Processor extends BaseShield\Processor {
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isEnabledWhitelabel() ) {
-			$mod->getWhiteLabelController()->execute();
-		}
-
+		$mod->getWhiteLabelController()->execute();
 		$mod->getSecurityAdminController()->execute();
 	}
 }

@@ -86,6 +86,10 @@ class Options extends BaseShield\Options {
 		return strlen( $this->getSecurityPIN() ) == 32;
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 11.2
+	 */
 	public function isEnabledWhitelabel() :bool {
 		return $this->isOpt( 'whitelabel_enable', 'Y' ) && $this->isPremium();
 	}
@@ -98,11 +102,19 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
 	}
 
-	public function isWlHideUpdates() :bool {
-		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
-	}
-
+	/**
+	 * @return bool
+	 * @deprecated 11.2
+	 */
 	public function isReplacePluginBadge() :bool {
 		return $this->isOpt( 'wl_replace_badge_url', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.2
+	 */
+	public function isWlHideUpdates() :bool {
+		return false;
 	}
 }

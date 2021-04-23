@@ -201,9 +201,7 @@ class UI extends BaseShield\UI {
 				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
 		}
 
-		/** @var Shield\Modules\SecurityAdmin\Options $secAdminOpts */
-		$secAdminOpts = $this->getCon()->getModule_SecAdmin()->getOptions();
-		if ( $secAdminOpts->isEnabledWhitelabel() ) {
+		if ( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
 								 ->setMod( $this->getCon()->getModule_SecAdmin() )
 								 ->build()[ 'url_login2fa_logourl' ];

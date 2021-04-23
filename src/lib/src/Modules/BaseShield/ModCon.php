@@ -196,12 +196,6 @@ class ModCon extends Base\ModCon {
 		return self::$bIsVerifiedBot;
 	}
 
-	public function isEnabledWhitelabel() :bool {
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
-		return $opts->isEnabledWhitelabel();
-	}
-
 	public function isXmlrpcBypass() :bool {
 		return $this->getCon()
 					->getModule_Plugin()
@@ -235,5 +229,15 @@ class ModCon extends Base\ModCon {
 			$this->getCon()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.2
+	 */
+	public function isEnabledWhitelabel() :bool {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
+		return $opts->isEnabledWhitelabel();
 	}
 }
