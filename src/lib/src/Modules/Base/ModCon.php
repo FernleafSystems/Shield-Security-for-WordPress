@@ -1446,16 +1446,15 @@ abstract class ModCon {
 
 	/**
 	 * @param string $class
-	 * @param false  $injectMod
 	 * @return false|Shield\Modules\ModConsumer
 	 */
-	private function loadModElement( string $class, $injectMod = true ) {
+	private function loadModElement( string $class ) {
 		$element = false;
 		try {
 			$C = $this->findElementClass( $class, true );
 			/** @var Shield\Modules\ModConsumer $element */
 			$element = @class_exists( $C ) ? new $C() : false;
-			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
+			if ( method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
 			}
 		}
