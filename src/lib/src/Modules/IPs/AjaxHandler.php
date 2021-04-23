@@ -265,6 +265,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'delete_notbot':
+					( new Ops\DeleteIp() )
+						->setMod( $this->getMod() )
+						->setIP( $ip )
+						->fromBlacklist();
 					$success = ( new Lib\Bots\BotSignalsRecord() )
 						->setMod( $this->getMod() )
 						->setIP( $ip )
