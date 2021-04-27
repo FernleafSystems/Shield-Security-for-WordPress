@@ -133,7 +133,7 @@ class SideMenuBuilder {
 		$subItems = [
 			[
 				'slug'   => $slug.'-log',
-				'title'  => __( 'View Log', 'wp-simple-firewall' ),
+				'title'  => __( 'View Audit Trail Log', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( $slug ),
 				'active' => $this->getInav() === $slug,
 			],
@@ -431,7 +431,7 @@ class SideMenuBuilder {
 		$subItems = [
 			[
 				'slug'   => $slug.'-log',
-				'title'  => __( 'View Log', 'wp-simple-firewall' ),
+				'title'  => __( 'View Traffic Log', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( $slug ),
 				'active' => $this->getInav() === $slug,
 			],
