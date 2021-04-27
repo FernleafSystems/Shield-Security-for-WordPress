@@ -28,6 +28,9 @@ class DynamicPageLoader extends DynPropertiesClass {
 			throw new \Exception( 'No dynamic page loading params' );
 		}
 		$this->applyFromArray( $params[ 'load_params' ] );
+
+		$this->verifyLoadParams();
+
 		return [
 			'html'       => $this->getContent(),
 			'page_url'   => $this->getPageUrl(),
@@ -35,11 +38,20 @@ class DynamicPageLoader extends DynPropertiesClass {
 		];
 	}
 
+	/**
+	 * @throws \Exception
+	 */
+	private function verifyLoadParams() {
+		if ( !in_array( $this->load_type, [ 'configuration' ] ) ) {
+			throw new \Exception( 'Unsupported dynamic page load type' );
+		}
+	}
+
 	private function getContent() :string {
 
 		switch ( $this->load_type ) {
-			case 'settings':
-				$content = $this->renderSettings();
+			case 'configuration':
+				$content = $this->renderConfiguration();
 				break;
 
 			default:
@@ -53,7 +65,7 @@ class DynamicPageLoader extends DynPropertiesClass {
 		$con = $this->getCon();
 
 		switch ( $this->load_type ) {
-			case 'settings':
+			case 'configuration':
 				$url = $con->getModule( $this->load_variant )->getUrl_AdminPage();
 				break;
 
@@ -67,9 +79,9 @@ class DynamicPageLoader extends DynPropertiesClass {
 		$con = $this->getCon();
 
 		switch ( $this->load_type ) {
-			case 'settings':
+			case 'configuration':
 				$title = sprintf( '%s: %s',
-					__( 'Settings', 'wp-simple-firewall' ),
+					__( 'Configuration', 'wp-simple-firewall' ),
 					$con->getModule( $this->load_variant )->getMainFeatureName()
 				);
 				break;
@@ -83,7 +95,7 @@ class DynamicPageLoader extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	private function renderSettings() :string {
+	private function renderConfiguration() :string {
 
 		$mod = $this->getCon()->getModule( $this->load_variant );
 		if ( !$mod instanceof ModCon ) {
