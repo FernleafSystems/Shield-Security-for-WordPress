@@ -16,6 +16,11 @@ trait WpLoginCapture {
 	 */
 	private $isCaptureApplicationLogin = false;
 
+	/**
+	 * @var string
+	 */
+	private $newLoggedInCookie = '';
+
 	abstract protected function captureLogin( \WP_User $user );
 
 	protected function getLoginPassword() :string {
@@ -28,6 +33,10 @@ trait WpLoginCapture {
 			}
 		}
 		return $pass;
+	}
+
+	protected function getNewLoggedInCookie() :string {
+		return $this->newLoggedInCookie;
 	}
 
 	protected function isCaptureApplicationLogin() :bool {
@@ -51,13 +60,18 @@ trait WpLoginCapture {
 		return $this;
 	}
 
+	protected function setNewLoggedInCookie( string $cookieValue ) :self {
+		$this->newLoggedInCookie = $cookieValue;
+		return $this;
+	}
+
 	protected function setToCaptureApplicationLogin( bool $capture = true ) :self {
 		$this->isCaptureApplicationLogin = $capture;
 		return $this;
 	}
 
 	protected function setupLoginCaptureHooks() {
-		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
+		add_action( 'wp_login', [ $this, 'onWpLogin' ], $this->getHookPriority(), 2 );
 		if ( !Services::WpUsers()->isProfilePage() ) { // Ignore firing during profile update.
 			add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
 		}
@@ -71,6 +85,9 @@ trait WpLoginCapture {
 	 */
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
 		$user = Services::WpUsers()->getUserById( $userID );
+		if ( is_string( $cookie ) ) {
+			$this->setNewLoggedInCookie( $cookie );
+		}
 		if ( $this->isLoginToBeCaptured() && !$this->isLoginCaptured() && $user instanceof \WP_User ) {
 			$this->setLoginCaptured();
 			$this->captureLogin( $user );
@@ -86,5 +103,9 @@ trait WpLoginCapture {
 			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
+	}
+
+	protected function getHookPriority() :int {
+		return 10;
 	}
 }

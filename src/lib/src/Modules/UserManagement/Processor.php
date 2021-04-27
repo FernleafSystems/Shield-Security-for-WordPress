@@ -134,25 +134,25 @@ class Processor extends BaseShield\Processor {
 		}
 
 		add_filter( 'manage_users_custom_column',
-			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
+			function ( $content, $sColumnName, $userID ) use ( $sCustomColumnName ) {
 
 				if ( $sColumnName == $sCustomColumnName ) {
-					$sValue = __( 'Not Recorded', 'wp-simple-firewall' );
-					$oUser = Services::WpUsers()->getUserById( $nUserId );
-					if ( $oUser instanceof \WP_User ) {
-						$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
+					$value = __( 'Not Recorded', 'wp-simple-firewall' );
+					$user = Services::WpUsers()->getUserById( $userID );
+					if ( $user instanceof \WP_User ) {
+						$nLastLoginTime = $this->getCon()->getUserMeta( $user )->last_login_at;
 						if ( $nLastLoginTime > 0 ) {
-							$sValue = Services::Request()
-											  ->carbon()
-											  ->setTimestamp( $nLastLoginTime )
-											  ->diffForHumans();
+							$value = Services::Request()
+											 ->carbon()
+											 ->setTimestamp( $nLastLoginTime )
+											 ->diffForHumans();
 						}
 					}
-					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $sValue );
-					$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
+					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $value );
+					$content = empty( $content ) ? $sNewContent : $content.'<br/>'.$sNewContent;
 				}
 
-				return $sContent;
+				return $content;
 			},
 			10, 3
 		);
