@@ -38,6 +38,29 @@ class UI extends BaseShield\UI {
 		];
 	}
 
+	public function buildInsightsVars_Wizard( $wizard, $step ) :array {
+		$data = array();
+		switch ( $wizard ) {
+			case 'welcome':
+				$data = [
+					'steps' => array(
+						'step1' => 'content for step1',
+						'step2' => 'content for step2',
+						'step3' => 'content for step3',
+					),
+					'currentStep' => $step,
+					'strings' => [
+						'hohoho' => sprintf( __( '%s %s Page' ), $wizard, $this->getCon()->getHumanName() ),
+					],
+				];
+				break;
+			default:
+				break;
+		}
+
+		return $data;
+	}
+
 	/**
 	 * @param array $aOptParams
 	 * @return array

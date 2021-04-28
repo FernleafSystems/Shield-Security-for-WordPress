@@ -164,6 +164,11 @@ class UI extends BaseShield\UI {
 			case 'index':
 				$data = $this->buildInsightsVars_Overview();
 				break;
+
+			case 'wizard':
+				$UI = $con->getModule_Plugin()->getUIHandler();
+				$data = $UI->buildInsightsVars_Wizard( $req->query( 'wizard', 'welcome' ), $req->query( 'step', 'step1' ) );
+				break;
 			default:
 				throw new \Exception( 'Not available' );
 		}
@@ -186,6 +191,7 @@ class UI extends BaseShield\UI {
 			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
 			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
+			'wizard'		=> __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
 		$modsToSearch = array_filter(

@@ -1,0 +1,38 @@
+{% extends '/wpadmin_pages/insights/base.twig' %}
+
+{% block page_main %}
+{{ strings.hohoho }}
+
+
+{% for stepID, stepContent in steps %}
+    <div id="{{ stepID }}" style="display: {{ stepID <= currentStep ? 'block' : 'none' }}">{{ stepContent }}</div>
+{% endfor %}
+
+<button id="wizardnext">Next step</button>
+
+<script>
+
+    (function($){
+        $(document).ready(function(){
+            init();
+        });
+
+        function init() {
+            $('#wizardnext').on('click', function(e){
+                e.preventDefault();
+
+                $.ajax({
+                    url: ajaxurl,
+                    method: 'POST',
+                    data: {
+                    },
+                    success: function(data){
+                    }
+                });
+            });
+        }
+    })(jQuery);
+
+</script>
+
+{% endblock %}
