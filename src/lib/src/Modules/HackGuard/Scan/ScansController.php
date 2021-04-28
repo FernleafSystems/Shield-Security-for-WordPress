@@ -120,7 +120,7 @@ class ScansController extends ExecOnceModConsumer {
 			$scans = [];
 			foreach ( $opts->getScanSlugs() as $slug ) {
 				$scanCon = $mod->getScanCon( $slug );
-				if ( $scanCon->isScanningAvailable() && $scanCon->isEnabled() ) {
+				if ( $scanCon->isReady() ) {
 					$scans[] = $slug;
 				}
 			}

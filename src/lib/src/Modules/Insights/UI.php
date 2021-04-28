@@ -198,7 +198,7 @@ class UI extends BaseShield\UI {
 		$pageTitle = $availablePages[ $inav ];
 		if ( !empty( $subNavSection ) ) {
 			$pageTitle = sprintf( '%s: %s',
-				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
+				__( 'Configuration', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
 		}
 
 		if ( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {

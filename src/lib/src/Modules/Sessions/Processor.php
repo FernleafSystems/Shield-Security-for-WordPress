@@ -53,9 +53,9 @@ class Processor extends BaseShield\Processor {
 		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
 			$session = $mod->getSessionCon()->getCurrent();
 			if ( $session instanceof Session\EntryVO ) {
-				/** @var Session\Update $oUpd */
-				$oUpd = $mod->getDbHandler_Sessions()->getQueryUpdater();
-				$oUpd->updateLastActivity( $session );
+				/** @var Session\Update $update */
+				$update = $mod->getDbHandler_Sessions()->getQueryUpdater();
+				$update->updateLastActivity( $session );
 			}
 		}
 

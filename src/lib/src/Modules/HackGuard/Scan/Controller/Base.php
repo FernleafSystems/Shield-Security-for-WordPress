@@ -193,9 +193,19 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function isReady() :bool {
-		return $this->isEnabled() && $this->isScanningAvailable();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->isModuleEnabled() && $this->isEnabled() && !$this->isRestricted();
 	}
 
+	public function isRestricted() :bool {
+		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.2
+	 */
 	public function isScanningAvailable() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
