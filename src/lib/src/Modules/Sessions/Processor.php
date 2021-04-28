@@ -32,10 +32,10 @@ class Processor extends BaseShield\Processor {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		if ( !empty( $this->getNewLoggedInCookie() ) ) {
+		if ( !empty( $this->getLoggedInCookie() ) ) {
 			$sessonCon = $this->getCon()->getModule_Sessions()->getSessionCon();
 			$sessonCon->terminateCurrentSession();
-			$sessonCon->createSession( $user, $this->getNewLoggedInCookie() );
+			$sessonCon->createSession( $user, $this->getLoggedInCookie() );
 			$this->getCon()->fireEvent( 'login_success' );
 		}
 	}
@@ -97,6 +97,10 @@ class Processor extends BaseShield\Processor {
 		return $msg;
 	}
 
+	/**
+	 * @param \WP_User $user
+	 * @deprecated 11.3
+	 */
 	private function activateUserSession( \WP_User $user ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

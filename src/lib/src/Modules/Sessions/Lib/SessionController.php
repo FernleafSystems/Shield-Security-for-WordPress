@@ -17,6 +17,11 @@ class SessionController {
 	private $current;
 
 	/**
+	 * @var ?string
+	 */
+	private $sessionID;
+
+	/**
 	 * @return Session\EntryVO|null
 	 */
 	public function getCurrent() {
@@ -25,8 +30,13 @@ class SessionController {
 			if ( $this->hasSessionID() ) {
 				$this->current = $this->queryGetSession( $this->getSessionID() );
 			}
-			if ( empty( $this->current ) && $con->hasSessionId() ) {
-				$this->current = $this->queryGetSession( $con->getSessionId() );
+			if ( $con->hasSessionId() ) {
+				if ( empty( $this->current ) ) {
+					$this->current = $this->queryGetSession( $con->getSessionId() );
+				}
+				else {
+					$con->clearSession();
+				}
 			}
 		}
 		return $this->current;
@@ -66,6 +76,8 @@ class SessionController {
 				$sessionID = md5( $sessionID );
 			}
 
+			$this->sessionID = $sessionID;
+
 			/** @var Session\Insert $insert */
 			$insert = $mod->getDbHandler_Sessions()->getQueryInserter();
 			$success = $insert->create( $sessionID, $user->user_login );
@@ -80,8 +92,13 @@ class SessionController {
 	}
 
 	public function getSessionID() :string {
-		$cookie = Services::Request()->cookie( LOGGED_IN_COOKIE );
-		return empty( $cookie ) ? '' : md5( $cookie );
+		if ( empty( $this->sessionID ) ) {
+			$cookie = Services::Request()->cookie( LOGGED_IN_COOKIE );
+			if ( !empty( $cookie ) ) {
+				$this->sessionID = md5( $cookie );
+			}
+		}
+		return (string)$this->sessionID;
 	}
 
 	public function queryCreateSession( string $sessionID, \WP_User $user ) :bool {

@@ -19,7 +19,7 @@ trait WpLoginCapture {
 	/**
 	 * @var string
 	 */
-	private $newLoggedInCookie = '';
+	private $loggedInCookie = '';
 
 	abstract protected function captureLogin( \WP_User $user );
 
@@ -35,8 +35,10 @@ trait WpLoginCapture {
 		return $pass;
 	}
 
-	protected function getNewLoggedInCookie() :string {
-		return $this->newLoggedInCookie;
+	protected function getLoggedInCookie() :string {
+		$cookie = empty( $this->loggedInCookie ) ?
+			Services::Request()->cookie( LOGGED_IN_COOKIE ) : $this->loggedInCookie;
+		return is_string( $cookie ) ? $cookie : '';
 	}
 
 	protected function isCaptureApplicationLogin() :bool {
@@ -60,8 +62,8 @@ trait WpLoginCapture {
 		return $this;
 	}
 
-	protected function setNewLoggedInCookie( string $cookieValue ) :self {
-		$this->newLoggedInCookie = $cookieValue;
+	protected function setLoggedInCookie( string $cookieValue ) :self {
+		$this->loggedInCookie = $cookieValue;
 		return $this;
 	}
 
@@ -86,7 +88,7 @@ trait WpLoginCapture {
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( is_string( $cookie ) ) {
-			$this->setNewLoggedInCookie( $cookie );
+			$this->setLoggedInCookie( $cookie );
 		}
 		if ( $this->isLoginToBeCaptured() && !$this->isLoginCaptured() && $user instanceof \WP_User ) {
 			$this->setLoginCaptured();
