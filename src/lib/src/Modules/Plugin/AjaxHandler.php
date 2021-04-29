@@ -69,13 +69,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_Wizard() {
 		$params = FormParams::Retrieve();
 		// step will be step1, step2 etc.
-		$currentStep = intval( str_replace( 'step', '', $params['step'] ) );
-		$data = $params[ $params['step'] ];
-		return array(
+		$currentStep = intval( str_replace( 'step', '', $params[ 'step' ] ) );
+		$data = $params[ $params[ 'step' ] ];
+		return [
 			'success' => true,
 			'message' => $currentStep < 3 ? $data : 'done done done',
-			'next' => $currentStep < 3 ? 'step' . ++$currentStep : 'done',
-		);
+			'next'    => $currentStep < 3 ? 'step'.++$currentStep : 'done',
+		];
 	}
 
 	private function ajaxExec_PluginBadgeClose() :array {

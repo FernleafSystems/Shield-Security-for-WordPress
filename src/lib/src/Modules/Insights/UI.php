@@ -191,7 +191,7 @@ class UI extends BaseShield\UI {
 			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
 			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
-			'wizard'		=> __( 'Wizard', 'wp-simple-firewall' ),
+			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
 		$modsToSearch = array_filter(

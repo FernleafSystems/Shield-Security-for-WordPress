@@ -39,20 +39,20 @@ class UI extends BaseShield\UI {
 	}
 
 	public function buildInsightsVars_Wizard( $wizard, $step ) :array {
-		$data = array();
+		$data = [];
 		switch ( $wizard ) {
 			case 'welcome':
 				$data = [
-					'steps' => array(
+					'steps'       => [
 						'step1' => 'content for step1',
 						'step2' => 'content for step2',
 						'step3' => 'content for step3',
-					),
-					'currentStep' => 'step' . $step,
-					'ajax' => array(
+					],
+					'currentStep' => 'step'.$step,
+					'ajax'        => [
 						'wizard_step' => $this->getMod()->getAjaxActionData( 'wizard_step', true ),
-					),
-					'strings' => [
+					],
+					'strings'     => [
 						'hohoho' => sprintf( __( '%s %s Page' ), $wizard, $this->getCon()->getHumanName() ),
 					],
 				];
