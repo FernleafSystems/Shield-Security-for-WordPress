@@ -48,7 +48,10 @@ class UI extends BaseShield\UI {
 						'step2' => 'content for step2',
 						'step3' => 'content for step3',
 					),
-					'currentStep' => $step,
+					'currentStep' => 'step' . $step,
+					'ajax' => array(
+						'wizard_step' => $this->getMod()->getAjaxActionData( 'wizard_step', true ),
+					),
 					'strings' => [
 						'hohoho' => sprintf( __( '%s %s Page' ), $wizard, $this->getCon()->getHumanName() ),
 					],

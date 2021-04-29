@@ -167,7 +167,7 @@ class UI extends BaseShield\UI {
 
 			case 'wizard':
 				$UI = $con->getModule_Plugin()->getUIHandler();
-				$data = $UI->buildInsightsVars_Wizard( $req->query( 'wizard', 'welcome' ), $req->query( 'step', 'step1' ) );
+				$data = $UI->buildInsightsVars_Wizard( $req->query( 'wizard', 'welcome' ), $req->query( 'step', '1' ) );
 				break;
 			default:
 				throw new \Exception( 'Not available' );
