@@ -3,7 +3,7 @@
     "slug":                  "plugin",
     "name":                  "General Settings",
     "sidebar_name":          "General",
-    "menu_title":            "Settings",
+    "menu_title":            "Configuration",
     "show_module_menu_item": true,
     "show_module_options":   true,
     "storage_key":           "plugin",

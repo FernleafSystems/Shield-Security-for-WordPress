@@ -61,7 +61,7 @@ class MfaController {
 		if ( $this->isSubjectToLoginIntent( $user )
 			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
-			$providers = $this->getProvidersForUser( $user );
+			$providers = $this->getProvidersForUser( $user, true );
 			if ( !empty( $providers ) ) {
 				foreach ( $providers as $provider ) {
 					$provider->captureLoginAttempt( $user );

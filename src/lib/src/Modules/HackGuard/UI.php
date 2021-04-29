@@ -38,8 +38,9 @@ class UI extends BaseShield\UI {
 				'item_action'           => $mod->getAjaxActionData( 'item_action', true ),
 			],
 			'flags'        => [
-				'is_premium' => $this->getCon()->isPremiumActive(),
-				'can_scan'   => count( $reasonsCantScan ) === 0,
+				'is_premium'      => $this->getCon()->isPremiumActive(),
+				'can_scan'        => count( $reasonsCantScan ) === 0,
+				'module_disabled' => !$mod->isModOptEnabled(),
 			],
 			'strings'      => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
@@ -65,15 +66,18 @@ class UI extends BaseShield\UI {
 				'no_entries_to_display' => __( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
+				'module_disabled'       => __( "Scans can't run because the module that controls them is currently disabled.", 'wp-simple-firewall' ),
+				'review_scanner_config' => __( "Review Scanner Module configuration", 'wp-simple-firewall' ),
 			],
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
 			'hrefs'        => [
-				'scans_results' => $this->getCon()
-										->getModule_Insights()
-										->getUrl_ScansResults(),
+				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection('section_enable_plugin_feature_hack_protection_tools'),
+				'scans_results'      => $this->getCon()
+											 ->getModule_Insights()
+											 ->getUrl_ScansResults(),
 			],
 			'scan_results' => [
 			],
@@ -175,11 +179,11 @@ class UI extends BaseShield\UI {
 			$lastScanAt = $scon->getLastScanAt();
 			$scData[ 'vars' ][ 'slug' ] = $slug;
 			$scData[ 'count' ] = $selector->countForScan( $slug );
-			$scData[ 'flags' ][ 'is_available' ] = $scon->isScanningAvailable();
+			$scData[ 'flags' ][ 'is_available' ] = $scon->isReady();
 //			$scData[ 'flags' ][ 'show_table' ] = $scData[ 'count' ] > 0;
-			$scData[ 'flags' ][ 'is_restricted' ] = !$scon->isScanningAvailable();
+			$scData[ 'flags' ][ 'is_restricted' ] = $scon->isRestricted();
 			$scData[ 'flags' ][ 'is_enabled' ] = $scon->isEnabled();
-			$scData[ 'flags' ][ 'is_selected' ] = $scon->isScanningAvailable() && in_array( $slug, $uiTrack[ 'selected_scans' ] );
+			$scData[ 'flags' ][ 'is_selected' ] = $scon->isReady() && in_array( $slug, $uiTrack[ 'selected_scans' ] );
 			$scData[ 'vars' ][ 'last_scan_at_ts' ] = $lastScanAt;
 			$scData[ 'flags' ][ 'has_last_scan' ] = $lastScanAt > 0;
 			$scData[ 'vars' ][ 'last_scan_at' ] = sprintf(
