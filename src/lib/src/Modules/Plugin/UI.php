@@ -55,6 +55,7 @@ class UI extends BaseShield\UI {
 					'strings'     => [
 						'hohoho' => sprintf( __( '%s %s Page' ), $wizard, $this->getCon()->getHumanName() ),
 					],
+					'showSideNav' => 0,
 				];
 				break;
 			default:
