@@ -1037,7 +1037,11 @@ abstract class ModCon {
 	}
 
 	protected function runWizards() {
-		if ( $this->isWizardPage() && $this->hasWizard() ) {
+		if ( 
+			( $this->isWizardPage() && $this->hasWizard() )
+			||
+			( Services::Request()->query( 'page' ) === 'icwp-wpsf-insights' && Services::Request()->query( 'inav' ) === 'wizard' )
+		) {
 			$wiz = $this->getWizardHandler();
 			if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
 				$wiz->init();

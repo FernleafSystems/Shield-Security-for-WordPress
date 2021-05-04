@@ -166,6 +166,14 @@ class UI extends BaseShield\UI {
 				break;
 
 			case 'wizard':
+				error_log("inside wizard " . __FILE__);
+				/*
+			$wiz = $mod->getWizardHandler();
+			if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
+				$wiz->init();
+			}
+			*/
+
 				$UI = $con->getModule_Plugin()->getUIHandler();
 				$data = $UI->buildInsightsVars_Wizard( $req->query( 'wizard', 'welcome' ), $req->query( 'step', '1' ) );
 				break;
