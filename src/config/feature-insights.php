@@ -28,5 +28,48 @@
     }
   ],
   "options":      [
-  ]
+  ],
+  "definitions": {
+    "wizards":                         {
+      "welcome": {
+        "title":                "Getting Started Setup Wizard",
+        "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
+        "min_user_permissions": "manage_options",
+        "steps":                {
+          "welcome":                  {
+            "security_admin": false,
+            "title":          "Welcome"
+          },
+          "ip_detect":                {
+            "title": "IP Detection"
+          },
+          "admin_access_restriction": {
+            "title": "Security Admin"
+          },
+          "audit_trail":              {
+            "title": "Audit Trail"
+          },
+          "ips":                      {
+            "title": "IP Blacklist"
+          },
+          "login_protect":            {
+            "title": "Login Protection"
+          },
+          "comments_filter":          {
+            "title": "Comment SPAM"
+          },
+          "how_shield_works":         {
+            "title": "How Shield Works"
+          },
+          "optin":                    {
+            "title": "Join Us!"
+          },
+          "thankyou":                 {
+            "security_admin": false,
+            "title":          "Thank You!"
+          }
+        }
+      }
+    }
+  }
 }
