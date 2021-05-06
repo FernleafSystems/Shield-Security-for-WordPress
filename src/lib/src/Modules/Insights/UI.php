@@ -166,14 +166,11 @@ class UI extends BaseShield\UI {
 				break;
 
 			case 'wizard':
-				$wiz = $mod->getWizardHandler();
+				$wiz = $con->getModule_Plugin()->getWizardHandler();
 				if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
 					$wiz->init();
 					$wiz->onWpLoaded();
 				}
-
-				$UI = $con->getModule_Plugin()->getUIHandler();
-				$data = $UI->buildInsightsVars_Wizard( $req->query( 'wizard', 'welcome' ), $req->query( 'step', '1' ) );
 				break;
 			default:
 				throw new \Exception( 'Not available' );

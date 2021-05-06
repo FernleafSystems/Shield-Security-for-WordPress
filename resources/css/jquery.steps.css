@@ -116,7 +116,7 @@
 .wizard > .steps .current a:hover,
 .wizard > .steps .current a:active
 {
-    background: rgba(69, 119, 0, 1);
+    background: rgba(34, 113, 177, 1);
     color: #fff;
     cursor: default;
 }
@@ -125,7 +125,7 @@
 .wizard > .steps .done a:hover,
 .wizard > .steps .done a:active
 {
-    background: rgba(69, 119, 0, 0.5);
+    background: rgba(34, 113, 177, 0.5);
     color: #fff;
 }
 
@@ -254,7 +254,7 @@
 .wizard > .actions a:hover,
 .wizard > .actions a:active
 {
-    background: rgba(69, 119, 0, 1);
+    background: rgba(34, 113, 177, 1);
     color: #fff;
     display: block;
     padding: 0.5em 1em;

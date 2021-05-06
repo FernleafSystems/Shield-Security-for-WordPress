@@ -1,10 +1,12 @@
 {% extends "/notices/base-info.twig" %}
 
 {% block notice_body %}
+{% if strings.launch %}
 	<div class="row">
 		<div class="col">
 			<p>{{ strings.setup }}</p>
-			<p><a href="{{ hrefs.wizard }}" target="_blank">{{ strings.launch }} &rarr;</a></p>
+			<p><a href="{{ hrefs.wizard }}">{{ strings.launch }} &rarr;</a></p>
 		</div>
 	</div>
+{% endif %}
 {% endblock %}

@@ -352,3 +352,17 @@ tr.icwp-plugin-vulnerability dd {
 	margin-left: 6px;
 	/*background-color: rgb(0, 128, 0);*/
 }
+
+/* override boostrap */
+.btn-info,
+.btn-success {
+	background: rgba(34, 113, 177, 1);
+}
+
+.btn-success:hover {
+	background: #138496;
+}
+
+.text-success {
+	color: rgba(34, 113, 177, 1) !important;
+}

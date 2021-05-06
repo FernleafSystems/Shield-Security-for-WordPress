@@ -3,6 +3,7 @@
 }
 body {
 	padding-bottom: 200px;
+    overflow-y: visible;
 }
 body.wait {
 	cursor: wait !important;
@@ -109,7 +110,7 @@ body.wait {
 
 #FooterWizardBanner {
 	position: fixed;
-	bottom: 0;
+	bottom: -50px;
 	height: 100px;
 	width: 100%;
 }
