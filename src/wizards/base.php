@@ -299,6 +299,14 @@ abstract class ICWP_WPSF_Wizard_Base {
 		$con = $this->getMod()->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		$steps = $this->buildSteps();
+
+		$aStepsNames = [];
+		foreach ( $steps as $stepKey ) {
+			$aStepsNames[] = $this->getStepsDefinition()[ $stepKey ]['title'];
+		}
+
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$mod->getUIHandler()->getBaseDisplayData(),
 			[
@@ -308,7 +316,8 @@ abstract class ICWP_WPSF_Wizard_Base {
 				],
 				'data'    => [
 					'wizard_slug'       => $this->getWizardSlug(),
-					'wizard_steps'      => json_encode( $this->buildSteps() ),
+					'wizard_steps'      => json_encode( $steps ),
+					'wizard_step_names'      => json_encode( $aStepsNames ),
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [

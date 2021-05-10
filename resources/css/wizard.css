@@ -162,3 +162,58 @@ body.wait {
 	border-radius: 3px;
 	box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
+
+/* override jquery.steps.css */
+.wizard > .actions a,
+.wizard > .actions a:hover,
+.wizard > .actions a:active,
+.wizard > .steps .current a,
+.wizard > .steps .current a:hover,
+.wizard > .steps .current a:active,
+.wizard > .steps .disabled a, .wizard > .steps .disabled a:hover, .wizard > .steps .disabled a:active,
+.wizard > .steps .done a, .wizard > .steps .done a:hover, .wizard > .steps .done a:active {
+	background: none !important;
+}
+
+.wizard > .steps > ul > li {
+	width: auto !important;
+}
+
+div.step {
+	display: flex;
+    align-content: center;
+    justify-content: space-between;
+    flex-direction: column;
+    flex-wrap: nowrap;
+	align-items: center;
+}
+
+div.step-number {
+	width: 15px;
+    height: 15px;
+    border-radius: 100%;
+}
+
+li div.step-number {
+    background-color: rgba(34, 113, 177, 1);
+}
+
+li div.step-title {
+    color: rgba(34, 113, 177, 1);
+}
+
+li.done div.step-number {
+    background-color: #95c125;
+}
+
+li.done div.step-title {
+    color: #95c125;
+}
+
+li.disabled div.step-number {
+    background-color: #aaa;
+}
+
+li.disabled div.step-title {
+    color: #aaa;
+}

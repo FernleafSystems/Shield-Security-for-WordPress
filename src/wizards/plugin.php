@@ -127,8 +127,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function determineWizardSteps_Welcome() {
 		$con = $this->getCon();
 
-		error_log(get_class($con));
-
 		$aStepsSlugs = [
 			'welcome',
 			'ip_detect'

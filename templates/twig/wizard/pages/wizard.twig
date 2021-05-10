@@ -15,7 +15,7 @@
 
 {% block body_content_main %}
 	<div class="row">
-		<div class="col-12 col-xl-8 offset-xl-1">
+		<div class="col-12 col-xl-8 offset-xl-2">
 			<div id="wizard"></div>
 		</div>
 	</div>
@@ -34,10 +34,10 @@
 				actionContainerTag: "div",
 				stepsContainerTag: "div",
 				cssClass: "wizard",
-				stepsOrientation: $.fn.steps.stepsOrientation.vertical,
+				stepsOrientation: $.fn.steps.stepsOrientation.horizontal,
 
 				/* Templates */
-				titleTemplate: '<span class="number">#index#.</span> #title#',
+				titleTemplate: '<div class="step"><div class="step-number"></div><div class="step-title">#title#</div></div>',
 				loadingTemplate: '<span class="spinner"></span> #text#',
 
 				/* Behaviour */
@@ -95,7 +95,18 @@
 			// Initialize wizard
 			var $oWizardContainer = $( "#wizard" );
 			var $oWizard = $oWizardContainer.steps( settings );
-			$oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
+
+   var currentStep = {{ data.wizard_first_step|raw }};
+   // load all steps for showing progress bar
+   var otherSteps = {{ data.wizard_step_names|raw }};
+   otherSteps.forEach(function(step, index){
+        if(step === currentStep.title){
+            $oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
+            return;
+        }
+        $oWizard.steps( 'add', {title: step, contentMode: 'async'});
+   });
+
 			var $oActions = $( 'div.actions', $oWizard );
 			$oActions.prependTo( $oWizardContainer );
 			$oActions.css( 'display', 'none' );
@@ -200,6 +211,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var renderPrevious = function ( event ) {
 		event.preventDefault();
+
 		// jQuery( event.currentTarget ).prop( 'disabled', true );
 		renderPreviousAuto();
 	};
@@ -226,7 +238,9 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 				}
 
 				if ( undefined !== oResponse.data.next_step ) {
-					$oWizard.steps( 'add', oResponse.data.next_step );
+     var removeIndex = $oWizard.steps('getCurrentIndex') + 1;
+					$oWizard.steps( 'remove', removeIndex);
+					$oWizard.steps( 'insert', removeIndex, oResponse.data.next_step );
 					$oWizard.steps( 'next' );
 				}
 			}
