@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 class Groundhogg extends Base {
 
 	protected function run() {
-		// TODO
+		add_filter( 'groundhogg/form/submission_handler/is_spam', function ( $wasSpam ) {
+			return $wasSpam || $this->isSpam();
+		}, 1000 );
 	}
 
 	protected function getProviderName() :string {
@@ -14,6 +16,6 @@ class Groundhogg extends Base {
 
 	public static function IsProviderInstalled() :bool {
 		return defined( 'GROUNDHOGG_TEXT_DOMAIN' ) && defined( 'GROUNDHOGG_VERSION' )
-			   && version_compare( GROUNDHOGG_VERSION, '2.4.5.4', '>' );
+			   && version_compare( GROUNDHOGG_VERSION, '2.4.5.5', '>=' );
 	}
 }
