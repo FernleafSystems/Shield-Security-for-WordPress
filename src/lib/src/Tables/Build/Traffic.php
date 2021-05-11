@@ -146,7 +146,7 @@ class Traffic extends BaseBuild {
 			else {
 				$country = sprintf(
 					'<img class="icon-flag" src="%s" alt="%s" width="24px"/> %s',
-					sprintf( 'https://flags.getshieldsecurity.com/%s.svg', strtolower( $countryISO ) ),
+					sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', strtolower( $countryISO ) ),
 					$countryISO,
 					$geoIP->getCountryName()
 				);

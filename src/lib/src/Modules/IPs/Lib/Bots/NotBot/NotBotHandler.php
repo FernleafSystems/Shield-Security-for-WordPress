@@ -11,10 +11,10 @@ class NotBotHandler extends ExecOnceModConsumer {
 	const LIFETIME = 600;
 	const SLUG = 'notbot';
 
-	private $useCookies = false;
+	private $useCookies;
 
 	public function __construct( bool $useCookies = false ) {
-		$this->useCookies = false;
+		$this->useCookies = $useCookies;
 	}
 
 	protected function canRun() :bool {
@@ -26,18 +26,32 @@ class NotBotHandler extends ExecOnceModConsumer {
 			->setMod( $this->getMod() )
 			->execute();
 		$this->registerFrontPageLoad();
+		$this->registerLoginPageLoad();
 		$this->maybeDeleteCookie();
 	}
 
 	private function registerFrontPageLoad() {
-		add_action( 'wp', function () {
+		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
 			$req = Services::Request();
-			if ( $req->isGet() && is_front_page() ) {
+			if ( $req->isGet() && ( is_front_page() || is_home() ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
 				$mod->getBotSignalsController()
 					->getEventListener()
 					->fireEventForIP( Services::IP()->getRequestIp(), 'frontpage_load' );
+			}
+		} );
+	}
+
+	private function registerLoginPageLoad() {
+		add_action( 'login_footer', function () {
+			$req = Services::Request();
+			if ( $req->isGet() ) {
+				/** @var ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getBotSignalsController()
+					->getEventListener()
+					->fireEventForIP( Services::IP()->getRequestIp(), 'loginpage_load' );
 			}
 		} );
 	}

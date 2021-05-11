@@ -46,6 +46,7 @@ class BotEventListener extends ExecOnceModConsumer {
 			[
 				'bottrack_notbot'         => 'notbot',
 				'frontpage_load'          => 'frontpage',
+				'loginpage_load'          => 'loginpage',
 				'bottrack_404'            => 'bt404',
 				'bottrack_fakewebcrawler' => 'btfake',
 				'bottrack_linkcheese'     => 'btcheese',

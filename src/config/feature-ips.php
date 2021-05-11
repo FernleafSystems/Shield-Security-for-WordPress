@@ -580,6 +580,7 @@
       "cols_timestamps": {
         "notbot_at":          "NotBot",
         "frontpage_at":       "Front Page Loaded",
+        "loginpage_at":       "Login Page Loaded",
         "bt404_at":           "BotTrack 404",
         "btfake_at":          "BotTrack FakeWebCrawler",
         "btcheese_at":        "BotTrack LinkCheese",

@@ -272,7 +272,8 @@ class Strings extends Base\Strings {
 		return [
 			'known'           => __( 'A Known Service Provider/Bot', 'wp-simple-firewall' ),
 			'notbot'          => __( '"Not Bot" Registration', 'wp-simple-firewall' ),
-			'frontpage'       => __( 'Normal Frontpage Visited', 'wp-simple-firewall' ),
+			'frontpage'       => __( 'Frontpage Visited', 'wp-simple-firewall' ),
+			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
 			'btfake'          => __( 'Fake Web Crawler', 'wp-simple-firewall' ),
 			'btcheese'        => __( 'Link Cheese', 'wp-simple-firewall' ),

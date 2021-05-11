@@ -125,6 +125,6 @@ class SessionController {
 		$mod = $this->getMod();
 		/** @var Session\Select $sel */
 		$sel = $mod->getDbHandler_Sessions()->getQuerySelector();
-		return $sel->retrieveUserSession( $sessionID, $username );
+		return $sel->retrieveUserSession( $sessionID, (string)$username );
 	}
 }

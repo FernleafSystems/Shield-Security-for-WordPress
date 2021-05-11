@@ -681,6 +681,11 @@
         "offense": false,
         "stat":    false,
         "audit":   false
+      },
+      "loginpage_load":         {
+        "offense": false,
+        "stat":    false,
+        "audit":   false
       }
     },
     "wizards":                         {
