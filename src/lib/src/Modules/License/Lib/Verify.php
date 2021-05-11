@@ -14,51 +14,50 @@ class Verify {
 	 * @throws \Exception
 	 */
 	public function run() {
-		$con = $this->getCon();
 		/** @var License\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var License\Options $opts */
 		$opts = $this->getOptions();
-		$oHandler = $mod->getLicenseHandler();
+		$licHandler = $mod->getLicenseHandler();
 
 		$this->preVerify();
 
-		$oExisting = $oHandler->getLicense();
+		$existing = $licHandler->getLicense();
 
-		$oLookupLicense = ( new LookupRequest() )
+		$license = ( new LookupRequest() )
 			->setMod( $mod )
 			->lookup();
 
-		$bSuccessfulApiRequest = false;
+		$isSuccessfulApiRequest = false;
 
-		if ( $oLookupLicense->isValid() ) {
-			$bSuccessfulApiRequest = true;
-			$oExisting = $oLookupLicense;
-			$oExisting->updateLastVerifiedAt( true );
-			if ( !$oHandler->isActive() ) {
+		if ( $license->isValid() ) {
+			$isSuccessfulApiRequest = true;
+			$existing = $license;
+			$existing->updateLastVerifiedAt( true );
+			if ( !$licHandler->isActive() ) {
 				$opts->setOptAt( 'license_activated_at' );
 			}
 			$mod->clearLastErrors();
-			$opts->setOpt( 'license_data', $oExisting->getRawDataAsArray() ); // need to do this before event
-			$con->fireEvent( 'lic_check_success' );
+			$opts->setOpt( 'license_data', $existing->getRawDataAsArray() ); // need to do this before event
+			$this->getCon()->fireEvent( 'lic_check_success' );
 		}
-		elseif ( $oLookupLicense->isReady() ) {
-			$bSuccessfulApiRequest = true;
+		elseif ( $license->isReady() ) {
+			$isSuccessfulApiRequest = true;
 			// License lookup failed but request was successful - so use what we get
-			$oHandler->deactivate();
-			$oExisting = $oHandler->getLicense();
+			$licHandler->deactivate();
+			$existing = $licHandler->getLicense();
 		}
-		elseif ( $oExisting->isReady() ) { // Has a stored license but license HTTP request failed
+		elseif ( $existing->isReady() ) { // Has a stored license but license HTTP request failed
 
 			$mod->setLastErrors( [
 				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
 			] );
 
-			if ( Services::Request()->ts() > $oHandler->getRegistrationExpiresAt() ) {
-				$oHandler->deactivate();
-				$oExisting = $oHandler->getLicense();
+			if ( Services::Request()->ts() > $licHandler->getRegistrationExpiresAt() ) {
+				$licHandler->deactivate();
+				$existing = $licHandler->getLicense();
 			}
-			elseif ( $oHandler->isLastVerifiedExpired() ) {
+			elseif ( $licHandler->isLastVerifiedExpired() ) {
 				/**
 				 * At this stage we have a license stored, but we couldn't
 				 * verify it, but we're within the grace period for checking.
@@ -71,15 +70,15 @@ class Verify {
 			}
 		}
 		else { // all else fails, clear any license details entirely
-			$oHandler->clearLicense();
-			$oExisting = $oHandler->getLicense();
+			$licHandler->clearLicense();
+			$existing = $licHandler->getLicense();
 		}
 
-		$oExisting->last_request_at = Services::Request()->ts();
-		$opts->setOpt( 'license_data', $oExisting->getRawDataAsArray() );
+		$existing->last_request_at = Services::Request()->ts();
+		$opts->setOpt( 'license_data', $existing->getRawDataAsArray() );
 		$this->getMod()->saveModOptions();
 
-		if ( !$bSuccessfulApiRequest ) {
+		if ( !$isSuccessfulApiRequest ) {
 			throw new \Exception( 'License API HTTP Request Failed.' );
 		}
 	}
