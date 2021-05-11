@@ -15,8 +15,7 @@
 
 				{% if not flags.is_pro %}
 					<li class="nav-item">
-						<a class="nav-link" data-toggle="tab" role="tab" href="#tabFreeTrial"
-						   data-bs-toggle="tab">
+						<a class="nav-link" role="tab" href="{{ hrefs.free_trial }}" target="_blank">
 							{{ strings.tab_freetrial }}
 						</a>
 					</li>
@@ -39,13 +38,6 @@
 			</div>
 		</div>
 
-		<div class="tab-pane" id="tabFreeTrial" role="tabpanel" aria-labelledby="tabFreeTrial">
-			<div class="row">
-				<div class="col pt-3" id="TabUpdates">
-					{{ content.tab_freetrial|raw }}
-				</div>
-			</div>
-		</div>
 	</div>
 {% endblock %}
 

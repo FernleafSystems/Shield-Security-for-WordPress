@@ -15,11 +15,13 @@ class UI extends BaseShield\UI {
 		$con = $this->getCon();
 		return [
 			'content' => [
-				'tab_updates'   => $this->renderTabUpdates(),
-				'tab_freetrial' => $this->renderFreeTrial(),
+				'tab_updates' => $this->renderTabUpdates(),
 			],
 			'flags'   => [
 				'is_pro' => $con->isPremiumActive(),
+			],
+			'hrefs'   => [
+				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',
 			],
 			'strings' => [
 				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
@@ -95,14 +97,6 @@ class UI extends BaseShield\UI {
 
 			case 'docs':
 				$data = $this->buildInsightsVars_Docs();
-				break;
-
-			case 'free_trial':
-				$data = [
-					'content' => [
-						'free_trial' => $this->renderFreeTrial()
-					]
-				];
 				break;
 
 			case 'importexport':
@@ -262,6 +256,10 @@ class UI extends BaseShield\UI {
 		);
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 11.2
+	 */
 	private function renderFreeTrial() :string {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		return $this->getMod()
