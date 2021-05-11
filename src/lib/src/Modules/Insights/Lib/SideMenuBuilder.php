@@ -358,8 +358,8 @@ class SideMenuBuilder {
 				[
 					'slug'   => 'license-trial',
 					'title'  => __( 'Free Trial', 'wp-simple-firewall' ),
-					'href'   => $mod->getUrl_SubInsightsPage( 'free_trial' ),
-					'active' => $this->getInav() === 'free_trial'
+					'href'   => 'https://shsec.io/shieldfreetrialinplugin',
+					'target' => '_blank',
 				],
 				[
 					'slug'   => 'license-features',
