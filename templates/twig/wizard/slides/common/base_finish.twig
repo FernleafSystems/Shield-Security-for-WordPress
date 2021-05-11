@@ -34,20 +34,17 @@
 				<li>(coming soon) White Labelling</li>
 				<li>(coming soon) Refined options for 2-Factor Authentication</li>
 			</ul>
-			<a href="{{ hrefs.gopro }}" target="_blank" class="btn btn-success" id="GoProBtn">Go Pro Today!</a>
+			<a href="{{ hrefs.gopro }}" target="_blank" class="btn btn-success shield-go-pro">Go Pro Today!</a>
 		{% endif %}
 	{% endblock %}
 
 {% endblock %}
 
 {% block slide_body_bottom %}
-	<p>Click the button below to return to the main WordPress dashboard.</p>
+     <a href="{{ hrefs.dashboard }}" class="btn btn-primary btn-block button button-primary">Return To The {{ strings.plugin_name }} WordPress Dashboard &rarr;</a>
 {% endblock %}
 
 {% block slide_footer %}
-	<hr />
-	<a href="{{ hrefs.dashboard }}" class="btn btn-outline-secondary">
-		&#x21d0; Return To The {{ strings.plugin_name }} WordPress Dashboard</a>
 {% endblock %}
 
 {% block slide_header_next_bottom %}{% endblock %}

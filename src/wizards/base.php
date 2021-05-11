@@ -17,6 +17,14 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	private $sCurrentWizard;
 
+	/**
+	 * Indicates if stepping through the wizard is automatic 
+	 * or it needs to add the instruction to click next.
+	 *
+	 * @var bool
+	 */
+	const WIZARD_STEPPING_AUTO = true;
+
 	public function init() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 0 );
 	}
@@ -204,7 +212,9 @@ abstract class ICWP_WPSF_Wizard_Base {
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+			if ( ! self::WIZARD_STEPPING_AUTO ) {
+				$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+			}
 		}
 		else {
 			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );

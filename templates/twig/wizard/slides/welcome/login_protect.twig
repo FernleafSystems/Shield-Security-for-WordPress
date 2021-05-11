@@ -34,7 +34,8 @@
 		%}
 		{{ icwp_macros.formInput_Radio( 'LoginProtectOption', radiovalues, 'Bot Login Protection' ) }}
 		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'login_protect' ) }}
-		{{ icwp_macros.formInput_Submit( 'Set Login Protection' ) }}
-	</form>
+		{{ icwp_macros.formInput_Submit( 'Set Login Protection &rarr;', null, null, true ) }}
+
+ </form>
 
 {% endblock %}

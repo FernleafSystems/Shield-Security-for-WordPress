@@ -34,16 +34,12 @@
 		%}
 		{{ icwp_macros.formInput_Radio( 'AnonymousOption', radiovalues, 'Anonymous Info' ) }}
 
-		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optin_usage' ) }}
-		{{ icwp_macros.formInput_Submit( 'Set Anonymous Data Usage' ) }}
-	</form>
 
 	<hr />
 
 	<h5>#3 Display The Shield Protection Badge</h5>
 	<p>You can demonstrate to your visitors and customers that you're taking security seriously
 	   by displaying a Shield Security 'badge' on the bottom corner of your website.</p>
-	<form class="form-horizontal icwp-wizard-form">
 
 		{% set radiovalues =
 			{
@@ -53,7 +49,7 @@
 		%}
 		{{ icwp_macros.formInput_Radio( 'BadgeOption', radiovalues, 'Shield Site Badge' ) }}
 
-		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optin_badge' ) }}
-		{{ icwp_macros.formInput_Submit( 'Set Plugin Badge Usage' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optins' ) }}
+		{{ icwp_macros.formInput_Submit( 'Optin &rarr;', null, null, true ) }}
 	</form>
 {% endblock %}

@@ -57,6 +57,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			case 'optin_usage':
 			case 'optin_badge':
+			case 'optins':
 				$oResponse = $this->wizardOptin();
 				break;
 
@@ -329,11 +330,12 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oOpts = $this->getOptions();
 		$oIps = Services::IP();
 		$sIp = Services::Request()->post( 'ip' );
+		$success = false;
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		$oResponse->setSuccessful( false );
 		if ( empty( $sIp ) ) {
 			$sMessage = __( 'IP address was empty.', 'wp-simple-firewall' );
+			$success = true;
 		}
 		elseif ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
 			$sMessage = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
@@ -347,15 +349,15 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
 			}
 			else {
-				$oMod = $this->getCon()
-							 ->getModule_Plugin();
 				$oOpts->setVisitorAddressSource( $sSource );
-				$oMod->saveModOptions();
-				$oResponse->setSuccessful( true );
 				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
 							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
 			}
 		}
+
+		$oMod = $this->getCon()->getModule_Plugin();
+		$oMod->saveModOptions();
+		$oResponse->setSuccessful( true );
 
 		return $oResponse->setMessageText( $sMessage );
 	}
@@ -556,6 +558,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			else {
 				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
 			}
+		} else {
+			// skip
+			$success = true;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
@@ -572,29 +577,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$bSuccess = false;
+		$bSuccess = true;
 		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
 
-		$sForm = $oReq->post( 'wizard-step' );
-		if ( $sForm == 'optin_badge' ) {
-			$sInput = $oReq->post( 'BadgeOption' );
-
-			if ( !empty( $sInput ) ) {
-				$bEnabled = $sInput === 'Y';
-				$oMod->getPluginBadgeCon()->setIsDisplayPluginBadge( $bEnabled );
-				$bSuccess = true;
-				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
-			}
+		$sInput = $oReq->post( 'BadgeOption' );
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
+			$oMod->getPluginBadgeCon()->setIsDisplayPluginBadge( $bEnabled );
+			$bSuccess = true;
 		}
-		elseif ( $sForm == 'optin_usage' ) {
-			$sInput = $oReq->post( 'AnonymousOption' );
 
-			if ( !empty( $sInput ) ) {
-				$bEnabled = $sInput === 'Y';
-				$oOpts->setPluginTrackingPermission( $bEnabled );
-				$bSuccess = true;
-				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
-			}
+		$sInput = $oReq->post( 'AnonymousOption' );
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
+			$oOpts->setPluginTrackingPermission( $bEnabled );
+			$bSuccess = true;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
@@ -704,6 +701,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			else {
 				$sMessage = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
 			}
+		} else {
+			// skip
+			$bSuccess = true;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )

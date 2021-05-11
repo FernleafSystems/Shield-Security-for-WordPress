@@ -159,7 +159,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 					   .html( '...' );
 
 		var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
-		$oSubmitButton.prop( 'disabled', true );
+		//$oSubmitButton.prop( 'disabled', true );
 
 		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
@@ -176,7 +176,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 				else {
 					$oResponseField.removeClass( 'alert-success' )
 								   .addClass( 'alert-danger' );
-					$oSubmitButton.prop( 'disabled', false );
+					//$oSubmitButton.prop( 'disabled', false );
 				}
 
 				var bRerender = false;
@@ -192,7 +192,9 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 				if ( bRerender ) {
 					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
-				}
+				} else if(oResponse.success){
+     renderNextAuto(true);
+    }
 
 				jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse );
 			}
@@ -209,20 +211,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		renderNextAuto();
 	};
 
-	var renderPrevious = function ( event ) {
-		event.preventDefault();
+	var renderNextAuto = function (overlay = false) {
 
-		// jQuery( event.currentTarget ).prop( 'disabled', true );
-		renderPreviousAuto();
-	};
-
-	var renderPreviousAuto = function () {
-		var $oWizard = jQuery( '#wizard' );
-		$oWizard.steps( 'previous' );
-		// $oWizard.steps( 'remove', $oWizard.steps( 'getCurrentIndex' )+1 );
-	};
-
-	var renderNextAuto = function () {
+  if ( overlay ) {
+    toggleOverlay('show');
+  }
 
 		var $oWizard = jQuery( '#wizard' );
 		var reqData = {{ ajax.steps_as_json|raw }};
@@ -246,6 +239,9 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 			}
 		).always(
 			function () {
+      if ( overlay ) {
+        toggleOverlay('hide');
+      }
 			}
 		);
 	};
@@ -261,7 +257,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	var setHandlers = function () {
 		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
 		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
-		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonPreviousSlide', renderPrevious );
 	};
 
 	this.initialise = function () {
@@ -272,14 +267,22 @@ iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_Wizard_FormHandler.initialise();
 
 jQuery( document ).ajaxStart( function () {
-	iCWP_WPSF_BodyOverlay.show();
-	jQuery( 'body' ).addClass( 'wait' );
+    toggleOverlay('show');
 } );
 jQuery( document ).ajaxComplete( function () {
-	iCWP_WPSF_BodyOverlay.hide();
-	jQuery( 'body' ).removeClass( 'wait' );
+    toggleOverlay('hide');
 } );
 
+
+function toggleOverlay(showOrHide){
+    if(showOrHide === 'show'){
+         iCWP_WPSF_BodyOverlay.show();
+         jQuery( 'body' ).addClass( 'wait' );
+    } else {
+         iCWP_WPSF_BodyOverlay.hide();
+         jQuery( 'body' ).removeClass( 'wait' );
+    }
+}
 
 </script>
 {% endblock %}
