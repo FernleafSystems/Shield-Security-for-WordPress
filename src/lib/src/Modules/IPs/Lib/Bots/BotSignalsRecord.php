@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressCons
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsRecord {
@@ -53,6 +54,13 @@ class BotSignalsRecord {
 			$e->notbot_at = $mod->getBotSignalsController()
 								->getHandlerNotBot()
 								->hasCookie() ? Services::Request()->ts() : 0;
+		}
+
+		if ( empty( $e->auth_at ) ) {
+			$session = ( new Retrieve() )
+				->setMod( $this->getCon()->getModule_Sessions() )
+				->byIP( $this->getIP() );
+			$e->auth_at = empty( $session ) ? 0 : $session->created_at;
 		}
 
 		if ( $storeOnLoad ) {
