@@ -3,7 +3,7 @@
 {% block slide_body %}
 	{{ icwp_macros.slideTitle( 'Accurate Visitor IP Detection' ) }}
 
-	<p>Use the steps below to enter your IP address. This helps Shield detect visitor IP
+	<p class="description">Use the steps below to enter your IP address. This helps Shield detect visitor IP
 	   addresses more accurately, for your particular web hosting.</p>
 
 	<h6>Watch the quick (45s) explanatory video</h6>
@@ -15,21 +15,21 @@
 	</h6>
 	<div id="MoreDetails" class="collapse more_details_body">
 		<div class="card card-body">
-			<p>All websites and webhosts are configured a bit differently.
+			<p class="description">All websites and webhosts are configured a bit differently.
 			   This makes IP detection a bit tricky to automate.</p>
-			<p>We try to do this automatically for you, of course, but sometimes a server configuration
+			<p class="description">We try to do this automatically for you, of course, but sometimes a server configuration
 			   can be... unexpected. You can help ensure Shield gets the right IP address every time.</p>
-			<p>Simply tell us what your IP address is, so we can match it against the possibilities
+			<p class="description">Simply tell us what your IP address is, so we can match it against the possibilities
 			that your webhost server presents to us. When we find a match, Shield will know how to best detect
 			   visitor IPs for your web hosting.</p>
 		</div>
 	</div>
 
 	<h6>Step 1: Find <em>your</em> current IP address</h6>
-	<p><a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
+	<p class="description"><a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
 		to open up a new page that will tell you your current IP Address.</p>
 	<h6>Step 2: Tell us your IP address</h6>
-	<p>Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
+	<p class="description">Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
 		{{ icwp_macros.formInput_Text( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
