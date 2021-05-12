@@ -71,7 +71,7 @@
 	<div class="form-group row">
 		<div class="col-6"></div>
 		<div class="col-6">
-			<button type="submit" class="btn {% if large == true %} btn-block {% endif %} btn-{{ btn|default('primary') }} button button-{{ btn|default('primary') }}"
+			<button type="submit" class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
