@@ -347,9 +347,15 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 }
 
 jQuery( document ).ready( function () {
-	jQuery( document ).icwpWpsfTours();
-	jQuery( document ).icwpWpsfPluginNavigation();
-	jQuery( '.select2picker' ).select2( {
-		width: 'resolve'
-	} );
+    if(jQuery.fn.icwpWpsfTours) {
+    	jQuery( document ).icwpWpsfTours();
+    }
+    if(jQuery.fn.icwpWpsfPluginNavigation) {
+    	jQuery( document ).icwpWpsfPluginNavigation();
+    }
+    if(jQuery.fn.select2) {
+        jQuery( '.select2picker' ).select2( {
+            width: 'resolve'
+        } );
+    }
 } );
