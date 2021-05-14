@@ -175,6 +175,15 @@ body.wait {
 	box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
+span.shield-progress-bar {
+	position: relative;
+    top: 8px;
+    width: 130%;
+    background-color: #2271b1;
+    height: 2px;
+    left: 75%;
+}
+
 /* override jquery.steps.css */
 .wizard > .actions a,
 .wizard > .actions a:hover,
@@ -188,7 +197,13 @@ body.wait {
 }
 
 .wizard > .steps > ul > li {
-	width: auto !important;
+}
+
+div.steps ul {
+	display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
 }
 
 div.step {
@@ -212,6 +227,7 @@ li div.step-number {
 
 li div.step-title {
     color: rgba(34, 113, 177, 1);
+	text-align: center;
 }
 
 li.done div.step-number {
@@ -233,6 +249,15 @@ li.disabled div.step-title {
 .wizard > .content {
 	-webkit-border-radius: 0;
 	border-radius: 0;
+	margin: 0;
+}
+
+li.disabled span.shield-progress-bar {
+    background-color: #aaa;
+}
+
+div.steps ul li:last-child span.shield-progress-bar {
+	display: none;
 }
 
 /* override bootstrap */
