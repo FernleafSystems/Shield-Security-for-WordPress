@@ -24,265 +24,265 @@
 {% block body_footer_scripts %}
 	<script type="text/javascript">
 
-		jQuery( document ).ready( function ( $ ) {
+    var bRequestCurrentlyRunning = false;
 
-			var settings = {
-				/* Appearance */
-				headerTag: "h1",
-				bodyTag: "div",
-				contentContainerTag: "div",
-				actionContainerTag: "div",
-				stepsContainerTag: "div",
-				cssClass: "wizard",
-				stepsOrientation: $.fn.steps.stepsOrientation.horizontal,
+    // bring everything inside this IIFE so that they are aware of each other
+    (function($){
+        $(document).ready(function(){
+            initializeSteps();
+            initializeHandlers();
+            initializeMisc();
+        });
 
-				/* Templates */
-				titleTemplate: '<div class="step"><div class="step-number"></div><div class="step-title">#title#</div></div>',
-				loadingTemplate: '<span class="spinner"></span> #text#',
-
-				/* Behaviour */
-				autoFocus: false,
-				enableAllSteps: false,
-				enableKeyNavigation: true,
-				enablePagination: true,
-				suppressPaginationOnFocus: true,
-				enableContentCache: true,
-				enableCancelButton: false,
-				enableFinishButton: false,
-				preloadContent: false,
-				showFinishButtonAlways: false,
-				forceMoveForward: false,
-				saveState: false,
-				startIndex: 0,
-
-				/* Transition Effects */
-				transitionEffect: $.fn.steps.transitionEffect.slide,
-				transitionEffectSpeed: 100,
-
-				/* Events */
-				onStepChanging: function ( event, currentIndex, newIndex ) {
-					return true;
-				},
-				onStepChanged: function ( event, currentIndex, priorIndex ) {
-
-					// We delete the next steps as they're dynamically generated.
-					if ( currentIndex < priorIndex ) {
-						while ( priorIndex > currentIndex ) {
-							jQuery( this ).steps( "remove", priorIndex-- );
-						}
-					}
-				},
-				onCanceled: function ( event ) {
-				},
-				onFinishing: function ( event, currentIndex ) {
-					return true;
-				},
-				onFinished: function ( event, currentIndex ) {
-				},
-
-				/* Labels */
-				labels: {
-					cancel: "Cancel",
-					current: "current step:",
-					pagination: "Pagination",
-					finish: "Finish",
-					next: "Next",
-					previous: "Previous",
-					loading: "Loading ..."
-				}
-			};
-
-			// Initialize wizard
-			var $oWizardContainer = $( "#wizard" );
-			var $oWizard = $oWizardContainer.steps( settings );
-
-   var currentStep = {{ data.wizard_first_step|raw }};
-   // load all steps for showing progress bar
-   var otherSteps = {{ data.wizard_step_names|raw }};
-   otherSteps.forEach(function(step, index){
-        if(step === currentStep.title){
-            $oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
-            return;
+        function initializeMisc() {
+            iCWP_WPSF_BodyOverlay.initialise();
+            $( document ).ajaxStart( function () {
+                toggleOverlay('show');
+            } );
+            $( document ).ajaxComplete( function () {
+                toggleOverlay('hide');
+            } );
         }
-        $oWizard.steps( 'add', {title: step, contentMode: 'async'});
-   });
 
-			var $oActions = $( 'div.actions', $oWizard );
-			$oActions.prependTo( $oWizardContainer );
-			$oActions.css( 'display', 'none' );
-		} );
-	</script>
+        function initializeSteps() {
+            var settings = {
+                /* Appearance */
+                headerTag: "h1",
+                bodyTag: "div",
+                contentContainerTag: "div",
+                actionContainerTag: "div",
+                stepsContainerTag: "div",
+                cssClass: "wizard",
+                stepsOrientation: $.fn.steps.stepsOrientation.horizontal,
 
+                /* Templates */
+                titleTemplate: '<div class="step"><div class="step-number"></div><div class="step-title">#title#</div></div>',
+                loadingTemplate: '<span class="spinner"></span> #text#',
 
-	<script>
-var iCWP_WPSF_Wizard_FormHandler = new function () {
+                /* Behaviour */
+                autoFocus: false,
+                enableAllSteps: false,
+                enableKeyNavigation: true,
+                enablePagination: true,
+                suppressPaginationOnFocus: true,
+                enableContentCache: true,
+                enableCancelButton: false,
+                enableFinishButton: false,
+                preloadContent: false,
+                showFinishButtonAlways: false,
+                forceMoveForward: false,
+                saveState: false,
+                startIndex: 0,
 
-	var bRequestCurrentlyRunning = false;
+                /* Transition Effects */
+                transitionEffect: $.fn.steps.transitionEffect.slide,
+                transitionEffectSpeed: 100,
 
-	var aWizardSteps = {{ data.wizard_steps|raw }};
-	var sWizardSlug = '{{ data.wizard_slug }}';
+                /* Events */
+                onStepChanging: function ( event, currentIndex, newIndex ) {
+                    return true;
+                },
+                onStepChanged: function ( event, currentIndex, priorIndex ) {
+                    if ( currentIndex >= priorIndex ) {
+                        return;
+                    }
+                    // have to use this workaround
+                    // instead of removing steps and then adding, which does not work with jquery.steps
+                    // remove effectively does something similar internally so let's just use it directly
+                    for(var x = 1; x < 6; x++){
+                        $('#wizard-t-' + (currentIndex + x)).parent('li').removeClass('done').addClass('disabled');
+                    }
+                },
+                onCanceled: function ( event ) {
+                },
+                onFinishing: function ( event, currentIndex ) {
+                    return true;
+                },
+                onFinished: function ( event, currentIndex ) {
+                },
 
-	var submitWizardForm = function ( event ) {
-		event.preventDefault();
+                /* Labels */
+                labels: {
+                    cancel: "Cancel",
+                    current: "current step:",
+                    pagination: "Pagination",
+                    finish: "Finish",
+                    next: "Next",
+                    previous: "Previous",
+                    loading: "Loading ..."
+                }
+            };
 
-		var $oThis = jQuery( event.currentTarget );
-		var $oForm = $oThis.closest( 'form' );
+            // Initialize wizard
+            var $oWizardContainer = $( "#wizard" );
+            var $oWizard = $oWizardContainer.steps( settings );
+            addOtherSteps($oWizard);
 
-		sendFormRequest( $oForm );
-	};
+            var $oActions = $( 'div.actions', $oWizard );
+            $oActions.prependTo( $oWizardContainer );
+            $oActions.css( 'display', 'none' );
+        }
 
-	var sendFormRequest = function ( $oForm ) {
-		if ( bRequestCurrentlyRunning ) {
-			return false;
-		}
-		bRequestCurrentlyRunning = true;
+        function addOtherSteps($$oWizard){
+            // load all steps for showing progress bar
+            var currentStep = {{ data.wizard_first_step|raw }};
+            var otherSteps = {{ data.wizard_step_names|raw }};
+            otherSteps.forEach(function(step, index){
+                if(step === currentStep.title){
+                    $oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
+                    return;
+                }
+                $oWizard.steps( 'add', {title: step, contentMode: 'async'});
+            });
+        }
 
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "{{ ajax.content.action }}" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec' )
-							 .attr( 'value', "{{ ajax.content.exec }}" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec_nonce' )
-							 .attr( 'value', "{{ ajax.content.exec_nonce }}" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
-							 .attr( 'value', "{{ ajax.content.mod_slug }}" )
-							 .appendTo( $oForm );
+        function initializeHandlers() {
+		    $( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
+		    $( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
+        }
 
-		if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
-			$oForm.append( '<p class="wizard-response alert"></p>' )
-		}
+	    function reRenderCurrent(){
+            var $oWizard = $( '#wizard' );
+            $oWizard.steps( 'previous' );
+            var nCurrent = $oWizard.steps( 'getCurrentIndex' );
+            $oWizard.steps( 'remove', nCurrent + 1 );
+            renderNextAuto(true);
+	    };
 
-		var $oResponseField = jQuery( 'p.wizard-response', $oForm );
-		$oResponseField.removeClass( 'alert-danger alert-success' )
-					   .html( '...' );
+        function renderNext(event) {
+            event.preventDefault();
+            renderNextAuto();
+        };
 
-		var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
-		//$oSubmitButton.prop( 'disabled', true );
+	    function renderNextAuto(overlay = false) {
+            if ( overlay ) {
+                toggleOverlay('show');
+            }
 
-		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
-			function ( oResponse ) {
+            var aWizardSteps = {{ data.wizard_steps|raw }};
+            var sWizardSlug = '{{ data.wizard_slug }}';
 
-				if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
-					alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
-					return;
-				}
+            var $oWizard = $( '#wizard' );
+            var reqData = {{ ajax.steps_as_json|raw }};
+            reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
+            reqData.wizard_steps = aWizardSteps;
+            reqData.wizard_slug = sWizardSlug;
 
-				if ( oResponse.success ) {
-					$oResponseField.removeClass( 'alert-danger' )
-								   .addClass( 'alert-success' );
-				}
-				else {
-					$oResponseField.removeClass( 'alert-success' )
-								   .addClass( 'alert-danger' );
-					//$oSubmitButton.prop( 'disabled', false );
-				}
+            $.post( '{{ ajax.steps.ajaxurl }}', reqData,
+                function ( oResponse ) {
+                    if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
+                        alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
+                        return;
+                    }
 
-				var bRerender = false;
-				var sMessage = 'Unknown Error';
-				if ( undefined !== oResponse.data ) {
+                    if ( undefined !== oResponse.data.next_step ) {
+                        var removeIndex = $oWizard.steps('getCurrentIndex') + 1;
+                        $oWizard.steps( 'remove', removeIndex);
+                        $oWizard.steps( 'insert', removeIndex, oResponse.data.next_step );
+                        $oWizard.steps( 'next' );
+                    }
+                }
+            ).always(
+                function () {
+                    if ( overlay ) {
+                        toggleOverlay('hide');
+                    }
+                }
+            );
+	    };
 
-					if ( undefined !== oResponse.data.rerender && oResponse.data.rerender === true ) {
-						bRerender = true;
-					}
-					sMessage = oResponse.data.message;
-				}
-				$oResponseField.html( sMessage );
+        function toggleOverlay(showOrHide){
+            if(showOrHide === 'show'){
+                 iCWP_WPSF_BodyOverlay.show();
+                 $( 'body' ).addClass( 'wait' );
+            } else {
+                 iCWP_WPSF_BodyOverlay.hide();
+                 $( 'body' ).removeClass( 'wait' );
+            }
+        }
 
-				if ( bRerender ) {
-					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
-				} else if(oResponse.success){
-     renderNextAuto(true);
-    }
+        function submitWizardForm( event ) {
+            event.preventDefault();
 
-				jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse );
-			}
-		).always(
-			function () {
-				bRequestCurrentlyRunning = false;
-			}
-		);
-	};
+            var $oThis = jQuery( event.currentTarget );
+            var $oForm = $oThis.closest( 'form' );
 
-	var renderNext = function ( event ) {
-		event.preventDefault();
-		// jQuery( event.currentTarget ).prop( 'disabled', true );
-		renderNextAuto();
-	};
+            sendFormRequest( $oForm );
+        }
 
-	var renderNextAuto = function (overlay = false) {
+	    function sendFormRequest( $oForm ) {
+            if ( bRequestCurrentlyRunning ) {
+                return false;
+            }
+            bRequestCurrentlyRunning = true;
 
-  if ( overlay ) {
-    toggleOverlay('show');
-  }
+            jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
+                                 .attr( 'value', "{{ ajax.content.action }}" )
+                                 .appendTo( $oForm );
+            jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec' )
+                                 .attr( 'value', "{{ ajax.content.exec }}" )
+                                 .appendTo( $oForm );
+            jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec_nonce' )
+                                 .attr( 'value', "{{ ajax.content.exec_nonce }}" )
+                                 .appendTo( $oForm );
+            jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
+                                 .attr( 'value', "{{ ajax.content.mod_slug }}" )
+                                 .appendTo( $oForm );
 
-		var $oWizard = jQuery( '#wizard' );
-		var reqData = {{ ajax.steps_as_json|raw }};
-		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
-		reqData.wizard_steps = aWizardSteps;
-		reqData.wizard_slug = sWizardSlug;
+            if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
+                $oForm.append( '<p class="wizard-response alert"></p>' )
+            }
 
-		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
-			function ( oResponse ) {
-				if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
-					alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
-					return;
-				}
+            var $oResponseField = jQuery( 'p.wizard-response', $oForm );
+            $oResponseField.removeClass( 'alert-danger alert-success' )
+                           .html( '...' );
 
-				if ( undefined !== oResponse.data.next_step ) {
-     var removeIndex = $oWizard.steps('getCurrentIndex') + 1;
-					$oWizard.steps( 'remove', removeIndex);
-					$oWizard.steps( 'insert', removeIndex, oResponse.data.next_step );
-					$oWizard.steps( 'next' );
-				}
-			}
-		).always(
-			function () {
-      if ( overlay ) {
-        toggleOverlay('hide');
-      }
-			}
-		);
-	};
+            var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
 
-	this.reRenderCurrent = function () {
-		var $oWizard = jQuery( '#wizard' );
-		$oWizard.steps( 'previous' );
-		var nCurrent = $oWizard.steps( 'getCurrentIndex' );
-		$oWizard.steps( 'remove', nCurrent + 1 );
-		renderNextAuto();
-	};
+            jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
+                function ( oResponse ) {
 
-	var setHandlers = function () {
-		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
-		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
-	};
+                    if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
+                        alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
+                        return;
+                    }
 
-	this.initialise = function () {
-		jQuery( document ).ready( setHandlers );
-	};
-}();
-iCWP_WPSF_BodyOverlay.initialise();
-iCWP_WPSF_Wizard_FormHandler.initialise();
+                    if ( oResponse.success ) {
+                        $oResponseField.removeClass( 'alert-danger' )
+                                       .addClass( 'alert-success' );
+                    }
+                    else {
+                        $oResponseField.removeClass( 'alert-success' )
+                                       .addClass( 'alert-danger' );
+                    }
 
-jQuery( document ).ajaxStart( function () {
-    toggleOverlay('show');
-} );
-jQuery( document ).ajaxComplete( function () {
-    toggleOverlay('hide');
-} );
+                    var bRerender = false;
+                    var sMessage = 'Unknown Error';
+                    if ( undefined !== oResponse.data ) {
 
+                        if ( undefined !== oResponse.data.rerender && oResponse.data.rerender === true ) {
+                            bRerender = true;
+                        }
+                        sMessage = oResponse.data.message;
+                    }
+                    $oResponseField.html( sMessage );
 
-function toggleOverlay(showOrHide){
-    if(showOrHide === 'show'){
-         iCWP_WPSF_BodyOverlay.show();
-         jQuery( 'body' ).addClass( 'wait' );
-    } else {
-         iCWP_WPSF_BodyOverlay.hide();
-         jQuery( 'body' ).removeClass( 'wait' );
-    }
-}
+                    if ( bRerender ) {
+                        reRenderCurrent();
+                    } else if(oResponse.success){
+                        renderNextAuto(true);
+                    }
+
+                    jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse );
+                }
+            ).always(
+                function () {
+                    bRequestCurrentlyRunning = false;
+                }
+            );
+        }
+
+    })(jQuery);
 
 </script>
 {% endblock %}
