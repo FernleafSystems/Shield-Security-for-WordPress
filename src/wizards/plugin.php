@@ -189,6 +189,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $sCurrentWiz == 'welcome' ) {
 
 			switch ( $sStep ) {
+				case 'welcome':
+					$urlBuilder = $con->urls;
+					$aAdditional = [
+						'imgs'       => [
+							'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
+						],
+					];
+					break;
 				case 'ip_detect':
 					$aAdditional = [
 						'hrefs' => [

@@ -8,11 +8,9 @@
 	<h6>Watch the quick (30s) explanatory video</h6>
 	{{ icwp_macros.embedVimeo( "269193270" ) }}
 
-	<h6 class="more_details">
-		<a class="btn btn-link" data-toggle="collapse" data-target=".more_details_body">
-			Click For More Details &rarr;</a>
-	</h6>
-	<div id="MoreDetails" class="collapse more_details_body">
+		<a data-toggle="collapse" data-target=".more_details_body">Click For More Details &rarr;</a>
+
+    <div id="MoreDetails" class="collapse more_details_body">
 		<div class="card card-body">
 			<p class="description">99%+ of comments spam is by automated (ro)bots. You get some human SPAM too, of course.</p>
 			<p class="description">Shield Security provides highly effective techniques to block bot spam.
@@ -26,17 +24,31 @@
 		</div>
 	</div>
 
-<h6>Turn On Comment SPAM Protection</h6>
-<form class="form-horizontal icwp-wizard-form">
 	{% set radiovalues =
 		{
 			'Y': '<span>Turn On</span> - Block automated comments SPAM by bots',
 			'N': '<span>Turn Off</span> - Do not block automated comments SPAM'
 		}
 	%}
-	{{ icwp_macros.formInput_Radio( 'CommentsFilterOption', radiovalues, 'Comment SPAM Blocking' ) }}
+
+    <div class="mt-3">
+        <h6>Turn On Comment SPAM Protection</h6>
+        <form class="form-horizontal icwp-wizard-form">
+            <table class="form-table">
+                <tbody>
+                    <tr>
+                        <th scope="row">Comment SPAM Blocking</th>
+                        <td>
+                            <fieldset>
+                                {{ icwp_macros.formInput_Radio_Wizard( 'CommentsFilterOption', radiovalues, 'Comment SPAM Blocking' ) }}
+                            </fieldset>
+	                    </td>
+                    </tr>
+                </tbody>
+            </table>
 	{{ icwp_macros.formInput_Hidden( 'wizard-step', 'comments_filter' ) }}
 	{{ icwp_macros.formInput_Submit( 'Set Comment SPAM Protection &rarr;', null, null, true ) }}
-</form>
 
+        <form>
+    </div>
 {% endblock %}

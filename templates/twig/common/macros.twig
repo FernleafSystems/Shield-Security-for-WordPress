@@ -67,6 +67,16 @@
 	</div>
 {% endmacro %}
 
+{% macro formInput_Radio_Wizard(name,values,toplabel,id) %}
+    {% for value,label in values %}
+    <label>
+        <input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
+        <span>{{ label|raw }}</span>
+    </label>
+    {% endfor %}
+{% endmacro %}
+
+
 {% macro formInput_Submit(label,name,btn,large=false) %}
 	<div class="form-group row">
 		<div class="col-6"></div>
