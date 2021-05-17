@@ -48,6 +48,9 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 					'hrefs' => [
 						'ajax' => $ajaxHref
 					],
+					'flags' => [
+						'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+					],
 				] )
 			];
 			return $localz;
