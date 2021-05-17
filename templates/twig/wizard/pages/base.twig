@@ -1,17 +1,7 @@
 {% extends '/pages/base.twig' %}
 
-{% block body_content_header %}
-{% if data.wizard_slug != 'welcome' %}
-	<div class="row">
-		<div class="col-4 offset-4 col-xl-3 text-center">
-			<img id="ShieldLogo" class="img-fluid" src="{{ imgs.plugin_banner }}" alt="" />
-		</div>
-	</div>
-{% endif %}
-{% endblock %}
-
 {% block body_footer %}
-	{% if not flags.is_premium %}
+	{% if not flags.is_premium and false %}
 		<div id="FooterWizardBanner" class="container-fluid">
 			<div id="WizardBanner" class="row">
 				<div class="col-lg-5 offset-lg-3 col-md-5 offset-md-3 col-sm-8 col-8">

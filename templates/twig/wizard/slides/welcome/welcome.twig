@@ -1,10 +1,14 @@
 {% extends 'wizard/slides/common/base_start.twig' %}
 
-{% block slide_body %}
-	<div class="row">
-        <img class="img-fluid" src="{{ imgs.plugin_banner }}" alt="" />
+{% block slide_header %}
+	<div class="row row-cols-1 justify-content-center">
+		<div class="col-6 col-sm-6 col-xl-4">
+			<img id="ShieldLogo" class="img-fluid" src="{{ imgs.plugin_banner }}" alt="ShieldLogo" />
+		</div>
 	</div>
+{% endblock %}
 
+{% block slide_body %}
 	{{ icwp_macros.slideTitle( 'Welcome To Shield Security for WordPress' ) }}
 
 	{{ icwp_macros.embedVimeo( "267962208" ) }}
