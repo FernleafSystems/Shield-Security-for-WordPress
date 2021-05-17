@@ -28,6 +28,9 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 		} );
 	}
 
+	/**
+	 * @since 11.2 - don't fire for GTMetrix page requests
+	 */
 	private function nonceJs() {
 		add_filter( 'shield/custom_localisations', function ( array $localz ) {
 
@@ -38,14 +41,14 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			$localz[] = [
 				'shield/antibot',
 				'shield_vars_antibotjs',
-				[
+				apply_filters( 'shield/notbot_data_js', [
 					'ajax'  => [
 						'not_bot' => http_build_query( $ajaxData )
 					],
 					'hrefs' => [
 						'ajax' => $ajaxHref
 					],
-				]
+				] )
 			];
 			return $localz;
 		} );

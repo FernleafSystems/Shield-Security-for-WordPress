@@ -257,7 +257,6 @@
           ]
         },
         "shield/antibot":         {
-          "footer": true
         },
         "shield/scans":           {
           "deps": [
