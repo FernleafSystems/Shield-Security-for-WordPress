@@ -13,7 +13,7 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 		return ( Services::Request()->ts() - ( new BotSignalsRecord() )
 					->setMod( $this->getMod() )
 					->setIP( Services::IP()->getRequestIp() )
-					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*30;
+					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*45;
 	}
 
 	protected function run() {
