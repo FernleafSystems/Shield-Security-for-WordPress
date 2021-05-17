@@ -251,7 +251,7 @@ class BuildScores {
 
 	private function score_notbot() :int {
 		if ( $this->lastAtTs( __FUNCTION__ ) === 0 ) {
-			$score = -15;
+			$score = -10;
 		}
 		else {
 			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 125 : 65;
