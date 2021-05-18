@@ -716,8 +716,8 @@
           "comments_filter":          {
             "title": "Comment SPAM"
           },
-          "how_shield_works":         {
-            "title": "How Shield Works"
+          "plugin_badge":         {
+            "title": "Plugin Badge"
           },
           "optin":                    {
             "title": "Join Us!"

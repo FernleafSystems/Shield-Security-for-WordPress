@@ -127,51 +127,51 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function determineWizardSteps_Welcome() {
 		$con = $this->getCon();
 
-		$aStepsSlugs = [
+		$stepsSlugs = [
 			'welcome',
 			'ip_detect'
 		];
 
 		if ( $con->isPremiumActive() ) {
-			$aStepsSlugs[] = 'import';
+			$stepsSlugs[] = 'import';
 		}
 
 		if ( !$con->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
-			$aStepsSlugs[] = 'admin_access_restriction';
+			$stepsSlugs[] = 'admin_access_restriction';
 		}
 
 		$mod = $con->getModule_AuditTrail();
 		if ( !$mod->isModuleEnabled() ) {
-			$aStepsSlugs[] = 'audit_trail';
+			$stepsSlugs[] = 'audit_trail';
 		}
 
 		if ( !$con->getModule_IPs()->isModuleEnabled() ) {
-			$aStepsSlugs[] = 'ips';
+			$stepsSlugs[] = 'ips';
 		}
 
 		$mod = $con->getModule_LoginGuard();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
 		$oOpts = $mod->getOptions();
 		if ( !( $mod->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'login_protect';
+			$stepsSlugs[] = 'login_protect';
 		}
 
 		$modComm = $con->getModule_Comments();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
 		$optsComm = $modComm->getOptions();
 		if ( !( $modComm->isModuleEnabled() && $optsComm->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'comments_filter';
+			$stepsSlugs[] = 'comments_filter';
 		}
 
-		$aStepsSlugs[] = 'how_shield_works';
-		$aStepsSlugs[] = 'optin';
+		$stepsSlugs[] = 'plugin_badge';
+		$stepsSlugs[] = 'optin';
 
 		if ( !$con->isPremiumActive() ) {
-			$aStepsSlugs[] = 'import';
+			$stepsSlugs[] = 'import';
 		}
 
-		$aStepsSlugs[] = 'thankyou';
-		return $aStepsSlugs;
+		$stepsSlugs[] = 'thankyou';
+		return $stepsSlugs;
 	}
 
 	/**
@@ -235,7 +235,18 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'video_id' => '269193270'
 						],
 						'strings' => [
-							'slide_title' => 'Block 100% Comment SPAM by Bots withou CAPTCHAs (really!)',
+							'slide_title' => 'Block 100% Comment SPAM by Bots - no CAPTCHAs (really!)',
+						],
+					];
+					break;
+
+				case 'plugin_badge':
+					$additional = [
+						'vars'    => [
+							'video_id' => ''
+						],
+						'strings' => [
+							'slide_title' => 'Show Visitors You Take Security Seriously',
 						],
 					];
 					break;
@@ -254,11 +265,11 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'optin':
-					$oUser = Services::WpUsers()->getCurrentWpUser();
+					$users = Services::WpUsers()->getCurrentWpUser();
 					$additional = [
 						'vars'  => [
-							'name'       => $oUser->first_name,
-							'user_email' => $oUser->user_email
+							'name'       => $users->first_name,
+							'user_email' => $users->user_email
 						],
 						'hrefs' => [
 							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' )
