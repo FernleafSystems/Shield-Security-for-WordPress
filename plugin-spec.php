@@ -51,14 +51,14 @@
       "css": [
         "select2",
         "plugin",
-        "jquery/featherlight.min",
+        "jquery/featherlight",
         "introjs",
         "bootstrap-select"
       ],
       "js":  [
         "select2",
         "plugin",
-        "jquery/featherlight.min",
+        "jquery/featherlight",
         "jquery/fileDownload",
         "shield/tours",
         "bootstrap-select"
@@ -105,15 +105,17 @@
             "global-plugin"
           ]
         },
-        "shield/wizard":                 {
+        "shield/wizard":          {
           "deps": [
             "bootstrap",
             "global-plugin"
           ]
         },
-        "jquery/featherlight.min":           {},
+        "jquery/featherlight":    {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.css"
+        },
         "chartist":               {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.css"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
         },
         "chartist-plugin-legend": {
           "deps": [
@@ -188,10 +190,12 @@
         },
         "lz-string.min":          {},
         "jquery/fileDownload":    {},
-        "jquery/steps":    {
+        "jquery/steps":           {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
         },
-        "jquery/featherlight.min":           {},
+        "jquery/featherlight":    {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
+        },
         "chartist":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.js"
         },
@@ -281,11 +285,11 @@
           ],
           "footer": true
         },
-        "shield/wizard":     {
-          "deps":   [
-			"bootstrap",
-			"global-plugin",
-			"jquery/steps"
+        "shield/wizard":          {
+          "deps": [
+            "bootstrap",
+            "global-plugin",
+            "jquery/steps"
           ]
         },
         "u2f-bundle":             {},
