@@ -4,22 +4,21 @@
 	{% block slide_header %}
 		{% block slide_header_nav %}
 		<div class="container-fluid">
-  {% if data.mod_wizards.welcome is not defined %}
-			<div class="row">
-				<div class="col-6">
-				{% block slide_header_previous_top %}
-					<button class="btn btn-outline-secondary btn-block ButtonPreviousSlide">&larr; Previous Step </button>
-				{% endblock %}
+			{% if data.mod_wizards.welcome is not defined %}
+				<div class="row">
+					<div class="col-6">
+					{% block slide_header_previous_top %}
+						<button class="btn btn-outline-secondary btn-block ButtonPreviousSlide">&larr; Previous Step </button>
+					{% endblock %}
+					</div>
+					<div class="col-6">
+					{% block slide_header_next_top %}
+						<button class="ButtonNextSlide">Next Step &rarr;</button>
+					{% endblock %}
+					</div>
 				</div>
-				<div class="col-6">
-				{% block slide_header_next_top %}
-					<button class="ButtonNextSlide">Next Step &rarr;</button>
-				{% endblock %}
-				</div>
-			</div>
-  {% endif %}
+			{% endif %}
 		</div>
-		<hr />
 		{% endblock %}
 	{% endblock %}
 	</div>

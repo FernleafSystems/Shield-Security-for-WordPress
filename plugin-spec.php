@@ -51,15 +51,15 @@
       "css": [
         "select2",
         "plugin",
-        "featherlight",
+        "jquery/featherlight.min",
         "introjs",
         "bootstrap-select"
       ],
       "js":  [
         "select2",
         "plugin",
-        "featherlight",
-        "jquery.fileDownload",
+        "jquery/featherlight.min",
+        "jquery/fileDownload",
         "shield/tours",
         "bootstrap-select"
       ]
@@ -105,13 +105,13 @@
             "global-plugin"
           ]
         },
-        "wizard":                 {
+        "shield/wizard":                 {
           "deps": [
             "bootstrap",
             "global-plugin"
           ]
         },
-        "featherlight":           {},
+        "jquery/featherlight.min":           {},
         "chartist":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.css"
         },
@@ -187,16 +187,11 @@
           "url": "https://cdn.jsdelivr.net/npm/js-base64@2.6.4/base64.min.js"
         },
         "lz-string.min":          {},
-        "jquery.fileDownload":    {
-          "deps": [
-            "wp-jquery"
-          ]
+        "jquery/fileDownload":    {},
+        "jquery/steps":    {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
         },
-        "featherlight":           {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
+        "jquery/featherlight.min":           {},
         "chartist":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.js"
         },
@@ -285,6 +280,13 @@
             "shield/dialog"
           ],
           "footer": true
+        },
+        "shield/wizard":     {
+          "deps":   [
+			"bootstrap",
+			"global-plugin",
+			"jquery/steps"
+          ]
         },
         "u2f-bundle":             {},
         "tp/grecaptcha":          {

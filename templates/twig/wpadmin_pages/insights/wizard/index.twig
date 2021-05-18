@@ -1,52 +1,7 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
-{{ strings.hohoho }}
 
-
-<form id="wizard">
-<div id="stepper">
-{% for stepID, stepContent in steps %}
-        <input type="text" class="steps" name="{{ stepID }}" style="display: {{ stepID == currentStep ? 'block' : 'none' }}" placeholder="{{ stepID }}" id="{{ stepID }}" value="{{ stepContent }}"/>
-{% endfor %}
-
-<button id="wizardnext">Next step</button>
-</div>
-
-<input type="hidden" name="step" id="currentstep" value="{{ currentStep }}">
-
-</form>
-
-<script>
-    (function($){
-        $(document).ready(function(){
-            init();
-        });
-
-        function init() {
-            $('#wizardnext').on('click', function(e){
-                e.preventDefault();
-
-                $(document).off('shield-wizard-stepper').on('shield-wizard-stepper', function(event, data){
-                    $('.steps').hide();
-                    var next = data.data.next;
-                    if(next != 'done'){
-                        $('#' + next).show();
-                        $('#currentstep').val(next);
-                    }else{
-                        $('#stepper').html(data.data.message);
-                    }
-                    iCWP_WPSF_BodyOverlay.hide();
-                });
-
-                var params = $('#wizard').serialize();
-                var data = JSON.parse( `{{ ajax.wizard_step|raw }}` );
-                data.form_params = params;
-                iCWP_WPSF_StandardAjax.send_ajax_req( data, false, 'wizard-stepper' );
-            });
-        }
-    })(jQuery);
-
-</script>
+{{ content.wizard|raw }}
 
 {% endblock %}

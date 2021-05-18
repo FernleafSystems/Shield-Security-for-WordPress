@@ -114,7 +114,7 @@ class ModCon extends BaseShield\ModCon {
 			$inav = 'overview';
 		}
 
-		if ( $con->getIsPage_PluginAdmin() && !empty( $inav ) ) {
+		if ( $con->getIsPage_PluginAdmin() ) {
 			switch ( $inav ) {
 
 				case 'importexport':
@@ -140,6 +140,11 @@ class ModCon extends BaseShield\ModCon {
 						'chartist-plugin-legend',
 						'shield/charts'
 					];
+					break;
+
+				case 'wizard':
+					$enq[ Enqueue::JS ][] = 'shield/wizard';
+					$enq[ Enqueue::CSS ][] = 'shield/wizard';
 					break;
 
 				case 'notes':

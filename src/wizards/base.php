@@ -18,7 +18,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 	private $sCurrentWizard;
 
 	/**
-	 * Indicates if stepping through the wizard is automatic 
+	 * Indicates if stepping through the wizard is automatic
 	 * or it needs to add the instruction to click next.
 	 *
 	 * @var bool
@@ -64,9 +64,9 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * TODO: does not honour 'min_user_permissions' from the wizard definition
 	 */
 	public function onWpLoaded() {
-		$sWizard = Services::Request()->query( 'wizard' );
+		$wizard = Services::Request()->query( 'wizard' );
 		try {
-			$this->setCurrentWizard( $sWizard );
+			$this->setCurrentWizard( $wizard );
 
 			$sDieMessage = 'Not Permitted';
 			if ( $this->getUserCan() ) {
@@ -79,7 +79,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 			Services::WpGeneral()->wpDie( $sDieMessage );
 		}
 		catch ( \Exception $e ) {
-			if ( $sWizard == 'landing' ) {
+			if ( $wizard == 'landing' ) {
 				$this->loadWizardLanding();
 			}
 		}
@@ -212,7 +212,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			if ( ! self::WIZARD_STEPPING_AUTO ) {
+			if ( !self::WIZARD_STEPPING_AUTO ) {
 				$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
 			}
 		}
@@ -230,17 +230,17 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return string
 	 * @throws Exception
 	 */
-	protected function renderWizard() {
+	public function renderWizard() {
 		remove_all_actions( 'wp_footer' ); // FIX: nextgen gallery forces this to run.
 		return $this->getMod()
-					->renderTemplate( 'wizard/pages/wizard.twig', $this->getRenderData_PageWizard(), true );
+					->renderTemplate( 'wizard/wizard_container.twig', $this->getRenderData_PageWizard(), true );
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getModuleWizardsForRender() {
-		/** @var ICWP_WPSF_FeatureHandler_Base $mod */
+		/** @var Shield\Modules\Base\ModCon $mod */
 		$mod = $this->getMod();
 		$aWizards = $mod->getWizardDefinitions();
 		foreach ( $aWizards as $sKey => &$aWizard ) {
@@ -314,7 +314,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 
 		$aStepsNames = [];
 		foreach ( $steps as $stepKey ) {
-			$aStepsNames[] = $this->getStepsDefinition()[ $stepKey ]['title'];
+			$aStepsNames[] = $this->getStepsDefinition()[ $stepKey ][ 'title' ];
 		}
 
 		return Services::DataManipulation()->mergeArraysRecursive(
@@ -327,7 +327,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 				'data'    => [
 					'wizard_slug'       => $this->getWizardSlug(),
 					'wizard_steps'      => json_encode( $steps ),
-					'wizard_step_names'      => json_encode( $aStepsNames ),
+					'wizard_step_names' => json_encode( $aStepsNames ),
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [
@@ -356,7 +356,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @throws Exception
 	 */
 	protected function determineWizardSteps() :array {
-		throw new Exception( sprintf( 'Could not determine wizard steps for current wizard: %s', $this->getWizardSlug() ) );
+		throw new \Exception( sprintf( 'Could not determine wizard steps for current wizard: %s', $this->getWizardSlug() ) );
 	}
 
 	/**

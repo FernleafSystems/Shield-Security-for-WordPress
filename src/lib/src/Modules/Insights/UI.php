@@ -162,8 +162,12 @@ class UI extends BaseShield\UI {
 			case 'wizard':
 				$wiz = $con->getModule_Plugin()->getWizardHandler();
 				if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
-					$wiz->init();
-					$wiz->onWpLoaded();
+					$data = [
+						'content' => [
+							'wizard' => $wiz->setCurrentWizard( $req->query( 'wizard' ) )
+											->renderWizard()
+						],
+					];
 				}
 				break;
 			default:

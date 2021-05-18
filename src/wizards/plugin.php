@@ -81,7 +81,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @throws Exception
 	 */
 	protected function determineWizardSteps() :array {
-
 		switch ( $this->getWizardSlug() ) {
 			case 'welcome':
 				$aSteps = $this->determineWizardSteps_Welcome();
