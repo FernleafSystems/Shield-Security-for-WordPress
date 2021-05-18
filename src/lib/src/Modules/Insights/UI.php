@@ -167,6 +167,9 @@ class UI extends BaseShield\UI {
 							'wizard' => $wiz->setCurrentWizard( $req->query( 'wizard' ) )
 											->renderWizard()
 						],
+						'flags'   => [
+							'show_sidebar_nav' => 0
+						],
 					];
 				}
 				break;
