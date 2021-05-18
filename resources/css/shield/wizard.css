@@ -447,9 +447,6 @@ body.wait {
 }
 
 .wizard .slide-body img {
-	float: left;
-	width: 40%;
-	margin-right: 20px;
 }
 .wizard .slide-body .media {
 	margin-top: 25px
@@ -652,4 +649,15 @@ a, a:not([href]):not([class]) {
 
 a:hover, a:visited {
 	color: #135e96;
+}
+
+.vimeo-feather { position: relative; }
+
+.vimeo-feather a {
+	position: absolute;
+	display: block;
+	height: 40px;
+	width: 40px;
+	top: 20px;
+	left: 20px;
 }

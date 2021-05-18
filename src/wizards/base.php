@@ -423,7 +423,9 @@ abstract class ICWP_WPSF_Wizard_Base {
 				'dashboard' => $this->getCon()->getPluginUrl_DashboardHome(),
 				'gopro'     => 'https://shsec.io/ap',
 			],
-			'imgs'    => [],
+			'imgs'    => [
+				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-btn.svg' )
+			],
 			'data'    => [
 				'mod_wizards_count' => count( $aWizards ),
 				'mod_wizards'       => $aWizards

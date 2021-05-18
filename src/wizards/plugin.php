@@ -181,7 +181,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	protected function getRenderData_SlideExtra( $sStep ) {
 		$con = $this->getCon();
 
-		$aAdditional = [];
+		$additionalData = [];
 
 		$sCurrentWiz = $this->getWizardSlug();
 
@@ -190,14 +190,18 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			switch ( $sStep ) {
 				case 'welcome':
 					$urlBuilder = $con->urls;
-					$aAdditional = [
-						'imgs'       => [
-							'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
+					$additionalData = [
+						'imgs' => [
+							'plugin_banner' => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
+							'video_thumb'   => $this->getVideoThumbnailUrl( '267962208' ),
 						],
+						'vars' => [
+							'video_id' => '267962208'
+						]
 					];
 					break;
 				case 'ip_detect':
-					$aAdditional = [
+					$additionalData = [
 						'hrefs' => [
 							'visitor_ip' => 'https://shsec.io/visitorip',
 						]
@@ -206,7 +210,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'license':
 					break;
 				case 'import':
-					$aAdditional = [
+					$additionalData = [
 						'hrefs' => [
 							'blog_importexport' => 'https://shsec.io/av'
 						],
@@ -218,7 +222,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'optin':
 					$oUser = Services::WpUsers()->getCurrentWpUser();
-					$aAdditional = [
+					$additionalData = [
 						'vars'  => [
 							'name'       => $oUser->first_name,
 							'user_email' => $oUser->user_email
@@ -233,7 +237,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'how_shield_works':
-					$aAdditional = [
+					$additionalData = [
 						'imgs'     => [
 							'how_shield_works' => $con->urls->forImage( 'wizard/general-shield_where.png' ),
 							'modules'          => $con->urls->forImage( 'wizard/general-shield_modules.png' ),
@@ -275,7 +279,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		elseif ( $sCurrentWiz == 'importexport' ) {
 			switch ( $sStep ) {
 				case 'import':
-					$aAdditional = [
+					$additionalData = [
 						'hrefs' => [
 							'blog_importexport' => 'https://shsec.io/av'
 						],
@@ -286,7 +290,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 				case 'results': //gdpr results
 
-					$aAdditional = [];
+					$additionalData = [];
 					break;
 
 				default:
@@ -306,7 +310,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						$nTotal += $aResult[ 'count' ];
 					}
 
-					$aAdditional = [
+					$additionalData = [
 						'flags' => [
 							'has_search_items' => $bHasSearchItems
 						],
@@ -323,10 +327,20 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		if ( empty( $aAdditional ) ) {
-			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+		if ( empty( $additionalData ) ) {
+			$additionalData = parent::getRenderData_SlideExtra( $sStep );
 		}
-		return $aAdditional;
+		return $additionalData;
+	}
+
+	/**
+	 * @see https://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
+	 * @param string $videoID
+	 */
+	private function getVideoThumbnailUrl( $videoID ) {
+		$raw = Services::HttpRequest()
+					   ->getContent( sprintf( 'https://vimeo.com/api/v2/video/%s.json', $videoID ) );
+		return empty( $raw ) ? '' : json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ];
 	}
 
 	/**
@@ -565,7 +579,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			else {
 				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
 			}
-		} else {
+		}
+		else {
 			// skip
 			$success = true;
 		}
@@ -708,7 +723,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			else {
 				$sMessage = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
 			}
-		} else {
+		}
+		else {
 			// skip
 			$bSuccess = true;
 		}

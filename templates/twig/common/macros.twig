@@ -68,12 +68,12 @@
 {% endmacro %}
 
 {% macro formInput_Radio_Wizard(name,values,toplabel,id) %}
-    {% for value,label in values %}
-    <label>
+	{% for value,label in values %}
+		<label>
         <input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
         <span>{{ label|raw }}</span>
     </label>
-    {% endfor %}
+	{% endfor %}
 {% endmacro %}
 
 
@@ -81,7 +81,8 @@
 	<div class="form-group row">
 		<div class="col-6"></div>
 		<div class="col-6">
-			<button type="submit" class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
+			<button type="submit"
+					class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
@@ -114,10 +115,37 @@
 	</div>
 {% endmacro %}
 
+{% macro embedVimeoFeather( video_id, img_url, img_play, id ) %}
+	<style>
+		.vimeo-feather a {
+			filter: invert(100%) sepia(100%) saturate(2%) hue-rotate(281deg) brightness(104%) contrast(101%);
+			position: absolute;
+			display: block;
+			background: url(http://shielddev.local/wp-content/plugins/wp-simple-firewall/resources/images/bootstrap/play-btn.svg?ver=11.1.13&amp;mtime=1621338198) center center/150px 150px no-repeat;
+			height: 200px;
+			width: 200px;
+			top: 28%;
+			left: 42%;
+			margin: -20px 0 0 -20px;
+		}
+	</style>
+	<div class="d-flex justify-content-center vimeo-feather">
+		<img id="VimeoImg{{ video_id }}" src="{{ img_url }}" />
+		<a href="https://player.vimeo.com/video/{{ video_id }}"
+		   class="d-inline-block"
+		   data-featherlight="iframe"
+		   data-featherlight-iframe-frameborder="0"
+		   data-featherlight-iframe-allowfullscreen="true"
+		   data-featherlight-iframe-style="display:block;border:none;height:85vh;width:85vw;background-color:transparent;"
+		>
+		</a>
+	</div>
+{% endmacro %}
+
 {% macro marketing_iframe( name, page, height, bgcolor ) %}
 	<iframe
 			name="{{ name|default('icwp-iframe') }}"
 			src="//www.icontrolwp.com/custom/remote/plugins/hlt-bootstrapcss-plugin-widgets.php?page={{ page|default('icwp-options') }}&snippet={{ name|default('icwp-iframe') }}"
 			width="100%" height="{{ height|default( '500px' ) }}"
-			frameborder="0" scrolling="no" style="background-color:{{ bgcolor|default('rgba(0, 0, 0, 0)') }};" ></iframe>
+			frameborder="0" scrolling="no" style="background-color:{{ bgcolor|default('rgba(0, 0, 0, 0)') }};"></iframe>
 {% endmacro %}
