@@ -70,9 +70,9 @@
 {% macro formInput_Radio_Wizard(name,values,toplabel,id) %}
 	{% for value,label in values %}
 		<label>
-        <input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
-        <span>{{ label|raw }}</span>
-    </label>
+			<input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
+			<span>{{ label|raw }}</span>
+		</label>
 	{% endfor %}
 {% endmacro %}
 

@@ -203,6 +203,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						],
 					];
 					break;
+
 				case 'ip_detect':
 					$additional = [
 						'hrefs'   => [
@@ -216,6 +217,18 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						],
 					];
 					break;
+
+				case 'login_protect':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269191603'
+						],
+						'strings' => [
+							'slide_title' => 'Brute Force Login Protection',
+						],
+					];
+					break;
+
 				case 'license':
 					break;
 				case 'import':
@@ -571,23 +584,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
 		$opts = $mod->getOptions();
 
-		$sInput = Services::Request()->post( 'LoginProtectOption' );
-		$success = false;
-		$msg = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
+		$input = Services::Request()->post( 'LoginProtectOption' );
 
-		if ( !empty( $sInput ) ) {
-			$enabled = $sInput === 'Y';
+		if ( !empty( $input ) ) {
+			$enable = $input === 'Y';
 
-			if ( $enabled ) { // we don't disable the whole module
+			if ( $enable ) { // we don't disable the whole module
 				$mod->setIsMainFeatureEnabled( true );
 			}
-			$mod->setEnabledGaspCheck( $enabled );
+			$mod->setEnabledAntiBotDetection( $enable );
 			$mod->saveModOptions();
 
-			$success = $opts->isEnabledGaspCheck() === $enabled;
+			$success = $opts->isEnabledAntiBot() === $enable;
 			if ( $success ) {
 				$msg = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
-					$enabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+					$enable ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
@@ -595,8 +606,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 		else {
-			// skip
-			$success = true;
+			$msg = __( 'No option was selected', 'wp-simple-firewall' );
+			$success = false;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )

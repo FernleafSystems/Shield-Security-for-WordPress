@@ -1,53 +1,33 @@
-{% extends 'wizard/slides/common/base.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Brute Force Login Protection' ) }}
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the quick (35s) explanatory video:</h5>
+	<p>Shield is designed to protect your WP Login against automated, brute force login attacks from bots.</p>
+	<p>Shield brings its exclusive AntiBot Detection Engine to your login pages to detect bots
+	   without the need for any CAPTCHAs, or any other UX-destructive additions to your forms whatsoever.</p>
+{% endblock %}
 
-	<p class="description">Shield can protect your WP Login against automated attacks and bots.</p>
+{% block slide_body_action_area %}
 
-	<h6>Watch the quick (35s) explanatory video</h6>
-	{{ icwp_macros.embedVimeo( "269191603" ) }}
+	{% set radiovalues =
+		{
+			'Y': '<span>Turn On</span> - Protect my WordPress login from automated attacks',
+			'N': '<span>Turn Off</span> - Do not protect my WordPress login from automated attacks'
+		}
+	%}
 
-    <a data-toggle="collapse" data-target=".more_details_body">Click For More Details &rarr;</a>
+	<form class="form-horizontal icwp-wizard-form">
 
-    <div id="MoreDetails" class="collapse more_details_body">
-		<div class="card card-body">
-			<p class="description">You can turn on the Shield Login Guard which uses a similar
-			   technique to that for Comments SPAM blocking.</p>
-			<p class="description">It adds a special checkbox to the login form that tricks automated robot login attempts.</p>
-			<p class="description">Shield also offers you the option to use Google reCAPTCHA for login bot protection, but you'll need to
-			setup some API keys for this first, so we'll leave you to do that later.</p>
-			<p class="description">This option will add a <em>special anti-bot</em> checkbox to your login form that users have to check.
-			   It's easy, and super simple to use - no annoying CAPTCHAs.</p>
+		<div class="form-group row">
+			<div class="col-4">
+				Bot Login Protection
+			</div>
+			<div class="col-8">
+				{{ icwp_macros.formInput_Radio_Wizard( 'LoginProtectOption', radiovalues, 'Bot Login Protection' ) }}
+			</div>
 		</div>
-	</div>
 
-        {% set radiovalues =
-			{
-				'Y': '<span>Turn On</span> - Protect my WordPress login from automated attacks',
-				'N': '<span>Turn Off</span> - Do not protect my WordPress login from automated attacks'
-			}
-		%}
-
-    <div class="mt-3">
-        <h6>Turn On Login Protection</h6>
-        <form class="form-horizontal icwp-wizard-form">
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th scope="row">Bot Login Protection</th>
-                        <td>
-                            <fieldset>
-                                {{ icwp_macros.formInput_Radio_Wizard( 'LoginProtectOption', radiovalues, 'Bot Login Protection' ) }}
-                            </fieldset>
-	                    </td>
-                    </tr>
-                </tbody>
-            </table>
-
-		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'login_protect' ) }}
-		{{ icwp_macros.formInput_Submit( 'Set Login Protection &rarr;', null, null, true ) }}
-
-        </form>
-    </div>
+		{{ icwp_macros.formInput_Submit2( 'Set Login Protection', null, null, true ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', vars.step ) }}
+	</form>
 {% endblock %}
