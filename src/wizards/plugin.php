@@ -229,6 +229,17 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
+				case 'comments_filter':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269193270'
+						],
+						'strings' => [
+							'slide_title' => 'Block 100% Comment SPAM by Bots withou CAPTCHAs (really!)',
+						],
+					];
+					break;
+
 				case 'license':
 					break;
 				case 'import':
@@ -723,40 +734,38 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardCommentsFilter() {
 
-		$sInput = Services::Request()->post( 'CommentsFilterOption' );
-		$bSuccess = false;
-		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
+		$input = Services::Request()->post( 'CommentsFilterOption' );
 
-		if ( !empty( $sInput ) ) {
-			$bEnabled = $sInput === 'Y';
+		if ( !empty( $input ) ) {
+			$toEnable = $input === 'Y';
 
 			$modComm = $this->getCon()->getModule_Comments();
-			if ( $bEnabled ) { // we don't disable the whole module
+			if ( $toEnable ) { // we don't disable the whole module
 				$modComm->setIsMainFeatureEnabled( true );
 			}
-			$modComm->setEnabledGasp( $bEnabled );
+			$modComm->setEnabledAntiBot( $toEnable );
 			$modComm->saveModOptions();
 
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
 			$optsComm = $modComm->getOptions();
-			$bSuccess = $optsComm->isEnabledGaspCheck() === $bEnabled;
-			if ( $bSuccess ) {
-				$sMessage = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
-					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+			$success = $optsComm->isEnabledAntiBot() === $toEnable;
+			if ( $success ) {
+				$msg = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
+					$toEnable ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
-				$sMessage = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
+				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
 			}
 		}
 		else {
-			// skip
-			$bSuccess = true;
+			$msg = __( 'No option was selected', 'wp-simple-firewall' );
+			$success = false;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
-			->setMessageText( $sMessage );
+			->setSuccessful( $success )
+			->setMessageText( $msg );
 	}
 
 	/**
