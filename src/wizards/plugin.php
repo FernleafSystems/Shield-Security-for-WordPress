@@ -17,63 +17,63 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return \FernleafSystems\Utilities\Response|null
 	 */
-	protected function processWizardStep( $sStep ) {
-		switch ( $sStep ) {
+	protected function processWizardStep( string $step ) {
+		switch ( $step ) {
 
 			case 'ip_detect':
-				$oResponse = $this->wizardIpDetect();
+				$response = $this->wizardIpDetect();
 				break;
 
 			case 'license':
-				$oResponse = $this->wizardLicense();
+				$response = $this->wizardLicense();
 				break;
 
 			case 'import':
-				$oResponse = $this->wizardImportOptions();
+				$response = $this->wizardImportOptions();
 				break;
 
 			case 'admin_access_restriction':
-				$oResponse = $this->wizardSecurityAdmin();
+				$response = $this->wizardSecurityAdmin();
 				break;
 
 			case 'audit_trail':
-				$oResponse = $this->wizardAuditTrail();
+				$response = $this->wizardAuditTrail();
 				break;
 
 			case 'ips':
-				$oResponse = $this->wizardIps();
+				$response = $this->wizardIps();
 				break;
 
 			case 'comments_filter':
-				$oResponse = $this->wizardCommentsFilter();
+				$response = $this->wizardCommentsFilter();
 				break;
 
 			case 'login_protect':
-				$oResponse = $this->wizardLoginProtect();
+				$response = $this->wizardLoginProtect();
 				break;
 
 			case 'optin_usage':
 			case 'optin_badge':
 			case 'optins':
-				$oResponse = $this->wizardOptin();
+				$response = $this->wizardOptin();
 				break;
 
 			case 'add-search-item':
-				$oResponse = $this->wizardAddSearchItem();
+				$response = $this->wizardAddSearchItem();
 				break;
 
 			case 'confirm-results-delete':
-				$oResponse = $this->wizardConfirmDelete();
+				$response = $this->wizardConfirmDelete();
 				break;
 
 			default:
-				$oResponse = parent::processWizardStep( $sStep );
+				$response = parent::processWizardStep( $step );
 				break;
 		}
-		return $oResponse;
+		return $response;
 	}
 
 	/**
@@ -175,42 +175,51 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return array
 	 */
-	protected function getRenderData_SlideExtra( $sStep ) {
+	protected function getRenderData_SlideExtra( $step ) {
 		$con = $this->getCon();
 
-		$additionalData = [];
+		$additional = [];
 
 		$sCurrentWiz = $this->getWizardSlug();
 
 		if ( $sCurrentWiz == 'welcome' ) {
 
-			switch ( $sStep ) {
+			switch ( $step ) {
 				case 'welcome':
 					$urlBuilder = $con->urls;
-					$additionalData = [
-						'imgs' => [
+					$additional = [
+						'imgs'    => [
 							'plugin_banner' => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
-							'video_thumb'   => $this->getVideoThumbnailUrl( '267962208' ),
 						],
-						'vars' => [
+						'vars'    => [
 							'video_id' => '267962208'
-						]
+						],
+						'strings' => [
+							'slide_title' => 'Welcome To Shield Security for WordPress',
+							'next_button' => 'Start',
+						],
 					];
 					break;
 				case 'ip_detect':
-					$additionalData = [
-						'hrefs' => [
+					$additional = [
+						'hrefs'   => [
 							'visitor_ip' => 'https://shsec.io/visitorip',
-						]
+						],
+						'vars'    => [
+							'video_id' => '269189603'
+						],
+						'strings' => [
+							'slide_title' => 'Accurate Visitor IP Detection',
+						],
 					];
 					break;
 				case 'license':
 					break;
 				case 'import':
-					$additionalData = [
+					$additional = [
 						'hrefs' => [
 							'blog_importexport' => 'https://shsec.io/av'
 						],
@@ -222,7 +231,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'optin':
 					$oUser = Services::WpUsers()->getCurrentWpUser();
-					$additionalData = [
+					$additional = [
 						'vars'  => [
 							'name'       => $oUser->first_name,
 							'user_email' => $oUser->user_email
@@ -237,7 +246,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'how_shield_works':
-					$additionalData = [
+					$additional = [
 						'imgs'     => [
 							'how_shield_works' => $con->urls->forImage( 'wizard/general-shield_where.png' ),
 							'modules'          => $con->urls->forImage( 'wizard/general-shield_modules.png' ),
@@ -277,9 +286,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 		elseif ( $sCurrentWiz == 'importexport' ) {
-			switch ( $sStep ) {
+			switch ( $step ) {
 				case 'import':
-					$additionalData = [
+					$additional = [
 						'hrefs' => [
 							'blog_importexport' => 'https://shsec.io/av'
 						],
@@ -290,7 +299,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 				case 'results': //gdpr results
 
-					$additionalData = [];
+					$additional = [];
 					break;
 
 				default:
@@ -298,7 +307,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 		elseif ( $sCurrentWiz == 'gdpr' ) {
-			switch ( $sStep ) {
+			switch ( $step ) {
 
 				case 'results':
 					$aItems = $this->getGdprSearchItems();
@@ -310,7 +319,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						$nTotal += $aResult[ 'count' ];
 					}
 
-					$additionalData = [
+					$additional = [
 						'flags' => [
 							'has_search_items' => $bHasSearchItems
 						],
@@ -327,10 +336,19 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		if ( empty( $additionalData ) ) {
-			$additionalData = parent::getRenderData_SlideExtra( $sStep );
+		if ( empty( $additional ) ) {
+			$additional = parent::getRenderData_SlideExtra( $step );
 		}
-		return $additionalData;
+
+		if ( !empty( $additional[ 'vars' ][ 'video_id' ] ) ) {
+			$additional[ 'imgs' ][ 'video_thumb' ] = $this->getVideoThumbnailUrl( $additional[ 'vars' ][ 'video_id' ] );
+		}
+
+		if ( empty( $additional[ 'vars' ][ 'step_slug' ] ) ) {
+			$additional[ 'vars' ][ 'step' ] = $step;
+		}
+
+		return $additional;
 	}
 
 	/**
@@ -347,40 +365,36 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardIpDetect() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oIps = Services::IP();
-		$sIp = Services::Request()->post( 'ip' );
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		$srvIP = Services::IP();
+		$ip = trim( Services::Request()->post( 'ip', '' ) );
 		$success = false;
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		if ( empty( $sIp ) ) {
-			$sMessage = __( 'IP address was empty.', 'wp-simple-firewall' );
-			$success = true;
+		$response = new \FernleafSystems\Utilities\Response();
+		if ( empty( $ip ) ) {
+			$msg = __( 'IP address was empty.', 'wp-simple-firewall' );
 		}
-		elseif ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
-			$sMessage = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
+		elseif ( !$srvIP->isValidIp_PublicRemote( $ip ) ) {
+			$msg = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
 		}
-//		else if ( $oIps->getIpVersion( $sIp ) != 4 ) {
-//			$sMessage = 'The IP address supplied was not a valid IP address.';
-//		}
 		else {
-			$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
-			if ( empty( $sSource ) ) {
-				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
+			$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
+			if ( empty( $source ) ) {
+				$msg = __( "Sorry, we couldn't find an address source from this IP.", 'wp-simple-firewall' );
 			}
 			else {
-				$oOpts->setVisitorAddressSource( $sSource );
-				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
-							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
+				$success = true;
+				$opts->setVisitorAddressSource( $source );
+				$msg = __( 'Success!', 'wp-simple-firewall' ).' '
+					   .sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $source );
 			}
 		}
 
-		$oMod = $this->getCon()->getModule_Plugin();
-		$oMod->saveModOptions();
-		$oResponse->setSuccessful( true );
+		$this->getCon()->getModule_Plugin()->saveModOptions();
+		$response->setSuccessful( $success );
 
-		return $oResponse->setMessageText( $sMessage );
+		return $response->setMessageText( $msg );
 	}
 
 	/**

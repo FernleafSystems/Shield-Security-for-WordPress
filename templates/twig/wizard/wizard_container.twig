@@ -28,20 +28,20 @@
     var bRequestCurrentlyRunning = false;
 
 	// bring everything inside this IIFE so that they are aware of each other
-	(function($){
-		$(document).ready(function(){
+	(function ( $ ) {
+		$( document ).ready( function () {
 			initializeSteps();
 			initializeHandlers();
 			initializeMisc();
-		});
+		} );
 
 		function initializeMisc() {
 			iCWP_WPSF_BodyOverlay.initialise();
 			$( document ).ajaxStart( function () {
-				toggleOverlay('show');
+				toggleOverlay( 'show' );
 			} );
 			$( document ).ajaxComplete( function () {
-				toggleOverlay('hide');
+				toggleOverlay( 'hide' );
 			} );
 		}
 
@@ -90,8 +90,8 @@
 					// have to use this workaround
 					// instead of removing steps and then adding, which does not work with jquery.steps
 					// remove effectively does something similar internally so let's just use it directly
-					for(var x = 1; x < 6; x++){
-						$('#wizard-t-' + (currentIndex + x)).parent('li').removeClass('done').addClass('disabled');
+					for ( var x = 1; x < 6; x++ ) {
+						$( '#wizard-t-' + (currentIndex + x) ).parent( 'li' ).removeClass( 'done' ).addClass( 'disabled' );
 					}
 				},
 				onCanceled: function ( event ) {
@@ -117,24 +117,24 @@
 			// Initialize wizard
 			var $oWizardContainer = $( "#wizard" );
 			var $oWizard = $oWizardContainer.steps( settings );
-			addOtherSteps($oWizard);
+			addOtherSteps( $oWizard );
 
 			var $oActions = $( 'div.actions', $oWizard );
 			$oActions.prependTo( $oWizardContainer );
 			$oActions.css( 'display', 'none' );
 		}
 
-		function addOtherSteps($oWizard){
+		function addOtherSteps( $oWizard ) {
 			// load all steps for showing progress bar
 			var currentStep = {{ data.wizard_first_step|raw }};
 			var otherSteps = {{ data.wizard_step_names|raw }};
-			otherSteps.forEach(function(step, index){
-				if(step === currentStep.title){
+			otherSteps.forEach( function ( step, index ) {
+				if ( step === currentStep.title ) {
 					$oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
 					return;
 				}
-				$oWizard.steps( 'add', {title: step, contentMode: 'async'});
-			});
+				$oWizard.steps( 'add', { title: step, contentMode: 'async' } );
+			} );
 		}
 
 		function initializeHandlers() {
@@ -142,22 +142,22 @@
 			$( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
 		}
 
-		function reRenderCurrent(){
+		function reRenderCurrent() {
 			var $oWizard = $( '#wizard' );
 			$oWizard.steps( 'previous' );
 			var nCurrent = $oWizard.steps( 'getCurrentIndex' );
 			$oWizard.steps( 'remove', nCurrent + 1 );
-			renderNextAuto(true);
+			renderNextAuto( true );
 		};
 
-		function renderNext(event) {
+		function renderNext( event ) {
 			event.preventDefault();
 			renderNextAuto();
 		};
 
-		function renderNextAuto(overlay = false) {
+		function renderNextAuto( overlay = false ) {
 			if ( overlay ) {
-				toggleOverlay('show');
+				toggleOverlay( 'show' );
 			}
 
 			var aWizardSteps = {{ data.wizard_steps|raw }};
@@ -177,8 +177,8 @@
 					}
 
 					if ( undefined !== oResponse.data.next_step ) {
-						var removeIndex = $oWizard.steps('getCurrentIndex') + 1;
-						$oWizard.steps( 'remove', removeIndex);
+						var removeIndex = $oWizard.steps( 'getCurrentIndex' ) + 1;
+						$oWizard.steps( 'remove', removeIndex );
 						$oWizard.steps( 'insert', removeIndex, oResponse.data.next_step );
 						$oWizard.steps( 'next' );
 					}
@@ -186,17 +186,18 @@
 			).always(
 				function () {
 					if ( overlay ) {
-						toggleOverlay('hide');
+						toggleOverlay( 'hide' );
 					}
 				}
 			);
 		};
 
-		function toggleOverlay(showOrHide){
-			if(showOrHide === 'show'){
+		function toggleOverlay( showOrHide ) {
+			if ( showOrHide === 'show' ) {
 				iCWP_WPSF_BodyOverlay.show();
 				$( 'body' ).addClass( 'wait' );
-			} else {
+			}
+			else {
 				iCWP_WPSF_BodyOverlay.hide();
 				$( 'body' ).removeClass( 'wait' );
 			}
@@ -270,8 +271,9 @@
 
 					if ( bRerender ) {
 						reRenderCurrent();
-					} else if(oResponse.success){
-						renderNextAuto(true);
+					}
+					else if ( oResponse.success ) {
+						// renderNextAuto( true );
 					}
 
 					jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse );
@@ -283,7 +285,7 @@
 			);
 		}
 
-	})(jQuery);
+	})( jQuery );
 
 </script>
 {% endblock %}

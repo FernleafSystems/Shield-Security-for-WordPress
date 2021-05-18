@@ -1,4 +1,4 @@
-{% extends 'wizard/slides/common/base_start.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
 {% block slide_header %}
 	<div class="row row-cols-1 justify-content-center">
@@ -8,24 +8,11 @@
 	</div>
 {% endblock %}
 
-{% block slide_body %}
-
-	{{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
-
-	{{ icwp_macros.slideTitle( 'Welcome To Shield Security for WordPress' ) }}
-
-	<p class="description">Shield Security does a lot, and has a lot of options.</p>
-	<p class="description">Rather than overwhelm you with everything all at once, we'll walk you through the main features
-	   first, to give you a feel for how Shield will protect your site.</p>
-	<p class="description">Don't worry, you'll be on your way very soon, with a much more secure WordPress site.</p>
-	<p class="description">Right, let's get you started! :D</p>
-
-	<div class="row">
-			<div class="col-6">
-   </div>
-			<div class="col-6">
-					<button class="btn-block button button-primary ButtonNextSlide">Start &rarr;</button>
-			</div>
-		</div>
-
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the Introduction video to get started</h5>
+	<p>If this is your first time installing Shield, please use this Welcome Wizard to
+				   help you get started.</p>
+	<p>Shield Security does a lot, and has a lot of options.</p>
+	<p>We encourage you to watch the videos at each stage to familiarise yourself with
+				   the details of settings you're changing.</p>
 {% endblock %}

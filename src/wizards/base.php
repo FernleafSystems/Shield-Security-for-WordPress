@@ -181,27 +181,27 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array
 	 */
 	public function ajaxExec_WizProcessStep() {
-		$oResponse = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
-		if ( !empty( $oResponse ) ) {
-			$this->buildWizardResponse( $oResponse );
+		$response = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
+		if ( !empty( $response ) ) {
+			$this->buildWizardResponse( $response );
 		}
 
-		$aData = $oResponse->getData();
-		$aData[ 'success' ] = $oResponse->successful();
-		return $aData;
+		$data = $response->getData();
+		$data[ 'success' ] = $response->successful();
+		return $data;
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return \FernleafSystems\Utilities\Response|null
 	 */
-	protected function processWizardStep( $sStep ) {
-		switch ( $sStep ) {
+	protected function processWizardStep( string $step ) {
+		switch ( $step ) {
 			default:
-				$oResponse = null; // we don't process any steps we don't recognise.
+				$response = null; // we don't process any steps we don't recognise.
 				break;
 		}
-		return $oResponse;
+		return $response;
 	}
 
 	/**
@@ -210,18 +210,18 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	protected function buildWizardResponse( $oResponse ) {
 
-		$sMessage = $oResponse->getMessageText();
+		$msg = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
 			if ( !self::WIZARD_STEPPING_AUTO ) {
-				$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+				$msg .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
 			}
 		}
 		else {
-			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );
+			$msg = sprintf( '%s: %s', __( 'Error' ), $msg );
 		}
 
 		$aData = $oResponse->getData();
-		$aData[ 'message' ] = $sMessage;
+		$aData[ 'message' ] = $msg;
 		$oResponse->setData( $aData );
 		return $oResponse;
 	}
@@ -413,8 +413,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 		$mod = $this->getMod();
 		$aWizards = $this->getModuleWizardsForRender();
 		return [
-			'strings' => $mod->getStrings()->getDisplayStrings()
-			,
+			'strings' => $mod->getStrings()->getDisplayStrings(),
 			'flags'   => [
 				'is_premium'        => $mod->isPremium(),
 				'has_other_wizards' => false
@@ -424,7 +423,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'    => [
-				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-btn.svg' )
+				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-circle.svg' )
 			],
 			'data'    => [
 				'mod_wizards_count' => count( $aWizards ),

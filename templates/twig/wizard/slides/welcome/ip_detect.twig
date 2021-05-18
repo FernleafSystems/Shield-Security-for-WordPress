@@ -1,56 +1,42 @@
-{% extends 'wizard/slides/common/base.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Accurate Visitor IP Detection' ) }}
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the quick (45s) explanatory video</h5>
+	<p>All webhosts are configured a bit differently.
+			   This can make it tricky to detect a visitor's IP address correctly.</p>
+	<p>We try to do this automatically, of course, but sometimes a server configuration
+			   can be... unexpected.</p>
+	<p>To solve this, you can tell Shield what your IP address is right now,
+			   and this will help Shield determine the best method of detecting the visitor IP.</p>
+{% endblock %}
 
-	<p class="description">Use the steps below to enter your IP address. This helps Shield detect visitor IP
-	   addresses more accurately, for your particular web hosting.</p>
+{% block slide_body_action_area %}
 
-	<h6>Watch the quick (45s) explanatory video</h6>
-	{{ icwp_macros.embedVimeo( "269189603" ) }}
-
-		<a data-toggle="collapse" data-target=".more_details_body">Click For More Details &rarr;</a>
-
-	<div id="MoreDetails" class="collapse more_details_body">
-		<div class="card card-body">
-			<p class="description">All websites and webhosts are configured a bit differently.
-			   This makes IP detection a bit tricky to automate.</p>
-			<p class="description">We try to do this automatically for you, of course, but sometimes a server configuration
-			   can be... unexpected. You can help ensure Shield gets the right IP address every time.</p>
-			<p class="description">Simply tell us what your IP address is, so we can match it against the possibilities
-			that your webhost server presents to us. When we find a match, Shield will know how to best detect
-			   visitor IPs for your web hosting.</p>
-		</div>
-	</div>
-
-    <div class="mt-3">
+	<div class="mt-3">
         <form class="form-horizontal icwp-wizard-form">
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th scope="row">Step 1: Find <em>your</em> current IP address</th>
-                        <td>
-                            <p class="description"><a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
-                to open up a new page that will tell you your current IP Address.</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Step 2: Tell us your IP address</th>
-                        <td>
-                            <p class="description">Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">My IP Address</th>
-                        <td>
-                            <input name="ip" type="text" id="ip" placeholder="123.456.789.012" class="regular-text">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        
-            {{ icwp_macros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
-            {{ icwp_macros.formInput_Submit( 'Confirm My IP Address &rarr;', null, null, true ) }}
+
+			<div class="form-group row">
+				<div class="col-4">
+					Step 1: Find <em>your</em> current IP address
+				</div>
+				<div class="col-8">
+					<a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
+					to open up a new page that will tell you your current IP Address.
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-4">
+					Step 2: Tell Shield your IP address
+				</div>
+				<div class="col-8">
+					<input name="ip" type="text" id="ip" placeholder="123.456.789.012" class="regular-text">
+					<br />Copy-paste the IP address from Step 1
+				</div>
+			</div>
+			{{ icwp_macros.formInput_Submit2( 'Confirm My IP Address', null, null, true ) }}
+
+			{{ icwp_macros.formInput_Hidden( 'wizard-step', vars.step ) }}
         </form>
     </div>
 {% endblock %}

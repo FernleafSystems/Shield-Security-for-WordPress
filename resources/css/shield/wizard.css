@@ -323,7 +323,13 @@ body.wait {
 .wizard h3 {
 	margin-bottom: 20px;
 }
+.wizard h4 {
+	font-size: 2rem;
+	margin: 2rem 0;
+}
 .wizard p {
+	font-size: 16px;
+	margin-bottom: 1.2rem;
 }
 .wizard .body ol,
 .wizard .body ul {
@@ -478,6 +484,7 @@ div.step-number {
 }
 li div.step-number {
 	background-color: rgba(34, 113, 177, 1);
+	z-index: 5;
 }
 li div.step-title {
 	color: rgba(34, 113, 177, 1);
@@ -516,18 +523,24 @@ a:hover, a:visited {
 }
 .vimeo-feather img {
 	padding: 3px;
-	margin: 20px 0;
 	border: 1px solid #008000;
 	background: white;
 }
 .vimeo-feather {
 	position: relative;
 }
+.vimeo-feather img {
+	width: 400px;
+}
 .vimeo-feather a {
+	/** https://codepen.io/sosuke/pen/Pjoqqp **/
+	filter: invert(42%) sepia(66%) saturate(3209%) hue-rotate(93deg) brightness(104%) contrast(84%);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 5rem;
 	position: absolute;
-	display: block;
-	height: 40px;
-	width: 40px;
-	top: 20px;
-	left: 20px;
+	height: 5rem;
+	width: 5rem;
+	top: 30%;
+	left: 40%;
 }
