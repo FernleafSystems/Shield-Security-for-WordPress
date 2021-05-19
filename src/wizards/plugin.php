@@ -263,8 +263,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'plugin_telemetry':
 					$additional = [
-						'hrefs' => [
-							'privacy_policy' => 'https://getshieldsecurity.com/policies/privacy-policy/',
+						'hrefs'   => [
+							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' ),
 						],
 						'vars'    => [
 							'email' => Services::WpUsers()->getCurrentWpUser()->user_email
@@ -275,8 +275,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
-				case 'license':
-					break;
 				case 'import':
 					$additional = [
 						'hrefs' => [
@@ -291,17 +289,24 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'optin':
 					$users = Services::WpUsers()->getCurrentWpUser();
 					$additional = [
-						'vars'  => [
-							'name'       => $users->first_name,
-							'user_email' => $users->user_email
+						'hrefs'   => [
+							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' ),
+							'facebook'       => $con->urls->forImage( 'bootstrap/facebook.svg' ),
+							'twitter'        => $con->urls->forImage( 'bootstrap/twitter.svg' ),
 						],
-						'hrefs' => [
-							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' )
+						'imgs'    => [
+							'facebook' => $con->urls->forImage( 'bootstrap/facebook.svg' ),
+							'twitter'  => $con->urls->forImage( 'bootstrap/twitter.svg' ),
+							'email'    => $con->urls->forImage( 'bootstrap/envelope-fill.svg' ),
+						],
+						'vars'    => [
+							'name'  => $users->first_name,
+							'email' => $users->user_email
+						],
+						'strings' => [
+							'slide_title' => 'Come Join Us!',
 						],
 					];
-					break;
-
-				case 'thankyou':
 					break;
 
 				case 'how_shield_works':
@@ -340,6 +345,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
+				case 'thankyou':
+				case 'license':
 				default:
 					break;
 			}
