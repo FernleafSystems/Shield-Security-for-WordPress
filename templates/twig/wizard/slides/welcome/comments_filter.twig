@@ -1,42 +1,37 @@
-{% extends 'wizard/slides/common/base.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Comment SPAM' ) }}
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the quick (39s) explanatory video</h5>
+	<p>Nearly 100% of comments SPAM is by automated BOTS.</p>
+	<p>Shield Security provides exclusive, highly effective techniques to block BOT SPAM.
+		<br />Unlike Akismet, we never send your private comment data to 3rd parties for processing so you
+	   stay as compliant as you need.</p>
+	<p>The technology used to block comment SPAM is the same as that for login protection... so there's no CAPTCHAs
+	   or any other annoying extras added to your forms.</p>
+{% endblock %}
 
-	<p>Shield can block 100% of automated Comment SPAM sent by "bots". You can turn it on below.</p>
+{% block slide_body_action_area %}
 
-	<h6>Watch the quick (30s) explanatory video</h6>
-	{{ icwp_macros.embedVimeo( "269193270" ) }}
+	<form class="form-horizontal icwp-wizard-form">
 
-	<h6 class="more_details">
-		<a class="btn btn-link" data-toggle="collapse" data-target=".more_details_body">
-			Click For More Details &rarr;</a>
-	</h6>
-	<div id="MoreDetails" class="collapse more_details_body">
-		<div class="card card-body">
-			<p>99%+ of comments spam is by automated (ro)bots. You get some human SPAM too, of course.</p>
-			<p>Shield Security provides highly effective techniques to block bot spam.
-			   Also, and unlike Akismet, we never send your private comment data to 3rd parties for
-			   processing. You keep it all on your site.
-			</p>
-			<p>We also offer Google reCAPTCHA for comments, but you'll need to setup some Google API keys
-			   for this first, so we'll leave you to do that later.</p>
-			<p>There's also an option to protect against Human SPAMmers. But again, to get
-			   you going, we'll leave you to set that up later, if you wish.</p>
+		<div class="form-group row">
+			<div class="col-4">
+				Comment SPAM Blocking
+			</div>
+			<div class="col-8">
+				  {{ icwp_macros.formInput_Radio_Wizard(
+					  'CommentsFilterOption',
+					  {
+						  'Y': '<span>Turn On</span> - Block automated comments SPAM by bots',
+						  'N': '<span>Turn Off</span> - Do not block automated comments SPAM'
+					  },
+					  'Comment SPAM Blocking'
+				  ) }}
+			</div>
 		</div>
-	</div>
 
-<h6>Turn On Comment SPAM Protection</h6>
-<form class="form-horizontal icwp-wizard-form">
-	{% set radiovalues =
-		{
-			'Y': '<span>Turn On</span> - Block automated comments SPAM by bots',
-			'N': '<span>Turn Off</span> - Do not block automated comments SPAM'
-		}
-	%}
-	{{ icwp_macros.formInput_Radio( 'CommentsFilterOption', radiovalues, 'Comment SPAM Blocking' ) }}
-	{{ icwp_macros.formInput_Hidden( 'wizard-step', 'comments_filter' ) }}
-	{{ icwp_macros.formInput_Submit( 'Set Comment SPAM Protection' ) }}
-</form>
+		{{ icwp_macros.formInput_Submit2( 'Set Comment SPAM Protection', null, null, false ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', vars.step ) }}
+	</form>
 
 {% endblock %}

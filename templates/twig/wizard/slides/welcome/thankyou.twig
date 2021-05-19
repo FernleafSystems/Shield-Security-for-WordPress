@@ -1,11 +1,40 @@
-{% extends 'wizard/slides/common/base_finish.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body_top %}
-	{{ icwp_macros.slideTitle( 'Thank You!' ) }}
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the Shield Plugin Overview video:</h5>
+	<p>Thank you for taking the time to go through the Wizard.</p>
+	<p>By default Shield is automatically configured to protect your site from numerous threats
+	   and block bad visitors and bots without you having to do anything.</p>
+{% endblock %}
 
-	<p>You've done it! This is the just scratching the surface of Shield Security and the options you have available.</p>
-	<p>We hope you'll take the time and dig through some of the settings to further refine the security of
-   your site. These things take time, but learning it will really help you get the most out of it.</p>
-	<p>Thank you for choosing Shield Security! :D</p>
+{% block slide_body_action_area %}
+
+	<div class="row">
+		<div class="col">
+			<p>Here are just some of the ways Shield is protecting your site automatically:</p>
+			<ul>
+				<li>Powerful <strong>Firewall</strong> is intercepting and blocking malicious traffic.</li>
+				<li>Always <strong>watching for bots</strong> and maintaining a reputation score for each visitor.</li>
+				<li><strong>Scanning</strong> your core WordPress files and directories for changes and new files.</li>
+				<li>Automatically <strong>blocking</strong> malicious visitors by IP (so you don't have to maintain an IP list yourself).</li>
+				<li>Protecting against the #1 source of <strong>Comment SPAM</strong>.</li>
+				<li>Keeping a log of <em>everything</em> significant in your <strong>Audit Trail</strong>.</li>
+				<li>Protecting your <strong>important user forms</strong> such as Login, Registration and Lost Password.</li>
+			</ul>
+		</div>
+	</div>
+
+
+	<div class="row row-cols-1 justify-content-center mt-5">
+		<div class="col">
+			<a href="{{ hrefs.dashboard }}" class="button button-primary py-2 px-4">
+				{{ strings.next_button|default('Go To Shield Overview') }} &rarr;
+			</a>
+		</div>
+	</div>
+
 
 {% endblock %}
+
+{% block slide_body_next_button %}{% endblock %}
+{% block slide_footer %}{% endblock %}

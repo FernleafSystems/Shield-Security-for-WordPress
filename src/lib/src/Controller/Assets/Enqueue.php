@@ -129,20 +129,26 @@ class Enqueue {
 			foreach ( $incl[ $type ] as $key => $spec ) {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
+					$deps = $spec[ 'deps' ] ?? [];
+
 					$handle = $this->normaliseHandle( $key );
 					if ( $type === self::CSS ) {
 						$reg = wp_register_style(
 							$handle,
 							$con->urls->forCss( $key ),
-							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
+							$this->prefixKeys( $deps ),
 							$con->getVersion()
 						);
 					}
 					else {
+						if ( strpos( $key, 'jquery/' ) ) {
+							array_unshift( $deps, 'wp-jquery' );
+						}
+
 						$reg = wp_register_script(
 							$handle,
 							$con->urls->forJs( $key ),
-							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
+							$this->prefixKeys( $deps ),
 							$con->getVersion(),
 							$spec[ 'footer' ] ?? false
 						);

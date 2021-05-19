@@ -247,7 +247,7 @@ class UI {
 				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap' ),
 				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
 				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
-				'js_steps'         => $urlBuilder->forJs( 'jquery.steps.min' ),
+				'js_steps'         => 'https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js',
 			],
 			'imgs'       => [
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),

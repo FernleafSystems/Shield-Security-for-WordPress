@@ -1,41 +1,41 @@
-{% extends 'wizard/slides/common/base.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Accurate Visitor IP Detection' ) }}
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the quick (45s) explanatory video</h5>
+	<p>All webhosts are configured a bit differently.
+	   This can make it tricky to detect a visitor's IP address correctly.</p>
+	<p>We try to do this automatically, of course, but sometimes a server
+	   configuration can be... unexpected.</p>
+	<p>To solve this, you can tell Shield what your IP address is right now,
+	   and this will help Shield determine the best method of detecting the visitor IP going forward.</p>
+{% endblock %}
 
-	<p>Use the steps below to enter your IP address. This helps Shield detect visitor IP
-	   addresses more accurately, for your particular web hosting.</p>
-
-	<h6>Watch the quick (45s) explanatory video</h6>
-	{{ icwp_macros.embedVimeo( "269189603" ) }}
-
-	<h6 class="more_details">
-		<a class="btn btn-link" data-toggle="collapse" data-target=".more_details_body">
-			Click For More Details &rarr;</a>
-	</h6>
-	<div id="MoreDetails" class="collapse more_details_body">
-		<div class="card card-body">
-			<p>All websites and webhosts are configured a bit differently.
-			   This makes IP detection a bit tricky to automate.</p>
-			<p>We try to do this automatically for you, of course, but sometimes a server configuration
-			   can be... unexpected. You can help ensure Shield gets the right IP address every time.</p>
-			<p>Simply tell us what your IP address is, so we can match it against the possibilities
-			that your webhost server presents to us. When we find a match, Shield will know how to best detect
-			   visitor IPs for your web hosting.</p>
-		</div>
-	</div>
-
-	<h6>Step 1: Find <em>your</em> current IP address</h6>
-	<p><a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
-		to open up a new page that will tell you your current IP Address.</p>
-	<h6>Step 2: Tell us your IP address</h6>
-	<p>Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
+{% block slide_body_action_area %}
 
 	<form class="form-horizontal icwp-wizard-form">
-		{{ icwp_macros.formInput_Text( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
 
-		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
-		{{ icwp_macros.formInput_Submit( 'Submit: This Is My IP Address' ) }}
+		<div class="form-group row">
+			<div class="col-4">
+				Step 1: Find <em>your</em> current IP address
+			</div>
+			<div class="col-8">
+				<a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
+				to open up a new page that will tell you your current IP Address.
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-4">
+				Step 2: Tell Shield your IP address
+			</div>
+			<div class="col-8">
+				<input name="ip" type="text" id="ip" placeholder="123.456.789.012" class="regular-text">
+				<br />Copy-paste the IP address from Step 1
+			</div>
+		</div>
+
+		{{ icwp_macros.formInput_Submit2( 'Confirm My IP Address', null, null, false ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', vars.step ) }}
 	</form>
 
 {% endblock %}

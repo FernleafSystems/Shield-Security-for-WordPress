@@ -811,11 +811,11 @@ abstract class ModCon {
 	 */
 	public function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
-			$sClassName = $this->getWizardClassName();
-			if ( !class_exists( $sClassName ) ) {
+			$class = $this->getWizardClassName();
+			if ( !class_exists( $class ) ) {
 				return null;
 			}
-			$this->oWizard = new $sClassName();
+			$this->oWizard = new $class();
 			$this->oWizard->setMod( $this );
 		}
 		return $this->oWizard;
@@ -1143,7 +1143,8 @@ abstract class ModCon {
 
 		return add_query_arg(
 			[
-				'page'          => $this->getModSlug(),
+				'page'          => $this->getCon()->getModule_Insights()->getModSlug(),
+				'inav'			=> 'wizard',
 				'shield_action' => 'wizard',
 				'wizard'        => $wizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$wizardSlug )

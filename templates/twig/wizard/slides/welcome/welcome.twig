@@ -1,13 +1,18 @@
-{% extends 'wizard/slides/common/base_start.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Welcome To Shield Security for WordPress' ) }}
+{% block slide_header %}
+	<div class="row row-cols-1 justify-content-center">
+		<div class="col-6 col-sm-6 col-xl-4">
+			<img id="ShieldLogo" class="img-fluid" src="{{ imgs.plugin_banner }}" alt="ShieldLogo" />
+		</div>
+	</div>
+{% endblock %}
 
-	{{ icwp_macros.embedVimeo( "267962208" ) }}
-
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the Introduction video to get started</h5>
+	<p>If this is your first time installing Shield, please use this Welcome Wizard to
+				   help you get started.</p>
 	<p>Shield Security does a lot, and has a lot of options.</p>
-	<p>Rather than overwhelm you with everything all at once, we'll walk you through the main features
-	   first, to give you a feel for how Shield will protect your site.</p>
-	<p>Don't worry, you'll be on your way very soon, with a much more secure WordPress site.</p>
-	<p>Right, let's get you started! :D</p>
+	<p>We encourage you to watch the videos at each stage to familiarise yourself with
+				   the details of settings you're changing.</p>
 {% endblock %}

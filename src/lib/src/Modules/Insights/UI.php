@@ -158,6 +158,21 @@ class UI extends BaseShield\UI {
 			case 'index':
 				$data = $this->buildInsightsVars_Overview();
 				break;
+
+			case 'wizard':
+				$wiz = $con->getModule_Plugin()->getWizardHandler();
+				if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
+					$data = [
+						'content' => [
+							'wizard' => $wiz->setCurrentWizard( $req->query( 'wizard' ) )
+											->renderWizard()
+						],
+						'flags'   => [
+							'show_sidebar_nav' => 0
+						],
+					];
+				}
+				break;
 			default:
 				throw new \Exception( 'Not available' );
 		}
@@ -180,6 +195,7 @@ class UI extends BaseShield\UI {
 			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
 			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
+			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
 		$modsToSearch = array_filter(

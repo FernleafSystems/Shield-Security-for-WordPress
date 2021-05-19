@@ -51,15 +51,15 @@
       "css": [
         "select2",
         "plugin",
-        "featherlight",
+        "jquery/featherlight",
         "introjs",
         "bootstrap-select"
       ],
       "js":  [
         "select2",
         "plugin",
-        "featherlight",
-        "jquery.fileDownload",
+        "jquery/featherlight",
+        "jquery/fileDownload",
         "shield/tours",
         "bootstrap-select"
       ]
@@ -105,15 +105,17 @@
             "global-plugin"
           ]
         },
-        "wizard":                 {
+        "shield/wizard":          {
           "deps": [
             "bootstrap",
             "global-plugin"
           ]
         },
-        "featherlight":           {},
+        "jquery/featherlight":    {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.css"
+        },
         "chartist":               {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.css"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
         },
         "chartist-plugin-legend": {
           "deps": [
@@ -187,15 +189,12 @@
           "url": "https://cdn.jsdelivr.net/npm/js-base64@2.6.4/base64.min.js"
         },
         "lz-string.min":          {},
-        "jquery.fileDownload":    {
-          "deps": [
-            "wp-jquery"
-          ]
+        "jquery/fileDownload":    {},
+        "jquery/steps":           {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
         },
-        "featherlight":           {
-          "deps": [
-            "wp-jquery"
-          ]
+        "jquery/featherlight":    {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
         },
         "chartist":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.js"
@@ -284,6 +283,13 @@
             "shield/dialog"
           ],
           "footer": true
+        },
+        "shield/wizard":          {
+          "deps": [
+            "bootstrap",
+            "global-plugin",
+            "jquery/steps"
+          ]
         },
         "u2f-bundle":             {},
         "tp/grecaptcha":          {

@@ -267,7 +267,7 @@
       "link_info":   "https://shsec.io/5v",
       "link_blog":   "https://shsec.io/wpsf20",
       "name":        "Show Plugin Badge",
-      "summary":     "Display Plugin Badge On Your Site",
+      "summary":     "Display Plugin Security Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
@@ -529,32 +529,32 @@
     }
   ],
   "definitions":   {
-    "help_video_id":                   "",
-    "tracking_cron_handle":            "plugin_tracking_cron",
-    "tracking_post_url":               "https://tracking.icontrolwp.com/track/plugin/shield",
-    "importexport_cron_name":          "autoimport",
-    "href_privacy_policy":             "https://shsec.io/wpshieldprivacypolicy",
-    "db_classes":                      {
+    "help_video_id":          "",
+    "tracking_cron_handle":   "plugin_tracking_cron",
+    "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
+    "importexport_cron_name": "autoimport",
+    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
+    "db_classes":             {
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
     },
-    "db_table_notes":               {
-      "slug":            "notes",
-      "has_updated_at":  true,
-      "cols_custom":     {
+    "db_table_notes":         {
+      "slug":           "notes",
+      "has_updated_at": true,
+      "cols_custom":    {
         "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
         "note":        "TEXT"
       }
     },
-    "db_table_geoip":               {
-      "autoexpire":      30,
-      "slug":            "geoip",
-      "cols_custom":     {
+    "db_table_geoip":         {
+      "autoexpire":  30,
+      "slug":        "geoip",
+      "cols_custom": {
         "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
         "meta": "TEXT"
       }
     },
-    "active_plugin_features":          [
+    "active_plugin_features": [
       {
         "slug":          "insights",
         "load_priority": 1,
@@ -635,7 +635,7 @@
         "slug": "email"
       }
     ],
-    "events":                          {
+    "events":                 {
       "test_cron_run":          {
         "audit":  false,
         "recent": true
@@ -688,7 +688,7 @@
         "audit":   false
       }
     },
-    "wizards":                         {
+    "wizards":                {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
         "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
@@ -716,8 +716,14 @@
           "comments_filter":          {
             "title": "Comment SPAM"
           },
-          "how_shield_works":         {
-            "title": "How Shield Works"
+          "plugin_badge":             {
+            "title": "Security Badge"
+          },
+          "plugin_telemetry":         {
+            "title": "Plugin Telemetry"
+          },
+          "free_trial":               {
+            "title": "Free Trial"
           },
           "optin":                    {
             "title": "Join Us!"

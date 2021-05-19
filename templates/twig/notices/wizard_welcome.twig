@@ -4,7 +4,9 @@
 	<div class="row">
 		<div class="col">
 			<p>{{ strings.setup }}</p>
-			<p><a href="{{ hrefs.wizard }}" target="_blank">{{ strings.launch }} &rarr;</a></p>
+{% if notice_attributes.insideWizard == 0 %}
+			<p><a href="{{ hrefs.wizard }}">{{ strings.launch }} &rarr;</a></p>
+{% endif %}
 		</div>
 	</div>
 {% endblock %}

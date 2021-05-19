@@ -17,21 +17,25 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function onModulesLoaded() {
-		$this->maybeRedirectToAdmin();
-		$this->maybeRedirectToOverview();
+		$this->handleCustomRedirection();
 	}
 
-	private function maybeRedirectToOverview() {
-		$req = Services::Request();
-		if ( $this->isThisModAdminPage() && empty( $req->query( 'inav' ) ) ) {
-			Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
+	private function handleCustomRedirection() {
+		$con = $this->getCon();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() ) {
+			if ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
+				Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
+			}
+			elseif ( $this->isThisModAdminPage() && empty( Services::Request()->query( 'inav' ) ) ) {
+				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
+			}
 		}
 	}
 
 	private function maybeRedirectToAdmin() {
 		$con = $this->getCon();
 		$activeFor = $con->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $activeFor < 4 ) {
+		if ( !Services::WpGeneral()->isAjax() && $activeFor < 4 ) {
 			Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
 		}
 	}
@@ -108,7 +112,7 @@ class ModCon extends BaseShield\ModCon {
 			$inav = 'overview';
 		}
 
-		if ( $con->getIsPage_PluginAdmin() && !empty( $inav ) ) {
+		if ( $con->getIsPage_PluginAdmin() ) {
 			switch ( $inav ) {
 
 				case 'importexport':
@@ -134,6 +138,11 @@ class ModCon extends BaseShield\ModCon {
 						'chartist-plugin-legend',
 						'shield/charts'
 					];
+					break;
+
+				case 'wizard':
+					$enq[ Enqueue::JS ][] = 'shield/wizard';
+					$enq[ Enqueue::CSS ][] = 'shield/wizard';
 					break;
 
 				case 'notes':

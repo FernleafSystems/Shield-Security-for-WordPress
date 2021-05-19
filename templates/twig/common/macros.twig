@@ -67,12 +67,36 @@
 	</div>
 {% endmacro %}
 
-{% macro formInput_Submit(label,name,btn) %}
+{% macro formInput_Radio_Wizard(name,values,toplabel,id) %}
+	{% for value,label in values %}
+		<label class="d-block">
+			<input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
+			<span>{{ label|raw }}</span>
+		</label>
+	{% endfor %}
+{% endmacro %}
+
+
+{% macro formInput_Submit2(label,name,btn,large=false) %}
 	<div class="form-group row">
-		<div class="col-8 offset-4">
-			<button type="submit" class="btn btn-{{ btn|default('primary') }}"
+		<div class="col-4"></div>
+		<div class="col-8">
+			<button type="submit"
+					class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
-			>{{ label|default('Submit') }}</button>
+			>{{ label|default('Submit')|raw }}</button>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro formInput_Submit(label,name,btn,large=false) %}
+	<div class="form-group row">
+		<div class="col-6"></div>
+		<div class="col-6">
+			<button type="submit"
+					class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
+					{% if name is defined %} name="{{ name }}" {% endif %}
+			>{{ label|default('Submit')|raw }}</button>
 		</div>
 	</div>
 {% endmacro %}
@@ -103,10 +127,31 @@
 	</div>
 {% endmacro %}
 
+{% macro embedVimeoFeather( video_id, img_url, img_play, id ) %}
+	<style>
+		.vimeo-feather a {
+			background-image: url({{ img_play }});
+		}
+	</style>
+	<div class="d-flex justify-content-center">
+		<div class="vimeo-feather">
+			<img id="VimeoImg{{ video_id }}" src="{{ img_url }}" class="img-fluid" />
+			<a href="https://player.vimeo.com/video/{{ video_id }}"
+			   class="d-inline-block"
+			   data-featherlight="iframe"
+			   data-featherlight-iframe-frameborder="0"
+			   data-featherlight-iframe-allowfullscreen="true"
+			   data-featherlight-iframe-style="display:block;border:none;height:85vh;width:85vw;background-color:transparent;"
+			>
+			</a>
+		</div>
+	</div>
+{% endmacro %}
+
 {% macro marketing_iframe( name, page, height, bgcolor ) %}
 	<iframe
 			name="{{ name|default('icwp-iframe') }}"
 			src="//www.icontrolwp.com/custom/remote/plugins/hlt-bootstrapcss-plugin-widgets.php?page={{ page|default('icwp-options') }}&snippet={{ name|default('icwp-iframe') }}"
 			width="100%" height="{{ height|default( '500px' ) }}"
-			frameborder="0" scrolling="no" style="background-color:{{ bgcolor|default('rgba(0, 0, 0, 0)') }};" ></iframe>
+			frameborder="0" scrolling="no" style="background-color:{{ bgcolor|default('rgba(0, 0, 0, 0)') }};"></iframe>
 {% endmacro %}

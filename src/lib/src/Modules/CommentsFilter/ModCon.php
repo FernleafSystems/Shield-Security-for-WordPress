@@ -87,8 +87,8 @@ class ModCon extends BaseShield\ModCon {
 			   && $this->getCaptchaCfg()->ready;
 	}
 
-	public function setEnabledGasp( bool $enabled = true ) {
-		$this->getOptions()->setOpt( 'enable_comments_gasp_protection', $enabled ? 'Y' : 'N' );
+	public function setEnabledAntiBot( bool $enabled = true ) {
+		$this->getOptions()->setOpt( 'enable_antibot_check', $enabled ? 'Y' : 'N' );
 	}
 
 	/**

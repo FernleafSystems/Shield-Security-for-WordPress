@@ -17,15 +17,16 @@
 
 					<div class="row">
 
-						<div id="apto-PageMainSide"
-							 class="col-sm-3 col-md-2 col-lg-2 col-xl-2">
-							{% block page_main_side %}
-								{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
-							{% endblock %}
-						</div>
+   						{% if flags.show_sidebar_nav|default(true) %}
+							<div id="apto-PageMainSide"
+								 class="col-sm-3 col-md-2 col-lg-2 col-xl-2">
+								{% block page_main_side %}
+									{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
+								{% endblock %}
+							</div>
+						{% endif %}
 
-						<div id="apto-PageMainBody"
-							 class="col-sm-9 col-md-10 col-lg-10 col-xl-10">
+						<div id="apto-PageMainBody" class="col">
 							{% block page_main %}
 								<div class="row">
 									<div class="col">

@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
@@ -17,62 +18,71 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @param string $sStep
-	 * @return \FernleafSystems\Utilities\Response|null
+	 * @param string $step
+	 * @return StdResponse|\FernleafSystems\Utilities\Response|null
 	 */
-	protected function processWizardStep( $sStep ) {
-		switch ( $sStep ) {
+	protected function processWizardStep( string $step ) {
+		switch ( $step ) {
 
 			case 'ip_detect':
-				$oResponse = $this->wizardIpDetect();
+				$response = $this->wizardIpDetect();
 				break;
 
 			case 'license':
-				$oResponse = $this->wizardLicense();
+				$response = $this->wizardLicense();
 				break;
 
 			case 'import':
-				$oResponse = $this->wizardImportOptions();
+				$response = $this->wizardImportOptions();
 				break;
 
 			case 'admin_access_restriction':
-				$oResponse = $this->wizardSecurityAdmin();
+				$response = $this->wizardSecurityAdmin();
 				break;
 
 			case 'audit_trail':
-				$oResponse = $this->wizardAuditTrail();
+				$response = $this->wizardAuditTrail();
 				break;
 
 			case 'ips':
-				$oResponse = $this->wizardIps();
-				break;
-
-			case 'comments_filter':
-				$oResponse = $this->wizardCommentsFilter();
+				$response = $this->wizardIps();
 				break;
 
 			case 'login_protect':
-				$oResponse = $this->wizardLoginProtect();
+				$response = $this->wizardLoginProtect();
+				break;
+
+			case 'comments_filter':
+				$response = $this->wizardCommentsFilter();
+				break;
+
+			case 'plugin_badge':
+				$response = $this->wizardPluginSecurityBadge();
+				break;
+
+			case 'plugin_telemetry':
+				$response = $this->wizardPluginTelemetry();
 				break;
 
 			case 'optin_usage':
 			case 'optin_badge':
-				$oResponse = $this->wizardOptin();
+			case 'optins':
+				$response = $this->wizardOptin();
 				break;
 
 			case 'add-search-item':
-				$oResponse = $this->wizardAddSearchItem();
+				$response = $this->wizardAddSearchItem();
 				break;
 
 			case 'confirm-results-delete':
-				$oResponse = $this->wizardConfirmDelete();
+				$response = $this->wizardConfirmDelete();
 				break;
 
 			default:
-				$oResponse = parent::processWizardStep( $sStep );
+				$response = parent::processWizardStep( $step );
 				break;
 		}
-		return $oResponse;
+		return $response;
 	}
 
 	/**
@@ -80,7 +90,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @throws Exception
 	 */
 	protected function determineWizardSteps() :array {
-
 		switch ( $this->getWizardSlug() ) {
 			case 'welcome':
 				$aSteps = $this->determineWizardSteps_Welcome();
@@ -127,78 +136,163 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function determineWizardSteps_Welcome() {
 		$con = $this->getCon();
 
-		$aStepsSlugs = [
+		$stepsSlugs = [
 			'welcome',
 			'ip_detect'
 		];
 
 		if ( $con->isPremiumActive() ) {
-			$aStepsSlugs[] = 'import';
+			$stepsSlugs[] = 'import';
 		}
 
 		if ( !$con->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
-			$aStepsSlugs[] = 'admin_access_restriction';
+			$stepsSlugs[] = 'admin_access_restriction';
 		}
 
 		$mod = $con->getModule_AuditTrail();
 		if ( !$mod->isModuleEnabled() ) {
-			$aStepsSlugs[] = 'audit_trail';
+			$stepsSlugs[] = 'audit_trail';
 		}
 
 		if ( !$con->getModule_IPs()->isModuleEnabled() ) {
-			$aStepsSlugs[] = 'ips';
+			$stepsSlugs[] = 'ips';
 		}
 
 		$mod = $con->getModule_LoginGuard();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $mod->getOptions();
-		if ( !( $mod->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'login_protect';
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
+		$opts = $mod->getOptions();
+		if ( !( $mod->isModuleEnabled() && $opts->isEnabledGaspCheck() ) ) {
+			$stepsSlugs[] = 'login_protect';
 		}
 
 		$modComm = $con->getModule_Comments();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
 		$optsComm = $modComm->getOptions();
 		if ( !( $modComm->isModuleEnabled() && $optsComm->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'comments_filter';
+			$stepsSlugs[] = 'comments_filter';
 		}
 
-		$aStepsSlugs[] = 'how_shield_works';
-		$aStepsSlugs[] = 'optin';
+		$stepsSlugs[] = 'plugin_badge';
+		$stepsSlugs[] = 'plugin_telemetry';
+		$stepsSlugs[] = 'free_trial';
+		$stepsSlugs[] = 'optin';
 
 		if ( !$con->isPremiumActive() ) {
-			$aStepsSlugs[] = 'import';
+			$stepsSlugs[] = 'import';
 		}
 
-		$aStepsSlugs[] = 'thankyou';
-		return $aStepsSlugs;
+		$stepsSlugs[] = 'thankyou';
+		return $stepsSlugs;
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return array
 	 */
-	protected function getRenderData_SlideExtra( $sStep ) {
+	protected function getRenderData_SlideExtra( $step ) {
 		$con = $this->getCon();
 
-		$aAdditional = [];
+		$additional = [];
 
 		$sCurrentWiz = $this->getWizardSlug();
 
 		if ( $sCurrentWiz == 'welcome' ) {
 
-			switch ( $sStep ) {
-				case 'ip_detect':
-					$aAdditional = [
-						'hrefs' => [
-							'visitor_ip' => 'https://shsec.io/visitorip',
-						]
+			switch ( $step ) {
+				case 'welcome':
+					$urlBuilder = $con->urls;
+					$additional = [
+						'imgs'    => [
+							'plugin_banner' => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
+						],
+						'vars'    => [
+							'video_id' => '267962208'
+						],
+						'strings' => [
+							'slide_title' => 'Welcome To Shield Security for WordPress',
+							'next_button' => 'Start',
+						],
 					];
 					break;
-				case 'license':
+
+				case 'ip_detect':
+					$additional = [
+						'hrefs'   => [
+							'visitor_ip' => 'https://shsec.io/visitorip',
+						],
+						'vars'    => [
+							'video_id' => '269189603'
+						],
+						'strings' => [
+							'slide_title' => 'Accurate Visitor IP Detection',
+						],
+					];
 					break;
+
+				case 'login_protect':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269191603'
+						],
+						'strings' => [
+							'slide_title' => 'Brute Force Login Protection',
+						],
+					];
+					break;
+
+				case 'comments_filter':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269193270'
+						],
+						'strings' => [
+							'slide_title' => 'Block 100% Comment SPAM by Bots - no CAPTCHAs (really!)',
+						],
+					];
+					break;
+
+				case 'plugin_badge':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269193270'
+						],
+						'strings' => [
+							'slide_title' => 'Demonstrate To Visitors That You Take Security Seriously',
+						],
+					];
+					break;
+
+				case 'plugin_telemetry':
+					$additional = [
+						'hrefs'   => [
+							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' ),
+						],
+						'vars'    => [
+							'email' => Services::WpUsers()->getCurrentWpUser()->user_email
+						],
+						'strings' => [
+							'slide_title' => 'Want 15% off ShieldPRO?',
+						],
+					];
+					break;
+
+				case 'free_trial':
+					$additional = [
+						'hrefs'   => [
+							'free_trial' => 'https://shsec.io/freetrialwizard',
+							'features' => 'https://getshieldsecurity.com/features/',
+						],
+						'imgs'    => [
+							'free_trial' => $con->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
+						],
+						'strings' => [
+							'slide_title' => 'Try ShieldPRO Free',
+						],
+					];
+					break;
+
 				case 'import':
-					$aAdditional = [
+					$additional = [
 						'hrefs' => [
 							'blog_importexport' => 'https://shsec.io/av'
 						],
@@ -209,23 +303,41 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'optin':
-					$oUser = Services::WpUsers()->getCurrentWpUser();
-					$aAdditional = [
-						'vars'  => [
-							'name'       => $oUser->first_name,
-							'user_email' => $oUser->user_email
+					$users = Services::WpUsers()->getCurrentWpUser();
+					$additional = [
+						'hrefs'   => [
+							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' ),
+							'facebook'       => $con->urls->forImage( 'bootstrap/facebook.svg' ),
+							'twitter'        => $con->urls->forImage( 'bootstrap/twitter.svg' ),
 						],
-						'hrefs' => [
-							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' )
+						'imgs'    => [
+							'facebook' => $con->svgs->raw( 'bootstrap/facebook.svg' ),
+							'twitter'  => $con->svgs->raw( 'bootstrap/twitter.svg' ),
+							'email'    => $con->svgs->raw( 'bootstrap/envelope-fill.svg' ),
+						],
+						'vars'    => [
+							'name'  => $users->first_name,
+							'email' => $users->user_email
+						],
+						'strings' => [
+							'slide_title' => 'Come Join Us!',
 						],
 					];
 					break;
 
 				case 'thankyou':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269364269'
+						],
+						'strings' => [
+							'slide_title' => 'Thank You For Choosing Shield Security',
+						],
+					];
 					break;
 
 				case 'how_shield_works':
-					$aAdditional = [
+					$additional = [
 						'imgs'     => [
 							'how_shield_works' => $con->urls->forImage( 'wizard/general-shield_where.png' ),
 							'modules'          => $con->urls->forImage( 'wizard/general-shield_modules.png' ),
@@ -260,14 +372,15 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
+				case 'license':
 				default:
 					break;
 			}
 		}
 		elseif ( $sCurrentWiz == 'importexport' ) {
-			switch ( $sStep ) {
+			switch ( $step ) {
 				case 'import':
-					$aAdditional = [
+					$additional = [
 						'hrefs' => [
 							'blog_importexport' => 'https://shsec.io/av'
 						],
@@ -278,7 +391,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 				case 'results': //gdpr results
 
-					$aAdditional = [];
+					$additional = [];
 					break;
 
 				default:
@@ -286,7 +399,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 		elseif ( $sCurrentWiz == 'gdpr' ) {
-			switch ( $sStep ) {
+			switch ( $step ) {
 
 				case 'results':
 					$aItems = $this->getGdprSearchItems();
@@ -298,7 +411,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						$nTotal += $aResult[ 'count' ];
 					}
 
-					$aAdditional = [
+					$additional = [
 						'flags' => [
 							'has_search_items' => $bHasSearchItems
 						],
@@ -315,49 +428,65 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		if ( empty( $aAdditional ) ) {
-			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+		if ( empty( $additional ) ) {
+			$additional = parent::getRenderData_SlideExtra( $step );
 		}
-		return $aAdditional;
+
+		if ( !empty( $additional[ 'vars' ][ 'video_id' ] ) ) {
+			$additional[ 'imgs' ][ 'video_thumb' ] = $this->getVideoThumbnailUrl( $additional[ 'vars' ][ 'video_id' ] );
+		}
+
+		if ( empty( $additional[ 'vars' ][ 'step_slug' ] ) ) {
+			$additional[ 'vars' ][ 'step' ] = $step;
+		}
+
+		return $additional;
+	}
+
+	/**
+	 * @see https://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
+	 * @param string $videoID
+	 */
+	private function getVideoThumbnailUrl( $videoID ) {
+		$raw = Services::HttpRequest()
+					   ->getContent( sprintf( 'https://vimeo.com/api/v2/video/%s.json', $videoID ) );
+		return empty( $raw ) ? '' : json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ];
 	}
 
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardIpDetect() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oIps = Services::IP();
-		$sIp = Services::Request()->post( 'ip' );
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		$srvIP = Services::IP();
+		$ip = trim( Services::Request()->post( 'ip', '' ) );
+		$success = false;
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		$oResponse->setSuccessful( false );
-		if ( empty( $sIp ) ) {
-			$sMessage = __( 'IP address was empty.', 'wp-simple-firewall' );
+		$response = new \FernleafSystems\Utilities\Response();
+		if ( empty( $ip ) ) {
+			$msg = __( 'IP address was empty.', 'wp-simple-firewall' );
 		}
-		elseif ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
-			$sMessage = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
+		elseif ( !$srvIP->isValidIp_PublicRemote( $ip ) ) {
+			$msg = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
 		}
-//		else if ( $oIps->getIpVersion( $sIp ) != 4 ) {
-//			$sMessage = 'The IP address supplied was not a valid IP address.';
-//		}
 		else {
-			$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
-			if ( empty( $sSource ) ) {
-				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
+			$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
+			if ( empty( $source ) ) {
+				$msg = __( "Sorry, we couldn't find an address source from this IP.", 'wp-simple-firewall' );
 			}
 			else {
-				$oMod = $this->getCon()
-							 ->getModule_Plugin();
-				$oOpts->setVisitorAddressSource( $sSource );
-				$oMod->saveModOptions();
-				$oResponse->setSuccessful( true );
-				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
-							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
+				$success = true;
+				$opts->setVisitorAddressSource( $source );
+				$msg = __( 'Success!', 'wp-simple-firewall' ).' '
+					   .sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $source );
 			}
 		}
 
-		return $oResponse->setMessageText( $sMessage );
+		$this->getCon()->getModule_Plugin()->saveModOptions();
+		$response->setSuccessful( $success );
+
+		return $response->setMessageText( $msg );
 	}
 
 	/**
@@ -534,28 +663,30 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
 		$opts = $mod->getOptions();
 
-		$sInput = Services::Request()->post( 'LoginProtectOption' );
-		$success = false;
-		$msg = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
+		$input = Services::Request()->post( 'LoginProtectOption' );
 
-		if ( !empty( $sInput ) ) {
-			$enabled = $sInput === 'Y';
+		if ( !empty( $input ) ) {
+			$enable = $input === 'Y';
 
-			if ( $enabled ) { // we don't disable the whole module
+			if ( $enable ) { // we don't disable the whole module
 				$mod->setIsMainFeatureEnabled( true );
 			}
-			$mod->setEnabledGaspCheck( $enabled );
+			$mod->setEnabledAntiBotDetection( $enable );
 			$mod->saveModOptions();
 
-			$success = $opts->isEnabledGaspCheck() === $enabled;
+			$success = $opts->isEnabledAntiBot() === $enable;
 			if ( $success ) {
 				$msg = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
-					$enabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+					$enable ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
 				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) );
 			}
+		}
+		else {
+			$msg = __( 'No option was selected', 'wp-simple-firewall' );
+			$success = false;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
@@ -572,29 +703,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$bSuccess = false;
+		$bSuccess = true;
 		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
 
-		$sForm = $oReq->post( 'wizard-step' );
-		if ( $sForm == 'optin_badge' ) {
-			$sInput = $oReq->post( 'BadgeOption' );
-
-			if ( !empty( $sInput ) ) {
-				$bEnabled = $sInput === 'Y';
-				$oMod->getPluginBadgeCon()->setIsDisplayPluginBadge( $bEnabled );
-				$bSuccess = true;
-				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
-			}
+		$sInput = $oReq->post( 'BadgeOption' );
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
+			$oMod->getPluginBadgeCon()->setIsDisplayPluginBadge( $bEnabled );
+			$bSuccess = true;
 		}
-		elseif ( $sForm == 'optin_usage' ) {
-			$sInput = $oReq->post( 'AnonymousOption' );
 
-			if ( !empty( $sInput ) ) {
-				$bEnabled = $sInput === 'Y';
-				$oOpts->setPluginTrackingPermission( $bEnabled );
-				$bSuccess = true;
-				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
-			}
+		$sInput = $oReq->post( 'AnonymousOption' );
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
+			$oOpts->setPluginTrackingPermission( $bEnabled );
+			$bSuccess = true;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
@@ -674,41 +797,79 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			->setMessageText( $sMessage );
 	}
 
+	private function wizardPluginSecurityBadge() :StdResponse {
+		$r = new StdResponse();
+
+		$input = Services::Request()->post( 'SecurityPluginBadge' );
+
+		if ( !empty( $input ) ) {
+			$toEnable = $input === 'Y';
+
+			$modPlugin = $this->getCon()->getModule_Plugin();
+			if ( $toEnable ) { // we don't disable the whole module
+				$modPlugin->setIsMainFeatureEnabled( true );
+			}
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $optsPlugin */
+			$optsPlugin = $modPlugin->getOptions();
+			$optsPlugin->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
+			$modPlugin->saveModOptions();
+
+			$r->success = $optsPlugin->isOpt( 'display_plugin_badge', 'Y' ) === $toEnable;
+			if ( $r->success ) {
+				$r->msg_text = sprintf( '%s has been %s.', __( 'Security Plugin Badge', 'wp-simple-firewall' ),
+					$toEnable ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+				);
+			}
+			else {
+				$r->msg_text = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ),
+					__( 'Security Plugin Badge', 'wp-simple-firewall' ) );
+			}
+		}
+		else {
+			$r->msg_text = __( 'No option was selected', 'wp-simple-firewall' );
+			$r->success = false;
+		}
+
+		return $r;
+	}
+
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardCommentsFilter() {
 
-		$sInput = Services::Request()->post( 'CommentsFilterOption' );
-		$bSuccess = false;
-		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
+		$input = Services::Request()->post( 'CommentsFilterOption' );
 
-		if ( !empty( $sInput ) ) {
-			$bEnabled = $sInput === 'Y';
+		if ( !empty( $input ) ) {
+			$toEnable = $input === 'Y';
 
 			$modComm = $this->getCon()->getModule_Comments();
-			if ( $bEnabled ) { // we don't disable the whole module
+			if ( $toEnable ) { // we don't disable the whole module
 				$modComm->setIsMainFeatureEnabled( true );
 			}
-			$modComm->setEnabledGasp( $bEnabled );
+			$modComm->setEnabledAntiBot( $toEnable );
 			$modComm->saveModOptions();
 
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
 			$optsComm = $modComm->getOptions();
-			$bSuccess = $optsComm->isEnabledGaspCheck() === $bEnabled;
-			if ( $bSuccess ) {
-				$sMessage = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
-					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+			$success = $optsComm->isEnabledAntiBot() === $toEnable;
+			if ( $success ) {
+				$msg = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
+					$toEnable ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
-				$sMessage = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
+				$msg = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
 			}
+		}
+		else {
+			$msg = __( 'No option was selected', 'wp-simple-firewall' );
+			$success = false;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
-			->setMessageText( $sMessage );
+			->setSuccessful( $success )
+			->setMessageText( $msg );
 	}
 
 	/**
