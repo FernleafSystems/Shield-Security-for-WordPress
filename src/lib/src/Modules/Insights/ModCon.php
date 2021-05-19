@@ -22,14 +22,16 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	private function maybeRedirectToOverview() {
-		$con = $this->getCon();
-		$req = Services::Request();
-		if ( $this->isThisModAdminPage() && empty( $req->query( 'inav' ) ) ) {
-			$activeFor = $con->getModule_Plugin()->getActivateLength();
-			if ( $activeFor < 4 ) {
-				Services::Response()->redirect( $this->getCon()->getPluginUrl_WelcomeWizardHome() );
-			} else {
-				Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
+		if ( !Services::WpGeneral()->isAjax() ) {
+			$con = $this->getCon();
+			$req = Services::Request();
+			if ( $this->isThisModAdminPage() && empty( $req->query( 'inav' ) ) ) {
+				if ( $con->getModule_Plugin()->getActivateLength() < 4 ) {
+					Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
+				}
+				else {
+					Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
+				}
 			}
 		}
 	}

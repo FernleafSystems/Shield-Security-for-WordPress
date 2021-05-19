@@ -1018,10 +1018,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
 	}
 
-	public function getPluginUrl_WelcomeWizardHome() :string {
-		return $this->getModule_Plugin()->getUrl_Wizard( 'welcome' );
-	}
-
 	public function getPluginUrl_AdminMainPage() :string {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
