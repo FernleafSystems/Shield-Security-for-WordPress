@@ -174,6 +174,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$stepsSlugs[] = 'plugin_badge';
 		$stepsSlugs[] = 'plugin_telemetry';
+		$stepsSlugs[] = 'free_trial';
 		$stepsSlugs[] = 'optin';
 
 		if ( !$con->isPremiumActive() ) {
@@ -275,6 +276,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
+				case 'free_trial':
+					$additional = [
+						'hrefs'   => [
+							'free_trial' => 'https://shsec.io/freetrialwizard',
+							'features' => 'https://getshieldsecurity.com/features/',
+						],
+						'imgs'    => [
+							'free_trial' => $con->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
+						],
+						'strings' => [
+							'slide_title' => 'Try ShieldPRO Free For 14 days',
+						],
+					];
+					break;
+
 				case 'import':
 					$additional = [
 						'hrefs' => [
@@ -295,9 +311,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'twitter'        => $con->urls->forImage( 'bootstrap/twitter.svg' ),
 						],
 						'imgs'    => [
-							'facebook' => $con->urls->forImage( 'bootstrap/facebook.svg' ),
-							'twitter'  => $con->urls->forImage( 'bootstrap/twitter.svg' ),
-							'email'    => $con->urls->forImage( 'bootstrap/envelope-fill.svg' ),
+							'facebook' => $con->svgs->raw( 'bootstrap/facebook.svg' ),
+							'twitter'  => $con->svgs->raw( 'bootstrap/twitter.svg' ),
+							'email'    => $con->svgs->raw( 'bootstrap/envelope-fill.svg' ),
 						],
 						'vars'    => [
 							'name'  => $users->first_name,
@@ -305,6 +321,17 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						],
 						'strings' => [
 							'slide_title' => 'Come Join Us!',
+						],
+					];
+					break;
+
+				case 'thankyou':
+					$additional = [
+						'vars'    => [
+							'video_id' => '269364269'
+						],
+						'strings' => [
+							'slide_title' => 'Thank You For Choosing Shield Security',
 						],
 					];
 					break;
@@ -345,7 +372,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
-				case 'thankyou':
 				case 'license':
 				default:
 					break;

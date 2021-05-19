@@ -327,6 +327,7 @@ body.wait {
 	font-size: 2rem;
 	margin: 2rem 0;
 }
+.wizard li,
 .wizard p {
 	font-size: 16px;
 	margin-bottom: 1.2rem;
@@ -543,4 +544,8 @@ a:hover, a:visited {
 	width: 5rem;
 	top: 30%;
 	left: 40%;
+}
+.button > svg {
+	width: 32px;
+	height: 32px;
 }

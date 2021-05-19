@@ -14,7 +14,7 @@
 			   class="button d-block w-100 text-center p-3"
 			   target="_blank"
 			>
-				<img src="{{ imgs.facebook }}" />
+				{{ imgs.facebook|raw }}
 				Join FB Group!
 			</a>
 		</div>
@@ -29,7 +29,7 @@
 			   class="button d-block w-100 text-center p-3"
 			   target="_blank"
 			>
-				<img src="{{ imgs.twitter }}" />
+				{{ imgs.twitter|raw }}
 				Follow On Twitter!
 			</a>
 		</div>
@@ -37,91 +37,16 @@
 
 	<div class="row mt-4">
 		<div class="col-8">
-			<p>Join our newsletter to get alerted as soon as we have new blog posts and announcements.</p>
+			<p>Join our newsletter to get alerted when we have new blog posts and announcements.</p>
 		</div>
 		<div class="col-4">
 			<a href=""
 			   class="button d-block w-100 text-center p-3"
 			   target="_blank"
 			>
-				<img src="{{ imgs.email }}" />
+				{{ imgs.email|raw }}
 				Join Our Newsletter!
 			</a>
 		</div>
 	</div>
 {% endblock %}
-
-{#{% block slide_body %}#}
-
-{#	<p class="description">We hope you'll see we've put a lot of effort into making Shield powerful, full-featured,#}
-{#	and still easy to use.</p>#}
-{#	<p class="description">We're continually improving it, adding further security features, and making it easier than ever to secure your#}
-{#	   sites.</p>#}
-{#	<p class="description">We've got 3 more options for you:</p>#}
-
-{#	<h5>#1 Join Our Security Email Group</h5>#}
-{#	<p class="help-block">Become a member on the list for exclusive updates, information and news#}
-{#						  (you'll receive a double-optin email to confirm).#}
-{#		<br /><strong>We never SPAM</strong> and you can remove yourself at any time.#}
-{#	</p>#}
-{#	{% include 'snippets/optin_form_drip_vertical.twig' %}#}
-{#	<hr />#}
-
-{#	<h6>Bonus: Join our new Facebook group</h6>#}
-{#	<p class="description"><a href="https://shsec.io/cu" target="_blank">#}
-{#			Click here to request access to our new Facebook group</a> where you can ask questions#}
-{#	and help others with WordPress security and in particular, the Shield Security plugin.</p>#}
-
-{#    <div class="mt-3">#}
-{#        <form class="form-horizontal icwp-wizard-form">#}
-{#	        <h5>#2 Anonymous Usage Data</h5>#}
-{#            <p class="description">Helps us determine what features are being used, where we need to do more work and how effective Shield is being.</p>#}
-
-{#            <table class="form-table">#}
-{#                <tbody>#}
-{#                    <tr>#}
-{#                        <th scope="row">Anonymous Info</th>#}
-{#                        <td>#}
-{#                            <fieldset>#}
-{#                                {% set radiovalues =#}
-{#                                    {#}
-{#                                        'Y': '<span>Turn On</span> - allow <em>completely anonymous</em> usage data to be collected',#}
-{#                                        'N': '<span>Turn Off</span> - do not contribute anonymous usage data'#}
-{#                                    }#}
-{#                                %}#}
-{#                                {{ icwp_macros.formInput_Radio_Wizard( 'AnonymousOption', radiovalues, 'Anonymous Info' ) }}#}
-{#                            </fieldset>#}
-{#	                    </td>#}
-{#                    </tr>#}
-{#                </tbody>#}
-{#            </table>#}
-
-{#	        <h5>#3 Display The Shield Protection Badge</h5>#}
-{#            <p class="description">You can demonstrate to your visitors and customers that you're taking security seriously#}
-{#	   by displaying a Shield Security 'badge' on the bottom corner of your website.</p>#}
-
-{#            <table class="form-table">#}
-{#                <tbody>#}
-{#                    <tr>#}
-{#                        <th scope="row">Anonymous Info</th>#}
-{#                        <td>#}
-{#                            <fieldset>#}
-{#                                {% set radiovalues =#}
-{#                                    {#}
-{#                                        'Y': '<span>Turn On</span> - display the Shield Security plugin badge on my site',#}
-{#                                        'N': '<span>Turn Off</span> - do not display the badge on my site'#}
-{#                                    }#}
-{#                                %}#}
-{#                                {{ icwp_macros.formInput_Radio_Wizard( 'BadgeOption', radiovalues, 'Shield Site Badge' ) }}#}
-{#                            </fieldset>#}
-{#	                    </td>#}
-{#                    </tr>#}
-{#                </tbody>#}
-{#            </table>#}
-
-{#		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optins' ) }}#}
-{#		{{ icwp_macros.formInput_Submit( 'Optin &rarr;', null, null, true ) }}#}
-
-{#        <form>#}
-{#    </div>#}
-{#{% endblock %}#}
