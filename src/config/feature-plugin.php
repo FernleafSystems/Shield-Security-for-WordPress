@@ -719,6 +719,9 @@
           "plugin_badge":         {
             "title": "Plugin Security Badge"
           },
+          "plugin_telemetry":         {
+            "title": "Plugin Telemetry"
+          },
           "optin":                    {
             "title": "Join Us!"
           },

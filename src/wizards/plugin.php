@@ -60,6 +60,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$response = $this->wizardPluginSecurityBadge();
 				break;
 
+			case 'plugin_telemetry':
+				$response = $this->wizardPluginTelemetry();
+				break;
+
 			case 'optin_usage':
 			case 'optin_badge':
 			case 'optins':
@@ -155,9 +159,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		$mod = $con->getModule_LoginGuard();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $mod->getOptions();
-		if ( !( $mod->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
+		$opts = $mod->getOptions();
+		if ( !( $mod->isModuleEnabled() && $opts->isEnabledGaspCheck() ) ) {
 			$stepsSlugs[] = 'login_protect';
 		}
 
@@ -169,6 +173,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		$stepsSlugs[] = 'plugin_badge';
+		$stepsSlugs[] = 'plugin_telemetry';
 		$stepsSlugs[] = 'optin';
 
 		if ( !$con->isPremiumActive() ) {
@@ -252,6 +257,20 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						],
 						'strings' => [
 							'slide_title' => 'Demonstrate To Visitors That You Take Security Seriously',
+						],
+					];
+					break;
+
+				case 'plugin_telemetry':
+					$additional = [
+						'hrefs' => [
+							'privacy_policy' => 'https://getshieldsecurity.com/policies/privacy-policy/',
+						],
+						'vars'    => [
+							'email' => Services::WpUsers()->getCurrentWpUser()->user_email
+						],
+						'strings' => [
+							'slide_title' => 'Want 15% off ShieldPRO?',
 						],
 					];
 					break;

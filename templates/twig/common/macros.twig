@@ -82,7 +82,7 @@
 		<div class="col-4"></div>
 		<div class="col-8">
 			<button type="submit"
-					class="button button-{{ btn|default('primary') }}"
+					class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
