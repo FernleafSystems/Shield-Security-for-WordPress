@@ -254,7 +254,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'plugin_badge':
 					$additional = [
 						'vars'    => [
-							'video_id' => '269193270'
+							'video_id' => '552430272'
 						],
 						'strings' => [
 							'slide_title' => 'Demonstrate To Visitors That You Take Security Seriously',
