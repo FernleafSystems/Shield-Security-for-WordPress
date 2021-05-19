@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
@@ -18,7 +19,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @param string $step
-	 * @return \FernleafSystems\Utilities\Response|null
+	 * @return StdResponse|\FernleafSystems\Utilities\Response|null
 	 */
 	protected function processWizardStep( string $step ) {
 		switch ( $step ) {
@@ -47,12 +48,16 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$response = $this->wizardIps();
 				break;
 
+			case 'login_protect':
+				$response = $this->wizardLoginProtect();
+				break;
+
 			case 'comments_filter':
 				$response = $this->wizardCommentsFilter();
 				break;
 
-			case 'login_protect':
-				$response = $this->wizardLoginProtect();
+			case 'plugin_badge':
+				$response = $this->wizardPluginSecurityBadge();
 				break;
 
 			case 'optin_usage':
@@ -243,10 +248,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'plugin_badge':
 					$additional = [
 						'vars'    => [
-							'video_id' => ''
+							'video_id' => '269193270'
 						],
 						'strings' => [
-							'slide_title' => 'Show Visitors You Take Security Seriously',
+							'slide_title' => 'Demonstrate To Visitors That You Take Security Seriously',
 						],
 					];
 					break;
@@ -738,6 +743,42 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		return ( new \FernleafSystems\Utilities\Response() )
 			->setSuccessful( $bDelete )
 			->setMessageText( $sMessage );
+	}
+
+	private function wizardPluginSecurityBadge() :StdResponse {
+		$r = new StdResponse();
+
+		$input = Services::Request()->post( 'SecurityPluginBadge' );
+
+		if ( !empty( $input ) ) {
+			$toEnable = $input === 'Y';
+
+			$modPlugin = $this->getCon()->getModule_Plugin();
+			if ( $toEnable ) { // we don't disable the whole module
+				$modPlugin->setIsMainFeatureEnabled( true );
+			}
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $optsPlugin */
+			$optsPlugin = $modPlugin->getOptions();
+			$optsPlugin->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
+			$modPlugin->saveModOptions();
+
+			$r->success = $optsPlugin->isOpt( 'display_plugin_badge', 'Y' ) === $toEnable;
+			if ( $r->success ) {
+				$r->msg_text = sprintf( '%s has been %s.', __( 'Security Plugin Badge', 'wp-simple-firewall' ),
+					$toEnable ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+				);
+			}
+			else {
+				$r->msg_text = sprintf( __( '%s setting could not be changed at this time.', 'wp-simple-firewall' ),
+					__( 'Security Plugin Badge', 'wp-simple-firewall' ) );
+			}
+		}
+		else {
+			$r->msg_text = __( 'No option was selected', 'wp-simple-firewall' );
+			$r->success = false;
+		}
+
+		return $r;
 	}
 
 	/**

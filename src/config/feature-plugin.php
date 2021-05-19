@@ -267,7 +267,7 @@
       "link_info":   "https://shsec.io/5v",
       "link_blog":   "https://shsec.io/wpsf20",
       "name":        "Show Plugin Badge",
-      "summary":     "Display Plugin Badge On Your Site",
+      "summary":     "Display Plugin Security Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
@@ -717,7 +717,7 @@
             "title": "Comment SPAM"
           },
           "plugin_badge":         {
-            "title": "Plugin Badge"
+            "title": "Plugin Security Badge"
           },
           "optin":                    {
             "title": "Join Us!"

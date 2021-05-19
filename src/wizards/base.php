@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
@@ -181,19 +182,36 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array
 	 */
 	public function ajaxExec_WizProcessStep() {
-		$response = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
-		if ( !empty( $response ) ) {
-			$this->buildWizardResponse( $response );
+		$r = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
+		if ( !$r instanceof StdResponse ) {
+			$response = new StdResponse();
+			$response->msg_text = $r->getMessageText();
+			$response->success = $r->successful();
+		}
+		else {
+			$response = $r;
 		}
 
-		$data = $response->getData();
-		$data[ 'success' ] = $response->successful();
+		$msg = $response->msg_text;
+		if ( $response->success ) {
+			if ( !self::WIZARD_STEPPING_AUTO ) {
+				$msg .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+			}
+		}
+		else {
+			$msg = sprintf( '%s: %s', __( 'Error' ), $msg );
+		}
+
+		$data = $response->getRawData();
+		$data[ 'message' ] = $msg;
+		$data[ 'success' ] = $response->success;
+
 		return $data;
 	}
 
 	/**
 	 * @param string $step
-	 * @return \FernleafSystems\Utilities\Response|null
+	 * @return StdResponse|\FernleafSystems\Utilities\Response|null
 	 */
 	protected function processWizardStep( string $step ) {
 		switch ( $step ) {

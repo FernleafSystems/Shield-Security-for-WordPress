@@ -69,7 +69,7 @@
 
 {% macro formInput_Radio_Wizard(name,values,toplabel,id) %}
 	{% for value,label in values %}
-		<label>
+		<label class="d-block">
 			<input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
 			<span>{{ label|raw }}</span>
 		</label>
