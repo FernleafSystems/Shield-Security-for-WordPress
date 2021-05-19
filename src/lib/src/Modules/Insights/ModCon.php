@@ -17,21 +17,17 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function onModulesLoaded() {
-		$this->maybeRedirectToAdmin();
-		$this->maybeRedirectToOverview();
+		$this->handleCustomRedirection();
 	}
 
-	private function maybeRedirectToOverview() {
-		if ( !Services::WpGeneral()->isAjax() ) {
-			$con = $this->getCon();
-			$req = Services::Request();
-			if ( $this->isThisModAdminPage() && empty( $req->query( 'inav' ) ) ) {
-				if ( $con->getModule_Plugin()->getActivateLength() < 4 ) {
-					Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
-				}
-				else {
-					Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
-				}
+	private function handleCustomRedirection() {
+		$con = $this->getCon();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() ) {
+			if ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
+				Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
+			}
+			elseif ( $this->isThisModAdminPage() && empty( Services::Request()->query( 'inav' ) ) ) {
+				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
 			}
 		}
 	}
@@ -39,7 +35,7 @@ class ModCon extends BaseShield\ModCon {
 	private function maybeRedirectToAdmin() {
 		$con = $this->getCon();
 		$activeFor = $con->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $activeFor < 4 ) {
+		if ( !Services::WpGeneral()->isAjax() && $activeFor < 4 ) {
 			Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
 		}
 	}
