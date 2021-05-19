@@ -546,6 +546,7 @@ a:hover, a:visited {
 	left: 40%;
 }
 .button > svg {
-	width: 32px;
-	height: 32px;
+	width: 24px;
+	height: 24px;
+	margin-right: 3px;
 }

@@ -717,7 +717,7 @@
             "title": "Comment SPAM"
           },
           "plugin_badge":             {
-            "title": "Plugin Security Badge"
+            "title": "Security Badge"
           },
           "plugin_telemetry":         {
             "title": "Plugin Telemetry"

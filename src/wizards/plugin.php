@@ -286,7 +286,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'free_trial' => $con->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
 						],
 						'strings' => [
-							'slide_title' => 'Try ShieldPRO Free For 14 days',
+							'slide_title' => 'Try ShieldPRO Free',
 						],
 					];
 					break;
