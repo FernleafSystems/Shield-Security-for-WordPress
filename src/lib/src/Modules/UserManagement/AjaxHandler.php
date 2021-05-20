@@ -70,8 +70,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			$nYourId = $mod->getSession()->id;
-			$bIncludesYourSession = in_array( $nYourId, $aIds );
+			$yourId = $mod->getSession()->id;
+			$bIncludesYourSession = in_array( $yourId, $aIds );
 
 			if ( $bIncludesYourSession && ( count( $aIds ) == 1 ) ) {
 				$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
@@ -79,11 +79,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			else {
 				$bSuccess = true;
 
-				$oTerminator = ( new Sessions\Lib\Ops\Terminate() )
+				$terminator = ( new Sessions\Lib\Ops\Terminate() )
 					->setMod( $this->getCon()->getModule_Sessions() );
-				foreach ( $aIds as $nId ) {
-					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
-						$oTerminator->byRecordId( $nId );
+				foreach ( $aIds as $id ) {
+					if ( is_numeric( $id ) && ( $id != $yourId ) ) {
+						$terminator->byRecordId( (int)$id );
 					}
 				}
 				$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );

@@ -18,9 +18,11 @@ abstract class BaseQuery {
 	protected $aWheres;
 
 	/**
-	 * @var bool
+	 * @var array
 	 */
-	protected $bExcludeDeleted;
+	protected $rawWheres;
+
+	protected $excludeDeleted = true;
 
 	/**
 	 * @var int
@@ -54,74 +56,77 @@ abstract class BaseQuery {
 
 	/**
 	 * @param string       $column
-	 * @param string|array $mValue
+	 * @param string|array $value
 	 * @param string       $operator
 	 * @return $this
 	 */
-	public function addWhere( $column, $mValue, $operator = '=' ) {
+	public function addWhere( $column, $value, $operator = '=' ) {
 		if ( !$this->isValidComparisonOperator( $operator ) ) {
 			return $this; // Exception?
 		}
 
-		if ( is_array( $mValue ) ) {
-			$mValue = array_map( 'esc_sql', $mValue );
-			$mValue = "('".implode( "','", $mValue )."')";
+		if ( is_array( $value ) ) {
+			$value = array_map( 'esc_sql', $value );
+			$value = "('".implode( "','", $value )."')";
 		}
 		else {
-			$mValue = esc_sql( $mValue );
-
-			if ( strcasecmp( $operator, 'LIKE' ) === 0 ) {
-				$mValue = sprintf( '%%%s%%', $mValue );
+			if ( !is_int( $value ) ) {
+				$value = sprintf( '"%s"', esc_sql( $value ) );
 			}
-			if ( is_string( $mValue ) ) {
-				$mValue = sprintf( "'%s'", $mValue );
+			if ( strtoupper( $operator ) === 'LIKE' ) {
+				$value = sprintf( '%%%s%%', $value );
 			}
 		}
 
-		$where = $this->getWheres();
-		$where[] = sprintf( '`%s` %s %s', esc_sql( $column ), $operator, $mValue );
-		return $this->setWheres( $where );
+		$rawWheres = $this->getRawWheres();
+		$rawWheres[] = [
+			esc_sql( $column ),
+			$operator,
+			$value
+		];
+
+		return $this->setRawWheres( $rawWheres );
 	}
 
 	/**
-	 * @param string $sColumn
+	 * @param string $column
 	 * @param mixed  $mValue
 	 * @return $this
 	 */
-	public function addWhereEquals( $sColumn, $mValue ) {
-		return $this->addWhere( $sColumn, $mValue, '=' );
+	public function addWhereEquals( string $column, $mValue ) {
+		return $this->addWhere( $column, $mValue, '=' );
 	}
 
 	/**
-	 * @param string $sColumn
-	 * @param array  $aValues
+	 * @param string $column
+	 * @param array  $values
 	 * @return $this
 	 */
-	public function addWhereIn( $sColumn, $aValues ) {
-		if ( !empty( $aValues ) && is_array( $aValues ) ) {
-			$this->addWhere( $sColumn, $aValues, 'IN' );
+	public function addWhereIn( string $column, $values ) {
+		if ( !empty( $values ) && is_array( $values ) ) {
+			$this->addWhere( $column, $values, 'IN' );
 		}
 		return $this;
 	}
 
 	/**
-	 * @param string $sColumn
-	 * @param string $sLike
-	 * @param string $sLeft
-	 * @param string $sRight
+	 * @param string $column
+	 * @param string $like
+	 * @param string $left
+	 * @param string $right
 	 * @return $this
 	 */
-	public function addWhereLike( $sColumn, $sLike, $sLeft = '%', $sRight = '%' ) {
-		return $this->addWhere( $sColumn, $sLeft.$sLike.$sRight, 'LIKE' );
+	public function addWhereLike( string $column, $like, $left = '%', $right = '%' ) {
+		return $this->addWhere( $column, $left.$like.$right, 'LIKE' );
 	}
 
 	/**
 	 * @param int    $nNewerThanTimeStamp
-	 * @param string $sColumn
+	 * @param string $column
 	 * @return $this
 	 */
-	public function addWhereNewerThan( $nNewerThanTimeStamp, $sColumn = 'created_at' ) {
-		return $this->addWhere( $sColumn, $nNewerThanTimeStamp, '>' );
+	public function addWhereNewerThan( $nNewerThanTimeStamp, $column = 'created_at' ) {
+		return $this->addWhere( $column, $nNewerThanTimeStamp, '>' );
 	}
 
 	/**
@@ -175,7 +180,7 @@ abstract class BaseQuery {
 	 * @return $this
 	 */
 	public function clearWheres() {
-		return $this->setWheres( [] );
+		return $this->setRawWheres( [] );
 	}
 
 	/**
@@ -190,12 +195,12 @@ abstract class BaseQuery {
 	 */
 	public function buildWhere() {
 
-		$aParts = $this->getWheres();
+		$parts = $this->getWheres();
 		if ( $this->isExcludeDeleted() ) {
-			$aParts[] = '`deleted_at`=0';
+			$parts[] = '`deleted_at`=0';
 		}
 
-		return implode( ' AND ', $aParts );
+		return implode( ' AND ', $parts );
 	}
 
 	/**
@@ -312,10 +317,11 @@ abstract class BaseQuery {
 	}
 
 	public function getWheres() :array {
-		if ( !is_array( $this->aWheres ) ) {
-			$this->aWheres = [];
-		}
-		return $this->aWheres;
+		return is_array( $this->aWheres ) ? $this->aWheres : [];
+	}
+
+	public function getRawWheres() :array {
+		return is_array( $this->rawWheres ) ? $this->rawWheres : [];
 	}
 
 	/**
@@ -358,18 +364,16 @@ abstract class BaseQuery {
 		return $this->getLimit() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasWheres() {
+	public function hasWheres() :bool {
 		return count( $this->getWheres() ) > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isExcludeDeleted() {
-		return isset( $this->bExcludeDeleted ) ? (bool)$this->bExcludeDeleted : true;
+	public function isExcludeDeleted() :bool {
+		return $this->excludeDeleted ?? true;
+	}
+
+	protected function rawWhereToString( array $rawWhere ) :string {
+		return vsprintf( '`%s` %s %s', $rawWhere );
 	}
 
 	/**
@@ -377,17 +381,17 @@ abstract class BaseQuery {
 	 */
 	public function reset() {
 		return $this->setLimit( 0 )
-					->setWheres( [] )
+					->setRawWheres( [] )
 					->setPage( 1 )
 					->setOrderBy( null );
 	}
 
 	/**
-	 * @param mixed $bExcludeDeleted
+	 * @param bool $excludeDeleted
 	 * @return $this
 	 */
-	public function setIsExcludeDeleted( $bExcludeDeleted ) {
-		$this->bExcludeDeleted = $bExcludeDeleted;
+	public function setIsExcludeDeleted( bool $excludeDeleted ) {
+		$this->excludeDeleted = $excludeDeleted;
 		return $this;
 	}
 
@@ -443,11 +447,24 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param array $where
+	 * @param array[] $wheres
 	 * @return $this
 	 */
-	public function setWheres( $where ) {
-		$this->aWheres = $where;
+	public function setRawWheres( array $wheres ) {
+		$this->rawWheres = $wheres;
+		return $this->setWheres(
+			array_map( function ( array $where ) {
+				return $this->rawWhereToString( $where );
+			}, $this->rawWheres )
+		);
+	}
+
+	/**
+	 * @param array $wheres
+	 * @return $this
+	 */
+	public function setWheres( array $wheres ) {
+		$this->aWheres = $wheres;
 		return $this;
 	}
 

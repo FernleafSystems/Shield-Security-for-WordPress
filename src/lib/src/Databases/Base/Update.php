@@ -100,11 +100,8 @@ class Update extends Insert {
 		return $success;
 	}
 
-	/**
-	 * @return int|false
-	 */
 	public function query() {
-		return Services::WpDb()
+		return (bool)Services::WpDb()
 					   ->updateRowsFromTableWhere(
 						   $this->getDbH()->getTable(),
 						   $this->getUpdateData(),
