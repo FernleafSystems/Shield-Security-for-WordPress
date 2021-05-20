@@ -135,14 +135,14 @@
 	</style>
 	<div class="d-flex justify-content-center">
 		<div class="vimeo-feather">
-			<img id="VimeoImg{{ video_id }}" src="{{ img_url }}" class="img-fluid" />
 			<a href="https://player.vimeo.com/video/{{ video_id }}"
-			   class="d-inline-block"
+			   class="d-block"
 			   data-featherlight="iframe"
 			   data-featherlight-iframe-frameborder="0"
 			   data-featherlight-iframe-allowfullscreen="true"
 			   data-featherlight-iframe-style="display:block;border:none;height:85vh;width:85vw;background-color:transparent;"
 			>
+				<img id="VimeoImg{{ video_id }}" src="{{ img_url }}" class="img-fluid" />
 			</a>
 		</div>
 	</div>

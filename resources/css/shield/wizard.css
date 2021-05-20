@@ -527,23 +527,8 @@ a:hover, a:visited {
 	border: 1px solid #008000;
 	background: white;
 }
-.vimeo-feather {
-	position: relative;
-}
 .vimeo-feather img {
 	width: 400px;
-}
-.vimeo-feather a {
-	/** https://codepen.io/sosuke/pen/Pjoqqp **/
-	filter: invert(42%) sepia(66%) saturate(3209%) hue-rotate(93deg) brightness(104%) contrast(84%);
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-size: 5rem;
-	position: absolute;
-	height: 5rem;
-	width: 5rem;
-	top: 30%;
-	left: 40%;
 }
 .button > svg {
 	width: 24px;
