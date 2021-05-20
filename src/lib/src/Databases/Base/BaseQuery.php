@@ -22,7 +22,7 @@ abstract class BaseQuery {
 	 */
 	protected $rawWheres;
 
-	protected $excludeDeleted = true;
+	protected $includeSoftDeleted;
 
 	/**
 	 * @var int
@@ -131,11 +131,11 @@ abstract class BaseQuery {
 
 	/**
 	 * @param int    $nOlderThanTimeStamp
-	 * @param string $sColumn
+	 * @param string $column
 	 * @return $this
 	 */
-	public function addWhereOlderThan( $nOlderThanTimeStamp, $sColumn = 'created_at' ) {
-		return $this->addWhere( $sColumn, $nOlderThanTimeStamp, '<' );
+	public function addWhereOlderThan( $nOlderThanTimeStamp, $column = 'created_at' ) {
+		return $this->addWhere( $column, $nOlderThanTimeStamp, '<' );
 	}
 
 	/**
@@ -195,12 +195,23 @@ abstract class BaseQuery {
 	 */
 	public function buildWhere() {
 
-		$parts = $this->getWheres();
-		if ( $this->isExcludeDeleted() ) {
-			$parts[] = '`deleted_at`=0';
+		if ( method_exists( $this, 'getRawWheres' ) ) {
+			$wheres = $this->getRawWheres();
+			if ( !$this->isIncludeSoftDeletedRows() ) {
+				$wheres[] = [ 'deleted_at', '=', 0 ];
+			}
+			$wheres = array_map( function ( array $where ) {
+				return $this->rawWhereToString( $where );
+			}, $wheres );
+		}
+		else { // TODO: @deprecated 11.2
+			$wheres = $this->getWheres();
+			if ( !$this->isIncludeSoftDeletedRows() ) {
+				$wheres[] = '`deleted_at`=0';
+			}
 		}
 
-		return implode( ' AND ', $parts );
+		return implode( ' AND ', $wheres );
 	}
 
 	/**
@@ -368,8 +379,8 @@ abstract class BaseQuery {
 		return count( $this->getWheres() ) > 0;
 	}
 
-	public function isExcludeDeleted() :bool {
-		return $this->excludeDeleted ?? true;
+	public function isIncludeSoftDeletedRows() :bool {
+		return $this->includeSoftDeleted ?? false;
 	}
 
 	protected function rawWhereToString( array $rawWhere ) :string {
@@ -387,11 +398,11 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param bool $excludeDeleted
+	 * @param bool $includeSoftDeleted
 	 * @return $this
 	 */
-	public function setIsExcludeDeleted( bool $excludeDeleted ) {
-		$this->excludeDeleted = $excludeDeleted;
+	public function setIncludeSoftDeleted( bool $includeSoftDeleted ) {
+		$this->includeSoftDeleted = $includeSoftDeleted;
 		return $this;
 	}
 

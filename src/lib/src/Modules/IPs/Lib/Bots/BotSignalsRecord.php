@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -57,9 +58,14 @@ class BotSignalsRecord {
 		}
 
 		if ( empty( $e->auth_at ) ) {
-			$session = ( new Retrieve() )
-				->setMod( $this->getCon()->getModule_Sessions() )
-				->byIP( $this->getIP() );
+			$dbhSessions = $this->getCon()
+								->getModule_Sessions()
+								->getDbHandler_Sessions();
+			/** @var Session\Select $selector */
+			$selector = $dbhSessions->getQuerySelector();
+			$session = $selector->setIncludeSoftDeleted( true )
+								->filterByIp( $this->getIP() )
+								->first();
 			$e->auth_at = empty( $session ) ? 0 : $session->created_at;
 		}
 

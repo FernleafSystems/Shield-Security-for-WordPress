@@ -9,6 +9,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
 
+/**
+ * Class Retrieve
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops
+ * @deprecated 11.2
+ */
 class Retrieve {
 
 	use ModConsumer;
