@@ -95,7 +95,7 @@ class Update extends Insert {
 		if ( !empty( $updateData ) ) {
 			$success = $this->setUpdateId( $id )
 							->setUpdateData( $updateData )
-							->query() === 1;
+							->query();
 		}
 		return $success;
 	}
