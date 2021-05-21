@@ -32,18 +32,7 @@
 		$( document ).ready( function () {
 			initializeSteps();
 			initializeHandlers();
-			initializeMisc();
 		} );
-
-		function initializeMisc() {
-			iCWP_WPSF_BodyOverlay.initialise();
-			$( document ).ajaxStart( function () {
-				toggleOverlay( 'show' );
-			} );
-			$( document ).ajaxComplete( function () {
-				toggleOverlay( 'hide' );
-			} );
-		}
 
 		function initializeSteps() {
 			var settings = {
@@ -115,7 +104,7 @@
 			};
 
 			// Initialize wizard
-			var $oWizardContainer = $( "#wizard" );
+			var $oWizardContainer = $( '#wizard' );
 			var $oWizard = $oWizardContainer.steps( settings );
 			addOtherSteps( $oWizard );
 
@@ -133,21 +122,27 @@
 					$oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
 					return;
 				}
-				$oWizard.steps( 'add', { title: step, contentMode: 'async' } );
+				$oWizard.steps( 'add', { t itle: step, contentMode: 'async' } );
 			} );
 		}
 
 		function initializeHandlers() {
 			$( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
 			$( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
+			$( document ).on( 'click', 'div.wizard-slide button.ButtonSlidePrevious', renderPrevious );
 		}
 
 		function reRenderCurrent() {
+			renderPrevious();
+			renderNextAuto( true );
+		};
+
+		function renderPrevious( event ) {
+			event.preventDefault();
 			var $oWizard = $( '#wizard' );
 			$oWizard.steps( 'previous' );
 			var nCurrent = $oWizard.steps( 'getCurrentIndex' );
 			$oWizard.steps( 'remove', nCurrent + 1 );
-			renderNextAuto( true );
 		};
 
 		function renderNext( event ) {

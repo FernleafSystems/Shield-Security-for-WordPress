@@ -354,15 +354,3 @@ tr.icwp-plugin-vulnerability dd {
 }
 
 /* override boostrap */
-.btn-info,
-.btn-success {
-	background: rgba(34, 113, 177, 1);
-}
-
-.btn-success:hover {
-	background: #138496;
-}
-
-.text-success {
-	color: rgba(34, 113, 177, 1) !important;
-}

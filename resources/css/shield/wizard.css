@@ -535,3 +535,8 @@ a:hover, a:visited {
 	height: 24px;
 	margin-right: 3px;
 }
+
+.wp-core-ui button.wizard-button-go-back {
+	border: 0 none;
+	background: transparent;
+}

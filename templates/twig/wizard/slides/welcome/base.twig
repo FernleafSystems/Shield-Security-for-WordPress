@@ -28,14 +28,24 @@
 		{% block slide_body_action_area %}{% endblock %}
 	</div>
 
-	{% block slide_body_next_button %}
-		<div class="row row-cols-1 justify-content-center mt-5">
-			<div class="col text-right">
+	<div class="row row-cols-2 align-items-end mt-5">
+
+		<div class="col-6 text-left">
+			{% block slide_body_button_area_previous %}
+				<button class="button ButtonSlidePrevious wizard-button-go-back">
+					&larr; {{ strings.next_button|default('Go back a step') }}
+				</button>
+			{% endblock %}
+		</div>
+
+		<div class="col-6 text-right">
+			{% block slide_body_button_area_next %}
 				<button class="button ButtonNextSlide py-2 px-4">
 					{{ strings.next_button|default('Go to next step') }} &rarr;
 				</button>
-			</div>
+			{% endblock %}
 		</div>
-	{% endblock %}
+
+	</div>
 
 {% endblock %}
