@@ -15,7 +15,8 @@ class OverviewCards {
 	protected function getModDisabledCard() :array {
 		$mod = $this->getMod();
 		return [
-			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
+			'name'    => sprintf( '%s: %s',
+				$this->getMod()->getMainFeatureName(), __( 'Disabled', 'wp-simple-firewall' ) ),
 			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
 			'state'   => -2,
 			'href'    => $mod->getUrl_DirectLinkToOption( $mod->getEnableModOptKey() ),
