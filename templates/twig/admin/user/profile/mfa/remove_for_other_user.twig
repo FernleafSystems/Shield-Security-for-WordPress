@@ -25,6 +25,7 @@
 							>
 								{{ strings.remove_all_from }}
 							</button>
+							<p class="description">{{ strings.remove_warning }}</p>
 						</div>
 					{% elseif flags.is_admin_profile %}
 						<p>
@@ -43,3 +44,5 @@
 		</tbody>
 	</table>
 </div>
+
+{% include '/admin/user/profile/mfa/mfa_dialog.twig' %}

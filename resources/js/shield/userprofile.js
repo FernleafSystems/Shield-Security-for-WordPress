@@ -30,9 +30,9 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 	let initMfaRemoveAll = function () {
 		jQuery( document ).on( 'click', 'button#ShieldMfaRemoveAll', function ( evt ) {
 			if ( confirm( shield_vars_userprofile.strings.are_you_sure ) ) {
+				shield_vars_userprofile.ajax.mfa_remove_all.user_id = jQuery( evt.currentTarget ).data( 'user_id' );
+				sendReq( shield_vars_userprofile.ajax.mfa_remove_all );
 			}
-			shield_vars_userprofile.ajax.mfa_remove_all.user_id = jQuery( evt.currentTarget ).data( 'user_id' );
-			sendReq( shield_vars_userprofile.ajax.mfa_remove_all );
 		} );
 	};
 

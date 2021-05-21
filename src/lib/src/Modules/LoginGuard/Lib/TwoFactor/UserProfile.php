@@ -21,23 +21,21 @@ class UserProfile {
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @param \WP_User $user
 	 */
-	public function addOptionsToUserProfile( $oUser ) {
+	public function addOptionsToUserProfile( $user ) {
 		$oMC = $this->getMfaCon();
-		$oWpUsers = Services::WpUsers();
-		$providers = $oMC->getProvidersForUser( $oUser );
+		$WPU = Services::WpUsers();
+		$providers = $oMC->getProvidersForUser( $user );
 		if ( count( $providers ) > 0 ) {
 			$rows = [];
 			foreach ( $providers as $provider ) {
-				$rows[ $provider::SLUG ] = $provider->renderUserProfileOptions( $oUser );
+				$rows[ $provider::SLUG ] = $provider->renderUserProfileOptions( $user );
 			}
 
 			echo $oMC->getMod()
 					 ->renderTemplate(
 						 '/admin/user/profile/mfa/mfa_container.twig',
 						 [
-							 'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
-							 'i_am_valid_admin'      => $oMC->getCon()->isPluginAdmin(),
-							 'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
+							 'user_to_edit_is_admin' => $WPU->isUserAdmin( $user ),
 							 'strings'               => [
 								 'title'       => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 								 'provided_by' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
@@ -49,7 +47,6 @@ class UserProfile {
 					 );
 		}
 	}
-
 
 	/**
 	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
@@ -87,6 +84,7 @@ class UserProfile {
 								'currently_active' => __( 'Currently active MFA Providers on this profile are' ),
 								'remove_all'       => __( 'Remove All MFA Providers' ),
 								'remove_all_from'  => __( 'Remove All MFA Providers From This User Profile' ),
+								'remove_warning'   => __( "Certain providers may not be removed if they're enforced." ),
 								'no_providers'     => __( 'There are no MFA providers active on this user account.' ),
 								'only_secadmin'    => sprintf( __( 'Only %s Security Admins may modify the MFA settings of another admin account.' ),
 									$pluginName ),

@@ -162,13 +162,6 @@ class U2F extends BaseProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function renderUserEditProfileOptions( \WP_User $user ) {
-		// Allow no actions to be taken on other user profiles
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public function handleUserProfileSubmit( \WP_User $user ) {
 		$rawU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( !empty( $rawU2fResponse ) ) {

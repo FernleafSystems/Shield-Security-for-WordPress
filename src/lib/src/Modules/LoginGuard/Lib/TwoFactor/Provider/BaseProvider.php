@@ -203,9 +203,10 @@ abstract class BaseProvider {
 	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
 	 * @param \WP_User $user
 	 * @return string
+	 * @deprecated 11.2
 	 */
 	public function renderUserEditProfileOptions( \WP_User $user ) {
-		return $this->renderUserProfileOptions( $user );
+		return '';
 	}
 
 	/**
@@ -267,8 +268,6 @@ abstract class BaseProvider {
 				'has_validated_profile' => $this->hasValidatedProfile( $user ),
 				'is_enforced'           => $this->isEnforced( $user ),
 				'is_profile_active'     => $this->isProfileActive( $user ),
-				'is_my_user_profile'    => $user->ID == Services::WpUsers()->getCurrentWpUserId(),
-				'i_am_valid_admin'      => $this->getCon()->isPluginAdmin(),
 				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $user ),
 				'show_explanatory_text' => true
 			],

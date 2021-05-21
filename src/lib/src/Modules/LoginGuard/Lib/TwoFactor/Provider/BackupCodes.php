@@ -48,13 +48,6 @@ class BackupCodes extends BaseProvider {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function renderUserEditProfileOptions( \WP_User $user ) {
-		// Allow no actions to be taken on other user profiles
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getFormField() :array {
