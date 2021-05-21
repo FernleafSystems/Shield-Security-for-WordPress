@@ -27,8 +27,8 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'name'    => __( 'Firewall', 'wp-simple-firewall' ),
 			'state'   => $modEnabled ? 1 : -2,
 			'summary' => $modEnabled ?
-				__( 'Your site is protected against malicious requests', 'wp-simple-firewall' )
-				: __( 'Your site is not protected against malicious requests', 'wp-simple-firewall' ),
+				__( "The Firewall is protecting your site against malicious requests", 'wp-simple-firewall' )
+				: __( "The Firewall is disabled so your site isn't protected against malicious requests", 'wp-simple-firewall' ),
 			'href'    => $mod->getUrl_DirectLinkToOption( $mod->getEnableModOptKey() ),
 		];
 

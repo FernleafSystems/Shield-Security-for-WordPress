@@ -56,18 +56,6 @@
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
     },
     {
-      "key":         "enable_spam_antibot",
-      "section":     "section_spam",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "AntiBot SPAM Detection",
-      "summary":     "Enable The AntiBot SPAM Detection",
-      "description": "Use Shield's built-in AntiBot Detection Engine to identify contact form SPAM."
-    },
-    {
       "key":           "form_spam_providers",
       "section":       "section_spam",
       "premium":       true,
