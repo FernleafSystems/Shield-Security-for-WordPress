@@ -310,7 +310,7 @@
     {
       "key":         "login_limit_interval",
       "section":     "section_brute_force_login_protection",
-      "default":     "10",
+      "default":     "5",
       "min":         0,
       "type":        "integer",
       "link_info":   "https://shsec.io/3q",
