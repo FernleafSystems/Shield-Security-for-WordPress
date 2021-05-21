@@ -98,8 +98,8 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	private function getCardsForPlugins() :array {
 		$cards = [];
 
-		$oWpPlugins = Services::WpPlugins();
-		$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
+		$WPP = Services::WpPlugins();
+		$nCount = count( $WPP->getPlugins() ) - count( $WPP->getActivePlugins() );
 		$cards[ 'plugins_inactive' ] = [
 			'name'    => __( 'Inactive Plugins', 'wp-simple-firewall' ),
 			'state'   => $nCount > 0 ? -1 : 1,
@@ -110,7 +110,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'help'    => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
 		];
 
-		$nCount = count( $oWpPlugins->getUpdates() );
+		$nCount = count( $WPP->getUpdates() );
 		$cards[ 'plugin_updates' ] = [
 			'name'    => __( 'Plugin Updates', 'wp-simple-firewall' ),
 			'state'   => $nCount > 0 ? -1 : 1,

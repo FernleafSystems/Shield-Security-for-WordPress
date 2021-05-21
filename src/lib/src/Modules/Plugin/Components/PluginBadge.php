@@ -17,8 +17,12 @@ class PluginBadge {
 	public function run() {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
-		$display = $opts->isOpt( 'display_plugin_badge', 'Y' )
-				   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
+		$req = Services::Request();
+
+		$display = apply_filters( 'shield/display_security_badge',
+			$opts->isOpt( 'display_plugin_badge', 'Y' ) && ( $req->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
+		);
+
 		if ( $display ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'includeJquery' ] );
 			add_action( 'login_enqueue_scripts', [ $this, 'includeJquery' ] );

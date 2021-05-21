@@ -131,7 +131,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 					},
 					open: function () {
 						// close dialog by clicking the overlay behind it
-						jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
+						jQuery( '.ui-widget-overlay' ).on( 'click', function () {
 							jQuery( this ).dialog( 'close' );
 						} )
 					},
