@@ -11,6 +11,7 @@ class Handler extends Base\Handler {
 		$this->tableCleanExpired( 30 );
 		// Remove soft-deleted sessions after 3 days
 		$this->getQueryDeleter()
+			 ->addWhereNewerThan( 0, 'deleted_at' )
 			 ->addWhereOlderThan( Services::Request()->carbon()->subDays( 5 )->timestamp, 'deleted_at' )
 			 ->query();
 	}

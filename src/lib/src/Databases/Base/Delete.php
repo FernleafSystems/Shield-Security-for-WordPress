@@ -45,7 +45,6 @@ class Delete extends BaseQuery {
 	public function deleteById( $id ) {
 		return $this->reset()
 					->addWhereEquals( 'id', (int)$id )
-					->setLimit( 1 )//perhaps an unnecessary precaution
 					->query();
 	}
 

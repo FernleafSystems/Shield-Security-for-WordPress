@@ -99,7 +99,7 @@ class Processor extends BaseShield\Processor {
 
 	/**
 	 * @param \WP_User $user
-	 * @deprecated 11.3
+	 * @deprecated 11.2
 	 */
 	private function activateUserSession( \WP_User $user ) {
 		/** @var ModCon $mod */

@@ -70,11 +70,11 @@ abstract class BaseQuery {
 			$value = "('".implode( "','", $value )."')";
 		}
 		else {
-			if ( !is_int( $value ) ) {
-				$value = sprintf( '"%s"', esc_sql( $value ) );
-			}
 			if ( strtoupper( $operator ) === 'LIKE' ) {
 				$value = sprintf( '%%%s%%', $value );
+			}
+			if ( !is_int( $value ) ) {
+				$value = sprintf( '"%s"', esc_sql( $value ) );
 			}
 		}
 
