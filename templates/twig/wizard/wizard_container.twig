@@ -8,7 +8,7 @@
 
 		{% block body_content_main %}
 			<div class="row row-cols-1 justify-content-center">
-				<div class="col-12 col-xl-8">
+				<div class="col-12">
 					<div id="wizard"></div>
 				</div>
 			</div>
@@ -122,7 +122,7 @@
 					$oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
 					return;
 				}
-				$oWizard.steps( 'add', { t itle: step, contentMode: 'async' } );
+				$oWizard.steps( 'add', { title: step, contentMode: 'async' } );
 			} );
 		}
 
@@ -133,16 +133,15 @@
 		}
 
 		function reRenderCurrent() {
-			renderPrevious();
+			var $oWizard = $( '#wizard' );
+			$oWizard.steps( 'previous' );
+			var nCurrent = $oWizard.steps( 'getCurrentIndex' );
 			renderNextAuto( true );
 		};
 
 		function renderPrevious( event ) {
-			event.preventDefault();
 			var $oWizard = $( '#wizard' );
 			$oWizard.steps( 'previous' );
-			var nCurrent = $oWizard.steps( 'getCurrentIndex' );
-			$oWizard.steps( 'remove', nCurrent + 1 );
 		};
 
 		function renderNext( event ) {

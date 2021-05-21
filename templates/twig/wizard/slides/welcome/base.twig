@@ -5,6 +5,8 @@
 
 {% block slide_body %}
 
+	<div class="row row-cols-1 justify-content-center">
+		<div class="col-12 col-xl-10 col-lg-12 col-md-12">
 	{% block slide_body_title %}
 		{{ icwp_macros.slideTitle( strings.slide_title|default('NO TITLE') ) }}
 	{% endblock %}
@@ -46,6 +48,8 @@
 			{% endblock %}
 		</div>
 
+	</div>
+	</div>
 	</div>
 
 {% endblock %}
