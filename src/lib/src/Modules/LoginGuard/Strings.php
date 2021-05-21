@@ -212,7 +212,10 @@ class Strings extends Base\Strings {
 
 			case 'enable_google_recaptcha_login' :
 				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$summary = __( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' );
+				$summary = sprintf( '[DEPRECATED - %s] : %s',
+					'Please use the newer AntiBot setting above',
+					__( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' )
+				);
 				$desc = __( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
 						.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
 						.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
@@ -245,14 +248,22 @@ class Strings extends Base\Strings {
 
 			case 'enable_login_gasp_check' :
 				$name = __( 'Bot Protection', 'wp-simple-firewall' );
-				$summary = __( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' );
-				$desc = __( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
+				$summary = sprintf( '[DEPRECATED - %s] : %s',
+					'Please use the newer AntiBot setting above',
+					__( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' )
+				);
+				$desc = [
+					__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'antibot_form_ids' :
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
-				$summary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
+				$summary = sprintf( '%s : %s',
+					'[DEPRECATED - Please use the newer AntiBot setting above]',
+					__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' )
+				);
 				$desc = [
 					__( 'Provide DOM selectors to attach AntiBot protection to any form.', 'wp-simple-firewall' ),
 					__( 'IDs are prefixed with "#".', 'wp-simple-firewall' ),

@@ -314,10 +314,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$con = $this->getCon();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		switch ( $notice->id ) {
+
+			case 'wizard_welcome':
+				$needed = false;
+				break;
 
 			case 'plugin-too-old':
 				$needed = $this->isNeeded_PluginTooOld();
@@ -332,7 +336,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'plugin-disabled':
-				$needed = $oOpts->isPluginGloballyDisabled();
+				$needed = $opts->isPluginGloballyDisabled();
 				break;
 
 			case 'update-available':
@@ -344,7 +348,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'allow-tracking':
-				$needed = !$oOpts->isTrackingPermissionSet();
+				$needed = !$opts->isTrackingPermissionSet();
 				break;
 
 			default:
