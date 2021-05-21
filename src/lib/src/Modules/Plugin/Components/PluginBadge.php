@@ -19,7 +19,7 @@ class PluginBadge {
 		$opts = $this->getOptions();
 		$req = Services::Request();
 
-		$display = apply_filters( 'shield/display_security_badge',
+		$display = apply_filters( 'shield/show_security_badge',
 			$opts->isOpt( 'display_plugin_badge', 'Y' ) && ( $req->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
 		);
 
