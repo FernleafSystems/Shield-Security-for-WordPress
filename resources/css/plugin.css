@@ -1587,7 +1587,11 @@ body.folded #FooterBannerGoPro {
 	font-size: 3rem;
 	line-height: 3.5rem;
 }
-.summary-card {
+.summary-card.card {
+}
+.summary-card.card,
+.summary-card .card-body {
+	background-color: transparent;
 }
 .summary-card .icon.enabled {
 	color: #008000;

@@ -3,6 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Wcf
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class SummaryCards {
@@ -19,6 +22,7 @@ class SummaryCards {
 			$this->getSecurityAdminSummary(),
 			$this->getIPBlockingSummary(),
 			$this->getCommentSpamSummary(),
+			$this->getUserSummary(),
 			$this->getPluginSummary()
 		);
 
@@ -59,21 +63,38 @@ class SummaryCards {
 		$opts = $mod->getOptions();
 		return [
 			$mod->getSlug() => [
-				'title'   => 'SPAM',
+				'title'   => 'Comment SPAM',
 				'enabled' => $mod->isModuleEnabled()
 							 && $opts->isEnabledAntiBot(),
 			]
 		];
 	}
 
+	private function getUserSummary() :array {
+		$mod = $this->getCon()->getModule_UserManagement();
+		/** @var Modules\UserManagement\Options $opts */
+		$opts = $mod->getOptions();
+		return [
+			$mod->getSlug() => [
+				'title'   => "'Pwned' Passwords",
+				'enabled' => $mod->isModuleEnabled()
+							 && $opts->isPasswordPoliciesEnabled()
+							 && $opts->isPassPreventPwned(),
+			]
+		];
+	}
+
 	private function getHackguardSummary() :array {
 		$mod = $this->getCon()->getModule_HackGuard();
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $mod->getOptions();
 		return [
 			$mod->getSlug() => [
 				'title'   => $mod->getMainFeatureName(),
 				'enabled' => $mod->isModuleEnabled(),
+			],
+			'core_files'    => [
+				'title'   => 'Core Files',
+				'enabled' => $mod->isModuleEnabled()
+							 && $mod->getScanCon( Wcf::SCAN_SLUG )->isEnabled(),
 			]
 		];
 	}
