@@ -223,8 +223,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_antibot_check' :
-				$name = __( 'AntiBot Detection Engine', 'wp-simple-firewall' );
-				$summary = __( "Use AntiBot Detection Engine To Detect Bots", 'wp-simple-firewall' );
+				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
+				$summary = __( 'Use ADE To Detect Bots And Block Brute Force Logins', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
 						$con->getHumanName() ),
@@ -248,7 +248,7 @@ class Strings extends Base\Strings {
 
 			case 'enable_login_gasp_check' :
 				$name = __( 'Bot Protection', 'wp-simple-firewall' );
-				$summary = sprintf( '[DEPRECATED - %s] : %s',
+				$summary = sprintf( '[DEPRECATED - %s] %s',
 					'Please use the newer AntiBot setting above',
 					__( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' )
 				);
@@ -260,7 +260,7 @@ class Strings extends Base\Strings {
 
 			case 'antibot_form_ids' :
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
-				$summary = sprintf( '%s : %s',
+				$summary = sprintf( '%s %s',
 					'[DEPRECATED - Please use the newer AntiBot setting above]',
 					__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' )
 				);

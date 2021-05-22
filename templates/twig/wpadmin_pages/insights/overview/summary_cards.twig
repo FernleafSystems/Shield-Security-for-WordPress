@@ -1,16 +1,25 @@
+<div class="row">
+	<div class="col">
+		<h5 class="mb-4">Overall Shield Protection Summary</h5>
+	</div>
+</div>
 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-6">
 
 	{% for slug,card in vars.summary_cards %}
 		<div class="col mb-4">
-			<div class="card summary-card h-100">
+			<div class="card h-100 summary-card {{ card.enabled ? 'enabled':'disabled' }}">
 				<div class="card-body text-center">
 
-					<span class="icon {{ card.enabled ? 'enabled':'disabled' }}">
+					<span class="icon">
 						{{ card.icon|raw }}
 					</span>
 				</div>
 				<div class="card-footer">
-					<h6>{{ card.title }}</h6>
+					<h6>
+						<a href="{{ card.href }}">
+							{{ card.title }}
+						</a>
+					</h6>
 				</div>
 			</div>
 		</div>

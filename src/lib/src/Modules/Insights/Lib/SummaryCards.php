@@ -18,11 +18,12 @@ class SummaryCards {
 			$cards,
 			$this->getLoginSummary(),
 			$this->getFirewallSummary(),
-			$this->getHackguardSummary(),
-			$this->getSecurityAdminSummary(),
 			$this->getIPBlockingSummary(),
+			$this->getSecurityAdminSummary(),
 			$this->getCommentSpamSummary(),
+			$this->getHackguardSummary(),
 			$this->getUserSummary(),
+			$this->getAuditTrailSummary(),
 			$this->getPluginSummary()
 		);
 
@@ -53,6 +54,7 @@ class SummaryCards {
 			$mod->getSlug() => [
 				'title'   => 'Plugin',
 				'enabled' => $mod->isModuleEnabled(),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'global_enable_plugin_features' ),
 			]
 		];
 	}
@@ -66,6 +68,18 @@ class SummaryCards {
 				'title'   => 'Comment SPAM',
 				'enabled' => $mod->isModuleEnabled()
 							 && $opts->isEnabledAntiBot(),
+				'href'    => $mod->getUrl_AdminPage(),
+			]
+		];
+	}
+
+	private function getAuditTrailSummary() :array {
+		$mod = $this->getCon()->getModule_AuditTrail();
+		return [
+			$mod->getSlug() => [
+				'title'   => "Audit Trail",
+				'enabled' => $mod->isModuleEnabled(),
+				'href'    => $mod->getUrl_AdminPage(),
 			]
 		];
 	}
@@ -80,6 +94,7 @@ class SummaryCards {
 				'enabled' => $mod->isModuleEnabled()
 							 && $opts->isPasswordPoliciesEnabled()
 							 && $opts->isPassPreventPwned(),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_password_policies' ),
 			]
 		];
 	}
@@ -88,13 +103,15 @@ class SummaryCards {
 		$mod = $this->getCon()->getModule_HackGuard();
 		return [
 			$mod->getSlug() => [
-				'title'   => $mod->getMainFeatureName(),
+				'title'   => 'Scanners',
 				'enabled' => $mod->isModuleEnabled(),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
 			],
 			'core_files'    => [
-				'title'   => 'Core Files',
+				'title'   => 'Core File Scan',
 				'enabled' => $mod->isModuleEnabled()
 							 && $mod->getScanCon( Wcf::SCAN_SLUG )->isEnabled(),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			]
 		];
 	}
@@ -108,6 +125,7 @@ class SummaryCards {
 				'title'   => 'Auto IP Block',
 				'enabled' => $mod->isModuleEnabled()
 							 && ( $opts->getOffenseLimit() > 0 ),
+				'href'    => $mod->getUrl_AdminPage(),
 			]
 		];
 	}
@@ -119,6 +137,7 @@ class SummaryCards {
 				'title'   => $mod->getMainFeatureName(),
 				'enabled' => $mod->isModuleEnabled()
 							 && $mod->getSecurityAdminController()->isEnabledSecAdmin(),
+				'href'    => $mod->getUrl_AdminPage(),
 			]
 		];
 	}
@@ -130,21 +149,35 @@ class SummaryCards {
 		return [
 			$mod->getSlug() => [
 				'title'   => 'Login',
-				'enabled' => $mod->isModuleEnabled()
-							 && $opts->isEnabledAntiBot(),
+				'enabled' => $mod->isModuleEnabled() && $opts->isEnabledAntiBot(),
+				'href'    => $mod->getUrl_AdminPage(),
 			]
 		];
 	}
 
 	private function getFirewallSummary() :array {
-		return $this->getBasicModSummary( $this->getCon()->getModule_Firewall() );
+		$mod = $this->getCon()->getModule_Firewall();
+		/** @var Modules\LoginGuard\Options $opts */
+		$opts = $mod->getOptions();
+		return [
+			$mod->getSlug() => [
+				'title'   => 'Firewall',
+				'enabled' => $mod->isModuleEnabled(),
+				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_firewall' ),
+			]
+		];
 	}
 
+	/**
+	 * @param Modules\Base\ModCon $mod
+	 * @return array[]
+	 */
 	private function getBasicModSummary( $mod ) :array {
 		return [
 			$mod->getSlug() => [
 				'title'   => $mod->getMainFeatureName(),
 				'enabled' => $mod->isModuleEnabled(),
+				'href'    => $mod->getUrl_AdminPage(),
 			]
 		];
 	}
