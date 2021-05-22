@@ -36,6 +36,9 @@ class UI extends BaseShield\UI {
 				'overview_cards' => ( new OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
+				'summary_cards'  => ( new OverviewCards() )
+					->setMod( $this->getMod() )
+					->buildForShuffle(),
 			],
 			'strings' => [
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),

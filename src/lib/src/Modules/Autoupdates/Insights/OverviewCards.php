@@ -8,51 +8,42 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var Autoupdates\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Autoupdates\Options $opts */
 		$opts = $this->getOptions();
 		$WP = Services::WpGeneral();
 
-		$cardSection = [
-			'title'        => __( 'Automatic Updates', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Controlling WordPress Automatic Updates', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
-			$bHasUpdate = $WP->hasCoreUpdate();
+		if ( $mod->isModOptEnabled() ) {
+			$hasUpdate = $WP->hasCoreUpdate();
 			$cards[ 'core_update' ] = [
 				'name'    => __( 'Core Update', 'wp-simple-firewall' ),
-				'state'   => $bHasUpdate ? -1 : 1,
-				'summary' => $bHasUpdate ?
+				'state'   => $hasUpdate ? -1 : 1,
+				'summary' => $hasUpdate ?
 					__( 'WordPress Core is up-to-date', 'wp-simple-firewall' )
 					: __( "No WordPress Core upgrades waiting to be applied", 'wp-simple-firewall' ),
 				'href'    => $WP->getAdminUrl_Updates( true ),
 				'help'    => __( 'Core upgrades should be applied as early as possible.', 'wp-simple-firewall' )
 			];
 
-			$bCanCore = Services::WpGeneral()->canCoreUpdateAutomatically();
+			$canCore = Services::WpGeneral()->canCoreUpdateAutomatically();
 			$cards[ 'core_minor' ] = [
 				'name'    => __( 'Auto Core Updates', 'wp-simple-firewall' ),
-				'state'   => $bCanCore ? 1 : -1,
-				'summary' => $bCanCore ?
+				'state'   => $canCore ? 1 : -1,
+				'summary' => $canCore ?
 					__( 'Minor WP Core updates will be installed automatically', 'wp-simple-firewall' )
 					: __( 'Minor WP Core updates will not be installed automatically', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'autoupdate_core' ),
 			];
 
-			$bHasDelay = $mod->isModOptEnabled() && $opts->getDelayUpdatesPeriod();
+			$hasDelay = $mod->isModOptEnabled() && $opts->getDelayUpdatesPeriod();
 			$cards[ 'delay' ] = [
 				'name'    => __( 'Update Delay', 'wp-simple-firewall' ),
-				'state'   => $bHasDelay ? 1 : -1,
-				'summary' => $bHasDelay ?
+				'state'   => $hasDelay ? 1 : -1,
+				'summary' => $hasDelay ?
 					__( 'Automatic updates are applied after a short delay', 'wp-simple-firewall' )
 					: __( 'Automatic updates are applied immediately', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'update_delay' ),
@@ -74,7 +65,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		//really disabled?
 		if ( $mod->isModOptEnabled()
 			 && $opts->isDisableAllAutoUpdates() && !$WP->getWpAutomaticUpdater()->is_disabled() ) {
-			$notices[ 'messages' ][ 'disabled_auto' ] = [
+			$cards[ 'messages' ][ 'disabled_auto' ] = [
 				'name'    => 'Auto Updates Not Really Disabled',
 				'summary' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
@@ -85,14 +76,19 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		$cards = array_merge(
+		return array_merge(
 			$cards,
 			$this->getCardsForPlugins(),
 			$this->getCardsForThemes()
 		);
+	}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'auto_updates' => $cardSection ];
+	protected function getSectionTitle() :string {
+		return __( 'Automatic Updates', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Controlling WordPress Automatic Updates', 'wp-simple-firewall' );
 	}
 
 	private function getCardsForPlugins() :array {

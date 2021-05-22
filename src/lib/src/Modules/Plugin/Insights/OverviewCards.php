@@ -9,25 +9,15 @@ use FernleafSystems\Wordpress\Services\Utilities\Ssl;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'General Settings', 'wp-simple-firewall' ),
-			'subtitle'     => sprintf( __( 'General %s Settings', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName() ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModuleEnabled() ) {
-			$cards[] = $this->getModDisabledCard();
-		}
-		else {
+		if ( $mod->isModOptEnabled() ) {
 			$bHasSupportEmail = Services::Data()->validEmail( $opts->getOpt( 'block_send_email_address' ) );
 			$cards[ 'reports' ] = [
 				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
@@ -57,14 +47,20 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		$cards = array_merge(
+		return array_merge(
 			$cards,
 			$this->getNoticesSsl(),
 			$this->getNoticesDb()
 		);
+	}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'plugin' => $cardSection ];
+	protected function getSectionTitle() :string {
+		return __( 'General Settings', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return sprintf( __( 'General %s Settings', 'wp-simple-firewall' ),
+			$this->getCon()->getHumanName() );
 	}
 
 	private function getNoticesDb() :array {

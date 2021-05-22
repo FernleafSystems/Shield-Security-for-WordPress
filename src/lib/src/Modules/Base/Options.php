@@ -648,6 +648,10 @@ class Options {
 		return (bool)$this->getOptProperty( $key, 'premium' );
 	}
 
+	public function optExists( string $key ) :bool {
+		return !empty( $this->getRawData_SingleOption( $key ) );
+	}
+
 	public function resetOptToDefault( string $key ) :self {
 		return $this->setOpt( $key, $this->getOptDefault( $key ) );
 	}

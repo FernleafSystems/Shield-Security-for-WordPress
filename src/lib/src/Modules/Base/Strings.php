@@ -10,7 +10,7 @@ class Strings {
 	use ModConsumer;
 
 	public function getModTagLine() :string {
-		return __( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+		return (string)__( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
 	}
 
 	/**

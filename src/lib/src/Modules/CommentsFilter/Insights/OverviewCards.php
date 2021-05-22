@@ -7,24 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var CommentsFilter\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'SPAM Blocking', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Block Bot & Human Comment SPAM', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
+		if ( $mod->isModOptEnabled() ) {
 			$botSpamOn = $opts->isEnabledAntiBot() || $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
 			$cards[ 'bot' ] = [
 				'name'    => __( 'Bot SPAM', 'wp-simple-firewall' ),
@@ -44,7 +35,14 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'comments_filter' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'SPAM Blocking', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Block Bot & Human Comment SPAM', 'wp-simple-firewall' );
 	}
 }

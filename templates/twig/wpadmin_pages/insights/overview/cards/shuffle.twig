@@ -5,20 +5,11 @@
 		</p>
 	</div>
 	<div class="col-12">
-		<div class="btn-group filter-states" role="group" aria-label="Basic example">
+		<div class="btn-group filter-states" role="group">
 			{% for state_key in vars.overview_cards.states %}
 				<button type="button" class="btn btn-outline-dark state-{{ state_key }}"
 						data-category="state"
 						data-filter="{{ state_key }}">{{ attribute(vars.overview_cards.state_names, state_key) }}</button>
-			{% endfor %}
-		</div>
-	</div>
-	<div class="col-12">
-		<div class="btn-group filter-groups list-group list-group-horizontal mt-3" role="group" aria-label="Basic example">
-			{% for card_group_key,card_group_name in vars.overview_cards.mod_groups %}
-				<button type="button" class="btn btn-outline-dark"
-						data-category="mod"
-						data-filter="{{ card_group_key }}">{{ card_group_name }}</button>
 			{% endfor %}
 		</div>
 	</div>
@@ -92,6 +83,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				}
 			} );
 		}
+		/*
 		filterByArea = document.querySelector( '.filter-groups' );
 		if ( filterByArea ) {
 			Array.from( filterByArea.children ).forEach( function ( button ) {
@@ -99,7 +91,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 					button.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 				}
 			} );
-		}
+		}*/
 	} );
 
 	if ( document.querySelector( '.state-danger' ) !== null ) {
