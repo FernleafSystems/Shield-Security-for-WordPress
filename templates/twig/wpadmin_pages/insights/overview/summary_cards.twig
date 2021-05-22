@@ -1,0 +1,18 @@
+<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-6">
+
+	{% for slug,card in vars.summary_cards %}
+		<div class="col mb-4">
+			<div class="card summary-card h-100">
+				<div class="card-body text-center">
+
+					<span class="icon {{ card.enabled ? 'enabled':'disabled' }}">
+						{{ card.icon|raw }}
+					</span>
+				</div>
+				<div class="card-footer">
+					<h6>{{ card.title }}</h6>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>

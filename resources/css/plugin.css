@@ -1561,7 +1561,6 @@ body.folded #FooterBannerGoPro {
 }
 .primary_sub_menu {
 }
-
 #SearchDialog .modal-body {
 	min-height: 450px;
 }
@@ -1571,7 +1570,6 @@ body.folded #FooterBannerGoPro {
 #SearchDialog .bootstrap-select > .dropdown-toggle.bs-placeholder {
 	color: #333333;
 }
-
 #StatsNav {
 	background-color: #f1f1f1;
 	display: inline-block;
@@ -1588,4 +1586,16 @@ body.folded #FooterBannerGoPro {
 .stat_box .stat_count {
 	font-size: 3rem;
 	line-height: 3.5rem;
+}
+.summary-card {
+}
+.summary-card .icon.enabled {
+	color: #008000;
+}
+.summary-card .icon.disabled {
+	color: #c23e0c;
+}
+.summary-card .icon > svg {
+	width: 48px;
+	height: 48px;
 }

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
@@ -33,12 +32,12 @@ class UI extends BaseShield\UI {
 	private function buildInsightsVars_Overview() :array {
 		return [
 			'vars'    => [
-				'overview_cards' => ( new OverviewCards() )
+				'overview_cards' => ( new Lib\OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
-				'summary_cards'  => ( new OverviewCards() )
+				'summary_cards'  => ( new Lib\SummaryCards() )
 					->setMod( $this->getMod() )
-					->buildForShuffle(),
+					->build(),
 			],
 			'strings' => [
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
