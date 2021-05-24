@@ -38,7 +38,7 @@
       },
       {
         "type":        "new",
-        "title":       "Support For Groundhogg.",
+        "title":       "Support For Groundhogg",
         "description": [
           "Added support for protecting Groundhogg forms from bots."
         ],

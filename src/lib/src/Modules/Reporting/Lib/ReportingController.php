@@ -44,6 +44,7 @@ class ReportingController {
 				}
 			}
 			catch ( \Exception $e ) {
+				var_dump( $e->getMessage() );
 			}
 		}
 
@@ -56,6 +57,7 @@ class ReportingController {
 				}
 			}
 			catch ( \Exception $e ) {
+				var_dump( $e->getMessage() );
 			}
 		}
 
