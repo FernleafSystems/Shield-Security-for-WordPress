@@ -270,7 +270,7 @@
       "section":     "section_brute_force_login_protection",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/jn",
+      "link_info":   "https://shsec.io/k0",
       "link_blog":   "https://shsec.io/jo",
       "name":        "AntiBot",
       "summary":     "Use Experimental AntiBot Detection Engine",

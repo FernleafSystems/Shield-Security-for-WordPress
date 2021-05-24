@@ -268,7 +268,7 @@ Login Cooldown prevents more than 1 login attempt to your site every "so-many" s
 
 This system completely blocks any level of brute-force login attacks and a cooldown of just 1 second goes a long way.
 
-More Info: https://shsec.io/2t
+[More Info](https://shsec.io/2t)
 
 = How does the GASP Login Guard work? =
 

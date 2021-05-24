@@ -108,8 +108,8 @@
           "text":      "WPForms"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://shsec.io/k2",
+      "link_blog":     "https://shsec.io/k3",
       "name":          "SPAM Form Checking",
       "summary":       "Select The Form Providers That Should Be Checked For SPAM",
       "description":   "Select The Form Providers That Should Be Checked For SPAM."
@@ -167,8 +167,8 @@
           "text":      "WP Members"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://shsec.io/k4",
+      "link_blog":     "https://shsec.io/k3",
       "name":          "User Form Checking",
       "summary":       "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
       "description":   "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"

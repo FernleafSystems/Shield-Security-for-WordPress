@@ -149,8 +149,8 @@
       "type":        "integer",
       "min":         1,
       "max":         99,
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://shsec.io/jy",
+      "link_blog":   "https://shsec.io/jz",
       "name":        "AntiBot Threshold",
       "summary":     "AntiBot Testing Threshold (Percentage)",
       "description": "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
