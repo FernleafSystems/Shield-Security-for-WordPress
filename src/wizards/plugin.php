@@ -173,7 +173,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		$stepsSlugs[] = 'plugin_badge';
-		$stepsSlugs[] = 'plugin_telemetry';
+//		$stepsSlugs[] = 'plugin_telemetry';
 		$stepsSlugs[] = 'free_trial';
 		$stepsSlugs[] = 'optin';
 

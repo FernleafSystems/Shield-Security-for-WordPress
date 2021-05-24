@@ -10,9 +10,11 @@
 			<div class="card h-100 summary-card {{ card.enabled ? 'enabled':'disabled' }}">
 				<div class="card-body text-center">
 
-					<span class="icon">
-						{{ card.icon|raw }}
-					</span>
+					<a href="{{ card.href }}" target="_blank">
+						<span class="icon">
+							{{ card.icon|raw }}
+						</span>
+					</a>
 				</div>
 				<div class="card-footer">
 					<h6>
