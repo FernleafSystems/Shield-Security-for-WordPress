@@ -1561,6 +1561,10 @@ body.folded #FooterBannerGoPro {
 }
 .primary_sub_menu {
 }
+.primary_sub_menu a.active {
+	border-left: 3px solid rgba(0, 128, 0, 0.4);
+	padding-left: 6px !important;
+}
 #SearchDialog .modal-body {
 	min-height: 450px;
 }

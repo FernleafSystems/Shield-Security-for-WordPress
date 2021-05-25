@@ -16,6 +16,7 @@ class BuildScores {
 		foreach ( $this->getAllFields( true ) as $field ) {
 			$scores[ $field ] = $this->{'score_'.$field}();
 		}
+		$scores[ 'baseline' ] = 60;
 		$scores[ 'known' ] = $this->score_known();
 		return $scores;
 	}
