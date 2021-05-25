@@ -3,11 +3,11 @@
 <ul class="nav flex-column mt-4">
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item mb-4"
+		<li class="nav-item mb-3"
 			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
 
-			<a class="nav-link p-0 {{ mitem.classes|default([])|join( ' ' ) }}"
+			<a class="nav-link p-0 {{ mitem.classes|default([])|join( ' ' ) }} mb-1"
 			   href="{{ mitem.href|default('#') }}"
 					{% for data_key,data_val in mitem.data|default([]) %}
 						data-{{ data_key }}="{{ data_val }}"
@@ -40,8 +40,8 @@
 				<div class="collapse {% if mitem.active %}show{% endif %}" id="collapse-{{ mitem.slug }}">
 					<ul class="nav flex-column pt-0 primary_sub_menu pl-4">
 					{% for sub in mitem.sub_items %}
-						<li class="nav-item mb-0">
-							<a class="pl-0 py-1 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
+						<li class="nav-item mb-0 pl-0 py-1">
+							<a class="p-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
 							   href="{{ sub.href|default('#') }}"
 									{% for data_key,data_val in sub.data|default([]) %}
 										data-{{ data_key }}="{{ data_val }}"

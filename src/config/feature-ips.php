@@ -18,7 +18,7 @@
   },
   "menu_items":       [
     {
-      "title":    "IP Lists",
+      "title":    "IP Manager",
       "slug":     "ips-redirect"
     }
   ],

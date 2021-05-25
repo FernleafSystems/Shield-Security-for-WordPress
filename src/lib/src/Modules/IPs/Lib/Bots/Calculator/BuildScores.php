@@ -16,8 +16,10 @@ class BuildScores {
 		foreach ( $this->getAllFields( true ) as $field ) {
 			$scores[ $field ] = $this->{'score_'.$field}();
 		}
-		$scores[ 'baseline' ] = 60;
 		$scores[ 'known' ] = $this->score_known();
+		if ( Services::Request()->ts() - $this->getRecord()->created_at < 30 ) {
+			$scores[ 'baseline' ] = 60;
+		}
 		return $scores;
 	}
 
