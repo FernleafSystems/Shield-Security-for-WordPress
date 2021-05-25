@@ -67,6 +67,11 @@ abstract class ModCon {
 	private $oWpCli;
 
 	/**
+	 * @var Shield\Modules\Base\AdminPage
+	 */
+	private $adminPage;
+
+	/**
 	 * @var Shield\Databases\Base\Handler[]
 	 */
 	private $aDbHandlers;
@@ -106,10 +111,10 @@ abstract class ModCon {
 			$this->onModulesLoaded();
 		}, $nRunPriority );
 		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
-		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 
-		$nMenuPri = $modProps[ 'menu_priority' ] ?? 100;
-		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		add_action( 'init', [ $this, 'onWpInit' ], 1 );
+		add_action( 'init', [ $this, 'onWpLoaded' ], 1 );
+
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
@@ -284,6 +289,12 @@ abstract class ModCon {
 
 	protected function doExecuteProcessor() {
 		$this->getProcessor()->execute();
+	}
+
+	public function onWpLoaded() {
+		if ( is_admin() || is_network_admin() ) {
+			$this->getAdminPage()->execute();
+		}
 	}
 
 	public function onWpInit() {
@@ -557,6 +568,7 @@ abstract class ModCon {
 	/**
 	 * @param array $items
 	 * @return array
+	 * @deprecated 11.2
 	 */
 	public function supplySubMenuItem( $items ) {
 
@@ -564,7 +576,7 @@ abstract class ModCon {
 		$title = empty( $title ) ? $this->getMainFeatureName() : __( $title, 'wp-simple-firewall' );
 
 		if ( !empty( $title ) ) {
-			$highlightedTemplate = '<span class="icwp_highlighted">%s</span>';
+			$highlightedTemplate = '<span class="shield_highlighted_menu">%s</span>';
 			$humanName = $this->getCon()->getHumanName();
 
 			if ( $this->getOptions()->getFeatureProperty( 'highlight_menu_item' ) ) {
@@ -1144,7 +1156,7 @@ abstract class ModCon {
 		return add_query_arg(
 			[
 				'page'          => $this->getCon()->getModule_Insights()->getModSlug(),
-				'inav'			=> 'wizard',
+				'inav'          => 'wizard',
 				'shield_action' => 'wizard',
 				'wizard'        => $wizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$wizardSlug )
@@ -1370,6 +1382,16 @@ abstract class ModCon {
 	 */
 	public function getRestHandler() {
 		return $this->loadModElement( 'RestHandler' );
+	}
+
+	/**
+	 * @return AdminPage
+	 */
+	public function getAdminPage() {
+		if ( !isset( $this->adminPage ) ) {
+			$this->adminPage = $this->loadModElement( 'AdminPage' );
+		}
+		return $this->adminPage;
 	}
 
 	/**

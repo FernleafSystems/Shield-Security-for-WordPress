@@ -537,12 +537,15 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
-		( new Admin\MainAdminMenu() )
-			->setCon( $this )
-			->execute();
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
+
+		if ( is_admin() || is_network_admin() ) {
+			( new Admin\MainAdminMenu() )
+				->setCon( $this )
+				->execute();
+		}
 	}
 
 	protected function initCrons() {

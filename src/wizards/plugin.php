@@ -155,23 +155,11 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		if ( !$con->getModule_IPs()->isModuleEnabled() ) {
-			$stepsSlugs[] = 'ips';
+//			$stepsSlugs[] = 'ips';
 		}
 
-		$mod = $con->getModule_LoginGuard();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $opts */
-		$opts = $mod->getOptions();
-		if ( !( $mod->isModuleEnabled() && $opts->isEnabledGaspCheck() ) ) {
-			$stepsSlugs[] = 'login_protect';
-		}
-
-		$modComm = $con->getModule_Comments();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
-		$optsComm = $modComm->getOptions();
-		if ( !( $modComm->isModuleEnabled() && $optsComm->isEnabledGaspCheck() ) ) {
-			$stepsSlugs[] = 'comments_filter';
-		}
-
+		$stepsSlugs[] = 'login_protect';
+		$stepsSlugs[] = 'comments_filter';
 		$stepsSlugs[] = 'plugin_badge';
 //		$stepsSlugs[] = 'plugin_telemetry';
 		$stepsSlugs[] = 'free_trial';

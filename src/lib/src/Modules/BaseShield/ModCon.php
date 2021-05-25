@@ -105,11 +105,12 @@ class ModCon extends Base\ModCon {
 		}
 	}
 
-	protected function renderRestrictedPage() :string {
+	public function renderRestrictedPage() :string {
 		/** @var Shield\Modules\SecurityAdmin\Options $secOpts */
 		$secOpts = $this->getCon()
 						->getModule_SecAdmin()
 						->getOptions();
+
 		return $this->renderTemplate(
 			'/wpadmin_pages/security_admin/index.twig',
 			Services::DataManipulation()
