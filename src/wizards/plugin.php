@@ -286,7 +286,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'free_trial' => $con->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
 						],
 						'strings' => [
-							'slide_title' => 'Try ShieldPRO Free',
+							'slide_title' => 'Try ShieldPRO For Free',
 						],
 					];
 					break;
@@ -521,23 +521,23 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardImportOptions() {
-		$oReq = Services::Request();
+		$req = Services::Request();
 
-		$sMasterSiteUrl = $oReq->post( 'MasterSiteUrl' );
-		$sSecretKey = $oReq->post( 'MasterSiteSecretKey' );
-		$bEnabledNetwork = $oReq->post( 'ShieldNetworkCheck' ) === 'Y';
+		$sMasterSiteUrl = $req->post( 'MasterSiteUrl' );
+		$sSecretKey = $req->post( 'MasterSiteSecretKey' );
+		$bEnabledNetwork = $req->post( 'ShieldNetworkCheck' ) === 'Y';
 
 		try {
-			$nCode = ( new Plugin\Lib\ImportExport\Import() )
+			$code = ( new Plugin\Lib\ImportExport\Import() )
 				->setMod( $this->getMod() )
 				->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork );
 		}
 		catch ( Exception $e ) {
 			$sSiteResponse = $e->getMessage();
-			$nCode = $e->getCode();
+			$code = $e->getCode();
 		}
 
-		$aErrors = [
+		$errors = [
 			__( 'Options imported successfully to your site.', 'wp-simple-firewall' ), // success
 			__( 'Secret key was empty.', 'wp-simple-firewall' ),
 			__( 'Secret key was not 40 characters long.', 'wp-simple-firewall' ),
@@ -550,10 +550,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			__( 'Data returned from the site was empty.', 'wp-simple-firewall' )
 		];
 
-		$sMessage = isset( $aErrors[ $nCode ] ) ? $aErrors[ $nCode ] : 'Unknown Error';
+		$sMessage = isset( $errors[ $code ] ) ? $errors[ $code ] : 'Unknown Error';
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $nCode === 0 )
+			->setSuccessful( $code === 0 )
 			->setMessageText( $sMessage );
 	}
 

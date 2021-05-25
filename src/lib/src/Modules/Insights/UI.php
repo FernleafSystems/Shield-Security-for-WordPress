@@ -340,7 +340,7 @@ class UI extends BaseShield\UI {
 				'flags' => [
 					'show_promo' => $con->isModulePage()
 									&& !$con->isPremiumActive()
-									&& ( !in_array( $nav, [ 'scans_results', 'scans_run' ] ) ),
+									&& ( !in_array( $nav, [ 'scans_results', 'scans_run', 'wizard' ] ) ),
 				],
 				'hrefs' => [
 					'go_pro' => 'https://shsec.io/shieldgoprofeature',

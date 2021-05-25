@@ -84,8 +84,10 @@ class MfaProfilesController {
 	}
 
 	private function defineShortcodes() {
-		add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-			return $this->loadUserProfileMFA( $attributes );
-		} );
+		if ( $this->getMfaCon()->getCon()->isPremiumActive() ) {
+			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
+				return $this->loadUserProfileMFA( $attributes );
+			} );
+		}
 	}
 }
