@@ -9,7 +9,7 @@
 
 			<div class="card-body">
 				{% if scan.flags.is_restricted %}
-					{% include '/wpadmin_pages/insights/scans/results/results/common_unavailable.twig' %}
+					{% include '/wpadmin_pages/insights/scans/results/results/common_restricted.twig' %}
 				{% else %}
 					{% if scan.flags.is_available %}
 						{% if not scan.flags.has_items %}

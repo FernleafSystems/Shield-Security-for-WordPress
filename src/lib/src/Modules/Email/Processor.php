@@ -40,8 +40,7 @@ class Processor extends BaseShield\Processor {
 			shuffle( $benefits );
 		}
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options $secAdminOpts */
-		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
+		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		$footer = [
 			$this->getMod()
 				 ->renderTemplate( '/email/footer.twig', [
@@ -63,7 +62,7 @@ class Processor extends BaseShield\Processor {
 					 ],
 					 'flags'   => [
 						 'is_pro'           => $con->isPremiumActive(),
-						 'is_whitelabelled' => $secAdminOpts->isEnabledWhitelabel()
+						 'is_whitelabelled' => $isWhitelabelled
 					 ]
 				 ] ),
 		];

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\AntiBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,24 +27,6 @@ class AutoUnblock {
 			}
 			catch ( \Exception $e ) {
 			}
-		}
-		return $unblocked;
-	}
-
-	/**
-	 * @deprecated 10.3 - temporary to ensure that service bots aren't blocked and reduce spurious Audit Trail
-	 */
-	private function checkForBlockedServiceBot() :bool {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-
-		$unblocked = false;
-		if ( $mod->isVerifiedBot() ) {
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setMod( $mod )
-				->setIP( Services::IP()->getRequestIp() )
-				->fromBlacklist();
-			$unblocked = true;
 		}
 		return $unblocked;
 	}
@@ -82,11 +63,6 @@ class AutoUnblock {
 				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
-			// Perform the test
-			( new AntiBot() )
-				->setMod( $this->getMod() )
-				->scan();
-
 			{
 				$existing = $opts->getAutoUnblockIps();
 				$existing[ $ip ] = Services::Request()->ts();
@@ -103,6 +79,10 @@ class AutoUnblock {
 				->setMod( $mod )
 				->setIP( $ip )
 				->fromBlacklist();
+			( new IPs\Lib\Bots\BotSignalsRecord() )
+				->setMod( $this->getMod() )
+				->setIP( $ip )
+				->delete();
 			$unblocked = true;
 		}
 
@@ -155,10 +135,10 @@ class AutoUnblock {
 					$existing = $opts->getAutoUnblockEmailIDs();
 					$existing[ $user->ID ] = Services::Request()->ts();
 					$opts->setOpt( 'autounblock_emailids',
-						array_filter( $existing, function ( $nTS ) {
+						array_filter( $existing, function ( $ts ) {
 							return Services::Request()
 										   ->carbon()
-										   ->subHours( 1 )->timestamp < $nTS;
+										   ->subHours( 1 )->timestamp < $ts;
 						} )
 					);
 				}
@@ -169,6 +149,10 @@ class AutoUnblock {
 					->setMod( $mod )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
+				( new IPs\Lib\Bots\BotSignalsRecord() )
+					->setMod( $this->getMod() )
+					->setIP( Services::IP()->getRequestIp() )
+					->delete();
 				$unblocked = true;
 			}
 			else {

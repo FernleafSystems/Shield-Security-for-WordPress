@@ -2,15 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ProcessOffenses {
-
-	use ModConsumer;
-	use ExecOnce;
+class ProcessOffenses extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return !$this->getMod()->isTrustedVerifiedBot();

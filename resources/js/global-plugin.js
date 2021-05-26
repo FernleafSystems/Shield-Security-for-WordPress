@@ -131,7 +131,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 					},
 					open: function () {
 						// close dialog by clicking the overlay behind it
-						jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
+						jQuery( '.ui-widget-overlay' ).on( 'click', function () {
 							jQuery( this ).dialog( 'close' );
 						} )
 					},
@@ -219,50 +219,6 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 		};
 	}();
 	iCWP_WPSF_HackGuard_Reinstall.initialise();
-}
-
-if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
-	var iCWP_WPSF_LoginGuard_BackupCodes = new function () {
-		this.initialise = function () {
-			jQuery( document ).ready( function () {
-				jQuery( document ).on( "click", "a#IcwpWpsfGenBackupLoginCode", genBackupCode );
-				jQuery( document ).on( "click", "a#IcwpWpsfDelBackupLoginCode", deleteBackupCode );
-			} );
-		};
-
-		var genBackupCode = function ( event ) {
-			event.preventDefault();
-			iCWP_WPSF_BodyOverlay.show();
-
-			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_gen_backup_codes,
-				function ( oResponse ) {
-					alert( 'Your login backup code: ' + oResponse.data.code );
-				}
-			).always( function () {
-					location.reload( true );
-				}
-			);
-
-			return false;
-		};
-
-		var deleteBackupCode = function ( event ) {
-			event.preventDefault();
-			iCWP_WPSF_BodyOverlay.show();
-
-			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_del_backup_codes,
-				function ( oResponse ) {
-				}
-			).always( function () {
-					location.reload( true );
-					// iCWP_WPSF_BodyOverlay.hide();
-				}
-			);
-
-			return false;
-		};
-	}();
-	iCWP_WPSF_LoginGuard_BackupCodes.initialise();
 }
 
 var iCWP_WPSF_Growl = new function () {

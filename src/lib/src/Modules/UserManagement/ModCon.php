@@ -11,28 +11,28 @@ class ModCon extends BaseShield\ModCon {
 	 * Should have no default email. If no email is set, no notification is sent.
 	 * @return string[]
 	 */
-	public function getAdminLoginNotificationEmails() {
-		$aEmails = [];
+	public function getAdminLoginNotificationEmails() :array {
+		$emails = [];
 
-		$sEmails = $this->getOptions()->getOpt( 'enable_admin_login_email_notification', '' );
-		if ( !empty( $sEmails ) ) {
-			$aEmails = array_values( array_unique( array_filter(
+		$rawEmails = $this->getOptions()->getOpt( 'enable_admin_login_email_notification', '' );
+		if ( !empty( $rawEmails ) ) {
+			$emails = array_values( array_unique( array_filter(
 				array_map(
 					function ( $sEmail ) {
 						return trim( strtolower( $sEmail ) );
 					},
-					explode( ',', $sEmails )
+					explode( ',', $rawEmails )
 				),
-				function ( $sEmail ) {
-					return Services::Data()->validEmail( $sEmail );
+				function ( $email ) {
+					return Services::Data()->validEmail( $email );
 				}
 			) ) );
-			if ( !$this->isPremium() && !empty( $aEmails ) ) {
-				$aEmails = array_slice( $aEmails, 0, 1 );
+			if ( count( $emails ) > 1 && !$this->isPremium() ) {
+				$emails = array_slice( $emails, 0, 1 );
 			}
 		}
 
-		return $aEmails;
+		return $emails;
 	}
 
 	protected function preProcessOptions() {
@@ -54,11 +54,11 @@ class ModCon extends BaseShield\ModCon {
 			) ) )
 		);
 
-		$aChecks = $opts->getEmailValidationChecks();
-		if ( !empty( $aChecks ) ) {
-			$aChecks[] = 'syntax';
+		$checks = $opts->getEmailValidationChecks();
+		if ( !empty( $checks ) ) {
+			$checks[] = 'syntax';
 		}
-		$opts->setOpt( 'email_checks', array_unique( $aChecks ) );
+		$opts->setOpt( 'email_checks', array_unique( $checks ) );
 	}
 
 	public function isSendUserEmailLoginNotification() :bool {

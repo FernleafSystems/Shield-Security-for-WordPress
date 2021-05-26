@@ -1,4 +1,63 @@
 {
+  "11.2": {
+    "version":     "11.2",
+    "released_at": 1621844125,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease112",
+      "upgrade": "https://shsec.io/shieldupgradeguide112"
+    },
+    "title":       "AntiBot Scoring Improvements",
+    "description": [
+      "Shield 11.0 brought the new AntiBot Detection Engine, designed to detect bad bots and block them.",
+      "With feedback from customers and ongoing research, we've made some major improvements and adjustments to the system."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "New And Improved Welcome Wizard",
+        "description": [
+          "All-New Welcome Wizard designed to get you up and running with Shield quickly and effortlessly."
+        ]
+      },
+      {
+        "type":        "new",
+        "title": "Add Shield's Two-Factor Authentication User Settings Anywhere",
+        "description": [
+          "With the use of a WP Shortcode, you can add user configuration pages for 2FA into any page.",
+          "This is useful if you want to offer 2FA options to your customers."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "AntiBot Detection Engine Improvements.",
+        "description": [
+          "We've adjusted some of the bot scoring and improved the ability to detect legitimate users based on earlier logins.",
+          "We've also removed the need for the small cookie that was needed to help track the NotBot status."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Groundhogg",
+        "description": [
+          "Added support for protecting Groundhogg forms from bots."
+        ],
+        "href":        "https://shsec.io/groundhogg"
+      },
+      {
+        "type":        "new",
+        "title":       "Support For LifterLMS.",
+        "description": [
+          "Added support for protecting LifterLMS login & registration forms from bots."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "The tour system would run multiple times.",
+        "description": []
+      }
+    ]
+  },
   "11.1": {
     "version":     "11.1",
     "released_at": 1616666000,
@@ -6,7 +65,6 @@
       "release": "https://shsec.io/shieldrelease111",
       "upgrade": "https://shsec.io/shieldupgradeguide111"
     },
-    "href":        "https://shsec.io/",
     "title":       "UI Cleanup and Enhancement",
     "description": [
       "With Shield being such a large plugin, it's been a challenge to get a UI that everyone is happy with.",
@@ -114,7 +172,6 @@
       "release": "https://shsec.io/shieldrelease110",
       "upgrade": "https://shsec.io/shieldupgradeguide110"
     },
-    "href":        "https://shsec.io/",
     "title":       "All-New Shield AntiBot Detection Engine",
     "description": [
       "WordPress security nearly always starts with bots - detecting bad bots and blocking them.",
@@ -224,7 +281,6 @@
       "release": "https://shsec.io/shieldrelease102",
       "upgrade": "https://shsec.io/shieldupgradeguide102"
     },
-    "href":        "https://shsec.io/",
     "title":       "Removal of simple Content Security Policy settings and bugfixes",
     "description": [
       "We've decided to remove our simple Content Security Policy options as this feature is too complex.",
@@ -353,7 +409,6 @@
       "release": "https://shsec.io/shieldrelease101",
       "upgrade": "https://shsec.io/shieldupgradeguide101"
     },
-    "href":        "https://shsec.io/",
     "title":       "Enhanced Dashboard + MainWP Integration",
     "description": [
       "We're continuing our improvements to the Shield UI with a brand new Dashboard.",
@@ -490,7 +545,6 @@
       "release": "https://shsec.io/shieldrelease100",
       "upgrade": "https://shsec.io/shieldupgradeguide100"
     },
-    "href":        "https://shsec.io/",
     "title":       "All-New PHP-7 Optimised Shield Security",
     "description": [
       "We've massively enhanced the Dashboard UI, making it much easier to secure your WordPress site by quickly identifying areas of improvement.",

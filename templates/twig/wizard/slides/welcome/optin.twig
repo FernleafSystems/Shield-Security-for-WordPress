@@ -1,59 +1,52 @@
-{% extends 'wizard/slides/common/base.twig' %}
+{% extends '/wizard/slides/welcome/base.twig' %}
 
-{% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Come Join Us!' ) }}
+{% block slide_body_video_section %}
+{% endblock %}
 
-	<p>We hope you'll see we've put a lot of effort into making Shield powerful, full-featured,
-	and still easy to use.</p>
-	<p>We're continually improving it, adding further security features, and making it easier than ever to secure your
-	   sites.</p>
-	<p>We've got 3 more options for you:</p>
+{% block slide_body_action_area %}
+	<div class="row">
+		<div class="col-8">
+			<p>Jump into our Shield Security Facebook group where you can ask questions
+			   from our active Shield community and keep up-to-date on our latest news.</p>
+		</div>
+		<div class="col-4">
+			<a href=""
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.facebook|raw }}
+				Join FB Group!
+			</a>
+		</div>
+	</div>
 
-	<h5>#1 Join Our Security Email Group</h5>
-	<p class="help-block">Become a member on the list for exclusive updates, information and news
-						  (you'll receive a double-optin email to confirm).
-		<br /><strong>We never SPAM</strong> and you can remove yourself at any time.
-	</p>
-	{% include 'snippets/optin_form_drip_vertical.twig' %}
-	<hr />
+	<div class="row mt-4">
+		<div class="col-8">
+			<p>Follow us on Twitter for news, updates, and promotions.</p>
+		</div>
+		<div class="col-4">
+			<a href=""
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.twitter|raw }}
+				Follow On Twitter!
+			</a>
+		</div>
+	</div>
 
-	<h6>Bonus: Join our new Facebook group</h6>
-	<p><a href="https://shsec.io/cu" target="_blank">
-			Click here to request access to our new Facebook group</a> where you can ask questions
-	and help others with WordPress security and in particular, the Shield Security plugin.</p>
-
-	<h5>#2 Anonymous Usage Data</h5>
-	<p>Helps us determine what features are being used, where we need to do more work and how effective Shield is being.</p>
-	<form class="form-horizontal icwp-wizard-form">
-
-		{% set radiovalues =
-			{
-				'Y': '<span>Turn On</span> - allow <em>completely anonymous</em> usage data to be collected',
-				'N': '<span>Turn Off</span> - do not contribute anonymous usage data'
-			}
-		%}
-		{{ icwp_macros.formInput_Radio( 'AnonymousOption', radiovalues, 'Anonymous Info' ) }}
-
-		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optin_usage' ) }}
-		{{ icwp_macros.formInput_Submit( 'Set Anonymous Data Usage' ) }}
-	</form>
-
-	<hr />
-
-	<h5>#3 Display The Shield Protection Badge</h5>
-	<p>You can demonstrate to your visitors and customers that you're taking security seriously
-	   by displaying a Shield Security 'badge' on the bottom corner of your website.</p>
-	<form class="form-horizontal icwp-wizard-form">
-
-		{% set radiovalues =
-			{
-				'Y': '<span>Turn On</span> - display the Shield Security plugin badge on my site',
-				'N': '<span>Turn Off</span> - do not display the badge on my site'
-			}
-		%}
-		{{ icwp_macros.formInput_Radio( 'BadgeOption', radiovalues, 'Shield Site Badge' ) }}
-
-		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optin_badge' ) }}
-		{{ icwp_macros.formInput_Submit( 'Set Plugin Badge Usage' ) }}
-	</form>
+	<div class="row mt-4">
+		<div class="col-8">
+			<p>Join our newsletter to get alerted when we have new blog posts and announcements.</p>
+		</div>
+		<div class="col-4">
+			<a href=""
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.email|raw }}
+				Join Our Newsletter!
+			</a>
+		</div>
+	</div>
 {% endblock %}

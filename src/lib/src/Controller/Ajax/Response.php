@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Response {
 
 	public function issue( array $response, $wrap = false ) {
-		$wrap = $wrap || (bool)Services::Request()->request( 'apto_wrap_response' );
+		$wrap = $wrap || Services::Request()->request( 'apto_wrap_response' );
 
 		if ( !headers_sent() ) {
 			header( 'Content-Type: application/json; charset='.get_option( 'blog_charset' ) );

@@ -17,8 +17,12 @@ class PluginBadge {
 	public function run() {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
-		$display = $opts->isOpt( 'display_plugin_badge', 'Y' )
-				   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
+		$req = Services::Request();
+
+		$display = apply_filters( 'shield/show_security_badge',
+			$opts->isOpt( 'display_plugin_badge', 'Y' ) && ( $req->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
+		);
+
 		if ( $display ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'includeJquery' ] );
 			add_action( 'login_enqueue_scripts', [ $this, 'includeJquery' ] );
@@ -63,10 +67,11 @@ class PluginBadge {
 	 */
 	public function render( $isFloating = false ) {
 		$con = $this->getCon();
-		/** @var Modules\SecurityAdmin\Options $secAdminOpts */
-		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
+		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
 
-		if ( $secAdminOpts->isEnabledWhitelabel() && $secAdminOpts->isReplacePluginBadge() ) {
+		if ( $wlCon->isEnabled() && $wlCon->isReplacePluginBadge() ) {
+			/** @var Modules\SecurityAdmin\Options $secAdminOpts */
+			$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
 			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
 			$name = $secAdminOpts->getOpt( 'wl_pluginnamemain' );
 			$logo = $secAdminOpts->getOpt( 'wl_dashboardlogourl' );

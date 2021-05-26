@@ -14,20 +14,14 @@ class Options extends BaseShield\Options {
 		return constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAutoUnblockIps() {
-		$aIps = $this->getOpt( 'autounblock_ips', [] );
-		return is_array( $aIps ) ? $aIps : [];
+	public function getAutoUnblockIps() :array {
+		$ips = $this->getOpt( 'autounblock_ips', [] );
+		return is_array( $ips ) ? $ips : [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAutoUnblockEmailIDs() {
-		$aIps = $this->getOpt( 'autounblock_emailids', [] );
-		return is_array( $aIps ) ? $aIps : [];
+	public function getAutoUnblockEmailIDs() :array {
+		$ips = $this->getOpt( 'autounblock_emailids', [] );
+		return is_array( $ips ) ? $ips : [];
 	}
 
 	public function getCanIpRequestAutoUnblock( string $ip ) :bool {
@@ -36,20 +30,13 @@ class Options extends BaseShield\Options {
 			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $ip ] );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) {
+	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) :bool {
 		$existing = $this->getAutoUnblockEmailIDs();
 		return !array_key_exists( $user->ID, $existing )
 			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $user->ID ] );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getOffenseLimit() {
+	public function getOffenseLimit() :int {
 		return (int)$this->getOpt( 'transgression_limit' );
 	}
 
@@ -58,8 +45,8 @@ class Options extends BaseShield\Options {
 	 */
 	public function getRequestWhitelistAsRegex() {
 		return array_map(
-			function ( $sRule ) {
-				return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
+			function ( $rule ) {
+				return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $rule ), '#' ) ) );
 			},
 			$this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : []
 		);

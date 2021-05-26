@@ -235,7 +235,7 @@ class Strings extends Base\Strings {
 
 			case 'display_plugin_badge' :
 				$name = __( 'Show Plugin Badge', 'wp-simple-firewall' );
-				$summary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
+				$summary = __( 'Display Plugin Security Badge To Your Visitors', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),

@@ -40,16 +40,15 @@ class Select extends Base\Select {
 	 * @return int[]
 	 */
 	public function sumAllEvents() {
-		$aSums = [];
+		$sums = [];
 
-		$oNewMe = clone $this;
-		$aAllEvents = $oNewMe->reset()->getAllEvents();
+		$allEvents = ( clone $this )->reset()->getAllEvents();
 
-		natsort( $aAllEvents );
-		foreach ( $aAllEvents as $sEvent ) {
-			$aSums[ $sEvent ] = $this->clearWheres()->sumEvent( $sEvent );
+		natsort( $allEvents );
+		foreach ( $allEvents as $event ) {
+			$sums[ $event ] = $this->clearWheres()->sumEvent( $event );
 		}
-		return $aSums;
+		return $sums;
 	}
 
 	/**

@@ -13,6 +13,9 @@ class UI extends Base\UI {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+		$isPremium = $this->getCon()->isPremiumActive();
+
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getBaseDisplayData(),
 			[
@@ -39,14 +42,19 @@ class UI extends Base\UI {
 					'sec_admin_login' => $con->getModule_SecAdmin()->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'has_session'              => $con->getModule_Sessions()
-													  ->getSessionCon()
-													  ->hasSession(),
-					'display_freshdesk_widget' => !$mod->isEnabledWhitelabel()
+					'has_session'             => $con->getModule_Sessions()
+													 ->getSessionCon()
+													 ->hasSession(),
+					'display_helpdesk_widget' => !$isWhitelabelled
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $con->getModule_SecAdmin()->isEnabledWhitelabel() ?
+					'aar_forget_key' => $isWhitelabelled ?
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
+				],
+				'vars'    => [
+					'helpscout_beacon_id' => $isPremium ?
+						'db2ff886-2329-4029-9452-44587df92c8c'
+						: 'aded6929-af83-452d-993f-a60c03b46568'
 				],
 				'classes' => [
 					'top_container' => implode( ' ', array_filter( [

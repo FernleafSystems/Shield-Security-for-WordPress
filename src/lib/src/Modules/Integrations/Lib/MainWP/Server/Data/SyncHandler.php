@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use MainWP\Dashboard\MainWP_DB;
 
-class SyncHandler {
-
-	use ModConsumer;
-	use ExecOnce;
+class SyncHandler extends ExecOnceModConsumer {
 
 	protected function run() {
 		add_action( 'mainwp_sync_others_data', function ( $othersData, $website ) {

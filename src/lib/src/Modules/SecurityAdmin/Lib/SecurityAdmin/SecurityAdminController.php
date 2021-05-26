@@ -2,17 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SecurityAdminController {
-
-	use ExecOnce;
-	use ModConsumer;
+class SecurityAdminController extends ExecOnceModConsumer {
 
 	private $validPinRequest;
 
@@ -28,27 +24,29 @@ class SecurityAdminController {
 		} );
 		add_action( 'init', function () {
 			if ( !$this->getCon()->isPluginAdmin() ) {
-				( new Restrictions\WpOptions() )
-					->setMod( $this->getMod() )
-					->execute();
-				( new Restrictions\Plugins() )
-					->setMod( $this->getMod() )
-					->execute();
-				( new Restrictions\Themes() )
-					->setMod( $this->getMod() )
-					->execute();
-				( new Restrictions\Posts() )
-					->setMod( $this->getMod() )
-					->execute();
-				( new Restrictions\Users() )
-					->setMod( $this->getMod() )
-					->execute();
+
+				foreach ( $this->getAllRestrictionZones() as $zone ) {
+					$zone->setMod( $this->getMod() )->execute();
+				}
 
 				if ( !$this->getCon()->isThisPluginModuleRequest() ) {
 					add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
 				}
 			}
 		} );
+	}
+
+	/**
+	 * @return Restrictions\Base[]
+	 */
+	private function getAllRestrictionZones() :array {
+		return [
+			new Restrictions\WpOptions(),
+			new Restrictions\Plugins(),
+			new Restrictions\Themes(),
+			new Restrictions\Posts(),
+			new Restrictions\Users(),
+		];
 	}
 
 	public function isEnabledSecAdmin() :bool {

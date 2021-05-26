@@ -3,13 +3,20 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Services\Services;
 
-class InsertNotBotJs {
+class InsertNotBotJs extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	protected function canRun() :bool {
+		return ( Services::Request()->ts() - ( new BotSignalsRecord() )
+					->setMod( $this->getMod() )
+					->setIP( Services::IP()->getRequestIp() )
+					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*45;
+	}
 
-	public function run() {
+	protected function run() {
 		$this->enqueueJS();
 		$this->nonceJs();
 	}
@@ -21,6 +28,9 @@ class InsertNotBotJs {
 		} );
 	}
 
+	/**
+	 * @since 11.2 - don't fire for GTMetrix page requests
+	 */
 	private function nonceJs() {
 		add_filter( 'shield/custom_localisations', function ( array $localz ) {
 
@@ -31,14 +41,17 @@ class InsertNotBotJs {
 			$localz[] = [
 				'shield/antibot',
 				'shield_vars_antibotjs',
-				[
+				apply_filters( 'shield/notbot_data_js', [
 					'ajax'  => [
 						'not_bot' => http_build_query( $ajaxData )
 					],
 					'hrefs' => [
 						'ajax' => $ajaxHref
 					],
-				]
+					'flags' => [
+						'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+					],
+				] )
 			];
 			return $localz;
 		} );

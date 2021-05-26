@@ -167,8 +167,8 @@ tr.icwp-plugin-vulnerability dd {
 	padding: 0 7px;
 	background-color: whitesmoke;
 }
-.wp-submenu-wrap a .icwp_highlighted {
-	color: #008000;
+.wp-submenu-wrap a .shield_highlighted_menu {
+	color: #00ff00;
 }
 #icwp-wpsf-dashboard_widget {
 }
@@ -352,3 +352,5 @@ tr.icwp-plugin-vulnerability dd {
 	margin-left: 6px;
 	/*background-color: rgb(0, 128, 0);*/
 }
+
+/* override boostrap */

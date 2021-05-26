@@ -33,12 +33,12 @@ class ValidateLoginIntentRequest {
 
 		$validated = false;
 		{ // Backup code is special case
-			if ( isset( $providers[ Provider\Backup::SLUG ] ) ) {
-				if ( $providers[ Provider\Backup::SLUG ]->validateLoginIntent( $user ) ) {
+			if ( isset( $providers[ Provider\BackupCodes::SLUG ] ) ) {
+				if ( $providers[ Provider\BackupCodes::SLUG ]->validateLoginIntent( $user ) ) {
 					$validated = true;
-					$aSuccessfulProviders[] = $providers[ Provider\Backup::SLUG ];
+					$aSuccessfulProviders[] = $providers[ Provider\BackupCodes::SLUG ];
 				}
-				unset( $providers[ Provider\Backup::SLUG ] );
+				unset( $providers[ Provider\BackupCodes::SLUG ] );
 			}
 		}
 

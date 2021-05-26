@@ -6,18 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var Shield\Modules\SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Shield\Modules\SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
-
-		$cardSection = [
-			'title'        => __( 'Security Admin', 'wp-simple-firewall' ),
-			'subtitle'     => sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName() ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
 
 		$cards = [];
 
@@ -59,7 +52,15 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'sec_admin' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'Security Admin', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ),
+			$this->getCon()->getHumanName() );
 	}
 }

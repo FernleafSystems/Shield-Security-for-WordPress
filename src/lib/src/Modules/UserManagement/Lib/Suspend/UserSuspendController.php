@@ -3,15 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UserSuspendController {
-
-	use ModConsumer;
-	use ExecOnce;
+class UserSuspendController extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		/** @var UserManagement\Options $opts */
@@ -147,7 +145,7 @@ class UserSuspendController {
 				'form_field' => 'shield_suspend_user',
 			]
 		];
-		echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
+		echo $this->getMod()->renderTemplate( '/admin/user/profile/suspend.twig', $aData, true );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {

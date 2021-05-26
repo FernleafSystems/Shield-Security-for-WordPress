@@ -1,0 +1,55 @@
+{% extends '/wizard/slides/common/base_start.twig' %}
+
+{% block slide_header %}
+{% endblock %}
+
+{% block slide_body %}
+
+	<div class="row row-cols-1 justify-content-center">
+		<div class="col-12 col-xl-10 col-lg-12 col-md-12">
+	{% block slide_body_title %}
+		{{ icwp_macros.slideTitle( strings.slide_title|default('NO TITLE') ) }}
+	{% endblock %}
+
+	{% block slide_body_video_section %}
+		<div class="row">
+			<div class="col col-6">
+				{% block slide_body_video_section_blurb %}
+				{% endblock %}
+			</div>
+			<div class="col col-6">
+				{% block slide_body_video_section_video %}
+					{{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
+				{% endblock %}
+			</div>
+		</div>
+		<hr />
+	{% endblock %}
+
+	<div class="mt-3">
+		{% block slide_body_action_area %}{% endblock %}
+	</div>
+
+	<div class="row row-cols-2 align-items-end mt-5">
+
+		<div class="col-6 text-left">
+			{% block slide_body_button_area_previous %}
+				<button class="button ButtonSlidePrevious wizard-button-go-back">
+					&larr; {{ strings.next_button|default('Go back a step') }}
+				</button>
+			{% endblock %}
+		</div>
+
+		<div class="col-6 text-right">
+			{% block slide_body_button_area_next %}
+				<button class="button ButtonNextSlide py-2 px-4">
+					{{ strings.next_button|default('Go to next step') }} &rarr;
+				</button>
+			{% endblock %}
+		</div>
+
+	</div>
+	</div>
+	</div>
+
+{% endblock %}

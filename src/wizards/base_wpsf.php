@@ -74,16 +74,16 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return \FernleafSystems\Utilities\Response|null
 	 */
-	protected function processWizardStep( $sStep ) {
-		switch ( $sStep ) {
+	protected function processWizardStep( string $step ) {
+		switch ( $step ) {
 			case 'security_admin_verify':
 				$oResponse = $this->wizardSecurityAdminVerify();
 				break;
 			default:
-				$oResponse = parent::processWizardStep( $sStep );
+				$oResponse = parent::processWizardStep( $step );
 				break;
 		}
 		return $oResponse;

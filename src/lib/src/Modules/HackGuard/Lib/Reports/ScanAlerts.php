@@ -62,9 +62,9 @@ class ScanAlerts extends BaseReporter {
 	private function markAlertsAsNotified() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Scanner\Update $oUpdater */
-		$oUpdater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		$oUpdater
+		/** @var Scanner\Update $updater */
+		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
+		$updater
 			->setUpdateWheres( [
 				'ignored_at'  => 0,
 				'notified_at' => 0,

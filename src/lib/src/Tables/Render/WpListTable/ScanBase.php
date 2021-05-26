@@ -11,14 +11,14 @@ class ScanBase extends Base {
 	 * @return string
 	 */
 	public function column_path( $item ) {
-		$sOut = sprintf( '<code><span class="font-weight-bolder text-dark" style="font-size: larger">%s</span></code><code>[%s]</code>',
+		$output = sprintf( '<code><span class="font-weight-bolder text-dark" style="font-size: larger">%s</span></code><code>[%s]</code>',
 			$item[ 'path' ],
 			sprintf( '%s: %s', __( 'Path', 'wp-simple-firewall' ), trailingslashit( dirname( $item[ 'path_relabs' ] ) ) )
 		);
 		if ( !empty( $item[ 'path_details' ] ) ) {
-			$sOut .= '<p class="mb-0">'.implode( '; ', $item[ 'path_details' ] ).'</p>';
+			$output .= '<p class="mb-0">'.implode( '; ', $item[ 'path_details' ] ).'</p>';
 		}
-		return $sOut;
+		return $output;
 	}
 
 //.implode( '; ', $aItem[ 'asset_description' ] )

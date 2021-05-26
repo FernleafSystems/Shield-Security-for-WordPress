@@ -27,7 +27,6 @@ class MainAdminMenu {
 
 	private function createAdminMenu() {
 		$con = $this->getCon();
-
 		$menu = $con->cfg->menu;
 		if ( $menu[ 'top_level' ] ) {
 
@@ -51,23 +50,8 @@ class MainAdminMenu {
 			);
 
 			if ( $menu[ 'has_submenu' ] ) {
-
-				$menuItems = apply_filters( $con->prefix( 'submenu_items' ), [] );
-				if ( !empty( $menuItems ) ) {
-					foreach ( $menuItems as $menuTitle => $menuItem ) {
-						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack, $bShowItem ) = $menuItem;
-						add_submenu_page(
-							$bShowItem ? $parentMenuID : null,
-							$menuTitle,
-							$sMenuItemText,
-							$con->getBasePermissions(),
-							$sMenuItemId,
-							$aMenuCallBack
-						);
-					}
-				}
+				do_action( $con->prefix( 'admin_submenu' ) );
 			}
-
 			if ( $menu[ 'do_submenu_fix' ] ) {
 				$this->fixSubmenu();
 			}

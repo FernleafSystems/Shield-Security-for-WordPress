@@ -83,20 +83,20 @@ class Processor extends BaseShield\Processor {
 	private function sendLoginNotifications( \WP_User $user ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$aAdminEmails = $mod->getAdminLoginNotificationEmails();
-		$bAdmin = count( $aAdminEmails ) > 0;
-		$bUser = $mod->isSendUserEmailLoginNotification();
+		$adminEmails = $mod->getAdminLoginNotificationEmails();
+		$sendAdmin = count( $adminEmails ) > 0;
+		$sendUser = $mod->isSendUserEmailLoginNotification();
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
-		if ( $bAdmin && $bUser && in_array( strtolower( $user->user_email ), $aAdminEmails ) ) {
-			$bUser = false;
+		if ( $sendAdmin && $sendUser && in_array( strtolower( $user->user_email ), $adminEmails ) ) {
+			$sendUser = false;
 		}
 
-		if ( $bAdmin ) {
+		if ( $sendAdmin ) {
 			$this->sendAdminLoginEmailNotification( $user );
 		}
-		if ( $bUser ) {
+		if ( $sendUser ) {
 			$hasLoginIntent = $this->getCon()
 								   ->getModule_LoginGuard()
 								   ->getLoginIntentController()
@@ -134,25 +134,25 @@ class Processor extends BaseShield\Processor {
 		}
 
 		add_filter( 'manage_users_custom_column',
-			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
+			function ( $content, $sColumnName, $userID ) use ( $sCustomColumnName ) {
 
 				if ( $sColumnName == $sCustomColumnName ) {
-					$sValue = __( 'Not Recorded', 'wp-simple-firewall' );
-					$oUser = Services::WpUsers()->getUserById( $nUserId );
-					if ( $oUser instanceof \WP_User ) {
-						$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
+					$value = __( 'Not Recorded', 'wp-simple-firewall' );
+					$user = Services::WpUsers()->getUserById( $userID );
+					if ( $user instanceof \WP_User ) {
+						$nLastLoginTime = $this->getCon()->getUserMeta( $user )->last_login_at;
 						if ( $nLastLoginTime > 0 ) {
-							$sValue = Services::Request()
-											  ->carbon()
-											  ->setTimestamp( $nLastLoginTime )
-											  ->diffForHumans();
+							$value = Services::Request()
+											 ->carbon()
+											 ->setTimestamp( $nLastLoginTime )
+											 ->diffForHumans();
 						}
 					}
-					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $sValue );
-					$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
+					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $value );
+					$content = empty( $content ) ? $sNewContent : $content.'<br/>'.$sNewContent;
 				}
 
-				return $sContent;
+				return $content;
 			},
 			10, 3
 		);

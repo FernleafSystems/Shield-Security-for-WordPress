@@ -2,19 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class NotBotHandler {
+class NotBotHandler extends ExecOnceModConsumer {
 
 	const LIFETIME = 600;
 	const SLUG = 'notbot';
-	use ModConsumer;
-	use ExecOnce;
 
-	private $hashTested = false;
+	private $useCookies;
+
+	public function __construct( bool $useCookies = false ) {
+		$this->useCookies = $useCookies;
+	}
 
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );
@@ -23,20 +24,34 @@ class NotBotHandler {
 	protected function run() {
 		( new InsertNotBotJs() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 		$this->registerFrontPageLoad();
+		$this->registerLoginPageLoad();
 		$this->maybeDeleteCookie();
 	}
 
 	private function registerFrontPageLoad() {
-		add_action( 'wp', function () {
+		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
 			$req = Services::Request();
-			if ( $req->isGet() && is_front_page() ) {
+			if ( $req->isGet() && ( is_front_page() || is_home() ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
 				$mod->getBotSignalsController()
 					->getEventListener()
 					->fireEventForIP( Services::IP()->getRequestIp(), 'frontpage_load' );
+			}
+		} );
+	}
+
+	private function registerLoginPageLoad() {
+		add_action( 'login_footer', function () {
+			$req = Services::Request();
+			if ( $req->isGet() ) {
+				/** @var ModCon $mod */
+				$mod = $this->getMod();
+				$mod->getBotSignalsController()
+					->getEventListener()
+					->fireEventForIP( Services::IP()->getRequestIp(), 'loginpage_load' );
 			}
 		} );
 	}
@@ -49,12 +64,14 @@ class NotBotHandler {
 	}
 
 	public function registerAsNotBot() :bool {
-		$ts = Services::Request()->ts() + self::LIFETIME;
-		Services::Response()->cookieSet(
-			$this->getMod()->prefix( self::SLUG ),
-			sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
-			self::LIFETIME
-		);
+		if ( $this->useCookies ) {
+			$ts = Services::Request()->ts() + self::LIFETIME;
+			Services::Response()->cookieSet(
+				$this->getMod()->prefix( self::SLUG ),
+				sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
+				self::LIFETIME
+			);
+		}
 		$this->getCon()->fireEvent( 'bottrack_notbot' );
 		return true;
 	}

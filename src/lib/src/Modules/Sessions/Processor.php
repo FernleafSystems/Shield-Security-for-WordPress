@@ -32,8 +32,12 @@ class Processor extends BaseShield\Processor {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$this->activateUserSession( $user );
-		$this->getCon()->fireEvent( 'login_success' );
+		if ( !empty( $this->getLoggedInCookie() ) ) {
+			$sessonCon = $this->getCon()->getModule_Sessions()->getSessionCon();
+			$sessonCon->terminateCurrentSession();
+			$sessonCon->createSession( $user, $this->getLoggedInCookie() );
+			$this->getCon()->fireEvent( 'login_success' );
+		}
 	}
 
 	public function onWpLoaded() {
@@ -49,9 +53,9 @@ class Processor extends BaseShield\Processor {
 		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
 			$session = $mod->getSessionCon()->getCurrent();
 			if ( $session instanceof Session\EntryVO ) {
-				/** @var Session\Update $oUpd */
-				$oUpd = $mod->getDbHandler_Sessions()->getQueryUpdater();
-				$oUpd->updateLastActivity( $session );
+				/** @var Session\Update $update */
+				$update = $mod->getDbHandler_Sessions()->getQueryUpdater();
+				$update->updateLastActivity( $session );
 			}
 		}
 
@@ -65,7 +69,7 @@ class Processor extends BaseShield\Processor {
 		if ( !$sessCon->hasSession() && $mod->isAutoAddSessions() ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 			if ( $user instanceof \WP_User ) {
-				$sessCon->queryCreateSession( $this->getCon()->getSessionId( true ), $user );
+				$sessCon->createSession( $user );
 			}
 		}
 	}
@@ -93,11 +97,19 @@ class Processor extends BaseShield\Processor {
 		return $msg;
 	}
 
+	/**
+	 * @param \WP_User $user
+	 * @deprecated 11.2
+	 */
 	private function activateUserSession( \WP_User $user ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		// If they have a currently active session, terminate it (i.e. we replace it)
 		$mod->getSessionCon()->terminateCurrentSession();
-		$mod->getSessionCon()->queryCreateSession( $this->getCon()->getSessionId( true ), $user );
+		$mod->getSessionCon()->createSession( $user );
+	}
+
+	protected function getHookPriority() :int {
+		return 100;
 	}
 }

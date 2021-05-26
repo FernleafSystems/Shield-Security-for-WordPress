@@ -10,7 +10,7 @@ class Strings {
 	use ModConsumer;
 
 	public function getModTagLine() :string {
-		return __( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+		return (string)__( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Strings {
 				'btn_options'       => __( 'Options' ),
 				'btn_help'          => __( 'Help' ),
 				'btn_wizards'       => $this->getMod()->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
-				'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
+				'go_to_settings'    => __( 'Configuration', 'wp-simple-firewall' ),
 				'on'                => __( 'On', 'wp-simple-firewall' ),
 				'off'               => __( 'Off', 'wp-simple-firewall' ),
 				'yes'               => __( 'Yes' ),

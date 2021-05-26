@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function getBotProtectionLocations() :array {
+		return is_array( $this->getOpt( 'bot_protection_locations' ) ) ? $this->getOpt( 'bot_protection_locations' ) : [];
+	}
+
 	public function getLoginIntentMinutes() :int {
 		return (int)max( 1, apply_filters(
 			$this->getCon()->prefix( 'login_intent_timeout' ),

@@ -2,17 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AntibotSetup {
-
-	use ModConsumer;
-	use ExecOnce;
+class AntibotSetup extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return !Services::WpUsers()->isUserLoggedIn();
@@ -30,12 +26,7 @@ class AntibotSetup {
 				->setMod( $mod );
 		}
 
-		if ( $opts->isEnabledAntiBot() ) {
-			$providers[] = ( new AntiBot\ProtectionProviders\AntiBot() )
-				->setMod( $mod );
-		}
-		else {
-
+		if ( !$opts->isEnabledAntiBot() ) {
 			if ( $opts->isEnabledGaspCheck() ) {
 				$providers[] = ( new AntiBot\ProtectionProviders\GaspJs() )
 					->setMod( $mod );
@@ -96,7 +87,7 @@ class AntibotSetup {
 			}
 
 			foreach ( $formProviders as $form ) {
-				$form->setMod( $mod )->run();
+				$form->setMod( $mod )->execute();
 			}
 		}
 	}

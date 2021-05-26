@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 
-class CommentAdditiveCleaner {
-
-	use ModConsumer;
-	use ExecOnce;
+class CommentAdditiveCleaner extends ExecOnceModConsumer {
 
 	protected function run() {
 		add_action( 'wp_set_comment_status', function ( $commentID, $newStatus ) {

@@ -1,0 +1,20 @@
+<tr>
+	<th><label for="shield_backup_code">{{ strings.label_enter_code }}</label></th>
+	<td>
+		<button id="IcwpWpsfGenBackupLoginCode" type="button"
+				class="button button-primary">{{ strings.button_gen_code }}</button>
+		{% if flags.has_validated_profile %}
+			<button id="IcwpWpsfDelBackupLoginCode" type="button"
+					class="button">{{ strings.button_del_code }}</button>
+		{% endif %}
+		{% if flags.show_explanatory_text %}
+			<p class="description">
+				{{ strings.description_code }}
+				<br /><strong>{{ strings.description_code_ext1 }}</strong>
+				{% if flags.has_validated_profile %}
+					<br />{{ strings.description_code_ext2 }}
+				{% endif %}
+			</p>
+		{% endif %}
+	</td>
+</tr>

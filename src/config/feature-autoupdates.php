@@ -67,7 +67,7 @@
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3v",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/k6",
       "name":        "Disable All",
       "summary":     "Completely Disable WordPress Automatic Updates",
       "description": "When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!"
@@ -91,7 +91,7 @@
           "text":      "Major and Minor Versions"
         }
       ],
-      "link_info":     "https://shsec.io/3x",
+      "link_info":     "https://shsec.io/k5",
       "link_blog":     "",
       "name":          "WordPress Core Updates",
       "summary":       "Decide how the WordPress Core will automatically update, if at all",

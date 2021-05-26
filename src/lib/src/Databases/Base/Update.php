@@ -95,16 +95,13 @@ class Update extends Insert {
 		if ( !empty( $updateData ) ) {
 			$success = $this->setUpdateId( $id )
 							->setUpdateData( $updateData )
-							->query() === 1;
+							->query();
 		}
 		return $success;
 	}
 
-	/**
-	 * @return int|false
-	 */
 	public function query() {
-		return Services::WpDb()
+		return (bool)Services::WpDb()
 					   ->updateRowsFromTableWhere(
 						   $this->getDbH()->getTable(),
 						   $this->getUpdateData(),

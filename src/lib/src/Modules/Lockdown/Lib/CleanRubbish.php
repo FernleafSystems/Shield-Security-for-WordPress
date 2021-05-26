@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanRubbish {
-
-	use ModConsumer;
-	use ExecOnce;
+class CleanRubbish extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return $this->getOptions()->isOpt( 'clean_wp_rubbish', 'Y' );

@@ -7,24 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'Login Guard', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
+		if ( $mod->isModOptEnabled() ) {
+
 			$hasBotCheck = $opts->isEnabledAntiBot() || $opts->isEnabledGaspCheck() || $mod->isEnabledCaptcha();
 
 			$boLogin = $hasBotCheck && $opts->isProtectLogin();
@@ -67,7 +59,14 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'login_protect' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'Login Guard', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' );
 	}
 }

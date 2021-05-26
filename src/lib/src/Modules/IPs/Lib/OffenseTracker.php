@@ -22,10 +22,8 @@ class OffenseTracker extends EventsListener {
 	 * @param array  $def
 	 */
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
-		if ( empty( $def ) ) {
-			$def = $this->getCon()
-						->loadEventsService()
-						->getEventDef( $evt );
+		if ( empty( $def ) ) { // TODO: @deprecated 11.2 - remove this if
+			$def = $this->getCon()->loadEventsService()->getEventDef( $evt );
 		}
 
 		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {

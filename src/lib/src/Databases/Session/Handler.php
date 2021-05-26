@@ -3,18 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
 		$this->tableCleanExpired( 30 );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 11.1
-	 */
-	protected function getDefaultTableName() :string {
-		return $this->getOptions()->getDef( 'sessions_table_name' );
+		// Remove soft-deleted sessions after 3 days
+		$this->getQueryDeleter()
+			 ->addWhereNewerThan( 0, 'deleted_at' )
+			 ->addWhereOlderThan( Services::Request()->carbon()->subDays( 5 )->timestamp, 'deleted_at' )
+			 ->query();
 	}
 }

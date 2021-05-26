@@ -5,6 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
+/**
+ * Class SpamController
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Spam
+ * @deprecated 11.2
+ */
 class SpamController {
 
 	use ModConsumer;

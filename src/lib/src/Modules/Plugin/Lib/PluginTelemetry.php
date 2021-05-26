@@ -2,21 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginTelemetry {
+class PluginTelemetry extends ExecOnceModConsumer {
 
-	use ModConsumer;
-	use ExecOnce;
 	use PluginCronsConsumer;
 
-	protected function canRun() :bool  {
+	protected function canRun() :bool {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet();

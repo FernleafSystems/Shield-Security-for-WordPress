@@ -87,27 +87,6 @@ class ModCon extends Base\ModCon {
 		return $cfg;
 	}
 
-	/**
-	 * @deprecated 11.0
-	 */
-	public function getSecAdminLoginAjaxData() :array {
-		// We set a custom mod_slug so that this module handles the ajax request
-		$data = $this->getAjaxActionData( 'sec_admin_login' );
-		$data[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $data;
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 11.1
-	 */
-	protected function getSecAdminCheckAjaxData() :array {
-		// We set a custom mod_slug so that this module handles the ajax request
-		$dat = $this->getAjaxActionData( 'sec_admin_check' );
-		$dat[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
-		return $dat;
-	}
-
 	public function getPluginReportEmail() :string {
 		return $this->getCon()
 					->getModule_Plugin()
@@ -126,11 +105,12 @@ class ModCon extends Base\ModCon {
 		}
 	}
 
-	protected function renderRestrictedPage() :string {
+	public function renderRestrictedPage() :string {
 		/** @var Shield\Modules\SecurityAdmin\Options $secOpts */
 		$secOpts = $this->getCon()
 						->getModule_SecAdmin()
 						->getOptions();
+
 		return $this->renderTemplate(
 			'/wpadmin_pages/security_admin/index.twig',
 			Services::DataManipulation()
@@ -217,12 +197,6 @@ class ModCon extends Base\ModCon {
 		return self::$bIsVerifiedBot;
 	}
 
-	public function isEnabledWhitelabel() :bool {
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
-		return $opts->isEnabledWhitelabel();
-	}
-
 	public function isXmlrpcBypass() :bool {
 		return $this->getCon()
 					->getModule_Plugin()
@@ -256,5 +230,15 @@ class ModCon extends Base\ModCon {
 			$this->getCon()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 11.2
+	 */
+	public function isEnabledWhitelabel() :bool {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
+		return $opts->isEnabledWhitelabel();
 	}
 }

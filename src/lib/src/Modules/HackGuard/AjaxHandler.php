@@ -413,7 +413,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			foreach ( $selected as $slug ) {
 				try {
 					$thisScanCon = $mod->getScanCon( $slug );
-					if ( $thisScanCon->isScanningAvailable() ) {
+					if ( $thisScanCon->isReady() ) {
 
 						$toScan[] = $slug;
 

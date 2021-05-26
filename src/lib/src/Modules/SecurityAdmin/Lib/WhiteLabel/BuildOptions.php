@@ -37,7 +37,7 @@ class BuildOptions {
 	 * @param string $key
 	 * @return string
 	 */
-	private function buildWlImageUrl( string $key ) {
+	public function buildWlImageUrl( string $key ) {
 		$opts = $this->getOptions();
 
 		$url = $opts->getOpt( $key );

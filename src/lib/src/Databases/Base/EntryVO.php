@@ -45,7 +45,7 @@ class EntryVO extends DynPropertiesClass {
 				break;
 		}
 
-		if ( preg_match( '#^.*_at$#i', $key ) ) {
+		if ( $key === 'id' || preg_match( '#^.*_at$#i', $key ) ) {
 			$value = (int)$value;
 		}
 

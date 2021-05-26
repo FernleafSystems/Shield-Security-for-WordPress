@@ -19,12 +19,12 @@ class LoginIntentPage {
 	 * @return string
 	 */
 	public function renderForm() {
-		$oIC = $this->getMfaCon();
+		$mfaCon = $this->getMfaCon();
 		/** @var LoginGuard\ModCon $mod */
-		$mod = $oIC->getMod();
+		$mod = $mfaCon->getMod();
 		/** @var LoginGuard\Options $opts */
-		$opts = $oIC->getOptions();
-		$con = $oIC->getCon();
+		$opts = $mfaCon->getOptions();
+		$con = $mfaCon->getCon();
 		$req = Services::Request();
 		$WP = Services::WpGeneral();
 
@@ -83,7 +83,7 @@ class LoginIntentPage {
 					function ( $oProvider ) {
 						return $oProvider->getFormField();
 					},
-					$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
+					$mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
 				) ),
 				'time_remaining'    => $nTimeRemaining,
 				'message_type'      => 'info',
@@ -96,7 +96,7 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
-				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
+				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			]
 		];
 
@@ -137,7 +137,7 @@ class LoginIntentPage {
 				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
+				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 				'has_u2f'            => isset( $oIC->getProvidersForUser(
 						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
@@ -154,7 +154,7 @@ class LoginIntentPage {
 						'src' => $con->urls->forJs( 'u2f-bundle.js' ),
 					],
 					[
-						'src' => $con->urls->forJs( 'u2f-frontend.js' ),
+						'src' => $con->urls->forJs( 'login/u2f.js' ),
 					]
 				]
 			];

@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIp;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -299,7 +299,7 @@ class BuildDisplay {
 			$column = $scoreKey.'_at';
 			if ( $scoreValue !== 0 ) {
 				if ( empty( $record ) || empty( $record->{$column} ) ) {
-					if ( in_array( $scoreKey, [ 'known' ] ) ) {
+					if ( in_array( $scoreKey, [ 'known', 'baseline' ] ) ) {
 						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
 					}
 					else {

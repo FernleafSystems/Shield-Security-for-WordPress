@@ -94,8 +94,11 @@ class Strings extends Base\Strings {
 			case 'type_exclusions' :
 				$name = __( 'Traffic Log Exclusions', 'wp-simple-firewall' );
 				$summary = __( 'Select Which Types Of Requests To Exclude', 'wp-simple-firewall' );
-				$desc = __( "Select request types that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' )
-						.'<br/>'.__( 'If a request matches any exclusion rule, it will not show on the traffic viewer.', 'wp-simple-firewall' );
+				$desc = [
+					__( "There's no need to have unnecessary traffic noise in your logs, so we automatically exclude certain types of requests.", 'wp-simple-firewall' ),
+					__( "Select request types that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' ),
+					__( 'If a request matches any exclusion rule, it wont show in the traffic logs.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'custom_exclusions' :

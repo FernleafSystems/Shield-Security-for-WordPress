@@ -1,0 +1,29 @@
+{% extends '/wizard/slides/welcome/base.twig' %}
+
+{% block slide_body_video_section %}
+{% endblock %}
+
+{% block slide_body_action_area %}
+	<div class="row">
+		<div class="col-8">
+			<p>Upgrade your WordPress security to professional-grade protection to add extra features such as</p>
+			<ul>
+				<li>Malware scanning and repair</li>
+				<li>Plugin/Theme file protection and repair</li>
+				<li>User Security Policies such as Password and Auto-Suspend Idle Users</li>
+				<li>Contact Form SPAM protection for Ninja Forms, WPForms, Gravity Forms and more</li>
+				<li>Many, <a href="{{ hrefs.features }}" target="_blank">many more features</a></li>
+			</ul>
+			<p>Get the risk-free, no obligation free trial of ShieldPRO today.</p>
+		</div>
+		<div class="col-4">
+			<a href="{{ hrefs.free_trial }}"
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.free_trial|raw }}
+				Get The Free Trial!
+			</a>
+		</div>
+	</div>
+{% endblock %}

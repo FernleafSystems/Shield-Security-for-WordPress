@@ -7,29 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'Hack Guard', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
-			$bGoodFrequency = $opts->getScanFrequency() > 1;
+		if ( $mod->isModOptEnabled() ) {
+			$goodFrequency = $opts->getScanFrequency() > 1;
 			$cards[ 'frequency' ] = [
 				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
-				'state'   => $bGoodFrequency ? 1 : 0,
-				'summary' => $bGoodFrequency ?
+				'state'   => $goodFrequency ? 1 : 0,
+				'summary' => $goodFrequency ?
 					__( 'Automatic scanners run more than once per day', 'wp-simple-firewall' )
 					: __( "Automatic scanners only run once per day", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_options' ),
@@ -46,8 +37,15 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			);
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'hack_protect' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'Hack Guard', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' );
 	}
 
 	private function getCardsForWcf() :array {

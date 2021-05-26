@@ -20,8 +20,21 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs 
 		}
 
 		this.initialise = function () {
+			/**
+			 * @since 11.2 we no longer wait until DOM is ready.
+			 * This is mainly AJAX so it's asynchronous and wont hold up any other part of the page load.
+			 * Early execution also helps mitigate the case where login requests are
+			 * sent quickly, before browser has fired NotBot request.
+			 */
+			if ( shield_vars_antibotjs.flags.run ) {
+				sendReq();
+			}
+			/**
+			 * @since 11.2 this script is only loaded if a not bot signal doesn't exist for this IP.
+			 * This removes the need for cookies - as used by fire()
+			 */
 			domReady( function () {
-				fire();
+				// fire();
 			} );
 		};
 
@@ -58,5 +71,6 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs 
 			if ( parts.length === 2 ) return parts.pop().split( ";" ).shift();
 		};
 	}();
+
 	Shield_Antibot.initialise();
 }

@@ -124,7 +124,7 @@
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/jn",
+      "link_info":   "https://shsec.io/k1",
       "link_blog":   "https://shsec.io/jo",
       "name":        "AntiBot Detection Engine",
       "summary":     "Use Experimental AntiBot Detection Engine",

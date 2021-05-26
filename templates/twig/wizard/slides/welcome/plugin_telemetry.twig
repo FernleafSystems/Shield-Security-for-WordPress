@@ -1,0 +1,35 @@
+{% extends '/wizard/slides/welcome/base.twig' %}
+
+{% block slide_body_video_section %}
+{% endblock %}
+
+{% block slide_body_action_area %}
+	<div class="row">
+		<div class="col-6">
+			<p>You can help us improve Shield by enabling anonymous statistics collection.</p>
+			<p>When you allow anonymous statistics collection, you help us to see how the plugin
+			   is used, and where we can improve it.</p>
+			<p>As a thank you for your help, we'll send you 15% discount coupon to use
+			   for your first purchase of ShieldPRO.</p>
+		</div>
+		<div class="col-6">
+			<form class="icwp-wizard-form">
+				<div class="form-group row row-cols-1 justify-content-center">
+					<div class="col-6">
+						<button type="submit" class="button button-primary py-2 px-4" name="">
+							Yes! I Want 15% Off!
+						</button>
+					</div>
+				</div>
+				{{ icwp_macros.formInput_Hidden( 'wizard-step', vars.step ) }}
+			</form>
+			<p class="description" style="font-size: smaller">
+				A discount code will be emailed to
+				<code style="font-style: normal;color: #008000;font-size: larger;">{{ vars.email }}</code>
+				upon completion. By opting in you consent to receive marketing,
+				and updates from Shield Security. You may unsubscribe <em>at any time</em>.
+				For more information, please see our
+				<a href="{{ hrefs.privacy_policy }}" target="_blank">privacy policy</a>.</p>
+		</div>
+	</div>
+{% endblock %}

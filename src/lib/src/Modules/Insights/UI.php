@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
@@ -15,11 +14,13 @@ class UI extends BaseShield\UI {
 		$con = $this->getCon();
 		return [
 			'content' => [
-				'tab_updates'   => $this->renderTabUpdates(),
-				'tab_freetrial' => $this->renderFreeTrial(),
+				'tab_updates' => $this->renderTabUpdates(),
 			],
 			'flags'   => [
 				'is_pro' => $con->isPremiumActive(),
+			],
+			'hrefs'   => [
+				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',
 			],
 			'strings' => [
 				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
@@ -31,9 +32,12 @@ class UI extends BaseShield\UI {
 	private function buildInsightsVars_Overview() :array {
 		return [
 			'vars'    => [
-				'overview_cards' => ( new OverviewCards() )
+				'overview_cards' => ( new Lib\OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
+				'summary_cards'  => ( new Lib\SummaryCards() )
+					->setMod( $this->getMod() )
+					->build(),
 			],
 			'strings' => [
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
@@ -97,14 +101,6 @@ class UI extends BaseShield\UI {
 				$data = $this->buildInsightsVars_Docs();
 				break;
 
-			case 'free_trial':
-				$data = [
-					'content' => [
-						'free_trial' => $this->renderFreeTrial()
-					]
-				];
-				break;
-
 			case 'importexport':
 				$data = $modPlugin->getImpExpController()->buildInsightsVars();
 				break;
@@ -164,6 +160,21 @@ class UI extends BaseShield\UI {
 			case 'index':
 				$data = $this->buildInsightsVars_Overview();
 				break;
+
+			case 'wizard':
+				$wiz = $con->getModule_Plugin()->getWizardHandler();
+				if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
+					$data = [
+						'content' => [
+							'wizard' => $wiz->setCurrentWizard( $req->query( 'wizard' ) )
+											->renderWizard()
+						],
+						'flags'   => [
+							'show_sidebar_nav' => 0
+						],
+					];
+				}
+				break;
 			default:
 				throw new \Exception( 'Not available' );
 		}
@@ -186,6 +197,7 @@ class UI extends BaseShield\UI {
 			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
 			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
+			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
 		$modsToSearch = array_filter(
@@ -198,12 +210,10 @@ class UI extends BaseShield\UI {
 		$pageTitle = $availablePages[ $inav ];
 		if ( !empty( $subNavSection ) ) {
 			$pageTitle = sprintf( '%s: %s',
-				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
+				__( 'Configuration', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
 		}
 
-		/** @var Shield\Modules\SecurityAdmin\Options $secAdminOpts */
-		$secAdminOpts = $this->getCon()->getModule_SecAdmin()->getOptions();
-		if ( $secAdminOpts->isEnabledWhitelabel() ) {
+		if ( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
 								 ->setMod( $this->getCon()->getModule_SecAdmin() )
 								 ->build()[ 'url_login2fa_logourl' ];
@@ -255,6 +265,10 @@ class UI extends BaseShield\UI {
 		);
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 11.2
+	 */
 	private function renderFreeTrial() :string {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		return $this->getMod()
@@ -326,7 +340,7 @@ class UI extends BaseShield\UI {
 				'flags' => [
 					'show_promo' => $con->isModulePage()
 									&& !$con->isPremiumActive()
-									&& ( !in_array( $nav, [ 'scans_results', 'scans_run' ] ) ),
+									&& ( !in_array( $nav, [ 'scans_results', 'scans_run', 'wizard' ] ) ),
 				],
 				'hrefs' => [
 					'go_pro' => 'https://shsec.io/shieldgoprofeature',

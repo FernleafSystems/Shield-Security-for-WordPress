@@ -23,9 +23,8 @@ abstract class EventsListener {
 
 		add_action( $con->prefix( 'event' ),
 			function ( $event, $meta = [], $def = [] ) use ( $con ) {
-				// TODO @deprecated 11.1 remove ??
-				$this->captureEvent( $event, $meta, $def ?? [] );
-			}, 10, 2 );
+				$this->captureEvent( $event, $meta, $def );
+			}, 10, 3 );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), function () {
 			$this->onShutdown();

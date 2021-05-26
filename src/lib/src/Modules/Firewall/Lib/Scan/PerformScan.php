@@ -3,12 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-class PerformScan {
-
-	use ModConsumer;
-	use ExecOnce;
+class PerformScan extends ExecOnceModConsumer {
 
 	/**
 	 * @var false|\WP_Error

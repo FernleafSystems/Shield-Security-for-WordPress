@@ -249,13 +249,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	private function buildNotice_WelcomeWizard( NoticeVO $notice ) {
 		$name = $this->getCon()->getHumanName();
+		$insideWizard = Services::Request()->query( 'wizard', false ) === 'welcome';
 		$notice->render_data = [
-			'notice_attributes' => [],
+			'notice_attributes' => [
+				'insideWizard' => $insideWizard ? 1 : 0,
+			],
 			'strings'           => [
 				'dismiss' => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
 				'title'   => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $name ),
 				'setup'   => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $name ),
-				'launch'  => sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $name ),
+				'launch'  =>  sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $name ),
 			],
 			'hrefs'             => [
 				'wizard' => $this->getMod()->getUrl_Wizard( 'welcome' ),
@@ -311,10 +314,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		$con = $this->getCon();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		switch ( $notice->id ) {
+
+			case 'wizard_welcome':
+				$needed = false;
+				break;
 
 			case 'plugin-too-old':
 				$needed = $this->isNeeded_PluginTooOld();
@@ -329,7 +336,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'plugin-disabled':
-				$needed = $oOpts->isPluginGloballyDisabled();
+				$needed = $opts->isPluginGloballyDisabled();
 				break;
 
 			case 'update-available':
@@ -341,7 +348,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'allow-tracking':
-				$needed = !$oOpts->isTrackingPermissionSet();
+				$needed = !$opts->isTrackingPermissionSet();
 				break;
 
 			default:

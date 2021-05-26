@@ -54,12 +54,22 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\Options
 	 */
+	private $opts;
+
+	/**
+	 * @var Shield\Modules\Base\Options
+	 */
 	private $oOpts;
 
 	/**
 	 * @var Shield\Modules\Base\WpCli
 	 */
 	private $oWpCli;
+
+	/**
+	 * @var Shield\Modules\Base\AdminPage
+	 */
+	private $adminPage;
 
 	/**
 	 * @var Shield\Databases\Base\Handler[]
@@ -93,18 +103,18 @@ abstract class ModCon {
 		}
 	}
 
-	protected function setupHooks( array $aModProps ) {
+	protected function setupHooks( array $modProps ) {
 		$con = $this->getCon();
-		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
+		$nRunPriority = $modProps[ 'load_priority' ] ?? 100;
 
 		add_action( $con->prefix( 'modules_loaded' ), function () {
 			$this->onModulesLoaded();
 		}, $nRunPriority );
 		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
-		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 
-		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		add_action( 'init', [ $this, 'onWpInit' ], 1 );
+		add_action( 'init', [ $this, 'onWpLoaded' ], 1 );
+
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
@@ -114,6 +124,16 @@ abstract class ModCon {
 
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
+		}
+
+		if ( $this->getOptions()->getDef( 'rest_api' ) ) {
+			add_action( 'rest_api_init', function () {
+				try {
+					$this->getRestHandler()->init();
+				}
+				catch ( \Exception $e ) {
+				}
+			} );
 		}
 
 //		if ( $this->isAdminOptionsPage() ) {
@@ -269,6 +289,12 @@ abstract class ModCon {
 
 	protected function doExecuteProcessor() {
 		$this->getProcessor()->execute();
+	}
+
+	public function onWpLoaded() {
+		if ( is_admin() || is_network_admin() ) {
+			$this->getAdminPage()->execute();
+		}
 	}
 
 	public function onWpInit() {
@@ -542,6 +568,7 @@ abstract class ModCon {
 	/**
 	 * @param array $items
 	 * @return array
+	 * @deprecated 11.2
 	 */
 	public function supplySubMenuItem( $items ) {
 
@@ -549,7 +576,7 @@ abstract class ModCon {
 		$title = empty( $title ) ? $this->getMainFeatureName() : __( $title, 'wp-simple-firewall' );
 
 		if ( !empty( $title ) ) {
-			$highlightedTemplate = '<span class="icwp_highlighted">%s</span>';
+			$highlightedTemplate = '<span class="shield_highlighted_menu">%s</span>';
 			$humanName = $this->getCon()->getHumanName();
 
 			if ( $this->getOptions()->getFeatureProperty( 'highlight_menu_item' ) ) {
@@ -796,11 +823,11 @@ abstract class ModCon {
 	 */
 	public function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
-			$sClassName = $this->getWizardClassName();
-			if ( !class_exists( $sClassName ) ) {
+			$class = $this->getWizardClassName();
+			if ( !class_exists( $class ) ) {
 				return null;
 			}
-			$this->oWizard = new $sClassName();
+			$this->oWizard = new $class();
 			$this->oWizard->setMod( $this );
 		}
 		return $this->oWizard;
@@ -944,14 +971,6 @@ abstract class ModCon {
 	}
 
 	protected function isThisModAdminPage() :bool {
-		return is_admin() && !Services::WpGeneral()->isAjax()
-			   && Services::Request()->isGet() && $this->isThisModulePage();
-	}
-
-	/**
-	 * @deprecated 11.1
-	 */
-	protected function isAdminOptionsPage() :bool {
 		return is_admin() && !Services::WpGeneral()->isAjax()
 			   && Services::Request()->isGet() && $this->isThisModulePage();
 	}
@@ -1136,7 +1155,8 @@ abstract class ModCon {
 
 		return add_query_arg(
 			[
-				'page'          => $this->getModSlug(),
+				'page'          => $this->getCon()->getModule_Insights()->getModSlug(),
+				'inav'          => 'wizard',
 				'shield_action' => 'wizard',
 				'wizard'        => $wizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$wizardSlug )
@@ -1343,15 +1363,35 @@ abstract class ModCon {
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
-		if ( !isset( $this->oOpts ) ) {
+		$opts = $this->opts ?? $this->oOpts;
+		if ( !$opts instanceof Options ) {
 			$con = $this->getCon();
-			$this->oOpts = $this->loadModElement( 'Options' );
-			$this->oOpts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
-						->setRebuildFromFile( $con->cfg->rebuilt )
-						->setOptionsStorageKey( $this->getOptionsStorageKey() )
-						->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
+			$this->opts = $this->loadModElement( 'Options' );
+			$this->opts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
+					   ->setRebuildFromFile( $con->cfg->rebuilt )
+					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
+					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
+			$opts = $this->opts;
+			/** @deprecated 11.2 */
 		}
-		return $this->oOpts;
+		return $opts;
+	}
+
+	/**
+	 * @return RestHandler|mixed
+	 */
+	public function getRestHandler() {
+		return $this->loadModElement( 'RestHandler' );
+	}
+
+	/**
+	 * @return AdminPage
+	 */
+	public function getAdminPage() {
+		if ( !isset( $this->adminPage ) ) {
+			$this->adminPage = $this->loadModElement( 'AdminPage' );
+		}
+		return $this->adminPage;
 	}
 
 	/**
@@ -1415,7 +1455,7 @@ abstract class ModCon {
 		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
 			 && $this->getCon()->isPluginAdmin() ) {
 			/** @var Shield\Modules\Base\Debug $debug */
-			$debug = $this->loadModElement( 'Debug', true );
+			$debug = $this->loadModElement( 'Debug' );
 			$debug->run();
 		}
 	}
@@ -1424,21 +1464,20 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
-		return $this->loadModElement( 'Strings', true );
+		return $this->loadModElement( 'Strings' );
 	}
 
 	/**
 	 * @param string $class
-	 * @param false  $injectMod
 	 * @return false|Shield\Modules\ModConsumer
 	 */
-	private function loadModElement( string $class, $injectMod = true ) {
+	private function loadModElement( string $class ) {
 		$element = false;
 		try {
 			$C = $this->findElementClass( $class, true );
 			/** @var Shield\Modules\ModConsumer $element */
 			$element = @class_exists( $C ) ? new $C() : false;
-			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
+			if ( method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
 			}
 		}

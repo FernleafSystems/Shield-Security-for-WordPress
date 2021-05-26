@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\ConfigVO                                        $cfg
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
+ * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
  * @property bool                                                   $modules_loaded
@@ -160,6 +161,12 @@ class Controller extends DynPropertiesClass {
 			case 'urls':
 				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
 					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+				}
+				break;
+
+			case 'svgs':
+				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
+					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
 				}
 				break;
 
@@ -530,12 +537,15 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
-		( new Admin\MainAdminMenu() )
-			->setCon( $this )
-			->execute();
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
+
+		if ( is_admin() || is_network_admin() ) {
+			( new Admin\MainAdminMenu() )
+				->setCon( $this )
+				->execute();
+		}
 	}
 
 	protected function initCrons() {
@@ -1372,6 +1382,10 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'events' );
 	}
 
+	public function getModule_Firewall() :Shield\Modules\Firewall\ModCon {
+		return $this->getModule( 'firewall' );
+	}
+
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
 		return $this->getModule( 'hack_protect' );
 	}
@@ -1591,7 +1605,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function buildPrivacyPolicyContent() {
 		try {
-			if ( $this->getModule_SecAdmin()->isEnabledWhitelabel() ) {
+			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 				$name = $this->getHumanName();
 				$href = $this->getLabels()[ 'PluginURI' ];
 			}

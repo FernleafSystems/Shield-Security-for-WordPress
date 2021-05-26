@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.7
-Stable tag: 11.1.1
+Stable tag: 11.2.0
 Security against hackers and brute force bots with firewall, login security hiding and hardening, Antispam, Audit Trail, Live Traffic, and much more...
 
 == Description ==
@@ -268,7 +268,7 @@ Login Cooldown prevents more than 1 login attempt to your site every "so-many" s
 
 This system completely blocks any level of brute-force login attacks and a cooldown of just 1 second goes a long way.
 
-More Info: https://shsec.io/2t
+[More Info](https://shsec.io/2t)
 
 = How does the GASP Login Guard work? =
 

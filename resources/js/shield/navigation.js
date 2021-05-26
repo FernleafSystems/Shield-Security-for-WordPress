@@ -43,7 +43,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 
 		jQuery( document ).ready( function () {
 
-			jQuery( document ).on( 'click', 'li.dynamic_body_load > a', function ( evt ) {
+			jQuery( document ).on( 'click', 'a.dynamic_body_load', function ( evt ) {
 				evt.preventDefault();
 				currentMenuClickTarget = evt.currentTarget;
 				renderDynamicPageLoad( jQuery( currentMenuClickTarget ).data() );

@@ -1,0 +1,24 @@
+<div id="ShieldUserProfileMFA">
+
+	<h3>{{ strings.title }}</h3>
+
+	<table>
+		{% if flags.logged_in %}
+
+			{% if flags.has_providers %}
+
+				{% for provider_slug,provider_content in content.providers %}
+					{{ provider_content|raw }}
+				{% endfor %}
+
+			{% else %}
+				<p>{{ strings.no_providers }}</p>
+			{% endif %}
+
+		{% else %}
+			<p>{{ strings.not_logged_in }}</p>
+		{% endif %}
+	</table>
+
+</div>
+{% include '/user/profile/mfa/response_dialog.twig' %}

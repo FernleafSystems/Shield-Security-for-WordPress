@@ -11,12 +11,7 @@ class ModCon extends BaseShield\ModCon {
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
 	/**
-	 * @var bool
-	 */
-	private $bValidSecAdminRequest;
-
-	/**
-	 * @var Lib\WhiteLabel\ApplyLabels
+	 * @var Lib\WhiteLabel\WhitelabelController
 	 */
 	private $whitelabelCon;
 
@@ -29,9 +24,9 @@ class ModCon extends BaseShield\ModCon {
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
 
-	public function getWhiteLabelController() :Lib\WhiteLabel\ApplyLabels {
-		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\ApplyLabels ) {
-			$this->whitelabelCon = ( new Lib\WhiteLabel\ApplyLabels() )
+	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
+		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
+			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )
 				->setMod( $this );
 		}
 		return $this->whitelabelCon;
@@ -54,13 +49,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 
 		// Verify whitelabel images
-		if ( $opts->isEnabledWhitelabel() ) {
-			foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
-				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $key ) ) ) {
-					$opts->resetOptToDefault( $key );
-				}
-			}
-		}
+		$this->getWhiteLabelController()->verifyUrls();
 
 		$opts->setOpt( 'sec_admin_users',
 			( new Lib\SecurityAdmin\VerifySecurityAdminList() )
@@ -92,36 +81,13 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 11.1
-	 */
-	public function getWhitelabelOptions() :array {
-		$opts = $this->getOptions();
-		$main = $opts->getOpt( 'wl_pluginnamemain' );
-		$menu = $opts->getOpt( 'wl_namemenu' );
-		if ( empty( $menu ) ) {
-			$menu = $main;
-		}
-
-		return [
-			'name_main'            => $main,
-			'name_menu'            => $menu,
-			'name_company'         => $opts->getOpt( 'wl_companyname' ),
-			'description'          => $opts->getOpt( 'wl_description' ),
-			'url_home'             => $opts->getOpt( 'wl_homeurl' ),
-			'url_icon'             => $this->buildWlImageUrl( 'wl_menuiconurl' ),
-			'url_dashboardlogourl' => $this->buildWlImageUrl( 'wl_dashboardlogourl' ),
-			'url_login2fa_logourl' => $this->buildWlImageUrl( 'wl_login2fa_logourl' ),
-		];
-	}
-
-	/**
 	 * We cater for 3 options:
 	 * Full URL
 	 * Relative path URL: i.e. starts with /
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
 	 * @param string $key
 	 * @return string
+	 * @deprecated 11.2
 	 */
 	private function buildWlImageUrl( $key ) {
 		$opts = $this->getOptions();
@@ -140,19 +106,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		return $url;
-	}
-
-	/**
-	 * @deprecated 11.0
-	 */
-	public function isWlEnabled() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledWhitelabel() && $this->isPremium();
-	}
-
-	public function isWlHideUpdates() :bool {
-		return $this->isEnabledWhitelabel() && $this->getOptions()->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
 	/**
@@ -230,117 +183,5 @@ class ModCon extends BaseShield\ModCon {
 				)
 			);
 		}
-	}
-
-	/**
-	 * No checking of admin capabilities in-case of infinite loop with
-	 * admin access caps check
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	public function isRegisteredSecAdminUser() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$sUser = Services::WpUsers()->getCurrentWpUsername();
-		return !empty( $sUser ) && in_array( $sUser, $opts->getSecurityAdminUsers() );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	public function isEnabledSecurityAdmin() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $this->isModOptEnabled() &&
-			   ( count( $opts->getSecurityAdminUsers() ) > 0 ||
-				 ( $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0 )
-			   );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	public function isSecAdminSessionValid() :bool {
-		return $this->getSecAdminTimeLeft() > 0;
-	}
-
-	/**
-	 * Only returns greater than 0 if you have a valid Sec admin session
-	 * @deprecated 11.1
-	 */
-	public function getSecAdminTimeLeft() :int {
-		$nLeft = 0;
-		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
-
-			$nSecAdminAt = $this->getSession()->getSecAdminAt();
-			if ( $this->isRegisteredSecAdminUser() ) {
-				$nLeft = 0;
-			}
-			elseif ( $nSecAdminAt > 0 ) {
-				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
-			}
-		}
-		return (int)max( 0, $nLeft );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 11.1
-	 */
-	public function getSecAdminTimeout() :int {
-		return (int)$this->getOptions()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
-	}
-
-	/**
-	 * Ensures that all entries are valid users.
-	 * @param string[] $aSecUsers
-	 * @return string[]
-	 * @deprecated 11.1
-	 */
-	private function verifySecAdminUsers( $aSecUsers ) {
-		return $aSecUsers;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	private function isAccessKeyRequest() :bool {
-		return strlen( Services::Request()->post( 'sec_admin_key', '' ) ) > 0;
-	}
-
-	public function verifyAccessKey( string $key ) :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return !empty( $key ) && hash_equals( $opts->getSecurityPIN(), md5( $key ) );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	public function testSecAccessKeyRequest() :bool {
-		return ( new Lib\SecurityAdmin\Ops\VerifyPinRequest() )
-			->setMod( $this )
-			->run();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	public function isValidSecAdminRequest() :bool {
-		return false;
-	}
-
-	/**
-	 * @param bool $bSetOn
-	 * @return bool
-	 * @deprecated 11.1
-	 */
-	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
-		return false;
 	}
 }
