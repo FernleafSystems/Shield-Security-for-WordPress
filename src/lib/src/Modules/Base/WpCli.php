@@ -23,7 +23,7 @@ class WpCli extends ExecOnceModConsumer {
 	protected function getAllCmdHandlers() :array {
 		return array_map(
 			function ( $handler ) {
-				$handler->setMod( $this->getMod() );
+				return $handler->setMod( $this->getMod() );
 			},
 			array_merge(
 				[ new ModuleStandard() ],
