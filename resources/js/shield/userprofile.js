@@ -142,7 +142,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 	var showDialog = function ( success, msg ) {
 		jQuery( '.dialog-content', $dialog ).html( msg );
-		Shield_Dialogs.show($dialog, {
+		Shield_Dialogs.show( $dialog, {
 			title: success ? 'Success' : 'Failure',
 			buttons: [
 				{
@@ -155,7 +155,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			close: function ( event, ui ) {
 				location.reload();
 			}
-		});
+		} );
 	};
 
 	var initialise = function () {
