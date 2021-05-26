@@ -74,7 +74,7 @@ abstract class BaseQuery {
 				$value = sprintf( '%%%s%%', $value );
 			}
 			if ( !is_int( $value ) ) {
-				$value = sprintf( '"%s"', esc_sql( $value ) );
+				$value = sprintf( "'%s'", esc_sql( $value ) );
 			}
 		}
 
