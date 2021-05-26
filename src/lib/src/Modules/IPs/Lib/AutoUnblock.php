@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\AntiBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -64,11 +63,6 @@ class AutoUnblock {
 				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
-			// Perform the test
-			( new AntiBot() )
-				->setMod( $this->getMod() )
-				->scan();
-
 			{
 				$existing = $opts->getAutoUnblockIps();
 				$existing[ $ip ] = Services::Request()->ts();
@@ -85,6 +79,10 @@ class AutoUnblock {
 				->setMod( $mod )
 				->setIP( $ip )
 				->fromBlacklist();
+			( new IPs\Lib\Bots\BotSignalsRecord() )
+				->setMod( $this->getMod() )
+				->setIP( $ip )
+				->delete();
 			$unblocked = true;
 		}
 
@@ -137,10 +135,10 @@ class AutoUnblock {
 					$existing = $opts->getAutoUnblockEmailIDs();
 					$existing[ $user->ID ] = Services::Request()->ts();
 					$opts->setOpt( 'autounblock_emailids',
-						array_filter( $existing, function ( $nTS ) {
+						array_filter( $existing, function ( $ts ) {
 							return Services::Request()
 										   ->carbon()
-										   ->subHours( 1 )->timestamp < $nTS;
+										   ->subHours( 1 )->timestamp < $ts;
 						} )
 					);
 				}
@@ -151,6 +149,10 @@ class AutoUnblock {
 					->setMod( $mod )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
+				( new IPs\Lib\Bots\BotSignalsRecord() )
+					->setMod( $this->getMod() )
+					->setIP( Services::IP()->getRequestIp() )
+					->delete();
 				$unblocked = true;
 			}
 			else {
