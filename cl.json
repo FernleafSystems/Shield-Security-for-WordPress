@@ -68,6 +68,12 @@
         "title":       "Some plugin SQL query syntax broke on MySQL 8.",
         "description": [],
         "patch":       "11.2.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fatal error when initiating WP-CLI in some cases.",
+        "description": [],
+        "patch":       "11.2.2"
       }
     ]
   },

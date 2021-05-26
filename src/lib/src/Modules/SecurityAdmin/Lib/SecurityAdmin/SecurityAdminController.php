@@ -157,14 +157,12 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			   ( $this->isCurrentlySecAdmin() || $this->verifyPinRequest() );
 	}
 
-	public function printPinLoginForm() {
+	public function renderPinLoginForm() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		add_thickbox();
-		echo $mod->renderTemplate( '/components/security_admin/login_box.twig', [
+		return $mod->renderTemplate( '/components/security_admin/login_box.twig', [
 			'flags'   => [
 				'restrict_options' => $opts->getAdminAccessArea_Options()
 			],
@@ -172,10 +170,14 @@ class SecurityAdminController extends ExecOnceModConsumer {
 				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
 			],
 			'ajax'    => [
-				'sec_admin_login'     => $mod->getAjaxActionData( 'sec_admin_login', true ),
-				'sec_admin_login_box' => $mod->getAjaxActionData( 'sec_admin_login_box', true )
+				'sec_admin_login' => $mod->getAjaxActionData( 'sec_admin_login', true ),
 			]
 		] );
+	}
+
+	public function printPinLoginForm() {
+		add_thickbox();
+		echo $this->renderPinLoginForm();
 	}
 
 	public function verifyPinRequest() :bool {
