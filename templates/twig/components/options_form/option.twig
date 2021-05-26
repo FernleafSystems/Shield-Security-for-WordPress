@@ -173,9 +173,17 @@
 			</div>
 
 			<div class="mt-3 text-left text-nowrap">
-				{% if aOption.link_info %}
-					<a href="{{ aOption.link_info }}" target="_blank"
-					   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+				{% if aOption.link_info or aOption.beacon_id|default(false) %}
+
+					{% if aOption.beacon_id|default(false) %}
+						<a href="javascript:{}" data-beacon-article-sidebar="{{ aOption.beacon_id }}"
+						   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+
+					{% else %}
+						<a href="{{ aOption.link_info }}" target="_blank"
+						   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+					{% endif %}
+
 					{% if aOption.link_blog %}
 						<span class="m-1">&vert;</span>
 						<a href="{{ aOption.link_blog }}" target="_blank"

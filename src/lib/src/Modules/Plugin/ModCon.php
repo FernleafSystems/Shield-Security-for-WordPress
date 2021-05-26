@@ -68,10 +68,9 @@ class ModCon extends BaseShield\ModCon {
 		$con = $this->getCon();
 		$wpCrons = Services::WpCron();
 
-		foreach ( $wpCrons->getCrons() as $nKey => $aCronArgs ) {
-			foreach ( $aCronArgs as $hook => $aCron ) {
-				if ( strpos( (string)$hook, $con->prefix() ) === 0
-					 || strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
+		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
+			foreach ( $cronArgs as $hook => $cron ) {
+				if ( strpos( (string)$hook, $con->prefix() ) === 0 || strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
 					$wpCrons->deleteCronJob( $hook );
 				}
 			}

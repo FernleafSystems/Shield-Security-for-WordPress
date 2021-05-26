@@ -219,6 +219,7 @@
       ],
       "link_info":     "https://shsec.io/dn",
       "link_blog":     "",
+      "beacon_id":     "391",
       "name":          "Visitor IP Address",
       "summary":       "Which Address Is Yours",
       "description":   "There are many way to detect visitor IP addresses. Please select yours from the list."
