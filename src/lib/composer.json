@@ -22,6 +22,7 @@
     "php":                                ">=7.0",
     "fernleafsystems/wordpress-services": "^2.12",
     "dolondro/google-authenticator":      "^2.1",
+    "endroid/qr-code":                    "~2.2|~3",
     "fernleafsystems/zxcvbn-php":         "^1.0",
     "nesbot/carbon":                      "^1.39",
     "nullpunkt/lz-string-php":            "^1.2.0",

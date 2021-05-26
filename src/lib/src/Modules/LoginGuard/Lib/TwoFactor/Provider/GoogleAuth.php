@@ -64,10 +64,10 @@ class GoogleAuth extends BaseProvider {
 	 * @return string
 	 */
 	public function getGaRegisterChartUrl( $user ) {
-		$sUrl = '';
+		$url = '';
 		if ( !empty( $user ) ) {
 			try {
-				$sUrl = ( new GoogleAuthenticator\QrImageGenerator\GoogleQrImageGenerator () )
+				$url = ( new GoogleAuthenticator\QrImageGenerator\EndroidQrImageGenerator() )
 					->generateUri(
 						$this->getGaSecret( $user )
 					);
@@ -75,7 +75,7 @@ class GoogleAuth extends BaseProvider {
 			catch ( \InvalidArgumentException $e ) {
 			}
 		}
-		return $sUrl;
+		return $url;
 	}
 
 	/**
