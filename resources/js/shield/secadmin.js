@@ -64,7 +64,6 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 
 		let pinInput = document.getElementById( 'SecAdminPinInput' );
 		shield_vars_secadmin.ajax.sec_admin_login.sec_admin_key = pinInput.value;
-		console.log( shield_vars_secadmin.ajax.sec_admin_login );
 
 		let inputContainer = document.getElementById( 'SecAdminPinInputContainer' );
 		inputContainer.innerHTML = '<div class="spinner"></div>';
@@ -75,6 +74,7 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 			}
 			if ( response.data ) {
 				inputContainer.innerHTML = response.data.html;
+				location.reload();
 			}
 			else {
 				inputContainer.innerHTML = 'There was an unknown error';
