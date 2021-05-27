@@ -18,7 +18,7 @@ class EventsService {
 	 * @param array  $meta
 	 * @return $this
 	 */
-	public function fireEvent( string $event, $meta = [] ) {
+	public function fireEvent( string $event, array $meta = [] ) {
 		if ( $this->isSupportedEvent( $event ) ) {
 			do_action(
 				$this->getCon()->prefix( 'event' ),

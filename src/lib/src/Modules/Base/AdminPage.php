@@ -80,6 +80,12 @@ class AdminPage extends ExecOnceModConsumer {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
+	public function isCurrentPage() :bool {
+		$req = Services::Request();
+		return !Services::WpGeneral()->isAjax() && $req->isGet()
+			   && $this->getCon()->isModulePage() && $req->query( 'page' ) == $this->getSlug();
+	}
+
 	public function getMenuTitle( bool $markup = true ) :string {
 		$mod = $this->getMod();
 		$title = $this->getOptions()->getFeatureProperty( 'menu_title' );
@@ -116,5 +122,9 @@ class AdminPage extends ExecOnceModConsumer {
 			}
 		}
 		return $items;
+	}
+
+	public function getSlug() :string {
+		return $this->getMod()->getModSlug();
 	}
 }

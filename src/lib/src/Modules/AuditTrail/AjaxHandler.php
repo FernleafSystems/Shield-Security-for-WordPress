@@ -11,18 +11,18 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		switch ( $action ) {
 			case 'render_table_audittrail':
-				$aResponse = $this->ajaxExec_BuildTableAuditTrail();
+				$response = $this->ajaxExec_BuildTableAuditTrail();
 				break;
 
 			case 'item_addparamwhite':
-				$aResponse = $this->ajaxExec_AddParamToFirewallWhitelist();
+				$response = $this->ajaxExec_AddParamToFirewallWhitelist();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	protected function ajaxExec_AddParamToFirewallWhitelist() :array {
@@ -55,13 +55,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_BuildTableAuditTrail() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
-			->setMod( $mod )
-			->setDbHandler( $mod->getDbHandler_AuditTrail() );
-
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->render()
+			'html'    => ( new Shield\Tables\Build\AuditTrail() )
+				->setMod( $mod )
+				->setDbHandler( $mod->getDbHandler_AuditTrail() )
+				->render()
 		];
 	}
 }

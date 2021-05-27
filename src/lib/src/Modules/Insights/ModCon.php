@@ -22,16 +22,19 @@ class ModCon extends BaseShield\ModCon {
 
 	private function handleCustomRedirection() {
 		$con = $this->getCon();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() ) {
-			if ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
+		if ( !Services::WpGeneral()->isAjax() && is_admin() ) {
+			if ( !$con->isModulePage() && $con->getModule_Plugin()->getActivateLength() < 5 ) {
 				Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
 			}
-			elseif ( $this->isThisModAdminPage() && empty( Services::Request()->query( 'inav' ) ) ) {
+			elseif ( $this->getAdminPage()->isCurrentPage() && empty( Services::Request()->query( 'inav' ) ) ) {
 				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
 			}
 		}
 	}
 
+	/**
+	 * @deprecated 11.2
+	 */
 	private function maybeRedirectToAdmin() {
 		$con = $this->getCon();
 		$activeFor = $con->getModule_Plugin()->getActivateLength();
