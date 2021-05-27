@@ -33,6 +33,7 @@
       "primary":     true,
       "title":       "Brute Force Login Guard",
       "title_short": "Brute Force",
+      "beacon_id":   325,
       "summary":     [
         "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
         "Recommendation - Use of this feature is highly recommend."
@@ -42,6 +43,7 @@
       "slug":        "section_2fa_email",
       "title":       "Email Two-Factor Authentication",
       "title_short": "2FA - Email",
+      "beacon_id":   246,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using email-based one-time-passwords.",
         "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
@@ -52,6 +54,7 @@
       "slug":        "section_2fa_ga",
       "title":       "Google Authenticator Two-Factor Authentication",
       "title_short": "2FA - Google Authenticator",
+      "beacon_id":   244,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
         "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
@@ -62,6 +65,7 @@
       "slug":        "section_hardware_authentication",
       "title":       "Hardware 2-Factor Authentication",
       "title_short": "2FA - Hardware",
+      "beacon_id":   249,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
         "Note: You may combine multiple authentication factors for increased security."
@@ -71,6 +75,7 @@
       "slug":        "section_multifactor_authentication",
       "title":       "Multi-Factor Authentication",
       "title_short": "2-Factor Auth",
+      "beacon_id":   326,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
         "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
@@ -81,6 +86,7 @@
       "slug":        "section_rename_wplogin",
       "title":       "Hide WP Login Page",
       "title_short": "Hide Login Page",
+      "beacon_id":   316,
       "summary":     [
         "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
         "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
@@ -90,6 +96,7 @@
       "slug":        "section_user_messages",
       "title":       "User Messages",
       "title_short": "User Messages",
+      "beacon_id":   139,
       "summary":     [
         "Purpose - Customize the messages shown to visitors.",
         "Recommendation - Be sure to change the messages to suit your audience.",
@@ -100,6 +107,7 @@
       "slug":        "section_enable_plugin_feature_login_protection",
       "title":       "Disable Login Guard Module",
       "title_short": "Disable",
+      "beacon_id":   249,
       "summary":     [
         "Purpose - Login Guard blocks all automated and brute force attempts to log in to your site.",
         "Recommendation - Keep the Login Guard module turned on."
@@ -119,6 +127,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/51",
       "link_blog":   "https://shsec.io/wpsf03",
+      "beacon_id":   249,
       "name":        "Enable Login Guard",
       "summary":     "Enable (or Disable) The Login Guard Module",
       "description": "Un-Checking this option will completely disable the Login Guard module"
@@ -132,6 +141,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/5q",
       "link_blog":   "https://shsec.io/5r",
+      "beacon_id":   316,
       "name":        "Hide Login Page",
       "summary":     "Rename The WordPress Login Page",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
@@ -143,6 +153,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/9r",
       "link_blog":   "https://shsec.io/84",
+      "beacon_id":   326,
       "name":        "Multi-Factor Authentication",
       "summary":     "Require All Active Authentication Factors",
       "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
@@ -156,6 +167,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/b1",
       "link_blog":   "",
+      "beacon_id":   141,
       "name":        "Multi-Factor Bypass",
       "summary":     "A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days",
       "description": "Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable."
@@ -168,6 +180,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/dx",
       "link_blog":   "https://shsec.io/dy",
+      "beacon_id":   143,
       "name":        "Allow Backup Codes",
       "summary":     "Allow Users To Generate A Backup Code",
       "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
@@ -179,6 +192,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/shld7",
       "link_blog":   "https://shsec.io/shld6",
+      "beacon_id":   245,
       "name":        "Enable Google Authenticator",
       "summary":     "Allow Users To Use Google Authenticator",
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
@@ -190,6 +204,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3t",
       "link_blog":   "https://shsec.io/9q",
+      "beacon_id":   247,
       "name":        "Enable Email Authentication",
       "summary":     "Two-Factor Login Authentication By Email",
       "description": "All users will be required to verify their login by email-based two-factor authentication."
@@ -249,6 +264,7 @@
       ],
       "link_info":     "https://shsec.io/4v",
       "link_blog":     "",
+      "beacon_id":     243,
       "name":          "Enforce - Email Authentication",
       "summary":       "All User Roles Subject To Email Authentication",
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
@@ -261,6 +277,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/gj",
       "link_blog":   "",
+      "beacon_id":   142,
       "name":        "Allow Any User",
       "summary":     "Allow Any User To Turn-On Two-Factor Authentication By Email",
       "description": "Allow Any User To Turn-On Two-Factor Authentication By Email."
@@ -272,6 +289,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/k0",
       "link_blog":   "https://shsec.io/jo",
+      "beacon_id":   426,
       "name":        "AntiBot",
       "summary":     "Use Experimental AntiBot Detection Engine",
       "description": "Use Shield's AntiBot Detection Engine In-Place of GASP/CAPTCHA Bot checking."
@@ -303,6 +321,7 @@
       ],
       "link_info":     "https://shsec.io/dv",
       "link_blog":     "",
+      "beacon_id":     314,
       "name":          "Protection Locations",
       "summary":       "How Google reCAPTCHA Will Be Displayed",
       "description":   "Choose for which forms bot protection measures will be deployed."
@@ -315,6 +334,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/3q",
       "link_blog":   "https://shsec.io/9o",
+      "beacon_id":   242,
       "name":        "Login Cooldown Interval",
       "summary":     "Limit login attempts to every X seconds",
       "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
@@ -326,6 +346,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3r",
       "link_blog":   "https://shsec.io/9n",
+      "beacon_id":   313,
       "name":        "Bot Protection",
       "summary":     "Protect WP Login From Automated Login Attempts By Bots",
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
@@ -359,6 +380,7 @@
       ],
       "link_info":     "https://shsec.io/9m",
       "link_blog":     "",
+      "beacon_id":     269,
       "name":          "CAPTCHA",
       "summary":       "Enable CAPTCHA",
       "description":   "Use CAPTCHA on the login screen."
@@ -372,6 +394,7 @@
       "default":     [],
       "link_info":   "https://shsec.io/hg",
       "link_blog":   "",
+      "beacon_id":   144,
       "name":        "AntiBot Forms",
       "summary":     "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",
       "description": "For Use With AnitBot JS (above)."
@@ -395,6 +418,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4f",
       "link_blog":   "https://shsec.io/9t",
+      "beacon_id":   358,
       "name":        "Allow Yubikey OTP",
       "summary":     "Allow Yubikey Registration For One Time Passwords",
       "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
@@ -407,6 +431,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/4g",
       "link_blog":   "",
+      "beacon_id":   360,
       "name":        "Yubikey App ID",
       "summary":     "Your Unique Yubikey App ID",
       "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
@@ -419,6 +444,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/4g",
       "link_blog":   "",
+      "beacon_id":   360,
       "name":        "Yubikey API Key",
       "summary":     "Your Unique Yubikey App API Key",
       "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."

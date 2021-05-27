@@ -85,6 +85,13 @@ class UI extends BaseShield\UI {
 				}
 				break;
 
+			case 'section_antibot':
+				if ( !$opts->isEnabledAntiBotEngine() ) {
+					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
+				}
+				break;
+
 			case 'section_behaviours':
 			case 'section_probes':
 			case 'section_logins':

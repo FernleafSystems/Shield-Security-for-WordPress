@@ -37,6 +37,7 @@
       "primary":     true,
       "title":       "Audit Trail Options",
       "title_short": "Options",
+      "beacon_id":   241,
       "summary":     [
         "Purpose - Provides finer control over the audit trail itself.",
         "Recommendation - These settings are dependent on your requirements."
@@ -56,6 +57,7 @@
       "slug":        "section_enable_plugin_feature_audit_trail",
       "title":       "Enable Module: Audit Trail",
       "title_short": "Disable Module",
+      "beacon_id":   241,
       "summary":     [
         "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",
         "Recommendation - Keep the Audit Trail feature turned on."
@@ -75,6 +77,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/5p",
       "link_blog":   "https://shsec.io/a1",
+      "beacon_id":   241,
       "name":        "Enable Audit Trail",
       "summary":     "Enable (or Disable) The Audit Trail module",
       "description": "Un-Checking this option will completely disable the Audit Trail module"
@@ -87,6 +90,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/a2",
       "link_blog":   "https://shsec.io/a1",
+      "beacon_id":   375,
       "name":        "Auto Clean",
       "summary":     "Enable Audit Auto Cleaning",
       "description": "Events older than the number of days specified will be automatically cleaned from the database"
@@ -100,6 +104,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/hc",
       "link_blog":   "",
+      "beacon_id":   128,
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",
       "description": "Automatically remove any audit trail entries when this limit is exceeded."

@@ -26,17 +26,20 @@
       "slug":        "section_integrations",
       "primary":     true,
       "title":       "Integrations",
-      "title_short": "Integrations"
+      "title_short": "Integrations",
+      "beacon_id":   404
     },
     {
       "slug":        "section_spam",
       "title":       "SPAM Detection",
-      "title_short": "SPAM Detection"
+      "title_short": "SPAM Detection",
+      "beacon_id":   138
     },
     {
       "slug":        "section_user_forms",
       "title":       "User Forms Bot Detection",
-      "title_short": "User Forms Bot Detection"
+      "title_short": "User Forms Bot Detection",
+      "beacon_id":   239
     },
     {
       "slug":   "section_non_ui",
@@ -51,6 +54,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ir",
       "link_blog":   "",
+      "beacon_id":   404,
       "name":        "Enable MainWP",
       "summary":     "Enable The Built-In MainWP Extension",
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
@@ -100,6 +104,10 @@
           "text":      "Ninja Forms"
         },
         {
+          "value_key": "superforms",
+          "text":      "Super Forms"
+        },
+        {
           "value_key": "wpforo",
           "text":      "wpForo"
         },
@@ -110,6 +118,7 @@
       ],
       "link_info":     "https://shsec.io/k2",
       "link_blog":     "https://shsec.io/k3",
+      "beacon_id":     138,
       "name":          "SPAM Form Checking",
       "summary":       "Select The Form Providers That Should Be Checked For SPAM",
       "description":   "Select The Form Providers That Should Be Checked For SPAM."
@@ -120,7 +129,9 @@
       "premium":       true,
       "advanced":      true,
       "type":          "multiple_select",
-      "default":       [ "wordpress" ],
+      "default":       [
+        "wordpress"
+      ],
       "value_options": [
         {
           "value_key": "buddypress",
@@ -169,6 +180,7 @@
       ],
       "link_info":     "https://shsec.io/k4",
       "link_blog":     "https://shsec.io/k3",
+      "beacon_id":     239,
       "name":          "User Form Checking",
       "summary":       "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
       "description":   "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
@@ -176,14 +188,14 @@
   ],
   "definitions": {
     "events": {
-      "spam_form_pass": {
+      "spam_form_pass":     {
         "stat":    true,
         "audit":   true,
         "offense": false
       },
-      "spam_form_fail": {
-        "stat":  true,
-        "audit": true,
+      "spam_form_fail":     {
+        "stat":    true,
+        "audit":   true,
         "offense": false
       },
       "user_form_bot_pass": {
@@ -192,8 +204,8 @@
         "offense": false
       },
       "user_form_bot_fail": {
-        "stat":  true,
-        "audit": true,
+        "stat":    true,
+        "audit":   true,
         "offense": true
       }
     }

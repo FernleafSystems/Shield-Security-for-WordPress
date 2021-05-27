@@ -2,50 +2,47 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BlacklistHandler {
+class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
-	use Modules\ModConsumer;
-	use ExecOnce;
 	use PluginCronsConsumer;
+
+	protected function canRun() :bool {
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledAutoBlackList();
+	}
 
 	protected function run() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
 
-		if ( $opts->isEnabledAutoBlackList() ) {
+		if ( Services::WpGeneral()->isCron() && $this->getCon()->isPremiumActive() ) {
+			$this->setupCronHooks();
+		}
 
-			$con = $this->getCon();
-			if ( Services::WpGeneral()->isCron() && $con->isPremiumActive() ) {
-				$this->setupCronHooks();
-			}
+		( new IPs\Components\UnblockIpByFlag() )
+			->setMod( $mod )
+			->run();
 
-			( new IPs\Components\UnblockIpByFlag() )
-				->setMod( $mod )
-				->run();
+		add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
 
-			add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
+		if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
 
-			if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
+			// We setup offenses processing immediately but run the blocks on 'init
+			( new ProcessOffenses() )
+				->setMod( $this->getMod() )
+				->execute();
 
-				// We setup offenses processing immediately but run the blocks on 'init
-				( new ProcessOffenses() )
+			add_action( 'init', function () {
+				( new BlockRequest() )
 					->setMod( $this->getMod() )
 					->execute();
-
-				add_action( 'init', function () {
-					( new BlockRequest() )
-						->setMod( $this->getMod() )
-						->execute();
-				}, -100000 );
-			}
+			}, -100000 );
 		}
 	}
 
@@ -124,6 +121,6 @@ class BlacklistHandler {
 	public function runHourlyCron() {
 		( new IPs\Components\ImportIpsFromFile() )
 			->setMod( $this->getMod() )
-			->run();
+			->execute();
 	}
 }

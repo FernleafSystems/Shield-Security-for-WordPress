@@ -18,10 +18,11 @@
   },
   "sections":   [
     {
-      "slug":        "section_security_headers",
       "primary":     true,
+      "slug":        "section_security_headers",
       "title":       "Advanced Security Headers",
       "title_short": "Security Headers",
+      "beacon_id":   267,
       "summary":     [
         "Purpose - Protect visitors to your site by implementing increased security response headers.",
         "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
@@ -31,6 +32,7 @@
       "slug":        "section_content_security_policy",
       "title":       "Content Security Policy",
       "title_short": "Content Security Policy",
+      "beacon_id":   155,
       "summary":     [
         "Purpose - Restrict the sources and types of content that may be loaded and processed by visitor browsers.",
         "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
@@ -40,6 +42,7 @@
       "slug":        "section_enable_plugin_feature_headers",
       "title":       "Enable Module: HTTP Headers",
       "title_short": "Disable Module",
+      "beacon_id":   265,
       "summary":     [
         "Purpose - Protect visitors to your site by implementing increased security response headers.",
         "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
@@ -59,6 +62,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/aj",
       "link_blog":   "https://shsec.io/7c",
+      "beacon_id":   265,
       "name":        "Enable HTTP Headers",
       "summary":     "Enable (or Disable) The HTTP Headers module",
       "description": "Un-Checking this option will completely disable the HTTP Headers module"
@@ -172,6 +176,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/7d",
       "link_blog":   "https://shsec.io/7c",
+      "beacon_id":   155,
       "name":        "Enable Content Security Policy",
       "summary":     "Enable (or Disable) The Content Security Policy module",
       "description": "Allows for permission and restriction of all resources loaded on your site."
@@ -184,6 +189,7 @@
       "type":        "array",
       "link_info":   "https://shsec.io/g9",
       "link_blog":   "",
+      "beacon_id":   155,
       "name":        "Manual Rules",
       "summary":     "Manual CSP Rules",
       "description": "Manual CSP rules."

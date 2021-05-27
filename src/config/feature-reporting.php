@@ -1,5 +1,5 @@
 {
-  "properties":  {
+  "properties":       {
     "slug":                  "reporting",
     "name":                  "Reporting",
     "storage_key":           "reporting",
@@ -16,8 +16,8 @@
   },
   "menu_items":       [
     {
-      "title":     "Stats (beta)",
-      "slug":      "stats-redirect"
+      "title": "Stats (beta)",
+      "slug":  "stats-redirect"
     }
   ],
   "custom_redirects": [
@@ -29,12 +29,13 @@
       }
     }
   ],
-  "sections":    [
+  "sections":         [
     {
       "slug":        "section_timings",
       "primary":     true,
       "title":       "Report Frequencies",
       "title_short": "Report Frequencies",
+      "beacon_id":   136,
       "summary":     [
         "Purpose - Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
       ]
@@ -43,6 +44,7 @@
       "slug":        "section_enable_mod_reporting",
       "title":       "Enable Module: Reports",
       "title_short": "Disable Module",
+      "beacon_id":   136,
       "summary":     [
         "Purpose - Helps you see at a glance how effective the plugin has been.",
         "Recommendation - Keep the Reporting feature turned on."
@@ -53,7 +55,7 @@
       "hidden": true
     }
   ],
-  "options":     [
+  "options":          [
     {
       "key":         "enable_reporting",
       "section":     "section_enable_mod_reporting",
@@ -62,6 +64,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/hb",
       "link_blog":   "",
+      "beacon_id":   136,
       "name":        "Enable Reporting",
       "summary":     "Enable (or Disable) The Reporting module",
       "description": "Un-Checking this option will completely disable the Reporting module"
@@ -91,6 +94,7 @@
       ],
       "link_info":     "https://shsec.io/h9",
       "link_blog":     "",
+      "beacon_id":     233,
       "name":          "Alert Frequency",
       "summary":       "How Often Should You Be Sent Important Alerts",
       "description":   "Decide when you should be sent important and critical alerts about your site security."
@@ -128,12 +132,13 @@
       ],
       "link_info":     "https://shsec.io/ha",
       "link_blog":     "",
+      "beacon_id":     232,
       "name":          "Info Frequency",
       "summary":       "How Often Should You Be Sent Information Reports",
       "description":   "Decide when you should be sent non-critical information and reports about your site security."
     }
   ],
-  "definitions": {
+  "definitions":      {
     "db_classes":       {
       "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Reports\\Handler"
     },

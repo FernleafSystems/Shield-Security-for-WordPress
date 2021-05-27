@@ -14,11 +14,14 @@ class BuildScores {
 	public function build() :array {
 		$scores = [];
 		foreach ( $this->getAllFields( true ) as $field ) {
-			$scores[ $field ] = $this->{'score_'.$field}();
+			$method = 'score_'.$field;
+			if ( method_exists( $this, $method ) ) {
+				$scores[ $field ] = $this->{'score_'.$field}();
+			}
 		}
 		$scores[ 'known' ] = $this->score_known();
-		if ( Services::Request()->ts() - $this->getRecord()->created_at < 30 ) {
-			$scores[ 'baseline' ] = 60;
+		if ( Services::Request()->ts() - $this->getRecord()->created_at < 20 ) {
+			$scores[ 'baseline' ] = 35;
 		}
 		return $scores;
 	}

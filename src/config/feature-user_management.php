@@ -22,6 +22,7 @@
       "primary":     true,
       "title":       "User Session Management",
       "title_short": "Session Options",
+      "beacon_id":   397,
       "summary":     [
         "Purpose - Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.",
         "Recommendation - Use of this feature is highly recommend."
@@ -31,6 +32,7 @@
       "slug":        "section_user_reg",
       "title":       "User Registration",
       "title_short": "User Registration",
+      "beacon_id":   145,
       "summary":     [
         "Purpose - Control user registration and prevent SPAM.",
         "Recommendation - Use of this feature is highly recommend."
@@ -43,6 +45,7 @@
       },
       "title":       "Password Policies",
       "title_short": "Password Policies",
+      "beacon_id":   256,
       "summary":     [
         "Purpose - Have full control over passwords used by users on the site.",
         "Recommendation - Use of this feature is highly recommend."
@@ -52,6 +55,7 @@
       "slug":        "section_suspend",
       "title":       "Automatic And Manual User Suspension",
       "title_short": "User Suspension",
+      "beacon_id":   273,
       "summary":     [
         "Purpose - Automatically suspend accounts to prevent login by certain users.",
         "Recommendation - Use of this feature is highly recommend."
@@ -61,6 +65,7 @@
       "slug":        "section_admin_login_notification",
       "title":       "Admin Login Notification",
       "title_short": "Notifications",
+      "beacon_id":   147,
       "summary":     [
         "Purpose - So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.",
         "Recommendation - Use of this feature is highly recommend."
@@ -70,6 +75,7 @@
       "slug":        "section_enable_plugin_feature_user_accounts_management",
       "title":       "Enable Module: User Management",
       "title_short": "Disable Module",
+      "beacon_id":   273,
       "summary":     [
         "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
         "Recommendation - Keep the User Management feature turned on."
@@ -89,6 +95,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/e3",
       "link_blog":   "https://shsec.io/hi",
+      "beacon_id":   273,
       "name":        "Enable User Management",
       "summary":     "Enable (or Disable) The User Management module",
       "description": "Un-Checking this option will completely disable the User Management module"
@@ -102,6 +109,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/e2",
       "link_blog":   "",
+      "beacon_id":   147,
       "name":        "User Login Notification Email",
       "summary":     "Send Email Notification To Each User Upon Successful Login",
       "description": "A notification is sent to each user when a successful login occurs for their account."
@@ -138,6 +146,7 @@
       "type":        "integer",
       "link_info":   "https://support.getshieldsecurity.com/support/solutions/articles/3000070590",
       "link_blog":   "",
+      "beacon_id":   397,
       "name":        "Idle Timeout",
       "summary":     "Specify How Many Hours After Inactivity To Automatically Logout User",
       "description": "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
@@ -239,6 +248,7 @@
       "default":     "N",
       "link_info":   "https://shsec.io/e1",
       "link_blog":   "https://shsec.io/c4",
+      "beacon_id":   146,
       "name":        "Enable Password Policies",
       "summary":     "Enable The Password Policies Below",
       "description": "Turn on/off all password policies."
@@ -333,6 +343,7 @@
       "default":     "N",
       "link_info":   "https://shsec.io/fq",
       "link_blog":   "https://shsec.io/fr",
+      "beacon_id":   399,
       "name":        "Allow Manual User Suspension",
       "summary":     "Manually Suspend User Accounts To Prevent Login",
       "description": "Users may be suspended by administrators to prevent login."
@@ -345,6 +356,7 @@
       "default":     "Y",
       "link_info":   "https://shsec.io/fs",
       "link_blog":   "https://shsec.io/fr",
+      "beacon_id":   400,
       "name":        "Auto-Suspend Expired Passwords",
       "summary":     "Automatically Suspend Users With Expired Passwords",
       "description": "Suspend login by users and require password reset to unsuspend."
@@ -358,6 +370,7 @@
       "min":         0,
       "link_info":   "https://shsec.io/ft",
       "link_blog":   "https://shsec.io/fr",
+      "beacon_id":   400,
       "name":        "Auto-Suspend Idle Users",
       "summary":     "Automatically Suspend Idle User Accounts",
       "description": "Prevent login by idle users and require password reset to unsuspend."
@@ -374,6 +387,7 @@
       ],
       "link_info":   "https://shsec.io/ft",
       "link_blog":   "",
+      "beacon_id":   400,
       "name":        "Auto-Suspend Idle Users",
       "summary":     "Automatically Suspend Idle User Accounts",
       "description": "Prevent login by idle users and require password reset to unsuspend."
