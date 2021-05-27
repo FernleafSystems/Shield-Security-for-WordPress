@@ -8,7 +8,7 @@
     },
     "title":       "AntiBot Scoring Improvements",
     "description": [
-      "Shield 11.0 brought the new AntiBot Detection Engine, designed to detect bad bots and block them.",
+      "Shield 11.0 brought the new AntiBot Detection Engine, designed to detect bad bots and block them automatically.",
       "With feedback from customers and ongoing research, we've made some major improvements and adjustments to the system."
     ],
     "items":       [
@@ -45,7 +45,7 @@
       },
       {
         "type":        "new",
-        "title":       "Support For Groundhogg",
+        "title":       "Support For Protecting Subscription Forms in Groundhogg CRM.",
         "description": [
           "Added support for protecting Groundhogg forms from bots."
         ],
@@ -53,7 +53,14 @@
       },
       {
         "type":        "new",
-        "title":       "Support For LifterLMS.",
+        "title":       "Support For Protecting Super Forms Contact Forms.",
+        "description": [
+          "Added support for protecting contact forms against SPAM in the Super Forms plugin."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Protecting User Forms in LifterLMS.",
         "description": [
           "Added support for protecting LifterLMS login & registration forms from bots."
         ]
@@ -74,6 +81,12 @@
         "title":       "Fatal error when initiating WP-CLI in some cases.",
         "description": [],
         "patch":       "11.2.2"
+      },
+      {
+        "type":        "improved",
+        "title":       "Adjust default bot scoring logic to reduce spam.",
+        "description": [],
+        "patch":       "11.2.3"
       }
     ]
   },

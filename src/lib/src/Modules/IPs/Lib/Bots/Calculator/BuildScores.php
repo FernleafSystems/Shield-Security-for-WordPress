@@ -20,8 +20,8 @@ class BuildScores {
 			}
 		}
 		$scores[ 'known' ] = $this->score_known();
-		if ( Services::Request()->ts() - $this->getRecord()->created_at < 30 ) {
-			$scores[ 'baseline' ] = 60;
+		if ( Services::Request()->ts() - $this->getRecord()->created_at < 20 ) {
+			$scores[ 'baseline' ] = 35;
 		}
 		return $scores;
 	}
