@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressCons
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsRecord {
