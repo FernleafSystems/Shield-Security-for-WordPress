@@ -142,7 +142,7 @@
       "section":     "section_antibot",
       "default":     35,
       "type":        "integer",
-      "min":         1,
+      "min":         0,
       "max":         99,
       "link_info":   "https://shsec.io/jy",
       "link_blog":   "https://shsec.io/jz",

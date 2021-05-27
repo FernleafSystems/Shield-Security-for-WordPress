@@ -33,7 +33,8 @@
         "title":       "AntiBot Detection Engine Improvements.",
         "description": [
           "We've adjusted some of the bot scoring and improved the ability to detect legitimate users based on earlier logins.",
-          "We've also removed the need for the small cookie that was needed to help track the NotBot status."
+          "We've also removed the need for the small cookie that was needed to help track the NotBot status.",
+          "The AntiBot Detection Engine can now be disabled by setting the minimum reputation score to 0."
         ]
       },
       {
@@ -41,6 +42,14 @@
         "title":       "Google Authenticator QR Codes Are Generated Locally.",
         "description": [
           "Google's Legacy Chart API wasn't always loading the QR code so we replaced it with a locally generated QR code image."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Brand new Knowledgebase Integration.",
+        "description": [
+          "We've moved to a brand new Helpdesk/Knowledgebase and this allows us to integrate instant access to docs inside the plugin itself.",
+          "Simply click the 'Info' link for any option to view documentation within your WordPress admin area."
         ]
       },
       {
