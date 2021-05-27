@@ -203,18 +203,6 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 11.2
-	 */
-	public function isScanningAvailable() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $mod->isModuleEnabled() && ( !$this->isPremiumOnly() || $opts->isPremium() );
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function resetIgnoreStatus() {

@@ -231,14 +231,4 @@ class ModCon extends Base\ModCon {
 			$this->getBaseNamespace(),
 		];
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.2
-	 */
-	public function isEnabledWhitelabel() :bool {
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
-		return $opts->isEnabledWhitelabel();
-	}
 }

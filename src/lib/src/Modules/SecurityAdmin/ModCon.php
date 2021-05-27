@@ -81,34 +81,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * We cater for 3 options:
-	 * Full URL
-	 * Relative path URL: i.e. starts with /
-	 * Or Plugin image URL i.e. doesn't start with HTTP or /
-	 * @param string $key
-	 * @return string
-	 * @deprecated 11.2
-	 */
-	private function buildWlImageUrl( $key ) {
-		$opts = $this->getOptions();
-
-		$url = $opts->getOpt( $key );
-		if ( empty( $url ) ) {
-			$opts->resetOptToDefault( $key );
-			$url = $opts->getOpt( $key );
-		}
-		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && strpos( $url, '/' ) !== 0 ) {
-			$url = $this->getCon()->urls->forImage( $url );
-			if ( empty( $url ) ) {
-				$opts->resetOptToDefault( $key );
-				$url = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
-			}
-		}
-
-		return $url;
-	}
-
-	/**
 	 * Used by Wizard. TODO: sort out the wizard requests!
 	 * @param string $pin
 	 * @return $this

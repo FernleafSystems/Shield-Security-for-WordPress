@@ -78,21 +78,6 @@ class GoogleAuth extends BaseProvider {
 		return $url;
 	}
 
-	/**
-	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
-	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
-	 * @inheritDoc
-	 */
-	public function handleEditOtherUserProfileSubmit( \WP_User $user ) {
-
-		// Can only edit other users if you're admin/security-admin
-		if ( $this->getCon()->isPluginAdmin() && Services::Request()->post( 'shield_turn_off_ga' ) === 'Y' ) {
-			$this->processRemovalFromAccount( $user );
-			$msg = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
-			$this->getMod()->setFlashAdminNotice( $msg );
-		}
-	}
-
 	public function removeGaOnAccount( \WP_User $user ) :StdResponse {
 		$this->processRemovalFromAccount( $user );
 		$response = new StdResponse();

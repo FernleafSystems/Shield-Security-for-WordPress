@@ -194,23 +194,13 @@ abstract class BaseQuery {
 	 * @return string
 	 */
 	public function buildWhere() {
-
-		if ( method_exists( $this, 'getRawWheres' ) ) {
-			$wheres = $this->getRawWheres();
-			if ( !$this->isIncludeSoftDeletedRows() ) {
-				$wheres[] = [ 'deleted_at', '=', 0 ];
-			}
-			$wheres = array_map( function ( array $where ) {
-				return $this->rawWhereToString( $where );
-			}, $wheres );
+		$wheres = $this->getRawWheres();
+		if ( !$this->isIncludeSoftDeletedRows() ) {
+			$wheres[] = [ 'deleted_at', '=', 0 ];
 		}
-		else { // TODO: @deprecated 11.2
-			$wheres = $this->getWheres();
-			if ( !$this->isIncludeSoftDeletedRows() ) {
-				$wheres[] = '`deleted_at`=0';
-			}
-		}
-
+		$wheres = array_map( function ( array $where ) {
+			return $this->rawWhereToString( $where );
+		}, $wheres );
 		return implode( ' AND ', $wheres );
 	}
 

@@ -97,18 +97,6 @@ class Processor extends BaseShield\Processor {
 		return $msg;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @deprecated 11.2
-	 */
-	private function activateUserSession( \WP_User $user ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		// If they have a currently active session, terminate it (i.e. we replace it)
-		$mod->getSessionCon()->terminateCurrentSession();
-		$mod->getSessionCon()->createSession( $user );
-	}
-
 	protected function getHookPriority() :int {
 		return 100;
 	}

@@ -200,22 +200,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
-	 * @param \WP_User $user
-	 * @return string
-	 * @deprecated 11.2
-	 */
-	public function renderUserEditProfileOptions( \WP_User $user ) {
-		return '';
-	}
-
-	/**
-	 * @param \WP_User $user
-	 */
-	public function handleEditOtherUserProfileSubmit( \WP_User $user ) {
-	}
-
-	/**
 	 * @param \WP_User $user
 	 */
 	protected function processRemovalFromAccount( \WP_User $user ) {
