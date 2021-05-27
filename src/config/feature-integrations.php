@@ -100,6 +100,10 @@
           "text":      "Ninja Forms"
         },
         {
+          "value_key": "superforms",
+          "text":      "Super Forms"
+        },
+        {
           "value_key": "wpforo",
           "text":      "wpForo"
         },
