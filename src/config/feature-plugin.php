@@ -92,22 +92,22 @@
   },
   "sections":      [
     {
-      "slug":          "section_defaults",
-      "primary":       true,
-      "title":         "Plugin Defaults",
-      "title_short":   "Plugin Defaults",
-      "beacon_id":     389
+      "slug":        "section_defaults",
+      "primary":     true,
+      "title":       "Plugin Defaults",
+      "title_short": "Plugin Defaults",
+      "beacon_id":   389
     },
     {
-      "slug":          "section_general_plugin_options",
-      "title":         "General Plugin Options",
-      "title_short":   "General Options"
+      "slug":        "section_general_plugin_options",
+      "title":       "General Plugin Options",
+      "title_short": "General Options"
     },
     {
-      "slug":          "section_third_party_captcha",
-      "title":         "CAPTCHA",
-      "title_short":   "CAPTCHA",
-      "beacon_id":     390
+      "slug":        "section_third_party_captcha",
+      "title":       "CAPTCHA",
+      "title_short": "CAPTCHA",
+      "beacon_id":   390
     },
     {
       "slug":        "section_importexport",
@@ -269,6 +269,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/5v",
       "link_blog":   "https://shsec.io/wpsf20",
+      "beacon_id":   130,
       "name":        "Show Plugin Badge",
       "summary":     "Display Plugin Security Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."

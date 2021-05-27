@@ -5,10 +5,20 @@
 			   id="Label-{{ aOption.key }}"
 			   class="col-form-label">
 			<span class="option_label_name">{{ aOption.name }}
-				{% if aOption.link_info %}
-					<a href="{{ aOption.link_info }}" class="option_link_info d-inline-block" target="_blank"
+
+				{% if aOption.beacon_id|default(false) %}
+					<a href="javascript:{}"
+					   class="beacon-article"
+					   data-beacon-article-id="{{ aOption.beacon_id }}"
+					   data-beacon-article-format="sidebar"
 					   title="{{ strings.opt_info_helpdesk }}">
-					<span class="dashicons dashicons-editor-help"></span></a>
+						<span class="dashicons dashicons-editor-help"></span>
+					</a>
+				{% else %}
+					{% if aOption.link_info %}
+						<a href="{{ aOption.link_info }}" class="option_link_info d-inline-block" target="_blank"
+						   title="{{ strings.opt_info_helpdesk }}"></a>
+					{% endif %}
 				{% endif %}
 			</span>
 

@@ -18,8 +18,8 @@
   },
   "menu_items":       [
     {
-      "title":    "IP Manager",
-      "slug":     "ips-redirect"
+      "title": "IP Manager",
+      "slug":  "ips-redirect"
     }
   ],
   "custom_redirects": [
@@ -559,12 +559,12 @@
     }
   ],
   "definitions":      {
-    "db_classes":                      {
+    "db_classes":          {
       "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
       "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
-    "ip_lists_table_name":             "ip_lists",
-    "db_table_ip_lists":               {
+    "ip_lists_table_name": "ip_lists",
+    "db_table_ip_lists":   {
       "slug":            "ip_lists",
       "cols_custom":     {
         "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
@@ -579,7 +579,7 @@
         "blocked_at":     "IP Blocked"
       }
     },
-    "db_table_botsignals":             {
+    "db_table_botsignals": {
       "autoexpire":      3,
       "slug":            "botsignals",
       "col_older_than":  "updated_at",
@@ -614,7 +614,7 @@
         "bypass_at":          "Bypass"
       }
     },
-    "events":                          {
+    "events":              {
       "custom_offense":          {
         "cat":     3,
         "offense": true

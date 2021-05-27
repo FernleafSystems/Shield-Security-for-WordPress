@@ -55,11 +55,11 @@
     }
   ],
   "definitions": {
-    "db_classes":                       {
+    "db_classes":          {
       "sessions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
     },
-    "sessions_table_name":              "sessions",
-    "db_table_sessions":                {
+    "sessions_table_name": "sessions",
+    "db_table_sessions":   {
       "slug":            "sessions",
       "cols_custom":     {
         "session_id":        "varchar(32) NOT NULL DEFAULT ''",
@@ -75,7 +75,7 @@
         "secadmin_at":             "Security Admin Authenticated"
       }
     },
-    "events":                           {
+    "events":              {
       "session_start":     {
         "audit": false
       },

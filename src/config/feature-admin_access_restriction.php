@@ -37,12 +37,12 @@
   },
   "sections":      [
     {
-      "slug":          "section_security_admin_settings",
-      "primary":       true,
-      "title":         "Security Admin Restriction Settings",
-      "title_short":   "Security Admin Settings",
-      "beacon_id":     215,
-      "summary":       [
+      "slug":        "section_security_admin_settings",
+      "primary":     true,
+      "title":       "Security Admin Restriction Settings",
+      "title_short": "Security Admin Settings",
+      "beacon_id":   215,
+      "summary":     [
         "Purpose - Restrict access using a simple Access PIN.",
         "Recommendation - Use of this feature is highly recommend."
       ]
