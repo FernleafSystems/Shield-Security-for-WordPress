@@ -235,15 +235,15 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 		$oTableContainer.addClass( 'icwpAjaxTableContainer' );
 	};
 
-	var refreshTable = function ( event ) {
-		event.preventDefault();
+	var refreshTable = function ( evt ) {
+		evt.preventDefault();
 
 		var query = this.search.substring( 1 );
 		var aTableRequestParams = {
 			paged: extractQueryVars( query, 'paged' ) || 1,
 			order: extractQueryVars( query, 'order' ) || 'desc',
 			orderby: extractQueryVars( query, 'orderby' ) || 'created_at',
-			tableaction: jQuery( event.currentTarget ).data( 'tableaction' )
+			tableaction: jQuery( evt.currentTarget ).data( 'tableaction' )
 		};
 
 		renderTableRequest( aTableRequestParams );
@@ -351,5 +351,20 @@ jQuery( document ).ready( function () {
 	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '.select2picker' ).select2( {
 		width: 'resolve'
+	} );
+
+	jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
+		evt.preventDefault();
+		let link = jQuery( evt.currentTarget );
+		let id = link.data( 'beacon-article-id' );
+		if ( id ) {
+			let format = '';
+			format = '';
+			if ( link.data( 'beacon-article-format' ) ) {
+				format = link.data( 'beacon-article-format' );
+			}
+			Beacon( 'article', String( id ), { type: format } );
+		}
+		return false;
 	} );
 } );
