@@ -96,24 +96,24 @@
       "primary":       true,
       "title":         "Plugin Defaults",
       "title_short":   "Plugin Defaults",
-      "help_video_id": "338533495"
+      "beacon_id":     389
     },
     {
       "slug":          "section_general_plugin_options",
       "title":         "General Plugin Options",
-      "title_short":   "General Options",
-      "help_video_id": "338540386"
+      "title_short":   "General Options"
     },
     {
       "slug":          "section_third_party_captcha",
       "title":         "CAPTCHA",
       "title_short":   "CAPTCHA",
-      "help_video_id": "338546796"
+      "beacon_id":     390
     },
     {
       "slug":        "section_importexport",
       "title":       "Import / Export",
-      "title_short": "Import / Export"
+      "title_short": "Import / Export",
+      "beacon_id":   129
     },
     {
       "slug":        "section_integrations",
@@ -138,6 +138,7 @@
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
+      "beacon_id":   389,
       "name":        "Enable/Disable All Plugin Modules",
       "summary":     "Global Plugin On/Off Switch",
       "description": "Uncheck this option to disable all Shield features"
@@ -219,7 +220,7 @@
       ],
       "link_info":     "https://shsec.io/dn",
       "link_blog":     "",
-      "beacon_id":     "391",
+      "beacon_id":     391,
       "name":          "Visitor IP Address",
       "summary":       "Which Address Is Yours",
       "description":   "There are many way to detect visitor IP addresses. Please select yours from the list."
@@ -256,6 +257,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/i1",
       "link_blog":   "https://shsec.io/i2",
+      "beacon_id":   308,
       "name":        "Allow WP-CLI",
       "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
       "description": "Turn off this option to disable this plugin's WP-CLI integration."
@@ -291,6 +293,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/do",
       "link_blog":   "https://shsec.io/dp",
+      "beacon_id":   129,
       "name":        "Allow Import/Export",
       "summary":     "Allow Import Of Options To, And Export Of Options From, This Site",
       "description": "Uncheck this box to completely disable import and export of options."
@@ -388,6 +391,7 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
+      "beacon_id":     269,
       "name":          "CAPTCHA Provider",
       "summary":       "Which CAPTCHA Provider To Use Throughout",
       "description":   "You can choose the CAPTCHA provider depending on your preferences."
@@ -414,6 +418,7 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
+      "beacon_id":     269,
       "name":          "CAPTCHA Type",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
       "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
@@ -426,6 +431,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
+      "beacon_id":   390,
       "name":        "reCAPTCHA Site Key",
       "summary":     "Google reCAPTCHA Site Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
@@ -438,6 +444,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
+      "beacon_id":   390,
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."

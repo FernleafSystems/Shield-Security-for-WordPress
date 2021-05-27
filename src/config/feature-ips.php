@@ -60,6 +60,7 @@
       "primary":     true,
       "title":       "Automatic IP Black List",
       "title_short": "Auto IP Blocking Rules",
+      "beacon_id":   208,
       "summary":     [
         "Purpose - The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.",
         "Recommendation - Keep the Automatic IP Black List feature turned on."
@@ -68,14 +69,13 @@
     {
       "slug":        "section_antibot",
       "title":       "AntiBot System",
-      "title_short": "AntiBot System",
-      "summary":     [
-      ]
+      "title_short": "AntiBot System"
     },
     {
       "slug":        "section_logins",
       "title":       "Capture Login Bots",
       "title_short": "Login Bots",
+      "beacon_id":   122,
       "summary":     [
         "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
       ]
@@ -84,6 +84,7 @@
       "slug":        "section_probes",
       "title":       "Capture Probing Bots",
       "title_short": "Probing Bots",
+      "beacon_id":   123,
       "summary":     [
         "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
       ]
@@ -92,23 +93,16 @@
       "slug":        "section_behaviours",
       "title":       "Identify Common Bot Behaviours",
       "title_short": "Bot Behaviours",
+      "beacon_id":   124,
       "summary":     [
         "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
-      ]
-    },
-    {
-      "slug":        "section_enable_plugin_feature_bottrap",
-      "title":       "Enable Module: BotTrap",
-      "title_short": "Enable Module",
-      "summary":     [
-        "Purpose - BotTrap monitors a typical set of bot behaviours to help identify probing bots.",
-        "Recommendation - Enable as many bot traps as possible."
       ]
     },
     {
       "slug":        "section_user_messages",
       "title":       "Customize Messages Shown To User",
       "title_short": "Visitor Messages",
+      "beacon_id":   139,
       "summary":     [
         "Purpose - Customize the messages shown to visitors.",
         "Recommendation - Be sure to change the messages to suit your audience.",
@@ -138,6 +132,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ea",
       "link_blog":   "https://shsec.io/wpsf26",
+      "beacon_id":   208,
       "name":        "Enable IP Manager",
       "summary":     "Enable (or Disable) The IP Manager module",
       "description": "Un-Checking this option will completely disable the IP Manager module"
@@ -151,6 +146,7 @@
       "max":         99,
       "link_info":   "https://shsec.io/jy",
       "link_blog":   "https://shsec.io/jz",
+      "beacon_id":   424,
       "name":        "AntiBot Threshold",
       "summary":     "AntiBot Testing Threshold (Percentage)",
       "description": "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
@@ -162,6 +158,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/wpsf24",
       "link_blog":   "https://shsec.io/wpsf26",
+      "beacon_id":   207,
       "name":        "Offense Limit",
       "summary":     "Visitor IP address will be Black Listed after X bad actions on your site",
       "description": "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these offenses exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
@@ -196,6 +193,7 @@
       ],
       "link_info":     "https://shsec.io/wpsf25",
       "link_blog":     "https://shsec.io/wpsf26",
+      "beacon_id":     210,
       "name":          "Auto Block Expiration",
       "summary":       "After 1 'X' a black listed IP will be removed from the black list",
       "description":   "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
@@ -219,6 +217,7 @@
       ],
       "link_info":     "https://shsec.io/f8",
       "link_blog":     "",
+      "beacon_id":     125,
       "name":          "User Auto Unblock",
       "summary":       "Allow Visitors To Unblock Their IP",
       "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
@@ -232,6 +231,7 @@
       "type":        "array",
       "link_info":   "https://shsec.io/gd",
       "link_blog":   "",
+      "beacon_id":   126,
       "name":        "Request Path Whitelist",
       "summary":     "Request Path Whitelist",
       "description": "Request Path Whitelist."
@@ -245,6 +245,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/e8",
       "link_blog":   "",
+      "beacon_id":   139,
       "name":        "Login Failed",
       "summary":     "Visitor Triggers The IP Offenses System Through A Failed Login",
       "description": "This message is displayed if the visitor fails a login attempt."
@@ -279,6 +280,7 @@
       ],
       "link_info":     "https://shsec.io/fo",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     123,
       "name":          "404 Detect",
       "summary":       "Identify A Bot When It Hits A 404",
       "description":   "Detect When A Visitor Browses To A Non-Existent Page."
@@ -313,6 +315,7 @@
       ],
       "link_info":     "https://shsec.io/fo",
       "link_blog":     "https://shsec.io/f6",
+      "beacon_id":     123,
       "name":          "Link Cheese",
       "summary":       "Tempt A Bot With A Fake Link To Follow",
       "description":   "Detect A Bot That Follows A 'no-follow' Link."
@@ -347,6 +350,7 @@
       ],
       "link_info":     "https://shsec.io/fo",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     123,
       "name":          "XML-RPC Access",
       "summary":       "Identify A Bot When It Accesses XML-RPC",
       "description":   "If you don't use XML-RPC, why would anyone access it?"
@@ -381,6 +385,7 @@
       ],
       "link_info":     "https://shsec.io/fo",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     123,
       "name":          "Invalid Script Load",
       "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
       "description":   "WordPress should only be loaded in a limited number of ways."
@@ -414,6 +419,7 @@
       ],
       "link_info":     "https://shsec.io/fn",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     122,
       "name":          "Failed Login",
       "summary":       "Detect Failed Login Attempts By Valid Usernames",
       "description":   "Penalise a visitor who fails to login using a valid username."
@@ -448,6 +454,7 @@
       ],
       "link_info":     "https://shsec.io/fn",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     122,
       "name":          "Invalid Usernames",
       "summary":       "Detect Invalid Username Logins",
       "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
@@ -482,6 +489,7 @@
       ],
       "link_info":     "https://shsec.io/f5",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     206,
       "name":          "Fake Web Crawler",
       "summary":       "Detect Fake Search Engine Crawlers",
       "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
@@ -516,6 +524,7 @@
       ],
       "link_info":     "https://shsec.io/fi",
       "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     124,
       "name":          "Empty User Agents",
       "summary":       "Detect Requests With Empty User Agents",
       "description":   "Identify a request as a bot if the user agent is not provided."
@@ -529,6 +538,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/e9",
       "link_blog":   "",
+      "beacon_id":   139,
       "name":        "Remaining Offenses",
       "summary":     "Visitor Triggers The IP Offenses System Through A Firewall Block",
       "description": "This message is displayed if the visitor triggered the IP Offenses system and reports how many offenses remain before being blocked."

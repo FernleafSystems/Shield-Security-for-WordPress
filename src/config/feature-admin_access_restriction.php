@@ -41,16 +41,17 @@
       "primary":       true,
       "title":         "Security Admin Restriction Settings",
       "title_short":   "Security Admin Settings",
+      "beacon_id":     215,
       "summary":       [
         "Purpose - Restrict access using a simple Access PIN.",
         "Recommendation - Use of this feature is highly recommend."
-      ],
-      "help_video_id": "338551188"
+      ]
     },
     {
       "slug":          "section_admin_access_restriction_areas",
       "title":         "Security Admin Restriction Zones",
       "title_short":   "Access Restriction Zones",
+      "beacon_id":     214,
       "summary":       [
         "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
         "Recommendation - Use of this feature is highly recommend."
@@ -61,6 +62,7 @@
       "slug":        "section_whitelabel",
       "title":       "Shield White Label",
       "title_short": "White Label",
+      "beacon_id":   131,
       "summary":     [
         "Purpose - Rename and re-brand the Shield Security plugin for your client site installations."
       ]
@@ -69,6 +71,7 @@
       "slug":        "section_enable_plugin_feature_admin_access_restriction",
       "title":       "Enable Module: WordPress Security Admin",
       "title_short": "Disable Module",
+      "beacon_id":   213,
       "summary":     [
         "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
         "Recommendation - Keep the Security Admin feature turned on.",
@@ -101,6 +104,7 @@
       "type":        "password",
       "link_info":   "https://shsec.io/42",
       "link_blog":   "",
+      "beacon_id":   215,
       "name":        "Security Admin Access PIN",
       "summary":     "Provide/Update Security Admin Access PIN",
       "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
@@ -115,6 +119,7 @@
       "type":        "array",
       "link_info":   "https://shsec.io/dk",
       "link_blog":   "",
+      "beacon_id":   132,
       "name":        "Security Admins",
       "summary":     "Persistent Security Admins",
       "description": "All emails, usernames, or user IDs entered here will always be Security Admins."
@@ -128,6 +133,7 @@
       "min":         1,
       "link_info":   "https://shsec.io/41",
       "link_blog":   "",
+      "beacon_id":   387,
       "name":        "Security Admin Timeout",
       "summary":     "Specify An Automatic Timeout Interval For Security Admin Access",
       "description": "This will automatically expire your Security Admin Session. Does not apply until you enter the access PIN again. Default: 60 minutes."
@@ -140,6 +146,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/gf",
       "link_blog":   "",
+      "beacon_id":   385,
       "name":        "Allow Email Override",
       "summary":     "Allow Email Override Of Admin Access Restrictions",
       "description": "Allow the use of verification emails to override and switch off the Security Admin restrictions."
@@ -151,7 +158,8 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/a0",
       "link_blog":   "https://shsec.io/wpsf32",
-      "name":        "Pages",
+      "beacon_id":   214,
+      "name":        "Options",
       "summary":     "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
     },
@@ -163,6 +171,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/a0",
       "link_blog":   "",
+      "beacon_id":   214,
       "name":        "Admin Users",
       "summary":     "Restrict Access To Create/Delete/Modify Other Admin Users",
       "description": "Careful: This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
@@ -193,6 +202,7 @@
       ],
       "link_info":     "https://shsec.io/a0",
       "link_blog":     "https://shsec.io/wpsf21",
+      "beacon_id":     214,
       "summary":       "Restrict Access To Key WordPress Plugin Actions",
       "description":   "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
     },
@@ -226,6 +236,7 @@
       ],
       "link_info":     "https://shsec.io/a0",
       "link_blog":     "https://shsec.io/wpsf21",
+      "beacon_id":     214,
       "summary":       "Restrict Access To WordPress Theme Actions",
       "description":   "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
@@ -251,6 +262,7 @@
       ],
       "link_info":     "https://shsec.io/a0",
       "link_blog":     "https://shsec.io/wpsf21",
+      "beacon_id":     214,
       "summary":       "Restrict Access To Key WordPress Posts And Pages Actions",
       "description":   "Careful: This will restrict access to page/post creation, editing and deletion."
     },
@@ -262,6 +274,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/dr",
       "link_blog":   "https://shsec.io/ds",
+      "beacon_id":   131,
       "name":        "Enable White Label",
       "summary":     "Activate Your White Label Settings",
       "description": "Use this option to turn on/off the whole White Label feature."
@@ -296,6 +309,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
+      "beacon_id":   216,
       "name":        "Plugin Name",
       "summary":     "The Name Of The Plugin",
       "description": "The Name Of The Plugin."
@@ -320,6 +334,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
+      "beacon_id":   216,
       "name":        "Company Name",
       "summary":     "The Name Of Your Company",
       "description": "Provide the name of your company."
@@ -356,6 +371,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
+      "beacon_id":   216,
       "name":        "Menu Icon",
       "summary":     "Menu Icon URL",
       "description": "The URL of the icon displayed in the menu."
@@ -368,6 +384,7 @@
       "type":        "text",
       "link_info":   "",
       "link_blog":   "",
+      "beacon_id":   216,
       "name":        "Plugin Badge Logo",
       "summary":     "Plugin Badge Logo URL",
       "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"

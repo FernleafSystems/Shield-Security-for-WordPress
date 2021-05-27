@@ -45,16 +45,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_bottrap' :
-				$titleShort = __( 'Bot-Trap', 'wp-simple-firewall' );
-				$title = __( 'Identify And Capture Bots Based On Their Site Activity', 'wp-simple-firewall' );
-				$summary = [
-					__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises.", 'wp-simple-firewall' ),
-					__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots.", 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable as many mouse traps as possible.', 'wp-simple-firewall' ) )
-				];
-				break;
-
 			case 'section_logins':
 				$titleShort = __( 'Login Bots', 'wp-simple-firewall' );
 				$title = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
