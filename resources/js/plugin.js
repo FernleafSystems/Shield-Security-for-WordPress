@@ -359,7 +359,6 @@ jQuery( document ).ready( function () {
 		let id = link.data( 'beacon-article-id' );
 		if ( id ) {
 			let format = '';
-			format = '';
 			if ( link.data( 'beacon-article-format' ) ) {
 				format = link.data( 'beacon-article-format' );
 			}
