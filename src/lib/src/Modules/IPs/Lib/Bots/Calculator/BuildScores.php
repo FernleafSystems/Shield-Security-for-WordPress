@@ -2,27 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\BotScoringLogic;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
-
 class BuildScores extends BaseBuildScores {
 
-	private $logic = [];
+	/**
+	 * @var ScoreLogic
+	 */
+	private $logic;
 
 	public function build() :array {
-
-		$logic = $this->getScoringLogic();
-		if ( empty( $logic ) ) { // fallback to original built-in scoring.
-			$scores = ( new BuildScoresFallback() )
-				->setEntryVO( $this->getEntryVO() )
-				->setMod( $this->getMod() )
-				->build();
-		}
-		else {
-			$scores = [];
-			foreach ( $this->getAllFields() as $field ) {
-				$scores[ $field ] = $this->getFieldScore( $field );
-			}
+		$scores = [];
+		foreach ( $this->getAllFields() as $field ) {
+			$scores[ $field ] = $this->calcFieldScore( $field );
 		}
 
 		$scores[ 'known' ] = $this->score_known();
@@ -30,9 +20,10 @@ class BuildScores extends BaseBuildScores {
 		return $scores;
 	}
 
-	private function getFieldScore( string $field ) :int {
-		$logic = $this->getFieldScoreLogic( $field );
+	private function calcFieldScore( string $field ) :int {
+		$logic = $this->getScoringLogic()->getFieldScoreLogic( $field );
 
+		// -1 represents the default if none of the following boundaries are satisfied
 		$score = $logic[ -1 ];
 
 		if ( $this->lastAtTs( $field ) === 0 ) {
@@ -54,27 +45,10 @@ class BuildScores extends BaseBuildScores {
 		return (int)$score;
 	}
 
-	private function getFieldScoreLogic( $field ) :array {
-		return $this->logic[ $field ] ?? [];
-	}
-
-	private function getScoringLogic() :array {
-		if ( empty( $this->logic ) ) {
-			$logic = Transient::Get( 'shield-bot-scoring-logic' );
-			if ( empty( $logic ) ) {
-				$logicLoader = ( new BotScoringLogic() )->setMod( $this->getCon()->getModule_Plugin() );
-				$logicLoader->shield_net_params_required = false;
-				$logic = $logicLoader->retrieve();
-				if ( !empty( $logic ) ) {
-					Transient::Set( 'shield-bot-scoring-logic', $logic );
-				}
-			}
-
-			if ( is_array( $logic ) ) {
-				$this->logic = $logic;
-			}
+	private function getScoringLogic() :ScoreLogic {
+		if ( !$this->logic instanceof ScoreLogic ) {
+			$this->logic = ( new ScoreLogic() )->setCon( $this->getCon() );
 		}
-
 		return $this->logic;
 	}
 }
