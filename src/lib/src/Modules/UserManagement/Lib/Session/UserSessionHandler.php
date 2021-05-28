@@ -23,7 +23,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$this->setupLoginCaptureHooks();
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
-		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
+		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100 );
 	}
 
 	protected function captureLogin( \WP_User $user ) {
@@ -38,16 +38,14 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 	private function checkCurrentSession() {
 		$con = $this->getCon();
-		/** @var UserManagement\ModCon $mod */
-		$mod = $this->getMod();
+		$srvIP = Services::IP();
+
 		try {
-			if ( $mod->hasValidRequestIP() ) {
+			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) ) {
 				$this->assessSession();
 			}
 		}
 		catch ( \Exception $e ) {
-			// We force-refresh the server IPs just to be sure.
-			$srvIP = Services::IP();
 			$srvIP->getServerPublicIPs( true );
 			if ( !$srvIP->isLoopback() ) {
 				$event = $e->getMessage();

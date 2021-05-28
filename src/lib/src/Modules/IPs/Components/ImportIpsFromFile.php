@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
@@ -6,12 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ImportIpsFromFile {
+class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
-	use Shield\Modules\ModConsumer;
-
-	public function run() {
-		foreach ( [ 'black', 'white' ] as $type ) {
+	protected function run() {
+		foreach ( [ 'black', 'white', 'block', 'bypass' ] as $type ) {
 			$this->runFileImport( $type );
 		}
 	}
@@ -23,12 +21,13 @@ class ImportIpsFromFile {
 		if ( $FS->isFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {
-				$oAdd = ( new IPs\Lib\Ops\AddIp() )->setMod( $this->getMod() );
+				$add = ( new IPs\Lib\Ops\AddIp() )->setMod( $this->getMod() );
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $sIP ) {
-					$oAdd->setIP( $sIP );
+					$add->setIP( $sIP );
 					try {
-						$type == 'white' ? $oAdd->toManualWhitelist( 'file import' )
-							: $oAdd->toManualBlacklist( 'file import' );
+						in_array( $type, [ 'white', 'bypass' ] ) ?
+							$add->toManualWhitelist( 'file import' )
+							: $add->toManualBlacklist( 'file import' );
 					}
 					catch ( \Exception $e ) {
 					}

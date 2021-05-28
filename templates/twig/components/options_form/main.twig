@@ -32,22 +32,34 @@
 						<h5 class="mt-3">
 							<span class="mb-3 d-inline-block">{{ opt_section.title }}</span>
 
-							{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
-								<a class="section_title_info"
-								   data-toggle="collapse"
-								   data-target="#collapse-{{ opt_section.slug }}"
-								><span class="dashicons dashicons-info"></span></a>
-								<br />
-								<div class="collapse mb-3" id="collapse-{{ opt_section.slug }}">
-									<div class="card">
-										<div class="card-body">
-											{% for item in opt_section.summary %}
-												<p class="card-text">{{ item|raw }}</p>
-											{% endfor %}
+							{% if opt_section.beacon_id|default(false) %}
+								<a href="javascript:{}" class="beacon-article"
+								   data-beacon-article-id="{{ opt_section.beacon_id }}"
+								   data-beacon-article-format="modal"
+								   title="{{ strings.opt_info_helpdesk }}">
+									<span class="dashicons dashicons-editor-help"></span>
+								</a>
+
+							{% else %}
+								{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
+
+									<a class="section_title_info"
+									   data-toggle="collapse"
+									   data-target="#collapse-{{ opt_section.slug }}"
+									><span class="dashicons dashicons-editor-help"></span></a>
+									<br />
+									<div class="collapse mb-3" id="collapse-{{ opt_section.slug }}">
+										<div class="card">
+											<div class="card-body">
+												{% for item in opt_section.summary %}
+													<p class="card-text">{{ item|raw }}</p>
+												{% endfor %}
+											</div>
 										</div>
 									</div>
-								</div>
+								{% endif %}
 							{% endif %}
+
 						</h5>
 					</div>
 				</div>

@@ -52,6 +52,14 @@ class Options extends BaseShield\Options {
 		);
 	}
 
+	public function getAntiBotMinimum() :int {
+		return (int)$this->getOpt( 'antibot_minimum', 50 );
+	}
+
+	public function isEnabledAntiBotEngine() :bool {
+		return $this->getAntiBotMinimum() > 0;
+	}
+
 	public function isEnabledAutoBlackList() :bool {
 		return $this->getOffenseLimit() > 0;
 	}

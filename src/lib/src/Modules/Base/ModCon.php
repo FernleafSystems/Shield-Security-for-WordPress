@@ -970,6 +970,9 @@ abstract class ModCon {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 11.2
+	 */
 	protected function isThisModAdminPage() :bool {
 		return is_admin() && !Services::WpGeneral()->isAjax()
 			   && Services::Request()->isGet() && $this->isThisModulePage();
@@ -986,57 +989,57 @@ abstract class ModCon {
 		// standard options use b64 and fail-over to lz-string
 		$form = FormParams::Retrieve( FormParams::ENC_BASE64 );
 
-		foreach ( $this->getAllFormOptionsAndTypes() as $sKey => $sOptType ) {
+		foreach ( $this->getAllFormOptionsAndTypes() as $key => $optType ) {
 
-			$sOptionValue = isset( $form[ $sKey ] ) ? $form[ $sKey ] : null;
-			if ( is_null( $sOptionValue ) ) {
+			$optValue = $form[ $key ] ?? null;
+			if ( is_null( $optValue ) ) {
 
-				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
+				if ( in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				elseif ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
-					$sOptionValue = 'N';
+				elseif ( $optType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+					$optValue = 'N';
 				}
-				elseif ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
-					$sOptionValue = 0;
+				elseif ( $optType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+					$optValue = 0;
 				}
-				elseif ( $sOptType == 'multiple_select' ) {
-					$sOptionValue = [];
+				elseif ( $optType == 'multiple_select' ) {
+					$optValue = [];
 				}
 			}
 			else { //handle any pre-processing we need to.
 
-				if ( $sOptType == 'text' || $sOptType == 'email' ) {
-					$sOptionValue = trim( $sOptionValue );
+				if ( $optType == 'text' || $optType == 'email' ) {
+					$optValue = trim( $optValue );
 				}
-				if ( $sOptType == 'integer' ) {
-					$sOptionValue = intval( $sOptionValue );
+				if ( $optType == 'integer' ) {
+					$optValue = intval( $optValue );
 				}
-				elseif ( $sOptType == 'password' ) {
-					$sTempValue = trim( $sOptionValue );
+				elseif ( $optType == 'password' ) {
+					$sTempValue = trim( $optValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
 					}
 
-					$sConfirm = isset( $form[ $sKey.'_confirm' ] ) ? $form[ $sKey.'_confirm' ] : null;
-					if ( $sTempValue !== $sConfirm ) {
+					$confirm = $form[ $key.'_confirm' ] ?? null;
+					if ( $sTempValue !== $confirm ) {
 						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
 
-					$sOptionValue = md5( $sTempValue );
+					$optValue = md5( $sTempValue );
 				}
-				elseif ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
-					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
+				elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
+					$optValue = array_filter( explode( "\n", esc_textarea( $optValue ) ), 'trim' );
 				}
-				elseif ( $sOptType == 'comma_separated_lists' ) {
-					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
+				elseif ( $optType == 'comma_separated_lists' ) {
+					$optValue = Services::Data()->extractCommaSeparatedList( $optValue );
 				}
-				/* elseif ( $sOptType == 'multiple_select' ) { } */
+				/* elseif ( $optType == 'multiple_select' ) { } */
 			}
 
 			// Prevent overwriting of non-editable fields
-			if ( !in_array( $sOptType, [ 'noneditable_text' ] ) ) {
-				$this->getOptions()->setOpt( $sKey, $sOptionValue );
+			if ( !in_array( $optType, [ 'noneditable_text' ] ) ) {
+				$this->getOptions()->setOpt( $key, $optValue );
 			}
 		}
 
@@ -1081,12 +1084,12 @@ abstract class ModCon {
 
 	/**
 	 * Will prefix and return any string with the unique plugin prefix.
-	 * @param string $sSuffix
-	 * @param string $sGlue
+	 * @param string $suffix
+	 * @param string $glue
 	 * @return string
 	 */
-	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getCon()->prefix( $sSuffix, $sGlue );
+	public function prefix( $suffix = '', $glue = '-' ) {
+		return $this->getCon()->prefix( $suffix, $glue );
 	}
 
 	/**

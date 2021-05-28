@@ -13,7 +13,7 @@
     "run_if_wpcli":          true,
     "tracking_exclude":      true
   },
-  "wpcli": {
+  "wpcli":       {
     "enabled": false
   },
   "sections":    [
@@ -46,16 +46,16 @@
     }
   ],
   "definitions": {
-    "db_classes":             {
+    "db_classes":        {
       "events": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Events\\Handler"
     },
-    "db_table_events":               {
-      "slug":            "events",
-      "cols_custom":     {
+    "db_table_events":   {
+      "slug":        "events",
+      "cols_custom": {
         "event": "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Event ID'",
         "count": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total'"
       }
     },
-    "events_table_name":                 "events"
+    "events_table_name": "events"
   }
 }

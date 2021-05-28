@@ -1100,11 +1100,12 @@ input[type=checkbox].form-check-input {
 	position: relative;
 	/*display: block;*/
 }
+
+.option_label_name .beacon-article > .dashicons,
 .icwpOptionsForm .option_link_info > .dashicons {
 	font-size: 16px;
 	text-decoration: none;
 	width: 1px;
-	margin-left: -3px;
 }
 .tooltip .arrow {
 	display: none !important;

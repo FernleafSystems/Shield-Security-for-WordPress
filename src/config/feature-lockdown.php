@@ -18,10 +18,11 @@
   },
   "sections":    [
     {
-      "slug":        "section_apixml",
       "primary":     true,
+      "slug":        "section_apixml",
       "title":       "WordPress System Lockdown",
       "title_short": "System",
+      "beacon_id":   413,
       "summary":     [
         "Purpose - Lockdown certain core WordPress system features.",
         "Recommendation - This depends on your usage and needs for certain WordPress functions and features."
@@ -31,6 +32,7 @@
       "slug":        "section_permission_access_options",
       "title":       "Permissions and Access Options",
       "title_short": "Permissions",
+      "beacon_id":   415,
       "summary":     [
         "Purpose - Provides finer control of certain WordPress permissions.",
         "Recommendation - Only enable SSL if you have a valid certificate installed."
@@ -40,6 +42,7 @@
       "slug":        "section_wordpress_obscurity_options",
       "title":       "WordPress Obscurity Options",
       "title_short": "Obscurity",
+      "beacon_id":   418,
       "summary":     [
         "Purpose - Obscures certain WordPress settings from public view.",
         "Recommendation - Obscurity is not true security and so these settings are down to your personal tastes."
@@ -49,6 +52,7 @@
       "slug":        "section_enable_plugin_feature_wordpress_lockdown",
       "title":       "Enable Module: Lockdown",
       "title_short": "Disable Module",
+      "beacon_id":   272,
       "summary":     [
         "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
         "Recommendation - Keep the Lockdown feature turned on."
@@ -68,6 +72,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4r",
       "link_blog":   "",
+      "beacon_id":   272,
       "name":        "Enable Lockdown",
       "summary":     "Enable (or Disable) The Lockdown module",
       "description": "Un-Checking this option will completely disable the Lockdown module"
@@ -79,6 +84,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/e6",
       "link_blog":   "https://shsec.io/fb",
+      "beacon_id":   414,
       "name":        "Disable XML-RPC",
       "summary":     "Disable The XML-RPC System",
       "description": "Checking this option will completely turn off the whole XML-RPC system."
@@ -117,6 +123,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4q",
       "link_blog":   "https://shsec.io/hk",
+      "beacon_id":   416,
       "name":        "Disable File Editing",
       "summary":     "Disable Ability To Edit Files From Within WordPress",
       "description": "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."
@@ -128,6 +135,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4t",
       "link_blog":   "",
+      "beacon_id":   417,
       "name":        "Force SSL Admin",
       "summary":     "Forces WordPress Admin Dashboard To Be Delivered Over SSL",
       "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
@@ -179,8 +187,8 @@
         "recent": true
       },
       "block_xml":               {
-        "audit":  false,
-        "recent": true,
+        "audit":   false,
+        "recent":  true,
         "offense": true
       }
     }
