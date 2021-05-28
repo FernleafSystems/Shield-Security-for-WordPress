@@ -43,13 +43,6 @@ class ModCon extends Base\ModCon {
 					->getCurrent();
 	}
 
-	/**
-	 * @deprecated 11.2
-	 */
-	public function hasValidRequestIP() :bool {
-		return !empty( Services::IP()->isValidIp( Services::IP()->getRequestIp() ) );
-	}
-
 	public function onWpInit() {
 		parent::onWpInit();
 		if ( $this->isThisModulePage() && !$this->isWizardPage() && ( $this->getSlug() != 'insights' ) ) {
