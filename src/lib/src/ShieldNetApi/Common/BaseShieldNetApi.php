@@ -10,10 +10,12 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class BaseShieldNetApi
  * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common
  * @property array $shield_net_params
+ * @property bool  $shield_net_params_required
  */
 class BaseShieldNetApi extends BaseApi {
 
 	use ModConsumer;
+
 	const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v1';
 
 	/**
@@ -40,9 +42,13 @@ class BaseShieldNetApi extends BaseApi {
 
 			case 'shield_net_params':
 				if ( !is_array( $value ) ) {
-					$value = $this->getShieldNetApiParams();
+					$value = $this->shield_net_params_required ? $this->getShieldNetApiParams() : [];
 					$this->shield_net_params = $value;
 				}
+				break;
+
+			case 'shield_net_params_required':
+				$value = is_null( $value ) ? true : (bool)$value;
 				break;
 
 			default:
