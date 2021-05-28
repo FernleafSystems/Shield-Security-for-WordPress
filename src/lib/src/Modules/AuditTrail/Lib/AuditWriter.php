@@ -32,19 +32,19 @@ class AuditWriter extends EventsListener {
 			$entry->event = $evt;
 			$entry->category = $def[ 'cat' ];
 			$entry->context = $def[ 'context' ];
-			$entry->meta = isset( $meta[ 'audit' ] ) ? $meta[ 'audit' ] : [];
+			$entry->meta = $meta[ 'audit' ] ?? [];
 
-			$aLogs = $this->getLogs();
+			$logs = $this->getLogs();
 
 			// cater for where certain events may happen more than once in the same request
 			if ( !empty( $def[ 'audit_multiple' ] ) ) {
-				$aLogs[] = $entry;
+				$logs[] = $entry;
 			}
 			else {
-				$aLogs[ $evt ] = $entry;
+				$logs[ $evt ] = $entry;
 			}
 
-			$this->setLogs( $aLogs );
+			$this->setLogs( $logs );
 		}
 	}
 
@@ -65,11 +65,11 @@ class AuditWriter extends EventsListener {
 	}
 
 	/**
-	 * @param AuditTrail\EntryVO[] $aLogs
+	 * @param AuditTrail\EntryVO[] $logs
 	 * @return $this
 	 */
-	public function setLogs( $aLogs = [] ) {
-		$this->aAuditLogs = $aLogs;
+	public function setLogs( array $logs = [] ) {
+		$this->aAuditLogs = $logs;
 		return $this;
 	}
 }

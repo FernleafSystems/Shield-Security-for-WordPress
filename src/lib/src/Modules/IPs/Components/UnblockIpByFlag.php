@@ -17,16 +17,15 @@ class UnblockIpByFlag {
 
 		$path = $FS->findFileInDir( 'unblock', $this->getCon()->paths->forFlag() );
 		if ( !empty( $path ) && $FS->isFile( $path ) ) {
-			$sContent = $FS->getFileContent( $path );
-			if ( !empty( $sContent ) ) {
+			$content = $FS->getFileContent( $path );
+			if ( !empty( $content ) ) {
 
-				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
-				foreach ( $aLines as $sIp ) {
-					$bRemoved = ( new IPs\Lib\Ops\DeleteIp() )
+				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $sIp ) {
+					$removed = ( new IPs\Lib\Ops\DeleteIp() )
 						->setMod( $mod )
 						->setIP( $sIp )
 						->fromBlacklist();
-					if ( $bRemoved ) {
+					if ( $removed ) {
 						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit' => [ 'ip' => $sIp ] ] );
 					}
 				}

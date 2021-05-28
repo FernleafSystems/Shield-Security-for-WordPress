@@ -11,11 +11,11 @@ class Commit {
 	use HandlerConsumer;
 
 	/**
-	 * @param AuditTrail\EntryVO[] $aEvents
+	 * @param AuditTrail\EntryVO[] $events
 	 */
-	public function commitAudits( $aEvents ) {
-		if ( is_array( $aEvents ) ) {
-			foreach ( $aEvents as $entry ) {
+	public function commitAudits( array $events ) {
+		if ( is_array( $events ) ) {
+			foreach ( $events as $entry ) {
 				if ( $entry instanceof AuditTrail\EntryVO ) {
 					$this->commitAudit( $entry );
 				}
@@ -23,10 +23,7 @@ class Commit {
 		}
 	}
 
-	/**
-	 * @param AuditTrail\EntryVO $entry
-	 */
-	public function commitAudit( $entry ) {
+	public function commitAudit( AuditTrail\EntryVO $entry ) {
 		$WP = Services::WpGeneral();
 		$WPU = Services::WpUsers();
 
@@ -49,28 +46,28 @@ class Commit {
 			$entry->wp_username = $sUser;
 		}
 
-		$oLatest = null;
-		$bCanCount = in_array( $entry->event, $this->getCanCountEvents() );
-		if ( $bCanCount ) {
-			/** @var AuditTrail\Select $oSel */
-			$oSel = $this->getDbHandler()->getQuerySelector();
-			$oLatest = $oSel->filterByEvent( $entry->event )
-							->filterByIp( $entry->ip )
-							->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
-							->first();
-			$bCanCount = ( $oLatest instanceof AuditTrail\EntryVO )
-						 && ( $oLatest->event === $entry->event && $oLatest->ip === $entry->ip );
+		$latest = null;
+		$canCount = in_array( $entry->event, $this->getCanCountEvents() );
+		if ( $canCount ) {
+			/** @var AuditTrail\Select $select */
+			$select = $this->getDbHandler()->getQuerySelector();
+			$latest = $select->filterByEvent( $entry->event )
+							 ->filterByIp( $entry->ip )
+							 ->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
+							 ->first();
+			$canCount = ( $latest instanceof AuditTrail\EntryVO )
+						&& ( $latest->event === $entry->event && $latest->ip === $entry->ip );
 		}
 
-		if ( $bCanCount ) {
-			/** @var AuditTrail\Update $oQU */
-			$oQU = $this->getDbHandler()->getQueryUpdater();
-			$oQU->updateCount( $oLatest );
+		if ( $canCount ) {
+			/** @var AuditTrail\Update $updater */
+			$updater = $this->getDbHandler()->getQueryUpdater();
+			$updater->updateCount( $latest );
 		}
 		else {
-			/** @var AuditTrail\Insert $oQI */
-			$oQI = $this->getDbHandler()->getQueryInserter();
-			$oQI->insert( $entry );
+			/** @var AuditTrail\Insert $inserter */
+			$inserter = $this->getDbHandler()->getQueryInserter();
+			$inserter->insert( $entry );
 		}
 	}
 
@@ -78,7 +75,7 @@ class Commit {
 	 * TODO: This should be a config
 	 * @return string[]
 	 */
-	private function getCanCountEvents() {
+	private function getCanCountEvents() :array {
 		return [ 'conn_kill' ];
 	}
 }

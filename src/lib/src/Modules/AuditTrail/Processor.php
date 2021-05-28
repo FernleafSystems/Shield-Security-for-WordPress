@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
@@ -32,28 +33,24 @@ class Processor extends BaseShield\Processor {
 
 	private function initAuditors() {
 		$this->loadAuditorWriter()->setIfCommit( true );
+		foreach ( $this->getAuditors() as $auditor ) {
+			$auditor->setMod( $this->getMod() )->execute();
+		}
+	}
 
-		( new Auditors\Users() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new Auditors\Plugins() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new Auditors\Themes() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new Auditors\Wordpress() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new Auditors\Posts() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new Auditors\Emails() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new Auditors\Upgrades() )
-			->setMod( $this->getMod() )
-			->execute();
+	/**
+	 * @return Base[]
+	 */
+	private function getAuditors() :array {
+		return [
+			new Auditors\Users(),
+			new Auditors\Plugins(),
+			new Auditors\Themes(),
+			new Auditors\Wordpress(),
+			new Auditors\Posts(),
+			new Auditors\Emails(),
+			new Auditors\Upgrades(),
+		];
 	}
 
 	/**

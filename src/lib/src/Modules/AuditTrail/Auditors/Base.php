@@ -2,11 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
-class Base {
+class Base extends Modules\Base\Common\ExecOnceModConsumer {
 
-	use Modules\ModConsumer;
-	use ExecOnce;
 }
