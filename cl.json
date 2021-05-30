@@ -95,7 +95,13 @@
         "type":        "improved",
         "title":       "Adjust default bot scoring logic to reduce spam.",
         "description": [],
-        "patch":       "11.2.3"
+        "patch":       "11.2.4"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Some clients reported a fatal error in certain circumstances.",
+        "description": [],
+        "patch":       "11.2.4"
       }
     ]
   },
