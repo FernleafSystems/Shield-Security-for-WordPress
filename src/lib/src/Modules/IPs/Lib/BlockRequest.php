@@ -37,11 +37,11 @@ class BlockRequest extends ExecOnceModConsumer {
 	}
 
 	private function renderKillPage() {
+		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		$con = $this->getCon();
 
 		$ip = Services::IP()->getRequestIp();
 		$timeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
@@ -98,6 +98,11 @@ class BlockRequest extends ExecOnceModConsumer {
 				'is_uaum_permitted' => $canUauMagic,
 			],
 		];
+
+		if ( $con->isPremiumActive() ) {
+			$data = apply_filters( 'shield/render_data_block_page', $data );
+		}
+
 		Services::WpGeneral()
 				->wpDie(
 					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $data, true )
@@ -108,11 +113,11 @@ class BlockRequest extends ExecOnceModConsumer {
 	 * @return string
 	 */
 	private function renderEmailMagicLinkContent() {
+		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		$con = $this->getCon();
 
 		$content = '';
 

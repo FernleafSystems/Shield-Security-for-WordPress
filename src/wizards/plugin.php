@@ -268,7 +268,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					$additional = [
 						'hrefs'   => [
 							'free_trial' => 'https://shsec.io/freetrialwizard',
-							'features' => 'https://getshieldsecurity.com/features/',
+							'features'   => 'https://getshieldsecurity.com/features/',
 						],
 						'imgs'    => [
 							'free_trial' => $con->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
@@ -294,9 +294,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					$users = Services::WpUsers()->getCurrentWpUser();
 					$additional = [
 						'hrefs'   => [
-							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' ),
-							'facebook'       => $con->urls->forImage( 'bootstrap/facebook.svg' ),
-							'twitter'        => $con->urls->forImage( 'bootstrap/twitter.svg' ),
+							'facebook'       => 'https://shsec.io/pluginshieldsecuritygroupfb',
+							'twitter'        => 'https://shsec.io/pluginshieldsecuritytwitter',
+							'email'          => 'https://shsec.io/pluginshieldsecuritynewsletter',
 						],
 						'imgs'    => [
 							'facebook' => $con->svgs->raw( 'bootstrap/facebook.svg' ),

@@ -260,7 +260,7 @@ class Strings extends Base\Strings {
 	 */
 	public function getBotSignalNames() :array {
 		return [
-			'baseline'        => __( 'Baseline Starting Score', 'wp-simple-firewall' ),
+			'created'         => __( 'New Visitor Bonus', 'wp-simple-firewall' ),
 			'known'           => __( 'A Known Service Provider/Bot', 'wp-simple-firewall' ),
 			'notbot'          => __( '"Not Bot" Registration', 'wp-simple-firewall' ),
 			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
