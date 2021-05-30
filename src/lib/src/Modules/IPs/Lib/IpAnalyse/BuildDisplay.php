@@ -299,7 +299,7 @@ class BuildDisplay {
 			$column = $scoreKey.'_at';
 			if ( $scoreValue !== 0 ) {
 				if ( empty( $record ) || empty( $record->{$column} ) ) {
-					if ( in_array( $scoreKey, [ 'known', 'baseline' ] ) ) {
+					if ( in_array( $scoreKey, [ 'known', 'created' ] ) ) {
 						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
 					}
 					else {

@@ -14,15 +14,10 @@ class BuildScores {
 	public function build() :array {
 		$scores = [];
 		foreach ( $this->getAllFields( true ) as $field ) {
-			$method = 'score_'.$field;
-			if ( method_exists( $this, $method ) ) {
-				$scores[ $field ] = $this->{'score_'.$field}();
-			}
+			$scores[ $field ] = $this->{'score_'.$field}();
 		}
 		$scores[ 'known' ] = $this->score_known();
-		if ( Services::Request()->ts() - $this->getRecord()->created_at < 20 ) {
-			$scores[ 'baseline' ] = 35;
-		}
+
 		return $scores;
 	}
 
@@ -43,6 +38,15 @@ class BuildScores {
 		}
 		else {
 			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 175 : 150;
+		}
+		return $score;
+	}
+
+	private function score_created() :int {
+		$score = 0;
+		$tsDiff = $this->diffTs( __FUNCTION__ );
+		if ( $tsDiff > 3 && $tsDiff < 15 ) {
+			$score = 15;
 		}
 		return $score;
 	}
@@ -287,7 +291,7 @@ class BuildScores {
 				$botSignalDBH->getTableSchema()->getColumnNames(),
 				function ( $col ) {
 					return preg_match( '#_at$#', $col ) &&
-						   !in_array( $col, [ 'updated_at', 'created_at', 'deleted_at' ] );
+						   !in_array( $col, [ 'updated_at', 'deleted_at' ] );
 				}
 			)
 		);
