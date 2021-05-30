@@ -140,7 +140,7 @@
     {
       "key":         "antibot_minimum",
       "section":     "section_antibot",
-      "default":     35,
+      "default":     45,
       "type":        "integer",
       "min":         0,
       "max":         99,
