@@ -50,7 +50,8 @@ class ScoreLogic {
 	protected function getPositiveSignals() :array {
 		return [
 			'created'     => [
-				20 => 35, // baseline
+				3  => 0,
+				15 => 15,
 			],
 			'notbot'      => [
 				0               => -10,
