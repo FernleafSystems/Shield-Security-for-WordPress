@@ -538,9 +538,6 @@
     }
   ],
   "definitions":   {
-    "help_video_id":          "",
-    "tracking_cron_handle":   "plugin_tracking_cron",
-    "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_classes":             {
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
