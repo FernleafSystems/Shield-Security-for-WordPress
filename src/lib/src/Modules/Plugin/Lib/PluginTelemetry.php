@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Telemetry\SendTelemetry;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginTelemetry extends ExecOnceModConsumer {
@@ -39,39 +40,27 @@ class PluginTelemetry extends ExecOnceModConsumer {
 	}
 
 	public function runDailyCron() {
-		$this->sendTrackingData();
-	}
-
-	private function sendTrackingData() {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
-		$success = false;
-
-		$bCanSend = Services::Request()
-							->carbon()
-							->subWeek()->timestamp
-					> (int)$opts->getOpt( 'tracking_last_sent_at', 0 );
-		if ( $bCanSend && $opts->isTrackingEnabled() ) {
-
-			$data = $this->collectTrackingData();
-			if ( !empty( $data ) ) {
-				$opts->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-				$success = Services::HttpRequest()->post(
-					$opts->getDef( 'tracking_post_url' ),
-					[
-						'timeout'     => 20,
-						'redirection' => 5,
-						'httpversion' => '1.1',
-						'blocking'    => true,
-						'body'        => [ 'tracking_data' => $data ],
-						'user-agent'  => 'SHIELD/'.$this->getCon()->getVersion().';'
-					]
-				);
-			}
+		$canSend = $opts->isTrackingEnabled()
+				   && Services::Request()
+							  ->carbon()
+							  ->subWeek()->timestamp > (int)$opts->getOpt( 'tracking_last_sent_at', 0 );
+		if ( $canSend ) {
+			$this->collectAndSend();
 		}
+	}
 
-		return $success;
+	public function collectAndSend() {
+		$data = $this->collectTrackingData();
+		if ( !empty( $data ) ) {
+			$this->getOptions()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
+			$this->getMod()->saveModOptions();
+			( new SendTelemetry() )
+				->setMod( $this->getMod() )
+				->sendData( $data );
+		}
 	}
 
 	/**
@@ -92,10 +81,12 @@ class PluginTelemetry extends ExecOnceModConsumer {
 						  ->getQuerySelector();
 			$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
 		}
+
 		if ( !empty( $data[ 'login_protect' ] ) ) {
 			$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] =
 				$data[ 'login_protect' ][ 'options' ][ 'email_can_send_verified_at' ] > 0 ? 1 : 0;
 		}
+
 		if ( !empty( $data[ 'admin_access_restriction' ] ) ) {
 			$keys = [
 				'admin_access_restrict_plugins',
@@ -107,6 +98,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 					= empty( $data[ 'admin_access_restriction' ][ 'options' ][ $key ] ) ? 0 : 1;
 			}
 		}
+
 		if ( !empty( $data[ 'plugin' ] ) ) {
 			/** @var Plugin\ModCon $mod */
 			$mod = $this->getMod();
@@ -148,19 +140,18 @@ class PluginTelemetry extends ExecOnceModConsumer {
 		$WPP = Services::WpPlugins();
 		return [
 			'env' => [
-				'options' => [
-					'php'             => Services::Data()->getPhpVersionCleaned(),
-					'wordpress'       => $WP->getVersion(),
-					'slug'            => $this->getCon()->getPluginSlug(),
-					'version'         => $this->getCon()->getVersion(),
-					'is_wpms'         => $WP->isMultisite() ? 1 : 0,
-					'is_cp'           => $WP->isClassicPress() ? 1 : 0,
-					'ssl'             => is_ssl() ? 1 : 0,
-					'locale'          => get_locale(),
-					'plugins_total'   => count( $WPP->getPlugins() ),
-					'plugins_active'  => count( $WPP->getActivePlugins() ),
-					'plugins_updates' => count( $WPP->getUpdates() )
-				]
+				'unique_site_hash' => sha1( network_home_url( '/' ) ),
+				'php'              => Services::Data()->getPhpVersionCleaned(),
+				'wordpress'        => $WP->getVersion(),
+				'slug'             => $this->getCon()->getPluginSlug(),
+				'version'          => $this->getCon()->getVersion(),
+				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
+				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
+				'ssl'              => is_ssl() ? 1 : 0,
+				'locale'           => get_locale(),
+				'plugins_total'    => count( $WPP->getPlugins() ),
+				'plugins_active'   => count( $WPP->getActivePlugins() ),
+				'plugins_updates'  => count( $WPP->getUpdates() )
 			]
 		];
 	}

@@ -48,7 +48,7 @@ class BaseShieldNetApi extends BaseApi {
 				break;
 
 			case 'shield_net_params_required':
-				$value = is_null( $value ) ? true : (bool)$value;
+				$value = is_null( $value ) || $value;
 				break;
 
 			default:
@@ -61,7 +61,7 @@ class BaseShieldNetApi extends BaseApi {
 	/**
 	 * @return string[]
 	 */
-	protected function getShieldNetApiParams() {
+	protected function getShieldNetApiParams() :array {
 		return [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
 			'install_id' => $this->getCon()->getSiteInstallationId(),

@@ -384,7 +384,7 @@ abstract class BaseQuery {
 		return $this->setLimit( 0 )
 					->setRawWheres( [] )
 					->setPage( 1 )
-					->setOrderBy( null );
+					->setOrderBy( '' );
 	}
 
 	/**

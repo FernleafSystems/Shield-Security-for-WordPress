@@ -46,7 +46,7 @@ class Select extends Base\Select {
 
 		natsort( $allEvents );
 		foreach ( $allEvents as $event ) {
-			$sums[ $event ] = $this->clearWheres()->sumEvent( $event );
+			$sums[ $event ] = (int)$this->clearWheres()->sumEvent( $event );
 		}
 		return $sums;
 	}

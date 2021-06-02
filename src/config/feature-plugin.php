@@ -540,7 +540,6 @@
   "definitions":   {
     "help_video_id":          "",
     "tracking_cron_handle":   "plugin_tracking_cron",
-    "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_classes":             {

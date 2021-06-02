@@ -91,10 +91,6 @@ abstract class Handler extends ExecOnceModConsumer {
 		}
 	}
 
-	protected function getColumnForOlderThanComparison() :string {
-		return 'created_at';
-	}
-
 	/**
 	 * @param int $timestamp
 	 * @return bool
