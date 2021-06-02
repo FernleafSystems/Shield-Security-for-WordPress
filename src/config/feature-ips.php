@@ -559,6 +559,18 @@
     }
   ],
   "definitions":      {
+    "allowable_ext_404s":  [
+      "js",
+      "css",
+      "gif",
+      "jpg",
+      "jpeg",
+      "png",
+      "map",
+      "ttf",
+      "woff",
+      "woff2"
+    ],
     "db_classes":          {
       "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
       "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
@@ -648,7 +660,7 @@
         "stat":    false
       },
       "bottrack_404":            {
-        "cat":     2,
+        "cat":     1,
         "offense": true
       },
       "bottrack_fakewebcrawler": {
@@ -668,7 +680,7 @@
         "offense": true
       },
       "bottrack_useragent":      {
-        "cat":     2,
+        "cat":     1,
         "offense": true
       },
       "bottrack_xmlrpc":         {

@@ -176,8 +176,14 @@ class Strings extends Base\Strings {
 			case 'track_404' :
 				$name = __( '404 Detect', 'wp-simple-firewall' );
 				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
-				$desc = __( "Detect when a visitor tries to load a non-existent page.", 'wp-simple-firewall' )
-						.'<br/>'.__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s.", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Detect when a visitor tries to load a non-existent page.', 'wp-simple-firewall' ),
+					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
+					sprintf( '%s: <br/><strong>%s</strong>',
+						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
+						implode( ', ', $this->getOptions()->getDef( 'allowable_ext_404s' ) )
+					),
+				];
 				break;
 
 			case 'track_xmlrpc' :

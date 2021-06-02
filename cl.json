@@ -1,4 +1,25 @@
 {
+  "11.3": {
+    "version":     "11.3",
+    "released_at": 1621844125,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease113",
+      "upgrade": "https://shsec.io/shieldupgradeguide113"
+    },
+    "title":       "",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Removed: 404 Bot Signal Option",
+        "description": [
+          "Shield uses the occurrence of 404 errors as a signal that a visitor is a bot."
+        ]
+      }
+    ]
+  },
   "11.2": {
     "version":     "11.2",
     "released_at": 1621844125,

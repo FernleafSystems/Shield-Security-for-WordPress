@@ -123,7 +123,7 @@ class Options extends BaseShield\Options {
 	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptImmediateBlock( $key ) {
+	public function isTrackOptImmediateBlock( $key ) :bool {
 		return $this->isOpt( $key, 'block' );
 	}
 

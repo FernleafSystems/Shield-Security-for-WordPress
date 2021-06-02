@@ -29,7 +29,7 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $mod )
 			->run();
 
-		add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
+		add_action( 'init', [ $this, 'loadBotDetectors' ] );
 
 		if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
 
@@ -47,58 +47,54 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function loadBotDetectors() {
+		foreach ( $this->enumerateBotTrackers() as $botTracker ) {
+			$botTracker->setMod( $this->getMod() )->execute();
+		}
+	}
+
+	/**
+	 * @return IPs\BotTrack\Base[]
+	 */
+	private function enumerateBotTrackers() :array {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
+		$trackers = [
+			new IPs\BotTrack\TrackCommentSpam()
+		];
+
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
 			if ( !$mod->isTrustedVerifiedBot() ) {
-				if ( $opts->isEnabledTrackXmlRpc() ) {
-					( new IPs\BotTrack\TrackXmlRpc() )
-						->setMod( $mod )
-						->execute();
-				}
+
 				if ( $opts->isEnabledTrack404() ) {
-					( new IPs\BotTrack\Track404() )
-						->setMod( $mod )
-						->execute();
+					$trackers[] = new IPs\BotTrack\Track404();
+				}
+				if ( $opts->isEnabledTrackXmlRpc() ) {
+					$trackers[] = new IPs\BotTrack\TrackXmlRpc();
 				}
 				if ( $opts->isEnabledTrackLoginFailed() ) {
-					( new IPs\BotTrack\TrackLoginFailed() )
-						->setMod( $mod )
-						->execute();
+					$trackers[] = new IPs\BotTrack\TrackLoginFailed();
 				}
 				if ( $opts->isEnabledTrackLoginInvalid() ) {
-					( new IPs\BotTrack\TrackLoginInvalid() )
-						->setMod( $mod )
-						->execute();
+					$trackers[] = new IPs\BotTrack\TrackLoginInvalid();
 				}
 				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
-					( new IPs\BotTrack\TrackFakeWebCrawler() )
-						->setMod( $mod )
-						->execute();
+					$trackers[] = new IPs\BotTrack\TrackFakeWebCrawler();
 				}
 				if ( $opts->isEnabledTrackInvalidScript() ) {
-					( new IPs\BotTrack\TrackInvalidScriptLoad() )
-						->setMod( $mod )
-						->execute();
+					$trackers[] = new IPs\BotTrack\TrackInvalidScriptLoad();
 				}
 			}
 
-			/** Always run link cheese regardless of the verified bot or not */
 			if ( $opts->isEnabledTrackLinkCheese() && $mod->canLinkCheese() ) {
-				( new IPs\BotTrack\TrackLinkCheese() )
-					->setMod( $mod )
-					->execute();
+				$trackers[] = new IPs\BotTrack\TrackLinkCheese();
 			}
 		}
 
-		// Capture when admins un/mark comments as spam
-		( new IPs\BotTrack\TrackCommentSpam() )
-			->setMod( $mod )
-			->execute();
+		return $trackers;
 	}
 
 	private function isRequestWhitelisted() :bool {
