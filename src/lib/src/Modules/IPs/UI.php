@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Services\Services;
@@ -89,6 +90,15 @@ class UI extends BaseShield\UI {
 				if ( !$opts->isEnabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
+				}
+				else {
+					$notbotFound = ( new TestNotBotLoading() )
+						->setMod( $this->getCon()->getModule_IPs() )
+						->test();
+					if ( !$notbotFound ) {
+						$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+							sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
+					}
 				}
 				break;
 
