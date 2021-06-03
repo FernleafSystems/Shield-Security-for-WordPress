@@ -32,7 +32,16 @@
         "pro_only":    false,
         "title":       "404 Bot Signal doesn't trigger Shield offense on certain requests for assets",
         "description": [
-          "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses."
+          "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses.",
+          "The 1 exception for this is if the asset URL is within a plugin/theme directory that isn't installed on the site."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "NotBot Javascript Loading Check",
+        "description": [
+          "The NotBot Javascript that loads for visitor is critical to Shield's ability to detect bots - we now show a warning when we can't detect it."
         ]
       }
     ]
