@@ -166,7 +166,7 @@ class Strings extends Base\Strings {
 				$summary = __( 'Prevent Visitors With A High Reputation Scores From Being Blocked', 'wp-simple-firewall' );
 				$desc = [
 					__( "Visitors that have accumulated a high IP reputation and AntiBot score should ideally never be blocked.", 'wp-simple-firewall' ),
-					__( "This option ensures that visitors with a high reputation are never blocked by Shield.", 'wp-simple-firewall' ),
+					__( "This option ensures that visitors with a high reputation never have their IP blocked by Shield.", 'wp-simple-firewall' ),
 				];
 				break;
 

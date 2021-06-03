@@ -14,12 +14,12 @@ class SideMenuBuilder {
 		$menu = [
 			$this->search(),
 			$this->overview(),
-			$this->stats(),
 			$this->configuration(),
 			$this->scans(),
 			$this->ips(),
 			$this->audit(),
 			$this->traffic(),
+			$this->stats(),
 			$this->users(),
 			$this->integrations(),
 			$this->gopro(),
