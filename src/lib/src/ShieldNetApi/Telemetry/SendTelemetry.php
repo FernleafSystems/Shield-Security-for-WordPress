@@ -14,9 +14,7 @@ class SendTelemetry extends Common\BaseShieldNetApi {
 		$this->params_body = [
 			'telemetry' => $data,
 		];
-
 		$raw = $this->sendReq();
-		var_dump( $raw );
-		return !empty( $raw );
+		return !( !is_array( $raw ) || $raw[ 'error' ] ?? false );
 	}
 }

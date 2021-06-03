@@ -140,10 +140,10 @@ class PluginTelemetry extends ExecOnceModConsumer {
 		$WPP = Services::WpPlugins();
 		return [
 			'env' => [
+				'slug'             => $this->getCon()->getPluginSlug(),
 				'unique_site_hash' => sha1( network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
-				'slug'             => $this->getCon()->getPluginSlug(),
 				'version'          => $this->getCon()->getVersion(),
 				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
 				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
