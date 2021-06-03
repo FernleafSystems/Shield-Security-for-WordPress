@@ -17,28 +17,28 @@ class ScanRepairs extends BaseReporter {
 
 		/** @var Events\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var DBEvents\Select $oSelEvts */
-		$oSelEvts = $mod->getDbHandler_Events()->getQuerySelector();
-		/** @var Events\Strings $oStrings */
-		$oStrings = $mod->getStrings();
+		/** @var DBEvents\Select $selectorEvents */
+		$selectorEvents = $mod->getDbHandler_Events()->getQuerySelector();
+		/** @var Events\Strings $strings */
+		$strings = $mod->getStrings();
 
-		$oRep = $this->getReport();
+		$report = $this->getReport();
 
-		$aCounts = [];
+		$counts = [];
 
 		/** @var Options $oHGOptions */
 		$oHGOptions = $this->getCon()->getModule_HackGuard()->getOptions();
-		foreach ( $oHGOptions->getScanSlugs() as $sScan ) {
+		foreach ( $oHGOptions->getScanSlugs() as $scan ) {
 			try {
-				$sEvt = $sScan.'_item_repair_success';
-				$nCount = $oSelEvts
-					->filterByEvent( $sEvt )
-					->filterByBoundary( $oRep->interval_start_at, $oRep->interval_end_at )
+				$event = $scan.'_item_repair_success';
+				$count = $selectorEvents
+					->filterByEvent( $event )
+					->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
 					->count();
-				if ( $nCount > 0 ) {
-					$aCounts[ $sScan ] = [
-						'count' => $nCount,
-						'name'  => $oStrings->getEventName( $sEvt ),
+				if ( $count > 0 ) {
+					$counts[ $scan ] = [
+						'count' => $count,
+						'name'  => $strings->getEventName( $event ),
 					];
 				}
 			}
@@ -46,12 +46,12 @@ class ScanRepairs extends BaseReporter {
 			}
 		}
 
-		if ( count( $aCounts ) > 0 ) {
+		if ( count( $counts ) > 0 ) {
 			$aAlerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/events/info_keystats.twig',
 				[
 					'vars'    => [
-						'counts' => $aCounts
+						'counts' => $counts
 					],
 					'strings' => [
 						'title' => __( 'Scanner Repairs', 'wp-simple-firewall' ),

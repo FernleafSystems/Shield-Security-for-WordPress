@@ -24,12 +24,12 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $sEvent
+	 * @param string $event
 	 * @return $this
 	 */
-	public function filterByEvent( $sEvent ) {
-		if ( !empty( $sEvent ) && strtolower( $sEvent ) != 'all' ) {
-			$this->addWhereEquals( 'event', $sEvent );
+	public function filterByEvent( $event ) {
+		if ( !empty( $event ) && strtolower( $event ) != 'all' ) {
+			$this->addWhereEquals( 'event', $event );
 		}
 		return $this;
 	}

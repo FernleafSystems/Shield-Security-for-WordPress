@@ -26,12 +26,8 @@ class Select extends Base\Select {
 						 ->sum();
 	}
 
-	/**
-	 * @param string $sEvent
-	 * @return int
-	 */
-	public function sumEventsLike( $sEvent ) {
-		return (int)$this->addWhereLike( 'event', $sEvent )
+	public function sumEventsLike( string $event ) :int {
+		return (int)$this->addWhereLike( 'event', $event )
 						 ->setColumnsToSelect( [ 'count' ] )
 						 ->sum();
 	}
@@ -52,11 +48,11 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $sEvent
+	 * @param string $event
 	 * @return EntryVO|null
 	 */
-	public function getLatestForEvent( $sEvent ) {
-		return $this->filterByEvent( $sEvent )
+	public function getLatestForEvent( string $event ) {
+		return $this->filterByEvent( $event )
 					->setOrderBy( 'created_at', 'DESC' )
 					->setResultsAsVo( true )
 					->first();

@@ -56,7 +56,7 @@ class Commit {
 							 ->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
 							 ->first();
 			$canCount = ( $latest instanceof AuditTrail\EntryVO )
-						&& ( $latest->event === $entry->event && $latest->ip === $entry->ip );
+						&& (  $latest->ip === $entry->ip );
 		}
 
 		if ( $canCount ) {

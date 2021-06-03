@@ -23,7 +23,7 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 
 	protected function enqueueJS() {
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
-			$enqueues[ Enqueue::JS ][] = 'shield/antibot';
+			$enqueues[ Enqueue::JS ][] = 'shield/notbot';
 			return $enqueues;
 		} );
 	}
@@ -39,8 +39,8 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			unset( $ajaxData[ 'ajaxurl' ] );
 
 			$localz[] = [
-				'shield/antibot',
-				'shield_vars_antibotjs',
+				'shield/notbot',
+				'shield_vars_notbotjs',
 				apply_filters( 'shield/notbot_data_js', [
 					'ajax'  => [
 						'not_bot' => http_build_query( $ajaxData )

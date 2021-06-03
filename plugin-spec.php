@@ -255,7 +255,7 @@
             "introjs"
           ]
         },
-        "shield/antibot":         {
+        "shield/notbot":         {
         },
         "shield/scans":           {
           "deps": [

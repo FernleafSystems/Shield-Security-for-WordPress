@@ -10,7 +10,7 @@ class TestNotBotLoading {
 	use ModConsumer;
 
 	public function test() :bool {
-		$urlToFind = explode( '?', $this->getCon()->urls->forJs( 'shield/antibot' ) )[ 0 ];
+		$urlToFind = explode( '?', $this->getCon()->urls->forJs( 'shield/notbot' ) )[ 0 ];
 		return preg_match(
 				   sprintf( '#%s#i', preg_quote( $urlToFind, '#' ) ),
 				   Services::HttpRequest()->getContent( network_home_url( '/' ), [
