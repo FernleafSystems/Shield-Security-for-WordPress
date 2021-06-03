@@ -29,11 +29,9 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $mod )
 			->run();
 
-		add_action( 'init', [ $this, 'loadBotDetectors' ] );
-
 		if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
 
-			// We setup offenses processing immediately but run the blocks on 'init
+			// We setup offenses processing immediately but run the blocks on 'init'
 			( new ProcessOffenses() )
 				->setMod( $this->getMod() )
 				->execute();
@@ -46,55 +44,10 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		}
 	}
 
-	public function loadBotDetectors() {
-		foreach ( $this->enumerateBotTrackers() as $botTracker ) {
-			$botTracker->setMod( $this->getMod() )->execute();
-		}
-	}
-
 	/**
-	 * @return IPs\BotTrack\Base[]
+	 * @deprecated 11.3
 	 */
-	private function enumerateBotTrackers() :array {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
-
-		$trackers = [
-			new IPs\BotTrack\TrackCommentSpam()
-		];
-
-		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-
-			if ( !$mod->isTrustedVerifiedBot() ) {
-
-				if ( $opts->isEnabledTrack404() ) {
-					$trackers[] = new IPs\BotTrack\Track404();
-				}
-				if ( $opts->isEnabledTrackXmlRpc() ) {
-					$trackers[] = new IPs\BotTrack\TrackXmlRpc();
-				}
-				if ( $opts->isEnabledTrackLoginFailed() ) {
-					$trackers[] = new IPs\BotTrack\TrackLoginFailed();
-				}
-				if ( $opts->isEnabledTrackLoginInvalid() ) {
-					$trackers[] = new IPs\BotTrack\TrackLoginInvalid();
-				}
-				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
-					$trackers[] = new IPs\BotTrack\TrackFakeWebCrawler();
-				}
-				if ( $opts->isEnabledTrackInvalidScript() ) {
-					$trackers[] = new IPs\BotTrack\TrackInvalidScriptLoad();
-				}
-			}
-
-			if ( $opts->isEnabledTrackLinkCheese() && $mod->canLinkCheese() ) {
-				$trackers[] = new IPs\BotTrack\TrackLinkCheese();
-			}
-		}
-
-		return $trackers;
+	public function loadBotDetectors() {
 	}
 
 	private function isRequestWhitelisted() :bool {
