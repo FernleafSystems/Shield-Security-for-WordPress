@@ -136,11 +136,11 @@ class BuildDisplay {
 					'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
 
 					'status' => [
-						'is_you'       => __( 'Is It You?', 'wp-simple-firewall' ),
-						'offenses'     => __( 'Number of offenses', 'wp-simple-firewall' ),
-						'is_blocked'   => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'    => __( 'Is Bypass IP', 'wp-simple-firewall' ),
-						'notbot_score' => __( 'NotBot Score', 'wp-simple-firewall' ),
+						'is_you'        => __( 'Is It You?', 'wp-simple-firewall' ),
+						'offenses'      => __( 'Number of offenses', 'wp-simple-firewall' ),
+						'is_blocked'    => __( 'Is Blocked', 'wp-simple-firewall' ),
+						'is_bypass'     => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'ip_reputation' => __( 'IP Reputation Score', 'wp-simple-firewall' ),
 					],
 
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
@@ -163,12 +163,12 @@ class BuildDisplay {
 				'vars'    => [
 					'ip'       => $ip,
 					'status'   => [
-						'is_you'       => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'     => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
-						'is_blocked'   => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
-						'is_bypass'    => $bypassIP instanceof Databases\IPs\EntryVO,
-						'notbot_score' => $botScore,
-						'is_bot'       => $isBot,
+						'is_you'              => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'offenses'            => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
+						'is_blocked'          => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'           => $bypassIP instanceof Databases\IPs\EntryVO,
+						'ip_reputation_score' => $botScore,
+						'is_bot'              => $isBot,
 					],
 					'identity' => [
 						'who_is_it'    => $ipName,
