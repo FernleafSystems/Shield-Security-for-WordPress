@@ -161,6 +161,15 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'antibot_high_reputation_minimum' :
+				$name = __( 'High Reputation Bypass', 'wp-simple-firewall' );
+				$summary = __( 'Prevent Visitors With A High Reputation Scores From Being Blocked', 'wp-simple-firewall' );
+				$desc = [
+					__( "Visitors that have accumulated a high IP reputation and AntiBot score should ideally never be blocked.", 'wp-simple-firewall' ),
+					__( "This option ensures that visitors with a high reputation are never blocked by Shield.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'text_loginfailed' :
 				$name = __( 'Login Failed', 'wp-simple-firewall' );
 				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );

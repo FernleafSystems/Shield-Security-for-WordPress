@@ -152,6 +152,19 @@
       "description": "When using Shield's AntiBot system, this is the threshold used for testing (between 1 and 99)."
     },
     {
+      "key":         "antibot_high_reputation_minimum",
+      "section":     "section_antibot",
+      "default":     200,
+      "type":        "integer",
+      "min":         0,
+      "link_info":   "https://shsec.io/jy",
+      "link_blog":   "https://shsec.io/jz",
+      "beacon_id":   424,
+      "name":        "High Reputation Bypass",
+      "summary":     "Prevent IPs/Visitors With High Reputation Scores From Being Blocked",
+      "description": "Ensures that visitors with a high reputation are never blocked by Shield."
+    },
+    {
       "key":         "transgression_limit",
       "section":     "section_auto_black_list",
       "default":     10,

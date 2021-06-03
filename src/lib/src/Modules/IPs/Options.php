@@ -56,6 +56,10 @@ class Options extends BaseShield\Options {
 		return (int)$this->getOpt( 'antibot_minimum', 50 );
 	}
 
+	public function getAntiBotHighReputationMinimum() :int {
+		return (int)$this->getOpt( 'antibot_high_reputation_minimum', 200 );
+	}
+
 	public function isEnabledAntiBotEngine() :bool {
 		return $this->getAntiBotMinimum() > 0;
 	}

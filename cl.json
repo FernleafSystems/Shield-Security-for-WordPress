@@ -1,7 +1,7 @@
 {
   "11.3": {
     "version":     "11.3",
-    "released_at": 1621844125,
+    "released_at": 1622714252,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease113",
       "upgrade": "https://shsec.io/shieldupgradeguide113"
@@ -11,11 +11,28 @@
     ],
     "items":       [
       {
-        "type":        "changed",
+        "type":        "new",
         "pro_only":    false,
-        "title":       "Removed: 404 Bot Signal Option",
+        "title":       "High IP Reputation Bypass",
         "description": [
-          "Shield uses the occurrence of 404 errors as a signal that a visitor is a bot."
+          "Added an option to ensure that IP address with a high-enough reputation are never blocked by Shield."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Bot Scoring Logic Is Provisioned From ShieldNET API",
+        "description": [
+          "To allow for easier and faster updates and improvements to the bot scoring logic, they are served from our ShieldNET API.",
+          "If, for whatever reason, the API is unavailable the plugin will use its built-in scoring logic."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "404 Bot Signal doesn't trigger Shield offense on certain requests for assets",
+        "description": [
+          "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses."
         ]
       }
     ]
