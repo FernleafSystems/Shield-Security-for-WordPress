@@ -159,7 +159,7 @@
       "min":         0,
       "link_info":   "https://shsec.io/jy",
       "link_blog":   "https://shsec.io/jz",
-      "beacon_id":   424,
+      "beacon_id":   431,
       "name":        "High Reputation Bypass",
       "summary":     "Prevent IPs/Visitors With High Reputation Scores From Being Blocked",
       "description": "Ensures that visitors with a high reputation are never blocked by Shield."
