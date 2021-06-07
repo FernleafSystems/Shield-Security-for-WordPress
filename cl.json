@@ -43,6 +43,18 @@
           "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses.",
           "The 1 exception is if the asset URL is within a plugin/theme directory that doesn't exist on the site."
         ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Minimum supported WordPress version is now 3.7",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "",
+        "description": [],
+        "patch":       "11.3.1"
       }
     ]
   },
