@@ -111,11 +111,10 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 
 		// Restricting Activate Plugins also means restricting the rest.
-		$pluginsRestrictions = $opts->getAdminAccessArea_Plugins();
-		if ( in_array( 'activate_plugins', $pluginsRestrictions ) ) {
-			$opts->setOpt(
-				'admin_access_restrict_plugins',
-				array_unique( array_merge( $pluginsRestrictions, [
+		$plugins = $opts->getOpt( 'admin_access_restrict_plugins', [] );
+		if ( in_array( 'activate_plugins', is_array( $plugins ) ? $plugins : [] ) ) {
+			$opts->setOpt( 'admin_access_restrict_plugins',
+				array_unique( array_merge( $plugins, [
 					'install_plugins',
 					'update_plugins',
 					'delete_plugins'
@@ -124,11 +123,10 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		// Restricting Switch (Activate) Themes also means restricting the rest.
-		$themesRestrictions = $opts->getAdminAccessArea_Themes();
-		if ( in_array( 'switch_themes', $themesRestrictions ) && in_array( 'edit_theme_options', $themesRestrictions ) ) {
-			$opts->setOpt(
-				'admin_access_restrict_themes',
-				array_unique( array_merge( $themesRestrictions, [
+		$themes = $opts->getOpt( 'admin_access_restrict_themes', [] );
+		if ( is_array( $themes ) && in_array( 'switch_themes', $themes ) && in_array( 'edit_theme_options', $themes ) ) {
+			$opts->setOpt( 'admin_access_restrict_themes',
+				array_unique( array_merge( $themes, [
 					'install_themes',
 					'update_themes',
 					'delete_themes'
@@ -136,11 +134,10 @@ class ModCon extends BaseShield\ModCon {
 			);
 		}
 
-		$postRestrictions = $opts->getAdminAccessArea_Posts();
-		if ( in_array( 'edit', $postRestrictions ) ) {
-			$opts->setOpt(
-				'admin_access_restrict_posts',
-				array_unique( array_merge( $postRestrictions, [ 'create', 'publish', 'delete' ] ) )
+		$posts = $opts->getOpt( 'admin_access_restrict_posts', [] );
+		if ( in_array( 'edit', is_array( $posts ) ? $posts : [] ) ) {
+			$opts->setOpt( 'admin_access_restrict_posts',
+				array_unique( array_merge( $posts, [ 'create', 'publish', 'delete' ] ) )
 			);
 		}
 	}

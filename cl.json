@@ -1,7 +1,7 @@
 {
   "11.3": {
     "version":     "11.3",
-    "released_at": 1622714252,
+    "released_at": 1623057021,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease113",
       "upgrade": "https://shsec.io/shieldupgradeguide113"
@@ -15,7 +15,7 @@
         "pro_only":    false,
         "title":       "High IP Reputation Bypass",
         "description": [
-          "Added an option to ensure that IP address with a high-enough reputation are never blocked by Shield."
+          "Added an option to ensure that IP addresses with a high-enough reputation are never blocked by Shield."
         ]
       },
       {
@@ -28,20 +28,20 @@
         ]
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
-        "title":       "404 Bot Signal doesn't trigger Shield offense on certain requests for assets",
-        "description": [
-          "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses.",
-          "The 1 exception for this is if the asset URL is within a plugin/theme directory that isn't installed on the site."
-        ]
-      },
-      {
         "type":        "new",
         "pro_only":    false,
         "title":       "NotBot Javascript Loading Check",
         "description": [
           "The NotBot Javascript that loads for visitor is critical to Shield's ability to detect bots - we now show a warning when we can't detect it."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "404 Bot Signal doesn't trigger Shield offense on certain requests for assets",
+        "description": [
+          "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses.",
+          "The 1 exception is if the asset URL is within a plugin/theme directory that doesn't exist on the site."
         ]
       }
     ]

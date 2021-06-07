@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.7
-Stable tag: 11.2.4
+Stable tag: 11.3.0
 Security against hackers and brute force bots with firewall, login security hiding and hardening, Antispam, Audit Trail, Live Traffic, and much more...
 
 == Description ==
