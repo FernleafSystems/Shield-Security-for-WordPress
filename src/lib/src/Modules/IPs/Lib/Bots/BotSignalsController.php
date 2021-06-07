@@ -3,8 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	BotTrack,
+	Lib\Bots\Calculator\CalculateVisitorBotScores,
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController extends ExecOnceModConsumer {
@@ -67,7 +71,55 @@ class BotSignalsController extends ExecOnceModConsumer {
 	protected function run() {
 		$this->getEventListener()->execute();
 		add_action( 'init', function () {
+			foreach ( $this->enumerateBotTrackers() as $botTracker ) {
+				$botTracker->setMod( $this->getMod() )->execute();
+			}
 			$this->getHandlerNotBot()->execute();
 		} );
+	}
+
+	/**
+	 * @return BotTrack\Base[]
+	 */
+	private function enumerateBotTrackers() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$trackers = [
+			new BotTrack\TrackCommentSpam()
+		];
+
+		if ( !Services::WpUsers()->isUserLoggedIn() ) {
+
+			if ( !$mod->isTrustedVerifiedBot() ) {
+
+				if ( $opts->isEnabledTrack404() ) {
+					$trackers[] = new BotTrack\Track404();
+				}
+				if ( $opts->isEnabledTrackXmlRpc() ) {
+					$trackers[] = new BotTrack\TrackXmlRpc();
+				}
+				if ( $opts->isEnabledTrackLoginFailed() ) {
+					$trackers[] = new BotTrack\TrackLoginFailed();
+				}
+				if ( $opts->isEnabledTrackLoginInvalid() ) {
+					$trackers[] = new BotTrack\TrackLoginInvalid();
+				}
+				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
+					$trackers[] = new BotTrack\TrackFakeWebCrawler();
+				}
+				if ( $opts->isEnabledTrackInvalidScript() ) {
+					$trackers[] = new BotTrack\TrackInvalidScriptLoad();
+				}
+			}
+
+			if ( $opts->isEnabledTrackLinkCheese() && $mod->canLinkCheese() ) {
+				$trackers[] = new BotTrack\TrackLinkCheese();
+			}
+		}
+
+		return $trackers;
 	}
 }

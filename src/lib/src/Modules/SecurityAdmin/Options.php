@@ -86,35 +86,11 @@ class Options extends BaseShield\Options {
 		return strlen( $this->getSecurityPIN() ) == 32;
 	}
 
-	/**
-	 * @return bool
-	 * @deprecated 11.2
-	 */
-	public function isEnabledWhitelabel() :bool {
-		return $this->isOpt( 'whitelabel_enable', 'Y' ) && $this->isPremium();
-	}
-
 	public function isEmailOverridePermitted() :bool {
 		return $this->isOpt( 'allow_email_override', 'Y' );
 	}
 
 	public function isSecAdminRestrictUsersEnabled() :bool {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.2
-	 */
-	public function isReplacePluginBadge() :bool {
-		return $this->isOpt( 'wl_replace_badge_url', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.2
-	 */
-	public function isWlHideUpdates() :bool {
-		return false;
 	}
 }

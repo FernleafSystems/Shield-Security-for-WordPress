@@ -32,17 +32,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	/**
-	 * @deprecated 11.2
-	 */
-	private function maybeRedirectToAdmin() {
-		$con = $this->getCon();
-		$activeFor = $con->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && $activeFor < 4 ) {
-			Services::Response()->redirect( $this->getCon()->getPluginUrl_DashboardHome() );
-		}
-	}
-
 	public function getUrl_IpAnalysis( string $ip ) :string {
 		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_SubInsightsPage( 'ips' ) );
 	}

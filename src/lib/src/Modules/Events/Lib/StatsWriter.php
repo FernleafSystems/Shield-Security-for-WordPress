@@ -21,9 +21,6 @@ class StatsWriter extends EventsListener {
 	 * @param array  $def
 	 */
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
-		if ( empty( $def ) ) { // TODO: @deprecated 11.2 - remove this if
-			$def = $this->getCon()->loadEventsService()->getEventDef( $evt );
-		}
 		if ( !empty( $def[ 'stat' ] ) ) {
 			$stats = $this->getEventStats();
 			$stats[ $evt ] = $meta[ 'ts' ] ?? Services::Request()->ts();

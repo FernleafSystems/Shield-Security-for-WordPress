@@ -19,16 +19,16 @@
     }
   },
   "require":           {
-    "php":                                ">=7.0",
-    "fernleafsystems/wordpress-services": "^2.12",
-    "dolondro/google-authenticator":      "^2.1",
-    "endroid/qr-code":                    "~2.2|~3",
-    "fernleafsystems/zxcvbn-php":         "^1.0",
-    "nesbot/carbon":                      "^1.39",
-    "nullpunkt/lz-string-php":            "^1.2.0",
-    "ramsey/uuid":                        "^3.9",
-    "symfony/polyfill-iconv":             "^1.18",
-    "ext-json":                           "*"
+    "php":                                   ">=7.0",
+    "fernleafsystems/wordpress-plugin-core": "^0.3",
+    "dolondro/google-authenticator":         "^2.1",
+    "endroid/qr-code":                       "~2.2|~3",
+    "fernleafsystems/zxcvbn-php":            "^1.0",
+    "nesbot/carbon":                         "^1.39",
+    "nullpunkt/lz-string-php":               "^1.2.0",
+    "ramsey/uuid":                           "^3.9",
+    "symfony/polyfill-iconv":                "^1.18",
+    "ext-json":                              "*"
   },
   "require-dev":       {
   },

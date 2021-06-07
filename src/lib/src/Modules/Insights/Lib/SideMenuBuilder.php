@@ -14,7 +14,6 @@ class SideMenuBuilder {
 		$menu = [
 			$this->search(),
 			$this->overview(),
-			$this->stats(),
 			$this->configuration(),
 			$this->scans(),
 			$this->ips(),
@@ -22,6 +21,7 @@ class SideMenuBuilder {
 			$this->traffic(),
 			$this->users(),
 			$this->integrations(),
+			$this->stats(),
 			$this->gopro(),
 			$this->tools(),
 			$this->docs(),

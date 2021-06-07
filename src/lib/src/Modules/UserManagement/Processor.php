@@ -71,9 +71,12 @@ class Processor extends BaseShield\Processor {
 		if ( !$user instanceof \WP_User && !empty( $username ) ) {
 			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
-		$this->setPasswordStartedAt( $user )// used by Password Policies
-			 ->setUserLastLoginTime( $user )
-			 ->sendLoginNotifications( $user );
+		// One might think it should be. It's not always the case it seems...
+		if ( $user instanceof \WP_User ) {
+			$this->setPasswordStartedAt( $user )// used by Password Policies
+				 ->setUserLastLoginTime( $user )
+				 ->sendLoginNotifications( $user );
+		}
 	}
 
 	/**

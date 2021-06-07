@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 class BlockRequest extends ExecOnceModConsumer {
 
 	protected function run() {
-		if ( $this->isBlocked() ) {
+		if ( $this->isBlocked() && !$this->isHighReputationIP() ) {
 
 			if ( $this->isAutoUnBlocked() ) {
 				Services::Response()->redirectToHome();
@@ -28,6 +28,16 @@ class BlockRequest extends ExecOnceModConsumer {
 			->setMod( $this->getMod() )
 			->setIp( Services::IP()->getRequestIp() )
 			->run();
+	}
+
+	private function isHighReputationIP() :bool {
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
+				   ->setMod( $this->getMod() )
+				   ->setIP( Services::IP()->getRequestIp() )
+				   ->total() >
+			   (int)apply_filters( 'shield/high_reputation_ip_minimum', $opts->getAntiBotHighReputationMinimum() );
 	}
 
 	private function isAutoUnBlocked() :bool {

@@ -2,13 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class TrackCommentSpam {
-
-	use Shield\Modules\ModConsumer;
-	use ExecOnce;
+class TrackCommentSpam extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return is_admin() || is_network_admin();

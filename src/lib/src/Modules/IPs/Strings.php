@@ -161,6 +161,15 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'antibot_high_reputation_minimum' :
+				$name = __( 'High Reputation Bypass', 'wp-simple-firewall' );
+				$summary = __( 'Prevent Visitors With A High Reputation Scores From Being Blocked', 'wp-simple-firewall' );
+				$desc = [
+					__( "Visitors that have accumulated a high IP reputation and AntiBot score should ideally never be blocked.", 'wp-simple-firewall' ),
+					__( "This option ensures that visitors with a high reputation never have their IP blocked by Shield.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'text_loginfailed' :
 				$name = __( 'Login Failed', 'wp-simple-firewall' );
 				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
@@ -176,8 +185,14 @@ class Strings extends Base\Strings {
 			case 'track_404' :
 				$name = __( '404 Detect', 'wp-simple-firewall' );
 				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
-				$desc = __( "Detect when a visitor tries to load a non-existent page.", 'wp-simple-firewall' )
-						.'<br/>'.__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s.", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Detect when a visitor tries to load a non-existent page.', 'wp-simple-firewall' ),
+					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
+					sprintf( '%s: <br/><strong>%s</strong>',
+						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
+						implode( ', ', $this->getOptions()->getDef( 'allowable_ext_404s' ) )
+					),
+				];
 				break;
 
 			case 'track_xmlrpc' :

@@ -27,9 +27,8 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :EntryVO {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Select $select */
-		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$e = $select->filterByIPHuman( $this->getIP() )->first();
+
+		$e = $this->dbLoad();
 		if ( !$e instanceof EntryVO ) {
 			$e = new EntryVO();
 			$e->ip = $this->getIP();
@@ -73,6 +72,18 @@ class BotSignalsRecord {
 		}
 
 		return $e;
+	}
+
+	/**
+	 * @return EntryVO|null
+	 */
+	private function dbLoad() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Select $select */
+		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
+		/** @var EntryVO $record */
+		return $select->filterByIPHuman( $this->getIP() )->first();
 	}
 
 	public function store( EntryVO $entry ) :bool {

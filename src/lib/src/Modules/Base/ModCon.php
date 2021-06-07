@@ -566,52 +566,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param array $items
-	 * @return array
-	 * @deprecated 11.2
-	 */
-	public function supplySubMenuItem( $items ) {
-
-		$title = $this->getOptions()->getFeatureProperty( 'menu_title' );
-		$title = empty( $title ) ? $this->getMainFeatureName() : __( $title, 'wp-simple-firewall' );
-
-		if ( !empty( $title ) ) {
-			$highlightedTemplate = '<span class="shield_highlighted_menu">%s</span>';
-			$humanName = $this->getCon()->getHumanName();
-
-			if ( $this->getOptions()->getFeatureProperty( 'highlight_menu_item' ) ) {
-				$title = sprintf( $highlightedTemplate, $title );
-			}
-
-			$menuPageTitle = $title.' - '.$humanName;
-			$items[ $menuPageTitle ] = [
-				$title,
-				$this->getModSlug(),
-				[ $this, 'displayModuleAdminPage' ],
-				$this->getIfShowModuleMenuItem()
-			];
-
-			foreach ( $this->getOptions()->getAdditionalMenuItems() as $menuItem ) {
-
-				// special case: don't show go pro if you're pro.
-				if ( $menuItem[ 'slug' ] !== 'pro-redirect' || !$this->isPremium() ) {
-
-					$title = __( $menuItem[ 'title' ], 'wp-simple-firewall' );
-					$menuPageTitle = $humanName.' - '.$title;
-					$isHighlighted = $menuItem[ 'highlight' ] ?? false;
-					$items[ $menuPageTitle ] = [
-						$isHighlighted ? sprintf( $highlightedTemplate, $title ) : $title,
-						$this->prefix( $menuItem[ 'slug' ] ),
-						[ $this, $menuItem[ 'callback' ] ?? '' ],
-						true
-					];
-				}
-			}
-		}
-		return $items;
-	}
-
-	/**
 	 * Handles the case where we want to redirect certain menu requests to other pages
 	 * of the plugin automatically. It lets us create custom menu items.
 	 * This can of course be extended for any other types of redirect.
@@ -968,14 +922,6 @@ abstract class ModCon {
 				 $bShowOnLogin
 			 );
 		return $this;
-	}
-
-	/**
-	 * @deprecated 11.2
-	 */
-	protected function isThisModAdminPage() :bool {
-		return is_admin() && !Services::WpGeneral()->isAjax()
-			   && Services::Request()->isGet() && $this->isThisModulePage();
 	}
 
 	public function isPremium() :bool {
@@ -1375,7 +1321,6 @@ abstract class ModCon {
 					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
 					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
 			$opts = $this->opts;
-			/** @deprecated 11.2 */
 		}
 		return $opts;
 	}

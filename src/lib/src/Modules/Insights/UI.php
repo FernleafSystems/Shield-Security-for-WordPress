@@ -265,28 +265,6 @@ class UI extends BaseShield\UI {
 		);
 	}
 
-	/**
-	 * @return string
-	 * @deprecated 11.2
-	 */
-	private function renderFreeTrial() :string {
-		$user = Services::WpUsers()->getCurrentWpUser();
-		return $this->getMod()
-					->renderTemplate(
-						'/forms/drip_trial_signup.twig',
-						[
-							'vars'    => [
-								'activation_url' => Services::WpGeneral()->getHomeUrl(),
-								'email'          => $user->user_email,
-								'name'           => $user->user_firstname,
-							],
-							'strings' => [
-							],
-						],
-						true
-					);
-	}
-
 	private function renderTabUpdates() :string {
 		try {
 			$changelog = ( new Retrieve() )

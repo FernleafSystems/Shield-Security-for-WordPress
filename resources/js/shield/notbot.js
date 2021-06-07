@@ -1,4 +1,4 @@
-if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs !== typeof undefined ) {
+if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !== typeof undefined ) {
 
 	var Shield_Antibot = new function () {
 
@@ -26,7 +26,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs 
 			 * Early execution also helps mitigate the case where login requests are
 			 * sent quickly, before browser has fired NotBot request.
 			 */
-			if ( shield_vars_antibotjs.flags.run ) {
+			if ( shield_vars_notbotjs.flags.run ) {
 				sendReq();
 			}
 			/**
@@ -59,9 +59,9 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_antibotjs 
 
 		var sendReq = function ( name ) {
 			var xhttp = new XMLHttpRequest();
-			xhttp.open( "POST", shield_vars_antibotjs.hrefs.ajax, true );
+			xhttp.open( "POST", shield_vars_notbotjs.hrefs.ajax, true );
 			xhttp.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;' );
-			xhttp.send( shield_vars_antibotjs.ajax.not_bot );
+			xhttp.send( shield_vars_notbotjs.ajax.not_bot );
 			request_count++;
 		};
 
