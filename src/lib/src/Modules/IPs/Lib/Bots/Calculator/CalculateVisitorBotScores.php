@@ -18,6 +18,7 @@ class CalculateVisitorBotScores {
 	public function scores() :array {
 		$this->scores = ( new BuildScores() )
 			->setEntryVO( $this->loadEntry() )
+			->setMod( $this->getMod() )
 			->build();
 		return $this->getActiveScores();
 	}

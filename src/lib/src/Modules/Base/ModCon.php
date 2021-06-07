@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -53,6 +54,11 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\Options
 	 */
+	private $opts;
+
+	/**
+	 * @var Shield\Modules\Base\Options
+	 */
 	private $oOpts;
 
 	/**
@@ -61,49 +67,54 @@ abstract class ModCon {
 	private $oWpCli;
 
 	/**
+	 * @var Shield\Modules\Base\AdminPage
+	 */
+	private $adminPage;
+
+	/**
 	 * @var Shield\Databases\Base\Handler[]
 	 */
 	private $aDbHandlers;
 
 	/**
 	 * @param Shield\Controller\Controller $pluginCon
-	 * @param array                        $aMod
+	 * @param array                        $mod
 	 * @throws \Exception
 	 */
-	public function __construct( $pluginCon, $aMod = [] ) {
+	public function __construct( $pluginCon, $mod = [] ) {
 		if ( !$pluginCon instanceof Shield\Controller\Controller ) {
 			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
 		$this->setCon( $pluginCon );
 
-		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
+		if ( empty( $mod[ 'storage_key' ] ) && empty( $mod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
 		}
 
-		$this->sOptionsStoreKey = empty( $aMod[ 'storage_key' ] ) ? $aMod[ 'slug' ] : $aMod[ 'storage_key' ];
-		if ( isset( $aMod[ 'slug' ] ) ) {
-			$this->sModSlug = $aMod[ 'slug' ];
+		$this->sOptionsStoreKey = empty( $mod[ 'storage_key' ] ) ? $mod[ 'slug' ] : $mod[ 'storage_key' ];
+		if ( isset( $mod[ 'slug' ] ) ) {
+			$this->sModSlug = $mod[ 'slug' ];
 		}
 
 		if ( $this->verifyModuleMeetRequirements() ) {
 			$this->handleAutoPageRedirects();
-			$this->setupHooks( $aMod );
+			$this->setupHooks( $mod );
 			$this->doPostConstruction();
 		}
 	}
 
-	protected function setupHooks( array $aModProps ) {
+	protected function setupHooks( array $modProps ) {
 		$con = $this->getCon();
-		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
+		$nRunPriority = $modProps[ 'load_priority' ] ?? 100;
 
 		add_action( $con->prefix( 'modules_loaded' ), function () {
 			$this->onModulesLoaded();
 		}, $nRunPriority );
 		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
-		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 
-		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-		add_filter( $con->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		add_action( 'init', [ $this, 'onWpInit' ], 1 );
+		add_action( 'init', [ $this, 'onWpLoaded' ], 1 );
+
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
@@ -113,6 +124,16 @@ abstract class ModCon {
 
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
+		}
+
+		if ( $this->getOptions()->getDef( 'rest_api' ) ) {
+			add_action( 'rest_api_init', function () {
+				try {
+					$this->getRestHandler()->init();
+				}
+				catch ( \Exception $e ) {
+				}
+			} );
 		}
 
 //		if ( $this->isAdminOptionsPage() ) {
@@ -206,41 +227,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $sEncoding
-	 * @return array
-	 */
-	public function getAjaxFormParams( $sEncoding = 'none' ) {
-		$oReq = Services::Request();
-		$aFormParams = [];
-		$sRaw = $oReq->post( 'form_params', '' );
-
-		if ( !empty( $sRaw ) ) {
-
-			$sMaybeEncoding = $oReq->post( 'enc_params' );
-			if ( in_array( $sMaybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
-				$sEncoding = $sMaybeEncoding;
-			}
-
-			switch ( $sEncoding ) {
-				case 'lz-string':
-					$sRaw = \LZCompressor\LZString::decompress( base64_decode( $sRaw ) );
-					break;
-
-				case 'b64':
-					$sRaw = base64_decode( $sRaw );
-					break;
-
-				case 'none':
-				default:
-					break;
-			}
-
-			parse_str( $sRaw, $aFormParams );
-		}
-		return $aFormParams;
-	}
-
-	/**
 	 * @param array $aAdminNotices
 	 * @return array
 	 */
@@ -303,6 +289,12 @@ abstract class ModCon {
 
 	protected function doExecuteProcessor() {
 		$this->getProcessor()->execute();
+	}
+
+	public function onWpLoaded() {
+		if ( is_admin() || is_network_admin() ) {
+			$this->getAdminPage()->execute();
+		}
 	}
 
 	public function onWpInit() {
@@ -521,14 +513,14 @@ abstract class ModCon {
 	}
 
 	public function isModuleEnabled() :bool {
-		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
-		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
+		/** @var Shield\Modules\Plugin\Options $pluginOpts */
+		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
 			$enabled = true;
 		}
-		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
+		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
@@ -574,51 +566,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param array $items
-	 * @return array
-	 */
-	public function supplySubMenuItem( $items ) {
-
-		$title = $this->getOptions()->getFeatureProperty( 'menu_title' );
-		$title = empty( $title ) ? $this->getMainFeatureName() : __( $title, 'wp-simple-firewall' );
-
-		if ( !empty( $title ) ) {
-			$highlightedTemplate = '<span class="icwp_highlighted">%s</span>';
-			$humanName = $this->getCon()->getHumanName();
-
-			if ( $this->getOptions()->getFeatureProperty( 'highlight_menu_item' ) ) {
-				$title = sprintf( $highlightedTemplate, $title );
-			}
-
-			$menuPageTitle = $title.' - '.$humanName;
-			$items[ $menuPageTitle ] = [
-				$title,
-				$this->getModSlug(),
-				[ $this, 'displayModuleAdminPage' ],
-				$this->getIfShowModuleMenuItem()
-			];
-
-			foreach ( $this->getOptions()->getAdditionalMenuItems() as $menuItem ) {
-
-				// special case: don't show go pro if you're pro.
-				if ( $menuItem[ 'slug' ] !== 'pro-redirect' || !$this->isPremium() ) {
-
-					$title = __( $menuItem[ 'title' ], 'wp-simple-firewall' );
-					$menuPageTitle = $humanName.' - '.$title;
-					$isHighlighted = $menuItem[ 'highlight' ] ?? false;
-					$items[ $menuPageTitle ] = [
-						$isHighlighted ? sprintf( $highlightedTemplate, $title ) : $title,
-						$this->prefix( $menuItem[ 'slug' ] ),
-						[ $this, $menuItem[ 'callback' ] ?? '' ],
-						true
-					];
-				}
-			}
-		}
-		return $items;
-	}
-
-	/**
 	 * Handles the case where we want to redirect certain menu requests to other pages
 	 * of the plugin automatically. It lets us create custom menu items.
 	 * This can of course be extended for any other types of redirect.
@@ -652,54 +599,51 @@ abstract class ModCon {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function buildSummaryData() {
+	public function buildSummaryData() :array {
 		$opts = $this->getOptions();
-		$sMenuTitle = $opts->getFeatureProperty( 'menu_title' );
+		$menuTitle = $opts->getFeatureProperty( 'menu_title' );
 
-		$aSections = $opts->getSections();
-		foreach ( $aSections as $sSlug => $aSection ) {
+		$sections = $opts->getSections();
+		foreach ( $sections as $slug => $section ) {
 			try {
-				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
-				foreach ( $aStrings as $sKey => $sVal ) {
-					unset( $aSection[ $sKey ] );
-					$aSection[ $sKey ] = $sVal;
+				$strings = $this->getStrings()->getSectionStrings( $section[ 'slug' ] );
+				foreach ( $strings as $key => $val ) {
+					unset( $section[ $key ] );
+					$section[ $key ] = $val;
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$aSum = [
+		$summary = [
 			'slug'          => $this->getSlug(),
 			'enabled'       => $this->getUIHandler()->isEnabledForUiSummary(),
 			'active'        => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
 			'name'          => $this->getMainFeatureName(),
 			'sidebar_name'  => $opts->getFeatureProperty( 'sidebar_name' ),
-			'menu_title'    => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
+			'menu_title'    => empty( $menuTitle ) ? $this->getMainFeatureName() : __( $menuTitle, 'wp-simple-firewall' ),
 			'href'          => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'      => $aSections,
+			'sections'      => $sections,
 			'options'       => [],
 			'show_mod_opts' => $this->getIfShowModuleOpts(),
 		];
 
-		foreach ( $opts->getVisibleOptionsKeys() as $sOptKey ) {
+		foreach ( $opts->getVisibleOptionsKeys() as $optKey ) {
 			try {
-				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
-				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
-				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+				$optData = $this->getStrings()->getOptionStrings( $optKey );
+				$optData[ 'href' ] = $this->getUrl_DirectLinkToOption( $optKey );
+				$summary[ 'options' ][ $optKey ] = $optData;
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$aSum[ 'tooltip' ] = sprintf(
+		$summary[ 'tooltip' ] = sprintf(
 			'%s',
-			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
+			empty( $summary[ 'sidebar_name' ] ) ? $summary[ 'name' ] : __( $summary[ 'sidebar_name' ], 'wp-simple-firewall' )
 		);
-		return $aSum;
+		return $summary;
 	}
 
 	public function getIfShowModuleMenuItem() :bool {
@@ -833,11 +777,11 @@ abstract class ModCon {
 	 */
 	public function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
-			$sClassName = $this->getWizardClassName();
-			if ( !class_exists( $sClassName ) ) {
+			$class = $this->getWizardClassName();
+			if ( !class_exists( $class ) ) {
 				return null;
 			}
-			$this->oWizard = new $sClassName();
+			$this->oWizard = new $class();
 			$this->oWizard->setMod( $this );
 		}
 		return $this->oWizard;
@@ -893,9 +837,9 @@ abstract class ModCon {
 	}
 
 	public function onPluginDelete() {
-		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			if ( !empty( $oDbh ) ) {
-				$oDbh->tableDelete();
+		foreach ( $this->getDbHandlers( true ) as $dbh ) {
+			if ( !empty( $dbh ) ) {
+				$dbh->tableDelete();
 			}
 		}
 		$this->getOptions()->deleteStorage();
@@ -980,10 +924,6 @@ abstract class ModCon {
 		return $this;
 	}
 
-	protected function isAdminOptionsPage() :bool {
-		return is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage();
-	}
-
 	public function isPremium() :bool {
 		return $this->getCon()->isPremiumActive();
 	}
@@ -992,59 +932,60 @@ abstract class ModCon {
 	 * @throws \Exception
 	 */
 	private function doSaveStandardOptions() {
-		$aForm = $this->getAjaxFormParams( 'b64' ); // standard options use b64 and failover to lz-string
+		// standard options use b64 and fail-over to lz-string
+		$form = FormParams::Retrieve( FormParams::ENC_BASE64 );
 
-		foreach ( $this->getAllFormOptionsAndTypes() as $sKey => $sOptType ) {
+		foreach ( $this->getAllFormOptionsAndTypes() as $key => $optType ) {
 
-			$sOptionValue = isset( $aForm[ $sKey ] ) ? $aForm[ $sKey ] : null;
-			if ( is_null( $sOptionValue ) ) {
+			$optValue = $form[ $key ] ?? null;
+			if ( is_null( $optValue ) ) {
 
-				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
+				if ( in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				elseif ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
-					$sOptionValue = 'N';
+				elseif ( $optType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+					$optValue = 'N';
 				}
-				elseif ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
-					$sOptionValue = 0;
+				elseif ( $optType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+					$optValue = 0;
 				}
-				elseif ( $sOptType == 'multiple_select' ) {
-					$sOptionValue = [];
+				elseif ( $optType == 'multiple_select' ) {
+					$optValue = [];
 				}
 			}
 			else { //handle any pre-processing we need to.
 
-				if ( $sOptType == 'text' || $sOptType == 'email' ) {
-					$sOptionValue = trim( $sOptionValue );
+				if ( $optType == 'text' || $optType == 'email' ) {
+					$optValue = trim( $optValue );
 				}
-				if ( $sOptType == 'integer' ) {
-					$sOptionValue = intval( $sOptionValue );
+				if ( $optType == 'integer' ) {
+					$optValue = intval( $optValue );
 				}
-				elseif ( $sOptType == 'password' ) {
-					$sTempValue = trim( $sOptionValue );
+				elseif ( $optType == 'password' ) {
+					$sTempValue = trim( $optValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
 					}
 
-					$sConfirm = isset( $aForm[ $sKey.'_confirm' ] ) ? $aForm[ $sKey.'_confirm' ] : null;
-					if ( $sTempValue !== $sConfirm ) {
+					$confirm = $form[ $key.'_confirm' ] ?? null;
+					if ( $sTempValue !== $confirm ) {
 						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
 
-					$sOptionValue = md5( $sTempValue );
+					$optValue = md5( $sTempValue );
 				}
-				elseif ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
-					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
+				elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
+					$optValue = array_filter( explode( "\n", esc_textarea( $optValue ) ), 'trim' );
 				}
-				elseif ( $sOptType == 'comma_separated_lists' ) {
-					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
+				elseif ( $optType == 'comma_separated_lists' ) {
+					$optValue = Services::Data()->extractCommaSeparatedList( $optValue );
 				}
-				/* elseif ( $sOptType == 'multiple_select' ) { } */
+				/* elseif ( $optType == 'multiple_select' ) { } */
 			}
 
 			// Prevent overwriting of non-editable fields
-			if ( !in_array( $sOptType, [ 'noneditable_text' ] ) ) {
-				$this->getOptions()->setOpt( $sKey, $sOptionValue );
+			if ( !in_array( $optType, [ 'noneditable_text' ] ) ) {
+				$this->getOptions()->setOpt( $key, $optValue );
 			}
 		}
 
@@ -1052,7 +993,7 @@ abstract class ModCon {
 		if ( $this->isPremium() ) {
 			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveExcludedOptions() )
 				->setMod( $this )
-				->save( $aForm );
+				->save( $form );
 		}
 	}
 
@@ -1089,12 +1030,12 @@ abstract class ModCon {
 
 	/**
 	 * Will prefix and return any string with the unique plugin prefix.
-	 * @param string $sSuffix
-	 * @param string $sGlue
+	 * @param string $suffix
+	 * @param string $glue
 	 * @return string
 	 */
-	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getCon()->prefix( $sSuffix, $sGlue );
+	public function prefix( $suffix = '', $glue = '-' ) {
+		return $this->getCon()->prefix( $suffix, $glue );
 	}
 
 	/**
@@ -1163,7 +1104,8 @@ abstract class ModCon {
 
 		return add_query_arg(
 			[
-				'page'          => $this->getModSlug(),
+				'page'          => $this->getCon()->getModule_Insights()->getModSlug(),
+				'inav'          => 'wizard',
 				'shield_action' => 'wizard',
 				'wizard'        => $wizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$wizardSlug )
@@ -1213,16 +1155,16 @@ abstract class ModCon {
 	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'components/options_form/main.twig';
+			$template = 'components/options_form/main.twig';
 		}
 		else {
-			$sTemplate = 'subfeature-access_restricted';
+			$template = 'subfeature-access_restricted';
 		}
 
 		try {
 			return $this->getCon()
 						->getRenderer()
-						->setTemplate( $sTemplate )
+						->setTemplate( $template )
 						->setRenderVars( $this->getUIHandler()->getBaseDisplayData() )
 						->setTemplateEngineTwig()
 						->render();
@@ -1370,15 +1312,34 @@ abstract class ModCon {
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
-		if ( !isset( $this->oOpts ) ) {
+		$opts = $this->opts ?? $this->oOpts;
+		if ( !$opts instanceof Options ) {
 			$con = $this->getCon();
-			$this->oOpts = $this->loadModElement( 'Options' );
-			$this->oOpts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
-						->setRebuildFromFile( $con->cfg->rebuilt )
-						->setOptionsStorageKey( $this->getOptionsStorageKey() )
-						->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
+			$this->opts = $this->loadModElement( 'Options' );
+			$this->opts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
+					   ->setRebuildFromFile( $con->cfg->rebuilt )
+					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
+					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
+			$opts = $this->opts;
 		}
-		return $this->oOpts;
+		return $opts;
+	}
+
+	/**
+	 * @return RestHandler|mixed
+	 */
+	public function getRestHandler() {
+		return $this->loadModElement( 'RestHandler' );
+	}
+
+	/**
+	 * @return AdminPage
+	 */
+	public function getAdminPage() {
+		if ( !isset( $this->adminPage ) ) {
+			$this->adminPage = $this->loadModElement( 'AdminPage' );
+		}
+		return $this->adminPage;
 	}
 
 	/**
@@ -1442,7 +1403,7 @@ abstract class ModCon {
 		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
 			 && $this->getCon()->isPluginAdmin() ) {
 			/** @var Shield\Modules\Base\Debug $debug */
-			$debug = $this->loadModElement( 'Debug', true );
+			$debug = $this->loadModElement( 'Debug' );
 			$debug->run();
 		}
 	}
@@ -1451,21 +1412,20 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
-		return $this->loadModElement( 'Strings', true );
+		return $this->loadModElement( 'Strings' );
 	}
 
 	/**
 	 * @param string $class
-	 * @param false  $injectMod
 	 * @return false|Shield\Modules\ModConsumer
 	 */
-	private function loadModElement( string $class, $injectMod = true ) {
+	private function loadModElement( string $class ) {
 		$element = false;
 		try {
 			$C = $this->findElementClass( $class, true );
 			/** @var Shield\Modules\ModConsumer $element */
 			$element = @class_exists( $C ) ? new $C() : false;
-			if ( $injectMod && method_exists( $element, 'setMod' ) ) {
+			if ( method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
 			}
 		}

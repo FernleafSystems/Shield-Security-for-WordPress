@@ -14,7 +14,7 @@ class UI extends BaseShield\UI {
 
 		switch ( $section ) {
 			case 'section_whitelabel':
-				if ( !$mod->isEnabledSecurityAdmin() ) {
+				if ( !$mod->getSecurityAdminController()->isEnabledSecAdmin() ) {
 					$warning[] = __( 'Please also supply a Security Admin PIN, as whitelabel settings are only applied when the Security Admin feature is active.', 'wp-simple-firewall' );
 				}
 				break;
@@ -26,6 +26,6 @@ class UI extends BaseShield\UI {
 	public function isEnabledForUiSummary() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $mod->isModuleEnabled() && $mod->isEnabledSecurityAdmin();
+		return $mod->getSecurityAdminController()->isEnabledSecAdmin();
 	}
 }

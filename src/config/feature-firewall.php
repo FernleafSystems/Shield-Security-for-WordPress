@@ -22,6 +22,7 @@
       "primary":     true,
       "title":       "Firewall Blocking Options",
       "title_short": "Firewall Blocking",
+      "beacon_id":   333,
       "summary":     [
         "Here you choose what kind of malicious data to scan for.",
         "Recommendation - Turn on as many options here as you can. If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail."
@@ -31,6 +32,7 @@
       "slug":        "section_choose_firewall_block_response",
       "title":       "Choose Firewall Block Response",
       "title_short": "Firewall Response",
+      "beacon_id":   334,
       "summary":     [
         "Here you choose how the plugin will respond when it detects malicious data.",
         "Recommendation - Choose the option 'Die With Message'."
@@ -40,6 +42,7 @@
       "slug":        "section_whitelist",
       "title":       "Whitelists - IPs, Pages, Parameters, and Users that bypass the Firewall",
       "title_short": "Whitelist",
+      "beacon_id":   335,
       "summary":     [
         "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",
         "Recommendation - Do not whitelist anything unless you are confident in what you are doing."
@@ -49,6 +52,7 @@
       "slug":        "section_user_messages",
       "title":       "Customize Messages Shown To User",
       "title_short": "Visitor Messages",
+      "beacon_id":   139,
       "summary":     [
         "Purpose - Customize the messages shown to visitors.",
         "Recommendation - Be sure to change the messages to suit your audience.",
@@ -59,6 +63,7 @@
       "slug":        "section_enable_plugin_feature_wordpress_firewall",
       "title":       "Enable Module: Firewall",
       "title_short": "Disable Module",
+      "beacon_id":   253,
       "summary":     [
         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
         "Recommendation - Keep the Firewall feature turned on."
@@ -78,6 +83,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/43",
       "link_blog":   "https://shsec.io/wpsf01",
+      "beacon_id":   253,
       "name":        "Enable Firewall",
       "summary":     "Enable (or Disable) The Firewall module",
       "description": "Un-Checking this option will completely disable the Firewall module"
@@ -233,6 +239,7 @@
       "type":        "comma_separated_lists",
       "link_info":   "https://shsec.io/2a",
       "link_blog":   "",
+      "beacon_id":   335,
       "name":        "Whitelist Parameters",
       "summary":     "Detail pages and parameters that are whitelisted (ignored by the firewall)",
       "description": "This should be used with caution and you should only provide parameter names that you must have excluded"
@@ -320,7 +327,10 @@
         "appId",
         "/^et_.*/",
         "ping_sites",
-        "aioseo-post-settings"
+        "aioseo-post-settings",
+        "joe-chnlcustid",
+        "spd-custhash",
+        "joe-custinfo"
       ]
     },
     "firewall_patterns": {
@@ -407,9 +417,9 @@
         "cat":  2,
         "stat": false
       },
-      "firewall_block":    {
-        "audit": false,
-        "recent": true,
+      "firewall_block":             {
+        "audit":   false,
+        "recent":  true,
         "offense": true
       },
       "blockparam_dirtraversal":    {
@@ -436,11 +446,11 @@
       "block_exefile":              {
         "cat": 3
       },
-      "fw_email_fail":            {
+      "fw_email_fail":              {
         "cat":  2,
         "stat": false
       },
-      "fw_email_success":         {
+      "fw_email_success":           {
         "stat": false
       }
     }

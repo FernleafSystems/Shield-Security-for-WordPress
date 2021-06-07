@@ -8,45 +8,42 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 
-	/**
-	 * @return array
-	 */
-	protected function getBaseData() {
-		$aData = parent::getBaseData();
+	protected function getBaseData() :array {
+		$data = parent::getBaseData();
 		$item = $this->getResultItem();
-		$aData[ 'explanation' ] = $this->getExplanation();
-		$aData[ 'path' ] = $item->path_fragment;
-		$aData[ 'path_relabs' ] = Services::WpFs()->getPathRelativeToAbsPath( $item->path_full );
-		$aData[ 'path_details' ] = [];
-		$aData[ 'created_at' ] = $this->formatTimestampField( $this->getEntryVO()->created_at );
-		$aData[ 'custom_row' ] = false;
+		$data[ 'explanation' ] = $this->getExplanation();
+		$data[ 'path' ] = $item->path_fragment;
+		$data[ 'path_relabs' ] = Services::WpFs()->getPathRelativeToAbsPath( $item->path_full );
+		$data[ 'path_details' ] = [];
+		$data[ 'created_at' ] = $this->formatTimestampField( $this->getEntryVO()->created_at );
+		$data[ 'custom_row' ] = false;
 
-		$aActionDefs = array_intersect_key(
+		$actionDefs = array_intersect_key(
 			$this->getActionDefinitions(),
 			array_flip( array_unique( $this->getSupportedActions() ) )
 		);
-		foreach ( $aActionDefs as $sKey => $aActionDef ) {
-			$aActionDefs[ $sKey ][ 'data' ] = array_merge(
-				$aActionDef[ 'data' ],
+		foreach ( $actionDefs as $key => $actionDef ) {
+			$actionDefs[ $key ][ 'data' ] = array_merge(
+				$actionDef[ 'data' ],
 				[
 					'rid'         => $this->getEntryVO()->id,
-					'item_action' => $sKey,
+					'item_action' => $key,
 				]
 			);
-			$aActionDefs[ $sKey ][ 'classes' ] = array_merge(
-				$aActionDef[ 'classes' ],
+			$actionDefs[ $key ][ 'classes' ] = array_merge(
+				$actionDef[ 'classes' ],
 				[ 'action', 'item_action' ]
 			);
 		}
-		$aData[ 'actions' ] = $aActionDefs;
+		$data[ 'actions' ] = $actionDefs;
 
-		return $aData;
+		return $data;
 	}
 
 	/**
 	 * @return array[]
 	 */
-	protected function getActionDefinitions() {
+	protected function getActionDefinitions() :array {
 		return [
 			'ignore'   => [
 				'text'    => sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
@@ -74,7 +71,7 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 	/**
 	 * @return string[]
 	 */
-	protected function getExplanation() {
+	protected function getExplanation() :array {
 		return [];
 	}
 }

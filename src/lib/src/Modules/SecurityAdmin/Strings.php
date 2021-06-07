@@ -40,7 +40,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_admin_access_restriction_settings' :
+			case 'section_security_admin_settings' :
 				$sTitle = __( 'Security Admin Restriction Settings', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
@@ -196,7 +196,7 @@ class Strings extends Base\Strings {
 			case 'whitelabel_enable' :
 				$name = sprintf( '%s: %s', __( 'Enable', 'wp-simple-firewall' ), __( 'White Label', 'wp-simple-firewall' ) );
 				$summary = __( 'Activate Your White Label Settings', 'wp-simple-firewall' );
-				$description = __( 'Turn on/off the application of your White Label settings.', 'wp-simple-firewall' );
+				$description = __( 'Turn your White Label settings on/off.', 'wp-simple-firewall' );
 				break;
 			case 'wl_hide_updates' :
 				$name = __( 'Hide Updates', 'wp-simple-firewall' );
@@ -240,15 +240,15 @@ class Strings extends Base\Strings {
 							   .' '.sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'icon', 'wp-simple-firewall' ), '16px x 16px' );
 				break;
 			case 'wl_dashboardlogourl' :
-				$name = __( 'Dashboard Logo', 'wp-simple-firewall' );
-				$summary = __( 'Dashboard Logo URL', 'wp-simple-firewall' );
-				$description = __( 'The URL of the logo to display in the admin pages.', 'wp-simple-firewall' )
+				$name = __( 'Plugin Badge Logo', 'wp-simple-firewall' );
+				$summary = __( 'Plugin Badge Logo URL', 'wp-simple-firewall' );
+				$description = __( 'The URL of the logo to display in the plugin badge.', 'wp-simple-firewall' )
 							   .' '.sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'logo', 'wp-simple-firewall' ), '128px x 128px' );
 				break;
 			case 'wl_login2fa_logourl' :
-				$name = __( '2FA Login Logo URL', 'wp-simple-firewall' );
-				$summary = __( '2FA Login Logo URL', 'wp-simple-firewall' );
-				$description = __( 'The URL of the logo to display on the Two-Factor Authentication login page.', 'wp-simple-firewall' );
+				$name = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
+				$summary = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
+				$description = __( 'The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page.', 'wp-simple-firewall' );
 				break;
 
 			default:

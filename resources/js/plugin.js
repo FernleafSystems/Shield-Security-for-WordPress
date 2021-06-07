@@ -103,19 +103,19 @@ iCWP_WPSF_Toaster.initialise();
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	let bRequestCurrentlyRunning = false;
-	var aAjaxReqParams = icwp_wpsf_vars_base.ajax.mod_options;
+	var reqParams = icwp_wpsf_vars_base.ajax.mod_options;
 
-	this.submit = function ( sMessage, bSuccess ) {
-		let $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( sMessage );
+	this.submit = function ( msg, success ) {
+		let $oDiv = createDynDiv( success ? 'success' : 'failed' );
+		$oDiv.fadeIn().html( msg );
 		setTimeout( function () {
 			$oDiv.fadeOut( 5000 );
 			$oDiv.remove();
 		}, 4000 );
 	};
 
-	this.updateAjaxReqParams = function ( aParams ) {
-		aAjaxReqParams = aParams;
+	this.updateAjaxReqParams = function ( params ) {
+		reqParams = params;
 	};
 
 	/**
@@ -123,15 +123,21 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	 * This works around mod_security rules that even unpack b64 encoded params and look
 	 * for patterns within them.
 	 */
-	var sendForm = function ( $oForm, useCompression = false ) {
+	var sendForm = function ( $form, useCompression = false ) {
 
-		let formData = $oForm.serialize();
+		let formData = $form.serialize();
 		if ( useCompression ) {
 			formData = LZString.compress( formData );
 		}
 
+		/** Required since using dynamic AJAX loaded page content **/
+		if ( !$form.data( 'mod_slug' ) ) {
+			alert( 'Missing form data' );
+			return false;
+		}
+		reqParams.mod_slug = $form.data( 'mod_slug' );
 		let reqs = jQuery.extend(
-			aAjaxReqParams,
+			reqParams,
 			{
 				'form_params': Base64.encode( formData ),
 				'enc_params': useCompression ? 'lz-string' : 'b64',
@@ -155,7 +161,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 			else {
 				iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
-				sendForm( $oForm, true );
+				sendForm( $form, true );
 			}
 
 		} ).always( function () {
@@ -189,23 +195,23 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		bRequestCurrentlyRunning = true;
 		event.preventDefault();
 
-		var $oForm = jQuery( this );
+		var $form = jQuery( this );
 
-		var $bPasswordsReady = true;
-		jQuery( 'input[type=password]', $oForm ).each( function () {
+		var $passwordsReady = true;
+		jQuery( 'input[type=password]', $form ).each( function () {
 			var $oPass = jQuery( this );
-			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $oForm );
+			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $form );
 			if ( typeof $oConfirm.attr( 'id' ) !== 'undefined' ) {
 				if ( $oPass.val() && !$oConfirm.val() ) {
 					$oConfirm.addClass( 'is-invalid' );
 					alert( 'Form not submitted due to error: password confirmation field not provided.' );
-					$bPasswordsReady = false;
+					$passwordsReady = false;
 				}
 			}
 		} );
 
-		if ( $bPasswordsReady ) {
-			sendForm( $oForm, false );
+		if ( $passwordsReady ) {
+			sendForm( $form, false );
 		}
 	};
 
@@ -219,72 +225,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 iCWP_WPSF_OptionsPages.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
 
-if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.timeleft > 0 ) {
-
-	var iCWP_WPSF_SecurityAdminCheck = new function () {
-
-		var bCheckInPlace = false;
-		var bWarningShown = false;
-		var nIntervalTimeout = 500 * icwp_wpsf_vars_secadmin.timeleft;
-
-		var checkSecAdmin = function () {
-
-			bCheckInPlace = false;
-
-			jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.ajax.check,
-				function ( oResponse ) {
-					if ( oResponse.data.success ) {
-						var nLeft = oResponse.data.timeleft;
-						nIntervalTimeout = Math.max( 3, (nLeft / 2) ) * 1000;
-
-						if ( !bWarningShown && nLeft < 20 && nLeft > 8 ) {
-							bWarningShown = true;
-							iCWP_WPSF_Toaster.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
-							// iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
-						}
-
-						scheduleSecAdminCheck();
-					}
-					else {
-						iCWP_WPSF_BodyOverlay.show();
-						setTimeout( function () {
-							if ( confirm( icwp_wpsf_vars_secadmin.strings.confirm ) ) {
-								window.location.reload();
-							}
-							else {
-								iCWP_WPSF_BodyOverlay.hide();
-								// Do nothing!
-							}
-						}, 1500 );
-						iCWP_WPSF_Toaster.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
-						// iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
-					}
-
-				}
-			).always( function () {
-				}
-			);
-		};
-
-		let scheduleSecAdminCheck = function () {
-			if ( !bCheckInPlace ) {
-				setTimeout( function () {
-					checkSecAdmin();
-				}, nIntervalTimeout );
-				bCheckInPlace = true;
-			}
-		};
-
-		this.initialise = function () {
-			jQuery( document ).ready( function () {
-				scheduleSecAdminCheck();
-			} );
-		};
-	}();
-
-	iCWP_WPSF_SecurityAdminCheck.initialise();
-}
-
 jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
 	this.reloadTable = function () {
@@ -296,15 +236,15 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 		$oTableContainer.addClass( 'icwpAjaxTableContainer' );
 	};
 
-	var refreshTable = function ( event ) {
-		event.preventDefault();
+	var refreshTable = function ( evt ) {
+		evt.preventDefault();
 
 		var query = this.search.substring( 1 );
 		var aTableRequestParams = {
 			paged: extractQueryVars( query, 'paged' ) || 1,
 			order: extractQueryVars( query, 'order' ) || 'desc',
 			orderby: extractQueryVars( query, 'orderby' ) || 'created_at',
-			tableaction: jQuery( event.currentTarget ).data( 'tableaction' )
+			tableaction: jQuery( evt.currentTarget ).data( 'tableaction' )
 		};
 
 		renderTableRequest( aTableRequestParams );
@@ -393,14 +333,14 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 	jQuery( document ).ready( function () {
-		jQuery( document ).on( "click", "a.shield_file_download", function ( evt ) {
+		jQuery( document ).on( 'click', 'a.shield_file_download, a.shield_file_download ', function ( evt ) {
 			evt.preventDefault();
 			/** Cache busting **/
 			let url = jQuery( this ).attr( 'href' ) + '&rand='
 				+ Math.floor( 10000 * Math.random() );
 			jQuery.fileDownload( url, {
 				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
-				failMessageHtml: icwp_wpsf_vars_plugin.strings.problem_downloading_file
+				failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
 			} );
 			return false;
 		} );
@@ -409,6 +349,7 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 jQuery( document ).ready( function () {
 	jQuery( document ).icwpWpsfTours();
+	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '.select2picker' ).select2( {
 		width: 'resolve'
 	} );
@@ -420,5 +361,19 @@ jQuery( document ).ready( function () {
 	var tooltipTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="tooltip"]' ) )
 	var tooltipList = tooltipTriggerList.map( function ( tooltipTriggerEl ) {
 		return new bootstrap.Tooltip( tooltipTriggerEl );
+	} );
+
+	jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
+		evt.preventDefault();
+		let link = jQuery( evt.currentTarget );
+		let id = link.data( 'beacon-article-id' );
+		if ( id ) {
+			let format = '';
+			if ( link.data( 'beacon-article-format' ) ) {
+				format = link.data( 'beacon-article-format' );
+			}
+			Beacon( 'article', String( id ), { type: format } );
+		}
+		return false;
 	} );
 } );

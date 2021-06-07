@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
@@ -208,28 +209,31 @@ class Collate {
 		}
 
 		$data = [
-			'Can Loopback Request' => $loopback,
-			'Handshake ShieldNET'  => $modPlug->getShieldNetApiController()
-											  ->canHandshake() ? 'Yes' : 'No',
-			'WP Hashes Ping'       => ( new ApiPing() )->ping() ? 'Yes' : 'No',
+			'Can Loopback Request'       => $loopback,
+			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->test() ? 'Yes' : 'No',
+			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()
+													->canHandshake() ? 'Yes' : 'No',
+			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
 		$licPing = new Licenses\Keyless\Ping();
 		$licPing->lookup_url_stub = $con->getModule_License()->getOptions()->getDef( 'license_store_url_api' );
 		$data[ 'Ping License Server' ] = $licPing->ping() ? 'Yes' : 'No';
 
-		$data[ 'Write TMP/Cache DIR' ] = $con->hasCacheDir() ?'Yes: '.$con->getPluginCachePath() : 'No' ;
+		$data[ 'Write TMP/Cache DIR' ] = $con->hasCacheDir() ? 'Yes: '.$con->getPluginCachePath() : 'No';
 
 		return $data;
 	}
 
 	private function getShieldSummary() :array {
-		$oCon = $this->getCon();
-		$oModLicense = $oCon->getModule_License();
-		$oModPlugin = $oCon->getModule_Plugin();
-		$oWpHashes = $oModLicense->getWpHashesTokenManager();
+		$con = $this->getCon();
+		$modLicense = $con->getModule_License();
+		$modPlugin = $con->getModule_Plugin();
+		$wpHashes = $modLicense->getWpHashesTokenManager();
 
-		$nPrevAttempt = $oWpHashes->getPreviousAttemptAt();
+		$nPrevAttempt = $wpHashes->getPreviousAttemptAt();
 		if ( empty( $nPrevAttempt ) ) {
 			$sPrev = 'Never';
 		}
@@ -240,19 +244,21 @@ class Collate {
 											  ->diffForHumans();
 		}
 
-		$aD = [
-			'Version'                => $oCon->getVersion(),
-			'PRO'                    => $oCon->isPremiumActive() ? 'Yes' : 'No',
-			'WP Hashes Token'        => ( $oWpHashes->hasToken() ? $oWpHashes->getToken() : '' ).' ('.$sPrev.')',
-			'Security Admin Enabled' => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
+		$data = [
+			'Version'                => $con->getVersion(),
+			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
+			'WP Hashes Token'        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
+			'Security Admin Enabled' => $con->getModule_SecAdmin()
+											->getSecurityAdminController()
+											->isEnabledSecAdmin() ? 'Yes' : 'No',
 		];
 
 		/** @var Options $oOptsIP */
-		$oOptsPlugin = $oModPlugin->getOptions();
-		$sSource = $oOptsPlugin->getSelectOptionValueText( 'visitor_address_source' );
-		$aD[ 'Visitor IP Source' ] = $sSource.' - '.Services::Request()->server( $sSource );
+		$optsPlugin = $modPlugin->getOptions();
+		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
+		$data[ 'Visitor IP Source' ] = $source.': '.var_export( Services::IP()->getRequestIp(), true );
 
-		return $aD;
+		return $data;
 	}
 
 	private function getWordPressSummary() :array {

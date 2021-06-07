@@ -8,24 +8,20 @@ class Select extends Base\Select {
 
 	use Common;
 
-	/**
-	 * @param string $sScan
-	 * @return int
-	 */
-	public function countForScan( $sScan ) {
+	public function countForScan( string $scan ) :int {
 		return $this->reset()
 					->filterByNotIgnored()
-					->filterByScan( $sScan )
+					->filterByScan( $scan )
 					->count();
 	}
 
 	/**
-	 * @param string $sScan
+	 * @param string $scan
 	 * @return EntryVO[]
 	 */
-	public function forScan( $sScan ) {
+	public function forScan( $scan ) {
 		return $this->reset()
-					->filterByScan( $sScan )
+					->filterByScan( $scan )
 					->query();
 	}
 }

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
 class Themes extends Base {
 
-	public function run() {
+	protected function run() {
 		add_action( 'switch_theme', [ $this, 'auditSwitchTheme' ] );
 		add_action( 'check_admin_referer', [ $this, 'auditEditedThemeFile' ], 10, 2 );
 	}

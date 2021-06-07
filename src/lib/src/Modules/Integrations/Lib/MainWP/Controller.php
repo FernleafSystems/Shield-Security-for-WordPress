@@ -2,16 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-class Controller {
-
-	use ModConsumer;
-	use ExecOnce;
+class Controller extends ExecOnceModConsumer {
 
 	const MIN_VERSION_MAINWP = '4.1';
 

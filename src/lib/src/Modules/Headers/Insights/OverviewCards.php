@@ -7,24 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers\Options;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var Shield\Modules\Headers\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'HTTP Security Headers', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Protect Visitors With Powerful HTTP Headers', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
+		if ( $mod->isModOptEnabled() ) {
 			$bAllEnabled = $opts->isEnabledXFrame() && $opts->isEnabledXssProtection()
 						   && $opts->isEnabledContentTypeHeader() && $opts->isReferrerPolicyEnabled();
 			$cards[ 'all' ] = [
@@ -36,18 +27,24 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_security_headers' ),
 			];
 
-			$bCsp = $opts->isEnabledContentSecurityPolicy();
 			$cards[ 'csp' ] = [
 				'name'    => __( 'Content Security Policies', 'wp-simple-firewall' ),
-				'state'   => $bCsp ? 1 : 0,
-				'summary' => $bCsp ?
+				'state'   => $opts->isEnabledContentSecurityPolicy() ? 1 : 0,
+				'summary' => $opts->isEnabledContentSecurityPolicy() ?
 					__( 'Content Security Policy is turned on', 'wp-simple-firewall' )
-					: __( "Content Security Policies aren't active", 'wp-simple-firewall' ),
+					: __( "Content Security Policies aren't active or there are no rules provided", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
 			];
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'headers' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'HTTP Security Headers', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Protect Visitors With Powerful HTTP Headers', 'wp-simple-firewall' );
 	}
 }

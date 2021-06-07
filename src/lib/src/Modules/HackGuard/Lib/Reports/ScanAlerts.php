@@ -13,6 +13,9 @@ class ScanAlerts extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+
 		$alerts = [];
 
 		/** @var HackGuard\Strings $strings */
@@ -43,7 +46,9 @@ class ScanAlerts extends BaseReporter {
 						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
-						'view_results' => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+						'view_results' => $this->getCon()
+											   ->getModule_Insights()
+											   ->getUrl_ScansResults(),
 					],
 				]
 			);
@@ -57,9 +62,9 @@ class ScanAlerts extends BaseReporter {
 	private function markAlertsAsNotified() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Scanner\Update $oUpdater */
-		$oUpdater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		$oUpdater
+		/** @var Scanner\Update $updater */
+		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
+		$updater
 			->setUpdateWheres( [
 				'ignored_at'  => 0,
 				'notified_at' => 0,

@@ -18,10 +18,10 @@
 	{% block slide_body_middle_gopro %}
 		{% if not flags.is_premium %}
 			<h5>Go Further With Pro :)</h5>
-			<p>We've added many advantages to the Pro version, and we've made it available for every budget
+			<p class="description">We've added many advantages to the Pro version, and we've made it available for every budget
 			   for just $1/month - the most affordable Security plugin available today!</p>
-			<p>With your support, we'll continue our work and bring you ever-more powerful security features.</p>
-			<p>This is what you get for going Pro:</p>
+			<p class="description">With your support, we'll continue our work and bring you ever-more powerful security features.</p>
+			<p class="description">This is what you get for going Pro:</p>
 			<ul>
 				<li>Simple (+automatic) options import/export between all your websites</li>
 				<li>Vulnerability Scanner - daily scans/alerts for security vulnerabilities</li>
@@ -34,20 +34,17 @@
 				<li>(coming soon) White Labelling</li>
 				<li>(coming soon) Refined options for 2-Factor Authentication</li>
 			</ul>
-			<a href="{{ hrefs.gopro }}" target="_blank" class="btn btn-success" id="GoProBtn">Go Pro Today!</a>
+			<a href="{{ hrefs.gopro }}" target="_blank" class="btn btn-success shield-go-pro">Go Pro Today!</a>
 		{% endif %}
 	{% endblock %}
 
 {% endblock %}
 
 {% block slide_body_bottom %}
-	<p>Click the button below to return to the main WordPress dashboard.</p>
+     <a href="{{ hrefs.dashboard }}" class="btn btn-primary btn-block button button-primary">Return To The {{ strings.plugin_name }} WordPress Dashboard &rarr;</a>
 {% endblock %}
 
 {% block slide_footer %}
-	<hr />
-	<a href="{{ hrefs.dashboard }}" class="btn btn-outline-secondary">
-		&#x21d0; Return To The {{ strings.plugin_name }} WordPress Dashboard</a>
 {% endblock %}
 
 {% block slide_header_next_bottom %}{% endblock %}

@@ -16,6 +16,14 @@ class Email extends BaseProvider {
 		$this->sendEmailTwoFactorVerify( $user );
 	}
 
+	public function getJavascriptVars() :array {
+		return [
+			'ajax' => [
+				'user_email2fa_toggle' => $this->getMod()->getAjaxActionData( 'user_email2fa_toggle' ),
+			],
+		];
+	}
+
 	/**
 	 * @param \WP_User $user
 	 * @param bool     $bIsSuccess
@@ -60,7 +68,7 @@ class Email extends BaseProvider {
 	/**
 	 * @return array
 	 */
-	public function getFormField() {
+	public function getFormField() :array {
 		return [
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'text',
@@ -79,25 +87,25 @@ class Email extends BaseProvider {
 		$bWasEnabled = $this->isProfileActive( $user );
 		$bToEnable = Services::Request()->post( 'shield_enable_mfaemail' ) === 'Y';
 
-		$sMsg = null;
-		$bError = false;
+		$msg = null;
+		$error = false;
 		if ( $bToEnable ) {
 			$this->setProfileValidated( $user );
 			if ( !$bWasEnabled ) {
-				$sMsg = __( 'Email Two-Factor Authentication has been enabled.', 'wp-simple-firewall' );
+				$msg = __( 'Email Two-Factor Authentication has been enabled.', 'wp-simple-firewall' );
 			}
 		}
 		elseif ( $this->isEnforced( $user ) ) {
-			$sMsg = __( "Email Two-Factor Authentication couldn't be disabled because it is enforced based on your user roles.", 'wp-simple-firewall' );
-			$bError = true;
+			$msg = __( "Email Two-Factor Authentication couldn't be disabled because it is enforced based on your user roles.", 'wp-simple-firewall' );
+			$error = true;
 		}
 		else {
 			$this->setProfileValidated( $user, false );
-			$sMsg = __( 'Email Two-Factor Authentication has been disabled.', 'wp-simple-firewall' );
+			$msg = __( 'Email Two-Factor Authentication has been disabled.', 'wp-simple-firewall' );
 		}
 
-		if ( !empty( $sMsg ) ) {
-			$this->getMod()->setFlashAdminNotice( $sMsg, $bError );
+		if ( !empty( $msg ) ) {
+			$this->getMod()->setFlashAdminNotice( $msg, $error );
 		}
 	}
 
@@ -149,7 +157,8 @@ class Email extends BaseProvider {
 											   'code' => $code
 										   ],
 										   'hrefs'   => [
-											   'login_link' => 'https://shsec.io/96'
+											   'login_link' => 'https://shsec.io/96',
+											   'verify_2fa' => $this->genLoginLink( $user, $code )
 										   ],
 										   'strings' => [
 											   'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
@@ -191,23 +200,16 @@ class Email extends BaseProvider {
 			);
 	}
 
-	public function renderUserProfileOptions( \WP_User $user ) :string {
-		$aData = [
+	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+		return [
 			'strings' => [
 				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
 				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
+				'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
 				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $this->getCon()
 																														   ->getHumanName() )
 			]
 		];
-
-		return $this->getMod()
-					->renderTemplate(
-						'/snippets/user/profile/mfa/mfa_email.twig',
-						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $user ), $aData ),
-						true
-					);
 	}
 
 	public function isProviderEnabled() :bool {
@@ -221,6 +223,22 @@ class Email extends BaseProvider {
 		$opts = $this->getOptions();
 		return parent::isProviderAvailableToUser( $user )
 			   && ( $this->isEnforced( $user ) || $opts->isEnabledEmailAuthAnyUserSet() );
+	}
+
+	private function genLoginLink( \WP_User $user, string $otp ) :string {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$action = uniqid( '2fa_verify' );
+		return add_query_arg(
+			[
+				'user'                         => $user->user_login,
+				$this->getLoginFormParameter() => $otp,
+				'shield_nonce_action'          => $action,
+				'shield_nonce'                 => $this->getCon()
+					->nonce_handler->create( $action, $opts->getLoginIntentMinutes()*60 ),
+			],
+			Services::WpGeneral()->getHomeUrl()
+		);
 	}
 
 	/**
@@ -262,5 +280,9 @@ class Email extends BaseProvider {
 	 */
 	private function storeCodes( \WP_User $user, array $codes ) {
 		return $this->setSecret( $user, $codes );
+	}
+
+	public function getProviderName() :string {
+		return 'Email';
 	}
 }

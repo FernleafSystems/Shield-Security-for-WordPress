@@ -5,6 +5,7 @@
     "storage_key":           "integrations",
     "name":                  "Integrations",
     "menu_title":            "Integrations",
+    "sidebar_name":          "3rd Party Integrations",
     "show_module_options":   true,
     "show_module_menu_item": false,
     "auto_enabled":          true,
@@ -25,12 +26,20 @@
       "slug":        "section_integrations",
       "primary":     true,
       "title":       "Integrations",
-      "title_short": "Integrations"
+      "title_short": "Integrations",
+      "beacon_id":   404
     },
     {
       "slug":        "section_spam",
       "title":       "SPAM Detection",
-      "title_short": "SPAM Detection"
+      "title_short": "SPAM Detection",
+      "beacon_id":   138
+    },
+    {
+      "slug":        "section_user_forms",
+      "title":       "User Forms Bot Detection",
+      "title_short": "User Forms Bot Detection",
+      "beacon_id":   239
     },
     {
       "slug":   "section_non_ui",
@@ -45,21 +54,10 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ir",
       "link_blog":   "",
+      "beacon_id":   404,
       "name":        "Enable MainWP",
       "summary":     "Enable The Built-In MainWP Extension",
       "description": "This option will enable Shield's built-in MainWP extension for both server and client."
-    },
-    {
-      "key":         "enable_spam_antibot",
-      "section":     "section_spam",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "AntiBot SPAM Detection",
-      "summary":     "Enable The AntiBot SPAM Detection",
-      "description": "Use Shield's built-in AntiBot Detection Engine to identify contact form SPAM."
     },
     {
       "key":           "form_spam_providers",
@@ -94,12 +92,20 @@
           "text":      "Gravity Forms"
         },
         {
+          "value_key": "groundhogg",
+          "text":      "Groundhogg"
+        },
+        {
           "value_key": "kaliforms",
           "text":      "Kali Forms"
         },
         {
           "value_key": "ninjaforms",
           "text":      "Ninja Forms"
+        },
+        {
+          "value_key": "superforms",
+          "text":      "Super Forms"
         },
         {
           "value_key": "wpforo",
@@ -110,24 +116,97 @@
           "text":      "WPForms"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://shsec.io/k2",
+      "link_blog":     "https://shsec.io/k3",
+      "beacon_id":     138,
       "name":          "SPAM Form Checking",
       "summary":       "Select The Form Providers That Should Be Checked For SPAM",
       "description":   "Select The Form Providers That Should Be Checked For SPAM."
+    },
+    {
+      "key":           "user_form_providers",
+      "section":       "section_user_forms",
+      "premium":       true,
+      "advanced":      true,
+      "type":          "multiple_select",
+      "default":       [
+        "wordpress"
+      ],
+      "value_options": [
+        {
+          "value_key": "buddypress",
+          "text":      "BuddyPress"
+        },
+        {
+          "value_key": "easydigitaldownloads",
+          "text":      "Easy Digital Downloads"
+        },
+        {
+          "value_key": "learnpress",
+          "text":      "LearnPress"
+        },
+        {
+          "value_key": "lifterlms",
+          "text":      "LifterLMS"
+        },
+        {
+          "value_key": "memberpress",
+          "text":      "MemberPress"
+        },
+        {
+          "value_key": "paidmembersubscriptions",
+          "text":      "Paid Member Subscriptions"
+        },
+        {
+          "value_key": "profilebuilder",
+          "text":      "Profile Builder"
+        },
+        {
+          "value_key": "ultimatemember",
+          "text":      "Ultimate Member"
+        },
+        {
+          "value_key": "woocommerce",
+          "text":      "WooCommerce"
+        },
+        {
+          "value_key": "wordpress",
+          "text":      "WordPress"
+        },
+        {
+          "value_key": "wpmembers",
+          "text":      "WP Members"
+        }
+      ],
+      "link_info":     "https://shsec.io/k4",
+      "link_blog":     "https://shsec.io/k3",
+      "beacon_id":     239,
+      "name":          "User Form Checking",
+      "summary":       "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins",
+      "description":   "Select The User Form Providers That Should Be Checked For SPAM Registrations and Logins"
     }
   ],
   "definitions": {
     "events": {
-      "spam_form_pass": {
+      "spam_form_pass":     {
         "stat":    true,
         "audit":   true,
         "offense": false
       },
-      "spam_form_fail": {
-        "stat":  true,
-        "audit": true,
+      "spam_form_fail":     {
+        "stat":    true,
+        "audit":   true,
         "offense": false
+      },
+      "user_form_bot_pass": {
+        "stat":    true,
+        "audit":   true,
+        "offense": false
+      },
+      "user_form_bot_fail": {
+        "stat":    true,
+        "audit":   true,
+        "offense": true
       }
     }
   }

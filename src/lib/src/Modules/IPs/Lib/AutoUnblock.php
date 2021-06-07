@@ -28,27 +28,6 @@ class AutoUnblock {
 			catch ( \Exception $e ) {
 			}
 		}
-		if ( !$unblocked ) {
-			$unblocked = $this->checkForBlockedServiceBot();
-		}
-		return $unblocked;
-	}
-
-	/**
-	 * @deprecated 10.3 - temporary to ensure that service bots aren't blocked and reduce spurious Audit Trail
-	 */
-	private function checkForBlockedServiceBot() :bool {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-
-		$unblocked = false;
-		if ( $mod->isVerifiedBot() ) {
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setMod( $mod )
-				->setIP( Services::IP()->getRequestIp() )
-				->fromBlacklist();
-			$unblocked = true;
-		}
 		return $unblocked;
 	}
 
@@ -75,37 +54,35 @@ class AutoUnblock {
 				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
 
-			$sIP = Services::IP()->getRequestIp();
-			if ( $req->post( 'ip' ) != $sIP ) {
+			$ip = Services::IP()->getRequestIp();
+			if ( empty( $ip ) || $req->post( 'ip' ) !== Services::IP()->getRequestIp() ) {
 				throw new \Exception( 'IP does not match' );
 			}
 
-			$oLoginMod = $this->getCon()->getModule_LoginGuard();
-			$sGasp = $req->post( $oLoginMod->getGaspKey() );
-			if ( empty( $sGasp ) ) {
-				throw new \Exception( 'GASP failed' );
-			}
-
-			if ( !$opts->getCanIpRequestAutoUnblock( $sIP ) ) {
-				throw new \Exception( 'IP already processed in the last 24hrs' );
+			if ( !$opts->getCanIpRequestAutoUnblock( $ip ) ) {
+				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
 			{
-				$aExistingIps = $opts->getAutoUnblockIps();
-				$aExistingIps[ $sIP ] = Services::Request()->ts();
+				$existing = $opts->getAutoUnblockIps();
+				$existing[ $ip ] = Services::Request()->ts();
 				$opts->setOpt( 'autounblock_ips',
-					array_filter( $aExistingIps, function ( $nTS ) {
+					array_filter( $existing, function ( $ts ) {
 						return Services::Request()
 									   ->carbon()
-									   ->subDays( 1 )->timestamp < $nTS;
+									   ->subHours( 1 )->timestamp < $ts;
 					} )
 				);
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
 				->setMod( $mod )
-				->setIP( $sIP )
+				->setIP( $ip )
 				->fromBlacklist();
+			( new IPs\Lib\Bots\BotSignalsRecord() )
+				->setMod( $this->getMod() )
+				->setIP( $ip )
+				->delete();
 			$unblocked = true;
 		}
 
@@ -158,10 +135,10 @@ class AutoUnblock {
 					$existing = $opts->getAutoUnblockEmailIDs();
 					$existing[ $user->ID ] = Services::Request()->ts();
 					$opts->setOpt( 'autounblock_emailids',
-						array_filter( $existing, function ( $nTS ) {
+						array_filter( $existing, function ( $ts ) {
 							return Services::Request()
 										   ->carbon()
-										   ->subHours( 1 )->timestamp < $nTS;
+										   ->subHours( 1 )->timestamp < $ts;
 						} )
 					);
 				}
@@ -172,6 +149,10 @@ class AutoUnblock {
 					->setMod( $mod )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
+				( new IPs\Lib\Bots\BotSignalsRecord() )
+					->setMod( $this->getMod() )
+					->setIP( Services::IP()->getRequestIp() )
+					->delete();
 				$unblocked = true;
 			}
 			else {

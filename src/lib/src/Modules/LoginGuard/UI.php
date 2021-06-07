@@ -8,12 +8,34 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 class UI extends BaseShield\UI {
 
 	protected function getSectionWarnings( string $section ) :array {
+		$con = $this->getCon();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$warnings = [];
 
-		if ( $section == 'section_brute_force_login_protection' && !$this->getCon()->isPremiumActive() ) {
-			$sIntegration = $this->getPremiumOnlyIntegration();
-			if ( !empty( $sIntegration ) ) {
-				$warnings[] = sprintf( __( 'Support for login protection with %s is a Pro-only feature.', 'wp-simple-firewall' ), $sIntegration );
+		if ( $section == 'section_brute_force_login_protection' ) {
+
+			if ( empty( $opts->getBotProtectionLocations() ) ) {
+				$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
+			}
+
+			$installedButNotEnabledProviders = array_filter(
+				$con->getModule_Integrations()
+					->getController_UserForms()
+					->getInstalledProviders(),
+				function ( $provider ) {
+					return !$provider->isEnabled();
+				}
+			);
+			if ( !empty( $installedButNotEnabledProviders ) ) {
+				$warnings[] = sprintf( __( "%s has an integration available to protect the login forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
+					$con->getHumanName(),
+					sprintf( '<a href="%s">%s</a>',
+						$con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_user_forms' ),
+						sprintf( __( "View the available integrations.", 'wp-simple-firewall' ), $con->getHumanName() )
+					)
+				);
 			}
 		}
 
@@ -36,25 +58,5 @@ class UI extends BaseShield\UI {
 		}
 
 		return $warnings;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getPremiumOnlyIntegration() {
-		$aIntegrations = [
-			'WooCommerce'            => 'WooCommerce',
-			'Easy_Digital_Downloads' => 'Easy Digital Downloads',
-			'BuddyPress'             => 'BuddyPress',
-		];
-
-		$sIntegration = '';
-		foreach ( $aIntegrations as $classToIntegrate => $sName ) {
-			if ( class_exists( $classToIntegrate ) ) {
-				$sIntegration = $sName;
-				break;
-			}
-		}
-		return $sIntegration;
 	}
 }

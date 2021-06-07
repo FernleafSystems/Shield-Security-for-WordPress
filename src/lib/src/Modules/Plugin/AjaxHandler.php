@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
@@ -43,10 +44,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_SetPluginTrackingPerm();
 				break;
 
-			case 'send_deactivate_survey':
-				$response = $this->ajaxExec_SendDeactivateSurvey();
-				break;
-
 			case 'sgoptimizer_turnoff':
 				$response = $this->ajaxExec_TurnOffSiteGroundOptions();
 				break;
@@ -59,6 +56,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_MarkTourFinished();
 				break;
 
+			case 'wizard_step':
+				$response = $this->ajaxExec_Wizard();
+				break;
 			default:
 				$response = parent::processAjaxAction( $action );
 		}
@@ -66,22 +66,16 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	private function ajaxExec_SendDeactivateSurvey() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$results = [];
-		foreach ( $_POST as $sKey => $sValue ) {
-			if ( strpos( $sKey, 'reason_' ) === 0 ) {
-				$results[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
-			}
-		}
-		$mod->getEmailProcessor()
-			->send(
-				$mod->getSurveyEmail(),
-				'Shield Deactivation Survey',
-				implode( "\n<br/>", $results )
-			);
-		return [ 'success' => true ];
+	private function ajaxExec_Wizard() {
+		$params = FormParams::Retrieve();
+		// step will be step1, step2 etc.
+		$currentStep = intval( str_replace( 'step', '', $params[ 'step' ] ) );
+		$data = $params[ $params[ 'step' ] ];
+		return [
+			'success' => true,
+			'message' => $currentStep < 3 ? $data : 'done done done',
+			'next'    => $currentStep < 3 ? 'step'.++$currentStep : 'done',
+		];
 	}
 
 	private function ajaxExec_PluginBadgeClose() :array {
@@ -193,22 +187,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	private function ajaxExec_ImportFromSite() :array {
 		$success = false;
-		$aFormParams = array_merge(
+		$formParams = array_merge(
 			[
 				'confirm' => 'N'
 			],
-			$this->getAjaxFormParams()
+			FormParams::Retrieve()
 		);
 
 		// TODO: align with wizard AND combine with file upload errors
-		if ( $aFormParams[ 'confirm' ] !== 'Y' ) {
+		if ( $formParams[ 'confirm' ] !== 'Y' ) {
 			$msg = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
 		}
 		else {
-			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
-			$sSecretKey = $aFormParams[ 'MasterSiteSecretKey' ];
-			$bEnabledNetwork = $aFormParams[ 'ShieldNetwork' ] === 'Y';
-			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
+			$sMasterSiteUrl = $formParams[ 'MasterSiteUrl' ];
+			$sSecretKey = $formParams[ 'MasterSiteSecretKey' ];
+			$bEnabledNetwork = $formParams[ 'ShieldNetwork' ] === 'Y';
+			$bDisableNetwork = $formParams[ 'ShieldNetwork' ] === 'N';
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
@@ -234,7 +228,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
-		$formParams = $this->getAjaxFormParams();
+		$formParams = FormParams::Retrieve();
 
 		$note = trim( $formParams[ 'admin_note' ] ?? '' );
 		if ( !$mod->getCanAdminNotes() ) {

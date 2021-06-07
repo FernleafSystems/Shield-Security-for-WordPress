@@ -17,19 +17,31 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function onModulesLoaded() {
-		$this->maybeRedirectToAdmin();
+		$this->handleCustomRedirection();
 	}
 
-	private function maybeRedirectToAdmin() {
+	private function handleCustomRedirection() {
 		$con = $this->getCon();
-		$activeFor = $con->getModule_Plugin()->getActivateLength();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$con->isModulePage() && $activeFor < 4 ) {
-			Services::Response()->redirect( $this->getUrl_AdminPage() );
+		if ( !Services::WpGeneral()->isAjax() && is_admin() ) {
+			if ( !$con->isModulePage() && $con->getModule_Plugin()->getActivateLength() < 5 ) {
+				Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
+			}
+			elseif ( $this->getAdminPage()->isCurrentPage() && empty( Services::Request()->query( 'inav' ) ) ) {
+				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
+			}
 		}
 	}
 
 	public function getUrl_IpAnalysis( string $ip ) :string {
 		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_SubInsightsPage( 'ips' ) );
+	}
+
+	public function getUrl_ScansResults() :string {
+		return $this->getUrl_SubInsightsPage( 'scans_results' );
+	}
+
+	public function getUrl_ScansRun() :string {
+		return $this->getUrl_SubInsightsPage( 'scans_run' );
 	}
 
 	public function getUrl_SubInsightsPage( string $subPage ) :string {
@@ -47,23 +59,34 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getScriptLocalisations() :array {
 		$con = $this->getCon();
+		$modPlugin = $con->getModule_Plugin();
+
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [
 			'plugin',
 			'icwp_wpsf_vars_insights',
 			[
 				'strings' => [
-					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-					'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-					'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'select_action' => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					'are_you_sure'  => __( 'Are you sure?', 'wp-simple-firewall' ),
 				],
 			]
 		];
+
 		$locals[] = [
 			$con->prefix( 'ip_detect' ),
 			'icwp_wpsf_vars_ipdetect',
-			[ 'ajax' => $con->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
+			[ 'ajax' => $modPlugin->getAjaxActionData( 'ipdetect' ) ]
+		];
+
+		$locals[] = [
+			'shield/navigation',
+			'shield_vars_navigation',
+			[
+				'ajax' => [
+					'dynamic_load' => $this->getAjaxActionData( 'dynamic_load' )
+				]
+			]
 		];
 
 		return $locals;
@@ -76,10 +99,13 @@ class ModCon extends BaseShield\ModCon {
 		];
 
 		$con = $this->getCon();
-		$iNav = Services::Request()->query( 'inav' );
+		$inav = Services::Request()->query( 'inav' );
+		if ( empty( $inav ) ) {
+			$inav = 'overview';
+		}
 
-		if ( $con->getIsPage_PluginAdmin() && !empty( $iNav ) ) {
-			switch ( $iNav ) {
+		if ( $con->getIsPage_PluginAdmin() ) {
+			switch ( $inav ) {
 
 				case 'importexport':
 					$enq[ Enqueue::JS ][] = 'shield/import';
@@ -106,23 +132,30 @@ class ModCon extends BaseShield\ModCon {
 					];
 					break;
 
+				case 'wizard':
+					$enq[ Enqueue::JS ][] = 'shield/wizard';
+					$enq[ Enqueue::CSS ][] = 'shield/wizard';
+					break;
+
 				case 'notes':
-				case 'scans':
+				case 'scans_results':
+				case 'scans_run':
 				case 'audit':
 				case 'traffic':
 				case 'ips':
 				case 'debug':
 				case 'users':
+				case 'stats':
 
 					$enq[ Enqueue::JS ][] = 'shield-tables';
-					if ( $iNav == 'scans' ) {
+					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield-scans';
 					}
-					elseif ( $iNav == 'ips' ) {
+					elseif ( $inav == 'ips' ) {
 						$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
 					}
 
-					if ( in_array( $iNav, [ 'audit', 'traffic' ] ) ) {
+					if ( in_array( $inav, [ 'audit', 'traffic' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
 						$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
 					}

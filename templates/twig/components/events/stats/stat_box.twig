@@ -1,0 +1,8 @@
+<div class="card h-100 stat_box">
+	<div class="card-body d-flex flex-row text-center justify-content-center">
+		<div class="stat_count">{{ attribute(stat.counts, stat_to_show|default('lifetime')) }}</div>
+	</div>
+	<div class="card-footer text-center">
+		{{ stat.name }}
+	</div>
+</div>

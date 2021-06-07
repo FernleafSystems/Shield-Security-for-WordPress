@@ -40,6 +40,7 @@ class Processor extends BaseShield\Processor {
 			shuffle( $benefits );
 		}
 
+		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		$footer = [
 			$this->getMod()
 				 ->renderTemplate( '/email/footer.twig', [
@@ -61,7 +62,7 @@ class Processor extends BaseShield\Processor {
 					 ],
 					 'flags'   => [
 						 'is_pro'           => $con->isPremiumActive(),
-						 'is_whitelabelled' => $con->getModule_SecAdmin()->isWlEnabled()
+						 'is_whitelabelled' => $isWhitelabelled
 					 ]
 				 ] ),
 		];

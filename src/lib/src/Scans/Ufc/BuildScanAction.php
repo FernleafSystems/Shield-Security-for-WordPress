@@ -19,13 +19,13 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	}
 
 	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		/** @var Shield\Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
-		$aExcls = $oOpts->getOpt( 'ufc_exclusions', [] );
-		$oAction->exclusions = is_array( $aExcls ) ? $aExcls : [];
-		$oAction->scan_dirs = $oOpts->getUfcScanDirectories();
+		$exclusions = $opts->getOpt( 'ufc_exclusions', [] );
+		$action->exclusions = is_array( $exclusions ) ? $exclusions : [];
+		$action->scan_dirs = $opts->getUfcScanDirectories();
 	}
 }

@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class FileScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
- */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
@@ -29,38 +25,34 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		return $item;
 	}
 
-	/**
-	 * @param string $sFullPath
-	 * @return bool
-	 */
-	private function isExcluded( $sFullPath ) {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+	private function isExcluded( string $fullPath ) :bool {
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
-		$sFilePath = wp_normalize_path( $sFullPath );
-		$sFileName = basename( $sFilePath );
+		$path = wp_normalize_path( $fullPath );
+		$filename = basename( $path );
 
-		$bExcluded = false;
+		$excluded = false;
 
-		foreach ( $oAction->exclusions as $sExclusion ) {
+		foreach ( $action->exclusions as $exclusion ) {
 
-			if ( preg_match( '/^#(.+)#[a-z]*$/i', $sExclusion, $aMatches ) ) { // it's regex
-				$bExcluded = @preg_match( stripslashes( $sExclusion ), $sFilePath );
+			if ( preg_match( '/^#(.+)#[a-z]*$/i', $exclusion, $aMatches ) ) { // it's regex
+				$excluded = @preg_match( stripslashes( $exclusion ), $path );
 			}
 			else {
-				$sExclusion = wp_normalize_path( $sExclusion );
-				if ( strpos( $sExclusion, '/' ) === false ) { // filename only
-					$bExcluded = ( $sFileName == $sExclusion );
+				$exclusion = wp_normalize_path( $exclusion );
+				if ( strpos( $exclusion, '/' ) === false ) { // filename only
+					$excluded = $filename === $exclusion;
 				}
 				else {
-					$bExcluded = strpos( $sFilePath, $sExclusion );
+					$excluded = strpos( $path, $exclusion ) !== false;
 				}
 			}
 
-			if ( $bExcluded ) {
+			if ( $excluded ) {
 				break;
 			}
 		}
-		return (bool)$bExcluded;
+		return (bool)$excluded;
 	}
 }

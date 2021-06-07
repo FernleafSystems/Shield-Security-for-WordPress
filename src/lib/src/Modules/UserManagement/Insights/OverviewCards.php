@@ -8,24 +8,15 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var UserManagement\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'User Management', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Sessions Control & Password Policies', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[] = $this->getModDisabledCard();
-		}
-		else {
+		if ( $mod->isModOptEnabled() ) {
 			$bHasIdle = $opts->hasSessionIdleTimeout();
 			$cards[ 'idle' ] = [
 				'name'    => __( 'Idle Users', 'wp-simple-firewall' ),
@@ -81,7 +72,14 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'help'    => __( "The default 'admin' user should be deleted or demoted.", 'wp-simple-firewall' )
 		];
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'user_management' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'User Management', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Sessions Control & Password Policies', 'wp-simple-firewall' );
 	}
 }

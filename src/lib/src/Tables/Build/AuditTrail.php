@@ -20,7 +20,9 @@ class AuditTrail extends BaseBuild {
 		/** @var Shield\Databases\AuditTrail\Select $selector */
 		$selector = $this->getWorkingSelector();
 
-		$selector->filterByEvent( $params[ 'fEvent' ] );
+		if ( !empty( $params[ 'fEvent' ] ) ) {
+			$selector->filterByEvent( $params[ 'fEvent' ] );
+		}
 
 		// If an IP is specified, it takes priority
 		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {

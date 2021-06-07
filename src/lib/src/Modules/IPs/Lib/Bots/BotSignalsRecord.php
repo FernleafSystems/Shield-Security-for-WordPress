@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -26,9 +27,8 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :EntryVO {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Select $select */
-		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$e = $select->filterByIPHuman( $this->getIP() )->first();
+
+		$e = $this->dbLoad();
 		if ( !$e instanceof EntryVO ) {
 			$e = new EntryVO();
 			$e->ip = $this->getIP();
@@ -55,11 +55,35 @@ class BotSignalsRecord {
 								->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
+		if ( empty( $e->auth_at ) ) {
+			$dbhSessions = $this->getCon()
+								->getModule_Sessions()
+								->getDbHandler_Sessions();
+			/** @var Session\Select $selector */
+			$selector = $dbhSessions->getQuerySelector();
+			$session = $selector->setIncludeSoftDeleted( true )
+								->filterByIp( $this->getIP() )
+								->first();
+			$e->auth_at = empty( $session ) ? 0 : $session->created_at;
+		}
+
 		if ( $storeOnLoad ) {
 			$this->store( $e );
 		}
 
 		return $e;
+	}
+
+	/**
+	 * @return EntryVO|null
+	 */
+	private function dbLoad() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Select $select */
+		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
+		/** @var EntryVO $record */
+		return $select->filterByIPHuman( $this->getIP() )->first();
 	}
 
 	public function store( EntryVO $entry ) :bool {

@@ -1,0 +1,63 @@
+<ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
+
+	<li class="nav-item">
+		<a class="nav-link active" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
+		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
+			<span class="badge bg-{% if aggregate.count > 0 %}danger{% endif %}"
+			>{% if aggregate.count > 0 %}&#33;{% endif %}</span>
+			{{ aggregate.strings.title }}
+		</a>
+	</li>
+
+	{% for scankey,scanvars in scans %}
+		{% if scanvars.flags.show_table %}
+			<li class="nav-item">
+				<a class="nav-link"
+				   id="h-tabs-home-tab"
+				   data-toggle="tab"
+				   href="#h-tabs-{{ scankey }}"
+				   role="tab"
+				   aria-controls="h-tabs-{{ scankey }}"
+				>
+					<span class="badge bg-{% if scanvars.count > 0 %}danger{% endif %}"
+					>{% if scanvars.count > 0 %}&#33;{% endif %}</span>
+					{{ scanvars.strings.title }}
+				</a>
+			</li>
+		{% endif %}
+	{% endfor %}
+
+	<li class="nav-item">
+		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-file_locker"
+		   role="tab" aria-controls="h-tabs-file_locker">
+			<span class="badge bg-{% if file_locker.count > 0 %}danger{% endif %}"
+			>{% if file_locker.count > 0 %}&#33;{% endif %}</span>
+			{{ file_locker.strings.title }}
+		</a>
+	</li>
+</ul>
+
+<div class="tab-content mb-5" id="ScanResultsTabsContent">
+
+	{% set scan = aggregate %}
+	<div class="tab-pane show active" id="h-tabs-aggregate" role="tabpanel"
+		 aria-labelledby="h-tabs-aggregate-tab">
+		{% include '/wpadmin_pages/insights/scans/results/results/aggregate.twig' %}
+	</div>
+
+	{% for scankey,scanvars in scans %}
+		{% if scanvars.flags.show_table %}
+			<div class="tab-pane" id="h-tabs-{{ scankey }}" role="tabpanel"
+				 aria-labelledby="h-tabs-{{ scankey }}-tab">
+				{% set scan = attribute(scans, scankey) %}
+				{% include '/wpadmin_pages/insights/scans/results/results/'~scankey~'.twig' %}
+			</div>
+		{% endif %}
+	{% endfor %}
+
+	<div class="tab-pane show" id="h-tabs-file_locker" role="tabpanel"
+		 aria-labelledby="h-tabs-aggregate-tab">
+		{% set scan = file_locker %}
+		{% include '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig' %}
+	</div>
+</div>

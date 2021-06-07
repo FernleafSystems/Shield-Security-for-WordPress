@@ -118,8 +118,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_antibot_check' :
-				$name = __( 'AntiBot Detection Engine', 'wp-simple-firewall' );
-				$summary = __( "Use AntiBot Detection Engine To Detect SPAM Bots", 'wp-simple-firewall' );
+				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
+				$summary = __( "Use ADE To Detect SPAM Bots And Block Comment SPAM", 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
 						$this->getCon()->getHumanName() ),
@@ -146,7 +146,10 @@ class Strings extends Base\Strings {
 
 			case 'enable_comments_gasp_protection' :
 				$name = __( 'SPAM Bot Protection', 'wp-simple-firewall' );
-				$summary = __( 'Block 100% Comment SPAM From Automated Bots', 'wp-simple-firewall' );
+				$summary = sprintf( '[DEPRECATED - %s] %s',
+					'Please use the newer AntiBot setting above',
+					__( 'Block 100% Comment SPAM From Automated Bots', 'wp-simple-firewall' )
+				);
 				$desc = [
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Use the newer AntiBot Detection Engine to detect SPAM instead of CAPTCHAs.", 'wp-simple-firewall' ) ),
@@ -172,7 +175,10 @@ class Strings extends Base\Strings {
 
 			case 'google_recaptcha_style_comments' :
 				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$summary = __( 'Enable CAPTCHA To Protect Against SPAM Comments', 'wp-simple-firewall' );
+				$summary = sprintf( '[DEPRECATED - %s] %s',
+					'Please use the newer AntiBot setting above',
+					__( 'Enable CAPTCHA To Protect Against SPAM Comments', 'wp-simple-firewall' )
+				);
 				$desc = [
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( "Use the newer AntiBot Detection Engine to detect SPAM instead of CAPTCHAs.", 'wp-simple-firewall' ) ),

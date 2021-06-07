@@ -7,29 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'Hack Guard', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
-			$bGoodFrequency = $opts->getScanFrequency() > 1;
+		if ( $mod->isModOptEnabled() ) {
+			$goodFrequency = $opts->getScanFrequency() > 1;
 			$cards[ 'frequency' ] = [
 				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
-				'state'   => $bGoodFrequency ? 1 : 0,
-				'summary' => $bGoodFrequency ?
+				'state'   => $goodFrequency ? 1 : 0,
+				'summary' => $goodFrequency ?
 					__( 'Automatic scanners run more than once per day', 'wp-simple-firewall' )
 					: __( "Automatic scanners only run once per day", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_options' ),
@@ -46,8 +37,15 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			);
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'hack_protect' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'Hack Guard', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' );
 	}
 
 	private function getCardsForWcf() :array {
@@ -85,7 +83,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'wcf_problem' ] = [
 				'name'    => __( 'Core Files Changed', 'wp-simple-firewall' ),
 				'summary' => __( 'WordPress core files have been modified.', 'wp-simple-firewall' ),
-				'href'    => $this->getUrlForScans(),
+				'href'    => $this->getUrlForScanResults(),
 				'state'   => -2,
 				'help'    => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
 			];
@@ -129,7 +127,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'summary' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
 				'help'    => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' ),
 				'state'   => -2,
-				'href'    => $this->getUrlForScans(),
+				'href'    => $this->getUrlForScanResults(),
 			];
 		}
 
@@ -158,7 +156,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'name'    => $scanCon->getScanName(),
 				'summary' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
 				'state'   => -2,
-				'href'    => $this->getUrlForScans(),
+				'href'    => $this->getUrlForScanResults(),
 				'help'    => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' ),
 
 			];
@@ -189,7 +187,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'name'    => __( 'Malware Detected', 'wp-simple-firewall' ),
 				'summary' => __( 'Potential Malware files have been discovered.', 'wp-simple-firewall' ),
 				'state'   => -2,
-				'href'    => $this->getUrlForScans(),
+				'href'    => $this->getUrlForScanResults(),
 				'help'    => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' ),
 			];
 		}
@@ -218,7 +216,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'name'    => __( 'Plugin Abandoned' ),
 				'summary' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
 				'state'   => -1,
-				'href'    => $this->getUrlForScans(),
+				'href'    => $this->getUrlForScanResults(),
 				'help'    => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
 			];
 		}
@@ -260,7 +258,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'name'    => __( 'Vulnerable Plugin', 'wp-simple-firewall' ),
 				'summary' => __( 'Plugin with vulnerabilities found on site.', 'wp-simple-firewall' ),
 				'state'   => -2,
-				'href'    => $this->getUrlForScans(),
+				'href'    => $this->getUrlForScanResults(),
 				'help'    => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
 			];
 		}
@@ -268,7 +266,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		return $cards;
 	}
 
-	private function getUrlForScans() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
+	private function getUrlForScanResults() :string{
+		return $this->getCon()->getModule_Insights()->getUrl_ScansResults();
 	}
 }

@@ -2,20 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\AlignTableWithSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Common\TableSchema;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Handler
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
- */
-abstract class Handler {
-
-	use ModConsumer;
-	use ExecOnce;
+abstract class Handler extends ExecOnceModConsumer {
 
 	/**
 	 * @var string
@@ -97,10 +89,6 @@ abstract class Handler {
 		if ( $autoExpireDays > 0 ) {
 			$this->deleteRowsOlderThan( Services::Request()->ts() - $autoExpireDays*DAY_IN_SECONDS );
 		}
-	}
-
-	protected function getColumnForOlderThanComparison() :string {
-		return 'created_at';
 	}
 
 	/**
@@ -232,14 +220,6 @@ abstract class Handler {
 		}
 
 		return $this->bIsReady;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 11.1
-	 */
-	protected function getDefaultTableName() :string {
-		return $this->getTableSchema()->slug;
 	}
 
 	public function getTableSchema() :TableSchema {

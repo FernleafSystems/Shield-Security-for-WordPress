@@ -21,9 +21,9 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_ips' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'IP Manager', 'wp-simple-firewall' ) ) )
 					.'<br />'.__( 'You should also carefully review the automatic black list settings.', 'wp-simple-firewall' )
@@ -31,9 +31,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_auto_black_list' :
-				$sTitle = __( 'Auto IP Blocking Rules', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Auto Blocking Rules', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Auto IP Blocking Rules', 'wp-simple-firewall' );
+				$titleShort = __( 'Auto Blocking Rules', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of offenses.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) ) ),
 					__( "Think of 'offenses' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
@@ -45,20 +45,10 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_enable_plugin_feature_bottrap' :
-				$sTitleShort = __( 'Bot-Trap', 'wp-simple-firewall' );
-				$sTitle = __( 'Identify And Capture Bots Based On Their Site Activity', 'wp-simple-firewall' );
-				$aSummary = [
-					__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises.", 'wp-simple-firewall' ),
-					__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots.", 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable as many mouse traps as possible.', 'wp-simple-firewall' ) )
-				];
-				break;
-
 			case 'section_logins':
-				$sTitleShort = __( 'Login Bots', 'wp-simple-firewall' );
-				$sTitle = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Login Bots', 'wp-simple-firewall' );
+				$title = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -69,9 +59,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_probes':
-				$sTitleShort = __( 'Probing Bots', 'wp-simple-firewall' );
-				$sTitle = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Probing Bots', 'wp-simple-firewall' );
+				$title = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Bots are designed to probe and this feature is dedicated to detecting probing bots.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -80,9 +70,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_behaviours':
-				$sTitleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
-				$sTitle = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
+				$title = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
 						__( "Detect characteristics and behaviour commonly associated with illegitimate bots.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -95,9 +85,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
 		];
 	}
 
@@ -171,6 +161,15 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'antibot_high_reputation_minimum' :
+				$name = __( 'High Reputation Bypass', 'wp-simple-firewall' );
+				$summary = __( 'Prevent Visitors With A High Reputation Scores From Being Blocked', 'wp-simple-firewall' );
+				$desc = [
+					__( "Visitors that have accumulated a high IP reputation and AntiBot score should ideally never be blocked.", 'wp-simple-firewall' ),
+					__( "This option ensures that visitors with a high reputation never have their IP blocked by Shield.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'text_loginfailed' :
 				$name = __( 'Login Failed', 'wp-simple-firewall' );
 				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
@@ -186,8 +185,14 @@ class Strings extends Base\Strings {
 			case 'track_404' :
 				$name = __( '404 Detect', 'wp-simple-firewall' );
 				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
-				$desc = __( "Detect when a visitor tries to load a non-existent page.", 'wp-simple-firewall' )
-						.'<br/>'.__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s.", 'wp-simple-firewall' );
+				$desc = [
+					__( 'Detect when a visitor tries to load a non-existent page.', 'wp-simple-firewall' ),
+					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
+					sprintf( '%s: <br/><strong>%s</strong>',
+						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
+						implode( ', ', $this->getOptions()->getDef( 'allowable_ext_404s' ) )
+					),
+				];
 				break;
 
 			case 'track_xmlrpc' :
@@ -270,9 +275,11 @@ class Strings extends Base\Strings {
 	 */
 	public function getBotSignalNames() :array {
 		return [
+			'created'         => __( 'New Visitor Bonus', 'wp-simple-firewall' ),
 			'known'           => __( 'A Known Service Provider/Bot', 'wp-simple-firewall' ),
 			'notbot'          => __( '"Not Bot" Registration', 'wp-simple-firewall' ),
-			'frontpage'       => __( 'Normal Frontpage Visited', 'wp-simple-firewall' ),
+			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
+			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
 			'btfake'          => __( 'Fake Web Crawler', 'wp-simple-firewall' ),
 			'btcheese'        => __( 'Link Cheese', 'wp-simple-firewall' ),

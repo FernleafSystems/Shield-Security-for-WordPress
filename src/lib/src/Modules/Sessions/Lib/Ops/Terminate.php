@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
 
 class Terminate {
 
@@ -20,16 +20,20 @@ class Terminate {
 	}
 
 	/**
-	 * @param int $nId
+	 * @param int $id
 	 * @return bool
 	 */
-	public function byRecordId( $nId ) {
+	public function byRecordId( int $id ) {
 		$this->getCon()->fireEvent( 'session_terminate' );
-		return $this->getDeleter()->deleteById( (int)$nId );
+		return $this->getDeleter()
+					->setIsSoftDelete()
+					->deleteById( $id );
 	}
 
 	public function byUsername( string $username ) :bool {
-		return $this->getDeleter()->forUsername( $username ) !== false;
+		return $this->getDeleter()
+					->setIsSoftDelete()
+					->forUsername( $username ) !== false;
 	}
 
 	private function getDeleter() :Delete {

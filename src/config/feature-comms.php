@@ -22,10 +22,11 @@
   },
   "sections":    [
     {
-      "slug":        "section_suresend",
       "primary":     true,
+      "slug":        "section_suresend",
       "title":       "SureSend Email",
-      "title_short": "SureSend Email"
+      "title_short": "SureSend Email",
+      "beacon_id":   156
     },
     {
       "slug":   "section_non_ui",

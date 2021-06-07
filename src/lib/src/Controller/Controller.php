@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\ConfigVO                                        $cfg
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
+ * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
  * @property bool                                                   $modules_loaded
@@ -26,6 +27,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property bool                                                   $is_my_upgrade
+ * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
@@ -83,7 +85,7 @@ class Controller extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function fireEvent( string $event, $meta = [] ) :self {
-		$this->loadEventsService()->fireEvent( $event, $meta );
+		$this->loadEventsService()->fireEvent( $event, is_array( $meta ) ? $meta : [] );
 		return $this;
 	}
 
@@ -162,6 +164,12 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'svgs':
+				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
+					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
+				}
+				break;
+
 			case 'paths':
 				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
 					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
@@ -175,6 +183,14 @@ class Controller extends DynPropertiesClass {
 						->setCon( $this )
 						->isDebugMode();
 					$this->is_debug = $val;
+				}
+				break;
+
+			case 'nonce_handler':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Utilities\Nonce\Handler() )
+						->setCon( $this );
+					$this->nonce_handler = $val;
 				}
 				break;
 
@@ -445,9 +461,24 @@ class Controller extends DynPropertiesClass {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+		$this->processShieldNonceActions();
 		( new Ajax\Init() )
 			->setCon( $this )
 			->execute();
+	}
+
+	private function processShieldNonceActions() {
+		$shieldNonceAction = $this->getShieldNonceAction();
+		$shieldNonce = Services::Request()->request( 'shield_nonce' );
+		if ( !empty( $shieldNonceAction ) && !empty( $shieldNonce ) ) {
+			$shieldNonce = Services::Request()->request( 'shield_nonce' );
+			if ( $this->nonce_handler->verify( $shieldNonceAction, $shieldNonce ) ) {
+				do_action( $this->prefix( 'shield_nonce_action' ), $shieldNonceAction );
+			}
+			else {
+				wp_die( 'It appears that this action and nonce has expired. Please retry the action.' );
+			}
+		}
 	}
 
 	/**
@@ -457,37 +488,37 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
-		$sOptKey = $this->prefixOption( 'install_id' );
+		$optKey = $this->prefixOption( 'install_id' );
 
-		$mStoredID = $WP->getOption( $sOptKey );
+		$mStoredID = $WP->getOption( $optKey );
 		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
-			$sID = $mStoredID[ 'id' ];
-			$bUpdate = true;
+			$ID = $mStoredID[ 'id' ];
+			$update = true;
 		}
 		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
-			$sID = explode( ':', $mStoredID, 2 )[ 1 ];
-			$bUpdate = true;
+			$ID = explode( ':', $mStoredID, 2 )[ 1 ];
+			$update = true;
 		}
 		else {
-			$sID = $mStoredID;
-			$bUpdate = false;
+			$ID = $mStoredID;
+			$update = false;
 		}
 
-		if ( empty( $sID ) || !is_string( $sID ) || ( strlen( $sID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
+		if ( empty( $ID ) || !is_string( $ID ) || ( strlen( $ID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $ID ) ) ) {
 			try {
-				$sID = \Ramsey\Uuid\Uuid::uuid4()->toString();
+				$ID = \Ramsey\Uuid\Uuid::uuid4()->toString();
 			}
 			catch ( \Exception $e ) {
-				$sID = sha1( uniqid( $WP->getHomeUrl( '', true ), true ) );
+				$ID = sha1( uniqid( $WP->getHomeUrl( '', true ), true ) );
 			}
-			$bUpdate = true;
+			$update = true;
 		}
 
-		if ( $bUpdate ) {
-			$WP->updateOption( $sOptKey, $sID );
+		if ( $update ) {
+			$WP->updateOption( $optKey, $ID );
 		}
 
-		return $sID;
+		return $ID;
 	}
 
 	/**
@@ -506,12 +537,15 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
-		( new Admin\MainAdminMenu() )
-			->setCon( $this )
-			->execute();
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
+
+		if ( is_admin() || is_network_admin() ) {
+			( new Admin\MainAdminMenu() )
+				->setCon( $this )
+				->execute();
+		}
 	}
 
 	protected function initCrons() {
@@ -521,6 +555,11 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Crons\DailyCron() )
 			->setCon( $this )
 			->run();
+		if ( Services::WpGeneral()->isCron() ) {
+			( new Shield\Utilities\Htaccess\RootHtaccess() )
+				->setCon( $this )
+				->execute();
+		}
 	}
 
 	/**
@@ -978,6 +1017,10 @@ class Controller extends DynPropertiesClass {
 		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
 	}
 
+	public function getPluginUrl_DashboardHome() :string {
+		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
+	}
+
 	public function getPluginUrl_AdminMainPage() :string {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
@@ -1099,6 +1142,11 @@ class Controller extends DynPropertiesClass {
 		return empty( $action ) ? '' : $action;
 	}
 
+	public function getShieldNonceAction() :string {
+		$action = sanitize_key( Services::Request()->query( 'shield_nonce_action', '' ) );
+		return empty( $action ) ? '' : $action;
+	}
+
 	/**
 	 * @return \stdClass
 	 */
@@ -1107,15 +1155,15 @@ class Controller extends DynPropertiesClass {
 	}
 
 	protected function deleteCronJobs() {
-		$oWpCron = Services::WpCron();
-		$aCrons = $oWpCron->getCrons();
+		$WPCron = Services::WpCron();
+		$crons = $WPCron->getCrons();
 
-		$sPattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );
-		foreach ( $aCrons as $aCron ) {
-			if ( is_array( $aCrons ) ) {
-				foreach ( $aCron as $sKey => $aCronEntry ) {
-					if ( is_string( $sKey ) && preg_match( $sPattern, $sKey ) ) {
-						$oWpCron->deleteCronJob( $sKey );
+		$pattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );
+		foreach ( $crons as $cron ) {
+			if ( is_array( $crons ) ) {
+				foreach ( $cron as $key => $cronEntry ) {
+					if ( is_string( $key ) && preg_match( $pattern, $key ) ) {
+						$WPCron->deleteCronJob( $key );
 					}
 				}
 			}
@@ -1200,14 +1248,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param bool $bSetIfNeeded
+	 * @param bool $setIfNeeded
 	 * @return string
 	 */
-	public function getSessionId( $bSetIfNeeded = true ) {
+	public function getSessionId( $setIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
 			$req = Services::Request();
 			self::$sSessionId = $req->cookie( $this->getSessionCookieID(), '' );
-			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
+			if ( empty( self::$sSessionId ) && $setIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
 			}
@@ -1215,10 +1263,10 @@ class Controller extends DynPropertiesClass {
 		return self::$sSessionId;
 	}
 
-	public function getUniqueRequestId( bool $bSetIfNeeded = false ) :string {
+	public function getUniqueRequestId( bool $setIfNeeded = false ) :string {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
-				$this->getSessionId( $bSetIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
+				$this->getSessionId( $setIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
 			);
 		}
 		return self::$sRequestId;
@@ -1334,6 +1382,10 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'events' );
 	}
 
+	public function getModule_Firewall() :Shield\Modules\Firewall\ModCon {
+		return $this->getModule( 'firewall' );
+	}
+
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
 		return $this->getModule( 'hack_protect' );
 	}
@@ -1426,9 +1478,9 @@ class Controller extends DynPropertiesClass {
 
 		$this->{$sOptionsVarName} = new $className( $this, $modProps );
 
-		$aMs = $this->modules;
-		$aMs[ $modSlug ] = $this->{$sOptionsVarName};
-		$this->modules = $aMs;
+		$modules = $this->modules;
+		$modules[ $modSlug ] = $this->{$sOptionsVarName};
+		$this->modules = $modules;
 		return $this->modules[ $modSlug ];
 	}
 
@@ -1444,108 +1496,108 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Users\ShieldUserMeta|mixed
 	 */
 	public function getUserMeta( $user ) {
-		$oMeta = null;
+		$meta = null;
 		try {
 			if ( $user instanceof \WP_User ) {
-				/** @var Shield\Users\ShieldUserMeta $oMeta */
-				$oMeta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $user->ID );
-				if ( !$oMeta instanceof Shield\Users\ShieldUserMeta ) {
+				/** @var Shield\Users\ShieldUserMeta $meta */
+				$meta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $user->ID );
+				if ( !$meta instanceof Shield\Users\ShieldUserMeta ) {
 					// Weird: user reported an error where it wasn't of the correct type
-					$oMeta = new Shield\Users\ShieldUserMeta( $this->prefix(), $user->ID );
-					Shield\Users\ShieldUserMeta::AddToCache( $oMeta );
+					$meta = new Shield\Users\ShieldUserMeta( $this->prefix(), $user->ID );
+					Shield\Users\ShieldUserMeta::AddToCache( $meta );
 				}
-				$oMeta->setPasswordStartedAt( $user->user_pass )
-					  ->updateFirstSeenAt();
+				$meta->setPasswordStartedAt( $user->user_pass )
+					 ->updateFirstSeenAt();
 				Services::WpUsers()
 						->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $user->ID );
 			}
 		}
 		catch ( \Exception $e ) {
 		}
-		return $oMeta;
+		return $meta;
 	}
 
 	/**
 	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
 	 */
 	public function getRenderer() {
-		$oRndr = Services::Render();
-		$oLocator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
-		foreach ( $oLocator->run() as $sDir ) {
-			$oRndr->setTwigTemplateRoot( $sDir );
+		$render = Services::Render();
+		$locator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
+		foreach ( $locator->run() as $dir ) {
+			$render->setTwigTemplateRoot( $dir );
 		}
-		$oRndr->setTemplateRoot( $this->getPath_Templates() );
-		return $oRndr;
+		$render->setTemplateRoot( $this->getPath_Templates() );
+		return $render;
 	}
 
 	/**
-	 * @param array[] $aRegistered
+	 * @param array[] $registered
 	 * @return array[]
 	 */
-	public function onWpPrivacyRegisterExporter( $aRegistered ) {
-		if ( !is_array( $aRegistered ) ) {
-			$aRegistered = []; // account for crap plugins that do-it-wrong.
+	public function onWpPrivacyRegisterExporter( $registered ) {
+		if ( !is_array( $registered ) ) {
+			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 
-		$aRegistered[] = [
+		$registered[] = [
 			'exporter_friendly_name' => $this->getHumanName(),
 			'callback'               => [ $this, 'wpPrivacyExport' ],
 		];
-		return $aRegistered;
+		return $registered;
 	}
 
 	/**
-	 * @param array[] $aRegistered
+	 * @param array[] $registered
 	 * @return array[]
 	 */
-	public function onWpPrivacyRegisterEraser( $aRegistered ) {
-		if ( !is_array( $aRegistered ) ) {
-			$aRegistered = []; // account for crap plugins that do-it-wrong.
+	public function onWpPrivacyRegisterEraser( $registered ) {
+		if ( !is_array( $registered ) ) {
+			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 
-		$aRegistered[] = [
+		$registered[] = [
 			'eraser_friendly_name' => $this->getHumanName(),
 			'callback'             => [ $this, 'wpPrivacyErase' ],
 		];
-		return $aRegistered;
+		return $registered;
 	}
 
 	/**
-	 * @param string $sEmail
-	 * @param int    $nPage
+	 * @param string $email
+	 * @param int    $page
 	 * @return array
 	 */
-	public function wpPrivacyExport( $sEmail, $nPage = 1 ) {
+	public function wpPrivacyExport( $email, $page = 1 ) {
 
-		$bValid = Services::Data()->validEmail( $sEmail )
-				  && ( Services::WpUsers()->getUserByEmail( $sEmail ) instanceof \WP_User );
+		$valid = Services::Data()->validEmail( $email )
+				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
 
 		return [
-			'data' => $bValid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), [], $sEmail, $nPage ) : [],
+			'data' => $valid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), [], $email, $page ) : [],
 			'done' => true,
 		];
 	}
 
 	/**
-	 * @param string $sEmail
-	 * @param int    $nPage
+	 * @param string $email
+	 * @param int    $page
 	 * @return array
 	 */
-	public function wpPrivacyErase( $sEmail, $nPage = 1 ) {
+	public function wpPrivacyErase( $email, $page = 1 ) {
 
-		$bValidUser = Services::Data()->validEmail( $sEmail )
-					  && ( Services::WpUsers()->getUserByEmail( $sEmail ) instanceof \WP_User );
+		$valid = Services::Data()->validEmail( $email )
+				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
 
-		$aResult = [
-			'items_removed'  => $bValidUser,
+		$result = [
+			'items_removed'  => $valid,
 			'items_retained' => false,
-			'messages'       => $bValidUser ? [] : [ 'Email address not valid or does not belong to a user.' ],
+			'messages'       => $valid ? [] : [ 'Email address not valid or does not belong to a user.' ],
 			'done'           => true,
 		];
-		if ( $bValidUser ) {
-			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
+		if ( $valid ) {
+			$result = apply_filters( $this->prefix( 'wpPrivacyErase' ), $result, $email, $page );
 		}
-		return $aResult;
+		return $result;
 	}
 
 	/**
@@ -1553,7 +1605,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function buildPrivacyPolicyContent() {
 		try {
-			if ( $this->getModule_SecAdmin()->isEnabledWhitelabel() ) {
+			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 				$name = $this->getHumanName();
 				$href = $this->getLabels()[ 'PluginURI' ];
 			}
@@ -1562,8 +1614,8 @@ class Controller extends DynPropertiesClass {
 				$href = $this->cfg->meta[ 'privacy_policy_href' ];
 			}
 
-			/** @var Shield\Modules\AuditTrail\Options $oOpts */
-			$oOpts = $this->getModule_AuditTrail()->getOptions();
+			/** @var Shield\Modules\AuditTrail\Options $opts */
+			$opts = $this->getModule_AuditTrail()->getOptions();
 
 			$content = $this->getRenderer()
 							->setTemplate( 'snippets/privacy_policy' )
@@ -1572,7 +1624,7 @@ class Controller extends DynPropertiesClass {
 								[
 									'name'             => $name,
 									'href'             => $href,
-									'audit_trail_days' => $oOpts->getAutoCleanDays()
+									'audit_trail_days' => $opts->getAutoCleanDays()
 								]
 							)
 							->render();

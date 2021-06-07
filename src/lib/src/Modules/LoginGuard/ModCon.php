@@ -266,8 +266,8 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	public function setEnabledGaspCheck( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_login_gasp_check', $enable ? 'Y' : 'N' );
+	public function setEnabledAntiBotDetection( bool $enable ) {
+		$this->getOptions()->setOpt( 'enable_antibot_check', $enable ? 'Y' : 'N' );
 	}
 
 	public function getScriptLocalisations() :array {
@@ -276,8 +276,10 @@ class ModCon extends BaseShield\ModCon {
 			'global-plugin',
 			'icwp_wpsf_vars_lg',
 			[
-				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
-				'ajax_del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
+				'ajax' => [
+					'gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
+					'del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
+				],
 			]
 		];
 		return $locals;

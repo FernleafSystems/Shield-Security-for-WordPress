@@ -15,10 +15,10 @@ class UI extends BaseShield\UI {
 		/** @var Databases\AuditTrail\Select $dbSel */
 		$dbSel = $mod->getDbHandler_AuditTrail()->getQuerySelector();
 
-		/** @var Modules\Events\Strings $oEventStrings */
-		$oEventStrings = $con->getModule_Events()->getStrings();
-		$aEventsSelect = array_intersect_key( $oEventStrings->getEventNames(), array_flip( $dbSel->getDistinctEvents() ) );
-		asort( $aEventsSelect );
+		/** @var Modules\Events\Strings $eventStrings */
+		$eventStrings = $con->getModule_Events()->getStrings();
+		$eventsSelect = array_intersect_key( $eventStrings->getEventNames(), array_flip( $dbSel->getDistinctEvents() ) );
+		asort( $eventsSelect );
 
 		return $this->getMod()
 					->renderTemplate(
@@ -42,22 +42,12 @@ class UI extends BaseShield\UI {
 								'show_before'             => __( 'show results that occurred before', 'wp-simple-firewall' ),
 							],
 							'vars'    => [
-								'events_for_select' => $aEventsSelect,
+								'events_for_select' => $eventsSelect,
 								'unique_ips'        => $dbSel->getDistinctIps(),
 								'unique_users'      => $dbSel->getDistinctUsernames(),
 							],
 						],
 						true
 					);
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'audit' ),
-				'title' => __( 'View Audit Trail', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

@@ -16,15 +16,15 @@ class OptValueSanitize {
 	 * @throws \Exception
 	 */
 	public function run( $sKey, $mVal ) {
-		$oOpts = $this->getOptions();
-		$aRawOption = $oOpts->getRawData_SingleOption( $sKey );
+		$opts = $this->getOptions();
+		$raw = $opts->getRawData_SingleOption( $sKey );
 
-		if ( !in_array( $sKey, $oOpts->getOptionsKeys() ) ) {
+		if ( !in_array( $sKey, $opts->getOptionsKeys() ) ) {
 			throw new \Exception( sprintf( 'Not a valid option key for module: %s', $sKey ) );
 		}
 
 		$validValue = false;
-		switch ( $oOpts->getOptionType( $sKey ) ) {
+		switch ( $opts->getOptionType( $sKey ) ) {
 
 			case 'boolean':
 				$validValue = is_bool( $mVal );
@@ -47,8 +47,8 @@ class OptValueSanitize {
 				break;
 
 			case 'text':
-				if ( is_scalar( $mVal ) ) {
-					$validValue = is_null( $mVal ) || is_scalar( $mVal );
+				if ( is_null( $mVal ) || is_scalar( $mVal ) ) {
+					$validValue = true;
 					$mVal = (string)$mVal;
 				}
 				break;
@@ -65,7 +65,7 @@ class OptValueSanitize {
 								function ( $aValueOption ) {
 									return $aValueOption[ 'value_key' ];
 								},
-								$aRawOption[ 'value_options' ]
+								$raw[ 'value_options' ]
 							)
 						) ) === 0;
 				}

@@ -1,0 +1,61 @@
+<div id="NavSideBar">
+
+<ul class="nav flex-column mt-4">
+	{% for mitem in vars.navbar_menu %}
+
+		<li class="nav-item mb-3"
+			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
+		>
+
+			<a class="nav-link p-0 {{ mitem.classes|default([])|join( ' ' ) }} mb-1"
+			   href="{{ mitem.href|default('#') }}"
+					{% for data_key,data_val in mitem.data|default([]) %}
+						data-{{ data_key }}="{{ data_val }}"
+					{% endfor %}
+					{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
+					{% if mitem.introjs|default([]) is not empty %}
+						{% if mitem.introjs.title|default('') is not empty %}
+							data-introtitle="{{ mitem.introjs.title }}"
+						{% endif %}
+						data-intro="{{ mitem.introjs.body }}"
+					{% endif %}
+			>
+				{% if mitem.img|default('') is not empty %}
+					<span class="nav-icon mr-1" style="vertical-align: text-bottom;">
+						<img src="{{ mitem.img }}"
+							 class="img-fluid"
+							 width="16px"
+							 alt="...">
+					</span>
+				{% endif %}
+				<span>{{ mitem.title }}</span>
+				{% if mitem.badge|default([]) is not empty %}
+					<span class="badge badge-{{ mitem.badge.type|default('info') }}">
+						{{ mitem.badge.text }}
+					</span>
+				{% endif %}
+			</a>
+
+			{% if mitem.sub_items|default([]) is not empty %}
+				<div class="collapse {% if mitem.active %}show{% endif %}" id="collapse-{{ mitem.slug }}">
+					<ul class="nav flex-column pt-0 primary_sub_menu pl-4">
+					{% for sub in mitem.sub_items %}
+						<li class="nav-item mb-0 pl-0 py-1">
+							<a class="p-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
+							   href="{{ sub.href|default('#') }}"
+									{% for data_key,data_val in sub.data|default([]) %}
+										data-{{ data_key }}="{{ data_val }}"
+									{% endfor %}
+									{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
+							>{{ sub.title }}</a>
+						</li>
+					{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
+
+		</li>
+
+	{% endfor %}
+</ul>
+</div>

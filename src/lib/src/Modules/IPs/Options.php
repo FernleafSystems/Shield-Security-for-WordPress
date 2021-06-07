@@ -14,46 +14,29 @@ class Options extends BaseShield\Options {
 		return constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAutoUnblockIps() {
-		$aIps = $this->getOpt( 'autounblock_ips', [] );
-		return is_array( $aIps ) ? $aIps : [];
+	public function getAutoUnblockIps() :array {
+		$ips = $this->getOpt( 'autounblock_ips', [] );
+		return is_array( $ips ) ? $ips : [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAutoUnblockEmailIDs() {
-		$aIps = $this->getOpt( 'autounblock_emailids', [] );
-		return is_array( $aIps ) ? $aIps : [];
+	public function getAutoUnblockEmailIDs() :array {
+		$ips = $this->getOpt( 'autounblock_emailids', [] );
+		return is_array( $ips ) ? $ips : [];
 	}
 
-	/**
-	 * @param string $ip
-	 * @return bool
-	 */
-	public function getCanIpRequestAutoUnblock( $ip ) {
+	public function getCanIpRequestAutoUnblock( string $ip ) :bool {
 		$existing = $this->getAutoUnblockIps();
 		return !array_key_exists( $ip, $existing )
-			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $existing[ $ip ] );
+			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $ip ] );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) {
+	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) :bool {
 		$existing = $this->getAutoUnblockEmailIDs();
 		return !array_key_exists( $user->ID, $existing )
 			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $user->ID ] );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getOffenseLimit() {
+	public function getOffenseLimit() :int {
 		return (int)$this->getOpt( 'transgression_limit' );
 	}
 
@@ -62,11 +45,23 @@ class Options extends BaseShield\Options {
 	 */
 	public function getRequestWhitelistAsRegex() {
 		return array_map(
-			function ( $sRule ) {
-				return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
+			function ( $rule ) {
+				return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $rule ), '#' ) ) );
 			},
 			$this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : []
 		);
+	}
+
+	public function getAntiBotMinimum() :int {
+		return (int)$this->getOpt( 'antibot_minimum', 50 );
+	}
+
+	public function getAntiBotHighReputationMinimum() :int {
+		return (int)$this->getOpt( 'antibot_high_reputation_minimum', 200 );
+	}
+
+	public function isEnabledAntiBotEngine() :bool {
+		return $this->getAntiBotMinimum() > 0;
 	}
 
 	public function isEnabledAutoBlackList() :bool {
@@ -132,7 +127,7 @@ class Options extends BaseShield\Options {
 	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptImmediateBlock( $key ) {
+	public function isTrackOptImmediateBlock( $key ) :bool {
 		return $this->isOpt( $key, 'block' );
 	}
 

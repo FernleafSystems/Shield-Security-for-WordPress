@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,6 +17,14 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @var string
 	 */
 	private $sCurrentWizard;
+
+	/**
+	 * Indicates if stepping through the wizard is automatic
+	 * or it needs to add the instruction to click next.
+	 *
+	 * @var bool
+	 */
+	const WIZARD_STEPPING_AUTO = true;
 
 	public function init() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 0 );
@@ -56,9 +65,9 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * TODO: does not honour 'min_user_permissions' from the wizard definition
 	 */
 	public function onWpLoaded() {
-		$sWizard = Services::Request()->query( 'wizard' );
+		$wizard = Services::Request()->query( 'wizard' );
 		try {
-			$this->setCurrentWizard( $sWizard );
+			$this->setCurrentWizard( $wizard );
 
 			$sDieMessage = 'Not Permitted';
 			if ( $this->getUserCan() ) {
@@ -71,7 +80,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 			Services::WpGeneral()->wpDie( $sDieMessage );
 		}
 		catch ( \Exception $e ) {
-			if ( $sWizard == 'landing' ) {
+			if ( $wizard == 'landing' ) {
 				$this->loadWizardLanding();
 			}
 		}
@@ -173,27 +182,44 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return array
 	 */
 	public function ajaxExec_WizProcessStep() {
-		$oResponse = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
-		if ( !empty( $oResponse ) ) {
-			$this->buildWizardResponse( $oResponse );
+		$r = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
+		if ( !$r instanceof StdResponse ) {
+			$response = new StdResponse();
+			$response->msg_text = $r->getMessageText();
+			$response->success = $r->successful();
+		}
+		else {
+			$response = $r;
 		}
 
-		$aData = $oResponse->getData();
-		$aData[ 'success' ] = $oResponse->successful();
-		return $aData;
+		$msg = $response->msg_text;
+		if ( $response->success ) {
+			if ( !self::WIZARD_STEPPING_AUTO ) {
+				$msg .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+			}
+		}
+		else {
+			$msg = sprintf( '%s: %s', __( 'Error' ), $msg );
+		}
+
+		$data = $response->getRawData();
+		$data[ 'message' ] = $msg;
+		$data[ 'success' ] = $response->success;
+
+		return $data;
 	}
 
 	/**
-	 * @param string $sStep
-	 * @return \FernleafSystems\Utilities\Response|null
+	 * @param string $step
+	 * @return StdResponse|\FernleafSystems\Utilities\Response|null
 	 */
-	protected function processWizardStep( $sStep ) {
-		switch ( $sStep ) {
+	protected function processWizardStep( string $step ) {
+		switch ( $step ) {
 			default:
-				$oResponse = null; // we don't process any steps we don't recognise.
+				$response = null; // we don't process any steps we don't recognise.
 				break;
 		}
-		return $oResponse;
+		return $response;
 	}
 
 	/**
@@ -202,16 +228,18 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	protected function buildWizardResponse( $oResponse ) {
 
-		$sMessage = $oResponse->getMessageText();
+		$msg = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+			if ( !self::WIZARD_STEPPING_AUTO ) {
+				$msg .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
+			}
 		}
 		else {
-			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );
+			$msg = sprintf( '%s: %s', __( 'Error' ), $msg );
 		}
 
 		$aData = $oResponse->getData();
-		$aData[ 'message' ] = $sMessage;
+		$aData[ 'message' ] = $msg;
 		$oResponse->setData( $aData );
 		return $oResponse;
 	}
@@ -220,17 +248,17 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @return string
 	 * @throws Exception
 	 */
-	protected function renderWizard() {
+	public function renderWizard() {
 		remove_all_actions( 'wp_footer' ); // FIX: nextgen gallery forces this to run.
 		return $this->getMod()
-					->renderTemplate( 'wizard/pages/wizard.twig', $this->getRenderData_PageWizard(), true );
+					->renderTemplate( 'wizard/wizard_container.twig', $this->getRenderData_PageWizard(), true );
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getModuleWizardsForRender() {
-		/** @var ICWP_WPSF_FeatureHandler_Base $mod */
+		/** @var Shield\Modules\Base\ModCon $mod */
 		$mod = $this->getMod();
 		$aWizards = $mod->getWizardDefinitions();
 		foreach ( $aWizards as $sKey => &$aWizard ) {
@@ -272,9 +300,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 					'mod_wizards'       => $wizards
 				],
 				'hrefs'   => [
-					'dashboard'   => $this->getCon()
-										  ->getModule_Insights()
-										  ->getUrl_SubInsightsPage( 'dashboard' ),
+					'dashboard'   => $this->getCon()->getPluginUrl_DashboardHome(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
@@ -301,6 +327,14 @@ abstract class ICWP_WPSF_Wizard_Base {
 		$con = $this->getMod()->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		$steps = $this->buildSteps();
+
+		$aStepsNames = [];
+		foreach ( $steps as $stepKey ) {
+			$aStepsNames[] = $this->getStepsDefinition()[ $stepKey ][ 'title' ];
+		}
+
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$mod->getUIHandler()->getBaseDisplayData(),
 			[
@@ -310,13 +344,12 @@ abstract class ICWP_WPSF_Wizard_Base {
 				],
 				'data'    => [
 					'wizard_slug'       => $this->getWizardSlug(),
-					'wizard_steps'      => json_encode( $this->buildSteps() ),
+					'wizard_steps'      => json_encode( $steps ),
+					'wizard_step_names' => json_encode( $aStepsNames ),
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [
-					'dashboard'   => $this->getCon()
-										  ->getModule_Insights()
-										  ->getUrl_SubInsightsPage( 'dashboard' ),
+					'dashboard'   => $this->getCon()->getPluginUrl_DashboardHome(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
@@ -341,7 +374,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 * @throws Exception
 	 */
 	protected function determineWizardSteps() :array {
-		throw new Exception( sprintf( 'Could not determine wizard steps for current wizard: %s', $this->getWizardSlug() ) );
+		throw new \Exception( sprintf( 'Could not determine wizard steps for current wizard: %s', $this->getWizardSlug() ) );
 	}
 
 	/**
@@ -398,19 +431,18 @@ abstract class ICWP_WPSF_Wizard_Base {
 		$mod = $this->getMod();
 		$aWizards = $this->getModuleWizardsForRender();
 		return [
-			'strings' => $mod->getStrings()->getDisplayStrings()
-			,
+			'strings' => $mod->getStrings()->getDisplayStrings(),
 			'flags'   => [
 				'is_premium'        => $mod->isPremium(),
 				'has_other_wizards' => false
 			],
 			'hrefs'   => [
-				'dashboard' => $this->getCon()
-									->getModule_Insights()
-									->getUrl_SubInsightsPage( 'dashboard' ),
+				'dashboard' => $this->getCon()->getPluginUrl_DashboardHome(),
 				'gopro'     => 'https://shsec.io/ap',
 			],
-			'imgs'    => [],
+			'imgs'    => [
+				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-circle.svg' )
+			],
 			'data'    => [
 				'mod_wizards_count' => count( $aWizards ),
 				'mod_wizards'       => $aWizards

@@ -2,17 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UserSessionHandler {
+class UserSessionHandler extends ExecOnceModConsumer {
 
-	use ModConsumer;
-	use ExecOnce;
 	use WpLoginCapture;
 
 	protected function canRun() :bool {
@@ -26,7 +23,7 @@ class UserSessionHandler {
 		$this->setupLoginCaptureHooks();
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
-		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
+		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100 );
 	}
 
 	protected function captureLogin( \WP_User $user ) {
@@ -41,16 +38,14 @@ class UserSessionHandler {
 
 	private function checkCurrentSession() {
 		$con = $this->getCon();
-		/** @var UserManagement\ModCon $mod */
-		$mod = $this->getMod();
+		$srvIP = Services::IP();
+
 		try {
-			if ( $mod->hasValidRequestIP() ) {
+			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) ) {
 				$this->assessSession();
 			}
 		}
 		catch ( \Exception $e ) {
-			// We force-refresh the server IPs just to be sure.
-			$srvIP = Services::IP();
 			$srvIP->getServerPublicIPs( true );
 			if ( !$srvIP->isLoopback() ) {
 				$event = $e->getMessage();
@@ -106,9 +101,6 @@ class UserSessionHandler {
 		return $opts->hasMaxSessionTimeout() ? min( $timeout, $opts->getMaxSessionTime() ) : $timeout;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 */
 	private function enforceSessionLimits( \WP_User $user ) {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();

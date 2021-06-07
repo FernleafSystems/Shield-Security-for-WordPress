@@ -2,19 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
-class BlockRequest {
-
-	use ModConsumer;
-	use ExecOnce;
+class BlockRequest extends ExecOnceModConsumer {
 
 	protected function run() {
-		if ( $this->isBlocked() ) {
+		if ( $this->isBlocked() && !$this->isHighReputationIP() ) {
 
 			if ( $this->isAutoUnBlocked() ) {
 				Services::Response()->redirectToHome();
@@ -34,6 +30,16 @@ class BlockRequest {
 			->run();
 	}
 
+	private function isHighReputationIP() :bool {
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
+				   ->setMod( $this->getMod() )
+				   ->setIP( Services::IP()->getRequestIp() )
+				   ->total() >
+			   (int)apply_filters( 'shield/high_reputation_ip_minimum', $opts->getAntiBotHighReputationMinimum() );
+	}
+
 	private function isAutoUnBlocked() :bool {
 		return ( new AutoUnblock() )
 			->setMod( $this->getMod() )
@@ -41,24 +47,21 @@ class BlockRequest {
 	}
 
 	private function renderKillPage() {
+		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		$con = $this->getCon();
-		$oLoginMod = $con->getModule_LoginGuard();
 
-		$sUniqId = 'uau'.uniqid();
-
-		$sIP = Services::IP()->getRequestIp();
-		$nTimeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
+		$ip = Services::IP()->getRequestIp();
+		$timeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
 
 		$user = Services::WpUsers()->getCurrentWpUser();
-		$bCanUauGasp = $opts->isEnabledAutoVisitorRecover() && $opts->getCanIpRequestAutoUnblock( $sIP );
-		$bCanUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
-						$user instanceof \WP_User
-						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
-		$bCanAutoRecover = $bCanUauGasp || $bCanUauMagic;
+		$canUauBot = $opts->isEnabledAutoVisitorRecover() && !empty( $ip ) && $opts->getCanIpRequestAutoUnblock( $ip );
+		$canUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
+					   $user instanceof \WP_User
+					   && $opts->getCanRequestAutoUnblockEmailLink( $user );
+		$canAutoRecover = $canUauBot || $canUauMagic;
 
 		if ( !empty( $con->getLabels()[ 'PluginURI' ] ) ) {
 			$homeURL = $con->getLabels()[ 'PluginURI' ];
@@ -77,7 +80,7 @@ class BlockRequest {
 				),
 				'lines'   => [
 					sprintf( __( 'Time remaining on black list: %s', 'wp-simple-firewall' ),
-						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
+						sprintf( _n( '%s minute', '%s minutes', $timeRemaining, 'wp-simple-firewall' ), $timeRemaining )
 					),
 					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $opts->getOffenseLimit() ),
 					sprintf( __( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ) ),
@@ -92,30 +95,24 @@ class BlockRequest {
 			'content' => [
 				'email_unblock' => $this->renderEmailMagicLinkContent()
 			],
+			'hrefs'   => [
+				'home' => Services::WpGeneral()->getHomeUrl()
+			],
 			'vars'    => [
-				'nonce'        => $mod->getNonceActionData( 'uau' ),
-				'ip'           => $sIP,
-				'gasp_element' => $mod->renderTemplate(
-					'snippets/gasp_js.php',
-					[
-						'sCbName'   => $oLoginMod->getGaspKey(),
-						'sLabel'    => $oLoginMod->getTextImAHuman(),
-						'sAlert'    => $oLoginMod->getTextPleaseCheckBox(),
-						'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
-						'sUniqId'   => $sUniqId,
-						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
-						'strings'   => [
-							'loading' => __( 'Loading', 'wp-simple-firewall' )
-						]
-					]
-				),
+				'nonce' => $mod->getNonceActionData( 'uau' ),
+				'ip'    => $ip,
 			],
 			'flags'   => [
-				'is_autorecover'    => $bCanAutoRecover,
-				'is_uaug_permitted' => $bCanUauGasp,
-				'is_uaum_permitted' => $bCanUauMagic,
+				'is_autorecover'    => $canAutoRecover,
+				'is_uaug_permitted' => $canUauBot,
+				'is_uaum_permitted' => $canUauMagic,
 			],
 		];
+
+		if ( $con->isPremiumActive() ) {
+			$data = apply_filters( 'shield/render_data_block_page', $data );
+		}
+
 		Services::WpGeneral()
 				->wpDie(
 					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $data, true )
@@ -126,11 +123,11 @@ class BlockRequest {
 	 * @return string
 	 */
 	private function renderEmailMagicLinkContent() {
+		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		$con = $this->getCon();
 
 		$content = '';
 

@@ -171,12 +171,12 @@ class Options {
 	}
 
 	/**
-	 * @param $sProperty
+	 * @param $property
 	 * @return null|mixed
 	 */
-	public function getFeatureProperty( $sProperty ) {
+	public function getFeatureProperty( $property ) {
 		$raw = $this->getRawData_FullFeatureConfig();
-		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $sProperty ] ) ) ? $raw[ 'properties' ][ $sProperty ] : null;
+		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $property ] ) ) ? $raw[ 'properties' ][ $property ] : null;
 	}
 
 	public function getWpCliCfg() :array {
@@ -585,13 +585,6 @@ class Options {
 		return $raw[ 'requirements' ] ?? [];
 	}
 
-	/**
-	 * @deprecated 11.0
-	 */
-	protected function getRawData_MenuItems() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
-	}
-
 	public function getRawData_SingleOption( string $key ) :array {
 		foreach ( $this->getRawData_AllOptions() as $opt ) {
 			if ( isset( $opt[ 'key' ] ) && ( $key == $opt[ 'key' ] ) ) {
@@ -653,6 +646,10 @@ class Options {
 
 	public function isOptPremium( string $key ) :bool {
 		return (bool)$this->getOptProperty( $key, 'premium' );
+	}
+
+	public function optExists( string $key ) :bool {
+		return !empty( $this->getRawData_SingleOption( $key ) );
 	}
 
 	public function resetOptToDefault( string $key ) :self {
@@ -955,7 +952,7 @@ class Options {
 		if ( !$this->getConfigFileExists() ) {
 			throw new \Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getPathToConfig() ) );
 		}
-		return Services::Data()->readFileContentsUsingInclude( $this->getPathToConfig() );
+		return Services::Data()->readFileWithInclude( $this->getPathToConfig() );
 	}
 
 	public function getConfigStorageKey() :string {

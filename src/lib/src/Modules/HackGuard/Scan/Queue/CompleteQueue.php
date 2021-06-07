@@ -52,8 +52,7 @@ class CompleteQueue {
 
 			/** @var Databases\ScanQueue\Delete $deleter */
 			$deleter = $dbh->getQueryDeleter();
-			$deleter->filterByScan( $scanSlug )
-					->query();
+			$deleter->filterByScan( $scanSlug )->query();
 		}
 
 		/** @var HackGuard\Options $opts */

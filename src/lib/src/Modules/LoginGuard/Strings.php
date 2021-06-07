@@ -144,6 +144,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$modName = $mod->getMainFeatureName();
@@ -211,7 +212,10 @@ class Strings extends Base\Strings {
 
 			case 'enable_google_recaptcha_login' :
 				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$summary = __( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' );
+				$summary = sprintf( '[DEPRECATED - %s] : %s',
+					'Please use the newer AntiBot setting above',
+					__( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' )
+				);
 				$desc = __( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
 						.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
 						.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
@@ -219,11 +223,11 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_antibot_check' :
-				$name = __( 'AntiBot Detection Engine', 'wp-simple-firewall' );
-				$summary = __( "Use AntiBot Detection Engine To Detect Bots", 'wp-simple-firewall' );
+				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
+				$summary = __( 'Use ADE To Detect Bots And Block Brute Force Logins', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
+						$con->getHumanName() ),
 					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings.", 'wp-simple-firewall' ) )
@@ -233,22 +237,35 @@ class Strings extends Base\Strings {
 			case 'bot_protection_locations' :
 				$name = __( 'Protection Locations', 'wp-simple-firewall' );
 				$summary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
-				$desc = __( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ).'<br />'
-						.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) );
+				$desc = [
+					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
+					sprintf( '<a href="%s">%s</a>', $con->getModule_Integrations()
+														->getUrl_DirectLinkToSection( 'section_user_forms' ),
+						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $con->getHumanName() ) )
+				];
 				break;
 
 			case 'enable_login_gasp_check' :
 				$name = __( 'Bot Protection', 'wp-simple-firewall' );
-				$summary = __( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' );
-				$desc = __( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
+				$summary = sprintf( '[DEPRECATED - %s] %s',
+					'Please use the newer AntiBot setting above',
+					__( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' )
+				);
+				$desc = [
+					__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'antibot_form_ids' :
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
-				$summary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
+				$summary = sprintf( '%s %s',
+					'[DEPRECATED - Please use the newer AntiBot setting above]',
+					__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' )
+				);
 				$desc = [
-					__( 'Provide DOM selectors to attached AntiBot protection to any form.', 'wp-simple-firewall' ),
+					__( 'Provide DOM selectors to attach AntiBot protection to any form.', 'wp-simple-firewall' ),
 					__( 'IDs are prefixed with "#".', 'wp-simple-firewall' ),
 					__( 'Classes are prefixed with ".".', 'wp-simple-firewall' ),
 					__( 'IDs are preferred over classes.', 'wp-simple-firewall' )
@@ -276,7 +293,6 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
 					__( "Currently only U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' ),
-					__( "Beta! This may only be used when at least 1 other 2FA option is enabled on a user account.", 'wp-simple-firewall' ),
 				];
 				break;
 

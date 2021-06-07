@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
 class Plugins extends Base {
 
-	public function run() {
+	protected function run() {
 		add_action( 'deactivated_plugin', [ $this, 'auditDeactivatedPlugin' ] );
 		add_action( 'activated_plugin', [ $this, 'auditActivatedPlugin' ] );
 		add_action( 'check_admin_referer', [ $this, 'auditEditedFile' ], 10, 2 );

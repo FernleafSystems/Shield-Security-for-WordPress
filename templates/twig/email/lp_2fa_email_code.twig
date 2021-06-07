@@ -16,6 +16,8 @@
 		<li>{{ body.strings.details_ip }}</li>
 	</ul>
 
+{#	<p>{{ body.hrefs.verify_2fa }}</p>#}
+
 	{% if body.flags.show_login_link %}
 		<a href="{{ body.hrefs.login_link }}" target="_blank">{{ body.strings.login_link }}</a>
 	{% endif %}

@@ -38,6 +38,33 @@ class UI extends BaseShield\UI {
 		];
 	}
 
+	public function buildInsightsVars_Wizard( $wizard, $step ) :array {
+		$data = [];
+		switch ( $wizard ) {
+			case 'welcome':
+				$data = [
+					'steps'       => [
+						'step1' => 'content for step1',
+						'step2' => 'content for step2',
+						'step3' => 'content for step3',
+					],
+					'currentStep' => 'step'.$step,
+					'ajax'        => [
+						'wizard_step' => $this->getMod()->getAjaxActionData( 'wizard_step', true ),
+					],
+					'strings'     => [
+						'hohoho' => sprintf( __( '%s %s Page' ), $wizard, $this->getCon()->getHumanName() ),
+					],
+					'showSideNav' => 0,
+				];
+				break;
+			default:
+				break;
+		}
+
+		return $data;
+	}
+
 	/**
 	 * @param array $aOptParams
 	 * @return array
@@ -45,19 +72,20 @@ class UI extends BaseShield\UI {
 	protected function buildOptionForUi( $aOptParams ) {
 		$aOptParams = parent::buildOptionForUi( $aOptParams );
 		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
-			$aNewOptions = [];
-			$oIPDet = Services::IP()->getIpDetector();
-			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
-				if ( $sValKey == 'AUTO_DETECT_IP' ) {
-					$aNewOptions[ $sValKey ] = $sSource;
+			$newOptions = [];
+			$ipDetector = Services::IP()->getIpDetector();
+			foreach ( $aOptParams[ 'value_options' ] as $valKey => $source ) {
+				if ( $valKey == 'AUTO_DETECT_IP' ) {
+					$newOptions[ $valKey ] = $source;
 				}
 				else {
-					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
-					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
-						$sSource, empty( $sIPs ) ? '-' : $sIPs );
+					$IPs = implode( ', ', $ipDetector->getIpsFromSource( $source ) );
+					if ( !empty( $IPs ) ) {
+						$newOptions[ $valKey ] = sprintf( '%s (%s)', $source, $IPs );
+					}
 				}
 			}
-			$aOptParams[ 'value_options' ] = $aNewOptions;
+			$aOptParams[ 'value_options' ] = $newOptions;
 		}
 		return $aOptParams;
 	}
@@ -87,15 +115,5 @@ class UI extends BaseShield\UI {
 		}
 
 		return $warnings;
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
-				'title' => __( 'Run Import/Export', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

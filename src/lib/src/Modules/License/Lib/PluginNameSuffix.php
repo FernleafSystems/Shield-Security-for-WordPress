@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 class PluginNameSuffix {
 
@@ -13,9 +12,8 @@ class PluginNameSuffix {
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
-		/** @var SecurityAdmin\Options $optsSecAdmin */
-		$optsSecAdmin = $con->getModule_SecAdmin()->getOptions();
-		return (bool)apply_filters( 'shield/add_pro_suffix', $con->isPremiumActive() && !$optsSecAdmin->isEnabledWhitelabel() );
+		return (bool)apply_filters( 'shield/add_pro_suffix',
+			$con->isPremiumActive() && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() );
 	}
 
 	protected function run() {

@@ -6,38 +6,37 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 		return false;
 	};
 
-	let sendReq = function ( aParams ) {
+	let loadResultsPage = function ( evt ) {
+		window.location.href = aOpts[ 'href_scans_results' ];
+	};
+
+	let sendReq = function ( param ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		let aReqData = aOpts[ 'ajax_scans_start' ];
-		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
-			function ( oResponse ) {
+		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_scans_start' ], param ),
+			function ( response ) {
 
-				if ( oResponse.success ) {
-					iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
-					if ( oResponse.data.page_reload ) {
-						location.reload();
+				if ( response.success ) {
+					iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
+					if ( response.data.page_reload ) {
+						loadResultsPage();
 					}
-					else if ( oResponse.data.scans_running ) {
+					else if ( response.data.scans_running ) {
 						setTimeout( function () {
-							jQuery( document ).icwpWpsfScansCheck(
-								{
-									'ajax_scans_check': aOpts[ 'ajax_scans_check' ]
-								}
-							);
+							jQuery( document ).icwpWpsfScansCheck( aOpts );
 						}, 1000 );
 					}
 					else {
 						plugin.options[ 'table' ].reloadTable();
-						iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
+						iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
 					}
 				}
 				else {
-					let sMessage = 'Communications error with site.';
-					if ( oResponse.data.message !== undefined ) {
-						sMessage = oResponse.data.message;
+					let msg = 'Communications error with site.';
+					if ( response.data.message !== undefined ) {
+						msg = response.data.message;
 					}
-					alert( sMessage );
+					alert( msg );
 					iCWP_WPSF_BodyOverlay.hide();
 				}
 
@@ -65,8 +64,6 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 	return this;
 };
 
-/**
- */
 jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 
 	let bFoundRunning = false;
@@ -103,7 +100,7 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 				}
 				else {
 					setTimeout( function () {
-						location.reload();
+						window.location.href = aOpts[ 'href_scans_results' ];
 					}, 1000 );
 				}
 			}

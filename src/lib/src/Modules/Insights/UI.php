@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\OverviewCards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Insights\AdminNotes;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
 use FernleafSystems\Wordpress\Services\Services;
@@ -15,11 +14,13 @@ class UI extends BaseShield\UI {
 		$con = $this->getCon();
 		return [
 			'content' => [
-				'tab_updates'   => $this->renderTabUpdates(),
-				'tab_freetrial' => $this->renderFreeTrial(),
+				'tab_updates' => $this->renderTabUpdates(),
 			],
 			'flags'   => [
 				'is_pro' => $con->isPremiumActive(),
+			],
+			'hrefs'   => [
+				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',
 			],
 			'strings' => [
 				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
@@ -31,9 +32,12 @@ class UI extends BaseShield\UI {
 	private function buildInsightsVars_Overview() :array {
 		return [
 			'vars'    => [
-				'overview_cards' => ( new OverviewCards() )
+				'overview_cards' => ( new Lib\OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
+				'summary_cards'  => ( new Lib\SummaryCards() )
+					->setMod( $this->getMod() )
+					->build(),
 			],
 			'strings' => [
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
@@ -52,12 +56,12 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$sNavSection = $req->query( 'inav', 'dashboard' );
+		$inav = $req->query( 'inav', 'overview' );
 		$subNavSection = $req->query( 'subnav' );
 
 		$modPlugin = $con->getModule_Plugin();
 
-		switch ( $sNavSection ) {
+		switch ( $inav ) {
 
 			case 'audit':
 				$modAudit = $con->getModule_AuditTrail();
@@ -67,28 +71,6 @@ class UI extends BaseShield\UI {
 					'content' => [
 						'table_audit' => $auditUI->renderAuditTrailTable(),
 					],
-					'vars'    => [
-						'related_hrefs' => [
-							[
-								'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
-								'title' => __( 'Audit Trail Settings', 'wp-simple-firewall' ),
-							],
-							[
-								'href'  => 'https://shsec.io/audittrailglossary',
-								'title' => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
-								'new'   => true,
-							],
-							[
-								'href'  => $mod->getUrl_SubInsightsPage( 'traffic' ),
-								'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
-							],
-							[
-								'href'    => $modAudit->createFileDownloadLink( 'db_audit' ),
-								'classes' => [ 'shield_file_download' ],
-								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
-							],
-						]
-					]
 				];
 				break;
 
@@ -100,23 +82,6 @@ class UI extends BaseShield\UI {
 					'content' => [
 						'table_traffic' => $trafficUI->renderTrafficTable(),
 					],
-					'vars'    => [
-						'related_hrefs' => [
-							[
-								'href'  => $con->getModule_Traffic()->getUrl_AdminPage(),
-								'title' => __( 'Traffic Settings', 'wp-simple-firewall' ),
-							],
-							[
-								'href'  => $mod->getUrl_SubInsightsPage( 'audit' ),
-								'title' => __( 'Audit Trail', 'wp-simple-firewall' ),
-							],
-							[
-								'href'    => $modTraffic->createFileDownloadLink( 'db_traffic' ),
-								'classes' => [ 'shield_file_download' ],
-								'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
-							],
-						]
-					]
 				];
 				break;
 
@@ -134,14 +99,6 @@ class UI extends BaseShield\UI {
 
 			case 'docs':
 				$data = $this->buildInsightsVars_Docs();
-				break;
-
-			case 'free_trial':
-				$data = [
-					'content' => [
-						'free_trial' => $this->renderFreeTrial()
-					]
-				];
 				break;
 
 			case 'importexport':
@@ -176,7 +133,8 @@ class UI extends BaseShield\UI {
 				$data = $UIReporting->buildInsightsVars();
 				break;
 
-			case 'scans':
+			case 'scans_results':
+			case 'scans_run':
 				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
 				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
 				$data = $UIHackGuard->buildInsightsVars();
@@ -184,6 +142,12 @@ class UI extends BaseShield\UI {
 
 			case 'settings':
 				$data = $con->modules[ $subNavSection ]->getUIHandler()->getBaseDisplayData();
+				break;
+
+			case 'stats':
+				/** @var Shield\Modules\Events\UI $UIEvents */
+				$UIEvents = $con->getModule_Events()->getUIHandler();
+				$data = $UIEvents->buildInsightsVars();
 				break;
 
 			case 'users':
@@ -196,26 +160,44 @@ class UI extends BaseShield\UI {
 			case 'index':
 				$data = $this->buildInsightsVars_Overview();
 				break;
+
+			case 'wizard':
+				$wiz = $con->getModule_Plugin()->getWizardHandler();
+				if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
+					$data = [
+						'content' => [
+							'wizard' => $wiz->setCurrentWizard( $req->query( 'wizard' ) )
+											->renderWizard()
+						],
+						'flags'   => [
+							'show_sidebar_nav' => 0
+						],
+					];
+				}
+				break;
 			default:
 				throw new \Exception( 'Not available' );
 		}
 
 		$availablePages = [
-			'settings'     => __( 'Plugin Settings', 'wp-simple-firewall' ),
-			'dashboard'    => __( 'Dashboard', 'wp-simple-firewall' ),
-			'overview'     => __( 'Security Overview', 'wp-simple-firewall' ),
-			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
-			'docs'         => __( 'Docs', 'wp-simple-firewall' ),
-			'ips'          => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
-			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
-			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
-			'notes'        => __( 'Admin Notes', 'wp-simple-firewall' ),
-			'users'        => __( 'User Sessions', 'wp-simple-firewall' ),
-			'license'      => __( 'ShieldPRO', 'wp-simple-firewall' ),
-			'importexport' => __( 'Import / Export', 'wp-simple-firewall' ),
-			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
-			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
-			'free_trial'   => __( 'Free Trial', 'wp-simple-firewall' ),
+			'stats'         => __( 'Quick Stats', 'wp-simple-firewall' ),
+			'settings'      => __( 'Plugin Settings', 'wp-simple-firewall' ),
+			'dashboard'     => __( 'Dashboard', 'wp-simple-firewall' ),
+			'overview'      => __( 'Security Overview', 'wp-simple-firewall' ),
+			'scans_results' => __( 'Scan Results', 'wp-simple-firewall' ),
+			'scans_run'     => __( 'Run Scans', 'wp-simple-firewall' ),
+			'docs'          => __( 'Docs', 'wp-simple-firewall' ),
+			'ips'           => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
+			'audit'         => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'traffic'       => __( 'Traffic', 'wp-simple-firewall' ),
+			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
+			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),
+			'license'       => __( 'ShieldPRO', 'wp-simple-firewall' ),
+			'importexport'  => __( 'Import / Export', 'wp-simple-firewall' ),
+			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
+			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
+			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
+			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
 		$modsToSearch = array_filter(
@@ -225,10 +207,19 @@ class UI extends BaseShield\UI {
 			}
 		);
 
-		$pageTitle = $availablePages[ $sNavSection ];
+		$pageTitle = $availablePages[ $inav ];
 		if ( !empty( $subNavSection ) ) {
 			$pageTitle = sprintf( '%s: %s',
-				__( 'Settings', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
+				__( 'Configuration', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
+		}
+
+		if ( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+			$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
+								 ->setMod( $this->getCon()->getModule_SecAdmin() )
+								 ->build()[ 'url_login2fa_logourl' ];
+		}
+		else {
+			$dashboardLogo = $con->urls->forImage( 'pluginlogo_banner-170x40.png' );
 		}
 
 		$DP = Services::DataManipulation();
@@ -236,17 +227,15 @@ class UI extends BaseShield\UI {
 			$this->getBaseDisplayData(),
 			[
 				'classes' => [
-					'page_container' => 'page-insights page-'.$sNavSection
+					'page_container' => 'page-insights page-'.$inav
 				],
 				'flags'   => [
-					'is_dashboard' => $sNavSection === 'dashboard',
-					'is_advanced'  => $modPlugin->isShowAdvanced()
+					'is_advanced' => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
-					'back_to_dash' => $mod->getUrl_SubInsightsPage( 'dashboard' ),
-					'go_pro'       => 'https://shsec.io/shieldgoprofeature',
-					'nav_home'     => $mod->getUrl_AdminPage(),
-					'img_banner'   => $con->urls->forImage( 'pluginlogo_banner-170x40.png' )
+					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
+					'nav_home'   => $mod->getUrl_AdminPage(),
+					'img_banner' => $dashboardLogo
 				],
 				'strings' => [
 					'page_title' => $pageTitle
@@ -255,35 +244,25 @@ class UI extends BaseShield\UI {
 					'changelog_id'           => $con->cfg->meta[ 'announcekit_changelog_id' ],
 					'mods'                   => $this->buildSelectData_ModuleSettings(),
 					'search_select'          => $this->buildSelectData_OptionsSearch(),
-					'active_module_settings' => $subNavSection
+					'active_module_settings' => $subNavSection,
+					'navbar_menu'            => ( new Lib\SideMenuBuilder() )
+						->setMod( $this->getMod() )
+						->build()
 				],
 			],
 			$data
 		);
 
+		$templateDir = $inav;
+		if ( strpos( $inav, 'scans_' ) === 0 ) {
+			$templateDir = implode( '/', explode( '_', $inav, 2 ) );
+		}
+
 		return $mod->renderTemplate(
-			sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ),
+			sprintf( '/wpadmin_pages/insights/%s/index.twig', $templateDir ),
 			$data,
 			true
 		);
-	}
-
-	private function renderFreeTrial() :string {
-		$user = Services::WpUsers()->getCurrentWpUser();
-		return $this->getMod()
-					->renderTemplate(
-						'/forms/drip_trial_signup.twig',
-						[
-							'vars'    => [
-								'activation_url' => Services::WpGeneral()->getHomeUrl(),
-								'email'          => $user->user_email,
-								'name'           => $user->user_firstname,
-							],
-							'strings' => [
-							],
-						],
-						true
-					);
 	}
 
 	private function renderTabUpdates() :string {
@@ -332,14 +311,14 @@ class UI extends BaseShield\UI {
 
 	private function printGoProFooter() {
 		$con = $this->getCon();
-		$nav = Services::Request()->query( 'inav', 'dashboard' );
+		$nav = Services::Request()->query( 'inav', 'overview' );
 		echo $this->getMod()->renderTemplate(
 			'snippets/go_pro_banner.twig',
 			[
 				'flags' => [
 					'show_promo' => $con->isModulePage()
 									&& !$con->isPremiumActive()
-									&& ( !in_array( $nav, [ 'scans' ] ) ),
+									&& ( !in_array( $nav, [ 'scans_results', 'scans_run', 'wizard' ] ) ),
 				],
 				'hrefs' => [
 					'go_pro' => 'https://shsec.io/shieldgoprofeature',
@@ -359,31 +338,6 @@ class UI extends BaseShield\UI {
 					'js_snippets' => []
 				]
 			);
-		}
-	}
-
-	private function printPluginDeactivateSurvey() {
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-
-			$opts = [
-				'reason_confusing'   => "It's too confusing",
-				'reason_expected'    => "It's not what I expected",
-				'reason_accident'    => "I downloaded it accidentally",
-				'reason_alternative' => "I'm already using an alternative",
-				'reason_trust'       => "I don't trust the developer :(",
-				'reason_not_work'    => "It doesn't work",
-				'reason_errors'      => "I'm getting errors",
-			];
-
-			echo $this->getMod()->renderTemplate( 'snippets/plugin-deactivate-survey.php', [
-				'strings'     => [
-					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
-				],
-				'inputs'      => [
-					'checkboxes' => Services::DataManipulation()->shuffleArray( $opts )
-				],
-				'js_snippets' => []
-			] );
 		}
 	}
 }

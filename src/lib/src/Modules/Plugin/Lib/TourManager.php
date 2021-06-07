@@ -15,7 +15,8 @@ class TourManager {
 
 	public function getAllTours() :array {
 		return [
-			'dashboard_v1'
+			'dashboard_v1',
+			'navigation_v1',
 		];
 	}
 

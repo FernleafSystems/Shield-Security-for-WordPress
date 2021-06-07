@@ -47,22 +47,9 @@ interface ProviderInterface {
 	public function handleUserProfileSubmit();
 
 	/**
-	 * Process the edit of user profile that is not the current user
-	 * @return string
-	 */
-	public function handleEditOtherUserProfileSubmit();
-
-
-	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @return string
 	 */
 	public function renderUserProfileOptions();
-
-	/**
-	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
-	 * @return string
-	 */
-	public function renderUserEditProfileOptions();
 }

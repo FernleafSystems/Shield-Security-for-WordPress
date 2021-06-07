@@ -1,12 +1,271 @@
 {
+  "11.3": {
+    "version":     "11.3",
+    "released_at": 1623057021,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease113",
+      "upgrade": "https://shsec.io/shieldupgradeguide113"
+    },
+    "title":       "",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "High IP Reputation Bypass",
+        "description": [
+          "Added an option to ensure that IP addresses with a high-enough reputation are never blocked by Shield."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Bot Scoring Logic Is Provisioned From ShieldNET API",
+        "description": [
+          "To allow for easier and faster updates and improvements to the bot scoring logic, they are served from our ShieldNET API.",
+          "If, for whatever reason, the API is unavailable the plugin will use its built-in scoring logic."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "NotBot Javascript Loading Check",
+        "description": [
+          "The NotBot Javascript that loads for visitor is critical to Shield's ability to detect bots - we now show a warning when we can't detect it."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "404 Bot Signal doesn't trigger Shield offense on certain requests for assets",
+        "description": [
+          "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses.",
+          "The 1 exception is if the asset URL is within a plugin/theme directory that doesn't exist on the site."
+        ]
+      }
+    ]
+  },
+  "11.2": {
+    "version":     "11.2",
+    "released_at": 1621844125,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease112",
+      "upgrade": "https://shsec.io/shieldupgradeguide112"
+    },
+    "title":       "AntiBot Scoring Improvements",
+    "description": [
+      "Shield 11.0 brought the new AntiBot Detection Engine, designed to detect bad bots and block them automatically.",
+      "With feedback from customers and ongoing research, we've made some major improvements and adjustments to the system."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "New And Improved Welcome Wizard",
+        "description": [
+          "All-New Welcome Wizard designed to get you up and running with Shield quickly and effortlessly."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Add Shield's Two-Factor Authentication User Settings Anywhere",
+        "description": [
+          "With the use of a WP Shortcode, you can add user configuration pages for 2FA into any page.",
+          "This is useful if you want to offer 2FA options to your customers."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "AntiBot Detection Engine Improvements.",
+        "description": [
+          "We've adjusted some of the bot scoring and improved the ability to detect legitimate users based on earlier logins.",
+          "We've also removed the need for the small cookie that was needed to help track the NotBot status.",
+          "The AntiBot Detection Engine can now be disabled by setting the minimum reputation score to 0."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Google Authenticator QR Codes Are Generated Locally.",
+        "description": [
+          "Google's Legacy Chart API wasn't always loading the QR code so we replaced it with a locally generated QR code image."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Brand new Knowledgebase Integration.",
+        "description": [
+          "We've moved to a brand new Helpdesk/Knowledgebase and this allows us to integrate instant access to docs inside the plugin itself.",
+          "Simply click the 'Info' link for any option to view documentation within your WordPress admin area."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Protecting Subscription Forms in Groundhogg CRM.",
+        "description": [
+          "Added support for protecting Groundhogg forms from bots."
+        ],
+        "href":        "https://shsec.io/groundhogg"
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Protecting Super Forms Contact Forms.",
+        "description": [
+          "Added support for protecting contact forms against SPAM in the Super Forms plugin."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Support For Protecting User Forms in LifterLMS.",
+        "description": [
+          "Added support for protecting LifterLMS login & registration forms from bots."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "The tour system would run multiple times.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Some plugin SQL query syntax broke on MySQL 8.",
+        "description": [],
+        "patch":       "11.2.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fatal error when initiating WP-CLI in some cases.",
+        "description": [],
+        "patch":       "11.2.2"
+      },
+      {
+        "type":        "improved",
+        "title":       "Adjust default bot scoring logic to reduce spam.",
+        "description": [],
+        "patch":       "11.2.4"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Some clients reported a fatal error in certain circumstances.",
+        "description": [],
+        "patch":       "11.2.4"
+      }
+    ]
+  },
+  "11.1": {
+    "version":     "11.1",
+    "released_at": 1616666000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease111",
+      "upgrade": "https://shsec.io/shieldupgradeguide111"
+    },
+    "title":       "UI Cleanup and Enhancement",
+    "description": [
+      "With Shield being such a large plugin, it's been a challenge to get a UI that everyone is happy with.",
+      "This release aims to improve the UI and make it easier for everyone to get their security task done as efficiently as possible."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Improved Dashboard UI and Navigation",
+        "description": [
+          "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
+          "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
+        ],
+        "href":        "https://shsec.io/jb"
+      },
+      {
+        "type":        "new",
+        "title":       "A new Quick Stats screen is available to see the activity of Shield over time.",
+        "description": [
+          "The implementation is currently basic, but it forms the foundation of future development and offers users the option to offer suggestions."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Code overhaul for Security Admin system to improve reliability and fix various bugs.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Automatic User Unblock now makes use of Shield's AntiBot Detection Engine.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "File Locker will better handle the scenario where a site is moved/migrated.",
+        "description": [
+          "File Locker for wp-config.php files will also better detect when this file is placed 1 directory higher than the site."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "White Label settings that are empty aren't applied and defaults remain.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Statistics in reporting emails were under-reporting the full stats.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Audit Trail didn't capture all upgrades when upgrading plugins/themes in-bulk.",
+        "description": [
+          "The Audit Trial would only capture 1 upgrade when a bulk upgrade was performed."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Exclusions for unrecognised file scanner weren't stored correctly in the case of regular expressions.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "In some rare scenarios, user sessions wouldn't be properly created and user automatically logged-out.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "WP Config FileLocker bug not correctly maintaining its state and resulting in locks not being created.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "The .htaccess file in the root of the Shield plugin directory is only created if its supported.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Whitelabel settings were misleading and didn't properly update the dashboard log.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "SPAM detection for Ninja Forms would report as SPAM when not SPAM.",
+        "description": [],
+        "patch":       "11.1.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "wpForo integration produced a PHP Warning in certain circumstances.",
+        "description": [],
+        "patch":       "11.1.1"
+      }
+    ]
+  },
   "11.0": {
     "version":     "11.0",
     "released_at": 1616666000,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease1100",
-      "upgrade": "https://shsec.io/shieldupgradeguide1100"
+      "release": "https://shsec.io/shieldrelease110",
+      "upgrade": "https://shsec.io/shieldupgradeguide110"
     },
-    "href":        "https://shsec.io/",
     "title":       "All-New Shield AntiBot Detection Engine",
     "description": [
       "WordPress security nearly always starts with bots - detecting bad bots and blocking them.",
@@ -18,7 +277,7 @@
         "pro_only":    false,
         "title":       "AntiBot Detection Engine",
         "description": [
-          "Detecting bad bots on you WordPress site is a huge challenge, but it's notoriously difficult to do this.",
+          "Detecting bad bots on your WordPress sites is a huge challenge, but it's notoriously difficult to do this.",
           "We have developed an exclusive system for the detection of bad bots and the option to block requests from them."
         ],
         "href":        "https://shsec.io/jb"
@@ -92,9 +351,20 @@
       {
         "type":        "fixed",
         "title":       "Gravity Form error",
-        "description": [
-        ],
+        "description": [],
         "patch":       "11.0.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Performance issue.",
+        "description": [],
+        "patch":       "11.0.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "PHP Warning message appears in some scenarios.",
+        "description": [],
+        "patch":       "11.0.3"
       }
     ]
   },
@@ -105,7 +375,6 @@
       "release": "https://shsec.io/shieldrelease102",
       "upgrade": "https://shsec.io/shieldupgradeguide102"
     },
-    "href":        "https://shsec.io/",
     "title":       "Removal of simple Content Security Policy settings and bugfixes",
     "description": [
       "We've decided to remove our simple Content Security Policy options as this feature is too complex.",
@@ -234,7 +503,6 @@
       "release": "https://shsec.io/shieldrelease101",
       "upgrade": "https://shsec.io/shieldupgradeguide101"
     },
-    "href":        "https://shsec.io/",
     "title":       "Enhanced Dashboard + MainWP Integration",
     "description": [
       "We're continuing our improvements to the Shield UI with a brand new Dashboard.",
@@ -371,7 +639,6 @@
       "release": "https://shsec.io/shieldrelease100",
       "upgrade": "https://shsec.io/shieldupgradeguide100"
     },
-    "href":        "https://shsec.io/",
     "title":       "All-New PHP-7 Optimised Shield Security",
     "description": [
       "We've massively enhanced the Dashboard UI, making it much easier to secure your WordPress site by quickly identifying areas of improvement.",

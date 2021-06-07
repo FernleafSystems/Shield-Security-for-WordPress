@@ -16,9 +16,6 @@ class CreateReportVO {
 	 */
 	private $rep;
 
-	/**
-	 * @param string $reportType
-	 */
 	public function __construct( string $reportType ) {
 		$this->rep = new ReportVO();
 		$this->rep->type = $reportType;
@@ -28,7 +25,7 @@ class CreateReportVO {
 	 * @return ReportVO
 	 * @throws \Exception
 	 */
-	public function create() {
+	public function create() :ReportVO {
 		$this->setReportInterval()
 			 ->setPreviousReport()
 			 ->setIntervalBoundaries()
@@ -80,49 +77,63 @@ class CreateReportVO {
 	 * @throws \Exception
 	 */
 	private function setIntervalBoundaries() {
+		$req = Services::Request();
 
-		$carbon = Services::Request()->carbon( true );
-		$nAddition = -1; // the previous hour, day, week, month
+		$intervalToReport = $req->carbon( true );
+		$currentIntervalStart = $req->carbon( true );
 
 		switch ( $this->rep->interval ) {
 //			case 'realtime':
 //				break;
-			case 'no_time': // TODO
+			case 'lifetime': // TODO
 				$start = 0;
-				$end = $carbon->timestamp;
+				$end = $intervalToReport->timestamp;
 				break;
 			case 'hourly':
-				$carbon->addHours( $nAddition );
-				$start = $carbon->startOfHour()->timestamp;
-				$end = $carbon->endOfHour()->timestamp;
+				$currentIntervalStart->startOfHour();
+				$intervalToReport->subHour();
+				$start = $intervalToReport->startOfHour()->timestamp;
+				$end = $intervalToReport->endOfHour()->timestamp;
 				break;
+
 			case 'daily':
-				$carbon->addDays( $nAddition );
-				$start = $carbon->startOfDay()->timestamp;
-				$end = $carbon->endOfDay()->timestamp;
+				$currentIntervalStart->startOfDay();
+				$intervalToReport->subDay();
+				$start = $intervalToReport->startOfDay()->timestamp;
+				$end = $intervalToReport->endOfDay()->timestamp;
 				break;
+
 			case 'weekly':
-				$carbon->addWeeks( $nAddition );
-				$start = $carbon->startOfWeek()->timestamp;
-				$end = $carbon->endOfWeek()->timestamp;
+				$currentIntervalStart->startOfWeek();
+				$intervalToReport->subWeek();
+				$start = $intervalToReport->startOfWeek()->timestamp;
+				$end = $intervalToReport->endOfWeek()->timestamp;
 				break;
+
 			case 'monthly':
-				$carbon->addMonths( $nAddition );
-				$start = $carbon->startOfMonth()->timestamp;
-				$end = $carbon->endOfMonth()->timestamp;
+				$currentIntervalStart->startOfMonth();
+				$intervalToReport->day( 15 )->subMonth();
+				$start = $intervalToReport->startOfMonth()->timestamp;
+				$end = $intervalToReport->endOfMonth()->timestamp;
 				break;
+
 			case 'yearly':
-				$carbon->addYears( $nAddition );
-				$start = $carbon->startOfYear()->timestamp;
-				$end = $carbon->endOfYear()->timestamp;
+				$currentIntervalStart->startOfYear();
+				$intervalToReport->subYear();
+				$start = $intervalToReport->startOfYear()->timestamp;
+				$end = $intervalToReport->endOfYear()->timestamp;
 				break;
+
 			default:
 				throw new \Exception( 'Not a supported frequency' );
 		}
 
-		if ( $this->rep->previous instanceof Reports\EntryVO
-			 && $end <= $this->rep->previous->interval_end_at ) {
+		if ( $this->rep->previous instanceof Reports\EntryVO && $end <= $this->rep->previous->interval_end_at ) {
 			throw new \Exception( 'Attempting to create a duplicate report based on interval.' );
+		}
+
+		if ( $end > $currentIntervalStart->timestamp ) { // sanity check
+			throw new \Exception( 'Attempting to create for an interval greater than the current interval.' );
 		}
 
 		$this->rep->interval_start_at = $start;
@@ -138,18 +149,10 @@ class CreateReportVO {
 	private function setReportId() {
 		/** @var Reporting\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Reports\Select $oSel */
-		$oSel = $mod->getDbHandler_Reports()->getQuerySelector();
-		$nPrevID = $oSel->getLastReportId();
-		$this->rep->rid = is_numeric( $nPrevID ) ? $nPrevID + 1 : 1;
+		/** @var Reports\Select $select */
+		$select = $mod->getDbHandler_Reports()->getQuerySelector();
+		$prevID = $select->getLastReportId();
+		$this->rep->rid = is_numeric( $prevID ) ? $prevID + 1 : 1;
 		return $this;
-	}
-
-	/**
-	 * TODO
-	 * @return bool
-	 */
-	private function isOnDemandReport() {
-		return !Services::WpGeneral()->isCron();
 	}
 }

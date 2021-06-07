@@ -21,19 +21,19 @@ class QueryRemainingOffenses {
 	public function run() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
+		$blackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlack()
+			->setListTypeBlock()
 			->setIP( $this->getIP() )
 			->lookup( false );
 
-		$nOffenses = 0;
-		if ( $oBlackIp instanceof Databases\IPs\EntryVO ) {
-			$nOffenses = (int)$oBlackIp->transgressions;
+		$offenses = 0;
+		if ( $blackIp instanceof Databases\IPs\EntryVO ) {
+			$offenses = (int)$blackIp->transgressions;
 		}
 
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getOffenseLimit() - $nOffenses - 1;
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getOffenseLimit() - $offenses - 1;
 	}
 }

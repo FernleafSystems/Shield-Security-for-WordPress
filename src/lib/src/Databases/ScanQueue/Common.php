@@ -48,12 +48,12 @@ trait Common {
 	}
 
 	/**
-	 * @param string $sScan
+	 * @param string $scan
 	 * @return bool
 	 */
-	public function forScan( $sScan ) {
+	public function forScan( $scan ) {
 		$this->reset();
-		return $this->filterByScan( $sScan )
+		return $this->filterByScan( $scan )
 					->query();
 	}
 }

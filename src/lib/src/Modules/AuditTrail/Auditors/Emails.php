@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Emails extends Base {
 
-	public function run() {
+	protected function run() {
 		add_filter( 'wp_mail', [ $this, 'auditEmailSend' ], PHP_INT_MAX );
 	}
 

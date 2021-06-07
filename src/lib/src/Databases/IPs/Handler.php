@@ -29,12 +29,4 @@ class Handler extends Base\Handler {
 					->addWhere( 'list', ModCon::LIST_MANUAL_WHITE, '!=' )
 					->query();
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 11.1
-	 */
-	protected function getDefaultTableName() :string {
-		return $this->getOptions()->getDef( 'ip_lists_table_name' );
-	}
 }

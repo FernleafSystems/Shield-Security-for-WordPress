@@ -19,12 +19,12 @@ class LoginIntentPage {
 	 * @return string
 	 */
 	public function renderForm() {
-		$oIC = $this->getMfaCon();
+		$mfaCon = $this->getMfaCon();
 		/** @var LoginGuard\ModCon $mod */
-		$mod = $oIC->getMod();
+		$mod = $mfaCon->getMod();
 		/** @var LoginGuard\Options $opts */
-		$opts = $oIC->getOptions();
-		$con = $oIC->getCon();
+		$opts = $mfaCon->getOptions();
+		$con = $mfaCon->getCon();
 		$req = Services::Request();
 		$WP = Services::WpGeneral();
 
@@ -83,7 +83,7 @@ class LoginIntentPage {
 					function ( $oProvider ) {
 						return $oProvider->getFormField();
 					},
-					$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
+					$mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
 				) ),
 				'time_remaining'    => $nTimeRemaining,
 				'message_type'      => 'info',
@@ -96,7 +96,7 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
-				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
+				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			]
 		];
 
@@ -108,20 +108,17 @@ class LoginIntentPage {
 		);
 	}
 
-	/**
-	 * @return string
-	 */
-	private function renderPage() {
+	private function renderPage() :string {
 		$oIC = $this->getMfaCon();
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $oIC->getMod();
 		$con = $oIC->getCon();
 		$req = Services::Request();
 
-		$aLabels = $con->getLabels();
-		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
+		$labels = $con->getLabels();
+		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
 		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
-		$aDisplayData = [
+		$data = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -136,11 +133,11 @@ class LoginIntentPage {
 				'what_is_this'  => 'https://support.getshieldsecurity.com/support/solutions/articles/3000064840',
 			],
 			'imgs'    => [
-				'banner'  => $sBannerUrl,
+				'banner'  => $bannerURL,
 				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'show_branded_links' => !$mod->isEnabledWhitelabel(), // white label mitigation
+				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 				'has_u2f'            => isset( $oIC->getProvidersForUser(
 						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
@@ -150,14 +147,14 @@ class LoginIntentPage {
 		];
 
 		// Provide the U2F scripts if required.
-		if ( $aDisplayData[ 'flags' ][ 'has_u2f' ] ) {
-			$aDisplayData[ 'head' ] = [
+		if ( $data[ 'flags' ][ 'has_u2f' ] ) {
+			$data[ 'head' ] = [
 				'scripts' => [
 					[
 						'src' => $con->urls->forJs( 'u2f-bundle.js' ),
 					],
 					[
-						'src' => $con->urls->forJs( 'u2f-frontend.js' ),
+						'src' => $con->urls->forJs( 'login/u2f.js' ),
 					]
 				]
 			];
@@ -165,6 +162,6 @@ class LoginIntentPage {
 
 		return $mod->renderTemplate( '/pages/login_intent/index.twig',
 			Services::DataManipulation()->mergeArraysRecursive(
-				$mod->getUIHandler()->getBaseDisplayData(), $aDisplayData ), true );
+				$mod->getUIHandler()->getBaseDisplayData(), $data ), true );
 	}
 }

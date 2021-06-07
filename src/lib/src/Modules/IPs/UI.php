@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Services\Services;
@@ -61,17 +62,6 @@ class UI extends BaseShield\UI {
 				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'related_hrefs'    => [
-					[
-						'href'  => $mod->getUrl_AdminPage(),
-						'title' => __( 'IP Block Settings', 'wp-simple-firewall' ),
-					],
-					[
-						'href'    => $mod->createFileDownloadLink( 'db_ip' ),
-						'classes' => [ 'shield_file_download' ],
-						'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
-					],
-				],
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
 					->setDbHandler( $mod->getDbHandler_IPs() )
 					->black(),
@@ -83,7 +73,7 @@ class UI extends BaseShield\UI {
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
-		$aWarnings = [];
+		$warnings = [];
 
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -92,7 +82,23 @@ class UI extends BaseShield\UI {
 
 			case 'section_auto_black_list':
 				if ( !$opts->isEnabledAutoBlackList() ) {
-					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
+					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
+				}
+				break;
+
+			case 'section_antibot':
+				if ( !$opts->isEnabledAntiBotEngine() ) {
+					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
+				}
+				else {
+					$notbotFound = ( new TestNotBotLoading() )
+						->setMod( $this->getCon()->getModule_IPs() )
+						->test();
+					if ( !$notbotFound ) {
+						$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+							sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
+					}
 				}
 				break;
 
@@ -100,16 +106,16 @@ class UI extends BaseShield\UI {
 			case 'section_probes':
 			case 'section_logins':
 				if ( !$opts->isEnabledAutoBlackList() ) {
-					$aWarnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
+					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
 				if ( $section == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$aWarnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
+					$warnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
 				}
 				break;
 		}
 
-		return $aWarnings;
+		return $warnings;
 	}
 
 	private function renderIpAnalyse() :string {
@@ -135,15 +141,5 @@ class UI extends BaseShield\UI {
 			],
 			true
 		);
-	}
-
-	protected function getSettingsRelatedLinks() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		return [
-			[
-				'href'  => $modInsights->getUrl_SubInsightsPage( 'ips' ),
-				'title' => __( 'Analyse & Manage IPs', 'wp-simple-firewall' ),
-			]
-		];
 	}
 }

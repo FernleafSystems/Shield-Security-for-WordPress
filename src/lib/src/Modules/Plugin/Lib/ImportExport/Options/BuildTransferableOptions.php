@@ -12,11 +12,11 @@ class BuildTransferableOptions {
 	 * @return mixed[]
 	 */
 	public function build() {
-		$oOpts = $this->getOptions();
+		$opts = $this->getOptions();
 		return array_merge(
-			array_fill_keys( $oOpts->getOptionsKeys(), false ),
-			array_fill_keys( array_keys( $oOpts->getTransferableOptions() ), 'Y' ),
-			array_fill_keys( $oOpts->getXferExcluded(), 'N' )
+			array_fill_keys( $opts->getOptionsKeys(), false ),
+			array_fill_keys( array_keys( $opts->getTransferableOptions() ), 'Y' ),
+			array_fill_keys( $opts->getXferExcluded(), 'N' )
 		);
 	}
 }

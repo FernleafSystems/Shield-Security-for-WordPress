@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIp;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -68,13 +68,13 @@ class BuildDisplay {
 
 		$blockIP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlack()
+			->setListTypeBlock()
 			->setIP( $ip )
 			->lookup( true );
 
 		$bypassIP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeWhite()
+			->setListTypeBypass()
 			->setIP( $ip )
 			->lookup( true );
 
@@ -109,7 +109,7 @@ class BuildDisplay {
 			$ipEntry = ( new LookupIpOnList() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setIP( $ip )
-				->setListTypeWhite()
+				->setListTypeBypass()
 				->lookup();
 			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
 				$ipName = $ipEntry->label;
@@ -136,11 +136,11 @@ class BuildDisplay {
 					'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
 
 					'status' => [
-						'is_you'       => __( 'Is It You?', 'wp-simple-firewall' ),
-						'offenses'     => __( 'Number of offenses', 'wp-simple-firewall' ),
-						'is_blocked'   => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'    => __( 'Is Bypass IP', 'wp-simple-firewall' ),
-						'notbot_score' => __( 'NotBot Score', 'wp-simple-firewall' ),
+						'is_you'        => __( 'Is It You?', 'wp-simple-firewall' ),
+						'offenses'      => __( 'Number of offenses', 'wp-simple-firewall' ),
+						'is_blocked'    => __( 'Is Blocked', 'wp-simple-firewall' ),
+						'is_bypass'     => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'ip_reputation' => __( 'IP Reputation Score', 'wp-simple-firewall' ),
 					],
 
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
@@ -163,12 +163,12 @@ class BuildDisplay {
 				'vars'    => [
 					'ip'       => $ip,
 					'status'   => [
-						'is_you'       => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'     => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
-						'is_blocked'   => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
-						'is_bypass'    => $bypassIP instanceof Databases\IPs\EntryVO,
-						'notbot_score' => $botScore,
-						'is_bot'       => $isBot,
+						'is_you'              => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'offenses'            => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
+						'is_blocked'          => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'           => $bypassIP instanceof Databases\IPs\EntryVO,
+						'ip_reputation_score' => $botScore,
+						'is_bot'              => $isBot,
 					],
 					'identity' => [
 						'who_is_it'    => $ipName,
@@ -299,7 +299,7 @@ class BuildDisplay {
 			$column = $scoreKey.'_at';
 			if ( $scoreValue !== 0 ) {
 				if ( empty( $record ) || empty( $record->{$column} ) ) {
-					if ( in_array( $scoreKey, [ 'known' ] ) ) {
+					if ( in_array( $scoreKey, [ 'known', 'created' ] ) ) {
 						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
 					}
 					else {
@@ -321,9 +321,9 @@ class BuildDisplay {
 					'title'            => __( 'Bot Signals', 'wp-simple-firewall' ),
 					'signal'           => __( 'Signal', 'wp-simple-firewall' ),
 					'score'            => __( 'Score', 'wp-simple-firewall' ),
-					'total_score'      => __( 'Total NotBot Score', 'wp-simple-firewall' ),
+					'total_score'      => __( 'Total Reputation Score', 'wp-simple-firewall' ),
 					'when'             => __( 'When', 'wp-simple-firewall' ),
-					'bot_probability'  => __( 'Bot Probability', 'wp-simple-firewall' ),
+					'bot_probability'  => __( 'Bad Bot Probability', 'wp-simple-firewall' ),
 					'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
 					'signal_names'     => $names,
 					'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),

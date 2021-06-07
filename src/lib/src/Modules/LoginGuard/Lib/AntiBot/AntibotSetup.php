@@ -2,17 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AntibotSetup {
-
-	use ModConsumer;
-	use ExecOnce;
+class AntibotSetup extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return !Services::WpUsers()->isUserLoggedIn();
@@ -30,12 +26,7 @@ class AntibotSetup {
 				->setMod( $mod );
 		}
 
-		if ( $opts->isEnabledAntiBot() ) {
-			$providers[] = ( new AntiBot\ProtectionProviders\AntiBot() )
-				->setMod( $mod );
-		}
-		else {
-
+		if ( !$opts->isEnabledAntiBot() ) {
 			if ( $opts->isEnabledGaspCheck() ) {
 				$providers[] = ( new AntiBot\ProtectionProviders\GaspJs() )
 					->setMod( $mod );
@@ -57,46 +48,46 @@ class AntibotSetup {
 		if ( !empty( $providers ) ) {
 
 			AntiBot\FormProviders\WordPress::SetProviders( $providers );
-			/** @var AntiBot\FormProviders\BaseFormProvider[] $aFormProviders */
-			$aFormProviders = [
+			/** @var AntiBot\FormProviders\BaseFormProvider[] $formProviders */
+			$formProviders = [
 				new AntiBot\FormProviders\WordPress()
 			];
 
 			if ( $this->getMod()->getIfSupport3rdParty() ) {
 				if ( @class_exists( 'BuddyPress' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
+					$formProviders[] = new AntiBot\FormProviders\BuddyPress();
 				}
 				if ( @class_exists( 'Easy_Digital_Downloads' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\EasyDigitalDownloads();
+					$formProviders[] = new AntiBot\FormProviders\EasyDigitalDownloads();
 				}
 				if ( @class_exists( 'LearnPress' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\LearnPress();
+					$formProviders[] = new AntiBot\FormProviders\LearnPress();
 				}
 				if ( function_exists( 'mepr_autoloader' ) || @class_exists( 'MeprAccountCtrl' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\MemberPress();
+					$formProviders[] = new AntiBot\FormProviders\MemberPress();
 				}
 				if ( function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\UltimateMember();
+					$formProviders[] = new AntiBot\FormProviders\UltimateMember();
 				}
 				if ( @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\PaidMemberSubscriptions();
+					$formProviders[] = new AntiBot\FormProviders\PaidMemberSubscriptions();
 				}
 				if ( defined( 'PROFILE_BUILDER_VERSION' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\ProfileBuilder();
+					$formProviders[] = new AntiBot\FormProviders\ProfileBuilder();
 				}
 				if ( @class_exists( 'WooCommerce' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
+					$formProviders[] = new AntiBot\FormProviders\WooCommerce();
 				}
 				if ( defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\WPMembers();
+					$formProviders[] = new AntiBot\FormProviders\WPMembers();
 				}
 				if ( false && @class_exists( 'UserRegistration' ) && @function_exists( 'UR' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\UserRegistration();
+					$formProviders[] = new AntiBot\FormProviders\UserRegistration();
 				}
 			}
 
-			foreach ( $aFormProviders as $oForm ) {
-				$oForm->setMod( $mod )->run();
+			foreach ( $formProviders as $form ) {
+				$form->setMod( $mod )->execute();
 			}
 		}
 	}

@@ -6,26 +6,9 @@
 	<div class="row">
 
 		<div class="col">
-			<h5 class="mt-3">
+			<h5 class="mt-3" id="PageTitle">
 				{% block page_head_titlemenu %}
-					{% if flags.is_dashboard %}
-						{{ strings.dashboard_shield }}
-					{% else %}
-						{{ strings.page_title }}
-						<br />
-						<p class="mb-1 mt-2 d-inline-block" style="font-size: small">
-							<a href="{{ hrefs.back_to_dash }}">&laquo; {{ strings.dashboard }}</a>
-							{% if vars.related_hrefs|default([]) is not empty %}
-								{% for related_href in vars.related_hrefs %}
-									| <a href="{{ related_href.href }}"
-										 {% if not related_href.id|default('') is empty %}id="{{ related_href.id }}"{% endif %}
-										 class="{{ related_href.classes|default([])|join(' ') }}"
-										{% if related_href.new|default(false) %}target="_blank"{% endif %}>
-									{{ related_href.title }}</a>
-								{% endfor %}
-							{% endif %}
-						</p>
-					{% endif %}
+					{{ strings.page_title }}
 				{% endblock page_head_titlemenu %}
 			</h5>
 		</div>
@@ -34,27 +17,20 @@
 			<a class="navbar-brand float-end mt-3"
 			   href="{{ hrefs.nav_home }}"
 			   id="navbar-bannerlogo"
-			   style="background-image: url('{{ hrefs.img_banner }}');"
+			   style="background-image: url('{{ hrefs.img_banner }}');background-size: auto 40px;"
 			>&nbsp;</a>
 		</div>
 	</div>
 
 	<script async src="https://cdn.announcekit.app/widget.js"></script>
-	{% include '/snippets/js/freshdesk_chatbot.twig' %}
+	{% include '/snippets/js/widget_helpscout.twig' %}
 {% endblock %}
 
 {% block page_main %}
-	<div class="row">
-		<div class="col">
-		</div>
-	</div>
 {% endblock %}
 
 {% block page_foot %}
 {% endblock %}
 
 {% block inline_styles %}
-{% endblock %}
-
-{% block inline_scripts %}
 {% endblock %}

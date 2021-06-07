@@ -1,0 +1,7 @@
+﻿.shield_dialog {
+	color: black;
+}
+.shield_dialog .dialog-content,
+.shield_dialog .ui-dialog-title {
+	color: black;
+}

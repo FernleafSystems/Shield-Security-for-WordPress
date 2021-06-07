@@ -2,15 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class Base {
-
-	use Shield\Modules\ModConsumer;
-	use ExecOnce;
+abstract class Base extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	const OPT_KEY = '';
 
@@ -18,28 +14,34 @@ abstract class Base {
 		$this->process();
 	}
 
-	protected function doTransgression() {
+	protected function doTransgression( bool $fireEventOnly = false ) {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		$block = $opts->isTrackOptImmediateBlock( static::OPT_KEY );
-		if ( $block ) {
-			$count = 1;
-		}
-		elseif ( $opts->isTrackOptTransgression( static::OPT_KEY ) ) {
-			$count = $opts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
-		}
-		else {
-			$count = 0;
+		$count = 0;
+		$block = false;
+
+		if ( !$fireEventOnly ) {
+			$block = $opts->isTrackOptImmediateBlock( static::OPT_KEY );
+			if ( $block ) {
+				$count = 1;
+			}
+			elseif ( $opts->isTrackOptTransgression( static::OPT_KEY ) ) {
+				$count = $opts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
+			}
 		}
 
+		$this->fireEvent( $count, $block );
+	}
+
+	protected function fireEvent( $offenseCount = 0, $isBlock = false ) {
 		$this->getCon()
 			 ->fireEvent(
 				 'bot'.static::OPT_KEY,
 				 [
 					 'audit'         => $this->getAuditData(),
-					 'offense_count' => $count,
-					 'block'         => $block,
+					 'offense_count' => $offenseCount,
+					 'block'         => $isBlock,
 				 ]
 			 );
 	}

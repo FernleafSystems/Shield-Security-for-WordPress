@@ -3,7 +3,7 @@
     "slug":                  "plugin",
     "name":                  "General Settings",
     "sidebar_name":          "General",
-    "menu_title":            "Settings",
+    "menu_title":            "Configuration",
     "show_module_menu_item": true,
     "show_module_options":   true,
     "storage_key":           "plugin",
@@ -92,28 +92,28 @@
   },
   "sections":      [
     {
-      "slug":          "section_defaults",
-      "primary":       true,
-      "title":         "Plugin Defaults",
-      "title_short":   "Plugin Defaults",
-      "help_video_id": "338533495"
+      "slug":        "section_defaults",
+      "primary":     true,
+      "title":       "Plugin Defaults",
+      "title_short": "Plugin Defaults",
+      "beacon_id":   389
     },
     {
-      "slug":          "section_general_plugin_options",
-      "title":         "General Plugin Options",
-      "title_short":   "General Options",
-      "help_video_id": "338540386"
+      "slug":        "section_general_plugin_options",
+      "title":       "General Plugin Options",
+      "title_short": "General Options"
     },
     {
-      "slug":          "section_third_party_captcha",
-      "title":         "CAPTCHA",
-      "title_short":   "CAPTCHA",
-      "help_video_id": "338546796"
+      "slug":        "section_third_party_captcha",
+      "title":       "CAPTCHA",
+      "title_short": "CAPTCHA",
+      "beacon_id":   390
     },
     {
       "slug":        "section_importexport",
       "title":       "Import / Export",
-      "title_short": "Import / Export"
+      "title_short": "Import / Export",
+      "beacon_id":   129
     },
     {
       "slug":        "section_integrations",
@@ -138,6 +138,7 @@
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
+      "beacon_id":   389,
       "name":        "Enable/Disable All Plugin Modules",
       "summary":     "Global Plugin On/Off Switch",
       "description": "Uncheck this option to disable all Shield features"
@@ -219,6 +220,7 @@
       ],
       "link_info":     "https://shsec.io/dn",
       "link_blog":     "",
+      "beacon_id":     391,
       "name":          "Visitor IP Address",
       "summary":       "Which Address Is Yours",
       "description":   "There are many way to detect visitor IP addresses. Please select yours from the list."
@@ -247,17 +249,6 @@
       "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
     },
     {
-      "key":         "display_plugin_badge",
-      "section":     "section_general_plugin_options",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/5v",
-      "link_blog":   "https://shsec.io/wpsf20",
-      "name":        "Show Plugin Badge",
-      "summary":     "Display Plugin Badge On Your Site",
-      "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
-    },
-    {
       "key":         "enable_wpcli",
       "section":     "section_general_plugin_options",
       "advanced":    true,
@@ -266,9 +257,22 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/i1",
       "link_blog":   "https://shsec.io/i2",
+      "beacon_id":   308,
       "name":        "Allow WP-CLI",
       "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
       "description": "Turn off this option to disable this plugin's WP-CLI integration."
+    },
+    {
+      "key":         "display_plugin_badge",
+      "section":     "section_general_plugin_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/5v",
+      "link_blog":   "https://shsec.io/wpsf20",
+      "beacon_id":   130,
+      "name":        "Show Plugin Badge",
+      "summary":     "Display Plugin Security Badge On Your Site",
+      "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
       "key":         "enable_xmlrpc_compatibility",
@@ -290,6 +294,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/do",
       "link_blog":   "https://shsec.io/dp",
+      "beacon_id":   129,
       "name":        "Allow Import/Export",
       "summary":     "Allow Import Of Options To, And Export Of Options From, This Site",
       "description": "Uncheck this box to completely disable import and export of options."
@@ -387,6 +392,7 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
+      "beacon_id":     269,
       "name":          "CAPTCHA Provider",
       "summary":       "Which CAPTCHA Provider To Use Throughout",
       "description":   "You can choose the CAPTCHA provider depending on your preferences."
@@ -413,6 +419,7 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
+      "beacon_id":     269,
       "name":          "CAPTCHA Type",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
       "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
@@ -425,6 +432,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
+      "beacon_id":   390,
       "name":        "reCAPTCHA Site Key",
       "summary":     "Google reCAPTCHA Site Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
@@ -437,6 +445,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
+      "beacon_id":   390,
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
@@ -529,33 +538,28 @@
     }
   ],
   "definitions":   {
-    "survey_email":                    "c3VwcG9ydEBvbmVkb2xsYXJwbHVnaW4uY29t",
-    "help_video_id":                   "",
-    "tracking_cron_handle":            "plugin_tracking_cron",
-    "tracking_post_url":               "https://tracking.icontrolwp.com/track/plugin/shield",
-    "importexport_cron_name":          "autoimport",
-    "href_privacy_policy":             "https://shsec.io/wpshieldprivacypolicy",
-    "db_classes":                      {
+    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
+    "db_classes":             {
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
     },
-    "db_table_notes":               {
-      "slug":            "notes",
-      "has_updated_at":  true,
-      "cols_custom":     {
+    "db_table_notes":         {
+      "slug":           "notes",
+      "has_updated_at": true,
+      "cols_custom":    {
         "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
         "note":        "TEXT"
       }
     },
-    "db_table_geoip":               {
-      "autoexpire":      30,
-      "slug":            "geoip",
-      "cols_custom":     {
+    "db_table_geoip":         {
+      "autoexpire":  30,
+      "slug":        "geoip",
+      "cols_custom": {
         "ip":   "varbinary(16) DEFAULT NULL COMMENT 'IP Address'",
         "meta": "TEXT"
       }
     },
-    "active_plugin_features":          [
+    "active_plugin_features": [
       {
         "slug":          "insights",
         "load_priority": 1,
@@ -636,7 +640,7 @@
         "slug": "email"
       }
     ],
-    "events":                          {
+    "events":                 {
       "test_cron_run":          {
         "audit":  false,
         "recent": true
@@ -668,8 +672,7 @@
         "audit": false
       },
       "recaptcha_fail":         {
-        "offense": false,
-        "audit":   true
+        "audit": true
       },
       "antibot_pass":           {
         "stat":  true,
@@ -683,9 +686,14 @@
         "offense": false,
         "stat":    false,
         "audit":   false
+      },
+      "loginpage_load":         {
+        "offense": false,
+        "stat":    false,
+        "audit":   false
       }
     },
-    "wizards":                         {
+    "wizards":                {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
         "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
@@ -713,8 +721,14 @@
           "comments_filter":          {
             "title": "Comment SPAM"
           },
-          "how_shield_works":         {
-            "title": "How Shield Works"
+          "plugin_badge":             {
+            "title": "Security Badge"
+          },
+          "plugin_telemetry":         {
+            "title": "Plugin Telemetry"
+          },
+          "free_trial":               {
+            "title": "Free Trial"
           },
           "optin":                    {
             "title": "Join Us!"

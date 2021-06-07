@@ -28,8 +28,19 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
+	 * @param string $area one of plugins, themes
+	 * @return array
+	 * @since 11.1
+	 */
+	public function getSecAdminAreaCaps( $area = 'plugins' ) :array {
+		$d = $this->getOpt( 'admin_access_restrict_'.$area, [] );
+		return is_array( $d ) ? $d : [];
+	}
+
+	/**
 	 * @param string $sArea one of plugins, themes
 	 * @return array
+	 * @deprecated 11.1
 	 */
 	private function getAdminAccessArea( $sArea = 'plugins' ) :array {
 		$d = $this->getOpt( 'admin_access_restrict_'.$sArea, [] );
@@ -48,8 +59,8 @@ class Options extends BaseShield\Options {
 	 */
 	public function getOptionsToRestrict( $type = '' ) {
 		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
-		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $type.'_options' ] ) && is_array( $aOptions[ $type.'_options' ] ) ) ? $aOptions[ $type.'_options' ] : [];
+		$options = $this->getRestrictedOptions();
+		return ( isset( $options[ $type.'_options' ] ) && is_array( $options[ $type.'_options' ] ) ) ? $options[ $type.'_options' ] : [];
 	}
 
 	/**
@@ -75,23 +86,11 @@ class Options extends BaseShield\Options {
 		return strlen( $this->getSecurityPIN() ) == 32;
 	}
 
-	public function isEnabledWhitelabel() :bool {
-		return $this->isOpt( 'whitelabel_enable', 'Y' ) && $this->isPremium();
-	}
-
 	public function isEmailOverridePermitted() :bool {
 		return $this->isOpt( 'allow_email_override', 'Y' );
 	}
 
 	public function isSecAdminRestrictUsersEnabled() :bool {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
-	}
-
-	public function isWlHideUpdates() :bool {
-		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
-	}
-
-	public function isReplacePluginBadge() :bool {
-		return $this->isOpt( 'wl_replace_badge_url', 'Y' );
 	}
 }

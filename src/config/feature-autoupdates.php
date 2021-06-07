@@ -22,6 +22,7 @@
       "primary":     true,
       "title":       "Automatic Updates For WordPress Components",
       "title_short": "WordPress Components",
+      "beacon_id":   236,
       "summary":     [
         "Purpose - Control how automatic updates for each WordPress component is handled.",
         "Recommendation - You should at least allow minor updates for the WordPress core."
@@ -31,12 +32,14 @@
       "slug":        "section_options",
       "title":       "Auto-Update Options",
       "title_short": "Auto-Update Options",
+      "beacon_id":   234,
       "summary":     "Purpose - Make adjustments to how automatic updates are handled on your site."
     },
     {
       "slug":        "section_enable_plugin_feature_automatic_updates_control",
       "title":       "Enable Module: Automatic Updates",
       "title_short": "Disable Module",
+      "beacon_id":   234,
       "summary":     [
         "Purpose - Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.",
         "Recommendation - Keep the Automatic Updates feature turned on."
@@ -56,6 +59,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3w",
       "link_blog":   "https://shsec.io/hj",
+      "beacon_id":   234,
       "name":        "Enable Automatic Updates",
       "summary":     "Enable (or Disable) The Automatic Updates module",
       "description": "Un-Checking this option will completely disable the Automatic Updates module"
@@ -67,7 +71,8 @@
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3v",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/k6",
+      "beacon_id":   405,
       "name":        "Disable All",
       "summary":     "Completely Disable WordPress Automatic Updates",
       "description": "When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!"
@@ -91,8 +96,9 @@
           "text":      "Major and Minor Versions"
         }
       ],
-      "link_info":     "https://shsec.io/3x",
+      "link_info":     "https://shsec.io/k5",
       "link_blog":     "",
+      "beacon_id":     237,
       "name":          "WordPress Core Updates",
       "summary":       "Decide how the WordPress Core will automatically update, if at all",
       "description":   "At least automatically upgrading minor versions is recommended (and is the WordPress default)."
@@ -128,6 +134,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/e5",
       "link_blog":   "",
+      "beacon_id":   137,
       "name":        "Update Delay",
       "summary":     "Delay Automatic Updates For Period Of Stability",
       "description": "Shield will delay upgrades until the new update has been available for the set number of days."
@@ -154,6 +161,7 @@
       ],
       "link_info":     "https://shsec.io/3x",
       "link_blog":     "",
+      "beacon_id":     409,
       "name":          "Auto Update Plugin",
       "summary":       "Always Automatically Update This Plugin",
       "description":   "Regardless of any other settings, automatically update the Shield plugin."

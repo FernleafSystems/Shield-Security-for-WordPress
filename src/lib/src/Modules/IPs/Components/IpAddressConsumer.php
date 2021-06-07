@@ -4,30 +4,26 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-/**
- * Trait BaseIp
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components
- */
 trait IpAddressConsumer {
 
 	/**
 	 * @var string
 	 */
-	private $sIpAddress;
+	private $ipAddress;
 
 	/**
 	 * @return string
 	 */
 	public function getIP() {
-		return $this->sIpAddress;
+		return $this->ipAddress;
 	}
 
 	/**
-	 * @param string $sIP
+	 * @param string $IP
 	 * @return $this
 	 */
-	public function setIP( $sIP ) {
-		$this->sIpAddress = $sIP;
+	public function setIP( $IP ) {
+		$this->ipAddress = $IP;
 		return $this;
 	}
 }

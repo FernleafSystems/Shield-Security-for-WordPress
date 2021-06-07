@@ -19,28 +19,28 @@ class BaseOps {
 	/**
 	 * @var FileLocker\File
 	 */
-	protected $oFile;
+	protected $file;
 
 	/**
 	 * @return Databases\FileLocker\EntryVO|null
 	 */
 	protected function findLockRecordForFile() {
-		$oTheRecord = null;
-		foreach ( $this->oFile->getPossiblePaths() as $sPath ) {
-			foreach ( $this->getFileLocks() as $oRecord ) {
-				if ( $oRecord->file === $sPath ) {
-					$oTheRecord = $oRecord;
+		$theLock = null;
+		foreach ( $this->file->getPossiblePaths() as $sPath ) {
+			foreach ( $this->getFileLocks() as $lock ) {
+				if ( $lock->file === $sPath ) {
+					$theLock = $lock;
 					break;
 				}
 			}
 		}
-		return $oTheRecord;
+		return $theLock;
 	}
 
 	/**
-	 * @return Databases\FileLocker\EntryVO[]|null
+	 * @return Databases\FileLocker\EntryVO[]
 	 */
-	protected function getFileLocks() {
+	protected function getFileLocks() :array {
 		return ( new LoadFileLocks() )
 			->setMod( $this->getMod() )
 			->loadLocks();
@@ -71,11 +71,11 @@ class BaseOps {
 	}
 
 	/**
-	 * @param FileLocker\File $oFile
+	 * @param FileLocker\File $file
 	 * @return $this
 	 */
-	public function setWorkingFile( FileLocker\File $oFile ) {
-		$this->oFile = $oFile;
+	public function setWorkingFile( FileLocker\File $file ) {
+		$this->file = $file;
 		return $this;
 	}
 }

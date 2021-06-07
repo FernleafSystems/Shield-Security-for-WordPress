@@ -26,10 +26,11 @@
   },
   "sections":      [
     {
+      "primary":     true,
       "slug":        "section_bot_comment_spam_protection_filter",
       "title":       "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
-      "primary":     true,
+      "beacon_id":   260,
       "summary":     [
         "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
         "Recommendation - Use of this feature is highly recommend."
@@ -39,6 +40,7 @@
       "slug":        "section_human_spam_filter",
       "title":       "Human Comment SPAM Protection Filter",
       "title_short": "Human SPAM",
+      "beacon_id":   262,
       "summary":     [
         "Purpose - Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.",
         "Recommendation - Use of this feature is highly recommend.This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis."
@@ -48,6 +50,7 @@
       "slug":        "section_bot_comment_spam_common",
       "title":       "Common Settings For All SPAM Scanning",
       "title_short": "Common Settings",
+      "beacon_id":   152,
       "summary":     [
         "Purpose - Settings that apply to all comment SPAM scanning."
       ]
@@ -56,6 +59,7 @@
       "slug":        "section_user_messages",
       "title":       "Customize Messages Shown To User",
       "title_short": "Visitor Messages",
+      "beacon_id":   403,
       "summary":     [
         "Purpose - Customize the messages shown to visitors.",
         "Recommendation - Be sure to change the messages to suit your audience.",
@@ -66,6 +70,7 @@
       "slug":        "section_enable_plugin_feature_spam_comments_protection_filter",
       "title":       "Enable Module: Comments SPAM Protection",
       "title_short": "Disable Module",
+      "beacon_id":   257,
       "summary":     [
         "Purpose - The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.",
         "Recommendation - Keep the Comments Filter feature turned on."
@@ -85,6 +90,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3z",
       "link_blog":   "https://shsec.io/wpsf04",
+      "beacon_id":   257,
       "name":        "Enable SPAM Protection",
       "summary":     "Enable (or Disable) The Comments SPAM Protection module",
       "description": "Un-Checking this option will completely disable the Comments SPAM Protection module"
@@ -97,6 +103,7 @@
       "type":        "integer",
       "link_info":   "https://shsec.io/fu",
       "link_blog":   "",
+      "beacon_id":   152,
       "name":        "Trusted Commenter Minimum",
       "summary":     "Minimum Number Of Approved Comments Before Commenter Is Trusted",
       "description": "Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned."
@@ -115,6 +122,7 @@
       "type":        "array",
       "link_info":   "https://shsec.io/fu",
       "link_blog":   "",
+      "beacon_id":   152,
       "name":        "Trusted Users",
       "summary":     "Don't Scan Comments For Users With The Following Roles",
       "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
@@ -124,8 +132,9 @@
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/jn",
+      "link_info":   "https://shsec.io/k1",
       "link_blog":   "https://shsec.io/jo",
+      "beacon_id":   427,
       "name":        "AntiBot Detection Engine",
       "summary":     "Use Experimental AntiBot Detection Engine",
       "description": "Use Shield's AntiBot Detection Engine In-Place of GASP Bot checking."
@@ -155,6 +164,7 @@
       ],
       "link_info":     "https://shsec.io/6j",
       "link_blog":     "",
+      "beacon_id":     260,
       "name":          "SPAM Action",
       "summary":       "How To Categorise Comments When Identified To Be SPAM",
       "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
@@ -188,6 +198,7 @@
       ],
       "link_info":     "https://shsec.io/e4",
       "link_blog":     "",
+      "beacon_id":     269,
       "name":          "CAPTCHA",
       "summary":       "Enable CAPTCHA To Protect Against SPAM Comments",
       "description":   "You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA."
@@ -199,6 +210,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3n",
       "link_blog":   "https://shsec.io/2n",
+      "beacon_id":   401,
       "name":        "GASP Protection",
       "summary":     "Block Bot Comment SPAM",
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
@@ -210,6 +222,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/57",
       "link_blog":   "https://shsec.io/9w",
+      "beacon_id":   262,
       "name":        "Human SPAM Filter",
       "summary":     "Enable (or Disable) The Human SPAM Filter module",
       "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
@@ -249,6 +262,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
+      "beacon_id":   403,
       "name":        "Custom Checkbox Message",
       "summary":     "If you want a custom checkbox message, please provide this here",
       "description": "You can customise the message beside the checkbox."
@@ -261,6 +275,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
+      "beacon_id":   403,
       "name":        "Custom Alert Message",
       "summary":     "If you want a custom alert message, please provide this here",
       "description": "This alert message is displayed when a visitor attempts to submit a comment without checking the box."
@@ -273,6 +288,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
+      "beacon_id":   403,
       "name":        "Custom Wait Message",
       "summary":     "If you want a custom submit-button wait message, please provide this here.",
       "description": "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these."
@@ -285,6 +301,7 @@
       "type":        "text",
       "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
+      "beacon_id":   403,
       "name":        "Custom Reload Message",
       "summary":     "If you want a custom message when the comment token has expired, please provide this here.",
       "description": "This message is displayed on the submit-button when the comment token is expired."
@@ -311,24 +328,21 @@
     }
   ],
   "definitions":   {
-    "comments_expire": 1800,
+    "comments_expire":          1800,
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
-      "spam_block_antibot":   {
-        "recent":  true,
+      "comment_spam_block":   {
+        "audit":   false,
+        "stat":    false,
         "offense": true
+      },
+      "spam_block_antibot":   {
       },
       "spam_block_bot":       {
-        "recent":  true,
-        "offense": true
       },
       "spam_block_recaptcha": {
-        "recent":  true,
-        "offense": true
       },
       "spam_block_human":     {
-        "recent":  true,
-        "offense": true
       }
     }
   }

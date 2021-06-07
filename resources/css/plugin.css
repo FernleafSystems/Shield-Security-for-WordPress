@@ -1032,7 +1032,7 @@ table.odp-table.scan-table td.column-path code {
 	margin-top: 0.25em;
 }
 /** copied from bootstrap to override WP admin styles */
-.content-options {
+.icwpOptionsForm {
 	font-size: 14px;
 	padding-top: 10px;
 }
@@ -1072,35 +1072,31 @@ table.odp-table.scan-table td.column-path code {
 	font-style: italic;
 	font-size: 12px;
 }
-.content-options .tab-content {
+.icwpOptionsForm .tab-content {
 	border-top: 0 none;
 	padding-top: 14px;
 }
-.content-options .form-group.row {
+.icwpOptionsForm .form-group.row {
 	/*margin-bottom: 20px;*/
 	padding: 15px 0 25px;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
 }
-.content-options .option-description {
+.icwpOptionsForm .option-description {
 	border-left: 1px solid rgba(0, 0, 0, 0.1);
 }
-.content-options .option-description p {
+.icwpOptionsForm .option-description p {
 	margin-bottom: 5px;
 }
-.content-options .option_label_name {
+.icwpOptionsForm .option_label_name {
 	position: relative;
 	/*display: block;*/
 }
-.content-options .option_link_info {
-	/*position: absolute;*/
-	/*right: -18px;*/
-	/*top: -5px;*/
-}
-.content-options .option_link_info > .dashicons {
+
+.option_label_name .beacon-article > .dashicons,
+.icwpOptionsForm .option_link_info > .dashicons {
 	font-size: 16px;
 	text-decoration: none;
 	width: 1px;
-	margin-left: -3px;
 }
 .tooltip .arrow {
 	display: none !important;
@@ -1516,6 +1512,11 @@ a.card_help {
 	bottom: 0;
 	padding-left: 160px;
 	transition: 0.5s ease;
+	z-index: 1;
+}
+#adminmenuback {
+	/** To account for the promo bar at the bottom **/
+	z-index: 2;
 }
 body.folded #FooterBannerGoPro {
 	padding-left: 40px;
@@ -1537,8 +1538,108 @@ body.folded #FooterBannerGoPro {
 	}
 }
 #odp-PageFoot {
-	height: 100px;
+	height: 12px;
 }
 .select2-selection {
 	font-weight: normal;
+}
+#odp-PageHead {
+}
+#apto-PageMainSide {
+	background-color: rgba(85, 178, 87, 0.06);
+	border-color: rgba(85, 178, 87, 0.2);
+	border-width: 1px 1px 1px 0;
+	border-style: solid;
+}
+#NavSideBar a.nav-link:hover {
+	color: black;
+}
+#NavSideBar a.nav-link.active {
+	font-weight: bolder;
+	font-size: 1rem;
+}
+.primary_sub_menu {
+}
+.primary_sub_menu a.active {
+	border-left: 3px solid rgba(0, 128, 0, 0.4);
+	padding-left: 6px !important;
+}
+#SearchDialog .modal-body {
+	min-height: 450px;
+}
+#SearchDialog .bootstrap-select {
+	width: 100%;
+}
+#SearchDialog .bootstrap-select > .dropdown-toggle.bs-placeholder {
+	color: #333333;
+}
+#StatsNav {
+	background-color: #f1f1f1;
+	display: inline-block;
+	position: sticky;
+	top: 88px;
+	z-index: 5;
+}
+.stat_box .card-header {
+	text-align: center;
+}
+.stat_box .card-body {
+	background-color: #ffffff;
+}
+.stat_box .stat_count {
+	font-size: 3rem;
+	line-height: 3.5rem;
+}
+#odp-PageContainer .summary-card.card {
+	border-color: transparent;
+}
+.summary-card.card,
+.summary-card .card-body {
+	background-color: transparent;
+}
+.summary-card .card-body {
+	padding: 0.1rem;
+}
+.summary-card .card-footer {
+	border: 1px solid transparent;
+	background-color: transparent;
+}
+.summary-card .card-footer h6 {
+	font-size: 0.8rem;
+	margin: 0;
+	text-align: center;
+}
+.summary-card.enabled .icon,
+.summary-card.enabled .card-footer a {
+	color: #008000;
+}
+.summary-card.disabled .icon,
+.summary-card.disabled .card-footer a {
+	color: #c23e0c;
+}
+.summary-card a[target="_blank"]::after {
+	content: '' !important;
+	margin: 0 !important;
+}
+.summary-card .icon > svg {
+	width: 64px;
+	height: 64px;
+	padding: 12px;
+	border: 1px solid #008000;
+	border-radius: 32px;
+	/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#f8ffe8+0,e3f5ab+33,b7df2d+100;Green+3D+%234 */
+	background: #f8ffe8; /* Old browsers */
+	background: -moz-linear-gradient(top, #f8ffe8 0%, #e3f5ab 33%, #b7df2d 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #f8ffe8 0%, #e3f5ab 33%, #b7df2d 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #f8ffe8 0%, #e3f5ab 33%, #b7df2d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f8ffe8', endColorstr='#b7df2d', GradientType=0); /* IE6-9 */
+}
+.summary-card.disabled .icon > svg {
+	border-color: #c23e0c;
+	/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ffeded+0,fcd6d6+12,f9acac+88 */
+	background: #ffeded; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeded', endColorstr='#f9acac', GradientType=0); /* IE6-9 */
 }

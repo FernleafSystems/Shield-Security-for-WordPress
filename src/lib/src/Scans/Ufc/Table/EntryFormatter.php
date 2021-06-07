@@ -6,19 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseFileEntryFormat
 
 class EntryFormatter extends BaseFileEntryFormatter {
 
-	/**
-	 * @return array
-	 */
-	public function format() {
-		$aE = $this->getBaseData();
-		$aE[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
-		return $aE;
+	public function format() :array {
+		$e = $this->getBaseData();
+		$e[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
+		return $e;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getExplanation() {
+	protected function getExplanation() :array {
 		return [
 			__( 'This file was discovered within one of your core WordPress directories.', 'wp-simple-firewall' ),
 			__( "But it isn't part of the official WordPress distribution for this version.", 'wp-simple-firewall' ),
@@ -31,7 +28,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getSupportedActions() {
+	protected function getSupportedActions() :array {
 		return array_merge( parent::getSupportedActions(), [ 'delete', 'download' ] );
 	}
 }

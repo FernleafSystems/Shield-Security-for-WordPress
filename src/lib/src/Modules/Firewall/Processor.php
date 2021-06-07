@@ -10,7 +10,7 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * @var array
 	 */
-	private $aDieMessage;
+	private $dieMessage;
 
 	/**
 	 * @var array
@@ -48,12 +48,11 @@ class Processor extends BaseShield\Processor {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$sPath = Services::Request()->getPath();
-
+		$path = Services::Request()->getPath();
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
-		elseif ( empty( $sPath ) ) {
+		elseif ( empty( $path ) ) {
 			$this->getCon()->fireEvent( 'firewall_skip' );
 			$bPerformScan = false;
 		}
@@ -66,6 +65,13 @@ class Processor extends BaseShield\Processor {
 		}
 
 		return $bPerformScan;
+	}
+
+	private function runScan() :bool {
+		$scanner = ( new Lib\Scan\PerformScan() )
+			->setMod( $this->getMod() );
+		$scanner->execute();
+		$result = $scanner->getCheckResult();
 	}
 
 	private function isVisitorRequestPermitted() :bool {
@@ -277,10 +283,10 @@ class Processor extends BaseShield\Processor {
 	}
 
 	protected function getFirewallDieMessage() :array {
-		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
-			$this->aDieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
+		if ( !isset( $this->dieMessage ) || !is_array( $this->dieMessage ) ) {
+			$this->dieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
 		}
-		return $this->aDieMessage;
+		return $this->dieMessage;
 	}
 
 	protected function getFirewallDieMessageForDisplay() :string {
@@ -292,13 +298,13 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param string $sMessagePart
+	 * @param string $msg
 	 * @return $this
 	 */
-	protected function addToFirewallDieMessage( $sMessagePart ) {
-		$aMessages = $this->getFirewallDieMessage();
-		$aMessages[] = $sMessagePart;
-		$this->aDieMessage = $aMessages;
+	protected function addToFirewallDieMessage( string $msg ) {
+		$messages = $this->getFirewallDieMessage();
+		$messages[] = $msg;
+		$this->dieMessage = $messages;
 		return $this;
 	}
 
@@ -363,7 +369,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function getRawRequestParams() :array {
-		return Services::Request()->getRawRequestParams( $this->getOptions()->isOpt( 'include_cookie_checks', 'Y' ) );
+		return Services::Request()->getRawRequestParams( false );
 	}
 
 	private function sendBlockEmail( string $recipient ) :bool {

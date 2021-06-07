@@ -6,24 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 class OverviewCards extends Modules\Base\Insights\OverviewCards {
 
-	public function build() :array {
+	protected function buildModCards() :array {
 		/** @var Modules\Lockdown\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Modules\Lockdown\Options $opts */
 		$opts = $this->getOptions();
 
-		$cardSection = [
-			'title'        => __( 'WordPress Lockdown', 'wp-simple-firewall' ),
-			'subtitle'     => __( 'Restrict WP Functionality e.g. XMLRPC & REST API', 'wp-simple-firewall' ),
-			'href_options' => $mod->getUrl_AdminPage()
-		];
-
 		$cards = [];
 
-		if ( !$mod->isModOptEnabled() ) {
-			$cards[ 'mod' ] = $this->getModDisabledCard();
-		}
-		else {
+		if ( $mod->isModOptEnabled() ) {
 			$bUserCanEdit = current_user_can( 'edit_plugins' );
 
 			if ( !$bUserCanEdit ) {
@@ -70,7 +61,14 @@ class OverviewCards extends Modules\Base\Insights\OverviewCards {
 			];
 		}
 
-		$cardSection[ 'cards' ] = $cards;
-		return [ 'lockdown' => $cardSection ];
+		return $cards;
+	}
+
+	protected function getSectionTitle() :string {
+		return __( 'WordPress Lockdown', 'wp-simple-firewall' );
+	}
+
+	protected function getSectionSubTitle() :string {
+		return __( 'Restrict WP Functionality e.g. XMLRPC & REST API', 'wp-simple-firewall' );
 	}
 }

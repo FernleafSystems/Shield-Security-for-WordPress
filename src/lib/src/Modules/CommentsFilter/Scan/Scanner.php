@@ -2,16 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Scanner {
-
-	use ModConsumer;
-	use ExecOnce;
+class Scanner extends ExecOnceModConsumer {
 
 	/**
 	 * @var string|int|null
@@ -102,6 +98,7 @@ class Scanner {
 						 'spam_block_'.$mResult->get_error_code(),
 						 [ 'audit' => $mResult->get_error_data() ]
 					 );
+				$this->getCon()->fireEvent( 'comment_spam_block' );
 
 				if ( $mResult->get_error_code() == 'human' ) {
 					$status = $opts->getOpt( 'comments_default_action_human_spam' );

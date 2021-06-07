@@ -35,7 +35,7 @@ class FileLockerAlerts extends BaseReporter {
 						'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
-						'view_results' => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+						'view_results' => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
 					],
 				]
 			);

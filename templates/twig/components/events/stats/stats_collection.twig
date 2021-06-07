@@ -1,0 +1,14 @@
+{% for stats_section in vars.stats %}
+	<div class="row">
+		<div class="col">
+			<h6 class="mt-2 mb-3">{{ stats_section.title }}</h6>
+		</div>
+	</div>
+	<div class="row row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5">
+		{% for stat in stats_section.events %}
+			<div class="col mb-4">
+				{% include '/components/events/stats/stat_box.twig' %}
+			</div>
+		{% endfor %}
+	</div>
+{% endfor %}

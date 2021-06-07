@@ -7,23 +7,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanMal extends ScanBase {
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_path( $aItem ) {
+	public function column_path( $item ) {
 		$aButtons = [
-			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
+			$this->getActionButton_Ignore( $item[ 'id' ] ),
 		];
-		if ( $aItem[ 'can_repair' ] ) {
-			$aButtons[] = $this->getActionButton_Repair( $aItem[ 'id' ] );
+		if ( $item[ 'can_repair' ] ) {
+			$aButtons[] = $this->getActionButton_Repair( $item[ 'id' ] );
 		}
 		else {
-			$aButtons[] = $this->getActionButton_Delete( $aItem[ 'id' ] );
+			$aButtons[] = $this->getActionButton_Delete( $item[ 'id' ] );
 		}
-		if ( !empty( $aItem[ 'href_download' ] ) ) {
-			$aButtons[] = $this->getActionButton_DownloadFile( $aItem[ 'href_download' ] );
+		if ( !empty( $item[ 'href_download' ] ) ) {
+			$aButtons[] = $this->getActionButton_DownloadFile( $item[ 'href_download' ] );
 		}
-		return parent::column_path( $aItem ).$this->buildActions( $aButtons );
+		return parent::column_path( $item ).$this->buildActions( $aButtons );
 	}
 
 	/**

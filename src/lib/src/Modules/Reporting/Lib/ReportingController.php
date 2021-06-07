@@ -66,7 +66,7 @@ class ReportingController {
 	 * @param Modules\Reporting\Lib\Reports\ReportVO $report
 	 * @return bool
 	 */
-	private function storeReportRecord( Reports\ReportVO $report ) {
+	private function storeReportRecord( Reports\ReportVO $report ) :bool {
 		$record = new DBReports\EntryVO();
 		$record->sent_at = Services::Request()->ts();
 		$record->rid = $report->rid;
@@ -82,10 +82,9 @@ class ReportingController {
 	}
 
 	/**
-	 * @return Modules\Reporting\Lib\Reports\ReportVO
 	 * @throws \Exception
 	 */
-	private function buildReportAlerts() {
+	private function buildReportAlerts() :Reports\ReportVO {
 		$report = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_ALERT ) )
 			->setMod( $this->getMod() )
 			->create();
@@ -96,10 +95,9 @@ class ReportingController {
 	}
 
 	/**
-	 * @return Modules\Reporting\Lib\Reports\ReportVO
 	 * @throws \Exception
 	 */
-	private function buildReportInfo() {
+	private function buildReportInfo() :Reports\ReportVO {
 		$report = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_INFO ) )
 			->setMod( $this->getMod() )
 			->create();
@@ -110,7 +108,7 @@ class ReportingController {
 	}
 
 	/**
-	 * @param Modules\Reporting\Lib\Reports\ReportVO[] $reportVOs
+	 * @param Reports\ReportVO[] $reportVOs
 	 */
 	private function sendEmail( array $reportVOs ) {
 

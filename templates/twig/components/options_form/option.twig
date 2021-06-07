@@ -5,10 +5,20 @@
 			   id="Label-{{ aOption.key }}"
 			   class="col-form-label">
 			<span class="option_label_name">{{ aOption.name }}
-				{% if aOption.link_info %}
-					<a href="{{ aOption.link_info }}" class="option_link_info d-inline-block" target="_blank"
+
+				{% if aOption.beacon_id|default(false) %}
+					<a href="javascript:{}"
+					   class="beacon-article"
+					   data-beacon-article-id="{{ aOption.beacon_id }}"
+					   data-beacon-article-format="sidebar"
 					   title="{{ strings.opt_info_helpdesk }}">
-					<span class="dashicons dashicons-editor-help"></span></a>
+						<span class="dashicons dashicons-editor-help"></span>
+					</a>
+				{% else %}
+					{% if aOption.link_info %}
+						<a href="{{ aOption.link_info }}" class="option_link_info d-inline-block" target="_blank"
+						   title="{{ strings.opt_info_helpdesk }}"></a>
+					{% endif %}
 				{% endif %}
 			</span>
 
@@ -173,9 +183,17 @@
 			</div>
 
 			<div class="mt-3 text-left text-nowrap">
-				{% if aOption.link_info %}
-					<a href="{{ aOption.link_info }}" target="_blank"
-					   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+				{% if aOption.link_info or aOption.beacon_id|default(false) %}
+
+					{% if aOption.beacon_id|default(false) %}
+						<a href="javascript:{}" data-beacon-article-sidebar="{{ aOption.beacon_id }}"
+						   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+
+					{% else %}
+						<a href="{{ aOption.link_info }}" target="_blank"
+						   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+					{% endif %}
+
 					{% if aOption.link_blog %}
 					<span class="m-1">&vert;</span>
 					<a href="{{ aOption.link_blog }}" target="_blank"

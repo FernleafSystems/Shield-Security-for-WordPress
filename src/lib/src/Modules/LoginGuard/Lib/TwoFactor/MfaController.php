@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Data\Response\StdResponse;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
@@ -12,21 +14,23 @@ class MfaController {
 
 	use Shield\Modules\ModConsumer;
 	use Shield\Utilities\Consumer\WpLoginCapture;
+	use ExecOnce;
 
 	/**
 	 * @var Provider\BaseProvider[]
 	 */
-	private $aProviders;
+	private $providers;
 
 	/**
 	 * @var LoginIntentPage
 	 */
 	private $oLoginIntentPageHandler;
 
-	public function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 10, 2 );
+	protected function run() {
+		add_action( 'init', [ $this, 'onWpInit' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		$this->setupLoginCaptureHooks();
+		$this->handleLoginLink();
 	}
 
 	public function onWpInit() {
@@ -40,6 +44,7 @@ class MfaController {
 		( new UserProfile() )
 			->setMfaController( $this )
 			->run();
+		( new MfaProfilesController() )->setMfaController( $this )->execute();
 
 		add_shortcode( 'SHIELD_2FA_LOGIN', function () {
 			return $this->getLoginIntentPageHandler()->renderForm();
@@ -56,7 +61,7 @@ class MfaController {
 		if ( $this->isSubjectToLoginIntent( $user )
 			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
-			$providers = $this->getProvidersForUser( $user );
+			$providers = $this->getProvidersForUser( $user, true );
 			if ( !empty( $providers ) ) {
 				foreach ( $providers as $provider ) {
 					$provider->captureLoginAttempt( $user );
@@ -68,6 +73,55 @@ class MfaController {
 							->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
 				);
 			}
+		}
+	}
+
+	private function handleLoginLink() {
+		add_action( $this->getCon()->prefix( 'shield_nonce_action' ), function ( string $action ) {
+			if ( strpos( $action, '2fa_verify' ) === 0 ) {
+				try {
+					$this->processEmail2faLink();
+				}
+				catch ( \Exception $e ) {
+					wp_die( $e->getMessage() );
+				}
+			}
+		} );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function processEmail2faLink() {
+		$req = Services::Request();
+		$user = sanitize_user( $req->query( 'user' ) );
+		if ( empty( $user ) ) {
+			throw new \Exception( 'Not valid data.' );
+		}
+
+		$user = Services::WpUsers()->getUserByUsername( $user );
+		if ( !$user instanceof \WP_User ) {
+			throw new \Exception( 'Not valid data.' );
+		}
+
+		$providers = $this->getProvidersForUser( $user, true );
+		if ( !isset( $providers[ Provider\Email::SLUG ] ) ) {
+			throw new \Exception( 'Not a support provider' );
+		}
+		if ( !$providers[ Provider\Email::SLUG ]->validateLoginIntent( $user ) ) {
+			throw new \Exception( 'Login validation failed.' );
+		}
+
+		$providers[ Provider\Email::SLUG ]->postSuccessActions( $user );
+		if ( (int)$user->ID !== (int)Services::WpUsers()->getCurrentWpUserId() ) {
+			throw new \Exception( 'Action completed successfully. Please refresh your browser where you logged-in.' );
+		}
+
+		if ( $req->query( 'redirect_to' ) ) {
+			Services::Response()->redirect( $req->query( 'redirect_to' ) );
+		}
+		else {
+			Services::Response()->redirectToAdmin();
 		}
 	}
 
@@ -103,38 +157,43 @@ class MfaController {
 	 * @return Provider\BaseProvider[]
 	 */
 	public function getProviders() :array {
-		if ( !is_array( $this->aProviders ) ) {
-			$this->aProviders = [
-				Provider\Email::SLUG      => ( new Provider\Email() )->setMod( $this->getMod() ),
-				Provider\GoogleAuth::SLUG => ( new Provider\GoogleAuth() )->setMod( $this->getMod() ),
-				Provider\Yubikey::SLUG    => ( new Provider\Yubikey() )->setMod( $this->getMod() ),
-				Provider\Backup::SLUG     => ( new Provider\Backup() )->setMod( $this->getMod() ),
-				Provider\U2F::SLUG        => ( new Provider\U2F() )->setMod( $this->getMod() ),
-			];
+		if ( !is_array( $this->providers ) ) {
+			$this->providers = array_map(
+				function ( $provider ) {
+					return $provider->setMod( $this->getMod() );
+				},
+				[
+					Provider\Email::SLUG       => new Provider\Email(),
+					Provider\GoogleAuth::SLUG  => new Provider\GoogleAuth(),
+					Provider\Yubikey::SLUG     => new Provider\Yubikey(),
+					Provider\BackupCodes::SLUG => new Provider\BackupCodes(),
+					Provider\U2F::SLUG         => new Provider\U2F(),
+				]
+			);
 		}
-		return $this->aProviders;
+		return $this->providers;
 	}
 
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
 	 * @param \WP_User $user
-	 * @param bool     $bOnlyActiveProfiles
+	 * @param bool     $onlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProvidersForUser( $user, $bOnlyActiveProfiles = false ) {
+	public function getProvidersForUser( \WP_User $user, $onlyActiveProfiles = false ) :array {
 		$Ps = array_filter( $this->getProviders(),
-			function ( $oProvider ) use ( $user, $bOnlyActiveProfiles ) {
-				/** @var Provider\BaseProvider $oProvider */
-				return $oProvider->isProviderAvailableToUser( $user )
-					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $user ) );
+			function ( $provider ) use ( $user, $onlyActiveProfiles ) {
+				/** @var Provider\BaseProvider $provider */
+				return $provider->isProviderAvailableToUser( $user )
+					   && ( !$onlyActiveProfiles || $provider->isProfileActive( $user ) );
 			}
 		);
 
 		// Neither BackupCode NOR U2F should EVER be the only 1 provider available.
 		if ( count( $Ps ) === 1 ) {
-			/** @var Provider\BaseProvider $oFirst */
-			$oFirst = reset( $Ps );
-			if ( !$oFirst::STANDALONE ) {
+			/** @var Provider\BaseProvider $first */
+			$first = reset( $Ps );
+			if ( !$first::STANDALONE ) {
 				$Ps = [];
 			}
 		}
@@ -199,9 +258,8 @@ class MfaController {
 
 	/**
 	 * assume that a user is logged in.
-	 * @return bool
 	 */
-	private function validateLoginIntentRequest() {
+	private function validateLoginIntentRequest() :bool {
 		try {
 			$valid = ( new ValidateLoginIntentRequest() )
 				->setMfaController( $this )
@@ -230,6 +288,27 @@ class MfaController {
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
 		return count( $this->getProvidersForUser( $user, true ) ) > 0;
+	}
+
+	public function removeAllFactorsForUser( int $userID ) :StdResponse {
+		$result = new StdResponse();
+
+		$user = Services::WpUsers()->getUserById( $userID );
+		if ( $user instanceof \WP_User ) {
+			foreach ( $this->getProvidersForUser( $user, true ) as $provider ) {
+				$provider->remove( $user );
+			}
+			$result->success = true;
+			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.' ),
+				$userID );
+		}
+		else {
+			$result->success = false;
+			$result->error_text = sprintf( __( "User doesn't exist with ID %s." ),
+				$userID );
+		}
+
+		return $result;
 	}
 
 	private function getLoginIntentExpiresAt() :int {

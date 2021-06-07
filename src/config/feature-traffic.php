@@ -18,8 +18,8 @@
   },
   "menu_items":       [
     {
-      "title":    "Traffic Log",
-      "slug":     "traffic-redirect"
+      "title": "Traffic Log",
+      "slug":  "traffic-redirect"
     }
   ],
   "custom_redirects": [
@@ -37,6 +37,7 @@
       "primary":     true,
       "title":       "Traffic Watch Options",
       "title_short": "Options",
+      "beacon_id":   153,
       "summary":     [
         "Purpose - Provides finer control over the live traffic system.",
         "Recommendation - These settings are dependent on your requirements."
@@ -46,6 +47,7 @@
       "slug":        "section_traffic_limiter",
       "title":       "Traffic Rate Limiting",
       "title_short": "Rate Limiting",
+      "beacon_id":   420,
       "summary":     [
         "Purpose - Provides ability to restrict excessive requests from a single visitor.",
         "Recommendation - These settings are dependent on your requirements."
@@ -55,6 +57,7 @@
       "slug":        "section_enable_plugin_feature_traffic",
       "title":       "Enable Module: Traffic Watch",
       "title_short": "Disable Module",
+      "beacon_id":   153,
       "summary":     [
         "Purpose - The Traffic Watch module lets you monitor and review all requests to your site.",
         "Recommendation - Required only if you need to review and investigate and monitor requests to your site."
@@ -74,6 +77,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ed",
       "link_blog":   "https://shsec.io/ee",
+      "beacon_id":   153,
       "name":        "Enable Traffic Watch",
       "summary":     "Enable (or Disable) The Traffic Watch Module",
       "description": "Un-Checking this option will completely disable the Traffic Watch module."
@@ -85,6 +89,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/hf",
       "link_blog":   "",
+      "beacon_id":   153,
       "name":        "Enable Traffic Logger",
       "summary":     "Turn On The Traffic Logging Feature",
       "description": "Enable or disable the ability to log and monitor requests to your site."
@@ -132,6 +137,7 @@
       ],
       "link_info":     "https://shsec.io/eb",
       "link_blog":     "",
+      "beacon_id":     154,
       "name":          "Traffic Log Exclusions",
       "summary":       "Select Which Types Of Requests To Exclude",
       "description":   "Deselect any requests that you don't want to appear in the traffic viewer."
@@ -145,6 +151,7 @@
       "type":        "array",
       "link_info":   "https://shsec.io/ec",
       "link_blog":   "",
+      "beacon_id":   154,
       "name":        "Custom Exclusions",
       "summary":     "Provide Custom Traffic Exclusions",
       "description": "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
@@ -184,6 +191,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/gw",
       "link_blog":   "https://shsec.io/gx",
+      "beacon_id":   420,
       "name":        "Enable Rate Limiting",
       "summary":     "Turn On The Rate Limiting Feature",
       "description": "Enable or disable the rate limiting feature according to your rate limiting parameters."
@@ -214,12 +222,12 @@
     }
   ],
   "definitions":      {
-    "db_classes":            {
+    "db_classes":         {
       "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
     },
-    "db_table_traffic":      {
-      "slug":            "traffic",
-      "cols_custom":     {
+    "db_table_traffic":   {
+      "slug":        "traffic",
+      "cols_custom": {
         "rid":   "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
         "uid":   "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID'",
         "ip":    "varbinary(16) DEFAULT NULL COMMENT 'Visitor IP Address'",
@@ -230,8 +238,8 @@
         "trans": "tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Trangression'"
       }
     },
-    "traffic_table_name":    "traffic",
-    "events":                {
+    "traffic_table_name": "traffic",
+    "events":             {
       "request_limit_exceeded": {
         "cat":     3,
         "offense": true

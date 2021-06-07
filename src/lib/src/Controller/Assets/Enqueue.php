@@ -23,16 +23,41 @@ class Enqueue {
 	}
 
 	protected function run() {
+
 		add_action( 'login_enqueue_scripts', function () {
 			$this->enqueue();
+			add_action( 'login_footer', function () {
+				$this->dequeue();
+			}, -1000 );
 		}, 1000 );
+
 		add_action( 'wp_enqueue_scripts', function () {
 			$this->enqueue();
+			add_action( 'wp_footer', function () {
+				$this->dequeue();
+			}, -1000 );
 		}, 1000 );
+
 		add_action( 'admin_enqueue_scripts', function ( $hook_suffix ) {
 			$this->adminHookSuffix = $hook_suffix;
 			$this->enqueue();
+			add_action( 'admin_footer', function () {
+				$this->dequeue();
+			}, -1000 );
 		}, 1000 );
+	}
+
+	protected function dequeue() {
+		$customDequeues = apply_filters( 'shield/custom_dequeues', [
+			self::CSS => [],
+			self::JS  => [],
+		] );
+		foreach ( $customDequeues as $type => $assets ) {
+			foreach ( $assets as $asset ) {
+				$handle = $this->normaliseHandle( $asset );
+				$type == self::CSS ? wp_dequeue_style( $handle ) : wp_dequeue_script( $handle );
+			}
+		}
 	}
 
 	protected function enqueue() {
@@ -104,20 +129,26 @@ class Enqueue {
 			foreach ( $incl[ $type ] as $key => $spec ) {
 				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
 
+					$deps = $spec[ 'deps' ] ?? [];
+
 					$handle = $this->normaliseHandle( $key );
 					if ( $type === self::CSS ) {
 						$reg = wp_register_style(
 							$handle,
 							$con->urls->forCss( $key ),
-							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
+							$this->prefixKeys( $deps ),
 							$con->getVersion()
 						);
 					}
 					else {
+						if ( strpos( $key, 'jquery/' ) ) {
+							array_unshift( $deps, 'wp-jquery' );
+						}
+
 						$reg = wp_register_script(
 							$handle,
 							$con->urls->forJs( $key ),
-							$this->prefixKeys( $spec[ 'deps' ] ?? [] ),
+							$this->prefixKeys( $deps ),
 							$con->getVersion(),
 							$spec[ 'footer' ] ?? false
 						);

@@ -1,0 +1,32 @@
+<tr>
+	<th>
+		<label for="{% if flags.is_validated %}icwp_u2f_key_reg{% endif %}">
+			{{ strings.title }}</label>
+	</th>
+
+	<td id="icwp_u2f_section">
+		<ul style=" list-style: circle inside; ">
+			{% for reg in vars.registrations %}
+				<li>
+					<code>{{ reg.label }}</code>
+					<span>{{ reg.used_at }}</span>
+					<a href="#"
+					   class="icwpWpsf-U2FRemove"
+					   style="text-decoration: none;"
+					   title="Remove"
+					   data-u2fid="{{ reg.label }}">&#10006;</a>
+				</li>
+			{% endfor %}
+		</ul>
+		<p>
+			<input type="hidden" name="icwp_wpsf_new_u2f_response" id="icwp_wpsf_new_u2f_response" />
+			<button type="button" class="button button-secondary" id="icwp_u2f_key_reg" disabled="disabled">
+				{{ strings.button_reg_key }}
+			</button>
+		</p>
+
+		{% if flags.show_explanatory_text %}
+			<p class="description">{{ strings.prompt }}</p>
+		{% endif %}
+	</td>
+</tr>

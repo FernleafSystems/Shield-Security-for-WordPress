@@ -5,10 +5,10 @@ add_action( 'network_admin_notices', 'icwp_wpsf_unsupported_php' );
 
 function icwp_wpsf_unsupported_php() {
 	global $sIcwpWpsfPluginFile;
-	$aText = array(
-		'Sorry, your website runs an incredibly old version of PHP that Shield Security no longer supports, as of Shield v7.0',
+	$text = array(
+		'Sorry, your website runs an incredibly old version of PHP that Shield Security no longer supports, as of Shield v9.0',
 		"Your PHP no longer gets upgrades and it's difficult to maintain code for.",
-		'We recommend that you contact your website hosting provider on how to upgrade to at least PHP v5.4'
+		'We recommend that you contact your website hosting provider on how to upgrade to at least PHP 7.0'
 	);
 	echo sprintf(
 		'<div class="error"><h4>%s</h4><p>%s</p>' .
@@ -16,7 +16,7 @@ function icwp_wpsf_unsupported_php() {
 		'/ <a href="%s">%s</a></p></div>',
 
 		sprintf( 'Shield Security Plugin - Unsupported PHP Version: %s', PHP_VERSION ),
-		implode( '<br/>', $aText ),
+		implode( '<br/>', $text ),
 		'https://shsec.io/dl',
 		sprintf( 'Click here for more info' ),
 		add_query_arg(

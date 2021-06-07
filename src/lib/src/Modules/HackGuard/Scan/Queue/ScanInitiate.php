@@ -20,7 +20,7 @@ class ScanInitiate {
 	 * @param string $slug
 	 * @throws \Exception
 	 */
-	public function init( $slug ) {
+	public function init( string $slug ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbHandler_ScanQueue();
