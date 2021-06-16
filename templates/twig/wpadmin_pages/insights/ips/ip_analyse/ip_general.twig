@@ -55,6 +55,15 @@
 					   data-ip_action="delete_notbot" data-ip="{{ vars.ip }}">{{ strings.delete_notbot }}</a>
 				</p>
 			</dd>
+
+			<dt class="mb-1">{{ strings.status.snapi_ip_reputation }}</dt>
+			<dd>
+				<p>
+					<span class="bigger-badge badge badge-{{ vars.status.is_bot ? 'warning' : 'success' }}">
+						{{ vars.status.snapi_ip_reputation_score }}
+					</span>
+				</p>
+			</dd>
 		</dl>
 	</div>
 
