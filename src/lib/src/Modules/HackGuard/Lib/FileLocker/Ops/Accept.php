@@ -21,17 +21,17 @@ class Accept extends BaseOps {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$aPublicKey = $this->getPublicKey();
+		$publicKey = $this->getPublicKey();
 		$raw = ( new BuildEncryptedFilePayload() )
 			->setMod( $mod )
-			->build( $lock->file, reset( $aPublicKey ) );
+			->build( $lock->file, reset( $publicKey ) );
 
 		/** @var FileLocker\Update $updater */
 		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
 		$success = $updater->updateEntry( $lock, [
 			'hash_original' => hash_file( 'sha1', $lock->file ),
 			'content'       => base64_encode( $raw ),
-			'public_key_id' => key( $aPublicKey ),
+			'public_key_id' => key( $publicKey ),
 			'detected_at'   => 0,
 			'updated_at'    => Services::Request()->ts(),
 			'created_at'    => Services::Request()->ts(), // update "locked at"

@@ -153,7 +153,9 @@ class FileLockerController {
 			->run();
 
 		// 2. Create any outstanding locks.
-		$this->runLocksCreation();
+		if ( is_main_network() ) {
+			$this->runLocksCreation();
+		}
 	}
 
 	/**

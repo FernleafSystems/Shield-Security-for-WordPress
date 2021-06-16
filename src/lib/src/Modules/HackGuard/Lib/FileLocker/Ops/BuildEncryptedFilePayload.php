@@ -11,17 +11,17 @@ use FernleafSystems\Wordpress\Services\Services;
 class BuildEncryptedFilePayload extends BaseOps {
 
 	/**
-	 * @param string $sPath
-	 * @param string $sPublicKey
+	 * @param string $path
+	 * @param string $publicKey
 	 * @return string
 	 * @throws \ErrorException
 	 */
-	public function build( $sPath, $sPublicKey ) {
-		$oEnc = Services::Encrypt();
-		$oPayload = $oEnc->sealData( Services::WpFs()->getFileContent( $sPath ), $sPublicKey );
-		if ( !$oPayload->success ) {
+	public function build( $path, $publicKey ) {
+		$srvEnc = Services::Encrypt();
+		$payload = $srvEnc->sealData( Services::WpFs()->getFileContent( $path ), $publicKey );
+		if ( !$payload->success ) {
 			throw new \ErrorException( 'File contents could not be encrypted' );
 		}
-		return json_encode( $oPayload->getRawDataAsArray() );
+		return json_encode( $payload->getRawData() );
 	}
 }

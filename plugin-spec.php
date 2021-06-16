@@ -20,7 +20,7 @@
   },
   "requirements":     {
     "php":       "7.0",
-    "wordpress": "3.5.2"
+    "wordpress": "3.7"
   },
   "upgrade_reqs":     {
     "10.0": {

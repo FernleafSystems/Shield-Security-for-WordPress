@@ -52,7 +52,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrackingEnabled() :bool {
-		return $this->isOpt( 'enable_tracking', 'Y' );
+		return $this->isPremium() || $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
 	public function isEnabledWpcli() :bool {
