@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	BotTrack,
-	Lib\Bots\Calculator\CalculateVisitorBotScores,
 	ModCon,
 	Options
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController extends ExecOnceModConsumer {
+
+	use PluginCronsConsumer;
 
 	/**
 	 * @var NotBot\NotBotHandler
@@ -32,7 +35,7 @@ class BotSignalsController extends ExecOnceModConsumer {
 
 		if ( $botScoreMinimum > 0 ) {
 
-			$score = ( new CalculateVisitorBotScores() )
+			$score = ( new Calculator\CalculateVisitorBotScores() )
 				->setMod( $this->getMod() )
 				->setIP( empty( $IP ) ? Services::IP()->getRequestIp() : $IP )
 				->probability();
@@ -76,6 +79,7 @@ class BotSignalsController extends ExecOnceModConsumer {
 			}
 			$this->getHandlerNotBot()->execute();
 		} );
+		$this->setupCronHooks();
 	}
 
 	/**
@@ -121,5 +125,19 @@ class BotSignalsController extends ExecOnceModConsumer {
 		}
 
 		return $trackers;
+	}
+
+	public function runDailyCron() {
+		$con = $this->getCon();
+		if ( $con->isPremiumActive() && $con->getModule_Plugin()->getShieldNetApiController()->canHandshake() ) {
+			$data = ( new ShieldNET\BuildData() )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->build();
+			if ( !empty( $data ) ) {
+				( new SendIPReputation() )
+					->setMod( $this->getMod() )
+					->send( $data );
+			}
+		}
 	}
 }

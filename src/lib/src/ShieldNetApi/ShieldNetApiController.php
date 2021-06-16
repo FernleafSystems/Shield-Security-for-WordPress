@@ -31,7 +31,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 		$now = Services::Request()->ts();
 		if ( $this->vo->last_handshake_at === 0 ) {
 
-			$canAttempt = $now - MINUTE_IN_SECONDS*5*$this->vo->handshake_fail_count
+			$canAttempt = $now - MINUTE_IN_SECONDS*$this->vo->handshake_fail_count
 						  > $this->vo->last_handshake_attempt_at;
 			if ( $canAttempt ) {
 				$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
