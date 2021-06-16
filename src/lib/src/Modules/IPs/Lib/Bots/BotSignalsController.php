@@ -129,7 +129,8 @@ class BotSignalsController extends ExecOnceModConsumer {
 
 	public function runDailyCron() {
 		$con = $this->getCon();
-		if ( $con->isPremiumActive() && $con->getModule_Plugin()->getShieldNetApiController()->canHandshake() ) {
+		if ( is_main_network() && $con->isPremiumActive()
+			 && $con->getModule_Plugin()->getShieldNetApiController()->canHandshake() ) {
 			$data = ( new ShieldNET\BuildData() )
 				->setMod( $this->getCon()->getModule_IPs() )
 				->build();
