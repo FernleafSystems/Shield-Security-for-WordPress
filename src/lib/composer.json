@@ -20,7 +20,7 @@
   },
   "require":           {
     "php":                                   ">=7.0",
-    "fernleafsystems/wordpress-plugin-core": "^0.3",
+    "fernleafsystems/wordpress-plugin-core": "^0.5",
     "dolondro/google-authenticator":         "^2.1",
     "endroid/qr-code":                       "~2.2|~3",
     "fernleafsystems/zxcvbn-php":            "^1.0",
