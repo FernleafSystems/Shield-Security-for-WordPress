@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
@@ -119,7 +118,7 @@ class MfaController {
 	}
 
 	private function assessLoginIntent( \WP_User $user ) {
-		if ( $this->getLoginIntentExpiresAt() > 0 ) {
+		if ( $this->hasLoginIntent( $user ) ) {
 
 			if ( $this->isSubjectToLoginIntent( $user ) ) {
 
@@ -127,7 +126,7 @@ class MfaController {
 					$this->processActiveLoginIntent();
 				}
 				else {
-					Services::WpUsers()->logoutUser(); // clears the login and login intent
+					$this->destroyLogin( $user );
 					Services::Response()->redirectHere();
 				}
 			}
@@ -209,10 +208,9 @@ class MfaController {
 
 			$user = $WPUsers->getCurrentWpUser();
 			if ( $req->post( 'cancel' ) == 1 ) {
-				$this->removeLoginIntent( $user );
-				$WPUsers->logoutUser(); // clears the login and login intent
-				$sRedirectHref = $req->post( 'cancel_href' );
-				empty( $sRedirectHref ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $sRedirectHref );
+				$this->destroyLogin( $user );
+				$redirect = $req->post( 'cancel_href' );
+				empty( $redirect ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $redirect );
 			}
 			elseif ( $this->validateLoginIntentRequest() ) {
 
@@ -224,16 +222,16 @@ class MfaController {
 
 				$con->fireEvent( '2fa_success' );
 
-				$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
+				$flash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
 				if ( $opts->isEnabledBackupCodes() ) {
-					$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
+					$flash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
 				}
-				$this->getMod()->setFlashAdminNotice( $sFlash );
+				$this->getMod()->setFlashAdminNotice( $flash );
 
 				$this->removeLoginIntent( $user );
 
-				$sRedirectHref = $req->post( 'redirect_to' );
-				empty( $sRedirectHref ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $sRedirectHref ) );
+				$redirect = $req->post( 'redirect_to' );
+				empty( $redirect ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $redirect ) );
 			}
 			else {
 				$con->getAdminNotices()
@@ -338,5 +336,10 @@ class MfaController {
 
 	private function getLoginIntentRequestFlag() :string {
 		return $this->getCon()->prefix( 'login-intent-request' );
+	}
+
+	private function destroyLogin( \WP_User $user ) {
+		$this->removeLoginIntent( $user );
+		Services::WpUsers()->logoutUser();
 	}
 }
