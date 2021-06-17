@@ -14,6 +14,11 @@ trait WpLoginCapture {
 	/**
 	 * @var bool
 	 */
+	private $allowMultipleCapture = false;
+
+	/**
+	 * @var bool
+	 */
 	private $isCaptureApplicationLogin = false;
 
 	/**
@@ -72,6 +77,11 @@ trait WpLoginCapture {
 		return $this;
 	}
 
+	protected function setAllowMultipleCapture( bool $multiple = true ) :self {
+		$this->allowMultipleCapture = $multiple;
+		return $this;
+	}
+
 	protected function setupLoginCaptureHooks() {
 		add_action( 'wp_login', [ $this, 'onWpLogin' ], $this->getHookPriority(), 2 );
 		if ( !Services::WpUsers()->isProfilePage() ) { // Ignore firing during profile update.
@@ -90,7 +100,9 @@ trait WpLoginCapture {
 		if ( is_string( $cookie ) ) {
 			$this->setLoggedInCookie( $cookie );
 		}
-		if ( $this->isLoginToBeCaptured() && !$this->isLoginCaptured() && $user instanceof \WP_User ) {
+		if ( $user instanceof \WP_User
+			 && $this->isLoginToBeCaptured()
+			 && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
 			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
@@ -101,7 +113,9 @@ trait WpLoginCapture {
 	 * @param \WP_User $user
 	 */
 	public function onWpLogin( $username, $user ) {
-		if ( $this->isLoginToBeCaptured() && !$this->isLoginCaptured() && $user instanceof \WP_User ) {
+		if ( $user instanceof \WP_User
+			 && $this->isLoginToBeCaptured()
+			 && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
 			$this->setLoginCaptured();
 			$this->captureLogin( $user );
 		}
