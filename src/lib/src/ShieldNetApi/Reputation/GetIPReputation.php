@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class GetIPReputation extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'ip_reputation/query';
+	const API_ACTION = 'ip/reputation';
 	use IpAddressConsumer;
 
 	public function retrieve() :array {
