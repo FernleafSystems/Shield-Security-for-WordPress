@@ -28,7 +28,8 @@ class Processor extends BaseShield\Processor {
 		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 
 		$this->setupLoginCaptureHooks();
-		$this->setToCaptureApplicationLogin( true );
+		$this->setToCaptureApplicationLogin( true )
+			 ->setAllowMultipleCapture( true );
 	}
 
 	protected function captureLogin( \WP_User $user ) {
