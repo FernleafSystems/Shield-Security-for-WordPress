@@ -43,7 +43,6 @@ class Insert extends Base\Insert {
 				'logged_in_at'            => $req->ts(),
 				'last_activity_at'        => $req->ts(),
 				'last_activity_uri'       => $req->getUri(),
-				'login_intent_expires_at' => 0,
 				'secadmin_at'             => 0,
 			],
 			$data

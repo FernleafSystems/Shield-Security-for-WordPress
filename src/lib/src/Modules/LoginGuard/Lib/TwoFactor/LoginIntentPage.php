@@ -63,7 +63,8 @@ class LoginIntentPage {
 		}
 
 		$nMfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
-		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
+		$timeRemaining = $mfaCon->getLoginIntentExpiresAt() - $req->ts();
+
 		$data = [
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
@@ -85,7 +86,7 @@ class LoginIntentPage {
 					},
 					$mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
 				) ),
-				'time_remaining'    => $nTimeRemaining,
+				'time_remaining'    => $timeRemaining,
 				'message_type'      => 'info',
 				'login_intent_flag' => $mod->getLoginIntentRequestFlag(),
 			],
@@ -117,14 +118,15 @@ class LoginIntentPage {
 
 		$labels = $con->getLabels();
 		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
+		$timeRemaining = $oIC->getLoginIntentExpiresAt() - $req->ts();
+		error_log( var_export( $timeRemaining, true ) );
 		$data = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
 			],
 			'data'    => [
-				'time_remaining' => $nTimeRemaining,
+				'time_remaining' => $timeRemaining,
 			],
 			'hrefs'   => [
 				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),

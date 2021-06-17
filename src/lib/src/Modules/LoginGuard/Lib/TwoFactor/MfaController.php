@@ -56,8 +56,6 @@ class MfaController {
 	}
 
 	private function captureLoginIntent( \WP_User $user ) {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 		if ( $this->isSubjectToLoginIntent( $user )
 			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
@@ -66,12 +64,7 @@ class MfaController {
 				foreach ( $providers as $provider ) {
 					$provider->captureLoginAttempt( $user );
 				}
-
-				$this->setLoginIntentExpiresAt(
-					Services::Request()
-							->carbon()
-							->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
-				);
+				$this->getCon()->getUserMeta( $user )->has_login_intent = true;
 			}
 		}
 	}
@@ -141,7 +134,7 @@ class MfaController {
 			else {
 				// This handles the case where an admin changes a setting while a user is logged-in
 				// So to prevent this, we remove any intent for a user that isn't subject to it right now
-				$this->removeLoginIntent();
+				$this->removeLoginIntent( $user );
 			}
 		}
 	}
@@ -214,7 +207,9 @@ class MfaController {
 		// Is 2FA/login-intent submit
 		if ( $req->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
 
+			$user = $WPUsers->getCurrentWpUser();
 			if ( $req->post( 'cancel' ) == 1 ) {
+				$this->removeLoginIntent( $user );
 				$WPUsers->logoutUser(); // clears the login and login intent
 				$sRedirectHref = $req->post( 'cancel_href' );
 				empty( $sRedirectHref ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $sRedirectHref );
@@ -224,7 +219,7 @@ class MfaController {
 				if ( $req->post( 'skip_mfa' ) === 'Y' ) {
 					( new MfaSkip() )
 						->setMod( $this->getMod() )
-						->addMfaSkip( $WPUsers->getCurrentWpUser() );
+						->addMfaSkip( $user );
 				}
 
 				$con->fireEvent( '2fa_success' );
@@ -235,7 +230,7 @@ class MfaController {
 				}
 				$this->getMod()->setFlashAdminNotice( $sFlash );
 
-				$this->removeLoginIntent();
+				$this->removeLoginIntent( $user );
 
 				$sRedirectHref = $req->post( 'redirect_to' );
 				empty( $sRedirectHref ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $sRedirectHref ) );
@@ -311,29 +306,33 @@ class MfaController {
 		return $result;
 	}
 
-	private function getLoginIntentExpiresAt() :int {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getSessionCon()
-					->hasSession() ? (int)$this->getMod()->getSession()->login_intent_expires_at : 0;
+	public function getLoginIntentExpiresAt() :int {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$sessCon = $this->getCon()
+						->getModule_Sessions()
+						->getSessionCon();
+
+		$expiresAt = 0;
+		if ( $sessCon->hasSession() && $this->hasLoginIntent( Services::WpUsers()->getCurrentWpUser() ) ) {
+			$expiresAt = Services::Request()
+								 ->carbon()
+								 ->setTimestamp( $sessCon->getCurrent()->logged_in_at )
+								 ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
+		}
+		return $expiresAt;
+	}
+
+	private function hasLoginIntent( \WP_User $user ) :bool {
+		return (bool)$this->getCon()->getUserMeta( $user )->has_login_intent;
 	}
 
 	/**
 	 * Use this ONLY when the login intent has been successfully verified.
 	 * @return $this
 	 */
-	private function removeLoginIntent() {
-		return $this->setLoginIntentExpiresAt( 0 );
-	}
-
-	protected function setLoginIntentExpiresAt( int $expiresAt ) :self {
-		$sessMod = $this->getCon()->getModule_Sessions();
-		$sessCon = $sessMod->getSessionCon();
-		if ( $sessCon->hasSession() ) {
-			/** @var Update $upd */
-			$upd = $sessMod->getDbHandler_Sessions()->getQueryUpdater();
-			$upd->updateLoginIntentExpiresAt( $sessCon->getCurrent(), $expiresAt );
-		}
+	private function removeLoginIntent( $user ) {
+		$this->getCon()->getUserMeta( $user )->has_login_intent = false;
 		return $this;
 	}
 
