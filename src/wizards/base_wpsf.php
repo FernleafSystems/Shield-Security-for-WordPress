@@ -31,17 +31,17 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return array
 	 */
-	protected function getRenderData_SlideExtra( $sStep ) {
+	protected function getRenderData_SlideExtra( $step ) {
 
-		switch ( $sStep ) {
+		switch ( $step ) {
 			case 'security_admin_verify':
 				$aAdditional = [ 'current_index' => Services::Request()->post( 'current_index' ) ];
 				break;
 			default:
-				$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+				$aAdditional = parent::getRenderData_SlideExtra( $step );
 				break;
 		}
 

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use Dolondro\GoogleAuthenticator;
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\GenerateGoogleAuthQrCode;
 use FernleafSystems\Wordpress\Services\Services;
 
 class GoogleAuth extends BaseProvider {
@@ -34,7 +35,7 @@ class GoogleAuth extends BaseProvider {
 		$validatedProfile = $this->hasValidatedProfile( $user );
 		return [
 			'hrefs'   => [
-				'src_chart_url' => $validatedProfile ? '' : $this->getGaRegisterChartUrl( $user ),
+				'src_chart_url' => $validatedProfile ? '' : $this->getGaRegisterChartUrlShieldNet( $user ),
 			],
 			'vars'    => [
 				'ga_secret' => $validatedProfile ? $this->getSecret( $user ) : $this->resetSecret( $user ),
@@ -62,6 +63,7 @@ class GoogleAuth extends BaseProvider {
 	/**
 	 * @param \WP_User $user
 	 * @return string
+	 * @deprecated 11.3
 	 */
 	public function getGaRegisterChartUrl( $user ) {
 		$url = '';
@@ -76,6 +78,18 @@ class GoogleAuth extends BaseProvider {
 			}
 		}
 		return $url;
+	}
+
+	public function getGaRegisterChartUrlShieldNet( \WP_User $user ) :string {
+		$secret = $this->getGaSecret( $user );
+		return 'data:image/png;base64, '.( new GenerateGoogleAuthQrCode() )
+				->setMod( $this->getCon()->getModule_Plugin() )
+				->getCode(
+					$secret->getSecretKey(),
+					$secret->getIssuer(),
+					$secret->getLabel(),
+					'png'
+				);
 	}
 
 	public function removeGaOnAccount( \WP_User $user ) :StdResponse {

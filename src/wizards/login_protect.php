@@ -116,7 +116,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			else {
 				/** @var TwoFactor\Provider\GoogleAuth $oGA */
 				$oGA = $mod->getLoginIntentController()
-							->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+						   ->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$oUser = Services::WpUsers()->getCurrentWpUser();
 				$bValidated = $oGA->validateGaCode( $oUser, $sCode );
 
@@ -201,10 +201,10 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return array
 	 */
-	protected function getRenderData_SlideExtra( $sStep ) {
+	protected function getRenderData_SlideExtra( $step ) {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var LoginGuard\Options $opts */
@@ -212,34 +212,33 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$aAdditional = [];
 
-		switch ( $sStep ) {
+		switch ( $step ) {
 
 			case 'authemail':
-				$oUser = Services::WpUsers()->getCurrentWpUser();
+				$user = Services::WpUsers()->getCurrentWpUser();
 				$aAdditional = [
 					'data' => [
-						'name'       => $oUser->first_name,
-						'user_email' => $oUser->user_email
+						'name'       => $user->first_name,
+						'user_email' => $user->user_email
 					]
 				];
 				break;
 
 			case 'authga':
-				$oUser = Services::WpUsers()->getCurrentWpUser();
-				/** @var TwoFactor\Provider\GoogleAuth $oGA */
-				$oGA = $mod->getLoginIntentController()
-							->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
-				$sGaUrl = $oGA->getGaRegisterChartUrl( $oUser );
+				$user = Services::WpUsers()->getCurrentWpUser();
+				/** @var TwoFactor\Provider\GoogleAuth $GAProvider */
+				$GAProvider = $mod->getLoginIntentController()
+						   ->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$aAdditional = [
 					'data'  => [
-						'name'       => $oUser->first_name,
-						'user_email' => $oUser->user_email
+						'name'       => $user->first_name,
+						'user_email' => $user->user_email
 					],
 					'hrefs' => [
-						'ga_chart' => $sGaUrl,
+						'ga_chart' => $GAProvider->getGaRegisterChartUrlShieldNet( $user ),
 					],
 					'flags' => [
-						'has_ga' => $oGA->hasValidatedProfile( $oUser ),
+						'has_ga' => $GAProvider->hasValidatedProfile( $user ),
 					]
 				];
 				break;
@@ -257,7 +256,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		if ( empty( $aAdditional ) ) {
-			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+			$aAdditional = parent::getRenderData_SlideExtra( $step );
 		}
 		return $aAdditional;
 	}
