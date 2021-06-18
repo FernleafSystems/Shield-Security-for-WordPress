@@ -63,7 +63,11 @@ class MfaController {
 				foreach ( $providers as $provider ) {
 					$provider->captureLoginAttempt( $user );
 				}
-				$this->getCon()->getUserMeta( $user )->has_login_intent = true;
+
+				$meta = $this->getCon()->getUserMeta( $user );
+				$intents = $meta->login_intents ?? [];
+				$intents[ $this->getVisitorID() ] = true;
+				$meta->login_intents = $intents;
 			}
 		}
 	}
@@ -322,7 +326,11 @@ class MfaController {
 	}
 
 	private function hasLoginIntent( \WP_User $user ) :bool {
-		return (bool)$this->getCon()->getUserMeta( $user )->has_login_intent;
+		return !empty( $this->getCon()->getUserMeta( $user )->login_intents[ $this->getVisitorID() ] );
+	}
+
+	private function getVisitorID() :string {
+		return md5( Services::Request()->getUserAgent().Services::IP()->getRequestIp() );
 	}
 
 	/**
@@ -330,7 +338,11 @@ class MfaController {
 	 * @return $this
 	 */
 	private function removeLoginIntent( $user ) {
-		$this->getCon()->getUserMeta( $user )->has_login_intent = false;
+		$meta = $this->getCon()->getUserMeta( $user );
+		$intents = $meta->login_intents ?? [];
+		unset( $intents[ $this->getVisitorID() ] );
+		$meta->login_intents = $intents;
+
 		return $this;
 	}
 

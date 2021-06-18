@@ -119,7 +119,7 @@ class LoginIntentPage {
 		$labels = $con->getLabels();
 		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
 		$timeRemaining = $oIC->getLoginIntentExpiresAt() - $req->ts();
-		error_log( var_export( $timeRemaining, true ) );
+
 		$data = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
