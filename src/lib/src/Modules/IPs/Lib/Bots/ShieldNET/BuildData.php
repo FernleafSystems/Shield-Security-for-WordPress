@@ -44,7 +44,7 @@ class BuildData {
 			$mod = $this->getMod();
 			Services::WpDb()
 					->doSql(
-						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s); ',
+						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
 							$mod->getDbHandler_BotSignals()->getTableSchema()->table,
 							Services::Request()->ts(),
 							implode( ',', array_map( function ( $record ) {
@@ -64,7 +64,7 @@ class BuildData {
 		$mod = $this->getMod();
 		/** @var Select $select */
 		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$records = $select->setLimit( 100 )
+		$records = $select->setLimit( 50 )
 						  ->setOrderBy( 'updated_at', 'DESC' )
 						  ->addWhereCompareColumns( 'updated_at', 'snsent_at', '>' )
 						  ->query();
