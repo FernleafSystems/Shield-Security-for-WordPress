@@ -60,8 +60,12 @@
 			<dd>
 				<p>
 					<span class="bigger-badge badge badge-{{ vars.status.is_bot ? 'warning' : 'success' }}">
-						{{ vars.status.snapi_ip_reputation_score }}
+						{{ vars.status.snapi_reputation_score }}
 					</span>
+					<a href="{{ hrefs.snapi_reputation_details }}"
+					   target="_blank"
+					   class="ml-2 text-primary"
+					>{{ strings.see_details }}</a>
 				</p>
 			</dd>
 		</dl>
