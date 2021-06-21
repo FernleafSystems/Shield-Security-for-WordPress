@@ -4,8 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
@@ -81,16 +84,16 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	public function canRepair() {
-		/** @var Ptg\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		if ( $oItem->context == 'plugins' ) {
-			$oAsset = Services::WpPlugins()->getPluginAsVo( $oItem->slug );
-			$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );
+		/** @var Ptg\ResultItem $item */
+		$item = $this->getScanItem();
+		if ( $item->context == 'plugins' ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
+			$canRepair = ( $asset instanceof WpPluginVo && $asset->isWpOrg() && $asset->svn_uses_tags );
 		}
 		else {
-			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
-			$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
+			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
+			$canRepair = ( $asset instanceof WpThemeVo && $asset->isWpOrg() );
 		}
-		return $bCanRepair;
+		return $canRepair;
 	}
 }

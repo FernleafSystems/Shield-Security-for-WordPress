@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -15,23 +15,23 @@ class PluginScanner {
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $pluginFile
 	 * @return ResultItem|null
 	 */
-	public function scan( $sPluginFile ) {
+	public function scan( $pluginFile ) {
 		$oResultItem = null;
 
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		$oPlgn = Services::WpPlugins()->getPluginAsVo( $sPluginFile );
-		if ( $oPlgn instanceof WpPluginVo && $oPlgn->isWpOrg() ) {
-			$nLastUpdatedAt = $this->getLastUpdateTime( $sPluginFile );
+		$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
+		if ( $plugin instanceof WpPluginVo && $plugin->isWpOrg() ) {
+			$nLastUpdatedAt = $this->getLastUpdateTime( $pluginFile );
 			if ( $nLastUpdatedAt > 0
 				 && ( Services::Request()->ts() - $nLastUpdatedAt > $oAction->abandoned_limit ) ) {
 
 				$oResultItem = new ResultItem();
-				$oResultItem->slug = $sPluginFile;
+				$oResultItem->slug = $pluginFile;
 				$oResultItem->context = 'plugins';
 				$oResultItem->last_updated_at = $nLastUpdatedAt;
 			}
@@ -41,25 +41,25 @@ class PluginScanner {
 	}
 
 	/**
-	 * @param string $sFile
+	 * @param string $file
 	 * @return bool
 	 */
-	private function getLastUpdateTime( $sFile ) {
-		$sSlug = Services::WpPlugins()->getSlug( $sFile );
-		if ( empty( $sSlug ) ) {
-			$sSlug = dirname( $sFile );
+	private function getLastUpdateTime( $file ) {
+		$slug = Services::WpPlugins()->getSlug( $file );
+		if ( empty( $slug ) ) {
+			$slug = dirname( $file );
 		}
 
 		if ( !function_exists( 'plugins_api' ) ) {
 			require_once ABSPATH.'/wp-admin/includes/plugin-install.php';
 		}
-		$oApi = plugins_api( 'plugin_information', [
-			'slug'   => $sSlug,
+		$api = plugins_api( 'plugin_information', [
+			'slug'   => $slug,
 			'fields' => [
 				'sections' => false,
 			],
 		] );
 
-		return isset( $oApi->last_updated ) ? strtotime( $oApi->last_updated ) : -1;
+		return isset( $api->last_updated ) ? strtotime( $api->last_updated ) : -1;
 	}
 }

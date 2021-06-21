@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
@@ -58,7 +58,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
+	 * @param Assets\WpPluginVo|Assets\WpThemeVo $oAsset
 	 * @return string[]
 	 * @throws \Exception
 	 */
@@ -67,15 +67,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
+	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
 	 * @return Lib\Snapshots\Store
 	 * @throws \Exception
 	 */
-	private function getStore( $oAsset ) {
+	private function getStore( $asset ) {
 
 		// Re-Use the previous store if it's for the same Asset.
 		if ( !empty( $this->oAssetStore ) ) {
-			$sUniqueId = ( $oAsset instanceof VOs\WpPluginVo ) ? $oAsset->file : $oAsset->stylesheet;
+			$sUniqueId = ( $asset instanceof Assets\WpPluginVo ) ? $asset->file : $asset->stylesheet;
 			$aMeta = $this->oAssetStore->getSnapMeta();
 			if ( $sUniqueId !== $aMeta[ 'unique_id' ] ) {
 				unset( $this->oAssetStore );
@@ -85,7 +85,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		if ( empty( $this->oAssetStore ) ) {
 			$this->oAssetStore = ( new Lib\Snapshots\StoreAction\Load() )
 				->setMod( $this->getMod() )
-				->setAsset( $oAsset )
+				->setAsset( $asset )
 				->run();
 		}
 
@@ -93,7 +93,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
+	 * @param Assets\WpPluginVo|Assets\WpThemeVo $oAsset
 	 * @param string                       $sFile
 	 * @return ResultItem
 	 */
@@ -105,8 +105,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$oItem->is_unrecognised = false;
 		$oItem->is_different = false;
 		$oItem->is_missing = false;
-		$oItem->context = ( $oAsset instanceof VOs\WpPluginVo ) ? 'plugins' : 'themes';
-		$oItem->slug = ( $oAsset instanceof VOs\WpPluginVo ) ? $oAsset->file : $oAsset->stylesheet;
+		$oItem->context = ( $oAsset instanceof Assets\WpPluginVo ) ? 'plugins' : 'themes';
+		$oItem->slug = ( $oAsset instanceof Assets\WpPluginVo ) ? $oAsset->file : $oAsset->stylesheet;
 		return $oItem;
 	}
 }

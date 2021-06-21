@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
-		die('finish');
+		die( 'finish' );
 	}
 
 	private function filelocker() {

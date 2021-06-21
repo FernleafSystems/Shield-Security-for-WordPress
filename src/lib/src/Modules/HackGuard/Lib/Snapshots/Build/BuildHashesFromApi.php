@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Hashes;
 
 /**
@@ -13,12 +16,12 @@ class BuildHashesFromApi {
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return string[] - keys are file paths relative to ABSPATH
 	 * @throws \Exception
 	 */
-	public function build( $oAsset ) {
-		if ( !$oAsset->isWpOrg() ) {
+	public function build( $asset ) {
+		if ( !$asset->isWpOrg() ) {
 
 			$bApiSupport = false;
 
@@ -26,16 +29,16 @@ class BuildHashesFromApi {
 				->setUseQueryCache( true )
 				->getInfo();
 			if ( is_array( $aApiInfo ) && !empty( $aApiInfo[ 'supported_premium' ] ) ) {
-				if ( $oAsset instanceof VOs\WpPluginVo ) {
-					$sSlug = $oAsset->slug;
-					$sFile = $oAsset->file;
-					$sName = $oAsset->Name;
+				if ( $asset instanceof WpPluginVo ) {
+					$sSlug = $asset->slug;
+					$sFile = $asset->file;
+					$sName = $asset->Name;
 					$aItems = $aApiInfo[ 'supported_premium' ][ 'plugins' ];
 				}
 				else {
-					$sSlug = $oAsset->stylesheet;
-					$sFile = $oAsset->stylesheet;
-					$sName = $oAsset->wp_theme->get( 'Name' );
+					$sSlug = $asset->stylesheet;
+					$sFile = $asset->stylesheet;
+					$sName = $asset->wp_theme->get( 'Name' );
 					$aItems = $aApiInfo[ 'supported_premium' ][ 'themes' ];
 				}
 
@@ -44,8 +47,8 @@ class BuildHashesFromApi {
 					if ( $aMaybeItem[ 'slug' ] == $sSlug
 						 || $aMaybeItem[ 'name' ] == $sName || $aMaybeItem[ 'file' ] == $sFile ) {
 						$bApiSupport = true;
-						if ( $oAsset instanceof VOs\WpPluginVo && empty( $oAsset->slug ) ) {
-							$oAsset->slug = $aMaybeItem[ 'slug' ];
+						if ( $asset instanceof WpPluginVo && empty( $asset->slug ) ) {
+							$asset->slug = $aMaybeItem[ 'slug' ];
 						}
 						break;
 					}
@@ -56,22 +59,22 @@ class BuildHashesFromApi {
 				throw new \Exception( 'Not a WordPress.org asset.' );
 			}
 		}
-		return $this->retrieveForAsset( $oAsset );
+		return $this->retrieveForAsset( $asset );
 	}
 
 	/**
-	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $oAsset
 	 * @return string[]|null
 	 * @throws \Exception
 	 */
 	private function retrieveForAsset( $oAsset ) {
 
-		if ( $oAsset instanceof VOs\WpPluginVo ) {
+		if ( $oAsset instanceof WpPluginVo ) {
 			$aHashes = ( new Hashes\Plugin() )
 				->setUseQueryCache( true )
 				->getHashes( $oAsset->slug, $oAsset->Version, 'md5' );
 		}
-		elseif ( $oAsset instanceof VOs\WpThemeVo ) {
+		elseif ( $oAsset instanceof WpThemeVo ) {
 			if ( $oAsset->is_child ) {
 				throw new \Exception( 'Live hashes are not supported for child themes.' );
 			}

@@ -4,8 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 

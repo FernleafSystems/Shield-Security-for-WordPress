@@ -39,13 +39,13 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 			}
 			else {
 				$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
-				if ( $plugin instanceof Services\Core\VOs\WpPluginVo && $plugin->isWpOrg() ) {
+				if ( $plugin instanceof Services\Core\VOs\Assets\WpPluginVo && $plugin->isWpOrg() ) {
 
 					$success = $this->repairItemInPlugin( $item );
 				}
 				else {
 					$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
-					if ( $theme instanceof Services\Core\VOs\WpThemeVo && $theme->isWpOrg() ) {
+					if ( $theme instanceof Services\Core\VOs\Assets\WpThemeVo && $theme->isWpOrg() ) {
 
 						$success = $this->repairItemInTheme( $item );
 					}
@@ -97,7 +97,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		if ( !$bCanRepair ) {
 
 			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-			if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo ) {
+			if ( $oPlugin instanceof Services\Core\VOs\Assets\WpPluginVo ) {
 				if ( !$oPlugin->isWpOrg() ) {
 					throw new \Exception( sprintf(
 							__( "%s not installed from WordPress.org.", 'wp-simple-firewall' ),
@@ -113,7 +113,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 			}
 			else {
 				$oTheme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
-				if ( $oTheme instanceof Services\Core\VOs\WpThemeVo ) {
+				if ( $oTheme instanceof Services\Core\VOs\Assets\WpThemeVo ) {
 					if ( $oTheme->is_child ) {
 						throw new \Exception( sprintf(
 								__( "%s is a child of another theme.", 'wp-simple-firewall' ),

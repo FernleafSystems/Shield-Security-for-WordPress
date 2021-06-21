@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class Store {
@@ -23,7 +25,7 @@ class Store {
 	/**
 	 * @var WpPluginVo|WpThemeVo
 	 */
-	private $oAsset;
+	private $asset;
 
 	/**
 	 * @var string
@@ -32,17 +34,17 @@ class Store {
 
 	/**
 	 * Store constructor.
-	 * @param WpPluginVo|WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $asset
 	 */
-	public function __construct( $oAsset ) {
-		$this->oAsset = $oAsset;
+	public function __construct( $asset ) {
+		$this->asset = $asset;
 	}
 
 	/**
 	 * @return WpPluginVo|WpThemeVo
 	 */
 	public function getAsset() {
-		return $this->oAsset;
+		return $this->asset;
 	}
 
 	/**

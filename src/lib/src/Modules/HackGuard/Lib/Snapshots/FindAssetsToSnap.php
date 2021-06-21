@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class FindAssetsToSnap {
@@ -11,7 +14,7 @@ class FindAssetsToSnap {
 	use ModConsumer;
 
 	/**
-	 * @return VOs\WpPluginVo[]|VOs\WpThemeVo[]
+	 * @return WpPluginVo[]|WpThemeVo[]
 	 */
 	public function run() {
 		$aAssets = [];

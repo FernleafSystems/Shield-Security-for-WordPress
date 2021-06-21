@@ -1106,7 +1106,7 @@ class Controller extends DynPropertiesClass {
 		if ( empty( $this->root_file ) ) {
 			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
 				->findPluginFromFile( __FILE__ );
-			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
+			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo ) {
 				$this->root_file = path_join( WP_PLUGIN_DIR, $VO->file );
 			}
 			else {

@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScheduleBuildAll extends BaseBulk {
@@ -36,7 +39,7 @@ class ScheduleBuildAll extends BaseBulk {
 
 	/**
 	 * Only those that don't have a meta file or the versions are different
-	 * @return VOs\WpPluginVo[]|VOs\WpThemeVo[]
+	 * @return WpPluginVo[]|WpThemeVo[]
 	 */
 	private function getAssetsThatNeedBuilt() {
 		return array_filter(
@@ -44,7 +47,7 @@ class ScheduleBuildAll extends BaseBulk {
 				->setMod( $this->getMod() )
 				->run(),
 			function ( $asset ) {
-				/** @var VOs\WpPluginVo|VOs\WpThemeVo $asset */
+				/** @var WpPluginVo|WpThemeVo $asset */
 				try {
 					$meta = ( new Load() )
 						->setMod( $this->getMod() )

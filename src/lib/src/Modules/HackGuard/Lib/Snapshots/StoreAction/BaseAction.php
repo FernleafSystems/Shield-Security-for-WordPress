@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 
 class BaseAction {
 

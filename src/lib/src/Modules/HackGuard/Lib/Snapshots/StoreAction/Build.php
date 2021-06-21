@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Build extends BaseAction {

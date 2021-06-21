@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ItemActionHandlerAssets extends ItemActionHandler {
@@ -43,20 +46,20 @@ abstract class ItemActionHandlerAssets extends ItemActionHandler {
 	}
 
 	/**
-	 * @param string $sSlug
-	 * @return VOs\WpPluginVo|VOs\WpThemeVo|null
+	 * @param string $slug
+	 * @return WpPluginVo|WpThemeVo|null
 	 * @throws \Exception
 	 */
-	protected function getAssetFromSlug( $sSlug ) {
-		if ( Services::WpPlugins()->isInstalled( $sSlug ) ) {
-			$oAsset = Services::WpPlugins()->getPluginAsVo( $sSlug );
+	protected function getAssetFromSlug( $slug ) {
+		if ( Services::WpPlugins()->isInstalled( $slug ) ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $slug );
 		}
-		elseif ( Services::WpThemes()->isInstalled( $sSlug ) ) {
-			$oAsset = Services::WpThemes()->getThemeAsVo( $sSlug );
+		elseif ( Services::WpThemes()->isInstalled( $slug ) ) {
+			$asset = Services::WpThemes()->getThemeAsVo( $slug );
 		}
 		else {
 			throw new \Exception( 'Items is not currently installed.' );
 		}
-		return $oAsset;
+		return $asset;
 	}
 }
