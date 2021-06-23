@@ -15,12 +15,12 @@ class Store {
 	/**
 	 * @var array
 	 */
-	private $aSnapMeta;
+	private $snapMeta;
 
 	/**
 	 * @var array
 	 */
-	private $aSnapData;
+	private $snapData;
 
 	/**
 	 * @var WpPluginVo|WpThemeVo
@@ -30,10 +30,9 @@ class Store {
 	/**
 	 * @var string
 	 */
-	protected $sWorkingDir;
+	protected $workingDir;
 
 	/**
-	 * Store constructor.
 	 * @param WpPluginVo|WpThemeVo $asset
 	 */
 	public function __construct( $asset ) {
@@ -47,67 +46,45 @@ class Store {
 		return $this->asset;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getContext() {
-		return ( $this->getAsset() instanceof WpPluginVo ) ? 'plugins' : 'themes';
+	public function getContext() :string {
+		return ( $this->asset instanceof WpPluginVo ) ? 'plugins' : 'themes';
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSnapStorePath() {
+	public function getSnapStorePath() :string {
 		return $this->getBaseSnapPath().'.txt';
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSnapStoreMetaPath() {
+	public function getSnapStoreMetaPath() :string {
 		return $this->getBaseSnapPath().'_meta'.'.txt';
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getBaseSnapPath() {
+	private function getBaseSnapPath() :string {
 		return path_join( $this->getWorkingDir(), path_join( $this->getContext(), $this->getSlug() ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getWorkingDir() {
-		return $this->sWorkingDir;
+	public function getWorkingDir() :string {
+		return $this->workingDir;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getSlug() {
-		$oAs = $this->getAsset();
-		return ( $oAs instanceof WpPluginVo ) ? dirname( $oAs->file ) : $oAs->stylesheet;
+	protected function getSlug() :string {
+		return ( $this->asset instanceof WpPluginVo ) ? dirname( $this->asset->file ) : $this->asset->stylesheet;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getSnapData() {
-		if ( !is_array( $this->aSnapData ) ) {
+	public function getSnapData() :array {
+		if ( !is_array( $this->snapData ) ) {
 			$this->loadSnapDataIfExists();
 		}
-		return is_array( $this->aSnapData ) ? $this->aSnapData : [];
+		return is_array( $this->snapData ) ? $this->snapData : [];
 	}
 
-	/**
-	 * @return array[]
-	 */
-	public function getSnapMeta() {
-		if ( empty( $this->aSnapMeta ) ) {
+	public function getSnapMeta() :array {
+		if ( empty( $this->snapMeta ) ) {
 			$this->loadSnapMetaIfExists();
 		}
-		return is_array( $this->aSnapMeta ) ? $this->aSnapMeta : [];
+		return is_array( $this->snapMeta ) ? $this->snapMeta : [];
 	}
 
 	/**
@@ -115,10 +92,10 @@ class Store {
 	 */
 	private function loadSnapDataIfExists() {
 		try {
-			$this->aSnapData = $this->readSnapData();
+			$this->snapData = $this->readSnapData();
 		}
 		catch ( \Exception $e ) {
-			$this->aSnapData = [];
+			$this->snapData = [];
 		}
 		return $this;
 	}
@@ -128,10 +105,10 @@ class Store {
 	 */
 	private function loadSnapMetaIfExists() {
 		try {
-			$this->aSnapMeta = $this->readSnapMeta();
+			$this->snapMeta = $this->readSnapMeta();
 		}
 		catch ( \Exception $e ) {
-			$this->aSnapMeta = [];
+			$this->snapMeta = [];
 		}
 		return $this;
 	}
@@ -139,47 +116,47 @@ class Store {
 	/**
 	 * @throws \Exception
 	 */
-	private function readSnapData() {
-		$oFS = Services::WpFs();
+	private function readSnapData() :array {
+		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
 			throw new \Exception( sprintf( 'Snapshot store does not exist: "%s"', $this->getSnapStorePath() ) );
 		}
 
-		$sEncoded = $oFS->getFileContent( $this->getSnapStorePath(), true );
-		if ( !empty( $sEncoded ) ) {
-			$aSnap = [];
-			foreach ( array_map( 'trim', explode( "\n", $sEncoded ) ) as $sLine ) {
-				list( $sFile, $sHash ) = explode( self::SEPARATOR, $sLine, 2 );
-				$aSnap[ $sFile ] = $sHash;
+		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
+		if ( !empty( $encoded ) ) {
+			$snap = [];
+			foreach ( array_map( 'trim', explode( "\n", $encoded ) ) as $line ) {
+				list( $file, $hash ) = explode( self::SEPARATOR, $line, 2 );
+				$snap[ $file ] = $hash;
 			}
 		}
-		if ( empty( $aSnap ) ) {
+		if ( empty( $snap ) ) {
 			throw new \Exception( 'Snapshot data could not be decoded' );
 		}
 
-		return $aSnap;
+		return $snap;
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	private function readSnapMeta() {
-		$oFS = Services::WpFs();
+		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
 			throw new \Exception( sprintf( 'Snapshot store does not exist: "%s"', $this->getSnapStorePath() ) );
 		}
 
-		$sEncoded = $oFS->getFileContent( $this->getSnapStoreMetaPath(), true );
-		if ( !empty( $sEncoded ) ) {
-			$aData = json_decode( $sEncoded, true );
+		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );
+		if ( !empty( $encoded ) ) {
+			$data = json_decode( $encoded, true );
 		}
-		if ( empty( $aData ) || !is_array( $aData ) ) {
+		if ( empty( $data ) || !is_array( $data ) ) {
 			throw new \Exception( 'Snapshot data could not be decoded' );
 		}
 
-		return $aData;
+		return $data;
 	}
 
 	/**
@@ -188,13 +165,13 @@ class Store {
 	 */
 	public function save() {
 		if ( $this->isReady() ) {
-			$aToWrite = [];
-			foreach ( $this->getSnapData() as $sFile => $sHash ) {
-				$aToWrite[] = sprintf( '%s%s%s', $sFile, self::SEPARATOR, $sHash );
+			$toWrite = [];
+			foreach ( $this->getSnapData() as $file => $hash ) {
+				$toWrite[] = sprintf( '%s%s%s', $file, self::SEPARATOR, $hash );
 			}
 			Services::WpFs()->putFileContent(
 				$this->getSnapStorePath(),
-				implode( "\n", $aToWrite ),
+				implode( "\n", $toWrite ),
 				true
 			);
 			Services::WpFs()->putFileContent(
@@ -210,26 +187,23 @@ class Store {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function isReady() {
-		$oFS = Services::WpFs();
-		$sDir = dirname( $this->getSnapStorePath() );
+	protected function isReady() :bool {
+		$FS = Services::WpFs();
+		$dir = dirname( $this->getSnapStorePath() );
 
 		if ( strlen( $this->getContext() ) < 1 ) {
 			throw new \Exception( 'Context has not been specified' );
 		}
-		if ( !$oFS->mkdir( $sDir ) ) {
-			throw new \Exception( sprintf( 'Store directory could not be created: %s', $sDir ) );
+		if ( !$FS->mkdir( $dir ) ) {
+			throw new \Exception( sprintf( 'Store directory could not be created: %s', $dir ) );
 		}
-		if ( !$oFS->exists( $sDir ) ) {
-			throw new \Exception( sprintf( 'Store directory path does not exist: %s', $sDir ) );
+		if ( !$FS->exists( $dir ) ) {
+			throw new \Exception( sprintf( 'Store directory path does not exist: %s', $dir ) );
 		}
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getSnapStoreExists() {
+	public function getSnapStoreExists() :bool {
 		return Services::WpFs()->exists( $this->getSnapStorePath() ) && $this->isSnapStoreRelevant();
 	}
 
@@ -237,43 +211,43 @@ class Store {
 	 * We try to capture periods wherein which the plugin may have been deactivated and tracking has paused.
 	 * @return bool
 	 */
-	private function isSnapStoreRelevant() {
-		$bRelevant = true;
-		$oFs = Services::WpFs();
-		$mTime = Services::Request()->ts() - $oFs->getModifiedTime( $this->getSnapStorePath() );
+	private function isSnapStoreRelevant() :bool {
+		$relevant = true;
+		$FS = Services::WpFs();
+		$mTime = Services::Request()->ts() - $FS->getModifiedTime( $this->getSnapStorePath() );
 		if ( $mTime > DAY_IN_SECONDS ) {
-			$bRelevant = false;
+			$relevant = false;
 		}
 		elseif ( $mTime > DAY_IN_SECONDS/2 ) {
-			$oFs->touch( $this->getSnapStorePath() );
+			$FS->touch( $this->getSnapStorePath() );
 		}
-		return $bRelevant;
+		return $relevant;
 	}
 
 	/**
-	 * @param array $aData
+	 * @param array $data
 	 * @return $this
 	 */
-	public function setSnapData( $aData ) {
-		$this->aSnapData = $aData;
+	public function setSnapData( array $data ) {
+		$this->snapData = $data;
 		return $this;
 	}
 
 	/**
-	 * @param array $aMeta
+	 * @param array $meta
 	 * @return $this
 	 */
-	public function setSnapMeta( $aMeta ) {
-		$this->aSnapMeta = $aMeta;
+	public function setSnapMeta( array $meta ) {
+		$this->snapMeta = $meta;
 		return $this;
 	}
 
 	/**
-	 * @param string $sDir
+	 * @param string $dir
 	 * @return $this
 	 */
-	public function setWorkingDir( $sDir ) {
-		$this->sWorkingDir = $sDir;
+	public function setWorkingDir( string $dir ) {
+		$this->workingDir = $dir;
 		return $this;
 	}
 }

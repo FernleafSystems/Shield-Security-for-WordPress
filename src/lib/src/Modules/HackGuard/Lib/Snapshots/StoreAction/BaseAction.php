@@ -15,24 +15,21 @@ class BaseAction {
 	/**
 	 * @var WpPluginVo|WpThemeVo
 	 */
-	private $oAsset;
-
-	public function __construct() {
-	}
+	private $asset;
 
 	/**
 	 * @return WpPluginVo|WpThemeVo
 	 */
 	public function getAsset() {
-		return $this->oAsset;
+		return $this->asset;
 	}
 
 	/**
-	 * @param WpPluginVo|WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return static
 	 */
-	public function setAsset( $oAsset ) {
-		$this->oAsset = $oAsset;
+	public function setAsset( $asset ) {
+		$this->asset = $asset;
 		return $this;
 	}
 

@@ -1,7 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced\SubmitHashes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -18,6 +19,10 @@ class ScheduleBuildAll extends BaseBulk {
 					->setMod( $this->getMod() )
 					->setAsset( $asset )
 					->run();
+
+				( new SubmitHashes() )
+					->setMod( $this->getMod() )
+					->run( $asset );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -31,9 +36,9 @@ class ScheduleBuildAll extends BaseBulk {
 	}
 
 	public function schedule() {
-		$sHook = $this->getCronHook();
-		if ( wp_next_scheduled( $sHook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-			wp_schedule_single_event( Services::Request()->ts() + 15, $sHook );
+		$hook = $this->getCronHook();
+		if ( wp_next_scheduled( $hook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+			wp_schedule_single_event( Services::Request()->ts() + 15, $hook );
 		}
 	}
 
@@ -41,13 +46,14 @@ class ScheduleBuildAll extends BaseBulk {
 	 * Only those that don't have a meta file or the versions are different
 	 * @return WpPluginVo[]|WpThemeVo[]
 	 */
-	private function getAssetsThatNeedBuilt() {
+	private function getAssetsThatNeedBuilt() :array {
 		return array_filter(
+
 			( new FindAssetsToSnap() )
 				->setMod( $this->getMod() )
 				->run(),
+
 			function ( $asset ) {
-				/** @var WpPluginVo|WpThemeVo $asset */
 				try {
 					$meta = ( new Load() )
 						->setMod( $this->getMod() )

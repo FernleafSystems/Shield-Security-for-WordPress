@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
@@ -16,24 +16,24 @@ class FindAssetsToSnap {
 	/**
 	 * @return WpPluginVo[]|WpThemeVo[]
 	 */
-	public function run() {
-		$aAssets = [];
+	public function run() :array {
+		$assets = [];
 
-		foreach ( Services::WpPlugins()->getPluginsAsVo() as $oAsset ) {
-			if ( $oAsset->active ) {
-				$aAssets[] = $oAsset;
+		foreach ( Services::WpPlugins()->getPluginsAsVo() as $asset ) {
+			if ( $asset->active ) {
+				$assets[] = $asset;
 			}
 		}
 
-		$oWPT = Services::WpThemes();
-		$oAsset = $oWPT->getThemeAsVo( $oWPT->getCurrent()->get_stylesheet() );
-		$aAssets[] = $oAsset;
+		$WPT = Services::WpThemes();
+		$asset = $WPT->getThemeAsVo( $WPT->getCurrent()->get_stylesheet() );
+		$assets[] = $asset;
 
-		if ( $oWPT->isActiveThemeAChild() ) {
-			$oAsset = $oWPT->getThemeAsVo( $oAsset->wp_theme->get_template() );
-			$aAssets[] = $oAsset;
+		if ( $WPT->isActiveThemeAChild() ) {
+			$asset = $WPT->getThemeAsVo( $asset->wp_theme->get_template() );
+			$assets[] = $asset;
 		}
 
-		return $aAssets;
+		return $assets;
 	}
 }
