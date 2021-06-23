@@ -60,10 +60,9 @@ class BuildHashesFromDir {
 		try {
 			$dir = wp_normalize_path( $dir );
 			$algo = $this->getHashAlgo();
-			$dirIT = StandardDirectoryIterator::create( $dir, $this->nDepth, $this->aFileExts );
-			foreach ( $dirIT as $oFile ) {
-				/** @var \SplFileInfo $oFile */
-				$fullPath = $oFile->getPathname();
+			foreach ( StandardDirectoryIterator::create( $dir, $this->nDepth, $this->aFileExts ) as $file ) {
+				/** @var \SplFileInfo $file */
+				$fullPath = $file->getPathname();
 				$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
 				$snaps[ $key ] = hash( $algo, $DM->convertLineEndingsDosToLinux( $fullPath ) );
 			}
