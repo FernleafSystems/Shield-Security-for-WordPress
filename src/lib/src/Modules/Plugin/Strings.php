@@ -193,6 +193,14 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'enable_shieldnet' :
+				$name = __( 'Enable ShieldNET', 'wp-simple-firewall' );
+				$summary = __( 'Enhanced Website Security Through Network Intelligence', 'wp-simple-firewall' );
+				$desc = [
+					__( 'By leveraging and sharing information about threats to WordPress sites, ShieldNET brings the power of the entire network to your WordPress security.', 'wp-simple-firewall' )
+				];
+				break;
+
 			case 'visitor_address_source' :
 				$name = __( 'IP Source', 'wp-simple-firewall' );
 				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );

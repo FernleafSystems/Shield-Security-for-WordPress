@@ -155,6 +155,18 @@
       "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
     },
     {
+      "key":         "enable_shieldnet",
+      "section":     "section_general_plugin_options",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/ka",
+      "link_blog":   "",
+      "name":        "Enable ShieldNET",
+      "summary":     "Enhanced Website Security Through Network Intelligence",
+      "description": "Enhanced Website Security Through Network Intelligence."
+    },
+    {
       "key":         "show_advanced",
       "section":     "section_non_ui",
       "default":     "Y",

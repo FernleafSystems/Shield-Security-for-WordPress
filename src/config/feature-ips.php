@@ -569,6 +569,13 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "last_shieldnet_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
     }
   ],
   "definitions":      {

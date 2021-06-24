@@ -75,6 +75,10 @@ class Options extends BaseShield\Options {
 		return is_array( $whitelist ) ? $whitelist : [];
 	}
 
+	public function isEnabledShieldNET() :bool {
+		return $this->isOpt( 'enable_shieldnet', 'Y' );
+	}
+
 	/**
 	 * @param bool $bOnOrOff
 	 * @return $this
