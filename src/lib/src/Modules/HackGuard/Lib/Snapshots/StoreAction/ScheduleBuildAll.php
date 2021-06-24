@@ -20,9 +20,11 @@ class ScheduleBuildAll extends BaseBulk {
 					->setAsset( $asset )
 					->run();
 
-				( new SubmitHashes() )
-					->setMod( $this->getMod() )
-					->run( $asset );
+				if ( $asset instanceof WpPluginVo || !$asset->is_child ) {
+					( new SubmitHashes() )
+						->setMod( $this->getMod() )
+						->run( $asset );
+				}
 			}
 			catch ( \Exception $e ) {
 			}
