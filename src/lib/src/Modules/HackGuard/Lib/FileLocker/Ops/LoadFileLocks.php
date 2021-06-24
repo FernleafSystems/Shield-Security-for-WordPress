@@ -43,7 +43,7 @@ class LoadFileLocks {
 	/**
 	 * @return FileLocker\EntryVO[]
 	 */
-	public function withProblems() {
+	public function withProblems() :array {
 		return array_filter(
 			$this->loadLocks(),
 			function ( $lock ) {

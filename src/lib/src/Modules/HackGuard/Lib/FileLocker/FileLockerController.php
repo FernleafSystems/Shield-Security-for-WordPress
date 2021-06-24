@@ -33,7 +33,7 @@ class FileLockerController {
 	protected function run() {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
-		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'processFileLocks' ] );
+		add_action( $con->prefix( 'wp_loaded' ), [ $this, 'processFileLocks' ] );
 	}
 
 	public function processFileLocks() {
@@ -49,8 +49,7 @@ class FileLockerController {
 	}
 
 	private function isFileLockerStateChanged() :bool {
-		return $this->getOptions()->isOptChanged( 'file_locker' )
-			   || $this->getState()[ 'abspath' ] !== ABSPATH;
+		return $this->getOptions()->isOptChanged( 'file_locker' ) || $this->getState()[ 'abspath' ] !== ABSPATH;
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
@@ -67,20 +66,13 @@ class FileLockerController {
 		return $items;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function countProblems() {
+	public function countProblems() :int {
 		return count( ( new Ops\LoadFileLocks() )
 			->setMod( $this->getMod() )
 			->withProblems() );
 	}
 
-	/**
-	 * @param FileLocker\EntryVO $lock
-	 * @return string[]
-	 */
-	public function createFileDownloadLinks( $lock ) :array {
+	public function createFileDownloadLinks( FileLocker\EntryVO $lock ) :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$links = [];
