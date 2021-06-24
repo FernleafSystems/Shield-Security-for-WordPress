@@ -12,12 +12,14 @@ class BuildData {
 
 	use ModConsumer;
 
-	public function build() :array {
+	public function build( bool $quiet = false ) :array {
 
 		$recordsToSend = $this->getRecords();
-		$this->markRecordsAsSent( $recordsToSend );
+		if ( !$quiet ) {
+			$this->markRecordsAsSent( $recordsToSend );
+		}
 
-		return array_filter( array_map(
+		$results = array_filter( array_map(
 			function ( $entryVO ) {
 				$data = [
 					'ip'      => $entryVO->ip,
@@ -33,6 +35,33 @@ class BuildData {
 			},
 			$recordsToSend
 		) );
+
+		// We order with preference towards IPs with more signals.
+		// And, if the only signal is "frontpage" we prefer anything else before it.
+		usort( $results, function ( $a, $b ) {
+			$countA = count( $a[ 'signals' ] );
+			$countB = count( $b[ 'signals' ] );
+
+			if ( $countA == $countB ) {
+
+				if ( $countA === 1 && in_array( 'frontpage', $a[ 'signals' ] ) ) {
+					$order = 1;
+				}
+				elseif ( $countB === 1 && in_array( 'frontpage', $b[ 'signals' ] ) ) {
+					$order = -1;
+				}
+				else {
+					$order = 0;
+				}
+			}
+			else {
+				$order = ( count( $a[ 'signals' ] ) > count( $b[ 'signals' ] ) ) ? -1 : 1;
+			}
+
+			return $order;
+		} );
+
+		return array_slice( $results, 0, 50 );
 	}
 
 	/**
@@ -64,8 +93,9 @@ class BuildData {
 		$mod = $this->getMod();
 		/** @var Select $select */
 		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$records = $select->setLimit( 50 )
+		$records = $select->setLimit( 150 )
 						  ->setOrderBy( 'updated_at', 'DESC' )
+						  ->addWhereNotIn( 'ip', array_map( 'inet_pton', Services::IP()->getServerPublicIPs() ) )
 						  ->addWhereCompareColumns( 'updated_at', 'snsent_at', '>' )
 						  ->query();
 		return is_array( $records ) ? $records : [];

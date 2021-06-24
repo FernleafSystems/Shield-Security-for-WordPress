@@ -134,6 +134,18 @@ abstract class BaseQuery {
 
 	/**
 	 * @param string $column
+	 * @param array  $values
+	 * @return $this
+	 */
+	public function addWhereNotIn( string $column, array $values ) {
+		if ( !empty( $values ) ) {
+			$this->addWhere( $column, $values, 'NOT IN' );
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $column
 	 * @param string $like
 	 * @param string $left
 	 * @param string $right
@@ -511,7 +523,7 @@ abstract class BaseQuery {
 	protected function isValidComparisonOperator( $op ) {
 		return in_array(
 			strtoupper( $op ),
-			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
+			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'NOT IN', 'LIKE', 'NOT LIKE' ]
 		);
 	}
 }
