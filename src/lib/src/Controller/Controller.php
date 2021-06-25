@@ -342,12 +342,11 @@ class Controller extends DynPropertiesClass {
 
 	public function hasCacheDir() :bool {
 		try {
-			$buildCacheDir = $this->buildPluginCacheDir();
+			$this->buildPluginCacheDir();
 		}
 		catch ( \Exception $e ) {
-			$buildCacheDir = false;
 		}
-		return $buildCacheDir;
+		return $this->cache_dir_ready;
 	}
 
 	/**
