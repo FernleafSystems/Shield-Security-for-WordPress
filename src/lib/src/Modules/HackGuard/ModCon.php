@@ -187,8 +187,8 @@ class ModCon extends BaseShield\ModCon {
 	 * @return string
 	 */
 	public function getTempDir() {
-		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+		$dir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $dir ) ? $dir : false;
 	}
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {

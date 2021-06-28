@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\WPHashes\SolicitToken;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Token;
 
@@ -45,24 +46,24 @@ class ApiTokenManager {
 	public function getToken() {
 
 		if ( $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid() ) {
-			$aT = $this->loadToken();
+			$token = $this->loadToken();
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
-				$aT = $this->loadToken();
+				$token = $this->loadToken();
 				try {
-					$aT = array_merge( $aT, $this->solicitApiToken() );
+					$token = array_merge( $token, $this->solicitApiToken() );
 				}
 				catch ( \Exception $e ) {
 				}
-				$aT[ 'attempt_at' ] = Services::Request()->ts();
-				$aT[ 'next_attempt_from' ] = Services::Request()->ts() + HOUR_IN_SECONDS;
-				$this->storeToken( $aT );
+				$token[ 'attempt_at' ] = Services::Request()->ts();
+				$token[ 'next_attempt_from' ] = Services::Request()->ts() + HOUR_IN_SECONDS;
+				$this->storeToken( $token );
 			}
 		}
 		else {
 			$this->storeToken( [] );
 		}
 
-		return empty( $aT[ 'token' ] ) ? '' : $aT[ 'token' ];
+		return empty( $token[ 'token' ] ) ? '' : $token[ 'token' ];
 	}
 
 	/**
@@ -164,14 +165,21 @@ class ApiTokenManager {
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function solicitApiToken() {
-		$aResp = ( new Token\Solicit() )->retrieve(
-			Services::WpGeneral()->getHomeUrl(),
-			$this->getCon()->getSiteInstallationId()
-		);
-		if ( !is_array( $aResp ) || empty( $aResp[ 'token' ] ) || strlen( $aResp[ 'token' ] ) != 40 ) {
-			throw new \Exception( 'Could not retrieve token' );
+	private function solicitApiToken() :array {
+		$response = ( new SolicitToken() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->send();
+
+		if ( empty( $response ) ) {
+			$response = ( new Token\Solicit() )->retrieve(
+				Services::WpGeneral()->getHomeUrl(),
+				$this->getCon()->getSiteInstallationId()
+			);
+			if ( !is_array( $response ) || empty( $response[ 'token' ] ) || strlen( $response[ 'token' ] ) != 40 ) {
+				throw new \Exception( 'Could not retrieve token' );
+			}
 		}
-		return $aResp;
+
+		return $response;
 	}
 }
