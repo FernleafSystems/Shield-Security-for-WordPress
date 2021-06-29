@@ -235,7 +235,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 						'user_email' => $user->user_email
 					],
 					'hrefs' => [
-						'ga_chart' => $GAProvider->getGaRegisterChartUrlShieldNet( $user ),
+						'ga_chart' => $GAProvider->getQrImage( $user ),
 					],
 					'flags' => [
 						'has_ga' => $GAProvider->hasValidatedProfile( $user ),
