@@ -16,7 +16,7 @@ class ApiTokenManager {
 	/**
 	 * @var bool
 	 */
-	private $bCanRequestOverride = false;
+	private $canRequestOverride = false;
 
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'event' ), function ( $eventTag ) {
@@ -66,18 +66,14 @@ class ApiTokenManager {
 		return empty( $token[ 'token' ] ) ? '' : $token[ 'token' ];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasToken() {
-		$sTok = $this->getToken();
-		return strlen( $sTok ) == 40 && !$this->isExpired();
+	public function hasToken() :bool {
+		return strlen( $this->getToken() ) == 40 && !$this->isExpired();
 	}
 
 	/**
-	 * @return array - return Token exactly as it's saved currently
+	 * retrieve Token exactly as it's saved
 	 */
-	private function loadToken() {
+	private function loadToken() :array {
 		return array_merge(
 			[
 				'token'             => '',
@@ -90,10 +86,7 @@ class ApiTokenManager {
 		);
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function canRequestNewToken() {
+	private function canRequestNewToken() :bool {
 		return $this->getCanRequestOverride() ||
 			   (
 				   Services::Request()->ts() >= $this->getNextAttemptAllowedFrom()
@@ -101,11 +94,8 @@ class ApiTokenManager {
 			   );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getCanRequestOverride() {
-		return (bool)$this->bCanRequestOverride;
+	public function getCanRequestOverride() :bool {
+		return $this->canRequestOverride;
 	}
 
 	/**
@@ -129,35 +119,29 @@ class ApiTokenManager {
 		return $this->loadToken()[ 'attempt_at' ];
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isExpired() {
+	public function isExpired() :bool {
 		return Services::Request()->ts() > $this->getExpiresAt();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isNearlyExpired() {
+	public function isNearlyExpired() :bool {
 		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->getExpiresAt();
 	}
 
 	/**
-	 * @param array $aToken
+	 * @param array $token
 	 * @return $this
 	 */
-	private function storeToken( array $aToken = [] ) {
-		$this->getOptions()->setOpt( 'wphashes_api_token', $aToken );
+	private function storeToken( array $token = [] ) {
+		$this->getOptions()->setOpt( 'wphashes_api_token', $token );
 		return $this;
 	}
 
 	/**
-	 * @param bool $bCanRequest
+	 * @param bool $canRequest
 	 * @return $this
 	 */
-	public function setCanRequestOverride( $bCanRequest ) {
-		$this->bCanRequestOverride = (bool)$bCanRequest;
+	public function setCanRequestOverride( bool $canRequest ) {
+		$this->canRequestOverride = $canRequest;
 		return $this;
 	}
 
@@ -171,6 +155,7 @@ class ApiTokenManager {
 			->send();
 
 		if ( empty( $response ) ) {
+			// Fallback to legacy lookup, which shouldn't be necessary
 			$response = ( new Token\Solicit() )->retrieve(
 				Services::WpGeneral()->getHomeUrl(),
 				$this->getCon()->getSiteInstallationId()
