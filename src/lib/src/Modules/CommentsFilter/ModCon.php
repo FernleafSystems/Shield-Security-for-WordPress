@@ -22,16 +22,16 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$sStyle = $opts->getOpt( 'google_recaptcha_style_comments' );
+		$style = $opts->getOpt( 'google_recaptcha_style_comments' );
 		if ( $this->isPremium() ) {
-			$oCfg = $this->getCaptchaCfg();
-			if ( $oCfg->provider == $oCfg::PROV_GOOGLE_RECAP2 ) {
-				if ( !$oCfg->invisible && $sStyle == 'invisible' ) {
+			$cfg = $this->getCaptchaCfg();
+			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
+				if ( !$cfg->invisible && $style == 'invisible' ) {
 					$opts->setOpt( 'google_recaptcha_style_comments', 'default' );
 				}
 			}
 		}
-		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+		elseif ( !in_array( $style, [ 'disabled', 'default' ] ) ) {
 			$opts->setOpt( 'google_recaptcha_style_comments', 'default' );
 		}
 	}
