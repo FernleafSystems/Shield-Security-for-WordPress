@@ -33,7 +33,7 @@ class FileLockerController {
 	protected function run() {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
-		add_action( $con->prefix( 'wp_loaded' ), [ $this, 'processFileLocks' ] );
+		add_action( 'wp_loaded', [ $this, 'processFileLocks' ] );
 	}
 
 	public function processFileLocks() {
