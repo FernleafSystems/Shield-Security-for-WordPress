@@ -32,19 +32,15 @@ class FileLockerController {
 
 	protected function run() {
 		$con = $this->getCon();
+		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
+		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'processFileLocks' ] );
 		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
-		add_action( 'wp_loaded', [ $this, 'processFileLocks' ] );
 	}
 
-	public function processFileLocks() {
-		if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
-			if ( $this->isFileLockerStateChanged() ) {
-				$this->deleteAllLocks();
-				$this->setState( [] );
-			}
-			else {
-				$this->runAnalysis();
-			}
+	public function checkLockConfig() {
+		if ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) {
+			$this->deleteAllLocks();
+			$this->setState( [] );
 		}
 	}
 
@@ -138,7 +134,7 @@ class FileLockerController {
 				   ->loadLocks()[ $ID ] ?? null;
 	}
 
-	private function runAnalysis() {
+	public function runAnalysis() {
 		// 1. First assess the existing locks for changes.
 		( new Ops\AssessLocks() )
 			->setMod( $this->getMod() )
@@ -247,5 +243,11 @@ class FileLockerController {
 
 	protected function setState( array $state ) {
 		$this->getOptions()->setOpt( 'filelocker_state', $state );
+	}
+
+	/**
+	 * @deprecated 11.4
+	 */
+	public function processFileLocks() {
 	}
 }
