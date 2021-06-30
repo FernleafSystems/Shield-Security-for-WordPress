@@ -73,33 +73,33 @@ abstract class ItemActionHandler {
 	}
 
 	/**
-	 * @param bool $bAllowDelete
+	 * @param bool $allowDelete
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repair( $bAllowDelete = false ) {
-		$oRep = $this->getRepairer();
-		if ( !$oRep->canRepair() ) {
+	public function repair( bool $allowDelete = false ) {
+		$repairer = $this->getRepairer();
+		if ( !$repairer->canRepair() ) {
 			throw new \Exception( 'This item cannot be automatically repaired.' );
 		}
 
-		$oRep->setAllowDelete( $bAllowDelete );
+		$repairer->setAllowDelete( $allowDelete );
 
-		$oItem = $this->getScanItem();
-		$oItem->repaired = $oRep->repairItem();
-		$this->fireRepairEvent( $oItem->repaired );
+		$item = $this->getScanItem();
+		$item->repaired = $repairer->repairItem();
+		$this->fireRepairEvent( $item->repaired );
 
-		if ( $oItem->repaired ) {
+		if ( $item->repaired ) {
 			/** @var HackGuard\ModCon $mod */
 			$mod = $this->getMod();
-			/** @var Scanner\Delete $oDel */
-			$oDel = $mod->getDbHandler_ScanResults()->getQueryDeleter();
-			$oDel->filterByHash( $oItem->hash )
-				 ->filterByScan( $oItem->scan )
-				 ->query();
+			/** @var Scanner\Delete $deleter */
+			$deleter = $mod->getDbHandler_ScanResults()->getQueryDeleter();
+			$deleter->filterByHash( $item->hash )
+					->filterByScan( $item->scan )
+					->query();
 		}
 
-		return $oItem->repaired;
+		return $item->repaired;
 	}
 
 	/**
@@ -108,11 +108,11 @@ abstract class ItemActionHandler {
 	protected function getEntryVO() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Scanner\Select $oSel */
-		$oSel = $mod->getDbHandler_ScanResults()->getQuerySelector();
-		return $oSel->filterByHash( $this->getScanItem()->hash )
-					->filterByScan( $this->getScanController()->getSlug() )
-					->first();
+		/** @var Scanner\Select $selector */
+		$selector = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		return $selector->filterByHash( $this->getScanItem()->hash )
+						->filterByScan( $this->getScanController()->getSlug() )
+						->first();
 	}
 
 	/**
@@ -121,7 +121,7 @@ abstract class ItemActionHandler {
 	abstract public function getRepairer();
 
 	/**
-	 * @param bool $bSuccess
+	 * @param bool $success
 	 */
-	abstract protected function fireRepairEvent( $bSuccess );
+	abstract protected function fireRepairEvent( $success );
 }

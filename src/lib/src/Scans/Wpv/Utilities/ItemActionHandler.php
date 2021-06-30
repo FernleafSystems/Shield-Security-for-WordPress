@@ -16,13 +16,13 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	}
 
 	/**
-	 * @param bool $bSuccess
+	 * @param bool $success
 	 */
-	protected function fireRepairEvent( $bSuccess ) {
+	protected function fireRepairEvent( $success ) {
 		/** @var Wpv\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
 			[
 				'audit' => [
 					'name' => Services::WpPlugins()->getPluginAsVo( $oItem->slug )->Name

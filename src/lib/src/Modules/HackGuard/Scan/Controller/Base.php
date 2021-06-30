@@ -88,9 +88,8 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @param int|string $itemID
 	 * @param string     $action
 	 * @return bool
-	 * @throws \Exception
 	 */
-	public function executeItemAction( $itemID, string $action ) {
+	public function executeItemAction( int $itemID, string $action ) :bool {
 		$success = false;
 
 		if ( is_numeric( $itemID ) ) {
@@ -226,9 +225,9 @@ abstract class Base extends ExecOnceModConsumer {
 	 * TODO: Make private/protected
 	 */
 	public function runCronAutoRepair() {
-		$oRes = $this->getItemsToAutoRepair();
-		if ( $oRes->hasItems() ) {
-			foreach ( $oRes->getAllItems() as $oItem ) {
+		$results = $this->getItemsToAutoRepair();
+		if ( $results->hasItems() ) {
+			foreach ( $results->getAllItems() as $oItem ) {
 				try {
 					$this->getItemActionHandler()
 						 ->setScanItem( $oItem )

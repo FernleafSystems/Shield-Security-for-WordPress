@@ -22,15 +22,15 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @throws \Exception
 	 */
 	public function repairItem() {
-		/** @var Ptg\ResultItem $oItem */
-		$oItem = $this->getScanItem();
+		/** @var Ptg\ResultItem $item */
+		$item = $this->getScanItem();
 
 		if ( $this->canRepair() ) {
-			if ( $oItem->context == 'plugins' ) {
-				$bSuccess = $this->repairPluginFile( $oItem->path_full );
+			if ( $item->context == 'plugins' ) {
+				$bSuccess = $this->repairPluginFile( $item->path_full );
 			}
 			else {
-				$bSuccess = $this->repairThemeFile( $oItem->path_full );
+				$bSuccess = $this->repairThemeFile( $item->path_full );
 			}
 		}
 		else {
@@ -46,10 +46,10 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 */
 	private function repairPluginFile( $sPath ) {
 		$success = false;
-		$oFiles = new WpOrg\Plugin\Files();
+		$files = new WpOrg\Plugin\Files();
 		try {
-			if ( $oFiles->isValidFileFromPlugin( $sPath ) ) {
-				$success = $oFiles->replaceFileFromVcs( $sPath );
+			if ( $files->isValidFileFromPlugin( $sPath ) ) {
+				$success = $files->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
 				$success = (bool)Services::WpFs()->deleteFile( $sPath );
@@ -61,23 +61,23 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	}
 
 	/**
-	 * @param string $sPath
+	 * @param string $path
 	 * @return bool
 	 */
-	private function repairThemeFile( $sPath ) {
+	private function repairThemeFile( $path ) {
 		$success = false;
-		$oFiles = new WpOrg\Theme\Files();
+		$files = new WpOrg\Theme\Files();
 		try {
-			if ( $oFiles->isValidFileFromTheme( $sPath ) ) {
-				$success = $oFiles->replaceFileFromVcs( $sPath );
+			if ( $files->isValidFileFromTheme( $path ) ) {
+				$success = $files->replaceFileFromVcs( $path );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services::WpFs()->deleteFile( $sPath );
+				$success = (bool)Services::WpFs()->deleteFile( $path );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {
 		}
-		return (bool)$success;
+		return $success;
 	}
 
 	/**

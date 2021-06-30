@@ -106,13 +106,13 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	}
 
 	/**
-	 * @param bool $bSuccess
+	 * @param bool $success
 	 */
-	protected function fireRepairEvent( $bSuccess ) {
+	protected function fireRepairEvent( $success ) {
 		/** @var Ptg\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
 			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
 		);
 	}

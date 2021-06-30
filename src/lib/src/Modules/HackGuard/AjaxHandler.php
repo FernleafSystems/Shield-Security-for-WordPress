@@ -274,12 +274,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [ 'success' => true ];
 	}
 
-	/**
-	 * @param string $action
-	 * @param bool   $isBulkAction
-	 * @return array
-	 */
-	private function ajaxExec_ScanItemAction( $action, $isBulkAction = false ) :array {
+	private function ajaxExec_ScanItemAction( string $action, bool $isBulkAction = false ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
