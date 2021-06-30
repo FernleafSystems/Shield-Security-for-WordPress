@@ -17,9 +17,9 @@ class AdminBarMenu {
 	}
 
 	protected function run() {
-		add_action( 'admin_init', function ( $adminBar ) {
+		add_action( 'admin_bar_menu', function ( $adminBar ) {
 			$this->createAdminBarMenu( $adminBar );
-		} );
+		}, 100 );
 	}
 
 	/**
