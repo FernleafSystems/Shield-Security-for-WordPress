@@ -60,9 +60,9 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$vulns = $lookerUpper->getVulnerabilities( $slug, $version );
 		$vulns = array_filter( array_map(
-			function ( $aVuln ) {
-				return empty( $aVuln ) ? null
-					: ( new Shield\Scans\Wpv\WpVulnDb\WpVulnVO() )->applyFromArray( $aVuln );
+			function ( $vul ) {
+				return empty( $vul ) ? null
+					: ( new Shield\Scans\Wpv\WpVulnDb\WpVulnVO() )->applyFromArray( $vul );
 			},
 			( is_array( $vulns ) ? $vulns : [] )
 		) );

@@ -14,10 +14,10 @@ class VerifyUniqueEvents {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 
 		$aAllKeys = [];
-		foreach ( $oCon->modules as $mod ) {
+		foreach ( $con->modules as $mod ) {
 			$aKeys = array_map(
 				function ( $aEvt ) {
 					return $aEvt[ 'key' ];
