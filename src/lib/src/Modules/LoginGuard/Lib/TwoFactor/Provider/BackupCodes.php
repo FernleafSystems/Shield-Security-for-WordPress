@@ -24,7 +24,6 @@ class BackupCodes extends BaseProvider {
 	}
 
 	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
-		error_log( var_export( $this->hasValidatedProfile( $user ), true ) );
 		return [
 			'strings' => [
 				'button_gen_code'       => __( 'Generate ONE-Time Backup 2FA Login Code', 'wp-simple-firewall' ),

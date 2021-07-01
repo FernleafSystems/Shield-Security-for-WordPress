@@ -47,9 +47,6 @@ class ScanWpv extends ScanBase {
 	public function column_vulnerability( $item ) {
 		/** @var Scans\Wpv\WpVulnDb\VulnVO $vul */
 		$vul = $item[ 'wpvuln_vo' ];
-		error_log( var_export( $vul, true ) );
-		error_log( var_export( $vul->title, true ) );
-		error_log( var_export( $vul->references, true ) );
 		$content = sprintf( '<span class="vuln-title">%s</span>', $vul->title );
 
 		if ( $vul->provider === 'patchstack' ) {
