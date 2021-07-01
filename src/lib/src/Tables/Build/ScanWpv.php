@@ -54,7 +54,7 @@ class ScanWpv extends ScanBase {
 				$e[ 'has_update' ] = $WPT->isUpdateAvailable( $item->slug );
 			}
 			$e[ 'slug' ] = $item->slug;
-			$e[ 'wpvuln_vo' ] = $item->getWpVulnVo();
+			$e[ 'wpvuln_vo' ] = $item->getVulnVo();
 			$e[ 'ignored' ] = $this->formatIsIgnored( $entry );
 			$e[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
 			$entries[ $key ] = $e;

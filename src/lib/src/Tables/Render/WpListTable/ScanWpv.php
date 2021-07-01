@@ -45,14 +45,31 @@ class ScanWpv extends ScanBase {
 	 * @return string
 	 */
 	public function column_vulnerability( $item ) {
-		/** @var Scans\Wpv\WpVulnDb\WpVulnVO $vuln */
-		$vuln = $item[ 'wpvuln_vo' ];
-		$content = sprintf( '<span class="vuln-title">%s</span>', $vuln->title );
+		/** @var Scans\Wpv\WpVulnDb\VulnVO $vul */
+		$vul = $item[ 'wpvuln_vo' ];
+		error_log( var_export( $vul, true ) );
+		error_log( var_export( $vul->title, true ) );
+		error_log( var_export( $vul->references, true ) );
+		$content = sprintf( '<span class="vuln-title">%s</span>', $vul->title );
 
+		if ( $vul->provider === 'patchstack' ) {
+			$url = $vul->references[ 0 ];
+		}
+		elseif ( $vul->provider === 'wpscan' ) {
+			if ( empty( $vul->references[ 'url' ] ) ) {
+				$url = sprintf( 'https://wpscan.com/vulnerability/%s', $vul->id );
+			}
+			else {
+				$url = $vul->references[ 'url' ][ 0 ];
+			}
+		}
+		else {
+			$url = '';
+		}
 		$buttons = [
 			$this->getActionButton_Ignore( $item[ 'id' ] ),
 			sprintf( '<a href="%s" class="btn btn-sm btn-link text-info" target="_blank">%s</a>',
-				$vuln->url, __( 'More Info', 'wp-simple-firewall' ) ),
+				$url, __( 'More Info', 'wp-simple-firewall' ) ),
 		];
 		return $content.$this->buildActions( $buttons );
 	}

@@ -19,12 +19,12 @@ class ConvertBetweenTypes {
 	 * @return Databases\Scanner\EntryVO[]|mixed
 	 */
 	public function fromResultsToVOs( $oResultsSet ) {
-		$aVos = [];
-		foreach ( $oResultsSet->getAllItems() as $oIt ) {
-			/** @var Scans\Base\BaseResultItem $oIt */
-			$aVos[ $oIt->generateHash() ] = $this->convertResultItemToVO( $oIt );
+		$vos = [];
+		foreach ( $oResultsSet->getAllItems() as $item ) {
+			/** @var Scans\Base\BaseResultItem $item */
+			$vos[ $item->generateHash() ] = $this->convertResultItemToVO( $item );
 		}
-		return $aVos;
+		return $vos;
 	}
 
 	/**

@@ -58,23 +58,21 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			$lookerUpper = new Vulnerabilities\Theme( $sApiToken );
 		}
 
-		$vulns = $lookerUpper->getVulnerabilities( $slug, $version );
-		$vulns = array_filter( array_map(
-			function ( $vul ) {
-				return empty( $vul ) ? null
-					: ( new Shield\Scans\Wpv\WpVulnDb\WpVulnVO() )->applyFromArray( $vul );
-			},
-			( is_array( $vulns ) ? $vulns : [] )
-		) );
+		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
+		if ( is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
 
-		/** @var Shield\Scans\Wpv\WpVulnDb\WpVulnVO[] $vulns */
-		foreach ( $vulns as $VO ) {
-			$item = new ResultItem();
-			$item->slug = $file;
-			$item->context = $context;
-			$item->wpvuln_id = $VO->id;
-			$item->wpvuln_vo = $VO->getRawData();
-			$results->addItem( $item );
+			foreach ( array_filter( $rawVuls[ 'vulnerabilities' ] ) as $vul ) {
+				$VO = ( new Shield\Scans\Wpv\WpVulnDb\VulnVO() )->applyFromArray( $vul );
+				$VO->provider = $rawVuls[ 'meta' ][ 'provider' ];
+
+				$item = new ResultItem();
+				$item->slug = $file;
+				$item->context = $context;
+				$item->wpvuln_id = $VO->id;
+				$item->wpvuln_vo = $VO->getRawData();
+
+				$results->addItem( $item );
+			}
 		}
 
 		return $results;
