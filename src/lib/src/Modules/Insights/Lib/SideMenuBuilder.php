@@ -97,26 +97,27 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'  => $slug.'-blocksettings',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'IP Blocking', 'wp-simple-firewall' ) ),
+				'title' => __( 'Blocking Rules', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_IPs()->getUrl_AdminPage(),
 			],
 			[
 				'slug'  => $slug.'-antibotsettings',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'AntiBot', 'wp-simple-firewall' ) ),
+				'title' => __( 'AntiBot Rules', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
 			[
 				'slug'    => 'ips-download',
 				'href'    => $con->getModule_IPs()->createFileDownloadLink( 'db_ip' ),
 				'classes' => [ 'shield_file_download' ],
-				'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
+				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
 			],
 		];
 
 		return [
 			'slug'      => $slug,
-			'title'     => __( 'IPs and Bots', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/diagram-3.svg' ),
+			'title'     => __( 'IPs & Bots', 'wp-simple-firewall' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/diagram-3.svg' ),
+			'img_hover' => $this->getCon()->svgs->raw( 'bootstrap/diagram-3-fill.svg' ),
 			'introjs'   => [
 				'body' => __( "Protection begins by detecting bad bots - Review and Analyse all visitor IPs that have an impact on your site.", 'wp-simple-firewall' ),
 			],
@@ -133,24 +134,19 @@ class SideMenuBuilder {
 		$subItems = [
 			[
 				'slug'   => $slug.'-log',
-				'title'  => __( 'View Audit Trail Log', 'wp-simple-firewall' ),
+				'title'  => __( 'View Log', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( $slug ),
 				'active' => $this->getInav() === $slug,
 			],
 			[
-				'slug'  => $slug.'-settings',
-				'title' => __( 'Configuration', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
-			],
-			[
 				'slug'    => 'audit-download',
-				'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
+				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
 				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_audit' ),
 				'classes' => [ 'shield_file_download' ],
 			],
 			[
 				'slug'   => 'audit-glossary',
-				'title'  => __( 'Audit Trail Glossary', 'wp-simple-firewall' ),
+				'title'  => __( 'Glossary', 'wp-simple-firewall' ),
 				'href'   => 'https://shsec.io/audittrailglossary',
 				'target' => '_blank',
 			],
@@ -159,7 +155,7 @@ class SideMenuBuilder {
 		return [
 			'slug'      => $slug,
 			'title'     => __( 'Audit Trail', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/person-lines-fill.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 			'introjs'   => [
 				'body' => __( "Track and review all important actions taken on your site - see the Who, What and When.", 'wp-simple-firewall' ),
 			],
@@ -189,7 +185,7 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'  => $slug.'-settings',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'Automatic Scans', 'wp-simple-firewall' ) ),
+				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
 			],
 		];
@@ -197,7 +193,8 @@ class SideMenuBuilder {
 		return [
 			'slug'      => $slug,
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/shield-shaded.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/shield-shaded.svg' ),
+			'img_hover' => $this->getCon()->svgs->raw( 'bootstrap/shield-fill.svg' ),
 			'introjs'   => [
 				'body' => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
@@ -212,7 +209,7 @@ class SideMenuBuilder {
 		return [
 			'slug'    => 'search',
 			'title'   => __( 'Search', 'wp-simple-firewall' ),
-			'img'     => $this->getCon()->urls->forImage( 'bootstrap/search.svg' ),
+			'img'     => $this->getCon()->svgs->raw( 'bootstrap/search.svg' ),
 			'id'      => 'NavMenuSearch',
 			'href'    => $mod->getUrl_SubInsightsPage( 'overview' ),
 			'introjs' => [
@@ -232,7 +229,8 @@ class SideMenuBuilder {
 		return [
 			'slug'      => 'reports',
 			'title'     => __( 'Reports', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/graph-up.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/bar-chart-line.svg' ),
+			'img_hover' => $this->getCon()->svgs->raw( 'bootstrap/bar-chart-line-fill.svg' ),
 			'href'      => $mod->getUrl_SubInsightsPage( 'reports' ),
 			'introjs'   => [
 				'body' => __( 'Reports use the built-in stats to show you how Shield is working to secure your site.' ),
@@ -260,7 +258,7 @@ class SideMenuBuilder {
 		return [
 			'slug'    => 'overview',
 			'title'   => __( 'Overview', 'wp-simple-firewall' ),
-			'img'     => $this->getCon()->urls->forImage( 'bootstrap/binoculars.svg' ),
+			'img'     => $this->getCon()->svgs->raw( 'bootstrap/binoculars.svg' ),
 			'href'    => $mod->getUrl_SubInsightsPage( 'overview' ),
 			'introjs' => [
 				'body' => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
@@ -293,8 +291,8 @@ class SideMenuBuilder {
 
 		return [
 			'slug'      => $slug,
-			'title'     => __( 'Configuration', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/sliders.svg' ),
+			'title'     => __( 'Config', 'wp-simple-firewall' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
 			'introjs'   => [
 				'body' => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
@@ -307,7 +305,8 @@ class SideMenuBuilder {
 		$con = $this->getCon();
 		return [
 			'slug'      => 'integrations',
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/puzzle-fill.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/puzzle.svg' ),
+			'img_hover' => $this->getCon()->svgs->raw( 'bootstrap/puzzle-fill.svg' ),
 			'title'     => __( 'Integrations', 'wp-simple-firewall' ),
 			'introjs'   => [
 				'body' => __( "Integrate with your favourite plugins to block SPAM and manage Shield better.", 'wp-simple-firewall' ),
@@ -333,7 +332,7 @@ class SideMenuBuilder {
 		return [
 			'slug'  => 'docs',
 			'title' => __( "View Docs", 'wp-simple-firewall' ),
-			'img'   => $this->getCon()->urls->forImage( 'bootstrap/book-half.svg' ),
+			'img'   => $this->getCon()->svgs->raw( 'bootstrap/book-half.svg' ),
 			'href'  => $mod->getUrl_SubInsightsPage( 'docs' ),
 		];
 	}
@@ -373,7 +372,8 @@ class SideMenuBuilder {
 		return [
 			'slug'      => 'license',
 			'title'     => $isPro ? __( 'ShieldPRO', 'wp-simple-firewall' ) : __( 'Go PRO!', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/award.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/award.svg' ),
+			'img_hover' => $this->getCon()->svgs->raw( 'bootstrap/award-fill.svg' ),
 			'href'      => $mod->getUrl_SubInsightsPage( 'license' ),
 			'sub_items' => $subItems,
 		];
@@ -414,7 +414,7 @@ class SideMenuBuilder {
 		return [
 			'slug'      => $slug,
 			'title'     => __( 'Tools', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/tools.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/tools.svg' ),
 			'introjs'   => [
 				'body' => __( "Important security tools, such a import/export, whitelabel and admin notes.", 'wp-simple-firewall' ),
 			],
@@ -431,27 +431,27 @@ class SideMenuBuilder {
 		$subItems = [
 			[
 				'slug'   => $slug.'-log',
-				'title'  => __( 'View Traffic Log', 'wp-simple-firewall' ),
+				'title'  => __( 'View Traffic', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( $slug ),
 				'active' => $this->getInav() === $slug,
 			],
 			[
-				'slug'  => $slug.'-ratelimitsettings',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'Rate Limiting', 'wp-simple-firewall' ) ),
-				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_limiter' ),
+				'slug'  => $slug.'-settings',
+				'title' => __( 'Configure', 'wp-simple-firewall' ),
+				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_options' ),
 			],
 			[
 				'slug'    => 'traffic-download',
 				'href'    => $con->getModule_Traffic()->createFileDownloadLink( 'db_traffic' ),
 				'classes' => [ 'shield_file_download' ],
-				'title'   => sprintf( __( 'Download (as %s)', 'wp-simple-firewall' ), 'CSV' ),
+				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
 			],
 		];
 
 		return [
 			'slug'      => 'traffic',
 			'title'     => __( 'Traffic', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/stoplights.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/stoplights.svg' ),
 			'introjs'   => [
 				'body' => __( "Monitor and watch traffic as it hits your site.", 'wp-simple-firewall' ),
 			],
@@ -477,18 +477,18 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'  => 'users-settings',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
+				'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
 				'href'  => $con->getModule_UserManagement()
 							   ->getUrl_DirectLinkToSection( 'section_user_session_management' ),
 			],
 			[
 				'slug'  => 'users-passwords',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'Password Policies', 'wp-simple-firewall' ) ),
+				'title' => __( 'Password Policies', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_passwords' ),
 			],
 			[
 				'slug'  => 'users-suspend',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'User Suspension', 'wp-simple-firewall' ) ),
+				'title' => __( 'User Suspension', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_suspend' ),
 			],
 		];
@@ -496,7 +496,7 @@ class SideMenuBuilder {
 		return [
 			'slug'      => 'users',
 			'title'     => __( 'Users', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->urls->forImage( 'bootstrap/person-badge.svg' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/person-badge.svg' ),
 			'introjs'   => [
 				'body' => __( 'View sessions, and configure session timeouts and passwords requirements.', 'wp-simple-firewall' ),
 			],

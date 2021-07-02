@@ -20,13 +20,17 @@ abstract class Base extends ExecOnceModConsumer {
 	/**
 	 * @var BaseScanActionVO
 	 */
-	private $oScanActionVO;
+	private $scanActionVO;
 
 	/**
 	 * Base constructor.
 	 * see dynamic constructors: features/hack_protect.php
 	 */
 	public function __construct() {
+	}
+
+	protected function canRun() :bool {
+		return $this->isReady();
 	}
 
 	protected function run() {
@@ -169,10 +173,10 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
-		if ( !$this->oScanActionVO instanceof BaseScanActionVO ) {
-			$this->oScanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
+		if ( !$this->scanActionVO instanceof BaseScanActionVO ) {
+			$this->scanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
 		}
-		return $this->oScanActionVO;
+		return $this->scanActionVO;
 	}
 
 	public function getScanName() :string {

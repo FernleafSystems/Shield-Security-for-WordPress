@@ -1553,6 +1553,7 @@ body.folded #FooterBannerGoPro {
 	border-color: rgba(85, 178, 87, 0.2);
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
+	min-width: 150px;
 }
 #NavSideBar a.nav-link:hover {
 	color: black;
@@ -1560,6 +1561,33 @@ body.folded #FooterBannerGoPro {
 #NavSideBar a.nav-link.active {
 	font-weight: bolder;
 	font-size: 1rem;
+}
+#NavSideBar .nav-item {
+}
+#NavSideBar .nav-item .nav-icon > svg {
+	width: 24px;
+	height: 24px;
+	color: #333333;
+}
+#NavSideBar .nav-item .active .nav-icon > svg,
+#NavSideBar .nav-item:hover .nav-icon > svg {
+	color: #008000;
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+	transition: transform 0.25s;
+}
+#NavSideBar .nav-item .top-title {
+	color: black;
+}
+#NavSideBar .nav-item .active .top-title,
+#NavSideBar .nav-item:hover .top-title {
+	color: #008000;
+}
+#NavSideBar .nav-item .collapsing,
+#NavSideBar .nav-item .collapse {
+	border: 1px solid rgba(156, 144, 144, 0.1);
+	border-radius: 3px;
+	background-color: rgba(255, 255, 255, 0.4);
 }
 .primary_sub_menu {
 }

@@ -359,7 +359,7 @@ class DashboardCards {
 			],
 
 			'integrations' => [
-				'title'   => __( '3rd Party Integrations', 'wp-simple-firewall' ),
+				'title'   => __( 'Integrations', 'wp-simple-firewall' ),
 				'img'     => $con->urls->forImage( 'bootstrap/link-45deg.svg' ),
 				'paras'   => [
 					__( "Shield integrates with 3rd party plugins and services.", 'wp-simple-firewall' ),
