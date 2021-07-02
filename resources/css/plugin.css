@@ -1572,6 +1572,7 @@ body.folded #FooterBannerGoPro {
 	height: 24px;
 	color: #333333;
 }
+#NavSideBar .nav-item.activesub .nav-icon > svg,
 #NavSideBar .nav-item .active .nav-icon > svg,
 #NavSideBar .nav-item:hover .nav-icon > svg {
 	color: #008000;
@@ -1582,15 +1583,10 @@ body.folded #FooterBannerGoPro {
 #NavSideBar .nav-item .top-title {
 	color: black;
 }
+#NavSideBar .nav-item.activesub .top-title,
 #NavSideBar .nav-item .active .top-title,
 #NavSideBar .nav-item:hover .top-title {
 	color: #008000;
-}
-#NavSideBar .nav-item .collapsing,
-#NavSideBar .nav-item .collapse {
-	border: 1px solid rgba(156, 144, 144, 0.1);
-	border-radius: 3px;
-	background-color: rgba(255, 255, 255, 0.4);
 }
 .primary_sub_menu {
 }
@@ -1612,7 +1608,7 @@ body.folded #FooterBannerGoPro {
 	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
 	margin-top: -40px;
 }
-.with-submenu .subnav-menu.active {
+.with-submenu.activesub .subnav-menu {
 	visibility: visible;
 	opacity: 1;
 	transition: visibility 0s;
