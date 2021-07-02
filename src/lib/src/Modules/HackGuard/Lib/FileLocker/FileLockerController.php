@@ -33,7 +33,7 @@ class FileLockerController {
 	protected function run() {
 		$con = $this->getCon();
 		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
-		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'processFileLocks' ] );
+		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'checkLockConfig' ] );
 		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
