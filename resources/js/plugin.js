@@ -99,6 +99,48 @@ var iCWP_WPSF_Toaster = new function () {
 }();
 iCWP_WPSF_Toaster.initialise();
 
+var iCWP_WPSF_SubMenu = new function () {
+
+	this.showMessage = function ( msg, success ) {
+		let $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
+		let $oToastBody = jQuery( '.toast-body', $oNewToast );
+		$oToastBody.html( '' );
+
+		jQuery( '<span></span>' ).html( msg )
+								 .addClass( success ? 'text-dark' : 'text-danger' )
+								 .appendTo( $oToastBody );
+
+		$oNewToast.css( 'z-index', 1000 );
+		$oNewToast.toast( 'show' );
+		$oNewToast.on( 'hidden.bs.toast', function () {
+			$oNewToast.css( 'z-index', -10 )
+		} );
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			let navBar = jQuery( '#NavSideBar' );
+			navBar.on( 'click', 'li.nav-item.with-submenu > a.nav-link', function ( evt ) {
+				let $theLink = jQuery( evt.currentTarget );
+				let $submenu = jQuery( '.subnav-menu', $theLink.closest( 'li.nav-item' ) );
+				if ( $submenu.hasClass( 'active' ) ) {
+					$submenu.removeClass( 'active' )
+				}
+				else {
+					jQuery( 'li.nav-item.with-submenu > .subnav-menu.active', navBar ).removeClass( 'active' );
+					$submenu.addClass( 'active' )
+				}
+			} );
+			jQuery( document ).on( 'click', function ( evt ) {
+				if ( !jQuery( evt.target ).closest( navBar ).length && jQuery( navBar ).is( ":visible" ) ) {
+					jQuery( 'li.nav-item.with-submenu > .subnav-menu.active', navBar ).removeClass( 'active' );
+				}
+			} );
+		} );
+	};
+}();
+iCWP_WPSF_SubMenu.initialise();
+
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	let bRequestCurrentlyRunning = false;

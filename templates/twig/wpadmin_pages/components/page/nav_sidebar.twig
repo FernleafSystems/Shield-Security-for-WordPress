@@ -3,12 +3,12 @@
 <ul class="nav top-level-nav flex-column mt-4">
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item pb-4 subnav"
+		<li class="nav-item pb-4 {% if mitem.sub_items|default([]) is not empty %}with-submenu{% endif %}"
 			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
 
 			{% if mitem.sub_items|default([]) is not empty %}
-				<div class="subnav-content" id="subnav-{{ mitem.slug }}">
+				<div class="subnav-menu" id="subnav-{{ mitem.slug }}">
 					<ul class="nav flex-column pt-0 primary_side_sub_menu px-2 py-2">
 						<li class="nav-item mb-0 pl-0 py-1">
 							<span class="text-secondary font-italic text-monospace">{{ mitem.title }}</span>
@@ -47,32 +47,16 @@
 						{{ mitem.img|raw }}
 					</span>
 				{% endif %}
-				<span class="top-title">{{ mitem.title }}</span>
+				<span class="top-title">
+					{{ mitem.title }}
+					{% if mitem.sub_items|default([]) is not empty %}&gt;{% endif %}
+				</span>
 				{% if mitem.badge|default([]) is not empty %}
 					<span class="badge badge-{{ mitem.badge.type|default('info') }}">
 						{{ mitem.badge.text }}
 					</span>
 				{% endif %}
 			</a>
-
-			{% if mitem.sub_items|default([]) is not empty %}
-{#				<div class="collapse {% if mitem.active %}show{% endif %}" id="collapse-{{ mitem.slug }}">#}
-				<div class="collapse" id="collapse-{{ mitem.slug }}">
-					<ul class="nav flex-column pt-0 primary_sub_menu px-2 py-2">
-					{% for sub in mitem.sub_items %}
-						<li class="nav-item mb-0 pl-0 py-1">
-							<a class="p-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
-							   href="{{ sub.href|default('#') }}"
-									{% for data_key,data_val in sub.data|default([]) %}
-										data-{{ data_key }}="{{ data_val }}"
-									{% endfor %}
-									{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
-							>{{ sub.title }}</a>
-						</li>
-					{% endfor %}
-					</ul>
-				</div>
-			{% endif %}
 
 		</li>
 
