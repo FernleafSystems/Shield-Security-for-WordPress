@@ -39,21 +39,21 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	 * @throws \Exception
 	 */
 	private function assetAccept() {
-		/** @var Ptg\ResultsSet $oRes */
-		$oRes = $this->getScanController()->getAllResults();
+		/** @var Ptg\ResultsSet $results */
+		$results = $this->getScanController()->getAllResults();
 
-		/** @var Ptg\ResultItem $oMainItem */
-		$oMainItem = $this->getScanItem();
+		/** @var Ptg\ResultItem $item */
+		$item = $this->getScanItem();
 
-		foreach ( $oRes->getItemsForSlug( $oMainItem->slug ) as $oItem ) {
-			$oTmpHandler = clone $this;
-			$oTmpHandler->setScanItem( $oItem )
+		foreach ( $results->getItemsForSlug( $item->slug ) as $oItem ) {
+			$tmpHandler = clone $this;
+			$tmpHandler->setScanItem( $oItem )
 						->ignore();
 		}
 
 		( new Snapshots\StoreAction\Build() )
 			->setMod( $this->getMod() )
-			->setAsset( $this->getAssetFromSlug( $oMainItem->slug ) )
+			->setAsset( $this->getAssetFromSlug( $item->slug ) )
 			->run();
 
 		return true;

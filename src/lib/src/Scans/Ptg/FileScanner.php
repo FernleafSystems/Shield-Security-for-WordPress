@@ -159,20 +159,20 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param Assets\WpPluginVo|Assets\WpThemeVo $oAsset
-	 * @param string                             $sFile
+	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
+	 * @param string                             $file
 	 * @return ResultItem
 	 */
-	private function getNewItem( $oAsset, $sFile ) {
-		/** @var ResultItem $oItem */
-		$oItem = $this->getScanActionVO()->getNewResultItem();
-		$oItem->path_full = $sFile;
-		$oItem->path_fragment = $sFile; // will eventually be overwritten
-		$oItem->is_unrecognised = false;
-		$oItem->is_different = false;
-		$oItem->is_missing = false;
-		$oItem->context = ( $oAsset instanceof Assets\WpPluginVo ) ? 'plugins' : 'themes';
-		$oItem->slug = ( $oAsset instanceof Assets\WpPluginVo ) ? $oAsset->file : $oAsset->stylesheet;
-		return $oItem;
+	private function getNewItem( $asset, $file ) {
+		/** @var ResultItem $item */
+		$item = $this->getScanActionVO()->getNewResultItem();
+		$item->path_full = $file;
+		$item->path_fragment = $file; // will eventually be overwritten
+		$item->is_unrecognised = false;
+		$item->is_different = false;
+		$item->is_missing = false;
+		$item->context = ( $asset instanceof Assets\WpPluginVo ) ? 'plugins' : 'themes';
+		$item->slug = ( $asset instanceof Assets\WpPluginVo ) ? $asset->file : $asset->stylesheet;
+		return $item;
 	}
 }

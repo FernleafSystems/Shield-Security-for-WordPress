@@ -10,11 +10,11 @@ class TouchAll extends BaseBulk {
 	public function run() {
 		foreach ( ( new FindAssetsToSnap() )->setMod( $this->getMod() )->run() as $asset ) {
 			try {
-				$oStore = ( new Load() )
+				$store = ( new Load() )
 					->setMod( $this->getMod() )
 					->setAsset( $asset )
 					->run();
-				foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $path ) {
+				foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
 					Services::WpFs()->touch( $path );
 				}
 			}

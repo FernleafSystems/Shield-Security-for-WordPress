@@ -231,10 +231,10 @@ abstract class Base extends ExecOnceModConsumer {
 	public function runCronAutoRepair() {
 		$results = $this->getItemsToAutoRepair();
 		if ( $results->hasItems() ) {
-			foreach ( $results->getAllItems() as $oItem ) {
+			foreach ( $results->getAllItems() as $item ) {
 				try {
 					$this->getItemActionHandler()
-						 ->setScanItem( $oItem )
+						 ->setScanItem( $item )
 						 ->repair();
 				}
 				catch ( \Exception $e ) {
