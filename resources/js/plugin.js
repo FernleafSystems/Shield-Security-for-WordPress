@@ -100,23 +100,6 @@ var iCWP_WPSF_Toaster = new function () {
 iCWP_WPSF_Toaster.initialise();
 
 var iCWP_WPSF_SubMenu = new function () {
-
-	this.showMessage = function ( msg, success ) {
-		let $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
-		let $oToastBody = jQuery( '.toast-body', $oNewToast );
-		$oToastBody.html( '' );
-
-		jQuery( '<span></span>' ).html( msg )
-								 .addClass( success ? 'text-dark' : 'text-danger' )
-								 .appendTo( $oToastBody );
-
-		$oNewToast.css( 'z-index', 1000 );
-		$oNewToast.toast( 'show' );
-		$oNewToast.on( 'hidden.bs.toast', function () {
-			$oNewToast.css( 'z-index', -10 )
-		} );
-	};
-
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
 			let navBar = jQuery( '#NavSideBar' );
