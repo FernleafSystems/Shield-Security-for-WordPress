@@ -47,7 +47,7 @@ class Store {
 	}
 
 	public function getContext() :string {
-		return ( $this->asset instanceof WpPluginVo ) ? 'plugins' : 'themes';
+		return ( $this->asset->asset_type === 'plugin' ) ? 'plugins' : 'themes';
 	}
 
 	public function getSnapStorePath() :string {
@@ -67,7 +67,7 @@ class Store {
 	}
 
 	protected function getSlug() :string {
-		return ( $this->asset instanceof WpPluginVo ) ? dirname( $this->asset->file ) : $this->asset->stylesheet;
+		return ( $this->asset->asset_type === 'plugin' ) ? dirname( $this->asset->file ) : $this->asset->stylesheet;
 	}
 
 	/**

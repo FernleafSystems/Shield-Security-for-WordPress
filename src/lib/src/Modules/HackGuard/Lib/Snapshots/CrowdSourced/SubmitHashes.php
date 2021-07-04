@@ -51,7 +51,7 @@ class SubmitHashes {
 
 	private function submit() :bool {
 		$sub = ( new Submit() )->setHashes( $this->hashes );
-		$response = $this->asset instanceof WpPluginVo ? $sub->submitPlugin( $this->asset ) : $sub->submitTheme( $this->asset );
+		$response = $this->asset->asset_type === 'plugin' ? $sub->submitPlugin( $this->asset ) : $sub->submitTheme( $this->asset );
 		return !empty( $response ) && empty( $response[ 'error' ] );
 	}
 }

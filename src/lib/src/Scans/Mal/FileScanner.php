@@ -174,7 +174,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		try {
 			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
 			$plugin = $oPluginFiles->findPluginFromFile( $fullPath );
-			if ( $plugin instanceof WpPluginVo ) {
+			if ( $plugin->asset_type === 'plugin' ) {
 				$valid = $plugin->isWpOrg() ?
 					$oPluginFiles->verifyFileContents( $fullPath )
 					: $this->verifyPremiumAssetFile( $fullPath, $plugin );

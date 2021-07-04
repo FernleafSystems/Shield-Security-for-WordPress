@@ -69,7 +69,8 @@ class PtgAddReinstallLinks {
 		$WPP = Services::WpPlugins();
 
 		$plugin = $WPP->getPluginAsVo( $file );
-		if ( $plugin instanceof WpPluginVo && $plugin->isWpOrg() && !$WPP->isUpdateAvailable( $file ) ) {
+		if ( $plugin->asset_type === 'plugin'
+			 && $plugin->isWpOrg() && !$WPP->isUpdateAvailable( $file ) ) {
 			$template = '<a href="javascript:void(0)">%s</a>';
 			$links[ 'icwp-reinstall' ] = sprintf( $template, __( 'Re-Install', 'wp-simple-firewall' ) );
 		}

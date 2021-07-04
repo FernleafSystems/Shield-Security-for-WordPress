@@ -23,31 +23,31 @@ class BuildHashesFromApi {
 	public function build( $asset ) {
 		if ( !$asset->isWpOrg() ) {
 
-			$bApiSupport = false;
+			$apiSupport = false;
 
-			$aApiInfo = ( new Hashes\ApiInfo() )
+			$apiInfo = ( new Hashes\ApiInfo() )
 				->setUseQueryCache( true )
 				->getInfo();
-			if ( is_array( $aApiInfo ) && !empty( $aApiInfo[ 'supported_premium' ] ) ) {
-				if ( $asset instanceof WpPluginVo ) {
-					$sSlug = $asset->slug;
-					$sFile = $asset->file;
-					$sName = $asset->Name;
-					$aItems = $aApiInfo[ 'supported_premium' ][ 'plugins' ];
+			if ( is_array( $apiInfo ) && !empty( $apiInfo[ 'supported_premium' ] ) ) {
+				if ( $asset->asset_type === 'plugin' ) {
+					$slug = $asset->slug;
+					$file = $asset->file;
+					$name = $asset->Name;
+					$items = $apiInfo[ 'supported_premium' ][ 'plugins' ];
 				}
 				else {
-					$sSlug = $asset->stylesheet;
-					$sFile = $asset->stylesheet;
-					$sName = $asset->wp_theme->get( 'Name' );
-					$aItems = $aApiInfo[ 'supported_premium' ][ 'themes' ];
+					$slug = $asset->stylesheet;
+					$file = $asset->stylesheet;
+					$name = $asset->wp_theme->get( 'Name' );
+					$items = $apiInfo[ 'supported_premium' ][ 'themes' ];
 				}
 
-				foreach ( $aItems as $aMaybeItem ) {
+				foreach ( $items as $aMaybeItem ) {
 
-					if ( $aMaybeItem[ 'slug' ] == $sSlug
-						 || $aMaybeItem[ 'name' ] == $sName || $aMaybeItem[ 'file' ] == $sFile ) {
-						$bApiSupport = true;
-						if ( $asset instanceof WpPluginVo && empty( $asset->slug ) ) {
+					if ( $aMaybeItem[ 'slug' ] == $slug
+						 || $aMaybeItem[ 'name' ] == $name || $aMaybeItem[ 'file' ] == $file ) {
+						$apiSupport = true;
+						if ( $asset->asset_type === 'plugin' && empty( $asset->slug ) ) {
 							$asset->slug = $aMaybeItem[ 'slug' ];
 						}
 						break;
@@ -55,7 +55,7 @@ class BuildHashesFromApi {
 				}
 			}
 
-			if ( !$bApiSupport ) {
+			if ( !$apiSupport ) {
 				throw new \Exception( 'Not a WordPress.org asset.' );
 			}
 		}
@@ -63,29 +63,29 @@ class BuildHashesFromApi {
 	}
 
 	/**
-	 * @param WpPluginVo|WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return string[]|null
 	 * @throws \Exception
 	 */
-	private function retrieveForAsset( $oAsset ) {
+	private function retrieveForAsset( $asset ) {
 
-		if ( $oAsset instanceof WpPluginVo ) {
-			$aHashes = ( new Hashes\Plugin() )
+		if ( $asset->asset_type === 'plugin' ) {
+			$hashes = ( new Hashes\Plugin() )
 				->setUseQueryCache( true )
-				->getHashes( $oAsset->slug, $oAsset->Version, 'md5' );
+				->getHashes( $asset->slug, $asset->Version, 'md5' );
 		}
-		elseif ( $oAsset instanceof WpThemeVo ) {
-			if ( $oAsset->is_child ) {
+		elseif ( $asset->asset_type === 'theme' ) {
+			if ( $asset->is_child ) {
 				throw new \Exception( 'Live hashes are not supported for child themes.' );
 			}
-			$aHashes = ( new Hashes\Theme() )
+			$hashes = ( new Hashes\Theme() )
 				->setUseQueryCache( true )
-				->getHashes( $oAsset->stylesheet, $oAsset->version, 'md5' );
+				->getHashes( $asset->stylesheet, $asset->version, 'md5' );
 		}
 		else {
 			throw new \Exception( 'Not a supported asset type' );
 		}
 
-		return $aHashes;
+		return $hashes;
 	}
 }

@@ -88,11 +88,11 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		$item = $this->getScanItem();
 		if ( $item->context == 'plugins' ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
-			$canRepair = ( $asset instanceof WpPluginVo && $asset->isWpOrg() && $asset->svn_uses_tags );
+			$canRepair = ( $asset->asset_type === 'plugin' && $asset->isWpOrg() && $asset->svn_uses_tags );
 		}
 		else {
 			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
-			$canRepair = ( $asset instanceof WpThemeVo && $asset->isWpOrg() );
+			$canRepair = ( $asset->asset_type === 'theme' && $asset->isWpOrg() );
 		}
 		return $canRepair;
 	}

@@ -24,7 +24,7 @@ class ScheduleBuildAll extends BaseBulk {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
 			}
 
-			if ( $asset instanceof WpPluginVo || !$asset->is_child ) {
+			if ( $asset->asset_type === 'plugin' || !$asset->is_child ) {
 				( new SubmitHashes() )
 					->setMod( $this->getMod() )
 					->run( $asset );
