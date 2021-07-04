@@ -3,9 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -16,6 +19,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ShieldNetApiController extends DynPropertiesClass {
 
 	use ModConsumer;
+	use PluginCronsConsumer;
 
 	/**
 	 * Automatically throttles request because otherwise PRO-nulled versions of Shield will cause
@@ -54,6 +58,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function storeVoData() {
+		$this->vo->data_last_saved_at = Services::Request()->ts();
 		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawData() );
 		$this->getMod()->saveModOptions();
 	}
@@ -85,5 +90,52 @@ class ShieldNetApiController extends DynPropertiesClass {
 		}
 
 		return $value;
+	}
+
+	public function runHourlyCron() {
+		$con = $this->getCon();
+		$modPlugin = $con->getModule_Plugin();
+		/** @var Plugin\Options $modOpts */
+		$modOpts = $modPlugin->getOptions();
+		if ( is_main_network() && $modOpts->isEnabledShieldNET() && $con->isPremiumActive()
+			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
+
+			$this->sendIPReputationData();
+		}
+	}
+
+	private function sendIPReputationData() {
+		$req = Services::Request();
+		if ( $req->carbon()->subDay()->timestamp > $this->vo->last_send_iprep_at ) {
+			$this->vo->last_send_iprep_at = $req->ts();
+			$this->storeVoData();
+
+			$data = ( new BuildData() )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->build();
+			if ( !empty( $data ) ) {
+				( new SendIPReputation() )
+					->setMod( $this->getMod() )
+					->send( $data );
+			}
+		}
+	}
+
+	/**
+	 * Ensuring that previous timestamps are stored recently, we prevent spurious requests being
+	 * sent to the API when websites can't actually store data to its own options stores.
+	 *
+	 * So if the timestamp for the last store is too far in the past, we believe we can't reliably
+	 * store data.
+	 */
+	private function canStoreDataReliably() :bool {
+		if ( Services::Request()->carbon()->subHours( 2 )->timestamp > $this->vo->data_last_saved_at ) {
+			$can = false;
+			$this->storeVoData();
+		}
+		else {
+			$can = true;
+		}
+		return $can;
 	}
 }

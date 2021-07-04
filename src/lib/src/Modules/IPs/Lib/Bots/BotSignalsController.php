@@ -2,20 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	BotTrack,
 	ModCon,
 	Options
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController extends ExecOnceModConsumer {
-
-	use PluginCronsConsumer;
 
 	/**
 	 * @var NotBot\NotBotHandler
@@ -80,7 +75,6 @@ class BotSignalsController extends ExecOnceModConsumer {
 			}
 			$this->getHandlerNotBot()->execute();
 		} );
-		$this->setupCronHooks();
 	}
 
 	/**
@@ -126,32 +120,5 @@ class BotSignalsController extends ExecOnceModConsumer {
 		}
 
 		return $trackers;
-	}
-
-	public function runHourlyCron() {
-		$con = $this->getCon();
-		$modPlugin = $con->getModule_Plugin();
-		/** @var Plugin\Options $modOpts */
-		$modOpts = $modPlugin->getOptions();
-		if ( is_main_network() && $modOpts->isEnabledShieldNET() &&
-			 $con->isPremiumActive() && $modPlugin->getShieldNetApiController()->canHandshake() ) {
-
-			$req = Services::Request();
-			/** @var Options $opts */
-			$opts = $this->getOptions();
-			if ( $req->carbon()->subDay()->timestamp > (int)$opts->getOpt( 'last_shieldnet_at' ) ) {
-				$opts->setOpt( 'last_shieldnet_at', $req->ts() );
-				$this->getMod()->saveModOptions();
-
-				$data = ( new ShieldNET\BuildData() )
-					->setMod( $this->getCon()->getModule_IPs() )
-					->build();
-				if ( !empty( $data ) ) {
-					( new SendIPReputation() )
-						->setMod( $this->getMod() )
-						->send( $data );
-				}
-			}
-		}
 	}
 }
