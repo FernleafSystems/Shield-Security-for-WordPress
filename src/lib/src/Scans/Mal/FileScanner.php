@@ -195,7 +195,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		try {
 			$oThemeFiles = new Utilities\WpOrg\Theme\Files();
 			$theme = $oThemeFiles->findThemeFromFile( $fullPath );
-			if ( $theme instanceof WpThemeVo ) {
+			if ( $theme->asset_type === 'theme' ) {
 				$valid = $theme->isWpOrg() ?
 					$oThemeFiles->verifyFileContents( $fullPath )
 					: $this->verifyPremiumAssetFile( $fullPath, $theme );

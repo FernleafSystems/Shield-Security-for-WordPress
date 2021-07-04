@@ -60,26 +60,26 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdImport( array $null, array $aA ) {
+	public function cmdImport( array $null, array $args ) {
 
-		$sSource = isset( $aA[ 'source' ] ) ? $aA[ 'source' ] : '';
-		if ( empty( $sSource ) ) {
+		$source = isset( $args[ 'source' ] ) ? $args[ 'source' ] : '';
+		if ( empty( $source ) ) {
 			WP_CLI::error( __( 'Please use the `--source=` argument to provide the source site URL or path to file.', 'wp-simple-firewall' ) );
 		}
 
-		if ( !$this->isForceFlag( $aA ) ) {
+		if ( !$this->isForceFlag( $args ) ) {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 
 		try {
-			if ( filter_var( $sSource, FILTER_VALIDATE_URL ) ) {
-				$this->runImportFromSite( $aA );
+			if ( filter_var( $source, FILTER_VALIDATE_URL ) ) {
+				$this->runImportFromSite( $args );
 			}
 			else {
-				$this->runImportFromFile( $sSource, WP_CLI\Utils\get_flag_value( $aA, 'delete-file', false ) );
+				$this->runImportFromFile( $source, WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
 			}
 		}
 		catch ( \Exception $e ) {
@@ -96,26 +96,14 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	/**
-	 * @param string $sPath
-	 * @param bool   $bDeleteFile
+	 * @param string $path
+	 * @param bool   $deleteFile
 	 * @throws \Exception
 	 */
-	private function runImportFromFile( $sPath, $bDeleteFile = false ) {
-		$oFS = Services::WpFs();
-		if ( !$oFS->isFile( $sPath ) ) {
-			throw new \Exception( "The source specified isn't a valid file." );
-		}
-		if ( !is_readable( $sPath ) ) {
-			throw new \Exception( "Couldn't read the source file." );
-		}
-
+	private function runImportFromFile( string $path, $deleteFile = false ) {
 		( new Lib\ImportExport\Import() )
 			->setMod( $this->getMod() )
-			->fromFile( $sPath );
-
-		if ( $bDeleteFile ) {
-			$oFS->deleteFile( $sPath );
-		}
+			->fromFile( $path, $deleteFile );
 	}
 
 	/**

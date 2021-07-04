@@ -2,38 +2,53 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportController {
 
+	use ExecOnce;
 	use ModConsumer;
+	use Shield\Crons\PluginCronsConsumer;
 
-	public function run() {
-		$oCon = $this->getCon();
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
+	protected function run() {
+		$con = $this->getCon();
+		if ( $con->isPremiumActive() ) {
+			$this->setupHooks();
+			$this->setupCronHooks();
+		}
+	}
+
+	private function setupHooks() {
+		$con = $this->getCon();
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
 
 		// Cron
-		add_action( $oCon->prefix( 'importexport_notify' ), function () {
+		add_action( $con->prefix( 'importexport_notify' ), function () {
 			( new NotifyWhitelist() )
 				->setMod( $this->getMod() )
 				->run();
 		} );
+		add_action( 'shield/plugin_activated', function () {
+			$this->importFromFlag();
+		} );
 
-		if ( $oOpts->hasImportExportMasterImportUrl() ) {
+		if ( $opts->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
-			add_action( $oCon->prefix( 'importexport_updatenotified' ), function () {
+			add_action( $con->prefix( 'importexport_updatenotified' ), function () {
 				( new Import() )
 					->setMod( $this->getMod() )
 					->run( 'site' );
 			} );
 		}
 
-		add_action( $oCon->prefix( 'shield_action' ), function ( $sAction ) {
-			switch ( $sAction ) {
+		add_action( $con->prefix( 'shield_action' ), function ( $action ) {
+			switch ( $action ) {
 				case 'importexport_export':
 					( new Export() )
 						->setMod( $this->getMod() )
@@ -57,13 +72,24 @@ class ImportExportController {
 		} );
 	}
 
+	private function importFromFlag() {
+		$path = $this->getCon()->paths->forFlag( 'import.json' );
+		try {
+			( new Import() )
+				->setMod( $this->getMod() )
+				->fromFile( $path );
+		}
+		catch ( \Exception $e ) {
+		}
+	}
+
 	/**
 	 * We've been notified that there's an update to pull in from the master site so we set a cron to do this.
 	 */
 	private function runOptionsUpdateNotified() {
 		$oCon = $this->getCon();
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
 
 		$sCronHook = $oCon->prefix( 'importexport_updatenotified' );
 		if ( wp_next_scheduled( $sCronHook ) ) {
@@ -76,18 +102,18 @@ class ImportExportController {
 
 			preg_match( '#.*WordPress/.*\s+(.*)\s?#', Services::Request()->getUserAgent(), $aMatches );
 			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
-				$sUrl = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
-				if ( !empty( $sUrl ) ) {
-					$sUrl = 'Site: '.$sUrl;
+				$url = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
+				if ( !empty( $url ) ) {
+					$url = 'Site: '.$url;
 				}
 			}
 			else {
-				$sUrl = '';
+				$url = '';
 			}
 
 			$this->getCon()->fireEvent(
 				'import_notify_received',
-				[ 'audit' => [ 'master_site' => $oOpts->getImportExportMasterImportUrl() ] ]
+				[ 'audit' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
 			);
 		}
 	}
@@ -106,6 +132,18 @@ class ImportExportController {
 		}
 		else {
 			return;
+		}
+	}
+
+	public function runDailyCron() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		try {
+			( new Import() )
+				->setMod( $this->getMod() )
+				->fromSite( $opts->getImportExportMasterImportUrl() );
+		}
+		catch ( \Exception $e ) {
 		}
 	}
 

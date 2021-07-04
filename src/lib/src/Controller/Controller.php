@@ -317,6 +317,7 @@ class Controller extends DynPropertiesClass {
 		$modPlugin = $this->getModule_Plugin();
 		if ( $modPlugin instanceof Shield\Modules\Base\ModCon ) {
 			$modPlugin->setActivatedAt();
+			do_action( 'shield/plugin_activated' );
 		}
 	}
 

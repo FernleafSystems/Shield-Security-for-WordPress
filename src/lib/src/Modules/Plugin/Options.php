@@ -63,8 +63,12 @@ class Options extends BaseShield\Options {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 11.4
+	 */
 	public function isImportExportPermitted() :bool {
-		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
+		return $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**
