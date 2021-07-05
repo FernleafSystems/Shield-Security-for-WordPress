@@ -49,7 +49,9 @@
 				{% endif %}
 				<span class="top-title">
 					{{ mitem.title }}
-					{% if mitem.sub_items|default([]) is not empty %}&gt;{% endif %}
+					{% if mitem.sub_items|default([]) is not empty %}
+						{{ imgs.svgs.triangle|raw }}
+					{% endif %}
 				</span>
 				{% if mitem.badge|default([]) is not empty %}
 					<span class="badge badge-{{ mitem.badge.type|default('info') }}">

@@ -1583,6 +1583,19 @@ body.folded #FooterBannerGoPro {
 #NavSideBar .nav-item .top-title {
 	color: black;
 }
+#NavSideBar .nav-item .top-title > svg {
+	transform-origin: 50% 50%;
+	transform: rotate(60deg);
+	height: 8px;
+	width: 8px;
+	margin-top: -4px;
+	margin-left: 2px;
+	margin-right: -2px;
+	transition: transform 0.5s ease;
+}
+#NavSideBar .nav-item.activesub .top-title > svg {
+	transform: rotate(-30deg);
+}
 #NavSideBar .nav-item.activesub .top-title,
 #NavSideBar .nav-item .active .top-title,
 #NavSideBar .nav-item:hover .top-title {
