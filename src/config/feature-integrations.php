@@ -53,7 +53,7 @@
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ir",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/ke",
       "beacon_id":   404,
       "name":        "Enable MainWP",
       "summary":     "Enable The Built-In MainWP Extension",

@@ -94,6 +94,7 @@
       "advanced":    true,
       "default":     "N",
       "type":        "checkbox",
+      "beacon_id":   333,
       "link_info":   "",
       "link_blog":   "",
       "name":        "Include Cookies",
@@ -214,6 +215,7 @@
           "text":      "Return 404"
         }
       ],
+      "beacon_id":     334,
       "link_info":     "",
       "link_blog":     "",
       "name":          "Block Response",
@@ -263,6 +265,7 @@
       "premium":     true,
       "default":     "default",
       "type":        "text",
+      "beacon_id":   139,
       "link_info":   "",
       "link_blog":   "",
       "name":        "Firewall Block Message",

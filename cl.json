@@ -31,6 +31,12 @@
       },
       {
         "type":        "improved",
+        "pro_only":    true,
+        "title":       "Scanning for vulnerability in WordPress plugins and themes is improved.",
+        "description": []
+      },
+      {
+        "type":        "improved",
         "pro_only":    false,
         "title":       "Capturing and managing of user sessions is improved.",
         "description": []

@@ -69,7 +69,7 @@ class Import {
 			}
 		}
 
-		$this->processDataImport( $data, __( 'uploaded file', 'wp-simple-firewall' ) );
+		$this->processDataImport( $data, __( 'import file', 'wp-simple-firewall' ) );
 	}
 
 	/**

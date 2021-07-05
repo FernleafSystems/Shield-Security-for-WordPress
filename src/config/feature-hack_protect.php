@@ -290,7 +290,7 @@
         }
       ],
       "link_info":     "https://shsec.io/b2",
-      "link_blog":     "",
+      "link_blog":     "https://shsec.io/kd",
       "beacon_id":     223,
       "name":          "Scan Frequency",
       "summary":       "Number Of Times To Automatically Scan Core Files In 24 Hours",

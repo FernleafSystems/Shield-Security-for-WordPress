@@ -160,8 +160,9 @@
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/ka",
-      "link_blog":   "",
+      "beacon_id":   437,
+      "link_info":   "https://shsec.io/kb",
+      "link_blog":   "https://shsec.io/kc",
       "name":        "Enable ShieldNET",
       "summary":     "Enhanced Website Security Through Network Intelligence",
       "description": "Enhanced Website Security Through Network Intelligence."

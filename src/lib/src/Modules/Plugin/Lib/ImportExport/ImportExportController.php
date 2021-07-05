@@ -34,6 +34,7 @@ class ImportExportController {
 				->setMod( $this->getMod() )
 				->run();
 		} );
+
 		add_action( 'shield/plugin_activated', function () {
 			$this->importFromFlag();
 		} );
@@ -73,11 +74,10 @@ class ImportExportController {
 	}
 
 	private function importFromFlag() {
-		$path = $this->getCon()->paths->forFlag( 'import.json' );
 		try {
 			( new Import() )
 				->setMod( $this->getMod() )
-				->fromFile( $path );
+				->fromFile( $this->getCon()->paths->forFlag( 'import.json' ) );
 		}
 		catch ( \Exception $e ) {
 		}

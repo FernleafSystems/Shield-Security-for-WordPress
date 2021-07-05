@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
-use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
 class Import extends Base\WpCli\BaseWpCliCmd {
@@ -65,7 +64,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	 */
 	public function cmdImport( array $null, array $args ) {
 
-		$source = isset( $args[ 'source' ] ) ? $args[ 'source' ] : '';
+		$source = $args[ 'source' ] ?? '';
 		if ( empty( $source ) ) {
 			WP_CLI::error( __( 'Please use the `--source=` argument to provide the source site URL or path to file.', 'wp-simple-firewall' ) );
 		}
@@ -79,7 +78,10 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 				$this->runImportFromSite( $args );
 			}
 			else {
-				$this->runImportFromFile( $source, WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
+				$this->runImportFromFile(
+					$source,
+					(bool)WP_CLI\Utils\get_flag_value( $args, 'delete-file', false )
+				);
 			}
 		}
 		catch ( \Exception $e ) {
@@ -100,23 +102,23 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	 * @param bool   $deleteFile
 	 * @throws \Exception
 	 */
-	private function runImportFromFile( string $path, $deleteFile = false ) {
+	private function runImportFromFile( string $path, bool $deleteFile = false ) {
 		( new Lib\ImportExport\Import() )
 			->setMod( $this->getMod() )
 			->fromFile( $path, $deleteFile );
 	}
 
 	/**
-	 * @param array $aA
+	 * @param array $args
 	 * @throws \Exception
 	 */
-	private function runImportFromSite( array $aA ) {
+	private function runImportFromSite( array $args ) {
 
-		$sSecret = isset( $aA[ 'site-secret' ] ) ? $aA[ 'site-secret' ] : '';
-		$sSlave = isset( $aA[ 'slave' ] ) ? strtolower( $aA[ 'slave' ] ) : '';
-		if ( empty( $sSecret ) ) {
+		$secret = $args[ 'site-secret' ] ?? '';
+		$slave = isset( $args[ 'slave' ] ) ? strtolower( $args[ 'slave' ] ) : '';
+		if ( empty( $secret ) ) {
 			WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
-			if ( $sSlave === 'add' ) {
+			if ( $slave === 'add' ) {
 				throw new \Exception( "You have elected to set this site up as a slave without providing the `site-secret`.", 'wp-simple-firewall' );
 			}
 		}
@@ -124,9 +126,9 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		( new Lib\ImportExport\Import() )
 			->setMod( $this->getMod() )
 			->fromSite(
-				$aA[ 'source' ],
-				$sSecret,
-				$sSlave === 'add' ? true : ( $sSlave === 'remove' ? false : null )
+				$args[ 'source' ],
+				$secret,
+				$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
 			);
 	}
 }
