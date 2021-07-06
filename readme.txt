@@ -7,7 +7,7 @@ Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
-Tested up to: 5.7
+Tested up to: 5.8
 Stable tag: 11.4.0
 
 No-Nonsense Security Hardening that protects you against hackers, malicious bots, spammers (no captchas!). Now with exclusive ShieldNET Technology.
