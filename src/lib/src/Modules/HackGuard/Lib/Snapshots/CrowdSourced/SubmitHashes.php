@@ -34,9 +34,8 @@ class SubmitHashes {
 		$this->asset = $asset;
 
 		if ( $this->canSubmitAsset() ) {
-			$this->hashes = ( new Build\BuildHashesForAsset() )
-				->setHashAlgo( 'sha1' )
-				->buildNormalised( $asset );
+			$this->hashes = ( new Build\BuildHashesForCrowdSource() )
+				->build( $asset );
 
 			if ( !empty( $this->hashes ) && $this->isSubmitRequired() ) {
 				$this->submit();
