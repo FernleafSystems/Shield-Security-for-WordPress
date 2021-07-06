@@ -117,7 +117,7 @@ abstract class BaseQuery {
 	 * @return $this
 	 */
 	public function addWhereEquals( string $column, $mValue ) {
-		return $this->addWhere( $column, $mValue, '=' );
+		return $this->addWhere( $column, $mValue );
 	}
 
 	/**

@@ -24,9 +24,6 @@ class UltimateMember extends BaseFormProvider {
 		add_action( 'um_submit_form_password_reset', [ $this, 'checkLostPassword' ], 5, 0 );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function checkLogin() {
 		try {
 			$this->setActionToAudit( 'ultimatemember-login' )

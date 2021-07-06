@@ -93,9 +93,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'     => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
 					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
-				'lines'     => [
+				'lines'        => [
 					sprintf(
 						__( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ),
 						$name
@@ -186,8 +186,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 											 __( 'The SG Optimizer plugin has 2 settings which are breaking your site and certain %s features.', 'wp-simple-firewall' ),
 											 $name
 										 )
-										 .' '.sprintf( 'The problematic options are: "Defer Render-blocking JS" and "Remove Query Strings From Static Resources".' ),
-				'learn_more'          => sprintf( 'Click here to learn more' ),
+										 .' '.'The problematic options are: "Defer Render-blocking JS" and "Remove Query Strings From Static Resources".',
+				'learn_more'          => 'Click here to learn more',
 				'sgoptimizer_turnoff' => __( 'Click here to automatically turn off those options.', 'wp-simple-firewall' )
 			],
 			'ajax'              => [
@@ -197,8 +197,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_PluginMailingListSignup( NoticeVO $notice ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		$name = $this->getCon()->getHumanName();
 		$user = Services::WpUsers()->getCurrentWpUser();
@@ -216,14 +216,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				and to provide guidance with the %s plugin.', $name, $name ),
 				'privacy_policy' => sprintf(
 					'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
-					$oOpts->getDef( 'href_privacy_policy' )
+					$opts->getDef( 'href_privacy_policy' )
 				),
-				'consent'        => sprintf( __( 'I agree to Ts & Cs', 'wp-simple-firewall' ) )
+				'consent'        => __( 'I agree to Ts & Cs', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'privacy_policy' => $oOpts->getDef( 'href_privacy_policy' )
+				'privacy_policy' => $opts->getDef( 'href_privacy_policy' )
 			],
-			'install_days'      => $oOpts->getInstallationDays(),
+			'install_days'      => $opts->getInstallationDays(),
 			'vars'              => [
 				'name'         => $user->first_name,
 				'user_email'   => $user->user_email,
@@ -258,7 +258,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'dismiss' => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
 				'title'   => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $name ),
 				'setup'   => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $name ),
-				'launch'  =>  sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $name ),
+				'launch'  => sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $name ),
 			],
 			'hrefs'             => [
 				'wizard' => $this->getMod()->getUrl_Wizard( 'welcome' ),

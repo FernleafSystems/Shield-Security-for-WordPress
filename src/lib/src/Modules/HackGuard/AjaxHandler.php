@@ -25,7 +25,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				break;
 
 			case 'item_action':
-				$response = $this->ajaxExec_ScanItemAction( $req->post( 'item_action' ), false );
+				$response = $this->ajaxExec_ScanItemAction( $req->post( 'item_action' ) );
 				break;
 
 			case 'bulk_action':

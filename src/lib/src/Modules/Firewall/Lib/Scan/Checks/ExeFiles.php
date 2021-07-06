@@ -23,7 +23,7 @@ class ExeFiles extends Base {
 						'check' => $this->check,
 						'type'  => 'regex',
 					] );
-					break( 2 );
+					break 2;
 				}
 			}
 		}
