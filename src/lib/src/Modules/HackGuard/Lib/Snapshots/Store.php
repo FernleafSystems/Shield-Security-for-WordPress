@@ -67,7 +67,16 @@ class Store {
 	}
 
 	protected function getSlug() :string {
-		return ( $this->asset->asset_type === 'plugin' ) ? dirname( $this->asset->file ) : $this->asset->stylesheet;
+		if ( $this->asset->asset_type === 'plugin' ) {
+			$slug = dirname( $this->asset->file );
+			if ( empty( $slug ) ) {
+				$slug = $this->asset->file;
+			}
+		}
+		else {
+			$slug = $this->asset->stylesheet;
+		}
+		return empty( $slug ) ? '' : $slug;
 	}
 
 	/**
