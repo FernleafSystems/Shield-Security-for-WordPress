@@ -32,25 +32,6 @@ class BuildHashesForAsset {
 	}
 
 	/**
-	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param WpPluginVo|WpThemeVo $asset
-	 * @return string[]
-	 */
-	public function buildNormalised( $asset ) :array {
-		try {
-			$hashes = ( new BuildHashesFromDir() )
-				->setHashAlgo( $this->getHashAlgo() )
-				->setDepth( 0 )
-				->setFileExts( [] )
-				->buildNormalised( $asset->getInstallDir() );
-		}
-		catch ( \Exception $e ) {
-			$hashes = [];
-		}
-		return $hashes;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getHashAlgo() {

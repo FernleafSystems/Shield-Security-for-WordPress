@@ -19,24 +19,24 @@ class Build extends BaseAction {
 		catch ( \Exception $e ) {
 		}
 
-		$aMeta = $this->generateMeta();
+		$meta = $this->generateMeta();
 		if ( empty( $hashes ) ) {
 			$hashes = ( new Snapshots\Build\BuildHashesForAsset() )
 				->setHashAlgo( 'md5' )
 				->build( $asset );
-			$aMeta[ 'live_hashes' ] = false;
+			$meta[ 'live_hashes' ] = false;
 		}
 		else {
-			$aMeta[ 'live_hashes' ] = true;
+			$meta[ 'live_hashes' ] = true;
 		}
 
 		if ( !empty( $hashes ) ) {
-			$oStore = ( new CreateNew() )
+			$store = ( new CreateNew() )
 				->setMod( $this->getMod() )
 				->setAsset( $asset )
 				->run();
-			$oStore->setSnapData( $hashes )
-				   ->setSnapMeta( $aMeta )
+			$store->setSnapData( $hashes )
+				   ->setSnapMeta( $meta )
 				   ->save();
 		}
 	}

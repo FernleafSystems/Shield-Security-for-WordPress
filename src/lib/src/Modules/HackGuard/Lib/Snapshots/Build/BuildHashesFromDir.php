@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class BuildHashesFromDir
@@ -45,25 +44,6 @@ class BuildHashesFromDir {
 			}
 		}
 		catch ( \Exception $e ) {
-		}
-		return $snaps;
-	}
-
-	/**
-	 * @param string $dir
-	 * @return string[]
-	 * @throws \Exception
-	 */
-	public function buildNormalised( string $dir ) :array {
-		$snaps = [];
-		$DM = Services::DataManipulation();
-		$dir = wp_normalize_path( $dir );
-		$algo = $this->getHashAlgo();
-		foreach ( StandardDirectoryIterator::create( $dir, $this->nDepth, $this->aFileExts ) as $file ) {
-			/** @var \SplFileInfo $file */
-			$fullPath = $file->getPathname();
-			$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
-			$snaps[ $key ] = hash( $algo, $DM->convertLineEndingsDosToLinux( $fullPath ) );
 		}
 		return $snaps;
 	}
