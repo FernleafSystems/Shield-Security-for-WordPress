@@ -37,11 +37,17 @@ class BuildHashesForAsset {
 	 * @return string[]
 	 */
 	public function buildNormalised( $asset ) :array {
-		return ( new BuildHashesFromDir() )
-			->setHashAlgo( $this->getHashAlgo() )
-			->setDepth( 0 )
-			->setFileExts( [] )
-			->buildNormalised( $asset->getInstallDir() );
+		try {
+			$hashes = ( new BuildHashesFromDir() )
+				->setHashAlgo( $this->getHashAlgo() )
+				->setDepth( 0 )
+				->setFileExts( [] )
+				->buildNormalised( $asset->getInstallDir() );
+		}
+		catch ( \Exception $e ) {
+			$hashes = [];
+		}
+		return $hashes;
 	}
 
 	/**
