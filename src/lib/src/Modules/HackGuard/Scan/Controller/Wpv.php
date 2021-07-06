@@ -44,12 +44,12 @@ class Wpv extends BaseForAssets {
 
 	/**
 	 * @param string $file
-	 * @return Scans\Wpv\WpVulnDb\WpVulnVO[]
+	 * @return Scans\Wpv\WpVulnDb\VulnVO[]
 	 */
 	public function getPluginVulnerabilities( $file ) {
 		return array_map(
 			function ( $item ) {
-				return $item->getWpVulnVo();
+				return $item->getVulnVo();
 			},
 			$this->getAllResults()->getItemsForSlug( $file )
 		);

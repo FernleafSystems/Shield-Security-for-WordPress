@@ -52,7 +52,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrackingEnabled() :bool {
-		return $this->isOpt( 'enable_tracking', 'Y' );
+		return $this->isPremium() || $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
 	public function isEnabledWpcli() :bool {
@@ -63,8 +63,12 @@ class Options extends BaseShield\Options {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}
 
+	/**
+	 * @return bool
+	 * @deprecated 11.4
+	 */
 	public function isImportExportPermitted() :bool {
-		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
+		return $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -73,6 +77,10 @@ class Options extends BaseShield\Options {
 	public function getImportExportWhitelist() :array {
 		$whitelist = $this->getOpt( 'importexport_whitelist', [] );
 		return is_array( $whitelist ) ? $whitelist : [];
+	}
+
+	public function isEnabledShieldNET() :bool {
+		return $this->isOpt( 'enable_shieldnet', 'Y' );
 	}
 
 	/**

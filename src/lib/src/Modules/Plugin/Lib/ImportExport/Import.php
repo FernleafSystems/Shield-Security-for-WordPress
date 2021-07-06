@@ -10,12 +10,9 @@ class Import {
 
 	use ModConsumer;
 
-	/**
-	 * @param string $sMethod
-	 */
-	public function run( $sMethod = 'site' ) {
+	public function run( string $method = 'site' ) {
 		try {
-			switch ( $sMethod ) {
+			switch ( $method ) {
 				case 'file':
 					$this->fromFileUpload();
 					break;
@@ -32,63 +29,74 @@ class Import {
 
 	/**
 	 * @param string $path
+	 * @param bool   $delete
 	 * @throws \Exception
 	 */
-	public function fromFile( $path ) {
-		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
+	public function fromFile( string $path, bool $delete = true ) {
+		$FS = Services::WpFs();
+
+		if ( !$FS->isFile( $path ) ) {
+			throw new \Exception( "The import file specified isn't a valid file." );
 		}
 
-		$sContent = Services::WpFs()->getFileContent( $path );
-		if ( empty( $sContent ) ) {
-			throw new \Exception( __( 'Uploaded file was empty', 'wp-simple-firewall' ) );
+		$content = $FS->getFileContent( $path );
+		if ( $delete ) {
+			$FS->deleteFile( $path );
+			if ( $FS->exists( $path ) ) {
+				throw new \Exception( __( 'Not importing a file that cannot be deleted', 'wp-simple-firewall' ) );
+			}
+		}
+
+		if ( empty( $content ) ) {
+			throw new \Exception( __( 'Import file was empty', 'wp-simple-firewall' ) );
 		}
 
 		{//filter any comment lines
-			$aParts = array_filter(
-				array_map( 'trim', explode( "\n", $sContent ) ),
-				function ( $sLine ) {
-					return ( strpos( $sLine, '{' ) === 0 );
+			$parts = array_filter(
+				array_map( 'trim', explode( "\n", $content ) ),
+				function ( $line ) {
+					return ( strpos( $line, '{' ) === 0 );
 				}
 			);
-			if ( empty( $aParts ) ) {
+			if ( empty( $parts ) ) {
 				throw new \Exception( __( 'Options data could not be found in uploaded file', 'wp-simple-firewall' ) );
 			}
 		}
 		{//parse the options json
-			$aData = @json_decode( array_shift( $aParts ), true );
-			if ( empty( $aData ) || !is_array( $aData ) ) {
+			$data = @json_decode( array_shift( $parts ), true );
+			if ( empty( $data ) || !is_array( $data ) ) {
 				throw new \Exception( __( "Options data in the file wasn't of the correct format.", 'wp-simple-firewall' ) );
 			}
 		}
 
-		$this->processDataImport( $aData, __( 'uploaded file', 'wp-simple-firewall' ) );
+		$this->processDataImport( $data, __( 'import file', 'wp-simple-firewall' ) );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function fromFileUpload() {
+		if ( !$this->getCon()->isPluginAdmin() ) {
+			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
+		}
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
 			throw new \Exception( __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' ) );
 		}
 
-		$oFs = Services::WpFs();
+		$FS = Services::WpFs();
 		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
 			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
 		}
 		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
 			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
-			 || !$oFs->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
+			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
 			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
 		) {
 			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
 		}
 
 		$this->fromFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
-
-		$oFs->deleteFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
 	/**
@@ -147,41 +155,41 @@ class Import {
 		);
 		$this->getMod()->saveModOptions();
 
-		$aData = [
+		$data = [
 			'shield_action' => 'importexport_export',
 			'secret'        => $sSecretKey,
 			'url'           => Services::WpGeneral()->getHomeUrl()
 		];
 		// Don't send the network setup request if it's the cron.
 		if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
-			$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
+			$data[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
 		}
 
 		{ // Make the request
-			$sFinalUrl = add_query_arg( $aData, $sMasterSiteUrl );
+			$sFinalUrl = add_query_arg( $data, $sMasterSiteUrl );
 			$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
-			$aResponse = @json_decode( $sResponse, true );
+			$response = @json_decode( $sResponse, true );
 
-			if ( empty( $aResponse ) ) {
+			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}
 		}
 
-		if ( empty( $aResponse[ 'success' ] ) ) {
+		if ( empty( $response[ 'success' ] ) ) {
 
-			if ( empty ( $aResponse[ 'message' ] ) ) {
+			if ( empty ( $response[ 'message' ] ) ) {
 				throw new \Exception( "Request failed with no error message from the source site.", 6 );
 			}
 			else {
-				throw new \Exception( "Request failed with error message from the source site: ".$aResponse[ 'message' ], 7 );
+				throw new \Exception( "Request failed with error message from the source site: ".$response[ 'message' ], 7 );
 			}
 		}
 
-		if ( empty( $aResponse[ 'data' ] ) || !is_array( $aResponse[ 'data' ] ) ) {
+		if ( empty( $response[ 'data' ] ) || !is_array( $response[ 'data' ] ) ) {
 			throw new \Exception( "Response data was empty", 8 );
 		}
 
-		$this->processDataImport( $aResponse[ 'data' ], $sMasterSiteUrl );
+		$this->processDataImport( $response[ 'data' ], $sMasterSiteUrl );
 
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
@@ -204,37 +212,29 @@ class Import {
 		return 0;
 	}
 
-	/**
-	 * @param array  $aImportData
-	 * @param string $sImportSource
-	 * @return bool
-	 */
-	private function processDataImport( $aImportData, $sImportSource = 'unspecified' ) {
-		$bImported = false;
+	private function processDataImport( array $data, string $source = 'unspecified' ) {
 
-		$bAnythingChanged = false;
+		$anythingChanged = false;
 		foreach ( $this->getCon()->modules as $mod ) {
-			if ( !empty( $aImportData[ $mod->getOptionsStorageKey() ] ) ) {
+			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
 				$oTheseOpts = $mod->getOptions();
 				$oTheseOpts->setMultipleOptions(
 					array_diff_key(
-						$aImportData[ $mod->getOptionsStorageKey() ],
+						$data[ $mod->getOptionsStorageKey() ],
 						array_flip( $oTheseOpts->getXferExcluded() )
 					)
 				);
 
-				$bAnythingChanged = $bAnythingChanged || $oTheseOpts->getNeedSave();
+				$anythingChanged = $anythingChanged || $oTheseOpts->getNeedSave();
 				$mod->saveModOptions( true );
 			}
 		}
 
-		if ( $bAnythingChanged ) {
+		if ( $anythingChanged ) {
 			$this->getCon()->fireEvent(
 				'options_imported',
-				[ 'audit' => [ 'site' => $sImportSource ] ]
+				[ 'audit' => [ 'site' => $source ] ]
 			);
 		}
-
-		return $bImported;
 	}
 }

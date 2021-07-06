@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -36,15 +36,15 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	public function canRepair() {
-		/** @var Wpv\ResultItem $oItem */
-		$oItem = $this->getScanItem();
+		/** @var Wpv\ResultItem $item */
+		$item = $this->getScanItem();
 
-		if ( $oItem->context == 'plugins' ) {
-			$oAsset = Services::WpPlugins()->getPluginAsVo( $oItem->slug );
+		if ( $item->context == 'plugins' ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
 		}
 		else {
-			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
+			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
 		}
-		return ( $oAsset instanceof VOs\WpPluginVo && $oAsset->hasUpdate() );
+		return ( $asset instanceof Assets\WpPluginVo && $asset->hasUpdate() );
 	}
 }

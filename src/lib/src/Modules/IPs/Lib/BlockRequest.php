@@ -83,7 +83,7 @@ class BlockRequest extends ExecOnceModConsumer {
 						sprintf( _n( '%s minute', '%s minutes', $timeRemaining, 'wp-simple-firewall' ), $timeRemaining )
 					),
 					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $opts->getOffenseLimit() ),
-					sprintf( __( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ) ),
+					__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ),
 				],
 				'your_ip' => 'Your IP address',
 				'unblock' => [

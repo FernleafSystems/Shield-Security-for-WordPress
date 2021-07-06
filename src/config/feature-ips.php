@@ -636,7 +636,8 @@
         "offense_at":         "Last Offense",
         "blocked_at":         "Last Block",
         "unblocked_at":       "Unblocked",
-        "bypass_at":          "Bypass"
+        "bypass_at":          "Bypass",
+        "snsent_at":          "Sent To ShieldNET"
       }
     },
     "events":              {

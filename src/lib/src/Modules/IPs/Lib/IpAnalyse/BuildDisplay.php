@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -122,6 +123,11 @@ class BuildDisplay {
 			->probability();
 		$isBot = $mod->getBotSignalsController()->isBot( $ip, false );
 
+		$shieldNetScore = ( new GetIPReputation() )
+							  ->setMod( $con->getModule_Plugin() )
+							  ->setIP( $ip )
+							  ->retrieve()[ 'reputation_score' ] ?? '-';
+
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
 			[
@@ -134,13 +140,15 @@ class BuildDisplay {
 					'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
 					'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
 					'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
+					'see_details'   => __( 'See Details', 'wp-simple-firewall' ),
 
 					'status' => [
-						'is_you'        => __( 'Is It You?', 'wp-simple-firewall' ),
-						'offenses'      => __( 'Number of offenses', 'wp-simple-firewall' ),
-						'is_blocked'    => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'     => __( 'Is Bypass IP', 'wp-simple-firewall' ),
-						'ip_reputation' => __( 'IP Reputation Score', 'wp-simple-firewall' ),
+						'is_you'              => __( 'Is It You?', 'wp-simple-firewall' ),
+						'offenses'            => __( 'Number of offenses', 'wp-simple-firewall' ),
+						'is_blocked'          => __( 'Is Blocked', 'wp-simple-firewall' ),
+						'is_bypass'           => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+						'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
+						'snapi_ip_reputation' => __( 'ShieldNET IP Reputation Score', 'wp-simple-firewall' ),
 					],
 
 					'yes' => __( 'Yes', 'wp-simple-firewall' ),
@@ -160,15 +168,21 @@ class BuildDisplay {
 						'query_ip_whois' => __( 'Query IP Whois', 'wp-simple-firewall' ),
 					],
 				],
+				'hrefs'   => [
+					'snapi_reputation_details' => add_query_arg(
+						[ 'ip' => $ip ], 'https://shsec.io/botornot'
+					)
+				],
 				'vars'    => [
 					'ip'       => $ip,
 					'status'   => [
-						'is_you'              => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'            => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
-						'is_blocked'          => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
-						'is_bypass'           => $bypassIP instanceof Databases\IPs\EntryVO,
-						'ip_reputation_score' => $botScore,
-						'is_bot'              => $isBot,
+						'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+						'offenses'               => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
+						'is_blocked'             => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'              => $bypassIP instanceof Databases\IPs\EntryVO,
+						'ip_reputation_score'    => $botScore,
+						'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
+						'is_bot'                 => $isBot,
 					],
 					'identity' => [
 						'who_is_it'    => $ipName,

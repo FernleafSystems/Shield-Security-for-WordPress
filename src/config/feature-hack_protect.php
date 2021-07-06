@@ -14,7 +14,7 @@
     "order":                 70,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
-    "run_if_wpcli":          false
+    "run_if_wpcli":          true
   },
   "wpcli":            {
     "root": "hack_guard"
@@ -290,7 +290,7 @@
         }
       ],
       "link_info":     "https://shsec.io/b2",
-      "link_blog":     "",
+      "link_blog":     "https://shsec.io/kd",
       "beacon_id":     223,
       "name":          "Scan Frequency",
       "summary":       "Number Of Times To Automatically Scan Core Files In 24 Hours",

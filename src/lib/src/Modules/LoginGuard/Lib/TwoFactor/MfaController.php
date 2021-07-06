@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
@@ -56,8 +55,6 @@ class MfaController {
 	}
 
 	private function captureLoginIntent( \WP_User $user ) {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 		if ( $this->isSubjectToLoginIntent( $user )
 			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
@@ -67,11 +64,10 @@ class MfaController {
 					$provider->captureLoginAttempt( $user );
 				}
 
-				$this->setLoginIntentExpiresAt(
-					Services::Request()
-							->carbon()
-							->addMinutes( $opts->getLoginIntentMinutes() )->timestamp
-				);
+				$meta = $this->getCon()->getUserMeta( $user );
+				$intents = $meta->login_intents ?? [];
+				$intents[ $this->getVisitorID() ] = true;
+				$meta->login_intents = $intents;
 			}
 		}
 	}
@@ -126,7 +122,7 @@ class MfaController {
 	}
 
 	private function assessLoginIntent( \WP_User $user ) {
-		if ( $this->getLoginIntentExpiresAt() > 0 ) {
+		if ( $this->hasLoginIntent( $user ) ) {
 
 			if ( $this->isSubjectToLoginIntent( $user ) ) {
 
@@ -134,14 +130,14 @@ class MfaController {
 					$this->processActiveLoginIntent();
 				}
 				else {
-					Services::WpUsers()->logoutUser(); // clears the login and login intent
+					$this->destroyLogin( $user );
 					Services::Response()->redirectHere();
 				}
 			}
 			else {
 				// This handles the case where an admin changes a setting while a user is logged-in
 				// So to prevent this, we remove any intent for a user that isn't subject to it right now
-				$this->removeLoginIntent();
+				$this->removeLoginIntent( $user );
 			}
 		}
 	}
@@ -214,31 +210,32 @@ class MfaController {
 		// Is 2FA/login-intent submit
 		if ( $req->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
 
+			$user = $WPUsers->getCurrentWpUser();
 			if ( $req->post( 'cancel' ) == 1 ) {
-				$WPUsers->logoutUser(); // clears the login and login intent
-				$sRedirectHref = $req->post( 'cancel_href' );
-				empty( $sRedirectHref ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $sRedirectHref );
+				$this->destroyLogin( $user );
+				$redirect = $req->post( 'cancel_href' );
+				empty( $redirect ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $redirect );
 			}
 			elseif ( $this->validateLoginIntentRequest() ) {
 
 				if ( $req->post( 'skip_mfa' ) === 'Y' ) {
 					( new MfaSkip() )
 						->setMod( $this->getMod() )
-						->addMfaSkip( $WPUsers->getCurrentWpUser() );
+						->addMfaSkip( $user );
 				}
 
 				$con->fireEvent( '2fa_success' );
 
-				$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
+				$flash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
 				if ( $opts->isEnabledBackupCodes() ) {
-					$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
+					$flash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
 				}
-				$this->getMod()->setFlashAdminNotice( $sFlash );
+				$this->getMod()->setFlashAdminNotice( $flash );
 
-				$this->removeLoginIntent();
+				$this->removeLoginIntent( $user );
 
-				$sRedirectHref = $req->post( 'redirect_to' );
-				empty( $sRedirectHref ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $sRedirectHref ) );
+				$redirect = $req->post( 'redirect_to' );
+				empty( $redirect ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $redirect ) );
 			}
 			else {
 				$con->getAdminNotices()
@@ -311,33 +308,50 @@ class MfaController {
 		return $result;
 	}
 
-	private function getLoginIntentExpiresAt() :int {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getSessionCon()
-					->hasSession() ? (int)$this->getMod()->getSession()->login_intent_expires_at : 0;
+	public function getLoginIntentExpiresAt() :int {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		$sessCon = $this->getCon()
+						->getModule_Sessions()
+						->getSessionCon();
+
+		$expiresAt = 0;
+		if ( $sessCon->hasSession() && $this->hasLoginIntent( Services::WpUsers()->getCurrentWpUser() ) ) {
+			$expiresAt = Services::Request()
+								 ->carbon()
+								 ->setTimestamp( $sessCon->getCurrent()->logged_in_at )
+								 ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
+		}
+		return $expiresAt;
+	}
+
+	private function hasLoginIntent( \WP_User $user ) :bool {
+		return !empty( $this->getCon()->getUserMeta( $user )->login_intents[ $this->getVisitorID() ] );
+	}
+
+	private function getVisitorID() :string {
+		return md5( Services::Request()->getUserAgent().Services::IP()->getRequestIp() );
 	}
 
 	/**
 	 * Use this ONLY when the login intent has been successfully verified.
 	 * @return $this
 	 */
-	private function removeLoginIntent() {
-		return $this->setLoginIntentExpiresAt( 0 );
-	}
+	private function removeLoginIntent( $user ) {
+		$meta = $this->getCon()->getUserMeta( $user );
+		$intents = $meta->login_intents ?? [];
+		unset( $intents[ $this->getVisitorID() ] );
+		$meta->login_intents = $intents;
 
-	protected function setLoginIntentExpiresAt( int $expiresAt ) :self {
-		$sessMod = $this->getCon()->getModule_Sessions();
-		$sessCon = $sessMod->getSessionCon();
-		if ( $sessCon->hasSession() ) {
-			/** @var Update $upd */
-			$upd = $sessMod->getDbHandler_Sessions()->getQueryUpdater();
-			$upd->updateLoginIntentExpiresAt( $sessCon->getCurrent(), $expiresAt );
-		}
 		return $this;
 	}
 
 	private function getLoginIntentRequestFlag() :string {
 		return $this->getCon()->prefix( 'login-intent-request' );
+	}
+
+	private function destroyLogin( \WP_User $user ) {
+		$this->removeLoginIntent( $user );
+		Services::WpUsers()->logoutUser();
 	}
 }

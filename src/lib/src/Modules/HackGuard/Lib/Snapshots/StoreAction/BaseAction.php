@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 
 class BaseAction {
 
@@ -15,24 +15,21 @@ class BaseAction {
 	/**
 	 * @var WpPluginVo|WpThemeVo
 	 */
-	private $oAsset;
-
-	public function __construct() {
-	}
+	private $asset;
 
 	/**
 	 * @return WpPluginVo|WpThemeVo
 	 */
 	public function getAsset() {
-		return $this->oAsset;
+		return $this->asset;
 	}
 
 	/**
-	 * @param WpPluginVo|WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return static
 	 */
-	public function setAsset( $oAsset ) {
-		$this->oAsset = $oAsset;
+	public function setAsset( $asset ) {
+		$this->asset = $asset;
 		return $this;
 	}
 

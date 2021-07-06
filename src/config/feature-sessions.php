@@ -71,7 +71,6 @@
       "cols_timestamps": {
         "logged_in_at":            "Session Started",
         "last_activity_at":        "Last Seen At",
-        "login_intent_expires_at": "2FA Window Expires",
         "secadmin_at":             "Security Admin Authenticated"
       }
     },

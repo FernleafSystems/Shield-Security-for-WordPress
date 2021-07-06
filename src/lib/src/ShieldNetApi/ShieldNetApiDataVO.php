@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
@@ -9,8 +9,10 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi
  * @property int   $last_handshake_at
  * @property int   $last_handshake_attempt_at
+ * @property int   $last_send_iprep_at
  * @property int   $handshake_fail_count
  * @property int[] $nonces
+ * @property int   $data_last_saved_at
  */
 class ShieldNetApiDataVO extends DynPropertiesClass {
 
@@ -30,14 +32,13 @@ class ShieldNetApiDataVO extends DynPropertiesClass {
 				}
 				break;
 
-			case 'last_handshake_at':
-			case 'last_handshake_attempt_at':
-			case 'handshake_fail_count':
-				$value = (int)$value;
-				break;
-
 			default:
 				break;
+		}
+
+		if ( in_array( $key, [ 'handshake_fail_count' ] )
+			 || preg_match( '#_at$#', $key ) ) {
+			$value = (int)$value;
 		}
 
 		return $value;

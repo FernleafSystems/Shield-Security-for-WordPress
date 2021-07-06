@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 
 /**
  * Class BuildHashesForAsset
@@ -14,26 +16,39 @@ class BuildHashesForAsset {
 	/**
 	 * @var string
 	 */
-	private $sHashAlgo = 'md5';
+	private $hashAlgo = 'md5';
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param WpPluginVo|WpThemeVo $oAsset
+	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return string[]
 	 */
-	public function build( $oAsset ) {
+	public function build( $asset ) {
 		return ( new BuildHashesFromDir() )
 			->setHashAlgo( $this->getHashAlgo() )
 			->setDepth( 0 )
 			->setFileExts( [] )
-			->build( $oAsset->getInstallDir() );
+			->build( $asset->getInstallDir() );
+	}
+
+	/**
+	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
+	 * @param WpPluginVo|WpThemeVo $asset
+	 * @return string[]
+	 */
+	public function buildNormalised( $asset ) :array {
+		return ( new BuildHashesFromDir() )
+			->setHashAlgo( $this->getHashAlgo() )
+			->setDepth( 0 )
+			->setFileExts( [] )
+			->buildNormalised( $asset->getInstallDir() );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getHashAlgo() {
-		return empty( $this->sHashAlgo ) ? 'md5' : $this->sHashAlgo;
+		return empty( $this->hashAlgo ) ? 'md5' : $this->hashAlgo;
 	}
 
 	/**
@@ -41,7 +56,7 @@ class BuildHashesForAsset {
 	 * @return static
 	 */
 	public function setHashAlgo( $sHashAlgo ) {
-		$this->sHashAlgo = $sHashAlgo;
+		$this->hashAlgo = $sHashAlgo;
 		return $this;
 	}
 }

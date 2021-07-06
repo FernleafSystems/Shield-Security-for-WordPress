@@ -20,20 +20,20 @@ class WordPress extends BaseFormProvider {
 
 	protected function lostpassword() {
 		add_action( 'lostpassword_form', [ $this, 'printFormInsert' ] );
-		add_action( 'lostpassword_post', [ $this, 'checkLostPassword' ], 10, 1 );
+		add_action( 'lostpassword_post', [ $this, 'checkLostPassword' ] );
 	}
 
 	/**
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
 	 * @param null|\WP_User|\WP_Error $oUserOrError
-	 * @param string                  $sUsername
+	 * @param string                  $username
 	 * @return \WP_User|\WP_Error
 	 */
-	public function checkLogin( $oUserOrError, $sUsername ) {
+	public function checkLogin( $oUserOrError, $username ) {
 		try {
-			if ( !is_wp_error( $oUserOrError ) && !empty( $sUsername ) ) {
-				$this->setUserToAudit( $sUsername )
+			if ( !is_wp_error( $oUserOrError ) && !empty( $username ) ) {
+				$this->setUserToAudit( $username )
 					 ->setActionToAudit( 'login' )
 					 ->checkProviders();
 			}

@@ -22,14 +22,14 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	}
 
 	/**
-	 * @param bool $bSuccess
+	 * @param bool $success
 	 */
-	protected function fireRepairEvent( $bSuccess ) {
-		/** @var Ufc\ResultItem $oItem */
-		$oItem = $this->getScanItem();
+	protected function fireRepairEvent( $success ) {
+		/** @var Ufc\ResultItem $item */
+		$item = $this->getScanItem();
 		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
+			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
+			[ 'audit' => [ 'fragment' => $item->path_full ] ]
 		);
 	}
 }

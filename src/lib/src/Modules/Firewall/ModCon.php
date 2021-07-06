@@ -38,7 +38,7 @@ class ModCon extends BaseShield\ModCon {
 		switch ( $key ) {
 			case 'text_firewalldie':
 				$text = sprintf(
-					__( "You were blocked by the %s.", 'wp-simple-firewall' ),
+					__( "You were blocked by the %s Firewall.", 'wp-simple-firewall' ),
 					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
 																										->getHumanName().'</a>'
 				);

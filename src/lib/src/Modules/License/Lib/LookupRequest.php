@@ -30,6 +30,6 @@ class LookupRequest {
 			$license = $lookup->lookup();
 		}
 
-		return ( new EddLicenseVO() )->applyFromArray( $license->getRawDataAsArray() );
+		return ( new EddLicenseVO() )->applyFromArray( $license->getRawData() );
 	}
 }

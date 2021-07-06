@@ -11,20 +11,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 abstract class BaseConvertVosToResults {
 
 	/**
-	 * @param EntryVO[] $oVos
+	 * @param EntryVO[] $VOs
 	 * @return BaseResultsSet
 	 */
-	public function convert( $oVos ) {
+	public function convert( $VOs ) {
 		$oRes = new BaseResultsSet();
-		foreach ( $oVos as $oVo ) {
+		foreach ( $VOs as $oVo ) {
 			$oRes->addItem( $this->convertItem( $oVo ) );
 		}
 		return $oRes;
 	}
 
 	/**
-	 * @param EntryVO $oVo
+	 * @param EntryVO $VO
 	 * @return BaseResultItem
 	 */
-	abstract public function convertItem( $oVo );
+	abstract public function convertItem( $VO );
 }

@@ -32,25 +32,20 @@ class FileLockerController {
 
 	protected function run() {
 		$con = $this->getCon();
+		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
+		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'checkLockConfig' ] );
 		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
-		add_action( $con->prefix( 'pre_plugin_shutdown' ), [ $this, 'processFileLocks' ] );
 	}
 
-	public function processFileLocks() {
-		if ( !$this->getCon()->plugin_deactivating && !$this->getCon()->is_my_upgrade ) {
-			if ( $this->isFileLockerStateChanged() ) {
-				$this->deleteAllLocks();
-				$this->setState( [] );
-			}
-			else {
-				$this->runAnalysis();
-			}
+	public function checkLockConfig() {
+		if ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) {
+			$this->deleteAllLocks();
+			$this->setState( [] );
 		}
 	}
 
 	private function isFileLockerStateChanged() :bool {
-		return $this->getOptions()->isOptChanged( 'file_locker' )
-			   || $this->getState()[ 'abspath' ] !== ABSPATH;
+		return $this->getOptions()->isOptChanged( 'file_locker' ) || $this->getState()[ 'abspath' ] !== ABSPATH;
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
@@ -67,20 +62,13 @@ class FileLockerController {
 		return $items;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function countProblems() {
+	public function countProblems() :int {
 		return count( ( new Ops\LoadFileLocks() )
 			->setMod( $this->getMod() )
 			->withProblems() );
 	}
 
-	/**
-	 * @param FileLocker\EntryVO $lock
-	 * @return string[]
-	 */
-	public function createFileDownloadLinks( $lock ) :array {
+	public function createFileDownloadLinks( FileLocker\EntryVO $lock ) :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$links = [];
@@ -146,14 +134,16 @@ class FileLockerController {
 				   ->loadLocks()[ $ID ] ?? null;
 	}
 
-	private function runAnalysis() {
+	public function runAnalysis() {
 		// 1. First assess the existing locks for changes.
 		( new Ops\AssessLocks() )
 			->setMod( $this->getMod() )
 			->run();
 
 		// 2. Create any outstanding locks.
-		$this->runLocksCreation();
+		if ( is_main_network() ) {
+			$this->runLocksCreation();
+		}
 	}
 
 	/**
@@ -253,5 +243,11 @@ class FileLockerController {
 
 	protected function setState( array $state ) {
 		$this->getOptions()->setOpt( 'filelocker_state', $state );
+	}
+
+	/**
+	 * @deprecated 11.4
+	 */
+	public function processFileLocks() {
 	}
 }

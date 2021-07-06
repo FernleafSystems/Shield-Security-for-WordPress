@@ -14,8 +14,8 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	}
 
 	/**
-	 * @param bool $bSuccess
+	 * @param bool $success
 	 */
-	protected function fireRepairEvent( $bSuccess ) {
+	protected function fireRepairEvent( $success ) {
 	}
 }

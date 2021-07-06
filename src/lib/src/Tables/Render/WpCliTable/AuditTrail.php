@@ -8,7 +8,6 @@ class AuditTrail extends Base {
 		$aRows = $this->getDataBuilder()
 					  ->getEntriesFormatted();
 
-		error_log( var_export( array_keys( array_shift( $aRows ) ), true ) );
 		\WP_CLI\Utils\format_items(
 			'table',
 			$aRows,

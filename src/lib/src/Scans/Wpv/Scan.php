@@ -31,52 +31,50 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	}
 
 	/**
-	 * @param string $sContext
-	 * @param string $sFile
+	 * @param string $context
+	 * @param string $file
 	 * @return ResultsSet
 	 */
-	protected function scanItem( $sContext, $sFile ) {
-		$oResultsSet = new ResultsSet();
+	protected function scanItem( $context, $file ) {
+		$results = new ResultsSet();
 
 		$sApiToken = $this->getCon()
 						  ->getModule_License()
 						  ->getWpHashesTokenManager()
 						  ->getToken();
 
-		if ( $sContext == 'plugins' ) {
-			$oWpPlugins = Services::WpPlugins();
-			$sSlug = $oWpPlugins->getSlug( $sFile );
-			if ( empty( $sSlug ) ) {
-				$sSlug = dirname( $sFile );
+		if ( $context == 'plugins' ) {
+			$WPP = Services::WpPlugins();
+			$slug = $WPP->getSlug( $file );
+			if ( empty( $slug ) ) {
+				$slug = dirname( $file );
 			}
-			$sVersion = $oWpPlugins->getPluginAsVo( $sFile )->Version;
-			$oLookup = new Vulnerabilities\Plugin( $sApiToken );
+			$version = $WPP->getPluginAsVo( $file )->Version;
+			$lookerUpper = new Vulnerabilities\Plugin( $sApiToken );
 		}
 		else {
-			$sSlug = $sFile;
-			$sVersion = Services::WpThemes()->getTheme( $sSlug )->get( 'Version' );
-			$oLookup = new Vulnerabilities\Theme( $sApiToken );
+			$slug = $file;
+			$version = Services::WpThemes()->getTheme( $slug )->get( 'Version' );
+			$lookerUpper = new Vulnerabilities\Theme( $sApiToken );
 		}
 
-		$aVulns = $oLookup->getVulnerabilities( $sSlug, $sVersion );
-		$aVulns = array_filter( array_map(
-			function ( $aVuln ) {
-				return empty( $aVuln ) ? null
-					: ( new Shield\Scans\Wpv\WpVulnDb\WpVulnVO() )->applyFromArray( $aVuln );
-			},
-			( is_array( $aVulns ) ? $aVulns : [] )
-		) );
+		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
+		if ( is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
 
-		/** @var Shield\Scans\Wpv\WpVulnDb\WpVulnVO[] $aVulns */
-		foreach ( $aVulns as $oVo ) {
-			$oItem = new ResultItem();
-			$oItem->slug = $sFile;
-			$oItem->context = $sContext;
-			$oItem->wpvuln_id = $oVo->id;
-			$oItem->wpvuln_vo = $oVo->getRawData();
-			$oResultsSet->addItem( $oItem );
+			foreach ( array_filter( $rawVuls[ 'vulnerabilities' ] ) as $vul ) {
+				$VO = ( new Shield\Scans\Wpv\WpVulnDb\VulnVO() )->applyFromArray( $vul );
+				$VO->provider = $rawVuls[ 'meta' ][ 'provider' ];
+
+				$item = new ResultItem();
+				$item->slug = $file;
+				$item->context = $context;
+				$item->wpvuln_id = $VO->id;
+				$item->wpvuln_vo = $VO->getRawData();
+
+				$results->addItem( $item );
+			}
 		}
 
-		return $oResultsSet;
+		return $results;
 	}
 }

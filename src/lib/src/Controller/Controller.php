@@ -317,6 +317,7 @@ class Controller extends DynPropertiesClass {
 		$modPlugin = $this->getModule_Plugin();
 		if ( $modPlugin instanceof Shield\Modules\Base\ModCon ) {
 			$modPlugin->setActivatedAt();
+			do_action( 'shield/plugin_activated' );
 		}
 	}
 
@@ -342,12 +343,11 @@ class Controller extends DynPropertiesClass {
 
 	public function hasCacheDir() :bool {
 		try {
-			$buildCacheDir = $this->buildPluginCacheDir();
+			$this->buildPluginCacheDir();
 		}
 		catch ( \Exception $e ) {
-			$buildCacheDir = false;
 		}
-		return $buildCacheDir;
+		return $this->cache_dir_ready;
 	}
 
 	/**
@@ -398,7 +398,7 @@ class Controller extends DynPropertiesClass {
 
 		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
-		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50, 1 );
+		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
 		add_filter( 'site_transient_update_plugins', [ $this, 'filter_hidePluginUpdatesFromUI' ] );
 		add_action( 'in_plugin_update_message-'.$this->base_file, [ $this, 'onWpPluginUpdateMessage' ] );
@@ -1106,7 +1106,7 @@ class Controller extends DynPropertiesClass {
 		if ( empty( $this->root_file ) ) {
 			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
 				->findPluginFromFile( __FILE__ );
-			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
+			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo ) {
 				$this->root_file = path_join( WP_PLUGIN_DIR, $VO->file );
 			}
 			else {
@@ -1273,7 +1273,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getShortRequestId() :string {
-		return substr( $this->getUniqueRequestId( false ), 0, 10 );
+		return substr( $this->getUniqueRequestId(), 0, 10 );
 	}
 
 	public function hasSessionId() :bool {

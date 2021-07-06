@@ -7,37 +7,37 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanWpv extends ScanBase {
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_asset( $aItem ) {
-		$sContent = sprintf( '<span class="asset-title font-weight-bold">%s</span> v%s',
-			$aItem[ 'asset_name' ], ltrim( $aItem[ 'asset_version' ], 'v' ) );
+	public function column_asset( $item ) {
+		$content = sprintf( '<span class="asset-title font-weight-bold">%s</span> v%s',
+			$item[ 'asset_name' ], ltrim( $item[ 'asset_version' ], 'v' ) );
 
-		$aButtons = [];
+		$buttons = [];
 
-		$bHasUpdate = $aItem[ 'has_update' ];
-		$aButtons[] = $this->buildActionButton_Custom(
-			$bHasUpdate ? __( 'Apply Update', 'wp-simple-firewall' ) : __( 'No Update Available', 'wp-simple-firewall' ),
-			[ ( $bHasUpdate ? 'custom-action text-success' : 'disabled' ) ],
+		$hasUpdate = $item[ 'has_update' ];
+		$buttons[] = $this->buildActionButton_Custom(
+			$hasUpdate ? __( 'Apply Update', 'wp-simple-firewall' ) : __( 'No Update Available', 'wp-simple-firewall' ),
+			[ ( $hasUpdate ? 'custom-action text-success' : 'disabled' ) ],
 			[
-				'rid'           => $aItem[ 'id' ],
+				'rid'           => $item[ 'id' ],
 				'custom-action' => 'item_repair'
 			]
 		);
 
-		if ( $aItem[ 'can_deactivate' ] ) {
-			$aButtons[] = $this->buildActionButton_Custom(
+		if ( $item[ 'can_deactivate' ] ) {
+			$buttons[] = $this->buildActionButton_Custom(
 				__( 'Deactivate', 'wp-simple-firewall' ),
 				[ 'custom-action' ],
 				[
-					'rid'           => $aItem[ 'id' ],
+					'rid'           => $item[ 'id' ],
 					'custom-action' => 'item_asset_deactivate'
 				]
 			);
 		}
 
-		return $sContent.$this->buildActions( $aButtons );
+		return $content.$this->buildActions( $buttons );
 	}
 
 	/**
@@ -45,16 +45,30 @@ class ScanWpv extends ScanBase {
 	 * @return string
 	 */
 	public function column_vulnerability( $item ) {
-		/** @var Scans\Wpv\WpVulnDb\WpVulnVO $vuln */
-		$vuln = $item[ 'wpvuln_vo' ];
-		$sContent = sprintf( '<span class="vuln-title">%s</span>', $vuln->title );
+		/** @var Scans\Wpv\WpVulnDb\VulnVO $vul */
+		$vul = $item[ 'wpvuln_vo' ];
+		$content = sprintf( '<span class="vuln-title">%s</span>', $vul->title );
 
+		if ( $vul->provider === 'patchstack' ) {
+			$url = $vul->references[ 0 ];
+		}
+		elseif ( $vul->provider === 'wpscan' ) {
+			if ( empty( $vul->references[ 'url' ] ) ) {
+				$url = sprintf( 'https://wpscan.com/vulnerability/%s', $vul->id );
+			}
+			else {
+				$url = $vul->references[ 'url' ][ 0 ];
+			}
+		}
+		else {
+			$url = '';
+		}
 		$buttons = [
 			$this->getActionButton_Ignore( $item[ 'id' ] ),
 			sprintf( '<a href="%s" class="btn btn-sm btn-link text-info" target="_blank">%s</a>',
-				$vuln->url, __( 'More Info', 'wp-simple-firewall' ) ),
+				$url, __( 'More Info', 'wp-simple-firewall' ) ),
 		];
-		return $sContent.$this->buildActions( $buttons );
+		return $content.$this->buildActions( $buttons );
 	}
 
 	/**

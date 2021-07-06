@@ -9,35 +9,35 @@ class VerifyConfig {
 	use OptsConsumer;
 
 	public function run() {
-		$oOpts = $this->getOpts();
-		foreach ( $oOpts->getOptionsKeys() as $sKey ) {
-			$sOptType = $oOpts->getOptionType( $sKey );
-			if ( empty( $sOptType ) ) {
+		$opts = $this->getOpts();
+		foreach ( $opts->getOptionsKeys() as $sKey ) {
+			$optType = $opts->getOptionType( $sKey );
+			if ( empty( $optType ) ) {
 				var_dump( $sKey.': no type' );
 				continue;
 			}
 
-			$mDefault = $oOpts->getOptDefault( $sKey );
+			$mDefault = $opts->getOptDefault( $sKey );
 			if ( is_null( $mDefault ) ) {
 				var_dump( sprintf( '%s: opt has no default.', $sKey ) );
 				continue;
 			}
 
-			$mVal = $oOpts->getOpt( $sKey );
-			$sValType = gettype( $mVal );
+			$mVal = $opts->getOpt( $sKey );
+			$valType = gettype( $mVal );
 
-			$bBroken = false;
-			switch ( $sOptType ) {
+			$isBroken = false;
+			switch ( $optType ) {
 
 				case 'integer':
-					if ( $sValType != 'integer' ) {
-						$bBroken = true;
+					if ( $valType != 'integer' ) {
+						$isBroken = true;
 					}
 					break;
 
 				case 'text':
-					if ( $sValType != 'string' ) {
-						$bBroken = true;
+					if ( $valType != 'string' ) {
+						$isBroken = true;
 					}
 					break;
 
@@ -45,10 +45,10 @@ class VerifyConfig {
 					break;
 			}
 
-			if ( $bBroken ) {
+			if ( $isBroken ) {
 				var_dump( sprintf( '%s: opt type is %s, value is %s at "%s". Default is: %s',
-					$sKey, $sOptType, $sValType, var_export( $mVal, true ), $oOpts->getOptDefault( $sKey ) ) );
-//				$oOpts->resetOptToDefault( $sKey );
+					$sKey, $optType, $valType, var_export( $mVal, true ), $opts->getOptDefault( $sKey ) ) );
+//				$opts->resetOptToDefault( $sKey );
 			}
 		}
 	}

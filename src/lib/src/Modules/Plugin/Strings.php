@@ -96,7 +96,7 @@ class Strings extends Base\Strings {
 				$titleShort = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatically import options, and deploy configurations across your entire network.', 'wp-simple-firewall' ) ),
-					sprintf( __( 'This is a Pro-only feature.', 'wp-simple-firewall' ) ),
+					__( 'This is a Pro-only feature.', 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -122,9 +122,8 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup CAPTCHA for use across %s.', 'wp-simple-firewall' ), $sPlugName ) ),
 					sprintf( '%s - %s',
 						__( 'Recommendation', 'wp-simple-firewall' ),
-						sprintf( __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '
-								 .sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You must create your own CAPTCHA API Keys.', 'wp-simple-firewall' ) )
-						)
+						__( 'Use of this feature is highly recommend.', 'wp-simple-firewall' )
+						.sprintf( ' %s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You must create your own CAPTCHA API Keys.', 'wp-simple-firewall' ) )
 						.'<ul class="mt-1"><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', __( 'Google reCAPTCHA Keys', 'wp-simple-firewall' ) )
 						.'</li><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://dashboard.hcaptcha.com/', __( 'hCaptcha Keys', 'wp-simple-firewall' ) ).'</li></ul>'
 					),
@@ -190,6 +189,14 @@ class Strings extends Base\Strings {
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>', $mod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+				];
+				break;
+
+			case 'enable_shieldnet' :
+				$name = __( 'Enable ShieldNET', 'wp-simple-firewall' );
+				$summary = __( 'Enhanced Website Security Through Network Intelligence', 'wp-simple-firewall' );
+				$desc = [
+					__( 'By leveraging and sharing information about threats to WordPress sites, ShieldNET brings the power of the entire network to your WordPress security.', 'wp-simple-firewall' )
 				];
 				break;
 
