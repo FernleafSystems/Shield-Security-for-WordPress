@@ -52,6 +52,12 @@
         "title":       "Tweaks and adjustments to crowd-sourced hashing.",
         "description": [],
         "patch":       "11.4.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Certain modules would still run even though 'forceoff' file was present.",
+        "description": [],
+        "patch":       "11.4.2"
       }
     ]
   },
