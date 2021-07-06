@@ -58,6 +58,12 @@
         "title":       "Certain modules would still run even though 'forceoff' file was present.",
         "description": [],
         "patch":       "11.4.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "HTML formatting issue with the 2FA Login Page.",
+        "description": [],
+        "patch":       "11.4.2"
       }
     ]
   },
