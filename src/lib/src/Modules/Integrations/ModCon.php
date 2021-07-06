@@ -32,4 +32,8 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $this->userFormsCon;
 	}
+
+	public function isModOptEnabled() :bool {
+		return true;
+	}
 }
