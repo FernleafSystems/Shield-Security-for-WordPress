@@ -33,13 +33,19 @@ class SubmitHashes {
 	public function run( $asset ) {
 		$this->asset = $asset;
 
-		$this->hashes = ( new Build\BuildHashesForAsset() )
-			->setHashAlgo( 'sha1' )
-			->buildNormalised( $asset );
+		if ( $this->canSubmitAsset() ) {
+			$this->hashes = ( new Build\BuildHashesForCrowdSource() )
+				->build( $asset );
 
-		if ( $this->isSubmitRequired() ) {
-			$this->submit();
+			if ( !empty( $this->hashes ) && $this->isSubmitRequired() ) {
+				$this->submit();
+			}
 		}
+	}
+
+	private function canSubmitAsset() :bool {
+		return preg_match( '#^[0-9.]$#', $this->asset->Version )
+			   && preg_match( '#^[0-9a-z]+[0-9a-z_\-]+$#i', $this->asset->slug );
 	}
 
 	private function isSubmitRequired() :bool {

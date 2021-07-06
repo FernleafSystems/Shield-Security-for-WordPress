@@ -8,7 +8,7 @@
     "sidebar_name":          "Integrations",
     "show_module_options":   true,
     "show_module_menu_item": false,
-    "auto_enabled":          true,
+    "auto_enabled":          false,
     "show_central":          true,
     "premium":               false,
     "access_restricted":     true,

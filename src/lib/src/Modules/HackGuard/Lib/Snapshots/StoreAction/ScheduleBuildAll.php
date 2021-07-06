@@ -19,15 +19,15 @@ class ScheduleBuildAll extends BaseBulk {
 					->setMod( $this->getMod() )
 					->setAsset( $asset )
 					->run();
+
+				if ( $this->getCon()->isPremiumActive() && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
+					( new SubmitHashes() )
+						->setMod( $this->getMod() )
+						->run( $asset );
+				}
 			}
 			catch ( \Exception $e ) {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
-			}
-
-			if ( $this->getCon()->isPremiumActive() && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
-				( new SubmitHashes() )
-					->setMod( $this->getMod() )
-					->run( $asset );
 			}
 		}
 	}
@@ -41,7 +41,7 @@ class ScheduleBuildAll extends BaseBulk {
 	public function schedule() {
 		$hook = $this->getCronHook();
 		if ( wp_next_scheduled( $hook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-			wp_schedule_single_event( Services::Request()->ts() + 15, $hook );
+			wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
 		}
 	}
 

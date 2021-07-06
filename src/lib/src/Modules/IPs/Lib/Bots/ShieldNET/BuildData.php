@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildData {
 
@@ -19,7 +20,7 @@ class BuildData {
 			$this->markRecordsAsSent( $recordsToSend );
 		}
 
-		$results = array_filter( array_map(
+		$records = array_filter( array_map(
 			function ( $entryVO ) {
 				$data = [
 					'ip'      => $entryVO->ip,
@@ -31,14 +32,28 @@ class BuildData {
 						$data[ 'signals' ][] = str_replace( '_at', '', $col );
 					}
 				}
-				return empty( $data[ 'signals' ] ) ? [] : $data;
+
+				// Now we remove any "known" bots/crawlers
+				$record = [];
+				if ( !empty( $data[ 'signals' ] ) ) {
+					try {
+						list( $id, $name ) = ( new IpID( $data[ 'ip' ] ) )->run();
+						if ( $id === IpID::UNKNOWN ) {
+							$record = $data;
+						}
+					}
+					catch ( \Exception $e ) {
+					}
+				}
+
+				return $record;
 			},
 			$recordsToSend
 		) );
 
 		// We order with preference towards IPs with more signals.
 		// And, if the only signal is "frontpage" we prefer anything else before it.
-		usort( $results, function ( $a, $b ) {
+		usort( $records, function ( $a, $b ) {
 			$countA = count( $a[ 'signals' ] );
 			$countB = count( $b[ 'signals' ] );
 
@@ -61,7 +76,7 @@ class BuildData {
 			return $order;
 		} );
 
-		return array_slice( $results, 0, 50 );
+		return array_slice( $records, 0, 50 );
 	}
 
 	/**
@@ -93,7 +108,7 @@ class BuildData {
 		$mod = $this->getMod();
 		/** @var Select $select */
 		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$records = $select->setLimit( 150 )
+		$records = $select->setLimit( 200 )
 						  ->setOrderBy( 'updated_at', 'DESC' )
 						  ->addWhereNotIn( 'ip', array_map( 'inet_pton', Services::IP()->getServerPublicIPs() ) )
 						  ->addWhereCompareColumns( 'updated_at', 'snsent_at', '>' )
