@@ -1,7 +1,7 @@
 {
   "11.4": {
     "version":     "11.4",
-    "released_at": 1623057021,
+    "released_at": 1625560514,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease114",
       "upgrade": "https://shsec.io/shieldupgradeguide114"

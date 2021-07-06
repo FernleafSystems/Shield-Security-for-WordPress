@@ -8,17 +8,17 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.7
-Stable tag: 11.3.0
+Stable tag: 11.4.0
 
 No-Nonsense Security Hardening that protects you against hackers, malicious bots, spammers (no captchas!). Now with exclusive ShieldNET Technology.
 
 == Description ==
 
-Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots of all types. Using our exclusive, no-need-for-captcha security technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
+Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots of all types. With our exclusive, *no-need-for-captcha* security technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
 
-Shield automatically blocks bad IP addresses while optimising performance so your WordPress site never slows down because of security.
+Shield Security automatically blocks bad IP addresses while optimising performance so your WordPress site never slows down because of security with large IP lookup tables .
 
-ShieldNET is our exclusive network-based intelligence platform that draws-in information from all around the globe to help individual Shield Security plugins assess security threats and take appropriate action.
+ShieldNET is our new and exclusive network-based intelligence platform that draws-in information from all around the globe to help Shield Security plugins be smarter when assessing security threats and taking appropriate action.
 
 #### Get the highest rated 5* Security Plugin for WordPress
 

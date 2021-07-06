@@ -398,7 +398,7 @@ class Controller extends DynPropertiesClass {
 
 		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
-		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50, 1 );
+		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
 		add_filter( 'site_transient_update_plugins', [ $this, 'filter_hidePluginUpdatesFromUI' ] );
 		add_action( 'in_plugin_update_message-'.$this->base_file, [ $this, 'onWpPluginUpdateMessage' ] );
@@ -1273,7 +1273,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getShortRequestId() :string {
-		return substr( $this->getUniqueRequestId( false ), 0, 10 );
+		return substr( $this->getUniqueRequestId(), 0, 10 );
 	}
 
 	public function hasSessionId() :bool {

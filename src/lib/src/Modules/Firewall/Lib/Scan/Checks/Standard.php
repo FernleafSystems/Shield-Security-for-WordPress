@@ -39,7 +39,7 @@ class Standard extends Base {
 						'check' => $this->check,
 						'type'  => 'regex',
 					] );
-					break( 2 );
+					break 2;
 				}
 			}
 		}
@@ -60,7 +60,7 @@ class Standard extends Base {
 						'check' => $this->check,
 						'type'  => 'simple',
 					] );
-					break( 2 );
+					break 2;
 				}
 			}
 		}

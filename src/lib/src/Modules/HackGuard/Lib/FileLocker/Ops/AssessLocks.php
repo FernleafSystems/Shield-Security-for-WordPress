@@ -24,7 +24,7 @@ class AssessLocks extends BaseOps {
 			try {
 				if ( ( new CompareHash() )->isEqualFileSha1( $lock->file, $lock->hash_original ) ) {
 					if ( !empty( $lock->hash_current ) ) {
-						$updater->updateCurrentHash( $lock, '' );
+						$updater->updateCurrentHash( $lock );
 					}
 				}
 				else {
