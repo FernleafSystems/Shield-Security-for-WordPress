@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
 };
+use FernleafSystems\Wordpress\Services\Utilities\Constants\Regex;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Submit\{
 	PreSubmit,
 	Submit
@@ -44,8 +45,8 @@ class SubmitHashes {
 	}
 
 	private function canSubmitAsset() :bool {
-		return preg_match( '#^[0-9.]$#', $this->asset->Version )
-			   && preg_match( '#^[0-9a-z]+[0-9a-z_\-]+$#i', $this->asset->slug );
+		return preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), $this->asset->Version )
+			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), $this->asset->slug );
 	}
 
 	private function isSubmitRequired() :bool {
