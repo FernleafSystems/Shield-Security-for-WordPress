@@ -21,7 +21,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 
 		let parentNav = currentMenuClickTarget.closest( 'ul' ).closest( 'li.nav-item' );
 		if ( parentNav !== null ) {
-			parentNav.querySelector( 'a.nav-link' ).classList.add( 'active' );
+			parentNav.querySelector( 'li.nav-item > a.nav-link' ).classList.add( 'active' );
 		}
 
 		iCWP_WPSF_BodyOverlay.hide();
@@ -51,6 +51,23 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 			} );
 
 			jQuery( document ).on( 'shield-dynamic_load', handleDynamicLoad );
+
+			let navBar = jQuery( '#NavSideBar' );
+			navBar.on( 'click', 'li.nav-item.with-submenu', function ( evt ) {
+				let $theLink = jQuery( evt.currentTarget );
+				if ( $theLink.hasClass( 'activesub' ) ) {
+					$theLink.removeClass( 'activesub' )
+				}
+				else {
+					jQuery( 'li.nav-item.with-submenu.activesub', navBar ).removeClass( 'activesub' );
+					$theLink.addClass( 'activesub' )
+				}
+			} );
+			jQuery( document ).on( 'click', function ( evt ) {
+				if ( !jQuery( evt.target ).closest( navBar ).length && jQuery( navBar ).is( ":visible" ) ) {
+					jQuery( 'li.nav-item.with-submenu.activesub', navBar ).removeClass( 'activesub' );
+				}
+			} );
 		} );
 	};
 
