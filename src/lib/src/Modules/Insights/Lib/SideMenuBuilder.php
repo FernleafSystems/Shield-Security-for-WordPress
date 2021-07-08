@@ -50,9 +50,6 @@ class SideMenuBuilder {
 			}
 
 			if ( !empty( $item[ 'sub_items' ] ) ) {
-				$item[ 'data' ][ 'toggle' ] = 'collapse';
-				$item[ 'href' ] = '#collapse-'.$item[ 'slug' ];
-
 				$item[ 'sub_items' ] = array_map( function ( $sub ) {
 					if ( empty( $sub[ 'classes' ] ) ) {
 						$sub[ 'classes' ] = [];

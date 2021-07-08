@@ -99,30 +99,6 @@ var iCWP_WPSF_Toaster = new function () {
 }();
 iCWP_WPSF_Toaster.initialise();
 
-var iCWP_WPSF_SubMenu = new function () {
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			let navBar = jQuery( '#NavSideBar' );
-			navBar.on( 'click', 'li.nav-item.with-submenu', function ( evt ) {
-				let $theLink = jQuery( evt.currentTarget );
-				if ( $theLink.hasClass( 'activesub' ) ) {
-					$theLink.removeClass( 'activesub' )
-				}
-				else {
-					jQuery( 'li.nav-item.with-submenu.activesub', navBar ).removeClass( 'activesub' );
-					$theLink.addClass( 'activesub' )
-				}
-			} );
-			jQuery( document ).on( 'click', function ( evt ) {
-				if ( !jQuery( evt.target ).closest( navBar ).length && jQuery( navBar ).is( ":visible" ) ) {
-					jQuery( 'li.nav-item.with-submenu.activesub', navBar ).removeClass( 'activesub' );
-				}
-			} );
-		} );
-	};
-}();
-iCWP_WPSF_SubMenu.initialise();
-
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	let bRequestCurrentlyRunning = false;
