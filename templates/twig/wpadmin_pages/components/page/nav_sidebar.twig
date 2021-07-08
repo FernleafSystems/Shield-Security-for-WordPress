@@ -14,7 +14,7 @@
 							<span class="text-secondary font-italic text-monospace">{{ mitem.title }}</span>
 						</li>
 					{% for sub in mitem.sub_items %}
-						<li class="nav-item mb-2 pl-0 py-1">
+						<li class="mb-2 pl-0 py-1">
 							<a class="p-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
 							   href="{{ sub.href|default('#') }}"
 									{% for data_key,data_val in sub.data|default([]) %}

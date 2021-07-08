@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\DetectNotBot;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TestNotBotLoading {
@@ -10,12 +11,23 @@ class TestNotBotLoading {
 	use ModConsumer;
 
 	public function test() :bool {
+		return $this->testInternally() || $this->testViaShieldNet();
+	}
+
+	public function testInternally() :bool {
 		$urlToFind = explode( '?', $this->getCon()->urls->forJs( 'shield/notbot' ) )[ 0 ];
 		return preg_match(
 				   sprintf( '#%s#i', preg_quote( $urlToFind, '#' ) ),
-				   Services::HttpRequest()->getContent( network_home_url( '/' ), [
-					   'timeout' => 5
-				   ] )
+				   Services::HttpRequest()->getContent(
+					   add_query_arg( [ 'force_notbot' => '1' ], network_home_url( '/' ) ),
+					   [ 'timeout' => 5 ]
+				   )
 			   ) === 1;
+	}
+
+	public function testViaShieldNet() :bool {
+		return ( new DetectNotBot() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->run( explode( '?', $this->getCon()->urls->forJs( 'shield/notbot' ) )[ 0 ] );
 	}
 }

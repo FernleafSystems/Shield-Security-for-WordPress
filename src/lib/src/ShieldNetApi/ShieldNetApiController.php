@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -18,8 +19,13 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class ShieldNetApiController extends DynPropertiesClass {
 
+	use ExecOnce;
 	use ModConsumer;
 	use PluginCronsConsumer;
+
+	protected function run() {
+		$this->setupCronHooks();
+	}
 
 	/**
 	 * Automatically throttles request because otherwise PRO-nulled versions of Shield will cause
@@ -128,7 +134,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * So if the timestamp for the last store is too far in the past, we believe we can't reliably
 	 * store data.
 	 */
-	private function canStoreDataReliably() :bool {
+	public function canStoreDataReliably() :bool {
 		if ( Services::Request()->carbon()->subHours( 2 )->timestamp > $this->vo->data_last_saved_at ) {
 			$can = false;
 			$this->storeVoData();
