@@ -288,27 +288,27 @@ class UI extends BaseShield\UI {
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
-		$aWarnings = [];
+		$warnings = [];
 
 		switch ( $section ) {
 
 			case 'section_realtime':
-				$bCanHandshake = $this->getCon()
+				$canHandshake = $this->getCon()
 									  ->getModule_Plugin()
 									  ->getShieldNetApiController()
 									  ->canHandshake();
-				if ( !$bCanHandshake ) {
-					$aWarnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
+				if ( !$canHandshake ) {
+					$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 //				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-//					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
+//					$warnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
 //				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
-//					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
+//					$warnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
 				break;
 		}
 
-		return $aWarnings;
+		return $warnings;
 	}
 }

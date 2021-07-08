@@ -49,6 +49,12 @@
       },
       {
         "type":        "improved",
+        "pro_only":    false,
+        "title":       "Added enhancement for when local tests for NotBot JS loading fails, use ShieldNET to test.",
+        "description": []
+      },
+      {
+        "type":        "improved",
         "title":       "Tweaks and adjustments to crowd-sourced hashing.",
         "description": [],
         "patch":       "11.4.2"
@@ -64,6 +70,12 @@
         "title":       "HTML formatting issue with the 2FA Login Page.",
         "description": [],
         "patch":       "11.4.2"
+      },
+      {
+        "type":        "improved",
+        "title":       "Refinements to the ShieldNET cron processing.",
+        "description": [],
+        "patch":       "11.4.3"
       }
     ]
   },

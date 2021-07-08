@@ -21,7 +21,8 @@ class Processor extends BaseShield\Processor {
 			->setMod( $this->getMod() )
 			->run();
 
-		$mod->getPluginBadgeCon()->run();
+		$mod->getShieldNetApiController()->execute();
+		$mod->getPluginBadgeCon()->execute();
 
 		( new PluginTelemetry() )
 			->setMod( $this->getMod() )

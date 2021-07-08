@@ -21,7 +21,7 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( Services::WpGeneral()->isCron() && $this->getCon()->isPremiumActive() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			$this->setupCronHooks();
 		}
 
