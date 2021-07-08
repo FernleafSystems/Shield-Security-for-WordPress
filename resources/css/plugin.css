@@ -1617,14 +1617,15 @@ body.folded #FooterBannerGoPro {
 	width: 100%;
 	z-index: 1000;
 	height: auto;
-	transition: visibility 0s;
 	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-	margin-top: -40px;
+	margin-top: -60px;
+	opacity: 0;
+	transition: visibility 0.15s 0s, opacity 0.15s ease-in;
 }
 .with-submenu.activesub .subnav-menu {
 	visibility: visible;
 	opacity: 1;
-	transition: visibility 0s;
+	transition: visibility 0s, opacity 0.15s ease-in;
 	z-index: 1001;
 }
 .primary_side_sub_menu {
