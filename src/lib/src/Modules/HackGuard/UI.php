@@ -74,10 +74,17 @@ class UI extends BaseShield\UI {
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
 			'hrefs'        => [
-				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection('section_enable_plugin_feature_hack_protection_tools'),
+				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $this->getCon()
 											 ->getModule_Insights()
 											 ->getUrl_ScansResults(),
+			],
+			'content'      => [
+				'section' => [
+					'plugins' => ( new Render\SectionPlugins() )
+						->setMod( $this->getMod() )
+						->render()
+				]
 			],
 			'scan_results' => [
 			],
@@ -267,7 +274,7 @@ class UI extends BaseShield\UI {
 
 		return [
 			'flags'   => [
-				'has_items'   => $mod->isPtgEnabled() ? !empty( $aPtgResults ) : false,
+				'has_items'   => $mod->isPtgEnabled() && !empty( $aPtgResults ),
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
 				'show_table'  => false,
@@ -294,9 +301,9 @@ class UI extends BaseShield\UI {
 
 			case 'section_realtime':
 				$canHandshake = $this->getCon()
-									  ->getModule_Plugin()
-									  ->getShieldNetApiController()
-									  ->canHandshake();
+									 ->getModule_Plugin()
+									 ->getShieldNetApiController()
+									 ->canHandshake();
 				if ( !$canHandshake ) {
 					$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
 				}

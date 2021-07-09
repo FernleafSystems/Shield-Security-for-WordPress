@@ -1720,3 +1720,9 @@ body.folded #FooterBannerGoPro {
 	background: linear-gradient(to bottom, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeded', endColorstr='#f9acac', GradientType=0); /* IE6-9 */
 }
+#ScanResultsPlugins li.nav-item a.nav-link {
+	/*background-color: white;*/
+	border: 1px solid #c2c2c2;
+	border-radius: 3px;
+	margin-right: 0;
+}

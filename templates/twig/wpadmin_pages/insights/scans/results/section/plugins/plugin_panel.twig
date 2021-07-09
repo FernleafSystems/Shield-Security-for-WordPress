@@ -1,0 +1,32 @@
+<div class="row">
+	<div class="col">
+
+		<ul class="list-group">
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.name }}</span>: {{ plugin.name }};
+				<span class="font-weight-bold">{{ strings.version }}</span>: {{ plugin.version }}
+
+			</li>
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.author }}</span>:
+					<a href="{{ plugin.author_url }}" target="_blank">{{ plugin.author }}</a>;
+				<span class="font-weight-bold">WordPress.org</span>: {{ plugin.is_wporg ? 'Yes' : 'No' }}
+			</li>
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.install_dir }}</span>
+				<code>{{ plugin.dir }}</code>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="row mt-3">
+	<div class="col">
+		<h6>{{ strings.file_integrity_status }}:
+			{% if plugin.integrity_status %}
+				<span class="badge badge-success">{{ strings.status_good }}</span>
+			{% else %}
+				<span class="badge badge-danger">{{ strings.status_warning }}</span>
+			{% endif %}
+		</h6>
+	</div>
+</div>
