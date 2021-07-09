@@ -44,12 +44,6 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		}
 	}
 
-	/**
-	 * @deprecated 11.3
-	 */
-	public function loadBotDetectors() {
-	}
-
 	private function isRequestWhitelisted() :bool {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
