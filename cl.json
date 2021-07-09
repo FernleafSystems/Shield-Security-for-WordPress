@@ -76,6 +76,12 @@
         "title":       "Refinements to the ShieldNET cron processing.",
         "description": [],
         "patch":       "11.4.3"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Prevent a rare fatal error on certain pages.",
+        "description": [],
+        "patch":       "11.4.4"
       }
     ]
   },
