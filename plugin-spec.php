@@ -53,7 +53,9 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "bootstrap-select"
+        "bootstrap-select",
+        "datatables-bootstrap",
+        "datatables-select"
       ],
       "js":  [
         "select2",
@@ -61,7 +63,9 @@
         "jquery/featherlight",
         "jquery/fileDownload",
         "shield/tours",
-        "bootstrap-select"
+        "bootstrap-select",
+        "datatables-select",
+        "datatables-bootstrap"
       ]
     },
     "frontend":     {
@@ -91,16 +95,21 @@
             "plugin"
           ]
         },
-        "datatables":             {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css",
+        "datatables-bootstrap":             {
+          "url":  "https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
+          ]
+        },
+        "datatables-select":             {
+          "url":  "https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css",
+          "deps": [
+            "datatables-bootstrap"
           ]
         },
         "global-plugin":          {},
         "plugin":                 {
           "deps": [
-            "datatables",
             "bootstrap",
             "global-plugin"
           ]
@@ -164,10 +173,22 @@
           ]
         },
         "datatables":             {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
+          ]
+        },
+        "datatables-bootstrap":             {
+          "url":  "https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js",
+          "deps": [
+            "datatables"
+          ]
+        },
+        "datatables-select":             {
+          "url":  "https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js",
+          "deps": [
+            "datatables"
           ]
         },
         "global-plugin":          {
@@ -178,7 +199,7 @@
         "plugin":                 {
           "deps": [
             "bootstrap",
-            "datatables",
+            "datatables_bootstrap",
             "global-plugin",
             "shield/navigation",
             "base64.min",

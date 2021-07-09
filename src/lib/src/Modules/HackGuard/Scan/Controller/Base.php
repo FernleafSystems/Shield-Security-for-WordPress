@@ -140,14 +140,14 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param bool $bIncludeIgnored
+	 * @param bool $includeIgnored
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
-	public function getAllResults( $bIncludeIgnored = false ) {
+	public function getAllResults( $includeIgnored = false ) {
 		/** @var Databases\Scanner\Select $sel */
 		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$sel->filterByScan( $this->getSlug() );
-		if ( !$bIncludeIgnored ) {
+		if ( !$includeIgnored ) {
 			$sel->filterByNotIgnored();
 		}
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
