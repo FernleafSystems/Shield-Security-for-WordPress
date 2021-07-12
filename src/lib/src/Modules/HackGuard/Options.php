@@ -59,14 +59,14 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return string[]
 	 */
-	public function getMalSignaturesSimple() {
+	public function getMalSignaturesSimple() :array {
 		return $this->getMalSignatures( 'malsigs_simple.txt', $this->getDef( 'url_mal_sigs_simple' ) );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getMalSignaturesRegex() {
+	public function getMalSignaturesRegex() :array {
 		return $this->getMalSignatures( 'malsigs_regex.txt', $this->getDef( 'url_mal_sigs_regex' ) );
 	}
 
@@ -75,10 +75,10 @@ class Options extends BaseShield\Options {
 	 * @param string $url
 	 * @return string[]
 	 */
-	public function getMalSignatures( string $fileName, string $url ) {
+	private function getMalSignatures( string $fileName, string $url ) :array {
 		$FS = Services::WpFs();
 		$file = $this->getCon()->getPluginCachePath( $fileName );
-		if ( $FS->exists( $file ) ) {
+		if ( !empty( $file ) && $FS->exists( $file ) ) {
 			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
 		}
 		else {
@@ -87,15 +87,16 @@ class Options extends BaseShield\Options {
 					explode( "\n", Services::HttpRequest()->getContent( $url ) )
 				),
 				function ( $line ) {
-					return ( ( strpos( $line, '#' ) !== 0 ) && strlen( $line ) > 0 );
+					return ( strpos( $line, '#' ) !== 0 ) && strlen( $line ) > 0;
 				}
 			);
 
-			if ( !empty( $sigs ) ) {
+			if ( !empty( $file ) && !empty( $sigs ) ) {
 				$FS->putFileContent( $file, implode( "\n", $sigs ), true );
 			}
 		}
-		return $sigs;
+
+		return is_array( $sigs ) ? $sigs : [];
 	}
 
 	public function isMalAutoRepairSurgical() :bool {

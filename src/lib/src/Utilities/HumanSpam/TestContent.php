@@ -46,8 +46,8 @@ class TestContent {
 		if ( empty( $this->list ) ) {
 			$FS = Services::WpFs();
 			$file = $this->getFile();
-			if ( !$FS->exists( $file ) || Services::Request()
-												  ->ts() - $FS->getModifiedTime( $file ) > WEEK_IN_SECONDS ) {
+			if ( !$FS->exists( $file )
+				 || Services::Request()->ts() - $FS->getModifiedTime( $file ) > MONTH_IN_SECONDS ) {
 				$this->importBlacklist();
 			}
 			$this->list = array_map( 'base64_decode', explode( "\n", $FS->getFileContent( $file, true ) ) );
@@ -59,7 +59,7 @@ class TestContent {
 		$success = false;
 		$mod = $this->getCon()->getModule_Comments();
 		$rawList = Services::HttpRequest()->getContent( $mod->getOptions()->getDef( 'url_spam_blacklist_terms' ) );
-		if ( !empty( $rawList ) ) {
+		if ( !empty( $rawList ) && !empty( $this->getFile() ) ) {
 			$success = Services::WpFs()->putFileContent(
 				$this->getFile(),
 				implode( "\n", array_map( 'base64_encode', array_filter( array_map( 'trim', explode( "\n", $rawList ) ) ) ) ),
@@ -70,6 +70,6 @@ class TestContent {
 	}
 
 	private function getFile() :string {
-		return $this->getCon()->getModule_Comments()->getSpamBlacklistFile();
+		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
 	}
 }

@@ -22,7 +22,7 @@ class Patterns {
 		$mod = $this->getMod();
 
 		$cacher = new Cache\CacheDefVO();
-		$cacher->dir = $mod->getTempDir();
+		$cacher->dir = $mod->getScansTempDir();
 		if ( !empty( $cacher->dir ) ) {
 			$cacher->file_fragment = 'cache_patterns.txt';
 			$cacher->expiration = HOUR_IN_SECONDS;
@@ -50,9 +50,11 @@ class Patterns {
 			}
 
 			$cacher->data = $patterns;
-			( new Cache\StoreToCache() )
-				->setCacheDef( $cacher )
-				->store();
+			if ( !empty( $cacher->dir ) ) {
+				( new Cache\StoreToCache() )
+					->setCacheDef( $cacher )
+					->store();
+			}
 		}
 
 		return $cacher->data;

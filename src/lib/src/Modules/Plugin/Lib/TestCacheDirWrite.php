@@ -20,7 +20,7 @@ class TestCacheDirWrite {
 		$data = $this->getTestData();
 		$now = Services::Request()->ts();
 
-		if ( ( $data[ 'last_success_at' ] === 0 || $now - WEEK_IN_SECONDS > $data[ 'last_success_at' ] )
+		if ( ( $data[ 'last_success_at' ] === 0 || $now - DAY_IN_SECONDS > $data[ 'last_success_at' ] )
 			 && ( $now - HOUR_IN_SECONDS > $data[ 'last_test_at' ] ) ) {
 
 			$rootDir = $this->getCon()->getPluginCachePath();
@@ -43,10 +43,11 @@ class TestCacheDirWrite {
 		$testDir = $this->getCon()->getPluginCachePath( uniqid() );
 		$FS->mkdir( $testDir );
 		if ( $FS->isDir( $testDir ) ) {
-			$sFile = path_join( $testDir, uniqid() );
-			$FS->touch( $sFile );
+			$file = path_join( $testDir, uniqid() );
+			$FS->touch( $file );
+			$canTouchFile = $FS->isFile( $file );
 			$FS->deleteDir( $testDir );
-			$canWrite = !$FS->isDir( $testDir );
+			$canWrite = $canTouchFile && !$FS->isDir( $testDir );
 		}
 		return $canWrite;
 	}
@@ -57,15 +58,11 @@ class TestCacheDirWrite {
 		$FS = Services::WpFs();
 
 		$testFile = $this->getCon()->getPluginCachePath( 'test_write_file.txt' );
-		$FS->touch( $testFile );
-
-		if ( $FS->exists( $testFile ) ) {
-			$uniq = uniqid();
-			$FS->putFileContent( $testFile, $uniq );
-			if ( $FS->getFileContent( $testFile ) == $uniq ) {
-				$FS->deleteFile( $testFile );
-				$canWrite = !$FS->exists( $testFile );
-			}
+		$uniq = uniqid();
+		$FS->putFileContent( $testFile, $uniq );
+		if ( $FS->getFileContent( $testFile ) == $uniq ) {
+			$FS->deleteFile( $testFile );
+			$canWrite = !$FS->exists( $testFile );
 		}
 		return $canWrite;
 	}

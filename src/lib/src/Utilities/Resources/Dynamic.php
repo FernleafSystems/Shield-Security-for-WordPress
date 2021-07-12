@@ -5,6 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Resources;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class Dynamic
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\Resources
+ * @deprecated 11.4
+ */
 class Dynamic {
 
 	const RESOURCES_DIR = 'resources';

@@ -82,6 +82,12 @@
         "title":       "Prevent a rare fatal error on certain pages.",
         "description": [],
         "patch":       "11.4.4"
+      },
+      {
+        "type":        "improved",
+        "title":       "Improved support for PHP 8.",
+        "description": [],
+        "patch":       "11.4.5"
       }
     ]
   },

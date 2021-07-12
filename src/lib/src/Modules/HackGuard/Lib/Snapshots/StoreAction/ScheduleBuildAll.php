@@ -33,7 +33,8 @@ class ScheduleBuildAll extends BaseBulk {
 	}
 
 	public function hookBuild() {
-		if ( wp_next_scheduled( $this->getCronHook() ) !== false ) {
+		if ( Services::WpGeneral()->isCron() &&
+			 wp_next_scheduled( $this->getCronHook() ) !== false ) {
 			add_action( $this->getCronHook(), [ $this, 'build' ] );
 		}
 	}
