@@ -30,9 +30,7 @@
 	<script>
 		jQuery( document ).ready( function () {
 			jQuery( '#ScanResultsPlugins a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( e ) {
-				jQuery.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
-				console.log( jQuery.fn.dataTable.tables( { visible: true, api: true } ) );
-				// theTable.columns.adjust().draw();
+				jQuery.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 			} );
 		} );
 	</script>

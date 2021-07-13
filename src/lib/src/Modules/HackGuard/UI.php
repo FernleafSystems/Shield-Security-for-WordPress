@@ -220,17 +220,14 @@ class UI extends BaseShield\UI {
 		return $aOptParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getFileLockerVars() {
+	protected function getFileLockerVars() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$oLockCon = $mod->getFileLocker();
-		$oLockLoader = ( new Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $mod );
-		$aProblemLocks = $oLockLoader->withProblems();
-		$aGoodLocks = $oLockLoader->withoutProblems();
+		$lockerCon = $mod->getFileLocker();
+		$lockLoader = ( new Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $mod );
+		$problemLocks = $lockLoader->withProblems();
+		$goodLocks = $lockLoader->withoutProblems();
 
 		return [
 			'ajax'    => [
@@ -238,7 +235,7 @@ class UI extends BaseShield\UI {
 				'filelocker_fileaction' => $mod->getAjaxActionData( 'filelocker_fileaction', true ),
 			],
 			'flags'   => [
-				'is_enabled'    => $oLockCon->isEnabled(),
+				'is_enabled'    => $lockerCon->isEnabled(),
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
@@ -247,8 +244,8 @@ class UI extends BaseShield\UI {
 			],
 			'vars'    => [
 				'file_locks' => [
-					'good' => $aGoodLocks,
-					'bad'  => $aProblemLocks,
+					'good' => $goodLocks,
+					'bad'  => $problemLocks,
 				],
 			],
 			'strings' => [
@@ -256,7 +253,7 @@ class UI extends BaseShield\UI {
 				'subtitle'      => __( 'Results of file locker monitoring', 'wp-simple-firewall' ),
 				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
 			],
-			'count'   => count( $aProblemLocks )
+			'count'   => count( $problemLocks )
 		];
 	}
 

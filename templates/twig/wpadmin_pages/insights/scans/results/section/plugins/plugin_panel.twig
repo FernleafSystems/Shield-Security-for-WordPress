@@ -55,8 +55,9 @@
 				data:{{ plugin.vars.guard_files|raw }},
 				columns: [
 					{ data: 'path_fragment', title: 'Slug' },
-					{ data: 'is_different', title: 'Different' },
-					{ data: 'is_unrecognised', title: 'Unrecgonised' }
+					{ data: 'path_fragment', title: 'Slug' },
+					{ data: 'status', title: 'Status' },
+					{ data: 'file_type', title: 'Type' },
 				],
 				select: {
 					style: 'multi'

@@ -35,6 +35,7 @@ class SectionPlugins extends SectionBase {
 
 		$plugins = $this->buildPluginsData();
 		ksort( $plugins );
+
 		$problems = [];
 		$active = [];
 		foreach ( $plugins as $key => $plugin ) {
@@ -83,7 +84,7 @@ class SectionPlugins extends SectionBase {
 	private function buildPluginData( WpPluginVo $plugin ) :array {
 		$carbon = Services::Request()->carbon();
 		$abandoned = $this->getAbandonedPluginsResults()->getItemForSlug( $plugin->file );
-		$guardFiles = $this->getGuardFiles()->getItemsForSlug( $plugin->file );
+		$guardFilesData = $this->getGuardFilesDataForPlugin( $plugin );
 		$data = [
 			'info'  => [
 				'active'           => $plugin->active,
@@ -102,18 +103,25 @@ class SectionPlugins extends SectionBase {
 			'flags' => [
 				'has_update'      => $plugin->hasUpdate(),
 				'is_abandoned'    => !empty( $abandoned ),
-				'has_guard_files' => !empty( $guardFiles ),
+				'has_guard_files' => !empty( $guardFilesData ),
 				'is_wporg'        => $plugin->isWpOrg(),
 			],
 			'vars'  => [
-				'guard_files' => json_encode( array_map( function ( $item ) {
-					return $item->getRawData();
-				}, $guardFiles ) )
+				'guard_files' => json_encode( $guardFilesData )
 			]
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
 										  || $data[ 'flags' ][ 'has_guard_files' ];
 		return $data;
+	}
+
+	private function getGuardFilesDataForPlugin( WpPluginVo $plugin ) :array {
+		return array_map( function ( $item ) {
+			$data = $item->getRawData();
+			$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
+			$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
+			return $data;
+		}, $this->getGuardFiles()->getItemsForSlug( $plugin->file ) );
 	}
 
 	private function getGuardFiles() :Scans\Ptg\ResultsSet {

@@ -199,7 +199,7 @@
         "plugin":                 {
           "deps": [
             "bootstrap",
-            "datatables_bootstrap",
+            "datatables-bootstrap",
             "global-plugin",
             "shield/navigation",
             "base64.min",
