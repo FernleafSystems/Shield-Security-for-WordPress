@@ -58,7 +58,7 @@ class GaspJs extends BaseProtectionProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function performCheck( $oForm ) {
+	public function performCheck( $form ) {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
@@ -71,8 +71,8 @@ class GaspJs extends BaseProtectionProvider {
 
 		$gasp = $req->post( $mod->getGaspKey() );
 
-		$username = $oForm->getUserToAudit();
-		$action = $oForm->getActionToAudit();
+		$username = $form->getUserToAudit();
+		$action = $form->getActionToAudit();
 
 		$valid = false;
 		$errorMsg = '';

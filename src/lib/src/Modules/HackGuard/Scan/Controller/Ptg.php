@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
@@ -16,6 +17,31 @@ class Ptg extends BaseForAssets {
 		( new HackGuard\Scan\Utilities\PtgAddReinstallLinks() )
 			->setScanController( $this )
 			->execute();
+
+		$this->setupCronHooks();
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
+	}
+
+	public function onWpLoaded() {
+		( new StoreAction\ScheduleBuildAll() )
+			->setMod( $this->getMod() )
+			->hookBuild();
+	}
+
+	public function onModuleShutdown() {
+		( new StoreAction\ScheduleBuildAll() )
+			->setMod( $this->getMod() )
+			->schedule();
+	}
+
+	public function runHourlyCron() {
+		( new StoreAction\TouchAll() )
+			->setMod( $this->getMod() )
+			->run();
+		( new StoreAction\CleanAll() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**
@@ -88,9 +114,7 @@ class Ptg extends BaseForAssets {
 	}
 
 	public function isReady() :bool {
-		return parent::isReady()
-			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
-			   && $this->getMod()->canCacheDirWrite();
+		return parent::isReady() && $this->getMod()->canCacheDirWrite();
 	}
 
 	/**

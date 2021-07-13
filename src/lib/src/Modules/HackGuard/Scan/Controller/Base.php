@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
@@ -16,6 +17,8 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base extends ExecOnceModConsumer {
 
 	const SCAN_SLUG = '';
+
+	use PluginCronsConsumer;
 
 	/**
 	 * @var BaseScanActionVO

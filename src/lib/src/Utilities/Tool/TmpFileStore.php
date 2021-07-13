@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDir;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TmpFileStore {
@@ -43,6 +44,8 @@ class TmpFileStore {
 	}
 
 	private function getTmpDir() :string {
-		return path_join( $this->getCon()->getPluginCachePath(), 'tmp_files' );
+		return ( new CacheDir() )
+			->setCon( $this->getCon() )
+			->buildSubDir( 'tmp_files' );
 	}
 }
