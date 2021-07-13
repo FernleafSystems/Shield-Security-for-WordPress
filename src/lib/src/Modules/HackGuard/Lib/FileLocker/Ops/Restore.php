@@ -12,23 +12,19 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class Restore extends BaseOps {
 
-	/**
-	 * @param Databases\FileLocker\EntryVO $oRecord
-	 * @return mixed
-	 */
-	public function run( $oRecord ) {
+	public function run( Databases\FileLocker\EntryVO $record ) :bool {
 		$bReverted = Services::WpFs()->putFileContent(
-			$oRecord->file,
+			$record->file,
 			( new ReadOriginalFileContent() )
 				->setMod( $this->getMod() )
-				->run( $oRecord )
+				->run( $record )
 		);
 		if ( $bReverted ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
-			/** @var Databases\FileLocker\Update $oUpd */
-			$oUpd = $mod->getDbHandler_FileLocker()->getQueryUpdater();
-			$oUpd->markReverted( $oRecord );
+			/** @var Databases\FileLocker\Update $update */
+			$update = $mod->getDbHandler_FileLocker()->getQueryUpdater();
+			$update->markReverted( $record );
 			$this->clearFileLocksCache();
 		}
 		return $bReverted;

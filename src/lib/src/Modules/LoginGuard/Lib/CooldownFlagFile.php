@@ -9,10 +9,7 @@ class CooldownFlagFile {
 
 	use Modules\ModConsumer;
 
-	/**
-	 * @return bool
-	 */
-	public function isWithinCooldownPeriod() {
+	public function isWithinCooldownPeriod() :bool {
 		return $this->getCooldownRemaining() > 0;
 	}
 
@@ -20,15 +17,12 @@ class CooldownFlagFile {
 	 * @return int
 	 */
 	public function getCooldownRemaining() {
-		/** @var Modules\LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return max( 0, $oOpts->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
+		/** @var Modules\LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+		return max( 0, $opts->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getFlagFilePath() {
+	public function getFlagFilePath() :string {
 		return $this->getCon()->getPluginCachePath( 'mode.login_throttled' );
 	}
 
@@ -38,8 +32,8 @@ class CooldownFlagFile {
 	public function getSecondsSinceLastLogin() {
 		$FS = Services::WpFs();
 		$file = $this->getFlagFilePath();
-		$nLastLogin = $FS->exists( $file ) ? $FS->getModifiedTime( $file ) : 0;
-		return ( Services::Request()->ts() - $nLastLogin );
+		$lastLogin = $FS->exists( $file ) ? $FS->getModifiedTime( $file ) : 0;
+		return Services::Request()->ts() - $lastLogin;
 	}
 
 	/**

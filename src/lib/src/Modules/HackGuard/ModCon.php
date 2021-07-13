@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDir;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -169,26 +170,24 @@ class ModCon extends BaseShield\ModCon {
 		return $this->isModuleEnabled() && $this->isPremium()
 			   && $opts->isOpt( 'ptg_enable', 'enabled' )
 			   && $opts->isOptReqsMet( 'ptg_enable' )
-			   && $this->canCacheDirWrite();
+			   && $this->getCon()->hasCacheDir()
+			   && !empty( $this->getPtgSnapsBaseDir() );
 	}
 
-	/**
-	 * @return string|false
-	 */
-	public function getPtgSnapsBaseDir() {
-		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+	public function getPtgSnapsBaseDir() :string {
+		return ( new CacheDir() )
+			->setCon( $this->getCon() )
+			->buildSubDir( 'ptguard' );
 	}
 
 	public function hasWizard() :bool {
 		return false;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTempDir() {
-		$dir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $dir ) ? $dir : false;
+	public function getScansTempDir() :string {
+		return ( new CacheDir() )
+			->setCon( $this->getCon() )
+			->buildSubDir( 'scans' );
 	}
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {

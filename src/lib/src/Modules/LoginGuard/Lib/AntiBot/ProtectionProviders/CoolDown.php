@@ -9,19 +9,19 @@ class CoolDown extends BaseProtectionProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function performCheck( $oForm ) {
+	public function performCheck( $form ) {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
 			// And finally return a WP_Error which will be reflected back to the user.
-			$oCooldownFlag = ( new CooldownFlagFile() )->setMod( $this->getMod() );
-			if ( $oCooldownFlag->isWithinCooldownPeriod() ) {
+			$cooldown = ( new CooldownFlagFile() )->setMod( $this->getMod() );
+			if ( $cooldown->isWithinCooldownPeriod() ) {
 				$sErrorString = __( "Request Cooldown in effect.", 'wp-simple-firewall' ).' '
 								.sprintf(
 									__( "You must wait %s seconds before attempting this action again.", 'wp-simple-firewall' ),
-									$oCooldownFlag->getCooldownRemaining()
+									$cooldown->getCooldownRemaining()
 								);
 
 				$this->getCon()->fireEvent( 'cooldown_fail' );
@@ -29,7 +29,7 @@ class CoolDown extends BaseProtectionProvider {
 				throw new \Exception( $sErrorString );
 			}
 
-			$oCooldownFlag->updateCooldownFlag();
+			$cooldown->updateCooldownFlag();
 		}
 	}
 
