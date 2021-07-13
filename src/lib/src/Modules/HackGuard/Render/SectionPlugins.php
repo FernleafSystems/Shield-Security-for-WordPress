@@ -130,35 +130,42 @@ class SectionPlugins extends SectionBase {
 		$con = $this->getCon();
 
 		$actions = [];
+
+		$defaultButtonClasses = [
+			'btn',
+			'action',
+		];
 		if ( $item->is_different ) {
-			$actions[] = sprintf( '<button class="btn btn-warning %s" title="%s">%s</button>',
-				implode( ' ', [] ),
+			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
 				__( 'Repair', 'wp-simple-firewall' ),
 				$con->svgs->raw( 'bootstrap/tools.svg' )
 			);
 		}
 		elseif ( $item->is_unrecognised ) {
-			$actions[] = sprintf( '<button class="btn btn-danger %s" title="%s">%s</button>',
-				implode( ' ', [] ),
+			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
 				$con->svgs->raw( 'bootstrap/x-square.svg' )
 			);
 		}
 		elseif ( $item->is_missing ) {
 			$actions[] = sprintf( '<button class="%s">%s</button>',
-				implode( ' ', [] ), 'Restore' );
+				implode( ' ', $defaultButtonClasses ),
+				'Restore'
+			);
 		}
 
 		if ( $item->is_different || $item->is_unrecognised ) {
-			$actions[] = sprintf( '<button class="btn btn-dark %s" title="%s">%s</button>',
-				implode( ' ', [] ),
+			$actions[] = sprintf( '<button class="btn-dark download %s" title="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
 				$con->svgs->raw( 'bootstrap/download.svg' )
 			);
 		}
 
-		$actions[] = sprintf( '<button class="btn btn-light %s" title="%s">%s</button>',
-			implode( ' ', [] ),
+		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s">%s</button>',
+			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
 			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
 		);

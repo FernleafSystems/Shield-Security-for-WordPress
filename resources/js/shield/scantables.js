@@ -3,18 +3,13 @@
  */
 (function ( $, window, document, undefined ) {
 
-	var pluginName = 'icwpWpsfTableActions';
+	var pluginName = 'icwpWpsfScanTableActions';
 
 	function Ob_TableActions( element, options ) {
 		this.element = element;
 		this._name = pluginName;
-		this._defaults = $.fn.icwpWpsfTableActions.defaults;
+		this._defaults = $.fn.icwpWpsfScanTableActions.defaults;
 		this.options = $.extend(
-			{
-				'forms': {
-					'insert': ''
-				}
-			},
 			this._defaults,
 			options
 		);
@@ -26,15 +21,68 @@
 		{
 			init: function () {
 				this.buildCache();
+				this.setupDatatable();
 				this.bindEvents();
 			},
 			destroy: function () {
 				this.unbindEvents();
-				this.$element.removeData();
 			},
 			buildCache: function () {
 				this.$element = $( this.element );
-				this.$oFormInsert = this.options[ 'forms' ][ 'insert' ];
+			},
+			setupDatatable: function () {
+				this.$element.DataTable( {
+					data: this.options[ 'file_guard_data' ],
+					columns: [
+						{ data: 'rid', title: 'ID', visible: false, searchable: false },
+						{ data: 'path_fragment', title: 'File' },
+						{ data: 'status', title: 'Status', searchable: false },
+						{ data: 'file_type', title: 'Type' },
+						{ data: 'actions', title: 'Actions', orderable: false, searchable: false },
+					],
+					select: {
+						style: 'multi'
+					},
+					dom: 'Bfrtip',
+					buttons: [
+						{
+							text: 'Refresh',
+							action: function ( e, dt, node, config ) {
+								alert( 'Refresh' );
+							}
+						},
+						{
+							text: 'Ignore Selected',
+							action: function ( e, dt, node, config ) {
+								alert( 'Ignore Selected' );
+							}
+						},
+						{
+							text: 'Repair Selected',
+							action: function ( e, dt, node, config ) {
+								alert( 'Ignore Selected' );
+							}
+						},
+						{
+							text: 'Ignore All',
+							action: function ( e, dt, node, config ) {
+								alert( 'Ignore All' );
+							}
+						},
+						{
+							text: 'Repair All',
+							className: '',
+							titleAttr: 'Repair All (that can be repaired)',
+							action: function ( e, dt, node, config ) {
+								alert( 'Repair All' );
+							}
+						}
+					]
+				} );
+
+				$( '#ScanResultsPlugins a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( e ) {
+					$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
+				} );
 			},
 			bindEvents: function () {
 				var plugin = this;
@@ -60,16 +108,6 @@
 						plugin.ignoreEntry.call( plugin );
 					}
 				);
-
-				if ( typeof this.$oFormInsert !== 'undefined' && this.$oFormInsert.length ) {
-					this.$oFormInsert.on(
-						'submit' + '.' + plugin._name,
-						function ( evt ) {
-							evt.preventDefault();
-							plugin.insertEntry.call( plugin );
-						}
-					);
-				}
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
@@ -145,10 +183,10 @@
 					'button.action.href-download',
 					function ( evt ) {
 						evt.preventDefault();
-						var $oButt = $( this );
-						var sHref = $oButt.data( 'href-download' );
-						if ( sHref !== undefined ) {
-							plugin.options[ 'working_href_download' ] = sHref;
+						var button = $( this );
+						var href = button.data( 'href-download' );
+						if ( href !== undefined ) {
+							plugin.options[ 'working_href_download' ] = href;
 							plugin.hrefDownload.call( plugin );
 						}
 					}
@@ -164,40 +202,33 @@
 			},
 
 			bulkAction: function () {
-				let aRequestData = this.options[ 'ajax_bulk_action' ];
-				this.sendReq( aRequestData );
+				let reqData = this.options[ 'ajax_bulk_action' ];
+				this.sendReq( reqData );
 			},
 
 			deleteEntry: function () {
-				let aRequestData = this.options[ 'ajax_item_delete' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( aRequestData );
-			},
-
-			insertEntry: function () {
-				let requestData = this.options[ 'ajax_item_insert' ];
-				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
-				this.sendReq( requestData );
-				this.$oFormInsert[ 0 ].reset();
+				let reqData = this.options[ 'ajax_item_delete' ];
+				reqData[ 'rid' ] = this.options[ 'working_rid' ];
+				this.sendReq( reqData );
 			},
 
 			ignoreEntry: function () {
-				let aRequestData = this.options[ 'ajax_item_ignore' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( aRequestData );
+				let reqData = this.options[ 'ajax_item_ignore' ];
+				reqData[ 'rid' ] = this.options[ 'working_rid' ];
+				this.sendReq( reqData );
 			},
 
 			repairEntry: function () {
-				let aRequestData = this.options[ 'ajax_item_repair' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( aRequestData );
+				let reqData = this.options[ 'ajax_item_repair' ];
+				reqData[ 'rid' ] = this.options[ 'working_rid' ];
+				this.sendReq( reqData );
 			},
 
 			itemAction: function () {
-				let aRequestData = this.options[ 'ajax_item_action' ];
-				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
-				aRequestData[ 'item_action' ] = this.options[ 'working_item_action' ];
-				this.sendReq( aRequestData );
+				let reqData = this.options[ 'ajax_item_action' ];
+				reqData[ 'rid' ] = this.options[ 'working_rid' ];
+				reqData[ 'item_action' ] = this.options[ 'working_item_action' ];
+				this.sendReq( reqData );
 			},
 
 			customAction: function () {
@@ -212,29 +243,29 @@
 				return false;
 			},
 
-			sendReq: function ( aRequestData ) {
+			sendReq: function ( reqData ) {
 				iCWP_WPSF_BodyOverlay.show();
 
 				var plugin = this;
 
-				$.post( ajaxurl, $.extend( aRequestData, plugin.options[ 'req_params' ] ),
-					function ( oResponse ) {
+				$.post( ajaxurl, $.extend( reqData, plugin.options[ 'req_params' ] ),
+					function ( response ) {
 
-						if ( oResponse.success ) {
-							iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
-							if ( oResponse.data.page_reload ) {
+						if ( response.success ) {
+							iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
+							if ( response.data.page_reload ) {
 								location.reload();
 							}
 							else {
 								plugin.options[ 'table' ].reloadTable();
-								iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
+								iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
 								iCWP_WPSF_BodyOverlay.hide();
 							}
 						}
 						else {
 							let sMessage = 'Communications error with site.';
-							if ( oResponse.data.message !== undefined ) {
-								sMessage = oResponse.data.message;
+							if ( response.data.message !== undefined ) {
+								sMessage = response.data.message;
 							}
 							alert( sMessage );
 							iCWP_WPSF_BodyOverlay.hide();
@@ -249,7 +280,7 @@
 		}
 	);
 
-	$.fn.icwpWpsfTableActions = function ( aOptions ) {
+	$.fn.icwpWpsfScanTableActions = function ( aOptions ) {
 		return this.each(
 			function () {
 				if ( !$.data( this, "plugin_" + pluginName ) ) {
@@ -259,7 +290,7 @@
 		);
 	};
 
-	$.fn.icwpWpsfTableActions.defaults = {
+	$.fn.icwpWpsfScanTableActions.defaults = {
 		'custom_actions_ajax': {},
 		'req_params': {}
 	};

@@ -65,9 +65,7 @@
         "jquery/fileDownload",
         "shield/tours",
         "bootstrap-select",
-        "datatables-select",
-        "datatables-buttons",
-        "datatables-bootstrap"
+        "shield/scantables"
       ]
     },
     "frontend":     {
@@ -282,6 +280,13 @@
         "shield/tables":          {
           "deps": [
             "plugin"
+          ]
+        },
+        "shield/scantables":          {
+          "deps": [
+            "datatables-select",
+            "datatables-buttons",
+            "datatables-bootstrap"
           ]
         },
         "shield/tours":           {
