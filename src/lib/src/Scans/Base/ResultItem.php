@@ -7,12 +7,13 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 /**
  * Class BaseResultItem
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
+ * @property int    $record_id
  * @property string $hash
  * @property bool   $is_excluded
  * @property string $scan
  * @property bool   $repaired
  */
-class BaseResultItem {
+class ResultItem {
 
 	use DynProperties;
 

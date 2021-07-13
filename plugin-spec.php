@@ -55,7 +55,8 @@
         "introjs",
         "bootstrap-select",
         "datatables-bootstrap",
-        "datatables-select"
+        "datatables-select",
+        "datatables-buttons"
       ],
       "js":  [
         "select2",
@@ -65,6 +66,7 @@
         "shield/tours",
         "bootstrap-select",
         "datatables-select",
+        "datatables-buttons",
         "datatables-bootstrap"
       ]
     },
@@ -103,6 +105,12 @@
         },
         "datatables-select":             {
           "url":  "https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css",
+          "deps": [
+            "datatables-bootstrap"
+          ]
+        },
+        "datatables-buttons":             {
+          "url":  "https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
@@ -189,6 +197,12 @@
           "url":  "https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js",
           "deps": [
             "datatables"
+          ]
+        },
+        "datatables-buttons":             {
+          "url":  "https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js",
+          "deps": [
+            "datatables-bootstrap"
           ]
         },
         "global-plugin":          {

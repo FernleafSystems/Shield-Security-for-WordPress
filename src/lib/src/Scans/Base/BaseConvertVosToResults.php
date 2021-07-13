@@ -12,19 +12,37 @@ abstract class BaseConvertVosToResults {
 
 	/**
 	 * @param EntryVO[] $VOs
-	 * @return BaseResultsSet
+	 * @return ResultsSet|mixed
 	 */
-	public function convert( $VOs ) {
-		$oRes = new BaseResultsSet();
-		foreach ( $VOs as $oVo ) {
-			$oRes->addItem( $this->convertItem( $oVo ) );
+	public function convert( array $VOs ) {
+		$result = $this->getNewResultSet();
+		foreach ( $VOs as $vo ) {
+			$item = $this->convertItem( $vo );
+			$item->record_id = $vo->id;
+			$result->addItem( $item );
 		}
-		return $oRes;
+		return $result;
 	}
 
 	/**
 	 * @param EntryVO $VO
-	 * @return BaseResultItem
+	 * @return ResultItem|mixed
 	 */
-	abstract public function convertItem( $VO );
+	public function convertItem( EntryVO $VO ) {
+		return $this->getNewResultItem()->applyFromArray( $VO->meta );
+	}
+
+	/**
+	 * @return ResultItem|mixed
+	 */
+	protected function getNewResultItem() {
+		return new ResultItem();
+	}
+
+	/**
+	 * @return ResultsSet|mixed
+	 */
+	protected function getNewResultSet() {
+		return new ResultsSet();
+	}
 }

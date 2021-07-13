@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-/**
- * Class ResultsSet
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- */
-class BaseResultsSet {
+class ResultsSet {
 
 	/**
-	 * @var BaseResultItem[]
+	 * @var ResultItem[]
 	 */
 	protected $items;
 
@@ -19,22 +15,22 @@ class BaseResultsSet {
 	protected $bFilterExcluded = true;
 
 	/**
-	 * @param BaseResultItem $oItem
+	 * @param ResultItem $item
 	 * @return $this
 	 */
-	public function addItem( $oItem ) {
-		$aI = $this->getAllItems();
-		if ( !isset( $oItem->hash ) ) {
-			$oItem->hash = $oItem->generateHash();
+	public function addItem( $item ) {
+		$all = $this->getAllItems();
+		if ( !isset( $item->hash ) ) {
+			$item->hash = $item->generateHash();
 		}
-		$aI[ $oItem->hash ] = $oItem;
-		$this->items = $aI;
+		$all[ $item->hash ] = $item;
+		$this->items = $all;
 		return $this;
 	}
 
 	/**
 	 * @param string $hash
-	 * @return BaseResultItem|null
+	 * @return ResultItem|null
 	 */
 	public function getItemByHash( $hash ) {
 		return $this->getItemExists( $hash ) ? $this->getAllItems()[ $hash ] : null;
@@ -50,7 +46,7 @@ class BaseResultsSet {
 
 	/**
 	 * Ignores the "is_excluded" property on the items
-	 * @return BaseResultItem[]
+	 * @return ResultItem[]
 	 */
 	public function getAllItems() :array {
 		if ( !is_array( $this->items ) ) {
@@ -60,7 +56,7 @@ class BaseResultsSet {
 	}
 
 	/**
-	 * @return BaseResultItem[]
+	 * @return ResultItem[]
 	 */
 	public function getExcludedItems() :array {
 		return array_values( array_filter(
@@ -73,7 +69,7 @@ class BaseResultsSet {
 
 	/**
 	 * Honours the exclusion flags
-	 * @return BaseResultItem[]
+	 * @return ResultItem[]
 	 */
 	public function getItems() :array {
 		return array_values( array_filter(
@@ -100,7 +96,7 @@ class BaseResultsSet {
 	}
 
 	/**
-	 * @param BaseResultItem $item
+	 * @param ResultItem $item
 	 * @return $this
 	 */
 	public function removeItem( $item ) {

@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 use FernleafSystems\Wordpress\Services\Services;
@@ -86,7 +86,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param BaseResultItem|mixed $item
+	 * @param ResultItem|mixed $item
 	 * @return bool
 	 */
 	abstract protected function isResultItemStale( $item ) :bool;
@@ -121,7 +121,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet|mixed
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
 		/** @var Databases\Scanner\Select $sel */
@@ -144,7 +144,7 @@ abstract class Base extends ExecOnceModConsumer {
 
 	/**
 	 * @param bool $includeIgnored
-	 * @return Scans\Base\BaseResultsSet|mixed
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults( $includeIgnored = false ) {
 		/** @var Databases\Scanner\Select $sel */
@@ -274,7 +274,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return BaseResultItem|mixed
+	 * @return ResultItem|mixed
 	 */
 	public function getNewResultItem() {
 		$class = $this->getScanNamespace().'ResultItem';
@@ -282,7 +282,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return BaseResultsSet|mixed
+	 * @return ResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
 		$class = $this->getScanNamespace().'ResultsSet';

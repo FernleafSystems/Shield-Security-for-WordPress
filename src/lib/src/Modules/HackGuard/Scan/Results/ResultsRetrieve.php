@@ -15,7 +15,7 @@ class ResultsRetrieve {
 	use ScanControllerConsumer;
 
 	/**
-	 * @return Scans\Base\BaseResultsSet|mixed
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function retrieve() {
 		$oSCon = $this->getScanController();

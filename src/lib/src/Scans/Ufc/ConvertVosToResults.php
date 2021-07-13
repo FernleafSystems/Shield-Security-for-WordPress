@@ -12,22 +12,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 
 	/**
-	 * @param EntryVO[] $VOs
-	 * @return ResultsSet
+	 * @return ResultItem
 	 */
-	public function convert( $VOs ) {
-		$oRes = new ResultsSet();
-		foreach ( $VOs as $oVo ) {
-			$oRes->addItem( $this->convertItem( $oVo ) );
-		}
-		return $oRes;
+	protected function getNewResultItem() {
+		return new ResultItem();
 	}
 
 	/**
-	 * @param EntryVO $VO
-	 * @return ResultItem
+	 * @return ResultsSet
 	 */
-	public function convertItem( $VO ) {
-		return ( new ResultItem() )->applyFromArray( $VO->meta );
+	protected function getNewResultSet() {
+		return new ResultsSet();
 	}
 }

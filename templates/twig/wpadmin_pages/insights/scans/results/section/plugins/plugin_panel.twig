@@ -54,14 +54,49 @@
 			let theTable = jQuery( '#table_id-{{ plugin.info.slug }}' ).DataTable( {
 				data:{{ plugin.vars.guard_files|raw }},
 				columns: [
-					{ data: 'path_fragment', title: 'Slug' },
-					{ data: 'path_fragment', title: 'Slug' },
-					{ data: 'status', title: 'Status' },
+					{ data: 'path_fragment', title: 'File' },
+					{ data: 'status', title: 'Status', searchable: false },
 					{ data: 'file_type', title: 'Type' },
+					{ data: 'actions', title: 'Actions', orderable: false, searchable: false },
 				],
 				select: {
 					style: 'multi'
-				}
+				},
+				dom: 'Bfrtip',
+				buttons: [
+					{
+						text: 'Refresh',
+						action: function ( e, dt, node, config ) {
+							alert( 'Refresh' );
+						}
+					},
+					{
+						text: 'Ignore Selected',
+						action: function ( e, dt, node, config ) {
+							alert( 'Ignore Selected' );
+						}
+					},
+					{
+						text: 'Repair Selected',
+						action: function ( e, dt, node, config ) {
+							alert( 'Ignore Selected' );
+						}
+					},
+					{
+						text: 'Ignore All',
+						action: function ( e, dt, node, config ) {
+							alert( 'Ignore All' );
+						}
+					},
+					{
+						text: 'Repair All',
+						className: '',
+						titleAttr: 'Repair All (that can be repaired)',
+						action: function ( e, dt, node, config ) {
+							alert( 'Repair All' );
+						}
+					}
+				]
 			} );
 			jQuery( '#ScanResultsPlugins a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( e ) {
 				jQuery.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();

@@ -15,7 +15,7 @@ class ResultsUpdate {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oNewResults
+	 * @param Scans\Base\ResultsSet $oNewResults
 	 */
 	public function update( $oNewResults ) {
 		$oSCon = $this->getScanController();

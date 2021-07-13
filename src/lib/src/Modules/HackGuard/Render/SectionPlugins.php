@@ -95,7 +95,7 @@ class SectionPlugins extends SectionBase {
 				'author'           => $plugin->AuthorName,
 				'author_url'       => $plugin->AuthorURI,
 				'file'             => $plugin->file,
-				'dir'              => $plugin->getInstallDir(),
+				'dir'              => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $plugin->getInstallDir() ) ),
 				'integrity_status' => rand( 0, 1 ),
 				'abandoned_at'     => empty( $abandoned ) ? 0
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
@@ -118,10 +118,52 @@ class SectionPlugins extends SectionBase {
 	private function getGuardFilesDataForPlugin( WpPluginVo $plugin ) :array {
 		return array_map( function ( $item ) {
 			$data = $item->getRawData();
+			$data[ 'rid' ] = $item->record_id;
 			$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
 			$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
+			$data[ 'actions' ] = implode( ' ', $this->getActions( $item ) );
 			return $data;
 		}, $this->getGuardFiles()->getItemsForSlug( $plugin->file ) );
+	}
+
+	private function getActions( Scans\Ptg\ResultItem $item ) {
+		$con = $this->getCon();
+
+		$actions = [];
+		if ( $item->is_different ) {
+			$actions[] = sprintf( '<button class="btn btn-warning %s" title="%s">%s</button>',
+				implode( ' ', [] ),
+				__( 'Repair', 'wp-simple-firewall' ),
+				$con->svgs->raw( 'bootstrap/tools.svg' )
+			);
+		}
+		elseif ( $item->is_unrecognised ) {
+			$actions[] = sprintf( '<button class="btn btn-danger %s" title="%s">%s</button>',
+				implode( ' ', [] ),
+				__( 'Delete', 'wp-simple-firewall' ),
+				$con->svgs->raw( 'bootstrap/x-square.svg' )
+			);
+		}
+		elseif ( $item->is_missing ) {
+			$actions[] = sprintf( '<button class="%s">%s</button>',
+				implode( ' ', [] ), 'Restore' );
+		}
+
+		if ( $item->is_different || $item->is_unrecognised ) {
+			$actions[] = sprintf( '<button class="btn btn-dark %s" title="%s">%s</button>',
+				implode( ' ', [] ),
+				__( 'Download', 'wp-simple-firewall' ),
+				$con->svgs->raw( 'bootstrap/download.svg' )
+			);
+		}
+
+		$actions[] = sprintf( '<button class="btn btn-light %s" title="%s">%s</button>',
+			implode( ' ', [] ),
+			__( 'Ignore', 'wp-simple-firewall' ),
+			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
+		);
+
+		return $actions;
 	}
 
 	private function getGuardFiles() :Scans\Ptg\ResultsSet {

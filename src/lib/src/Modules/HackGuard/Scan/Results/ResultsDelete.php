@@ -15,13 +15,13 @@ class ResultsDelete {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oResultsToDelete
+	 * @param Scans\Base\ResultsSet $oResultsToDelete
 	 * @return bool
 	 */
 	public function delete( $oResultsToDelete ) {
 		$aHashes = array_map(
 			function ( $oItem ) {
-				/** @var Scans\Base\BaseResultItem $oItem */
+				/** @var Scans\Base\ResultItem $oItem */
 				return $oItem->hash;
 			},
 			$oResultsToDelete->getAllItems()

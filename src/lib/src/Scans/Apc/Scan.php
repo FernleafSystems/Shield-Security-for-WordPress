@@ -14,7 +14,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		foreach ( $oAction->items as $nKey => $sItem ) {
 			$oItem = $this->getItemScanner()->scan( $sItem );
-			if ( $oItem instanceof Shield\Scans\Base\BaseResultItem ) {
+			if ( $oItem instanceof Shield\Scans\Base\ResultItem ) {
 				$oTempRs->addItem( $oItem );
 			}
 		}

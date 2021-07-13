@@ -59,7 +59,7 @@ abstract class BaseEntryFormatter {
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultItem|mixed
+	 * @return Scans\Base\ResultItem|mixed
 	 */
 	protected function getResultItem() {
 		return ( new Scan\Results\ConvertBetweenTypes() )

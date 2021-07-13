@@ -11,7 +11,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
  * @property bool   $is_checksumfail
  * @property bool   $is_missing
  */
-class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
 	public function generateHash() :string {
 		return md5( $this->path_full );

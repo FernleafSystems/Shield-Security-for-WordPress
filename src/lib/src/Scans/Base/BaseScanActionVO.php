@@ -26,7 +26,7 @@ abstract class BaseScanActionVO {
 	const DEFAULT_SLEEP_SECONDS = 0;
 
 	/**
-	 * @return BaseResultItem|mixed
+	 * @return ResultItem|mixed
 	 */
 	public function getNewResultItem() {
 		$class = $this->getScanNamespace().'ResultItem';
@@ -34,7 +34,7 @@ abstract class BaseScanActionVO {
 	}
 
 	/**
-	 * @return BaseResultsSet|mixed
+	 * @return ResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
 		$class = $this->getScanNamespace().'ResultsSet';

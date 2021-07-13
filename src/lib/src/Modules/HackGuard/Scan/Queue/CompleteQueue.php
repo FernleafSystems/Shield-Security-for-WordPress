@@ -40,7 +40,7 @@ class CompleteQueue {
 
 			$con->fireEvent( $scanSlug.'_scan_run' );
 
-			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
+			if ( $oResultsSet instanceof Scans\Base\ResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
 					->setScanController( $oScanCon )
 					->update( $oResultsSet );
