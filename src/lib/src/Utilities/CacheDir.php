@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TestCacheDirWrite;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,15 +13,22 @@ class CacheDir {
 	public function build() :string {
 		$con = $this->getCon();
 
+		$dir = '';
 		try {
-			$dir = $this->getDir();
+			$maybeDir = $this->getDir();
 			if ( !isset( $con->cache_dir_ready ) ) {
+				if ( !Services::WpFs()->mkdir( $dir ) ) {
+					throw new \Exception( 'Failed to mkdir cache dir' );
+				}
+				$this->testWrite();
 				$this->addProtections();
 				$con->cache_dir_ready = true;
 			}
+			if ( $con->cache_dir_ready ) {
+				$dir = $maybeDir;
+			}
 		}
 		catch ( \Exception $e ) {
-			$dir = '';
 			$con->cache_dir_ready = false;
 		}
 		return $dir;
@@ -37,6 +45,18 @@ class CacheDir {
 			}
 		}
 		return $finalDir;
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	private function testWrite() :bool {
+		$tester = ( new TestCacheDirWrite() )->setMod( $this->getCon()->getModule_Plugin() );
+		if ( !$tester->canWrite() ) {
+			throw new \Exception( 'Failed Test-Write' );
+		}
+		return true;
 	}
 
 	private function addProtections() :bool {
@@ -75,10 +95,6 @@ class CacheDir {
 		if ( empty( $con->cfg->paths[ 'cache' ] ) ) {
 			throw new \Exception( 'No slug for cache dir' );
 		}
-		$dir = path_join( WP_CONTENT_DIR, $con->cfg->paths[ 'cache' ] );
-		if ( !Services::WpFs()->mkdir( $dir ) ) {
-			throw new \Exception( 'Failed to create cache dir' );
-		}
-		return $dir;
+		return path_join( WP_CONTENT_DIR, $con->cfg->paths[ 'cache' ] );
 	}
 }

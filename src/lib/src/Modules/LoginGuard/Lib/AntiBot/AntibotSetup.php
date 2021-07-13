@@ -21,7 +21,7 @@ class AntibotSetup extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 
 		$providers = [];
-		if ( $opts->isEnabledCooldown() && $mod->canCacheDirWrite() ) {
+		if ( $opts->isEnabledCooldown() && $this->getCon()->hasCacheDir() ) {
 			$providers[] = ( new AntiBot\ProtectionProviders\CoolDown() )
 				->setMod( $mod );
 		}

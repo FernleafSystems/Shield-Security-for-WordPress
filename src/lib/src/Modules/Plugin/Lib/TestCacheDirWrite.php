@@ -20,7 +20,7 @@ class TestCacheDirWrite {
 		$data = $this->getTestData();
 		$now = Services::Request()->ts();
 
-		if ( ( $data[ 'last_success_at' ] === 0 || $now - DAY_IN_SECONDS > $data[ 'last_success_at' ] )
+		if ( ( $data[ 'last_success_at' ] === 0 || $now - HOUR_IN_SECONDS > $data[ 'last_success_at' ] )
 			 && ( $now - HOUR_IN_SECONDS > $data[ 'last_test_at' ] ) ) {
 
 			$rootDir = $this->getCon()->getPluginCachePath();
