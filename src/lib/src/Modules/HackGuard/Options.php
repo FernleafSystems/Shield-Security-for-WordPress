@@ -77,7 +77,7 @@ class Options extends BaseShield\Options {
 	 */
 	private function getMalSignatures( string $fileName, string $url ) :array {
 		$FS = Services::WpFs();
-		$file = $this->getCon()->getPluginCachePath( $fileName );
+		$file = $this->getCon()->paths->forCacheItem( $fileName );
 		if ( !empty( $file ) && $FS->exists( $file ) ) {
 			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
 		}

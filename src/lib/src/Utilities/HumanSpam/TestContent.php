@@ -70,6 +70,6 @@ class TestContent {
 	}
 
 	private function getFile() :string {
-		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
+		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
 	}
 }

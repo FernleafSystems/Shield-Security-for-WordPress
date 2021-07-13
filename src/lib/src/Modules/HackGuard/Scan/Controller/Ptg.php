@@ -110,11 +110,11 @@ class Ptg extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->getOptions()->isOpt( 'ptg_enable', 'Y' ) && $this->getOptions()->isOptReqsMet( 'ptg_enable' );
+		return $this->getOptions()->isOpt( 'ptg_enable', 'Y' );
 	}
 
 	public function isReady() :bool {
-		return parent::isReady() && $this->getMod()->canCacheDirWrite();
+		return parent::isReady() && $this->getCon()->hasCacheDir();
 	}
 
 	/**

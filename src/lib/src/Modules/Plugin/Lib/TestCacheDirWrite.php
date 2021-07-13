@@ -23,8 +23,9 @@ class TestCacheDirWrite {
 		if ( ( $data[ 'last_success_at' ] === 0 || $now - HOUR_IN_SECONDS > $data[ 'last_success_at' ] )
 			 && ( $now - HOUR_IN_SECONDS > $data[ 'last_test_at' ] ) ) {
 
-			$rootDir = $this->getCon()->getPluginCachePath();
-			$canWrite = !empty( $rootDir )
+			// Use simple cachdir lookup, not the controller getCachePath to prevent infinite loops
+			$cacheDir = $this->getCon()->paths->cacheDir();
+			$canWrite = !empty( $cacheDir )
 						&& $this->canCreateWriteDeleteFile()
 						&& $this->canCreateWriteDeleteDir();
 
@@ -40,7 +41,7 @@ class TestCacheDirWrite {
 
 		$FS = Services::WpFs();
 
-		$testDir = $this->getCon()->getPluginCachePath( uniqid() );
+		$testDir = $this->getCon()->paths->forCacheItem( uniqid() );
 		$FS->mkdir( $testDir );
 		if ( $FS->isDir( $testDir ) ) {
 			$file = path_join( $testDir, uniqid() );
@@ -57,7 +58,7 @@ class TestCacheDirWrite {
 
 		$FS = Services::WpFs();
 
-		$testFile = $this->getCon()->getPluginCachePath( 'test_write_file.txt' );
+		$testFile = $this->getCon()->paths->forCacheItem( 'test_write_file.txt' );
 		$uniq = uniqid();
 		$FS->putFileContent( $testFile, $uniq );
 		if ( $FS->getFileContent( $testFile ) == $uniq ) {

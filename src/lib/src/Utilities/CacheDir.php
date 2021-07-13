@@ -95,6 +95,6 @@ class CacheDir {
 		if ( empty( $con->cfg->paths[ 'cache' ] ) ) {
 			throw new \Exception( 'No slug for cache dir' );
 		}
-		return path_join( WP_CONTENT_DIR, $con->cfg->paths[ 'cache' ] );
+		return $this->getCon()->paths->cacheDir();
 	}
 }
