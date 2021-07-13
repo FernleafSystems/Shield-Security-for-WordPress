@@ -23,7 +23,7 @@ class CooldownFlagFile {
 	}
 
 	public function getFlagFilePath() :string {
-		return $this->getCon()->getPluginCachePath( 'mode.login_throttled' );
+		return $this->getCon()->paths->forCacheItem( 'mode.login_throttled' );
 	}
 
 	/**

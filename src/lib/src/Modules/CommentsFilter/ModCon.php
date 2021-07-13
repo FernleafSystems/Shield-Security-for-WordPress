@@ -92,6 +92,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getSpamBlacklistFile() :string {
-		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
+		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
 	}
 }
