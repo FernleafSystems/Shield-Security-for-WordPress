@@ -81,7 +81,7 @@ class UI extends BaseShield\UI {
 			],
 			'content'      => [
 				'section' => [
-					'plugins' => ( new Render\SectionPlugins() )
+					'plugins' => ( new Render\ScanTables\SectionPlugins() )
 						->setMod( $this->getMod() )
 						->render()
 				]

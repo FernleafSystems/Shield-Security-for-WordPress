@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 

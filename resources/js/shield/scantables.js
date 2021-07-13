@@ -31,11 +31,33 @@
 				this.$element = $( this.element );
 			},
 			setupDatatable: function () {
-				this.$element.DataTable( {
-					data: this.options[ 'file_guard_data' ],
+				var plugin = this;
+
+				this.$table = this.$element.DataTable( {
+					// data: this.options[ 'file_guard_data' ],
+					ajax: function ( data, callback, settings ) {
+						let reqData = plugin.getBaseAjaxData();
+						reqData.sub_action = 'retrieve_table_data';
+						reqData.type = plugin.options.type;
+						reqData.file = plugin.options.file;
+
+						$.post( ajaxurl, reqData, function ( response ) {
+							if ( response.success ) {
+								callback( response.data.vars );
+							}
+							else {
+								let msg = 'Communications error with site.';
+								if ( response.data.message !== undefined ) {
+									msg = response.data.message;
+								}
+								alert( msg );
+							}
+						} );
+					},
+					deferRender: true,
 					columns: [
 						{ data: 'rid', title: 'ID', visible: false, searchable: false },
-						{ data: 'path_fragment', title: 'File' },
+						{ data: 'file', title: 'File' },
 						{ data: 'status', title: 'Status', searchable: false },
 						{ data: 'file_type', title: 'Type' },
 						{ data: 'actions', title: 'Actions', orderable: false, searchable: false },
@@ -46,35 +68,44 @@
 					dom: 'Bfrtip',
 					buttons: [
 						{
-							text: 'Refresh',
+							text: 'Reload',
+							name: 'table-reload',
+							className: 'action table-refresh',
 							action: function ( e, dt, node, config ) {
-								alert( 'Refresh' );
+								plugin.tableReload.call( plugin );
 							}
 						},
 						{
 							text: 'Ignore Selected',
+							name: 'selected-ignore',
+							className: 'action selected-action ignore',
 							action: function ( e, dt, node, config ) {
-								alert( 'Ignore Selected' );
+								plugin.bulkAction.call( plugin, 'ignore' );
 							}
 						},
 						{
 							text: 'Repair Selected',
+							name: 'selected-repair',
+							className: 'action selected-action repair',
 							action: function ( e, dt, node, config ) {
-								alert( 'Ignore Selected' );
+								plugin.bulkAction.call( plugin, 'repair' );
 							}
 						},
 						{
 							text: 'Ignore All',
+							name: 'all-ignore',
+							className: 'action ignore-all',
 							action: function ( e, dt, node, config ) {
-								alert( 'Ignore All' );
+								plugin.allAction.call( plugin, 'ignore' );
 							}
 						},
 						{
 							text: 'Repair All',
-							className: '',
+							name: 'all-repair',
+							className: 'action repair-all',
 							titleAttr: 'Repair All (that can be repaired)',
 							action: function ( e, dt, node, config ) {
-								alert( 'Repair All' );
+								plugin.allAction.call( plugin, 'repair' );
 							}
 						}
 					]
@@ -87,14 +118,32 @@
 			bindEvents: function () {
 				var plugin = this;
 
+				plugin.$table.on( 'draw',
+					function ( e, dt, type, row_index ) {
+						plugin.rowSelectionChanged.call( plugin );
+					}
+				);
+
+				plugin.$table.on( 'select',
+					function ( e, dt, type, row_index ) {
+						plugin.options[ 'working_rid' ] = plugin.$table.rows( row_index ).data().pluck( 'rid' )[ 0 ];
+						plugin.rowSelectionChanged.call( plugin );
+					}
+				);
+
+				plugin.$table.on( 'deselect',
+					function ( e, dt, type, row_index ) {
+						plugin.rowSelectionChanged.call( plugin );
+					}
+				);
+
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.delete',
 					function ( evt ) {
 						evt.preventDefault();
 						if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
-							plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-							plugin.deleteEntry.call( plugin );
+							plugin.deleteEntry.call( plugin, $( this ).data( 'rid' ) );
 						}
 					}
 				);
@@ -104,77 +153,17 @@
 					'button.action.ignore',
 					function ( evt ) {
 						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.ignoreEntry.call( plugin );
+						plugin.ignoreEntry.call( plugin, $( this ).data( 'rid' ) );
 					}
 				);
 
-				plugin.$element.on(
+				plugin.$table.on(
 					'click' + '.' + plugin._name,
 					'button.action.repair',
 					function ( evt ) {
 						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.repairEntry.call( plugin );
-					}
-				);
-
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'button.action.item_action',
-					function ( evt ) {
-						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.options[ 'working_item_action' ] = $( this ).data( 'item_action' );
-						plugin.itemAction.call( plugin );
-					}
-				);
-
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'.tablenav.top input[type=submit].button.action',
-					function ( evt ) {
-						evt.preventDefault();
-						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
-
-						if ( sAction === "-1" ) {
-							alert( icwp_wpsf_vars_insights.strings.select_action );
-						}
-						else {
-							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
-								function () {
-									return $( this ).val()
-								} ).get();
-
-							if ( aCheckedIds.length < 1 ) {
-								alert( 'No rows currently selected' );
-							}
-							else {
-								plugin.options[ 'req_params' ][ 'bulk_action' ] = sAction;
-								plugin.options[ 'req_params' ][ 'ids' ] = aCheckedIds;
-								plugin.bulkAction.call( plugin );
-							}
-						}
-						return false;
-					}
-				);
-
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'button.action.custom-action',
-					function ( evt ) {
-						evt.preventDefault();
-						var $oButt = $( this );
-						var sCustomAction = $oButt.data( 'custom-action' );
-						if ( sCustomAction in plugin.options[ 'custom_actions_ajax' ] ) {
-							plugin.options[ 'working_custom_action' ] = plugin.options[ 'custom_actions_ajax' ][ sCustomAction ];
-							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
-							plugin.customAction.call( plugin );
-						}
-						else {
-							/** This should never be reached live: **/
-							alert( 'custom action not supported: ' + sCustomAction );
-						}
+						plugin.$table.rows().deselect();
+						plugin.repairEntry.call( plugin, $( this ).data( 'rid' ) );
 					}
 				);
 
@@ -201,38 +190,55 @@
 				this.$element.off( '.' + this._name );
 			},
 
-			bulkAction: function () {
-				let reqData = this.options[ 'ajax_bulk_action' ];
-				this.sendReq( reqData );
+			tableReload: function () {
+				this.$table.ajax.reload();
+				this.rowSelectionChanged();
 			},
 
-			deleteEntry: function () {
-				let reqData = this.options[ 'ajax_item_delete' ];
-				reqData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( reqData );
+			bulkAction: function ( action, RIDs = [] ) {
+
+				if ( RIDs.length === 0 ) {
+					this.$table.rows( { selected: true } ).every( function ( rowIdx, tableLoop, rowLoop ) {
+						RIDs.push( this.data()[ 'rid' ] );
+					} );
+				}
+
+				if ( RIDs.length > 0 ) {
+					let reqData = this.getBaseAjaxData();
+					reqData[ 'sub_action' ] = action;
+					reqData[ 'rids' ] = RIDs;
+					this.sendReq( reqData );
+				}
 			},
 
-			ignoreEntry: function () {
-				let reqData = this.options[ 'ajax_item_ignore' ];
-				reqData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( reqData );
+			rowSelectionChanged: function () {
+				if ( this.$table.rows( { selected: true } ).count() > 0 ) {
+					this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).enable();
+				}
+				else {
+					this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).disable();
+				}
 			},
 
-			repairEntry: function () {
-				let reqData = this.options[ 'ajax_item_repair' ];
-				reqData[ 'rid' ] = this.options[ 'working_rid' ];
-				this.sendReq( reqData );
+			allAction: function ( action ) {
+				this.$table.rows().select();
+				this.bulkAction( action )
 			},
 
-			itemAction: function () {
-				let reqData = this.options[ 'ajax_item_action' ];
-				reqData[ 'rid' ] = this.options[ 'working_rid' ];
-				reqData[ 'item_action' ] = this.options[ 'working_item_action' ];
-				this.sendReq( reqData );
+			deleteEntry: function ( rid ) {
+				this.bulkAction( 'delete', [ rid ] )
 			},
 
-			customAction: function () {
-				this.sendReq( this.options[ 'working_custom_action' ] );
+			ignoreEntry: function ( rid ) {
+				this.bulkAction( 'ignore', [ rid ] )
+			},
+
+			repairEntry: function ( rid ) {
+				this.bulkAction( 'repair', [ rid ] )
+			},
+
+			getBaseAjaxData: function () {
+				return JSON.parse( JSON.stringify( this.options.ajax[ 'scantable_action' ] ) );
 			},
 
 			hrefDownload: function () {
@@ -257,17 +263,16 @@
 								location.reload();
 							}
 							else {
-								plugin.options[ 'table' ].reloadTable();
 								iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
 								iCWP_WPSF_BodyOverlay.hide();
 							}
 						}
 						else {
-							let sMessage = 'Communications error with site.';
+							let msg = 'Communications error with site.';
 							if ( response.data.message !== undefined ) {
-								sMessage = response.data.message;
+								msg = response.data.message;
 							}
-							alert( sMessage );
+							alert( msg );
 							iCWP_WPSF_BodyOverlay.hide();
 						}
 					}
@@ -280,11 +285,11 @@
 		}
 	);
 
-	$.fn.icwpWpsfScanTableActions = function ( aOptions ) {
+	$.fn.icwpWpsfScanTableActions = function ( runtimeOptions ) {
 		return this.each(
 			function () {
 				if ( !$.data( this, "plugin_" + pluginName ) ) {
-					$.data( this, "plugin_" + pluginName, new Ob_TableActions( this, aOptions ) );
+					$.data( this, "plugin_" + pluginName, new Ob_TableActions( this, runtimeOptions ) );
 				}
 			}
 		);

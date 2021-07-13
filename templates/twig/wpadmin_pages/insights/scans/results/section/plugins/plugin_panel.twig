@@ -53,15 +53,11 @@
 		jQuery( document ).ready( function () {
 			jQuery( '#table_id-{{ plugin.info.slug }}' ).icwpWpsfScanTableActions(
 				{
-					'file_guard_data':{{ plugin.vars.guard_files|raw }}
-					{#'table': $oTableAdminNotes,#}
-					{#'ajax_item_action':{{ ajax.item_action_notes|raw }},#}
-					{#'ajax_item_delete':{{ ajax.item_delete|raw }},#}
-					{#'ajax_item_insert':{{ ajax.item_insert|raw }},#}
-					{#'ajax_bulk_action':{{ ajax.bulk_action|raw }},#}
-					{#'forms': {#}
-					{#	'insert': jQuery( 'form#NewAdminNote' )#}
-					{#}#}
+					'type': '{{ plugin.info.type }}',
+					'file': '{{ plugin.info.file }}',
+					'ajax': {
+						'scantable_action':{{ ajax.scantable_action|raw }},
+					}
 				}
 			);
 		} );

@@ -1,12 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
-	Apc,
-	Ptg
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Apc;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,11 +16,6 @@ class SectionPlugins extends SectionBase {
 	 */
 	private $abandonedPlugins;
 
-	/**
-	 * @var Scans\Ptg\ResultsSet
-	 */
-	private $guardFiles;
-
 	public function render() :string {
 		return $this->getMod()
 					->renderTemplate(
@@ -32,6 +25,7 @@ class SectionPlugins extends SectionBase {
 	}
 
 	protected function buildRenderData() :array {
+		$mod = $this->getMod();
 
 		$plugins = $this->buildPluginsData();
 		ksort( $plugins );
@@ -52,6 +46,9 @@ class SectionPlugins extends SectionBase {
 		$plugins = array_merge( $problems, $active, $plugins );
 
 		return [
+			'ajax'    => [
+				'scantable_action' => $mod->getAjaxActionData( 'scantable_action', true ),
+			],
 			'strings' => [
 				'author'                => __( 'Author' ),
 				'version'               => __( 'Version' ),
@@ -83,12 +80,17 @@ class SectionPlugins extends SectionBase {
 
 	private function buildPluginData( WpPluginVo $plugin ) :array {
 		$carbon = Services::Request()->carbon();
+
 		$abandoned = $this->getAbandonedPluginsResults()->getItemForSlug( $plugin->file );
-		$guardFilesData = $this->getGuardFilesDataForPlugin( $plugin );
+		$guardFilesData = ( new LoadRawTableData() )
+			->setMod( $this->getMod() )
+			->loadForPlugin( $plugin );
+
 		$data = [
 			'info'  => [
 				'active'           => $plugin->active,
 				'name'             => $plugin->Title,
+				'type'             => 'plugin',
 				'slug'             => $plugin->slug,
 				'description'      => $plugin->Description,
 				'version'          => $plugin->Version,
@@ -105,84 +107,11 @@ class SectionPlugins extends SectionBase {
 				'is_abandoned'    => !empty( $abandoned ),
 				'has_guard_files' => !empty( $guardFilesData ),
 				'is_wporg'        => $plugin->isWpOrg(),
-			],
-			'vars'  => [
-				'guard_files' => json_encode( $guardFilesData )
 			]
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
 										  || $data[ 'flags' ][ 'has_guard_files' ];
 		return $data;
-	}
-
-	private function getGuardFilesDataForPlugin( WpPluginVo $plugin ) :array {
-		return array_map( function ( $item ) {
-			$data = $item->getRawData();
-			$data[ 'rid' ] = $item->record_id;
-			$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
-			$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-			$data[ 'actions' ] = implode( ' ', $this->getActions( $item ) );
-			return $data;
-		}, $this->getGuardFiles()->getItemsForSlug( $plugin->file ) );
-	}
-
-	private function getActions( Scans\Ptg\ResultItem $item ) {
-		$con = $this->getCon();
-
-		$actions = [];
-
-		$defaultButtonClasses = [
-			'btn',
-			'action',
-		];
-		if ( $item->is_different ) {
-			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Repair', 'wp-simple-firewall' ),
-				$con->svgs->raw( 'bootstrap/tools.svg' )
-			);
-		}
-		elseif ( $item->is_unrecognised ) {
-			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Delete', 'wp-simple-firewall' ),
-				$con->svgs->raw( 'bootstrap/x-square.svg' )
-			);
-		}
-		elseif ( $item->is_missing ) {
-			$actions[] = sprintf( '<button class="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				'Restore'
-			);
-		}
-
-		if ( $item->is_different || $item->is_unrecognised ) {
-			$actions[] = sprintf( '<button class="btn-dark download %s" title="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Download', 'wp-simple-firewall' ),
-				$con->svgs->raw( 'bootstrap/download.svg' )
-			);
-		}
-
-		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s">%s</button>',
-			implode( ' ', $defaultButtonClasses ),
-			__( 'Ignore', 'wp-simple-firewall' ),
-			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
-		);
-
-		return $actions;
-	}
-
-	private function getGuardFiles() :Scans\Ptg\ResultsSet {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		try {
-			$this->guardFiles = $mod->getScanCon( Ptg::SCAN_SLUG )->getAllResults();
-		}
-		catch ( \Exception $e ) {
-			$this->guardFiles = new Scans\Ptg\ResultsSet();
-		}
-		return $this->guardFiles;
 	}
 
 	private function getAbandonedPluginsResults() :Scans\Apc\ResultsSet {
