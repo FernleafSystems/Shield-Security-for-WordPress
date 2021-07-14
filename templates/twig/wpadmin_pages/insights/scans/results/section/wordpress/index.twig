@@ -1,0 +1,53 @@
+{% set wp = vars.wordpress %}
+<div class="row mt-3" id="ScanResultsWordPress">
+	<div class="col-12">
+
+		<ul class="list-group">
+			{% if wp.flags.is_vulnerable %}
+				<li class="list-group-item list-group-item-danger">
+					<span class="font-weight-bold">{{ strings.vulnerable }}</span>:
+					{{ strings.vulnerable_known }}
+					{{ strings.vulnerable_update }}
+				</li>
+			{% endif %}
+			{% if wp.flags.has_update %}
+				<li class="list-group-item list-group-item-warning">
+					<span class="font-weight-bold">
+						<a href="{{ hrefs.upgrade }}" target="_blank">{{ strings.update_available }}</a>
+					</span>
+				</li>
+			{% endif %}
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.version }}</span>: {{ wp.info.version }}
+			</li>
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.install_dir }}</span>
+				<code>{{ wp.info.dir }}</code>
+			</li>
+		</ul>
+	</div>
+
+	{% if wp.flags.has_core_files %}
+		<div class="col-12">
+			<div class="row mt-3">
+				<div class="col">
+					<table id="table_id-wordpress"
+						   class="table table-striped table-bordered" style="width: 100%;"></table>
+				</div>
+			</div>
+			<script>
+				jQuery( document ).ready( function () {
+					jQuery( '#table_id-wordpress' ).icwpWpsfScanTableActions(
+						{
+							'type': 'wordpress',
+							'file': 'wordpress',
+							'ajax': {
+								'scantable_action':{{ ajax.scantable_action|raw }},
+							}
+						}
+					);
+				} );
+			</script>
+		</div>
+	{% endif %}
+</div>

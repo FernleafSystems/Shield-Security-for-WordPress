@@ -3,11 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Ptg;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Ptg,
+	Wcf
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoadRawTableData {
@@ -42,6 +47,10 @@ class LoadRawTableData {
 				$data = $this->loadForTheme( $item );
 				break;
 
+			case 'wordpress':
+				$data = $this->loadForWordPress();
+				break;
+
 			default:
 				throw new \Exception( '[LoadRawTableData] Unsupported type: '.$type );
 		}
@@ -57,6 +66,31 @@ class LoadRawTableData {
 		return $this->getGuardFilesDataFor( $theme );
 	}
 
+	public function loadForWordPress() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		try {
+			$wcfFiles = array_map(
+				function ( $item ) {
+					/** @var Scans\Wcf\ResultItem $item */
+					$data = $item->getRawData();
+					$data[ 'rid' ] = $item->record_id;
+					$data[ 'file' ] = $item->path_fragment;
+					$data[ 'status' ] = $item->is_checksumfail ? 'modified' : ( $item->is_missing ? 'missing' : 'excluded' );
+					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
+					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status' ], $item->record_id ) );
+					return $data;
+				},
+				$mod->getScanCon( Wcf::SCAN_SLUG )->getAllResults()->getItems()
+			);
+		}
+		catch ( \Exception $e ) {
+			$wcfFiles = [];
+		}
+
+		return $wcfFiles;
+	}
+
 	/**
 	 * @param WpPluginVo|WpThemeVo $item
 	 * @return array
@@ -69,14 +103,14 @@ class LoadRawTableData {
 				$data[ 'file' ] = $item->path_fragment;
 				$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-				$data[ 'actions' ] = implode( ' ', $this->getActions( $item ) );
+				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status' ], $item->record_id ) );
 				return $data;
 			},
 			$this->getGuardFiles()->getItemsForSlug( $item->asset_type === 'plugin' ? $item->file : $item->stylesheet )
 		);
 	}
 
-	private function getActions( Scans\Ptg\ResultItem $item ) {
+	private function getActions( string $status, int $rid ) :array {
 		$con = $this->getCon();
 
 		$actions = [];
@@ -85,35 +119,44 @@ class LoadRawTableData {
 			'btn',
 			'action',
 		];
-		if ( $item->is_different ) {
-			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Repair', 'wp-simple-firewall' ),
-				$item->record_id,
-				$con->svgs->raw( 'bootstrap/tools.svg' )
-			);
-		}
-		elseif ( $item->is_unrecognised ) {
-			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Delete', 'wp-simple-firewall' ),
-				$item->record_id,
-				$con->svgs->raw( 'bootstrap/x-square.svg' )
-			);
-		}
-		elseif ( $item->is_missing ) {
-			$actions[] = sprintf( '<button class="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				$item->record_id,
-				'Restore'
-			);
+
+		switch ( $status ) {
+
+			case 'modified':
+				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
+					implode( ' ', $defaultButtonClasses ),
+					__( 'Repair', 'wp-simple-firewall' ),
+					$rid,
+					$con->svgs->raw( 'bootstrap/tools.svg' )
+				);
+				break;
+
+			case 'unrecognised':
+				$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
+					implode( ' ', $defaultButtonClasses ),
+					__( 'Delete', 'wp-simple-firewall' ),
+					$rid,
+					$con->svgs->raw( 'bootstrap/x-square.svg' )
+				);
+				break;
+
+			case 'missing':
+				$actions[] = sprintf( '<button class="%s" data-rid="%s">%s</button>',
+					implode( ' ', $defaultButtonClasses ),
+					$rid,
+					'Restore'
+				);
+				break;
+
+			case 'different':
+				break;
 		}
 
-		if ( $item->is_different || $item->is_unrecognised ) {
+		if ( in_array( $status, [ 'modified', 'unrecognised' ] ) ) {
 			$actions[] = sprintf( '<button class="btn-dark download %s" title="%s" data-rid="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
-				$item->record_id,
+				$rid,
 				$con->svgs->raw( 'bootstrap/download.svg' )
 			);
 		}
@@ -121,7 +164,7 @@ class LoadRawTableData {
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
 			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
-			$item->record_id,
+			$rid,
 			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
 		);
 

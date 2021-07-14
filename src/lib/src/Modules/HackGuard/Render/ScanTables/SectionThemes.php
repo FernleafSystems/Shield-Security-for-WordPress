@@ -18,7 +18,6 @@ class SectionThemes extends SectionPluginThemesBase {
 	}
 
 	protected function buildRenderData() :array {
-		$mod = $this->getMod();
 
 		$themes = $this->buildThemesData();
 		ksort( $themes );
@@ -36,31 +35,12 @@ class SectionThemes extends SectionPluginThemesBase {
 			}
 		}
 
-		return [
-			'ajax'    => [
-				'scantable_action' => $mod->getAjaxActionData( 'scantable_action', true ),
-			],
-			'strings' => [
-				'author'                => __( 'Author' ),
-				'version'               => __( 'Version' ),
-				'name'                  => __( 'Name' ),
-				'install_dir'           => __( 'Install Dir', 'wp-simple-firewall' ),
-				'file_integrity_status' => __( 'File Integrity Status', 'wp-simple-firewall' ),
-				'status_good'           => __( 'Good', 'wp-simple-firewall' ),
-				'status_warning'        => __( 'Warning', 'wp-simple-firewall' ),
-				'abandoned'             => __( 'Abandoned', 'wp-simple-firewall' ),
-				'vulnerable'            => __( 'Vulnerable', 'wp-simple-firewall' ),
-				'vulnerable_known'      => __( 'Known vulnerabilities are present.', 'wp-simple-firewall' ),
-				'vulnerable_update'     => __( "You should upgrade to the latest available version or remove it if none are available.", 'wp-simple-firewall' ),
-				'update_available'      => __( 'Update Available', 'wp-simple-firewall' ),
-			],
-			'hrefs'   => [
-				'upgrade' => Services::WpGeneral()->getAdminUrl_Updates()
-			],
-			'vars'    => [
-				'themes' => array_values( $problems )
-			]
-		];
+		return Services::DataManipulation()
+					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
+						   'vars' => [
+							   'themes' => array_values( $problems )
+						   ]
+					   ] );
 	}
 
 	private function buildThemesData() :array {

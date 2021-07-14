@@ -10,14 +10,21 @@
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-plugins"
+		<a class="nav-link" id="h-tabs-wordpress-tab" data-toggle="tab" href="#h-tabs-wordpress"
+		   role="tab" aria-controls="h-tabs-wordpress">
+			WordPress
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a class="nav-link" id="h-tabs-plugins-tab" data-toggle="tab" href="#h-tabs-plugins"
 		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
 		</a>
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-themes"
+		<a class="nav-link" id="h-tabs-themes-tab" data-toggle="tab" href="#h-tabs-themes"
 		   role="tab" aria-controls="h-tabs-themes">
 			Themes
 		</a>
@@ -57,6 +64,11 @@
 	<div class="tab-pane show active" id="h-tabs-aggregate" role="tabpanel"
 		 aria-labelledby="h-tabs-aggregate-tab">
 		{% include '/wpadmin_pages/insights/scans/results/results/aggregate.twig' %}
+	</div>
+
+	<div class="tab-pane" id="h-tabs-wordpress" role="tabpanel"
+		 aria-labelledby="h-tabs-wordpress-tab">
+		{{ content.section.wordpress|raw }}
 	</div>
 
 	<div class="tab-pane" id="h-tabs-plugins" role="tabpanel"

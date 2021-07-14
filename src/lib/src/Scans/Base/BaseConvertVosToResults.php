@@ -18,7 +18,7 @@ abstract class BaseConvertVosToResults {
 		$result = $this->getNewResultSet();
 		foreach ( $VOs as $vo ) {
 			$item = $this->convertItem( $vo );
-			$item->record_id = $vo->id;
+			$item->record_id = (int)$vo->id;
 			$result->addItem( $item );
 		}
 		return $result;

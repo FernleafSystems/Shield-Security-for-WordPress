@@ -87,6 +87,9 @@ class UI extends BaseShield\UI {
 					'themes' => ( new Render\ScanTables\SectionThemes() )
 						->setMod( $this->getMod() )
 						->render(),
+					'wordpress' => ( new Render\ScanTables\SectionWordpress() )
+						->setMod( $this->getMod() )
+						->render(),
 				]
 			],
 			'scan_results' => [
