@@ -1,18 +1,14 @@
 <ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
-		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
-			<span class="badge badge-{% if aggregate.count > 0 %}danger{% endif %}"
-			>{% if aggregate.count > 0 %}&#33;{% endif %}</span>
-			{{ aggregate.strings.title }}
-		</a>
-	</li>
-
-	<li class="nav-item">
 		<a class="nav-link" id="h-tabs-wordpress-tab" data-toggle="tab" href="#h-tabs-wordpress"
 		   role="tab" aria-controls="h-tabs-wordpress">
 			WordPress
+			{% if vars.sections.wordpress.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.wordpress.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
 		</a>
 	</li>
 
@@ -20,6 +16,11 @@
 		<a class="nav-link" id="h-tabs-plugins-tab" data-toggle="tab" href="#h-tabs-plugins"
 		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
+			{% if vars.sections.plugins.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.plugins.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
 		</a>
 	</li>
 
@@ -27,6 +28,20 @@
 		<a class="nav-link" id="h-tabs-themes-tab" data-toggle="tab" href="#h-tabs-themes"
 		   role="tab" aria-controls="h-tabs-themes">
 			Themes
+			{% if vars.sections.themes.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.themes.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a class="nav-link active" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
+		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
+			<span class="badge badge-{% if aggregate.count > 0 %}danger{% endif %}"
+			>{% if aggregate.count > 0 %}&#33;{% endif %}</span>
+			{{ aggregate.strings.title }}
 		</a>
 	</li>
 

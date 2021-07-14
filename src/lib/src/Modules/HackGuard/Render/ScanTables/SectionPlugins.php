@@ -17,8 +17,6 @@ class SectionPlugins extends SectionPluginThemesBase {
 	}
 
 	protected function buildRenderData() :array {
-		$mod = $this->getMod();
-
 		$plugins = $this->buildPluginsData();
 		ksort( $plugins );
 
@@ -39,8 +37,14 @@ class SectionPlugins extends SectionPluginThemesBase {
 
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
-						   'vars' => [
-							   'plugins' => array_values( $problems )
+						   'strings' => [
+							   'no_items'    => __( "Previous scans didn't detect any modified or missing files in any plugin directories.", 'wp-simple-firewall' ),
+							   'no_files'    => __( "Previous scans didn't detect any modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
+							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
+						   ],
+						   'vars'    => [
+							   'count_items' => count( $problems ),
+							   'plugins'     => array_values( $problems )
 						   ]
 					   ] );
 	}
@@ -85,7 +89,10 @@ class SectionPlugins extends SectionPluginThemesBase {
 				'has_guard_files' => !empty( $guardFilesData ),
 				'is_vulnerable'   => !empty( $vulnerabilities ),
 				'is_wporg'        => $plugin->isWpOrg(),
-			]
+			],
+			'vars'  => [
+				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 ),
+			],
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
 										  || $data[ 'flags' ][ 'has_guard_files' ]

@@ -17,13 +17,15 @@ class SectionWordpress extends SectionBase {
 	}
 
 	protected function buildRenderData() :array {
-
 		$wpData = $this->buildWordpressData();
-
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
-						   'vars' => [
-							   'wordpress' => $wpData
+						   'strings' => [
+							   'no_files'    => __( "Previous scans didn't detect any modified, missing or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
+							   'files_found' => __( "Previous scans detected 1 or more modified, missing or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
+						   ],
+						   'vars'    => [
+							   'wordpress' => $this->buildWordpressData()
 						   ]
 					   ] );
 	}
@@ -45,6 +47,9 @@ class SectionWordpress extends SectionBase {
 				'has_update'     => $WP->hasCoreUpdate(),
 				'has_core_files' => !empty( $coreFilesData ),
 				'is_vulnerable'  => false,
+			],
+			'vars'  => [
+				'count_items' => count( $coreFilesData ),
 			]
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'has_core_files' ]

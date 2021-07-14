@@ -10,10 +10,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class SectionThemes extends SectionPluginThemesBase {
 
 	public function render() :string {
+		$renderData = $this->buildRenderData();
 		return $this->getMod()
 					->renderTemplate(
 						'/wpadmin_pages/insights/scans/results/section/themes/index.twig',
-						$this->buildRenderData()
+						$renderData
 					);
 	}
 
@@ -37,8 +38,14 @@ class SectionThemes extends SectionPluginThemesBase {
 
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
-						   'vars' => [
-							   'themes' => array_values( $problems )
+						   'strings' => [
+							   'no_items'    => __( "Previous scans didn't detect any modified or missing files in any Theme directories.", 'wp-simple-firewall' ),
+							   'no_files'    => __( "Previous scans didn't detect any modified or missing files in the Theme directories.", 'wp-simple-firewall' ),
+							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the theme directory.", 'wp-simple-firewall' ),
+						   ],
+						   'vars'    => [
+							   'count_items' => count( $problems ),
+							   'themes'      => array_values( $problems ),
 						   ]
 					   ] );
 	}
@@ -83,7 +90,10 @@ class SectionThemes extends SectionPluginThemesBase {
 				'has_guard_files' => !empty( $guardFilesData ),
 				'is_vulnerable'   => !empty( $vulnerabilities ),
 				'is_wporg'        => $theme->isWpOrg(),
-			]
+			],
+			'vars'  => [
+				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 ),
+			],
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
 										  || $data[ 'flags' ][ 'has_guard_files' ]

@@ -77,9 +77,20 @@ class LoadRawTableData {
 					$data = $item->getRawData();
 					$data[ 'rid' ] = $item->record_id;
 					$data[ 'file' ] = $item->path_fragment;
-					$data[ 'status' ] = $item->is_checksumfail ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
+					if ( $item->is_checksumfail ) {
+						$data[ 'status_slug' ] = 'modified';
+						$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
+					}
+					elseif ( $item->is_missing ) {
+						$data[ 'status_slug' ] = 'missing';
+						$data[ 'status' ] = __( 'Missing', 'wp-simple-firewall' );
+					}
+					else {
+						$data[ 'status_slug' ] = 'unrecognised';
+						$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
+					}
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status' ], $item->record_id ) );
+					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item->record_id ) );
 					return $data;
 				},
 				array_merge(
@@ -105,9 +116,20 @@ class LoadRawTableData {
 				$data = $item->getRawData();
 				$data[ 'rid' ] = $item->record_id;
 				$data[ 'file' ] = $item->path_fragment;
-				$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
+				if ( $item->is_different ) {
+					$data[ 'status_slug' ] = 'modified';
+					$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
+				}
+				elseif ( $item->is_missing ) {
+					$data[ 'status_slug' ] = 'missing';
+					$data[ 'status' ] = __( 'Missing', 'wp-simple-firewall' );
+				}
+				else {
+					$data[ 'status_slug' ] = 'unrecognised';
+					$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
+				}
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status' ], $item->record_id ) );
+				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item->record_id ) );
 				return $data;
 			},
 			$this->getGuardFiles()->getItemsForSlug( $item->asset_type === 'plugin' ? $item->file : $item->stylesheet )
@@ -126,6 +148,7 @@ class LoadRawTableData {
 
 		switch ( $status ) {
 
+			case 'missing':
 			case 'modified':
 				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
@@ -141,14 +164,6 @@ class LoadRawTableData {
 					__( 'Delete', 'wp-simple-firewall' ),
 					$rid,
 					$con->svgs->raw( 'bootstrap/x-square.svg' )
-				);
-				break;
-
-			case 'missing':
-				$actions[] = sprintf( '<button class="%s" data-rid="%s">%s</button>',
-					implode( ' ', $defaultButtonClasses ),
-					$rid,
-					'Restore'
 				);
 				break;
 

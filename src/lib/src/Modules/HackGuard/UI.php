@@ -19,6 +19,10 @@ class UI extends BaseShield\UI {
 			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
 		}
 
+		$sectionBuilderPlugins = ( new Render\ScanTables\SectionPlugins() )->setMod( $this->getMod() );
+		$sectionBuilderThemes = ( new Render\ScanTables\SectionThemes() )->setMod( $this->getMod() );
+		$sectionBuilderWordpress = ( new Render\ScanTables\SectionWordpress() )->setMod( $this->getMod() );
+
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
@@ -72,6 +76,17 @@ class UI extends BaseShield\UI {
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
+				'sections'            => [
+					'plugins'   => [
+						'count' => $sectionBuilderPlugins->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+					'themes'    => [
+						'count' => $sectionBuilderThemes->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+					'wordpress' => [
+						'count' => $sectionBuilderWordpress->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+				]
 			],
 			'hrefs'        => [
 				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
@@ -81,15 +96,9 @@ class UI extends BaseShield\UI {
 			],
 			'content'      => [
 				'section' => [
-					'plugins' => ( new Render\ScanTables\SectionPlugins() )
-						->setMod( $this->getMod() )
-						->render(),
-					'themes' => ( new Render\ScanTables\SectionThemes() )
-						->setMod( $this->getMod() )
-						->render(),
-					'wordpress' => ( new Render\ScanTables\SectionWordpress() )
-						->setMod( $this->getMod() )
-						->render(),
+					'plugins'   => $sectionBuilderPlugins->render(),
+					'themes'    => $sectionBuilderThemes->render(),
+					'wordpress' => $sectionBuilderWordpress->render(),
 				]
 			],
 			'scan_results' => [
@@ -104,8 +113,8 @@ class UI extends BaseShield\UI {
 				'vars'    => [
 				],
 				'strings' => [
-					'title'    => __( 'File Scan', 'wp-simple-firewall' ),
-					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
+					'title'    => __( 'Malware', 'wp-simple-firewall' ),
+					'subtitle' => __( "Results of malware scans", 'wp-simple-firewall' )
 				],
 				'count'   => $selector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
 									  ->filterByNotIgnored()
