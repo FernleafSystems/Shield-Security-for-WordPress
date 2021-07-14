@@ -11,8 +11,15 @@
 
 	<li class="nav-item">
 		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-plugins"
-		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
+		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-themes"
+		   role="tab" aria-controls="h-tabs-themes">
+			Themes
 		</a>
 	</li>
 
@@ -55,6 +62,11 @@
 	<div class="tab-pane" id="h-tabs-plugins" role="tabpanel"
 		 aria-labelledby="h-tabs-plugins-tab">
 		{{ content.section.plugins|raw }}
+	</div>
+
+	<div class="tab-pane" id="h-tabs-themes" role="tabpanel"
+		 aria-labelledby="h-tabs-themes-tab">
+		{{ content.section.themes|raw }}
 	</div>
 
 	{% for scankey,scanvars in scans %}

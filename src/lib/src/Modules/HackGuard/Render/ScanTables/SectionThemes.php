@@ -3,15 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SectionPlugins extends SectionPluginThemesBase {
+class SectionThemes extends SectionPluginThemesBase {
 
 	public function render() :string {
 		return $this->getMod()
 					->renderTemplate(
-						'/wpadmin_pages/insights/scans/results/section/plugins/index.twig',
+						'/wpadmin_pages/insights/scans/results/section/themes/index.twig',
 						$this->buildRenderData()
 					);
 	}
@@ -19,23 +20,21 @@ class SectionPlugins extends SectionPluginThemesBase {
 	protected function buildRenderData() :array {
 		$mod = $this->getMod();
 
-		$plugins = $this->buildPluginsData();
-		ksort( $plugins );
+		$themes = $this->buildThemesData();
+		ksort( $themes );
 
 		$problems = [];
 		$active = [];
-		foreach ( $plugins as $key => $plugin ) {
-			if ( $plugin[ 'flags' ][ 'has_issue' ] ) {
-				unset( $plugins[ $key ] );
-				$problems[] = $plugin;
+		foreach ( $themes as $key => $item ) {
+			if ( $item[ 'flags' ][ 'has_issue' ] ) {
+				unset( $themes[ $key ] );
+				$problems[] = $item;
 			}
-			elseif ( $plugin[ 'info' ][ 'active' ] ) {
-				unset( $plugins[ $key ] );
-				$active[] = $plugin;
+			elseif ( $item[ 'info' ][ 'active' ] ) {
+				unset( $themes[ $key ] );
+				$active[] = $item;
 			}
 		}
-
-		$plugins = array_merge( $problems, $active, $plugins );
 
 		return [
 			'ajax'    => [
@@ -59,51 +58,51 @@ class SectionPlugins extends SectionPluginThemesBase {
 				'upgrade' => Services::WpGeneral()->getAdminUrl_Updates()
 			],
 			'vars'    => [
-				'plugins' => array_values( $problems )
+				'themes' => array_values( $problems )
 			]
 		];
 	}
 
-	private function buildPluginsData() :array {
+	private function buildThemesData() :array {
 		return array_map(
-			function ( $plugin ) {
-				return $this->buildPluginData( $plugin );
+			function ( $item ) {
+				return $this->buildThemeData( $item );
 			},
-			Services::WpPlugins()->getPluginsAsVo()
+			Services::WpThemes()->getThemesAsVo()
 		);
 	}
 
-	private function buildPluginData( WpPluginVo $plugin ) :array {
+	private function buildThemeData( WpThemeVo $theme ) :array {
 		$carbon = Services::Request()->carbon();
 
-		$abandoned = $this->getAbandoned()->getItemForSlug( $plugin->file );
+		$abandoned = $this->getAbandoned()->getItemForSlug( $theme->stylesheet );
 		$guardFilesData = ( new LoadRawTableData() )
 			->setMod( $this->getMod() )
-			->loadForPlugin( $plugin );
+			->loadForTheme( $theme );
 
-		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
+		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->file );
 
 		$data = [
 			'info'  => [
-				'type'         => 'plugin',
-				'active'       => $plugin->active,
-				'name'         => $plugin->Title,
-				'slug'         => $plugin->slug,
-				'description'  => $plugin->Description,
-				'version'      => $plugin->Version,
-				'author'       => $plugin->AuthorName,
-				'author_url'   => $plugin->AuthorURI,
-				'file'         => $plugin->file,
-				'dir'          => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $plugin->getInstallDir() ) ),
+				'type'         => 'theme',
+				'active'       => $theme->active,
+				'name'         => $theme->Name,
+				'slug'         => $theme->slug,
+				'description'  => $theme->Description,
+				'version'      => $theme->Version,
+				'author'       => $theme->Author,
+				'author_url'   => $theme->AuthorURI,
+				'file'         => $theme->stylesheet,
+				'dir'          => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $theme->getInstallDir() ) ),
 				'abandoned_at' => empty( $abandoned ) ? 0
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
 			'flags' => [
-				'has_update'      => $plugin->hasUpdate(),
+				'has_update'      => $theme->hasUpdate(),
 				'is_abandoned'    => !empty( $abandoned ),
 				'has_guard_files' => !empty( $guardFilesData ),
 				'is_vulnerable'   => !empty( $vulnerabilities ),
-				'is_wporg'        => $plugin->isWpOrg(),
+				'is_wporg'        => $theme->isWpOrg(),
 			]
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]

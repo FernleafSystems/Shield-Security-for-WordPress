@@ -1,0 +1,29 @@
+<div class="row mt-3" id="ScanResultsPlugins">
+
+	<div class="col-3">
+		<ul class="nav nav-tabs flex-column">
+			{% for theme_key,theme in vars.themes %}
+				<li class="nav-item mb-2">
+					<a class="nav-link {% if theme_key < 1 %}active{% endif %}"
+					   href="#theme-tab-{{ theme.info.slug }}"
+					   data-toggle="tab"
+					>{{ theme.info.name }}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	<div class="col-9">
+		<div class="tab-content">
+			{% for theme_key,theme in vars.themes %}
+				<div class="tab-pane {% if theme_key < 1 %}show active{% endif %}"
+					 id="theme-tab-{{ theme.info.slug }}"
+					 role="tabpanel"
+					 aria-labelledby="profile-tab"
+				>
+					{% include '/wpadmin_pages/insights/scans/results/section/themes/theme_panel.twig' %}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>

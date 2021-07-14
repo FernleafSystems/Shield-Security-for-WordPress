@@ -83,7 +83,10 @@ class UI extends BaseShield\UI {
 				'section' => [
 					'plugins' => ( new Render\ScanTables\SectionPlugins() )
 						->setMod( $this->getMod() )
-						->render()
+						->render(),
+					'themes' => ( new Render\ScanTables\SectionThemes() )
+						->setMod( $this->getMod() )
+						->render(),
 				]
 			],
 			'scan_results' => [
@@ -125,6 +128,17 @@ class UI extends BaseShield\UI {
 						],
 					],
 				],
+				'apc' => [
+					'flags'   => [
+						'has_items'  => true,
+						'show_table' => false,
+					],
+					'hrefs'   => [],
+					'vars'    => [],
+					'strings' => [
+						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
+					],
+				],
 				'ufc' => [
 					'flags'   => [
 						'has_items'  => true,
@@ -151,7 +165,7 @@ class UI extends BaseShield\UI {
 				'wpv' => [
 					'flags'   => [
 						'has_items'  => true,
-						'show_table' => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],

@@ -8,9 +8,7 @@ class SectionBase {
 
 	use ModConsumer;
 
-
 	protected function buildRenderData() :array {
 		return [];
 	}
-
 }

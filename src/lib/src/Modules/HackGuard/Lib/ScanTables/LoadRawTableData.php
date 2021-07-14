@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Pt
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoadRawTableData {
@@ -24,13 +25,23 @@ class LoadRawTableData {
 	public function loadFor( string $type, string $file ) :array {
 
 		switch ( $type ) {
+
 			case 'plugin':
-				$plugin = Services::WpPlugins()->getPluginAsVo( $file );
-				if ( !$plugin instanceof WpPluginVo ) {
+				$item = Services::WpPlugins()->getPluginAsVo( $file );
+				if ( empty( $item ) ) {
 					throw new \Exception( '[LoadRawTableData] Unsupported slug: '.$file );
 				}
-				$data = $this->loadForPlugin( $plugin );
+				$data = $this->loadForPlugin( $item );
 				break;
+
+			case 'theme':
+				$item = Services::WpThemes()->getThemeAsVo( $file );
+				if ( empty( $item ) ) {
+					throw new \Exception( '[LoadRawTableData] Unsupported slug: '.$file );
+				}
+				$data = $this->loadForTheme( $item );
+				break;
+
 			default:
 				throw new \Exception( '[LoadRawTableData] Unsupported type: '.$type );
 		}
@@ -39,19 +50,30 @@ class LoadRawTableData {
 	}
 
 	public function loadForPlugin( WpPluginVo $plugin ) :array {
-		return $this->getGuardFilesDataForPlugin( $plugin );
+		return $this->getGuardFilesDataFor( $plugin );
 	}
 
-	private function getGuardFilesDataForPlugin( WpPluginVo $plugin ) :array {
-		return array_map( function ( $item ) {
-			$data = $item->getRawData();
-			$data[ 'rid' ] = $item->record_id;
-			$data[ 'file' ] = $item->path_fragment;
-			$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
-			$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-			$data[ 'actions' ] = implode( ' ', $this->getActions( $item ) );
-			return $data;
-		}, $this->getGuardFiles()->getItemsForSlug( $plugin->file ) );
+	public function loadForTheme( WpThemeVo $theme ) :array {
+		return $this->getGuardFilesDataFor( $theme );
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $item
+	 * @return array
+	 */
+	private function getGuardFilesDataFor( $item ) :array {
+		return array_map(
+			function ( $item ) {
+				$data = $item->getRawData();
+				$data[ 'rid' ] = $item->record_id;
+				$data[ 'file' ] = $item->path_fragment;
+				$data[ 'status' ] = $item->is_different ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
+				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
+				$data[ 'actions' ] = implode( ' ', $this->getActions( $item ) );
+				return $data;
+			},
+			$this->getGuardFiles()->getItemsForSlug( $item->asset_type === 'plugin' ? $item->file : $item->stylesheet )
+		);
 	}
 
 	private function getActions( Scans\Ptg\ResultItem $item ) {
