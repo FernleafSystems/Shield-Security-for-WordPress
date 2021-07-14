@@ -108,7 +108,10 @@
 								plugin.allAction.call( plugin, 'repair' );
 							}
 						}
-					]
+					],
+					language: {
+						emptyTable: "There are no item to display, or they've all been set to be ignored."
+					}
 				} );
 
 				$( '#ScanResultsPlugins a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( e ) {
@@ -153,7 +156,7 @@
 					'button.action.ignore',
 					function ( evt ) {
 						evt.preventDefault();
-						plugin.ignoreEntry.call( plugin, $( this ).data( 'rid' ) );
+						plugin.bulkAction.call( plugin, 'ignore', [ $( this ).data( 'rid' ) ] );
 					}
 				);
 
@@ -190,8 +193,8 @@
 				this.$element.off( '.' + this._name );
 			},
 
-			tableReload: function () {
-				this.$table.ajax.reload();
+			tableReload: function ( full = false ) {
+				this.$table.ajax.reload( null, full );
 				this.rowSelectionChanged();
 			},
 
@@ -259,12 +262,11 @@
 
 						if ( response.success ) {
 							iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
-							if ( response.data.page_reload ) {
-								location.reload();
+							if ( response.data.table_reload ) {
+								plugin.tableReload();
 							}
 							else {
 								iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
-								iCWP_WPSF_BodyOverlay.hide();
 							}
 						}
 						else {
@@ -273,10 +275,10 @@
 								msg = response.data.message;
 							}
 							alert( msg );
-							iCWP_WPSF_BodyOverlay.hide();
 						}
 					}
 				).always( function () {
+						iCWP_WPSF_BodyOverlay.hide();
 					}
 				);
 			},

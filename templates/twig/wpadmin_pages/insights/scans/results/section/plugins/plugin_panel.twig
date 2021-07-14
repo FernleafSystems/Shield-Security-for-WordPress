@@ -34,10 +34,10 @@
 <div class="row mt-3">
 	<div class="col">
 		<h6>{{ strings.file_integrity_status }}:
-			{% if plugin.info.integrity_status %}
-				<span class="badge badge-success">{{ strings.status_good }}</span>
-			{% else %}
+			{% if plugin.flags.has_guard_files %}
 				<span class="badge badge-danger">{{ strings.status_warning }}</span>
+			{% else %}
+				<span class="badge badge-success">{{ strings.status_good }}</span>
 			{% endif %}
 		</h6>
 	</div>

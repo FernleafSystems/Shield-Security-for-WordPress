@@ -125,17 +125,6 @@ class UI extends BaseShield\UI {
 						],
 					],
 				],
-				'apc' => [
-					'flags'   => [
-						'has_items'  => true,
-						'show_table' => true,
-					],
-					'hrefs'   => [],
-					'vars'    => [],
-					'strings' => [
-						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
-					],
-				],
 				'ufc' => [
 					'flags'   => [
 						'has_items'  => true,

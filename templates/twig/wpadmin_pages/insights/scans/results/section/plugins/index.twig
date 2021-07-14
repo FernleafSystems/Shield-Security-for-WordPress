@@ -1,6 +1,6 @@
 <div class="row mt-3" id="ScanResultsPlugins">
 
-	<div class="col-2">
+	<div class="col-3">
 		<ul class="nav nav-tabs flex-column">
 			{% for plugin_key,plugin in vars.plugins %}
 				<li class="nav-item mb-2">
@@ -13,7 +13,7 @@
 		</ul>
 	</div>
 
-	<div class="col-10">
+	<div class="col-9">
 		<div class="tab-content">
 			{% for plugin_key,plugin in vars.plugins %}
 				<div class="tab-pane {% if plugin_key < 1 %}show active{% endif %}"

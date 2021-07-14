@@ -98,7 +98,6 @@ class SectionPlugins extends SectionBase {
 				'author_url'       => $plugin->AuthorURI,
 				'file'             => $plugin->file,
 				'dir'              => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $plugin->getInstallDir() ) ),
-				'integrity_status' => rand( 0, 1 ),
 				'abandoned_at'     => empty( $abandoned ) ? 0
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
