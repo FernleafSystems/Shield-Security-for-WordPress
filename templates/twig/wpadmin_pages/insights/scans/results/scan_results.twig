@@ -39,9 +39,12 @@
 	<li class="nav-item">
 		<a class="nav-link active" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
 		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
-			<span class="badge badge-{% if aggregate.count > 0 %}danger{% endif %}"
-			>{% if aggregate.count > 0 %}&#33;{% endif %}</span>
 			{{ aggregate.strings.title }}
+			{% if aggregate.count > 0 %}
+				<span class="badge badge-danger">{{ aggregate.count }}</span>
+					{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
 		</a>
 	</li>
 
@@ -55,9 +58,12 @@
 				   role="tab"
 				   aria-controls="h-tabs-{{ scankey }}"
 				>
-					<span class="badge badge-{% if scanvars.count > 0 %}danger{% endif %}"
-					>{% if scanvars.count > 0 %}&#33;{% endif %}</span>
 					{{ scanvars.strings.title }}
+					{% if scanvars.count > 0 %}
+						<span class="badge badge-danger">{{ scanvars.count }}</span>
+					{% else %}
+						<span class="badge badge-success">&check;</span>
+					{% endif %}
 				</a>
 			</li>
 		{% endif %}
@@ -66,9 +72,13 @@
 	<li class="nav-item">
 		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-file_locker"
 		   role="tab" aria-controls="h-tabs-file_locker">
-			<span class="badge badge-{% if file_locker.count > 0 %}danger{% endif %}"
-			>{% if file_locker.count > 0 %}&#33;{% endif %}</span>
+
 			{{ file_locker.strings.title }}
+			{% if file_locker.count > 0 %}
+				<span class="badge badge-danger">{{ file_locker.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
 		</a>
 	</li>
 </ul>

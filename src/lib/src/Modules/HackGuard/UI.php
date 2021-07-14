@@ -259,8 +259,9 @@ class UI extends BaseShield\UI {
 			],
 			'vars'    => [
 				'file_locks' => [
-					'good' => $goodLocks,
-					'bad'  => $problemLocks,
+					'good'        => $goodLocks,
+					'bad'         => $problemLocks,
+					'count_items' => count( $problemLocks ),
 				],
 			],
 			'strings' => [
