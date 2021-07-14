@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Ptg,
+	Ufc,
 	Wcf
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -72,16 +73,19 @@ class LoadRawTableData {
 		try {
 			$wcfFiles = array_map(
 				function ( $item ) {
-					/** @var Scans\Wcf\ResultItem $item */
+					/** @var Scans\Wcf\ResultItem|Scans\Ufc\ResultItem $item */
 					$data = $item->getRawData();
 					$data[ 'rid' ] = $item->record_id;
 					$data[ 'file' ] = $item->path_fragment;
-					$data[ 'status' ] = $item->is_checksumfail ? 'modified' : ( $item->is_missing ? 'missing' : 'excluded' );
+					$data[ 'status' ] = $item->is_checksumfail ? 'modified' : ( $item->is_missing ? 'missing' : 'unrecognised' );
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status' ], $item->record_id ) );
 					return $data;
 				},
-				$mod->getScanCon( Wcf::SCAN_SLUG )->getAllResults()->getItems()
+				array_merge(
+					$mod->getScanCon( Wcf::SCAN_SLUG )->getAllResults()->getItems(),
+					$mod->getScanCon( Ufc::SCAN_SLUG )->getAllResults()->getItems()
+				)
 			);
 		}
 		catch ( \Exception $e ) {
