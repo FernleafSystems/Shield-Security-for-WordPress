@@ -96,8 +96,7 @@
 					var button = $( this );
 					var href = button.data( 'href-download' );
 					if ( href !== undefined ) {
-						base.options[ 'working_href_download' ] = href;
-						base.hrefDownload.call( base );
+						base.hrefDownload.call( base, href );
 					}
 				}
 			);
@@ -132,8 +131,8 @@
 			this.bulkAction( 'repair', [ rid ] )
 		};
 
-		base.hrefDownload = function () {
-			$.fileDownload( this.getOpts.working_href_download, {
+		base.hrefDownload = function ( href ) {
+			$.fileDownload( href, {
 				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
 				failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
 			} );

@@ -48,6 +48,7 @@ class ConvertBetweenTypes {
 					 ->getNewResultItem()
 					 ->applyFromArray( $VO->meta );
 		$item->record_id = $VO->id;
+		$item->scan = $VO->scan;
 		return $item;
 	}
 

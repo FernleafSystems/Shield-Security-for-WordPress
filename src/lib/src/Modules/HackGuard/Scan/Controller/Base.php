@@ -61,8 +61,8 @@ abstract class Base extends ExecOnceModConsumer {
 			->delete( $results );
 	}
 
-	public function createFileDownloadLink( Databases\Scanner\EntryVO $entry ) :string {
-		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $entry->id ] );
+	public function createFileDownloadLink( int $recordID ) :string {
+		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $recordID ] );
 	}
 
 	public function getLastScanAt() :int {

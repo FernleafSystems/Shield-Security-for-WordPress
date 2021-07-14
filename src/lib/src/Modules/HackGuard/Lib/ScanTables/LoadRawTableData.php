@@ -90,7 +90,7 @@ class LoadRawTableData {
 						$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
 					}
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item->record_id ) );
+					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 					return $data;
 				},
 				array_merge(
@@ -129,15 +129,22 @@ class LoadRawTableData {
 					$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
 				}
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item->record_id ) );
+				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 				return $data;
 			},
 			$this->getGuardFiles()->getItemsForSlug( $item->asset_type === 'plugin' ? $item->file : $item->stylesheet )
 		);
 	}
 
-	private function getActions( string $status, int $rid ) :array {
+	/**
+	 * @param string                $status
+	 * @param Scans\Base\ResultItem $item
+	 * @return array
+	 */
+	private function getActions( string $status, $item ) :array {
 		$con = $this->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
 		$actions = [];
 
@@ -153,7 +160,7 @@ class LoadRawTableData {
 				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Repair', 'wp-simple-firewall' ),
-					$rid,
+					$item->record_id,
 					$con->svgs->raw( 'bootstrap/tools.svg' )
 				);
 				break;
@@ -162,7 +169,7 @@ class LoadRawTableData {
 				$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Delete', 'wp-simple-firewall' ),
-					$rid,
+					$item->record_id,
 					$con->svgs->raw( 'bootstrap/x-square.svg' )
 				);
 				break;
@@ -172,10 +179,10 @@ class LoadRawTableData {
 		}
 
 		if ( in_array( $status, [ 'modified', 'unrecognised' ] ) ) {
-			$actions[] = sprintf( '<button class="btn-dark download %s" title="%s" data-rid="%s">%s</button>',
+			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
-				$rid,
+				$mod->getScanCon( $item->scan )->createFileDownloadLink( $item->record_id ),
 				$con->svgs->raw( 'bootstrap/download.svg' )
 			);
 		}
@@ -183,7 +190,7 @@ class LoadRawTableData {
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
 			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
-			$rid,
+			$item->record_id,
 			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
 		);
 
