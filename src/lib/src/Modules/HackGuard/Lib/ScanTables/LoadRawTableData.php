@@ -233,6 +233,9 @@ class LoadRawTableData {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$itemActionHandler = $mod->getScanCon( $item->VO->scan )
+								 ->getItemActionHandler()
+								 ->setScanItem( $item );
 
 		$actions = [];
 
@@ -250,7 +253,8 @@ class LoadRawTableData {
 			);
 		}
 
-		if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) ) {
+		if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) && $itemActionHandler->getRepairer()
+																							->canRepair() ) {
 			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Repair', 'wp-simple-firewall' ),

@@ -156,7 +156,7 @@ abstract class Base extends ExecOnceModConsumer {
 	/**
 	 * @return Scans\Base\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	public function getItemActionHandler() {
 		return $this->newItemActionHandler()
 					->setMod( $this->getMod() )
 					->setScanController( $this );

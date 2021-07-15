@@ -249,20 +249,12 @@
 								}
 							},
 							{
-								text: 'Repair Selected',
-								name: 'selected-repair',
-								className: 'action selected-action repair',
-								action: function ( e, dt, node, config ) {
-									base.bulkAction.call( base, 'repair' );
-								}
-							},
-							{
-								text: 'Delete Selected',
+								text: 'Delete/Repair Selected',
 								name: 'selected-repair',
 								className: 'action selected-action repair',
 								action: function ( e, dt, node, config ) {
 									if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
-										base.bulkAction.call( base, 'delete' );
+										base.bulkAction.call( base, 'repair' );
 									}
 								}
 							}

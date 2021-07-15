@@ -83,7 +83,7 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	/**
 	 * @return bool
 	 */
-	public function canRepair() {
+	public function canRepair() :bool {
 		/** @var Ptg\ResultItem $item */
 		$item = $this->getScanItem();
 		if ( $item->context == 'plugins' ) {

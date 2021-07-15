@@ -26,7 +26,7 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() {
+	public function canRepair() :bool {
 		/** @var Wcf\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		return Services::CoreFileHashes()->isCoreFile( $oItem->path_full );

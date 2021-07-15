@@ -39,9 +39,9 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() {
-		/** @var Ufc\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		return Services::WpFs()->exists( $oItem->path_full );
+	public function canRepair() :bool {
+		/** @var Ufc\ResultItem $item */
+		$item = $this->getScanItem();
+		return (bool)Services::WpFs()->exists( $item->path_full );
 	}
 }
