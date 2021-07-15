@@ -25,7 +25,8 @@ class SectionWordpress extends SectionBase {
 							   'files_found' => __( "Previous scans detected 1 or more modified, missing or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
-							   'wordpress' => $this->buildWordpressData()
+							   'count_items' => $wpData[ 'vars' ][ 'count_items' ],
+							   'wordpress'   => $wpData
 						   ]
 					   ] );
 	}

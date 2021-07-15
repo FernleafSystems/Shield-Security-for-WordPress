@@ -77,6 +77,18 @@ class LoadRawTableData {
 					$data = $item->getRawData();
 					$data[ 'rid' ] = $item->record_id;
 					$data[ 'file' ] = $item->path_fragment;
+
+					if ( !$item->is_missing ) {
+						$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+							__( 'View File Contents', 'wp-simple-firewall' ),
+							$item->record_id,
+							$item->path_fragment
+						);
+					}
+					else {
+						$data[ 'file_as_download' ] = $item->path_fragment;
+					}
+
 					if ( $item->is_checksumfail ) {
 						$data[ 'status_slug' ] = 'modified';
 						$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
@@ -113,6 +125,7 @@ class LoadRawTableData {
 	private function getGuardFilesDataFor( $item ) :array {
 		return array_map(
 			function ( $item ) {
+
 				$data = $item->getRawData();
 				$data[ 'rid' ] = $item->record_id;
 				$data[ 'file' ] = $item->path_fragment;
@@ -128,6 +141,18 @@ class LoadRawTableData {
 					$data[ 'status_slug' ] = 'unrecognised';
 					$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
 				}
+
+				if ( !$item->is_missing ) {
+					$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+						__( 'View File Contents', 'wp-simple-firewall' ),
+						$item->record_id,
+						$item->path_fragment
+					);
+				}
+				else {
+					$data[ 'file_as_download' ] = $item->path_fragment;
+				}
+
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 				return $data;

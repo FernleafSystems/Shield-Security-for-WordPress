@@ -64,7 +64,7 @@
 				function ( evt ) {
 					evt.preventDefault();
 					if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
-						base.deleteEntry.call( base, $( this ).data( 'rid' ) );
+						base.bulkAction.call( base, 'delete', [ $( this ).data( 'rid' ) ] );
 					}
 				}
 			);
@@ -78,13 +78,39 @@
 				}
 			);
 
-			base.$table.on(
+			base.$el.on(
 				'click' + '.' + base._name,
 				'button.action.repair',
 				function ( evt ) {
 					evt.preventDefault();
 					base.$table.rows().deselect();
-					base.repairEntry.call( base, $( this ).data( 'rid' ) );
+					base.bulkAction.call( base, 'repair', [ $( this ).data( 'rid' ) ] );
+				}
+			);
+
+			base.$el.on(
+				'click' + '.' + base._name,
+				'a.action.view-file',
+				function ( evt ) {
+					evt.preventDefault();
+					let reqData = base.getBaseAjaxData();
+					reqData.sub_action = 'view_file';
+					reqData.rid = $( this ).data( 'rid' );
+					$.post( ajaxurl, reqData, function ( response ) {
+						if ( response.success ) {
+							let $codeModal = jQuery( '#CodeRenderModal' );
+							jQuery( '.modal-title', $codeModal ).html( response.data.vars.path );
+							jQuery( '.modal-body', $codeModal ).html( response.data.vars.contents );
+							$codeModal.modal( 'show' );
+						}
+						else {
+							let msg = 'Communications error with site.';
+							if ( response.data.message !== undefined ) {
+								msg = response.data.message;
+							}
+							alert( msg );
+						}
+					} );
 				}
 			);
 
@@ -117,18 +143,6 @@
 				reqData[ 'rids' ] = RIDs;
 				this.sendReq( reqData );
 			}
-		};
-
-		base.deleteEntry = function ( rid ) {
-			this.bulkAction( 'delete', [ rid ] )
-		};
-
-		base.ignoreEntry = function ( rid ) {
-			this.bulkAction( 'ignore', [ rid ] )
-		};
-
-		base.repairEntry = function ( rid ) {
-			this.bulkAction( 'repair', [ rid ] )
 		};
 
 		base.hrefDownload = function ( href ) {
@@ -198,10 +212,10 @@
 				deferRender: true,
 				columns: [
 					{ data: 'rid', title: 'ID', visible: false, searchable: false },
-					{ data: 'file', title: 'File' },
+					{ data: 'file_as_download', title: 'File', className: 'file' },
 					{ data: 'status', title: 'Status', searchable: false },
 					{ data: 'file_type', title: 'Type' },
-					{ data: 'actions', title: 'Actions', orderable: false, searchable: false },
+					{ data: 'actions', title: 'Actions', orderable: false, searchable: false, className: 'actions' },
 				],
 				select: {
 					style: 'multi'
