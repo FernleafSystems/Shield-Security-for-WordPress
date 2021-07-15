@@ -53,10 +53,7 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "bootstrap-select",
-        "datatables-bootstrap",
-        "datatables-select",
-        "datatables-buttons"
+        "shield/scantables"
       ],
       "js":  [
         "select2",
@@ -151,7 +148,18 @@
           ],
           "footer": true
         },
-        "shield/mainwp":          {}
+        "shield/mainwp":          {},
+        "shield/scantables":          {
+          "deps": [
+            "datatables-select",
+            "datatables-buttons",
+            "datatables-bootstrap",
+            "tp/highlightjs"
+          ]
+        },
+        "tp/highlightjs":            {
+          "url":        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css"
+        }
       },
       "js":  {
         "bootstrap":              {
@@ -286,7 +294,8 @@
           "deps": [
             "datatables-select",
             "datatables-buttons",
-            "datatables-bootstrap"
+            "datatables-bootstrap",
+            "tp/highlightjs"
           ]
         },
         "shield/tours":           {
@@ -345,6 +354,9 @@
             "async": "async",
             "defer": "defer"
           }
+        },
+        "tp/highlightjs":            {
+          "url":        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
         }
       }
     }

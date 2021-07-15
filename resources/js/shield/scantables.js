@@ -102,6 +102,9 @@
 							jQuery( '.modal-title', $codeModal ).html( response.data.vars.path );
 							jQuery( '.modal-body', $codeModal ).html( response.data.vars.contents );
 							$codeModal.modal( 'show' );
+							$codeModal[0].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
+								hljs.highlightElement( el );
+							} );
 						}
 						else {
 							let msg = 'Communications error with site.';

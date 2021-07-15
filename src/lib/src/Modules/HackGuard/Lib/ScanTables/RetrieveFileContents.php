@@ -51,7 +51,7 @@ class RetrieveFileContents {
 							 ->renderTemplate(
 								 '/wpadmin_pages/insights/scans/modal/code_block.twig',
 								 [
-									 'lines' => explode( "\n", str_replace("\t", "    ",$modContents) )
+									 'lines'    => explode( "\n", str_replace( "\t", "    ", $modContents ) ),
 								 ]
 							 );
 		}
