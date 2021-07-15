@@ -218,8 +218,17 @@
 					{ data: 'file_as_download', title: 'File', className: 'file' },
 					{ data: 'status', title: 'Status', searchable: false },
 					{ data: 'file_type', title: 'Type' },
-					{ data: 'detected_at', title: 'Detected' },
+					{
+						data: {
+							_: 'detected_since',
+							sort: "detected_at"
+						},
+						title: 'Detected'
+					},
 					{ data: 'actions', title: 'Actions', orderable: false, searchable: false, className: 'actions' },
+				],
+				order: [
+					[ 3, 'desc' ] /** detected at **/
 				],
 				select: {
 					style: 'multi'

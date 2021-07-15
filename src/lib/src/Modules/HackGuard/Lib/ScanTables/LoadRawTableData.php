@@ -133,11 +133,12 @@ class LoadRawTableData {
 				$data = $item->getRawData();
 				$data[ 'rid' ] = $item->VO->id;
 				$data[ 'file' ] = $item->path_fragment;
-				$data[ 'detected_at' ] = Services::Request()
-												 ->carbon( true )
-												 ->setTimestamp( $item->VO->created_at )
-												 ->diffForHumans();
-				
+				$data[ 'detected_at' ] = $item->VO->created_at;
+				$data[ 'detected_since' ] = Services::Request()
+													->carbon( true )
+													->setTimestamp( $item->VO->created_at )
+													->diffForHumans();
+
 				if ( $item->is_different ) {
 					$data[ 'status_slug' ] = 'modified';
 					$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
