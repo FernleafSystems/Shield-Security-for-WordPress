@@ -227,6 +227,20 @@
 								}
 							},
 							{
+								text: 'De/Select All',
+								name: 'all-select',
+								className: 'select-all',
+								action: function ( e, dt, node, config ) {
+									let total = base.$table.rows().count()
+									if ( base.$table.rows( { selected: true } ).count() < total ) {
+										base.$table.rows().select();
+									}
+									else {
+										base.$table.rows().deselect();
+									}
+								}
+							},
+							{
 								text: 'Ignore Selected',
 								name: 'selected-ignore',
 								className: 'action selected-action ignore',
@@ -243,22 +257,13 @@
 								}
 							},
 							{
-								text: 'Ignore All',
-								name: 'all-ignore',
-								className: 'action ignore-all',
+								text: 'Delete Selected',
+								name: 'selected-repair',
+								className: 'action selected-action repair',
 								action: function ( e, dt, node, config ) {
-									base.$table.rows().select();
-									base.bulkAction.call( base, 'ignore' );
-								}
-							},
-							{
-								text: 'Repair All',
-								name: 'all-repair',
-								className: 'action repair-all',
-								titleAttr: 'Repair All (that can be repaired)',
-								action: function ( e, dt, node, config ) {
-									base.$table.rows().select();
-									base.bulkAction.call( base, 'repair' );
+									if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+										base.bulkAction.call( base, 'delete' );
+									}
 								}
 							}
 						],
@@ -282,6 +287,7 @@
 		base.init();
 	}
 
-	$.icwpWpsfScanTableActions.defaultOptions = {};
+	$.icwpWpsfScanTableActions.defaultOptions = {
+	};
 
 })( jQuery );

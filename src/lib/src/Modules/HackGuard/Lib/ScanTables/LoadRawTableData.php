@@ -86,6 +86,13 @@ class LoadRawTableData {
 						$item->path_fragment
 					);
 
+					$data[ 'line_numbers' ] = implode( ', ', array_map(
+						function ( $line ) {
+							return $line + 1;
+						},
+						$item->file_lines // because lines start at ZERO
+					) );
+					$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
 					$data[ 'status_slug' ] = 'malware';
 					$data[ 'status' ] = __( 'Malware', 'wp-simple-firewall' );
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
@@ -240,15 +247,6 @@ class LoadRawTableData {
 				__( 'Delete', 'wp-simple-firewall' ),
 				$item->VO->id,
 				$con->svgs->raw( 'bootstrap/x-square.svg' )
-			);
-		}
-
-		if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) ) {
-			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Repair', 'wp-simple-firewall' ),
-				$item->VO->id,
-				$con->svgs->raw( 'bootstrap/tools.svg' )
 			);
 		}
 

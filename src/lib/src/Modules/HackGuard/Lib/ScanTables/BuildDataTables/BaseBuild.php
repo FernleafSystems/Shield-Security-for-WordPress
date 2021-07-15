@@ -155,6 +155,24 @@ class BaseBuild {
 				'searchable' => false,
 				'visible'    => true,
 			],
+			[
+				'slug'       => 'line_numbers',
+				'data'       => 'line_numbers',
+				'title'      => __( 'Line Numbers' ),
+				'className'  => 'line_numbers',
+				'orderable'  => false,
+				'searchable' => false,
+				'visible'    => true,
+			],
+			[
+				'slug'       => 'mal_sig',
+				'data'       => 'mal_sig',
+				'title'      => __( 'Pattern Detected' ),
+				'className'  => 'mal_sig',
+				'orderable'  => false,
+				'searchable' => true,
+				'visible'    => true,
+			],
 		];
 	}
 }
