@@ -16,23 +16,23 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repairItem() {
-		/** @var Ufc\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$bSuccess = true;
+	public function repairItem() :bool {
+		/** @var Ufc\ResultItem $item */
+		$item = $this->getScanItem();
+		$success = true;
 
 		$oHashes = Services::CoreFileHashes();
-		if ( $oHashes->isCoreFile( $oItem->path_fragment ) ) {
-			throw new \Exception( sprintf( 'File "%s" is an official WordPress core file.', $oItem->path_fragment ) );
+		if ( $oHashes->isCoreFile( $item->path_fragment ) ) {
+			throw new \Exception( sprintf( 'File "%s" is an official WordPress core file.', $item->path_fragment ) );
 		}
 
-		$oFs = Services::WpFs();
-		if ( $oFs->deleteFile( $oItem->path_full ) ) {
+		$FS = Services::WpFs();
+		if ( $FS->deleteFile( $item->path_full ) ) {
 			clearstatcache();
-			$bSuccess = !$oFs->exists( $oItem->path_full );
+			$success = !$FS->exists( $item->path_full );
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

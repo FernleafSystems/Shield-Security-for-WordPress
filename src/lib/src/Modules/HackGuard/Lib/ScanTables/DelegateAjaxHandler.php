@@ -26,6 +26,7 @@ class DelegateAjaxHandler {
 			case 'delete':
 			case 'ignore':
 			case 'repair':
+			case 'repair-delete':
 				$response = $this->doAction( $action );
 				break;
 
@@ -89,7 +90,7 @@ class DelegateAjaxHandler {
 		return [
 			'success'      => $success,
 			'page_reload'  => false,
-			'table_reload' => in_array( $action, [ 'ignore', 'repair', 'delete' ] ),
+			'table_reload' => in_array( $action, [ 'ignore', 'repair', 'delete', 'repair-delete' ] ),
 			'message'      => $msg,
 		];
 	}
@@ -125,7 +126,7 @@ class DelegateAjaxHandler {
 
 		return [
 			'success' => true,
-			'vars'    =>  ( new RetrieveFileContents() )
+			'vars'    => ( new RetrieveFileContents() )
 				->setMod( $this->getMod() )
 				->retrieve( (int)$rid ),
 		];

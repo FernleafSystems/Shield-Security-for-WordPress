@@ -37,7 +37,7 @@ abstract class BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	abstract public function repairItem();
+	abstract public function repairItem() :bool;
 
 	/**
 	 * @return bool

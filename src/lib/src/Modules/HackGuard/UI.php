@@ -19,6 +19,10 @@ class UI extends BaseShield\UI {
 			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
 		}
 
+		foreach ( $opts->getScanSlugs() as $scan ) {
+			$mod->getScanCon( $scan )->cleanStalesResults();
+		}
+
 		$sectionBuilderPlugins = ( new Render\ScanTables\SectionPlugins() )->setMod( $this->getMod() );
 		$sectionBuilderThemes = ( new Render\ScanTables\SectionThemes() )->setMod( $this->getMod() );
 		$sectionBuilderWordpress = ( new Render\ScanTables\SectionWordpress() )->setMod( $this->getMod() );

@@ -19,19 +19,19 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		switch ( $action ) {
 
 			case 'asset_accept':
-				$bSuccess = $this->assetAccept();
+				$success = $this->assetAccept();
 				break;
 
 			case 'asset_reinstall':
-				$bSuccess = $this->assetReinstall();
+				$success = $this->assetReinstall();
 				break;
 
 			default:
-				$bSuccess = parent::process( $action );
+				$success = parent::process( $action );
 				break;
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
@@ -48,7 +48,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		foreach ( $results->getItemsForSlug( $item->slug ) as $item ) {
 			$tmpHandler = clone $this;
 			$tmpHandler->setScanItem( $item )
-						->ignore();
+					   ->ignore();
 		}
 
 		( new Snapshots\StoreAction\Build() )
@@ -93,6 +93,29 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 			}
 			catch ( \Exception $e ) {
 			}
+		}
+
+		return $success;
+	}
+
+	/**
+	 * Repair PTG item if it's repairable, or it's unrecognised (i.e. delete)
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function repairDelete() :bool {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+		$repairer = $this->getRepairer();
+
+		if ( $repairer->canRepair() ) {
+			$success = $repairer->repairItem();
+		}
+		elseif ( $item->is_unrecognised ) {
+			$success = $repairer->setAllowDelete( true )->repairItem();
+		}
+		else {
+			$success = false;
 		}
 
 		return $success;

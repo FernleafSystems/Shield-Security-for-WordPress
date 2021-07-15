@@ -32,9 +32,12 @@ abstract class ItemActionHandler {
 				$success = $this->repair();
 				break;
 
+			case 'repair-delete':
+				$success = $this->repairDelete();
+				break;
+
 			default:
 				throw new \Exception( 'Unsupported Scan Item Action' );
-				break;
 		}
 		return $success;
 	}
@@ -55,9 +58,9 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function ignore() {
-		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $this->getEntryVO();
-		if ( empty( $oEntry ) ) {
+		/** @var Scanner\EntryVO $entry */
+		$entry = $this->getEntryVO();
+		if ( empty( $entry ) ) {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
@@ -65,11 +68,19 @@ abstract class ItemActionHandler {
 		$mod = $this->getMod();
 		/** @var Scanner\Update $updater */
 		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		if ( !$updater->setIgnored( $oEntry ) ) {
+		if ( !$updater->setIgnored( $entry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
 
 		return true;
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function repairDelete() :bool {
+		throw new \Exception( 'Certain items cannot be automatically bulk repaired / deleted.' );
 	}
 
 	/**

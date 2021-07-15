@@ -15,10 +15,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 
 	use Shield\Modules\ModConsumer;
 
-	/**
-	 * @return bool
-	 */
-	public function repairItem() {
+	public function repairItem() :bool {
 		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 		/** @var Shield\Modules\HackGuard\Options $opts */
@@ -196,19 +193,19 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	}
 
 	/**
-	 * @param ResultItem $oItem
+	 * @param ResultItem $item
 	 * @return bool
 	 */
-	private function repairItemInTheme( $oItem ) {
+	private function repairItemInTheme( $item ) :bool {
 		$success = false;
 
 		$oFiles = new WpOrg\Theme\Files();
 		try {
-			if ( $oFiles->isValidFileFromTheme( $oItem->path_full ) ) {
-				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
+			if ( $oFiles->isValidFileFromTheme( $item->path_full ) ) {
+				$success = $oFiles->replaceFileFromVcs( $item->path_full );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+				$success = (bool)Services\Services::WpFs()->deleteFile( $item->path_full );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {

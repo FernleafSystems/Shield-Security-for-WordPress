@@ -156,7 +156,7 @@
 			return false;
 		};
 
-		base.sendReq = function ( reqData ) {
+		base.sendReq = function ( reqData, forceTableReload = false ) {
 			iCWP_WPSF_BodyOverlay.show();
 
 			$.post( ajaxurl, reqData,
@@ -165,7 +165,6 @@
 					if ( response.success ) {
 						iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
 						if ( response.data.table_reload ) {
-							base.tableReload();
 						}
 						else {
 							iCWP_WPSF_Toaster.showMessage( response.data.message, response.success );
@@ -177,6 +176,10 @@
 							msg = response.data.message;
 						}
 						alert( msg );
+					}
+
+					if ( response.data.table_reload ) {
+						base.tableReload();
 					}
 				}
 			).always( function () {
@@ -245,7 +248,9 @@
 								name: 'selected-ignore',
 								className: 'action selected-action ignore',
 								action: function ( e, dt, node, config ) {
-									base.bulkAction.call( base, 'ignore' );
+									if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+										base.bulkAction.call( base, 'ignore' );
+									}
 								}
 							},
 							{
@@ -253,8 +258,8 @@
 								name: 'selected-repair',
 								className: 'action selected-action repair',
 								action: function ( e, dt, node, config ) {
-									if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
-										base.bulkAction.call( base, 'repair' );
+									if ( confirm( icwp_wpsf_vars_insights.strings.absolutely_sure ) ) {
+										base.bulkAction.call( base, 'repair-delete' );
 									}
 								}
 							}
@@ -279,7 +284,6 @@
 		base.init();
 	}
 
-	$.icwpWpsfScanTableActions.defaultOptions = {
-	};
+	$.icwpWpsfScanTableActions.defaultOptions = {};
 
 })( jQuery );

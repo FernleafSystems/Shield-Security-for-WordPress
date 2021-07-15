@@ -17,19 +17,19 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repairItem() {
+	public function repairItem() :bool {
 		if ( !$this->canRepair() ) {
 			throw new \Exception( 'An update is not currently available.' );
 		}
 
-		/** @var Wpv\ResultItem $oItem */
-		$oItem = $this->getScanItem();
+		/** @var Wpv\ResultItem $item */
+		$item = $this->getScanItem();
 
-		$aData = ( $oItem->context == 'plugins' ) ?
-			Services::WpPlugins()->update( $oItem->slug )
-			: Services::WpThemes()->update( $oItem->slug );
+		$data = ( $item->context == 'plugins' ) ?
+			Services::WpPlugins()->update( $item->slug )
+			: Services::WpThemes()->update( $item->slug );
 
-		return $aData[ 'successful' ];
+		return (bool)$data[ 'successful' ];
 	}
 
 	/**
