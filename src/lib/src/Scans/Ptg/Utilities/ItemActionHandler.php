@@ -45,9 +45,9 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		/** @var Ptg\ResultItem $item */
 		$item = $this->getScanItem();
 
-		foreach ( $results->getItemsForSlug( $item->slug ) as $oItem ) {
+		foreach ( $results->getItemsForSlug( $item->slug ) as $item ) {
 			$tmpHandler = clone $this;
-			$tmpHandler->setScanItem( $oItem )
+			$tmpHandler->setScanItem( $item )
 						->ignore();
 		}
 

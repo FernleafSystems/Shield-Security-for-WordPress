@@ -95,7 +95,7 @@ abstract class ItemActionHandler {
 			/** @var Scanner\Delete $deleter */
 			$deleter = $mod->getDbHandler_ScanResults()->getQueryDeleter();
 			$deleter->filterByHash( $item->hash )
-					->filterByScan( $item->scan )
+					->filterByScan( $item->VO->scan )
 					->query();
 		}
 

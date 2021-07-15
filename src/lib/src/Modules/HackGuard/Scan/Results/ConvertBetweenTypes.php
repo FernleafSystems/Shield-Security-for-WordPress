@@ -43,12 +43,11 @@ class ConvertBetweenTypes {
 	 * @param Databases\Scanner\EntryVO $VO
 	 * @return Scans\Base\ResultItem
 	 */
-	public function convertVoToResultItem( $VO ) {
+	public function convertVoToResultItem( Databases\Scanner\EntryVO $VO ) {
 		$item = $this->getScanController()
 					 ->getNewResultItem()
 					 ->applyFromArray( $VO->meta );
-		$item->record_id = $VO->id;
-		$item->scan = $VO->scan;
+		$item->VO = $VO;
 		return $item;
 	}
 

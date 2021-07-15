@@ -9,21 +9,21 @@ trait ScanItemConsumer {
 	/**
 	 * @var ResultItem
 	 */
-	private $oScanItem;
+	private $scanItem;
 
 	/**
 	 * @return ResultItem|mixed
 	 */
 	public function getScanItem() {
-		return $this->oScanItem;
+		return $this->scanItem;
 	}
 
 	/**
-	 * @param ResultItem|mixed $oItem
+	 * @param ResultItem|mixed $item
 	 * @return $this
 	 */
-	public function setScanItem( $oItem ) {
-		$this->oScanItem = $oItem;
+	public function setScanItem( $item ) {
+		$this->scanItem = $item;
 		return $this;
 	}
 }

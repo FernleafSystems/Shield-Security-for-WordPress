@@ -75,13 +75,17 @@ class LoadRawTableData {
 				function ( $item ) {
 					/** @var Scans\Wcf\ResultItem|Scans\Ufc\ResultItem $item */
 					$data = $item->getRawData();
-					$data[ 'rid' ] = $item->record_id;
+					$data[ 'rid' ] = $item->VO->id;
 					$data[ 'file' ] = $item->path_fragment;
+					$data[ 'detected_at' ] = Services::Request()
+													 ->carbon( true )
+													 ->setTimestamp( $item->VO->created_at )
+													 ->diffForHumans();
 
 					if ( !$item->is_missing ) {
 						$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 							__( 'View File Contents', 'wp-simple-firewall' ),
-							$item->record_id,
+							$item->VO->id,
 							$item->path_fragment
 						);
 					}
@@ -127,8 +131,13 @@ class LoadRawTableData {
 			function ( $item ) {
 
 				$data = $item->getRawData();
-				$data[ 'rid' ] = $item->record_id;
+				$data[ 'rid' ] = $item->VO->id;
 				$data[ 'file' ] = $item->path_fragment;
+				$data[ 'detected_at' ] = Services::Request()
+												 ->carbon( true )
+												 ->setTimestamp( $item->VO->created_at )
+												 ->diffForHumans();
+				
 				if ( $item->is_different ) {
 					$data[ 'status_slug' ] = 'modified';
 					$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
@@ -145,7 +154,7 @@ class LoadRawTableData {
 				if ( !$item->is_missing ) {
 					$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 						__( 'View File Contents', 'wp-simple-firewall' ),
-						$item->record_id,
+						$item->VO->id,
 						$item->path_fragment
 					);
 				}
@@ -185,7 +194,7 @@ class LoadRawTableData {
 				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Repair', 'wp-simple-firewall' ),
-					$item->record_id,
+					$item->VO->id,
 					$con->svgs->raw( 'bootstrap/tools.svg' )
 				);
 				break;
@@ -194,7 +203,7 @@ class LoadRawTableData {
 				$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Delete', 'wp-simple-firewall' ),
-					$item->record_id,
+					$item->VO->id,
 					$con->svgs->raw( 'bootstrap/x-square.svg' )
 				);
 				break;
@@ -207,7 +216,7 @@ class LoadRawTableData {
 			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
-				$mod->getScanCon( $item->scan )->createFileDownloadLink( $item->record_id ),
+				$mod->getScanCon( $item->VO->scan )->createFileDownloadLink( $item->VO->id ),
 				$con->svgs->raw( 'bootstrap/download.svg' )
 			);
 		}
@@ -215,7 +224,7 @@ class LoadRawTableData {
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
 			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
-			$item->record_id,
+			$item->VO->id,
 			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
 		);
 

@@ -102,7 +102,7 @@
 							jQuery( '.modal-title', $codeModal ).html( response.data.vars.path );
 							jQuery( '.modal-body', $codeModal ).html( response.data.vars.contents );
 							$codeModal.modal( 'show' );
-							$codeModal[0].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
+							$codeModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
 								hljs.highlightElement( el );
 							} );
 						}
@@ -218,6 +218,7 @@
 					{ data: 'file_as_download', title: 'File', className: 'file' },
 					{ data: 'status', title: 'Status', searchable: false },
 					{ data: 'file_type', title: 'Type' },
+					{ data: 'detected_at', title: 'Detected' },
 					{ data: 'actions', title: 'Actions', orderable: false, searchable: false, className: 'actions' },
 				],
 				select: {
