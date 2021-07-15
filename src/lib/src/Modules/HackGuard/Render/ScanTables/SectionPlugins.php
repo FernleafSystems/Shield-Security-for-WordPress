@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -43,8 +44,11 @@ class SectionPlugins extends SectionPluginThemesBase {
 							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
-							   'count_items' => count( $problems ),
-							   'plugins'     => array_values( $problems )
+							   'count_items'     => count( $problems ),
+							   'plugins'         => array_values( $problems ),
+							   'datatables_init' => ( new BuildForPluginTheme() )
+								   ->setMod( $this->getMod() )
+								   ->build()
 						   ]
 					   ] );
 	}
@@ -91,7 +95,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 				'is_wporg'        => $plugin->isWpOrg(),
 			],
 			'vars'  => [
-				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 ),
+				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]

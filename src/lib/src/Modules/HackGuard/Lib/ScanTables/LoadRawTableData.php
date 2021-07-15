@@ -80,7 +80,7 @@ class LoadRawTableData {
 														->setTimestamp( $item->VO->created_at )
 														->diffForHumans();
 
-					$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+					$data[ 'file_as_href' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 						__( 'View File Contents', 'wp-simple-firewall' ),
 						$item->VO->id,
 						$item->path_fragment
@@ -129,14 +129,14 @@ class LoadRawTableData {
 														->diffForHumans();
 
 					if ( !$item->is_missing ) {
-						$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+						$data[ 'file_as_href' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 							__( 'View File Contents', 'wp-simple-firewall' ),
 							$item->VO->id,
 							$item->path_fragment
 						);
 					}
 					else {
-						$data[ 'file_as_download' ] = $item->path_fragment;
+						$data[ 'file_as_href' ] = $item->path_fragment;
 					}
 
 					if ( $item->is_checksumfail ) {
@@ -199,14 +199,14 @@ class LoadRawTableData {
 				}
 
 				if ( !$item->is_missing ) {
-					$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+					$data[ 'file_as_href' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 						__( 'View File Contents', 'wp-simple-firewall' ),
 						$item->VO->id,
 						$item->path_fragment
 					);
 				}
 				else {
-					$data[ 'file_as_download' ] = $item->path_fragment;
+					$data[ 'file_as_href' ] = $item->path_fragment;
 				}
 
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );

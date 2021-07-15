@@ -191,98 +191,82 @@
 
 		base.setupDatatable = function () {
 
-			this.$table = this.$el.DataTable( {
-				ajax: function ( data, callback, settings ) {
-					let reqData = base.getBaseAjaxData();
-					// console.log( reqData );
-					// console.log( base.options );
-					reqData.sub_action = 'retrieve_table_data';
-					reqData.type = base.options.type;
-					reqData.file = base.options.file;
-					$.post( ajaxurl, reqData, function ( response ) {
-						if ( response.success ) {
-							callback( response.data.vars );
-						}
-						else {
-							let msg = 'Communications error with site.';
-							if ( response.data.message !== undefined ) {
-								msg = response.data.message;
-							}
-							alert( msg );
-						}
-					} );
-				},
-				deferRender: true,
-				columns: [
-					{ data: 'rid', title: 'ID', visible: false, searchable: false },
-					{ data: 'file_as_download', title: 'File', className: 'file' },
-					{ data: 'status', title: 'Status', searchable: false },
-					{ data: 'file_type', title: 'Type' },
+			this.$table = this.$el.DataTable(
+				$.extend( base.options.datatables_init,
 					{
-						data: {
-							_: 'detected_since',
-							sort: "detected_at"
+						ajax: function ( data, callback, settings ) {
+							let reqData = base.getBaseAjaxData();
+							reqData.sub_action = 'retrieve_table_data';
+							reqData.type = base.options.type;
+							reqData.file = base.options.file;
+							$.post( ajaxurl, reqData, function ( response ) {
+								if ( response.success ) {
+									callback( response.data.vars );
+								}
+								else {
+									let msg = 'Communications error with site.';
+									if ( response.data.message !== undefined ) {
+										msg = response.data.message;
+									}
+									alert( msg );
+								}
+							} );
 						},
-						title: 'Detected'
-					},
-					{ data: 'actions', title: 'Actions', orderable: false, searchable: false, className: 'actions' },
-				],
-				order: [
-					[ 3, 'desc' ] /** detected at **/
-				],
-				select: {
-					style: 'multi'
-				},
-				dom: 'Bfrtip',
-				buttons: [
-					{
-						text: 'Reload',
-						name: 'table-reload',
-						className: 'action table-refresh',
-						action: function ( e, dt, node, config ) {
-							base.tableReload.call( base );
-						}
-					},
-					{
-						text: 'Ignore Selected',
-						name: 'selected-ignore',
-						className: 'action selected-action ignore',
-						action: function ( e, dt, node, config ) {
-							base.bulkAction.call( base, 'ignore' );
-						}
-					},
-					{
-						text: 'Repair Selected',
-						name: 'selected-repair',
-						className: 'action selected-action repair',
-						action: function ( e, dt, node, config ) {
-							base.bulkAction.call( base, 'repair' );
-						}
-					},
-					{
-						text: 'Ignore All',
-						name: 'all-ignore',
-						className: 'action ignore-all',
-						action: function ( e, dt, node, config ) {
-							base.$table.rows().select();
-							base.bulkAction.call( base, 'ignore' );
-						}
-					},
-					{
-						text: 'Repair All',
-						name: 'all-repair',
-						className: 'action repair-all',
-						titleAttr: 'Repair All (that can be repaired)',
-						action: function ( e, dt, node, config ) {
-							base.$table.rows().select();
-							base.bulkAction.call( base, 'repair' );
+						deferRender: true,
+						select: {
+							style: 'multi'
+						},
+						dom: 'Bfrtip',
+						buttons: [
+							{
+								text: 'Reload',
+								name: 'table-reload',
+								className: 'action table-refresh',
+								action: function ( e, dt, node, config ) {
+									base.tableReload.call( base );
+								}
+							},
+							{
+								text: 'Ignore Selected',
+								name: 'selected-ignore',
+								className: 'action selected-action ignore',
+								action: function ( e, dt, node, config ) {
+									base.bulkAction.call( base, 'ignore' );
+								}
+							},
+							{
+								text: 'Repair Selected',
+								name: 'selected-repair',
+								className: 'action selected-action repair',
+								action: function ( e, dt, node, config ) {
+									base.bulkAction.call( base, 'repair' );
+								}
+							},
+							{
+								text: 'Ignore All',
+								name: 'all-ignore',
+								className: 'action ignore-all',
+								action: function ( e, dt, node, config ) {
+									base.$table.rows().select();
+									base.bulkAction.call( base, 'ignore' );
+								}
+							},
+							{
+								text: 'Repair All',
+								name: 'all-repair',
+								className: 'action repair-all',
+								titleAttr: 'Repair All (that can be repaired)',
+								action: function ( e, dt, node, config ) {
+									base.$table.rows().select();
+									base.bulkAction.call( base, 'repair' );
+								}
+							}
+						],
+						language: {
+							emptyTable: "There are no items to display, or they've been set to be ignored."
 						}
 					}
-				],
-				language: {
-					emptyTable: "There are no items to display, or they've been set to be ignored."
-				}
-			} );
+				) );
 
 			$( '#ScanResultsPlugins a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( e ) {
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();

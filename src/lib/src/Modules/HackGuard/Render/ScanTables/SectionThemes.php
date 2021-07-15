@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
@@ -46,6 +47,9 @@ class SectionThemes extends SectionPluginThemesBase {
 						   'vars'    => [
 							   'count_items' => count( $problems ),
 							   'themes'      => array_values( $problems ),
+							   'datatables_init' => ( new BuildForPluginTheme() )
+								   ->setMod( $this->getMod() )
+								   ->build()
 						   ]
 					   ] );
 	}
@@ -92,7 +96,7 @@ class SectionThemes extends SectionPluginThemesBase {
 				'is_wporg'        => $theme->isWpOrg(),
 			],
 			'vars'  => [
-				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 ),
+				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]

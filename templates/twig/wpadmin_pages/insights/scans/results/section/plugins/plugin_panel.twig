@@ -65,7 +65,8 @@
 							'file': '{{ plugin.info.file }}',
 							'ajax': {
 								'scantable_action':{{ ajax.scantable_action|raw }},
-							}
+							},
+							'datatables_init': {{ vars.datatables_init|raw }}
 						}
 					);
 				} );

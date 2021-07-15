@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForWordpress;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -25,8 +26,11 @@ class SectionWordpress extends SectionBase {
 							   'files_found' => __( "Previous scans detected 1 or more modified, missing or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
-							   'count_items' => $wpData[ 'vars' ][ 'count_items' ],
-							   'wordpress'   => $wpData
+							   'count_items'     => $wpData[ 'vars' ][ 'count_items' ],
+							   'wordpress'       => $wpData,
+							   'datatables_init' => ( new BuildForWordpress() )
+								   ->setMod( $this->getMod() )
+								   ->build()
 						   ]
 					   ] );
 	}
@@ -50,7 +54,7 @@ class SectionWordpress extends SectionBase {
 				'is_vulnerable'  => false,
 			],
 			'vars'  => [
-				'count_items' => count( $coreFilesData ),
+				'count_items' => count( $coreFilesData )
 			]
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'has_core_files' ]

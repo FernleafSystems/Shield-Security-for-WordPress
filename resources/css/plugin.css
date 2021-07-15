@@ -1730,7 +1730,6 @@ body.folded #FooterBannerGoPro {
 	white-space: nowrap;
 }
 #ScanResultsTabs table td.file {
-	word-break: break-word;
 }
 #ScanResultsTabs table button.btn.action {
 	padding: 3px 6px;
