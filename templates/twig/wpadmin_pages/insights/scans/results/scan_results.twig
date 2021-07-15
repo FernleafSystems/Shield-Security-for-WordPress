@@ -1,7 +1,7 @@
 <ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-wordpress-tab" data-toggle="tab" href="#h-tabs-wordpress"
+		<a class="nav-link active" id="h-tabs-wordpress-tab" data-toggle="tab" href="#h-tabs-wordpress"
 		   role="tab" aria-controls="h-tabs-wordpress">
 			WordPress
 			{% if vars.sections.wordpress.count > 0 %}
@@ -37,12 +37,12 @@
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
-		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
-			{{ aggregate.strings.title }}
-			{% if aggregate.count > 0 %}
-				<span class="badge badge-danger">{{ aggregate.count }}</span>
-					{% else %}
+		<a class="nav-link" id="h-tabs-malware-tab" data-toggle="tab" href="#h-tabs-malware"
+		   role="tab" aria-controls="h-tabs-malware">
+			Malware
+			{% if vars.sections.malware.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.malware.count }}</span>
+			{% else %}
 				<span class="badge badge-success">&check;</span>
 			{% endif %}
 		</a>
@@ -85,13 +85,7 @@
 
 <div class="tab-content mb-5" id="ScanResultsTabsContent">
 
-	{% set scan = aggregate %}
-	<div class="tab-pane show active" id="h-tabs-aggregate" role="tabpanel"
-		 aria-labelledby="h-tabs-aggregate-tab">
-		{% include '/wpadmin_pages/insights/scans/results/results/aggregate.twig' %}
-	</div>
-
-	<div class="tab-pane" id="h-tabs-wordpress" role="tabpanel"
+	<div class="tab-pane show active" id="h-tabs-wordpress" role="tabpanel"
 		 aria-labelledby="h-tabs-wordpress-tab">
 		{{ content.section.wordpress|raw }}
 	</div>
@@ -106,6 +100,11 @@
 		{{ content.section.themes|raw }}
 	</div>
 
+	<div class="tab-pane" id="h-tabs-malware" role="tabpanel"
+		 aria-labelledby="h-tabs-malware-tab">
+		{{ content.section.malware|raw }}
+	</div>
+
 	{% for scankey,scanvars in scans %}
 		{% if scanvars.flags.show_table %}
 			<div class="tab-pane" id="h-tabs-{{ scankey }}" role="tabpanel"
@@ -117,7 +116,7 @@
 	{% endfor %}
 
 	<div class="tab-pane show" id="h-tabs-file_locker" role="tabpanel"
-		 aria-labelledby="h-tabs-aggregate-tab">
+		 aria-labelledby="h-tabs-file_locker-tab">
 		{% set scan = file_locker %}
 		{% include '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig' %}
 	</div>

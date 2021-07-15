@@ -22,6 +22,7 @@ class UI extends BaseShield\UI {
 		$sectionBuilderPlugins = ( new Render\ScanTables\SectionPlugins() )->setMod( $this->getMod() );
 		$sectionBuilderThemes = ( new Render\ScanTables\SectionThemes() )->setMod( $this->getMod() );
 		$sectionBuilderWordpress = ( new Render\ScanTables\SectionWordpress() )->setMod( $this->getMod() );
+		$sectionBuilderMalware = ( new Render\ScanTables\SectionMalware() )->setMod( $this->getMod() );
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
@@ -86,6 +87,9 @@ class UI extends BaseShield\UI {
 					'wordpress' => [
 						'count' => $sectionBuilderWordpress->getRenderData()[ 'vars' ][ 'count_items' ]
 					],
+					'malware' => [
+						'count' => $sectionBuilderMalware->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
 				]
 			],
 			'hrefs'        => [
@@ -99,26 +103,10 @@ class UI extends BaseShield\UI {
 					'plugins'   => $sectionBuilderPlugins->render(),
 					'themes'    => $sectionBuilderThemes->render(),
 					'wordpress' => $sectionBuilderWordpress->render(),
+					'malware'   => $sectionBuilderMalware->render(),
 				]
 			],
 			'scan_results' => [
-			],
-			'aggregate'    => [
-				'flags'   => [
-					'has_items' => true,
-				],
-				'hrefs'   => [
-					'options' => $mod->getUrl_DirectLinkToSection( 'section_scan_options' )
-				],
-				'vars'    => [
-				],
-				'strings' => [
-					'title'    => __( 'Malware', 'wp-simple-firewall' ),
-					'subtitle' => __( "Results of malware scans", 'wp-simple-firewall' )
-				],
-				'count'   => $selector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
-									  ->filterByNotIgnored()
-									  ->count()
 			],
 			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [

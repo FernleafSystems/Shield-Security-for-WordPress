@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Mal,
 	Ptg,
 	Ufc,
 	Wcf
@@ -52,11 +53,55 @@ class LoadRawTableData {
 				$data = $this->loadForWordPress();
 				break;
 
+			case 'malware':
+				$data = $this->loadForMalware();
+				break;
+
 			default:
 				throw new \Exception( '[LoadRawTableData] Unsupported type: '.$type );
 		}
 
 		return $data;
+	}
+
+	public function loadForMalware() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		try {
+			$files = array_map(
+				function ( $item ) {
+					/** @var Scans\Mal\ResultItem $item */
+					$data = $item->getRawData();
+					$data[ 'rid' ] = $item->VO->id;
+					$data[ 'file' ] = $item->path_fragment;
+					$data[ 'detected_at' ] = $item->VO->created_at;
+					$data[ 'detected_since' ] = Services::Request()
+														->carbon( true )
+														->setTimestamp( $item->VO->created_at )
+														->diffForHumans();
+
+					$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+						__( 'View File Contents', 'wp-simple-firewall' ),
+						$item->VO->id,
+						$item->path_fragment
+					);
+
+					$data[ 'status_slug' ] = 'malware';
+					$data[ 'status' ] = __( 'Malware', 'wp-simple-firewall' );
+					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
+					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
+					return $data;
+				},
+				array_merge(
+					$mod->getScanCon( Mal::SCAN_SLUG )->getAllResults()->getItems()
+				)
+			);
+		}
+		catch ( \Exception $e ) {
+			$files = [];
+		}
+
+		return $files;
 	}
 
 	public function loadForPlugin( WpPluginVo $plugin ) :array {
@@ -71,16 +116,17 @@ class LoadRawTableData {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
-			$wcfFiles = array_map(
+			$files = array_map(
 				function ( $item ) {
 					/** @var Scans\Wcf\ResultItem|Scans\Ufc\ResultItem $item */
 					$data = $item->getRawData();
 					$data[ 'rid' ] = $item->VO->id;
 					$data[ 'file' ] = $item->path_fragment;
-					$data[ 'detected_at' ] = Services::Request()
-													 ->carbon( true )
-													 ->setTimestamp( $item->VO->created_at )
-													 ->diffForHumans();
+					$data[ 'detected_at' ] = $item->VO->created_at;
+					$data[ 'detected_since' ] = Services::Request()
+														->carbon( true )
+														->setTimestamp( $item->VO->created_at )
+														->diffForHumans();
 
 					if ( !$item->is_missing ) {
 						$data[ 'file_as_download' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
@@ -116,10 +162,10 @@ class LoadRawTableData {
 			);
 		}
 		catch ( \Exception $e ) {
-			$wcfFiles = [];
+			$files = [];
 		}
 
-		return $wcfFiles;
+		return $files;
 	}
 
 	/**
@@ -188,32 +234,34 @@ class LoadRawTableData {
 			'action',
 		];
 
-		switch ( $status ) {
-
-			case 'missing':
-			case 'modified':
-				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-					implode( ' ', $defaultButtonClasses ),
-					__( 'Repair', 'wp-simple-firewall' ),
-					$item->VO->id,
-					$con->svgs->raw( 'bootstrap/tools.svg' )
-				);
-				break;
-
-			case 'unrecognised':
-				$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
-					implode( ' ', $defaultButtonClasses ),
-					__( 'Delete', 'wp-simple-firewall' ),
-					$item->VO->id,
-					$con->svgs->raw( 'bootstrap/x-square.svg' )
-				);
-				break;
-
-			case 'different':
-				break;
+		if ( in_array( $status, [ 'unrecognised', 'malware' ] ) ) {
+			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
+				__( 'Delete', 'wp-simple-firewall' ),
+				$item->VO->id,
+				$con->svgs->raw( 'bootstrap/x-square.svg' )
+			);
 		}
 
-		if ( in_array( $status, [ 'modified', 'unrecognised' ] ) ) {
+		if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) ) {
+			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
+				__( 'Repair', 'wp-simple-firewall' ),
+				$item->VO->id,
+				$con->svgs->raw( 'bootstrap/tools.svg' )
+			);
+		}
+
+		if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) ) {
+			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
+				__( 'Repair', 'wp-simple-firewall' ),
+				$item->VO->id,
+				$con->svgs->raw( 'bootstrap/tools.svg' )
+			);
+		}
+
+		if ( in_array( $status, [ 'modified', 'unrecognised', 'malware' ] ) ) {
 			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
