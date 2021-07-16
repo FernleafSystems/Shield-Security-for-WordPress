@@ -21,6 +21,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private $assetStore;
 
+	private $csHashes;
+
 	/**
 	 * @param string $fullPath - in this case it's relative to ABSPATH
 	 * @return ResultItem|null
@@ -111,26 +113,30 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$item->is_different = true;
 			}
 		}
+
 		return $item;
 	}
 
 	/**
+	 * We "cache" the hashes temporarily in this current load
 	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @return mixed|string[]|null
+	 * @return string[][]
 	 */
-	private function loadCsHashes( $asset ) {
-		$uniqueId = md5( $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet );
-		$tmpFileHandler = ( new Shield\Utilities\Tool\TmpFileStore() )
-			->setCon( $this->getCon() );
-		$tmpFileHandler->execute();
+	private function loadCsHashes( $asset ) :array {
 
-		$hashes = $tmpFileHandler->load( $uniqueId );
-		if ( !is_array( $hashes ) ) {
+		if ( is_array( $this->csHashes ) && $asset->unique_id !== $this->csHashes[ 0 ] ) {
+			unset( $this->csHashes );
+		}
+
+		if ( empty( $this->csHashes ) ) {
+
 			$hashes = ( $asset->asset_type === 'plugin' ? new Query\Plugin() : new Query\Theme() )
 				->getHashesFromVO( $asset );
-			$tmpFileHandler->store( $uniqueId, is_array( $hashes ) ? $hashes : [] );
+
+			$this->csHashes = [ $asset->unique_id, is_array( $hashes ) ? $hashes : [] ];
 		}
-		return $hashes;
+
+		return $this->csHashes[ 1 ];
 	}
 
 	/**
