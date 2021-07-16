@@ -38,7 +38,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				throw new \Exception( sprintf( 'Could not load asset for: %s', $fullPath ) );
 			}
 
-			$item = $this->scanWithStore( $fullPath, $asset );
+			try {
+				$item = $this->scanWithCsHashes( $fullPath, $asset );
+			}
+			catch ( \Exception $eScan ) {
+				error_log( $eScan->getMessage() );
+				$item = $this->scanWithStore( $fullPath, $asset );
+			}
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
@@ -80,6 +86,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function scanWithCsHashes( string $fullPath, $asset ) {
 		$assetHashes = $this->loadCsHashes( $asset );
+		if ( empty( $assetHashes ) ) {
+			throw new \Exception( 'Could not retrieve CS Hashes' );
+		}
 		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
 
 		$item = null;
@@ -106,30 +115,23 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		return $item;
 	}
 
-	private function loadCsHashes( $asset ) {
-		$uniqueId = md5( ( $asset instanceof Assets\WpPluginVo ) ? $asset->file : $asset->stylesheet );
-		$tmpFileHandler = ( new Shield\Utilities\Tool\TmpFileStore() )
-			->setCon( $this->getCon() );
-
-		$hashes = $tmpFileHandler->load( $uniqueId );
-		if ( empty( $hashes ) ) {
-			$hashesResponse = ( $asset instanceof Assets\WpPluginVo ? new Query\Plugin() : new Query\Theme() )
-				->getHashesFromVO( $asset );
-			if ( !empty( $hashesResponse[ 'hashes' ] ) ) {
-				$hashes = [ 'hashes' ];
-				$tmpFileHandler->store( $uniqueId, $hashes );
-			}
-		}
-		return $hashes;
-	}
-
 	/**
 	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @return string[]
-	 * @throws \Exception
+	 * @return mixed|string[]|null
 	 */
-	private function getCSHashes( $asset ) {
-		return $this->getStore( $asset )->getSnapData();
+	private function loadCsHashes( $asset ) {
+		$uniqueId = md5( $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet );
+		$tmpFileHandler = ( new Shield\Utilities\Tool\TmpFileStore() )
+			->setCon( $this->getCon() );
+		$tmpFileHandler->execute();
+
+		$hashes = $tmpFileHandler->load( $uniqueId );
+		if ( !is_array( $hashes ) ) {
+			$hashes = ( $asset->asset_type === 'plugin' ? new Query\Plugin() : new Query\Theme() )
+				->getHashesFromVO( $asset );
+			$tmpFileHandler->store( $uniqueId, is_array( $hashes ) ? $hashes : [] );
+		}
+		return $hashes;
 	}
 
 	/**

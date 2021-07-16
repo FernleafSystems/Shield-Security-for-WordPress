@@ -31,9 +31,9 @@ class SectionThemes extends SectionPluginThemesBase {
 				unset( $items[ $key ] );
 				$problems[] = $item;
 			}
-			elseif ( $items[ 'flags' ][ 'has_update' ] ) {
+			elseif ( $item[ 'flags' ][ 'has_update' ] ) {
 				unset( $items[ $key ] );
-				$updates[] = $items;
+				$updates[] = $item;
 			}
 			elseif ( $item[ 'info' ][ 'active' ] ) {
 				unset( $items[ $key ] );

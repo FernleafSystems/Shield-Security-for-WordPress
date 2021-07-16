@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class BuildFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
- */
 class BuildFileMap {
 
 	use ScanActionConsumer;
@@ -18,19 +14,19 @@ class BuildFileMap {
 	 * @return string[]
 	 */
 	public function build() {
-		$aFiles = [];
+		$files = [];
 
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
-		$sAbsPath = wp_normalize_path( ABSPATH );
-		foreach ( $this->getScanRoots() as $sScanDir ) {
+		$abspath = wp_normalize_path( ABSPATH );
+		foreach ( $this->getScanRoots() as $dir ) {
 			try {
-				foreach ( StandardDirectoryIterator::create( $sScanDir, 0, $oAction->file_exts ) as $oFsItem ) {
-					/** @var \SplFileInfo $oFsItem */
+				foreach ( StandardDirectoryIterator::create( $dir, 0, $action->file_exts ) as $item ) {
+					/** @var \SplFileInfo $item */
 					try {
-						if ( $oFsItem->getSize() > 0 ) {
-							$aFiles[] = str_replace( $sAbsPath, '', wp_normalize_path( $oFsItem->getPathname() ) );
+						if ( $item->getSize() > 0 ) {
+							$files[] = str_replace( $abspath, '', wp_normalize_path( $item->getPathname() ) );
 						}
 					}
 					catch ( \Exception $e ) {
@@ -40,34 +36,31 @@ class BuildFileMap {
 			catch ( \Exception $e ) {
 				error_log(
 					sprintf( 'Shield file scanner (%s) attempted to read directory (%s) but there was error: "%s".',
-						$oAction->scan, $sScanDir, $e->getMessage() )
+						$action->scan, $dir, $e->getMessage() )
 				);
 			}
 		}
 
-		return $aFiles;
+		return $files;
 	}
 
-	/**
-	 * @return string[]
-	 */
-	private function getScanRoots() {
-		$aRoots = [];
+	private function getScanRoots() :array {
+		$roots = [];
 
-		$oWpP = Services::WpPlugins();
-		foreach ( $oWpP->getPluginsAsVo() as $oPlugin ) {
-			if ( $oPlugin->active ) {
-				$aRoots[] = $oPlugin->getInstallDir();
+		$WPP = Services::WpPlugins();
+		foreach ( $WPP->getPluginsAsVo() as $plugin ) {
+			if ( $plugin->active ) {
+				$roots[] = $plugin->getInstallDir();
 			}
 		}
 
-		$oWpT = Services::WpThemes();
-		$oCurrent = $oWpT->getCurrent();
-		$aRoots[] = $oCurrent->get_stylesheet_directory();
-		if ( $oWpT->isActiveThemeAChild() ) {
-			$aRoots[] = $oCurrent->get_template_directory();
+		$WPT = Services::WpThemes();
+		$current = $WPT->getCurrent();
+		$roots[] = $current->get_stylesheet_directory();
+		if ( $WPT->isActiveThemeAChild() ) {
+			$roots[] = $current->get_template_directory();
 		}
 
-		return $aRoots;
+		return $roots;
 	}
 }

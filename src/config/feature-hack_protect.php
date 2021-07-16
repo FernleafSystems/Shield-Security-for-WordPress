@@ -427,6 +427,27 @@
     }
   ],
   "definitions":      {
+    "all_scan_slugs":              [
+      "apc",
+      "mal",
+      "ptg",
+      "wpv",
+      "wcf",
+      "ufc"
+    ],
+    "file_scan_extensions":              [
+      "php",
+      "php5",
+      "php7",
+      "js",
+      "json",
+      "css",
+      "htm",
+      "html",
+      "svg",
+      "twig",
+      "hbs"
+    ],
     "db_classes":                  {
       "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "scanner":    "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
@@ -474,14 +495,6 @@
         "finished_at": "Scan Completed"
       }
     },
-    "all_scan_slugs":              [
-      "apc",
-      "mal",
-      "ptg",
-      "wpv",
-      "wcf",
-      "ufc"
-    ],
     "table_name_filelocker":       "filelocker",
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",

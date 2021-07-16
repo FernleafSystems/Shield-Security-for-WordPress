@@ -2,20 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDir;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TmpFileStore {
 
+	use ExecOnce;
 	use PluginControllerConsumer;
 
 	private static $slugs = [];
 
-	/**
-	 * @throws \Exception
-	 */
-	public function __construct() {
+	protected function run() {
 		if ( $this->getCon()->hasCacheDir() ) {
 			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 				$FS = Services::WpFs();
@@ -34,8 +33,15 @@ class TmpFileStore {
 	 * @return mixed|null
 	 */
 	public function load( string $slug ) {
-		$data = Services::WpFs()->getFileContent( path_join( $this->getTmpDir(), $slug ) );
-		return empty( $data ) ? null : unserialize( $data );
+		$data = null;
+		$tmpFile = path_join( $this->getTmpDir(), $slug );
+		if ( Services::WpFs()->isFile( $tmpFile ) ) {
+			$contents = Services::WpFs()->getFileContent( path_join( $this->getTmpDir(), $slug ) );
+			if ( !empty( $contents ) ) {
+				$data = unserialize( $contents );
+			}
+		}
+		return $data;
 	}
 
 	public function store( string $slug, $data ) {
