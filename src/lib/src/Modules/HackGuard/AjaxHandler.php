@@ -25,7 +25,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				break;
 
 			case 'item_action':
-				$response = $this->ajaxExec_ScanItemAction( $req->post( 'item_action' ), false );
+				$response = $this->ajaxExec_ScanItemAction( $req->post( 'item_action' ) );
 				break;
 
 			case 'bulk_action':
@@ -120,7 +120,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_FileLockerShowDiff() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oFLCon = $mod->getFileLocker();
+		$FLCon = $mod->getFileLocker();
 		$FS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
@@ -169,12 +169,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			if ( !is_numeric( $nRID ) ) {
 				throw new \Exception( 'Not a valid file lock request.' );
 			}
+			$lock = $FLCon->getFileLock( $nRID );
+			if ( !$lock instanceof Databases\FileLocker\EntryVO ) {
+				throw new \Exception( 'Not a valid file lock request.' );
+			}
 
-			$lock = $oFLCon->getFileLock( $nRID );
-			$bDiff = $lock->detected_at > 0;
-			$data[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $lock );
-			$data[ 'flags' ][ 'has_diff' ] = $bDiff;
-			$data[ 'html' ][ 'diff' ] = $bDiff ?
+			$isDifferent = $lock->detected_at > 0;
+			$data[ 'ajax' ] = $FLCon->createFileDownloadLinks( $lock );
+			$data[ 'flags' ][ 'has_diff' ] = $isDifferent;
+			$data[ 'html' ][ 'diff' ] = $isDifferent ?
 				( new FileLocker\Ops\PerformAction() )
 					->setMod( $this->getMod() )
 					->run( $nRID, 'diff' ) : '';
@@ -271,12 +274,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [ 'success' => true ];
 	}
 
-	/**
-	 * @param string $action
-	 * @param bool   $isBulkAction
-	 * @return array
-	 */
-	private function ajaxExec_ScanItemAction( $action, $isBulkAction = false ) :array {
+	private function ajaxExec_ScanItemAction( string $action, bool $isBulkAction = false ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

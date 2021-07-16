@@ -1546,21 +1546,95 @@ body.folded #FooterBannerGoPro {
 #odp-PageHead {
 }
 #apto-PageMainSide {
-	background-color: rgba(85, 178, 87, 0.06);
-	border-color: rgba(85, 178, 87, 0.2);
+	background-color: rgb(230 239 230);
+	border-color: rgb(177 216 178);
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
+	min-width: 150px;
 }
 #NavSideBar a.nav-link:hover {
-	color: black;
 }
 #NavSideBar a.nav-link.active {
 	font-weight: bolder;
 	font-size: 1rem;
 }
+#NavSideBar:hover ul.top-level-nav > .nav-item {
+}
+#NavSideBar ul.top-level-nav > .nav-item:hover {
+}
+#NavSideBar .nav-item {
+}
+#NavSideBar .nav-item .nav-icon > svg {
+	width: 24px;
+	height: 24px;
+	color: #333333;
+}
+#NavSideBar .nav-item.activesub .nav-icon > svg,
+#NavSideBar .nav-item .active .nav-icon > svg,
+#NavSideBar .nav-item:hover .nav-icon > svg {
+	color: #008000;
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+	transition: transform 0.25s;
+}
+#NavSideBar .nav-item .top-title {
+	color: black;
+}
+#NavSideBar .nav-item .top-title > svg {
+	transform-origin: 50% 50%;
+	transform: rotate(60deg);
+	height: 8px;
+	width: 8px;
+	margin-top: -4px;
+	margin-left: 2px;
+	margin-right: -2px;
+	transition: transform 0.5s ease;
+}
+#NavSideBar .nav-item.activesub .top-title > svg {
+	transform: rotate(-30deg);
+}
+#NavSideBar .nav-item.activesub .top-title,
+#NavSideBar .nav-item .active .top-title,
+#NavSideBar .nav-item:hover .top-title {
+	color: #008000;
+}
 .primary_sub_menu {
 }
 .primary_sub_menu a.active {
+	border-left: 3px solid rgba(0, 128, 0, 0.4);
+	padding-left: 6px !important;
+}
+.subnav-menu {
+	visibility: hidden;
+	background-color: rgba(238, 246, 238, 0.99);
+	border: 1px solid rgba(177, 216, 178, 0.99);
+	/*border-left-width: 0;*/
+	position: absolute;
+	left: 90%;
+	width: 100%;
+	z-index: 1000;
+	height: auto;
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
+	margin-top: -60px;
+	opacity: 0;
+	transition: visibility 0.15s 0s, opacity 0.15s ease-in;
+}
+.with-submenu.activesub .subnav-menu {
+	visibility: visible;
+	opacity: 1;
+	transition: visibility 0s, opacity 0.15s ease-in;
+	z-index: 1001;
+}
+.primary_side_sub_menu {
+}
+.primary_side_sub_menu a {
+	text-decoration: none;
+	color: #111111;
+}
+.primary_side_sub_menu a:hover {
+	color: #008000;
+}
+.primary_side_sub_menu a.active {
 	border-left: 3px solid rgba(0, 128, 0, 0.4);
 	padding-left: 6px !important;
 }

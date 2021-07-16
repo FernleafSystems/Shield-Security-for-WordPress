@@ -10,7 +10,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class InsertNotBotJs extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return ( Services::Request()->ts() - ( new BotSignalsRecord() )
+		$req = Services::Request();
+		return $req->query( 'force_notbot' ) == 1
+			   || ( $req->ts() - ( new BotSignalsRecord() )
 					->setMod( $this->getMod() )
 					->setIP( Services::IP()->getRequestIp() )
 					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*45;

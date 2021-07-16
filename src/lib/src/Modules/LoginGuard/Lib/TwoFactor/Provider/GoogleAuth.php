@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use Dolondro\GoogleAuthenticator;
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\GenerateGoogleAuthQrCode;
 use FernleafSystems\Wordpress\Services\Services;
 
 class GoogleAuth extends BaseProvider {
@@ -34,7 +35,7 @@ class GoogleAuth extends BaseProvider {
 		$validatedProfile = $this->hasValidatedProfile( $user );
 		return [
 			'hrefs'   => [
-				'src_chart_url' => $validatedProfile ? '' : $this->getGaRegisterChartUrl( $user ),
+				'src_chart_url' => $validatedProfile ? '' : $this->getQrImage( $user ),
 			],
 			'vars'    => [
 				'ga_secret' => $validatedProfile ? $this->getSecret( $user ) : $this->resetSecret( $user ),
@@ -59,23 +60,46 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return string
-	 */
-	public function getGaRegisterChartUrl( $user ) {
-		$url = '';
-		if ( !empty( $user ) ) {
-			try {
-				$url = ( new GoogleAuthenticator\QrImageGenerator\EndroidQrImageGenerator() )
-					->generateUri(
-						$this->getGaSecret( $user )
-					);
-			}
-			catch ( \InvalidArgumentException $e ) {
-			}
+	public function getQrImage( \WP_User $user ) :string {
+		$secret = $this->getGaSecret( $user );
+
+		try {
+			$qrImage = $this->getGaRegisterChartUrl( $secret );
 		}
-		return $url;
+		catch ( \Exception $e ) {
+			$qrImage = $this->getGaRegisterChartUrlShieldNet( $secret );
+		}
+
+		return 'data:image/png;base64, '.$qrImage;
+	}
+
+	/**
+	 * @param GoogleAuthenticator\Secret $secret
+	 * @return string
+	 * @throws \Exception
+	 */
+	private function getGaRegisterChartUrl( GoogleAuthenticator\Secret $secret ) :string {
+		$rawImage = Services::HttpRequest()
+							->getContent(
+								( new GoogleAuthenticator\QrImageGenerator\GoogleQrImageGenerator() )
+									->generateUri( $secret ),
+								[ 'timeout' => 3 ]
+							);
+		if ( empty( $rawImage ) ) {
+			throw new \Exception( "Couldn't load Google chart" );
+		}
+		return base64_encode( $rawImage );
+	}
+
+	private function getGaRegisterChartUrlShieldNet( GoogleAuthenticator\Secret $secret ) :string {
+		return ( new GenerateGoogleAuthQrCode() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->getCode(
+				$secret->getSecretKey(),
+				$secret->getIssuer(),
+				$secret->getLabel(),
+				'png'
+			);
 	}
 
 	public function removeGaOnAccount( \WP_User $user ) :StdResponse {

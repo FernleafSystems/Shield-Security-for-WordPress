@@ -46,14 +46,14 @@ class ReadOriginalFileContent extends BaseOps {
 	 * @return string|null
 	 */
 	private function useCacheAndApi( Databases\FileLocker\EntryVO $lock ) {
-		$sCacheKey = 'file-content-'.$lock->id;
-		$content = wp_cache_get( $sCacheKey, $this->getCon()->prefix( 'filelocker' ) );
+		$cacheKey = 'file-content-'.$lock->id;
+		$content = wp_cache_get( $cacheKey, $this->getCon()->prefix( 'filelocker' ) );
 		if ( $content === false ) {
 			$VO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $lock->content, true ) );
 			$content = ( new DecryptFile() )
 				->setMod( $this->getMod() )
 				->retrieve( $VO, $lock->public_key_id );
-			wp_cache_set( $sCacheKey, $content, $this->getCon()->prefix( 'filelocker' ), 3 );
+			wp_cache_set( $cacheKey, $content, $this->getCon()->prefix( 'filelocker' ), 3 );
 		}
 		return $content;
 	}

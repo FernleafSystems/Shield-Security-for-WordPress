@@ -10,11 +10,9 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class PluginBadge
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components
  */
-class PluginBadge {
+class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 
-	use Modules\ModConsumer;
-
-	public function run() {
+	protected function run() {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		$req = Services::Request();

@@ -451,10 +451,10 @@ abstract class ICWP_WPSF_Wizard_Base {
 	}
 
 	/**
-	 * @param string $sStep
+	 * @param string $step
 	 * @return array
 	 */
-	protected function getRenderData_SlideExtra( $sStep ) {
+	protected function getRenderData_SlideExtra( $step ) {
 		return [];
 	}
 

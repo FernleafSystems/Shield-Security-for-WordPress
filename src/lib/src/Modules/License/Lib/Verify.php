@@ -38,7 +38,7 @@ class Verify {
 				$opts->setOptAt( 'license_activated_at' );
 			}
 			$mod->clearLastErrors();
-			$opts->setOpt( 'license_data', $existing->getRawDataAsArray() ); // need to do this before event
+			$opts->setOpt( 'license_data', $existing->getRawData() ); // need to do this before event
 			$this->getCon()->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $license->isReady() ) {
@@ -75,7 +75,7 @@ class Verify {
 		}
 
 		$existing->last_request_at = Services::Request()->ts();
-		$opts->setOpt( 'license_data', $existing->getRawDataAsArray() );
+		$opts->setOpt( 'license_data', $existing->getRawData() );
 		$this->getMod()->saveModOptions();
 
 		if ( !$isSuccessfulApiRequest ) {

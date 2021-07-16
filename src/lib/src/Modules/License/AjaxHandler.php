@@ -12,17 +12,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		switch ( $action ) {
 			case 'license_handling':
-				$aResponse = $this->ajaxExec_LicenseHandling();
+				$response = $this->ajaxExec_LicenseHandling();
 				break;
 			case 'connection_debug':
-				$aResponse = $this->ajaxExec_ConnectionDebug();
+				$response = $this->ajaxExec_ConnectionDebug();
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $action );
+				$response = parent::processAjaxAction( $action );
 		}
 
-		return $aResponse;
+		return $response;
 	}
 
 	/**

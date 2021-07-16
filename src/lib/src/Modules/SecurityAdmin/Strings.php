@@ -36,7 +36,7 @@ class Strings extends Base\Strings {
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ) ),
-					sprintf( __( 'You need to also enter a new Security PIN to enable this feature.', 'wp-simple-firewall' ) ),
+					__( 'You need to also enter a new Security PIN to enable this feature.', 'wp-simple-firewall' ),
 				];
 				break;
 

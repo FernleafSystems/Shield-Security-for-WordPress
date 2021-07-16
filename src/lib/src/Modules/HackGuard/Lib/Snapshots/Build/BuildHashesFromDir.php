@@ -27,25 +27,25 @@ class BuildHashesFromDir {
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param string $sDir
+	 * @param string $dir
 	 * @return string[]
 	 */
-	public function build( $sDir ) {
-		$aSnaps = [];
+	public function build( $dir, bool $binary = false ) {
+		$snaps = [];
 		try {
-			$sDir = wp_normalize_path( $sDir );
+			$dir = wp_normalize_path( $dir );
 			$sAlgo = $this->getHashAlgo();
-			$oDirIt = StandardDirectoryIterator::create( $sDir, $this->nDepth, $this->aFileExts );
-			foreach ( $oDirIt as $oFile ) {
-				/** @var \SplFileInfo $oFile */
-				$sFullPath = $oFile->getPathname();
-				$sKey = str_replace( $sDir, '', wp_normalize_path( $sFullPath ) );
-				$aSnaps[ $sKey ] = hash_file( $sAlgo, $sFullPath );
+			$oDirIt = StandardDirectoryIterator::create( $dir, $this->nDepth, $this->aFileExts );
+			foreach ( $oDirIt as $file ) {
+				/** @var \SplFileInfo $file */
+				$fullPath = $file->getPathname();
+				$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
+				$snaps[ $key ] = hash_file( $sAlgo, $fullPath, $binary );
 			}
 		}
 		catch ( \Exception $e ) {
 		}
-		return $aSnaps;
+		return $snaps;
 	}
 
 	/**

@@ -21,14 +21,15 @@ class Processor extends BaseShield\Processor {
 			->setMod( $this->getMod() )
 			->run();
 
-		$mod->getPluginBadgeCon()->run();
+		$mod->getShieldNetApiController()->execute();
+		$mod->getPluginBadgeCon()->execute();
 
 		( new PluginTelemetry() )
 			->setMod( $this->getMod() )
 			->execute();
 
-		if ( $opts->isImportExportPermitted() ) {
-			$mod->getImpExpController()->run();
+		if ( $opts->isOpt( 'importexport_enable', 'Y' ) ) {
+			$mod->getImpExpController()->execute();
 		}
 
 		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $isDelete ) use ( $opts ) {
@@ -61,19 +62,6 @@ class Processor extends BaseShield\Processor {
 
 	public function runDailyCron() {
 		$this->getCon()->fireEvent( 'test_cron_run' );
-
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isImportExportPermitted() ) {
-			try {
-				( new Lib\ImportExport\Import() )
-					->setMod( $this->getMod() )
-					->fromSite( $opts->getImportExportMasterImportUrl() );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
 		( new CleanStorage() )
 			->setCon( $this->getCon() )
 			->run();

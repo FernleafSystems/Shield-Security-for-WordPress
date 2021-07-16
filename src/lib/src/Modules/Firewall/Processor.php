@@ -67,13 +67,6 @@ class Processor extends BaseShield\Processor {
 		return $bPerformScan;
 	}
 
-	private function runScan() :bool {
-		$scanner = ( new Lib\Scan\PerformScan() )
-			->setMod( $this->getMod() );
-		$scanner->execute();
-		$result = $scanner->getCheckResult();
-	}
-
 	private function isVisitorRequestPermitted() :bool {
 		$opts = $this->getOptions();
 
@@ -131,7 +124,7 @@ class Processor extends BaseShield\Processor {
 					foreach ( $aFileNames as $sParam => $mValue ) {
 						if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
 							$bFAIL = true;
-							break( 2 );
+							break 2;
 						}
 					}
 				}
@@ -179,7 +172,7 @@ class Processor extends BaseShield\Processor {
 				foreach ( $aParamValues as $sParam => $mValue ) {
 					if ( is_scalar( $mValue ) && ( stripos( (string)$mValue, $sTerm ) !== false ) ) {
 						$bFAIL = true;
-						break( 2 );
+						break 2;
 					}
 				}
 			}
@@ -198,7 +191,7 @@ class Processor extends BaseShield\Processor {
 						$sParam = sanitize_text_field( $sParam );
 						$mValue = sanitize_text_field( $mValue );
 						$bFAIL = true;
-						break( 2 );
+						break 2;
 					}
 				}
 			}

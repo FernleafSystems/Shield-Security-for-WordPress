@@ -44,27 +44,6 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return int[] - key is scan slug
-	 */
-	public function getLastScansAt() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		/** @var Databases\Events\Select $oSel */
-		$oSel = $this->getCon()
-					 ->getModule_Events()
-					 ->getDbHandler_Events()
-					 ->getQuerySelector();
-		$aEvents = $oSel->getLatestForAllEvents();
-
-		$aLatest = [];
-		foreach ( $opts->getScanSlugs() as $slug ) {
-			$event = $slug.'_scan_run';
-			$aLatest[ $slug ] = isset( $aEvents[ $event ] ) ? (int)$aEvents[ $event ]->created_at : 0;
-		}
-		return $aLatest;
-	}
-
-	/**
 	 * @param string $slug
 	 * @return Controller\Base|mixed
 	 * @throws \Exception

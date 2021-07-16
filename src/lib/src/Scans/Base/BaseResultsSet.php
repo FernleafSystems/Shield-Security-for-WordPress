@@ -11,7 +11,7 @@ class BaseResultsSet {
 	/**
 	 * @var BaseResultItem[]
 	 */
-	protected $aItems;
+	protected $items;
 
 	/**
 	 * @var bool
@@ -28,45 +28,45 @@ class BaseResultsSet {
 			$oItem->hash = $oItem->generateHash();
 		}
 		$aI[ $oItem->hash ] = $oItem;
-		$this->aItems = $aI;
+		$this->items = $aI;
 		return $this;
 	}
 
 	/**
-	 * @param string $sHash
+	 * @param string $hash
 	 * @return BaseResultItem|null
 	 */
-	public function getItemByHash( $sHash ) {
-		return $this->getItemExists( $sHash ) ? $this->getAllItems()[ $sHash ] : null;
+	public function getItemByHash( $hash ) {
+		return $this->getItemExists( $hash ) ? $this->getAllItems()[ $hash ] : null;
 	}
 
 	/**
-	 * @param string $sHash
+	 * @param string $hash
 	 * @return bool
 	 */
-	public function getItemExists( $sHash ) {
-		return isset( $this->getAllItems()[ $sHash ] );
+	public function getItemExists( $hash ) {
+		return isset( $this->getAllItems()[ $hash ] );
 	}
 
 	/**
 	 * Ignores the "is_excluded" property on the items
 	 * @return BaseResultItem[]
 	 */
-	public function getAllItems() {
-		if ( !is_array( $this->aItems ) ) {
-			$this->aItems = [];
+	public function getAllItems() :array {
+		if ( !is_array( $this->items ) ) {
+			$this->items = [];
 		}
-		return $this->aItems;
+		return $this->items;
 	}
 
 	/**
 	 * @return BaseResultItem[]
 	 */
-	public function getExcludedItems() {
+	public function getExcludedItems() :array {
 		return array_values( array_filter(
 			$this->getAllItems(),
-			function ( $oItem ) {
-				return $oItem->is_excluded;
+			function ( $item ) {
+				return $item->is_excluded;
 			}
 		) );
 	}
@@ -75,26 +75,20 @@ class BaseResultsSet {
 	 * Honours the exclusion flags
 	 * @return BaseResultItem[]
 	 */
-	public function getItems() {
+	public function getItems() :array {
 		return array_values( array_filter(
 			$this->getAllItems(),
-			function ( $oItem ) {
-				return !$this->isFilterExcludedItems() || !$oItem->is_excluded;
+			function ( $item ) {
+				return !$this->isFilterExcludedItems() || !$item->is_excluded;
 			}
 		) );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function countItems() {
+	public function countItems() :int {
 		return count( $this->getItems() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasItems() {
+	public function hasItems() :bool {
 		return $this->countItems() > 0;
 	}
 
@@ -106,22 +100,22 @@ class BaseResultsSet {
 	}
 
 	/**
-	 * @param BaseResultItem $oItem
+	 * @param BaseResultItem $item
 	 * @return $this
 	 */
-	public function removeItem( $oItem ) {
-		return $this->removeItemByHash( $oItem->hash );
+	public function removeItem( $item ) {
+		return $this->removeItemByHash( $item->hash );
 	}
 
 	/**
-	 * @param string $sHash
+	 * @param string $hash
 	 * @return $this
 	 */
-	public function removeItemByHash( $sHash ) {
-		if ( $this->getItemExists( $sHash ) ) {
-			$aItems = $this->getAllItems();
-			unset( $aItems[ $sHash ] );
-			$this->aItems = $aItems;
+	public function removeItemByHash( $hash ) {
+		if ( $this->getItemExists( $hash ) ) {
+			$items = $this->getAllItems();
+			unset( $items[ $hash ] );
+			$this->items = $items;
 		}
 		return $this;
 	}

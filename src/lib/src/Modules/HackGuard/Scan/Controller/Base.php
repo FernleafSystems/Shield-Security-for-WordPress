@@ -20,13 +20,17 @@ abstract class Base extends ExecOnceModConsumer {
 	/**
 	 * @var BaseScanActionVO
 	 */
-	private $oScanActionVO;
+	private $scanActionVO;
 
 	/**
 	 * Base constructor.
 	 * see dynamic constructors: features/hack_protect.php
 	 */
 	public function __construct() {
+	}
+
+	protected function canRun() :bool {
+		return $this->isReady();
 	}
 
 	protected function run() {
@@ -88,9 +92,8 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @param int|string $itemID
 	 * @param string     $action
 	 * @return bool
-	 * @throws \Exception
 	 */
-	public function executeItemAction( $itemID, string $action ) {
+	public function executeItemAction( int $itemID, string $action ) :bool {
 		$success = false;
 
 		if ( is_numeric( $itemID ) ) {
@@ -170,10 +173,10 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
-		if ( !$this->oScanActionVO instanceof BaseScanActionVO ) {
-			$this->oScanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
+		if ( !$this->scanActionVO instanceof BaseScanActionVO ) {
+			$this->scanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
 		}
-		return $this->oScanActionVO;
+		return $this->scanActionVO;
 	}
 
 	public function getScanName() :string {
@@ -226,12 +229,12 @@ abstract class Base extends ExecOnceModConsumer {
 	 * TODO: Make private/protected
 	 */
 	public function runCronAutoRepair() {
-		$oRes = $this->getItemsToAutoRepair();
-		if ( $oRes->hasItems() ) {
-			foreach ( $oRes->getAllItems() as $oItem ) {
+		$results = $this->getItemsToAutoRepair();
+		if ( $results->hasItems() ) {
+			foreach ( $results->getAllItems() as $item ) {
 				try {
 					$this->getItemActionHandler()
-						 ->setScanItem( $oItem )
+						 ->setScanItem( $item )
 						 ->repair();
 				}
 				catch ( \Exception $e ) {

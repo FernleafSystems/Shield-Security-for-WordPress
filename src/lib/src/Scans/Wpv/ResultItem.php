@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\WpVulnVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\VulnVO;
 
 /**
  * Class ResultItem
@@ -18,7 +18,7 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Bas
 		return md5( $this->slug.$this->wpvuln_id );
 	}
 
-	public function getWpVulnVo() :WpVulnVO {
-		return ( new WpVulnVO() )->applyFromArray( $this->wpvuln_vo );
+	public function getVulnVo() :VulnVO {
+		return ( new VulnVO() )->applyFromArray( $this->wpvuln_vo );
 	}
 }

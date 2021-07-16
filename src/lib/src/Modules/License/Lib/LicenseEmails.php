@@ -15,24 +15,23 @@ class LicenseEmails {
 		$mod = $this->getMod();
 		$opts = $this->getOptions();
 
-		$bCanSend = Services::Request()
-							->carbon()
-							->subDay( 1 )->timestamp > $opts->getOpt( 'last_warning_email_sent_at' );
+		$canSend = Services::Request()
+						   ->carbon()
+						   ->subDay( 1 )->timestamp > $opts->getOpt( 'last_warning_email_sent_at' );
 
-		if ( $bCanSend ) {
+		if ( $canSend ) {
 			$opts->setOptAt( 'last_warning_email_sent_at' );
 			$mod->saveModOptions();
 
-			$aMessage = [
-				__( 'Attempts to verify Shield Pro license has just failed.', 'wp-simple-firewall' ),
-				sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $mod->getUrl_AdminPage() ),
-				sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
-			];
 			$mod->getEmailProcessor()
 				->sendEmailWithWrap(
 					$mod->getPluginReportEmail(),
 					'Pro License Check Has Failed',
-					$aMessage
+					[
+						__( 'Attempts to verify Shield Pro license has just failed.', 'wp-simple-firewall' ),
+						sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $mod->getUrl_AdminPage() ),
+						sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
+					]
 				);
 			$this->getCon()->fireEvent( 'lic_fail_email' );
 		}

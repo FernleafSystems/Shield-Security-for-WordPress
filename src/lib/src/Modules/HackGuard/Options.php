@@ -272,11 +272,11 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param bool $bIsScanCron
+	 * @param bool $isCron
 	 * @return $this
 	 */
-	public function setIsScanCron( $bIsScanCron ) {
-		return $this->setOpt( 'is_scan_cron', $bIsScanCron );
+	public function setIsScanCron( bool $isCron ) {
+		return $this->setOpt( 'is_scan_cron', $isCron );
 	}
 
 	/**

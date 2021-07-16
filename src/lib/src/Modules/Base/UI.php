@@ -250,6 +250,9 @@ class UI {
 				'js_steps'         => 'https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js',
 			],
 			'imgs'       => [
+				'svgs'           => [
+					'triangle' => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
+				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
 				'background_svg' => $urlBuilder->forImage( 'shield/background-blob.svg' )

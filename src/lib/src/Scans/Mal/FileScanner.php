@@ -4,8 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -144,35 +146,28 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem
 	 */
 	private function getResultItemFromLines( array $lines, string $fullPath, string $signature ) :ResultItem {
-		$oResultItem = new ResultItem();
-		$oResultItem->path_full = wp_normalize_path( $fullPath );
-		$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
-		$oResultItem->is_mal = true;
-		$oResultItem->mal_sig = base64_encode( $signature );
-		$oResultItem->fp_confidence = 0;
-		$oResultItem->file_lines = $lines;
-		return $oResultItem;
+		$item = new ResultItem();
+		$item->path_full = wp_normalize_path( $fullPath );
+		$item->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
+		$item->is_mal = true;
+		$item->mal_sig = base64_encode( $signature );
+		$item->fp_confidence = 0;
+		$item->file_lines = $lines;
+		return $item;
 	}
 
-	/**
-	 * @param string $fullPath - normalized
-	 * @return bool
-	 */
 	private function canExcludeFile( string $fullPath ) :bool {
 		return $this->isValidCoreFile( $fullPath )
-			   || $this->isPluginFileValid( $fullPath ) || $this->isThemeFileValid( $fullPath );
+			   || $this->isPluginFileValid( $fullPath )
+			   || $this->isThemeFileValid( $fullPath );
 	}
 
-	/**
-	 * @param string $fullPath - normalized
-	 * @return bool
-	 */
 	private function isPluginFileValid( string $fullPath ) :bool {
 		$valid = false;
 		try {
 			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
 			$plugin = $oPluginFiles->findPluginFromFile( $fullPath );
-			if ( $plugin instanceof WpPluginVo ) {
+			if ( !empty( $plugin ) && $plugin->asset_type === 'plugin' ) {
 				$valid = $plugin->isWpOrg() ?
 					$oPluginFiles->verifyFileContents( $fullPath )
 					: $this->verifyPremiumAssetFile( $fullPath, $plugin );
@@ -184,16 +179,12 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		return $valid;
 	}
 
-	/**
-	 * @param string $fullPath - normalized
-	 * @return bool
-	 */
 	private function isThemeFileValid( string $fullPath ) :bool {
 		$valid = false;
 		try {
 			$oThemeFiles = new Utilities\WpOrg\Theme\Files();
 			$theme = $oThemeFiles->findThemeFromFile( $fullPath );
-			if ( $theme instanceof WpThemeVo ) {
+			if ( !empty( $theme ) && $theme->asset_type === 'theme' ) {
 				$valid = $theme->isWpOrg() ?
 					$oThemeFiles->verifyFileContents( $fullPath )
 					: $this->verifyPremiumAssetFile( $fullPath, $theme );
@@ -211,7 +202,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private function verifyPremiumAssetFile( $fullPath, $oPluginOrTheme ) :bool {
+	private function verifyPremiumAssetFile( string $fullPath, $oPluginOrTheme ) :bool {
 		$valid = false;
 		$hashes = ( new Lib\Snapshots\Build\BuildHashesFromApi() )
 			->build( $oPluginOrTheme );
@@ -223,11 +214,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		return $valid;
 	}
 
-	/**
-	 * @param string $fullPath
-	 * @return bool
-	 */
-	private function isValidCoreFile( $fullPath ) :bool {
+	private function isValidCoreFile( string $fullPath ) :bool {
 		$hash = Services::CoreFileHashes()->getFileHash( $fullPath );
 		try {
 			$valid = !empty( $hash )

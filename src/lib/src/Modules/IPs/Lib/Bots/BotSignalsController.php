@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	BotTrack,
-	Lib\Bots\Calculator\CalculateVisitorBotScores,
 	ModCon,
 	Options
 };
@@ -32,7 +31,7 @@ class BotSignalsController extends ExecOnceModConsumer {
 
 		if ( $botScoreMinimum > 0 ) {
 
-			$score = ( new CalculateVisitorBotScores() )
+			$score = ( new Calculator\CalculateVisitorBotScores() )
 				->setMod( $this->getMod() )
 				->setIP( empty( $IP ) ? Services::IP()->getRequestIp() : $IP )
 				->probability();

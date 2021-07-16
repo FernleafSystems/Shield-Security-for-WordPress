@@ -4,8 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
@@ -19,15 +22,15 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @throws \Exception
 	 */
 	public function repairItem() {
-		/** @var Ptg\ResultItem $oItem */
-		$oItem = $this->getScanItem();
+		/** @var Ptg\ResultItem $item */
+		$item = $this->getScanItem();
 
 		if ( $this->canRepair() ) {
-			if ( $oItem->context == 'plugins' ) {
-				$bSuccess = $this->repairPluginFile( $oItem->path_full );
+			if ( $item->context == 'plugins' ) {
+				$bSuccess = $this->repairPluginFile( $item->path_full );
 			}
 			else {
-				$bSuccess = $this->repairThemeFile( $oItem->path_full );
+				$bSuccess = $this->repairThemeFile( $item->path_full );
 			}
 		}
 		else {
@@ -43,10 +46,10 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 */
 	private function repairPluginFile( $sPath ) {
 		$success = false;
-		$oFiles = new WpOrg\Plugin\Files();
+		$files = new WpOrg\Plugin\Files();
 		try {
-			if ( $oFiles->isValidFileFromPlugin( $sPath ) ) {
-				$success = $oFiles->replaceFileFromVcs( $sPath );
+			if ( $files->isValidFileFromPlugin( $sPath ) ) {
+				$success = $files->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
 				$success = (bool)Services::WpFs()->deleteFile( $sPath );
@@ -58,39 +61,40 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	}
 
 	/**
-	 * @param string $sPath
+	 * @param string $path
 	 * @return bool
 	 */
-	private function repairThemeFile( $sPath ) {
+	private function repairThemeFile( $path ) {
 		$success = false;
-		$oFiles = new WpOrg\Theme\Files();
+		$files = new WpOrg\Theme\Files();
 		try {
-			if ( $oFiles->isValidFileFromTheme( $sPath ) ) {
-				$success = $oFiles->replaceFileFromVcs( $sPath );
+			if ( $files->isValidFileFromTheme( $path ) ) {
+				$success = $files->replaceFileFromVcs( $path );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services::WpFs()->deleteFile( $sPath );
+				$success = (bool)Services::WpFs()->deleteFile( $path );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {
 		}
-		return (bool)$success;
+		return $success;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function canRepair() {
-		/** @var Ptg\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		if ( $oItem->context == 'plugins' ) {
-			$oAsset = Services::WpPlugins()->getPluginAsVo( $oItem->slug );
-			$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );
+		/** @var Ptg\ResultItem $item */
+		$item = $this->getScanItem();
+		if ( $item->context == 'plugins' ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
+			$canRepair = $asset->asset_type === 'plugin'
+						   && $asset->isWpOrg() && $asset->svn_uses_tags;
 		}
 		else {
-			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
-			$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
+			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
+			$canRepair = $asset->asset_type === 'theme' && $asset->isWpOrg();
 		}
-		return $bCanRepair;
+		return $canRepair;
 	}
 }

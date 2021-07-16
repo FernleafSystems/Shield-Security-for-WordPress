@@ -19,7 +19,7 @@
 
    						{% if flags.show_sidebar_nav|default(true) %}
 							<div id="apto-PageMainSide"
-								 class="col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+								 class="col-2 col-lg-1">
 								{% block page_main_side %}
 									{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
 								{% endblock %}
@@ -27,7 +27,7 @@
 						{% endif %}
 
 						{% if flags.show_sidebar_nav|default(true) %}
-							<div id="apto-PageMainBody" class="col-9 col-sm-9 col-md-10">
+							<div id="apto-PageMainBody" class="col-6 col-sm-8 col-md-9 col-xl-10">
 						{% else %}
 							<div id="apto-PageMainBody" class="col-12">
 						{% endif %}

@@ -48,7 +48,7 @@ abstract class BaseBuildScores {
 				$botSignalDBH->getTableSchema()->getColumnNames(),
 				function ( $col ) {
 					return preg_match( '#_at$#', $col ) &&
-						   !in_array( $col, [ 'updated_at', 'deleted_at' ] );
+						   !in_array( $col, [ 'snsent_at', 'updated_at', 'deleted_at' ] );
 				}
 			)
 		);

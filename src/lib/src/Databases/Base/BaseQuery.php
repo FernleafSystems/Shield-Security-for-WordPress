@@ -55,6 +55,15 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @param string $columnLeft
+	 * @param string $columnRight
+	 * @param string $operator
+	 */
+	public function addWhereCompareColumns( string $columnLeft, string $columnRight, string $operator = '=' ) {
+		return $this->addRawWhere( [ $columnLeft, $operator, '`'.$columnRight.'`' ] );
+	}
+
+	/**
 	 * @param string       $column
 	 * @param string|array $value
 	 * @param string       $operator
@@ -62,6 +71,10 @@ abstract class BaseQuery {
 	 */
 	public function addWhere( $column, $value, $operator = '=' ) {
 		if ( !$this->isValidComparisonOperator( $operator ) ) {
+			return $this; // Exception?
+		}
+		$schema = $this->getDbH()->getTableSchema();
+		if ( !$schema->hasColumn( $column ) ) {
 			return $this; // Exception?
 		}
 
@@ -80,11 +93,21 @@ abstract class BaseQuery {
 
 		$rawWheres = $this->getRawWheres();
 		$rawWheres[] = [
-			esc_sql( $column ),
+			$column,
 			$operator,
 			$value
 		];
 
+		return $this->setRawWheres( $rawWheres );
+	}
+
+	/**
+	 * @param array $where
+	 * @return $this
+	 */
+	public function addRawWhere( array $where ) {
+		$rawWheres = $this->getRawWheres();
+		$rawWheres[] = $where;
 		return $this->setRawWheres( $rawWheres );
 	}
 
@@ -94,7 +117,7 @@ abstract class BaseQuery {
 	 * @return $this
 	 */
 	public function addWhereEquals( string $column, $mValue ) {
-		return $this->addWhere( $column, $mValue, '=' );
+		return $this->addWhere( $column, $mValue );
 	}
 
 	/**
@@ -105,6 +128,18 @@ abstract class BaseQuery {
 	public function addWhereIn( string $column, $values ) {
 		if ( !empty( $values ) && is_array( $values ) ) {
 			$this->addWhere( $column, $values, 'IN' );
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $column
+	 * @param array  $values
+	 * @return $this
+	 */
+	public function addWhereNotIn( string $column, array $values ) {
+		if ( !empty( $values ) ) {
+			$this->addWhere( $column, $values, 'NOT IN' );
 		}
 		return $this;
 	}
@@ -488,7 +523,7 @@ abstract class BaseQuery {
 	protected function isValidComparisonOperator( $op ) {
 		return in_array(
 			strtoupper( $op ),
-			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
+			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'NOT IN', 'LIKE', 'NOT LIKE' ]
 		);
 	}
 }

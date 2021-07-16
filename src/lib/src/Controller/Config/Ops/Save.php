@@ -8,6 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 class Save {
 
 	public static function ToWp( ConfigVO $cfg, string $key ) :bool {
-		return Transient::Set( $key, $cfg->getRawDataAsArray() );
+		return Transient::Set( $key, $cfg->getRawData() );
 	}
 }

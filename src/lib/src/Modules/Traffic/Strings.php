@@ -32,7 +32,7 @@ class Strings extends Base\Strings {
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and review all requests to your site.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Required only if you need to review and investigate and monitor requests to your site', 'wp-simple-firewall' ) ) )
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Required only if you need to review and investigate and monitor requests to your site', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -52,7 +52,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Prevents excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), sprintf( __( 'This feature is only available while the Traffic Logger is active.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) ),
 					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use this feature with care.', 'wp-simple-firewall' ) )
-					.' '.sprintf( __( 'You could block legitimate visitors who load too many pages in quick succession on your site.', 'wp-simple-firewall' ) )
+					.' '.__( 'You could block legitimate visitors who load too many pages in quick succession on your site.', 'wp-simple-firewall' )
 				];
 				break;
 

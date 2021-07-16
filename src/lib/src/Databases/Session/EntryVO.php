@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property string wp_username
  * @property int    last_activity_at
  * @property int    logged_in_at
- * @property int    login_intent_expires_at
  * @property string session_id
  * @property int    secadmin_at
  */

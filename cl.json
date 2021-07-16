@@ -1,4 +1,90 @@
 {
+  "11.4": {
+    "version":     "11.4",
+    "released_at": 1625560514,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease114",
+      "upgrade": "https://shsec.io/shieldupgradeguide114"
+    },
+    "title":       "ShieldNET Integration",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Begin ShieldNET Integration To Provide Network Intelligence For Bots & IP Addresses",
+        "description": [
+          "You can now start to see ShieldNET scores for IP addresses based on the cumulative intelligence gathered for IP addresses.",
+          "By combining scores for IP addresses across many different Shield Security installations we can provide a more accurate IP reputation score.",
+          "These scores won't be used yet to respond to threats on your WordPress site, but this will be the goal."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Generating QR codes for Google Authenticator is improved by using the ShieldNET API.",
+        "description": [
+          "The code necessary to generate QR Code for Google Authenticator is quite large and required the GD extension to be enabled.",
+          "Not all WordPress installation offer this, so we've provided a ShieldNET API endpoint to easily generate the QR codes."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Scanning for vulnerability in WordPress plugins and themes is improved.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Capturing and managing of user sessions is improved.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Capturing and managing user 2-Factor Authentication is improved.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Added enhancement for when local tests for NotBot JS loading fails, use ShieldNET to test.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Tweaks and adjustments to crowd-sourced hashing.",
+        "description": [],
+        "patch":       "11.4.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Certain modules would still run even though 'forceoff' file was present.",
+        "description": [],
+        "patch":       "11.4.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "HTML formatting issue with the 2FA Login Page.",
+        "description": [],
+        "patch":       "11.4.2"
+      },
+      {
+        "type":        "improved",
+        "title":       "Refinements to the ShieldNET cron processing.",
+        "description": [],
+        "patch":       "11.4.3"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Prevent a rare fatal error on certain pages.",
+        "description": [],
+        "patch":       "11.4.4"
+      }
+    ]
+  },
   "11.3": {
     "version":     "11.3",
     "released_at": 1623057021,
@@ -43,6 +129,12 @@
           "404s encountered for requests for assets such as images, javascript and CSS no longer trigger offenses.",
           "The 1 exception is if the asset URL is within a plugin/theme directory that doesn't exist on the site."
         ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Minimum supported WordPress version is now 3.7",
+        "description": []
       }
     ]
   },

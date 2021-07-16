@@ -134,14 +134,14 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		if ( empty( $aExistingCodes ) ) {
 			$password = $this->getLoginPassword();
 			if ( !empty( $password ) ) {
-				$aFailureMsg = '';
+				$failureMsg = '';
 				try {
 					$this->applyPasswordChecks( $password );
 					$bChecksPassed = true;
 				}
 				catch ( \Exception $e ) {
 					$bChecksPassed = ( $e->getCode() === 999 );
-					$aFailureMsg = $e->getMessage();
+					$failureMsg = $e->getMessage();
 				}
 
 				if ( $bChecksPassed ) {
@@ -151,8 +151,8 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				}
 				else {
 					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
-					if ( !empty( $aFailureMsg ) ) {
-						$msg .= '<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$aFailureMsg );
+					if ( !empty( $failureMsg ) ) {
+						$msg .= '<br/>'.__( 'Reason', 'wp-simple-firewall' ).': '.$failureMsg;
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
 					$this->getCon()->fireEvent( 'password_policy_block' );

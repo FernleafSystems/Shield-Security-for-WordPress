@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Crons;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 trait PluginCronsConsumer {
 
 	public function runDailyCron() {
@@ -11,7 +13,9 @@ trait PluginCronsConsumer {
 	}
 
 	protected function setupCronHooks() {
-		add_action( $this->getCon()->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		if ( Services::WpGeneral()->isCron() ) {
+			add_action( $this->getCon()->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+			add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		}
 	}
 }

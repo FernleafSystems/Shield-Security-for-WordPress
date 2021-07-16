@@ -94,7 +94,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 
 	protected function getHashForVisitorTS( int $timestamp ) {
 		return hash_hmac( 'sha1',
-			$timestamp.(string)Services::IP()->getRequestIp(),
+			$timestamp.Services::IP()->getRequestIp(),
 			$this->getCon()->getSiteInstallationId()
 		);
 	}

@@ -13,11 +13,11 @@ class Processor extends BaseShield\Processor {
 		$WPU = Services::WpUsers();
 
 		$loadCommentFilter = !$WPU->isUserLoggedIn() ||
-						!( new Scan\IsEmailTrusted() )->trusted(
-							$WPU->getCurrentWpUser()->user_email,
-							$opts->getApprovedMinimum(),
-							$opts->getTrustedRoles()
-						);
+							 !( new Scan\IsEmailTrusted() )->trusted(
+								 $WPU->getCurrentWpUser()->user_email,
+								 $opts->getApprovedMinimum(),
+								 $opts->getTrustedRoles()
+							 );
 
 		( new Scan\CommentAdditiveCleaner() )
 			->setMod( $this->getMod() )
@@ -54,14 +54,11 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * When you set a new comment as anything but 'spam' a notification email is sent to the post author.
 	 * We suppress this for when we mark as trash by emptying the email notifications list.
-	 * @param array $aEmails
+	 * @param array $emails
 	 * @return array
 	 */
-	public function clearCommentNotificationEmail( $aEmails ) {
-		$sStatus = apply_filters( $this->getCon()->prefix( 'cf_status' ), '' );
-		if ( in_array( $sStatus, [ 'reject', 'trash' ] ) ) {
-			$aEmails = [];
-		}
-		return $aEmails;
+	public function clearCommentNotificationEmail( $emails ) {
+		$status = apply_filters( $this->getCon()->prefix( 'cf_status' ), '' );
+		return in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
 	}
 }

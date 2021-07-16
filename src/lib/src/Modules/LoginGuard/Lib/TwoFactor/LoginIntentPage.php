@@ -28,42 +28,47 @@ class LoginIntentPage {
 		$req = Services::Request();
 		$WP = Services::WpGeneral();
 
-		$oNotice = $con->getAdminNotices()->getFlashNotice();
-		if ( $oNotice instanceof NoticeVO ) {
-			$sMessage = $oNotice->render_data[ 'message' ];
+		$notice = $con->getAdminNotices()->getFlashNotice();
+		if ( $notice instanceof NoticeVO ) {
+			$msg = $notice->render_data[ 'message' ];
 		}
 		else {
-			$sMessage = $opts->isChainedAuth() ?
+			$msg = $opts->isChainedAuth() ?
 				__( 'Please supply all authentication codes', 'wp-simple-firewall' )
 				: __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
 
-		$sReferUrl = $req->server( 'HTTP_REFERER', '' );
-		if ( strpos( $sReferUrl, '?' ) ) {
-			list( $sReferUrl, $sReferQuery ) = explode( '?', $sReferUrl, 2 );
+		if ( !empty( $msg ) && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldcantaccess', __( 'More Info', 'wp-simple-firewall' ) );
+		}
+
+		$referUrl = $req->server( 'HTTP_REFERER', '' );
+		if ( strpos( $referUrl, '?' ) ) {
+			list( $referUrl, $referQuery ) = explode( '?', $referUrl, 2 );
 		}
 		else {
-			$sReferQuery = '';
+			$referQuery = '';
 		}
 
-		$sRedirectTo = '';
-		if ( !empty( $sReferQuery ) ) {
-			parse_str( $sReferQuery, $aReferQueryItems );
+		$redirectTo = '';
+		if ( !empty( $referQuery ) ) {
+			parse_str( $referQuery, $aReferQueryItems );
 			if ( !empty( $aReferQueryItems[ 'redirect_to' ] ) ) {
-				$sRedirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
+				$redirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
 			}
 		}
-		if ( empty( $sRedirectTo ) ) {
-			$sRedirectTo = rawurlencode( $req->post( 'redirect_to', $req->getUri() ) );
+		if ( empty( $redirectTo ) ) {
+			$redirectTo = rawurlencode( $req->post( 'redirect_to', $req->getUri() ) );
 		}
 
-		$sCancelHref = $req->post( 'cancel_href', '' );
-		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
-			$sCancelHref = parse_url( $sReferUrl, PHP_URL_PATH );
+		$cancelHref = $req->post( 'cancel_href', '' );
+		if ( empty( $cancelHref ) && Services::Data()->isValidWebUrl( $referUrl ) ) {
+			$cancelHref = parse_url( $referUrl, PHP_URL_PATH );
 		}
 
 		$nMfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
-		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
+		$timeRemaining = $mfaCon->getLoginIntentExpiresAt() - $req->ts();
+
 		$data = [
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
@@ -72,7 +77,7 @@ class LoginIntentPage {
 				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
 				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
-				'message'         => $sMessage,
+				'message'         => $msg,
 				'skip_mfa'        => sprintf(
 					__( "Don't ask again on this browser for %s.", 'wp-simple-firewall' ),
 					sprintf( _n( '%s day', '%s days', $nMfaSkip, 'wp-simple-firewall' ), $nMfaSkip )
@@ -85,14 +90,14 @@ class LoginIntentPage {
 					},
 					$mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
 				) ),
-				'time_remaining'    => $nTimeRemaining,
+				'time_remaining'    => $timeRemaining,
 				'message_type'      => 'info',
 				'login_intent_flag' => $mod->getLoginIntentRequestFlag(),
 			],
 			'hrefs'   => [
 				'form_action' => parse_url( $WP->getAdminUrl( '', true ), PHP_URL_PATH ),
-				'redirect_to' => $sRedirectTo,
-				'cancel_href' => $sCancelHref
+				'redirect_to' => $redirectTo,
+				'cancel_href' => $cancelHref
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
@@ -117,14 +122,15 @@ class LoginIntentPage {
 
 		$labels = $con->getLabels();
 		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-		$nTimeRemaining = $mod->getSession()->login_intent_expires_at - $req->ts();
+		$timeRemaining = $oIC->getLoginIntentExpiresAt() - $req->ts();
+
 		$data = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
 			],
 			'data'    => [
-				'time_remaining' => $nTimeRemaining,
+				'time_remaining' => $timeRemaining,
 			],
 			'hrefs'   => [
 				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),

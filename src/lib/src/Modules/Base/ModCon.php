@@ -526,8 +526,7 @@ abstract class ModCon {
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
 			$enabled = false;
 		}
-		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true
-				 && !$this->isPremium() ) {
+		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$enabled = false;
 		}
 		else {

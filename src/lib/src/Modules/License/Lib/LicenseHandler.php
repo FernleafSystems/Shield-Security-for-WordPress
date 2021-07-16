@@ -33,8 +33,10 @@ class LicenseHandler {
 
 				case 'license_check':
 					if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
-						wp_schedule_single_event( Services::Request()
-														  ->ts() + 20, $con->prefix( 'adhoc_cron_license_check' ) );
+						wp_schedule_single_event(
+							Services::Request()->ts() + 20,
+							$con->prefix( 'adhoc_cron_license_check' )
+						);
 					}
 					break;
 			}

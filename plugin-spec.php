@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "11.3.0",
-    "release_timestamp":       1623057021,
-    "build":                   "202106.0701",
+    "version":                 "11.4.4",
+    "release_timestamp":       1625589161,
+    "build":                   "202107.0801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -20,7 +20,7 @@
   },
   "requirements":     {
     "php":       "7.0",
-    "wordpress": "3.5.2"
+    "wordpress": "3.7"
   },
   "upgrade_reqs":     {
     "10.0": {
