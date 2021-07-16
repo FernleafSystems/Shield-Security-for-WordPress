@@ -67,7 +67,8 @@ class SectionThemes extends SectionPluginThemesBase {
 							   'not_active'  => __( "This theme isn't active and should be uninstalled.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
-							   'count_items' => count( $problems ) + count( $updates ),
+							   'count_items' => count( $vulnerable ) + count( $hashes )
+												+ count( $abandoned ) + count( $problems ) + count( $updates ),
 							   'themes'      => array_values( $items ),
 						   ]
 					   ] );
