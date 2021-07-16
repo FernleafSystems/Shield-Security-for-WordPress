@@ -148,9 +148,10 @@ abstract class Base extends ExecOnceModConsumer {
 		if ( !$includeIgnored ) {
 			$sel->filterByNotIgnored();
 		}
+		$raw = $this->isRestricted() ? [] : $sel->query();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $sel->query() );
+			->fromVOsToResultsSet( $raw );
 	}
 
 	/**

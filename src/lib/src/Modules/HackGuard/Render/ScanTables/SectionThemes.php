@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanT
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Ptg;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,18 +23,23 @@ class SectionThemes extends SectionPluginThemesBase {
 
 	protected function buildRenderData() :array {
 
-		$themes = $this->buildThemesData();
-		ksort( $themes );
+		$items = $this->buildThemesData();
+		ksort( $items );
 
 		$problems = [];
 		$active = [];
-		foreach ( $themes as $key => $item ) {
+		$updates = [];
+		foreach ( $items as $key => $item ) {
 			if ( $item[ 'flags' ][ 'has_issue' ] ) {
-				unset( $themes[ $key ] );
+				unset( $items[ $key ] );
 				$problems[] = $item;
 			}
+			elseif ( $items[ 'flags' ][ 'has_update' ] ) {
+				unset( $items[ $key ] );
+				$updates[] = $items;
+			}
 			elseif ( $item[ 'info' ][ 'active' ] ) {
-				unset( $themes[ $key ] );
+				unset( $items[ $key ] );
 				$active[] = $item;
 			}
 		}
@@ -45,11 +52,8 @@ class SectionThemes extends SectionPluginThemesBase {
 							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the theme directory.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
-							   'count_items' => count( $problems ),
-							   'themes'      => array_values( $problems ),
-							   'datatables_init' => ( new BuildForPluginTheme() )
-								   ->setMod( $this->getMod() )
-								   ->build()
+							   'count_items'     => count( $problems ) + count( $updates ),
+							   'themes'          => array_values( $items ),
 						   ]
 					   ] );
 	}
