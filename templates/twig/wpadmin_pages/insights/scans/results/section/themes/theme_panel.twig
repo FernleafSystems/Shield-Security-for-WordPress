@@ -22,6 +22,11 @@
 					</span>
 				</li>
 			{% endif %}
+			{% if not theme.info.active %}
+				<li class="list-group-item list-group-item-warning">
+					{{ strings.not_active }}
+				</li>
+			{% endif %}
 			<li class="list-group-item">
 				<span class="font-weight-bold">{{ strings.name }}</span>: {{ theme.info.name }};
 				<span class="font-weight-bold">{{ strings.version }}</span>: {{ theme.info.version }};
@@ -33,6 +38,15 @@
 					<a href="{{ theme.info.author_url }}" target="_blank">{{ theme.info.author }}</a>;
 				<span class="font-weight-bold">WordPress.org</span>: {{ theme.flags.is_wporg ? 'Yes' : 'No' }}
 			</li>
+			{% if theme.flags.is_child %}
+				<li class="list-group-item">
+					<span class="font-weight-bold">{{ strings.parent_theme }}</span>: {{ theme.info.parent_theme }};
+				</li>
+			{% elseif theme.flags.is_parent %}
+				<li class="list-group-item">
+					<span class="font-weight-bold">{{ strings.child_theme }}</span>: {{ theme.info.child_theme }};
+				</li>
+			{% endif %}
 			<li class="list-group-item">
 				<span class="font-weight-bold">{{ strings.install_dir }}</span>
 				<code>{{ theme.info.dir }}</code>

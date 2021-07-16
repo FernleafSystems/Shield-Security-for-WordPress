@@ -22,6 +22,11 @@
 					</span>
 				</li>
 			{% endif %}
+			{% if not plugin.info.active %}
+				<li class="list-group-item list-group-item-warning">
+					{{ strings.not_active }}
+				</li>
+			{% endif %}
 			<li class="list-group-item">
 				<span class="font-weight-bold">{{ strings.name }}</span>: {{ plugin.info.name }};
 				<span class="font-weight-bold">{{ strings.version }}</span>: {{ plugin.info.version }};

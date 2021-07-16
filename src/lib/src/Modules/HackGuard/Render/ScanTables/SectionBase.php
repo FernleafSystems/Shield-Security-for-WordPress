@@ -43,6 +43,8 @@ class SectionBase {
 				'installed_at'      => __( 'Installed', 'wp-simple-firewall' ),
 				'estimated'         => __( 'estimated', 'wp-simple-firewall' ),
 				'rel_to_abspath'    => __( 'relative to WordPress install dir', 'wp-simple-firewall' ),
+				'child_theme'       => __( 'Linked To Child Theme', 'wp-simple-firewall' ),
+				'parent_theme'      => __( 'Linked To Parent Theme', 'wp-simple-firewall' ),
 			],
 			'hrefs'   => [
 				'upgrade' => Services::WpGeneral()->getAdminUrl_Updates()

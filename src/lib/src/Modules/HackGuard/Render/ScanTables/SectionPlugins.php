@@ -47,6 +47,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 							   'no_items'    => __( "Previous scans didn't detect any modified or missing files in any plugin directories.", 'wp-simple-firewall' ),
 							   'no_files'    => __( "Previous scans didn't detect any modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
 							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
+							   'not_active'  => __( "This plugin isn't active and should be uninstalled.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
 							   'count_items' => count( $problems ) + count( $updates ),
