@@ -40,6 +40,9 @@ class SectionBase {
 				'vulnerable_known'  => __( 'Known vulnerabilities are present.', 'wp-simple-firewall' ),
 				'vulnerable_update' => __( "You should upgrade to the latest available version or remove it if no updates are available.", 'wp-simple-firewall' ),
 				'update_available'  => __( 'Update Available', 'wp-simple-firewall' ),
+				'installed_at'      => __( 'Installed', 'wp-simple-firewall' ),
+				'estimated'         => __( 'estimated', 'wp-simple-firewall' ),
+				'rel_to_abspath'    => __( 'relative to WordPress install dir', 'wp-simple-firewall' ),
 			],
 			'hrefs'   => [
 				'upgrade' => Services::WpGeneral()->getAdminUrl_Updates()

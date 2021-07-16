@@ -2,13 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Ptg;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 
 class SectionThemes extends SectionPluginThemesBase {
 
@@ -52,8 +50,8 @@ class SectionThemes extends SectionPluginThemesBase {
 							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the theme directory.", 'wp-simple-firewall' ),
 						   ],
 						   'vars'    => [
-							   'count_items'     => count( $problems ) + count( $updates ),
-							   'themes'          => array_values( $items ),
+							   'count_items' => count( $problems ) + count( $updates ),
+							   'themes'      => array_values( $items ),
 						   ]
 					   ] );
 	}
@@ -91,6 +89,8 @@ class SectionThemes extends SectionPluginThemesBase {
 				'dir'          => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $theme->getInstallDir() ) ),
 				'abandoned_at' => empty( $abandoned ) ? 0
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
+				'installed_at' => $carbon->setTimestamp( ( new DetectInstallationDate() )->theme( $theme ) )
+										 ->diffForHumans(),
 			],
 			'flags' => [
 				'has_update'      => $theme->hasUpdate(),

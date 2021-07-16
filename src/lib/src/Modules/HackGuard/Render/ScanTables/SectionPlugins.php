@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 
 class SectionPlugins extends SectionPluginThemesBase {
 
@@ -85,6 +85,8 @@ class SectionPlugins extends SectionPluginThemesBase {
 				'author'       => $plugin->AuthorName,
 				'author_url'   => $plugin->AuthorURI,
 				'file'         => $plugin->file,
+				'installed_at' => $carbon->setTimestamp( ( new DetectInstallationDate() )->plugin( $plugin ) )
+										 ->diffForHumans(),
 				'dir'          => '/'.str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $plugin->getInstallDir() ) ),
 				'abandoned_at' => empty( $abandoned ) ? 0
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),

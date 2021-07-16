@@ -24,7 +24,9 @@
 			{% endif %}
 			<li class="list-group-item">
 				<span class="font-weight-bold">{{ strings.name }}</span>: {{ plugin.info.name }};
-				<span class="font-weight-bold">{{ strings.version }}</span>: {{ plugin.info.version }}
+				<span class="font-weight-bold">{{ strings.version }}</span>: {{ plugin.info.version }};
+				<span class="font-weight-bold">{{ strings.installed_at }}</span>:
+				{{ plugin.info.installed_at }} <small>({{ strings.estimated }})</small>
 			</li>
 			<li class="list-group-item">
 				<span class="font-weight-bold">{{ strings.author }}</span>:
@@ -34,6 +36,7 @@
 			<li class="list-group-item">
 				<span class="font-weight-bold">{{ strings.install_dir }}</span>
 				<code>{{ plugin.info.dir }}</code>
+				<small>({{ strings.rel_to_abspath }})</small>
 			</li>
 
 			{% if flags.ptg_is_restricted %}
