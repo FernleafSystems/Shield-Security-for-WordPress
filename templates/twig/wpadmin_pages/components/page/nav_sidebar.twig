@@ -13,8 +13,8 @@
 						<li class="nav-item mb-0 pl-0 py-1">
 							<span class="text-secondary font-italic text-monospace">{{ mitem.title }}</span>
 						</li>
-					{% for sub in mitem.sub_items %}
-						<li class="mb-2 pl-0 py-1">
+						{% for sub in mitem.sub_items %}
+							<li class="mb-2 pl-0 py-1">
 							<a class="p-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
 							   href="{{ sub.href|default('#') }}"
 									{% for data_key,data_val in sub.data|default([]) %}
@@ -23,13 +23,13 @@
 									{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
 							>{{ sub.title }}</a>
 						</li>
-					{% endfor %}
+						{% endfor %}
 					</ul>
 				</div>
 			{% endif %}
 
 			<a class="nav-link p-0 {{ mitem.classes|default([])|join( ' ' ) }} mb-1 text-center"
-			   href="{{ mitem.href|default('#') }}"
+			   href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
 					{% for data_key,data_val in mitem.data|default([]) %}
 						data-{{ data_key }}="{{ data_val }}"
 					{% endfor %}
