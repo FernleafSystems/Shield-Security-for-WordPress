@@ -15,10 +15,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 
 	use Shield\Modules\ModConsumer;
 
-	/**
-	 * @return bool
-	 */
-	public function repairItem() {
+	public function repairItem() :bool {
 		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 		/** @var Shield\Modules\HackGuard\Options $opts */
@@ -69,59 +66,56 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		return $success;
 	}
 
-	/**
-	 * @param ResultItem $item
-	 * @return bool
-	 */
-	private function repairItemByDelete( $item ) {
-		return Services\Services::WpFs()->deleteFile( $item->path_full );
+	private function repairItemByDelete( ResultItem $item ) :bool {
+		return (bool)Services\Services::WpFs()->deleteFile( $item->path_full );
 	}
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() {
+	public function canRepair() :bool {
 		return $this->canAutoRepairFromSource( $this->getScanItem() );
 	}
 
 	/**
 	 * Can only repair a WP Core file, or a plugin that is WP.org, has no update available
 	 * and the latest version uses SVN tags.
-	 * @param ResultItem $oItem
+	 * @param ResultItem $item
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canAutoRepairFromSource( $oItem ) {
-		$bCanRepair = Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment );
-		if ( !$bCanRepair ) {
+	public function canAutoRepairFromSource( ResultItem $item ) :bool {
 
-			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-			if ( $oPlugin instanceof Services\Core\VOs\Assets\WpPluginVo ) {
-				if ( !$oPlugin->isWpOrg() ) {
+		$canRepair = Services\Services::CoreFileHashes()->isCoreFile( $item->path_fragment );
+		if ( !$canRepair ) {
+
+			$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
+			if ( !empty( $plugin ) ) {
+				if ( !$plugin->isWpOrg() ) {
 					throw new \Exception( sprintf(
 							__( "%s not installed from WordPress.org.", 'wp-simple-firewall' ),
 							__( 'Plugin', 'wp-simple-firewall' )
 						)
 					);
 				}
-				if ( !$oPlugin->svn_uses_tags ) {
+				if ( !$plugin->svn_uses_tags ) {
 					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
 				}
 
-				$bCanRepair = true;
+				$canRepair = true;
 			}
 			else {
-				$oTheme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
-				if ( $oTheme instanceof Services\Core\VOs\Assets\WpThemeVo ) {
-					if ( $oTheme->is_child ) {
+				$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
+				if ( !empty( $theme ) ) {
+					if ( $theme->is_child ) {
 						throw new \Exception( sprintf(
 								__( "%s is a child of another theme.", 'wp-simple-firewall' ),
 								__( 'Theme', 'wp-simple-firewall' )
 							)
 						);
 					}
-					if ( !$oTheme->isWpOrg() ) {
+					if ( !$theme->isWpOrg() ) {
 						throw new \Exception( sprintf(
 								__( "%s not installed from WordPress.org.", 'wp-simple-firewall' ),
 								__( 'Theme', 'wp-simple-firewall' )
@@ -129,32 +123,32 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 						);
 					}
 					if ( !( new WpOrg\Theme\Versions() )
-						->setWorkingSlug( $oTheme->stylesheet )
-						->exists( $oTheme->version, true ) ) {
+						->setWorkingSlug( $theme->stylesheet )
+						->exists( $theme->version, true ) ) {
 						throw new \Exception( __( "Theme version doesn't appear to exist.", 'wp-simple-firewall' ) );
 					}
 
-					$bCanRepair = true;
+					$canRepair = true;
 				}
 			}
 		}
 
-		return $bCanRepair;
+		return $canRepair;
 	}
 
 	/**
-	 * @param ResultItem $oItem
+	 * @param ResultItem $item
 	 * @return bool
 	 */
-	private function repairCoreItem( $oItem ) {
-		$oFiles = Services\Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
+	private function repairCoreItem( $item ) :bool {
+		$files = Services\Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 		try {
-			$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
+			$success = $files->replaceFileFromVcs( $item->path_fragment );
 		}
 		catch ( \InvalidArgumentException $e ) {
-			$bSuccess = false;
+			$success = false;
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
@@ -199,19 +193,19 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	}
 
 	/**
-	 * @param ResultItem $oItem
+	 * @param ResultItem $item
 	 * @return bool
 	 */
-	private function repairItemInTheme( $oItem ) {
+	private function repairItemInTheme( $item ) :bool {
 		$success = false;
 
 		$oFiles = new WpOrg\Theme\Files();
 		try {
-			if ( $oFiles->isValidFileFromTheme( $oItem->path_full ) ) {
-				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
+			if ( $oFiles->isValidFileFromTheme( $item->path_full ) ) {
+				$success = $oFiles->replaceFileFromVcs( $item->path_full );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+				$success = (bool)Services\Services::WpFs()->deleteFile( $item->path_full );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {

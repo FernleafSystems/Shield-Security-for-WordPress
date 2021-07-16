@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\VulnVO;
  * @property int    $wpvuln_id
  * @property array  $wpvuln_vo
  */
-class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
 	public function generateHash() :string {
 		return md5( $this->slug.$this->wpvuln_id );

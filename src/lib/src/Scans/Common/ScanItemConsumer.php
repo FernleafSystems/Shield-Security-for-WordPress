@@ -2,28 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Common;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 
 trait ScanItemConsumer {
 
 	/**
-	 * @var BaseResultItem
+	 * @var ResultItem
 	 */
-	private $oScanItem;
+	private $scanItem;
 
 	/**
-	 * @return BaseResultItem|mixed
+	 * @return ResultItem|mixed
 	 */
 	public function getScanItem() {
-		return $this->oScanItem;
+		return $this->scanItem;
 	}
 
 	/**
-	 * @param BaseResultItem|mixed $oItem
+	 * @param ResultItem|mixed $item
 	 * @return $this
 	 */
-	public function setScanItem( $oItem ) {
-		$this->oScanItem = $oItem;
+	public function setScanItem( $item ) {
+		$this->scanItem = $item;
 		return $this;
 	}
 }

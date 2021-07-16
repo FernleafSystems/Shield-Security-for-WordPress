@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "11.4.4",
-    "release_timestamp":       1625589161,
-    "build":                   "202107.0801",
+    "version":                 "11.4.11",
+    "release_timestamp":       1626426930,
+    "build":                   "202107.1601",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -53,7 +53,7 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "bootstrap-select"
+        "shield/scantables"
       ],
       "js":  [
         "select2",
@@ -61,7 +61,8 @@
         "jquery/featherlight",
         "jquery/fileDownload",
         "shield/tours",
-        "bootstrap-select"
+        "bootstrap-select",
+        "shield/scantables"
       ]
     },
     "frontend":     {
@@ -91,16 +92,27 @@
             "plugin"
           ]
         },
-        "datatables":             {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css",
+        "datatables-bootstrap":             {
+          "url":  "https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
+          ]
+        },
+        "datatables-select":             {
+          "url":  "https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css",
+          "deps": [
+            "datatables-bootstrap"
+          ]
+        },
+        "datatables-buttons":             {
+          "url":  "https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css",
+          "deps": [
+            "datatables-bootstrap"
           ]
         },
         "global-plugin":          {},
         "plugin":                 {
           "deps": [
-            "datatables",
             "bootstrap",
             "global-plugin"
           ]
@@ -136,7 +148,18 @@
           ],
           "footer": true
         },
-        "shield/mainwp":          {}
+        "shield/mainwp":          {},
+        "shield/scantables":          {
+          "deps": [
+            "datatables-select",
+            "datatables-buttons",
+            "datatables-bootstrap",
+            "tp/highlightjs"
+          ]
+        },
+        "tp/highlightjs":            {
+          "url":        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css"
+        }
       },
       "js":  {
         "bootstrap":              {
@@ -164,10 +187,28 @@
           ]
         },
         "datatables":             {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
+          ]
+        },
+        "datatables-bootstrap":             {
+          "url":  "https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js",
+          "deps": [
+            "datatables"
+          ]
+        },
+        "datatables-select":             {
+          "url":  "https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js",
+          "deps": [
+            "datatables"
+          ]
+        },
+        "datatables-buttons":             {
+          "url":  "https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js",
+          "deps": [
+            "datatables-bootstrap"
           ]
         },
         "global-plugin":          {
@@ -178,7 +219,7 @@
         "plugin":                 {
           "deps": [
             "bootstrap",
-            "datatables",
+            "datatables-bootstrap",
             "global-plugin",
             "shield/navigation",
             "base64.min",
@@ -249,6 +290,14 @@
             "plugin"
           ]
         },
+        "shield/scantables":          {
+          "deps": [
+            "datatables-select",
+            "datatables-buttons",
+            "datatables-bootstrap",
+            "tp/highlightjs"
+          ]
+        },
         "shield/tours":           {
           "deps": [
             "plugin",
@@ -305,6 +354,9 @@
             "async": "async",
             "defer": "defer"
           }
+        },
+        "tp/highlightjs":            {
+          "url":        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
         }
       }
     }

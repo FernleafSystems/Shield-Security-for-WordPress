@@ -1553,7 +1553,7 @@ body.folded #FooterBannerGoPro {
 	border-color: rgb(177 216 178);
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	min-width: 150px;
+	min-width: 120px;
 }
 #NavSideBar a.nav-link:hover {
 }
@@ -1719,4 +1719,37 @@ body.folded #FooterBannerGoPro {
 	background: -webkit-linear-gradient(top, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeded', endColorstr='#f9acac', GradientType=0); /* IE6-9 */
+}
+#ScanResultsPlugins li.nav-item a.nav-link {
+	/*background-color: white;*/
+	border: 1px solid #c2c2c2;
+	border-radius: 3px;
+	margin-right: 0;
+}
+#ScanResultsTabs table td.actions {
+	white-space: nowrap;
+}
+#ScanResultsTabs table td.file {
+}
+#ScanResultsTabs table button.btn.action {
+	padding: 3px 6px;
+	line-height: 16px;
+}
+
+#CodeRenderModal pre.icwp-code-render {
+	counter-reset: line;
+}
+#CodeRenderModal pre.icwp-code-render > code {
+	counter-increment: line;
+	background-color: transparent;
+	padding: 0;
+	display: block;
+}
+#CodeRenderModal pre.icwp-code-render > code:before {
+	content: counter(line);
+	width: 32px;
+	display: inline-block;
+}
+#CodeRenderModal pre.icwp-code-render > code:before {
+	-webkit-user-select: none;
 }

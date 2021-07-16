@@ -15,49 +15,54 @@ class ConvertBetweenTypes {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oResultsSet
+	 * @param Scans\Base\ResultsSet $resultsSet
 	 * @return Databases\Scanner\EntryVO[]|mixed
 	 */
-	public function fromResultsToVOs( $oResultsSet ) {
+	public function fromResultsToVOs( $resultsSet ) {
 		$vos = [];
-		foreach ( $oResultsSet->getAllItems() as $item ) {
-			/** @var Scans\Base\BaseResultItem $item */
+		foreach ( $resultsSet->getAllItems() as $item ) {
+			/** @var Scans\Base\ResultItem $item */
 			$vos[ $item->generateHash() ] = $this->convertResultItemToVO( $item );
 		}
 		return $vos;
 	}
 
 	/**
-	 * @param Databases\Scanner\EntryVO[] $aVOs
-	 * @return Scans\Base\BaseResultsSet|mixed
+	 * @param Databases\Scanner\EntryVO[] $VOs
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
-	public function fromVOsToResultsSet( $aVOs ) {
-		$oRes = $this->getScanController()->getNewResultsSet();
-		foreach ( $aVOs as $oVo ) {
-			$oRes->addItem( $this->convertVoToResultItem( $oVo ) );
+	public function fromVOsToResultsSet( $VOs ) {
+		$results = $this->getScanController()->getNewResultsSet();
+		foreach ( $VOs as $VO ) {
+			$results->addItem( $this->convertVoToResultItem( $VO ) );
 		}
-		return $oRes;
+		return $results;
 	}
 
 	/**
-	 * @param Databases\Scanner\EntryVO $oVo
-	 * @return Scans\Base\BaseResultItem
+	 * @param Databases\Scanner\EntryVO $VO
+	 * @return Scans\Base\ResultItem
 	 */
-	public function convertVoToResultItem( $oVo ) {
-		return $this->getScanController()
-					->getNewResultItem()
-					->applyFromArray( $oVo->meta );
+	public function convertVoToResultItem( Databases\Scanner\EntryVO $VO ) {
+		$item = $this->getScanController()
+					 ->getNewResultItem()
+					 ->applyFromArray( $VO->meta );
+		$item->VO = $VO;
+		return $item;
 	}
 
 	/**
-	 * @param Scans\Base\BaseResultItem $oIt
+	 * @param Scans\Base\ResultItem $item
 	 * @return Databases\Scanner\EntryVO
 	 */
-	private function convertResultItemToVO( $oIt ) {
-		$oVo = new Databases\Scanner\EntryVO();
-		$oVo->hash = $oIt->hash;
-		$oVo->meta = $oIt->getData();
-		$oVo->scan = $this->getScanController()->getSlug();
-		return $oVo;
+	private function convertResultItemToVO( $item ) {
+		$vo = new Databases\Scanner\EntryVO();
+		$vo->hash = $item->hash;
+		$vo->meta = $item->getData();
+		$vo->scan = $this->getScanController()->getSlug();
+		if ( isset( $item->record_id ) ) {
+			$vo->id = $item->record_id;
+		}
+		return $vo;
 	}
 }

@@ -15,18 +15,18 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	/**
 	 * @return bool
 	 */
-	public function repairItem() {
-		/** @var Wcf\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$sPath = trim( wp_normalize_path( $oItem->path_fragment ), '/' );
-		return ( new Scans\Helpers\WpCoreFile() )->replace( $sPath );
+	public function repairItem() :bool {
+		/** @var Wcf\ResultItem $item */
+		$item = $this->getScanItem();
+		$path = trim( wp_normalize_path( $item->path_fragment ), '/' );
+		return ( new Scans\Helpers\WpCoreFile() )->replace( $path );
 	}
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() {
+	public function canRepair() :bool {
 		/** @var Wcf\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		return Services::CoreFileHashes()->isCoreFile( $oItem->path_full );

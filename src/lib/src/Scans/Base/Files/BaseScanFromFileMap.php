@@ -15,7 +15,7 @@ abstract class BaseScanFromFileMap {
 	use Scans\Common\ScanActionConsumer;
 
 	/**
-	 * @return Scans\Base\BaseResultsSet
+	 * @return Scans\Base\ResultsSet
 	 */
 	public function run() {
 		$action = $this->getScanActionVO();
@@ -24,7 +24,7 @@ abstract class BaseScanFromFileMap {
 		if ( is_array( $action->items ) ) {
 			foreach ( $action->items as $key => $fullPath ) {
 				$item = $this->getFileScanner()->scan( $fullPath );
-				if ( $item instanceof Scans\Base\BaseResultItem ) {
+				if ( $item instanceof Scans\Base\ResultItem ) {
 					$results->addItem( $item );
 				}
 			}

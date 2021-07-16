@@ -15,7 +15,7 @@ class ResultsStore {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oToStore
+	 * @param Scans\Base\ResultsSet $oToStore
 	 */
 	public function store( $oToStore ) {
 		$oSCon = $this->getScanController();

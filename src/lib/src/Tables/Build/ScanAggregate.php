@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-/**
- * Class ScanAggregate
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
- */
 class ScanAggregate extends ScanBase {
 
 	/**
@@ -20,8 +16,8 @@ class ScanAggregate extends ScanBase {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 
-		foreach ( $this->getIncludedScanSlugs() as $sScan ) {
-			$mod->getScanCon( $sScan )->cleanStalesResults();
+		foreach ( $this->getIncludedScanSlugs() as $scan ) {
+			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
 
 		return $this;
@@ -118,8 +114,8 @@ class ScanAggregate extends ScanBase {
 	/**
 	 * @return string[]
 	 */
-	private function getIncludedScanSlugs() {
-		return [ 'mal', 'wcf', 'ufc', 'ptg' ];
+	private function getIncludedScanSlugs() :array {
+		return [ 'mal' ];
 	}
 
 	protected function getCustomParams() :array {

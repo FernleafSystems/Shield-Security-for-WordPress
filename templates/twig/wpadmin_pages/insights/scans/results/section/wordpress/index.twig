@@ -1,0 +1,66 @@
+{% set wp = vars.wordpress %}
+<div class="row mt-3" id="ScanResultsWordpress">
+	<div class="col-12">
+
+		<ul class="list-group">
+			{% if wp.flags.is_vulnerable %}
+				<li class="list-group-item list-group-item-danger">
+					<span class="font-weight-bold">{{ strings.vulnerable }}</span>:
+					{{ strings.vulnerable_known }}
+					{{ strings.vulnerable_update }}
+				</li>
+			{% endif %}
+			{% if wp.flags.has_update %}
+				<li class="list-group-item list-group-item-warning">
+					<span class="font-weight-bold">
+						<a href="{{ hrefs.upgrade }}" target="_blank">{{ strings.update_available }}</a>
+					</span>
+				</li>
+			{% endif %}
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.version }}</span>: {{ wp.info.version }}
+			</li>
+			<li class="list-group-item">
+				<span class="font-weight-bold">{{ strings.install_dir }}</span>
+				<code>{{ wp.info.dir }}</code>
+			</li>
+			{% if wp.flags.has_core_files %}
+				<li class="list-group-item list-group-item-danger">
+					<span class="font-weight-bold">{{ strings.file_integrity }}</span>
+					<span>{{ strings.files_found }}</span>
+				</li>
+			{% else %}
+				<li class="list-group-item list-group-item-success">
+					<span class="font-weight-bold">{{ strings.file_integrity }}</span>
+					<span>{{ strings.no_files }}</span>
+				</li>
+			{% endif %}
+		</ul>
+	</div>
+
+	<div class="col-12">
+		<div class="row mt-3">
+			{% if wp.flags.has_core_files %}
+				<div class="col">
+					<table id="table_id-wordpress"
+						   class="table table-striped table-bordered" style="width: 100%;"></table>
+				</div>
+				<script>
+					jQuery( document ).ready( function () {
+						jQuery( '#table_id-wordpress' ).icwpWpsfScanTableActions(
+							{
+								'type': 'wordpress',
+								'file': 'wordpress',
+								'ajax': {
+									'scantable_action':{{ ajax.scantable_action|raw }},
+								},
+								'datatables_init': {{ vars.datatables_init|raw }}
+							}
+						);
+					} );
+				</script>
+			{% endif %}
+		</div>
+	</div>
+
+</div>

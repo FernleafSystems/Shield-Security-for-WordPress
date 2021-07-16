@@ -63,7 +63,7 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 			'download' => [
 				'text'    => sprintf( __( 'Download %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
 				'classes' => [ 'href-download', 'text-info' ],
-				'data'    => [ 'href-download' => $this->getScanController()->createFileDownloadLink( $this->getEntryVO() ) ]
+				'data'    => [ 'href-download' => $this->getScanController()->createFileDownloadLink( $this->getEntryVO()->id ) ]
 			],
 		];
 	}

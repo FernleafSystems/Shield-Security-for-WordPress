@@ -19,6 +19,15 @@ class UI extends BaseShield\UI {
 			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
 		}
 
+		foreach ( $opts->getScanSlugs() as $scan ) {
+			$mod->getScanCon( $scan )->cleanStalesResults();
+		}
+
+		$sectionBuilderPlugins = ( new Render\ScanTables\SectionPlugins() )->setMod( $this->getMod() );
+		$sectionBuilderThemes = ( new Render\ScanTables\SectionThemes() )->setMod( $this->getMod() );
+		$sectionBuilderWordpress = ( new Render\ScanTables\SectionWordpress() )->setMod( $this->getMod() );
+		$sectionBuilderMalware = ( new Render\ScanTables\SectionMalware() )->setMod( $this->getMod() );
+
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
@@ -72,31 +81,36 @@ class UI extends BaseShield\UI {
 			'vars'         => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
+				'sections'            => [
+					'plugins'   => [
+						'count' => $sectionBuilderPlugins->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+					'themes'    => [
+						'count' => $sectionBuilderThemes->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+					'wordpress' => [
+						'count' => $sectionBuilderWordpress->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+					'malware' => [
+						'count' => $sectionBuilderMalware->getRenderData()[ 'vars' ][ 'count_items' ]
+					],
+				]
 			],
 			'hrefs'        => [
-				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection('section_enable_plugin_feature_hack_protection_tools'),
+				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $this->getCon()
 											 ->getModule_Insights()
 											 ->getUrl_ScansResults(),
 			],
-			'scan_results' => [
+			'content'      => [
+				'section' => [
+					'plugins'   => $sectionBuilderPlugins->render(),
+					'themes'    => $sectionBuilderThemes->render(),
+					'wordpress' => $sectionBuilderWordpress->render(),
+					'malware'   => $sectionBuilderMalware->render(),
+				]
 			],
-			'aggregate'    => [
-				'flags'   => [
-					'has_items' => true,
-				],
-				'hrefs'   => [
-					'options' => $mod->getUrl_DirectLinkToSection( 'section_scan_options' )
-				],
-				'vars'    => [
-				],
-				'strings' => [
-					'title'    => __( 'File Scan', 'wp-simple-firewall' ),
-					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
-				],
-				'count'   => $selector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
-									  ->filterByNotIgnored()
-									  ->count()
+			'scan_results' => [
 			],
 			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [
@@ -121,7 +135,7 @@ class UI extends BaseShield\UI {
 				'apc' => [
 					'flags'   => [
 						'has_items'  => true,
-						'show_table' => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -155,7 +169,7 @@ class UI extends BaseShield\UI {
 				'wpv' => [
 					'flags'   => [
 						'has_items'  => true,
-						'show_table' => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -213,17 +227,14 @@ class UI extends BaseShield\UI {
 		return $aOptParams;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getFileLockerVars() {
+	protected function getFileLockerVars() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$oLockCon = $mod->getFileLocker();
-		$oLockLoader = ( new Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $mod );
-		$aProblemLocks = $oLockLoader->withProblems();
-		$aGoodLocks = $oLockLoader->withoutProblems();
+		$lockerCon = $mod->getFileLocker();
+		$lockLoader = ( new Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $mod );
+		$problemLocks = $lockLoader->withProblems();
+		$goodLocks = $lockLoader->withoutProblems();
 
 		return [
 			'ajax'    => [
@@ -231,7 +242,7 @@ class UI extends BaseShield\UI {
 				'filelocker_fileaction' => $mod->getAjaxActionData( 'filelocker_fileaction', true ),
 			],
 			'flags'   => [
-				'is_enabled'    => $oLockCon->isEnabled(),
+				'is_enabled'    => $lockerCon->isEnabled(),
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
@@ -240,8 +251,9 @@ class UI extends BaseShield\UI {
 			],
 			'vars'    => [
 				'file_locks' => [
-					'good' => $aGoodLocks,
-					'bad'  => $aProblemLocks,
+					'good'        => $goodLocks,
+					'bad'         => $problemLocks,
+					'count_items' => count( $problemLocks ),
 				],
 			],
 			'strings' => [
@@ -249,7 +261,7 @@ class UI extends BaseShield\UI {
 				'subtitle'      => __( 'Results of file locker monitoring', 'wp-simple-firewall' ),
 				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
 			],
-			'count'   => count( $aProblemLocks )
+			'count'   => count( $problemLocks )
 		];
 	}
 
@@ -267,7 +279,7 @@ class UI extends BaseShield\UI {
 
 		return [
 			'flags'   => [
-				'has_items'   => $mod->isPtgEnabled() ? !empty( $aPtgResults ) : false,
+				'has_items'   => $mod->isPtgEnabled() && !empty( $aPtgResults ),
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
 				'show_table'  => false,
@@ -294,9 +306,9 @@ class UI extends BaseShield\UI {
 
 			case 'section_realtime':
 				$canHandshake = $this->getCon()
-									  ->getModule_Plugin()
-									  ->getShieldNetApiController()
-									  ->canHandshake();
+									 ->getModule_Plugin()
+									 ->getShieldNetApiController()
+									 ->canHandshake();
 				if ( !$canHandshake ) {
 					$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
 				}

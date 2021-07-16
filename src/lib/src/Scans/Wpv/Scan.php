@@ -16,7 +16,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$oCopier = new Shield\Scans\Helpers\CopyResultsSets();
 		foreach ( $oAction->items as $sFile => $sContext ) {
 			$oNewRes = $this->scanItem( $sContext, $sFile );
-			if ( $oNewRes instanceof Shield\Scans\Base\BaseResultsSet ) {
+			if ( $oNewRes instanceof Shield\Scans\Base\ResultsSet ) {
 				$oCopier->copyTo( $oNewRes, $oTempRs );
 			}
 		}

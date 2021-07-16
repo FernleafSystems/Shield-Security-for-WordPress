@@ -12,7 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
  * @property int[]  $file_lines
  * @property int    $fp_confidence - false positive confidence level
  */
-class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
 	public function generateHash() :string {
 		return md5( $this->path_full );

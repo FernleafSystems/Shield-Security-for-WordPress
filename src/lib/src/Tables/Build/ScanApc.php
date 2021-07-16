@@ -28,15 +28,15 @@ class ScanApc extends ScanBase {
 		$oWpPlugins = Services::WpPlugins();
 		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $entry */
-			/** @var Shield\Scans\Apc\ResultItem $oIt */
-			$oIt = $oConverter
+			/** @var Shield\Scans\Apc\ResultItem $item */
+			$item = $oConverter
 				->setScanController( $mod->getScanCon( $entry->scan ) )
 				->convertVoToResultItem( $entry );
-			$oPlugin = $oWpPlugins->getPluginAsVo( $oIt->slug );
+			$oPlugin = $oWpPlugins->getPluginAsVo( $item->slug );
 			$aE = $entry->getRawData();
 			$aE[ 'plugin' ] = sprintf( '%s (%s)', $oPlugin->Name, $oPlugin->Version );
 			$aE[ 'status' ] = sprintf( '%s: %s',
-				__( 'Abandoned', 'wp-simple-firewall' ), $oCarbon->setTimestamp( $oIt->last_updated_at )
+				__( 'Abandoned', 'wp-simple-firewall' ), $oCarbon->setTimestamp( $item->last_updated_at )
 																 ->diffForHumans() );
 			$aE[ 'ignored' ] = $this->formatIsIgnored( $entry );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );

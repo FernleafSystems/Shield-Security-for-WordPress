@@ -15,6 +15,14 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	}
 
 	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function repairDelete() :bool {
+		return $this->delete();
+	}
+
+	/**
 	 * @return Repair
 	 */
 	public function getRepairer() {

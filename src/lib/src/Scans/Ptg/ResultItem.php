@@ -13,7 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
  * @property string $is_different
  * @property string $is_missing
  */
-class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
 	public function generateHash() :string {
 		return md5( $this->path_full );

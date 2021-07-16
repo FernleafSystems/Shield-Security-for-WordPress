@@ -49,7 +49,7 @@ abstract class BaseEntryFormatter {
 			'download' => [
 				'text'    => __( 'Download', 'wp-simple-firewall' ),
 				'classes' => [ 'href-download', 'text-info' ],
-				'data'    => [ 'href-download' => $this->getScanController()->createFileDownloadLink( $this->getEntryVO() ) ]
+				'data'    => [ 'href-download' => $this->getScanController()->createFileDownloadLink( $this->getEntryVO()->id ) ]
 			],
 		];
 	}
@@ -59,7 +59,7 @@ abstract class BaseEntryFormatter {
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultItem|mixed
+	 * @return Scans\Base\ResultItem|mixed
 	 */
 	protected function getResultItem() {
 		return ( new Scan\Results\ConvertBetweenTypes() )

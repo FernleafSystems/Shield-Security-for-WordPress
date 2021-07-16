@@ -16,6 +16,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$req = Services::Request();
 		switch ( $action ) {
 
+			case 'scantable_action':
+				$response = $this->ajaxExec_ScanTableAction();
+				break;
+
 			case 'scans_start':
 				$response = $this->ajaxExec_StartScans();
 				break;
@@ -441,5 +445,20 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'page_reload'   => $reloadPage && !$isScanRunning,
 			'message'       => $msg,
 		];
+	}
+
+	private function ajaxExec_ScanTableAction() :array {
+		try {
+			return ( new Lib\ScanTables\DelegateAjaxHandler() )
+				->setMod( $this->getMod() )
+				->processAjaxAction();
+		}
+		catch ( \Exception $e ) {
+			return [
+				'success'     => false,
+				'page_reload' => true,
+				'message'     => $e->getMessage(),
+			];
+		}
 	}
 }

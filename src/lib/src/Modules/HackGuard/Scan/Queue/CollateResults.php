@@ -17,7 +17,7 @@ class CollateResults {
 
 	/**
 	 * @param string $sScanSlug
-	 * @return Scans\Base\BaseResultsSet|mixed|null
+	 * @return Scans\Base\ResultsSet|mixed|null
 	 */
 	public function collate( $sScanSlug ) {
 		/** @var Databases\ScanQueue\Handler $oDbH */

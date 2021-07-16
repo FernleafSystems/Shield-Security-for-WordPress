@@ -71,13 +71,13 @@ class Processor extends BaseShield\Processor {
 	private function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
 
-		$oWpPlugins = Services::WpPlugins();
-		foreach ( array_keys( $oWpPlugins->getUpdates() ) as $sFile ) {
-			$aAssVers[ 'plugins' ][ $sFile ] = $oWpPlugins->getPluginAsVo( $sFile )->Version;
+		$WPP = Services::WpPlugins();
+		foreach ( array_keys( $WPP->getUpdates() ) as $file ) {
+			$aAssVers[ 'plugins' ][ $file ] = $WPP->getPluginAsVo( $file )->Version;
 		}
-		$oWpThemes = Services::WpThemes();
-		foreach ( array_keys( $oWpThemes->getUpdates() ) as $sFile ) {
-			$aAssVers[ 'themes' ][ $sFile ] = $oWpThemes->getTheme( $sFile )->get( 'Version' );
+		$WPT = Services::WpThemes();
+		foreach ( array_keys( $WPT->getUpdates() ) as $file ) {
+			$aAssVers[ 'themes' ][ $file ] = $WPT->getTheme( $file )->get( 'Version' );
 		}
 		$this->assetsVersions = $aAssVers;
 	}
