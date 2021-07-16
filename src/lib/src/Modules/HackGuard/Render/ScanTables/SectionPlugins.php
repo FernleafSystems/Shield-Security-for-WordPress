@@ -18,28 +18,43 @@ class SectionPlugins extends SectionPluginThemesBase {
 	}
 
 	protected function buildRenderData() :array {
-		$plugins = $this->buildPluginsData();
-		ksort( $plugins );
+		$items = $this->buildPluginsData();
+		ksort( $items );
 
+		$hashes = [];
+		$abandoned = [];
+		$vulnerable = [];
 		$problems = [];
-		$active = [];
+		$inactive = [];
 		$updates = [];
-		foreach ( $plugins as $key => $plugin ) {
-			if ( $plugin[ 'flags' ][ 'has_issue' ] ) {
-				unset( $plugins[ $key ] );
-				$problems[] = $plugin;
+		foreach ( $items as $key => $item ) {
+			if ( $item[ 'flags' ][ 'has_guard_files' ] ) {
+				unset( $items[ $key ] );
+				$hashes[] = $item;
 			}
-			elseif ( $plugin[ 'flags' ][ 'has_update' ] ) {
-				unset( $plugins[ $key ] );
-				$updates[] = $plugin;
+			elseif ( $item[ 'flags' ][ 'is_vulnerable' ] ) {
+				unset( $items[ $key ] );
+				$vulnerable[] = $item;
 			}
-			elseif ( $plugin[ 'info' ][ 'active' ] ) {
-				unset( $plugins[ $key ] );
-				$active[] = $plugin;
+			elseif ( $item[ 'flags' ][ 'is_abandoned' ] ) {
+				unset( $items[ $key ] );
+				$abandoned[] = $item;
+			}
+			elseif ( $item[ 'flags' ][ 'has_issue' ] ) {
+				unset( $items[ $key ] );
+				$problems[] = $item;
+			}
+			elseif ( $item[ 'flags' ][ 'has_update' ] ) {
+				unset( $items[ $key ] );
+				$updates[] = $item;
+			}
+			elseif ( !$item[ 'info' ][ 'active' ] ) {
+				unset( $items[ $key ] );
+				$inactive[] = $item;
 			}
 		}
 
-		$plugins = array_merge( $problems, $updates, $active, $plugins );
+		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $updates, $inactive, $items );
 
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
@@ -51,7 +66,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 						   ],
 						   'vars'    => [
 							   'count_items' => count( $problems ) + count( $updates ),
-							   'plugins'     => array_values( $plugins ),
+							   'plugins'     => array_values( $items ),
 						   ]
 					   ] );
 	}

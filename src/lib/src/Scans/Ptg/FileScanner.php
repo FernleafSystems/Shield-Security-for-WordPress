@@ -42,7 +42,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$item = $this->scanWithCsHashes( $fullPath, $asset );
 			}
 			catch ( \Exception $eScan ) {
-				error_log( $eScan->getMessage() );
 				$item = $this->scanWithStore( $fullPath, $asset );
 			}
 		}

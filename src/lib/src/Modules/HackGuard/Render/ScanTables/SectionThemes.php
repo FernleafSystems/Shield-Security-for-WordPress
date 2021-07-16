@@ -23,11 +23,26 @@ class SectionThemes extends SectionPluginThemesBase {
 		$items = $this->buildThemesData();
 		ksort( $items );
 
+		$hashes = [];
+		$abandoned = [];
+		$vulnerable = [];
 		$problems = [];
-		$active = [];
+		$inactive = [];
 		$updates = [];
 		foreach ( $items as $key => $item ) {
-			if ( $item[ 'flags' ][ 'has_issue' ] ) {
+			if ( $item[ 'flags' ][ 'has_guard_files' ] ) {
+				unset( $items[ $key ] );
+				$hashes[] = $item;
+			}
+			elseif ( $item[ 'flags' ][ 'is_vulnerable' ] ) {
+				unset( $items[ $key ] );
+				$vulnerable[] = $item;
+			}
+			elseif ( $item[ 'flags' ][ 'is_abandoned' ] ) {
+				unset( $items[ $key ] );
+				$abandoned[] = $item;
+			}
+			elseif ( $item[ 'flags' ][ 'has_issue' ] ) {
 				unset( $items[ $key ] );
 				$problems[] = $item;
 			}
@@ -35,13 +50,13 @@ class SectionThemes extends SectionPluginThemesBase {
 				unset( $items[ $key ] );
 				$updates[] = $item;
 			}
-			elseif ( $item[ 'info' ][ 'active' ] ) {
+			elseif ( !$item[ 'info' ][ 'active' ] ) {
 				unset( $items[ $key ] );
-				$active[] = $item;
+				$inactive[] = $item;
 			}
 		}
 
-		$items = array_merge( $problems, $updates, $active, $items );
+		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $updates, $inactive, $items );
 
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
