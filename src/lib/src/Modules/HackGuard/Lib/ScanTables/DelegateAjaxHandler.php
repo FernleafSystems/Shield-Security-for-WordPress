@@ -77,14 +77,8 @@ class DelegateAjaxHandler {
 
 		// We don't rescan for ignores or malware
 		$rescanSlugs = array_diff( $scanSlugs, [ HackGuard\Scan\Controller\Mal::SCAN_SLUG ] );
-
-		if ( empty( $rescanSlugs ) || in_array( $action, [ 'ignore' ] ) ) {
-			$msg .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
-		}
-		else {
-			// rescan
+		if ( !empty( $rescanSlugs ) && !in_array( $action, [ 'ignore' ] ) ) {
 			$mod->getScanQueueController()->startScans( $rescanSlugs );
-			$msg .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 		}
 
 		return [

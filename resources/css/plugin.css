@@ -1731,7 +1731,7 @@ body.folded #FooterBannerGoPro {
 }
 #ScanResultsTabs table td.file {
 }
-#ScanResultsTabs table button.btn.action {
+button.btn.action {
 	padding: 3px 6px;
 	line-height: 16px;
 }

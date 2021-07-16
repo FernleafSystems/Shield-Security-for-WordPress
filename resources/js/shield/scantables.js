@@ -157,7 +157,8 @@
 		};
 
 		base.sendReq = function ( reqData, forceTableReload = false ) {
-			iCWP_WPSF_BodyOverlay.show();
+
+			$( 'html' ).css( 'cursor', 'wait' );
 
 			$.post( ajaxurl, reqData,
 				function ( response ) {
@@ -183,13 +184,13 @@
 					}
 				}
 			).always( function () {
-					iCWP_WPSF_BodyOverlay.hide();
+				$( "html" ).css( "cursor", 'initial' );
 				}
 			);
 		};
 
 		base.getBaseAjaxData = function () {
-			return JSON.parse( JSON.stringify( base.options.ajax[ 'scantable_action' ] ) );
+			return JSON.parse( JSON.stringify( base.options.ajax[ 'scanresults_action' ] ) );
 		};
 
 		base.setupDatatable = function () {

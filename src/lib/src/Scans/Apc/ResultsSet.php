@@ -20,7 +20,7 @@ class ResultsSet extends Base\ResultsSet {
 		/** @var ResultItem $item */
 		foreach ( $this->getItems() as $item ) {
 			if ( $item->slug === $slug ) {
-				$theItem = ( new ResultItem() )->applyFromArray( $item->getRawData() );
+				$theItem = $item;
 				break;
 			}
 		}

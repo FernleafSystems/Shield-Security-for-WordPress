@@ -19,7 +19,7 @@
     }
   },
   "require":           {
-    "php":                                   ">=8.0",
+    "php":                                   ">=7.0",
     "fernleafsystems/wordpress-plugin-core": "^0.6",
     "dolondro/google-authenticator":         "^2.1",
     "fernleafsystems/zxcvbn-php":            "^1.0",

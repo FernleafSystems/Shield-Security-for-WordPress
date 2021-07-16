@@ -53,7 +53,7 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "shield/scantables"
+        "shield/scanners"
       ],
       "js":  [
         "select2",
@@ -62,7 +62,7 @@
         "jquery/fileDownload",
         "shield/tours",
         "bootstrap-select",
-        "shield/scantables"
+        "shield/scanners"
       ]
     },
     "frontend":     {
@@ -149,7 +149,7 @@
           "footer": true
         },
         "shield/mainwp":          {},
-        "shield/scantables":          {
+        "shield/scanners":          {
           "deps": [
             "datatables-select",
             "datatables-buttons",
@@ -288,6 +288,11 @@
         "shield/tables":          {
           "deps": [
             "plugin"
+          ]
+        },
+        "shield/scanners":          {
+          "deps": [
+            "shield/scantables"
           ]
         },
         "shield/scantables":          {
