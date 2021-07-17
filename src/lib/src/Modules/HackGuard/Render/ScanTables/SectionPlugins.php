@@ -108,6 +108,16 @@ class SectionPlugins extends SectionPluginThemesBase {
 				'abandoned_at' => empty( $abandoned ) ? 0
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
+			'hrefs' => [
+				'vul_info' => add_query_arg(
+					[
+						'type'    => $plugin->asset_type,
+						'slug'    => $plugin->slug,
+						'version' => $plugin->Version,
+					],
+					'https://shsec.io/shieldvulnerabilitylookup'
+				),
+			],
 			'flags' => [
 				'has_update'      => $plugin->hasUpdate(),
 				'is_abandoned'    => !empty( $abandoned ),

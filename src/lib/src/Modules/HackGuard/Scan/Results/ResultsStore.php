@@ -24,6 +24,7 @@ class ResultsStore {
 		$VOs = ( new ConvertBetweenTypes() )
 			->setScanController( $scanCon )
 			->fromResultsToVOs( $resultsToStore );
+
 		foreach ( $VOs as $vo ) {
 			$inserter->insert( $vo );
 		}

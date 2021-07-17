@@ -112,6 +112,16 @@ class SectionThemes extends SectionPluginThemesBase {
 				'child_theme'  => $theme->is_parent ? $theme->child_theme->Name : '',
 				'parent_theme' => $theme->is_child ? $theme->parent_theme->Name : '',
 			],
+			'hrefs' => [
+				'vul_info' => add_query_arg(
+					[
+						'type'    => $theme->asset_type,
+						'slug'    => $theme->stylesheet,
+						'version' => $theme->Version,
+					],
+					'https://shsec.io/shieldvulnerabilitylookup'
+				),
+			],
 			'flags' => [
 				'has_update'      => $theme->hasUpdate(),
 				'is_abandoned'    => !empty( $abandoned ),

@@ -14,11 +14,11 @@ abstract class BaseForAssets extends Base {
 	protected function isResultItemStale( $item ) :bool {
 		if ( $item->context == 'plugins' ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
-			$stale = empty( $asset ) || !$asset->active;
+			$stale = empty( $asset );
 		}
 		else {
 			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
-			$stale = empty( $asset ) || ( !$asset->active && !$asset->is_parent );
+			$stale = empty( $asset );
 		}
 		return $stale;
 	}

@@ -7,6 +7,7 @@
 					<span class="font-weight-bold">{{ strings.vulnerable }}</span>:
 					{{ strings.vulnerable_known }}
 					{{ strings.vulnerable_update }}
+					<a href="{{ theme.hrefs.vul_info }}" target="_blank">{{ strings.more_info }}</a>
 				</li>
 			{% endif %}
 			{% if theme.flags.is_abandoned %}

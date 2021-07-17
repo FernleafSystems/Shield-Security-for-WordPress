@@ -7,6 +7,7 @@
 					<span class="font-weight-bold">{{ strings.vulnerable }}</span>:
 					{{ strings.vulnerable_known }}
 					{{ strings.vulnerable_update }}
+					<a href="{{ plugin.hrefs.vul_info }}" target="_blank">{{ strings.more_info }}</a>
 				</li>
 			{% endif %}
 			{% if plugin.flags.is_abandoned %}
@@ -83,25 +84,25 @@
 <script>
 	jQuery( document ).ready( function () {
 		{% if plugin.flags.is_abandoned %}
-			jQuery( '#PluginSection-{{ plugin.info.slug }}' ).icwpWpsfScanResultsActions(
-				{
-					'ajax': {
-						'scanresults_action':{{ ajax.scanresults_action|raw }},
-					}
+		jQuery( '#PluginSection-{{ plugin.info.slug }}' ).icwpWpsfScanResultsActions(
+			{
+				'ajax': {
+					'scanresults_action':{{ ajax.scanresults_action|raw }},
 				}
-			);
+			}
+		);
 		{% endif %}
 		{% if plugin.flags.has_guard_files %}
-			jQuery( '#table_id-{{ plugin.info.slug }}' ).icwpWpsfScanTableActions(
-				{
-					'type': '{{ plugin.info.type }}',
-					'file': '{{ plugin.info.file }}',
-					'ajax': {
-						'scanresults_action':{{ ajax.scanresults_action|raw }},
-					},
-					'datatables_init': {{ vars.datatables_init|raw }}
-				}
-			);
+		jQuery( '#table_id-{{ plugin.info.slug }}' ).icwpWpsfScanTableActions(
+			{
+				'type': '{{ plugin.info.type }}',
+				'file': '{{ plugin.info.file }}',
+				'ajax': {
+					'scanresults_action':{{ ajax.scanresults_action|raw }},
+				},
+				'datatables_init': {{ vars.datatables_init|raw }}
+			}
+		);
 		{% endif %}
 	} );
 </script>
