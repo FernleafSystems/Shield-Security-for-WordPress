@@ -26,7 +26,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 		$vulnerable = [];
 		$problems = [];
 		$inactive = [];
-		$updates = [];
+		$warning = [];
 		foreach ( $items as $key => $item ) {
 			if ( $item[ 'flags' ][ 'has_guard_files' ] ) {
 				unset( $items[ $key ] );
@@ -44,17 +44,13 @@ class SectionPlugins extends SectionPluginThemesBase {
 				unset( $items[ $key ] );
 				$problems[] = $item;
 			}
-			elseif ( $item[ 'flags' ][ 'has_update' ] ) {
+			elseif ( $item[ 'flags' ][ 'has_warning' ] ) {
 				unset( $items[ $key ] );
-				$updates[] = $item;
-			}
-			elseif ( !$item[ 'info' ][ 'active' ] ) {
-				unset( $items[ $key ] );
-				$inactive[] = $item;
+				$warning[] = $item;
 			}
 		}
 
-		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $updates, $inactive, $items );
+		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
 
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
@@ -66,7 +62,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 						   ],
 						   'vars'    => [
 							   'count_items' => count( $vulnerable ) + count( $hashes )
-												+ count( $abandoned ) + count( $problems ) + count( $updates ),
+												+ count( $abandoned ) + count( $problems ),
 							   'plugins'     => array_values( $items ),
 						   ]
 					   ] );
@@ -94,7 +90,6 @@ class SectionPlugins extends SectionPluginThemesBase {
 		$data = [
 			'info'  => [
 				'type'         => 'plugin',
-				'active'       => $plugin->active,
 				'name'         => $plugin->Title,
 				'slug'         => $plugin->slug,
 				'description'  => $plugin->Description,
@@ -120,20 +115,26 @@ class SectionPlugins extends SectionPluginThemesBase {
 			],
 			'flags' => [
 				'has_update'      => $plugin->hasUpdate(),
-				'is_abandoned'    => !empty( $abandoned ),
 				'has_guard_files' => !empty( $guardFilesData ),
+				'is_abandoned'    => !empty( $abandoned ),
+				'is_active'       => $plugin->active,
 				'is_vulnerable'   => !empty( $vulnerabilities ),
 				'is_wporg'        => $plugin->isWpOrg(),
 			],
 			'vars'  => [
 				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->id,
 				'count_items'   => count( $guardFilesData ) + count( $vulnerabilities )
-								   + ( empty( $abandoned ) ? 0 : 1 ) + ( $plugin->hasUpdate() ? 1 : 0 )
+								   + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
 										  || $data[ 'flags' ][ 'has_guard_files' ]
 										  || $data[ 'flags' ][ 'is_vulnerable' ];
+		$data[ 'flags' ][ 'has_warning' ] = !$data[ 'flags' ][ 'has_issue' ]
+											&& (
+												!$data[ 'flags' ][ 'is_active' ]
+												|| $data[ 'flags' ][ 'has_update' ]
+											);
 		return $data;
 	}
 }

@@ -23,7 +23,7 @@
 					</span>
 				</li>
 			{% endif %}
-			{% if not theme.info.active %}
+			{% if not theme.flags.is_active %}
 				<li class="list-group-item list-group-item-warning">
 					{{ strings.not_active }}
 				</li>

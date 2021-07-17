@@ -27,7 +27,7 @@
 					</span>
 				</li>
 			{% endif %}
-			{% if not plugin.info.active %}
+			{% if not plugin.flags.is_active %}
 				<li class="list-group-item list-group-item-warning">
 					{{ strings.not_active }}
 				</li>

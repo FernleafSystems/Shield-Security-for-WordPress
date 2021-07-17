@@ -10,6 +10,8 @@
 					>
 						{% if theme.vars.count_items > 0 %}
 							<span class="badge badge-danger float-right">{{ theme.vars.count_items }}</span>
+						{% elseif theme.flags.has_warning %}
+							<span class="badge badge-warning float-right">&excl;</span>
 						{% else %}
 							<span class="badge badge-success float-right">&check;</span>
 						{% endif %}

@@ -28,7 +28,7 @@ class SectionThemes extends SectionPluginThemesBase {
 		$vulnerable = [];
 		$problems = [];
 		$inactive = [];
-		$updates = [];
+		$warning = [];
 		foreach ( $items as $key => $item ) {
 			if ( $item[ 'flags' ][ 'has_guard_files' ] ) {
 				unset( $items[ $key ] );
@@ -46,17 +46,13 @@ class SectionThemes extends SectionPluginThemesBase {
 				unset( $items[ $key ] );
 				$problems[] = $item;
 			}
-			elseif ( $item[ 'flags' ][ 'has_update' ] ) {
+			elseif ( $item[ 'flags' ][ 'has_warning' ] ) {
 				unset( $items[ $key ] );
-				$updates[] = $item;
-			}
-			elseif ( !$item[ 'info' ][ 'active' ] ) {
-				unset( $items[ $key ] );
-				$inactive[] = $item;
+				$warning[] = $item;
 			}
 		}
 
-		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $updates, $inactive, $items );
+		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
 
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
@@ -68,7 +64,7 @@ class SectionThemes extends SectionPluginThemesBase {
 						   ],
 						   'vars'    => [
 							   'count_items' => count( $vulnerable ) + count( $hashes )
-												+ count( $abandoned ) + count( $problems ) + count( $updates ),
+												+ count( $abandoned ) + count( $problems ),
 							   'themes'      => array_values( $items ),
 						   ]
 					   ] );
@@ -96,7 +92,6 @@ class SectionThemes extends SectionPluginThemesBase {
 		$data = [
 			'info'  => [
 				'type'         => 'theme',
-				'active'       => $theme->active || $theme->is_parent,
 				'name'         => $theme->Name,
 				'slug'         => $theme->slug,
 				'description'  => $theme->Description,
@@ -126,18 +121,25 @@ class SectionThemes extends SectionPluginThemesBase {
 				'has_update'      => $theme->hasUpdate(),
 				'is_abandoned'    => !empty( $abandoned ),
 				'has_guard_files' => !empty( $guardFilesData ),
+				'is_active'       => $theme->active || $theme->is_parent,
 				'is_vulnerable'   => !empty( $vulnerabilities ),
 				'is_wporg'        => $theme->isWpOrg(),
 				'is_child'        => $theme->is_child,
 				'is_parent'       => $theme->is_parent,
 			],
 			'vars'  => [
-				'count_items' => count( $guardFilesData ) + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
+				'count_items' => count( $guardFilesData ) + count( $vulnerabilities )
+								 + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
 										  || $data[ 'flags' ][ 'has_guard_files' ]
 										  || $data[ 'flags' ][ 'is_vulnerable' ];
+		$data[ 'flags' ][ 'has_warning' ] = !$data[ 'flags' ][ 'has_issue' ]
+											&& (
+												!$data[ 'flags' ][ 'is_active' ]
+												|| $data[ 'flags' ][ 'has_update' ]
+											);
 		return $data;
 	}
 }
