@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanResults;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,7 +28,8 @@ class SectionBase {
 						   $this->getMod()->getUIHandler()->getBaseDisplayData(),
 						   [
 							   'ajax'    => [
-								   'scanresults_action' => $this->getMod()->getAjaxActionData( 'scanresults_action', true ),
+								   'scanresults_action' => $this->getMod()
+																->getAjaxActionData( 'scanresults_action', true ),
 							   ],
 							   'strings' => [
 								   'author'            => __( 'Author' ),

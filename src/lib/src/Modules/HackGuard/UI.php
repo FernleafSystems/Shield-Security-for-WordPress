@@ -23,10 +23,11 @@ class UI extends BaseShield\UI {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
 
-		$sectionBuilderPlugins = ( new Render\ScanTables\SectionPlugins() )->setMod( $this->getMod() );
-		$sectionBuilderThemes = ( new Render\ScanTables\SectionThemes() )->setMod( $this->getMod() );
-		$sectionBuilderWordpress = ( new Render\ScanTables\SectionWordpress() )->setMod( $this->getMod() );
-		$sectionBuilderMalware = ( new Render\ScanTables\SectionMalware() )->setMod( $this->getMod() );
+		$sectionBuilderPlugins = ( new Render\ScanResults\SectionPlugins() )->setMod( $this->getMod() );
+		$sectionBuilderThemes = ( new Render\ScanResults\SectionThemes() )->setMod( $this->getMod() );
+		$sectionBuilderWordpress = ( new Render\ScanResults\SectionWordpress() )->setMod( $this->getMod() );
+		$sectionBuilderMalware = ( new Render\ScanResults\SectionMalware() )->setMod( $this->getMod() );
+		$sectionBuilderLog = ( new Render\ScanResults\SectionMalware() )->setMod( $this->getMod() );
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();

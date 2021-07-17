@@ -49,25 +49,25 @@
 				</li>
 			{% endif %}
 			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.install_dir }}</span>
+				<span class="font-weight-bold">{{ strings.install_dir }}</span>:
 				<code>{{ theme.info.dir }}</code>
 				<small>({{ strings.rel_to_abspath }})</small>
 			</li>
 
 			{% if flags.ptg_is_restricted %}
 				<li class="list-group-item list-group-item-warning">
-					<span class="font-weight-bold">{{ strings.file_integrity }}:</span>
+					<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
 					<span>{{ strings.ptg_not_available }}</span>
 				</li>
 			{% else %}
 				{% if theme.flags.has_guard_files %}
 					<li class="list-group-item list-group-item-danger">
-						<span class="font-weight-bold">{{ strings.file_integrity }}</span>
+						<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
 						<span>{{ strings.files_found }}</span>
 					</li>
 				{% else %}
 					<li class="list-group-item list-group-item-success">
-						<span class="font-weight-bold">{{ strings.file_integrity }}</span>
+						<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
 						<span>{{ strings.no_files }}</span>
 					</li>
 				{% endif %}

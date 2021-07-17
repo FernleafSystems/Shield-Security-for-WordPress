@@ -21,17 +21,17 @@
 				<span class="font-weight-bold">{{ strings.version }}</span>: {{ wp.info.version }}
 			</li>
 			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.install_dir }}</span>
+				<span class="font-weight-bold">{{ strings.install_dir }}</span>:
 				<code>{{ wp.info.dir }}</code>
 			</li>
 			{% if wp.flags.has_core_files %}
 				<li class="list-group-item list-group-item-danger">
-					<span class="font-weight-bold">{{ strings.file_integrity }}</span>
+					<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
 					<span>{{ strings.files_found }}</span>
 				</li>
 			{% else %}
 				<li class="list-group-item list-group-item-success">
-					<span class="font-weight-bold">{{ strings.file_integrity }}</span>
+					<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
 					<span>{{ strings.no_files }}</span>
 				</li>
 			{% endif %}
