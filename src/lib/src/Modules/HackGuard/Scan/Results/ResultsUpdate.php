@@ -15,38 +15,39 @@ class ResultsUpdate {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\ResultsSet $oNewResults
+	 * @param Scans\Base\ResultsSet $newResults
 	 */
-	public function update( $oNewResults ) {
-		$oSCon = $this->getScanController();
-		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
+	public function update( $newResults ) {
+		$scanCon = $this->getScanController();
+		$newCopy = clone $newResults; // so we don't modify these for later use.
 
-		$oExisting = ( new ResultsRetrieve() )
-			->setScanController( $oSCon )
+		$existing = ( new ResultsRetrieve() )
+			->setScanController( $scanCon )
 			->retrieve();
 
-		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
+		$itemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $existing, $newCopy );
+
 		( new ResultsDelete() )
-			->setScanController( $oSCon )
-			->delete( $oItemsToDelete );
+			->setScanController( $scanCon )
+			->delete( $itemsToDelete );
 
 		( new ResultsStore() )
-			->setScanController( $oSCon )
-			->store( $oNewCopy );
+			->setScanController( $scanCon )
+			->store( $newCopy );
 
-		$oUp = $oSCon->getScanResultsDbHandler()->getQueryUpdater();
-		/** @var Databases\Scanner\EntryVO $oVo */
-		$oConverter = ( new ConvertBetweenTypes() )->setScanController( $oSCon );
-		foreach ( $oConverter->fromResultsToVOs( $oExisting ) as $oVo ) {
-			$oUp->reset()
-				->setUpdateData( $oVo->getRawData() )
-				->setUpdateWheres(
-					[
-						'scan' => $oSCon->getSlug(),
-						'hash' => $oVo->hash,
-					]
-				)
-				->query();
+		$updater = $scanCon->getScanResultsDbHandler()->getQueryUpdater();
+		/** @var Databases\Scanner\EntryVO $vo */
+		$converter = ( new ConvertBetweenTypes() )->setScanController( $scanCon );
+		foreach ( $converter->fromResultsToVOs( $existing ) as $vo ) {
+			$updater->reset()
+					->setUpdateData( $vo->getRawData() )
+					->setUpdateWheres(
+						[
+							'scan' => $scanCon->getSlug(),
+							'hash' => $vo->hash,
+						]
+					)
+					->query();
 		}
 	}
 }

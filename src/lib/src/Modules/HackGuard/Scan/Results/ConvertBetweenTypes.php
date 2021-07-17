@@ -60,9 +60,6 @@ class ConvertBetweenTypes {
 		$vo->hash = $item->hash;
 		$vo->meta = $item->getData();
 		$vo->scan = $this->getScanController()->getSlug();
-		if ( isset( $item->record_id ) ) {
-			$vo->id = $item->record_id;
-		}
 		return $vo;
 	}
 }

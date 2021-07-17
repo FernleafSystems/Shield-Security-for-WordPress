@@ -27,25 +27,25 @@ class CompleteQueue {
 		$con = $this->getCon();
 		/** @var Databases\ScanQueue\Handler $dbh */
 		$dbh = $this->getDbHandler();
-		$oSel = $dbh->getQuerySelector();
+		$selector = $dbh->getQuerySelector();
 
-		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $scanSlug ) {
+		foreach ( $selector->getDistinctForColumn( 'scan' ) as $scanSlug ) {
 
-			$oScanCon = $mod->getScanCon( $scanSlug );
+			$scanCon = $mod->getScanCon( $scanSlug );
 
-			$oResultsSet = ( new CollateResults() )
-				->setScanController( $oScanCon )
+			$resultsSet = ( new CollateResults() )
+				->setScanController( $scanCon )
 				->setDbHandler( $dbh )
 				->collate( $scanSlug );
 
 			$con->fireEvent( $scanSlug.'_scan_run' );
 
-			if ( $oResultsSet instanceof Scans\Base\ResultsSet ) {
+			if ( $resultsSet instanceof Scans\Base\ResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
-					->setScanController( $oScanCon )
-					->update( $oResultsSet );
+					->setScanController( $scanCon )
+					->update( $resultsSet );
 
-				if ( $oResultsSet->countItems() > 0 ) {
+				if ( $resultsSet->countItems() > 0 ) {
 					$con->fireEvent( $scanSlug.'_scan_found' );
 				}
 			}

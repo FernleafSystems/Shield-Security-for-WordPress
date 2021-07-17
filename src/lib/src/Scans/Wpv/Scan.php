@@ -9,25 +9,24 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Vulnerabi
 class Scan extends Shield\Scans\Base\BaseScan {
 
 	protected function scanSlice() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oTempRs = $oAction->getNewResultsSet();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		$tmpResults = $action->getNewResultsSet();
 
-		$oCopier = new Shield\Scans\Helpers\CopyResultsSets();
-		foreach ( $oAction->items as $sFile => $sContext ) {
-			$oNewRes = $this->scanItem( $sContext, $sFile );
-			if ( $oNewRes instanceof Shield\Scans\Base\ResultsSet ) {
-				$oCopier->copyTo( $oNewRes, $oTempRs );
+		$copier = new Shield\Scans\Helpers\CopyResultsSets();
+		foreach ( $action->items as $file => $context ) {
+			$results = $this->scanItem( $context, $file );
+			if ( $results instanceof Shield\Scans\Base\ResultsSet ) {
+				$copier->copyTo( $results, $tmpResults );
 			}
 		}
-
-		$aNewItems = [];
-		if ( $oTempRs->hasItems() ) {
-			foreach ( $oTempRs->getAllItems() as $item ) {
-				$aNewItems[] = $item->getRawData();
+		$items = [];
+		if ( $tmpResults->hasItems() ) {
+			foreach ( $tmpResults->getAllItems() as $item ) {
+				$items[] = $item->getRawData();
 			}
 		}
-		$oAction->results = $aNewItems;
+		$action->results = $items;
 	}
 
 	/**

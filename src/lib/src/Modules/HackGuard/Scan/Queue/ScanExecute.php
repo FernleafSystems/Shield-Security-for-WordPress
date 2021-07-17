@@ -14,30 +14,29 @@ class ScanExecute {
 	use Shield\Modules\ModConsumer;
 
 	/**
-	 * @param ScanQueue\EntryVO $oEntry
+	 * @param ScanQueue\EntryVO $entry
 	 * @return ScanQueue\EntryVO
 	 * @throws \Exception
 	 */
-	public function execute( $oEntry ) {
+	public function execute( $entry ) {
 		/** @var Shield\Modules\HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$oDbH = $mod->getDbHandler_ScanQueue();
-		$oTypeConverter = ( new ConvertBetweenTypes() )->setDbHandler( $oDbH );
 
-		$oAction = $oTypeConverter->fromDbEntryToAction( $oEntry );
+		$action = ( new ConvertBetweenTypes() )
+			->setDbHandler( $mod->getDbHandler_ScanQueue() )
+			->fromDbEntryToAction( $entry );
 
-		$this->getScanner( $oAction )
-			 ->setScanActionVO( $oAction )
+		$this->getScanner( $action )
+			 ->setScanActionVO( $action )
 			 ->setMod( $mod )
 			 ->run();
 
-		if ( $oAction->usleep > 0 ) {
-			usleep( $oAction->usleep );
+		if ( $action->usleep > 0 ) {
+			usleep( $action->usleep );
 		}
 
-		$oEntry->results = $oAction->results;
-
-		return $oEntry;
+		$entry->results = $action->results;
+		return $entry;
 	}
 
 	/**

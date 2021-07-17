@@ -20,32 +20,32 @@ class CollateResults {
 	 * @return Scans\Base\ResultsSet|mixed|null
 	 */
 	public function collate( $sScanSlug ) {
-		/** @var Databases\ScanQueue\Handler $oDbH */
-		$oDbH = $this->getDbHandler();
-		/** @var Databases\ScanQueue\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
-		$oSel->filterByScan( $sScanSlug )
-			 ->setResultsAsVo( true );
-		$oSCon = $this->getScanController();
+		/** @var Databases\ScanQueue\Handler $dbh */
+		$dbh = $this->getDbHandler();
+		/** @var Databases\ScanQueue\Select $selector */
+		$selector = $dbh->getQuerySelector();
+		$selector->filterByScan( $sScanSlug )
+				 ->setResultsAsVo( true );
+		$scanCon = $this->getScanController();
 
-		$oResultsSet = null;
-		/** @var Databases\ScanQueue\EntryVO $oEntry */
-		foreach ( $oSel->query() as $oEntry ) {
-			$oAction = ( new ConvertBetweenTypes() )
-				->setDbHandler( $oDbH )
-				->fromDbEntryToAction( $oEntry );
+		$resultsSet = null;
+		/** @var Databases\ScanQueue\EntryVO $entry */
+		foreach ( $selector->query() as $entry ) {
+			$action = ( new ConvertBetweenTypes() )
+				->setDbHandler( $dbh )
+				->fromDbEntryToAction( $entry );
 
-			if ( empty( $oResultsSet ) ) {
-				$oResultsSet = $oSCon->getNewResultsSet();
+			if ( empty( $resultsSet ) ) {
+				$resultsSet = $scanCon->getNewResultsSet();
 			}
 
-			foreach ( $oAction->results as $aResItemData ) {
-				$oResultsSet->addItem(
-					$oAction->getNewResultItem()->applyFromArray( $aResItemData )
+			foreach ( $action->results as $aResItemData ) {
+				$resultsSet->addItem(
+					$action->getNewResultItem()->applyFromArray( $aResItemData )
 				);
 			}
 		}
 
-		return $oResultsSet;
+		return $resultsSet;
 	}
 }

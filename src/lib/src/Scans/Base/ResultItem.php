@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 /**
  * Class BaseResultItem
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- * @property int     $record_id
  * @property string  $hash
  * @property bool    $is_excluded
  * @property string  $scan

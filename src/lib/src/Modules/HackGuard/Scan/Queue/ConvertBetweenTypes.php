@@ -15,15 +15,15 @@ class ConvertBetweenTypes {
 	use Databases\Base\HandlerConsumer;
 
 	/**
-	 * @param Databases\ScanQueue\EntryVO $oEntry
+	 * @param Databases\ScanQueue\EntryVO $entry
 	 * @return Scans\Base\BaseScanActionVO|mixed
 	 */
-	public function fromDbEntryToAction( $oEntry ) {
-		$oScanAction = ScanActionFromSlug::GetAction( $oEntry->scan );
-		$oScanAction->applyFromArray( $oEntry->meta );
-		$oScanAction->items = $oEntry->items;
-		$oScanAction->results = $oEntry->results;
-		return $oScanAction;
+	public function fromDbEntryToAction( $entry ) {
+		$action = ScanActionFromSlug::GetAction( $entry->scan );
+		$action->applyFromArray( $entry->meta );
+		$action->items = $entry->items;
+		$action->results = $entry->results;
+		return $action;
 	}
 
 	/**
