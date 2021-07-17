@@ -121,3 +121,15 @@
 		{% include '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig' %}
 	</div>
 </div>
+
+<script>
+	(function ( $ ) {
+		$( document ).ready( function () {
+			$( '.nav-vertical a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( evt ) {
+				console.log();
+				let target = document.querySelector( evt.currentTarget.getAttribute( 'href' ) );
+				window.scrollTo( { top: 0, behavior: 'smooth' } )
+			} );
+		} );
+	})( jQuery );
+</script>
