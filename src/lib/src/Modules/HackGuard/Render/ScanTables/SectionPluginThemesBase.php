@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Apc;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Ptg;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Wpv;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForPluginTheme;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SectionPluginThemesBase extends SectionBase {
@@ -26,7 +26,7 @@ class SectionPluginThemesBase extends SectionBase {
 							   'ptg_is_restricted' => $mod->getScanCon( Ptg::SCAN_SLUG )->isRestricted(),
 						   ],
 						   'vars'    => [
-							   'datatables_init' => ( new BuildForPluginTheme() )
+							   'datatables_init' => ( new ForPluginTheme() )
 								   ->setMod( $this->getMod() )
 								   ->build()
 						   ]

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables\BuildForWordpress;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForWordpress;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SectionWordpress extends SectionBase {
@@ -28,7 +28,7 @@ class SectionWordpress extends SectionBase {
 						   'vars'    => [
 							   'count_items'     => $wpData[ 'vars' ][ 'count_items' ],
 							   'wordpress'       => $wpData,
-							   'datatables_init' => ( new BuildForWordpress() )
+							   'datatables_init' => ( new ForWordpress() )
 								   ->setMod( $this->getMod() )
 								   ->build()
 						   ]

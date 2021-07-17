@@ -1,96 +1,37 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildDataTables;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Base;
 
-class BaseBuild {
-
-	use ModConsumer;
-
-	public function build() :string {
-		return json_encode( [
-			'columns' => $this->getColumnsForDisplay(),
-			'order'   => $this->getInitialOrdering()
-		] );
-	}
-
-	/**
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function getInitialOrdering() :array {
-		$thePosition = 0;
-		foreach ( $this->getColumnsForDisplay() as $position => $columnDef ) {
-			if ( $columnDef === $this->getOrderColumnSlug() ) {
-				$thePosition = $position;
-				break;
-			}
-		}
-		return [
-			[ $thePosition, $this->getOrderMethod() ]
-		];
-	}
+class BaseForScan extends Base {
 
 	protected function getOrderColumnSlug() :string {
 		return 'detected';
 	}
 
-	protected function getOrderMethod() :string {
-		return 'desc';
-	}
-
-	/**
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function getColumnsForDisplay() :array {
-		$columns = [];
-		foreach ( $this->getColumnsToDisplay() as $colSlug ) {
-			$columns[] = $this->pluckColumn( $colSlug );
-		}
-		return $columns;
-	}
-
 	protected function getColumnsToDisplay() :array {
 		return [
 			'rid',
-			'file',
+			'file_as_href',
+			'status',
+			'file_type',
+			'detected',
+			'actions',
 		];
-	}
-
-	/**
-	 * @param string $columnSlug
-	 * @return array
-	 * @throws \Exception
-	 */
-	protected function pluckColumn( string $columnSlug ) :array {
-		$col = null;
-		foreach ( $this->getColumnDefs() as $columnDef ) {
-			if ( $columnDef[ 'slug' ] === $columnSlug ) {
-				$col = $columnDef;
-				break;
-			}
-		}
-		if ( empty( $col ) ) {
-			throw new \Exception( 'Column Definition does not exist for slug: '.$columnSlug );
-		}
-		return $col;
 	}
 
 	protected function getColumnDefs() :array {
 		return [
-			[
-				'slug'       => 'rid',
+			'rid'           => [
 				'data'       => 'rid',
 				'title'      => 'ID',
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => false,
 			],
-			[
-				'slug'       => 'file',
+			'file'          => [
 				'data'       => 'file',
 				'title'      => __( 'File' ),
 				'className'  => 'file',
@@ -98,8 +39,7 @@ class BaseBuild {
 				'searchable' => true,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'file_as_href',
+			'file_as_href'  => [
 				'data'       => 'file_as_href',
 				'title'      => __( 'File' ),
 				'className'  => 'file_as_href',
@@ -107,8 +47,7 @@ class BaseBuild {
 				'searchable' => true,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'file_type',
+			'file_type'     => [
 				'data'       => 'file_type',
 				'title'      => __( 'Type' ),
 				'className'  => 'file_type',
@@ -116,8 +55,7 @@ class BaseBuild {
 				'searchable' => true,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'status',
+			'status'        => [
 				'data'       => 'status',
 				'title'      => __( 'Status' ),
 				'className'  => 'status',
@@ -125,8 +63,7 @@ class BaseBuild {
 				'searchable' => false,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'detected',
+			'detected'      => [
 				'data'       => [
 					'_'    => 'detected_since',
 					'sort' => 'detected_at',
@@ -137,8 +74,7 @@ class BaseBuild {
 				'searchable' => false,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'actions',
+			'actions'       => [
 				'data'       => 'actions',
 				'title'      => __( 'Actions' ),
 				'className'  => 'actions',
@@ -146,8 +82,7 @@ class BaseBuild {
 				'searchable' => false,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'fp_confidence',
+			'fp_confidence' => [
 				'data'       => 'fp_confidence',
 				'title'      => __( 'False Positive Confidence' ),
 				'className'  => 'fp_confidence',
@@ -155,8 +90,7 @@ class BaseBuild {
 				'searchable' => false,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'line_numbers',
+			'line_numbers'  => [
 				'data'       => 'line_numbers',
 				'title'      => __( 'Line Numbers' ),
 				'className'  => 'line_numbers',
@@ -164,8 +98,7 @@ class BaseBuild {
 				'searchable' => false,
 				'visible'    => true,
 			],
-			[
-				'slug'       => 'mal_sig',
+			'mal_sig'       => [
 				'data'       => 'mal_sig',
 				'title'      => __( 'Pattern Detected' ),
 				'className'  => 'mal_sig',
