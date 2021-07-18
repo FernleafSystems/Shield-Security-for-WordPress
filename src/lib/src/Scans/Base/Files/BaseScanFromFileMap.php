@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Utilities\Code\AssessPhpFile;
@@ -19,22 +20,23 @@ abstract class BaseScanFromFileMap {
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function run() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$action = $this->getScanActionVO();
 		$results = $action->getNewResultsSet();
+
+		$isAutoFilter = $opts->isAutoFilterResults();
 
 		if ( is_array( $action->items ) ) {
 			foreach ( $action->items as $key => $fullPath ) {
 
-				if ( !$this->isEmptyOfCode( $fullPath ) ) {
+				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
 					$item = $this->getFileScanner()->scan( $fullPath );
 					// We can exclude files that are empty of relevant code
 					if ( $item instanceof Scans\Base\ResultItem ) {
 						$results->addItem( $item );
 					}
-				}
-				else {
-					error_log( 'empty' );
-					error_log( $fullPath );
 				}
 			}
 		}

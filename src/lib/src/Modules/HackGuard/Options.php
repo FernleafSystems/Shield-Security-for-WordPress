@@ -107,6 +107,10 @@ class Options extends BaseShield\Options {
 		return $this->getMalConfidenceBoundary() > 0;
 	}
 
+	public function isAutoFilterResults() :bool {
+		return $this->isOpt( 'auto_filter_results', 'Y' );
+	}
+
 	public function isPtgReinstallLinks() :bool {
 		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->isPremium();
 	}

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Mal,
 	Ptg,
@@ -72,19 +73,19 @@ class LoadRawTableData {
 				function ( $item ) {
 					/** @var Scans\Mal\ResultItem $item */
 					$data = $item->getRawData();
+
 					$data[ 'rid' ] = $item->VO->id;
 					$data[ 'file' ] = $item->path_fragment;
 					$data[ 'detected_at' ] = $item->VO->created_at;
 					$data[ 'detected_since' ] = Services::Request()
 														->carbon( true )
 														->setTimestamp( $item->VO->created_at )
-														->diffForHumans();
+													   ->diffForHumans();
 
-					$data[ 'file_as_href' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
-						__( 'View File Contents', 'wp-simple-firewall' ),
-						$item->VO->id,
-						$item->path_fragment
-					);
+					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
+
+					$data[ 'status_slug' ] = 'malware';
+					$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, __( 'Malware', 'wp-simple-firewall' ) );
 
 					$data[ 'line_numbers' ] = implode( ', ', array_map(
 						function ( $line ) {
@@ -93,8 +94,7 @@ class LoadRawTableData {
 						$item->file_lines // because lines start at ZERO
 					) );
 					$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
-					$data[ 'status_slug' ] = 'malware';
-					$data[ 'status' ] = __( 'Malware', 'wp-simple-firewall' );
+
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 					return $data;
@@ -136,11 +136,7 @@ class LoadRawTableData {
 														->diffForHumans();
 
 					if ( !$item->is_missing ) {
-						$data[ 'file_as_href' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
-							__( 'View File Contents', 'wp-simple-firewall' ),
-							$item->VO->id,
-							$item->path_fragment
-						);
+						$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 					}
 					else {
 						$data[ 'file_as_href' ] = $item->path_fragment;
@@ -158,6 +154,8 @@ class LoadRawTableData {
 						$data[ 'status_slug' ] = 'unrecognised';
 						$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
 					}
+					$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, $data[ 'status' ] );
+
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 					return $data;
@@ -204,13 +202,10 @@ class LoadRawTableData {
 					$data[ 'status_slug' ] = 'unrecognised';
 					$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
 				}
+				$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, $data[ 'status' ] );
 
 				if ( !$item->is_missing ) {
-					$data[ 'file_as_href' ] = sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
-						__( 'View File Contents', 'wp-simple-firewall' ),
-						$item->VO->id,
-						$item->path_fragment
-					);
+					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 				}
 				else {
 					$data[ 'file_as_href' ] = $item->path_fragment;
@@ -294,5 +289,40 @@ class LoadRawTableData {
 			}
 		}
 		return self::$GuardFiles;
+	}
+
+	private function getColumnContent_File( Scans\Base\FileResultItem $item ) :string {
+		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
+	}
+
+	private function getColumnContent_FileStatus( Scans\Base\FileResultItem $item, string $status ) :string {
+		$content = $status;
+
+		$FS = Services::WpFs();
+		if ( $FS->isFile( $item->path_full ) ) {
+			$carbon = Services::Request()->carbon( true );
+			$content = sprintf( '%s<ul style="list-style: square inside"><li>%s</li></ul>',
+				$status,
+				implode( '</li><li>', [
+					sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
+						$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )
+							   ->diffForHumans()
+					),
+					sprintf( '%s: %s', __( 'Size', 'wp-simple-firewall' ),
+						FormatBytes::Format( $FS->getFileSize( $item->path_full ) )
+					)
+				] )
+			);
+		}
+
+		return $content;
+	}
+
+	private function getColumnContent_FileAsHref( Scans\Base\FileResultItem $item ) :string {
+		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+			__( 'View File Contents', 'wp-simple-firewall' ),
+			$item->VO->id,
+			$item->path_fragment
+		);
 	}
 }

@@ -386,6 +386,18 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
+      "key":         "auto_filter_results",
+      "section":     "section_scan_options",
+      "premium":     false,
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Filter Results",
+      "summary":     "Automatically Filter Results Of Irrelevant Items",
+      "description": "Automatically remove items from results that are irrelevant."
+    },
+    {
       "key":          "snapshot_users",
       "section":      "section_non_ui",
       "transferable": false,

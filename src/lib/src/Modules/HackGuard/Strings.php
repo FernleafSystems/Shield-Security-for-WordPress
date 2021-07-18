@@ -331,6 +331,15 @@ class Strings extends Base\Strings {
 				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
 				break;
 
+			case 'auto_filter_results' :
+				$name = __( 'Auto-Filter Results', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Filter Results Of Irrelevant Items', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Automatically remove items from results that are irrelevant.', 'wp-simple-firewall' ),
+					__( "An example of this is filtering out results for PHP files that don't have any executable code.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'enabled_scan_apc' :
 				$name = __( 'Abandoned Plugin Scanner', 'wp-simple-firewall' );
 				$summary = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );

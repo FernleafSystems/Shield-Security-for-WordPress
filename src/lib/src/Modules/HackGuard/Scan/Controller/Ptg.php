@@ -85,7 +85,11 @@ class Ptg extends BaseForAssets {
 			}
 			$stale = empty( $asset );
 		}
-		return $stale;
+		return $stale
+			   || (
+				   ( $item->is_unrecognised || $item->is_different )
+				   && !Services::WpFs()->isFile( $item->path_full )
+			   );
 	}
 
 	/**
