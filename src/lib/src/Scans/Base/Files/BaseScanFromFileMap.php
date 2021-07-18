@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\AssessPhpFile;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Code\AssessPhpFile;
 
 /**
  * Class BaseScanFromFileMap

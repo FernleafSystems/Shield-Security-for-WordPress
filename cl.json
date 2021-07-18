@@ -1,4 +1,82 @@
 {
+  "11.5": {
+    "version":     "11.5",
+    "released_at": 1626613844,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease115",
+      "upgrade": "https://shsec.io/shieldupgradeguide115"
+    },
+    "title":       "Revamped Scan Results",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Brand New Arrangements of Scan Results",
+        "description": [
+          "To-data scan results have been presented in tabular format, by listing affected files or assets.",
+          "This release sees a major reorganisation to display results grouped into logical sections and areas, such as by plugin, theme, WordPress etc."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "View Scan File Contents In Browser",
+        "description": [
+          "We've added the ability to view the contents of any file shown in file results directly within your web browser.",
+          "There's no longer any need to download the files, though you still can do this of course."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Remove 'Empty' PHP Files From Results",
+        "description": [
+          "A common problem is where a PHP file that has no executable code in it gets flagged in certain scans.",
+          "It isn't trivial to detect whether a PHP file has executable code, but we've added detection for this scenario."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Scan Results Management",
+        "description": [
+          "We've scrapped the 'WordPress Tables' approach to display results and instead use the powerful DataTables JS plugin.",
+          "This makes display, pagination, refresh and actions far smoother and completely seamless."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Switch To Crowd-Sourced Plugin and Theme Hashes.",
+        "description": [
+          "When scanning plugin and theme files for modification, Shield now uses its ShieldNET crowd-source hashes system.",
+          "This results in more accurate and adaptive hashes accounting for edge-cases better resulting in fewer false positives in scan results."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Malware Scanner Uses Crowd-Sourced Hashing Data",
+        "description": [
+          "False Positives in malware results are frustrating, so the more we can reduce them, the better.",
+          "Shield already removes 99% of false positives automatically from results, before you even see them.",
+          "To improve this, ShieldNET now draws upon Crowd-Source Hashes to eliminate false positives even further."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "WP Admin warning when 2FA by email verification isn't complete.",
+        "description": []
+      },
+      {
+        "type":        "fixed",
+        "title":       "Sidebar navigation bugs.",
+        "description": []
+      }
+    ]
+  },
   "11.4": {
     "version":     "11.4",
     "released_at": 1625560514,
