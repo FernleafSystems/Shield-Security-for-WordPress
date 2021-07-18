@@ -29,7 +29,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	public function scan( string $fullPath ) {
 		$item = null;
-		// file paths are stored in the queue relatives to ABSPATH
 		$fullPath = path_join( wp_normalize_path( ABSPATH ), $fullPath );
 		try {
 			$asset = ( new Plugin\Files() )->findPluginFromFile( $fullPath );

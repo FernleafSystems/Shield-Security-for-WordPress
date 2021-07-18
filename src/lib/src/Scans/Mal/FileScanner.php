@@ -11,10 +11,6 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
-/**
- * Class FileScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
- */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
@@ -43,27 +39,28 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				foreach ( $action->patterns_simple as $signature ) {
 					$item = $this->scanForSig( $signature );
 					if ( $item instanceof ResultItem ) {
-						return $item;
+						break;
 					}
 				}
 			}
 
-			// RegEx Patterns
-			if ( empty( $action->patterns_fullregex ) ) {
+			if ( !$item instanceof ResultItem ) {
+				// RegEx Patterns
 				$this->locator->setIsRegEx( true );
-				foreach ( $action->patterns_regex as $signature ) {
-					$item = $this->scanForSig( $signature );
-					if ( $item instanceof ResultItem ) {
-						return $item;
+				if ( empty( $action->patterns_fullregex ) ) {
+					foreach ( $action->patterns_regex as $signature ) {
+						$item = $this->scanForSig( $signature );
+						if ( $item instanceof ResultItem ) {
+							break;
+						}
 					}
 				}
-			}
-			else { // Full regex patterns
-				$this->locator->setIsRegEx( true );
-				foreach ( $action->patterns_fullregex as $signature ) {
-					$item = $this->scanForSig( $signature );
-					if ( $item instanceof ResultItem ) {
-						return $item;
+				else { // Full regex patterns
+					foreach ( $action->patterns_fullregex as $signature ) {
+						$item = $this->scanForSig( $signature );
+						if ( $item instanceof ResultItem ) {
+							break;
+						}
 					}
 				}
 			}

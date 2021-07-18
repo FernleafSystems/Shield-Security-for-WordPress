@@ -14,7 +14,7 @@
 	$.icwpWpsfScanTableActions = function ( el, options ) {
 		// To avoid scope issues, use 'base' instead of 'this'
 		// to reference this class from internal events and functions.
-		var base = this;
+		const base = this;
 
 		// Access to jQuery and DOM versions of element
 		base.$el = $( el );
