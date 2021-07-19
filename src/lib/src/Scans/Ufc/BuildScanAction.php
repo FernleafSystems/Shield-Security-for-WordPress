@@ -11,10 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->items = ( new Shield\Scans\Ufc\BuildFileMap() )
-			->setScanActionVO( $oAction )
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		$action->items = ( new Shield\Scans\Ufc\BuildFileMap() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $action )
 			->build();
 	}
 

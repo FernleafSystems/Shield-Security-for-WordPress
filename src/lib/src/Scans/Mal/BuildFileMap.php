@@ -2,16 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseBuildFileMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 
-/**
- * Class BuildFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
- */
-class BuildFileMap {
-
-	use ScanActionConsumer;
+class BuildFileMap extends BaseBuildFileMap {
 
 	/**
 	 * @return string[]
@@ -27,10 +22,10 @@ class BuildFileMap {
 			try {
 				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, $action->file_exts, false ) as $item ) {
 					/** @var \SplFileInfo $item */
-					$fullPath = wp_normalize_path( $item->getPathname() );
+					$path = wp_normalize_path( $item->getPathname() );
 					try {
-						if ( !$this->isWhitelistedPath( $fullPath ) && $item->getSize() > 0 ) {
-							$files[] = $fullPath;
+						if ( !$this->isWhitelistedPath( $path ) && !$this->isAutoFilterFile( $item ) ) {
+							$files[] = $path;
 						}
 					}
 					catch ( \Exception $e ) {

@@ -2,18 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseBuildFileMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildFileMap {
-
-	use ScanActionConsumer;
+class BuildFileMap extends BaseBuildFileMap {
 
 	/**
 	 * @return string[]
 	 */
-	public function build() {
+	public function build() :array {
 		$files = [];
 
 		/** @var ScanActionVO $action */
@@ -25,7 +24,7 @@ class BuildFileMap {
 				foreach ( StandardDirectoryIterator::create( $dir, 0, $action->file_exts ) as $item ) {
 					/** @var \SplFileInfo $item */
 					try {
-						if ( $item->getSize() > 0 ) {
+						if ( !$this->isAutoFilterFile( $item ) ) {
 							$files[] = str_replace( $abspath, '', wp_normalize_path( $item->getPathname() ) );
 						}
 					}

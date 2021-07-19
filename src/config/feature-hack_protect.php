@@ -380,7 +380,7 @@
       "default":     "Y",
       "link_info":   "https://shsec.io/bp",
       "link_blog":   "",
-      "beacon_id":   135,
+      "beacon_id":   439,
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
@@ -393,6 +393,7 @@
       "default":     "Y",
       "link_info":   "",
       "link_blog":   "",
+      "beacon_id":   439,
       "name":        "Auto-Filter Results",
       "summary":     "Automatically Filter Results Of Irrelevant Items",
       "description": "Automatically remove items from results that are irrelevant."

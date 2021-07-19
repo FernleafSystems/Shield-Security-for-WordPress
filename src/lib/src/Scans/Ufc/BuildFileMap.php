@@ -2,32 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseBuildFileMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class BuildFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
- */
-class BuildFileMap {
-
-	use ScanActionConsumer;
+class BuildFileMap extends BaseBuildFileMap {
 
 	/**
 	 * @return string[]
 	 */
-	public function build() {
-		$aFiles = [];
-		$oHashes = Services::CoreFileHashes();
-		if ( !$oHashes->isReady() ) {
-			return $aFiles;
+	public function build() :array {
+		$files = [];
+		$coreHashes = Services::CoreFileHashes();
+		if ( !$coreHashes->isReady() ) {
+			return $files;
 		}
 
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
-		foreach ( $oAction->scan_dirs as $sScanDir => $aFileExts ) {
+		foreach ( $action->scan_dirs as $dir => $fileExts ) {
 			try {
 				/**
 				 * The filter handles the bulk of the file inclusions and exclusions
@@ -36,21 +32,21 @@ class BuildFileMap {
 				 * The filter will also be responsible (in this case) for filtering out
 				 * WP Core files from the collection of files to be assessed
 				 */
-				foreach ( StandardDirectoryIterator::create( $sScanDir, 0, $aFileExts, true ) as $oFsItem ) {
-					/** @var \SplFileInfo $oFsItem */
-					$sFullPath = $oFsItem->getPathname();
-					if ( !$oHashes->isCoreFile( $sFullPath ) ) {
-						$aFiles[] = wp_normalize_path( $sFullPath );
+				foreach ( StandardDirectoryIterator::create( $dir, 0, $fileExts, true ) as $file ) {
+					/** @var \SplFileInfo $file */
+					$fullPath = $file->getPathname();
+					if ( !$coreHashes->isCoreFile( $fullPath ) && !$this->isAutoFilterFile( $file ) ) {
+						$files[] = wp_normalize_path( $fullPath );
 					}
 				}
 			}
 			catch ( \Exception $e ) {
 				error_log(
 					sprintf( 'Shield file scanner (%s) attempted to read directory (%s) but there was error: "%s".',
-						$oAction->scan, $sScanDir, $e->getMessage() )
+						$action->scan, $dir, $e->getMessage() )
 				);
 			}
 		}
-		return $aFiles;
+		return $files;
 	}
 }
