@@ -21,24 +21,24 @@ class Remove extends BaseAddRemove {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdIpRemove( array $null, array $aA ) {
+	public function cmdIpRemove( array $null, array $args ) {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 
-		$oDel = ( new IPs\Lib\Ops\DeleteIp() )
+		$deleter = ( new IPs\Lib\Ops\DeleteIp() )
 			->setMod( $mod )
-			->setIP( $aA[ 'ip' ] );
-		if ( $aA[ 'list' ] === 'white' ) {
-			$bSuccess = $oDel->fromWhiteList();
+			->setIP( $args[ 'ip' ] );
+		if ( $args[ 'list' ] === 'white' ) {
+			$success = $deleter->fromWhiteList();
 		}
 		else {
-			$bSuccess = $oDel->fromBlacklist();
+			$success = $deleter->fromBlacklist();
 		}
 
-		$bSuccess ?
+		$success ?
 			WP_CLI::success( __( 'IP address removed successfully.', 'wp-simple-firewall' ) )
 			: WP_CLI::error( __( "IP address couldn't be removed. (It may not be on this list)", 'wp-simple-firewall' ) );
 	}

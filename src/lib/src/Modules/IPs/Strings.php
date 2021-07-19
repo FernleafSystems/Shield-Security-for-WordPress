@@ -325,6 +325,12 @@ class Strings extends Base\Strings {
 			'ip_blocked'              => [
 				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
 			],
+			'ip_block_auto'           => [
+				__( "IP address '%s' automatically added to block list.", 'wp-simple-firewall' )
+			],
+			'ip_block_manual'         => [
+				__( "IP address '%s' manually added to block list.", 'wp-simple-firewall' )
+			],
 			'ip_unblock_flag'         => [
 				__( "IP address '%s' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' )
 			],

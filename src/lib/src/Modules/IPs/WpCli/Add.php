@@ -29,22 +29,22 @@ class Add extends BaseAddRemove {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdIpAdd( array $null, array $aA ) {
+	public function cmdIpAdd( array $null, array $args ) {
 
-		$label = $aA[ 'label' ] ?? 'none';
+		$label = $args[ 'label' ] ?? 'none';
 
-		$oAdder = ( new Ops\AddIp() )
+		$adder = ( new Ops\AddIp() )
 			->setMod( $this->getMod() )
-			->setIP( $aA[ 'ip' ] );
+			->setIP( $args[ 'ip' ] );
 		try {
-			if ( $aA[ 'list' ] === 'white' ) {
-				$oAdder->toManualWhitelist( $label );
+			if ( $args[ 'list' ] === 'white' ) {
+				$adder->toManualWhitelist( $label );
 			}
 			else {
-				$oAdder->toManualBlacklist( $label );
+				$adder->toManualBlacklist( $label );
 			}
 		}
 		catch ( \Exception $e ) {

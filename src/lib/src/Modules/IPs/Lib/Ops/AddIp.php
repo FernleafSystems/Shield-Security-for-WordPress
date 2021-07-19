@@ -59,38 +59,38 @@ class AddIp {
 	}
 
 	/**
-	 * @param string $sLabel
+	 * @param string $label
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	public function toManualBlacklist( $sLabel = '' ) {
+	public function toManualBlacklist( $label = '' ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oIpServ = Services::IP();
+		$srvIP = Services::IP();
 
-		$sIP = $this->getIP();
-		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
+		$ip = $this->getIP();
+		if ( !$srvIP->isValidIp( $ip ) && !$srvIP->isValidIpRange( $ip ) ) {
 			throw new \Exception( "IP address isn't valid." );
 		}
 
 		$IP = null;
-		if ( !in_array( $sIP, $oIpServ->getServerPublicIPs() ) ) {
+		if ( !in_array( $ip, $srvIP->getServerPublicIPs() ) ) {
 
-			if ( $oIpServ->isValidIpRange( $sIP ) ) {
+			if ( $srvIP->isValidIpRange( $ip ) ) {
 				( new DeleteIp() )
 					->setMod( $mod )
-					->setIP( $sIP )
+					->setIP( $ip )
 					->fromBlacklist();
 			}
 
 			$IP = ( new LookupIpOnList() )
 				->setDbHandler( $mod->getDbHandler_IPs() )
 				->setListTypeBlock()
-				->setIP( $sIP )
+				->setIP( $ip )
 				->lookup( false );
 
 			if ( !$IP instanceof Databases\IPs\EntryVO ) {
-				$IP = $this->add( $mod::LIST_MANUAL_BLACK, $sLabel );
+				$IP = $this->add( $mod::LIST_MANUAL_BLACK, $label );
 			}
 
 			$updateData = [
@@ -100,8 +100,8 @@ class AddIp {
 			if ( $IP->list != $mod::LIST_MANUAL_BLACK ) {
 				$updateData[ 'list' ] = $mod::LIST_MANUAL_BLACK;
 			}
-			if ( $IP->label != $sLabel ) {
-				$updateData[ 'label' ] = $sLabel;
+			if ( $IP->label != $label ) {
+				$updateData[ 'label' ] = $label;
 			}
 			if ( $IP->blocked_at == 0 ) {
 				$updateData[ 'blocked_at' ] = Services::Request()->ts();
@@ -123,14 +123,14 @@ class AddIp {
 	public function toManualWhitelist( $label = '' ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oIpServ = Services::IP();
+		$srvIP = Services::IP();
 
 		$ip = $this->getIP();
-		if ( !$oIpServ->isValidIp( $ip ) && !$oIpServ->isValidIpRange( $ip ) ) {
+		if ( !$srvIP->isValidIp( $ip ) && !$srvIP->isValidIpRange( $ip ) ) {
 			throw new \Exception( "IP address isn't valid." );
 		}
 
-		if ( $oIpServ->isValidIpRange( $ip ) ) {
+		if ( $srvIP->isValidIpRange( $ip ) ) {
 			( new DeleteIp() )
 				->setMod( $mod )
 				->setIP( $ip )
@@ -171,40 +171,41 @@ class AddIp {
 
 	/**
 	 * @param string   $list
-	 * @param string   $sLabel
-	 * @param int|null $nLastAccessAt
+	 * @param string   $label
+	 * @param int|null $lastAccess
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	private function add( string $list, $sLabel = '', $nLastAccessAt = null ) {
-		$oIP = null;
+	private function add( string $list, $label = '', $lastAccess = null ) {
+		$IP = null;
 
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		// Never add a reserved IP to any black list
-		$oDbh = $mod->getDbHandler_IPs();
+		$dbh = $mod->getDbHandler_IPs();
 
-		/** @var Databases\IPs\EntryVO $oTempIp */
-		$oTempIp = $oDbh->getVo();
-		$oTempIp->ip = $this->getIP();
-		$oTempIp->list = $list;
-		$oTempIp->label = empty( $sLabel ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $sLabel );
-		if ( is_numeric( $nLastAccessAt ) && $nLastAccessAt > 0 ) {
-			$oTempIp->last_access_at = $nLastAccessAt;
+		/** @var Databases\IPs\EntryVO $tmp */
+		$tmp = $dbh->getVo();
+		$tmp->ip = $this->getIP();
+		$tmp->list = $list;
+		$tmp->label = empty( $label ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $label );
+		if ( is_numeric( $lastAccess ) && $lastAccess > 0 ) {
+			$tmp->last_access_at = $lastAccess;
 		}
 
-		if ( $oDbh->getQueryInserter()->insert( $oTempIp ) ) {
-			/** @var Databases\IPs\EntryVO $oIP */
-			$oIP = $oDbh->getQuerySelector()
-						->setWheresFromVo( $oTempIp )
+		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
+			/** @var Databases\IPs\EntryVO $IP */
+			$IP = $dbh->getQuerySelector()
+						->setWheresFromVo( $tmp )
 						->first();
 		}
 
-		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
+		if ( !$IP instanceof Databases\IPs\EntryVO ) {
 			throw new \Exception( "IP couldn't be added to the database." );
 		}
+		$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
 
-		return $oIP;
+		return $IP;
 	}
 }
