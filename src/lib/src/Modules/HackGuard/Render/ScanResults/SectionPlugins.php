@@ -55,10 +55,14 @@ class SectionPlugins extends SectionPluginThemesBase {
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
 						   'strings' => [
-							   'no_items'    => __( "Previous scans didn't detect any modified or missing files in any plugin directories.", 'wp-simple-firewall' ),
-							   'no_files'    => __( "Previous scans didn't detect any modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
-							   'files_found' => __( "Previous scans detected 1 or more modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
-							   'not_active'  => __( "This plugin isn't active and should be uninstalled.", 'wp-simple-firewall' ),
+							   'no_items'      => __( "Previous scans didn't detect any modified or missing files in any plugin directories.", 'wp-simple-firewall' ),
+							   'no_files'      => __( "Previous scans didn't detect any modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
+							   'files_found'   => __( "Previous scans detected 1 or more modified or missing files in the plugin directory.", 'wp-simple-firewall' ),
+							   'not_active'    => __( "This plugin isn't active and should be uninstalled.", 'wp-simple-firewall' ),
+							   'go_to_plugins' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Plugins' ) ),
+						   ],
+						   'hrefs'   => [
+							   'page_plugins' => Services::WpGeneral()->getAdminUrl_Plugins()
 						   ],
 						   'vars'    => [
 							   'count_items' => count( $vulnerable ) + count( $hashes )

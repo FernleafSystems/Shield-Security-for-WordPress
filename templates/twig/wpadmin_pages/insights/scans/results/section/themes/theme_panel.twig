@@ -26,6 +26,7 @@
 			{% if not theme.flags.is_active %}
 				<li class="list-group-item list-group-item-warning">
 					{{ strings.not_active }}
+					<a href="{{ hrefs.page_themes }}" target="_blank">{{ strings.go_to_themes }}</a>
 				</li>
 			{% endif %}
 			<li class="list-group-item">

@@ -30,6 +30,7 @@
 			{% if not plugin.flags.is_active %}
 				<li class="list-group-item list-group-item-warning">
 					{{ strings.not_active }}
+					<a href="{{ hrefs.page_plugins }}" target="_blank">{{ strings.go_to_plugins }}</a>
 				</li>
 			{% endif %}
 			<li class="list-group-item">
