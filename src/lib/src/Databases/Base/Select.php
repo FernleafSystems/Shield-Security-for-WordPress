@@ -188,7 +188,7 @@ class Select extends BaseQuery {
 
 	/**
 	 * Handle COUNT, DISTINCT, & normal SELECT
-	 * @return int|string[]|array[]|EntryVO[]|mixed
+	 * @return int|string[]|array[]|EntryVO[]|\stdClass[]|mixed
 	 */
 	public function query() {
 		if ( $this->isCount() || $this->isSum() ) {

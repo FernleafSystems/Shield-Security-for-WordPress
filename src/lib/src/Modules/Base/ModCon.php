@@ -270,8 +270,8 @@ abstract class ModCon {
 			$this->loadProcessor();
 		}
 		try {
-			$bSkip = (bool)$opts->getFeatureProperty( 'skip_processor' );
-			if ( !$bSkip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+			$skip = (bool)$opts->getFeatureProperty( 'skip_processor' );
+			if ( !$skip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 				$this->doExecuteProcessor();
 			}
 		}

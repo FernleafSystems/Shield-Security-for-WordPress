@@ -447,7 +447,7 @@
       "wcf",
       "ufc"
     ],
-    "file_scan_extensions":              [
+    "file_scan_extensions":        [
       "php",
       "php5",
       "php7",

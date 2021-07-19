@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base extends ExecOnceModConsumer {
 
 	const SCAN_SLUG = '';
-
 	use PluginCronsConsumer;
 
 	/**
@@ -25,10 +24,8 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	private $scanActionVO;
 
-	/**
-	 * Base constructor.
-	 * see dynamic constructors: features/hack_protect.php
-	 */
+	private static $resultsCounts;
+
 	public function __construct() {
 	}
 
@@ -45,6 +42,21 @@ abstract class Base extends ExecOnceModConsumer {
 				$mod->getScanQueueController()->startScans( [ $this->getSlug() ] );
 			}
 		);
+		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+	}
+
+	public function addAdminMenuBarItem( array $items ) :array {
+		$problems = $this->countScanProblems();
+		if ( $problems > 0 ) {
+			$items[] = [
+				'id'       => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+				'title'    => $this->getScanName()
+							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+				'warnings' => $problems
+			];
+		}
+		return $items;
 	}
 
 	public function cleanStalesResults() {
@@ -75,14 +87,19 @@ abstract class Base extends ExecOnceModConsumer {
 		return ( $entry instanceof Databases\Events\EntryVO ) ? (int)$entry->created_at : 0;
 	}
 
+	public function countScanProblems() :int {
+		if ( !isset( self::$resultsCounts ) ) {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			/** @var Databases\Scanner\Select $sel */
+			$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
+			self::$resultsCounts = $sel->countForEachScan();
+		}
+		return self::$resultsCounts[ static::SCAN_SLUG ] ?? 0;
+	}
+
 	public function getScanHasProblem() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Databases\Scanner\Select $sel */
-		$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
-		return $sel->filterByNotIgnored()
-				   ->filterByScan( $this->getSlug() )
-				   ->count() > 0;
+		return $this->countScanProblems() > 0;
 	}
 
 	/**

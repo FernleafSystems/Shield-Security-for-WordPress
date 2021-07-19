@@ -210,7 +210,7 @@ class ModCon extends BaseShield\ModCon {
 		return ( $this->getDbHandler_ScanQueue() instanceof Databases\ScanQueue\Handler )
 			   && $this->getDbHandler_ScanQueue()->isReady()
 			   && ( $this->getDbHandler_ScanResults() instanceof Databases\Scanner\Handler )
-			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && $this->getDbHandler_ScanResults()->isReady()
 			   && parent::isReadyToExecute();
 	}
 
