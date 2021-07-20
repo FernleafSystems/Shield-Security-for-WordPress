@@ -63,10 +63,10 @@ class Select extends BaseQuery {
 	 * @return \stdClass
 	 */
 	public function byId( $nId ) {
-		$aItems = $this->reset()
-					   ->addWhereEquals( 'id', $nId )
-					   ->query();
-		return array_shift( $aItems );
+		$items = $this->reset()
+					  ->addWhereEquals( 'id', $nId )
+					  ->query();
+		return array_shift( $items );
 	}
 
 	/**

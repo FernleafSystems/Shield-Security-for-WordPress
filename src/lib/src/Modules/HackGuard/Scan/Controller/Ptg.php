@@ -77,7 +77,10 @@ class Ptg extends BaseForAssets {
 	 * @return bool
 	 */
 	protected function isResultItemStale( $item ) :bool {
-		$stale = parent::isResultItemStale( $item );
+		$FS = Services::WPFS();
+		$stale = parent::isResultItemStale( $item )
+				 || ( ( $item->is_unrecognised || $item->is_different ) && !$FS->isFile( $item->path_full ) );
+
 		if ( !$stale ) {
 			$asset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
 			if ( empty( $asset ) ) {
@@ -85,11 +88,8 @@ class Ptg extends BaseForAssets {
 			}
 			$stale = empty( $asset );
 		}
-		return $stale
-			   || (
-				   ( $item->is_unrecognised || $item->is_different )
-				   && !Services::WpFs()->isFile( $item->path_full )
-			   );
+
+		return $stale;
 	}
 
 	/**
