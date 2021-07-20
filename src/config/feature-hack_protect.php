@@ -380,7 +380,7 @@
       "default":     "Y",
       "link_info":   "https://shsec.io/bp",
       "link_blog":   "",
-      "beacon_id":   439,
+      "beacon_id":   135,
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
