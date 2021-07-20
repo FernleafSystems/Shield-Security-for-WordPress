@@ -88,31 +88,27 @@ class Controller {
 		/** @var ScanQueue\Select $sel */
 		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$unfinished = count( $sel->getUnfinishedScans() );
-		if ( $unfinished > 0 ) {
+		$countsAll = $sel->countAllForEachScan();
+		$countsUnfinished = $sel->countUnfinishedForEachScan();
 
-			$countInitiated = count( $sel->getInitiatedScans() );
-			if ( $countInitiated > 0 ) {
-				$progress = 1 - ( $unfinished/$countInitiated );
-			}
-			else {
-				$progress = 0;
-			}
+		if ( empty( $countsAll ) || empty( $countsUnfinished ) ) {
+			$progress = 1;
 		}
 		else {
-			$progress = 1;
+			$progress = 0;
+			$eachScanWeight = 1/count( $countsAll );
+			foreach ( array_keys( $countsAll ) as $scan ) {
+				$progress += $eachScanWeight*( 1 - ( ( $countsUnfinished[ $scan ] ?? 0 )/$countsAll[ $scan ] ) );
+			}
 		}
 
 		return $progress;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasRunningScans() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return count( $this->getRunningScans() ) > 0 || count( $oOpts->getScansToBuild() ) > 0;
+	public function hasRunningScans() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return count( $this->getRunningScans() ) > 0 || count( $opts->getScansToBuild() ) > 0;
 	}
 
 	/**
