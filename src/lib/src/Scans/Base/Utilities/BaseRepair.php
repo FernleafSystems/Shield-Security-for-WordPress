@@ -15,21 +15,18 @@ abstract class BaseRepair {
 	/**
 	 * @var bool
 	 */
-	private $bAllowDelete = false;
+	private $allowDelete = false;
 
-	/**
-	 * @return bool
-	 */
-	public function isAllowDelete() {
-		return (bool)$this->bAllowDelete;
+	public function isAllowDelete() :bool {
+		return $this->allowDelete;
 	}
 
 	/**
-	 * @param bool $bAllowDelete
+	 * @param bool $allowDelete
 	 * @return $this
 	 */
-	public function setAllowDelete( $bAllowDelete ) {
-		$this->bAllowDelete = $bAllowDelete;
+	public function setAllowDelete( bool $allowDelete ) {
+		$this->allowDelete = $allowDelete;
 		return $this;
 	}
 

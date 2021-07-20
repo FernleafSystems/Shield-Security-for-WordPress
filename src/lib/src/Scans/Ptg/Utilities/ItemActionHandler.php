@@ -108,10 +108,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		$item = $this->getScanItem();
 		$repairer = $this->getRepairer();
 
-		if ( $repairer->canRepair() ) {
-			$success = $repairer->repairItem();
-		}
-		elseif ( $item->is_unrecognised ) {
+		if ( ( $item->is_different && $repairer->canRepair() ) || $item->is_unrecognised ) {
 			$success = $repairer->setAllowDelete( true )->repairItem();
 		}
 		else {
