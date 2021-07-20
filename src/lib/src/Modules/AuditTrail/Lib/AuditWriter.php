@@ -23,6 +23,9 @@ class AuditWriter extends EventsListener {
 	 */
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
 		$con = $this->getCon();
+
+		$meta = apply_filters( 'shield/audit_event_meta', $meta, $evt );
+
 		if ( $def[ 'audit' ] && empty( $meta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
 			$entry = new AuditTrail\EntryVO();
 			$entry->rid = $con->getShortRequestId();
