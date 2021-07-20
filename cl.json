@@ -1,7 +1,7 @@
 {
   "11.5": {
     "version":     "11.5",
-    "released_at": 1626613844,
+    "released_at": 1626771326,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease115",
       "upgrade": "https://shsec.io/shieldupgradeguide115"
@@ -15,7 +15,7 @@
         "pro_only":    false,
         "title":       "Brand New Arrangements of Scan Results",
         "description": [
-          "To-data scan results have been presented in tabular format, by listing affected files or assets.",
+          "To-date scan results have been presented in tabular format, by listing affected files or assets.",
           "This release sees a major reorganisation to display results grouped into logical sections and areas, such as by plugin, theme, WordPress etc."
         ]
       },
@@ -68,6 +68,16 @@
       {
         "type":        "improved",
         "title":       "WP Admin warning when 2FA by email verification isn't complete.",
+        "description": []
+      },
+      {
+        "type":        "new",
+        "title":       "Audit Trail entries for IP addresses are added and removed manually.",
+        "description": []
+      },
+      {
+        "type":        "new",
+        "title":       "Audit Trail WordPress filter to allow customisation of event logging.",
         "description": []
       },
       {

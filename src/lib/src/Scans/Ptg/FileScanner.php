@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
@@ -61,7 +62,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function scanWithStore( string $fullPath, $asset ) {
 		$assetHashes = $this->getStore( $asset )->getSnapData();
-		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
+		$pathFragment = str_replace( strtolower( $asset->getInstallDir() ), '', $fullPath );
 		if ( empty( $assetHashes[ $pathFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
 			$item->path_fragment = $pathFragment;
@@ -84,22 +85,55 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem|null
 	 * @throws \InvalidArgumentException|\Exception
 	 */
-	private function scanWithCsHashes( string $fullPath, $asset ) {
-		$assetHashes = $this->loadCsHashes( $asset );
-		if ( empty( $assetHashes ) ) {
-			throw new \Exception( 'Could not retrieve CS Hashes' );
-		}
+	private function scanWithHashes( string $fullPath, $asset ) {
+		$assetHashes = ( $asset->asset_type === 'plugin' ) ?
+			( new WpHashes\Hashes\Plugin() )->getPluginHashes( $asset )
+			: ( new WpHashes\Hashes\Theme() )->getThemeHashes( $asset );
 		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
-
-		$item = null;
 		if ( empty( $assetHashes[ $pathFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
 			$item->path_fragment = $pathFragment;
 			$item->is_unrecognised = true;
 		}
+		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $assetHashes[ $pathFragment ] ) ) {
+			$item = $this->getNewItem( $asset, $fullPath );
+			$item->path_fragment = $pathFragment;
+			$item->is_different = true;
+		}
+		else {
+			$item = null;
+		}
+		return $item;
+	}
+
+	/**
+	 * CSHashes path fragments are all lower-case
+	 * We need to main the true, unchanged fullpath to the file, while looking up with the lower-case path fragment.
+	 * @param string                             $fullPath
+	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
+	 * @return ResultItem|null
+	 * @throws \InvalidArgumentException|\Exception
+	 */
+	private function scanWithCsHashes( string $fullPath, $asset ) {
+		$assetHashes = $this->loadCsHashes( $asset );
+		if ( empty( $assetHashes ) ) {
+			throw new \Exception( 'Could not retrieve CS Hashes' );
+		}
+
+		$item = null;
+
+		$trueFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
+
+		// we must use a lower-case key for "scan", but can't use this anywhere else.
+		$scanFragment = function_exists( 'mb_strtolower' ) ? mb_strtolower( $trueFragment ) : strtolower( $trueFragment );
+		if ( empty( $assetHashes[ $scanFragment ] ) ) {
+			$item = $this->getNewItem( $asset, $fullPath );
+			$item->path_fragment = $trueFragment;
+			$item->is_unrecognised = true;
+		}
 		else {
 			$found = false;
-			foreach ( $assetHashes[ $pathFragment ] as $hash ) {
+			foreach ( $assetHashes[ $scanFragment ] as $hash ) {
 				if ( ( new CompareHash() )->isEqualFileSha1( $fullPath, $hash ) ) {
 					$found = true;
 					break;
@@ -108,7 +142,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 			if ( !$found ) {
 				$item = $this->getNewItem( $asset, $fullPath );
-				$item->path_fragment = $pathFragment;
+				$item->path_fragment = $trueFragment;
 				$item->is_different = true;
 			}
 		}

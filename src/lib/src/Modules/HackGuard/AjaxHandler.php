@@ -370,6 +370,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
 		}
 
+		if ( count( $selector->getInitiatedScans() ) === 0 ) {
+			$remainingScans = __( 'No scans remaining.', 'wp-simple-firewall' );
+		}
+		else {
+			$remainingScans = sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
+				count( $selector->getUnfinishedScans() ), count( $selector->getInitiatedScans() ) );
+		}
+
 		return [
 			'success' => true,
 			'running' => $queueCon->getScansRunningStates(),
@@ -379,8 +387,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					[
 						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
 						'scan'            => $currentScan,
-						'remaining_scans' => sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
-							count( $selector->getUnfinishedScans() ), count( $selector->getInitiatedScans() ) ),
+						'remaining_scans' => $remainingScans,
 						'progress'        => 100*$queueCon->getScanJobProgress(),
 						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
 						'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),

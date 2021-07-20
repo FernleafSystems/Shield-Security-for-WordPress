@@ -69,7 +69,7 @@ class Controller {
 		/** @var ScanQueue\Delete $deleter */
 		$deleter = $mod->getDbHandler_ScanQueue()->getQueryDeleter();
 		return $deleter->addWhereOlderThan( $nExpiredBoundary )
-					->query();
+					   ->query();
 	}
 
 	/**
@@ -88,17 +88,21 @@ class Controller {
 		/** @var ScanQueue\Select $sel */
 		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$aUnfinished = $sel->getUnfinishedScans();
-		$progress = 1;
-		if ( $sel->getUnfinishedScans() > 0 ) {
-			$nInitiated = count( $sel->getInitiatedScans() );
-			if ( $nInitiated > 0 ) {
-				$progress = 1 - ( count( $aUnfinished )/count( $sel->getInitiatedScans() ) );
+		$unfinished = count( $sel->getUnfinishedScans() );
+		if ( $unfinished > 0 ) {
+
+			$countInitiated = count( $sel->getInitiatedScans() );
+			if ( $countInitiated > 0 ) {
+				$progress = 1 - ( $unfinished/$countInitiated );
+			}
+			else {
+				$progress = 0;
 			}
 		}
 		else {
 			$progress = 1;
 		}
+
 		return $progress;
 	}
 
