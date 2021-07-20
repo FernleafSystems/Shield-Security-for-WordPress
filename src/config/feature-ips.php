@@ -669,9 +669,15 @@
         "stat":    false,
         "cat":     1
       },
-      "ip_bypass":               {
+      "ip_bypass_add":           {
         "offense": false,
-        "audit":   false
+        "stat":    false,
+        "cat":     1
+      },
+      "ip_bypass_remove":        {
+        "offense": false,
+        "stat":    false,
+        "cat":     1
       },
       "ip_unblock_flag":         {
         "cat": 1

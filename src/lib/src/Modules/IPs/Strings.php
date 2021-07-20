@@ -331,6 +331,12 @@ class Strings extends Base\Strings {
 			'ip_block_manual'         => [
 				__( "IP address '%s' manually added to block list.", 'wp-simple-firewall' )
 			],
+			'ip_bypass_add'           => [
+				__( "IP address '%s' manually added to bypass list.", 'wp-simple-firewall' )
+			],
+			'ip_bypass_remove'        => [
+				__( "IP address '%s' manually removed from the bypass list.", 'wp-simple-firewall' )
+			],
 			'ip_unblock_flag'         => [
 				__( "IP address '%s' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' )
 			],

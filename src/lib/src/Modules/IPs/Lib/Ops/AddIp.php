@@ -40,6 +40,9 @@ class AddIp {
 			->lookup( false );
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {
 			$IP = $this->add( $mod::LIST_AUTO_BLACK, 'auto', $req->ts() );
+			if ( !empty( $IP ) ) {
+				$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
+			}
 		}
 
 		// Edge-case: the IP is on the list but the last access long-enough passed
@@ -91,6 +94,9 @@ class AddIp {
 
 			if ( !$IP instanceof Databases\IPs\EntryVO ) {
 				$IP = $this->add( $mod::LIST_MANUAL_BLACK, $label );
+				if ( !empty( $IP ) ) {
+					$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
+				}
 			}
 
 			$updateData = [
@@ -142,8 +148,10 @@ class AddIp {
 			->setIP( $this->getIP() )
 			->lookup( false );
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {
-			$this->getCon()->fireEvent( 'ip_bypass' );
 			$IP = $this->add( $mod::LIST_MANUAL_WHITE, $label );
+			if ( !empty( $IP ) ) {
+				$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
+			}
 		}
 
 		$updateData = [];
@@ -197,14 +205,13 @@ class AddIp {
 		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
 			/** @var Databases\IPs\EntryVO $IP */
 			$IP = $dbh->getQuerySelector()
-						->setWheresFromVo( $tmp )
-						->first();
+					  ->setWheresFromVo( $tmp )
+					  ->first();
 		}
 
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {
 			throw new \Exception( "IP couldn't be added to the database." );
 		}
-		$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
 
 		return $IP;
 	}

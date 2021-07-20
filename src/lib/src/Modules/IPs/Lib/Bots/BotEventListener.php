@@ -66,7 +66,7 @@ class BotEventListener extends ExecOnceModConsumer {
 				'ip_offense'              => 'offense',
 				'ip_blocked'              => 'blocked',
 				'ip_unblock'              => 'unblocked',
-				'ip_bypass'               => 'bypass',
+				'ip_bypass_add'           => 'bypass',
 				'login_success'           => 'auth',
 			]
 		);

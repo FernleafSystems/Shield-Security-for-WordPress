@@ -19,6 +19,7 @@ class DeleteIp {
 	}
 
 	public function fromWhiteList() :bool {
+		$this->getCon()->fireEvent( 'ip_bypass_remove', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
 		return (bool)$this->getDeleter()
 						  ->filterByWhitelist()
 						  ->query();
