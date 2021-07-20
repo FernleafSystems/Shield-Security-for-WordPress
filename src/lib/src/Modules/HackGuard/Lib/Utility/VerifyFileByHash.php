@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\CoreFileHashes;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 	Plugin,
 	Theme
@@ -17,32 +20,53 @@ class VerifyFileByHash {
 
 	private $coreFileHashes;
 
+	private $tmpItem;
+
+	private $tmpItemHashes;
+
+	/**
+	 * TODO
+	 */
 	public function verify( string $fullPath ) :bool {
 		$this->fullPath = wp_normalize_path( $fullPath );
+
+		return $this->isValidCoreFile();
+
+/*
 		$verified = false;
 
-		$normalAbspath = wp_normalize_path( ABSPATH );
-
 		if ( $this->isValidCoreFile() ) {
-			return true;
+			$verified = true;
 		}
 		elseif ( $this->isInCoreDir() ) {
-			return false;
+			$verified = false;
 		}
-		elseif ( $this->isInPluginsDir() ) {
-			$asset = ( new Plugin\Files() )->findPluginFromFile( $this->fullPath );
-			if ( !empty( $asset ) ) {
-
-			}
+		elseif ( false && $this->isInPluginsDir() ) {
 		}
-		elseif ( $this->isInThemesDir() ) {
-			$asset = ( new Theme\Files() )->findThemeFromFile( $this->fullPath );
-			if ( !empty( $asset ) ) {
-
-			}
+		elseif ( false && $this->isInThemesDir() ) {
 		}
 
 		return $verified;
+		*/
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 */
+	private function getAssetHashes( $asset ) :array {
+		if ( empty( $this->tmpItem ) || $this->tmpItem !== $asset->unique_id ) {
+			$this->tmpItem = null;
+			$this->tmpItemHashes = null;
+		}
+
+		if ( !is_array( $this->tmpItemHashes ) ) {
+			$hashes = ( $asset->asset_type === 'plugin' ? new Query\Plugin() : new Query\Theme() )
+				->getHashesFromVO( $asset );
+			$this->tmpItem = $asset->unique_id;
+			$this->tmpItemHashes = is_array( $hashes ) ? $hashes : [];
+		}
+
+		return $this->tmpItemHashes;
 	}
 
 	private function isValidCoreFile() :bool {

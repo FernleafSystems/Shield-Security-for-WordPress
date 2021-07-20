@@ -31,22 +31,22 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	protected function buildScanItems() {
-		$oAction = $this->getScanActionVO();
+		$action = $this->getScanActionVO();
 		$this->buildItems();
-		$oAction->total_items = count( $oAction->items );
+		$action->total_items = count( $action->items );
 	}
 
 	abstract protected function buildItems();
 
 	protected function setStandardFields() {
-		$oAction = $this->getScanActionVO();
-		if ( empty( $oAction->created_at ) ) {
-			$oAction->created_at = Services::Request()->ts();
-			$oAction->started_at = 0;
-			$oAction->finished_at = 0;
-			$oAction->usleep = (int)( 1000000*max( 0, apply_filters(
+		$action = $this->getScanActionVO();
+		if ( empty( $action->created_at ) ) {
+			$action->created_at = Services::Request()->ts();
+			$action->started_at = 0;
+			$action->finished_at = 0;
+			$action->usleep = (int)( 1000000*max( 0, apply_filters(
 					$this->getCon()->prefix( 'scan_block_sleep' ),
-					$oAction::DEFAULT_SLEEP_SECONDS, $oAction->scan
+					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
 		}
 	}

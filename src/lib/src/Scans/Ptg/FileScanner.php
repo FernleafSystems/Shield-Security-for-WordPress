@@ -125,7 +125,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$trueFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
 
 		// we must use a lower-case key for "scan", but can't use this anywhere else.
-		$scanFragment = function_exists( 'mb_strtolower' ) ? mb_strtolower( $trueFragment ) : strtolower( $trueFragment );
+		$scanFragment = strtolower( $trueFragment );
 		if ( empty( $assetHashes[ $scanFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
 			$item->path_fragment = $trueFragment;

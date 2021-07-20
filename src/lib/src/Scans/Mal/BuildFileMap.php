@@ -65,9 +65,9 @@ class BuildFileMap extends BaseBuildFileMap {
 	private function isWhitelistedPath( string $path ) :bool {
 		$whitelisted = false;
 
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		foreach ( $oAction->paths_whitelisted as $sWlPath ) {
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		foreach ( $action->paths_whitelisted as $sWlPath ) {
 			if ( stripos( $path, $sWlPath ) === 0 ) {
 				$whitelisted = true;
 				break;

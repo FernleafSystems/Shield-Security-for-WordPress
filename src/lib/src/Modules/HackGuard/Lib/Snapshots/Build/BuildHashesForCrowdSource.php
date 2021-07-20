@@ -28,8 +28,7 @@ class BuildHashesForCrowdSource {
 				/** @var \SplFileInfo $file */
 				if ( in_array( strtolower( $file->getExtension() ), $exts ) ) {
 					$fullPath = $file->getPathname();
-					$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
-					$key = function_exists( 'mb_strtolower' ) ? mb_strtolower( $key ) : strtolower( $key );
+					$key = strtolower( str_replace( $dir, '', wp_normalize_path( $fullPath ) ) );
 					$hashes[ $key ] = hash( 'sha1', $DM->convertLineEndingsDosToLinux( $fullPath ) );
 				}
 			}

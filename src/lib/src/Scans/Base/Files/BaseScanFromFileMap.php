@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\VerifyFileByHash;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -29,13 +30,17 @@ abstract class BaseScanFromFileMap {
 		$isAutoFilter = $opts->isAutoFilterResults();
 
 		if ( is_array( $action->items ) ) {
+			$hashVerifier = ( new VerifyFileByHash() )->setMod( $this->getMod() );
 			foreach ( $action->items as $key => $fullPath ) {
 
 				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
-					$item = $this->getFileScanner()->scan( $fullPath );
-					// We can exclude files that are empty of relevant code
-					if ( $item instanceof Scans\Base\ResultItem ) {
-						$results->addItem( $item );
+
+					if ( !$hashVerifier->verify( $fullPath ) ) {
+						$item = $this->getFileScanner()->scan( $fullPath );
+						// We can exclude files that are empty of relevant code
+						if ( $item instanceof Scans\Base\ResultItem ) {
+							$results->addItem( $item );
+						}
 					}
 				}
 			}

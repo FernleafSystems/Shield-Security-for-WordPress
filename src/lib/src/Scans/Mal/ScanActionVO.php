@@ -16,5 +16,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
 
 	const QUEUE_GROUP_SIZE_LIMIT = 50;
-	const DEFAULT_SLEEP_SECONDS = 1;
+	const DEFAULT_SLEEP_SECONDS = 0.1;
 }
