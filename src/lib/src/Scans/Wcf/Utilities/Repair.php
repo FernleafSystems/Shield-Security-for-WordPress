@@ -12,9 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class Repair extends Scans\Base\Utilities\BaseRepair {
 
-	/**
-	 * @return bool
-	 */
 	public function repairItem() :bool {
 		/** @var Wcf\ResultItem $item */
 		$item = $this->getScanItem();
@@ -27,8 +24,8 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @throws \Exception
 	 */
 	public function canRepair() :bool {
-		/** @var Wcf\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		return Services::CoreFileHashes()->isCoreFile( $oItem->path_full );
+		/** @var Wcf\ResultItem $item */
+		$item = $this->getScanItem();
+		return Services::CoreFileHashes()->isCoreFile( $item->path_full );
 	}
 }

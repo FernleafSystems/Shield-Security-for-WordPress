@@ -8,10 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 /**
  * Class BaseResultItem
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- * @property string  $hash
- * @property bool    $is_excluded
- * @property string  $scan
- * @property bool    $repaired
+ * @property string $hash
+ * @property bool   $is_excluded
+ * @property string $scan
+ * @property bool   $repaired
+ * @property string $repair_event_status
  */
 class ResultItem {
 

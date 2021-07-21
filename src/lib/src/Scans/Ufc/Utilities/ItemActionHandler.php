@@ -8,13 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 
 	/**
-	 * @inheritDoc
-	 */
-	public function delete() {
-		return $this->repair( true );
-	}
-
-	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -27,17 +20,5 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	 */
 	public function getRepairer() {
 		return ( new Repair() )->setScanItem( $this->getScanItem() );
-	}
-
-	/**
-	 * @param bool $success
-	 */
-	protected function fireRepairEvent( $success ) {
-		/** @var Ufc\ResultItem $item */
-		$item = $this->getScanItem();
-		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $item->path_full ] ]
-		);
 	}
 }

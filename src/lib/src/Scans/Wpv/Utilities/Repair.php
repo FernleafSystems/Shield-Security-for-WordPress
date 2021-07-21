@@ -32,9 +32,6 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		return (bool)$data[ 'successful' ];
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function canRepair() :bool {
 		/** @var Wpv\ResultItem $item */
 		$item = $this->getScanItem();

@@ -13,6 +13,12 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
  */
 class Repair extends Scans\Base\Utilities\BaseRepair {
 
+	public function deleteItem() :bool {
+		/** @var Ptg\ResultItem $item */
+		$item = $this->getScanItem();
+		return $item->is_unrecognised && (bool)Services::WpFs()->deleteFile( $item->path_full );
+	}
+
 	/**
 	 * @return bool
 	 * @throws \Exception
@@ -22,15 +28,9 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		$item = $this->getScanItem();
 
 		if ( $this->canRepair() ) {
-			if ( $item->context == 'plugins' ) {
-				$success = $this->repairPluginFile( $item->path_full );
-			}
-			else {
-				$success = $this->repairThemeFile( $item->path_full );
-			}
-		}
-		elseif ( $this->isAllowDelete() ) {
-			$success = (bool)Services::WpFs()->deleteFile( $item->path_full );
+			$success = ( $item->context == 'plugins' ) ?
+				$this->repairPluginFile( $item->path_full )
+				: $this->repairThemeFile( $item->path_full );
 		}
 		else {
 			$success = false;
@@ -39,19 +39,12 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		return $success;
 	}
 
-	/**
-	 * @param string $path
-	 * @return bool
-	 */
-	private function repairPluginFile( $path ) :bool {
+	private function repairPluginFile( string $path ) :bool {
 		$success = false;
 		$files = new WpOrg\Plugin\Files();
 		try {
 			if ( $files->isValidFileFromPlugin( $path ) ) {
 				$success = $files->replaceFileFromVcs( $path );
-			}
-			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services::WpFs()->deleteFile( $path );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {
@@ -59,19 +52,12 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		return $success;
 	}
 
-	/**
-	 * @param string $path
-	 * @return bool
-	 */
-	private function repairThemeFile( $path ) :bool {
+	private function repairThemeFile( string $path ) :bool {
 		$success = false;
 		$files = new WpOrg\Theme\Files();
 		try {
 			if ( $files->isValidFileFromTheme( $path ) ) {
 				$success = $files->replaceFileFromVcs( $path );
-			}
-			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services::WpFs()->deleteFile( $path );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {

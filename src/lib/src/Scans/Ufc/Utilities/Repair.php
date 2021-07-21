@@ -13,26 +13,23 @@ use FernleafSystems\Wordpress\Services\Services;
 class Repair extends Scans\Base\Utilities\BaseRepair {
 
 	/**
-	 * @return bool
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	public function repairItem() :bool {
+		return $this->deleteItem();
+	}
+
+	public function deleteItem() :bool {
 		/** @var Ufc\ResultItem $item */
 		$item = $this->getScanItem();
-		$success = true;
 
-		$oHashes = Services::CoreFileHashes();
-		if ( $oHashes->isCoreFile( $item->path_fragment ) ) {
+		$coreHashes = Services::CoreFileHashes();
+		if ( $coreHashes->isCoreFile( $item->path_fragment ) ) {
 			throw new \Exception( sprintf( 'File "%s" is an official WordPress core file.', $item->path_fragment ) );
 		}
 
 		$FS = Services::WpFs();
-		if ( $FS->deleteFile( $item->path_full ) ) {
-			clearstatcache();
-			$success = !$FS->exists( $item->path_full );
-		}
-
-		return $success;
+		return !$FS->isFile( $item->path_full ) || (bool)$FS->deleteFile( $item->path_full );
 	}
 
 	/**

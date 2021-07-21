@@ -529,104 +529,81 @@
       "xmlrpc.php"
     ],
     "events":                      {
-      "apc_alert_sent":          {
+      "apc_alert_sent":           {
       },
-      "mal_alert_sent":          {
+      "mal_alert_sent":           {
       },
-      "ptg_alert_sent":          {
+      "ptg_alert_sent":           {
       },
-      "ufc_alert_sent":          {
+      "ufc_alert_sent":           {
       },
-      "wcf_alert_sent":          {
+      "wcf_alert_sent":           {
       },
-      "wpv_alert_sent":          {
+      "wpv_alert_sent":           {
       },
-      "apc_scan_run":            {
+      "apc_scan_run":             {
         "audit":  false,
         "recent": true
       },
-      "mal_scan_run":            {
+      "mal_scan_run":             {
         "audit":  false,
         "recent": true
       },
-      "ptg_scan_run":            {
+      "ptg_scan_run":             {
         "audit":  false,
         "recent": true
       },
-      "ufc_scan_run":            {
+      "ufc_scan_run":             {
         "audit":  false,
         "recent": true
       },
-      "wcf_scan_run":            {
+      "wcf_scan_run":             {
         "audit":  false,
         "recent": true
       },
-      "wpv_scan_run":            {
+      "wpv_scan_run":             {
         "audit":  false,
         "recent": true
       },
-      "apc_scan_found":          {
+      "apc_scan_found":           {
         "cat":            2,
         "audit_multiple": true,
         "recent":         true
       },
-      "mal_scan_found":          {
+      "mal_scan_found":           {
         "cat":            3,
         "audit_multiple": true,
         "recent":         true
       },
-      "ptg_scan_found":          {
+      "ptg_scan_found":           {
         "cat":            3,
         "audit_multiple": true,
         "recent":         true
       },
-      "ufc_scan_found":          {
+      "ufc_scan_found":           {
         "cat":            3,
         "audit_multiple": true,
         "recent":         true
       },
-      "wcf_scan_found":          {
+      "wcf_scan_found":           {
         "cat":            3,
         "audit_multiple": true,
         "recent":         true
       },
-      "wpv_scan_found":          {
+      "wpv_scan_found":           {
         "cat":            3,
         "audit_multiple": true,
         "recent":         true
       },
-      "apc_item_repair_success": {
+      "scan_item_repair_success": {
+        "audit_multiple": true,
+        "recent":         true
+      },
+      "scan_item_repair_fail":    {
         "audit_multiple": true
       },
-      "apc_item_repair_fail":    {
-      },
-      "mal_item_repair_success": {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "mal_item_repair_fail":    {
-      },
-      "ptg_item_repair_success": {
+      "scan_item_delete_success": {
         "audit_multiple": true
-      },
-      "ptg_item_repair_fail":    {
-      },
-      "ufc_item_repair_success": {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "ufc_item_repair_fail":    {
-      },
-      "wcf_item_repair_success": {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "wcf_item_repair_fail":    {
-      },
-      "wpv_item_repair_success": {
-        "audit_multiple": true
-      },
-      "wpv_item_repair_fail":    {
       }
     }
   }

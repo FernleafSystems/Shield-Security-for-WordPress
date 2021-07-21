@@ -104,18 +104,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	 * @throws \Exception
 	 */
 	public function repairDelete() :bool {
-		/** @var ResultItem $item */
-		$item = $this->getScanItem();
-		$repairer = $this->getRepairer();
-
-		if ( ( $item->is_different && $repairer->canRepair() ) || $item->is_unrecognised ) {
-			$success = $repairer->setAllowDelete( true )->repairItem();
-		}
-		else {
-			$success = false;
-		}
-
-		return $success;
+		return $this->repair( true );
 	}
 
 	/**
@@ -123,17 +112,5 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	 */
 	public function getRepairer() {
 		return ( new Repair() )->setScanItem( $this->getScanItem() );
-	}
-
-	/**
-	 * @param bool $success
-	 */
-	protected function fireRepairEvent( $success ) {
-		/** @var Ptg\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
-		);
 	}
 }

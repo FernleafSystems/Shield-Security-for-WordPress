@@ -12,10 +12,4 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	public function getRepairer() {
 		return ( new Repair() )->setScanItem( $this->getScanItem() );
 	}
-
-	/**
-	 * @param bool $success
-	 */
-	protected function fireRepairEvent( $success ) {
-	}
 }

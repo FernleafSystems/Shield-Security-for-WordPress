@@ -43,6 +43,18 @@ class Strings extends Base\Strings {
 					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
 				)
 			];
+			$messages[ 'scan_item_delete_success' ] = [
+				__( 'Deleted item found in the scan.', 'wp-simple-firewall' )
+				.' '.__( 'Item deleted: "%s"', 'wp-simple-firewall' ),
+			];
+			$messages[ 'scan_item_repair_success' ] = [
+				__( 'Repaired item found in the scan.', 'wp-simple-firewall' )
+				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
+			];
+			$messages[ 'scan_item_repair_fail' ] = [
+				__( 'Failed to repair scan item.', 'wp-simple-firewall' )
+				.' '.__( 'Failed item: "%s"', 'wp-simple-firewall' ),
+			];
 			$messages[ $slug.'_item_repair_success' ] = [
 				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
 				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
