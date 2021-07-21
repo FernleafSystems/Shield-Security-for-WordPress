@@ -1105,7 +1105,6 @@ input[type=checkbox].form-check-input {
 .icwpOptionsForm .option_link_info > .dashicons {
 	font-size: 16px;
 	text-decoration: none;
-	width: 1px;
 }
 .tooltip .arrow {
 	display: none !important;
