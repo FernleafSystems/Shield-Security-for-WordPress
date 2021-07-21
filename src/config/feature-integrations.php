@@ -108,6 +108,10 @@
           "text":      "Super Forms"
         },
         {
+          "value_key": "supportcandy",
+          "text":      "Support Candy"
+        },
+        {
           "value_key": "wpforo",
           "text":      "wpForo"
         },
