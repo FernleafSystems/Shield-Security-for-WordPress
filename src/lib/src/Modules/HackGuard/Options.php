@@ -17,6 +17,21 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
+	 * @return string[] - precise REGEX patterns to match against PATH.
+	 */
+	public function getWhitelistedPathsAsRegex() {
+		return array_map(
+			function ( $rule ) {
+				return sprintf(
+					'#^%s$#i',
+					str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
+				);
+			},
+			$this->isPremium() ? $this->getOpt( 'path_whitelist', [] ) : []
+		);
+	}
+
+	/**
 	 * @return int[] - keys are the unique report hash
 	 */
 	public function getMalFalsePositiveReports() :array {
@@ -45,7 +60,7 @@ class Options extends BaseShield\Options {
 					wp_normalize_path( path_join( ABSPATH, ltrim( $sFragment, '/' ) ) )
 				);
 			},
-			apply_filters( 'icwp_shield_malware_whitelist_paths', $this->getDef( 'malware_whitelist_paths' ) )
+			apply_filters( 'shield/malware_whitelist_paths', $this->getDef( 'malware_whitelist_paths' ) )
 		);
 	}
 

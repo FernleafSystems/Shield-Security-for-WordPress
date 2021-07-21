@@ -92,7 +92,7 @@ class UI extends BaseShield\UI {
 					'wordpress' => [
 						'count' => $sectionBuilderWordpress->getRenderData()[ 'vars' ][ 'count_items' ]
 					],
-					'malware' => [
+					'malware'   => [
 						'count' => $sectionBuilderMalware->getRenderData()[ 'vars' ][ 'count_items' ]
 					],
 				]
@@ -109,7 +109,7 @@ class UI extends BaseShield\UI {
 					'themes'    => $sectionBuilderThemes->render(),
 					'wordpress' => $sectionBuilderWordpress->render(),
 					'malware'   => $sectionBuilderMalware->render(),
-					'logs'   => 'logs todo',
+					'logs'      => 'logs todo',
 				]
 			],
 			'scan_results' => [
@@ -314,12 +314,21 @@ class UI extends BaseShield\UI {
 				if ( !$canHandshake ) {
 					$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
 				}
+				if ( !$this->getCon()->hasCacheDir() ) {
+					$warnings[] = __( "Certain scanners are unavailable because we couldn't create a temporary directory to store files.", 'wp-simple-firewall' );
+				}
 //				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 //					$warnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
 //				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
 //					$warnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
+				break;
+
+			case 'section_file_guard':
+				if ( !$this->getCon()->hasCacheDir() ) {
+					$warnings[] = __( "Certain scanners are unavailable because we couldn't create a temporary directory to store files.", 'wp-simple-firewall' );
+				}
 				break;
 		}
 

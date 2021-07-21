@@ -1552,7 +1552,8 @@ body.folded #FooterBannerGoPro {
 	border-color: rgb(177 216 178);
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	min-width: 120px;
+	min-width: 130px;
+	width: 130px;
 }
 #NavSideBar a.nav-link:hover {
 }

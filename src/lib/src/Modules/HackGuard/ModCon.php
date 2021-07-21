@@ -117,6 +117,38 @@ class ModCon extends BaseShield\ModCon {
 				$con->purge();
 			}
 		}
+
+		$this->cleanPathWhitelist();
+	}
+
+	private function cleanPathWhitelist() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$opts->setOpt( 'path_whitelist', array_unique( array_filter( array_map(
+			function ( $rule ) {
+				$rule = strtolower( trim( $rule ) );
+				if ( !empty( $rule ) ) {
+					$toCheck = array_unique( [
+						ABSPATH,
+						trailingslashit( path_join( ABSPATH, 'wp-admin' ) ),
+						trailingslashit( path_join( ABSPATH, 'wp-includes' ) ),
+					] );
+					$regEx = sprintf(
+						'#^%s$#i',
+						str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
+					);
+					foreach ( $toCheck as $path ) {
+						$slashPath = rtrim( $path, '/' ).'/';
+						if ( preg_match( $regEx, $path ) || preg_match( $regEx, $slashPath ) ) {
+							$rule = false;
+							break;
+						}
+					}
+				}
+				return $rule;
+			},
+			$opts->getOpt( 'path_whitelist', [] ) // do not use Options getter as it formats into regex
+		) ) ) );
 	}
 
 	/**

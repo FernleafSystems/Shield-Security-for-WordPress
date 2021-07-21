@@ -399,6 +399,20 @@
       "description": "Automatically remove items from results that are irrelevant."
     },
     {
+      "key":         "path_whitelist",
+      "section":     "section_scan_options",
+      "advanced":    true,
+      "premium":     true,
+      "default":     [],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   126,
+      "name":        "Path Path Whitelist",
+      "summary":     "Path Path Whitelist",
+      "description": "Path Path Whitelist."
+    },
+    {
       "key":          "snapshot_users",
       "section":      "section_non_ui",
       "transferable": false,
@@ -512,7 +526,7 @@
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "malware_whitelist_paths":     [
-      "wp-content/wflogs/",
+      "wp-content/wflog/",
       "wp-content/cache/",
       "wp-content/icwp/rollback/"
     ],
