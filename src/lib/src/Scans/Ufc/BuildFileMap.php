@@ -34,9 +34,9 @@ class BuildFileMap extends BaseBuildFileMap {
 				 */
 				foreach ( StandardDirectoryIterator::create( $dir, 0, $fileExts, true ) as $file ) {
 					/** @var \SplFileInfo $file */
-					$fullPath = $file->getPathname();
-					if ( !$coreHashes->isCoreFile( $fullPath ) && !$this->isAutoFilterFile( $file ) ) {
-						$files[] = wp_normalize_path( $fullPath );
+					$path = wp_normalize_path( $file->getPathname() );
+					if ( !$coreHashes->isCoreFile( $path ) && !$this->isWhitelistedPath( $path ) && !$this->isAutoFilterFile( $file ) ) {
+						$files[] = wp_normalize_path( $path );
 					}
 				}
 			}

@@ -22,9 +22,10 @@ class BuildFileMap extends BaseBuildFileMap {
 			try {
 				foreach ( StandardDirectoryIterator::create( $dir, 0, $action->file_exts ) as $item ) {
 					/** @var \SplFileInfo $item */
+					$path = wp_normalize_path( $item->getPathname() );
 					try {
-						if ( !$this->isAutoFilterFile( $item ) ) {
-							$files[] = str_replace( $abspath, '', wp_normalize_path( $item->getPathname() ) );
+						if ( !$this->isWhitelistedPath( $path ) && !$this->isAutoFilterFile( $item ) ) {
+							$files[] = str_replace( $abspath, '', $path );
 						}
 					}
 					catch ( \Exception $e ) {

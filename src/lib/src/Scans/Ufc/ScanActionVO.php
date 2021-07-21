@@ -8,7 +8,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
  * @property string[] $scan_dirs
  * @property string[] $exclusions
  */
-class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
+class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseFileScanActionVO {
 
 	const QUEUE_GROUP_SIZE_LIMIT = 100;
 }

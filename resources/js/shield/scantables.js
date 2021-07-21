@@ -184,7 +184,7 @@
 					}
 				}
 			).always( function () {
-				$( "html" ).css( "cursor", 'initial' );
+					$( "html" ).css( "cursor", 'initial' );
 				}
 			);
 		};
@@ -259,7 +259,11 @@
 								name: 'selected-repair',
 								className: 'action selected-action repair',
 								action: function ( e, dt, node, config ) {
-									if ( confirm( icwp_wpsf_vars_insights.strings.absolutely_sure ) ) {
+
+									if ( base.$table.rows().count() > 20 ) {
+										alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
+									}
+									else if ( confirm( icwp_wpsf_vars_insights.strings.absolutely_sure ) ) {
 										base.bulkAction.call( base, 'repair-delete' );
 									}
 								}

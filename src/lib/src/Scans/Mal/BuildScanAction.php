@@ -19,10 +19,6 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	protected function setCustomFields() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
-		$action->paths_whitelisted = $opts->getMalWhitelistPaths();
 		$action->file_exts = [ 'php', 'php5', 'php7' ];
 	}
 }

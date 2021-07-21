@@ -14,14 +14,15 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build() {
-		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof BaseScanActionVO ) {
+		$action = $this->getScanActionVO();
+		if ( !$action instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
 		}
-		if ( empty( $oAction->scan ) ) {
+		if ( empty( $action->scan ) ) {
 			throw new \Exception( 'Scan Slug not provided.' );
 		}
 
+		$this->setWhitelists();
 		$this->setCustomFields();
 		$this->buildScanItems();
 		$this->setStandardFields();
@@ -52,5 +53,13 @@ abstract class BaseBuildScanAction {
 	}
 
 	protected function setCustomFields() {
+	}
+
+	protected function setWhitelists() {
+		/** @var Shield\Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$action = $this->getScanActionVO();
+		error_log( var_export($opts->getWhitelistedPathsAsRegex(),true) );
+		$action->paths_whitelisted = $opts->getWhitelistedPathsAsRegex();
 	}
 }

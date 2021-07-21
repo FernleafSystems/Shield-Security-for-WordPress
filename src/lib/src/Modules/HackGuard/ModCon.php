@@ -126,20 +126,26 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$opts->setOpt( 'path_whitelist', array_unique( array_filter( array_map(
 			function ( $rule ) {
-				$rule = strtolower( trim( $rule ) );
+				$rule = wp_normalize_path( strtolower( trim( $rule ) ) );
 				if ( !empty( $rule ) ) {
-					$toCheck = array_unique( [
+					$toCheck = array_map( 'wp_normalize_path', array_unique( [
 						ABSPATH,
 						trailingslashit( path_join( ABSPATH, 'wp-admin' ) ),
 						trailingslashit( path_join( ABSPATH, 'wp-includes' ) ),
-					] );
+						trailingslashit( WP_CONTENT_DIR ),
+						trailingslashit( path_join( WP_CONTENT_DIR, 'plugins' ) ),
+						trailingslashit( path_join( WP_CONTENT_DIR, 'themes' ) ),
+					] ) );
 					$regEx = sprintf(
 						'#^%s$#i',
-						str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
+						path_join(
+							ABSPATH,
+							str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
+						)
 					);
+
 					foreach ( $toCheck as $path ) {
-						$slashPath = rtrim( $path, '/' ).'/';
-						if ( preg_match( $regEx, $path ) || preg_match( $regEx, $slashPath ) ) {
+						if ( preg_match( $regEx, $path ) ) {
 							$rule = false;
 							break;
 						}

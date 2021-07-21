@@ -20,14 +20,27 @@ class Options extends BaseShield\Options {
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
 	public function getWhitelistedPathsAsRegex() {
+		if ( $this->isPremium() ) {
+			$paths = array_merge(
+				$this->getOpt( 'path_whitelist', [] ),
+				$this->getDef( 'default_whitelist_paths' )
+			);
+		}
+		else {
+			$paths = [];
+		}
+
 		return array_map(
 			function ( $rule ) {
 				return sprintf(
 					'#^%s$#i',
-					str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
+					path_join(
+						ABSPATH,
+						str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
+					)
 				);
 			},
-			$this->isPremium() ? $this->getOpt( 'path_whitelist', [] ) : []
+			$paths
 		);
 	}
 
@@ -45,23 +58,6 @@ class Options extends BaseShield\Options {
 
 	public function getMalConfidenceBoundary() :int {
 		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
-	}
-
-	/**
-	 * We do some WP Content dir replacement as there may be custom wp-content dir defines
-	 * @return string[]
-	 */
-	public function getMalWhitelistPaths() {
-		return array_map(
-			function ( $sFragment ) {
-				return str_replace(
-					wp_normalize_path( ABSPATH.'wp-content' ),
-					rtrim( wp_normalize_path( WP_CONTENT_DIR ), '/' ),
-					wp_normalize_path( path_join( ABSPATH, ltrim( $sFragment, '/' ) ) )
-				);
-			},
-			apply_filters( 'shield/malware_whitelist_paths', $this->getDef( 'malware_whitelist_paths' ) )
-		);
 	}
 
 	/**
