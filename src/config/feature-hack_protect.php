@@ -404,7 +404,12 @@
       "advanced":    true,
       "premium":     true,
       "default":     [
-        "wp-content/wflog/*"
+        "wp-content/cache/*",
+        "wp-content/wflog/*",
+        "*/error_log",
+        "*/php_error_log",
+        "*/mail.log",
+        "*/php_mail.log"
       ],
       "type":        "array",
       "link_info":   "",
@@ -529,10 +534,17 @@
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "default_whitelist_paths":     [
       "wp-content/cache/*",
+      "wp-content/shield/*",
       "wp-content/icwp/rollback/*",
       "wp-content/plugins-before-restore/*",
       "wp-content/themes-before-restore/*",
-      "wp-content/shield/*"
+      "wp-content/uploads/bb-plugin/cache/*",
+      "wp-content/uploads/cache/wpml/twig/*",
+      "wp-content/cache/*",
+      "*/error_log",
+      "*/php_error_log",
+      "*/mail.log",
+      "*/php_mail.log"
     ],
     "cron_all_scans":              "all-scans",
     "wcf_exclusions":              [

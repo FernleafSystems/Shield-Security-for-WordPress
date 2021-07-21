@@ -59,7 +59,6 @@ abstract class BaseBuildScanAction {
 		/** @var Shield\Modules\HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		$action = $this->getScanActionVO();
-		error_log( var_export($opts->getWhitelistedPathsAsRegex(),true) );
 		$action->paths_whitelisted = $opts->getWhitelistedPathsAsRegex();
 	}
 }

@@ -30,7 +30,7 @@ class Options extends BaseShield\Options {
 			$paths = [];
 		}
 
-		return array_map(
+		return array_unique( array_map(
 			function ( $rule ) {
 				return sprintf(
 					'#^%s$#i',
@@ -41,7 +41,7 @@ class Options extends BaseShield\Options {
 				);
 			},
 			$paths
-		);
+		) );
 	}
 
 	/**
