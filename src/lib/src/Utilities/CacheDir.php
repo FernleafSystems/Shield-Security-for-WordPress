@@ -17,7 +17,7 @@ class CacheDir {
 		try {
 			$maybeDir = $this->getDir();
 			if ( !isset( $con->cache_dir_ready ) ) {
-				if ( !Services::WpFs()->mkdir( $dir ) ) {
+				if ( !Services::WpFs()->mkdir( $maybeDir ) ) {
 					throw new \Exception( 'Failed to mkdir cache dir' );
 				}
 				$this->testWrite();
