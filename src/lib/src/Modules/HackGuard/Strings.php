@@ -352,9 +352,9 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'path_whitelist' :
-				$name = __( 'Path Whitelist', 'wp-simple-firewall' );
-				$summary = __( 'Path Whitelist', 'wp-simple-firewall' );
+			case 'scan_path_exclusions' :
+				$name = __( 'Scan Exclusions', 'wp-simple-firewall' );
+				$summary = __( 'Scan File And Folder Exclusions', 'wp-simple-firewall' );
 				$desc = [
 					__( 'A list of file/folder paths that will never be scanned.', 'wp-simple-firewall' ),
 					__( 'All paths are relative to your WordPress installation directory.', 'wp-simple-firewall' ),

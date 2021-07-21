@@ -118,43 +118,30 @@ class ModCon extends BaseShield\ModCon {
 			}
 		}
 
-		$this->cleanPathWhitelist();
+		$this->cleanScanExclusions();
 	}
 
-	private function cleanPathWhitelist() {
+	private function cleanScanExclusions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$opts->setOpt( 'path_whitelist', array_unique( array_filter( array_map(
-			function ( $rule ) {
-				$rule = wp_normalize_path( strtolower( trim( $rule ) ) );
-				if ( !empty( $rule ) ) {
-					$toCheck = array_map( 'wp_normalize_path', array_unique( [
-						ABSPATH,
-						trailingslashit( path_join( ABSPATH, 'wp-admin' ) ),
-						trailingslashit( path_join( ABSPATH, 'wp-includes' ) ),
-						trailingslashit( WP_CONTENT_DIR ),
-						trailingslashit( path_join( WP_CONTENT_DIR, 'plugins' ) ),
-						trailingslashit( path_join( WP_CONTENT_DIR, 'themes' ) ),
-					] ) );
-					$regEx = sprintf(
-						'#^%s$#i',
-						path_join(
-							ABSPATH,
-							str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
-						)
-					);
 
-					foreach ( $toCheck as $path ) {
-						if ( preg_match( $regEx, $path ) ) {
-							$rule = false;
-							break;
-						}
-					}
-				}
-				return $rule;
-			},
-			$opts->getOpt( 'path_whitelist', [] ) // do not use Options getter as it formats into regex
-		) ) ) );
+		$specialDirs = array_map( 'trailingslashit', [
+			ABSPATH,
+			path_join( ABSPATH, 'wp-admin' ),
+			path_join( ABSPATH, 'wp-includes' ),
+			untrailingslashit( WP_CONTENT_DIR ),
+			path_join( WP_CONTENT_DIR, 'plugins' ),
+			path_join( WP_CONTENT_DIR, 'themes' ),
+		] );
+
+		$values = $opts->getOpt( 'scan_path_exclusions', [] );
+		$opts->setOpt( 'scan_path_exclusions',
+			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
+				is_array( $values ) ? $values : [],
+				$specialDirs,
+				Shield\Modules\Base\Options\WildCardOptions::FILE_PATH_REL
+			)
+		);
 	}
 
 	/**

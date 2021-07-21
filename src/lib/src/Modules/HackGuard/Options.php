@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
@@ -19,10 +20,10 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
-	public function getWhitelistedPathsAsRegex() {
+	public function getWhitelistedPathsAsRegex() :array {
 		if ( $this->isPremium() ) {
 			$paths = array_merge(
-				$this->getOpt( 'path_whitelist', [] ),
+				$this->getOpt( 'scan_path_exclusions', [] ),
 				$this->getDef( 'default_whitelist_paths' )
 			);
 		}
@@ -30,18 +31,12 @@ class Options extends BaseShield\Options {
 			$paths = [];
 		}
 
-		return array_unique( array_map(
-			function ( $rule ) {
-				return sprintf(
-					'#^%s$#i',
-					path_join(
-						ABSPATH,
-						str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $rule ), '#' ) )
-					)
-				);
+		return array_map(
+			function ( $value ) {
+				return ( new WildCardOptions() )->convertValueToRegEx( $value );
 			},
-			$paths
-		) );
+			is_array( $paths ) ? $paths : []
+		);
 	}
 
 	/**

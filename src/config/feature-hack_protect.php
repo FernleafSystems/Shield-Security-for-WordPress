@@ -399,7 +399,7 @@
       "description": "Automatically remove items from results that are irrelevant."
     },
     {
-      "key":         "path_whitelist",
+      "key":         "scan_path_exclusions",
       "section":     "section_scan_options",
       "advanced":    true,
       "premium":     true,
@@ -415,9 +415,9 @@
       "link_info":   "",
       "link_blog":   "",
       "beacon_id":   126,
-      "name":        "Path Path Whitelist",
-      "summary":     "Path Path Whitelist",
-      "description": "Path Path Whitelist."
+      "name":        "Scan Exclusions",
+      "summary":     "Scan File and Folder Exclusions",
+      "description": "Scan File and Folder Exclusions."
     },
     {
       "key":          "snapshot_users",
