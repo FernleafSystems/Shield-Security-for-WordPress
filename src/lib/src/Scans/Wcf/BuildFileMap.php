@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseBuildFileMap;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -25,7 +24,10 @@ class BuildFileMap extends BaseBuildFileMap {
 				if ( strpos( $fragment, 'wp-content/' ) === 0 ) {
 					continue;
 				}
-				$files[] = wp_normalize_path( path_join( ABSPATH, $fragment ) );
+				$fullPath = wp_normalize_path( path_join( ABSPATH, $fragment ) );
+				if ( !$this->isWhitelistedPath( $fullPath ) ) {
+					$files[] = $fullPath;
+				}
 			}
 		}
 		return $files;

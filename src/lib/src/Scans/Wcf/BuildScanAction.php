@@ -16,12 +16,12 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	}
 
 	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		/** @var Shield\Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
-		$oAction->exclusions_missing_regex = $oOpts->getWcfMissingExclusions();
-		$oAction->exclusions_files_regex = $oOpts->getWcfFileExclusions();
+		$action->exclusions_missing_regex = $opts->getWcfMissingExclusions();
+		$action->exclusions_files_regex = $opts->getWcfFileExclusions();
 	}
 }
