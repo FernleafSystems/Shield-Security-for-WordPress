@@ -82,6 +82,12 @@
         "title":       "Prevent a rare fatal error on certain pages.",
         "description": [],
         "patch":       "11.4.4"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fix for error showing in logs during cron.",
+        "description": [],
+        "patch":       "11.4.5"
       }
     ]
   },

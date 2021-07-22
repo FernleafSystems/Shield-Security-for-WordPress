@@ -45,8 +45,8 @@ class SubmitHashes {
 	}
 
 	private function canSubmitAsset() :bool {
-		return preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), $this->asset->Version )
-			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), $this->asset->slug );
+		return preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), (string)$this->asset->Version )
+			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), (string)$this->asset->slug );
 	}
 
 	private function isSubmitRequired() :bool {
