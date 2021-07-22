@@ -405,7 +405,8 @@
       "premium":     true,
       "default":     [
         "wp-content/cache/",
-        "wp-content/wflog/",
+        "wp-content/nfwlog/",
+        "wp-content/wflogs/",
         "*/error_log",
         "*/php_error_log",
         "*/mail.log",
