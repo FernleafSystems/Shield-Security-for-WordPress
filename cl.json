@@ -181,8 +181,8 @@
         "patch":       "11.4.4"
       },
       {
-        "type":        "improved",
-        "title":       "Improved support for PHP 8.",
+        "type":        "fixed",
+        "title":       "Fix for error showing in logs during cron.",
         "description": [],
         "patch":       "11.4.5"
       }
