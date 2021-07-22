@@ -51,7 +51,6 @@ class WildCardOptions {
 				break;
 		}
 
-		error_log( var_export( $checks, true ) );
 		return array_unique( $checks );
 	}
 
@@ -83,8 +82,8 @@ class WildCardOptions {
 		return array_unique( $optValues );
 	}
 
-	protected function buildFullRegexValue( string $value, int $type ) :string {
-		$valueRegEx = $this->convertValueToRegEx( $value );
+	public function buildFullRegexValue( string $value, int $type ) :string {
+		$valueRegEx = $this->convertValueToRegEx( $value, $type );
 
 		switch ( $type ) {
 			case self::FILE_PATH_REL:
@@ -100,7 +99,20 @@ class WildCardOptions {
 		return sprintf( '#^%s$#i', $fullValue );
 	}
 
-	public function convertValueToRegEx( string $value ) :string {
+	protected function convertValueToRegEx( string $value, int $type ) :string {
+
+		switch ( $type ) {
+			case self::FILE_PATH_REL:
+				if ( preg_match( '#/$#', $value ) ) {
+					$value .= '*';
+				}
+				error_log( var_export( $value, true ) );
+				break;
+
+			case self::URL_PATH:
+			default:
+				break;
+		}
 		return str_replace( 'WILDCARDSTAR', '.*', preg_quote( str_replace( '*', 'WILDCARDSTAR', $value ), '#' ) );
 	}
 }

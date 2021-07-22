@@ -48,7 +48,7 @@ class Options extends BaseShield\Options {
 		$paths = $this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : [];
 		return array_map(
 			function ( $value ) {
-				return ( new WildCardOptions() )->convertValueToRegEx( $value );
+				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH );
 			},
 			is_array( $paths ) ? $paths : []
 		);

@@ -33,7 +33,7 @@ class Options extends BaseShield\Options {
 
 		return array_map(
 			function ( $value ) {
-				return ( new WildCardOptions() )->convertValueToRegEx( $value );
+				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
 			},
 			is_array( $paths ) ? $paths : []
 		);

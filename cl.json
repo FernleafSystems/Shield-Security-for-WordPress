@@ -38,6 +38,15 @@
         ]
       },
       {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Scan File and Folder Exclusions",
+        "description": [
+          "You can specify files and folder which will be excluded from all file scans.",
+          "Files can be excluded in bulk using the asterisk (*) wildcard."
+        ]
+      },
+      {
         "type":        "improved",
         "pro_only":    false,
         "title":       "Scan Results Management",

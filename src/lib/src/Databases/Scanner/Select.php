@@ -14,6 +14,7 @@ class Select extends Base\Select {
 					->setGroupBy( 'scan' )
 					->setResultsAsVo( false )
 					->setSelectResultsFormat( ARRAY_A )
+					->filterByNotIgnored()
 					->query();
 		$counts = [];
 		if ( is_array( $res ) ) {

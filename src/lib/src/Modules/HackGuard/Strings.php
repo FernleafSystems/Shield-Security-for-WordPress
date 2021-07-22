@@ -361,7 +361,8 @@ class Strings extends Base\Strings {
 					__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' ),
 					__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' ),
 					__( 'All characters will be treated as case-insensitive.', 'wp-simple-firewall' ),
-					__( "If a path you add matches any core WordPress directories, it'll be removed automatically.", 'wp-simple-firewall' ),
+					__( 'Directories should be provided with a trailing slash (/).', 'wp-simple-firewall' ),
+					__( "If a path matches any core WordPress directories, it'll be removed automatically.", 'wp-simple-firewall' ),
 					__( "These aren't regular expression, but you can use asterisk (*) as a wildcard.", 'wp-simple-firewall' ),
 					sprintf( '%s: <code>%s</code>', __( 'WordPress Installation Directory', 'wp-simple-firewall' ), ABSPATH ),
 				];

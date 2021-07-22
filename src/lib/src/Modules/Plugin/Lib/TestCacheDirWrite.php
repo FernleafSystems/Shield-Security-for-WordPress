@@ -26,7 +26,6 @@ class TestCacheDirWrite {
 			// Use simple cachdir lookup, not the controller getCachePath to prevent infinite loops
 			$cacheDir = $this->getCon()->paths->cacheDir();
 			$canWrite = !empty( $cacheDir )
-						&& Services::WpFs()->isDir( $cacheDir )
 						&& $this->canCreateWriteDeleteFile()
 						&& $this->canCreateWriteDeleteDir();
 

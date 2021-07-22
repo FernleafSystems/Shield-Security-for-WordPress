@@ -324,12 +324,6 @@ class UI extends BaseShield\UI {
 //					$warnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
 				break;
-
-			case 'section_file_guard':
-				if ( !$this->getCon()->hasCacheDir() ) {
-					$warnings[] = __( "Certain scanners are unavailable because we couldn't create a temporary directory to store files.", 'wp-simple-firewall' );
-				}
-				break;
 		}
 
 		return $warnings;
