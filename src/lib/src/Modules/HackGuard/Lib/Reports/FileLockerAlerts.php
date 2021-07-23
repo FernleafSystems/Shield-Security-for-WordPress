@@ -12,17 +12,17 @@ class FileLockerAlerts extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
-		$aAlerts = [];
+		$alerts = [];
 
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 
-		$oLockOps = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )
+		$lockOps = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )
 			->setMod( $this->getMod() );
-		$aNotNotified = $oLockOps->withProblemsNotNotified();
+		$notNotified = $lockOps->withProblemsNotNotified();
 
-		if ( count( $aNotNotified ) > 0 ) {
-			$aAlerts[] = $this->getMod()->renderTemplate(
+		if ( count( $notNotified ) > 0 ) {
+			$alerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/hack_protect/alert_filelocker.twig',
 				[
 					'vars'    => [
@@ -31,7 +31,7 @@ class FileLockerAlerts extends BaseReporter {
 					'strings' => [
 						'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
 						'file_changed' => __( 'Changes have been detected in the contents of critical files.', 'wp-simple-firewall' ),
-						'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $aNotNotified ) ),
+						'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $notNotified ) ),
 						'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
@@ -39,11 +39,11 @@ class FileLockerAlerts extends BaseReporter {
 					],
 				]
 			);
-			$this->markAlertsAsNotified( $aNotNotified );
-			$oLockOps->clearLocksCache();
+			$this->markAlertsAsNotified( $notNotified );
+			$lockOps->clearLocksCache();
 		}
 
-		return $aAlerts;
+		return $alerts;
 	}
 
 	/**
@@ -52,10 +52,10 @@ class FileLockerAlerts extends BaseReporter {
 	private function markAlertsAsNotified( $aNotNotified ) {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var FileLocker\Update $oUpdater */
-		$oUpdater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
-		foreach ( $aNotNotified as $oEntry ) {
-			$oUpdater->markNotified( $oEntry );
+		/** @var FileLocker\Update $updater */
+		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
+		foreach ( $aNotNotified as $entry ) {
+			$updater->markNotified( $entry );
 		}
 	}
 }

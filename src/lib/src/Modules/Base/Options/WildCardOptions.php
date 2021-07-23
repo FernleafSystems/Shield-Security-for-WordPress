@@ -63,7 +63,13 @@ class WildCardOptions {
 		switch ( $type ) {
 
 			case self::FILE_PATH_REL:
-				$optValues = array_map( 'wp_normalize_path', $optValues );
+				$optValues = array_map( function ( string $relPath ) {
+					$relPath = wp_normalize_path( $relPath );
+					if ( strpos( $relPath, wp_normalize_path( ABSPATH ) ) === 0 ) {
+						$relPath = str_replace( wp_normalize_path( ABSPATH ), '', $relPath );
+					}
+					return ltrim( $relPath, '/' );
+				}, $optValues );
 				break;
 
 			case self::URL_PATH:
@@ -106,7 +112,6 @@ class WildCardOptions {
 				if ( preg_match( '#/$#', $value ) ) {
 					$value .= '*';
 				}
-				error_log( var_export( $value, true ) );
 				break;
 
 			case self::URL_PATH:

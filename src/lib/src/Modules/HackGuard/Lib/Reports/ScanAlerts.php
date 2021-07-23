@@ -13,9 +13,6 @@ class ScanAlerts extends BaseReporter {
 	 * @inheritDoc
 	 */
 	public function build() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-
 		$alerts = [];
 
 		/** @var HackGuard\Strings $strings */

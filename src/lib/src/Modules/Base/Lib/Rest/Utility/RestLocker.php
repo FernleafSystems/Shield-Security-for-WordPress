@@ -54,8 +54,7 @@ class RestLocker {
 	 */
 	private function getLockFile() {
 		try {
-			$sBase = $this->getRestRoute()->getWorkingDir();
-			$file = path_join( $sBase, 'rest_process.lock' );
+			$file = path_join( $this->getRestRoute()->getWorkingDir(), 'rest_process.lock' );
 		}
 		catch ( \Exception $e ) {
 			$file = false;
