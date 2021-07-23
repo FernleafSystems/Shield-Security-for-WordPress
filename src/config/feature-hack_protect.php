@@ -415,7 +415,7 @@
       "type":        "array",
       "link_info":   "",
       "link_blog":   "",
-      "beacon_id":   126,
+      "beacon_id":   441,
       "name":        "Scan Exclusions",
       "summary":     "Scan File and Folder Exclusions",
       "description": "Scan File and Folder Exclusions."

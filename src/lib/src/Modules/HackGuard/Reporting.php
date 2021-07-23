@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
@@ -13,6 +13,7 @@ class Reporting extends Base\Reporting {
 	protected function enumAlertReporters() :array {
 		return [
 			new Reports\ScanAlerts(),
+			new Reports\ScanRepairs(),
 			new Reports\FileLockerAlerts(),
 		];
 	}
