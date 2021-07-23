@@ -43,7 +43,8 @@
         "title":       "Scan File and Folder Exclusions",
         "description": [
           "You can specify files and folder which will be excluded from all file scans.",
-          "Files can be excluded in bulk using the asterisk (*) wildcard."
+          "Files can be excluded in bulk using the asterisk (*) wildcard.",
+          "This option is designed to completely replace the exclusions option under the Unrecognised Files Scanner."
         ]
       },
       {
@@ -76,6 +77,11 @@
       },
       {
         "type":        "improved",
+        "title":       "Reporting alert email now lists some repaired/deleted files.",
+        "description": []
+      },
+      {
+        "type":        "improved",
         "title":       "WP Admin warning when 2FA by email verification isn't complete.",
         "description": []
       },
@@ -87,6 +93,11 @@
       {
         "type":        "new",
         "title":       "Audit Trail WordPress filter to allow customisation of event logging.",
+        "description": []
+      },
+      {
+        "type":        "improved",
+        "title":       "Improved support and fixes for PHP 8 and WordPress 5.8.",
         "description": []
       },
       {
