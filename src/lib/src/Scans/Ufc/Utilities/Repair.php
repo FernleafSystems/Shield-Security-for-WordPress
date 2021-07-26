@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports\ScanRepairs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 use FernleafSystems\Wordpress\Services\Services;

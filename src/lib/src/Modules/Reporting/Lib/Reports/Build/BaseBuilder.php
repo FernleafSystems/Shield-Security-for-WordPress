@@ -43,7 +43,7 @@ abstract class BaseBuilder {
 	 */
 	abstract protected function gather() :array;
 
-	abstract protected function render( array $aGatheredData ) :string;
+	abstract protected function render( array $gathered ) :string;
 
 	/**
 	 * When displaying, we must take into account the GMT offset of the site.

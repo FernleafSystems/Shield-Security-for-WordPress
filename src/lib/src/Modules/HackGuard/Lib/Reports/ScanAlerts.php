@@ -41,6 +41,9 @@ class ScanAlerts extends BaseReporter {
 					'strings' => [
 						'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),
 						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
+						'note_changes' => sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+							__( 'Depending on previous actions taken on the site or file system changes, these results may no longer be available to view.', 'wp-simple-firewall' ) ),
+
 					],
 					'hrefs'   => [
 						'view_results' => $this->getCon()

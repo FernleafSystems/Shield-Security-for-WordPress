@@ -36,9 +36,8 @@ class ScanRepairs extends BaseReporter {
 		$total = 0;
 		foreach ( $repairEvents as $event ) {
 			$eventTotal = $selectorEvents
-				->filterByEvent( $event )
 				->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
-				->count();
+				->sumEvent( $event );
 			$total += $eventTotal;
 
 			if ( $eventTotal > 0 ) {
