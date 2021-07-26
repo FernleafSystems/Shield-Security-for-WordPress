@@ -52,22 +52,26 @@ class DelegateAjaxHandler {
 		$success = false;
 
 		$items = $this->getItemIDs();
-		/** @var Shield\Databases\Scanner\EntryVO[] $entries */
-		$entries = $mod->getDbHandler_ScanResults()
-					   ->getQuerySelector()
-					   ->addWhereIn( 'id', $items )
-					   ->query();
+
+		$resultIT = $mod->getDbHandler_ScanResults()->getIterator();
+		$resultIT->setSelector(
+			$resultIT->getSelector()->addWhereIn( 'id', $items )
+		);
 
 		$scanSlugs = [];
 		$successfulItems = [];
-		foreach ( $entries as $entry ) {
-			$scanSlugs[] = $entry->scan;
-			if ( $mod->getScanCon( $entry->scan )->executeItemAction( $entry->id, $action ) ) {
+
+		/** @var Databases\Scanner\EntryVO $entry */
+		foreach ( $resultIT as $entry ) {
+			$scanSlugs[ $entry->scan ] = 1;
+			if ( $mod->getScanCon( $entry->scan )->executeEntryAction( $entry, $action ) ) {
 				$successfulItems[] = $entry->id;
 			}
 		}
 
-		foreach ( array_unique( $scanSlugs ) as $slug ) {
+		$scanSlugs = array_keys( $scanSlugs );
+
+		foreach ( $scanSlugs as $slug ) {
 			$mod->getScanCon( $slug )->cleanStalesResults();
 		}
 

@@ -44,7 +44,6 @@ abstract class ItemActionHandler {
 	}
 
 	/**
-	 * TODO: Determine if "delete" is always the same as a "repair" - see UFC override
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -132,7 +131,7 @@ abstract class ItemActionHandler {
 		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 
-		if ( !empty( $item->path_full ) ) {
+		if ( !empty( $item->path_full ) && !empty( $item->repair_event_status ) ) {
 			$this->getCon()->fireEvent(
 				sprintf( 'scan_item_%s', $item->repair_event_status ),
 				[ 'audit' => [ 'path_full' => $item->path_full ] ]

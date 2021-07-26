@@ -108,6 +108,16 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	abstract protected function isResultItemStale( $item ) :bool;
 
+	public function executeEntryAction( Databases\Scanner\EntryVO $entry, string $action ) :bool {
+		$item = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			->setScanController( $this )
+			->convertVoToResultItem( $entry );
+
+		return $this->getItemActionHandler()
+					->setScanItem( $item )
+					->process( $action );
+	}
+
 	public function executeItemAction( int $recordID, string $action ) :bool {
 		$success = false;
 
@@ -120,13 +130,7 @@ abstract class Base extends ExecOnceModConsumer {
 				throw new \Exception( 'Item could not be found.' );
 			}
 
-			$item = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-				->setScanController( $this )
-				->convertVoToResultItem( $entry );
-
-			$success = $this->getItemActionHandler()
-							->setScanItem( $item )
-							->process( $action );
+			$success = $this->executeEntryAction( $entry, $action );
 		}
 
 		return $success;
