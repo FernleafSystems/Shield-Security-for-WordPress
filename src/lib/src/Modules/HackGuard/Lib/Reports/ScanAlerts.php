@@ -9,10 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScanAlerts extends BaseReporter {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function build() {
+	public function build() :array {
 		$alerts = [];
 
 		/** @var HackGuard\Strings $strings */

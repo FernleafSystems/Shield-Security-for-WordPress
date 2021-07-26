@@ -13,10 +13,7 @@ abstract class BaseReporter {
 	 */
 	private $rep;
 
-	/**
-	 * @return array
-	 */
-	public function build() {
+	public function build() :array {
 		return [];
 	}
 

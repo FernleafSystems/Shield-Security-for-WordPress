@@ -9,10 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseRe
 
 class ScanRepairs extends BaseReporter {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function build() {
+	public function build() :array {
 		$alerts = [];
 
 		$modEvents = $this->getCon()->getModule_Events();

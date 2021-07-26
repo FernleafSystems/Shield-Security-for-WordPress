@@ -8,10 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseRe
 
 class FileLockerAlerts extends BaseReporter {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function build() {
+	public function build() :array {
 		$alerts = [];
 
 		/** @var HackGuard\ModCon $mod */
@@ -47,14 +44,14 @@ class FileLockerAlerts extends BaseReporter {
 	}
 
 	/**
-	 * @param FileLocker\EntryVO[] $aNotNotified
+	 * @param FileLocker\EntryVO[] $setNotified
 	 */
-	private function markAlertsAsNotified( $aNotNotified ) {
+	private function markAlertsAsNotified( $setNotified ) {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var FileLocker\Update $updater */
 		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
-		foreach ( $aNotNotified as $entry ) {
+		foreach ( $setNotified as $entry ) {
 			$updater->markNotified( $entry );
 		}
 	}

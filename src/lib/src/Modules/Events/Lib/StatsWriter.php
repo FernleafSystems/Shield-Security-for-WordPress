@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Handler;
-use FernleafSystems\Wordpress\Services\Services;
 
 class StatsWriter extends EventsListener {
 
@@ -23,7 +22,10 @@ class StatsWriter extends EventsListener {
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
 		if ( !empty( $def[ 'stat' ] ) ) {
 			$stats = $this->getEventStats();
-			$stats[ $evt ] = $meta[ 'ts' ] ?? Services::Request()->ts();
+			if ( !isset( $stats[ $evt ] ) ) {
+				$stats[ $evt ] = 0;
+			}
+			$stats[ $evt ]++;
 			$this->setEventStats( $stats );
 		}
 	}
@@ -40,16 +42,16 @@ class StatsWriter extends EventsListener {
 	/**
 	 * @return int[]
 	 */
-	public function getEventStats() {
+	public function getEventStats() :array {
 		return is_array( $this->aEventStats ) ? $this->aEventStats : [];
 	}
 
 	/**
-	 * @param int[] $aStats
+	 * @param int[] $stats
 	 * @return $this
 	 */
-	public function setEventStats( $aStats = [] ) {
-		$this->aEventStats = $aStats;
+	public function setEventStats( array $stats = [] ) {
+		$this->aEventStats = $stats;
 		return $this;
 	}
 }
