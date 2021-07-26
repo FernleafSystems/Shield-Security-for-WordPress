@@ -16,7 +16,7 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @inheritDoc
 	 */
 	public function repairItem() :bool {
-		return $this->deleteItem();
+		throw new \Exception( 'Repair action is not supported' );
 	}
 
 	public function deleteItem() :bool {

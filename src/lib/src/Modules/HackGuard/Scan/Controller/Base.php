@@ -205,6 +205,10 @@ abstract class Base extends ExecOnceModConsumer {
 		return false;
 	}
 
+	public function canCronAutoDelete() :bool {
+		return false;
+	}
+
 	abstract public function isEnabled() :bool;
 
 	protected function isPremiumOnly() :bool {
@@ -251,7 +255,7 @@ abstract class Base extends ExecOnceModConsumer {
 				try {
 					$this->getItemActionHandler()
 						 ->setScanItem( $item )
-						 ->repair();
+						 ->repair( $this->canCronAutoDelete() );
 				}
 				catch ( \Exception $e ) {
 				}
@@ -280,7 +284,7 @@ abstract class Base extends ExecOnceModConsumer {
 		try {
 			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}
-		catch ( \ReflectionException $e ) {
+		catch ( \Exception $e ) {
 			$slug = '';
 		}
 		return $slug;

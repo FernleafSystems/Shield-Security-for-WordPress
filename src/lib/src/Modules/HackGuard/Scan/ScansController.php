@@ -74,10 +74,10 @@ class ScansController extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $sSlug ) {
-			$oScanCon = $mod->getScanCon( $sSlug );
-			if ( $oScanCon->isCronAutoRepair() ) {
-				$oScanCon->runCronAutoRepair();
+		foreach ( $opts->getScanSlugs() as $slug ) {
+			$scanCon = $mod->getScanCon( $slug );
+			if ( $scanCon->isCronAutoRepair() ) {
+				$scanCon->runCronAutoRepair();
 			}
 		}
 	}
