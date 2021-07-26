@@ -62,6 +62,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function scanWithStore( string $fullPath, $asset ) {
 		$assetHashes = $this->getStore( $asset )->getSnapData();
+		if ( empty( $assetHashes ) ) {
+			throw new \Exception( 'File hashes from store is empty' );
+		}
 		$pathFragment = str_replace( strtolower( $asset->getInstallDir() ), '', $fullPath );
 		if ( empty( $assetHashes[ $pathFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
@@ -89,6 +92,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$assetHashes = ( $asset->asset_type === 'plugin' ) ?
 			( new WpHashes\Hashes\Plugin() )->getPluginHashes( $asset )
 			: ( new WpHashes\Hashes\Theme() )->getThemeHashes( $asset );
+		if ( empty( $assetHashes ) ) {
+			throw new \Exception( 'File hashes from WPHashes is empty' );
+		}
 		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
 		if ( empty( $assetHashes[ $pathFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
