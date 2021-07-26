@@ -93,18 +93,18 @@ class ResultsSet extends Base\ResultsSet {
 	}
 
 	/**
-	 * @param string $sContext
+	 * @param string $context
 	 * @return ResultsSet
 	 */
-	public function getResultsForContext( $sContext ) {
-		$oRs = new ResultsSet();
-		foreach ( $this->getAllItems() as $oItem ) {
-			/** @var ResultItem $oItem */
-			if ( $oItem->context == $sContext ) {
-				$oRs->addItem( $oItem );
+	public function getResultsForContext( $context ) {
+		$results = new ResultsSet();
+		foreach ( $this->getAllItems() as $item ) {
+			/** @var ResultItem $item */
+			if ( $item->context == $context ) {
+				$results->addItem( $item );
 			}
 		}
-		return $oRs;
+		return $results;
 	}
 
 	/**

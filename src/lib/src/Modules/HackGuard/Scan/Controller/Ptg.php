@@ -61,6 +61,13 @@ class Ptg extends BaseForAssets {
 			elseif ( $opts->isRepairFilePlugin() ) {
 				$results = $results->getResultsForPluginsContext();
 			}
+
+			/** @var Scans\Ptg\ResultItem $item */
+			foreach ( $results->getItems() as $item ) {
+				if ( $item->is_unrecognised ) {
+					$results->removeItem( $item );
+				}
+			}
 		}
 
 		return $results;
