@@ -2,13 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,16 +17,15 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base extends ExecOnceModConsumer {
 
 	const SCAN_SLUG = '';
+	use PluginCronsConsumer;
 
 	/**
 	 * @var BaseScanActionVO
 	 */
 	private $scanActionVO;
 
-	/**
-	 * Base constructor.
-	 * see dynamic constructors: features/hack_protect.php
-	 */
+	private static $resultsCounts;
+
 	public function __construct() {
 	}
 
@@ -42,6 +42,21 @@ abstract class Base extends ExecOnceModConsumer {
 				$mod->getScanQueueController()->startScans( [ $this->getSlug() ] );
 			}
 		);
+		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+	}
+
+	public function addAdminMenuBarItem( array $items ) :array {
+		$problems = $this->countScanProblems();
+		if ( $problems > 0 ) {
+			$items[] = [
+				'id'       => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+				'title'    => $this->getScanName()
+							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+				'warnings' => $problems
+			];
+		}
+		return $items;
 	}
 
 	public function cleanStalesResults() {
@@ -58,8 +73,8 @@ abstract class Base extends ExecOnceModConsumer {
 			->delete( $results );
 	}
 
-	public function createFileDownloadLink( Databases\Scanner\EntryVO $entry ) :string {
-		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $entry->id ] );
+	public function createFileDownloadLink( int $recordID ) :string {
+		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $recordID ] );
 	}
 
 	public function getLastScanAt() :int {
@@ -72,53 +87,57 @@ abstract class Base extends ExecOnceModConsumer {
 		return ( $entry instanceof Databases\Events\EntryVO ) ? (int)$entry->created_at : 0;
 	}
 
+	public function countScanProblems() :int {
+		if ( !isset( self::$resultsCounts ) ) {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			/** @var Databases\Scanner\Select $sel */
+			$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
+			self::$resultsCounts = $sel->countForEachScan();
+		}
+		return self::$resultsCounts[ static::SCAN_SLUG ] ?? 0;
+	}
+
 	public function getScanHasProblem() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Databases\Scanner\Select $sel */
-		$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
-		return $sel->filterByNotIgnored()
-				   ->filterByScan( $this->getSlug() )
-				   ->count() > 0;
+		return $this->countScanProblems() > 0;
 	}
 
 	/**
-	 * @param BaseResultItem|mixed $item
+	 * @param ResultItem|mixed $item
 	 * @return bool
 	 */
 	abstract protected function isResultItemStale( $item ) :bool;
 
-	/**
-	 * @param int|string $itemID
-	 * @param string     $action
-	 * @return bool
-	 */
-	public function executeItemAction( int $itemID, string $action ) :bool {
+	public function executeEntryAction( Databases\Scanner\EntryVO $entry, string $action ) :bool {
+		$item = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			->setScanController( $this )
+			->convertVoToResultItem( $entry );
+
+		return $this->getItemActionHandler()
+					->setScanItem( $item )
+					->process( $action );
+	}
+
+	public function executeItemAction( int $recordID, string $action ) :bool {
 		$success = false;
 
-		if ( is_numeric( $itemID ) ) {
+		if ( is_numeric( $recordID ) ) {
 			/** @var Databases\Scanner\EntryVO $entry */
 			$entry = $this->getScanResultsDbHandler()
 						  ->getQuerySelector()
-						  ->byId( $itemID );
+						  ->byId( $recordID );
 			if ( empty( $entry ) ) {
 				throw new \Exception( 'Item could not be found.' );
 			}
 
-			$entry = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-				->setScanController( $this )
-				->convertVoToResultItem( $entry );
-
-			$success = $this->getItemActionHandler()
-							->setScanItem( $entry )
-							->process( $action );
+			$success = $this->executeEntryAction( $entry, $action );
 		}
 
 		return $success;
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet|mixed
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
 		/** @var Databases\Scanner\Select $sel */
@@ -140,25 +159,26 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param bool $bIncludeIgnored
-	 * @return Scans\Base\BaseResultsSet|mixed
+	 * @param bool $includeIgnored
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
-	public function getAllResults( $bIncludeIgnored = false ) {
+	public function getAllResults( $includeIgnored = false ) {
 		/** @var Databases\Scanner\Select $sel */
 		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$sel->filterByScan( $this->getSlug() );
-		if ( !$bIncludeIgnored ) {
+		if ( !$includeIgnored ) {
 			$sel->filterByNotIgnored();
 		}
+		$raw = $this->isRestricted() ? [] : $sel->query();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $sel->query() );
+			->fromVOsToResultsSet( $raw );
 	}
 
 	/**
 	 * @return Scans\Base\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	public function getItemActionHandler() {
 		return $this->newItemActionHandler()
 					->setMod( $this->getMod() )
 					->setScanController( $this );
@@ -186,6 +206,10 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function isCronAutoRepair() :bool {
+		return false;
+	}
+
+	public function canCronAutoDelete() :bool {
 		return false;
 	}
 
@@ -235,7 +259,7 @@ abstract class Base extends ExecOnceModConsumer {
 				try {
 					$this->getItemActionHandler()
 						 ->setScanItem( $item )
-						 ->repair();
+						 ->repair( $this->canCronAutoDelete() );
 				}
 				catch ( \Exception $e ) {
 				}
@@ -264,14 +288,14 @@ abstract class Base extends ExecOnceModConsumer {
 		try {
 			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}
-		catch ( \ReflectionException $e ) {
+		catch ( \Exception $e ) {
 			$slug = '';
 		}
 		return $slug;
 	}
 
 	/**
-	 * @return BaseResultItem|mixed
+	 * @return ResultItem|mixed
 	 */
 	public function getNewResultItem() {
 		$class = $this->getScanNamespace().'ResultItem';
@@ -279,7 +303,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return BaseResultsSet|mixed
+	 * @return ResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
 		$class = $this->getScanNamespace().'ResultsSet';

@@ -321,72 +321,24 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * @param string $cachePath
-	 * @return string|false
-	 */
-	public function getPluginCachePath( $cachePath = '' ) {
-		$path = false;
-		if ( $this->hasCacheDir() ) {
-			try {
-				// Never throws an exception if "hasCacheDir" == true
-				$path = $this->buildPluginCacheDir();
-				if ( !empty( $cachePath ) ) {
-					$path = path_join( $path, $cachePath );
-				}
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $path;
+	public function getPluginCachePath( $cachePath = '' ) :string {
+		$cacheDir = ( new Shield\Utilities\CacheDir() )
+			->setCon( $this )
+			->build();
+		return empty( $cacheDir ) ? '' : path_join( $cacheDir, $cachePath );
 	}
 
 	public function hasCacheDir() :bool {
-		try {
-			$this->buildPluginCacheDir();
-		}
-		catch ( \Exception $e ) {
-		}
-		return $this->cache_dir_ready;
+		return !empty( $this->getPluginCachePath() );
 	}
 
 	/**
-	 * @return string
-	 * @throws \Exception
+	 * @deprecated 11.4
 	 */
 	private function buildPluginCacheDir() :string {
-		$FS = Services::WpFs();
-
-		$cacheDirBasename = $this->cfg->paths[ 'cache' ];
-		if ( empty( $cacheDirBasename ) ) {
-			$this->cache_dir_ready = false;
-			throw new \Exception( 'No slug for cache dir' );
-		}
-
-		$cacheDir = path_join( WP_CONTENT_DIR, $cacheDirBasename );
-		if ( empty( $this->cache_dir_ready ) && $FS->mkdir( $cacheDir ) ) {
-			$htFile = path_join( $cacheDir, '.htaccess' );
-			$htContent = implode( "\n", [
-				"# BEGIN SHIELD",
-				"Options -Indexes",
-				"Order allow,deny",
-				"Deny from all",
-				'<FilesMatch "^.*\.(css|js)$">',
-				" Allow from all",
-				'</FilesMatch>',
-				"# END SHIELD"
-			] );
-			if ( !$FS->exists( $htFile ) || ( md5_file( $htFile ) !== md5( $htContent ) ) ) {
-				$FS->putFileContent( $htFile, $htContent );
-			}
-			$index = path_join( $cacheDir, 'index.php' );
-			$indexContent = "<?php\nhttp_response_code(404);";
-			if ( !$FS->exists( $index ) || ( md5_file( $index ) !== md5( $indexContent ) ) ) {
-				$FS->putFileContent( $index, $indexContent );
-			}
-			$this->cache_dir_ready = true;
-		}
-		return $cacheDir;
+		return ( new Shield\Utilities\CacheDir() )
+			->setCon( $this )
+			->build();
 	}
 
 	protected function doRegisterHooks() {

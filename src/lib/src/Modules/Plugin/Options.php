@@ -64,14 +64,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 11.4
-	 */
-	public function isImportExportPermitted() :bool {
-		return $this->isOpt( 'importexport_enable', 'Y' );
-	}
-
-	/**
 	 * @return string[]
 	 */
 	public function getImportExportWhitelist() :array {

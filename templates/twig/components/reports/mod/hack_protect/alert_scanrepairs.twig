@@ -1,0 +1,19 @@
+<div style="padding-left: 10px;">
+	<h3>{{ strings.title }}</h3>
+	<ul>
+		{% for repair_data in vars.repairs %}
+			<li>
+				{{ repair_data.name }}: {{ repair_data.count }}
+				{% if repair_data.repairs is not empty %}
+					<ul>
+						{% for repair in repair_data.repairs %}
+							<li><code>{{ repair }}</code></li>
+						{% endfor %}
+						{{ repair_data.count > repair_data.repairs|length ? '<li>...</li>' : '' }}
+					</ul>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+	<p><a href="{{ hrefs.audit_trail }}" target="_blank">{{ strings.audit_trail }}</a></p>
+</div>

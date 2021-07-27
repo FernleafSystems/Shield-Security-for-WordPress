@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports\ScanRepairs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,35 +14,32 @@ use FernleafSystems\Wordpress\Services\Services;
 class Repair extends Scans\Base\Utilities\BaseRepair {
 
 	/**
-	 * @return bool
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
-	public function repairItem() {
-		/** @var Ufc\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$bSuccess = true;
+	public function repairItem() :bool {
+		throw new \Exception( 'Repair action is not supported' );
+	}
 
-		$oHashes = Services::CoreFileHashes();
-		if ( $oHashes->isCoreFile( $oItem->path_fragment ) ) {
-			throw new \Exception( sprintf( 'File "%s" is an official WordPress core file.', $oItem->path_fragment ) );
+	public function deleteItem() :bool {
+		/** @var Ufc\ResultItem $item */
+		$item = $this->getScanItem();
+
+		$coreHashes = Services::CoreFileHashes();
+		if ( $coreHashes->isCoreFile( $item->path_fragment ) ) {
+			throw new \Exception( sprintf( 'File "%s" is an official WordPress core file.', $item->path_fragment ) );
 		}
 
-		$oFs = Services::WpFs();
-		if ( $oFs->deleteFile( $oItem->path_full ) ) {
-			clearstatcache();
-			$bSuccess = !$oFs->exists( $oItem->path_full );
-		}
-
-		return $bSuccess;
+		$FS = Services::WpFs();
+		return !$FS->isFile( $item->path_full ) || (bool)$FS->deleteFile( $item->path_full );
 	}
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() {
-		/** @var Ufc\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		return Services::WpFs()->exists( $oItem->path_full );
+	public function canRepair() :bool {
+		/** @var Ufc\ResultItem $item */
+		$item = $this->getScanItem();
+		return (bool)Services::WpFs()->exists( $item->path_full );
 	}
 }

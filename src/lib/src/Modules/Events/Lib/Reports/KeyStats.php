@@ -8,10 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseRe
 
 class KeyStats extends BaseReporter {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function build() {
+	public function build() :array {
 		$alerts = [];
 
 		/** @var Events\ModCon $mod */

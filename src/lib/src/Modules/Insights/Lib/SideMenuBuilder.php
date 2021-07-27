@@ -31,7 +31,7 @@ class SideMenuBuilder {
 			$item = Services::DataManipulation()->mergeArraysRecursive( [
 				'slug'      => 'no-slug',
 				'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
-				'href'      => '#',
+				'href'      => 'javascript:{}',
 				'classes'   => [],
 				'id'        => '',
 				'active'    => $this->getInav() === $item[ 'slug' ],

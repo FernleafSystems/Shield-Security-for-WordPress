@@ -16,6 +16,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$req = Services::Request();
 		switch ( $action ) {
 
+			case 'scanresults_action':
+				$response = $this->ajaxExec_ScanTableAction();
+				break;
+
 			case 'scans_start':
 				$response = $this->ajaxExec_StartScans();
 				break;
@@ -351,33 +355,40 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_CheckScans() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Strings $oStrings */
-		$oStrings = $mod->getStrings();
-		/** @var Shield\Databases\ScanQueue\Select $oSel */
-		$oSel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
+		/** @var Strings $strings */
+		$strings = $mod->getStrings();
+		/** @var Shield\Databases\ScanQueue\Select $selector */
+		$selector = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$oQueCon = $mod->getScanQueueController();
-		$sCurrent = $oSel->getCurrentScan();
-		$bHasCurrent = !empty( $sCurrent );
-		if ( $bHasCurrent ) {
-			$sCurrentScan = $oStrings->getScanName( $sCurrent );
+		$queueCon = $mod->getScanQueueController();
+		$current = $selector->getCurrentScan();
+		$hasCurrent = !empty( $current );
+		if ( $hasCurrent ) {
+			$currentScan = $strings->getScanName( $current );
 		}
 		else {
-			$sCurrentScan = __( 'No scan running.', 'wp-simple-firewall' );
+			$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
+		}
+
+		if ( count( $selector->getInitiatedScans() ) === 0 ) {
+			$remainingScans = __( 'No scans remaining.', 'wp-simple-firewall' );
+		}
+		else {
+			$remainingScans = sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
+				count( $selector->getUnfinishedScans() ), count( $selector->getInitiatedScans() ) );
 		}
 
 		return [
 			'success' => true,
-			'running' => $oQueCon->getScansRunningStates(),
+			'running' => $queueCon->getScansRunningStates(),
 			'vars'    => [
 				'progress_html' => $mod->renderTemplate(
 					'/wpadmin_pages/insights/scans/modal/progress_snippet.twig',
 					[
 						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
-						'scan'            => $sCurrentScan,
-						'remaining_scans' => sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
-							count( $oSel->getUnfinishedScans() ), count( $oSel->getInitiatedScans() ) ),
-						'progress'        => 100*$oQueCon->getScanJobProgress(),
+						'scan'            => $currentScan,
+						'remaining_scans' => $remainingScans,
+						'progress'        => 100*$queueCon->getScanJobProgress(),
 						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
 						'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
 						'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
@@ -441,5 +452,20 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'page_reload'   => $reloadPage && !$isScanRunning,
 			'message'       => $msg,
 		];
+	}
+
+	private function ajaxExec_ScanTableAction() :array {
+		try {
+			return ( new Lib\ScanTables\DelegateAjaxHandler() )
+				->setMod( $this->getMod() )
+				->processAjaxAction();
+		}
+		catch ( \Exception $e ) {
+			return [
+				'success'     => false,
+				'page_reload' => true,
+				'message'     => $e->getMessage(),
+			];
+		}
 	}
 }

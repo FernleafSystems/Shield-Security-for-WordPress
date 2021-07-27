@@ -37,7 +37,7 @@ class Controller {
 	/**
 	 * @return bool[]
 	 */
-	public function getScansRunningStates() {
+	public function getScansRunningStates() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
@@ -48,11 +48,11 @@ class Controller {
 		// First clean the queue:
 		$this->cleanExpiredFromQueue();
 
-		$aScans = array_fill_keys( $opts->getScanSlugs(), false );
+		$scans = array_fill_keys( $opts->getScanSlugs(), false );
 		foreach ( $sel->getInitiatedScans() as $sInitScan ) {
-			$aScans[ $sInitScan ] = true;
+			$scans[ $sInitScan ] = true;
 		}
-		return $aScans;
+		return $scans;
 	}
 
 	/**
@@ -66,16 +66,16 @@ class Controller {
 		$nExpiredBoundary = Services::Request()
 									->carbon()
 									->subSeconds( $opts->getMalQueueExpirationInterval() )->timestamp;
-		/** @var ScanQueue\Delete $oDel */
-		$oDel = $mod->getDbHandler_ScanQueue()->getQueryDeleter();
-		return $oDel->addWhereOlderThan( $nExpiredBoundary )
-					->query();
+		/** @var ScanQueue\Delete $deleter */
+		$deleter = $mod->getDbHandler_ScanQueue()->getQueryDeleter();
+		return $deleter->addWhereOlderThan( $nExpiredBoundary )
+					   ->query();
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getRunningScans() {
+	public function getRunningScans() :array {
 		return array_keys( array_filter( $this->getScansRunningStates() ) );
 	}
 
@@ -88,27 +88,27 @@ class Controller {
 		/** @var ScanQueue\Select $sel */
 		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$aUnfinished = $sel->getUnfinishedScans();
-		$nProgress = 1;
-		if ( $sel->getUnfinishedScans() > 0 ) {
-			$nInitiated = count( $sel->getInitiatedScans() );
-			if ( $nInitiated > 0 ) {
-				$nProgress = 1 - ( count( $aUnfinished )/count( $sel->getInitiatedScans() ) );
-			}
+		$countsAll = $sel->countAllForEachScan();
+		$countsUnfinished = $sel->countUnfinishedForEachScan();
+
+		if ( empty( $countsAll ) || empty( $countsUnfinished ) ) {
+			$progress = 1;
 		}
 		else {
-			$nProgress = 1;
+			$progress = 0;
+			$eachScanWeight = 1/count( $countsAll );
+			foreach ( array_keys( $countsAll ) as $scan ) {
+				$progress += $eachScanWeight*( 1 - ( ( $countsUnfinished[ $scan ] ?? 0 )/$countsAll[ $scan ] ) );
+			}
 		}
-		return $nProgress;
+
+		return $progress;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasRunningScans() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return count( $this->getRunningScans() ) > 0 || count( $oOpts->getScansToBuild() ) > 0;
+	public function hasRunningScans() :bool {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return count( $this->getRunningScans() ) > 0 || count( $opts->getScansToBuild() ) > 0;
 	}
 
 	/**

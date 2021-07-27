@@ -18,7 +18,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function performCheck( $oForm ) {
+	public function performCheck( $form ) {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 			try {

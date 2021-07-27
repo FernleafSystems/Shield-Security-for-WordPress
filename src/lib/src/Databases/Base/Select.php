@@ -63,10 +63,10 @@ class Select extends BaseQuery {
 	 * @return \stdClass
 	 */
 	public function byId( $nId ) {
-		$aItems = $this->reset()
-					   ->addWhereEquals( 'id', $nId )
-					   ->query();
-		return array_shift( $aItems );
+		$items = $this->reset()
+					  ->addWhereEquals( 'id', $nId )
+					  ->query();
+		return array_shift( $items );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Select extends BaseQuery {
 
 	/**
 	 * Handle COUNT, DISTINCT, & normal SELECT
-	 * @return int|string[]|array[]|EntryVO[]|mixed
+	 * @return int|string[]|array[]|EntryVO[]|\stdClass[]|mixed
 	 */
 	public function query() {
 		if ( $this->isCount() || $this->isSum() ) {

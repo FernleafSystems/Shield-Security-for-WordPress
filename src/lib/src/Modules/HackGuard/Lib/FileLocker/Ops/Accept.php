@@ -13,11 +13,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class Accept extends BaseOps {
 
 	/**
-	 * @param FileLocker\EntryVO $lock
-	 * @return bool
 	 * @throws \ErrorException
 	 */
-	public function run( $lock ) {
+	public function run( FileLocker\EntryVO $lock ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

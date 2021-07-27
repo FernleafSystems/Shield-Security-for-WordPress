@@ -1,63 +1,117 @@
 <ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
-		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
-			<span class="badge badge-{% if aggregate.count > 0 %}danger{% endif %}"
-			>{% if aggregate.count > 0 %}&#33;{% endif %}</span>
-			{{ aggregate.strings.title }}
+		<a class="nav-link active" id="h-tabs-wordpress-tab" data-toggle="tab" href="#h-tabs-wordpress"
+		   role="tab" aria-controls="h-tabs-wordpress">
+			WordPress
+			{% if vars.sections.wordpress.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.wordpress.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
 		</a>
 	</li>
 
-	{% for scankey,scanvars in scans %}
-		{% if scanvars.flags.show_table %}
-			<li class="nav-item">
-				<a class="nav-link"
-				   id="h-tabs-home-tab"
-				   data-toggle="tab"
-				   href="#h-tabs-{{ scankey }}"
-				   role="tab"
-				   aria-controls="h-tabs-{{ scankey }}"
-				>
-					<span class="badge badge-{% if scanvars.count > 0 %}danger{% endif %}"
-					>{% if scanvars.count > 0 %}&#33;{% endif %}</span>
-					{{ scanvars.strings.title }}
-				</a>
-			</li>
-		{% endif %}
-	{% endfor %}
+	<li class="nav-item">
+		<a class="nav-link" id="h-tabs-plugins-tab" data-toggle="tab" href="#h-tabs-plugins"
+		   role="tab" aria-controls="h-tabs-plugins">
+			Plugins
+			{% if vars.sections.plugins.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.plugins.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a class="nav-link" id="h-tabs-themes-tab" data-toggle="tab" href="#h-tabs-themes"
+		   role="tab" aria-controls="h-tabs-themes">
+			Themes
+			{% if vars.sections.themes.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.themes.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
+		</a>
+	</li>
+
+	<li class="nav-item">
+		<a class="nav-link" id="h-tabs-malware-tab" data-toggle="tab" href="#h-tabs-malware"
+		   role="tab" aria-controls="h-tabs-malware">
+			Malware
+			{% if vars.sections.malware.count > 0 %}
+				<span class="badge badge-danger">{{ vars.sections.malware.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
+		</a>
+	</li>
 
 	<li class="nav-item">
 		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-file_locker"
 		   role="tab" aria-controls="h-tabs-file_locker">
-			<span class="badge badge-{% if file_locker.count > 0 %}danger{% endif %}"
-			>{% if file_locker.count > 0 %}&#33;{% endif %}</span>
+
 			{{ file_locker.strings.title }}
+			{% if file_locker.count > 0 %}
+				<span class="badge badge-danger">{{ file_locker.count }}</span>
+			{% else %}
+				<span class="badge badge-success">&check;</span>
+			{% endif %}
 		</a>
 	</li>
+
+{#	<li class="nav-item">#}
+{#		<a class="nav-link" id="h-tabs-log-tab" data-toggle="tab" href="#h-tabs-log"#}
+{#		   role="tab" aria-controls="h-tabs-log">#}
+{#			Logs#}
+{#		</a>#}
+{#	</li>#}
+
 </ul>
 
 <div class="tab-content mb-5" id="ScanResultsTabsContent">
 
-	{% set scan = aggregate %}
-	<div class="tab-pane show active" id="h-tabs-aggregate" role="tabpanel"
-		 aria-labelledby="h-tabs-aggregate-tab">
-		{% include '/wpadmin_pages/insights/scans/results/results/aggregate.twig' %}
+	<div class="tab-pane show active" id="h-tabs-wordpress" role="tabpanel"
+		 aria-labelledby="h-tabs-wordpress-tab">
+		{{ content.section.wordpress|raw }}
 	</div>
 
-	{% for scankey,scanvars in scans %}
-		{% if scanvars.flags.show_table %}
-			<div class="tab-pane" id="h-tabs-{{ scankey }}" role="tabpanel"
-				 aria-labelledby="h-tabs-{{ scankey }}-tab">
-				{% set scan = attribute(scans, scankey) %}
-				{% include '/wpadmin_pages/insights/scans/results/results/'~scankey~'.twig' %}
-			</div>
-		{% endif %}
-	{% endfor %}
+	<div class="tab-pane" id="h-tabs-plugins" role="tabpanel"
+		 aria-labelledby="h-tabs-plugins-tab">
+		{{ content.section.plugins|raw }}
+	</div>
+
+	<div class="tab-pane" id="h-tabs-themes" role="tabpanel"
+		 aria-labelledby="h-tabs-themes-tab">
+		{{ content.section.themes|raw }}
+	</div>
+
+	<div class="tab-pane" id="h-tabs-malware" role="tabpanel"
+		 aria-labelledby="h-tabs-malware-tab">
+		{{ content.section.malware|raw }}
+	</div>
+
+{#	<div class="tab-pane" id="h-tabs-log" role="tabpanel"#}
+{#		 aria-labelledby="h-tabs-log-tab">#}
+{#		{{ content.section.logs|raw }}#}
+{#	</div>#}
 
 	<div class="tab-pane show" id="h-tabs-file_locker" role="tabpanel"
-		 aria-labelledby="h-tabs-aggregate-tab">
+		 aria-labelledby="h-tabs-file_locker-tab">
 		{% set scan = file_locker %}
 		{% include '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig' %}
 	</div>
 </div>
+
+<script>
+	(function ( $ ) {
+		$( document ).ready( function () {
+			$( '.nav-vertical a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( evt ) {
+				console.log();
+				let target = document.querySelector( evt.currentTarget.getAttribute( 'href' ) );
+				window.scrollTo( { top: 0, behavior: 'smooth' } )
+			} );
+		} );
+	})( jQuery );
+</script>

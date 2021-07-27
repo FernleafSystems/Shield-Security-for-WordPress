@@ -43,6 +43,18 @@ class Strings extends Base\Strings {
 					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
 				)
 			];
+			$messages[ 'scan_item_delete_success' ] = [
+				__( 'Deleted item found in the scan.', 'wp-simple-firewall' )
+				.' '.__( 'Item deleted: "%s"', 'wp-simple-firewall' ),
+			];
+			$messages[ 'scan_item_repair_success' ] = [
+				__( 'Repaired item found in the scan.', 'wp-simple-firewall' )
+				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
+			];
+			$messages[ 'scan_item_repair_fail' ] = [
+				__( 'Failed to repair scan item.', 'wp-simple-firewall' )
+				.' '.__( 'Failed item: "%s"', 'wp-simple-firewall' ),
+			];
 			$messages[ $slug.'_item_repair_success' ] = [
 				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
 				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
@@ -242,7 +254,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Doesn't currently detect missing files.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
 				];
-				if ( !$mod->canCacheDirWrite() ) {
+				if ( !$this->getCon()->hasCacheDir() ) {
 					$desc[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: %s', 'wp-simple-firewall' ),
 						'<code>'.$mod->getPtgSnapsBaseDir().'</code>' );
 				}
@@ -331,22 +343,35 @@ class Strings extends Base\Strings {
 				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
 				break;
 
+			case 'auto_filter_results' :
+				$name = __( 'Auto-Filter Results', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Filter Results Of Irrelevant Items', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Automatically remove items from results that are irrelevant.', 'wp-simple-firewall' ),
+					__( "An example of this is filtering out results for PHP files that don't have any executable code.", 'wp-simple-firewall' ),
+				];
+				break;
+
+			case 'scan_path_exclusions' :
+				$name = __( 'Scan Exclusions', 'wp-simple-firewall' );
+				$summary = __( 'Scan File And Folder Exclusions', 'wp-simple-firewall' );
+				$desc = [
+					__( 'A list of file/folder paths that will never be scanned.', 'wp-simple-firewall' ),
+					__( 'All paths are relative to your WordPress installation directory.', 'wp-simple-firewall' ),
+					__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' ),
+					__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' ),
+					__( 'All characters will be treated as case-insensitive.', 'wp-simple-firewall' ),
+					__( 'Directories should be provided with a trailing slash (/).', 'wp-simple-firewall' ),
+					__( "If a path matches any core WordPress directories, it'll be removed automatically.", 'wp-simple-firewall' ),
+					__( "These aren't regular expression, but you can use asterisk (*) as a wildcard.", 'wp-simple-firewall' ),
+					sprintf( '%s: <code>%s</code>', __( 'WordPress Installation Directory', 'wp-simple-firewall' ), ABSPATH ),
+				];
+				break;
+
 			case 'enabled_scan_apc' :
 				$name = __( 'Abandoned Plugin Scanner', 'wp-simple-firewall' );
 				$summary = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
 				$desc = __( "Scan your WordPress.org assets for whether they've been abandoned.", 'wp-simple-firewall' );
-				break;
-
-			case 'display_apc' :
-				$name = __( 'Highlight Plugins', 'wp-simple-firewall' );
-				$summary = __( 'Highlight Abandoned Plugins', 'wp-simple-firewall' );
-				$desc = __( "Abandoned plugins will be highlighted on the main plugins page.", 'wp-simple-firewall' );
-				break;
-
-			case 'mal_autorepair_core' :
-				$name = __( 'Auto-Repair WP Core', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Repair WordPress Core Files', 'wp-simple-firewall' );
-				$desc = __( "Automatically reinstall any core files found to have potential malware.", 'wp-simple-firewall' );
 				break;
 
 			case 'mal_autorepair_surgical' :
@@ -357,61 +382,6 @@ class Strings extends Base\Strings {
 						.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Only applies to files that don't fall under the other categories for automatic repair.", 'wp-simple-firewall' ) );
 				break;
 
-			// REMOVED:
-			case 'mal_autorepair_plugins' :
-				$name = __( 'Auto-Repair WP Plugins', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Repair WordPress.org Plugins', 'wp-simple-firewall' );
-				$desc = __( "Automatically repair any plugin files found to have potential malware.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with plugins installed from WordPress.org.', 'wp-simple-firewall' ) )
-						.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the plugin.", 'wp-simple-firewall' ) );
-				break;
-			case 'autorepair_themes' :
-				$name = __( 'Auto-Repair WP Themes', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Repair WordPress.org Themes', 'wp-simple-firewall' );
-				$desc = __( "Automatically repair any theme files found to have potential malware.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with themes installed from WordPress.org.', 'wp-simple-firewall' ) )
-						.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the theme.", 'wp-simple-firewall' ) );
-				break;
-			case 'wpvuln_scan_display' :
-				$name = __( 'Highlight Plugins', 'wp-simple-firewall' );
-				$summary = __( 'Highlight Vulnerable Plugins Upon Display', 'wp-simple-firewall' );
-				$desc = __( 'Vulnerable plugins will be highlighted on the main plugins page.', 'wp-simple-firewall' );
-				break;
-			case 'email_files_list' :
-				$name = __( 'Email Files List', 'wp-simple-firewall' );
-				$summary = __( 'Scan Notification Emails Should Include Full Listing Of Files', 'wp-simple-firewall' );
-				$desc = __( 'Scanner notification emails will include a summary list of all affected files.', 'wp-simple-firewall' );
-				break;
-			case 'mal_fp_confidence' :
-				$name = __( 'Ignore False Positives Threshold', 'wp-simple-firewall' );
-				$summary = __( 'Ignore False Positives In Scan Results Automatically', 'wp-simple-firewall' );
-				$desc = __( "You can choose to ignore files with potential malware, depending on whether the confidence that it's a 'false positive' meets your minimum threshold.", 'wp-simple-firewall' )
-						.'<br />'.__( "A false positive happens when a file appears to contain malware and shows up in scan results, but it's actually clean.", 'wp-simple-firewall' )
-						.' ('.__( "A false positive is similar to when an anti-virus alerts to a file that doesnt have a virus.", 'wp-simple-firewall' ).')'
-						.'<br />'.__( "The higher the confidence level, the more likely a result is a false positive.", 'wp-simple-firewall' )
-						.' '.__( "A low level means it's less likely to be a false positive.", 'wp-simple-firewall' )
-						.'<br />'.__( "The scan will automatically ignore results whose 'false positive' confidence level is greater than your chosen threshold.", 'wp-simple-firewall' )
-						.'<br />'.__( "The higher the confidence threshold you select, the more likely that 'false positives' will appears in your scan results.", 'wp-simple-firewall' )
-						.'<br />'.__( "Disabling network intelligence turns off 'false positive confidence' levels.", 'wp-simple-firewall' )
-						.' '.__( 'You will no longer benefit from the intelligence gathered from the entire network.', 'wp-simple-firewall' )
-						.' '.__( 'All data shared is completely anonymous.', 'wp-simple-firewall' )
-						.' '.' [<a href="https://shsec.io/moreinfomalnetwork">'.__( 'More Info', 'wp-simple-firewall' ).'</a>]'
-						.'<br />'.__( 'The more sites that share this information, the stronger and smarter the network becomes.', 'wp-simple-firewall' );
-				break;
-			case 'notification_interval' :
-				$name = __( 'Repeat Notifications', 'wp-simple-firewall' );
-				$summary = __( 'Item Repeat Notifications Suppression Interval', 'wp-simple-firewall' );
-				$desc = __( 'How long the automated scans should wait before repeating a notification about an item.', 'wp-simple-firewall' )
-						.'<br/>'.__( 'Specify the number of days to suppress repeat notifications.', 'wp-simple-firewall' )
-						.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'This is per discovered item or file, not per scan.', 'wp-simple-firewall' ) );
-				break;
-			case 'ptg_extensions' :
-				$name = __( 'Included File Types', 'wp-simple-firewall' );
-				$summary = __( 'The File Types (by File Extension) Included In The Scan', 'wp-simple-firewall' );
-				$desc = __( 'Take a new line for each file extension.', 'wp-simple-firewall' )
-						.'<br/>'.__( 'No commas(,) or periods(.) necessary.', 'wp-simple-firewall' )
-						.'<br/>'.__( 'Remove all extensions to scan all file type (not recommended).', 'wp-simple-firewall' );
-				break;
 			default:
 				return parent::getOptionStrings( $key );
 		}

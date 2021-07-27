@@ -35,19 +35,19 @@ abstract class BaseScan {
 	}
 
 	protected function scan() {
-		$oAction = $this->getScanActionVO();
+		$action = $this->getScanActionVO();
 
-		if ( empty( $oAction->items ) ) {
-			$oAction->finished_at = Services::Request()->ts();
+		if ( empty( $action->items ) ) {
+			$action->finished_at = Services::Request()->ts();
 		}
 		else {
 			$this->scanSlice();
-			if ( empty( $oAction->items ) ) {
-				$oAction->finished_at = Services::Request()->ts();
+			if ( empty( $action->items ) ) {
+				$action->finished_at = Services::Request()->ts();
 			}
 		}
 
-		return $oAction;
+		return $action;
 	}
 
 	/**

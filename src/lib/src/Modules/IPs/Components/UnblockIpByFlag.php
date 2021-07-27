@@ -20,13 +20,13 @@ class UnblockIpByFlag {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
 
-				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $sIp ) {
+				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
 					$removed = ( new IPs\Lib\Ops\DeleteIp() )
 						->setMod( $mod )
-						->setIP( $sIp )
+						->setIP( $ip )
 						->fromBlacklist();
 					if ( $removed ) {
-						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit' => [ 'ip' => $sIp ] ] );
+						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit' => [ 'ip' => $ip ] ] );
 					}
 				}
 			}

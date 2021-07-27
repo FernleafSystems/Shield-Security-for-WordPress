@@ -15,10 +15,10 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param bool $bAuto
+	 * @param bool $auto
 	 * @return string[]
 	 */
-	public function getEventNames( $bAuto = true ) {
+	public function getEventNames( bool $auto = true ) :array {
 		$names = [
 			'test_cron_run'                => __( 'Test Cron Run', 'wp-simple-firewall' ),
 			'import_notify_sent'           => __( 'Import Notify Sent', 'wp-simple-firewall' ),
@@ -37,6 +37,10 @@ class Strings extends Base\Strings {
 			'ip_offense'                   => __( 'Offense Triggered', 'wp-simple-firewall' ),
 			'ip_blocked'                   => __( 'IP Blocked', 'wp-simple-firewall' ),
 			'ip_unblock_flag'              => __( 'IP Unblocked Using Flag File', 'wp-simple-firewall' ),
+			'ip_block_auto'                => __( 'IP Block Add Auto', 'wp-simple-firewall' ),
+			'ip_block_manual'              => __( 'IP Block Add Manual', 'wp-simple-firewall' ),
+			'ip_bypass_add'                => __( 'IP Bypass Add', 'wp-simple-firewall' ),
+			'ip_bypass_remove'             => __( 'IP Bypass Remove', 'wp-simple-firewall' ),
 			'antibot_fail'                 => __( 'Fail AntiBot Test', 'wp-simple-firewall' ),
 			'antibot_pass'                 => __( 'Pass AntiBot Test', 'wp-simple-firewall' ),
 			'bottrack_404'                 => sprintf( '%s: %s',
@@ -143,18 +147,9 @@ class Strings extends Base\Strings {
 				__( 'Scan Item Discovered', 'wp-simple-firewall' ),
 				__( 'Vulnerabilities', 'wp-simple-firewall' )
 			),
-			'apc_item_repair_success'      => __( 'Abandoned Plugin Repair Success', 'wp-simple-firewall' ),
-			'apc_item_repair_fail'         => __( 'Abandoned Plugin Repair Failure', 'wp-simple-firewall' ),
-			'mal_item_repair_success'      => __( 'Malware File Repair Success', 'wp-simple-firewall' ),
-			'mal_item_repair_fail'         => __( 'Malware File Repair Failure', 'wp-simple-firewall' ),
-			'ptg_item_repair_success'      => __( 'Plugin/Theme File Repair Success', 'wp-simple-firewall' ),
-			'ptg_item_repair_fail'         => __( 'Plugin/Theme File Repair Failure', 'wp-simple-firewall' ),
-			'ufc_item_repair_success'      => __( 'Unrecognised File Deleted Success', 'wp-simple-firewall' ),
-			'ufc_item_repair_fail'         => __( 'Unrecognised File Deleted Failure', 'wp-simple-firewall' ),
-			'wcf_item_repair_success'      => __( 'WordPress Core File Repair Success', 'wp-simple-firewall' ),
-			'wcf_item_repair_fail'         => __( 'WordPress Core File Repair Failure', 'wp-simple-firewall' ),
-			'wpv_item_repair_success'      => __( 'Vulnerable WordPress Plugin Repair Success', 'wp-simple-firewall' ),
-			'wpv_item_repair_fail'         => __( 'Vulnerable WordPress Plugin Repair Failure', 'wp-simple-firewall' ),
+			'scan_item_delete_success'     => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
+			'scan_item_repair_success'     => __( 'Scan Item Repair Success', 'wp-simple-firewall' ),
+			'scan_item_repair_fail'        => __( 'Scan Item Repair Failure', 'wp-simple-firewall' ),
 			'2fa_backupcode_verified'      => __( '', 'wp-simple-firewall' ),
 			'2fa_backupcode_fail'          => __( '', 'wp-simple-firewall' ),
 			'2fa_email_verified'           => __( '', 'wp-simple-firewall' ),
@@ -271,7 +266,7 @@ class Strings extends Base\Strings {
 			'lic_fail_deactivate'          => __( 'License Deactivated', 'wp-simple-firewall' ),
 		];
 
-		if ( $bAuto ) {
+		if ( $auto ) {
 			foreach ( $names as $key => $name ) {
 				if ( empty( $name ) ) {
 					$names[ $key ] = ucwords( str_replace( '_', ' ', $key ) );

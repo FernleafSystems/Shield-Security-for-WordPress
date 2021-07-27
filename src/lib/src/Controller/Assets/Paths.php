@@ -35,4 +35,12 @@ class Paths {
 	public function forTemplate( string $item = '' ) :string {
 		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'templates' ].'/'.ltrim( $item, '/' ) );
 	}
+
+	public function cacheDir() :string {
+		return path_join( WP_CONTENT_DIR, $this->getCon()->cfg->paths[ 'cache' ] );
+	}
+
+	public function forCacheItem( string $item = '' ) :string {
+		return path_join( $this->cacheDir(), $item );
+	}
 }

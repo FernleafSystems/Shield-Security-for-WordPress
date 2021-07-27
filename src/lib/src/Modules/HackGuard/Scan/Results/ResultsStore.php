@@ -15,17 +15,18 @@ class ResultsStore {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oToStore
+	 * @param Scans\Base\ResultsSet $resultsToStore
 	 */
-	public function store( $oToStore ) {
-		$oSCon = $this->getScanController();
-		$oInsert = $oSCon->getScanResultsDbHandler()
-						 ->getQueryInserter();
-		$aVOs = ( new ConvertBetweenTypes() )
-			->setScanController( $oSCon )
-			->fromResultsToVOs( $oToStore );
-		foreach ( $aVOs as $oVo ) {
-			$oInsert->insert( $oVo );
+	public function store( $resultsToStore ) {
+		$scanCon = $this->getScanController();
+		$inserter = $scanCon->getScanResultsDbHandler()
+							->getQueryInserter();
+		$VOs = ( new ConvertBetweenTypes() )
+			->setScanController( $scanCon )
+			->fromResultsToVOs( $resultsToStore );
+
+		foreach ( $VOs as $vo ) {
+			$inserter->insert( $vo );
 		}
 	}
 }

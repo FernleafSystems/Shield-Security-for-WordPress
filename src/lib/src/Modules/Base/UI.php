@@ -251,6 +251,7 @@ class UI {
 			],
 			'imgs'       => [
 				'svgs'           => [
+					'ignore'   => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle' => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),

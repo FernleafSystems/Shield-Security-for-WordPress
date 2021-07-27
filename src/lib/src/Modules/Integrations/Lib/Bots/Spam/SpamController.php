@@ -25,6 +25,7 @@ class SpamController extends BaseBotDetectionController {
 			new Handlers\KaliForms(),
 			new Handlers\NinjaForms(),
 			new Handlers\SuperForms(),
+			new Handlers\SupportCandy(),
 			new Handlers\WPForms(),
 			new Handlers\WpForo(),
 		];

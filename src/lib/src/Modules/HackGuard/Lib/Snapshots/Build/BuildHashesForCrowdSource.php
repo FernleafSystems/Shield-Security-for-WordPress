@@ -16,17 +16,19 @@ class BuildHashesForCrowdSource {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return string[]
 	 */
-	public function build( $asset ) :array {
+	public function build( $asset, array $exts ) :array {
 		$hashes = [];
 		$DM = Services::DataManipulation();
 		$dir = wp_normalize_path( $asset->getInstallDir() );
 		try {
-			$exts = $this->getExtensions();
+			if ( empty( $exts ) ) {
+				throw new \Exception( 'File extensions are empty' );
+			}
 			foreach ( StandardDirectoryIterator::create( $dir, 0, [] ) as $file ) {
 				/** @var \SplFileInfo $file */
 				if ( in_array( strtolower( $file->getExtension() ), $exts ) ) {
 					$fullPath = $file->getPathname();
-					$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
+					$key = strtolower( str_replace( $dir, '', wp_normalize_path( $fullPath ) ) );
 					$hashes[ $key ] = hash( 'sha1', $DM->convertLineEndingsDosToLinux( $fullPath ) );
 				}
 			}
@@ -36,21 +38,5 @@ class BuildHashesForCrowdSource {
 			$hashes = [];
 		}
 		return $hashes;
-	}
-
-	private function getExtensions() :array {
-		return [
-			'php',
-			'php5',
-			'php7',
-			'js',
-			'json',
-			'css',
-			'htm',
-			'html',
-			'svg',
-			'twig',
-			'hbs',
-		];
 	}
 }

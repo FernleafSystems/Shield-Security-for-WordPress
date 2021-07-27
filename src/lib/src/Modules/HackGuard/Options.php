@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
@@ -14,6 +15,28 @@ class Options extends BaseShield\Options {
 
 	public function getRepairAreas() :array {
 		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
+	}
+
+	/**
+	 * @return string[] - precise REGEX patterns to match against PATH.
+	 */
+	public function getWhitelistedPathsAsRegex() :array {
+		if ( $this->isPremium() ) {
+			$paths = array_merge(
+				$this->getOpt( 'scan_path_exclusions', [] ),
+				$this->getDef( 'default_whitelist_paths' )
+			);
+		}
+		else {
+			$paths = [];
+		}
+
+		return array_map(
+			function ( $value ) {
+				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
+			},
+			is_array( $paths ) ? $paths : []
+		);
 	}
 
 	/**
@@ -33,23 +56,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * We do some WP Content dir replacement as there may be custom wp-content dir defines
-	 * @return string[]
-	 */
-	public function getMalWhitelistPaths() {
-		return array_map(
-			function ( $sFragment ) {
-				return str_replace(
-					wp_normalize_path( ABSPATH.'wp-content' ),
-					rtrim( wp_normalize_path( WP_CONTENT_DIR ), '/' ),
-					wp_normalize_path( path_join( ABSPATH, ltrim( $sFragment, '/' ) ) )
-				);
-			},
-			apply_filters( 'icwp_shield_malware_whitelist_paths', $this->getDef( 'malware_whitelist_paths' ) )
-		);
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getMalQueueExpirationInterval() {
@@ -59,14 +65,14 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return string[]
 	 */
-	public function getMalSignaturesSimple() {
+	public function getMalSignaturesSimple() :array {
 		return $this->getMalSignatures( 'malsigs_simple.txt', $this->getDef( 'url_mal_sigs_simple' ) );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getMalSignaturesRegex() {
+	public function getMalSignaturesRegex() :array {
 		return $this->getMalSignatures( 'malsigs_regex.txt', $this->getDef( 'url_mal_sigs_regex' ) );
 	}
 
@@ -75,10 +81,10 @@ class Options extends BaseShield\Options {
 	 * @param string $url
 	 * @return string[]
 	 */
-	public function getMalSignatures( string $fileName, string $url ) {
+	private function getMalSignatures( string $fileName, string $url ) :array {
 		$FS = Services::WpFs();
-		$file = $this->getCon()->getPluginCachePath( $fileName );
-		if ( $FS->exists( $file ) ) {
+		$file = $this->getCon()->paths->forCacheItem( $fileName );
+		if ( !empty( $file ) && $FS->exists( $file ) ) {
 			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
 		}
 		else {
@@ -87,15 +93,16 @@ class Options extends BaseShield\Options {
 					explode( "\n", Services::HttpRequest()->getContent( $url ) )
 				),
 				function ( $line ) {
-					return ( ( strpos( $line, '#' ) !== 0 ) && strlen( $line ) > 0 );
+					return ( strpos( $line, '#' ) !== 0 ) && strlen( $line ) > 0;
 				}
 			);
 
-			if ( !empty( $sigs ) ) {
+			if ( !empty( $file ) && !empty( $sigs ) ) {
 				$FS->putFileContent( $file, implode( "\n", $sigs ), true );
 			}
 		}
-		return $sigs;
+
+		return is_array( $sigs ) ? $sigs : [];
 	}
 
 	public function isMalAutoRepairSurgical() :bool {
@@ -104,6 +111,10 @@ class Options extends BaseShield\Options {
 
 	public function isMalUseNetworkIntelligence() :bool {
 		return $this->getMalConfidenceBoundary() > 0;
+	}
+
+	public function isAutoFilterResults() :bool {
+		return $this->isOpt( 'auto_filter_results', 'Y' );
 	}
 
 	public function isPtgReinstallLinks() :bool {

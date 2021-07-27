@@ -659,10 +659,25 @@
         "audit":   false,
         "stat":    false
       },
-      "ip_bypass":               {
+      "ip_block_auto":           {
         "offense": false,
-        "audit":   false,
-        "stat":    false
+        "stat":    false,
+        "cat":     1
+      },
+      "ip_block_manual":         {
+        "offense": false,
+        "stat":    false,
+        "cat":     1
+      },
+      "ip_bypass_add":           {
+        "offense": false,
+        "stat":    false,
+        "cat":     1
+      },
+      "ip_bypass_remove":        {
+        "offense": false,
+        "stat":    false,
+        "cat":     1
       },
       "ip_unblock_flag":         {
         "cat": 1

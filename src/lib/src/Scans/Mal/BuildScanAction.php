@@ -8,20 +8,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->items = ( new BuildFileMap() )
-			->setScanActionVO( $oAction )
+		$items = ( new BuildFileMap() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $this->getScanActionVO() )
 			->build();
+		asort( $items );
+		$this->getScanActionVO()->items = $items;
 	}
 
 	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$oAction->paths_whitelisted = $oOpts->getMalWhitelistPaths();
-		$oAction->file_exts = [ 'php', 'php5', 'php7' ];
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		$action->file_exts = [ 'php', 'php5', 'php7' ];
 	}
 }

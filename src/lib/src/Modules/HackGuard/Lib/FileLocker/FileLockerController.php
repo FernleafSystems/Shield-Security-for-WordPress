@@ -244,10 +244,4 @@ class FileLockerController {
 	protected function setState( array $state ) {
 		$this->getOptions()->setOpt( 'filelocker_state', $state );
 	}
-
-	/**
-	 * @deprecated 11.4
-	 */
-	public function processFileLocks() {
-	}
 }

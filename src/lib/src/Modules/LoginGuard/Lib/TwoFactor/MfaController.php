@@ -276,7 +276,7 @@ class MfaController {
 		if ( !$canSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
 			$meta = $this->getCon()->getUserMeta( $user );
-			$canSkip = isset( $meta->wc_social_login_valid ) ? $meta->wc_social_login_valid : false;
+			$canSkip = $meta->wc_social_login_valid ?? false;
 		}
 
 		return (bool)apply_filters( 'icwp_shield_2fa_skip',

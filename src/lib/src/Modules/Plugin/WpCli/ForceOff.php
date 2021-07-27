@@ -33,12 +33,12 @@ class ForceOff extends BaseWpCliCmd {
 	}
 
 	public function cmdForceOff( $null, $aA ) {
-		$oFS = Services::WpFs();
-		$sPath = path_join( $this->getCon()->getRootDir(), 'forceoff' );
+		$FS = Services::WpFs();
+		$path = path_join( $this->getCon()->getRootDir(), 'forceoff' );
 
 		switch ( $aA[ 'action' ] ) {
 			case 'query':
-				if ( $oFS->exists( $sPath ) ) {
+				if ( $FS->exists( $path ) ) {
 					WP_CLI::log( '`forceoff` file is present.' );
 				}
 				else {
@@ -47,8 +47,8 @@ class ForceOff extends BaseWpCliCmd {
 				break;
 
 			case 'create':
-				$oFS->touch( $sPath );
-				if ( $oFS->exists( $sPath ) ) {
+				$FS->touch( $path );
+				if ( $FS->exists( $path ) ) {
 					WP_CLI::success( '`forceoff` file created successfully.' );
 				}
 				else {
@@ -57,12 +57,12 @@ class ForceOff extends BaseWpCliCmd {
 				break;
 
 			case 'delete':
-				if ( !$oFS->exists( $sPath ) ) {
+				if ( !$FS->exists( $path ) ) {
 					WP_CLI::success( "`forceoff` doesn't exist." );
 				}
 				else {
-					$oFS->deleteFile( $sPath );
-					if ( $oFS->exists( $sPath ) ) {
+					$FS->deleteFile( $path );
+					if ( $FS->exists( $path ) ) {
 						WP_CLI::error( "`forceoff` file couldn't be deleted." );
 					}
 					else {

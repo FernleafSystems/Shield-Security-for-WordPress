@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property ResultItem[] $items
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
-class ResultsSet extends Base\BaseResultsSet {
+class ResultsSet extends Base\ResultsSet {
 
 	/**
 	 * @return string[]

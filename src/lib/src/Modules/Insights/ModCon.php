@@ -67,8 +67,9 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_insights',
 			[
 				'strings' => [
-					'select_action' => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-					'are_you_sure'  => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
 				],
 			]
 		];

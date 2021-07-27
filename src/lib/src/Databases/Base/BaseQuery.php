@@ -263,13 +263,13 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param int $nStartTS
-	 * @param int $nEndTS
+	 * @param int $startTS
+	 * @param int $endTS
 	 * @return $this
 	 */
-	public function filterByBoundary( $nStartTS, $nEndTS ) {
-		return $this->filterByCreatedAt( $nEndTS, '<=' )
-					->filterByCreatedAt( $nStartTS, '>=' );
+	public function filterByBoundary( $startTS, $endTS ) {
+		return $this->filterByCreatedAt( $endTS, '<=' )
+					->filterByCreatedAt( $startTS, '>=' );
 	}
 
 	/**

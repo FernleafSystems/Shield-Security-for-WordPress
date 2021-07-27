@@ -255,6 +255,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 	this.show = function () {
 		nOverlays++;
 		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 1000 );
+		jQuery( 'html' ).css( 'cursor', 'wait' );
 	};
 
 	this.hide = function () {
@@ -263,6 +264,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 			nOverlays = 0;
 			jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
 		}
+		jQuery( 'html' ).css( 'cursor', 'initial' );
 	};
 
 	this.initialise = function () {

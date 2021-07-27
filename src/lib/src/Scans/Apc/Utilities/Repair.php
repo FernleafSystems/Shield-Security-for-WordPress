@@ -14,7 +14,7 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repairItem() {
+	public function repairItem() :bool {
 		throw new \Exception( 'Repair action is not supported' );
 	}
 }

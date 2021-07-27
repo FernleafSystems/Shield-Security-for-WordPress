@@ -25,12 +25,12 @@ class BuilderInfo extends BaseBuilder {
 		return $reports;
 	}
 
-	protected function render( array $aGatheredData ) :string {
+	protected function render( array $gathered ) :string {
 		return $this->getMod()->renderTemplate(
 			'/components/reports/info_body.twig',
 			[
 				'vars'    => [
-					'alerts' => $aGatheredData
+					'alerts' => $gathered
 				],
 				'strings' => [
 					'title'            => __( 'Site Information Report', 'wp-simple-firewall' ),

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
@@ -27,13 +28,13 @@ class Options extends BaseShield\Options {
 	public function getCanIpRequestAutoUnblock( string $ip ) :bool {
 		$existing = $this->getAutoUnblockIps();
 		return !array_key_exists( $ip, $existing )
-			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $ip ] );
+			   || ( Services::Request()->carbon()->subHours( 1 )->timestamp > $existing[ $ip ] );
 	}
 
 	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) :bool {
 		$existing = $this->getAutoUnblockEmailIDs();
 		return !array_key_exists( $user->ID, $existing )
-			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $user->ID ] );
+			   || ( Services::Request()->carbon()->subHours( 1 )->timestamp > $existing[ $user->ID ] );
 	}
 
 	public function getOffenseLimit() :int {
@@ -43,12 +44,13 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
-	public function getRequestWhitelistAsRegex() {
+	public function getRequestWhitelistAsRegex() :array {
+		$paths = $this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : [];
 		return array_map(
-			function ( $rule ) {
-				return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $rule ), '#' ) ) );
+			function ( $value ) {
+				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH );
 			},
-			$this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : []
+			is_array( $paths ) ? $paths : []
 		);
 	}
 
@@ -100,34 +102,19 @@ class Options extends BaseShield\Options {
 		return $this->isSelectOptionEnabled( 'track_linkcheese' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackXmlRpc() {
+	public function isEnabledTrackXmlRpc() :bool {
 		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
 	}
 
-	/**
-	 * @param string $key
-	 * @return bool
-	 */
-	public function isTrackOptTransgression( $key ) {
+	public function isTrackOptTransgression( string $key ) :bool {
 		return strpos( $this->getOpt( $key ), 'transgression' ) !== false;
 	}
 
-	/**
-	 * @param string $key
-	 * @return bool
-	 */
-	public function isTrackOptDoubleTransgression( $key ) {
+	public function isTrackOptDoubleTransgression( string $key ) :bool {
 		return $this->isOpt( $key, 'transgression-double' );
 	}
 
-	/**
-	 * @param string $key
-	 * @return bool
-	 */
-	public function isTrackOptImmediateBlock( $key ) :bool {
+	public function isTrackOptImmediateBlock( string $key ) :bool {
 		return $this->isOpt( $key, 'block' );
 	}
 

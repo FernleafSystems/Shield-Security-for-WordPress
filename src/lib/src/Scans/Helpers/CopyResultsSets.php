@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 
 /**
  * Class CopyResultsSets
@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 class CopyResultsSets {
 
 	/**
-	 * @param BaseResultsSet $oFromRS1
-	 * @param BaseResultsSet $oToRS2
+	 * @param ResultsSet $oFromRS1
+	 * @param ResultsSet $oToRS2
 	 */
 	public function copyTo( $oFromRS1, $oToRS2 ) {
 		foreach ( $oFromRS1->getAllItems() as $oIt ) {

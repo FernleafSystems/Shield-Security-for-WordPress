@@ -15,18 +15,6 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
 	}
 
-	public function getAdminAccessArea_Plugins() :array {
-		return $this->getAdminAccessArea( 'plugins' );
-	}
-
-	public function getAdminAccessArea_Themes() :array {
-		return $this->getAdminAccessArea( 'themes' );
-	}
-
-	public function getAdminAccessArea_Posts() :array {
-		return $this->getAdminAccessArea( 'posts' );
-	}
-
 	/**
 	 * @param string $area one of plugins, themes
 	 * @return array
@@ -34,16 +22,6 @@ class Options extends BaseShield\Options {
 	 */
 	public function getSecAdminAreaCaps( $area = 'plugins' ) :array {
 		$d = $this->getOpt( 'admin_access_restrict_'.$area, [] );
-		return is_array( $d ) ? $d : [];
-	}
-
-	/**
-	 * @param string $sArea one of plugins, themes
-	 * @return array
-	 * @deprecated 11.1
-	 */
-	private function getAdminAccessArea( $sArea = 'plugins' ) :array {
-		$d = $this->getOpt( 'admin_access_restrict_'.$sArea, [] );
 		return is_array( $d ) ? $d : [];
 	}
 

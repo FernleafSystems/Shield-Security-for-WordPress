@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -21,6 +20,9 @@ class ModCon extends Base\ModCon {
 	 */
 	private static $bVisitorIsWhitelisted;
 
+	/**
+	 * @deprecated 11.4
+	 */
 	public function canCacheDirWrite() :bool {
 		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
 			->setMod( $this->getCon()->getModule_Plugin() )

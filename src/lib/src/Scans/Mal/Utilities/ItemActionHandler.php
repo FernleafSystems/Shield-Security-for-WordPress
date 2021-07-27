@@ -1,9 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 
@@ -22,23 +23,19 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	}
 
 	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function repairDelete() :bool {
+		return $this->repair( true );
+	}
+
+	/**
 	 * @return Repair
 	 */
 	public function getRepairer() {
 		return ( new Repair() )
 			->setScanItem( $this->getScanItem() )
 			->setMod( $this->getMod() );
-	}
-
-	/**
-	 * @param bool $success
-	 */
-	protected function fireRepairEvent( $success ) {
-		/** @var Mal\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
-		);
 	}
 }

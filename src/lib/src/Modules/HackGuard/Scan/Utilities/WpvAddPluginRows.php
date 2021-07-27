@@ -33,7 +33,7 @@ class WpvAddPluginRows {
 	private function isWpvulnPluginsHighlightEnabled() :bool {
 		$scanCon = $this->getScanController();
 		if ( $scanCon->isEnabled() ) {
-			$opt = apply_filters( 'icwp_shield_wpvuln_scan_display', 'securityadmin' );
+			$opt = apply_filters( 'shield/wpvuln_scan_display', 'securityadmin' );
 		}
 		else {
 			$opt = 'disabled';
