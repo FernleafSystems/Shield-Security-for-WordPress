@@ -13,10 +13,14 @@ class Read {
 	 */
 	public static function FromFile( string $path ) :array {
 		$FS = Services::WpFs();
-		foreach ( [ 'json', 'php' ] as $sExt ) {
-			$cfgFile = Services::Data()->addExtensionToFilePath( $path, $sExt );
+		foreach ( [ 'json', 'php' ] as $ext ) {
+			$cfgFile = Services::Data()->addExtensionToFilePath( $path, $ext );
 			if ( $FS->isFile( $cfgFile ) ) {
-				return self::FromString( $FS->getFileContentUsingInclude( $cfgFile ) );
+				$content = $FS->getFileContent( $cfgFile );
+				if ( empty( $content ) ) {
+					$content = $FS->getFileContentUsingInclude( $cfgFile );
+				}
+				return self::FromString( $content );
 			}
 		}
 		throw new \LogicException( 'No config file present for slug: '.basename( $path ) );

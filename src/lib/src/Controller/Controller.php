@@ -846,9 +846,16 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function loadConfig() :Config\ConfigVO {
-		$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
-			->setCon( $this )
-			->run();
+		try {
+			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( true ), $this->getConfigStoreKey() ) )
+				->setCon( $this )
+				->run();
+		}
+		catch ( \Exception $e ) {
+			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( false ), $this->getConfigStoreKey() ) )
+				->setCon( $this )
+				->run();
+		}
 		$this->rebuild_options = $this->cfg->rebuilt;
 		return $this->cfg;
 	}
@@ -1046,8 +1053,8 @@ class Controller extends DynPropertiesClass {
 		return path_join( $this->getPath_Templates(), $template );
 	}
 
-	private function getPathPluginSpec() :string {
-		return path_join( $this->getRootDir(), 'plugin-spec.php' );
+	private function getPathPluginSpec( bool $asJSON = true ) :string {
+		return path_join( $this->getRootDir(), $asJSON ? 'plugin.json' : 'plugin-spec.php' );
 	}
 
 	public function getRootDir() :string {
