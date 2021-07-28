@@ -20,15 +20,6 @@ class ModCon extends Base\ModCon {
 	 */
 	private static $bVisitorIsWhitelisted;
 
-	/**
-	 * @deprecated 11.4
-	 */
-	public function canCacheDirWrite() :bool {
-		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
-			->setMod( $this->getCon()->getModule_Plugin() )
-			->canWrite();
-	}
-
 	public function getDbHandler_Sessions() :Shield\Databases\Session\Handler {
 		return $this->getCon()
 					->getModule_Sessions()

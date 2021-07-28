@@ -332,15 +332,6 @@ class Controller extends DynPropertiesClass {
 		return !empty( $this->getPluginCachePath() );
 	}
 
-	/**
-	 * @deprecated 11.4
-	 */
-	private function buildPluginCacheDir() :string {
-		return ( new Shield\Utilities\CacheDir() )
-			->setCon( $this )
-			->build();
-	}
-
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
