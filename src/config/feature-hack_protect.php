@@ -410,7 +410,8 @@
         "*/error_log",
         "*/php_error_log",
         "*/mail.log",
-        "*/php_mail.log"
+        "*/php_mail.log",
+        "*/sucuri-*.php"
       ],
       "type":        "array",
       "link_info":   "",
@@ -419,14 +420,6 @@
       "name":        "Scan Exclusions",
       "summary":     "Scan File and Folder Exclusions",
       "description": "Scan File and Folder Exclusions."
-    },
-    {
-      "key":          "snapshot_users",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "array",
-      "default":      []
     },
     {
       "key":              "scans_to_build",
