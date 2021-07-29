@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "11.5.0",
-    "release_timestamp":       1627376940,
-    "build":                   "202107.2701",
+    "version":                 "11.5.1",
+    "release_timestamp":       1627565600,
+    "build":                   "202107.2901",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -92,19 +92,19 @@
             "plugin"
           ]
         },
-        "datatables-bootstrap":             {
+        "datatables-bootstrap":   {
           "url":  "https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
           ]
         },
-        "datatables-select":             {
+        "datatables-select":      {
           "url":  "https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
         },
-        "datatables-buttons":             {
+        "datatables-buttons":     {
           "url":  "https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
@@ -149,7 +149,7 @@
           "footer": true
         },
         "shield/mainwp":          {},
-        "shield/scanners":          {
+        "shield/scanners":        {
           "deps": [
             "datatables-select",
             "datatables-buttons",
@@ -157,8 +157,8 @@
             "tp/highlightjs"
           ]
         },
-        "tp/highlightjs":            {
-          "url":        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css"
+        "tp/highlightjs":         {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css"
         }
       },
       "js":  {
@@ -193,19 +193,19 @@
             "wp-jquery"
           ]
         },
-        "datatables-bootstrap":             {
+        "datatables-bootstrap":   {
           "url":  "https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js",
           "deps": [
             "datatables"
           ]
         },
-        "datatables-select":             {
+        "datatables-select":      {
           "url":  "https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js",
           "deps": [
             "datatables"
           ]
         },
-        "datatables-buttons":             {
+        "datatables-buttons":     {
           "url":  "https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js",
           "deps": [
             "datatables-bootstrap"
@@ -290,12 +290,12 @@
             "plugin"
           ]
         },
-        "shield/scanners":          {
+        "shield/scanners":        {
           "deps": [
             "shield/scantables"
           ]
         },
-        "shield/scantables":          {
+        "shield/scantables":      {
           "deps": [
             "datatables-select",
             "datatables-buttons",
@@ -309,7 +309,7 @@
             "introjs"
           ]
         },
-        "shield/notbot":         {
+        "shield/notbot":          {
         },
         "shield/scans":           {
           "deps": [
@@ -360,8 +360,8 @@
             "defer": "defer"
           }
         },
-        "tp/highlightjs":            {
-          "url":        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
+        "tp/highlightjs":         {
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
         }
       }
     }
@@ -417,7 +417,7 @@
       },
       {
         "name":      "&uarr; Go Pro &uarr;",
-        "title":     "For just $1/month. Seriously.",
+        "title":     "Get All PRO Security Features",
         "href":      "https://shsec.io/d8",
         "target":    "_blank",
         "highlight": true,

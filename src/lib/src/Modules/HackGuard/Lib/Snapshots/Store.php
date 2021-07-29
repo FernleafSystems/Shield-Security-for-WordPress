@@ -96,6 +96,18 @@ class Store {
 		return is_array( $this->snapMeta ) ? $this->snapMeta : [];
 	}
 
+	public function verify() :bool {
+		$verified = false;
+		$meta = $this->getSnapMeta();
+		if ( !empty( $meta ) ) {
+			$asset = $this->getAsset();
+			$verified = $meta[ 'version' ] === $asset->Version
+						&& $meta[ 'unique_id' ] ===
+						   ( $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet );
+		}
+		return $verified;
+	}
+
 	/**
 	 * @return $this
 	 */
@@ -183,13 +195,25 @@ class Store {
 				implode( "\n", $toWrite ),
 				true
 			);
-			Services::WpFs()->putFileContent(
+			$this->saveMeta();
+		}
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function saveMeta() :bool {
+		$success = false;
+		if ( $this->isReady() ) {
+			$success = (bool)Services::WpFs()->putFileContent(
 				$this->getSnapStoreMetaPath(),
 				json_encode( $this->getSnapMeta() ),
 				true
 			);
 		}
-		return $this;
+		return $success;
 	}
 
 	/**
