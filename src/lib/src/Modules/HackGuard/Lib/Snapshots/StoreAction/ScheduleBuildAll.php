@@ -28,9 +28,16 @@ class ScheduleBuildAll extends BaseBulk {
 				if ( $this->getCon()->isPremiumActive()
 					 && $store->verify()
 					 && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
-					( new SubmitHashes() )
-						->setMod( $this->getMod() )
-						->run( $asset );
+
+					$meta = $store->getSnapMeta();
+					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
+						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
+						if ( $store->setSnapMeta( $meta )->saveMeta() ) {
+							( new SubmitHashes() )
+								->setMod( $this->getMod() )
+								->run( $asset );
+						}
+					}
 				}
 			}
 			catch ( \Exception $e ) {

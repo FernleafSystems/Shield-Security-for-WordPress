@@ -40,14 +40,12 @@ class Build extends BaseAction {
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	private function generateMeta() {
+	private function generateMeta() :array {
 		$asset = $this->getAsset();
 		$meta = [
 			'ts'           => Services::Request()->ts(),
 			'snap_version' => $this->getCon()->getVersion(),
+			'cs_hashes_at' => 0,
 		];
 		$meta[ 'unique_id' ] = $asset->asset_type === 'plugin' ?
 			$asset->file

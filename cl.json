@@ -101,9 +101,10 @@
         "description": []
       },
       {
-        "type":        "fixed",
-        "title":       "Sidebar navigation bugs.",
-        "description": []
+        "type":        "improved",
+        "title":       "Prevent overloading ShieldNET API in some cases.",
+        "description": [],
+        "patch":       "11.5.1"
       }
     ]
   },
