@@ -118,9 +118,6 @@ abstract class ModCon {
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-		add_filter( $con->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
-
-		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
@@ -224,17 +221,6 @@ abstract class ModCon {
 	 */
 	public function getUpgradeHandler() {
 		return $this->loadModElement( 'Upgrade' );
-	}
-
-	/**
-	 * @param array $aAdminNotices
-	 * @return array
-	 */
-	public function fRegisterAdminNotices( $aAdminNotices ) {
-		if ( !is_array( $aAdminNotices ) ) {
-			$aAdminNotices = [];
-		}
-		return array_merge( $aAdminNotices, $this->getOptions()->getAdminNotices() );
 	}
 
 	private function verifyModuleMeetRequirements() :bool {
@@ -816,14 +802,6 @@ abstract class ModCon {
 		$this->getOptions()
 			 ->doOptionsSave( $this->getCon()->getIsResetPlugin(), $this->isPremium() );
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-	}
-
-	/**
-	 * @param array $aAggregatedOptions
-	 * @return array
-	 */
-	public function aggregateOptionsValues( $aAggregatedOptions ) {
-		return array_merge( $aAggregatedOptions, $this->getOptions()->getAllOptionsValues() );
 	}
 
 	/**

@@ -59,12 +59,12 @@ class UI {
 				}
 
 				if ( isset( $aOptions[ $nSectionKey ] ) ) {
-					$aWarnings = [];
+					$warning = [];
 					if ( !$opts->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-						$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
+						$warning[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
 					}
 					$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
-						$aWarnings,
+						$warning,
 						$this->getSectionWarnings( $aSection[ 'slug' ] )
 					);
 					$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );

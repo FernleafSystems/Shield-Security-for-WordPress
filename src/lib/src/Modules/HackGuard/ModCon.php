@@ -194,7 +194,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		return $this->isModuleEnabled() && $this->isPremium()
 			   && $opts->isOpt( 'ptg_enable', 'enabled' )
-			   && $opts->isOptReqsMet( 'ptg_enable' )
 			   && $this->getCon()->hasCacheDir()
 			   && !empty( $this->getPtgSnapsBaseDir() );
 	}

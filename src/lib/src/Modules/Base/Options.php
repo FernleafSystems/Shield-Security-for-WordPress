@@ -29,7 +29,7 @@ class Options {
 	/**
 	 * @var bool
 	 */
-	protected $bNeedSave;
+	protected $bNeedSave = false;
 
 	/**
 	 * @var bool
@@ -84,13 +84,18 @@ class Options {
 	 * @return bool
 	 */
 	public function deleteStorage() {
-		$oWp = Services::WpGeneral();
-		$oWp->deleteOption( $this->getConfigStorageKey() );
-		return $oWp->deleteOption( $this->getOptionsStorageKey() );
+		$WP = Services::WpGeneral();
+		$WP->deleteOption( $this->getConfigStorageKey() );
+		return $WP->deleteOption( $this->getOptionsStorageKey() );
 	}
 
 	public function getAllOptionsValues() :array {
-		return $this->getStoredOptions();
+		try {
+			return $this->loadOptionsValuesFromStorage();
+		}
+		catch ( \Exception $e ) {
+			return [];
+		}
 	}
 
 	public function getSlug() :string {
@@ -101,15 +106,15 @@ class Options {
 	 * Returns an array of all the transferable options and their values
 	 * @return array
 	 */
-	public function getTransferableOptions() {
-		$aTransferable = [];
+	public function getTransferableOptions() :array {
+		$transferable = [];
 
-		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptionData ) {
-			if ( !isset( $aOptionData[ 'transferable' ] ) || $aOptionData[ 'transferable' ] === true ) {
-				$aTransferable[ $aOptionData[ 'key' ] ] = $this->getOpt( $aOptionData[ 'key' ] );
+		foreach ( $this->getRawData_AllOptions() as $option ) {
+			if ( $option[ 'transferable' ] ?? true ) {
+				$transferable[ $option[ 'key' ] ] = $this->getOpt( $option[ 'key' ] );
 			}
 		}
-		return $aTransferable;
+		return $transferable;
 	}
 
 	/**
@@ -119,9 +124,9 @@ class Options {
 	public function getOptionsMaskSensitive() {
 
 		$aOptions = $this->getAllOptionsValues();
-		foreach ( $this->getOptionsKeys() as $sKey ) {
-			if ( !isset( $aOptions[ $sKey ] ) ) {
-				$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
+		foreach ( $this->getOptionsKeys() as $key ) {
+			if ( !isset( $aOptions[ $key ] ) ) {
+				$aOptions[ $key ] = $this->getOptDefault( $key );
 			}
 		}
 		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
@@ -138,10 +143,9 @@ class Options {
 	public function getOptionsForWpCli() :array {
 		return array_filter(
 			$this->getOptionsKeys(),
-			function ( $sKey ) {
-				$opt = $this->getRawData_SingleOption( $sKey );
-				return !empty( $opt[ 'section' ] )
-					   && $opt[ 'section' ] !== 'section_non_ui';
+			function ( $key ) {
+				$opt = $this->getOptDefinition( $key );
+				return !empty( $opt[ 'section' ] ) && $opt[ 'section' ] !== 'section_non_ui';
 			}
 		);
 	}
@@ -171,22 +175,20 @@ class Options {
 	}
 
 	/**
-	 * @param $property
-	 * @return null|mixed
+	 * @param string $property
+	 * @return mixed|null
 	 */
-	public function getFeatureProperty( $property ) {
-		$raw = $this->getRawData_FullFeatureConfig();
-		return ( isset( $raw[ 'properties' ] ) && isset( $raw[ 'properties' ][ $property ] ) ) ? $raw[ 'properties' ][ $property ] : null;
+	public function getFeatureProperty( string $property ) {
+		return ( $this->getRawData_FullFeatureConfig()[ 'properties' ] ?? [] )[ $property ] ?? null;
 	}
 
 	public function getWpCliCfg() :array {
-		$cfg = $this->getRawData_FullFeatureConfig();
 		return array_merge(
 			[
 				'enabled' => true,
 				'root'    => $this->getSlug(),
 			],
-			empty( $cfg[ 'wpcli' ] ) ? [] : $cfg[ 'wpcli' ]
+			$this->getRawData_FullFeatureConfig()[ 'wpcli' ] ?? []
 		);
 	}
 
@@ -195,25 +197,15 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {
-		$cfg = $this->getRawData_FullFeatureConfig();
-		return ( isset( $cfg[ 'definitions' ] ) && isset( $cfg[ 'definitions' ][ $key ] ) ) ? $cfg[ 'definitions' ][ $key ] : null;
+		return ( $this->getRawData_FullFeatureConfig()[ 'definitions' ] ?? [] )[ $key ] ?? null;
 	}
 
-	/**
-	 * @param string $req
-	 * @return null|mixed
-	 */
-	public function getFeatureRequirement( string $req ) {
-		$aReqs = $this->getRawData_Requirements();
-		return ( is_array( $aReqs ) && isset( $aReqs[ $req ] ) ) ? $aReqs[ $req ] : null;
+	public function getFeatureRequirement( string $req ) :array {
+		return $this->getRawData_Requirements()[ $req ] ?? [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getAdminNotices() {
-		$cfg = $this->getRawData_FullFeatureConfig();
-		return ( isset( $cfg[ 'admin_notices' ] ) && is_array( $cfg[ 'admin_notices' ] ) ) ? $cfg[ 'admin_notices' ] : [];
+	public function getAdminNotices() :array {
+		return $this->getRawData_FullFeatureConfig()[ 'admin_notices' ] ?? [];
 	}
 
 	/**
@@ -232,6 +224,18 @@ class Options {
 
 	public function isValidOptionKey( string $key ) :bool {
 		return in_array( $key, $this->getOptionsKeys() );
+	}
+
+	public function isValidOptionValueType( string $key, $value ) :bool {
+		switch ( $this->getOptionType( $key ) ) {
+			case 'array':
+				$valid = is_array( $value );
+				break;
+			default:
+				$valid = true;
+				break;
+		}
+		return $valid;
 	}
 
 	/**
@@ -263,8 +267,7 @@ class Options {
 	 * @return array|null
 	 */
 	public function getSection( string $section ) {
-		$sections = $this->getSections();
-		return $sections[ $section ] ?? null;
+		return $this->getSections()[ $section ] ?? null;
 	}
 
 	/**
@@ -297,24 +300,14 @@ class Options {
 	 * @return array
 	 */
 	public function getSection_Requirements( $slug ) {
-		$aSection = $this->getSection( $slug );
-		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : [];
+		$section = $this->getSection( $slug );
 		return array_merge(
 			[
-				'php_min' => '5.2.4',
-				'wp_min'  => '3.5.0',
+				'php_min' => '7.0',
+				'wp_min'  => '3.7',
 			],
-			$aReqs
+			( is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
 		);
-	}
-
-	/**
-	 * @param string $sSlug
-	 * @return array|null
-	 */
-	public function getSectionHelpVideo( $sSlug ) {
-		$aSection = $this->getSection( $sSlug );
-		return ( is_array( $aSection ) && isset( $aSection[ 'help_video' ] ) ) ? $aSection[ 'help_video' ] : null;
 	}
 
 	/**
@@ -327,33 +320,29 @@ class Options {
 			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 
-	/**
-	 * @param string $optKey
-	 * @return bool
-	 */
-	public function isOptReqsMet( $optKey ) :bool {
-		return $this->isSectionReqsMet( $this->getOptProperty( $optKey, 'section' ) );
+	public function isOptReqsMet( string $key ) :bool {
+		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getVisibleOptionsKeys() :array {
-		$aKeys = [];
+		$keys = [];
 
-		foreach ( $this->getRawData_AllOptions() as $aOptionDef ) {
-			if ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) {
+		foreach ( $this->getRawData_AllOptions() as $optDef ) {
+			if ( $optDef[ 'hidden' ] ?? false ) {
 				continue;
 			}
-			$aSection = $this->getSection( $aOptionDef[ 'section' ] );
-			if ( empty( $aSection ) || ( isset( $aSection[ 'hidden' ] ) && $aSection[ 'hidden' ] ) ) {
+			$section = $this->getSection( $optDef[ 'section' ] );
+			if ( empty( $section ) || ( $section[ 'hidden' ] ?? false ) ) {
 				continue;
 			}
 
-			$aKeys[] = $aOptionDef[ 'key' ];
+			$keys[] = $optDef[ 'key' ];
 		}
 
-		return $aKeys;
+		return $keys;
 	}
 
 	public function getOptionsForPluginUse() :array {
@@ -429,7 +418,7 @@ class Options {
 	}
 
 	public function getNeedSave() :bool {
-		return (bool)$this->bNeedSave;
+		return $this->bNeedSave;
 	}
 
 	/**
@@ -446,9 +435,11 @@ class Options {
 	 * @return mixed
 	 */
 	public function getOpt( string $key, $mDefault = false ) {
-		$aOptionsValues = $this->getAllOptionsValues();
-		if ( !isset( $aOptionsValues[ $key ] ) && $this->isValidOptionKey( $key ) ) {
-			$this->setOpt( $key, $this->getOptDefault( $key, $mDefault ) );
+		$value = $this->getAllOptionsValues()[ $key ] ?? null;
+
+		if ( is_null( $value ) || !$this->isValidOptionValueType( $key, $value ) ) {
+			$value = $this->getOptDefault( $key, $mDefault );
+			$this->setOpt( $key, $value );
 		}
 		return $this->aOptionsValues[ $key ] ?? $mDefault;
 	}
@@ -459,27 +450,21 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getOptDefault( string $key, $mDefault = null ) {
-		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( $aOption[ 'key' ] == $key ) {
-				if ( isset( $aOption[ 'default' ] ) ) {
-					$mDefault = $aOption[ 'default' ];
-					break;
-				}
-				if ( isset( $aOption[ 'value' ] ) ) {
-					$mDefault = $aOption[ 'value' ];
-					break;
-				}
-			}
-		}
-		return $mDefault;
+		$def = $this->getOptDefinition( $key );
+		return $def[ 'default' ] ?? ( $def[ 'value' ] ?? $mDefault );
 	}
 
 	public function getOptDefinition( string $key ) :array {
-		$def = [];
-		foreach ( $this->getRawData_AllOptions() as $option ) {
-			if ( $option[ 'key' ] == $key ) {
-				$def = $option;
-				break;
+		$def = $this->getRawData_AllOptions()[ $key ] ?? [];
+		if ( empty( $def ) ) {
+			/**
+			 * @deprecated 12.0 - this is the fallback before we switched to using keys
+			 */
+			foreach ( $this->getRawData_AllOptions() as $option ) {
+				if ( $option[ 'key' ] == $key ) {
+					$def = $option;
+					break;
+				}
 			}
 		}
 		return $def;
@@ -492,8 +477,7 @@ class Options {
 	 * @return bool
 	 */
 	public function isOpt( string $key, $mValueToTest, $strict = false ) :bool {
-		$mOptionValue = $this->getOpt( $key );
-		return $strict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
+		return $strict ? $this->getOpt( $key ) === $mValueToTest : $this->getOpt( $key ) == $mValueToTest;
 	}
 
 	/**
@@ -501,21 +485,15 @@ class Options {
 	 * @return string|null
 	 */
 	public function getOptionType( $key ) {
-		$def = $this->getRawData_SingleOption( $key );
-		if ( !empty( $def ) && isset( $def[ 'type' ] ) ) {
-			return $def[ 'type' ];
-		}
-		return null;
+		return $this->getOptDefinition( $key )[ 'type' ] ?? null;
 	}
 
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
-			$this->aOptionsKeys = [];
-			foreach ( $this->getRawData_AllOptions() as $aOption ) {
-				$this->aOptionsKeys[] = $aOption[ 'key' ];
-			}
 			$this->aOptionsKeys = array_merge(
-				$this->aOptionsKeys,
+				array_map( function ( $opt ) {
+					return $opt[ 'key' ];
+				}, $this->getRawData_AllOptions() ),
 				$this->getCommonStandardOptions(),
 				$this->getVirtualCommonOptions()
 			);
@@ -530,10 +508,7 @@ class Options {
 		return $this->sPathToConfig;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getConfigModTime() {
+	protected function getConfigModTime() :int {
 		return Services::WpFs()->getModifiedTime( $this->getPathToConfig() );
 	}
 
@@ -550,10 +525,12 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getOptProperty( string $key, string $prop ) {
-		$opt = $this->getRawData_SingleOption( $key );
-		return $opt[ $prop ] ?? null;
+		return $this->getOptDefinition( $key )[ $prop ] ?? null;
 	}
 
+	/**
+	 * @deprecated 12.0
+	 */
 	public function getStoredOptions() :array {
 		try {
 			return $this->loadOptionsValuesFromStorage();
@@ -571,51 +548,42 @@ class Options {
 	}
 
 	protected function getRawData_AllOptions() :array {
-		$raw = $this->getRawData_FullFeatureConfig();
-		return $raw[ 'options' ] ?? [];
+		return $this->getRawData_FullFeatureConfig()[ 'options' ] ?? [];
 	}
 
 	protected function getRawData_OptionsSections() :array {
-		$raw = $this->getRawData_FullFeatureConfig();
-		return $raw[ 'sections' ] ?? [];
+		return $this->getRawData_FullFeatureConfig()[ 'sections' ] ?? [];
 	}
 
 	protected function getRawData_Requirements() :array {
-		$raw = $this->getRawData_FullFeatureConfig();
-		return $raw[ 'requirements' ] ?? [];
+		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
 	}
 
+	/**
+	 * @deprecated 12.0
+	 */
 	public function getRawData_SingleOption( string $key ) :array {
-		foreach ( $this->getRawData_AllOptions() as $opt ) {
-			if ( isset( $opt[ 'key' ] ) && ( $key == $opt[ 'key' ] ) ) {
-				return $opt;
-			}
-		}
-		return [];
+		return $this->getOptDefinition( $key );
 	}
 
 	public function getRebuildFromFile() :bool {
 		return (bool)$this->bRebuildFromFile;
 	}
 
-	/**
-	 * @param string $key
-	 * @return string
-	 */
-	public function getSelectOptionValueText( string $key ) {
-		$sText = '';
+	public function getSelectOptionValueText( string $key ) :string {
+		$text = '';
 		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
 			if ( $opt[ 'value_key' ] == $this->getOpt( $key ) ) {
-				$sText = $opt[ 'text' ];
+				$text = $opt[ 'text' ];
 				break;
 			}
 		}
-		return $sText;
+		return $text;
 	}
 
 	public function isAccessRestricted() :bool {
 		$state = $this->getFeatureProperty( 'access_restricted' );
-		return is_null( $state ) ? true : (bool)$state;
+		return is_null( $state ) || $state;
 	}
 
 	public function isModulePremium() :bool {
@@ -624,12 +592,12 @@ class Options {
 
 	public function isModuleRunIfWhitelisted() :bool {
 		$state = $this->getFeatureProperty( 'run_if_whitelisted' );
-		return is_null( $state ) ? true : (bool)$state;
+		return is_null( $state ) || $state;
 	}
 
 	public function isModuleRunUnderWpCli() :bool {
 		$state = $this->getFeatureProperty( 'run_if_wpcli' );
-		return is_null( $state ) ? true : (bool)$state;
+		return is_null( $state ) || $state;
 	}
 
 	public function isModuleRunIfVerifiedBot() :bool {
@@ -649,7 +617,7 @@ class Options {
 	}
 
 	public function optExists( string $key ) :bool {
-		return !empty( $this->getRawData_SingleOption( $key ) );
+		return !empty( $this->getOptDefinition( $key ) );
 	}
 
 	public function resetOptToDefault( string $key ) :self {
@@ -728,11 +696,8 @@ class Options {
 				$this->setNeedSave( true );
 
 				//Load the config and do some pre-set verification where possible. This will slowly grow.
-				$aOption = $this->getRawData_SingleOption( $key );
-				if ( !empty( $aOption[ 'type' ] ) ) {
-					if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $newValue ) ) {
-						return $this->resetOptToDefault( $key );
-					}
+				if ( $this->getOptionType( $key ) === 'boolean' && !is_bool( $newValue ) ) {
+					return $this->resetOptToDefault( $key );
 				}
 				$this->setOldOptValue( $key, $mCurrent )
 					 ->setOptValue( $key, $newValue );
@@ -747,25 +712,23 @@ class Options {
 	}
 
 	/**
-	 * @param string $sOpt
-	 * @param int    $nAt
+	 * @param string $key
 	 * @return $this
 	 */
-	public function setOptAt( $sOpt, $nAt = null ) {
-		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
-		return $this->setOpt( $sOpt, $nAt );
+	public function setOptAt( string $key ) {
+		return $this->setOpt( $key, Services::Request()->ts() );
 	}
 
 	/**
 	 * Use this to directly set the option value without the risk of any recursion.
-	 * @param string $sOptKey
-	 * @param mixed  $mValue
+	 * @param string $key
+	 * @param mixed  $value
 	 * @return $this
 	 */
-	public function setOptValue( $sOptKey, $mValue ) {
-		$aValues = $this->getAllOptionsValues();
-		$aValues[ $sOptKey ] = $mValue;
-		$this->aOptionsValues = $aValues;
+	protected function setOptValue( string $key, $value ) {
+		$values = $this->getAllOptionsValues();
+		$values[ $key ] = $value;
+		$this->aOptionsValues = $values;
 		return $this;
 	}
 
@@ -792,14 +755,17 @@ class Options {
 				}
 				break;
 
+			case 'array':
+				$valid = is_array( $mPotentialValue );
+				break;
+
 			case 'select':
-				$aPossible = array_map(
-					function ( $aPoss ) {
-						return $aPoss[ 'value_key' ];
+				$valid = in_array( $mPotentialValue, array_map(
+					function ( $valueOptions ) {
+						return $valueOptions[ 'value_key' ];
 					},
 					$this->getOptProperty( $key, 'value_options' )
-				);
-				$valid = in_array( $mPotentialValue, $aPossible );
+				) );
 				break;
 
 			case 'email':
@@ -890,6 +856,7 @@ class Options {
 				$this->aOptionsValues = Services::WpGeneral()->getOption( $key, [] );
 			}
 		}
+
 		if ( !is_array( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = [];
 			$this->setNeedSave( true );
@@ -900,17 +867,24 @@ class Options {
 	private function readConfiguration() :array {
 		$cfg = Transient::Get( $this->getConfigStorageKey() );
 
-		$bRebuild = $this->getRebuildFromFile() || empty( $cfg ) || !is_array( $cfg );
-		if ( !$bRebuild ) {
+		$rebuild = $this->getRebuildFromFile() || empty( $cfg ) || !is_array( $cfg );
+		if ( !$rebuild ) {
 			if ( !isset( $cfg[ 'meta_modts' ] ) ) {
 				$cfg[ 'meta_modts' ] = 0;
 			}
-			$bRebuild = $this->getConfigModTime() > $cfg[ 'meta_modts' ];
+			$rebuild = $this->getConfigModTime() > $cfg[ 'meta_modts' ];
 		}
 
-		if ( $bRebuild ) {
+		if ( $rebuild ) {
 			try {
 				$cfg = $this->readConfigurationJson();
+				$keyedOptions = [];
+				foreach ( $cfg[ 'options' ] as $option ) {
+					if ( !empty( $option[ 'key' ] ) ) {
+						$keyedOptions[ $option[ 'key' ] ] = $option;
+					}
+				}
+				$cfg[ 'options' ] = $keyedOptions;
 			}
 			catch ( \Exception $e ) {
 				if ( Services::WpGeneral()->isDebug() ) {
@@ -922,7 +896,7 @@ class Options {
 			Transient::Set( $this->getConfigStorageKey(), $cfg );
 		}
 
-		$this->setRebuildFromFile( $bRebuild );
+		$this->setRebuildFromFile( $rebuild );
 		return $cfg;
 	}
 

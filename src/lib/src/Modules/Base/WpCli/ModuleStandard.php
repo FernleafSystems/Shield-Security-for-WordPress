@@ -124,10 +124,10 @@ class ModuleStandard extends BaseWpCliCmd {
 	 * @param array $args
 	 */
 	public function cmdOptGet( array $null, array $args ) {
-		$oOpts = $this->getOptions();
+		$opts = $this->getOptions();
 
-		$mVal = $oOpts->getOpt( $args[ 'key' ], $null );
-		$aOpt = $oOpts->getRawData_SingleOption( $args[ 'key' ] );
+		$mVal = $opts->getOpt( $args[ 'key' ], $null );
+		$aOpt = $opts->getOptDefinition( $args[ 'key' ] );
 		if ( !is_numeric( $mVal ) && empty( $mVal ) ) {
 			\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
 		}
