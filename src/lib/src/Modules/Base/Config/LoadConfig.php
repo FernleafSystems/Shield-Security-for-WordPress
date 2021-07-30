@@ -23,13 +23,12 @@ class LoadConfig {
 	}
 
 	/**
-	 * @param bool $forceRebuild
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function run( bool $forceRebuild = false ) :array {
+	public function run() :array {
 		try {
-			if ( $forceRebuild ) {
+			if ( $this->getCon()->cfg->rebuilt ) {
 				throw new \Exception( 'Force rebuild from file' );
 			}
 			$cfg = $this->fromWP();

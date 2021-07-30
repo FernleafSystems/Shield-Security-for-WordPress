@@ -12,6 +12,8 @@ class Options {
 
 	private $cfgLoader;
 
+	private $optsStorage;
+
 	/**
 	 * @var array
 	 */
@@ -33,65 +35,46 @@ class Options {
 	protected $bNeedSave = false;
 
 	/**
-	 * @var bool
-	 */
-	protected $bRebuildFromFile = false;
-
-	/**
 	 * @var string
 	 */
 	protected $aOptionsKeys;
-
-	/**
-	 * @var string
-	 */
-	protected $sOptionsStorageKey;
-
-	/**
-	 *  by default we load from saved
-	 * @var string
-	 */
-	protected $bLoadFromSaved = true;
-
-	/**
-	 * @var string
-	 */
-	protected $sPathToConfig;
 
 	public function __construct() {
 	}
 
 	/**
-	 * @param bool $bDeleteFirst Used primarily with plugin reset
-	 * @param bool $bIsPremiumLicensed
+	 * @param bool $deleteFirst Used primarily with plugin reset
+	 * @param bool $isPremium
 	 * @return bool
 	 */
-	public function doOptionsSave( $bDeleteFirst = false, $bIsPremiumLicensed = false ) {
+	public function doOptionsSave( $deleteFirst = false, $isPremium = false ) {
 		if ( !$this->getNeedSave() ) {
 			return true;
 		}
 		$this->cleanOptions();
-		if ( !$bIsPremiumLicensed ) {
+		if ( !$isPremium ) {
 			$this->resetPremiumOptsToDefault();
 		}
 		$this->setNeedSave( false );
-		if ( $bDeleteFirst ) {
-			Services::WpGeneral()->deleteOption( $this->getMod()->getOptionsStorageKey() );
-		}
-		return Services::WpGeneral()->updateOption( $this->getMod()->getOptionsStorageKey(), $this->getAllOptionsValues() );
+
+		return $this->getOptsStorage()->storeOptions( $this->getAllOptionsValues(), $deleteFirst );
 	}
 
-	public function deleteStorage() :bool {
-		return Services::WpGeneral()->deleteOption( $this->getMod()->getOptionsStorageKey() );
+	public function deleteStorage() {
+		$this->getOptsStorage()->deleteOptions();
 	}
 
 	public function getAllOptionsValues() :array {
-		try {
-			return $this->loadOptionsValuesFromStorage();
+		if ( !isset( $this->aOptionsValues ) ) {
+			try {
+				$this->aOptionsValues = $this->getOptsStorage()->loadOptions();
+			}
+			catch ( \Exception $e ) {
+				$this->aOptionsValues = [];
+				$this->setNeedSave( true );
+			}
 		}
-		catch ( \Exception $e ) {
-			return [];
-		}
+		return $this->aOptionsValues;
 	}
 
 	public function getSlug() :string {
@@ -211,13 +194,6 @@ class Options {
 		return $this->getFeatureProperty( 'tagline' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfLoadOptionsFromStorage() {
-		return $this->bLoadFromSaved;
-	}
-
 	public function isValidOptionKey( string $key ) :bool {
 		return in_array( $key, $this->getOptionsKeys() );
 	}
@@ -241,7 +217,7 @@ class Options {
 
 		$aOptionsData = [];
 
-		foreach ( $this->getRawData_OptionsSections() as $nPosition => $aRawSection ) {
+		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
 
 			// if hidden isn't specified we skip
 			if ( !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
@@ -267,28 +243,28 @@ class Options {
 	}
 
 	/**
-	 * @param bool $bIncludeHidden
+	 * @param bool $includeHidden
 	 * @return array[]
 	 */
-	public function getSections( $bIncludeHidden = false ) {
-		$aSections = [];
-		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
-			if ( $bIncludeHidden || !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
-				$aSections[ $aRawSection[ 'slug' ] ] = $aRawSection;
+	public function getSections( $includeHidden = false ) {
+		$sections = [];
+		foreach ( $this->getRawData_OptionsSections() as $section ) {
+			if ( $includeHidden || empty( $section[ 'hidden' ] ) ) {
+				$sections[ $section[ 'slug' ] ] = $section;
 			}
 		}
-		return $aSections;
+		return $sections;
 	}
 
 	public function getPrimarySection() :array {
-		$section = [];
-		foreach ( $this->getSections() as $aS ) {
-			if ( isset( $aS[ 'primary' ] ) && $aS[ 'primary' ] ) {
-				$section = $aS;
+		$theSection = [];
+		foreach ( $this->getSections() as $section ) {
+			if ( $section[ 'primary' ] ?? false ) {
+				$theSection = $section;
 				break;
 			}
 		}
-		return $section;
+		return $theSection;
 	}
 
 	/**
@@ -343,29 +319,29 @@ class Options {
 
 	public function getOptionsForPluginUse() :array {
 
-		$aOptionsData = [];
+		$optionsData = [];
 
-		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
+		foreach ( $this->getRawData_OptionsSections() as $section ) {
 
-			if ( isset( $aRawSection[ 'hidden' ] ) && $aRawSection[ 'hidden' ] ) {
+			if ( isset( $section[ 'hidden' ] ) && $section[ 'hidden' ] ) {
 				continue;
 			}
 
-			$aRawSection = array_merge(
+			$section = array_merge(
 				[
 					'primary'       => false,
-					'options'       => $this->getOptionsForSection( $aRawSection[ 'slug' ] ),
+					'options'       => $this->getOptionsForSection( $section[ 'slug' ] ),
 					'help_video_id' => ''
 				],
-				$aRawSection
+				$section
 			);
 
-			if ( !empty( $aRawSection[ 'options' ] ) ) {
-				$aOptionsData[] = $aRawSection;
+			if ( !empty( $section[ 'options' ] ) ) {
+				$optionsData[] = $section;
 			}
 		}
 
-		return $aOptionsData;
+		return $optionsData;
 	}
 
 	/**
@@ -375,36 +351,36 @@ class Options {
 	protected function getOptionsForSection( $slug ) :array {
 
 		$aAllOptions = [];
-		foreach ( $this->getRawData_AllOptions() as $aOptionDef ) {
+		foreach ( $this->getRawData_AllOptions() as $optDef ) {
 
-			if ( ( $aOptionDef[ 'section' ] != $slug ) || ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) ) {
+			if ( ( $optDef[ 'section' ] != $slug ) || ( isset( $optDef[ 'hidden' ] ) && $optDef[ 'hidden' ] ) ) {
 				continue;
 			}
 
-			if ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) {
+			if ( isset( $optDef[ 'hidden' ] ) && $optDef[ 'hidden' ] ) {
 				continue;
 			}
 
-			$aOptionDef = array_merge(
+			$optDef = array_merge(
 				[
 					'link_info'     => '',
 					'link_blog'     => '',
 					'help_video_id' => '',
 					'value_options' => []
 				],
-				$aOptionDef
+				$optDef
 			);
-			$aOptionDef[ 'value' ] = $this->getOpt( $aOptionDef[ 'key' ] );
+			$optDef[ 'value' ] = $this->getOpt( $optDef[ 'key' ] );
 
-			if ( in_array( $aOptionDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
+			if ( in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$aNewValueOptions = [];
-				foreach ( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
+				foreach ( $optDef[ 'value_options' ] as $aValueOptions ) {
 					$aNewValueOptions[ $aValueOptions[ 'value_key' ] ] = __( $aValueOptions[ 'text' ], 'wp-simple-firewall' );
 				}
-				$aOptionDef[ 'value_options' ] = $aNewValueOptions;
+				$optDef[ 'value_options' ] = $aNewValueOptions;
 			}
 
-			$aAllOptions[] = $aOptionDef;
+			$aAllOptions[] = $optDef;
 		}
 		return $aAllOptions;
 	}
@@ -487,9 +463,7 @@ class Options {
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
 			$this->aOptionsKeys = array_merge(
-				array_map( function ( $opt ) {
-					return $opt[ 'key' ];
-				}, $this->getRawData_AllOptions() ),
+				array_keys( $this->getRawData_AllOptions() ),
 				$this->getCommonStandardOptions(),
 				$this->getVirtualCommonOptions()
 			);
@@ -509,7 +483,7 @@ class Options {
 	public function getRawData_FullFeatureConfig() :array {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
 			try {
-				$this->aRawOptionsConfigData = $this->getConfigLoader()->run( $this->getRebuildFromFile() );
+				$this->aRawOptionsConfigData = $this->getConfigLoader()->run();
 			}
 			catch ( \Exception $e ) {
 				$this->aRawOptionsConfigData = [];
@@ -530,10 +504,6 @@ class Options {
 		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
 	}
 
-	public function getRebuildFromFile() :bool {
-		return (bool)$this->bRebuildFromFile;
-	}
-
 	public function getSelectOptionValueText( string $key ) :string {
 		$text = '';
 		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
@@ -548,10 +518,6 @@ class Options {
 	public function isAccessRestricted() :bool {
 		$state = $this->getFeatureProperty( 'access_restricted' );
 		return is_null( $state ) || $state;
-	}
-
-	public function isModulePremium() :bool {
-		return (bool)$this->getFeatureProperty( 'premium' );
 	}
 
 	public function isModuleRunIfWhitelisted() :bool {
@@ -592,34 +558,15 @@ class Options {
 	 * Will traverse each premium option and set it to the default.
 	 */
 	public function resetPremiumOptsToDefault() {
-		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ] ) {
-				$this->resetOptToDefault( $aOption[ 'key' ] );
+		foreach ( $this->getRawData_AllOptions() as $opt ) {
+			if ( $opt[ 'premium' ] ?? false ) {
+				$this->resetOptToDefault( $opt[ 'key' ] );
 			}
 		}
 	}
 
-	public function setOptionsStorageKey( string $key ) :self {
-		$this->sOptionsStorageKey = $key;
-		return $this;
-	}
-
-	public function setIfLoadOptionsFromStorage( bool $bLoadFromSaved ) :self {
-		$this->bLoadFromSaved = $bLoadFromSaved;
-		return $this;
-	}
-
 	public function setNeedSave( bool $need ) {
 		$this->bNeedSave = $need;
-	}
-
-	/**
-	 * @param bool $bRebuild
-	 * @return $this
-	 */
-	public function setRebuildFromFile( $bRebuild ) {
-		$this->bRebuildFromFile = $bRebuild;
-		return $this;
 	}
 
 	public function setMultipleOptions( array $options ) {
@@ -740,16 +687,16 @@ class Options {
 	}
 
 	/**
-	 * @param string $sOptionKey
-	 * @param mixed  $mValue
+	 * @param string $key
+	 * @param mixed  $value
 	 * @return $this
 	 */
-	private function setOldOptValue( $sOptionKey, $mValue ) {
+	private function setOldOptValue( $key, $value ) {
 		if ( !is_array( $this->aOld ) ) {
 			$this->aOld = [];
 		}
-		if ( !isset( $this->aOld[ $sOptionKey ] ) ) {
-			$this->aOld[ $sOptionKey ] = $mValue;
+		if ( !isset( $this->aOld[ $key ] ) ) {
+			$this->aOld[ $key ] = $value;
 		}
 		return $this;
 	}
@@ -764,11 +711,11 @@ class Options {
 		return true;
 	}
 
+	/** PRIVATE STUFF */
+
 	/**
 	 * @return array
 	 */
-
-	/** PRIVATE STUFF */
 
 	protected function getCommonStandardOptions() {
 		return [];
@@ -803,32 +750,25 @@ class Options {
 		}
 	}
 
-	/**
-	 * @param bool $reload
-	 * @return array
-	 * @throws \Exception
-	 */
-	private function loadOptionsValuesFromStorage( bool $reload = false ) :array {
-
-		if ( $reload || empty( $this->aOptionsValues ) ) {
-
-			if ( $this->getIfLoadOptionsFromStorage() ) {
-				$this->aOptionsValues = Services::WpGeneral()->getOption( $this->getMod()->getOptionsStorageKey(), [] );
-			}
-		}
-
-		if ( !is_array( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = [];
-			$this->setNeedSave( true );
-		}
-		return $this->aOptionsValues;
-	}
-
-	private function getConfigLoader() :Config\LoadConfig {
+	public function getConfigLoader() :Config\LoadConfig {
 		if ( empty( $this->cfgLoader ) ) {
 			$this->cfgLoader = ( new Config\LoadConfig() )->setMod( $this->getMod() );
 		}
 		return $this->cfgLoader;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	private function loadOptionsValuesFromStorage() :array {
+		return $this->getOptsStorage()->loadOptions();
+	}
+
+	private function getOptsStorage() :Options\Storage {
+		if ( empty( $this->optsStorage ) ) {
+			$this->optsStorage = ( new Options\Storage() )->setMod( $this->getMod() );
+		}
+		return $this->optsStorage;
 	}
 
 	/**
@@ -837,7 +777,7 @@ class Options {
 	 */
 	private function readConfiguration() :array {
 		try {
-			$cfg = $this->getConfigLoader()->run( $this->getRebuildFromFile() );
+			$cfg = $this->getConfigLoader()->run();
 		}
 		catch ( \Exception $e ) {
 			$cfg = [];
@@ -846,20 +786,11 @@ class Options {
 	}
 
 	/**
-	 * @param string $sPathToConfig
+	 * @param $values
 	 * @return $this
 	 */
-	public function setPathToConfig( $sPathToConfig ) {
-		$this->sPathToConfig = $sPathToConfig;
-		return $this;
-	}
-
-	/**
-	 * @param $aValues
-	 * @return $this
-	 */
-	public function setOptionsValues( array $aValues = [] ) {
-		$this->aOptionsValues = $aValues;
+	public function setOptionsValues( array $values = [] ) {
+		$this->aOptionsValues = $values;
 		$this->setNeedSave( true );
 		return $this;
 	}
@@ -934,5 +865,53 @@ class Options {
 	 */
 	public function getOptionsStorageKey() :string {
 		return $this->getMod()->getOptionsStorageKey();
+	}
+
+	/**
+	 * @param bool $bLoadFromSaved
+	 * @return $this
+	 * @deprecated 12.0
+	 */
+	public function setIfLoadOptionsFromStorage( bool $bLoadFromSaved ) :self {
+		return $this;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getIfLoadOptionsFromStorage() {
+		return true;
+	}
+
+	/**
+	 * @param string $key
+	 * @return $this
+	 * @deprecated 12.0
+	 */
+	public function setOptionsStorageKey( string $key ) :self {
+		return $this;
+	}
+
+	/**
+	 * @param string $sPathToConfig
+	 * @return $this
+	 * @deprecated 12.0
+	 */
+	public function setPathToConfig( $sPathToConfig ) {
+		return $this;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getRebuildFromFile() :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function setRebuildFromFile( $bRebuild ) {
+		return $this;
 	}
 }

@@ -373,7 +373,7 @@ abstract class ModCon {
 	}
 
 	public function isUpgrading() :bool {
-		return $this->getCon()->cfg->rebuilt || $this->getOptions()->getRebuildFromFile();
+		return $this->getCon()->cfg->rebuilt || $this->getOptions()->getConfigLoader()->isBuiltFromFile();
 	}
 
 	/**
@@ -1289,16 +1289,10 @@ abstract class ModCon {
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
-		$opts = $this->opts ?? $this->oOpts;
-		if ( !$opts instanceof Options ) {
-			$con = $this->getCon();
+		if ( empty( $this->opts ) ) {
 			$this->opts = $this->loadModElement( 'Options' );
-			$this->opts->setRebuildFromFile( $con->cfg->rebuilt )
-					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
-					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
-			$opts = $this->opts;
 		}
-		return $opts;
+		return $this->opts;
 	}
 
 	/**
