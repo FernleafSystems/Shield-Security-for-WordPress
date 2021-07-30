@@ -411,6 +411,8 @@
         "*/php_error_log",
         "*/mail.log",
         "*/php_mail.log",
+        "*/.stylelintrc-css.json",
+        "*/.stylelintrc.json",
         "*/sucuri-*.php"
       ],
       "type":        "array",

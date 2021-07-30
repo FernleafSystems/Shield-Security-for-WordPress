@@ -31,6 +31,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
+ * @property Shield\Crons\HourlyCron                                $cron_hourly
+ * @property Shield\Crons\DailyCron                                 $cron_daily
  */
 class Controller extends DynPropertiesClass {
 
@@ -492,12 +494,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	protected function initCrons() {
-		( new Shield\Crons\HourlyCron() )
-			->setCon( $this )
-			->run();
-		( new Shield\Crons\DailyCron() )
-			->setCon( $this )
-			->run();
+		$this->cron_hourly = ( new Shield\Crons\HourlyCron() )->setCon( $this );
+		$this->cron_hourly->run();
+		$this->cron_daily = ( new Shield\Crons\DailyCron() )->setCon( $this );
+		$this->cron_daily->run();
+
 		if ( Services::WpGeneral()->isCron() ) {
 			( new Shield\Utilities\Htaccess\RootHtaccess() )
 				->setCon( $this )

@@ -31,6 +31,10 @@ class ResultItem {
 		return md5( json_encode( $this->getRawData() ) );
 	}
 
+	public function getDescriptionForAudit() :string {
+		return 'No description';
+	}
+
 	/**
 	 * @return mixed
 	 */
