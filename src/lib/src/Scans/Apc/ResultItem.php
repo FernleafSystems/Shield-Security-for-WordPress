@@ -11,4 +11,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
+	public function getDescriptionForAudit() :string {
+		return sprintf( '%s: %s', $this->context, $this->slug );
+	}
 }
