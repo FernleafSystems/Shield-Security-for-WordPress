@@ -501,11 +501,8 @@ class Options {
 		return $this->aOptionsKeys;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPathToConfig() {
-		return $this->sPathToConfig;
+	public function getPathToConfig() :string {
+		return $this->getCon()->paths->forModuleConfig( $this->getMod()->getSlug() );
 	}
 
 	protected function getConfigModTime() :int {
@@ -526,18 +523,6 @@ class Options {
 	 */
 	public function getOptProperty( string $key, string $prop ) {
 		return $this->getOptDefinition( $key )[ $prop ] ?? null;
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getStoredOptions() :array {
-		try {
-			return $this->loadOptionsValuesFromStorage();
-		}
-		catch ( \Exception $e ) {
-			return [];
-		}
 	}
 
 	public function getRawData_FullFeatureConfig() :array {
@@ -800,11 +785,12 @@ class Options {
 		return true;
 	}
 
-	/** PRIVATE STUFF */
-
 	/**
 	 * @return array
 	 */
+
+	/** PRIVATE STUFF */
+
 	protected function getCommonStandardOptions() {
 		return [];
 	}
@@ -951,5 +937,17 @@ class Options {
 		$this->aOptionsValues = $aValues;
 		$this->setNeedSave( true );
 		return $this;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getStoredOptions() :array {
+		try {
+			return $this->loadOptionsValuesFromStorage();
+		}
+		catch ( \Exception $e ) {
+			return [];
+		}
 	}
 }

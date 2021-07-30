@@ -1293,8 +1293,7 @@ abstract class ModCon {
 		if ( !$opts instanceof Options ) {
 			$con = $this->getCon();
 			$this->opts = $this->loadModElement( 'Options' );
-			$this->opts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
-					   ->setRebuildFromFile( $con->cfg->rebuilt )
+			$this->opts->setRebuildFromFile( $con->cfg->rebuilt )
 					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
 					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
 			$opts = $this->opts;

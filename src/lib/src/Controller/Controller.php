@@ -975,8 +975,11 @@ class Controller extends DynPropertiesClass {
 		return $this->getPath_Assets( 'images/'.$asset );
 	}
 
+	/**
+	 * @deprecated 12.0
+	 */
 	public function getPath_ConfigFile( string $slug ) :string {
-		return $this->getPath_SourceFile( sprintf( 'config/feature-%s.php', $slug ) );
+		return $this->paths->forModuleConfig( $slug );
 	}
 
 	public function getPath_Languages() :string {
