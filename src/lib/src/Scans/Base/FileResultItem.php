@@ -10,4 +10,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  */
 class FileResultItem extends ResultItem {
 
+	public function getDescriptionForAudit() :string {
+		return $this->path_full;
+	}
 }

@@ -18,6 +18,10 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 		return md5( $this->slug.$this->wpvuln_id );
 	}
 
+	public function getDescriptionForAudit() :string {
+		return sprintf( '%s: %s', $this->context, $this->slug );
+	}
+
 	public function getVulnVo() :VulnVO {
 		return ( new VulnVO() )->applyFromArray( $this->wpvuln_vo );
 	}

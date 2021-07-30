@@ -41,7 +41,8 @@ class Strings extends Base\Strings {
 				sprintf( '%s: %s',
 					__( 'Note', 'wp-simple-firewall' ),
 					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
-				)
+				),
+				'%s'
 			];
 			$messages[ 'scan_item_delete_success' ] = [
 				__( 'Deleted item found in the scan.', 'wp-simple-firewall' )

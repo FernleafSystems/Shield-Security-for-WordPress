@@ -46,7 +46,25 @@ class CompleteQueue {
 					->update( $resultsSet );
 
 				if ( $resultsSet->countItems() > 0 ) {
-					$con->fireEvent( $scanSlug.'_scan_found' );
+
+					$items = $resultsSet->countItems() > 30 ?
+						__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
+						: __( 'The following items were discovered.', 'wp-simple-firewall' );
+
+					$items .= ' "'.
+							 implode( '", "', array_map( function ( $item ) {
+								 return $item->getDescriptionForAudit();
+							 }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
+							 .'"';
+
+					$con->fireEvent(
+						$scanSlug.'_scan_found',
+						[
+							'audit' => [
+								'items' => $items
+							]
+						]
+					);
 				}
 			}
 

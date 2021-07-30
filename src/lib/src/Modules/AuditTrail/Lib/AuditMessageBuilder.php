@@ -17,7 +17,7 @@ class AuditMessageBuilder {
 		if ( $missingCount > 0 ) {
 			$substitutions = array_merge(
 				$substitutions,
-				array_fill( 0, $missingCount, 'data missing for older audit logs' )
+				array_fill( 0, $missingCount, '[data missing for older audit logs]' )
 			);
 		}
 		return stripslashes( sanitize_textarea_field( vsprintf( $rawString, $substitutions ) ) );
