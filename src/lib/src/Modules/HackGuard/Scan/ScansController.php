@@ -147,7 +147,7 @@ class ScansController extends ExecOnceModConsumer {
 			$startHour = 3;
 		}
 		if ( $startMinute < 1 || $startMinute > 59 ) {
-			$startMinute = (int)rand( 0, 59 );
+			$startMinute = (int)rand( 1, 59 );
 		}
 
 		$c = Services::Request()->carbon( true );

@@ -105,6 +105,12 @@
         "title":       "Prevent overloading ShieldNET API in some cases.",
         "description": [],
         "patch":       "11.5.1"
+      },
+      {
+        "type":        "improved",
+        "title":       "Add some limited details into the Audit Trail entries for scan results.",
+        "description": [],
+        "patch":       "11.5.2"
       }
     ]
   },
