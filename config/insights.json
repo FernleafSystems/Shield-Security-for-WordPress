@@ -1,6 +1,6 @@
 {
-  "slug":         "insights",
-  "properties":   {
+  "slug":       "insights",
+  "properties": {
     "slug":                  "insights",
     "name":                  "Dashboard",
     "menu_title":            "Security Dashboard",
@@ -18,15 +18,15 @@
     "skip_processor":        true,
     "tracking_exclude":      true
   },
-  "wpcli": {
+  "wpcli":      {
     "enabled": false
   },
-  "sections":     [
+  "sections":   [
     {
       "slug":   "section_non_ui",
       "hidden": true
     }
   ],
-  "options":      [
+  "options":    [
   ]
 }

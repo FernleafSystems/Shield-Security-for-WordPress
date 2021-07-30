@@ -69,9 +69,9 @@
         "last_activity_uri": "text NOT NULL DEFAULT ''"
       },
       "cols_timestamps": {
-        "logged_in_at":            "Session Started",
-        "last_activity_at":        "Last Seen At",
-        "secadmin_at":             "Security Admin Authenticated"
+        "logged_in_at":     "Session Started",
+        "last_activity_at": "Last Seen At",
+        "secadmin_at":      "Security Admin Authenticated"
       }
     },
     "events":              {

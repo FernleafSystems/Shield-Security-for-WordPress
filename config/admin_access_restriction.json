@@ -48,11 +48,11 @@
       ]
     },
     {
-      "slug":          "section_admin_access_restriction_areas",
-      "title":         "Security Admin Restriction Zones",
-      "title_short":   "Access Restriction Zones",
-      "beacon_id":     214,
-      "summary":       [
+      "slug":        "section_admin_access_restriction_areas",
+      "title":       "Security Admin Restriction Zones",
+      "title_short": "Access Restriction Zones",
+      "beacon_id":   214,
+      "summary":     [
         "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
         "Recommendation - Use of this feature is highly recommend."
       ]

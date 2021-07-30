@@ -5,11 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\OptValueSanitize;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class Options {
 
 	use ModConsumer;
+
+	private $cfgLoader;
 
 	/**
 	 * @var array
@@ -75,18 +76,13 @@ class Options {
 		}
 		$this->setNeedSave( false );
 		if ( $bDeleteFirst ) {
-			Services::WpGeneral()->deleteOption( $this->getOptionsStorageKey() );
+			Services::WpGeneral()->deleteOption( $this->getMod()->getOptionsStorageKey() );
 		}
-		return Services::WpGeneral()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
+		return Services::WpGeneral()->updateOption( $this->getMod()->getOptionsStorageKey(), $this->getAllOptionsValues() );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function deleteStorage() {
-		$WP = Services::WpGeneral();
-		$WP->deleteOption( $this->getConfigStorageKey() );
-		return $WP->deleteOption( $this->getOptionsStorageKey() );
+	public function deleteStorage() :bool {
+		return Services::WpGeneral()->deleteOption( $this->getMod()->getOptionsStorageKey() );
 	}
 
 	public function getAllOptionsValues() :array {
@@ -129,9 +125,9 @@ class Options {
 				$aOptions[ $key ] = $this->getOptDefault( $key );
 			}
 		}
-		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
-			if ( isset( $aOptDef[ 'sensitive' ] ) && $aOptDef[ 'sensitive' ] === true ) {
-				unset( $aOptions[ $aOptDef[ 'key' ] ] );
+		foreach ( $this->getRawData_AllOptions() as $optDef ) {
+			if ( isset( $optDef[ 'sensitive' ] ) && $optDef[ 'sensitive' ] === true ) {
+				unset( $aOptions[ $optDef[ 'key' ] ] );
 			}
 		}
 		return array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
@@ -158,18 +154,18 @@ class Options {
 		$opts = [];
 		if ( (bool)$this->getFeatureProperty( 'tracking_exclude' ) === false ) {
 
-			$aOptions = $this->getAllOptionsValues();
-			foreach ( $this->getOptionsKeys() as $sKey ) {
-				if ( !isset( $aOptions[ $sKey ] ) ) {
-					$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
+			$options = $this->getAllOptionsValues();
+			foreach ( $this->getOptionsKeys() as $key ) {
+				if ( !isset( $options[ $key ] ) ) {
+					$options[ $key ] = $this->getOptDefault( $key );
 				}
 			}
-			foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
-				if ( !empty( $aOptDef[ 'sensitive' ] ) || !empty( $aOptDef[ 'tracking_exclude' ] ) ) {
-					unset( $aOptions[ $aOptDef[ 'key' ] ] );
+			foreach ( $this->getRawData_AllOptions() as $optDef ) {
+				if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
+					unset( $options[ $optDef[ 'key' ] ] );
 				}
 			}
-			$opts = array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+			$opts = array_diff_key( $options, array_flip( $this->getVirtualCommonOptions() ) );
 		}
 		return $opts;
 	}
@@ -501,21 +497,6 @@ class Options {
 		return $this->aOptionsKeys;
 	}
 
-	public function getPathToConfig() :string {
-		return $this->getCon()->paths->forModuleConfig( $this->getMod()->getSlug() );
-	}
-
-	protected function getConfigModTime() :int {
-		return Services::WpFs()->getModifiedTime( $this->getPathToConfig() );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOptionsStorageKey() {
-		return $this->sOptionsStorageKey;
-	}
-
 	/**
 	 * @param string $key
 	 * @param string $prop
@@ -527,7 +508,12 @@ class Options {
 
 	public function getRawData_FullFeatureConfig() :array {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
-			$this->aRawOptionsConfigData = $this->readConfiguration();
+			try {
+				$this->aRawOptionsConfigData = $this->getConfigLoader()->run( $this->getRebuildFromFile() );
+			}
+			catch ( \Exception $e ) {
+				$this->aRawOptionsConfigData = [];
+			}
 		}
 		return $this->aRawOptionsConfigData;
 	}
@@ -542,13 +528,6 @@ class Options {
 
 	protected function getRawData_Requirements() :array {
 		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getRawData_SingleOption( string $key ) :array {
-		return $this->getOptDefinition( $key );
 	}
 
 	public function getRebuildFromFile() :bool {
@@ -834,12 +813,7 @@ class Options {
 		if ( $reload || empty( $this->aOptionsValues ) ) {
 
 			if ( $this->getIfLoadOptionsFromStorage() ) {
-
-				$key = $this->getOptionsStorageKey();
-				if ( empty( $key ) ) {
-					throw new \Exception( 'Options Storage Key Is Empty' );
-				}
-				$this->aOptionsValues = Services::WpGeneral()->getOption( $key, [] );
+				$this->aOptionsValues = Services::WpGeneral()->getOption( $this->getMod()->getOptionsStorageKey(), [] );
 			}
 		}
 
@@ -850,74 +824,25 @@ class Options {
 		return $this->aOptionsValues;
 	}
 
-	private function readConfiguration() :array {
-		$cfg = Transient::Get( $this->getConfigStorageKey() );
-
-		$rebuild = $this->getRebuildFromFile() || empty( $cfg ) || !is_array( $cfg );
-		if ( !$rebuild ) {
-			if ( !isset( $cfg[ 'meta_modts' ] ) ) {
-				$cfg[ 'meta_modts' ] = 0;
-			}
-			$rebuild = $this->getConfigModTime() > $cfg[ 'meta_modts' ];
+	private function getConfigLoader() :Config\LoadConfig {
+		if ( empty( $this->cfgLoader ) ) {
+			$this->cfgLoader = ( new Config\LoadConfig() )->setMod( $this->getMod() );
 		}
-
-		if ( $rebuild ) {
-			try {
-				$cfg = $this->readConfigurationJson();
-				$keyedOptions = [];
-				foreach ( $cfg[ 'options' ] as $option ) {
-					if ( !empty( $option[ 'key' ] ) ) {
-						$keyedOptions[ $option[ 'key' ] ] = $option;
-					}
-				}
-				$cfg[ 'options' ] = $keyedOptions;
-			}
-			catch ( \Exception $e ) {
-				if ( Services::WpGeneral()->isDebug() ) {
-					trigger_error( $e->getMessage() );
-				}
-				$cfg = [];
-			}
-			$cfg[ 'meta_modts' ] = $this->getConfigModTime();
-			Transient::Set( $this->getConfigStorageKey(), $cfg );
-		}
-
-		$this->setRebuildFromFile( $rebuild );
-		return $cfg;
+		return $this->cfgLoader;
 	}
 
 	/**
 	 * @return array
-	 * @throws \Exception
+	 * @deprecated 12.0
 	 */
-	private function readConfigurationJson() :array {
-		$cfg = json_decode( $this->readConfigurationFileContents(), true );
-		if ( empty( $cfg ) || !is_array( $cfg ) ) {
-			throw new \Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getSlug() ) );
+	private function readConfiguration() :array {
+		try {
+			$cfg = $this->getConfigLoader()->run( $this->getRebuildFromFile() );
+		}
+		catch ( \Exception $e ) {
+			$cfg = [];
 		}
 		return $cfg;
-	}
-
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	private function readConfigurationFileContents() {
-		if ( !$this->getConfigFileExists() ) {
-			throw new \Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getPathToConfig() ) );
-		}
-		return Services::Data()->readFileWithInclude( $this->getPathToConfig() );
-	}
-
-	public function getConfigStorageKey() :string {
-		return 'shield_mod_config_'.md5(
-				str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $this->getPathToConfig() ) )
-			);
-	}
-
-	private function getConfigFileExists() :bool {
-		$sPath = $this->getPathToConfig();
-		return !empty( $sPath ) && Services::WpFs()->isFile( $sPath );
 	}
 
 	/**
@@ -949,5 +874,65 @@ class Options {
 		catch ( \Exception $e ) {
 			return [];
 		}
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getConfigStorageKey() :string {
+		return '';
+	}
+
+	/**
+	 * @return string
+	 * @throws \Exception
+	 * @deprecated 12.0
+	 */
+	private function readConfigurationFileContents() {
+		return '';
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	private function getConfigFileExists() :bool {
+		return true;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function getConfigModTime() :int {
+		return 0;
+	}
+
+	/**
+	 * @return array
+	 * @throws \Exception
+	 * @deprecated 12.0
+	 */
+	private function readConfigurationJson() :array {
+		throw new \Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getSlug() ) );
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getPathToConfig() :string {
+		return '';
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getRawData_SingleOption( string $key ) :array {
+		return $this->getOptDefinition( $key );
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getOptionsStorageKey() :string {
+		return $this->getMod()->getOptionsStorageKey();
 	}
 }

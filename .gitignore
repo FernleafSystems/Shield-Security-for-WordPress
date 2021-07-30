@@ -1,4 +1,5 @@
 .idea/
+/config/deprecated/
 /vendor/
 /src/lib/vendor/
 composer.lock

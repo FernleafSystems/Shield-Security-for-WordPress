@@ -14,7 +14,7 @@
     "skip_processor":        true,
     "tracking_exclude":      true
   },
-  "wpcli": {
+  "wpcli":      {
     "enabled": false
   },
   "sections":   [
