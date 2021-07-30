@@ -220,7 +220,7 @@ abstract class BaseProvider {
 		return [];
 	}
 
-	abstract protected function auditLogin( \WP_User $user, bool $bIsSuccess );
+	abstract protected function auditLogin( \WP_User $user, bool $success );
 
 	/**
 	 * @param \WP_User $user

@@ -220,7 +220,7 @@ class Import {
 				$oTheseOpts = $mod->getOptions();
 				$oTheseOpts->setMultipleOptions(
 					array_diff_key(
-						$data[ $mod->getOptionsStorageKey() ],
+						$data[ $mod->getOptionsStorageKey() ] ?? [],
 						array_flip( $oTheseOpts->getXferExcluded() )
 					)
 				);

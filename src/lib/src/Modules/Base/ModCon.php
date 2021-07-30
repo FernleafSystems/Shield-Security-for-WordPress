@@ -742,7 +742,7 @@ abstract class ModCon {
 	 * @return array
 	 */
 	public function getNonceActionData( $action = '' ) {
-		$data = $this->getCon()->getNonceActionData( $action );
+		$data = $this->getCon()->getNonceActionData( (string)$action );
 		$data[ 'mod_slug' ] = $this->getModSlug();
 		return $data;
 	}

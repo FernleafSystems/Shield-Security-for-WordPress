@@ -26,11 +26,11 @@ class Email extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $bIsSuccess
+	 * @param bool     $success
 	 */
-	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $success ) {
 		$this->getCon()->fireEvent(
-			$bIsSuccess ? 'email_verified' : 'email_fail',
+			$success ? 'email_verified' : 'email_fail',
 			[
 				'audit' => [
 					'user_login' => $user->user_login,

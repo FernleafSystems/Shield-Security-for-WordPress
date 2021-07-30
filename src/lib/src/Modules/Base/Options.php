@@ -690,62 +690,56 @@ class Options {
 		return $this;
 	}
 
-	/**
-	 * @param array $aOptions
-	 */
-	public function setMultipleOptions( $aOptions ) {
-		if ( is_array( $aOptions ) ) {
-			foreach ( $aOptions as $sKey => $mValue ) {
-				$this->setOpt( $sKey, $mValue );
-			}
+	public function setMultipleOptions( array $options ) {
+		foreach ( $options as $key => $value ) {
+			$this->setOpt( $key, $value );
 		}
 	}
 
 	/**
-	 * @param string $sOptKey
-	 * @param mixed  $mNewValue
+	 * @param string $key
+	 * @param mixed  $newValue
 	 * @return $this
 	 */
-	public function setOpt( $sOptKey, $mNewValue ) :self {
+	public function setOpt( $key, $newValue ) :self {
 
-		// NOTE: can't use getOpt() for current as it'll create infinite loop
-		$aOptVals = $this->getAllOptionsValues();
-		$mCurrent = isset( $aOptVals[ $sOptKey ] ) ? $aOptVals[ $sOptKey ] : null;
+		// NOTE: can't use getOpt() for current value as it'll create infinite loop
+		$mCurrent = $this->getAllOptionsValues()[ $key ] ?? null;
 
 		try {
-			$mNewValue = ( new OptValueSanitize() )
+			$newValue = ( new OptValueSanitize() )
 				->setMod( $this->getMod() )
-				->run( $sOptKey, $mNewValue );
-			$bVerified = true;
+				->run( $key, $newValue );
+			$verified = true;
 		}
 		catch ( \Exception $e ) {
-			$bVerified = false;
+			$verified = false;
 		}
 
-		if ( $bVerified ) {
+		if ( $verified ) {
 			// Here we try to ensure that values that are repeatedly changed properly reflect their changed
 			// states, as they may be reverted back to their original state and we "think" it's been changed.
-			$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $mNewValue );
+			$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $newValue );
 			// basically if we're actually resetting back to the original value
-			$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $sOptKey )
-							&& ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
+			$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $key )
+							&& ( serialize( $this->getOldValue( $key ) ) === serialize( $newValue ) );
 
-			if ( $bValueIsDifferent && $this->verifyCanSet( $sOptKey, $mNewValue ) ) {
+			if ( $bValueIsDifferent && $this->verifyCanSet( $key, $newValue ) ) {
 				$this->setNeedSave( true );
 
 				//Load the config and do some pre-set verification where possible. This will slowly grow.
-				$aOption = $this->getRawData_SingleOption( $sOptKey );
+				$aOption = $this->getRawData_SingleOption( $key );
 				if ( !empty( $aOption[ 'type' ] ) ) {
-					if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mNewValue ) ) {
-						return $this->resetOptToDefault( $sOptKey );
+					if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $newValue ) ) {
+						return $this->resetOptToDefault( $key );
 					}
 				}
-				$this->setOldOptValue( $sOptKey, $mCurrent )
-					 ->setOptValue( $sOptKey, $mNewValue );
+				$this->setOldOptValue( $key, $mCurrent )
+					 ->setOptValue( $key, $newValue );
 			}
 
 			if ( $bIsResetting ) {
-				unset( $this->aOld[ $sOptKey ] );
+				unset( $this->aOld[ $key ] );
 			}
 		}
 

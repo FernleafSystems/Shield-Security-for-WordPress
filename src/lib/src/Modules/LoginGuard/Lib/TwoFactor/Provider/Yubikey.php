@@ -218,11 +218,11 @@ class Yubikey extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $bIsSuccess
+	 * @param bool     $success
 	 */
-	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $success ) {
 		$this->getCon()->fireEvent(
-			$bIsSuccess ? 'yubikey_verified' : 'yubikey_fail',
+			$success ? 'yubikey_verified' : 'yubikey_fail',
 			[
 				'audit' => [
 					'user_login' => $user->user_login,

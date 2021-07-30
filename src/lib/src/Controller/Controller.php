@@ -81,21 +81,9 @@ class Controller extends DynPropertiesClass {
 	 */
 	private $oEventsService;
 
-	/**
-	 * @param string $event
-	 * @param array  $meta
-	 * @return $this
-	 */
-	public function fireEvent( string $event, $meta = [] ) :self {
+	public function fireEvent( string $event, array $meta = [] ) :self {
 		$this->loadEventsService()->fireEvent( $event, is_array( $meta ) ? $meta : [] );
 		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAllEvents() {
-		return $this->loadEventsService()->getEvents();
 	}
 
 	/**
@@ -248,36 +236,33 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function adminNoticeDoesNotMeetRequirements() {
-		$aMessages = $this->getRequirementsMessages();
-		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
-			$aDisplayData = [
-				'strings' => [
-					'requirements'     => $aMessages,
-					'summary_title'    => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
-					'more_information' => 'Click here for more information on requirements'
-				],
-				'hrefs'   => [
-					'more_information' => sprintf( 'https://wordpress.org/plugins/%s/faq', $this->getTextDomain() )
-				]
-			];
-
+		$msg = $this->getRequirementsMessages();
+		if ( !empty( $msg ) && is_array( $msg ) ) {
 			$this->getRenderer()
 				 ->setTemplate( 'notices/does-not-meet-requirements' )
-				 ->setRenderVars( $aDisplayData )
+				 ->setRenderVars( [
+					 'strings' => [
+						 'requirements'     => $msg,
+						 'summary_title'    => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
+						 'more_information' => 'Click here for more information on requirements'
+					 ],
+					 'hrefs'   => [
+						 'more_information' => sprintf( 'https://wordpress.org/plugins/%s/faq', $this->getTextDomain() )
+					 ]
+				 ] )
 				 ->display();
 		}
 	}
 
 	public function adminNoticePluginFailedToLoad() {
-		$aDisplayData = [
-			'strings' => [
-				'summary_title'    => 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.',
-				'more_information' => $this->sAdminNoticeError
-			]
-		];
 		$this->getRenderer()
 			 ->setTemplate( 'notices/plugin-failed-to-load' )
-			 ->setRenderVars( $aDisplayData )
+			 ->setRenderVars( [
+				 'strings' => [
+					 'summary_title'    => 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.',
+					 'more_information' => $this->sAdminNoticeError
+				 ]
+			 ] )
 			 ->display();
 	}
 
@@ -361,11 +346,11 @@ class Controller extends DynPropertiesClass {
 		/**
 		 * Support for WP-CLI and it marks the cli as complete plugin admin
 		 */
-		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $bByPass ) {
+		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $byPass ) {
 			if ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() ) {
-				$bByPass = true;
+				$byPass = true;
 			}
-			return $bByPass;
+			return $byPass;
 		}, PHP_INT_MAX );
 	}
 
@@ -495,15 +480,13 @@ class Controller extends DynPropertiesClass {
 
 	protected function initCrons() {
 		$this->cron_hourly = ( new Shield\Crons\HourlyCron() )->setCon( $this );
-		$this->cron_hourly->run();
+		$this->cron_hourly->execute();
 		$this->cron_daily = ( new Shield\Crons\DailyCron() )->setCon( $this );
-		$this->cron_daily->run();
+		$this->cron_daily->execute();
 
-		if ( Services::WpGeneral()->isCron() ) {
-			( new Shield\Utilities\Htaccess\RootHtaccess() )
-				->setCon( $this )
-				->execute();
-		}
+		( new Shield\Utilities\Htaccess\RootHtaccess() )
+			->setCon( $this )
+			->execute();
 	}
 
 	/**
@@ -520,11 +503,10 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	public function getNonceActionData( $action = '' ) {
+	public function getNonceActionData( string $action = '' ) :array {
+		if ( empty( $action ) ) {
+			throw new \Exception( 'Empty actions are not allowed.' );
+		}
 		return [
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $action,

@@ -311,11 +311,11 @@ class U2F extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $bIsSuccess
+	 * @param bool     $success
 	 */
-	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
+	protected function auditLogin( \WP_User $user, bool $success ) {
 		$this->getCon()->fireEvent(
-			$bIsSuccess ? '2fa_u2f_verified' : '2fa_u2f_fail',
+			$success ? '2fa_u2f_verified' : '2fa_u2f_fail',
 			[
 				'audit' => [
 					'user_login' => $user->user_login,
