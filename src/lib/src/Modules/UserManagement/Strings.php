@@ -33,18 +33,18 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_user_accounts_management' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
 			case 'section_passwords' :
-				$sTitle = __( 'Password Policies', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Password Policies', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Password Policies', 'wp-simple-firewall' );
+				$titleShort = __( 'Password Policies', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Have full control over passwords used by users on the site.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Requirements', 'wp-simple-firewall' ), sprintf( 'WordPress v%s+', '4.4.0' ) ),
@@ -52,36 +52,36 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_admin_login_notification' :
-				$sTitle = __( 'Admin Login Notification', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Admin Login Notification', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Notifications', 'wp-simple-firewall' );
+				$titleShort = __( 'Notifications', 'wp-simple-firewall' );
 				break;
 
 			case 'section_multifactor_authentication' :
-				$sTitle = __( 'Multi-Factor User Authentication', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Multi-Factor User Authentication', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '.__( 'However, if your host blocks email sending you may lock yourself out.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Multi-Factor Authentication', 'wp-simple-firewall' );
+				$titleShort = __( 'Multi-Factor Authentication', 'wp-simple-firewall' );
 				break;
 
 			case 'section_user_session_management' :
-				$sTitle = __( 'User Session Management', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'User Session Management', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Session Options', 'wp-simple-firewall' );
+				$titleShort = __( 'Session Options', 'wp-simple-firewall' );
 				break;
 
 			case 'section_suspend' :
-				$sTitleShort = __( 'User Suspension', 'wp-simple-firewall' );
-				$sTitle = __( 'Automatic And Manual User Suspension', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'User Suspension', 'wp-simple-firewall' );
+				$title = __( 'Automatic And Manual User Suspension', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatically suspends accounts to prevent login by certain users.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
@@ -92,9 +92,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => $summary,
 		];
 	}
 

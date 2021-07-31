@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -32,7 +33,7 @@ class UI extends BaseShield\UI {
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $selector */
+		/** @var Scanner\Select $selector */
 		$selector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 		$data = [
 			'ajax'         => [
@@ -271,7 +272,7 @@ class UI extends BaseShield\UI {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
+		/** @var Scanner\Select $oSelector */
 		$oSelector = $mod->getDbHandler_ScanResults()->getQuerySelector();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */

@@ -1222,9 +1222,9 @@ abstract class ModCon {
 			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$oRndr = $this->getCon()->getRenderer();
+			$rndr = $this->getCon()->getRenderer();
 			if ( $isTwig || preg_match( '#^.*\.twig$#i', $template ) ) {
-				$oRndr->setTemplateEngineTwig();
+				$rndr->setTemplateEngineTwig();
 			}
 
 			$data[ 'strings' ] = Services::DataManipulation()
@@ -1233,9 +1233,9 @@ abstract class ModCon {
 											 $data[ 'strings' ] ?? []
 										 );
 
-			$render = $oRndr->setTemplate( $template )
-							->setRenderVars( $data )
-							->render();
+			$render = $rndr->setTemplate( $template )
+						   ->setRenderVars( $data )
+						   ->render();
 		}
 		catch ( \Exception $e ) {
 			$render = $e->getMessage();
@@ -1243,18 +1243,6 @@ abstract class ModCon {
 		}
 
 		return (string)$render;
-	}
-
-	/**
-	 * @param array $aTransferableOptions
-	 * @return array
-	 */
-	public function exportTransferableOptions( $aTransferableOptions ) {
-		if ( !is_array( $aTransferableOptions ) ) {
-			$aTransferableOptions = [];
-		}
-		$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptions()->getTransferableOptions();
-		return $aTransferableOptions;
 	}
 
 	public function getMainWpData() :array {

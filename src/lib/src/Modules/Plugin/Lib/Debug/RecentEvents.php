@@ -41,20 +41,20 @@ class RecentEvents {
 
 		/** @var Strings $oStrs */
 		$oStrs = $con->getModule_Insights()->getStrings();
-		$aNames = $oStrs->getInsightStatNames();
+		$names = $oStrs->getInsightStatNames();
 
 		/** @var Events\Select $oSel */
 		$oSel = $con->getModule_Events()
 					->getDbHandler_Events()
 					->getQuerySelector();
 
-		$aRecentStats = array_intersect_key(
+		$recent = array_intersect_key(
 			array_map(
-				function ( $oEntryVO ) use ( $aNames ) {
-					/** @var Events\EntryVO $oEntryVO */
+				function ( $entry ) use ( $names ) {
+					/** @var Events\EntryVO $entry */
 					return [
-						'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
-						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
+						'name' => $names[ $entry->event ] ?? '*** '.$entry->event,
+						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $entry->created_at )
 					];
 				},
 				$oSel->getLatestForAllEvents()
@@ -63,15 +63,15 @@ class RecentEvents {
 		);
 
 		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
-			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
-				$aRecentStats[ $sStatKey ] = [
-					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
+		foreach ( array_keys( $aTheStats ) as $statKey ) {
+			if ( !isset( $recent[ $statKey ] ) ) {
+				$recent[ $statKey ] = [
+					'name' => $names[ $statKey ] ?? '*** '.$statKey,
 					'val'  => $sNotYetRecorded
 				];
 			}
 		}
 
-		return $aRecentStats;
+		return $recent;
 	}
 }

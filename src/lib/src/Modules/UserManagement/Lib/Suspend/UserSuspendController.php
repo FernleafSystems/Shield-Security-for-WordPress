@@ -57,7 +57,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 
 		// User profile UI
-		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
+		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
 		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
 
 		// Display suspended on the user list table
@@ -150,11 +150,11 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {
 		$con = $this->getCon();
-		$oWpUsers = Services::WpUsers();
+		$WPU = Services::WpUsers();
 
-		$oEditedUser = $oWpUsers->getUserById( $uid );
+		$oEditedUser = $WPU->getUserById( $uid );
 
-		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $con->isPluginAdmin() ) {
+		if ( !$WPU->isUserAdmin( $oEditedUser ) || $con->isPluginAdmin() ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();

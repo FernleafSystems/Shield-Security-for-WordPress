@@ -2,11 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
 class BadgeWidget extends \WP_Widget {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+	use ModConsumer;
 
 	/**
 	 * BadgeWidget constructor.
@@ -46,12 +47,12 @@ class BadgeWidget extends \WP_Widget {
 	}
 
 	/**
-	 * @param array $aNewInstance
-	 * @param array $aOldInstance
+	 * @param array $new_instance
+	 * @param array $old_instance
 	 * @return array
 	 */
-	public function update( $aNewInstance, $aOldInstance ) {
-		return parent::update( $aNewInstance, $aOldInstance );
+	public function update( $new_instance, $old_instance ) {
+		return parent::update( $new_instance, $old_instance );
 //			$aInstance = array(
 //				'title' => empty( $aNewInstance['title'] ) ? '' : strip_tags( $aNewInstance['title'] )
 //			);

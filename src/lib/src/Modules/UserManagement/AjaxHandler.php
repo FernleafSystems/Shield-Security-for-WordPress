@@ -66,7 +66,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$success = false;
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( !in_array( $req->post( 'bulk_action' ), [ 'delete' ] ) ) {
+		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {

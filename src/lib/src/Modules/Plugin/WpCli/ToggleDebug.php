@@ -32,6 +32,11 @@ class ToggleDebug extends BaseWpCliCmd {
 		] ) );
 	}
 
+	/**
+	 * @param $null
+	 * @param array $args
+	 * @throws WP_CLI\ExitException
+	 */
 	public function cmdDebugMode( $null, $args ) {
 		$debugMode = ( new DebugMode() )->setCon( $this->getCon() );
 

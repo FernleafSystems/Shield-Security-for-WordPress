@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
+use ZxcvbnPhp\Zxcvbn;
 
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
@@ -29,7 +30,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 			if ( $user instanceof \WP_User ) {
 				$this->onPasswordReset( $user );
 			}
-		}, 100, 1 );
+		}, 100 );
 		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
@@ -203,15 +204,15 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	private function testPasswordMeetsMinimumStrength( string $password, int $min ) {
-		$aResults = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( $password );
+		$score = ( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
-		$nScore = $aResults[ 'score' ];
-
-		if ( $nScore < $min ) {
+		if ( $score < $min ) {
 			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-				$mod->getPassStrengthName( $nScore ), $mod->getPassStrengthName( $min ) ) );
+				$mod->getPassStrengthName( $score ),
+				$mod->getPassStrengthName( $min )
+			) );
 		}
 		return true;
 	}

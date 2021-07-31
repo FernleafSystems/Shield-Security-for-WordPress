@@ -82,20 +82,19 @@ class Export {
 			}
 		}
 
-		$aResponse = [
+		echo json_encode( [
 			'success' => $bSuccess,
 			'code'    => $nCode,
 			'message' => $sMessage,
 			'data'    => $aData,
-		];
-		echo json_encode( $aResponse );
+		] );
 		die();
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function toStandardArray() {
+	public function toStandardArray() :array{
 		$sExport = json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
@@ -115,26 +114,23 @@ class Export {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getExportData() {
-		$aAll = [];
+	private function getExportData() :array{
+		$all = [];
 		foreach ( $this->getCon()->modules as $mod ) {
 			$oOpts = $mod->getOptions();
-			$aAll[ $mod->getOptionsStorageKey() ] = array_diff_key(
+			$all[ $mod->getOptionsStorageKey() ] = array_diff_key(
 				$oOpts->getTransferableOptions(),
 				array_flip( $oOpts->getXferExcluded() )
 			);
 		}
-		return $aAll;
+		return $all;
 	}
 
 	/**
 	 * @param string $url
 	 * @return bool
 	 */
-	private function isUrlOnWhitelist( $url ) {
+	private function isUrlOnWhitelist( $url ) :bool{
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $url ) && in_array( $url, $opts->getImportExportWhitelist() );
@@ -144,7 +140,7 @@ class Export {
 	 * @param string $url
 	 * @return bool
 	 */
-	private function verifyUrlWithHandshake( $url ) {
+	private function verifyUrlWithHandshake( $url ):bool {
 		$bVerified = false;
 
 		if ( !empty( $url ) ) {

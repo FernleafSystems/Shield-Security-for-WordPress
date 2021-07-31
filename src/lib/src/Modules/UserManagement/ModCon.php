@@ -70,14 +70,13 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int
 	 */
 	public function getPassStrengthName( $nStrength ) {
-		$aMap = [
-			__( 'Very Weak', 'wp-simple-firewall' ),
-			__( 'Weak', 'wp-simple-firewall' ),
-			__( 'Medium', 'wp-simple-firewall' ),
-			__( 'Strong', 'wp-simple-firewall' ),
-			__( 'Very Strong', 'wp-simple-firewall' ),
-		];
-		return $aMap[ max( 0, min( 4, $nStrength ) ) ];
+		return [
+				   __( 'Very Weak', 'wp-simple-firewall' ),
+				   __( 'Weak', 'wp-simple-firewall' ),
+				   __( 'Medium', 'wp-simple-firewall' ),
+				   __( 'Strong', 'wp-simple-firewall' ),
+				   __( 'Very Strong', 'wp-simple-firewall' ),
+			   ][ max( 0, min( 4, $nStrength ) ) ];
 	}
 
 	/**

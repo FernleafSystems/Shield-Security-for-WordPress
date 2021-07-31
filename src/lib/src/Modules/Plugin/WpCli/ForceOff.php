@@ -32,11 +32,16 @@ class ForceOff extends BaseWpCliCmd {
 		] ) );
 	}
 
-	public function cmdForceOff( $null, $aA ) {
+	/**
+	 * @param $null
+	 * @param $args
+	 * @throws WP_CLI\ExitException
+	 */
+	public function cmdForceOff( $null, $args ) {
 		$FS = Services::WpFs();
 		$path = path_join( $this->getCon()->getRootDir(), 'forceoff' );
 
-		switch ( $aA[ 'action' ] ) {
+		switch ( $args[ 'action' ] ) {
 			case 'query':
 				if ( $FS->exists( $path ) ) {
 					WP_CLI::log( '`forceoff` file is present.' );

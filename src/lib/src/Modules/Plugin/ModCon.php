@@ -475,7 +475,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @param string $sId
 	 * @return bool
 	 */
-	protected function isValidInstallId( $sId ) {
+	protected function isValidInstallId( $sId ):bool {
 		return !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40;
 	}
 
