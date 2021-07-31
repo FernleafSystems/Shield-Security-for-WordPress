@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynProperties;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 
 /**
  * Class ScanActionVO
@@ -39,16 +38,6 @@ abstract class BaseScanActionVO {
 	public function getNewResultsSet() {
 		$class = $this->getScanNamespace().'ResultsSet';
 		return new $class();
-	}
-
-	/**
-	 * @return BaseEntryFormatter|mixed
-	 */
-	public function getTableEntryFormatter() {
-		$class = $this->getScanNamespace().'Table\\EntryFormatter';
-		/** @var BaseEntryFormatter $formatter */
-		$formatter = new $class();
-		return $formatter->setScanActionVO( $this );
 	}
 
 	public function getScanNamespace() :string {

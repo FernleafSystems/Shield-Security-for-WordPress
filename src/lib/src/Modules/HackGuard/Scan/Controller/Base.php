@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends ExecOnceModConsumer {
@@ -116,24 +115,6 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->getItemActionHandler()
 					->setScanItem( $item )
 					->process( $action );
-	}
-
-	public function executeItemAction( int $recordID, string $action ) :bool {
-		$success = false;
-
-		if ( is_numeric( $recordID ) ) {
-			/** @var Databases\Scanner\EntryVO $entry */
-			$entry = $this->getScanResultsDbHandler()
-						  ->getQuerySelector()
-						  ->byId( $recordID );
-			if ( empty( $entry ) ) {
-				throw new \Exception( 'Item could not be found.' );
-			}
-
-			$success = $this->executeEntryAction( $entry, $action );
-		}
-
-		return $success;
 	}
 
 	/**
@@ -308,18 +289,6 @@ abstract class Base extends ExecOnceModConsumer {
 	public function getNewResultsSet() {
 		$class = $this->getScanNamespace().'ResultsSet';
 		return new $class();
-	}
-
-	/**
-	 * @return BaseEntryFormatter|mixed
-	 */
-	public function getTableEntryFormatter() {
-		$class = $this->getScanNamespace().'Table\\EntryFormatter';
-		/** @var BaseEntryFormatter $formatter */
-		$formatter = new $class();
-		return $formatter->setScanController( $this )
-						 ->setMod( $this->getMod() )
-						 ->setScanActionVO( $this->getScanActionVO() );
 	}
 
 	public function getScanNamespace() :string {

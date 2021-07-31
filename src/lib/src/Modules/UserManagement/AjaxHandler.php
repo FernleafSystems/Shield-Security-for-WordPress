@@ -103,25 +103,25 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$bSuccess = false;
+		$success = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = __( 'Invalid session selected', 'wp-simple-firewall' );
+			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
 		elseif ( $mod->getSession()->id === $nId ) {
-			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
+			$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
 		elseif ( $con->getModule_Sessions()->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
-			$bSuccess = true;
+			$msg = __( 'User session deleted', 'wp-simple-firewall' );
+			$success = true;
 		}
 		else {
-			$sMessage = __( "User session wasn't deleted", 'wp-simple-firewall' );
+			$msg = __( "User session wasn't deleted", 'wp-simple-firewall' );
 		}
 
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success' => $success,
+			'message' => $msg,
 		];
 	}
 }
