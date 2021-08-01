@@ -344,13 +344,9 @@ class Options {
 		return $optionsData;
 	}
 
-	/**
-	 * @param string $slug
-	 * @return array[]
-	 */
-	protected function getOptionsForSection( $slug ) :array {
+	protected function getOptionsForSection( string $slug ) :array {
 
-		$aAllOptions = [];
+		$allOptions = [];
 		foreach ( $this->getRawData_AllOptions() as $optDef ) {
 
 			if ( ( $optDef[ 'section' ] != $slug ) || ( isset( $optDef[ 'hidden' ] ) && $optDef[ 'hidden' ] ) ) {
@@ -366,23 +362,25 @@ class Options {
 					'link_info'     => '',
 					'link_blog'     => '',
 					'help_video_id' => '',
-					'value_options' => []
+					'value_options' => [],
+					'premium'       => false,
+					'advanced'      => false
 				],
 				$optDef
 			);
 			$optDef[ 'value' ] = $this->getOpt( $optDef[ 'key' ] );
 
 			if ( in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
-				$aNewValueOptions = [];
-				foreach ( $optDef[ 'value_options' ] as $aValueOptions ) {
-					$aNewValueOptions[ $aValueOptions[ 'value_key' ] ] = __( $aValueOptions[ 'text' ], 'wp-simple-firewall' );
+				$convertedOptions = [];
+				foreach ( $optDef[ 'value_options' ] as $selectValues ) {
+					$convertedOptions[ $selectValues[ 'value_key' ] ] = __( $selectValues[ 'text' ], 'wp-simple-firewall' );
 				}
-				$optDef[ 'value_options' ] = $aNewValueOptions;
+				$optDef[ 'value_options' ] = $convertedOptions;
 			}
 
-			$aAllOptions[] = $optDef;
+			$allOptions[] = $optDef;
 		}
-		return $aAllOptions;
+		return $allOptions;
 	}
 
 	public function getAdditionalMenuItems() :array {

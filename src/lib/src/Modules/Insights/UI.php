@@ -134,10 +134,15 @@ class UI extends BaseShield\UI {
 				break;
 
 			case 'scans_results':
+				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
+				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
+				$data = $UIHackGuard->buildInsightsVars_Results();
+				break;
+
 			case 'scans_run':
 				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
 				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
-				$data = $UIHackGuard->buildInsightsVars();
+				$data = $UIHackGuard->buildInsightsVars_Run();
 				break;
 
 			case 'settings':

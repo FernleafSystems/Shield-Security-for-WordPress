@@ -66,15 +66,15 @@ class UI extends BaseShield\UI {
 	}
 
 	/**
-	 * @param array $aOptParams
+	 * @param array $option
 	 * @return array
 	 */
-	protected function buildOptionForUi( $aOptParams ) {
-		$aOptParams = parent::buildOptionForUi( $aOptParams );
-		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
+	protected function buildOptionForUi( $option ) {
+		$option = parent::buildOptionForUi( $option );
+		if ( $option[ 'key' ] === 'visitor_address_source' ) {
 			$newOptions = [];
 			$ipDetector = Services::IP()->getIpDetector();
-			foreach ( $aOptParams[ 'value_options' ] as $valKey => $source ) {
+			foreach ( $option[ 'value_options' ] as $valKey => $source ) {
 				if ( $valKey == 'AUTO_DETECT_IP' ) {
 					$newOptions[ $valKey ] = $source;
 				}
@@ -85,9 +85,9 @@ class UI extends BaseShield\UI {
 					}
 				}
 			}
-			$aOptParams[ 'value_options' ] = $newOptions;
+			$option[ 'value_options' ] = $newOptions;
 		}
-		return $aOptParams;
+		return $option;
 	}
 
 	protected function getSectionWarnings( string $section ) :array {
