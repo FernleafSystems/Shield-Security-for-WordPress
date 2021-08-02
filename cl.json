@@ -111,6 +111,12 @@
         "title":       "Add some limited details into the Audit Trail entries for scan results.",
         "description": [],
         "patch":       "11.5.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Plugin/Theme scanning could result in large quantities of unrecognised files.",
+        "description": [],
+        "patch":       "11.5.3"
       }
     ]
   },
