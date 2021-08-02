@@ -40,7 +40,7 @@ class BuildHashesFromDir {
 				/** @var \SplFileInfo $file */
 				$fullPath = $file->getPathname();
 				$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
-				$snaps[ $key ] = hash_file( $sAlgo, $fullPath, $binary );
+				$snaps[ strtolower( $key ) ] = hash_file( $sAlgo, $fullPath, $binary );
 			}
 		}
 		catch ( \Exception $e ) {
