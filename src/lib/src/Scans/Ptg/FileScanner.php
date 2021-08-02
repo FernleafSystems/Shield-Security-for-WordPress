@@ -65,13 +65,14 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		if ( empty( $assetHashes ) ) {
 			throw new \Exception( 'File hashes from store is empty' );
 		}
-		$pathFragment = str_replace( strtolower( $asset->getInstallDir() ), '', $fullPath );
-		if ( empty( $assetHashes[ $pathFragment ] ) ) {
+		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
+		$hash = $assetHashes[ $pathFragment ] ?? ( $assetHashes[ strtolower( $pathFragment ) ] ?? null );
+		if ( empty( $hash ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
 			$item->path_fragment = $pathFragment;
 			$item->is_unrecognised = true;
 		}
-		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $assetHashes[ $pathFragment ] ) ) {
+		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $hash ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
 			$item->path_fragment = $pathFragment;
 			$item->is_different = true;
