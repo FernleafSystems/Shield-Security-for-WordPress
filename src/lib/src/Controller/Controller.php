@@ -14,42 +14,33 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property bool                                                   $cache_dir_ready
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_debug
+ * @property bool                                                   $is_my_upgrade
  * @property bool                                                   $modules_loaded
- * @property bool                                                   $rebuild_options
- * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
- * @property bool                                                   $cache_dir_ready
+ * @property bool                                                   $rebuild_options
+ * @property bool                                                   $user_can_base_permissions
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
  * @property string                                                 $root_file
- * @property bool                                                   $is_my_upgrade
+ * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
- * @property bool                                                   $user_can_base_permissions
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
- * @property mixed[]|Shield\Modules\Base\ModCon[]                   $modules
+ * @property array|Shield\Modules\Base\ModCon[]                     $modules
  * @property Shield\Crons\HourlyCron                                $cron_hourly
  * @property Shield\Crons\DailyCron                                 $cron_daily
+ * @property string[]                                               $reqs_not_met
  */
 class Controller extends DynPropertiesClass {
-
-	/**
-	 * @var \stdClass
-	 */
-	private static $oControllerOptions;
 
 	/**
 	 * @var Controller
 	 */
 	public static $oInstance;
-
-	/**
-	 * @var array
-	 */
-	private $aRequirementsMessages;
 
 	/**
 	 * @var string
@@ -65,11 +56,6 @@ class Controller extends DynPropertiesClass {
 	 * @var string
 	 */
 	protected $sAdminNoticeError = '';
-
-	/**
-	 * @var Shield\Modules\BaseShield\ModCon[]
-	 */
-	protected $aModules;
 
 	/**
 	 * @var Shield\Utilities\AdminNotices\Controller
@@ -142,6 +128,18 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'cache_dir_ready':
+			case 'is_activating':
+			case 'is_my_upgrade':
+			case 'modules_loaded':
+			case 'plugin_deactivating':
+			case 'plugin_deleting':
+			case 'plugin_reset':
+			case 'rebuild_options':
+			case 'user_can_base_permissions':
+				$val = (bool)$val;
+				break;
+
 			case 'cfg':
 				if ( !$val instanceof Config\ConfigVO ) {
 					$val = $this->loadConfig();
@@ -184,6 +182,13 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'reqs_not_met':
+				if ( !is_array( $val ) ) {
+					$val = [];
+					$this->reqs_not_met = $val;
+				}
+				break;
+
 			default:
 				break;
 		}
@@ -199,50 +204,39 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param bool $bCheckOnlyFrontEnd
 	 * @throws \Exception
 	 */
-	private function checkMinimumRequirements( $bCheckOnlyFrontEnd = true ) {
-		if ( $bCheckOnlyFrontEnd && !is_admin() ) {
-			return;
-		}
+	private function checkMinimumRequirements() {
+		if ( is_admin() ) {
+			$reqsMsg = [];
 
-		$bMeetsRequirements = true;
-		$aRequirementsMessages = $this->getRequirementsMessages();
-
-		$php = $this->cfg->requirements[ 'php' ];
-		if ( !empty( $php ) ) {
-			if ( version_compare( Services::Data()->getPhpVersion(), $php, '<' ) ) {
-				$aRequirementsMessages[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $php );
-				$bMeetsRequirements = false;
+			$minPHP = $this->cfg->requirements[ 'php' ];
+			if ( !empty( $minPHP ) && version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
+				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $minPHP );
 			}
-		}
 
-		$wp = $this->cfg->requirements[ 'wordpress' ];
-		if ( !empty( $wp ) ) {
-			$sWpVersion = Services::WpGeneral()->getVersion( true );
-			if ( version_compare( $sWpVersion, $wp, '<' ) ) {
-				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $wp );
-				$bMeetsRequirements = false;
+			$wp = $this->cfg->requirements[ 'wordpress' ];
+			if ( !empty( $wp ) && version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
+				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
 			}
-		}
 
-		if ( !$bMeetsRequirements ) {
-			$this->aRequirementsMessages = $aRequirementsMessages;
-			add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
-			add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
-			throw new \Exception( 'Plugin does not meet minimum requirements' );
+			if ( !empty( $reqsMsg ) ) {
+				$this->reqs_not_met = $reqsMsg;
+				add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
+				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
+				throw new \Exception( 'Plugin does not meet minimum requirements' );
+			}
 		}
 	}
 
 	public function adminNoticeDoesNotMeetRequirements() {
-		$msg = $this->getRequirementsMessages();
-		if ( !empty( $msg ) && is_array( $msg ) ) {
+		if ( !empty( $this->reqs_not_met ) ) {
 			$this->getRenderer()
-				 ->setTemplate( 'notices/does-not-meet-requirements' )
+				 ->setTemplate( 'notices/does-not-meet-requirements.twig' )
 				 ->setRenderVars( [
 					 'strings' => [
-						 'requirements'     => $msg,
+						 'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
+						 'requirements'     => $this->reqs_not_met,
 						 'summary_title'    => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
 						 'more_information' => 'Click here for more information on requirements'
 					 ],
@@ -344,7 +338,7 @@ class Controller extends DynPropertiesClass {
 		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'onWpPrivacyRegisterEraser' ] );
 
 		/**
-		 * Support for WP-CLI and it marks the cli as complete plugin admin
+		 * Support for WP-CLI and it marks the cli as plugin admin
 		 */
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $byPass ) {
 			if ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() ) {
@@ -451,16 +445,6 @@ class Controller extends DynPropertiesClass {
 		return $ID;
 	}
 
-	/**
-	 * TODO: Use to set ID after license verify where applicable
-	 * @param string $ID
-	 */
-	public function setSiteInstallID( $ID ) {
-		if ( !empty( $ID ) && ( \Ramsey\Uuid\Uuid::isValid( $ID ) ) ) {
-			Services::WpGeneral()->updateOption( $this->prefixOption( 'install_id' ), $ID );
-		}
-	}
-
 	public function onWpLoaded() {
 		$this->getAdminNotices();
 		$this->initCrons();
@@ -503,6 +487,11 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
+	/**
+	 * @param string $action
+	 * @return array
+	 * @throws \Exception
+	 */
 	public function getNonceActionData( string $action = '' ) :array {
 		if ( empty( $action ) ) {
 			throw new \Exception( 'Empty actions are not allowed.' );
@@ -895,7 +884,7 @@ class Controller extends DynPropertiesClass {
 		if ( did_action( 'init' ) && !isset( $this->user_can_base_permissions ) ) {
 			$this->user_can_base_permissions = current_user_can( $this->getBasePermissions() );
 		}
-		return (bool)$this->user_can_base_permissions;
+		return $this->user_can_base_permissions;
 	}
 
 	public function getOptionStoragePrefix() :string {
@@ -915,23 +904,15 @@ class Controller extends DynPropertiesClass {
 		return empty( $labels[ 'Name' ] ) ? $this->getCfgProperty( 'human_name' ) : $labels[ 'Name' ];
 	}
 
-	public function isLoggingEnabled() :bool {
-		return (bool)$this->getCfgProperty( 'logging_enabled' );
-	}
-
 	public function getIsPage_PluginAdmin() :bool {
 		return strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
 
-	public function getIsPage_PluginMainDashboard() :bool {
-		return Services::WpGeneral()->getCurrentWpAdminPage() === $this->getPluginPrefix();
-	}
-
 	public function getIsResetPlugin() :bool {
 		if ( !isset( $this->plugin_reset ) ) {
-			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );
+			$this->plugin_reset = Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );
 		}
-		return (bool)$this->plugin_reset;
+		return $this->plugin_reset;
 	}
 
 	public function getIsWpmsNetworkAdminOnly() :bool {
@@ -958,23 +939,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
-	public function getPath_Assets( string $asset = '' ) :string {
-		$base = path_join( $this->getRootDir(), $this->cfg->paths[ 'assets' ] );
-		return empty( $asset ) ? $base : path_join( $base, ltrim( $asset, '/' ) );
-	}
-
-	public function getPath_AssetCss( string $asset = '' ) :string {
-		return $this->getPath_Assets( 'css/'.$asset );
-	}
-
-	public function getPath_AssetJs( string $asset = '' ) :string {
-		return $this->getPath_Assets( 'js/'.$asset );
-	}
-
-	public function getPath_AssetImage( string $asset = '' ) :string {
-		return $this->getPath_Assets( 'images/'.$asset );
-	}
-
 	/**
 	 * @deprecated 12.0
 	 */
@@ -986,48 +950,8 @@ class Controller extends DynPropertiesClass {
 		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
 	}
 
-	public function getPath_LibFile( string $libFile ) :string {
-		return $this->getPath_SourceFile( 'lib/'.$libFile );
-	}
-
-	public function getPath_Autoload() :string {
-		return $this->getPath_SourceFile( $this->getPluginSpec_Path( 'autoload' ) );
-	}
-
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function getPath_PluginCache() :string {
-		$cacheSlug = $this->getPluginSpec_Path( 'cache' );
-		if ( empty( $cacheSlug ) ) {
-			throw new \Exception( 'Cache dir slug was empty' );
-		}
-		return path_join( WP_CONTENT_DIR, $cacheSlug );
-	}
-
-	/**
-	 * @param string $sourceFile
-	 * @return string
-	 * @deprecated 10.3
-	 */
-	public function getPath_SourceFile( string $sourceFile ) :string {
-		if ( isset( $this->paths ) ) {
-			return $this->paths->forSource( $sourceFile );
-		}
-		$base = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) );
-		return empty( $sourceFile ) ? $base : path_join( $base, $sourceFile );
-	}
-
 	public function getPath_Templates() :string {
 		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
-	}
-
-	public function getPath_TemplatesFile( string $template ) :string {
-		if ( isset( $this->paths ) ) {
-			return $this->paths->forTemplate( $template );
-		}
-		return path_join( $this->getPath_Templates(), $template );
 	}
 
 	private function getPathPluginSpec( bool $asJSON = true ) :string {
@@ -1052,16 +976,8 @@ class Controller extends DynPropertiesClass {
 		return $this->root_file;
 	}
 
-	public function getReleaseTimestamp() :int {
-		return $this->getCfgProperty( 'release_timestamp' );
-	}
-
 	public function getTextDomain() :string {
 		return $this->getCfgProperty( 'text_domain' );
-	}
-
-	public function getBuild() :string {
-		return $this->getCfgProperty( 'build' );
 	}
 
 	public function getVersion() :string {
@@ -1081,13 +997,6 @@ class Controller extends DynPropertiesClass {
 	public function getShieldNonceAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_nonce_action', '' ) );
 		return empty( $action ) ? '' : $action;
-	}
-
-	/**
-	 * @return \stdClass
-	 */
-	public function getPluginControllerOptions() {
-		return self::$oControllerOptions;
 	}
 
 	protected function deleteCronJobs() {
@@ -1130,24 +1039,8 @@ class Controller extends DynPropertiesClass {
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
 
-	/**
-	 * This should always be used to modify or delete the options as it works within the Admin Access Permission system.
-	 * @param \stdClass|bool $oOptions
-	 * @return $this
-	 */
-	protected function setPluginControllerOptions( $oOptions ) {
-		self::$oControllerOptions = $oOptions;
-		return $this;
-	}
-
 	private function getConfigStoreKey() :string {
 		return 'aptoweb_controller_'.substr( md5( get_class() ), 0, 6 );
-	}
-
-	public function deactivateSelf() {
-		if ( $this->isPluginAdmin() && function_exists( 'deactivate_plugins' ) ) {
-			deactivate_plugins( [ $this->base_file ] );
-		}
 	}
 
 	public function clearSession() {
@@ -1381,7 +1274,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function loadFeatureHandler( array $modProps ) {
 		$modSlug = $modProps[ 'slug' ];
-		$mod = isset( $this->modules[ $modSlug ] ) ? $this->modules[ $modSlug ] : null;
+		$mod = $this->modules[ $modSlug ] ?? null;
 		if ( $mod instanceof Shield\Modules\Base\ModCon ) {
 			return $mod;
 		}
@@ -1429,7 +1322,7 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @param \WP_User $user
-	 * @return Shield\Users\ShieldUserMeta|mixed
+	 * @return Shield\Users\ShieldUserMeta|null
 	 */
 	public function getUserMeta( $user ) {
 		$meta = null;
