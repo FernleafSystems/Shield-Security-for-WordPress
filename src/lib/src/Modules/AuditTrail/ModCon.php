@@ -9,6 +9,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public function getDbH_Logs() :DB\Logs\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'at_logs' );
+	}
+
+	public function getDbH_Meta() :DB\Meta\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'at_meta' );
+	}
+
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
 		return $this->getDbH( 'audit_trail' );
 	}

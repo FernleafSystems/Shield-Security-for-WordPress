@@ -44,16 +44,6 @@
       ]
     },
     {
-      "slug":        "section_change_tracking",
-      "hidden":      true,
-      "title":       "Change Tracking",
-      "title_short": "Change Tracking",
-      "summary":     [
-        "Purpose - Track significant changes to your site.",
-        "Recommendation - Keep this Reporting feature turned on."
-      ]
-    },
-    {
       "slug":        "section_enable_plugin_feature_audit_trail",
       "title":       "Enable Module: Audit Trail",
       "title_short": "Disable Module",
@@ -108,65 +98,58 @@
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",
       "description": "Automatically remove any audit trail entries when this limit is exceeded."
-    },
-    {
-      "key":           "enable_change_tracking",
-      "section":       "section_change_tracking",
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "enabled",
-          "text":      "Enabled"
-        },
-        {
-          "value_key": "enabled_with_email",
-          "text":      "Enabled With Email Reports"
-        }
-      ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Enable Change Tracking",
-      "summary":       "Track Major Changes To Your Site",
-      "description":   "Tracking major changes to your site will help you monitor and catch malicious damage."
-    },
-    {
-      "key":         "ct_snapshots_per_week",
-      "section":     "section_change_tracking",
-      "type":        "integer",
-      "default":     7,
-      "min":         1,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Snapshot Per Week",
-      "summary":     "Number Of Snapshots To Take Per Week",
-      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
-    },
-    {
-      "key":         "ct_max_snapshots",
-      "section":     "section_change_tracking",
-      "type":        "integer",
-      "default":     28,
-      "min":         1,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Snapshot Per Week",
-      "summary":     "Number Of Snapshots To Take Per Week",
-      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
-    },
-    {
-      "key":          "ct_last_snapshot_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions":      {
+    "db_handler_classes":           {
+      "at_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
+      "at_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler"
+    },
+    "db_table_at_logs":             {
+      "slug":           "at_logs",
+      "has_updated_at": true,
+      "has_created_at": true,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "site_id":    {
+          "macro_type": "unsigned_int",
+          "default":    1,
+          "comment":    "Site ID"
+        },
+        "event_id":   {
+          "macro_type": "unsigned_int",
+          "default":    0,
+          "length":     6,
+          "comment":    "Event ID"
+        },
+        "event_slug": {
+          "macro_type": "varchar",
+          "default":    "''",
+          "comment":    "Event Slug"
+        }
+      }
+    },
+    "db_table_at_meta":             {
+      "slug":           "at_meta",
+      "has_updated_at": false,
+      "has_created_at": false,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "log_ref":    {
+          "macro_type": "unsigned_int",
+          "comment":    "Log ID"
+        },
+        "meta_key":   {
+          "macro_type": "varchar",
+          "length":     32,
+          "comment":    "Meta Key"
+        },
+        "meta_value": {
+          "macro_type": "text",
+          "comment":    "Meta Data"
+        }
+      }
+    },
     "db_classes":                   {
       "audit_trail": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },

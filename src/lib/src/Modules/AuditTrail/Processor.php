@@ -11,11 +11,26 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * @var Lib\AuditWriter
 	 */
+	private $auditLogger;
+
+	/**
+	 * @var Lib\AuditWriter
+	 */
 	private $auditWriter;
 
 	protected function run() {
 		$this->initAuditors();
 		$this->getSubProAuditor()->execute();
+	}
+
+	/**
+	 * @return Lib\AuditLogger
+	 */
+	private function loadAuditLogger() :Lib\AuditLogger {
+		if ( !isset( $this->auditLogger ) ) {
+			$this->auditLogger = new Lib\AuditLogger( $this->getCon() );
+		}
+		return $this->auditLogger;
 	}
 
 	/**
@@ -33,6 +48,7 @@ class Processor extends BaseShield\Processor {
 
 	private function initAuditors() {
 		$this->loadAuditorWriter()->setIfCommit( true );
+		$this->loadAuditLogger()->setIfCommit( true );
 		foreach ( $this->getAuditors() as $auditor ) {
 			$auditor->setMod( $this->getMod() )->execute();
 		}
