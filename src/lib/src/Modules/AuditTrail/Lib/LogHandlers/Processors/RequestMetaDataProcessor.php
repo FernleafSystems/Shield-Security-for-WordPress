@@ -35,6 +35,7 @@ class RequestMetaDataProcessor implements ProcessorInterface {
 		$record[ 'extra' ][ 'request_meta' ] = array_filter( [
 			'ip'         => ( $uid == 'wpcli' ) ? '' : (string)Services::IP()->getRequestIp(),
 			'rid'        => $this->getCon()->getShortRequestId(),
+			'ts'         => $req->mts(),
 			'uid'        => $uid,
 			'req_ua'     => ( $uid == 'wpcli' ) ? '' : $req->getUserAgent(),
 			'req_method' => ( $uid == 'wpcli' ) ? '' : $req->getMethod(),

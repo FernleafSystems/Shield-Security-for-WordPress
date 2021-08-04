@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LogFileHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Logger;
@@ -22,16 +23,30 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$this->logger = new Logger(
-			'shield',
-			[
-				( new LogFileHandler( $this->getCon()->getModule_AuditTrail() ) )->setFormatter( new JsonFormatter() ),
-				( new LocalDbWriter() )->setMod( $this->getCon()->getModule_AuditTrail() )
-			],
-			[
-				( new LogHandlers\Processors\RequestMetaDataProcessor() )->setCon( $this->getCon() )
-			]
-		);
+		$mod = $this->getCon()->getModule_AuditTrail();
+		/** @var Options $opts */
+		$opts = $mod->getOptions();
+
+		$handlers = [];
+		if ( $this->getCon()->hasCacheDir() && $opts->isLogToFile() ) {
+			try {
+				$fileHandler = new LogFileHandler( $mod );
+				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
+					$fileHandler->setFormatter( new JsonFormatter() );
+				}
+				$handlers[] = $fileHandler;
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		$handlers[] = ( new LocalDbWriter() )
+			->setMod( $mod )
+			->setLevel( $opts->getLogLevelDB() );
+
+		$this->logger = new Logger( 'shield', $handlers, [
+			( new LogHandlers\Processors\RequestMetaDataProcessor() )->setCon( $this->getCon() )
+		] );
 	}
 
 	/**
@@ -59,7 +74,7 @@ class AuditLogger extends EventsListener {
 	protected function onShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
 			foreach ( $this->auditLogs as $auditLog ) {
-				$this->logger->info(
+				$this->logger->emergency(
 					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit' ], $auditLog[ 'event_def' ][ 'context' ] ),
 					$auditLog
 				);

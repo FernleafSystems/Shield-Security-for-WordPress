@@ -6,6 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function getLogLevelDB() :string {
+		return $this->getOpt( 'log_level_db' );
+	}
+
+	public function getLogLevelFile() :string {
+		return $this->getOpt( 'log_level_file' );
+	}
+
 	public function getAutoCleanDays() :int {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
@@ -14,5 +22,9 @@ class Options extends BaseShield\Options {
 		return $this->isPremium() ?
 			(int)$this->getOpt( 'audit_trail_max_entries' ) :
 			(int)$this->getDef( 'audit_trail_free_max_entries' );
+	}
+
+	public function isLogToFile() :bool {
+		return $this->getLogLevelFile() !== 'disabled';
 	}
 }

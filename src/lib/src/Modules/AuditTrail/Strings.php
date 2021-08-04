@@ -132,13 +132,13 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_audit_trail_options' :
-				$sTitle = __( 'Audit Trail Options', 'wp-simple-firewall' );
+			case 'section_localdb' :
+				$sTitle = __( 'Log To DB', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the audit trail itself.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Audit Trail Options', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Log To DB', 'wp-simple-firewall' );
 				break;
 
 			case 'section_enable_audit_contexts' :
