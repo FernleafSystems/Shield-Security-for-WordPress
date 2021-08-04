@@ -186,7 +186,7 @@ class Strings extends Base\Strings {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$aMsgs = [
+		$msgs = [
 			'check_skip'                 => [
 				sprintf( __( 'Skipping firewall checking for this visit: %s.', 'wp-simple-firewall' ), __( 'Parsing the URI failed', 'wp-simple-firewall' ) )
 			],
@@ -222,7 +222,7 @@ class Strings extends Base\Strings {
 			],
 		];
 
-		foreach ( $aMsgs as $sKey => &$aMsg ) {
+		foreach ( $msgs as $sKey => &$aMsg ) {
 
 			if ( strpos( $sKey, 'blockparam_' ) === 0 ) {
 				$aMsg[] = __( 'Page parameter failed firewall check.', 'wp-simple-firewall' );
@@ -252,6 +252,6 @@ class Strings extends Base\Strings {
 			}
 		}
 
-		return $aMsgs;
+		return $msgs;
 	}
 }

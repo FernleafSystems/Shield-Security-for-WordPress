@@ -2,24 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO;
-
 class AuditMessageBuilder {
 
-	public static function Build( EntryVO $entry, array $msgStructure ) :string {
+	public static function Build( string $event, array $metaSubstitutions, string $content = 'audit_trail' ) :string {
+		$con = shield_security_get_plugin()->getController();
+		$module = $con->getModule( $content );
+		if ( empty( $module ) ) {
+			$module = $con->getModule_AuditTrail();
+		}
 
-		$substitutions = $entry->meta;
-		$rawString = implode( "\n", $msgStructure );
+		$rawString = implode( "\n", $module->getStrings()->getAuditMessage( $event ) );
 
 		// In-case we're working with an older audit message without as much data substitutions
-		$missingCount = substr_count( $rawString, '%s' ) - count( $substitutions );
+		$missingCount = substr_count( $rawString, '%s' ) - count( $metaSubstitutions );
 
 		if ( $missingCount > 0 ) {
-			$substitutions = array_merge(
-				$substitutions,
+			$metaSubstitutions = array_merge(
+				$metaSubstitutions,
 				array_fill( 0, $missingCount, '[data missing for older audit logs]' )
 			);
 		}
-		return stripslashes( sanitize_textarea_field( vsprintf( $rawString, $substitutions ) ) );
+		return stripslashes( sanitize_textarea_field( vsprintf( $rawString, $metaSubstitutions ) ) );
 	}
 }
