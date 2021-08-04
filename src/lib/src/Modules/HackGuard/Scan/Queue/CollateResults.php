@@ -16,32 +16,28 @@ class CollateResults {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param string $sScanSlug
-	 * @return Scans\Base\ResultsSet|mixed|null
+	 * @param string $scanSlug
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
-	public function collate( $sScanSlug ) {
+	public function collate( $scanSlug ) {
 		/** @var Databases\ScanQueue\Handler $dbh */
 		$dbh = $this->getDbHandler();
 		/** @var Databases\ScanQueue\Select $selector */
 		$selector = $dbh->getQuerySelector();
-		$selector->filterByScan( $sScanSlug )
+		$selector->filterByScan( $scanSlug )
 				 ->setResultsAsVo( true );
-		$scanCon = $this->getScanController();
 
-		$resultsSet = null;
+		$resultsSet = $this->getScanController()->getNewResultsSet();
+
 		/** @var Databases\ScanQueue\EntryVO $entry */
 		foreach ( $selector->query() as $entry ) {
 			$action = ( new ConvertBetweenTypes() )
 				->setDbHandler( $dbh )
 				->fromDbEntryToAction( $entry );
 
-			if ( empty( $resultsSet ) ) {
-				$resultsSet = $scanCon->getNewResultsSet();
-			}
-
-			foreach ( $action->results as $aResItemData ) {
+			foreach ( $action->results as $resultItemRawData ) {
 				$resultsSet->addItem(
-					$action->getNewResultItem()->applyFromArray( $aResItemData )
+					$action->getNewResultItem()->applyFromArray( $resultItemRawData )
 				);
 			}
 		}

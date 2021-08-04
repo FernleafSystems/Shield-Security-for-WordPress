@@ -50,9 +50,6 @@ abstract class BaseScan {
 		return $action;
 	}
 
-	/**
-	 * @return void
-	 */
 	abstract protected function scanSlice();
 
 	protected function postScan() {
