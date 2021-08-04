@@ -16,18 +16,17 @@ class FalsePositiveQuery {
 
 	/**
 	 * @param string $fullPath
-	 * @param int[]  $aLines
+	 * @param int[]  $lines
 	 * @return int[] - key is the file line number, value is the false positive confidence score
 	 */
-	public function queryFileLines( $fullPath, $aLines ) {
+	public function queryFileLines( $fullPath, $lines ) {
 		$scores = [];
 		/** @var Modules\HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isMalUseNetworkIntelligence() ) {
 			try {
-				$aFile = ( new ExtractLinesFromFile() )->run( $fullPath, $aLines );
-				foreach ( $aFile as $nLineNum => $sLine ) {
-					$scores[ $nLineNum ] = $this->queryLine( $fullPath, $sLine );
+				foreach ( ( new ExtractLinesFromFile() )->run( $fullPath, $lines ) as $lineNumber => $line ) {
+					$scores[ $lineNumber ] = $this->queryLine( $fullPath, $line );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -59,25 +58,25 @@ class FalsePositiveQuery {
 	 * @param string $line
 	 * @return int
 	 */
-	public function queryLine( $file, $line ) {
-		$nFpConfidence = 0;
+	public function queryLine( $file, $line ) :int {
+		$falsePositiveConfidence = 0;
 
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
 			$token = $this->getCon()
-							  ->getModule_License()
-							  ->getWpHashesTokenManager()
-							  ->getToken();
+						  ->getModule_License()
+						  ->getWpHashesTokenManager()
+						  ->getToken();
 			try {
-				$aData = ( new Malware\Confidence\Retrieve( $token ) )->retrieveForFileLine( $file, $line );
-				if ( isset( $aData[ 'score' ] ) ) {
-					$nFpConfidence = (int)$aData[ 'score' ];
+				$response = ( new Malware\Confidence\Retrieve( $token ) )->retrieveForFileLine( $file, $line );
+				if ( isset( $response[ 'score' ] ) ) {
+					$falsePositiveConfidence = (int)$response[ 'score' ];
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-		return $nFpConfidence;
+		return $falsePositiveConfidence;
 	}
 }
