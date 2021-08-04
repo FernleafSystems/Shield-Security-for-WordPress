@@ -113,7 +113,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		if ( is_array( $this->data ) ) {
 			/** @var ScanQueue\Insert $inserter */
 			$inserter = $this->getDbHandler()->getQueryInserter();
-			foreach ( $this->data as $nKey => $entry ) {
+			foreach ( $this->data as $entry ) {
 				/** @var ScanQueue\EntryVO $entry */
 				if ( $entry instanceof ScanQueue\EntryVO ) {
 					$inserter->insert( $entry );

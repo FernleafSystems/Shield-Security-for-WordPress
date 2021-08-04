@@ -38,7 +38,7 @@ abstract class BaseScanFromFileMap {
 					if ( !$hashVerifier->verify( $fullPath ) ) {
 						$item = $this->getFileScanner()->scan( $fullPath );
 						// We can exclude files that are empty of relevant code
-						if ( $item instanceof Scans\Base\ResultItem ) {
+						if ( !empty( $item ) ) {
 							$results->addItem( $item );
 						}
 					}
