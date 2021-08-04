@@ -9,7 +9,7 @@ class LogFileRotate extends ExecOnceModConsumer {
 
 	private $logFile;
 
-	public function __construct(string $logFile) {
+	public function __construct( string $logFile ) {
 		$this->logFile = $logFile;
 	}
 

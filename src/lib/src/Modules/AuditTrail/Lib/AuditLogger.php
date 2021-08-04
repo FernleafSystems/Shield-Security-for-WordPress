@@ -23,12 +23,13 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$mod = $this->getCon()->getModule_AuditTrail();
+		$con = $this->getCon();
+		$mod = $con->getModule_AuditTrail();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 
 		$handlers = [];
-		if ( $this->getCon()->hasCacheDir() && $opts->isLogToFile() ) {
+		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
 			try {
 				$fileHandler = new LogFileHandler( $mod );
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
@@ -45,7 +46,7 @@ class AuditLogger extends EventsListener {
 			->setLevel( $opts->getLogLevelDB() );
 
 		$this->logger = new Logger( 'shield', $handlers, [
-			( new LogHandlers\Processors\RequestMetaDataProcessor() )->setCon( $this->getCon() )
+			( new LogHandlers\Processors\RequestMetaDataProcessor() )->setCon( $con )
 		] );
 	}
 
