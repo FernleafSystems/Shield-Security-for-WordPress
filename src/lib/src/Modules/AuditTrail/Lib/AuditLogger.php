@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LogFileHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Logger;
 
 class AuditLogger extends EventsListener {
@@ -21,9 +22,16 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$this->logger = new Logger( 'shield' );
-		$this->logger->pushHandler( new LogFileHandler( $this->getCon()->getModule_AuditTrail() ) );
-		$this->logger->pushHandler( ( new LocalDbWriter() )->setMod( $this->getCon()->getModule_AuditTrail() ) );
+		$this->logger = new Logger(
+			'shield',
+			[
+				( new LogFileHandler( $this->getCon()->getModule_AuditTrail() ) )->setFormatter( new JsonFormatter() ),
+				( new LocalDbWriter() )->setMod( $this->getCon()->getModule_AuditTrail() )
+			],
+			[
+				( new LogHandlers\Processors\RequestMetaDataProcessor() )->setCon( $this->getCon() )
+			]
+		);
 	}
 
 	/**
