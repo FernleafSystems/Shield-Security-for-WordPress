@@ -11,7 +11,8 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getLogLevelFile() :string {
-		return $this->getOpt( 'log_level_file' );
+		$level = $this->getOpt( 'log_level_file' );
+		return $level === 'same_as_db' ? $this->getLogLevelDB() : $level;
 	}
 
 	public function getAutoCleanDays() :int {
