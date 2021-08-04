@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Commit;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class AuditLogger extends EventsListener {
 
@@ -14,6 +16,18 @@ class AuditLogger extends EventsListener {
 	private $auditLogs = [];
 
 	/**
+	 * @var Logger
+	 */
+	private $logger;
+
+	protected function init() {
+		$this->logger = new Logger( 'shield' );
+		$this->logger->pushHandler(
+			new StreamHandler( $this->getCon()->getPluginCachePath( '.shield.log' ), Logger::DEBUG )
+		);
+	}
+
+	/**
 	 * @param string $evt
 	 * @param array  $meta
 	 * @param array  $def
@@ -21,7 +35,7 @@ class AuditLogger extends EventsListener {
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
 
 		$meta = apply_filters( 'shield/audit_event_meta', $meta, $evt );
-		error_log( var_export( 'inside logger', true ) );
+		$this->logger->info( 'test' );
 		if ( $def[ 'audit' ] && empty( $meta[ 'suppress_audit' ] ) ) {
 
 			$meta[ 'event_slug' ] = $evt;

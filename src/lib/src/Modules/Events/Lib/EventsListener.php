@@ -29,6 +29,11 @@ abstract class EventsListener {
 		add_action( $con->prefix( 'plugin_shutdown' ), function () {
 			$this->onShutdown();
 		}, 100 );
+
+		$this->init();
+	}
+
+	protected function init() {
 	}
 
 	/**

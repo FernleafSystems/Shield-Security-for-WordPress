@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Processor extends BaseShield\Processor {
 
 	/**
-	 * @var Lib\AuditWriter
+	 * @var Lib\AuditLogger
 	 */
 	private $auditLogger;
 
