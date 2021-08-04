@@ -116,12 +116,6 @@
           "default":    1,
           "comment":    "Site ID"
         },
-        "event_id":   {
-          "macro_type": "unsigned_int",
-          "default":    0,
-          "length":     6,
-          "comment":    "Event ID"
-        },
         "event_slug": {
           "macro_type": "varchar",
           "default":    "''",

@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Monolog;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
@@ -8,18 +8,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use Monolog\Handler\AbstractProcessingHandler;
 
-class Commit {
+class AuditTrailTableWriter extends AbstractProcessingHandler {
 
 	use ModConsumer;
 
 	/**
-	 * @param array[] $logs
+	 * @inheritDoc
 	 */
-	public function commitAudits( array $logs ) {
-		foreach ( $logs as $entry ) {
-			$this->commitAudit( $entry );
-		}
+	protected function write( array $record ) {
+		$this->commitAudit( $record[ 'context' ] );
 	}
 
 	public function commitAudit( array $logData ) {
@@ -41,7 +40,6 @@ class Commit {
 		}
 		catch ( \Exception $e ) {
 		}
-
 	}
 
 	private function buildCommonMeta() {
@@ -67,6 +65,7 @@ class Commit {
 			'ip'      => (string)Services::IP()->getRequestIp(),
 			'ua'      => Services::Request()->getUserAgent(),
 			'count'   => 1,
+			'rid'     => $this->getCon()->getShortRequestId(),
 		] );
 	}
 
