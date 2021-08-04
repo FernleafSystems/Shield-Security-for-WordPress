@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Monolog\AuditTrailTableWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LogFileHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 class AuditLogger extends EventsListener {
@@ -22,12 +22,8 @@ class AuditLogger extends EventsListener {
 
 	protected function init() {
 		$this->logger = new Logger( 'shield' );
-		$this->logger->pushHandler(
-			new StreamHandler( $this->getCon()->getPluginCachePath( '.shield.log' ), Logger::DEBUG )
-		);
-		$this->logger->pushHandler(
-			( new AuditTrailTableWriter() )->setMod( $this->getCon()->getModule_AuditTrail() )
-		);
+		$this->logger->pushHandler( new LogFileHandler( $this->getCon()->getModule_AuditTrail() ) );
+		$this->logger->pushHandler( ( new LocalDbWriter() )->setMod( $this->getCon()->getModule_AuditTrail() ) );
 	}
 
 	/**

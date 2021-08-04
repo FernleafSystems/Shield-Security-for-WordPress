@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Monolog;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
@@ -10,7 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
-class AuditTrailTableWriter extends AbstractProcessingHandler {
+use function get_current_blog_id;
+
+class LocalDbWriter extends AbstractProcessingHandler {
 
 	use ModConsumer;
 
@@ -21,7 +23,7 @@ class AuditTrailTableWriter extends AbstractProcessingHandler {
 		$this->commitAudit( $record[ 'context' ] );
 	}
 
-	public function commitAudit( array $logData ) {
+	private function commitAudit( array $logData ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
