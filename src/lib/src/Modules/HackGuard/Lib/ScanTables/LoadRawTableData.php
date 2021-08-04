@@ -68,47 +68,38 @@ class LoadRawTableData {
 	public function loadForMalware() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		try {
-			$files = array_map(
-				function ( $item ) {
-					/** @var Scans\Mal\ResultItem $item */
-					$data = $item->getRawData();
+		return array_map(
+			function ( $item ) {
+				/** @var Scans\Mal\ResultItem $item */
+				$data = $item->getRawData();
 
-					$data[ 'rid' ] = $item->VO->id;
-					$data[ 'file' ] = $item->path_fragment;
-					$data[ 'detected_at' ] = $item->VO->created_at;
-					$data[ 'detected_since' ] = Services::Request()
-														->carbon( true )
-														->setTimestamp( $item->VO->created_at )
-													   ->diffForHumans();
+				$data[ 'rid' ] = $item->VO->id;
+				$data[ 'file' ] = $item->path_fragment;
+				$data[ 'detected_at' ] = $item->VO->created_at;
+				$data[ 'detected_since' ] = Services::Request()
+													->carbon( true )
+													->setTimestamp( $item->VO->created_at )
+													->diffForHumans();
 
-					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
+				$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 
-					$data[ 'status_slug' ] = 'malware';
-					$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, __( 'Malware', 'wp-simple-firewall' ) );
+				$data[ 'status_slug' ] = 'malware';
+				$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, __( 'Malware', 'wp-simple-firewall' ) );
 
-					$data[ 'line_numbers' ] = implode( ', ', array_map(
-						function ( $line ) {
-							return $line + 1;
-						},
-						$item->file_lines // because lines start at ZERO
-					) );
-					$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
+				$data[ 'line_numbers' ] = implode( ', ', array_map(
+					function ( $line ) {
+						return $line + 1;
+					},
+					$item->file_lines // because lines start at ZERO
+				) );
+				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
+				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
+				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 
-					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
-					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
-					return $data;
-				},
-				array_merge(
-					$mod->getScanCon( Mal::SCAN_SLUG )->getAllResults()->getItems()
-				)
-			);
-		}
-		catch ( \Exception $e ) {
-			$files = [];
-		}
-
-		return $files;
+				return $data;
+			},
+			$mod->getScanCon( Mal::SCAN_SLUG )->getAllResults()->getItems()
+		);
 	}
 
 	public function loadForPlugin( WpPluginVo $plugin ) :array {
@@ -223,14 +214,15 @@ class LoadRawTableData {
 	 * @param string                $status
 	 * @param Scans\Base\ResultItem $item
 	 * @return array
+	 * @throws \Exception
 	 */
 	private function getActions( string $status, $item ) :array {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$itemActionHandler = $mod->getScanCon( $item->VO->scan )
-								 ->getItemActionHandler()
-								 ->setScanItem( $item );
+		$actionHandler = $mod->getScanCon( $item->VO->scan )
+							 ->getItemActionHandler()
+							 ->setScanItem( $item );
 
 		$actions = [];
 
@@ -248,14 +240,18 @@ class LoadRawTableData {
 			);
 		}
 
-		if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) && $itemActionHandler->getRepairer()
+		try {
+			if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) && $actionHandler->getRepairer()
 																							->canRepair() ) {
-			$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Repair', 'wp-simple-firewall' ),
-				$item->VO->id,
-				$con->svgs->raw( 'bootstrap/tools.svg' )
-			);
+				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
+					implode( ' ', $defaultButtonClasses ),
+					__( 'Repair', 'wp-simple-firewall' ),
+					$item->VO->id,
+					$con->svgs->raw( 'bootstrap/tools.svg' )
+				);
+			}
+		}
+		catch ( \Exception $e ) {
 		}
 
 		if ( in_array( $status, [ 'modified', 'unrecognised', 'malware' ] ) ) {

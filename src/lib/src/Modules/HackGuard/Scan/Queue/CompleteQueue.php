@@ -40,7 +40,8 @@ class CompleteQueue {
 
 			$con->fireEvent( $scanSlug.'_scan_run' );
 
-			if ( $resultsSet instanceof Scans\Base\ResultsSet ) {
+			if ( $resultsSet->hasItems() ) {
+
 				( new HackGuard\Scan\Results\ResultsUpdate() )
 					->setScanController( $scanCon )
 					->update( $resultsSet );
@@ -52,10 +53,10 @@ class CompleteQueue {
 						: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
 					$items .= ' "'.
-							 implode( '", "', array_map( function ( $item ) {
-								 return $item->getDescriptionForAudit();
-							 }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
-							 .'"';
+							  implode( '", "', array_map( function ( $item ) {
+								  return $item->getDescriptionForAudit();
+							  }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
+							  .'"';
 
 					$con->fireEvent(
 						$scanSlug.'_scan_found',

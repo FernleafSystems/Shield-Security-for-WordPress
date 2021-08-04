@@ -117,6 +117,12 @@
         "title":       "Plugin/Theme scanning could result in large quantities of unrecognised files.",
         "description": [],
         "patch":       "11.5.3"
+      },
+      {
+        "type":        "improved",
+        "title":       "Scan results were being reported, but not displayed in results tables in some cases.",
+        "description": [],
+        "patch":       "11.5.4"
       }
     ]
   },
