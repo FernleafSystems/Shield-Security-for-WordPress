@@ -155,12 +155,11 @@ class Strings {
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return string[]
 	 */
-	public function getAuditMessage( $sKey ) {
-		$aMsg = $this->getAuditMessages();
-		return isset( $aMsg[ $sKey ] ) ? $aMsg[ $sKey ] : [];
+	public function getAuditMessage( string $key ) {
+		return $this->getAuditMessages()[ $key ] ?? [];
 	}
 
 	/**
@@ -190,9 +189,9 @@ class Strings {
 		switch ( $section ) {
 
 			case 'section_user_messages' :
-				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Messages', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'User Messages', 'wp-simple-firewall' );
+				$titleShort = __( 'Messages', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Customize the messages displayed to the user.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use this section if you need to communicate to the user in a particular manner.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Hint', 'wp-simple-firewall' ), sprintf( __( 'To reset any message to its default, enter the text exactly: %s', 'wp-simple-firewall' ), 'default' ) )
@@ -200,11 +199,11 @@ class Strings {
 				break;
 
 			default:
-				$aSect = $this->getOptions()->getSection( $section );
-				if ( is_array( $aSect ) && !empty( $aSect[ 'title' ] ) && !empty( $aSect[ 'title_short' ] ) ) {
-					$sTitle = __( $aSect[ 'title' ], 'wp-simple-firewall' );
-					$sTitleShort = __( $aSect[ 'title_short' ], 'wp-simple-firewall' );
-					$aSummary = empty( $aSect[ 'summary' ] ) ? [] : $aSect[ 'summary' ];
+				$section = $this->getOptions()->getSection( $section );
+				if ( is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {
+					$title = __( $section[ 'title' ], 'wp-simple-firewall' );
+					$titleShort = __( $section[ 'title_short' ], 'wp-simple-firewall' );
+					$summary = empty( $section[ 'summary' ] ) ? [] : $section[ 'summary' ];
 				}
 				else {
 					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $section ) );
@@ -212,9 +211,9 @@ class Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
 		];
 	}
 }

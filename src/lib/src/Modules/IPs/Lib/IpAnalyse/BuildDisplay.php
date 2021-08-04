@@ -374,13 +374,7 @@ class BuildDisplay {
 		foreach ( $logs as $key => $entry ) {
 			$asArray = $entry->getRawData();
 
-			$module = $con->getModule( $entry->context );
-			if ( empty( $module ) ) {
-				$module = $con->getModule_AuditTrail();
-			}
-			$strings = $module->getStrings();
-
-			$asArray[ 'event' ] = AuditMessageBuilder::Build( $entry, $strings->getAuditMessage( $entry->event ) );
+			$asArray[ 'event' ] = AuditMessageBuilder::Build( $entry->event, $entry->meta, $entry->context );
 			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$entry->created_at );
 
 			$logs[ $key ] = $asArray;
