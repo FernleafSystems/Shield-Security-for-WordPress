@@ -214,6 +214,11 @@
       "has_created_at": true,
       "has_deleted_at": false,
       "cols_custom":    {
+        "rid":        {
+          "macro_type": "char",
+          "length":     10,
+          "comment":    "Request ID"
+        },
         "site_id":    {
           "macro_type": "unsigned_int",
           "default":    1,
@@ -221,8 +226,11 @@
         },
         "event_slug": {
           "macro_type": "varchar",
-          "default":    "''",
           "comment":    "Event Slug"
+        },
+        "ip":         {
+          "macro_type": "ip",
+          "comment":    "Binary IP Address"
         }
       }
     },
@@ -232,19 +240,19 @@
       "has_created_at": false,
       "has_deleted_at": false,
       "cols_custom":    {
-        "log_ref": {
+        "log_ref":    {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_at_logs"
           },
           "comment":     "Reference to primary log entry"
         },
-        "meta_key":     {
+        "meta_key":   {
           "macro_type": "varchar",
           "length":     32,
           "comment":    "Meta Key"
         },
-        "meta_value":   {
+        "meta_value": {
           "macro_type": "text",
           "comment":    "Meta Data"
         }

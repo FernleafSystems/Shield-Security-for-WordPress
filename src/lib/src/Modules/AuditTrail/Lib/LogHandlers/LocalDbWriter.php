@@ -21,7 +21,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$mod = $this->getMod();
 
 		try {
-			$log = $this->createPrimaryLogRecord( $record[ 'context' ] );
+			$log = $this->createPrimaryLogRecord( $record );
+
+			// anything stored in the primary log record doesn't need stored in meta
+			unset( $record[ 'extra' ][ 'meta_wp' ][ 'site_id' ] );
+			unset( $record[ 'extra' ][ 'meta_request' ][ 'ip' ] );
+			unset( $record[ 'extra' ][ 'meta_request' ][ 'rid' ] );
+
 			$metas = array_merge(
 				$logData[ 'audit' ] ?? [],
 				$record[ 'extra' ][ 'meta_request' ],
@@ -51,8 +57,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$mod = $this->getMod();
 
 		$record = new Logs\Ops\Record();
-		$record->site_id = \get_current_blog_id();
-		$record->event_slug = $logData[ 'event_slug' ];
+		$record->event_slug = $logData[ 'context' ][ 'event_slug' ];
+		$record->site_id = $logData[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
+		$record->ip = $logData[ 'extra' ][ 'meta_request' ][ 'ip' ];
+		$record->rid = $logData[ 'extra' ][ 'meta_request' ][ 'rid' ];
 
 		$success = $mod->getDbH_Logs()
 					   ->getQueryInserter()

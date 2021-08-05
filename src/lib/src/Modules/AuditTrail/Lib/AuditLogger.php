@@ -47,7 +47,8 @@ class AuditLogger extends EventsListener {
 
 		$this->logger = new Logger( 'shield', $handlers, [
 			( new LogHandlers\Processors\RequestMetaProcessor() )->setCon( $con ),
-			new LogHandlers\Processors\UserMetaProcessor()
+			new LogHandlers\Processors\UserMetaProcessor(),
+			new LogHandlers\Processors\WpMetaProcessor()
 		] );
 	}
 

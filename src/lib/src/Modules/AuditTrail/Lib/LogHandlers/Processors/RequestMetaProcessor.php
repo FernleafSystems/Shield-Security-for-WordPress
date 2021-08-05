@@ -21,7 +21,7 @@ class RequestMetaProcessor implements ProcessorInterface {
 		$record[ 'extra' ][ 'meta_request' ] = array_filter( [
 			'ip'         => $isWpCli ? '' : (string)Services::IP()->getRequestIp(),
 			'rid'        => $this->getCon()->getShortRequestId(),
-			'ts'         => $req->mts(),
+			'ts'         => microtime( true ),
 			'req_ua'     => $isWpCli ? '' : $req->getUserAgent(),
 			'req_method' => $isWpCli ? '' : $req->getMethod(),
 			'req_path'   => $isWpCli ? '' : $req->getPath(),
