@@ -25,7 +25,7 @@ class Users extends Base {
 		$this->getCon()->fireEvent(
 			Services::WpUsers()->isAppPasswordAuth() ? 'user_login_app' : 'user_login',
 			[
-				'audit' => [
+				'audit_params' => [
 					'user' => $user->user_login,
 				]
 			]
@@ -38,7 +38,7 @@ class Users extends Base {
 			$this->getCon()->fireEvent(
 				'user_registered',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user'  => sanitize_user( $user->user_login ),
 						'email' => $user->user_email,
 					]
@@ -59,7 +59,7 @@ class Users extends Base {
 			$this->getCon()->fireEvent(
 				'user_deleted',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user'  => sanitize_user( $user->user_login ),
 						'email' => $user->user_email,
 					]
@@ -72,7 +72,7 @@ class Users extends Base {
 			$this->getCon()->fireEvent(
 				'user_deleted_reassigned',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user' => sanitize_user( $reassigned->user_login ),
 					]
 				]

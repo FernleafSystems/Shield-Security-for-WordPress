@@ -134,7 +134,7 @@ class Processor extends BaseShield\Processor {
 					 ->fireEvent(
 						 'block_exefile',
 						 [
-							 'audit' => [
+							 'audit_params' => [
 								 'blockresponse' => $mod->getBlockResponse(),
 								 'blockkey'      => $sKey,
 							 ]
@@ -210,7 +210,7 @@ class Processor extends BaseShield\Processor {
 				 ->fireEvent(
 					 'blockparam_'.$sBlockKey,
 					 [
-						 'audit' => [
+						 'audit_params' => [
 							 'param'         => $sParam,
 							 'val'           => $mValue,
 							 'blockresponse' => $mod->getBlockResponse(),
@@ -244,7 +244,7 @@ class Processor extends BaseShield\Processor {
 			$recipient = $this->getMod()->getPluginReportEmail();
 			$this->getCon()->fireEvent(
 				$this->sendBlockEmail( $recipient ) ? 'fw_email_success' : 'fw_email_fail',
-				[ 'audit' => [ 'recipient' => $recipient ] ]
+				[ 'audit_params' => [ 'recipient' => $recipient ] ]
 			);
 		}
 		$this->getCon()->fireEvent( 'firewall_block' );

@@ -41,7 +41,7 @@ class AddIp {
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {
 			$IP = $this->add( $mod::LIST_AUTO_BLACK, 'auto', $req->ts() );
 			if ( !empty( $IP ) ) {
-				$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
+				$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 			}
 		}
 
@@ -95,7 +95,7 @@ class AddIp {
 			if ( !$IP instanceof Databases\IPs\EntryVO ) {
 				$IP = $this->add( $mod::LIST_MANUAL_BLACK, $label );
 				if ( !empty( $IP ) ) {
-					$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
+					$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 				}
 			}
 
@@ -150,7 +150,7 @@ class AddIp {
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {
 			$IP = $this->add( $mod::LIST_MANUAL_WHITE, $label );
 			if ( !empty( $IP ) ) {
-				$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit' => [ 'ip' => $this->getIP() ] ] );
+				$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 			}
 		}
 

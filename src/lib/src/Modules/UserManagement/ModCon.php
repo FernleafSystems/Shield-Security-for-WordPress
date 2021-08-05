@@ -98,7 +98,7 @@ class ModCon extends BaseShield\ModCon {
 			$this->getCon()->fireEvent(
 				'user_hard_suspended',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user_id' => $nUserId,
 						'admin'   => Services::WpUsers()->getCurrentWpUsername(),
 					]
@@ -111,7 +111,7 @@ class ModCon extends BaseShield\ModCon {
 			$this->getCon()->fireEvent(
 				'user_hard_unsuspended',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user_id' => $nUserId,
 						'admin'   => Services::WpUsers()->getCurrentWpUsername(),
 					]

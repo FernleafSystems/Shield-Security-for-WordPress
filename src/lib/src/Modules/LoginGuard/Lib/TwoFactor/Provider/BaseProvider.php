@@ -224,7 +224,7 @@ abstract class BaseProvider {
 		$this->getCon()->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
-				'audit' => [
+				'audit_params' => [
 					'user_login' => $user->user_login,
 					'method'     => $this->getProviderName(),
 				]

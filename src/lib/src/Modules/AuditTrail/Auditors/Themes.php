@@ -16,7 +16,7 @@ class Themes extends Base {
 		if ( !empty( $themeName ) ) {
 			$this->getCon()->fireEvent(
 				'theme_activated',
-				[ 'audit' => [ 'theme' => $themeName ] ]
+				[ 'audit_params' => [ 'theme' => $themeName ] ]
 			);
 		}
 	}
@@ -29,7 +29,7 @@ class Themes extends Base {
 		if ( strpos( $action, $stub ) === 0 ) {
 			$this->getCon()->fireEvent(
 				'theme_file_edited',
-				[ 'audit' => [ 'file' => str_replace( $stub, '', $action ) ] ]
+				[ 'audit_params' => [ 'file' => str_replace( $stub, '', $action ) ] ]
 			);
 		}
 	}

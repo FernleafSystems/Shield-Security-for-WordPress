@@ -39,7 +39,7 @@ abstract class Base extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			 ->fireEvent(
 				 'bot'.static::OPT_KEY,
 				 [
-					 'audit'         => $this->getAuditData(),
+					 'audit_params'  => $this->getAuditData(),
 					 'offense_count' => $offenseCount,
 					 'block'         => $isBlock,
 				 ]

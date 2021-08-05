@@ -41,13 +41,13 @@ class ProcessOffense {
 			$bToBlock = $oTracker->isBlocked() ||
 						( $oIP->blocked_at == 0 && ( $nNewTotal >= $opts->getOffenseLimit() ) );
 
-			/** @var Databases\IPs\Update $oUp */
-			$oUp = $mod->getDbHandler_IPs()->getQueryUpdater();
-			$oUp->updateTransgressions( $oIP, $nNewTotal );
+			/** @var Databases\IPs\Update $updater */
+			$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
+			$updater->updateTransgressions( $oIP, $nNewTotal );
 
 			$con->fireEvent( $bToBlock ? 'ip_blocked' : 'ip_offense',
 				[
-					'audit' => [
+					'audit_params' => [
 						'from' => $nCurrent,
 						'to'   => $nNewTotal,
 					]
@@ -60,8 +60,8 @@ class ProcessOffense {
 			 * so we fire ip_offense but suppress the audit
 			 */
 			if ( $bToBlock ) {
-				$oUp = $mod->getDbHandler_IPs()->getQueryUpdater();
-				$oUp->setBlocked( $oIP );
+				$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
+				$updater->setBlocked( $oIP );
 				$con->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
 			}
 		}

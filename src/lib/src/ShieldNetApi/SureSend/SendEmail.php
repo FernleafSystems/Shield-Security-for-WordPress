@@ -40,7 +40,7 @@ class SendEmail extends BaseShieldNetApi {
 		$this->getCon()->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
-				'audit' => [
+				'audit_params' => [
 					'user_login' => $to,
 					'slug'       => $slug,
 				]

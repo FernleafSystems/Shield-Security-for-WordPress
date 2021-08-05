@@ -34,7 +34,7 @@ class Limiter {
 			$this->getCon()->fireEvent(
 				'request_limit_exceeded',
 				[
-					'audit' => [
+					'audit_params' => [
 						'count' => $opts->getLimitRequestCount(),
 						'span'  => $opts->getLimitTimeSpan(),
 					]

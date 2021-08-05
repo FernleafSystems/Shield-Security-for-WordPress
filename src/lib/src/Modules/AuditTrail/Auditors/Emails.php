@@ -47,7 +47,7 @@ class Emails extends Base {
 			$auditData[ 'bt_file' ] = empty( $aBacktrace[ 'file' ] ) ? 'unavailable' : str_replace( ABSPATH, '', $aBacktrace[ 'file' ] );
 			$auditData[ 'bt_line' ] = empty( $aBacktrace[ 'line' ] ) ? 'unavailable' : $aBacktrace[ 'line' ];
 
-			$this->getCon()->fireEvent( 'email_attempt_send', [ 'audit' => $auditData ] );
+			$this->getCon()->fireEvent( 'email_attempt_send', [ 'audit_params' => $auditData ] );
 		}
 
 		return $email;

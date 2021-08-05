@@ -77,7 +77,7 @@ class ProcessOffenses extends ExecOnceModConsumer {
 					 ->fireEvent(
 						 'custom_offense',
 						 [
-							 'audit'         => [ 'message' => $message ],
+							 'audit_params'  => [ 'message' => $message ],
 							 'offense_count' => (int)$offenseCount
 						 ]
 					 );

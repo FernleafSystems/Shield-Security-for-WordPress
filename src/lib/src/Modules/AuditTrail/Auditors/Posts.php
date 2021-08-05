@@ -19,7 +19,7 @@ class Posts extends Base {
 		if ( $post instanceof \WP_Post && !$this->isIgnoredPostType( $post ) ) {
 			$this->getCon()->fireEvent(
 				'post_deleted',
-				[ 'audit' => [ 'title' => $post->post_title ] ]
+				[ 'audit_params' => [ 'title' => $post->post_title ] ]
 			);
 		}
 	}
@@ -61,7 +61,7 @@ class Posts extends Base {
 		$this->getCon()->fireEvent(
 			$event,
 			[
-				'audit' => [
+				'audit_params' => [
 					'title' => $post->post_title,
 					'type'  => $post->post_type,
 				]

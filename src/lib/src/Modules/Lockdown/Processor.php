@@ -125,7 +125,7 @@ class Processor extends BaseShield\Processor {
 			$this->getCon()
 				 ->fireEvent(
 					 'block_anonymous_restapi',
-					 [ 'audit' => [ 'namespace' => $sNamespace ] ]
+					 [ 'audit_params' => [ 'namespace' => $sNamespace ] ]
 				 );
 		}
 

@@ -113,7 +113,7 @@ class ImportExportController {
 
 			$this->getCon()->fireEvent(
 				'import_notify_received',
-				[ 'audit' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
+				[ 'audit_params' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
 			);
 		}
 	}

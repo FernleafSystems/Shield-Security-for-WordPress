@@ -65,7 +65,7 @@ class EmailValidate {
 				$this->getCon()->fireEvent(
 					'reg_email_invalid',
 					[
-						'audit'         => [
+						'audit_params'  => [
 							'email'  => sanitize_email( $email ),
 							'reason' => sanitize_key( $sInvalidBecause ),
 						],

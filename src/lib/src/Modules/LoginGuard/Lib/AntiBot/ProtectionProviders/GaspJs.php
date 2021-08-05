@@ -80,7 +80,7 @@ class GaspJs extends BaseProtectionProvider {
 			$this->getCon()->fireEvent(
 				'botbox_fail',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user_login' => $username,
 						'action'     => $action,
 					]
@@ -92,7 +92,7 @@ class GaspJs extends BaseProtectionProvider {
 			$this->getCon()->fireEvent(
 				'honeypot_fail',
 				[
-					'audit' => [
+					'audit_params' => [
 						'user_login' => $username,
 						'action'     => $action,
 					]

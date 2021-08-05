@@ -42,7 +42,7 @@ class BotSignalsController extends ExecOnceModConsumer {
 				$this->getCon()->fireEvent(
 					'antibot_'.( $isBot ? 'fail' : 'pass' ),
 					[
-						'audit' => [
+						'audit_params' => [
 							'score'   => $score,
 							'minimum' => $botScoreMinimum,
 						]

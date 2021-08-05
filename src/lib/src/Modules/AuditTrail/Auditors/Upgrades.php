@@ -77,7 +77,7 @@ class Upgrades extends Base {
 			$this->getCon()->fireEvent(
 				'plugin_upgraded',
 				[
-					'audit' => [
+					'audit_params' => [
 						'plugin' => $VO->file, // was 'file'
 						'from'   => $this->plugins[ $item ],
 						'to'     => $VO->Version,
@@ -99,7 +99,7 @@ class Upgrades extends Base {
 			$this->getCon()->fireEvent(
 				'theme_upgraded',
 				[
-					'audit' => [
+					'audit_params' => [
 						'theme' => $VO->stylesheet, // was 'file'
 						'from'  => $this->themes[ $item ],
 						'to'    => $VO->Version,

@@ -61,7 +61,7 @@ class Export {
 
 			$this->getCon()->fireEvent(
 				'options_exported',
-				[ 'audit' => [ 'site' => $sUrl ] ]
+				[ 'audit_params' => [ 'site' => $sUrl ] ]
 			);
 
 			if ( $bDoNetwork ) {
@@ -69,14 +69,14 @@ class Export {
 					$mod->addUrlToImportExportWhitelistUrls( $sUrl );
 					$this->getCon()->fireEvent(
 						'whitelist_site_added',
-						[ 'audit' => [ 'site' => $sUrl ] ]
+						[ 'audit_params' => [ 'site' => $sUrl ] ]
 					);
 				}
 				else {
 					$mod->removeUrlFromImportExportWhitelistUrls( $sUrl );
 					$this->getCon()->fireEvent(
 						'whitelist_site_removed',
-						[ 'audit' => [ 'site' => $sUrl ] ]
+						[ 'audit_params' => [ 'site' => $sUrl ] ]
 					);
 				}
 			}

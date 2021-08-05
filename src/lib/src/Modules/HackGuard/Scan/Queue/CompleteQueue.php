@@ -61,7 +61,7 @@ class CompleteQueue {
 					$con->fireEvent(
 						$scanSlug.'_scan_found',
 						[
-							'audit' => [
+							'audit_params' => [
 								'items' => $items
 							]
 						]

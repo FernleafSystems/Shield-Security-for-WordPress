@@ -134,7 +134,7 @@ abstract class ItemActionHandler {
 		if ( !empty( $item->path_full ) && !empty( $item->repair_event_status ) ) {
 			$this->getCon()->fireEvent(
 				sprintf( 'scan_item_%s', $item->repair_event_status ),
-				[ 'audit' => [ 'path_full' => $item->path_full ] ]
+				[ 'audit_params' => [ 'path_full' => $item->path_full ] ]
 			);
 		}
 	}

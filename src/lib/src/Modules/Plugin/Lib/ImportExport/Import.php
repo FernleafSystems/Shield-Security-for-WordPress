@@ -202,7 +202,7 @@ class Import {
 			$mod->setImportExportMasterImportUrl( $sMasterSiteUrl );
 			$this->getCon()->fireEvent(
 				'master_url_set',
-				[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
+				[ 'audit_params' => [ 'site' => $sMasterSiteUrl ] ]
 			);
 		}
 		elseif ( $bEnableNetwork === false ) {
@@ -233,7 +233,7 @@ class Import {
 		if ( $anythingChanged ) {
 			$this->getCon()->fireEvent(
 				'options_imported',
-				[ 'audit' => [ 'site' => $source ] ]
+				[ 'audit_params' => [ 'site' => $source ] ]
 			);
 		}
 	}
