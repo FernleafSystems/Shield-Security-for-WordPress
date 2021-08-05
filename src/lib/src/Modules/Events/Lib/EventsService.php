@@ -74,6 +74,7 @@ class EventsService {
 			'offense'          => false, // whether to mark offense against IP
 			'audit_multiple'   => false, // allow multiple audit entries in the same request
 			'suppress_offense' => false, // events that normally trigger offense can be forcefully suppressed
+			'level'            => 'warning', // events default at "warning" level
 		];
 		foreach ( $events as $eventKey => $evt ) {
 			$events[ $eventKey ] = array_merge( $defaults, $evt );
