@@ -31,7 +31,7 @@ class AuditLogger extends EventsListener {
 		$handlers = [];
 		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
 			try {
-				$fileHandler = new LogFileHandler( $mod );
+				$fileHandler = ( new LogFileHandler( $mod ) )->setLevel( $opts->getLogLevelFile() );
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
 					$fileHandler->setFormatter( new JsonFormatter() );
 				}
@@ -46,7 +46,8 @@ class AuditLogger extends EventsListener {
 			->setLevel( $opts->getLogLevelDB() );
 
 		$this->logger = new Logger( 'shield', $handlers, [
-			( new LogHandlers\Processors\RequestMetaDataProcessor() )->setCon( $con )
+			( new LogHandlers\Processors\RequestMetaProcessor() )->setCon( $con ),
+			new LogHandlers\Processors\UserMetaProcessor()
 		] );
 	}
 

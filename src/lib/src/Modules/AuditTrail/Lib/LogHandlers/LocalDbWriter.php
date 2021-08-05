@@ -9,8 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
-use function get_current_blog_id;
-
 class LocalDbWriter extends AbstractProcessingHandler {
 
 	use ModConsumer;
@@ -26,7 +24,8 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$log = $this->createPrimaryLogRecord( $record[ 'context' ] );
 			$metas = array_merge(
 				$logData[ 'audit' ] ?? [],
-				$record[ 'extra' ][ 'request_meta' ]
+				$record[ 'extra' ][ 'meta_request' ],
+				$record[ 'extra' ][ 'meta_user' ]
 			);
 			$metaRecord = new Meta\Ops\Record();
 			$metaRecord->log_ref = $log->id;
@@ -52,9 +51,8 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$mod = $this->getMod();
 
 		$record = new Logs\Ops\Record();
-		$record->site_id = get_current_blog_id();
+		$record->site_id = \get_current_blog_id();
 		$record->event_slug = $logData[ 'event_slug' ];
-		$record->event_id = rand();
 
 		$success = $mod->getDbH_Logs()
 					   ->getQueryInserter()
