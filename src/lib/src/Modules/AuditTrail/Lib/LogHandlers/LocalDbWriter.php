@@ -29,7 +29,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			unset( $record[ 'extra' ][ 'meta_request' ][ 'rid' ] );
 
 			$metas = array_merge(
-				$logData[ 'audit' ] ?? [],
+				$record[ 'context' ][ 'audit' ] ?? [],
 				$record[ 'extra' ][ 'meta_request' ],
 				$record[ 'extra' ][ 'meta_user' ]
 			);

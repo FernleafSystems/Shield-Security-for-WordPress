@@ -47,7 +47,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function initAuditors() {
-		$this->loadAuditorWriter()->setIfCommit( true );
+//		$this->loadAuditorWriter()->setIfCommit( true );
 		$this->loadAuditLogger()->setIfCommit( true );
 		foreach ( $this->getAuditors() as $auditor ) {
 			$auditor->setMod( $this->getMod() )->execute();

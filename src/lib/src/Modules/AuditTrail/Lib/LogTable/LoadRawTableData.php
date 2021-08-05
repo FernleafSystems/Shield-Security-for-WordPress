@@ -45,7 +45,8 @@ class LoadRawTableData {
 	}
 
 	private function getColumnContent_Message() :string {
-		return AuditMessageBuilder::Build( $this->log->event_slug, $this->log->meta_data );
+//		return AuditMessageBuilder::Build( $this->log->event_slug, $this->log->meta_data );
+		return AuditMessageBuilder::BuildFromLog( $this->log );
 	}
 
 	private function getColumnContent_User() :string {
