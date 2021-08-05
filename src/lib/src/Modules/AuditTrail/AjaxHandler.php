@@ -10,6 +10,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
+			case 'logtable_action':
+				$response = $this->ajaxExec_AuditTrailTableAction();
+				break;
+
 			case 'render_table_audittrail':
 				$response = $this->ajaxExec_BuildTableAuditTrail();
 				break;
@@ -50,6 +54,21 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success' => $success,
 			'message' => $msg
 		];
+	}
+
+	private function ajaxExec_AuditTrailTableAction() :array {
+		try {
+			return ( new Lib\LogTable\DelegateAjaxHandler() )
+				->setMod( $this->getMod() )
+				->processAjaxAction();
+		}
+		catch ( \Exception $e ) {
+			return [
+				'success'     => false,
+				'page_reload' => true,
+				'message'     => $e->getMessage(),
+			];
+		}
 	}
 
 	private function ajaxExec_BuildTableAuditTrail() :array {

@@ -90,7 +90,7 @@ class AuditTrail extends BaseBuild {
 			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
 
 			if ( empty( $entry->message ) ) {
-				$msg = Shield\Modules\AuditTrail\Lib\AuditMessageBuilder::Build( $entry->event, $entry->meta, $entry->context );
+				$msg = Shield\Modules\AuditTrail\Lib\AuditMessageBuilder::Build( $entry->event, $entry->meta );
 			}
 			else {
 				$msg = $entry->message;

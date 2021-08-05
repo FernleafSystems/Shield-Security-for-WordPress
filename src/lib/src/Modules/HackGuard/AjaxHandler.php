@@ -13,7 +13,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	protected function processAjaxAction( string $action ) :array {
 
-		$req = Services::Request();
 		switch ( $action ) {
 
 			case 'scanresults_action':

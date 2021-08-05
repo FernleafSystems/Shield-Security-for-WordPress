@@ -4,11 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 class AuditMessageBuilder {
 
-	public static function Build( string $event, array $metaSubstitutions, string $content = 'audit_trail' ) :string {
+	public static function Build( string $event, array $metaSubstitutions ) :string {
 		$con = shield_security_get_plugin()->getController();
-		$module = $con->getModule( $content );
 		if ( empty( $module ) ) {
-			$module = $con->getModule_AuditTrail();
+			$module = $con->getModule( $con->loadEventsService()->getEventDef( $event )[ 'context' ] );
 		}
 
 		$rawString = implode( "\n", $module->getStrings()->getAuditMessage( $event ) );

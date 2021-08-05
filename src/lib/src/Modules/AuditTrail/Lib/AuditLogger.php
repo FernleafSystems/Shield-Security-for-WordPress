@@ -78,7 +78,7 @@ class AuditLogger extends EventsListener {
 		if ( !$this->getCon()->plugin_deleting ) {
 			foreach ( $this->auditLogs as $auditLog ) {
 				$this->logger->emergency(
-					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit' ], $auditLog[ 'event_def' ][ 'context' ] ),
+					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit' ] ),
 					$auditLog
 				);
 			}

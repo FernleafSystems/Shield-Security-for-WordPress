@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
 
 class UI extends BaseShield\UI {
 
@@ -25,8 +26,7 @@ class UI extends BaseShield\UI {
 						'/wpadmin_pages/insights/audit/audit_table.twig',
 						[
 							'ajax'    => [
-								'render_table_audittrail' => $mod->getAjaxActionData( 'render_table_audittrail', true ),
-								'item_addparamwhite'      => $mod->getAjaxActionData( 'item_addparamwhite', true )
+								'logtable_action' => $mod->getAjaxActionData( 'logtable_action', true ),
 							],
 							'flags'   => [],
 							'strings' => [
@@ -45,6 +45,9 @@ class UI extends BaseShield\UI {
 								'events_for_select' => $eventsSelect,
 								'unique_ips'        => $dbSel->getDistinctIps(),
 								'unique_users'      => $dbSel->getDistinctUsernames(),
+								'datatables_init'   => ( new ForAuditTrail() )
+									->setMod( $this->getMod() )
+									->build()
 							],
 						],
 						true
