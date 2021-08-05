@@ -35,12 +35,18 @@ class EventsService {
 	 */
 	private function verifyAuditParams( string $event, array $meta ) {
 		$def = $this->getEventDef( $event )[ 'audit_params' ] ?? [];
-		$metaParams = array_keys( $meta[ 'audit' ] ?? [] );
-		if ( array_diff( $def, $metaParams ) ) {
-			throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $def ) ) );
+		$metaParams = array_keys( $meta[ 'audit_params' ] ?? [] );
+
+		if ( empty( $def ) && !empty( $metaParams ) ) {
+			error_log( sprintf( 'WARNING: Event (%s) receives params but none are defined.', $event ) );
 		}
-		if ( array_diff( $metaParams, $def ) ) {
-			throw new \Exception( sprintf( "Event (%s) has audit params that aren't present in def: %s", $event, implode( ', ', $metaParams ) ) );
+		elseif ( !empty( $def ) ) {
+			if ( array_diff( $def, $metaParams ) ) {
+				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $def ) ) );
+			}
+			if ( array_diff( $metaParams, $def ) ) {
+				throw new \Exception( sprintf( "Event (%s) has audit params that aren't present in def: %s", $event, implode( ', ', $metaParams ) ) );
+			}
 		}
 	}
 

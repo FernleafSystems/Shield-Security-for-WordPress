@@ -23,7 +23,6 @@ class AuditMessageBuilder {
 					array_flip( $eventDef[ 'audit_params' ] ),
 					$subs
 				);
-				error_log( var_export( $metaSubstitutions, true ) );
 			}
 		}
 
@@ -39,7 +38,7 @@ class AuditMessageBuilder {
 		return stripslashes( sanitize_textarea_field( vsprintf( $rawString, $metaSubstitutions ) ) );
 	}
 
-	public static function Build( string $event, array $metaSubstitutions ) :string {
+	public static function Build( string $event, array $metaSubstitutions = [] ) :string {
 		$con = shield_security_get_plugin()->getController();
 		$eventDef = $con->loadEventsService()->getEventDef( $event );
 		$module = $con->getModule( $eventDef[ 'context' ] );
