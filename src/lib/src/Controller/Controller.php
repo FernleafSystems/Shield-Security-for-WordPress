@@ -68,7 +68,7 @@ class Controller extends DynPropertiesClass {
 	private $oEventsService;
 
 	public function fireEvent( string $event, array $meta = [] ) :self {
-		$this->loadEventsService()->fireEvent( $event, is_array( $meta ) ? $meta : [] );
+		$this->loadEventsService()->fireEvent( $event, $meta );
 		return $this;
 	}
 

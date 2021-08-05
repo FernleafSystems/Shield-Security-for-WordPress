@@ -13,21 +13,35 @@ class EventsService {
 	 */
 	private $aEvents;
 
-	/**
-	 * @param string $event
-	 * @param array  $meta
-	 * @return $this
-	 */
 	public function fireEvent( string $event, array $meta = [] ) {
 		if ( $this->isSupportedEvent( $event ) ) {
-			do_action(
-				$this->getCon()->prefix( 'event' ),
-				$event,
-				$meta,
-				$this->getEventDef( $event )
-			);
+			try {
+				$this->verifyAuditParams( $event, $meta );
+				do_action(
+					$this->getCon()->prefix( 'event' ),
+					$event,
+					$meta,
+					$this->getEventDef( $event )
+				);
+			}
+			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
+			}
 		}
-		return $this;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function verifyAuditParams( string $event, array $meta ) {
+		$def = $this->getEventDef( $event )[ 'audit_params' ] ?? [];
+		$metaParams = array_keys( $meta[ 'audit' ] ?? [] );
+		if ( array_diff( $def, $metaParams ) ) {
+			throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $def ) ) );
+		}
+		if ( array_diff( $metaParams, $def ) ) {
+			throw new \Exception( sprintf( "Event (%s) has audit params that aren't present in def: %s", $event, implode( ', ', $metaParams ) ) );
+		}
 	}
 
 	/**
@@ -75,6 +89,7 @@ class EventsService {
 			'audit_multiple'   => false, // allow multiple audit entries in the same request
 			'suppress_offense' => false, // events that normally trigger offense can be forcefully suppressed
 			'level'            => 'warning', // events default at "warning" level
+			'audit_params'     => [],
 		];
 		foreach ( $events as $eventKey => $evt ) {
 			$events[ $eventKey ] = array_merge( $defaults, $evt );
