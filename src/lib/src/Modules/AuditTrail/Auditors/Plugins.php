@@ -11,25 +11,25 @@ class Plugins extends Base {
 	}
 
 	/**
-	 * @param string $sPlugin
+	 * @param string $plugin
 	 */
-	public function auditActivatedPlugin( $sPlugin ) {
-		if ( !empty( $sPlugin ) ) {
+	public function auditActivatedPlugin( $plugin ) {
+		if ( !empty( $plugin ) ) {
 			$this->getCon()->fireEvent(
 				'plugin_activated',
-				[ 'audit' => [ 'plugin' => $sPlugin ] ]
+				[ 'audit' => [ 'plugin' => $plugin ] ]
 			);
 		}
 	}
 
 	/**
-	 * @param string $sPlugin
+	 * @param string $plugin
 	 */
-	public function auditDeactivatedPlugin( $sPlugin ) {
-		if ( !empty( $sPlugin ) ) {
+	public function auditDeactivatedPlugin( $plugin ) {
+		if ( !empty( $plugin ) ) {
 			$this->getCon()->fireEvent(
 				'plugin_deactivated',
-				[ 'audit' => [ 'plugin' => $sPlugin ] ]
+				[ 'audit' => [ 'plugin' => $plugin ] ]
 			);
 		}
 	}

@@ -6,31 +6,30 @@ class Themes extends Base {
 
 	protected function run() {
 		add_action( 'switch_theme', [ $this, 'auditSwitchTheme' ] );
-		add_action( 'check_admin_referer', [ $this, 'auditEditedThemeFile' ], 10, 2 );
+		add_action( 'check_admin_referer', [ $this, 'auditEditedThemeFile' ] );
 	}
 
 	/**
-	 * @param string $sThemeName
+	 * @param string $themeName
 	 */
-	public function auditSwitchTheme( $sThemeName ) {
-		if ( !empty( $sThemeName ) ) {
+	public function auditSwitchTheme( $themeName ) {
+		if ( !empty( $themeName ) ) {
 			$this->getCon()->fireEvent(
 				'theme_activated',
-				[ 'audit' => [ 'theme' => $sThemeName ] ]
+				[ 'audit' => [ 'theme' => $themeName ] ]
 			);
 		}
 	}
 
 	/**
-	 * @param string $sAction
-	 * @param bool   $bResult
+	 * @param string $action
 	 */
-	public function auditEditedThemeFile( $sAction, $bResult ) {
-		$sStub = 'edit-theme_';
-		if ( strpos( $sAction, $sStub ) === 0 ) {
+	public function auditEditedThemeFile( $action ) {
+		$stub = 'edit-theme_';
+		if ( strpos( $action, $stub ) === 0 ) {
 			$this->getCon()->fireEvent(
 				'theme_file_edited',
-				[ 'audit' => [ 'file' => str_replace( $sStub, '', $sAction ) ] ]
+				[ 'audit' => [ 'file' => str_replace( $stub, '', $action ) ] ]
 			);
 		}
 	}

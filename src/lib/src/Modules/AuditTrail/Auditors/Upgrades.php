@@ -78,9 +78,9 @@ class Upgrades extends Base {
 				'plugin_upgraded',
 				[
 					'audit' => [
-						'file' => $VO->Name,
-						'from' => $this->plugins[ $item ],
-						'to'   => $VO->Version,
+						'plugin' => $VO->file, // was 'file'
+						'from'   => $this->plugins[ $item ],
+						'to'     => $VO->Version,
 					]
 				]
 			);
@@ -100,9 +100,9 @@ class Upgrades extends Base {
 				'theme_upgraded',
 				[
 					'audit' => [
-						'file' => $VO->Name,
-						'from' => $this->themes[ $item ],
-						'to'   => $VO->Version,
+						'theme' => $VO->stylesheet, // was 'file'
+						'from'  => $this->themes[ $item ],
+						'to'    => $VO->Version,
 					]
 				]
 			);

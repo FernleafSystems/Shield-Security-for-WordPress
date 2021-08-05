@@ -279,81 +279,159 @@
     "audit_trail_table_name":       "audit_trail",
     "events":                       {
       "plugin_activated":        {
+        "audit_params":   [
+          "plugin"
+        ],
+        "level":          "info",
         "context":        "plugins",
         "audit_multiple": true
       },
       "plugin_deactivated":      {
+        "audit_params":   [
+          "plugin"
+        ],
+        "level":          "info",
         "context":        "plugins",
         "audit_multiple": true
       },
       "plugin_file_edited":      {
-        "context": "plugins"
+        "audit_params": [
+          "file"
+        ],
+        "level":        "warning",
+        "context":      "plugins"
       },
       "plugin_upgraded":         {
+        "audit_params":   [
+          "plugin",
+          "from",
+          "to"
+        ],
+        "level":          "info",
         "context":        "plugins",
         "audit_multiple": true
       },
       "theme_activated":         {
-        "context": "themes"
+        "audit_params": [
+          "theme"
+        ],
+        "level":        "info",
+        "context":      "themes"
       },
       "theme_file_edited":       {
-        "context": "themes"
+        "audit_params": [
+          "file"
+        ],
+        "level":        "warning",
+        "context":      "themes"
       },
       "theme_upgraded":          {
+        "audit_params":   [
+          "theme",
+          "from",
+          "to"
+        ],
+        "level":          "info",
         "context":        "themes",
         "audit_multiple": true
       },
       "core_updated":            {
-        "context": "wordpress"
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "info",
+        "context":      "wordpress"
       },
       "permalinks_structure":    {
-        "context": "wordpress"
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning",
+        "context":      "wordpress"
       },
       "post_deleted":            {
+        "audit_params":   [
+          "title"
+        ],
+        "level":          "warning",
         "context":        "posts",
         "audit_multiple": true
       },
       "post_trashed":            {
+        "audit_params":   [
+          "title",
+          "type"
+        ],
+        "level":          "warning",
         "context":        "posts",
         "audit_multiple": true
       },
       "post_recovered":          {
+        "audit_params":   [
+          "title",
+          "type"
+        ],
+        "level":          "info",
         "context":        "posts",
         "audit_multiple": true
       },
       "post_updated":            {
+        "audit_params":   [
+          "title",
+          "type"
+        ],
+        "level":          "info",
         "context":        "posts",
         "audit_multiple": true
       },
       "post_published":          {
+        "audit_params":   [
+          "title",
+          "type"
+        ],
+        "level":          "info",
         "context":        "posts",
         "audit_multiple": true
       },
       "post_unpublished":        {
+        "audit_params":   [
+          "title",
+          "type"
+        ],
+        "level":          "warning",
         "context":        "posts",
         "audit_multiple": true
       },
       "user_login":              {
+        "level":   "warning",
         "context": "users"
       },
       "user_login_app":          {
+        "level":   "warning",
         "context": "users"
       },
       "user_registered":         {
+        "level":   "alert",
         "context": "users"
       },
       "user_deleted":            {
+        "level":          "warning",
         "context":        "users",
         "audit_multiple": true
       },
       "user_deleted_reassigned": {
+        "level":   "info",
         "context": "users"
       },
       "email_attempt_send":      {
+        "level":          "info",
         "context":        "emails",
         "audit_multiple": true
       },
       "email_send_invalid":      {
+        "level":          "warning",
         "context":        "emails",
         "audit_multiple": true
       }

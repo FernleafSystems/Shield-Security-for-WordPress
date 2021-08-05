@@ -12,31 +12,31 @@ class Wordpress extends Base {
 	}
 
 	/**
-	 * @param string $sNewCoreVersion
+	 * @param string $newVersion
 	 */
-	public function auditCoreUpdated( $sNewCoreVersion ) {
+	public function auditCoreUpdated( $newVersion ) {
 		$this->getCon()->fireEvent(
 			'core_updated',
 			[
 				'audit' => [
-					'old' => Services::WpGeneral()->getVersion(),
-					'new' => $sNewCoreVersion,
+					'from' => Services::WpGeneral()->getVersion(),
+					'to'   => $newVersion,
 				]
 			]
 		);
 	}
 
 	/**
-	 * @param string $sOld
-	 * @param string $sNew
+	 * @param string $old
+	 * @param string $new
 	 */
-	public function auditPermalinkStructure( $sOld, $sNew ) {
+	public function auditPermalinkStructure( $old, $new ) {
 		$this->getCon()->fireEvent(
 			'permalinks_structure',
 			[
 				'audit' => [
-					'old' => $sOld,
-					'new' => $sNew,
+					'from' => $old,
+					'to'   => $new,
 				]
 			]
 		);
