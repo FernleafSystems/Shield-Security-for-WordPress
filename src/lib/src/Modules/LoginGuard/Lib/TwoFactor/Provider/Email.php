@@ -26,22 +26,6 @@ class Email extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $success
-	 */
-	protected function auditLogin( \WP_User $user, bool $success ) {
-		$this->getCon()->fireEvent(
-			$success ? 'email_verified' : 'email_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-					'method'     => 'Email',
-				]
-			]
-		);
-	}
-
-	/**
-	 * @param \WP_User $user
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
@@ -178,15 +162,6 @@ class Email extends BaseProvider {
 		catch ( \Exception $e ) {
 			$sendSuccess = false;
 		}
-
-		$this->getCon()->fireEvent(
-			$sendSuccess ? '2fa_email_send_success' : '2fa_email_send_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-				]
-			]
-		);
 
 		return $this;
 	}

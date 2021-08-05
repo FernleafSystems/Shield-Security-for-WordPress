@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
+		$res = ( new Modules\AuditTrail\DB\LoadLogs() )
+			->setMod( $this->getCon()->getModule_AuditTrail() )
+			->run();
+		var_dump( $res );
 		die( 'finish' );
 	}
 }

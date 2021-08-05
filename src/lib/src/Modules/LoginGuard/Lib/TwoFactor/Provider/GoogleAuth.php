@@ -214,22 +214,6 @@ class GoogleAuth extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $success
-	 */
-	protected function auditLogin( \WP_User $user, bool $success ) {
-		$this->getCon()->fireEvent(
-			$success ? 'googleauth_verified' : 'googleauth_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-					'method'     => 'Google Authenticator',
-				]
-			]
-		);
-	}
-
-	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	protected function genNewSecret( \WP_User $user ) {

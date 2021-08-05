@@ -660,19 +660,28 @@
         "stat":    false
       },
       "ip_block_auto":           {
-        "offense": false,
-        "stat":    false,
-        "cat":     1
+        "audit_params": [
+          "ip"
+        ],
+        "offense":      false,
+        "stat":         false,
+        "cat":          1
       },
       "ip_block_manual":         {
-        "offense": false,
-        "stat":    false,
-        "cat":     1
+        "audit_params": [
+          "ip"
+        ],
+        "offense":      false,
+        "stat":         false,
+        "cat":          1
       },
       "ip_bypass_add":           {
-        "offense": false,
-        "stat":    false,
-        "cat":     1
+        "audit_params": [
+          "ip"
+        ],
+        "offense":      false,
+        "stat":         false,
+        "cat":          1
       },
       "ip_bypass_remove":        {
         "offense": false,

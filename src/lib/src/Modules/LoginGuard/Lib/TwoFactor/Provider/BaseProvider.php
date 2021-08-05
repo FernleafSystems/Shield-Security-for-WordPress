@@ -220,7 +220,17 @@ abstract class BaseProvider {
 		return [];
 	}
 
-	abstract protected function auditLogin( \WP_User $user, bool $success );
+	protected function auditLogin( \WP_User $user, bool $success ) {
+		$this->getCon()->fireEvent(
+			$success ? '2fa_verify_success' : '2fa_verify_fail',
+			[
+				'audit' => [
+					'user_login' => $user->user_login,
+					'method'     => $this->getProviderName(),
+				]
+			]
+		);
+	}
 
 	/**
 	 * @param \WP_User $user

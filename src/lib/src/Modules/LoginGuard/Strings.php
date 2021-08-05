@@ -20,35 +20,11 @@ class Strings extends Base\Strings {
 			'honeypot_fail'           => [
 				__( 'User "%s" attempted %s but they were caught by the honeypot.', 'wp-simple-firewall' )
 			],
-			'2fa_backupcode_verified' => [
-				__( 'User "%s" verified their identity using %s.', 'wp-simple-firewall' )
+			'2fa_verify_success'      => [
+				__( 'User "%s" verified their identity using "%s".', 'wp-simple-firewall' )
 			],
-			'2fa_backupcode_fail'     => [
-				__( 'User "%s" failed to verify their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_email_verified'      => [
-				__( 'User "%s" verified their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_email_verify_fail'   => [
-				__( 'User "%s" failed to verify their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_googleauth_verified' => [
-				__( 'User "%s" verified their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_googleauth_fail'     => [
-				__( 'User "%s" failed to verify their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_yubikey_verified'    => [
-				__( 'User "%s" verified their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_yubikey_fail'        => [
-				__( 'User "%s" failed to verify their identity using %s.', 'wp-simple-firewall' )
-			],
-			'2fa_email_send_success'  => [
-				__( 'User "%s" sent two-factor authentication email to verify identity.', 'wp-simple-firewall' )
-			],
-			'2fa_email_send_fail'     => [
-				__( 'Failed to send user "%s" two-factor authentication email.', 'wp-simple-firewall' )
+			'2fa_verify_fail'         => [
+				__( 'User "%s" failed to verify their identity using "%s".', 'wp-simple-firewall' )
 			],
 		];
 	}

@@ -217,22 +217,6 @@ class Yubikey extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @param bool     $success
-	 */
-	protected function auditLogin( \WP_User $user, bool $success ) {
-		$this->getCon()->fireEvent(
-			$success ? 'yubikey_verified' : 'yubikey_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-					'method'     => 'Yubikey',
-				]
-			]
-		);
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getFormField() :array {

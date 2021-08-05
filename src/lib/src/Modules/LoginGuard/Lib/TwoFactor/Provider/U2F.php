@@ -309,22 +309,6 @@ class U2F extends BaseProvider {
 		return !empty( $oRegistration );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param bool     $success
-	 */
-	protected function auditLogin( \WP_User $user, bool $success ) {
-		$this->getCon()->fireEvent(
-			$success ? '2fa_u2f_verified' : '2fa_u2f_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-					'method'     => 'U2F',
-				]
-			]
-		);
-	}
-
 	public function isProviderEnabled() :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();

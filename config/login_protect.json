@@ -502,45 +502,34 @@
   "definitions":   {
     "login_intent_timeout": 5,
     "events":               {
-      "2fa_backupcode_verified": {
+      "2fa_verify_success": {
+        "audit_params": [
+          "user_login",
+          "method"
+        ]
       },
-      "2fa_backupcode_fail":     {
-        "offense": true
+      "2fa_verify_fail":    {
+        "audit_params": [
+          "user_login",
+          "method"
+        ],
+        "offense":      true
       },
-      "2fa_email_verified":      {
+      "cooldown_fail":      {
       },
-      "2fa_email_verify_fail":   {
-        "offense": true
+      "honeypot_fail":      {
       },
-      "2fa_googleauth_verified": {
+      "botbox_fail":        {
       },
-      "2fa_google_fail":         {
-        "offense": true
-      },
-      "2fa_yubikey_verified":    {
-      },
-      "2fa_yubikey_fail":        {
-        "offense": true
-      },
-      "2fa_email_send_success":  {
-      },
-      "2fa_email_send_fail":     {
-      },
-      "cooldown_fail":           {
-      },
-      "honeypot_fail":           {
-      },
-      "botbox_fail":             {
-      },
-      "login_block":             {
+      "login_block":        {
         "audit":   false,
         "recent":  true,
         "offense": true
       },
-      "hide_login_url":          {
+      "hide_login_url":     {
         "audit": false
       },
-      "2fa_success":             {
+      "2fa_success":        {
         "audit":  false,
         "recent": true
       }
