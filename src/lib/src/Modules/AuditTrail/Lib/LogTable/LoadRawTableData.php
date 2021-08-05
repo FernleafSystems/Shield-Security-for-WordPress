@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops\ConvertLegacy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,6 +19,10 @@ class LoadRawTableData {
 	private $log;
 
 	public function loadForLogs() :array {
+		( new ConvertLegacy() )
+			->setMod( $this->getMod() )
+			->run();
+
 		return array_values( array_map(
 			function ( $log ) {
 				$this->log = $log;
