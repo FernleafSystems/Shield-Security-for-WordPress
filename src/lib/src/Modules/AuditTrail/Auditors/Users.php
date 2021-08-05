@@ -67,13 +67,13 @@ class Users extends Base {
 			);
 		}
 
-		$oReassignedUser = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
-		if ( $oReassignedUser instanceof \WP_User ) {
+		$reassigned = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
+		if ( $reassigned instanceof \WP_User ) {
 			$this->getCon()->fireEvent(
 				'user_deleted_reassigned',
 				[
 					'audit' => [
-						'user' => sanitize_user( $oReassignedUser->user_login ),
+						'user' => sanitize_user( $reassigned->user_login ),
 					]
 				]
 			);

@@ -405,33 +405,53 @@
         "audit_multiple": true
       },
       "user_login":              {
-        "level":   "warning",
-        "context": "users"
+        "audit_params": [
+          "user"
+        ],
+        "level":        "warning",
+        "context":      "users"
       },
       "user_login_app":          {
-        "level":   "warning",
-        "context": "users"
+        "audit_params": [
+          "user"
+        ],
+        "level":        "warning",
+        "context":      "users"
       },
       "user_registered":         {
-        "level":   "alert",
-        "context": "users"
+        "audit_params": [
+          "user",
+          "email"
+        ],
+        "level":        "alert",
+        "context":      "users"
       },
       "user_deleted":            {
+        "audit_params":   [
+          "user",
+          "email"
+        ],
         "level":          "warning",
         "context":        "users",
         "audit_multiple": true
       },
       "user_deleted_reassigned": {
-        "level":   "info",
-        "context": "users"
+        "audit_params": [
+          "user"
+        ],
+        "level":        "info",
+        "context":      "users"
       },
       "email_attempt_send":      {
+        "audit_params":   [
+          "to",
+          "subject",
+          "cc",
+          "bcc",
+          "bt_file",
+          "bt_line"
+        ],
         "level":          "info",
-        "context":        "emails",
-        "audit_multiple": true
-      },
-      "email_send_invalid":      {
-        "level":          "warning",
         "context":        "emails",
         "audit_multiple": true
       }

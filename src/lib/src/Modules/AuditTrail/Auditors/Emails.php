@@ -11,27 +11,27 @@ class Emails extends Base {
 	}
 
 	/**
-	 * @param array $aEmail
+	 * @param array $email
 	 * @return array
 	 */
-	public function auditEmailSend( $aEmail ) {
+	public function auditEmailSend( $email ) {
 
-		if ( is_array( $aEmail ) ) {
+		if ( is_array( $email ) ) {
 
-			$sTo = isset( $aEmail[ 'to' ] ) ? $aEmail[ 'to' ] : __( 'not provided', 'wp-simple-firewall' );
-			if ( is_array( $sTo ) ) {
-				$sTo = implode( ', ', $sTo );
+			$to = $email[ 'to' ] ?? __( 'not provided', 'wp-simple-firewall' );
+			if ( is_array( $to ) ) {
+				$to = implode( ', ', $to );
 			}
 
-			$aData = [
-				'to'      => $sTo,
-				'subject' => $aEmail[ 'subject' ],
+			$auditData = [
+				'to'      => $to,
+				'subject' => $email[ 'subject' ],
 			];
 
 			// Attempt to capture BCC/CC
 			$aCCs = [];
-			if ( !empty( $aEmail[ 'headers' ] ) ) {
-				$aHeaders = $aEmail[ 'headers' ];
+			if ( !empty( $email[ 'headers' ] ) ) {
+				$aHeaders = $email[ 'headers' ];
 				if ( is_string( $aHeaders ) ) {
 					$aHeaders = explode( "\n", $aHeaders );
 				}
@@ -39,24 +39,18 @@ class Emails extends Base {
 					$aCCs = $this->extractCcFromHeaders( $aHeaders );
 				}
 			}
-			$aData[ 'cc' ] = empty( $aCCs[ 'cc' ] ) ? '-' : implode( ',', $aCCs[ 'cc' ] );
-			$aData[ 'bcc' ] = empty( $aCCs[ 'bcc' ] ) ? '-' : implode( ',', $aCCs[ 'bcc' ] );
+			$auditData[ 'cc' ] = empty( $aCCs[ 'cc' ] ) ? '-' : implode( ',', $aCCs[ 'cc' ] );
+			$auditData[ 'bcc' ] = empty( $aCCs[ 'bcc' ] ) ? '-' : implode( ',', $aCCs[ 'bcc' ] );
 
 			// Where was the wp_mail function called from
 			$aBacktrace = $this->findEmailSenderBacktrace();
-			$aData[ 'bt_file' ] = empty( $aBacktrace[ 'file' ] ) ? 'unavailable' : str_replace( ABSPATH, '', $aBacktrace[ 'file' ] );
-			$aData[ 'bt_line' ] = empty( $aBacktrace[ 'line' ] ) ? 'unavailable' : $aBacktrace[ 'line' ];
+			$auditData[ 'bt_file' ] = empty( $aBacktrace[ 'file' ] ) ? 'unavailable' : str_replace( ABSPATH, '', $aBacktrace[ 'file' ] );
+			$auditData[ 'bt_line' ] = empty( $aBacktrace[ 'line' ] ) ? 'unavailable' : $aBacktrace[ 'line' ];
 
-			$this->getCon()->fireEvent( 'email_attempt_send', [ 'audit' => $aData ] );
-		}
-		else {
-			$this->getCon()->fireEvent(
-				'email_send_invalid',
-				[ 'audit' => [ 'type' => 'array' ] ]
-			);
+			$this->getCon()->fireEvent( 'email_attempt_send', [ 'audit' => $auditData ] );
 		}
 
-		return $aEmail;
+		return $email;
 	}
 
 	/**
