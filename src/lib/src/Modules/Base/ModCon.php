@@ -77,6 +77,11 @@ abstract class ModCon {
 	private $aDbHandlers;
 
 	/**
+	 * @var Databases
+	 */
+	private $dbHandler;
+
+	/**
 	 * @param Shield\Controller\Controller $pluginCon
 	 * @param array                        $mod
 	 * @throws \Exception
@@ -138,6 +143,9 @@ abstract class ModCon {
 //		}
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
+
+
+		$this->dbHandlers = [];
 	}
 
 	protected function setupCustomHooks() {
@@ -1364,6 +1372,16 @@ abstract class ModCon {
 			$debug = $this->loadModElement( 'Debug' );
 			$debug->run();
 		}
+	}
+
+	/**
+	 * @return Shield\Modules\Base\Databases|mixed
+	 */
+	protected function getDbHandler() {
+		if ( empty( $this->dbHandler ) ) {
+			$this->dbHandler = $this->loadModElement( 'Databases' );
+		}
+		return $this->dbHandler;
 	}
 
 	/**
