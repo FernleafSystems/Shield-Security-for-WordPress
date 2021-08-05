@@ -98,8 +98,8 @@
           "text":      "Warning"
         },
         {
-          "value_key": "informational",
-          "text":      "Informational"
+          "value_key": "info",
+          "text":      "Info"
         },
         {
           "value_key": "debug",
@@ -150,8 +150,8 @@
           "text":      "Warning"
         },
         {
-          "value_key": "informational",
-          "text":      "Informational"
+          "value_key": "info",
+          "text":      "Info"
         },
         {
           "value_key": "debug",
