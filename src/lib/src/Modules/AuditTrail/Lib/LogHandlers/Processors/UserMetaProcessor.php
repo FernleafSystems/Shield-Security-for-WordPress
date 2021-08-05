@@ -17,7 +17,7 @@ class UserMetaProcessor implements ProcessorInterface {
 		$uid = Services::WpUsers()->getCurrentWpUserId();
 		if ( empty( $uid ) ) {
 			if ( $WP->isWpCli() ) {
-				$uid = 'wpcli';
+				$uid = 'cli';
 			}
 			elseif ( $WP->isCron() ) {
 				$uid = 'cron';
