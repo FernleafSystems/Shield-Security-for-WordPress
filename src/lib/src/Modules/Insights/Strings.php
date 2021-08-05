@@ -12,7 +12,7 @@ class Strings extends Base\Strings {
 	public function getInsightStatNames() :array {
 		return [
 			'key_success'                  => __( 'Successful authentication with Security Admin', 'wp-simple-firewall' ),
-			'key_fail'                     => __( 'Failed authentication with Security Admin', 'wp-simple-firewall' ),
+			'key_fail'                     => __( 'Security PIN Authentication Failed', 'wp-simple-firewall' ),
 			'test_cron_run'                => __( 'Simple Test Cron', 'wp-simple-firewall' ),
 			'apc_scan_run'                 => __( 'Scanned for abandoned plugins', 'wp-simple-firewall' ),
 			'mal_scan_run'                 => __( 'Scanned for malware', 'wp-simple-firewall' ),

@@ -408,9 +408,11 @@
     ],
     "events":                 {
       "key_success": {
+        "level":  "info",
         "recent": true
       },
       "key_fail":    {
+        "level":   "warning",
         "cat":     3,
         "recent":  true,
         "offense": true

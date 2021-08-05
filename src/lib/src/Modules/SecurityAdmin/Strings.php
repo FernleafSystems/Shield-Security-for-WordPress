@@ -12,10 +12,10 @@ class Strings extends Base\Strings {
 	protected function getAuditMessages() :array {
 		return [
 			'key_success' => [
-				__( 'Successful authentication using Security Admin PIN.', 'wp-simple-firewall' ),
+				__( 'Security PIN Authentication Success.', 'wp-simple-firewall' ),
 			],
 			'key_fail'    => [
-				__( 'Failed authentication using Security Admin PIN.', 'wp-simple-firewall' ),
+				__( 'Security PIN Authentication Failed.', 'wp-simple-firewall' ),
 			],
 		];
 	}
