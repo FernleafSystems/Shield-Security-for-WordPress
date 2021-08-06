@@ -193,24 +193,44 @@
   "definitions": {
     "events": {
       "spam_form_pass":     {
-        "stat":    true,
-        "audit":   true,
-        "offense": false
+        "audit_params": [
+          "form_provider"
+        ],
+        "level":        "info",
+        "stat":         true,
+        "audit":        true,
+        "offense":      false
       },
       "spam_form_fail":     {
-        "stat":    true,
-        "audit":   true,
-        "offense": false
+        "audit_params": [
+          "form_provider"
+        ],
+        "level":        "warning",
+        "stat":         true,
+        "audit":        true,
+        "offense":      false
       },
       "user_form_bot_pass": {
-        "stat":    true,
-        "audit":   true,
-        "offense": false
+        "audit_params": [
+          "form_provider",
+          "action",
+          "username"
+        ],
+        "level":        "info",
+        "stat":         true,
+        "audit":        true,
+        "offense":      false
       },
       "user_form_bot_fail": {
-        "stat":    true,
-        "audit":   true,
-        "offense": true
+        "audit_params": [
+          "form_provider",
+          "action",
+          "username"
+        ],
+        "level":        "warning",
+        "stat":         true,
+        "audit":        true,
+        "offense":      true
       }
     }
   }
