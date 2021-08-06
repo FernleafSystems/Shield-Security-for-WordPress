@@ -152,18 +152,18 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		$WPU = Services::WpUsers();
 
-		$oEditedUser = $WPU->getUserById( $uid );
+		$user = $WPU->getUserById( $uid );
 
-		if ( !$WPU->isUserAdmin( $oEditedUser ) || $con->isPluginAdmin() ) {
+		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $con->isPluginAdmin() ) ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
-			$mod->addRemoveHardSuspendUserId( $uid, $isSuspend );
+			$mod->addRemoveHardSuspendUser( $user, $isSuspend );
 
 			if ( $isSuspend ) { // Delete any existing user sessions
 				( new Terminate() )
 					->setMod( $con->getModule_Sessions() )
-					->byUsername( $oEditedUser->user_login );
+					->byUsername( $user->user_login );
 			}
 		}
 	}

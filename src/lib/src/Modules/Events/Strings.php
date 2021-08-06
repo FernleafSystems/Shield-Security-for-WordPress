@@ -231,6 +231,7 @@ class Strings extends Base\Strings {
 			),
 			'session_start'                => __( 'Session Started', 'wp-simple-firewall' ),
 			'session_terminate'            => __( 'Session Terminated', 'wp-simple-firewall' ),
+			'session_terminate_current'    => __( 'Current Session Terminated', 'wp-simple-firewall' ),
 			'plugin_activated'             => __( 'Plugin Activated', 'wp-simple-firewall' ),
 			'plugin_deactivated'           => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
 			'plugin_upgraded'              => __( 'Plugin Upgraded', 'wp-simple-firewall' ),

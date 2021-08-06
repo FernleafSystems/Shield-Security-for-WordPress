@@ -424,20 +424,41 @@
       "session_unverified":           {
       },
       "password_expired":             {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "debug"
       },
       "password_policy_force_change": {
-        "recent": true
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "debug"
       },
       "password_policy_block":        {
-        "recent": true
+        "level": "debug"
       },
       "user_hard_suspended":          {
-        "recent": true
+        "audit_params": [
+          "user_login",
+          "admin"
+        ],
+        "level":        "warning"
       },
       "user_hard_unsuspended":        {
+        "audit_params": [
+          "user_login",
+          "admin"
+        ],
+        "level":        "warning"
       },
       "reg_email_invalid":            {
-        "offense": true
+        "audit_params": [
+          "email",
+          "reason"
+        ],
+        "level":        "warning",
+        "offense":      true
       }
     }
   }

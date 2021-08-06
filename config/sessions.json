@@ -75,14 +75,25 @@
       }
     },
     "events":              {
-      "session_start":     {
+      "session_start":             {
+        "audit_params": [
+          "user_login",
+          "session_id"
+        ],
+        "level":        "debug"
+      },
+      "session_terminate":         {
         "level": "debug"
       },
-      "session_terminate": {
-        "level":  "debug",
-        "recent": true
+      "session_terminate_current": {
+        "audit_params": [
+          "user_login",
+          "session_id"
+        ],
+        "level":        "debug",
+        "recent":       true
       },
-      "login_success":     {
+      "login_success":             {
         "level":   "debug",
         "offense": false,
         "stat":    false

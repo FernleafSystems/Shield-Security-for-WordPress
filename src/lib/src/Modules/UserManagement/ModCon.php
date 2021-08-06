@@ -80,45 +80,45 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @param int  $nUserId
-	 * @param bool $bAdd - set true to add, false to remove
+	 * @param int  $userID
+	 * @param bool $add - set true to add, false to remove
 	 */
-	public function addRemoveHardSuspendUserId( $nUserId, $bAdd = true ) {
+	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$aIds = $opts->getSuspendHardUserIds();
+		$IDs = $opts->getSuspendHardUserIds();
 
-		$oMeta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
-		$bIdSuspended = isset( $aIds[ $nUserId ] ) || $oMeta->hard_suspended_at > 0;
+		$meta = $this->getCon()->getUserMeta( $user );
+		$isSuspended = isset( $IDs[ $user->ID ] ) || $meta->hard_suspended_at > 0;
 
-		if ( $bAdd && !$bIdSuspended ) {
-			$oMeta->hard_suspended_at = Services::Request()->ts();
-			$aIds[ $nUserId ] = $oMeta->hard_suspended_at;
+		if ( $add && !$isSuspended ) {
+			$meta->hard_suspended_at = Services::Request()->ts();
+			$IDs[ $user->ID ] = $meta->hard_suspended_at;
 			$this->getCon()->fireEvent(
 				'user_hard_suspended',
 				[
 					'audit_params' => [
-						'user_id' => $nUserId,
-						'admin'   => Services::WpUsers()->getCurrentWpUsername(),
+						'user_login' => $user->user_login,
+						'admin'      => Services::WpUsers()->getCurrentWpUsername(),
 					]
 				]
 			);
 		}
-		elseif ( !$bAdd && $bIdSuspended ) {
-			$oMeta->hard_suspended_at = 0;
-			unset( $aIds[ $nUserId ] );
+		elseif ( !$add && $isSuspended ) {
+			$meta->hard_suspended_at = 0;
+			unset( $IDs[ $user->ID ] );
 			$this->getCon()->fireEvent(
 				'user_hard_unsuspended',
 				[
 					'audit_params' => [
-						'user_id' => $nUserId,
-						'admin'   => Services::WpUsers()->getCurrentWpUsername(),
+						'user_login' => $user->user_login,
+						'admin'      => Services::WpUsers()->getCurrentWpUsername(),
 					]
 				]
 			);
 		}
 
-		$opts->setOpt( 'hard_suspended_userids', $aIds );
+		$opts->setOpt( 'hard_suspended_userids', $IDs );
 	}
 }

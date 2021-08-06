@@ -241,7 +241,12 @@
     "traffic_table_name": "traffic",
     "events":             {
       "request_limit_exceeded": {
-        "offense": true
+        "audit_params": [
+          "count",
+          "span"
+        ],
+        "level":        "alert",
+        "offense":      true
       }
     }
   }

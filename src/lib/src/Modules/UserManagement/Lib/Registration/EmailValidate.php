@@ -37,9 +37,9 @@ class EmailValidate {
 			$this->track[] = $email;
 
 			$opts = $this->getOptions();
-			$sInvalidBecause = null;
+			$invalidBecause = null;
 			if ( !is_email( $email ) ) {
-				$sInvalidBecause = 'syntax';
+				$invalidBecause = 'syntax';
 			}
 			else {
 				$apiToken = $this->getCon()
@@ -52,7 +52,7 @@ class EmailValidate {
 					if ( is_array( $aVerifys ) ) {
 						foreach ( $aVerifys as $sVerifyKey => $bIsValid ) {
 							if ( !$bIsValid && in_array( $sVerifyKey, $aChecks ) ) {
-								$sInvalidBecause = $sVerifyKey;
+								$invalidBecause = $sVerifyKey;
 								break;
 							}
 						}
@@ -60,14 +60,14 @@ class EmailValidate {
 				}
 			}
 
-			if ( !empty( $sInvalidBecause ) ) {
+			if ( !empty( $invalidBecause ) ) {
 				$opt = $opts->getValidateEmailOnRegistration();
 				$this->getCon()->fireEvent(
 					'reg_email_invalid',
 					[
 						'audit_params'  => [
 							'email'  => sanitize_email( $email ),
-							'reason' => sanitize_key( $sInvalidBecause ),
+							'reason' => sanitize_key( $invalidBecause ),
 						],
 						'offense_count' => $opt == 'log' ? 0 : 1,
 						'block'         => $opt == 'block',
