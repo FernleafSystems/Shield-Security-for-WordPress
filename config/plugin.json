@@ -659,41 +659,75 @@
         "recent": true
       },
       "import_notify_sent":     {
-        "stat": false
+        "level": "debug",
+        "stat":  false
       },
       "import_notify_received": {
-        "stat": false
+        "audit_params": [
+          "master_site"
+        ],
+        "level":        "info",
+        "stat":         false
       },
       "options_exported":       {
-        "stat":   true,
-        "recent": true
+        "audit_params": [
+          "site"
+        ],
+        "level":        "info",
+        "stat":         true,
+        "recent":       true
       },
       "options_imported":       {
-        "stat":   true,
-        "recent": true
+        "audit_params": [
+          "site"
+        ],
+        "level":        "info",
+        "stat":         true,
+        "recent":       true
       },
       "whitelist_site_added":   {
-        "stat": false
+        "audit_params": [
+          "site"
+        ],
+        "level":        "warning",
+        "stat":         false
       },
       "whitelist_site_removed": {
-        "stat": false
+        "audit_params": [
+          "site"
+        ],
+        "level":        "info",
+        "stat":         false
       },
       "master_url_set":         {
-        "stat": false
+        "audit_params": [
+          "site"
+        ],
+        "level":        "warning",
+        "stat":         false
       },
       "recaptcha_success":      {
         "level": "debug"
       },
       "recaptcha_fail":         {
+        "level": "warning",
         "audit": true
       },
       "antibot_pass":           {
-        "stat":  true,
-        "audit": true
+        "audit_params": [
+          "score",
+          "minimum"
+        ],
+        "level":        "info",
+        "stat":         true
       },
       "antibot_fail":           {
-        "stat":  true,
-        "audit": true
+        "audit_params": [
+          "score",
+          "minimum"
+        ],
+        "level":        "warning",
+        "stat":         true
       },
       "frontpage_load":         {
         "level":   "debug",

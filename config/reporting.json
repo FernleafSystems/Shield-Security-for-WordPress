@@ -154,6 +154,21 @@
         "interval_end_at": "Reporting Interval End",
         "sent_at":         "Report Sent"
       }
+    },
+    "events":           {
+      "report_generated":   {
+        "audit_params": [
+          "type",
+          "interval"
+        ],
+        "level":        "debug"
+      },
+      "report_sent": {
+        "audit_params": [
+          "medium"
+        ],
+        "level":        "debug"
+      }
     }
   }
 }

@@ -40,16 +40,16 @@ class Export {
 
 		$sNetworkOpt = $req->query( 'network', '' );
 		$bDoNetwork = !empty( $sNetworkOpt );
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
+		$url = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
 
-		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
+		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $url ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
 
 		$bSuccess = false;
 		$aData = [];
 
-		if ( !$this->verifyUrlWithHandshake( $sUrl ) ) {
+		if ( !$this->verifyUrlWithHandshake( $url ) ) {
 			$nCode = 3;
 			$sMessage = __( 'Handshake verification failed.', 'wp-simple-firewall' );
 		}
@@ -61,22 +61,22 @@ class Export {
 
 			$this->getCon()->fireEvent(
 				'options_exported',
-				[ 'audit_params' => [ 'site' => $sUrl ] ]
+				[ 'audit_params' => [ 'site' => $url ] ]
 			);
 
 			if ( $bDoNetwork ) {
 				if ( $sNetworkOpt === 'Y' ) {
-					$mod->addUrlToImportExportWhitelistUrls( $sUrl );
+					$mod->addUrlToImportExportWhitelistUrls( $url );
 					$this->getCon()->fireEvent(
 						'whitelist_site_added',
-						[ 'audit_params' => [ 'site' => $sUrl ] ]
+						[ 'audit_params' => [ 'site' => $url ] ]
 					);
 				}
 				else {
-					$mod->removeUrlFromImportExportWhitelistUrls( $sUrl );
+					$mod->removeUrlFromImportExportWhitelistUrls( $url );
 					$this->getCon()->fireEvent(
 						'whitelist_site_removed',
-						[ 'audit_params' => [ 'site' => $sUrl ] ]
+						[ 'audit_params' => [ 'site' => $url ] ]
 					);
 				}
 			}

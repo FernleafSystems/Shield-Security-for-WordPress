@@ -37,10 +37,16 @@ class ReportingController {
 
 		if ( $opts->getFrequencyAlert() !== 'disabled' ) {
 			try {
-				$alertReport = $this->buildReportAlerts();
-				if ( !empty( $alertReport->content ) ) {
-					$this->storeReportRecord( $alertReport );
-					$reports[] = $alertReport;
+				$report = $this->buildReportAlerts();
+				if ( !empty( $report->content ) ) {
+					$this->storeReportRecord( $report );
+					$reports[] = $report;
+					$this->getCon()->fireEvent( 'report_generated', [
+						'audit_params' => [
+							'type'     => 'alert',
+							'interval' => $report->interval,
+						]
+					] );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -49,10 +55,16 @@ class ReportingController {
 
 		if ( $opts->getFrequencyInfo() !== 'disabled' ) {
 			try {
-				$infoReport = $this->buildReportInfo();
-				if ( !empty( $infoReport->content ) ) {
-					$this->storeReportRecord( $infoReport );
-					$reports[] = $infoReport;
+				$report = $this->buildReportInfo();
+				if ( !empty( $report->content ) ) {
+					$this->storeReportRecord( $report );
+					$reports[] = $report;
+					$this->getCon()->fireEvent( 'report_generated', [
+						'audit_params' => [
+							'type'     => 'info',
+							'interval' => $report->interval,
+						]
+					] );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -151,6 +163,12 @@ class ReportingController {
 							 ]
 						 ]
 					 );
+
+				$this->getCon()->fireEvent( 'report_sent', [
+					'audit_params' => [
+						'medium'     => 'email',
+					]
+				] );
 			}
 			catch ( \Exception $e ) {
 				error_log( $e->getMessage() );

@@ -516,10 +516,21 @@
         "offense":      true
       },
       "cooldown_fail":      {
+        "level": "warning"
       },
       "honeypot_fail":      {
+        "audit_params": [
+          "user_login",
+          "action"
+        ],
+        "level": "warning"
       },
       "botbox_fail":        {
+        "audit_params": [
+          "user_login",
+          "action"
+        ],
+        "level": "warning"
       },
       "login_block":        {
         "level":   "debug",
