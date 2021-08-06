@@ -522,15 +522,15 @@
       "botbox_fail":        {
       },
       "login_block":        {
-        "audit":   false,
+        "level":   "debug",
         "recent":  true,
         "offense": true
       },
       "hide_login_url":     {
-        "audit": false
+        "level": "debug"
       },
       "2fa_success":        {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       }
     }

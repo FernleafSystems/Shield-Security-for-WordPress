@@ -658,8 +658,8 @@
         "level":        "warning"
       },
       "ip_unblock":              {
+        "level":   "info",
         "offense": false,
-        "audit":   false,
         "stat":    false
       },
       "ip_block_auto":           {
@@ -732,26 +732,27 @@
         "audit_params": [
           "login"
         ],
-        "level":   "alert",
-        "offense": true
+        "level":        "alert",
+        "offense":      true
       },
       "bottrack_xmlrpc":         {
         "audit_params": [
           "path"
         ],
-        "offense": true
+        "offense":      true
       },
       "bottrack_invalidscript":  {
         "audit_params": [
           "script"
         ],
-        "offense": true
+        "offense":      true
       },
       "comment_markspam":        {
+        "level":   "info",
         "offense": true
       },
       "comment_unmarkspam":      {
-        "audit":   false,
+        "level":   "debug",
         "offense": false,
         "stat":    false
       }

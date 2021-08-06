@@ -184,10 +184,14 @@
     ],
     "events":                     {
       "block_anonymous_restapi": {
-        "recent": true
+        "audit_params": [
+          "namespace"
+        ],
+        "level":        "warning",
+        "recent":       true
       },
       "block_xml":               {
-        "audit":   false,
+        "level":   "info",
         "recent":  true,
         "offense": true
       }

@@ -655,7 +655,7 @@
     ],
     "events":                 {
       "test_cron_run":          {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "import_notify_sent":     {
@@ -682,7 +682,7 @@
         "stat": false
       },
       "recaptcha_success":      {
-        "audit": false
+        "level": "debug"
       },
       "recaptcha_fail":         {
         "audit": true
@@ -696,14 +696,14 @@
         "audit": true
       },
       "frontpage_load":         {
+        "level":   "debug",
         "offense": false,
-        "stat":    false,
-        "audit":   false
+        "stat":    false
       },
       "loginpage_load":         {
+        "level":   "debug",
         "offense": false,
-        "stat":    false,
-        "audit":   false
+        "stat":    false
       }
     },
     "wizards":                {

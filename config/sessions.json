@@ -76,15 +76,15 @@
     },
     "events":              {
       "session_start":     {
-        "audit": false
+        "level": "debug"
       },
       "session_terminate": {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "login_success":     {
+        "level":   "debug",
         "offense": false,
-        "audit":   false,
         "stat":    false
       }
     }

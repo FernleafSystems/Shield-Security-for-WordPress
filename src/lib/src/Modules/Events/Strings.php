@@ -156,7 +156,7 @@ class Strings extends Base\Strings {
 			'honeypot_fail'                => __( '', 'wp-simple-firewall' ),
 			'botbox_fail'                  => __( '', 'wp-simple-firewall' ),
 			'login_block'                  => __( 'Blocked Login', 'wp-simple-firewall' ),
-			'hide_login_url'               => __( '', 'wp-simple-firewall' ),
+			'hide_login_url'               => __( 'Redirecting wp-login due to hidden login URL', 'wp-simple-firewall' ),
 			'2fa_success'                  => __( '', 'wp-simple-firewall' ),
 			'check_skip'                   => __( '', 'wp-simple-firewall' ),
 			'fw_email_fail'                => __( 'Firewall Block Email Fail', 'wp-simple-firewall' ),

@@ -421,7 +421,7 @@
         "stat":  false
       },
       "firewall_block":             {
-        "audit":   false,
+        "level":   "debug",
         "recent":  true,
         "offense": true
       },

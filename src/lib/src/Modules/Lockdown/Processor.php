@@ -112,9 +112,9 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$oWpRest = Services::Rest();
 
-		$sNamespace = $oWpRest->getNamespace();
-		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$mod->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
+		$namespace = $oWpRest->getNamespace();
+		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus )
+			 && !$mod->isPermittedAnonRestApiNamespace( $namespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
@@ -125,7 +125,7 @@ class Processor extends BaseShield\Processor {
 			$this->getCon()
 				 ->fireEvent(
 					 'block_anonymous_restapi',
-					 [ 'audit_params' => [ 'namespace' => $sNamespace ] ]
+					 [ 'audit_params' => [ 'namespace' => $namespace ] ]
 				 );
 		}
 

@@ -332,7 +332,7 @@
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
       "comment_spam_block":   {
-        "audit":   false,
+        "level":   "debug",
         "stat":    false,
         "offense": true
       },

@@ -568,27 +568,27 @@
       "wpv_alert_sent":           {
       },
       "apc_scan_run":             {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "mal_scan_run":             {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "ptg_scan_run":             {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "ufc_scan_run":             {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "wcf_scan_run":             {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "wpv_scan_run":             {
-        "audit":  false,
+        "level":  "debug",
         "recent": true
       },
       "apc_scan_found":           {
