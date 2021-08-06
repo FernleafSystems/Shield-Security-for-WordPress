@@ -157,7 +157,6 @@
         "stat": false
       },
       "lic_fail_deactivate": {
-        "cat":  2,
         "stat": false
       }
     }

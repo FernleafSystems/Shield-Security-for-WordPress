@@ -413,7 +413,6 @@
       },
       "key_fail":    {
         "level":   "warning",
-        "cat":     3,
         "recent":  true,
         "offense": true
       }

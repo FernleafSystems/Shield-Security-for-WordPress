@@ -241,7 +241,6 @@
     "traffic_table_name": "traffic",
     "events":             {
       "request_limit_exceeded": {
-        "cat":     3,
         "offense": true
       }
     }

@@ -56,8 +56,17 @@
   "definitions": {
     "events": {
       "suresend_success": {
+        "audit_params": [
+          "user"
+        ],
+        "level":        "info"
       },
       "suresend_fail":    {
+        "audit_params": [
+          "user_login",
+          "slug"
+        ],
+        "level":        "warning"
       }
     }
   }

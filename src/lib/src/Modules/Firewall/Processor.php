@@ -224,15 +224,15 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param string $sKey
+	 * @param string $key
 	 * @return array|null
 	 */
-	protected function getFirewallPatterns( $sKey = null ) {
+	protected function getFirewallPatterns( $key = null ) {
 		if ( !isset( $this->aPatterns ) ) {
 			$this->aPatterns = $this->getOptions()->getDef( 'firewall_patterns' );
 		}
-		if ( !empty( $sKey ) ) {
-			return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
+		if ( !empty( $key ) ) {
+			return $this->aPatterns[ $key ] ?? null;
 		}
 		return $this->aPatterns;
 	}

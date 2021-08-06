@@ -642,17 +642,13 @@
     },
     "events":              {
       "custom_offense":          {
-        "cat":     3,
         "offense": true
       },
       "conn_kill":               {
-        "cat": 3
       },
       "ip_offense":              {
-        "cat": 2
       },
       "ip_blocked":              {
-        "cat": 2
       },
       "ip_unblock":              {
         "offense": false,
@@ -664,73 +660,58 @@
           "ip"
         ],
         "offense":      false,
-        "stat":         false,
-        "cat":          1
+        "stat":         false
       },
       "ip_block_manual":         {
         "audit_params": [
           "ip"
         ],
         "offense":      false,
-        "stat":         false,
-        "cat":          1
+        "stat":         false
       },
       "ip_bypass_add":           {
         "audit_params": [
           "ip"
         ],
         "offense":      false,
-        "stat":         false,
-        "cat":          1
+        "stat":         false
       },
       "ip_bypass_remove":        {
         "offense": false,
-        "stat":    false,
-        "cat":     1
+        "stat":    false
       },
       "ip_unblock_flag":         {
-        "cat": 1
       },
       "bottrack_notbot":         {
-        "cat":     0,
         "offense": false,
         "audit":   false,
         "stat":    false
       },
       "bottrack_404":            {
-        "cat":     1,
         "offense": true
       },
       "bottrack_fakewebcrawler": {
-        "cat":     2,
         "offense": true
       },
       "bottrack_linkcheese":     {
-        "cat":     2,
         "offense": true
       },
       "bottrack_loginfailed":    {
-        "cat":     2,
         "offense": true
       },
       "bottrack_logininvalid":   {
-        "cat":     2,
         "offense": true
       },
       "bottrack_useragent":      {
-        "cat":     1,
         "offense": true
       },
       "bottrack_xmlrpc":         {
-        "cat":     2,
         "offense": true
       },
       "bottrack_invalidscript":  {
-        "cat":     2,
         "offense": true
       },
       "comment_markspam":        {
-        "cat":     2,
         "offense": true
       },
       "comment_unmarkspam":      {

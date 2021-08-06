@@ -417,8 +417,8 @@
     },
     "events":            {
       "check_skip":                 {
-        "cat":  2,
-        "stat": false
+        "level": "info",
+        "stat":  false
       },
       "firewall_block":             {
         "audit":   false,
@@ -426,35 +426,82 @@
         "offense": true
       },
       "blockparam_dirtraversal":    {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "blockparam_wpterms":         {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "blockparam_fieldtruncation": {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "blockparam_sqlqueries":      {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "blockparam_schema":          {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "blockparam_aggressive":      {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "blockparam_phpcode":         {
-        "cat": 3
+        "audit_params": [
+          "param",
+          "val",
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "block_exefile":              {
-        "cat": 3
+        "audit_params": [
+          "blockresponse",
+          "blockkey"
+        ],
+        "level":        "warning"
       },
       "fw_email_fail":              {
-        "cat":  2,
-        "stat": false
+        "level": "warning",
+        "stat":  false
       },
       "fw_email_success":           {
-        "stat": false
+        "level": "info",
+        "stat":  false
       }
     }
   }
