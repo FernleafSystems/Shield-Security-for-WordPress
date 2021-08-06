@@ -645,10 +645,17 @@
         "offense": true
       },
       "conn_kill":               {
+        "level": "warning"
       },
       "ip_offense":              {
+        "level": "warning"
       },
       "ip_blocked":              {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
       },
       "ip_unblock":              {
         "offense": false,
@@ -659,6 +666,7 @@
         "audit_params": [
           "ip"
         ],
+        "level":        "alert",
         "offense":      false,
         "stat":         false
       },
@@ -666,6 +674,7 @@
         "audit_params": [
           "ip"
         ],
+        "level":        "alert",
         "offense":      false,
         "stat":         false
       },
@@ -673,42 +682,69 @@
         "audit_params": [
           "ip"
         ],
+        "level":        "alert",
         "offense":      false,
         "stat":         false
       },
       "ip_bypass_remove":        {
-        "offense": false,
-        "stat":    false
+        "audit_params": [
+          "ip"
+        ],
+        "level":        "alert",
+        "offense":      false,
+        "stat":         false
       },
       "ip_unblock_flag":         {
+        "audit_params": [
+          "ip"
+        ],
+        "level":        "alert"
       },
       "bottrack_notbot":         {
         "offense": false,
-        "audit":   false,
-        "stat":    false
+        "stat":    false,
+        "level":   "debug"
       },
       "bottrack_404":            {
         "offense": true
       },
       "bottrack_fakewebcrawler": {
-        "offense": true
+        "audit_params": [
+          "path",
+          "script"
+        ],
+        "offense":      true
       },
       "bottrack_linkcheese":     {
-        "offense": true
+        "audit_params": [
+          "path"
+        ],
+        "offense":      true
       },
       "bottrack_loginfailed":    {
-        "offense": true
+        "audit_params": [
+          "login"
+        ],
+        "level":        "alert",
+        "offense":      true
       },
       "bottrack_logininvalid":   {
-        "offense": true
-      },
-      "bottrack_useragent":      {
+        "audit_params": [
+          "login"
+        ],
+        "level":   "alert",
         "offense": true
       },
       "bottrack_xmlrpc":         {
+        "audit_params": [
+          "path"
+        ],
         "offense": true
       },
       "bottrack_invalidscript":  {
+        "audit_params": [
+          "script"
+        ],
         "offense": true
       },
       "comment_markspam":        {

@@ -151,13 +151,16 @@
     "keyless_handshake_expire":     90,
     "events":                       {
       "lic_check_success":   {
-        "stat": false
+        "level": "debug",
+        "stat":  false
       },
       "lic_fail_email":      {
-        "stat": false
+        "level": "warning",
+        "stat":  false
       },
       "lic_fail_deactivate": {
-        "stat": false
+        "level": "warning",
+        "stat":  false
       }
     }
   }
