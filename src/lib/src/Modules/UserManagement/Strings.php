@@ -268,7 +268,7 @@ class Strings extends Base\Strings {
 				__( 'Detected user registration with invalid email address (%s).', 'wp-simple-firewall' ),
 				__( 'Email verification test that failed: %s' )
 			],
-			'pass_expired'                 => [
+			'password_expired'             => [
 				__( 'Forcing user to update expired password.', 'wp-simple-firewall' ),
 			],
 			'password_policy_force_change' => [

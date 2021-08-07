@@ -18,13 +18,7 @@ class VerifyUniqueEvents {
 
 		$all = [];
 		foreach ( $con->modules as $mod ) {
-			$keys = array_map(
-				function ( $aEvt ) {
-					return $aEvt[ 'key' ];
-				},
-				array_values( $mod->getOptions()->getDef( 'events' ) )
-			);
-			$all = array_merge( $all, $keys );
+			$all = array_merge( $all, array_keys( $mod->getOptions()->getEvents() ) );
 		}
 		if ( count( $all ) != count( array_unique( $all ) ) ) {
 			echo "duplicates!\n";

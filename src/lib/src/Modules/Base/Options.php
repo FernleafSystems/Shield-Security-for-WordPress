@@ -179,6 +179,10 @@ class Options {
 		return ( $this->getRawData_FullFeatureConfig()[ 'definitions' ] ?? [] )[ $key ] ?? null;
 	}
 
+	public function getEvents() :array {
+		return is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
+	}
+
 	public function getFeatureRequirement( string $req ) :array {
 		return $this->getRawData_Requirements()[ $req ] ?? [];
 	}
