@@ -293,14 +293,6 @@ class Strings extends Base\Strings {
 				__( 'Access to an established user session from a different IP address.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
-			'session_browserlock'          => [
-				__( 'Browser signature has changed for this user session.', 'wp-simple-firewall' ),
-				__( 'Logging out.', 'wp-simple-firewall' )
-			],
-			'session_unverified'           => [
-				__( 'Unable to verify the current User Session. Forcefully logging out session.', 'wp-simple-firewall' ),
-				__( 'Logging out.', 'wp-simple-firewall' )
-			],
 			'user_hard_suspended'          => [
 				__( 'User ID %s suspended by admin (%s)', 'wp-simple-firewall' ),
 			],

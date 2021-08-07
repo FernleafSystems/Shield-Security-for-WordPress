@@ -198,8 +198,6 @@ class Strings extends Base\Strings {
 			'session_expired'              => __( 'Session Expired', 'wp-simple-firewall' ),
 			'session_idle'                 => __( 'Session Idle', 'wp-simple-firewall' ),
 			'session_iplock'               => __( 'Session Locked To IP', 'wp-simple-firewall' ),
-			'session_browserlock'          => __( 'Session Locked To Browser', 'wp-simple-firewall' ),
-			'session_unverified'           => __( 'Session Unverified', 'wp-simple-firewall' ),
 			'password_expired'             => __( 'Password Expired', 'wp-simple-firewall' ),
 			'password_policy_force_change' => __( 'Forced Password Change', 'wp-simple-firewall' ),
 			'password_policy_block'        => __( 'Password Change Blocked', 'wp-simple-firewall' ),

@@ -412,16 +412,24 @@
     "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
     "events":                        {
       "session_notfound":             {
+        "audit_params": [
+          "user_login"
+        ]
       },
       "session_expired":              {
+        "audit_params": [
+          "user_login"
+        ]
       },
       "session_idle":                 {
+        "audit_params": [
+          "user_login"
+        ]
       },
       "session_iplock":               {
-      },
-      "session_browserlock":          {
-      },
-      "session_unverified":           {
+        "audit_params": [
+          "user_login"
+        ]
       },
       "password_expired":             {
         "audit_params": [
