@@ -144,7 +144,6 @@ abstract class ModCon {
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
 
-
 		$this->dbHandlers = [];
 	}
 
@@ -648,15 +647,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * Get config 'definition'.
-	 * @param string $key
-	 * @return mixed|null
-	 */
-	public function getDef( string $key ) {
-		return $this->getOptions()->getDef( $key );
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function clearLastErrors() {
@@ -1119,7 +1109,8 @@ abstract class ModCon {
 	}
 
 	public function getWizardDefinitions() :array {
-		return is_array( $this->getDef( 'wizards' ) ) ? $this->getDef( 'wizards' ) : [];
+		$wiz = $this->getOptions()->getDef( 'wizards' );
+		return is_array( $wiz ) ? $wiz : [];
 	}
 
 	public function hasWizard() :bool {
@@ -1461,5 +1452,15 @@ abstract class ModCon {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * Get config 'definition'.
+	 * @param string $key
+	 * @return mixed|null
+	 * @deprecated 12.0
+	 */
+	public function getDef( string $key ) {
+		return $this->getOptions()->getDef( $key );
 	}
 }

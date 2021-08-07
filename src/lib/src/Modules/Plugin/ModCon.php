@@ -158,7 +158,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getActivePluginFeatures() :array {
-		$features = $this->getDef( 'active_plugin_features' );
+		$features = $this->getOptions()->getDef( 'active_plugin_features' );
 
 		$available = [];
 		if ( is_array( $features ) ) {
@@ -475,7 +475,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @param string $sId
 	 * @return bool
 	 */
-	protected function isValidInstallId( $sId ):bool {
+	protected function isValidInstallId( $sId ) :bool {
 		return !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40;
 	}
 

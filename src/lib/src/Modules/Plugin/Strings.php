@@ -23,6 +23,7 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() :array {
 		return [
+			'debug_log'              => [ '%s' ],
 			'suresend_success'       => [
 				__( 'Attempt to send email using SureSend: %s', 'wp-simple-firewall' ),
 				__( 'SureSend email success.', 'wp-simple-firewall' ),

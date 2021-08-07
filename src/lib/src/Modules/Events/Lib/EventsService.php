@@ -57,6 +57,7 @@ class EventsService {
 		if ( empty( $this->aEvents ) ) {
 			$events = [];
 			foreach ( $this->getCon()->modules as $mod ) {
+				$opts = $mod->getOptions();
 				$events = array_merge(
 					$events,
 					array_map(
@@ -64,7 +65,8 @@ class EventsService {
 							$evt[ 'context' ] = $mod->getSlug();
 							return $evt;
 						},
-						is_array( $mod->getDef( 'events' ) ) ? $mod->getDef( 'events' ) : []
+						/** @deprecated 12.0 - replace with $opts->getEvents() */
+						is_array( $opts->getDef( 'events' ) ) ? $opts->getDef( 'events' ) : []
 					)
 				);
 			}

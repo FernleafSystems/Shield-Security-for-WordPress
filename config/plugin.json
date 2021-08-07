@@ -654,6 +654,12 @@
       }
     ],
     "events":                 {
+      "debug_log":              {
+        "audit_params": [
+          "message"
+        ],
+        "level":        "debug"
+      },
       "test_cron_run":          {
         "level":  "debug",
         "recent": true
