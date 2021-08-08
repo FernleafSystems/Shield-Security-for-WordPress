@@ -149,28 +149,28 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * Returns false when check fails - that is, it should be blocked by the firewall.
 	 *
-	 * @param string $sBlockKey
+	 * @param string $blockKey
 	 * @return bool
 	 */
-	private function doPassCheck( string $sBlockKey ) :bool {
+	private function doPassCheck( string $blockKey ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$aMatchTerms = $this->getFirewallPatterns( $sBlockKey );
+		$aMatchTerms = $this->getFirewallPatterns( $blockKey );
 		$aParamValues = $this->getParamsToCheck();
 		if ( empty( $aMatchTerms ) || empty( $aParamValues ) ) {
 			return true;
 		}
 
-		$sParam = '';
-		$mValue = '';
+		$param = '';
+		$value = '';
 
 		$bFAIL = false;
 		if ( isset( $aMatchTerms[ 'simple' ] ) && is_array( $aMatchTerms[ 'simple' ] ) ) {
 
 			foreach ( $aMatchTerms[ 'simple' ] as $sTerm ) {
-				foreach ( $aParamValues as $sParam => $mValue ) {
-					if ( is_scalar( $mValue ) && ( stripos( (string)$mValue, $sTerm ) !== false ) ) {
+				foreach ( $aParamValues as $param => $value ) {
+					if ( is_scalar( $value ) && ( stripos( (string)$value, $sTerm ) !== false ) ) {
 						$bFAIL = true;
 						break 2;
 					}
@@ -186,10 +186,10 @@ class Processor extends BaseShield\Processor {
 				$aMatchTerms[ 'regex' ]
 			);
 			foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
-				foreach ( $aParamValues as $sParam => $mValue ) {
-					if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
-						$sParam = sanitize_text_field( $sParam );
-						$mValue = sanitize_text_field( $mValue );
+				foreach ( $aParamValues as $param => $value ) {
+					if ( is_scalar( $value ) && preg_match( $sTerm, (string)$value ) ) {
+						$param = sanitize_text_field( $param );
+						$value = sanitize_text_field( $value );
 						$bFAIL = true;
 						break 2;
 					}
@@ -201,20 +201,20 @@ class Processor extends BaseShield\Processor {
 			$this->addToFirewallDieMessage( __( "Something in the URL, Form or Cookie data wasn't appropriate.", 'wp-simple-firewall' ) );
 
 			$this->aAuditBlockMessage = [
-				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), $this->getFirewallBlockKeyName( $sBlockKey ) ),
+				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), $this->getFirewallBlockKeyName( $blockKey ) ),
 				__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ),
-				sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ), $sParam, $mValue )
+				sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ), $param, $value )
 			];
 
 			$this->getCon()
 				 ->fireEvent(
-					 'blockparam_'.$sBlockKey,
+					 'block_param',
 					 [
 						 'audit_params' => [
-							 'param'         => $sParam,
-							 'val'           => $mValue,
-							 'blockresponse' => $mod->getBlockResponse(),
-							 'blockkey'      => $sBlockKey,
+							 'param'    => $param,
+							 'val'      => $value,
+							 'response' => $mod->getBlockResponse(),
+							 'type'     => $blockKey,
 						 ]
 					 ]
 				 );

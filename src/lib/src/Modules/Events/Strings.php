@@ -162,6 +162,7 @@ class Strings extends Base\Strings {
 			'fw_email_fail'                => __( 'Firewall Block Email Fail', 'wp-simple-firewall' ),
 			'fw_email_success'             => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 			'firewall_block'               => __( 'Firewall Block', 'wp-simple-firewall' ),
+			'block_param'                  => __( 'Firewall Blocked Request Parameter', 'wp-simple-firewall' ),
 			'blockparam_dirtraversal'      => sprintf( '%s: %s',
 				__( 'Firewall', 'wp-simple-firewall' ),
 				__( 'Directory Traversal', 'wp-simple-firewall' )

@@ -425,6 +425,14 @@
         "recent":  true,
         "offense": true
       },
+      "block_param":                {
+        "audit_params": [
+          "param",
+          "val",
+          "response",
+          "type"
+        ]
+      },
       "blockparam_dirtraversal":    {
         "audit_params": [
           "param",

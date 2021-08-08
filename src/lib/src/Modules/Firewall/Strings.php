@@ -190,6 +190,9 @@ class Strings extends Base\Strings {
 			'check_skip'                 => [
 				sprintf( __( 'Skipping firewall checking for this visit: %s.', 'wp-simple-firewall' ), __( 'Parsing the URI failed', 'wp-simple-firewall' ) )
 			],
+			'block_param'                => [
+				sprintf( __( 'Firewall Block Triggered: %s.', 'wp-simple-firewall' ), __( 'Directory Traversal', 'wp-simple-firewall' ) )
+			],
 			'blockparam_dirtraversal'    => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'Directory Traversal', 'wp-simple-firewall' ) )
 			],
