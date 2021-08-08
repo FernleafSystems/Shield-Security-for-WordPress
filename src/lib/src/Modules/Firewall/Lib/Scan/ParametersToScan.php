@@ -10,41 +10,44 @@ class ParametersToScan {
 
 	use ModConsumer;
 
-	private $params = [];
+	private static $params = [];
 
 	public function retrieve() :array {
 
-		// Ensure strings and remove non-scalar entries
-		$this->params = array_map( 'strval', array_filter(
-			Services::Request()->getRawRequestParams( false ),
-			function ( $value ) {
-				return is_scalar( $value );
+		if ( !isset( self::$params ) ) {
+
+			// Ensure strings and remove non-scalar entries
+			self::$params = array_map( 'strval', array_filter(
+				Services::Request()->getRawRequestParams( false ),
+				function ( $value ) {
+					return is_scalar( $value );
+				}
+			) );
+
+			if ( !empty( self::$params ) ) {
+				$this->removeParamsBasedOnPageName();
 			}
-		) );
 
-		if ( !empty( $this->params ) ) {
-			$this->removeParamsBasedOnPageName();
+			if ( !empty( self::$params ) ) {
+				$this->removeAllPageParams();
+			}
 		}
 
-		if ( !empty( $this->params ) ) {
-			$this->removeAllPageParams();
-		}
-
-		return $this->params;
+		return self::$params;
 	}
 
 	private function removeAllPageParams() {
 		foreach ( $this->getAllPageWhitelistedParameters() as $listParam ) {
 
 			if ( preg_match( '#^/.+/$#', $listParam ) ) {
-				foreach ( array_keys( $this->params ) as $param ) {
+				foreach ( array_keys( self::$params ) as $param ) {
 					if ( preg_match( $listParam, $param ) ) {
-						unset( $this->params[ $param ] );
+						unset( self::$params[ $param ] );
 					}
 				}
 			}
-			elseif ( isset( $params[ $listParam ] ) ) {
-				unset( $params[ $listParam ] );
+			else {
+				unset( self::$params[ $listParam ] );
 			}
 		}
 	}
@@ -59,10 +62,10 @@ class ParametersToScan {
 
 				/**
 				 * If the page has no parameters, then remove all parameters to scan
-				 * Otherwise, remove only those parameter specified
+				 * Otherwise, remove only those parameters specified
 				 */
-				$this->params = empty( $pageParams ) ? []
-					: array_diff_key( $this->params, array_flip( $pageParams ) );
+				self::$params = empty( $pageParams ) ? []
+					: array_diff_key( self::$params, array_flip( $pageParams ) );
 				break;
 			}
 		}
