@@ -85,10 +85,9 @@ class FirewallHandler extends ExecOnceModConsumer {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isSendBlockEmail() ) {
-			$recipient = $this->getMod()->getPluginReportEmail();
 			$this->getCon()->fireEvent(
-				$this->sendBlockEmail( $recipient ) ? 'fw_email_success' : 'fw_email_fail',
-				[ 'audit_params' => [ 'recipient' => $recipient ] ]
+				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
+				[ 'audit_params' => [ 'recipient' => $this->getMod()->getPluginReportEmail() ] ]
 			);
 		}
 		$this->getCon()->fireEvent( 'firewall_block' );
@@ -107,43 +106,40 @@ class FirewallHandler extends ExecOnceModConsumer {
 		return is_array( $messages ) ? $messages : [ $default ];
 	}
 
-	private function sendBlockEmail( string $recipient ) :bool {
+	private function sendBlockEmail() :bool {
 		$ip = Services::IP()->getRequestIp();
 		$resultData = $this->getResult()->get_error_data( 'shield-firewall' );
 
-		$message = array_merge(
-			[
-				sprintf( __( '%s has blocked a request to your WordPress site.', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
-				__( 'Details for the request visitor are given below:', 'wp-simple-firewall' ),
-				''
-			],
-			array_map(
-				function ( $line ) {
-					return '- '.$line;
-				},
-				[
-					sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $ip ),
-					sprintf( '%s: %s', __( 'Request Path', 'wp-simple-firewall' ), Services::Request()->getPath() ),
-					sprintf( __( 'Firewall Rule Triggered: %s.', 'wp-simple-firewall' ), $resultData[ 'name' ] ),
-					__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ).' '.
-					sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ),
-						$resultData[ 'param' ], $resultData[ 'value' ] )
-				]
-			),
-			[
-				'',
-				sprintf( __( 'You can look up the offending IP Address here: %s', 'wp-simple-firewall' ),
-					add_query_arg( [ 'ip' => $ip ], 'https://shsec.io/botornot' ) )
-			]
-		);
-
 		return $this->getMod()
 					->getEmailProcessor()
-					->sendEmailWithWrap(
-						$recipient,
+					->sendEmailWithTemplate(
+						'/email/firewall_block.twig',
+						$this->getMod()->getPluginReportEmail(),
 						__( 'Firewall Block Alert', 'wp-simple-firewall' ),
-						$message
+						[
+							'strings' => [
+								'shield_blocked'  => sprintf( __( '%s Firewall has blocked a request to your WordPress site.', 'wp-simple-firewall' ),
+									$this->getCon()->getHumanName() ),
+								'details_below'   => __( 'Details for the request are given below:', 'wp-simple-firewall' ),
+								'details'         => __( 'Request Details', 'wp-simple-firewall' ),
+								'ip_lookup'       => __( 'IP Address Lookup' ),
+								'this_is_info'    => __( 'This is for informational purposes only.' ),
+								'already_blocked' => sprintf( __( '%s has already taken the necessary action of blocking the request.' ),
+									$this->getCon()->getHumanName() ),
+							],
+							'hrefs'   => [
+								'ip_lookup' => add_query_arg( [ 'ip' => $ip ], 'https://shsec.io/botornot' )
+							],
+							'vars'    => [
+								'req_details' => [
+									__( 'Visitor IP Address', 'wp-simple-firewall' ) => $ip,
+									__( 'Firewall Rule', 'wp-simple-firewall' )      => $resultData[ 'name' ],
+									__( 'Request Path', 'wp-simple-firewall' )       => Services::Request()->getPath(),
+									__( 'Request Parameter', 'wp-simple-firewall' )  => $resultData[ 'param' ],
+									__( 'Request Value', 'wp-simple-firewall' )      => $resultData[ 'value' ],
+								]
+							]
+						]
 					);
 	}
 
