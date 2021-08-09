@@ -3,7 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\Handlers\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\{
+	Lib\Scan\Handlers\Base,
+	ModCon,
+	Options
+};
+use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallHandler extends ExecOnceModConsumer {
 
@@ -12,11 +17,8 @@ class FirewallHandler extends ExecOnceModConsumer {
 	 */
 	private $result = false;
 
-	/**
-	 * @return false|\WP_Error
-	 */
-	public function getResult() {
-		return $this->result;
+	public function getResult() :\WP_Error {
+		return is_wp_error( $this->result ) ? $this->result : new \WP_Error();
 	}
 
 	protected function canRun() :bool {
@@ -26,8 +28,19 @@ class FirewallHandler extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
+		$this->runScans();
+
+		$result = $this->getResult();
+		$block = (bool)apply_filters( 'shield/do_firewall_block', !empty( $result->get_error_codes() ) );
+		if ( $block ) {
+			$this->doBlock();
+		}
+	}
+
+	private function runScans() {
 		$opts = $this->getOptions();
 
+		$this->result = new \WP_Error();
 		foreach ( $this->enumHandlers() as $opt => $handlerInit ) {
 			if ( $opts->isOpt( 'block_'.$opt, 'Y' ) ) {
 				/** @var Base $handler */
@@ -39,6 +52,95 @@ class FirewallHandler extends ExecOnceModConsumer {
 				}
 			}
 		}
+	}
+
+	private function doBlock() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$this->preBlock();
+
+		switch ( $mod->getBlockResponse() ) {
+			case 'redirect_die':
+				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
+				break;
+			case 'redirect_die_message':
+				Services::WpGeneral()->wpDie( $this->getFirewallDieMessageForDisplay() );
+				break;
+			case 'redirect_home':
+				Services::Response()->redirectToHome();
+				break;
+			case 'redirect_404':
+				header( 'Cache-Control: no-store, no-cache' );
+				Services::WpGeneral()->turnOffCache();
+				Services::Response()->sendApache404();
+				break;
+			default:
+				break;
+		}
+		die();
+	}
+
+	private function preBlock() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isSendBlockEmail() ) {
+			$recipient = $this->getMod()->getPluginReportEmail();
+			$this->getCon()->fireEvent(
+				$this->sendBlockEmail( $recipient ) ? 'fw_email_success' : 'fw_email_fail',
+				[ 'audit_params' => [ 'recipient' => $recipient ] ]
+			);
+		}
+		$this->getCon()->fireEvent( 'firewall_block' );
+	}
+
+	protected function getFirewallDieMessageForDisplay() :string {
+		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
+		$customMessage = $this->getMod()->getTextOpt( 'text_firewalldie' );
+		$messages = apply_filters(
+			'shield/firewall_die_message',
+			[
+				empty( $customMessage ) ? $default : $customMessage,
+			]
+		);
+		return implode( ' ', is_array( $messages ) ? $messages : [ $default ] );
+	}
+
+	private function sendBlockEmail( string $recipient ) :bool {
+		$ip = Services::IP()->getRequestIp();
+		$resultData = $this->getResult()->get_error_data( 'shield-firewall' );
+
+		$message = array_merge(
+			[
+				sprintf( __( '%s has blocked a page visit to your site.', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName() ),
+				__( 'Log details for this visitor are below:', 'wp-simple-firewall' ),
+			],
+			array_map(
+				function ( $line ) {
+					return '- '.$line;
+				},
+				[
+					sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $ip ),
+					sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), $resultData[ 'name' ] ),
+					__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ),
+					sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ),
+						$resultData[ 'param' ], $resultData[ 'value' ] )
+				]
+			),
+			[
+				'',
+				sprintf( __( 'You can look up the offending IP Address here: %s', 'wp-simple-firewall' ), 'http://ip-lookup.net/?ip='.$ip )
+			]
+		);
+
+		return $this->getMod()
+					->getEmailProcessor()
+					->sendEmailWithWrap(
+						$recipient,
+						__( 'Firewall Block Alert', 'wp-simple-firewall' ),
+						$message
+					);
 	}
 
 	/**
