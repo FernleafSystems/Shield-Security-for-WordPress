@@ -65,7 +65,7 @@ class FirewallHandler extends ExecOnceModConsumer {
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
 			case 'redirect_die_message':
-				Services::WpGeneral()->wpDie( $this->getFirewallDieMessageForDisplay() );
+				Services::WpGeneral()->wpDie( implode( ' ', $this->getFirewallDieMessage() ) );
 				break;
 			case 'redirect_home':
 				Services::Response()->redirectToHome();
@@ -94,16 +94,17 @@ class FirewallHandler extends ExecOnceModConsumer {
 		$this->getCon()->fireEvent( 'firewall_block' );
 	}
 
-	protected function getFirewallDieMessageForDisplay() :string {
+	protected function getFirewallDieMessage() :array {
 		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
 		$customMessage = $this->getMod()->getTextOpt( 'text_firewalldie' );
+
 		$messages = apply_filters(
 			'shield/firewall_die_message',
 			[
 				empty( $customMessage ) ? $default : $customMessage,
 			]
 		);
-		return implode( ' ', is_array( $messages ) ? $messages : [ $default ] );
+		return is_array( $messages ) ? $messages : [ $default ];
 	}
 
 	private function sendBlockEmail( string $recipient ) :bool {
@@ -112,9 +113,10 @@ class FirewallHandler extends ExecOnceModConsumer {
 
 		$message = array_merge(
 			[
-				sprintf( __( '%s has blocked a page visit to your site.', 'wp-simple-firewall' ),
+				sprintf( __( '%s has blocked a request to your WordPress site.', 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
-				__( 'Log details for this visitor are below:', 'wp-simple-firewall' ),
+				__( 'Details for the request visitor are given below:', 'wp-simple-firewall' ),
+				''
 			],
 			array_map(
 				function ( $line ) {
@@ -122,15 +124,17 @@ class FirewallHandler extends ExecOnceModConsumer {
 				},
 				[
 					sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $ip ),
-					sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), $resultData[ 'name' ] ),
-					__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Request Path', 'wp-simple-firewall' ), Services::Request()->getPath() ),
+					sprintf( __( 'Firewall Rule Triggered: %s.', 'wp-simple-firewall' ), $resultData[ 'name' ] ),
+					__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ).' '.
 					sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ),
 						$resultData[ 'param' ], $resultData[ 'value' ] )
 				]
 			),
 			[
 				'',
-				sprintf( __( 'You can look up the offending IP Address here: %s', 'wp-simple-firewall' ), 'http://ip-lookup.net/?ip='.$ip )
+				sprintf( __( 'You can look up the offending IP Address here: %s', 'wp-simple-firewall' ),
+					add_query_arg( [ 'ip' => $ip ], 'https://shsec.io/botornot' ) )
 			]
 		);
 
