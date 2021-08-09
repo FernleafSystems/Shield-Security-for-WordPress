@@ -89,19 +89,6 @@
       "description": "Un-Checking this option will completely disable the Firewall module"
     },
     {
-      "key":         "include_cookie_checks",
-      "section":     "section_firewall_blocking_options",
-      "advanced":    true,
-      "default":     "N",
-      "type":        "checkbox",
-      "beacon_id":   333,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Include Cookies",
-      "summary":     "Also Test Cookie Values In Firewall Tests",
-      "description": "The firewall tests GET and POST, but with this option checked it will also check COOKIE values."
-    },
-    {
       "key":         "block_dir_traversal",
       "section":     "section_firewall_blocking_options",
       "default":     "Y",

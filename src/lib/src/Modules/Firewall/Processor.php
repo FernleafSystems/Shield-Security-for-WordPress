@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\PerformScan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\FirewallHandler;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
@@ -28,29 +28,29 @@ class Processor extends BaseShield\Processor {
 	 */
 	private $params;
 
-	private $scanner;
+	private $firewallHandler;
 
 	protected function run() {
+
+		$this->getFirewallHandler()->execute();
+
 		if ( $this->getIfDoFirewallBlock() ) {
-			// Hooked here to ensure "plugins_loaded" has completely finished as some mailers aren't init'd.
+			// Hooked to 'init': ensure "plugins_loaded" has completed as some mailers aren't init'd.
 			add_action( 'init', function () {
-				$this->doPreFirewallBlock();
 				$this->doFirewallBlock();
 			}, 0 );
 		}
 	}
 
-	private function getScanner() :PerformScan {
-		if ( !isset( $this->scanner ) ) {
-			$this->scanner = ( new PerformScan() )->setMod( $this->getMod() );
+	private function getFirewallHandler() :FirewallHandler {
+		if ( !isset( $this->firewallHandler ) ) {
+			$this->firewallHandler = ( new FirewallHandler() )->setMod( $this->getMod() );
 		}
-		return $this->scanner;
+		return $this->firewallHandler;
 	}
 
 	private function getIfDoFirewallBlock() :bool {
-		$scan = $this->getScanner();
-		$scan->execute();
-		$result = $scan->getCheckResult();
+		$result = $this->getFirewallHandler()->getResult();
 		return (bool)apply_filters(
 			'shield/do_firewall_block',
 			$result instanceof \WP_Error && !empty( $result->get_error_codes() )
@@ -73,6 +73,8 @@ class Processor extends BaseShield\Processor {
 	private function doFirewallBlock() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		$this->doPreFirewallBlock();
 
 		switch ( $mod->getBlockResponse() ) {
 			case 'redirect_die':
@@ -97,20 +99,20 @@ class Processor extends BaseShield\Processor {
 
 	private function sendBlockEmail( string $recipient ) :bool {
 		$ip = Services::IP()->getRequestIp();
-		$resultData = $this->getScanner()->getCheckResult()->get_error_data( 'shield-firewall' );
+		$resultData = $this->getFirewallHandler()->getResult()->get_error_data( 'shield-firewall' );
 
 		$message = array_merge(
 			[
 				sprintf( __( '%s has blocked a page visit to your site.', 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
 				__( 'Log details for this visitor are below:', 'wp-simple-firewall' ),
-				'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $ip ),
 			],
 			array_map(
 				function ( $line ) {
 					return '- '.$line;
 				},
 				[
+					sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $ip ),
 					sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), $resultData[ 'name' ] ),
 					__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ),
 					sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ),
@@ -160,17 +162,6 @@ class Processor extends BaseShield\Processor {
 		return true;
 	}
 
-	protected function getFirewallPatterns( $key = null ) {
-		return [];
-	}
-
-	protected function getFirewallDieMessage() :array {
-		if ( !isset( $this->dieMessage ) || !is_array( $this->dieMessage ) ) {
-			$this->dieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
-		}
-		return $this->dieMessage;
-	}
-
 	protected function getFirewallDieMessageForDisplay() :string {
 		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
 		$customMessage = $this->getMod()->getTextOpt( 'text_firewalldie' );
@@ -183,14 +174,23 @@ class Processor extends BaseShield\Processor {
 		return implode( ' ', is_array( $messages ) ? $messages : [ $default ] );
 	}
 
+	protected function getFirewallPatterns( $key = null ) {
+		return [];
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function getFirewallDieMessage() :array {
+		return [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
+	}
+
 	/**
 	 * @param string $msg
 	 * @return $this
+	 * @deprecated 12.0
 	 */
 	protected function addToFirewallDieMessage( string $msg ) {
-		$messages = $this->getFirewallDieMessage();
-		$messages[] = $msg;
-		$this->dieMessage = $messages;
 		return $this;
 	}
 

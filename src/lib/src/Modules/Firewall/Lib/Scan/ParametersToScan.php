@@ -10,7 +10,7 @@ class ParametersToScan {
 
 	use ModConsumer;
 
-	private static $params = [];
+	private static $params;
 
 	public function retrieve() :array {
 

@@ -21,7 +21,7 @@ class CanScan {
 				->setMod( $this->getMod() )
 				->retrieve();
 			$canScan = count( $paramsToScan ) > 0
-					   && ( !$opts->isIgnoreAdmin() && is_super_admin() );
+					   && ( !is_super_admin() || !$opts->isIgnoreAdmin() );
 		}
 		return $canScan;
 	}

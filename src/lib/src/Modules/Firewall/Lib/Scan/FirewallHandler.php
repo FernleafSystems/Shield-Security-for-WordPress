@@ -5,18 +5,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\Handlers\Base;
 
-class PerformScan extends ExecOnceModConsumer {
+class FirewallHandler extends ExecOnceModConsumer {
 
 	/**
 	 * @var false|\WP_Error
 	 */
-	private $checkResult = false;
+	private $result = false;
 
 	/**
 	 * @return false|\WP_Error
 	 */
-	public function getCheckResult() {
-		return $this->checkResult;
+	public function getResult() {
+		return $this->result;
 	}
 
 	protected function canRun() :bool {
@@ -34,7 +34,7 @@ class PerformScan extends ExecOnceModConsumer {
 				$handler = $handlerInit();
 				$result = $handler->setMod( $this->getMod() )->runCheck();
 				if ( !empty( $result->get_error_codes() ) ) {
-					$this->checkResult = $result;
+					$this->result = $result;
 					break;
 				}
 			}
