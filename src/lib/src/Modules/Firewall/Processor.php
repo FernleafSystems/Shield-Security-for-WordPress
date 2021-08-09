@@ -31,14 +31,16 @@ class Processor extends BaseShield\Processor {
 	private $firewallHandler;
 
 	protected function run() {
+	}
 
+	/**
+	 * Firewall checking runs at 'init' because plugins_loaded is too soon as some email handler plugins aren't
+	 * initiated.
+	 */
+	public function onWpInit() {
 		$this->getFirewallHandler()->execute();
-
 		if ( $this->getIfDoFirewallBlock() ) {
-			// Hooked to 'init': ensure "plugins_loaded" has completed as some mailers aren't init'd.
-			add_action( 'init', function () {
-				$this->doFirewallBlock();
-			}, 0 );
+			$this->doFirewallBlock();
 		}
 	}
 
@@ -97,6 +99,18 @@ class Processor extends BaseShield\Processor {
 		die();
 	}
 
+	protected function getFirewallDieMessageForDisplay() :string {
+		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
+		$customMessage = $this->getMod()->getTextOpt( 'text_firewalldie' );
+		$messages = apply_filters(
+			'shield/firewall_die_message',
+			[
+				empty( $customMessage ) ? $default : $customMessage,
+			]
+		);
+		return implode( ' ', is_array( $messages ) ? $messages : [ $default ] );
+	}
+
 	private function sendBlockEmail( string $recipient ) :bool {
 		$ip = Services::IP()->getRequestIp();
 		$resultData = $this->getFirewallHandler()->getResult()->get_error_data( 'shield-firewall' );
@@ -134,6 +148,17 @@ class Processor extends BaseShield\Processor {
 					);
 	}
 
+	protected function getWpHookPriority( string $hook ) :int {
+		switch ( $hook ) {
+			case 'init':
+				$pri = 0;
+				break;
+			default:
+				$pri = parent::getWpHookPriority( $hook );
+		}
+		return $pri;
+	}
+
 	/**
 	 * @deprecated 12.0
 	 */
@@ -160,18 +185,6 @@ class Processor extends BaseShield\Processor {
 	 */
 	private function doPassCheck( string $blockKey ) :bool {
 		return true;
-	}
-
-	protected function getFirewallDieMessageForDisplay() :string {
-		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
-		$customMessage = $this->getMod()->getTextOpt( 'text_firewalldie' );
-		$messages = apply_filters(
-			'shield/firewall_die_message',
-			[
-				empty( $customMessage ) ? $default : $customMessage,
-			]
-		);
-		return implode( ' ', is_array( $messages ) ? $messages : [ $default ] );
 	}
 
 	protected function getFirewallPatterns( $key = null ) {
