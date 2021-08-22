@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class WordPress
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
- */
 class WordPress extends Base {
 
 	protected function login() {

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-class Buddypress extends Base {
+class Buddyboss extends Base {
 
 	protected function register() {
 		add_action( 'bp_signup_validate', [ $this, 'checkRegister_BP' ] );
@@ -10,15 +10,21 @@ class Buddypress extends Base {
 
 	public function checkRegister_BP() {
 		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
-			wp_die( $this->getErrorMessage() );
+			$bp = \buddypress();
+			if ( is_object( $bp->signup ) ) {
+				$bp->signup->errors[ 'shield-fail-register' ] = 'Failed AntiBot SPAM Check';
+			}
 		}
 	}
 
 	protected function getProviderName() :string {
-		return 'BuddyPress';
+		return 'BuddyBoss';
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\BuddyPress' );
+		return @class_exists( '\BuddyPress' )
+			   && method_exists( '\BuddyPress', 'instance' )
+			   && function_exists( '\buddypress' )
+			   && \BuddyPress::instance()->buddyboss === true;
 	}
 }

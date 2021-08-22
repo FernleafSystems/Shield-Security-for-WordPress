@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-/**
- * Class LearnPress
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
- */
 class LearnPress extends Base {
 
 	protected function login() {
@@ -13,7 +9,7 @@ class LearnPress extends Base {
 	}
 
 	protected function register() {
-		add_filter( 'learn-press/register-validate-field', [ $this, 'checkRegister_LP' ], 100, 1 );
+		add_filter( 'learn-press/register-validate-field', [ $this, 'checkRegister_LP' ], 100 );
 	}
 
 	/**

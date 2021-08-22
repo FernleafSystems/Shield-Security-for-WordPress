@@ -138,6 +138,10 @@
       ],
       "value_options": [
         {
+          "value_key": "buddyboss",
+          "text":      "BuddyBoss"
+        },
+        {
           "value_key": "buddypress",
           "text":      "BuddyPress"
         },

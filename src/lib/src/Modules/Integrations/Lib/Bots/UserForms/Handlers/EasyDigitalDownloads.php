@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-/**
- * Class EasyDigitalDownloads
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
- */
 class EasyDigitalDownloads extends Base {
 
 	protected function register() {
-		add_action( 'edd_process_register_form', [ $this, 'checkRegister_EDD' ], 10 );
+		add_action( 'edd_process_register_form', [ $this, 'checkRegister_EDD' ] );
 	}
 
 	public function checkRegister_EDD() {

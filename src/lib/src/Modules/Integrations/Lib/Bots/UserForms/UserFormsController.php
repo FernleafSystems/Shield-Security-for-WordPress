@@ -27,6 +27,7 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 	 */
 	public function enumProviders() :array {
 		return [
+			new Handlers\Buddyboss(),
 			new Handlers\Buddypress(),
 			new Handlers\EasyDigitalDownloads(),
 			new Handlers\LearnPress(),
