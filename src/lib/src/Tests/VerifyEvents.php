@@ -30,12 +30,21 @@ class VerifyEvents {
 				}
 				else {
 					$paramCount = count( $evt[ 'audit_params' ] );
+
 					$subCount = substr_count( $msg, '%s' );
-					if ( $paramCount > $subCount ) {
-						$NotEnoughSubstitutions[] = $key;
+					if ( $subCount > 0 ) {
+						if ( $paramCount > $subCount ) {
+							$NotEnoughSubstitutions[] = $key;
+						}
+						elseif ( $paramCount < $subCount ) {
+							$NotEnoughParams[] = $key;
+						}
 					}
-					elseif ( $paramCount < $subCount ) {
-						$NotEnoughParams[] = $key;
+					else {
+						preg_match_all( '#{{[a-z]+}}#i', $msg, $matches );
+						if ( $paramCount < max( 0, count( $matches[ 0 ] ) ) ) {
+							$NotEnoughParams[] = $key;
+						}
 					}
 				}
 			}
