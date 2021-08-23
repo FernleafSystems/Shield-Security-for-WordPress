@@ -59,8 +59,8 @@ abstract class Base {
 						'term'  => $term,
 						'param' => $param,
 						'value' => $value,
-						//						'scan'  => static::SLUG,
-						//						'type'  => static::TYPE,
+						'scan'  => static::SLUG,
+						'type'  => static::TYPE,
 					] );
 					break 2;
 				}
@@ -79,8 +79,8 @@ abstract class Base {
 						'term'  => $term,
 						'param' => $param,
 						'value' => $value,
-						//						'scan'  => static::SLUG,
-						//						'type'  => static::TYPE,
+						'scan'  => static::SLUG,
+						'type'  => static::TYPE,
 					] );
 					break 2;
 				}

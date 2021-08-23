@@ -213,9 +213,9 @@ class Strings extends Base\Strings {
 			'fw_email_success'           => __( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' ),
 			'fw_email_fail'              => __( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' ),
 			'firewall_block'             => [
-				__( 'Request blocked by firewall rule: %s.', 'wp-simple-firewall' ),
-				__( 'Rule pattern detected: "%s".', 'wp-simple-firewall' ),
-				__( 'The offending request parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ),
+				__( 'Request blocked by firewall rule: {{name}}.', 'wp-simple-firewall' ),
+				__( 'Rule pattern detected: "{{term}}".', 'wp-simple-firewall' ),
+				__( 'The offending request parameter was "{{param}}" with a value of "{{value}}".', 'wp-simple-firewall' ),
 			],
 		];
 	}

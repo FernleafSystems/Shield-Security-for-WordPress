@@ -17,28 +17,55 @@ class AuditMessageBuilder {
 
 		$metaSubstitutions = $log->meta_data;
 
-		// Get the defined audit parameters and align them with what's in the DB and order them
 		if ( !empty( $eventDef[ 'audit_params' ] ) ) {
-			$subs = array_intersect_key( $log->meta_data, array_flip( $eventDef[ 'audit_params' ] ) );
-			if ( !empty( $subs ) ) {
+			$substitutions = array_intersect_key( $log->meta_data, array_flip( $eventDef[ 'audit_params' ] ) );
+		}
+		else {
+			$substitutions = [];
+		}
+
+		if ( strpos( $rawString, '%s' ) !== false ) {
+
+			// Get the defined audit parameters and align them with what's in the DB and order them
+			if ( !empty( $eventDef[ 'audit_params' ] ) ) {
+
+				if ( !empty( $substitutions ) ) {
+					$metaSubstitutions = array_merge(
+						array_flip( $eventDef[ 'audit_params' ] ),
+						$substitutions
+					);
+				}
+			}
+
+			// In-case we're working with an older audit message without as much data substitutions
+			$missingCount = substr_count( $rawString, '%s' ) - count( $metaSubstitutions );
+
+			if ( $missingCount > 0 ) {
 				$metaSubstitutions = array_merge(
-					array_flip( $eventDef[ 'audit_params' ] ),
-					$subs
+					$metaSubstitutions,
+					array_fill( 0, $missingCount, '[data missing]' )
 				);
 			}
+
+			$final = stripslashes( sanitize_textarea_field( vsprintf( $rawString, $metaSubstitutions ) ) );
 		}
-
-		// In-case we're working with an older audit message without as much data substitutions
-		$missingCount = substr_count( $rawString, '%s' ) - count( $metaSubstitutions );
-
-		if ( $missingCount > 0 ) {
-			$metaSubstitutions = array_merge(
-				$metaSubstitutions,
-				array_fill( 0, $missingCount, '[data missing]' )
-			);
+		elseif ( preg_match( '#{{[a-z]+}}#i', $rawString ) ) {
+			$final = self::SubString( $rawString, $substitutions );
 		}
+		else {
+			$final = $rawString;
+		}
+		return $final;
+	}
 
-		return stripslashes( sanitize_textarea_field( vsprintf( $rawString, $metaSubstitutions ) ) );
+	// TODO: apply this approach to all logs including text file logs
+	private static function SubString( string $raw, array $subs ) {
+		$stringSubs = [];
+		foreach ( $subs as $subKey => $subValue ) {
+			$stringSubs[ sprintf( '{{%s}}', $subKey ) ] = $subValue;
+		}
+		$final = strtr( $raw, $stringSubs );
+		return preg_replace( '#{{[a-z]+}}#i', 'missing data', $final );
 	}
 
 	public static function Build( string $event, array $metaSubstitutions = [] ) :string {

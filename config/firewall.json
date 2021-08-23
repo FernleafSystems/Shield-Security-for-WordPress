@@ -415,7 +415,9 @@
           "name",
           "term",
           "param",
-          "value"
+          "value",
+          "scan",
+          "type"
         ],
         "level":        "warning",
         "recent":       true,
