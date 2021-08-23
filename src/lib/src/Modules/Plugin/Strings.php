@@ -19,22 +19,16 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
-			'debug_log'              => [ '%s' ],
-			'suresend_success'       => [
-				__( 'Attempt to send email using SureSend: %s', 'wp-simple-firewall' ),
-				__( 'SureSend email success.', 'wp-simple-firewall' ),
-			],
-			'suresend_fail'          => [
-				__( 'Attempt to send email using SureSend: %s', 'wp-simple-firewall' ),
-				__( 'SureSend email failed.', 'wp-simple-firewall' ),
-			],
-			'import_notify_sent'     => [
-				__( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' )
-			],
+			'debug_log'              => '%s',
+			'frontpage_load'         => __( 'Frontpage loaded', 'wp-simple-firewall' ),
+			'loginpage_load'         => __( 'Login page loaded', 'wp-simple-firewall' ),
+			'recaptcha_success'      => __( 'CAPTCHA test success', 'wp-simple-firewall' ),
+			'test_cron_run'          => __( 'Test Cron Run', 'wp-simple-firewall' ),
+			'import_notify_sent'     => __( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' ),
 			'import_notify_received' => [
 				__( 'Received notification that options import required.', 'wp-simple-firewall' ),
 				__( 'Current master site: %s', 'wp-simple-firewall' )

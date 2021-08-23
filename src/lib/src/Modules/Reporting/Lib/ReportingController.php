@@ -166,7 +166,7 @@ class ReportingController {
 
 				$this->getCon()->fireEvent( 'report_sent', [
 					'audit_params' => [
-						'medium'     => 'email',
+						'medium' => 'email',
 					]
 				] );
 			}

@@ -7,25 +7,28 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
-			'botbox_fail'             => [
+			'botbox_fail'        => [
 				__( 'User "%s" attempted "%s" but Bot checkbox was not found.', 'wp-simple-firewall' )
 			],
-			'cooldown_fail'           => [
+			'cooldown_fail'      => [
 				__( 'Login/Register request triggered cooldown and was blocked.', 'wp-simple-firewall' )
 			],
-			'honeypot_fail'           => [
+			'honeypot_fail'      => [
 				__( 'User "%s" attempted %s but they were caught by the honeypot.', 'wp-simple-firewall' )
 			],
-			'2fa_verify_success'      => [
+			'2fa_verify_success' => [
 				__( 'User "%s" verified their identity using "%s".', 'wp-simple-firewall' )
 			],
-			'2fa_verify_fail'         => [
+			'2fa_verify_fail'    => [
 				__( 'User "%s" failed to verify their identity using "%s".', 'wp-simple-firewall' )
 			],
+			'login_block'        => __( 'Login Blocked', 'wp-simple-firewall' ),
+			'hide_login_url'     => __( 'Redirecting wp-login due to hidden login URL', 'wp-simple-firewall' ),
+			'2fa_success'        => __( 'Successful 2FA Login Verification', 'wp-simple-firewall' ),
 		];
 	}
 

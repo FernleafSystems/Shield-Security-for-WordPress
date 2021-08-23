@@ -45,10 +45,10 @@ class UI extends BaseShield\UI {
 	 */
 	private function buildPossibleEvents() :array {
 		$eventsMod = $this->getCon()->getModule_Events();
-		/** @var Events\Strings $strings */
-		$strings = $eventsMod->getStrings();
+		/** @var Events\Strings $evtStrings */
+		$evtStrings = $eventsMod->getStrings();
 		return array_intersect_key(
-			$strings->getEventNames(),
+			$evtStrings->getEventNames(),
 			array_flip( $eventsMod->getDbHandler_Events()
 								  ->getQuerySelector()
 								  ->getDistinctForColumn( 'event' ) )

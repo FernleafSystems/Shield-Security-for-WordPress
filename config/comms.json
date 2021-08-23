@@ -57,13 +57,14 @@
     "events": {
       "suresend_success": {
         "audit_params": [
-          "user"
+          "email",
+          "slug"
         ],
         "level":        "info"
       },
       "suresend_fail":    {
         "audit_params": [
-          "user_login",
+          "email",
           "slug"
         ],
         "level":        "warning"

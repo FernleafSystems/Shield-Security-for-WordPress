@@ -491,12 +491,18 @@
         "level":        "warning"
       },
       "fw_email_fail":              {
-        "level": "warning",
-        "stat":  false
+        "audit_params": [
+          "to"
+        ],
+        "level":        "warning",
+        "stat":         false
       },
       "fw_email_success":           {
-        "level": "info",
-        "stat":  false
+        "audit_params": [
+          "to"
+        ],
+        "level":        "debug",
+        "stat":         false
       }
     }
   }

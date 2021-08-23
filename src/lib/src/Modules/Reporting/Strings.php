@@ -7,19 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
-			'lic_check_success'   => [
-				__( 'Pro License check succeeded.', 'wp-simple-firewall' )
+			'report_generated' => [
+				__( 'Report Generated.', 'wp-simple-firewall' ),
+				__( 'Type: %s; Interval: %s', 'wp-simple-firewall' ),
 			],
-			'lic_fail_email'      => [
-				__( 'License check failed. Sending Warning Email.', 'wp-simple-firewall' )
-			],
-			'lic_fail_deactivate' => [
-				__( 'License check failed. Deactivating Pro.', 'wp-simple-firewall' )
-			],
+			'report_sent'      => __( 'Report Sent (via %s).', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -29,33 +25,33 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 
 		switch ( $key ) {
 
 			case 'frequency_alert' :
-				$sName = __( 'Alert Frequency', 'wp-simple-firewall' );
-				$sSummary = __( 'How Often Important Alerts Will Be Sent To You', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Alert Frequency', 'wp-simple-firewall' );
+				$summary = __( 'How Often Important Alerts Will Be Sent To You', 'wp-simple-firewall' );
+				$description = [
 					__( 'Choose when you should be sent important and critical alerts about your site security.', 'wp-simple-firewall' ),
 					__( 'Critical alerts are typically results from your most recent site scans.', 'wp-simple-firewall' )
 				];
-				if ( !$oCon->isPremiumActive() ) {
-					$sDescription[] = __( 'If you wish to receive alerts more quickly, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
-					$sDescription[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
+				if ( !$con->isPremiumActive() ) {
+					$description[] = __( 'If you wish to receive alerts more quickly, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
+					$description[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
 				}
 				break;
 
 			case 'frequency_info' :
-				$sName = __( 'Info Frequency', 'wp-simple-firewall' );
-				$sSummary = __( 'How Often Informational Reports Will Be Sent To You', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Info Frequency', 'wp-simple-firewall' );
+				$summary = __( 'How Often Informational Reports Will Be Sent To You', 'wp-simple-firewall' );
+				$description = [
 					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
 					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
 				];
-				if ( !$oCon->isPremiumActive() ) {
-					$sDescription[] = __( 'If you wish to receive reports more often, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
-					$sDescription[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
+				if ( !$con->isPremiumActive() ) {
+					$description[] = __( 'If you wish to receive reports more often, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
+					$description[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
 				}
 				break;
 
@@ -64,9 +60,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $description,
 		];
 	}
 

@@ -305,7 +305,7 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
@@ -325,6 +325,9 @@ class Strings extends Base\Strings {
 			'ip_blocked'              => [
 				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
 			],
+			'ip_unblock'              => [
+				__( 'IP removed from block list.', 'wp-simple-firewall' )
+			],
 			'ip_block_auto'           => [
 				__( "IP address '%s' automatically added to block list.", 'wp-simple-firewall' )
 			],
@@ -340,31 +343,20 @@ class Strings extends Base\Strings {
 			'ip_unblock_flag'         => [
 				__( "IP address '%s' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' )
 			],
-			'bottrack_404'            => [
-				__( '404 detected at "%s".', 'wp-simple-firewall' )
-			],
+			'bottrack_notbot'         => __( 'Visitor registered using NotBot.', 'wp-simple-firewall' ),
+			'bottrack_404'            => __( '404 detected at "%s".', 'wp-simple-firewall' ),
 			'bottrack_fakewebcrawler' => [
 				__( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' ),
 				__( 'Fake Crawler misrepresented itself as "%s".', 'wp-simple-firewall' ),
 			],
-			'bottrack_linkcheese'     => [
-				__( 'Link cheese access detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_loginfailed'    => [
-				__( 'Attempted login failed by user "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_logininvalid'   => [
-				__( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_useragent'      => [
-				__( 'Empty user agent detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_xmlrpc'         => [
-				__( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_invalidscript'  => [
-				__( 'Tried to load an invalid WordPress PHP script "%s".', 'wp-simple-firewall' )
-			],
+			'bottrack_linkcheese'     => __( 'Link cheese access detected at "%s".', 'wp-simple-firewall' ),
+			'bottrack_loginfailed'    => __( 'Attempted login failed by user "%s".', 'wp-simple-firewall' ),
+			'bottrack_logininvalid'   => __( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' ),
+			'bottrack_useragent'      => __( 'Empty user agent detected at "%s".', 'wp-simple-firewall' ),
+			'bottrack_xmlrpc'         => __( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' ),
+			'bottrack_invalidscript'  => __( 'Tried to load an invalid WordPress PHP script "%s".', 'wp-simple-firewall' ),
+			'comment_markspam'        => __( 'Comment manually marked as SPAM.', 'wp-simple-firewall' ),
+			'comment_unmarkspam'      => __( 'Comment manually marked as not SPAM.', 'wp-simple-firewall' ),
 		];
 	}
 }

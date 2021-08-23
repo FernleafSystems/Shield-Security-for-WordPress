@@ -17,14 +17,14 @@ class FirewallHandler extends ExecOnceModConsumer {
 	 */
 	private $result = false;
 
-	public function getResult() :\WP_Error {
-		return is_wp_error( $this->result ) ? $this->result : new \WP_Error();
-	}
-
 	protected function canRun() :bool {
 		return ( new CanScan() )
 			->setMod( $this->getMod() )
 			->run();
+	}
+
+	public function getResult() :\WP_Error {
+		return is_wp_error( $this->result ) ? $this->result : new \WP_Error();
 	}
 
 	protected function run() {
@@ -87,7 +87,7 @@ class FirewallHandler extends ExecOnceModConsumer {
 		if ( $opts->isSendBlockEmail() ) {
 			$this->getCon()->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
-				[ 'audit_params' => [ 'recipient' => $this->getMod()->getPluginReportEmail() ] ]
+				[ 'audit_params' => [ 'to' => $this->getMod()->getPluginReportEmail() ] ]
 			);
 		}
 		$this->getCon()->fireEvent( 'firewall_block' );

@@ -41,8 +41,8 @@ class SendEmail extends BaseShieldNetApi {
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
 				'audit_params' => [
-					'user_login' => $to,
-					'slug'       => $slug,
+					'email' => $to,
+					'slug'  => $slug,
 				]
 			]
 		);

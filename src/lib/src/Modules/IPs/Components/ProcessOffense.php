@@ -24,32 +24,32 @@ class ProcessOffense {
 		$opts = $this->getOptions();
 
 		try {
-			$oIP = ( new IPs\Lib\Ops\AddIp() )
+			$IP = ( new IPs\Lib\Ops\AddIp() )
 				->setMod( $mod )
 				->setIP( $this->getIP() )
 				->toAutoBlacklist();
 		}
 		catch ( \Exception $e ) {
-			$oIP = null;
+			$IP = null;
 		}
 
-		if ( $oIP instanceof Databases\IPs\EntryVO ) {
-			$nCurrent = $oIP->transgressions;
+		if ( !empty( $IP ) ) {
+			$currentCount = $IP->transgressions;
 
-			$oTracker = $mod->loadOffenseTracker();
-			$nNewTotal = $oIP->transgressions + $oTracker->getOffenseCount();
-			$bToBlock = $oTracker->isBlocked() ||
-						( $oIP->blocked_at == 0 && ( $nNewTotal >= $opts->getOffenseLimit() ) );
+			$offenseTracker = $mod->loadOffenseTracker();
+			$newCount = $IP->transgressions + $offenseTracker->getOffenseCount();
+			$toBlock = $offenseTracker->isBlocked() ||
+					   ( $IP->blocked_at == 0 && ( $newCount >= $opts->getOffenseLimit() ) );
 
 			/** @var Databases\IPs\Update $updater */
 			$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
-			$updater->updateTransgressions( $oIP, $nNewTotal );
+			$updater->updateTransgressions( $IP, $newCount );
 
-			$con->fireEvent( $bToBlock ? 'ip_blocked' : 'ip_offense',
+			$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit_params' => [
-						'from' => $nCurrent,
-						'to'   => $nNewTotal,
+						'from' => $currentCount,
+						'to'   => $newCount,
 					]
 				]
 			);
@@ -59,9 +59,9 @@ class ProcessOffense {
 			 * want to also audit the offense (only audit the block),
 			 * so we fire ip_offense but suppress the audit
 			 */
-			if ( $bToBlock ) {
+			if ( $toBlock ) {
 				$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
-				$updater->setBlocked( $oIP );
+				$updater->setBlocked( $IP );
 				$con->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
 			}
 		}

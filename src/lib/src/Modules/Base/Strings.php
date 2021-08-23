@@ -148,18 +148,24 @@ class Strings {
 	}
 
 	/**
-	 * @return string[][]
-	 */
-	protected function getAuditMessages() :array {
-		return [];
-	}
-
-	/**
 	 * @param string $key
 	 * @return string[]
 	 */
-	public function getAuditMessage( string $key ) {
-		return $this->getAuditMessages()[ $key ] ?? [];
+	public function getAuditMessage( string $key ) :array {
+		$msg = array_map(
+			function ( $msg ) {
+				return is_array( $msg ) ? $msg : [ $msg ];
+			},
+			$this->getAuditMessages()
+		);
+		return $msg[ $key ] ?? [];
+	}
+
+	/**
+	 * @return string[][]|string[]
+	 */
+	protected function getAuditMessages() :array {
+		return [];
 	}
 
 	/**

@@ -180,7 +180,7 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		/** @var ModCon $mod */
@@ -217,12 +217,9 @@ class Strings extends Base\Strings {
 			'block_exefile'              => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'EXE File Uploads', 'wp-simple-firewall' ) )
 			],
-			'fw_email_success'           => [
-				__( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' )
-			],
-			'fw_email_fail'              => [
-				__( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' )
-			],
+			'fw_email_success'           => __( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' ),
+			'fw_email_fail'              => __( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' ),
+			'firewall_block'             => __( 'Firewall Block', 'wp-simple-firewall' ),
 		];
 
 		foreach ( $msgs as $sKey => &$aMsg ) {

@@ -7,6 +7,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function getAuditMessages() :array {
+		return [
+			'session_start'             => __( 'Session started for user (%s) with session ID %s.', 'wp-simple-firewall' ),
+			'session_terminate'         => __( 'Session terminated.', 'wp-simple-firewall' ),
+			'session_terminate_current' => __( 'Current session terminated for user (%s) with session ID %s.', 'wp-simple-firewall' ),
+			'login_success'             => __( 'Login success.', 'wp-simple-firewall' ),
+		];
+	}
+
+	/**
 	 * @param string $section
 	 * @return array
 	 * @throws \Exception

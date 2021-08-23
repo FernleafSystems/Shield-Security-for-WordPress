@@ -555,18 +555,6 @@
       "xmlrpc.php"
     ],
     "events":                      {
-      "apc_alert_sent":           {
-      },
-      "mal_alert_sent":           {
-      },
-      "ptg_alert_sent":           {
-      },
-      "ufc_alert_sent":           {
-      },
-      "wcf_alert_sent":           {
-      },
-      "wpv_alert_sent":           {
-      },
       "apc_scan_run":             {
         "level":  "debug",
         "recent": true
@@ -616,13 +604,22 @@
         "recent":         true
       },
       "scan_item_repair_success": {
+        "audit_params":   [
+          "path_full"
+        ],
         "audit_multiple": true,
         "recent":         true
       },
       "scan_item_repair_fail":    {
+        "audit_params":   [
+          "path_full"
+        ],
         "audit_multiple": true
       },
       "scan_item_delete_success": {
+        "audit_params":   [
+          "path_full"
+        ],
         "audit_multiple": true
       }
     }

@@ -61,18 +61,12 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
-			'suresend_success' => [
-				__( 'Attempt to send email using SureSend: %s', 'wp-simple-firewall' ),
-				__( 'SureSend email success.', 'wp-simple-firewall' ),
-			],
-			'suresend_fail'    => [
-				__( 'Attempt to send email using SureSend: %s', 'wp-simple-firewall' ),
-				__( 'SureSend email failed.', 'wp-simple-firewall' ),
-			],
+			'suresend_fail'    => __( 'Failed to send email (type: %s) to "%s" using SureSend.', 'wp-simple-firewall' ),
+			'suresend_success' => __( 'Successfully sent email (type: %s) to "%s" using SureSend.', 'wp-simple-firewall' ),
 		];
 	}
 }

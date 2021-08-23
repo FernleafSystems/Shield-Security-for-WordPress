@@ -648,7 +648,11 @@
         "level": "warning"
       },
       "ip_offense":              {
-        "level": "warning"
+        "level":        "warning",
+        "audit_params": [
+          "from",
+          "to"
+        ]
       },
       "ip_blocked":              {
         "audit_params": [
@@ -706,7 +710,10 @@
         "level":   "debug"
       },
       "bottrack_404":            {
-        "offense": true
+        "audit_params": [
+          "path"
+        ],
+        "offense":      true
       },
       "bottrack_fakewebcrawler": {
         "audit_params": [

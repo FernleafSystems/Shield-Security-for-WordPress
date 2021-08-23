@@ -6,11 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @param string $eventKey
-	 * @return string
-	 */
-	public function getEventName( $eventKey ) {
+	public function getEventName( string $eventKey ) :string {
 		return $this->getEventNames()[ $eventKey ] ?? '';
 	}
 
@@ -75,30 +71,6 @@ class Strings extends Base\Strings {
 				__( 'Bot Detection', 'wp-simple-firewall' ),
 				__( 'Invalid Script Load', 'wp-simple-firewall' )
 			),
-			'apc_alert_sent'               => sprintf( '%s: %s',
-				__( 'Alert Sent', 'wp-simple-firewall' ),
-				__( 'Abandoned Plugin Detected', 'wp-simple-firewall' )
-			),
-			'mal_alert_sent'               => sprintf( '%s: %s',
-				__( 'Alert Sent', 'wp-simple-firewall' ),
-				__( 'Malware Detected', 'wp-simple-firewall' )
-			),
-			'ptg_alert_sent'               => sprintf( '%s: %s',
-				__( 'Alert Sent', 'wp-simple-firewall' ),
-				__( 'Modified Plugin/Theme Detected', 'wp-simple-firewall' )
-			),
-			'ufc_alert_sent'               => sprintf( '%s: %s',
-				__( 'Alert Sent', 'wp-simple-firewall' ),
-				__( 'Unrecognised File Detected', 'wp-simple-firewall' )
-			),
-			'wcf_alert_sent'               => sprintf( '%s: %s',
-				__( 'Alert Sent', 'wp-simple-firewall' ),
-				__( 'Modified/Missing WP Core File Detected', 'wp-simple-firewall' )
-			),
-			'wpv_alert_sent'               => sprintf( '%s: %s',
-				__( 'Alert Sent', 'wp-simple-firewall' ),
-				__( 'Vulnerable Plugin Detected', 'wp-simple-firewall' )
-			),
 			'apc_scan_run'                 => sprintf( '%s: %s',
 				__( 'Scan Completed', 'wp-simple-firewall' ),
 				__( 'Abandoned Plugins', 'wp-simple-firewall' )
@@ -155,9 +127,9 @@ class Strings extends Base\Strings {
 			'cooldown_fail'                => __( '', 'wp-simple-firewall' ),
 			'honeypot_fail'                => __( '', 'wp-simple-firewall' ),
 			'botbox_fail'                  => __( '', 'wp-simple-firewall' ),
-			'login_block'                  => __( 'Blocked Login', 'wp-simple-firewall' ),
+			'login_block'                  => __( 'Login Blocked', 'wp-simple-firewall' ),
 			'hide_login_url'               => __( 'Redirecting wp-login due to hidden login URL', 'wp-simple-firewall' ),
-			'2fa_success'                  => __( '', 'wp-simple-firewall' ),
+			'2fa_success'                  => __( 'Successful 2FA Login Verification', 'wp-simple-firewall' ),
 			'check_skip'                   => __( '', 'wp-simple-firewall' ),
 			'fw_email_fail'                => __( 'Firewall Block Email Fail', 'wp-simple-firewall' ),
 			'fw_email_success'             => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),

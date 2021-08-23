@@ -260,7 +260,7 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
@@ -269,28 +269,28 @@ class Strings extends Base\Strings {
 				__( 'Email verification test that failed: %s' )
 			],
 			'password_expired'             => [
-				__( 'Forcing user to update expired password.', 'wp-simple-firewall' ),
+				__( 'Forcing user (%s) to update expired password.', 'wp-simple-firewall' ),
 			],
 			'password_policy_force_change' => [
-				__( 'Forcing user to update password that fails to meet policies.', 'wp-simple-firewall' ),
+				__( 'Forcing user (%s) to update password that fails to meet policies.', 'wp-simple-firewall' ),
 			],
 			'password_policy_block'        => [
 				__( 'Blocked attempted password update that failed policy requirements.', 'wp-simple-firewall' ),
 			],
 			'session_notfound'             => [
-				__( 'Valid user session could not be found.', 'wp-simple-firewall' ),
+				__( 'Valid user session could not be found (%s).', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
 			'session_expired'              => [
-				__( 'User session has expired.', 'wp-simple-firewall' ),
+				__( 'User session has expired (%s).', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
 			'session_idle'                 => [
-				__( 'User session has expired due to inactivity.', 'wp-simple-firewall' ),
+				__( 'User session has expired due to inactivity (%s).', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
 			'session_iplock'               => [
-				__( 'Access to an established user session from a different IP address.', 'wp-simple-firewall' ),
+				__( 'Access to an established user session (%s) from a different IP address.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
 			'user_hard_suspended'          => [

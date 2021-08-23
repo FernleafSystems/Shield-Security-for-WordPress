@@ -27,15 +27,25 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
-		$messages = [];
+		$messages = [
+			'scan_item_delete_success' => [
+				__( 'Deleted item found in the scan.', 'wp-simple-firewall' ),
+				__( 'Item deleted: "%s"', 'wp-simple-firewall' )
+			],
+			'scan_item_repair_success' => [
+				__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
+				__( 'Item repaired: "%s"', 'wp-simple-firewall' )
+			],
+			'scan_item_repair_fail' => [
+				__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
+				__( 'Failed item: "%s"', 'wp-simple-firewall' )
+			],
+		];
+
 		foreach ( $this->getScanNames() as $slug => $scanName ) {
-			$messages[ $slug.'_alert_sent' ] = [
-				sprintf( __( '%s scan alert sent.', 'wp-simple-firewall' ), $scanName )
-				.' '.__( 'Alert sent to %s via %s.' )
-			];
 			$messages[ $slug.'_scan_found' ] = [
 				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $scanName ),
 				sprintf( '%s: %s',
@@ -44,18 +54,7 @@ class Strings extends Base\Strings {
 				),
 				'%s'
 			];
-			$messages[ 'scan_item_delete_success' ] = [
-				__( 'Deleted item found in the scan.', 'wp-simple-firewall' )
-				.' '.__( 'Item deleted: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ 'scan_item_repair_success' ] = [
-				__( 'Repaired item found in the scan.', 'wp-simple-firewall' )
-				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ 'scan_item_repair_fail' ] = [
-				__( 'Failed to repair scan item.', 'wp-simple-firewall' )
-				.' '.__( 'Failed item: "%s"', 'wp-simple-firewall' ),
-			];
+			$messages[ $slug.'_scan_run' ] = sprintf( '%s: %s', __( 'Scan Completed', 'wp-simple-firewall' ), $scanName );
 			$messages[ $slug.'_item_repair_success' ] = [
 				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
 				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),

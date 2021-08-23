@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
 		return [
@@ -22,6 +22,9 @@ class Strings extends Base\Strings {
 			],
 			'spam_block_recaptcha' => [
 				__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' )
+			],
+			'comment_spam_block'   => [
+				__( 'Comment SPAM Blocked.', 'wp-simple-firewall' )
 			],
 		];
 	}
