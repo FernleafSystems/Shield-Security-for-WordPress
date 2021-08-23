@@ -343,6 +343,10 @@
       "spam_block_recaptcha": {
       },
       "spam_block_human":     {
+        "audit_params":   [
+          "word",
+          "key"
+        ]
       }
     }
   }

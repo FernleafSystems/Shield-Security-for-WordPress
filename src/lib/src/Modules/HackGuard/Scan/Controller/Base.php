@@ -76,16 +76,6 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $recordID ] );
 	}
 
-	public function getLastScanAt() :int {
-		/** @var Databases\Events\Select $sel */
-		$sel = $this->getCon()
-					->getModule_Events()
-					->getDbHandler_Events()
-					->getQuerySelector();
-		$entry = $sel->getLatestForEvent( $this->getSlug().'_scan_run' );
-		return ( $entry instanceof Databases\Events\EntryVO ) ? (int)$entry->created_at : 0;
-	}
-
 	public function countScanProblems() :int {
 		if ( !isset( self::$resultsCounts ) ) {
 			/** @var ModCon $mod */

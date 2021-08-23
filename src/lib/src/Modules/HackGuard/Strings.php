@@ -30,7 +30,7 @@ class Strings extends Base\Strings {
 	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
-		$messages = [
+		return [
 			'scan_item_delete_success' => [
 				__( 'Deleted item found in the scan.', 'wp-simple-firewall' ),
 				__( 'Item deleted: "%s"', 'wp-simple-firewall' )
@@ -51,20 +51,8 @@ class Strings extends Base\Strings {
 				),
 				'%s'
 			],
+			'scan_run'                 => sprintf( '%s: %%s', __( 'Scan Completed', 'wp-simple-firewall' ) ),
 		];
-
-		foreach ( $this->getScanNames() as $slug => $scanName ) {
-			$messages[ $slug.'_scan_run' ] = sprintf( '%s: %s', __( 'Scan Completed', 'wp-simple-firewall' ), $scanName );
-			$messages[ $slug.'_item_repair_success' ] = [
-				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
-				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ $slug.'_item_repair_fail' ] = [
-				sprintf( __( '%s scan could not repair item.', 'wp-simple-firewall' ), $scanName )
-				.' '.__( 'Failed repair item: "%s"', 'wp-simple-firewall' ),
-			];
-		}
-		return $messages;
 	}
 
 	/**

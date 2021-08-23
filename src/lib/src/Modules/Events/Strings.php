@@ -71,30 +71,7 @@ class Strings extends Base\Strings {
 				__( 'Bot Detection', 'wp-simple-firewall' ),
 				__( 'Invalid Script Load', 'wp-simple-firewall' )
 			),
-			'apc_scan_run'                 => sprintf( '%s: %s',
-				__( 'Scan Completed', 'wp-simple-firewall' ),
-				__( 'Abandoned Plugins', 'wp-simple-firewall' )
-			),
-			'mal_scan_run'                 => sprintf( '%s: %s',
-				__( 'Scan Completed', 'wp-simple-firewall' ),
-				__( 'Malware', 'wp-simple-firewall' )
-			),
-			'ptg_scan_run'                 => sprintf( '%s: %s',
-				__( 'Scan Completed', 'wp-simple-firewall' ),
-				__( 'Plugin/Theme Guard', 'wp-simple-firewall' )
-			),
-			'ufc_scan_run'                 => sprintf( '%s: %s',
-				__( 'Scan Completed', 'wp-simple-firewall' ),
-				__( 'Unrecognised Files', 'wp-simple-firewall' )
-			),
-			'wcf_scan_run'                 => sprintf( '%s: %s',
-				__( 'Scan Completed', 'wp-simple-firewall' ),
-				__( 'WP Core Files', 'wp-simple-firewall' )
-			),
-			'wpv_scan_run'                 => sprintf( '%s: %s',
-				__( 'Scan Completed', 'wp-simple-firewall' ),
-				__( 'Vulnerabilities', 'wp-simple-firewall' )
-			),
+			'scan_run'                     => __( 'Scan Completed', 'wp-simple-firewall' ),
 			'scan_item_delete_success'     => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
 			'scan_item_repair_success'     => __( 'Scan Item Repair Success', 'wp-simple-firewall' ),
 			'scan_item_repair_fail'        => __( 'Scan Item Repair Failure', 'wp-simple-firewall' ),

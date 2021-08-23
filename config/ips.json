@@ -642,7 +642,10 @@
     },
     "events":              {
       "custom_offense":          {
-        "offense": true
+        "audit_params": [
+          "message"
+        ],
+        "offense":      true
       },
       "conn_kill":               {
         "level": "warning"

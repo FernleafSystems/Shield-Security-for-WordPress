@@ -555,59 +555,18 @@
       "xmlrpc.php"
     ],
     "events":                      {
-      "apc_scan_run":             {
-        "level":  "debug",
-        "recent": true
-      },
-      "mal_scan_run":             {
-        "level":  "debug",
-        "recent": true
-      },
-      "ptg_scan_run":             {
-        "level":  "debug",
-        "recent": true
-      },
-      "ufc_scan_run":             {
-        "level":  "debug",
-        "recent": true
-      },
-      "wcf_scan_run":             {
-        "level":  "debug",
-        "recent": true
-      },
-      "wpv_scan_run":             {
-        "level":  "debug",
-        "recent": true
+      "scan_run":                 {
+        "audit_params":   [
+          "scan"
+        ],
+        "level":          "debug",
+        "audit_multiple": true
       },
       "scan_items_found":         {
         "audit_params":   [
           "scan",
           "items"
         ],
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "apc_scan_found":           {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "mal_scan_found":           {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "ptg_scan_found":           {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "ufc_scan_found":           {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "wcf_scan_found":           {
-        "audit_multiple": true,
-        "recent":         true
-      },
-      "wpv_scan_found":           {
         "audit_multiple": true,
         "recent":         true
       },

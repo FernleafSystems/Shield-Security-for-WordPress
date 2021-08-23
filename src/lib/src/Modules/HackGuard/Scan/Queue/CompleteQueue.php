@@ -38,7 +38,7 @@ class CompleteQueue {
 				->setDbHandler( $dbh )
 				->collate( $scanSlug );
 
-			$con->fireEvent( $scanSlug.'_scan_run' );
+			$con->fireEvent( 'scan_run', [ 'audit_params' => [ 'scan' => $scanCon->getScanName() ] ] );
 
 			if ( $resultsSet->hasItems() ) {
 

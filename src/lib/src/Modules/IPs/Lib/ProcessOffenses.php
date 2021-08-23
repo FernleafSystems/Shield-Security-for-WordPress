@@ -64,15 +64,15 @@ class ProcessOffenses extends ExecOnceModConsumer {
 	 * Allows 3rd parties to trigger Shield offenses
 	 * @param string $message
 	 * @param int    $offenseCount
-	 * @param bool   $bIncludeLoggedIn
+	 * @param bool   $includedLoggedIn
 	 */
-	public function processCustomShieldOffense( $message, $offenseCount = 1, $bIncludeLoggedIn = true ) {
+	public function processCustomShieldOffense( $message, $offenseCount = 1, $includedLoggedIn = true ) {
 		if ( $this->getCon()->isPremiumActive() ) {
 			if ( empty( $message ) ) {
 				$message = __( 'No custom message provided.', 'wp-simple-firewall' );
 			}
 
-			if ( $bIncludeLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
+			if ( $includedLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->getCon()
 					 ->fireEvent(
 						 'custom_offense',
