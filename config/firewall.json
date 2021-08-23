@@ -403,101 +403,32 @@
       }
     },
     "events":            {
-      "check_skip":                 {
-        "level": "info",
-        "stat":  false
-      },
-      "firewall_block":             {
-        "level":   "debug",
-        "recent":  true,
-        "offense": true
-      },
-      "block_param":                {
+      "check_skip":       {
         "audit_params": [
-          "param",
-          "val",
-          "response",
-          "type"
-        ]
-      },
-      "blockparam_dirtraversal":    {
-        "audit_params": [
-          "param",
-          "val",
-          "blockresponse",
-          "blockkey"
+          "path"
         ],
-        "level":        "warning"
+        "level":        "debug",
+        "stat":         false
       },
-      "blockparam_wpterms":         {
+      "firewall_block":   {
         "audit_params": [
+          "name",
+          "term",
           "param",
-          "val",
-          "blockresponse",
-          "blockkey"
+          "value"
         ],
-        "level":        "warning"
+        "level":        "warning",
+        "recent":       true,
+        "offense":      true
       },
-      "blockparam_fieldtruncation": {
-        "audit_params": [
-          "param",
-          "val",
-          "blockresponse",
-          "blockkey"
-        ],
-        "level":        "warning"
-      },
-      "blockparam_sqlqueries":      {
-        "audit_params": [
-          "param",
-          "val",
-          "blockresponse",
-          "blockkey"
-        ],
-        "level":        "warning"
-      },
-      "blockparam_schema":          {
-        "audit_params": [
-          "param",
-          "val",
-          "blockresponse",
-          "blockkey"
-        ],
-        "level":        "warning"
-      },
-      "blockparam_aggressive":      {
-        "audit_params": [
-          "param",
-          "val",
-          "blockresponse",
-          "blockkey"
-        ],
-        "level":        "warning"
-      },
-      "blockparam_phpcode":         {
-        "audit_params": [
-          "param",
-          "val",
-          "blockresponse",
-          "blockkey"
-        ],
-        "level":        "warning"
-      },
-      "block_exefile":              {
-        "audit_params": [
-          "blockresponse",
-          "blockkey"
-        ],
-        "level":        "warning"
-      },
-      "fw_email_fail":              {
+      "fw_email_fail":    {
         "audit_params": [
           "to"
         ],
         "level":        "warning",
         "stat":         false
       },
-      "fw_email_success":           {
+      "fw_email_success": {
         "audit_params": [
           "to"
         ],

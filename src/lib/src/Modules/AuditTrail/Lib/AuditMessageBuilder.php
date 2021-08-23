@@ -34,7 +34,7 @@ class AuditMessageBuilder {
 		if ( $missingCount > 0 ) {
 			$metaSubstitutions = array_merge(
 				$metaSubstitutions,
-				array_fill( 0, $missingCount, '[data missing for older audit logs]' )
+				array_fill( 0, $missingCount, '[data missing]' )
 			);
 		}
 

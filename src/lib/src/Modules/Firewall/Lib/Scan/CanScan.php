@@ -22,6 +22,13 @@ class CanScan {
 				->retrieve();
 			$canScan = count( $paramsToScan ) > 0
 					   && ( !is_super_admin() || !$opts->isIgnoreAdmin() );
+			if ( !$canScan ) {
+				$this->getCon()->fireEvent( 'check_skip', [
+					'audit_params' => [
+						'path' => $req->getPath(),
+					]
+				] );
+			}
 		}
 		return $canScan;
 	}

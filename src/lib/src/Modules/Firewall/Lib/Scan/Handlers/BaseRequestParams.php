@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\Parameters
 
 abstract class BaseRequestParams extends Base {
 
+	const TYPE = 'param';
+
 	protected function getItemsToScan() :array {
 		return ( new ParametersToScan() )
 			->setMod( $this->getMod() )

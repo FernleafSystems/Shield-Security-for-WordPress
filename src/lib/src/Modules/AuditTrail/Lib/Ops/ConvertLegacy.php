@@ -71,6 +71,7 @@ class ConvertLegacy {
 			->getQueryDeleter()
 			->addWhereIn( 'in', $toDelete )
 			->query();
+		// TODO: set hidden marker to say completed and delete table
 	}
 
 	/**
@@ -81,6 +82,10 @@ class ConvertLegacy {
 	protected function createPrimaryLogRecord( AuditTrail\EntryVO $entry ) :Logs\Ops\Record {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		if ( !$this->getCon()->loadEventsService()->eventExists( (string)$entry->event ) ) {
+			throw new \Exception( 'Not a supported event' );
+		}
 
 		$record = new Logs\Ops\Record();
 		$record->event_slug = $entry->event;

@@ -183,16 +183,9 @@ class Strings extends Base\Strings {
 	 * @inheritDoc
 	 */
 	protected function getAuditMessages() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$msgs = [
-			'check_skip'                 => [
-				sprintf( __( 'Skipping firewall checking for this visit: %s.', 'wp-simple-firewall' ), __( 'Parsing the URI failed', 'wp-simple-firewall' ) )
-			],
-			'block_param'                => [
-				sprintf( __( 'Firewall Block Triggered: %s.', 'wp-simple-firewall' ), __( 'Directory Traversal', 'wp-simple-firewall' ) )
-			],
+		return [
+			'check_skip'                 => __( 'Skipping firewall checking for this visit: %s.', 'wp-simple-firewall' ),
+			'block_param'                => sprintf( __( 'Firewall Block Triggered: %s.', 'wp-simple-firewall' ), __( 'Directory Traversal', 'wp-simple-firewall' ) ),
 			'blockparam_dirtraversal'    => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'Directory Traversal', 'wp-simple-firewall' ) )
 			],
@@ -219,39 +212,11 @@ class Strings extends Base\Strings {
 			],
 			'fw_email_success'           => __( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' ),
 			'fw_email_fail'              => __( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' ),
-			'firewall_block'             => __( 'Firewall Block', 'wp-simple-firewall' ),
+			'firewall_block'             => [
+				__( 'Request blocked by firewall rule: %s.', 'wp-simple-firewall' ),
+				__( 'Rule pattern detected: "%s".', 'wp-simple-firewall' ),
+				__( 'The offending request parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ),
+			],
 		];
-
-		foreach ( $msgs as $sKey => &$aMsg ) {
-
-			if ( strpos( $sKey, 'blockparam_' ) === 0 ) {
-				$aMsg[] = __( 'Page parameter failed firewall check.', 'wp-simple-firewall' );
-				$aMsg[] = __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' );
-			}
-
-			if ( strpos( $sKey, 'block' ) === 0 ) {
-
-				switch ( $mod->getBlockResponse() ) {
-					case 'redirect_die':
-						$sBlkResp = __( 'Visitor connection was killed with wp_die()', 'wp-simple-firewall' );
-						break;
-					case 'redirect_die_message':
-						$sBlkResp = __( 'Visitor connection was killed with wp_die() and a message', 'wp-simple-firewall' );
-						break;
-					case 'redirect_home':
-						$sBlkResp = __( 'Visitor was sent HOME', 'wp-simple-firewall' );
-						break;
-					case 'redirect_404':
-						$sBlkResp = __( 'Visitor was sent 404', 'wp-simple-firewall' );
-						break;
-					default:
-						$sBlkResp = __( 'Unknown', 'wp-simple-firewall' );
-						break;
-				}
-				$aMsg[] = sprintf( __( 'Firewall Block Response: %s.', 'wp-simple-firewall' ), $sBlkResp );
-			}
-		}
-
-		return $msgs;
 	}
 }

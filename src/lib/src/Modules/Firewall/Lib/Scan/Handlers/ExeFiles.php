@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\Hand
 class ExeFiles extends Base {
 
 	const SLUG = 'exefile';
+	const TYPE = 'file';
 
 	protected function getItemsToScan() :array {
 		return array_filter( array_map(

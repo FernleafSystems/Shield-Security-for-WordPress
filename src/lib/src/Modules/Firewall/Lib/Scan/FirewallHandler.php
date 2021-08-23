@@ -90,7 +90,7 @@ class FirewallHandler extends ExecOnceModConsumer {
 				[ 'audit_params' => [ 'to' => $this->getMod()->getPluginReportEmail() ] ]
 			);
 		}
-		$this->getCon()->fireEvent( 'firewall_block' );
+		$this->getCon()->fireEvent( 'firewall_block', [ 'audit_params' => $this->getResult()->get_error_data() ] );
 	}
 
 	protected function getFirewallDieMessage() :array {

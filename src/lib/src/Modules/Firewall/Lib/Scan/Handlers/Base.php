@@ -9,6 +9,7 @@ abstract class Base {
 	use ModConsumer;
 
 	const SLUG = '';
+	const TYPE = '';
 
 	public function runCheck() :\WP_Error {
 		$checkResult = new \WP_Error();
@@ -54,11 +55,12 @@ abstract class Base {
 			foreach ( $this->getItemsToScan() as $param => $value ) {
 				if ( preg_match( $term, $value ) ) {
 					$found = new \WP_Error( 'shield-firewall', '', [
+						'name'  => $this->getScanName(),
+						'term'  => $term,
 						'param' => $param,
 						'value' => $value,
-						'term'  => $term,
-						'scan'  => static::SLUG,
-						'name'  => $this->getScanName(),
+						//						'scan'  => static::SLUG,
+						//						'type'  => static::TYPE,
 					] );
 					break 2;
 				}
@@ -73,11 +75,12 @@ abstract class Base {
 			foreach ( $this->getItemsToScan() as $param => $value ) {
 				if ( stripos( $value, $term ) !== false ) {
 					$found = new \WP_Error( 'shield-firewall', '', [
+						'name'  => $this->getScanName(),
+						'term'  => $term,
 						'param' => $param,
 						'value' => $value,
-						'term'  => $term,
-						'type'  => static::SLUG,
-						'name'  => $this->getScanName(),
+						//						'scan'  => static::SLUG,
+						//						'type'  => static::TYPE,
 					] );
 					break 2;
 				}

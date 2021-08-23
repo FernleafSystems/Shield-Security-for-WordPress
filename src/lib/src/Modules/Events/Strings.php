@@ -87,39 +87,39 @@ class Strings extends Base\Strings {
 			'fw_email_fail'                => __( 'Firewall Block Email Fail', 'wp-simple-firewall' ),
 			'fw_email_success'             => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 			'firewall_block'               => __( 'Firewall Block', 'wp-simple-firewall' ),
-			'block_param'                  => __( 'Firewall Blocked Request Parameter', 'wp-simple-firewall' ),
-			'blockparam_dirtraversal'      => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'Directory Traversal', 'wp-simple-firewall' )
-			),
-			'blockparam_wpterms'           => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'WordPress Terms', 'wp-simple-firewall' )
-			),
-			'blockparam_fieldtruncation'   => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'Field Truncation', 'wp-simple-firewall' )
-			),
-			'blockparam_sqlqueries'        => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'SQL Queries', 'wp-simple-firewall' )
-			),
-			'blockparam_schema'            => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'Leading Schema', 'wp-simple-firewall' )
-			),
-			'blockparam_aggressive'        => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'Aggressive Rules', 'wp-simple-firewall' )
-			),
-			'blockparam_phpcode'           => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'PHP Code', 'wp-simple-firewall' )
-			),
-			'block_exefile'                => sprintf( '%s: %s',
-				__( 'Firewall', 'wp-simple-firewall' ),
-				__( 'EXE File Uploads', 'wp-simple-firewall' )
-			),
+//			'block_param'                  => __( 'Firewall Blocked Request Parameter', 'wp-simple-firewall' ),
+//			'blockparam_dirtraversal'      => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'Directory Traversal', 'wp-simple-firewall' )
+//			),
+//			'blockparam_wpterms'           => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'WordPress Terms', 'wp-simple-firewall' )
+//			),
+//			'blockparam_fieldtruncation'   => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'Field Truncation', 'wp-simple-firewall' )
+//			),
+//			'blockparam_sqlqueries'        => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'SQL Queries', 'wp-simple-firewall' )
+//			),
+//			'blockparam_schema'            => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'Leading Schema', 'wp-simple-firewall' )
+//			),
+//			'blockparam_aggressive'        => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'Aggressive Rules', 'wp-simple-firewall' )
+//			),
+//			'blockparam_phpcode'           => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'PHP Code', 'wp-simple-firewall' )
+//			),
+//			'block_exefile'                => sprintf( '%s: %s',
+//				__( 'Firewall', 'wp-simple-firewall' ),
+//				__( 'EXE File Uploads', 'wp-simple-firewall' )
+//			),
 			'session_notfound'             => __( 'Session Not Found', 'wp-simple-firewall' ),
 			'session_expired'              => __( 'Session Expired', 'wp-simple-firewall' ),
 			'session_idle'                 => __( 'Session Idle', 'wp-simple-firewall' ),

@@ -13,6 +13,10 @@ class EventsService {
 	 */
 	private $aEvents;
 
+	public function eventExists( string $eventKey ) :bool {
+		return !empty( $this->getEventDef( $eventKey ) );
+	}
+
 	public function fireEvent( string $event, array $meta = [] ) {
 		if ( $this->isSupportedEvent( $event ) ) {
 			try {
@@ -80,11 +84,7 @@ class EventsService {
 	 * @return array|null
 	 */
 	public function getEventDef( string $eventKey ) {
-		return $this->isSupportedEvent( $eventKey ) ? $this->getEvents()[ $eventKey ] : null;
-	}
-
-	public function isSupportedEvent( string $eventKey ) :bool {
-		return in_array( $eventKey, array_keys( $this->getEvents() ) );
+		return $this->getEvents()[ $eventKey ] ?? null;
 	}
 
 	private function buildEvents( array $events ) :array {
@@ -104,5 +104,14 @@ class EventsService {
 			$events[ $eventKey ][ 'key' ] = $eventKey;
 		}
 		return $events;
+	}
+
+	/**
+	 * @param string $eventKey
+	 * @return bool
+	 * @deprecated 12.0
+	 */
+	public function isSupportedEvent( string $eventKey ) :bool {
+		return array_key_exists( $eventKey, $this->getEvents() );
 	}
 }

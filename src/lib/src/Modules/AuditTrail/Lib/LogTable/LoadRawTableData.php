@@ -38,10 +38,22 @@ class LoadRawTableData {
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				return $data;
 			},
+			$this->getLogRecords()
+		) );
+	}
+
+	/**
+	 * @return LogRecord[]
+	 */
+	private function getLogRecords() :array {
+		return array_filter(
 			( new LoadLogs() )
 				->setMod( $this->getCon()->getModule_AuditTrail() )
-				->run()
-		) );
+				->run(),
+			function ( $logRecord ) {
+				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
+			}
+		);
 	}
 
 	private function getColumnContent_Message() :string {
