@@ -59,9 +59,10 @@ class CompleteQueue {
 							  .'"';
 
 					$con->fireEvent(
-						$scanSlug.'_scan_found',
+						'scan_items_found',
 						[
 							'audit_params' => [
+								'scan'  => $scanCon->getScanName(),
 								'items' => $items
 							]
 						]

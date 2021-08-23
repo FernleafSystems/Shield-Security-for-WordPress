@@ -39,21 +39,21 @@ class Strings extends Base\Strings {
 				__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
 				__( 'Item repaired: "%s"', 'wp-simple-firewall' )
 			],
-			'scan_item_repair_fail' => [
+			'scan_item_repair_fail'    => [
 				__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
 				__( 'Failed item: "%s"', 'wp-simple-firewall' )
 			],
-		];
-
-		foreach ( $this->getScanNames() as $slug => $scanName ) {
-			$messages[ $slug.'_scan_found' ] = [
-				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $scanName ),
+			'scan_items_found'         => [
+				__( '%s: scan completed and items were discovered.', 'wp-simple-firewall' ),
 				sprintf( '%s: %s',
 					__( 'Note', 'wp-simple-firewall' ),
 					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
 				),
 				'%s'
-			];
+			],
+		];
+
+		foreach ( $this->getScanNames() as $slug => $scanName ) {
 			$messages[ $slug.'_scan_run' ] = sprintf( '%s: %s', __( 'Scan Completed', 'wp-simple-firewall' ), $scanName );
 			$messages[ $slug.'_item_repair_success' ] = [
 				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
