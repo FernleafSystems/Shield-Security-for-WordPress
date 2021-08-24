@@ -721,7 +721,7 @@
       "bottrack_fakewebcrawler": {
         "audit_params": [
           "path",
-          "script"
+          "crawler"
         ],
         "offense":      true
       },
@@ -733,14 +733,14 @@
       },
       "bottrack_loginfailed":    {
         "audit_params": [
-          "login"
+          "user"
         ],
         "level":        "alert",
         "offense":      true
       },
       "bottrack_logininvalid":   {
         "audit_params": [
-          "login"
+          "user"
         ],
         "level":        "alert",
         "offense":      true

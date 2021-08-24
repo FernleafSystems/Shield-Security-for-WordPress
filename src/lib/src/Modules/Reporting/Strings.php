@@ -9,13 +9,21 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	protected function getEventStrings() :array {
 		return [
 			'report_generated' => [
-				__( 'Report Generated.', 'wp-simple-firewall' ),
-				__( 'Type: %s; Interval: %s', 'wp-simple-firewall' ),
+				'name'  => __( 'Report Generated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Report Generated.', 'wp-simple-firewall' ),
+					__( 'Type: {{type}}; Interval: {{interval}};', 'wp-simple-firewall' ),
+				],
 			],
-			'report_sent'      => __( 'Report Sent (via %s).', 'wp-simple-firewall' ),
+			'report_sent'      => [
+				'name'  => __( 'Report Sent', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Report Sent (via {{medium}}).', 'wp-simple-firewall' ),
+				],
+			],
 		];
 	}
 

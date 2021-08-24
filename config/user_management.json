@@ -441,7 +441,7 @@
         "audit_params": [
           "user_login"
         ],
-        "level":        "debug"
+        "level":        "info"
       },
       "password_policy_block":        {
         "level": "debug"

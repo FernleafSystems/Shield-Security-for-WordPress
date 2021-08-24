@@ -538,7 +538,7 @@
         "offense": true
       },
       "hide_login_url":     {
-        "level": "debug"
+        "level": "info"
       },
       "2fa_success":        {
         "level":  "debug",

@@ -7,6 +7,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function getEventStrings() :array {
+		return [
+			'suresend_fail'    => [
+				'name'  => __( 'SureSend Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Failed to send email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
+				],
+			],
+			'suresend_success' => [
+				'name'  => __( 'SureSend Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Successfully sent email (type: {{slug}}) to "{{email}}" using SureSend.', 'wp-simple-firewall' ),
+				],
+			],
+		];
+	}
+
+	/**
 	 * @param string $section
 	 * @return array
 	 * @throws \Exception
@@ -57,16 +77,6 @@ class Strings extends Base\Strings {
 			'name'        => $name,
 			'summary'     => $summary,
 			'description' => $desc,
-		];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function getAuditMessages() :array {
-		return [
-			'suresend_fail'    => __( 'Failed to send email (type: %s) to "%s" using SureSend.', 'wp-simple-firewall' ),
-			'suresend_success' => __( 'Successfully sent email (type: %s) to "%s" using SureSend.', 'wp-simple-firewall' ),
 		];
 	}
 }

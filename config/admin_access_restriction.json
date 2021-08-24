@@ -408,7 +408,7 @@
     ],
     "events":                 {
       "key_success": {
-        "level":  "info",
+        "level":  "debug",
         "recent": true
       },
       "key_fail":    {

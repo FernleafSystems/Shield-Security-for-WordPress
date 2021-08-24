@@ -11,52 +11,111 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getAdditionalDisplayStrings() :array {
+	protected function getEventStrings() :array {
 		return [
-			'actions_title'   => __( 'Plugin Actions', 'wp-simple-firewall' ),
-			'actions_summary' => __( 'E.g. Import/Export', 'wp-simple-firewall' ),
+			'debug_log'         => [
+				'name'  => __( 'Custom Debug', 'wp-simple-firewall' ),
+				'audit' => [
+					'{{message}}',
+				],
+			],
+			'frontpage_load'    => [
+				'name'  => sprintf( '%s: %s', __( 'Loaded', 'wp-simple-firewall' ),
+					__( 'Front Page', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Front page loaded', 'wp-simple-firewall' ),
+				],
+			],
+			'loginpage_load'    => [
+				'name'  => sprintf( '%s: %s', __( 'Loaded', 'wp-simple-firewall' ),
+					__( 'Login Page', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Login page loaded', 'wp-simple-firewall' ),
+				],
+			],
+			'recaptcha_success' => [
+				'name'  => __( 'CAPTCHA Pass', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'CAPTCHA test successful.', 'wp-simple-firewall' ),
+				],
+			],
+			'recaptcha_fail'    => [
+				'name'  => __( 'CAPTCHA Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'CAPTCHA test failed.', 'wp-simple-firewall' ),
+				],
+			],
+			'test_cron_run'     => [
+				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Test WP Cron ran successfully.', 'wp-simple-firewall' ),
+				],
+			],
+			'import_notify_sent'     => [
+				'name'  => __( 'Import Notify Sent', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' ),
+				],
+			],
+			'import_notify_received'     => [
+				'name'  => __( 'Import Notify Received', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Received notification that options import required.', 'wp-simple-firewall' ),
+					__( 'Current master site: {{master_site}}', 'wp-simple-firewall' ),
+				],
+			],
+			'options_exported'     => [
+				'name'  => __( 'Options Exported', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Options exported to site: {{site}}', 'wp-simple-firewall' ),
+				],
+			],
+			'options_imported'     => [
+				'name'  => __( 'Options Imported', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Options exported from site: {{site}}', 'wp-simple-firewall' ),
+				],
+			],
+			'whitelist_site_added'     => [
+				'name'  => __( 'Whitelist Site Added', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Site added to export white list: {{site}}', 'wp-simple-firewall' ),
+				],
+			],
+			'whitelist_site_removed'     => [
+				'name'  => __( 'Whitelist Site Removed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Site removed from export white list: {{site}}', 'wp-simple-firewall' ),
+				],
+			],
+			'master_url_set'     => [
+				'name'  => __( 'Whitelist Site Removed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Master Site URL set: {{site}}', 'wp-simple-firewall' ),
+				],
+			],
+			'antibot_pass'     => [
+				'name'  => __( 'AntiBot Pass', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Request passed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
+				],
+			],
+			'antibot_fail'     => [
+				'name'  => __( 'AntiBot Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Request failed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
+				],
+			],
 		];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	protected function getAdditionalDisplayStrings() :array {
 		return [
-			'debug_log'              => '%s',
-			'frontpage_load'         => __( 'Frontpage loaded', 'wp-simple-firewall' ),
-			'loginpage_load'         => __( 'Login page loaded', 'wp-simple-firewall' ),
-			'recaptcha_success'      => __( 'CAPTCHA test success', 'wp-simple-firewall' ),
-			'test_cron_run'          => __( 'Test Cron Run', 'wp-simple-firewall' ),
-			'import_notify_sent'     => __( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' ),
-			'import_notify_received' => [
-				__( 'Received notification that options import required.', 'wp-simple-firewall' ),
-				__( 'Current master site: %s', 'wp-simple-firewall' )
-			],
-			'options_exported'       => [
-				__( 'Options exported to site: %s', 'wp-simple-firewall' ),
-			],
-			'options_imported'       => [
-				__( 'Options imported from site: %s', 'wp-simple-firewall' ),
-			],
-			'whitelist_site_added'   => [
-				__( 'Site added to export white list: %s', 'wp-simple-firewall' ),
-			],
-			'whitelist_site_removed' => [
-				__( 'Site removed from export white list: %s', 'wp-simple-firewall' ),
-			],
-			'master_url_set'         => [
-				__( 'Master Site URL set: %s', 'wp-simple-firewall' ),
-			],
-			'recaptcha_fail'         => [
-				__( 'CAPTCHA Test Fail', 'wp-simple-firewall' )
-			],
-			'antibot_pass'           => [
-				__( 'Request passed the AntiBot Test with a Visitor Score of "%s" (minimum score: %s).', 'wp-simple-firewall' ),
-			],
-			'antibot_fail'           => [
-				__( 'Request failed the AntiBot Test with a Visitor Score of "%s" (minimum score: %s).', 'wp-simple-firewall' ),
-			],
+			'actions_title'   => __( 'Plugin Actions', 'wp-simple-firewall' ),
+			'actions_summary' => __( 'E.g. Import/Export', 'wp-simple-firewall' ),
 		];
 	}
 

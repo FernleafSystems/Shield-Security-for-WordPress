@@ -8,6 +8,51 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function getEventStrings() :array {
+		return [
+			'scan_run'                 => [
+				'name'  => __( 'Scan Completed', 'wp-simple-firewall' ),
+				'audit' => [
+					sprintf( '%s: {{scan}}', __( 'Scan Completed', 'wp-simple-firewall' ) ),
+				],
+			],
+			'scan_item_delete_success' => [
+				'name'  => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Deleted item found in the scan.', 'wp-simple-firewall' ),
+					__( 'Item deleted: "{{path_full}}"', 'wp-simple-firewall' ),
+				],
+			],
+			'scan_item_repair_success' => [
+				'name'  => __( 'Scan Item Repair Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
+					__( 'Item repaired: "{{path_full}}"', 'wp-simple-firewall' ),
+				],
+			],
+			'scan_item_repair_fail'    => [
+				'name'  => __( 'Scan Item Repair Failure', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
+					__( 'Failed item: "{{path_full}}"', 'wp-simple-firewall' ),
+				],
+			],
+			'scan_items_found'         => [
+				'name'  => __( 'Items Found In Scan', 'wp-simple-firewall' ),
+				'audit' => [
+					__( '{{scan}}: scan completed and items were discovered.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s {{items}}',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
+					),
+				],
+			],
+		];
+	}
+
 	public function getScanName( string $slug ) :string {
 		return $this->getScanNames()[ $slug ];
 	}
@@ -23,35 +68,6 @@ class Strings extends Base\Strings {
 			'ufc' => __( 'Unrecognised Files', 'wp-simple-firewall' ),
 			'wcf' => __( 'WordPress Core Files', 'wp-simple-firewall' ),
 			'wpv' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-		];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function getAuditMessages() :array {
-		return [
-			'scan_item_delete_success' => [
-				__( 'Deleted item found in the scan.', 'wp-simple-firewall' ),
-				__( 'Item deleted: "%s"', 'wp-simple-firewall' )
-			],
-			'scan_item_repair_success' => [
-				__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
-				__( 'Item repaired: "%s"', 'wp-simple-firewall' )
-			],
-			'scan_item_repair_fail'    => [
-				__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
-				__( 'Failed item: "%s"', 'wp-simple-firewall' )
-			],
-			'scan_items_found'         => [
-				__( '%s: scan completed and items were discovered.', 'wp-simple-firewall' ),
-				sprintf( '%s: %s',
-					__( 'Note', 'wp-simple-firewall' ),
-					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
-				),
-				'%s'
-			],
-			'scan_run'                 => sprintf( '%s: %%s', __( 'Scan Completed', 'wp-simple-firewall' ) ),
 		];
 	}
 

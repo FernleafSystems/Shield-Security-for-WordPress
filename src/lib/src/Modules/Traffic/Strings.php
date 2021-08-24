@@ -9,10 +9,13 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	protected function getEventStrings() :array {
 		return [
 			'request_limit_exceeded' => [
-				__( 'Visitor exceeded the maximum allowable requests (%s) within %s seconds.', 'wp-simple-firewall' ),
+				'name'  => __( 'Rate Limit Exceeded', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Visitor exceeded the maximum allowable requests ({{count}}) within {{span}} seconds.', 'wp-simple-firewall' ),
+				],
 			],
 		];
 	}
