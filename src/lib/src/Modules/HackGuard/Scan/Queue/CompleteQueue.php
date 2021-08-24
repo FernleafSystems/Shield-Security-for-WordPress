@@ -40,34 +40,31 @@ class CompleteQueue {
 
 			$con->fireEvent( 'scan_run', [ 'audit_params' => [ 'scan' => $scanCon->getScanName() ] ] );
 
-			if ( $resultsSet->hasItems() ) {
+			( new HackGuard\Scan\Results\ResultsUpdate() )
+				->setScanController( $scanCon )
+				->update( $resultsSet );
 
-				( new HackGuard\Scan\Results\ResultsUpdate() )
-					->setScanController( $scanCon )
-					->update( $resultsSet );
+			if ( $resultsSet->countItems() > 0 ) {
 
-				if ( $resultsSet->countItems() > 0 ) {
+				$items = $resultsSet->countItems() > 30 ?
+					__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
+					: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
-					$items = $resultsSet->countItems() > 30 ?
-						__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
-						: __( 'The following items were discovered.', 'wp-simple-firewall' );
+				$items .= ' "'.
+						  implode( '", "', array_map( function ( $item ) {
+							  return $item->getDescriptionForAudit();
+						  }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
+						  .'"';
 
-					$items .= ' "'.
-							  implode( '", "', array_map( function ( $item ) {
-								  return $item->getDescriptionForAudit();
-							  }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
-							  .'"';
-
-					$con->fireEvent(
-						'scan_items_found',
-						[
-							'audit_params' => [
-								'scan'  => $scanCon->getScanName(),
-								'items' => $items
-							]
+				$con->fireEvent(
+					'scan_items_found',
+					[
+						'audit_params' => [
+							'scan'  => $scanCon->getScanName(),
+							'items' => $items
 						]
-					);
-				}
+					]
+				);
 			}
 
 			/** @var Databases\ScanQueue\Delete $deleter */

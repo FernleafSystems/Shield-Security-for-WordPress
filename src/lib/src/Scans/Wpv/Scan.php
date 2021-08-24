@@ -20,13 +20,13 @@ class Scan extends Shield\Scans\Base\BaseScan {
 				$copier->copyTo( $results, $tmpResults );
 			}
 		}
-		$items = [];
-		if ( $tmpResults->hasItems() ) {
-			foreach ( $tmpResults->getAllItems() as $item ) {
-				$items[] = $item->getRawData();
-			}
-		}
-		$action->results = $items;
+
+		$action->results = array_map(
+			function ( $item ) {
+				return $item->getRawData();
+			},
+			$tmpResults->getAllItems()
+		);
 	}
 
 	/**
