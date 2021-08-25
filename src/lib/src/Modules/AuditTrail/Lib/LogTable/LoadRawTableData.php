@@ -57,7 +57,7 @@ class LoadRawTableData {
 	}
 
 	private function getColumnContent_Message() :string {
-		return AuditMessageBuilder::BuildFromLogRecord( $this->log );
+		return sanitize_textarea_field( AuditMessageBuilder::BuildFromLogRecord( $this->log ) );
 	}
 
 	private function getColumnContent_User() :string {
