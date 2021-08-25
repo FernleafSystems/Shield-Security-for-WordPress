@@ -29,7 +29,16 @@ class AuditLogger extends EventsListener {
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 
-		$handlers = [];
+		if ( $opts->isLogToDB() ) {
+			$this->getLogger()
+				 ->pushHandler(
+					 new FilterHandler(
+						 ( new LocalDbWriter() )->setMod( $mod ),
+						 $opts->getLogLevelsDB()
+					 )
+				 );
+		}
+
 		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
 			try {
 				$fileHandlerWithFilter = new FilterHandler(
@@ -39,24 +48,22 @@ class AuditLogger extends EventsListener {
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
 					$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 				}
-				$handlers[] = $fileHandlerWithFilter;
+				$this->getLogger()->pushHandler( $fileHandlerWithFilter );
 			}
 			catch ( \Exception $e ) {
 			}
 		}
+	}
 
-		if ( $opts->isLogToDB() ) {
-			$handlers[] = new FilterHandler(
-				( new LocalDbWriter() )->setMod( $mod ),
-				$opts->getLogLevelsDB()
-			);
+	public function getLogger() :Logger {
+		if ( !isset( $this->logger ) ) {
+			$this->logger = new Logger( 'shield', [], [
+				( new LogHandlers\Processors\RequestMetaProcessor() )->setCon( $this->getCon() ),
+				new LogHandlers\Processors\UserMetaProcessor(),
+				new LogHandlers\Processors\WpMetaProcessor()
+			] );
 		}
-
-		$this->logger = new Logger( 'shield', $handlers, [
-			( new LogHandlers\Processors\RequestMetaProcessor() )->setCon( $con ),
-			new LogHandlers\Processors\UserMetaProcessor(),
-			new LogHandlers\Processors\WpMetaProcessor()
-		] );
+		return $this->logger;
 	}
 
 	/**
