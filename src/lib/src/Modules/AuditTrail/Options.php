@@ -45,10 +45,10 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isLogToDB() :bool {
-		return in_array( 'disabled', $this->getLogLevelsDB() );
+		return !in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
 	public function isLogToFile() :bool {
-		return in_array( 'disabled', $this->getLogLevelsFile() );
+		return !in_array( 'disabled', $this->getLogLevelsFile() );
 	}
 }
