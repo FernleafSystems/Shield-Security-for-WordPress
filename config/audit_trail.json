@@ -86,8 +86,11 @@
       "key":           "log_level_db",
       "section":       "section_localdb",
       "premium":       true,
-      "type":          "select",
-      "default":       "warning",
+      "type":          "multiple_select",
+      "default":       [
+        "alert",
+        "warning"
+      ],
       "value_options": [
         {
           "value_key": "alert",
@@ -104,6 +107,10 @@
         {
           "value_key": "debug",
           "text":      "Debug"
+        },
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
         }
       ],
       "link_info":     "",
@@ -130,13 +137,11 @@
       "key":           "log_level_file",
       "section":       "section_at_file",
       "premium":       true,
-      "type":          "select",
-      "default":       "disabled",
+      "type":          "multiple_select",
+      "default":       [
+        "disabled"
+      ],
       "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
         {
           "value_key": "same_as_db",
           "text":      "Same As DB"
@@ -156,6 +161,10 @@
         {
           "value_key": "debug",
           "text":      "Debug"
+        },
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
         }
       ],
       "link_info":     "",

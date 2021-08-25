@@ -6,13 +6,32 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
-	public function getLogLevelDB() :string {
-		return $this->getOpt( 'log_level_db' );
+	public function getLogLevelsDB() :array {
+		$levels = $this->getOpt( 'log_level_db', [] );
+		if ( empty( $levels ) || !is_array( $levels ) ) {
+			$this->resetOptToDefault( 'log_level_db' );
+		}
+		elseif ( count( $levels ) > 1 && in_array( 'disabled', $levels ) ) {
+			$this->setOpt( 'log_level_db', [ 'disabled' ] );
+		}
+		return $this->getOpt( 'log_level_db', [] );
 	}
 
-	public function getLogLevelFile() :string {
-		$level = $this->getOpt( 'log_level_file' );
-		return $level === 'same_as_db' ? $this->getLogLevelDB() : $level;
+	public function getLogLevelsFile() :array {
+		$levels = $this->getOpt( 'log_level_file', [] );
+		if ( empty( $levels ) || !is_array( $levels ) ) {
+			$this->resetOptToDefault( 'log_level_file' );
+		}
+		elseif ( count( $levels ) > 1 ) {
+			if ( in_array( 'disabled', $levels ) ) {
+				$this->setOpt( 'log_level_file', [ 'disabled' ] );
+			}
+			elseif ( in_array( 'same_as_db', $levels ) ) {
+				$this->setOpt( 'log_level_file', [ 'same_as_db' ] );
+			}
+		}
+		$levels = $this->getOpt( 'log_level_file', [] );
+		return in_array( 'same_as_db', $levels ) ? $this->getLogLevelsDB() : $levels;
 	}
 
 	public function getAutoCleanDays() :int {
@@ -25,7 +44,11 @@ class Options extends BaseShield\Options {
 			(int)$this->getDef( 'audit_trail_free_max_entries' );
 	}
 
+	public function isLogToDB() :bool {
+		return in_array( 'disabled', $this->getLogLevelsDB() );
+	}
+
 	public function isLogToFile() :bool {
-		return $this->getLogLevelFile() !== 'disabled';
+		return in_array( 'disabled', $this->getLogLevelsFile() );
 	}
 }

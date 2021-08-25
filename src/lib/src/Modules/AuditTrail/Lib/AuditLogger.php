@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\L
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
 
 class AuditLogger extends EventsListener {
@@ -31,19 +32,25 @@ class AuditLogger extends EventsListener {
 		$handlers = [];
 		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
 			try {
-				$fileHandler = ( new LogFileHandler( $mod ) )->setLevel( $opts->getLogLevelFile() );
+				$fileHandlerWithFilter = new FilterHandler(
+					new LogFileHandler( $mod ),
+					$opts->getLogLevelsFile()
+				);
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
-					$fileHandler->setFormatter( new JsonFormatter() );
+					$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 				}
-				$handlers[] = $fileHandler;
+				$handlers[] = $fileHandlerWithFilter;
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		$handlers[] = ( new LocalDbWriter() )
-			->setMod( $mod )
-			->setLevel( $opts->getLogLevelDB() );
+		if ( $opts->isLogToDB() ) {
+			$handlers[] = new FilterHandler(
+				( new LocalDbWriter() )->setMod( $mod ),
+				$opts->getLogLevelsDB()
+			);
+		}
 
 		$this->logger = new Logger( 'shield', $handlers, [
 			( new LogHandlers\Processors\RequestMetaProcessor() )->setCon( $con ),
