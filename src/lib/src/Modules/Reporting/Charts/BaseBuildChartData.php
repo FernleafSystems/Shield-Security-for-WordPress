@@ -50,10 +50,9 @@ class BaseBuildChartData {
 		$req = $this->getChartRequest();
 		$legend = [];
 		if ( !$req->combine_events ) {
-			/** @var Strings $strings */
-			$strings = $this->getCon()->getModule_Events()->getStrings();
+			$srvEvents = $this->getCon()->loadEventsService();
 			foreach ( $req->events as $event ) {
-				$legend[] = $strings->getEventName( $event );
+				$legend[] = $srvEvents->getEventName( $event );
 			}
 		}
 		return $legend;

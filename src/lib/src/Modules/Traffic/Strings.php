@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'request_limit_exceeded' => [
 				'name'  => __( 'Rate Limit Exceeded', 'wp-simple-firewall' ),

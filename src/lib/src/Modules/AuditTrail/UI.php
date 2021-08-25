@@ -16,9 +16,10 @@ class UI extends BaseShield\UI {
 		/** @var Databases\AuditTrail\Select $dbSel */
 		$dbSel = $mod->getDbHandler_AuditTrail()->getQuerySelector();
 
-		/** @var Modules\Events\Strings $eventStrings */
-		$eventStrings = $con->getModule_Events()->getStrings();
-		$eventsSelect = array_intersect_key( $eventStrings->getEventNames(), array_flip( $dbSel->getDistinctEvents() ) );
+		$eventsSelect = array_intersect_key(
+			$con->loadEventsService()->getEventNames(),
+			array_flip( $dbSel->getDistinctEvents() )
+		);
 		asort( $eventsSelect );
 
 		return $this->getMod()

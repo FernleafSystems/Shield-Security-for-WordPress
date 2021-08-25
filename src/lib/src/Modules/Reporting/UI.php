@@ -44,14 +44,13 @@ class UI extends BaseShield\UI {
 	 * @return array
 	 */
 	private function buildPossibleEvents() :array {
-		$eventsMod = $this->getCon()->getModule_Events();
-		/** @var Events\Strings $evtStrings */
-		$evtStrings = $eventsMod->getStrings();
 		return array_intersect_key(
-			$evtStrings->getEventNames(),
-			array_flip( $eventsMod->getDbHandler_Events()
-								  ->getQuerySelector()
-								  ->getDistinctForColumn( 'event' ) )
+			$this->getCon()->loadEventsService()->getEventNames(),
+			array_flip( $this->getCon()
+							 ->getModule_Events()
+							 ->getDbHandler_Events()
+							 ->getQuerySelector()
+							 ->getDistinctForColumn( 'event' ) )
 		);
 	}
 

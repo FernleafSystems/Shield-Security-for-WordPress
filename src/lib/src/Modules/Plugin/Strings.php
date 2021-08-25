@@ -11,7 +11,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'debug_log'         => [
 				'name'  => __( 'Custom Debug', 'wp-simple-firewall' ),

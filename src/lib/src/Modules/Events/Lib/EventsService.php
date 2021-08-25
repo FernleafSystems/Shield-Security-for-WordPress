@@ -87,6 +87,33 @@ class EventsService {
 		return $this->getEvents()[ $eventKey ] ?? null;
 	}
 
+	public function getEventName( string $event ) :string {
+		return $this->getEventStrings( $event )[ 'name' ] ?? '';
+	}
+
+	public function getEventAuditStrings( string $event ) :array {
+		return $this->getEventStrings( $event )[ 'audit' ] ?? [];
+	}
+
+	public function getEventStrings( string $eventKey ) :array {
+		return $this->getCon()
+					->getModule( $this->getEventDef( $eventKey )[ 'context' ] )
+					->getStrings()
+					->getEventStrings()[ $eventKey ] ?? [];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getEventNames() :array {
+		return array_map(
+			function ( $event ) {
+				return $this->getEventName( $event[ 'key' ] );
+			},
+			$this->getEvents()
+		);
+	}
+
 	private function buildEvents( array $events ) :array {
 		$defaults = [
 			'cat'              => 1,

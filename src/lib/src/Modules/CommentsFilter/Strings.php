@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'spam_block_antibot'   => [
 				'name'  => sprintf( '%s: %s',

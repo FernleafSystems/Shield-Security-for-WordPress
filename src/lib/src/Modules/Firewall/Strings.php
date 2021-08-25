@@ -182,7 +182,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'firewall_block'   => [
 				'name'  => __( 'Firewall Block', 'wp-simple-firewall' ),

@@ -31,6 +31,7 @@ class ScanRepairs extends BaseReporter {
 		];
 
 		$total = 0;
+		$srvEvents = $this->getCon()->loadEventsService();
 		foreach ( $repairEvents as $event ) {
 			$eventTotal = $selectorEvents
 				->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
@@ -51,7 +52,7 @@ class ScanRepairs extends BaseReporter {
 
 				$repairs[] = [
 					'count'   => $eventTotal,
-					'name'    => $strings->getEventName( $event ),
+					'name'    => $srvEvents->getEventName( $event ),
 					'repairs' => array_filter( array_map( function ( $entry ) {
 						// see Base ItemActionHandler for audit event data
 						$fragment = $entry->meta[ 'path_full' ] ?? ( $entry->meta[ 'fragment' ] ?? false );

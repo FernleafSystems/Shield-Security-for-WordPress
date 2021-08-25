@@ -150,19 +150,10 @@ class Strings {
 	/**
 	 * @param string $key
 	 * @return string[]
+	 * @deprecated 12.0
 	 */
 	public function getAuditMessage( string $key ) :array {
-		$msg = $this->getEventStrings()[ $key ][ 'audit' ] ?? [];
-		if ( empty( $msg ) ) {
-			$messages = array_map(
-				function ( $msg ) {
-					return is_array( $msg ) ? $msg : [ $msg ];
-				},
-				$this->getAuditMessages()
-			);
-			$msg = $messages[ $key ] ?? [];
-		}
-		return $msg;
+		return [];
 	}
 
 	/**
@@ -175,7 +166,7 @@ class Strings {
 	/**
 	 * @return string[][][]|string[][]
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [];
 	}
 

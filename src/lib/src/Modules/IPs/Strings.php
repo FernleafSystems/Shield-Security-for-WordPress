@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'conn_kill'               => [
 				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),

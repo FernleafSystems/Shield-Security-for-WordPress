@@ -7,12 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 class AuditMessageBuilder {
 
 	public static function BuildFromLogRecord( LogRecord $log ) :string {
-		$con = shield_security_get_plugin()->getController();
-		$eventDef = $con->loadEventsService()->getEventDef( $log->event_slug );
+		$srvEvents = shield_security_get_plugin()->getController()->loadEventsService();
+		$eventDef = $srvEvents->getEventDef( $log->event_slug );
 
-		$rawMsgParts = $con->getModule( $eventDef[ 'context' ] )
-						   ->getStrings()
-						   ->getAuditMessage( $log->event_slug );
+		$rawMsgParts = $srvEvents->getEventAuditStrings( $log->event_slug );
 		$rawString = implode( "\n", $rawMsgParts );
 
 		$metaSubstitutions = $log->meta_data;

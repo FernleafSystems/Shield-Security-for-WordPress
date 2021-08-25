@@ -38,6 +38,7 @@ class KeyStats extends BaseReporter {
 		$rep = $this->getReport();
 
 		$sums = [];
+		$srvEvents = $this->getCon()->loadEventsService();
 		foreach ( $eventKeys as $event ) {
 			try {
 				$eventSum = $selector
@@ -46,7 +47,7 @@ class KeyStats extends BaseReporter {
 				if ( $eventSum > 0 ) {
 					$sums[ $event ] = [
 						'count' => $eventSum,
-						'name'  => $strings->getEventName( $event ),
+						'name'  => $srvEvents->getEventName( $event ),
 					];
 				}
 			}

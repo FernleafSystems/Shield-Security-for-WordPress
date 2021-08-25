@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'block_anonymous_restapi' => [
 				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Anonymous REST API' ) ),

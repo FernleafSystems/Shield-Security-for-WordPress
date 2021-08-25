@@ -15,15 +15,14 @@ class VerifyEvents {
 		$NotEnoughSubstitutions = [];
 		$NotEnoughParams = [];
 		$NoMsgs = [];
-		foreach ( $con->loadEventsService()->getEvents() as $evt ) {
+		$srvEvents = $con->loadEventsService();
+		foreach ( $srvEvents->getEvents() as $evt ) {
 			$key = $evt[ 'key' ] ?? '';
 			if ( empty( $key ) ) {
 				$NoKey[] = $key;
 			}
 			else {
-				$msg = implode( '', $con->getModule( $evt[ 'context' ] )
-										->getStrings()
-										->getAuditMessage( $key ) );
+				$msg = implode( '', $srvEvents->getEventAuditStrings( $key ) );
 
 				if ( empty( $msg ) ) {
 					$NoMsgs[] = $key;

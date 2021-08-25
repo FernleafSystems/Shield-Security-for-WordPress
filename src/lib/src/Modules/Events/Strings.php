@@ -6,21 +6,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
+	/**
+	 * @param string $eventKey
+	 * @return string
+	 * @deprecated 12.0
+	 */
 	public function getEventName( string $eventKey ) :string {
-		$con = $this->getCon();
-		$name = $con->getModule( $con->loadEventsService()->getEventDef( $eventKey )[ 'context' ] )
-					->getStrings()
-					->getEventStrings()[ $eventKey ][ 'name' ] ?? '';
-		return empty( $name ) ? ( $this->getEventNames()[ $eventKey ] ?? '' ) : $name;
+		return $this->getCon()->loadEventsService()->getEventName( $eventKey );
 	}
 
 	/**
 	 * @param bool $auto
 	 * @return string[]
+	 * @deprecated 12.0
 	 */
 	public function getEventNames( bool $auto = true ) :array {
 		$names = [
-			//			'firewall_block'               => __( 'Firewall Block', 'wp-simple-firewall' ),
 			//			'block_param'                  => __( 'Firewall Blocked Request Parameter', 'wp-simple-firewall' ),
 			//			'blockparam_dirtraversal'      => sprintf( '%s: %s',
 			//				__( 'Firewall', 'wp-simple-firewall' ),

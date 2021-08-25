@@ -11,7 +11,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'scan_run'                 => [
 				'name'  => __( 'Scan Completed', 'wp-simple-firewall' ),

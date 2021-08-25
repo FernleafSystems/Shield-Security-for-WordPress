@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getEventStrings() :array {
+	public function getEventStrings() :array {
 		return [
 			'key_success'    => [
 				'name'  => __( 'Security PIN Pass', 'wp-simple-firewall' ),
