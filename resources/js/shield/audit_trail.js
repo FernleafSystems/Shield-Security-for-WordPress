@@ -121,7 +121,12 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'Bfrtip',
+						dom: 'PBfrtip',
+						searchPanes: {
+							cascadePanes: true,
+							viewTotal: true,
+							initCollapsed: true
+						},
 						buttons: [
 							{
 								text: 'Reload',

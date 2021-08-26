@@ -14,6 +14,7 @@ class ForAuditTrail extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'ip',
+			'event',
 			'level',
 			'user',
 			'message',
@@ -23,30 +24,58 @@ class ForAuditTrail extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'rid'           => [
+			'rid'     => [
 				'data'       => 'rid',
 				'title'      => 'ID',
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => false,
 			],
-			'level'         => [
-				'data'       => 'level',
-				'title'      => __( 'Level' ),
-				'className'  => 'level',
-				'orderable'  => true,
-				'searchable' => false,
-				'visible'    => true,
+			'event'   => [
+				'data'        => 'event',
+				'title'       => __( 'Event' ),
+				'className'   => 'level',
+				'orderable'   => true,
+				'searchable'  => true,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => true
+				],
 			],
-			'ip'            => [
-				'data'       => 'ip',
-				'title'      => __( 'IP' ),
-				'className'  => 'ip',
-				'orderable'  => true,
-				'searchable' => true,
-				'visible'    => true,
+			'event_slug'   => [
+				'data'        => 'event',
+				'title'       => __( 'Event Slug' ),
+				'className'   => 'event',
+				'orderable'   => true,
+				'searchable'  => false,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
-			'uid'          => [
+			'level'   => [
+				'data'        => 'level',
+				'title'       => __( 'Level' ),
+				'className'   => 'level',
+				'orderable'   => true,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
+			],
+			'ip'      => [
+				'data'        => 'ip',
+				'title'       => __( 'IP' ),
+				'className'   => 'ip',
+				'orderable'   => true,
+				'searchable'  => true,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => true
+				],
+			],
+			'uid'     => [
 				'data'       => 'uid',
 				'title'      => __( 'User ID' ),
 				'className'  => 'uid',
@@ -54,32 +83,41 @@ class ForAuditTrail extends Base {
 				'searchable' => false,
 				'visible'    => false,
 			],
-			'user'          => [
-				'data'       => 'user',
-				'title'      => __( 'User' ),
-				'className'  => 'user',
-				'orderable'  => true,
-				'searchable' => true,
-				'visible'    => true,
+			'user'    => [
+				'data'        => 'user',
+				'title'       => __( 'User' ),
+				'className'   => 'user',
+				'orderable'   => true,
+				'searchable'  => true,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => true
+				],
 			],
-			'message'        => [
-				'data'       => 'message',
-				'title'      => __( 'Message' ),
-				'className'  => 'message',
-				'orderable'  => false,
-				'searchable' => true,
-				'visible'    => true,
+			'message' => [
+				'data'        => 'message',
+				'title'       => __( 'Message' ),
+				'className'   => 'message',
+				'orderable'   => false,
+				'searchable'  => true,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
-			'date'      => [
-				'data'       => [
+			'date'    => [
+				'data'        => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'      => __( 'Date' ),
-				'className'  => 'date',
-				'orderable'  => true,
-				'searchable' => false,
-				'visible'    => true,
+				'title'       => __( 'Date' ),
+				'className'   => 'date',
+				'orderable'   => true,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 		];
 	}

@@ -23,19 +23,21 @@ class LoadRawTableData {
 			->setMod( $this->getMod() )
 			->run();
 
+		$srvEvents = $this->getCon()->loadEventsService();
 		return array_values( array_map(
-			function ( $log ) {
+			function ( $log ) use ( $srvEvents ) {
 				$this->log = $log;
 
 				$data = $log->getRawData();
 				$data[ 'ip' ] = $log->ip;
+				$data[ 'event' ] = $srvEvents->getEventName( $log->event_slug );
 				$data[ 'created_since' ] = Services::Request()
 												   ->carbon( true )
 												   ->setTimestamp( $log->created_at )
 												   ->diffForHumans();
 				$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log );
 				$data[ 'message' ] = sprintf( '<textarea readonly rows="%s">%s</textarea>',
-					count( $msg )+1, sanitize_textarea_field( implode( "\n", $msg ) ) );
+					count( $msg ) + 1, sanitize_textarea_field( implode( "\n", $msg ) ) );
 				$data[ 'user' ] = $this->getColumnContent_User();
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				return $data;
@@ -79,6 +81,6 @@ class LoadRawTableData {
 	}
 
 	private function getColumnContent_Level() :string {
-		return 'Warning';
+		return __( ucfirst( $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ] ) );
 	}
 }

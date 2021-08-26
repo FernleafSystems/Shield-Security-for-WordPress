@@ -96,9 +96,15 @@
           ]
         },
         "datatables-bootstrap":   {
-          "url":  "https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css",
+          "url":  "https://cdn.datatables.net/1.11.0/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
+          ]
+        },
+        "datatables-searchpanes": {
+          "url":  "https://cdn.datatables.net/searchpanes/1.4.0/css/searchPanes.dataTables.min.css",
+          "deps": [
+            "datatables-bootstrap"
           ]
         },
         "datatables-select":      {
@@ -157,6 +163,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
+            "datatables-searchpanes",
             "tp/highlightjs"
           ]
         },
@@ -198,22 +205,28 @@
           ]
         },
         "datatables":             {
-          "url":  "https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/1.11.0/js/jquery.dataTables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
           ]
         },
         "datatables-bootstrap":   {
-          "url":  "https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js",
+          "url":  "https://cdn.datatables.net/1.11.0/js/dataTables.bootstrap4.min.js",
           "deps": [
             "datatables"
+          ]
+        },
+        "datatables-searchpanes": {
+          "url":  "https://cdn.datatables.net/searchpanes/1.4.0/js/dataTables.searchPanes.min.js",
+          "deps": [
+            "datatables-bootstrap"
           ]
         },
         "datatables-select":      {
           "url":  "https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js",
           "deps": [
-            "datatables"
+            "datatables-bootstrap"
           ]
         },
         "datatables-buttons":     {
@@ -306,6 +319,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
+            "datatables-searchpanes",
             "tp/highlightjs"
           ]
         },
