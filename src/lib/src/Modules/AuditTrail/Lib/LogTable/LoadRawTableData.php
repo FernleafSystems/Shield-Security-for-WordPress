@@ -36,7 +36,7 @@ class LoadRawTableData {
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
 				$data[ 'level' ] = $this->getColumnContent_Level();
-				$data[ 'level_icon' ] = $this->getColumnContent_SeverityIcon();
+				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
 				return $data;
 			},
 			$this->getLogRecords()
@@ -82,11 +82,13 @@ class LoadRawTableData {
 		if ( !empty( $uid ) ) {
 			if ( is_numeric( $uid ) ) {
 				$user = Services::WpUsers()->getUserById( $uid );
-				if ( $user instanceof \WP_User ) {
-					$content = sprintf( '%s', $user->user_login );
+				if ( !empty( $user ) ) {
+					$content = sprintf( '<a href="%s" target="_blank">%s</a>',
+						Services::WpUsers()->getAdminUrl_ProfileEdit( $user ),
+						$user->user_login );
 				}
 				else {
-					$content = sprintf( 'User Unavailable (%s)', $uid );
+					$content = sprintf( 'Unavailable (ID:%s)', $uid );
 				}
 			}
 			else {
@@ -98,7 +100,8 @@ class LoadRawTableData {
 
 	private function getColumnContent_Message() :string {
 		$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log );
-		return sprintf( '<textarea readonly rows="%s">%s</textarea>',
+		return sprintf( '<span class="message-header">%s</span><textarea readonly rows="%s">%s</textarea>',
+			$this->getCon()->loadEventsService()->getEventName( $this->log->event_slug ),
 			count( $msg ) + 1, sanitize_textarea_field( implode( "\n", $msg ) ) );
 	}
 

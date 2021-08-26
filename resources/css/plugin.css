@@ -1756,9 +1756,10 @@ button.btn.action {
 	-webkit-user-select: none;
 }
 th.req_details {
+	max-width: 400px !important;
 }
 th.message {
-	min-width: 600px !important;
+	min-width: 500px !important;
 }
 th.date {
 	width: 140px !important;
@@ -1769,6 +1770,10 @@ th.severity {
 	text-align: center;
 	width: 40px !important;
 	max-width: 40px !important;
+}
+td.message > .message-header {
+	font-weight: bolder;
+	display: block;
 }
 td.severity .severity-icon.severity-alert {
 	color: #d40000;

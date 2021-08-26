@@ -13,10 +13,11 @@ class ForAuditTrail extends Base {
 
 	protected function getColumnsToDisplay() :array {
 		return [
-			'ip',
-			'req_details',
-			'event',
 			'severity',
+			'req_details',
+			'ip',
+			'event',
+			'level',
 			'user',
 			'message',
 			'date',
@@ -35,7 +36,7 @@ class ForAuditTrail extends Base {
 			'event'   => [
 				'data'        => 'event',
 				'title'       => __( 'Event' ),
-				'className'   => 'level',
+				'className'   => 'event',
 				'orderable'   => true,
 				'searchable'  => true,
 				'visible'     => false,
@@ -55,17 +56,25 @@ class ForAuditTrail extends Base {
 				],
 			],
 			'severity'   => [
-				'data'        => [
-					'_'    => 'level_icon',
-					'sort' => 'level',
-				],
+				'data'        => 'severity',
 				'title'       => __( 'Severity' ),
 				'className'   => 'severity',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => false,
 				'visible'     => true,
 				'searchPanes' => [
 					'show' => false
+				],
+			],
+			'level'   => [
+				'data'        => 'level',
+				'title'       => __( 'Severity' ),
+				'className'   => 'level',
+				'orderable'   => false,
+				'searchable'  => true,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => true
 				],
 			],
 			'ip'      => [
