@@ -144,7 +144,7 @@ class Yubikey extends BaseProvider {
 		if ( preg_match( '#^[a-z]{44}$#', $otp ) ) {
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => md5( uniqid( $this->getCon()->getUniqueRequestId() ) ),
+				'nonce' => wp_create_nonce( 'shield-yubikey-verify-'.$otp ),
 				'id'    => $opts->getYubikeyAppId()
 			];
 

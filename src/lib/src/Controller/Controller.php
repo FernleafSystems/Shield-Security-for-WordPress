@@ -1092,6 +1092,11 @@ class Controller extends DynPropertiesClass {
 		return self::$sSessionId;
 	}
 
+	/**
+	 * @param bool $setIfNeeded
+	 * @return string
+	 * @deprecated 12.0
+	 */
 	public function getUniqueRequestId( bool $setIfNeeded = false ) :string {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
@@ -1102,7 +1107,9 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getShortRequestId() :string {
-		return substr( $this->getUniqueRequestId(), 0, 10 );
+		$req = Services::Request();
+		/** @deprecated 12.0 */
+		return substr( method_exists( $req, 'getID' ) ? $req->getID() : $this->getUniqueRequestId(), 0, 10 );
 	}
 
 	public function hasSessionId() :bool {
