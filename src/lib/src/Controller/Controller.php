@@ -1106,6 +1106,10 @@ class Controller extends DynPropertiesClass {
 		return self::$sRequestId;
 	}
 
+	/**
+	 * @return string
+	 * @deprecated 12
+	 */
 	public function getShortRequestId() :string {
 		$req = Services::Request();
 		/** @deprecated 12.0 */

@@ -32,19 +32,13 @@ class AuditLogger extends EventsListener {
 		if ( $opts->isLogToDB() ) {
 			$this->getLogger()
 				 ->pushHandler(
-					 new FilterHandler(
-						 ( new LocalDbWriter() )->setMod( $mod ),
-						 $opts->getLogLevelsDB()
-					 )
+					 new FilterHandler( ( new LocalDbWriter() )->setMod( $mod ), $opts->getLogLevelsDB() )
 				 );
 		}
 
 		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
 			try {
-				$fileHandlerWithFilter = new FilterHandler(
-					new LogFileHandler( $mod ),
-					$opts->getLogLevelsFile()
-				);
+				$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
 					$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 				}
@@ -58,7 +52,7 @@ class AuditLogger extends EventsListener {
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
 			$this->logger = new Logger( 'shield', [], [
-				( new LogHandlers\Processors\RequestMetaProcessor() )->setCon( $this->getCon() ),
+				new LogHandlers\Processors\RequestMetaProcessor(),
 				new LogHandlers\Processors\UserMetaProcessor(),
 				new LogHandlers\Processors\WpMetaProcessor()
 			] );
