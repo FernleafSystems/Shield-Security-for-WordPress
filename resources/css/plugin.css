@@ -1755,3 +1755,35 @@ button.btn.action {
 #CodeRenderModal pre.icwp-code-render > code:before {
 	-webkit-user-select: none;
 }
+th.req_details {
+}
+th.message {
+	min-width: 600px !important;
+}
+th.date {
+	width: 140px !important;
+	max-width: 140px !important;
+}
+td.severity,
+th.severity {
+	text-align: center;
+	width: 40px !important;
+	max-width: 40px !important;
+}
+td.severity .severity-icon.severity-alert {
+	color: #d40000;
+}
+td.severity .severity-icon.severity-warning {
+	color: #c18c2a;
+}
+td.severity .severity-icon.severity-info {
+	color: #0303ab;
+}
+td.severity .severity-icon.severity-debug {
+	color: grey;
+}
+td.severity .severity-icon > svg {
+	margin-top: 20px;
+	width: 32px;
+	height: 32px;
+}

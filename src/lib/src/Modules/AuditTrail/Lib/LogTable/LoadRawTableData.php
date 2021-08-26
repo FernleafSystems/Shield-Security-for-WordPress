@@ -29,17 +29,14 @@ class LoadRawTableData {
 				$this->log = $log;
 
 				$data = $log->getRawData();
-				$data[ 'ip' ] = $log->ip;
+				$data[ 'ip' ] = $this->log->ip;
+				$data[ 'req_details' ] = $this->getColumnContent_RequestDetails();
 				$data[ 'event' ] = $srvEvents->getEventName( $log->event_slug );
-				$data[ 'created_since' ] = Services::Request()
-												   ->carbon( true )
-												   ->setTimestamp( $log->created_at )
-												   ->diffForHumans();
-				$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log );
-				$data[ 'message' ] = sprintf( '<textarea readonly rows="%s">%s</textarea>',
-					count( $msg ) + 1, sanitize_textarea_field( implode( "\n", $msg ) ) );
+				$data[ 'created_since' ] = $this->getColumnContent_Date();
+				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
 				$data[ 'level' ] = $this->getColumnContent_Level();
+				$data[ 'level_icon' ] = $this->getColumnContent_SeverityIcon();
 				return $data;
 			},
 			$this->getLogRecords()
@@ -57,6 +54,25 @@ class LoadRawTableData {
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}
+		);
+	}
+
+	private function getColumnContent_RequestDetails() :string {
+		return sprintf( '<h6>%s</h6>%s',
+			sprintf( '<a href="%s" target="_blank">%s</a>',
+				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $this->log->ip ),
+				$this->log->ip ),
+			$this->getColumnContent_Meta()
+		);
+	}
+
+	private function getColumnContent_Date() :string {
+		return sprintf( '%s<br /><small>%s</small>',
+			Services::Request()
+					->carbon( true )
+					->setTimestamp( $this->log->created_at )
+					->diffForHumans(),
+			Services::WpGeneral()->getTimeStringForDisplay( $this->log->created_at )
 		);
 	}
 
@@ -80,7 +96,56 @@ class LoadRawTableData {
 		return $content;
 	}
 
+	private function getColumnContent_Message() :string {
+		$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log );
+		return sprintf( '<textarea readonly rows="%s">%s</textarea>',
+			count( $msg ) + 1, sanitize_textarea_field( implode( "\n", $msg ) ) );
+	}
+
+	private function getColumnContent_Meta() :string {
+		$exclude = $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'audit_params' ];
+		$exclude[] = 'uid';
+
+		$metaNames = [
+			'req_method' => __( 'Request Method', 'wp-simple-firewall' ),
+			'req_path'   => __( 'Request Path', 'wp-simple-firewall' ),
+			'req_ua'     => __( 'User Agent', 'wp-simple-firewall' ),
+		];
+
+		$metas = array_merge(
+			$metaNames,
+			array_intersect_key( array_diff_key( $this->log->meta_data, array_flip( $exclude ) ), $metaNames )
+		);
+
+		$lines = [];
+		foreach ( $metas as $metaKey => $metaDatum ) {
+			$lines[] = sprintf( '<li><strong>%s</strong>: %s</li>', $metaNames[ $metaKey ], $metaDatum );
+		}
+		return sprintf( '<ul>%s</ul>', implode( '', $lines ) );
+	}
+
 	private function getColumnContent_Level() :string {
-		return __( ucfirst( $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ] ) );
+		return $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ];
+	}
+
+	private function getColumnContent_SeverityIcon() :string {
+		$level = $this->getColumnContent_Level();
+		$levelDetails = [
+							'alert'   => [
+								'icon' => 'x-octagon',
+							],
+							'warning' => [
+								'icon' => 'exclamation-triangle',
+							],
+							'info'    => [
+								'icon' => 'info-circle',
+							],
+							'debug'   => [
+								'icon' => 'question-diamond',
+							],
+						][ $level ];
+		return sprintf( '<span class="severity-%s severity-icon">%s</span>', $level,
+			$this->getCon()->svgs->raw( sprintf( 'bootstrap/%s.svg', $levelDetails[ 'icon' ] ) )
+		);
 	}
 }
