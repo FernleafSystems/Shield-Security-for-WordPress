@@ -709,11 +709,13 @@ input:checked + .icwp-slider:before {
 	vertical-align: text-bottom;
 }
 /** TABLE: Audit trail **/
+#table_id-audit_trail textarea,
 td.column-message textarea {
 	width: 100%;
 	background: transparent;
 	box-shadow: none;
 	border-color: transparent;
+	font-family: monospace;
 }
 .table-side-filter {
 	position: sticky;

@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 
 class AuditMessageBuilder {
 
-	public static function BuildFromLogRecord( LogRecord $log ) :string {
-		return self::Build( $log->event_slug, $log->meta_data ?? [] );
+	public static function BuildFromLogRecord( LogRecord $log ) :array {
+		return explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [] ) );
 	}
 
 	public static function Build( string $event, array $substitutions = [] ) :string {

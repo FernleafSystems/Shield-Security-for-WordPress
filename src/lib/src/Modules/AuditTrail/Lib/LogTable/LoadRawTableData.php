@@ -33,7 +33,9 @@ class LoadRawTableData {
 												   ->carbon( true )
 												   ->setTimestamp( $log->created_at )
 												   ->diffForHumans();
-				$data[ 'message' ] = $this->getColumnContent_Message();
+				$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log );
+				$data[ 'message' ] = sprintf( '<textarea readonly rows="%s">%s</textarea>',
+					count( $msg )+1, sanitize_textarea_field( implode( "\n", $msg ) ) );
 				$data[ 'user' ] = $this->getColumnContent_User();
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				return $data;
@@ -54,10 +56,6 @@ class LoadRawTableData {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}
 		);
-	}
-
-	private function getColumnContent_Message() :string {
-		return sanitize_textarea_field( AuditMessageBuilder::BuildFromLogRecord( $this->log ) );
 	}
 
 	private function getColumnContent_User() :string {
