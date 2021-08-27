@@ -30,13 +30,14 @@ class LoadRawTableData {
 
 				$data = $log->getRawData();
 				$data[ 'ip' ] = $this->log->ip;
-				$data[ 'req_details' ] = $this->getColumnContent_RequestDetails();
+				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();
 				$data[ 'event' ] = $srvEvents->getEventName( $log->event_slug );
 				$data[ 'created_since' ] = $this->getColumnContent_Date();
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
+				$data[ 'meta' ] = $this->getColumnContent_Meta();
 				return $data;
 			},
 			$this->getLogRecords()
@@ -58,11 +59,9 @@ class LoadRawTableData {
 	}
 
 	private function getColumnContent_RequestDetails() :string {
-		return sprintf( '<h6>%s</h6>%s',
-			sprintf( '<a href="%s" target="_blank">%s</a>',
-				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $this->log->ip ),
-				$this->log->ip ),
-			$this->getColumnContent_Meta()
+		return sprintf( '<h6><a href="%s" target="_blank">%s</a></h6>',
+			$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $this->log->ip ),
+			$this->log->ip
 		);
 	}
 
@@ -106,25 +105,58 @@ class LoadRawTableData {
 	}
 
 	private function getColumnContent_Meta() :string {
-		$exclude = $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'audit_params' ];
-		$exclude[] = 'uid';
+		return sprintf(
+			'<button type="button" class="btn  btn-link" '.
+			'data-toggle="popover" data-placement="left" '.
+			'data-customClass="audit-meta" '.
+			'data-content="%s">%s</button>', $this->getListFormattedMeta(),
+			sprintf( '<span class="meta-icon">%s</span>',
+				$this->getCon()->svgs->raw( 'bootstrap/tags.svg' )
+			)
+		);
+	}
 
-		$metaNames = [
-			'req_method' => __( 'Request Method', 'wp-simple-firewall' ),
-			'req_path'   => __( 'Request Path', 'wp-simple-firewall' ),
-			'req_ua'     => __( 'User Agent', 'wp-simple-firewall' ),
+	private function getListFormattedMeta() :string {
+		$exclude = $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'audit_params' ];
+
+		$metaDefs = [
+			'uid'        => [
+				'name' => __( 'User ID', 'wp-simple-firewall' ),
+			],
+			'ts'         => [
+				'name' => __( 'Timestamp', 'wp-simple-firewall' ),
+			],
+			'req_method' => [
+				'name'      => __( 'Method', 'wp-simple-firewall' ),
+				'formatter' => function ( $metaDatum ) {
+					return strtoupper( $metaDatum );
+				}
+			],
+			'req_path'   => [
+				'name' => __( 'Path', 'wp-simple-firewall' ),
+			],
+			'req_ua'     => [
+				'name' => __( 'User Agent', 'wp-simple-firewall' ),
+			],
 		];
 
-		$metas = array_merge(
-			$metaNames,
-			array_intersect_key( array_diff_key( $this->log->meta_data, array_flip( $exclude ) ), $metaNames )
-		);
-
-		$lines = [];
-		foreach ( $metas as $metaKey => $metaDatum ) {
-			$lines[] = sprintf( '<li><strong>%s</strong>: %s</li>', $metaNames[ $metaKey ], $metaDatum );
+		$metaToDisplay = array_intersect_key( array_diff_key( $this->log->meta_data, array_flip( $exclude ) ), $metaDefs );
+		if ( empty( $metaToDisplay ) ) {
+			$content = 'No Meta';
 		}
-		return sprintf( '<ul>%s</ul>', implode( '', $lines ) );
+		else {
+			$lines = [];
+			foreach ( array_intersect_key( $metaDefs, $metaToDisplay ) as $metaKey => $metaDef ) {
+				$lines[] = sprintf(
+					'<li><strong>%s</strong>: <span>%s</span></li>',
+					( $metaDef[ 'name' ] ?? $metaKey ),
+					isset( $metaDef[ 'formatter' ] ) ? $metaDef[ 'formatter' ]( $metaToDisplay[ $metaKey ] ) : $metaToDisplay[ $metaKey ]
+				);
+			}
+			$content = sprintf( '<ul>%s</ul>', implode( '', $lines ) );
+		}
+
+		return $content;
 	}
 
 	private function getColumnContent_Level() :string {

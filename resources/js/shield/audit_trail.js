@@ -37,6 +37,15 @@
 
 		base.bindEvents = function () {
 
+			$( 'body' ).popover( {
+				trigger: 'click',
+				sanitize: false,
+				html: true,
+				animation: true,
+				selector: 'td.meta > button[data-toggle="popover"]',
+				container: '#SectionAuditTable',
+			} );
+
 			base.$table.on( 'draw',
 				function ( e, dt, type, row_index ) {
 					base.rowSelectionChanged.call( base );
