@@ -1797,3 +1797,9 @@ td.severity .severity-icon > svg {
 #SectionAuditTable .popover .popover-body li {
 	margin-bottom: 4px;
 }
+#SectionAuditTable .dtsp-title {
+	font-weight: bolder;
+}
+#SectionAuditTable div.dtsp-topRow.dtsp-bordered {
+	border: 1px solid black;
+}

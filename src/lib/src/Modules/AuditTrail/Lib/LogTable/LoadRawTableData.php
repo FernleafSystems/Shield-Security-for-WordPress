@@ -117,9 +117,12 @@ class LoadRawTableData {
 	}
 
 	private function getListFormattedMeta() :string {
-		$exclude = $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'audit_params' ];
+		$eventDef = $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug );
 
 		$metaDefs = [
+			'rid'        => [
+				'name' => __( 'Request ID', 'wp-simple-firewall' ),
+			],
 			'uid'        => [
 				'name' => __( 'User ID', 'wp-simple-firewall' ),
 			],
@@ -140,7 +143,18 @@ class LoadRawTableData {
 			],
 		];
 
-		$metaToDisplay = array_intersect_key( array_diff_key( $this->log->meta_data, array_flip( $exclude ) ), $metaDefs );
+		$metaToDisplay = array_intersect_key(
+			array_diff_key(
+				$this->log->meta_data,
+				array_flip( $eventDef[ 'audit_params' ] )
+			),
+			$metaDefs
+		);
+
+		if ( !empty( $this->log->rid ) ) {
+			$metaToDisplay[ 'rid' ] = $this->log->rid;
+		}
+
 		if ( empty( $metaToDisplay ) ) {
 			$content = 'No Meta';
 		}

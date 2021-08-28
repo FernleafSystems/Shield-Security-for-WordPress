@@ -21,20 +21,25 @@ class ForAuditTrail extends Base {
 			'user',
 			'message',
 			'date',
+			'rid',
 			'meta',
 		];
 	}
 
 	protected function getColumnDefs() :array {
 		return [
-			'rid'     => [
-				'data'       => 'rid',
-				'title'      => 'ID',
-				'orderable'  => true,
-				'searchable' => false,
-				'visible'    => false,
+			'rid'        => [
+				'data'        => 'rid',
+				'title'       => __( 'Request ID' ),
+				'className'   => 'rid',
+				'orderable'   => true,
+				'searchable'  => true,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => true,
+				],
 			],
-			'event'   => [
+			'event'      => [
 				'data'        => 'event',
 				'title'       => __( 'Event' ),
 				'className'   => 'event',
@@ -45,7 +50,7 @@ class ForAuditTrail extends Base {
 					'show' => true
 				],
 			],
-			'event_slug'   => [
+			'event_slug' => [
 				'data'        => 'event',
 				'title'       => __( 'Event Slug' ),
 				'className'   => 'event',
@@ -67,7 +72,7 @@ class ForAuditTrail extends Base {
 					'show' => false
 				],
 			],
-			'level'   => [
+			'level'      => [
 				'data'        => 'level',
 				'title'       => __( 'Severity' ),
 				'className'   => 'level',
@@ -78,7 +83,7 @@ class ForAuditTrail extends Base {
 					'show' => true
 				],
 			],
-			'ip'      => [
+			'ip'         => [
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
 				'className'   => 'ip',
@@ -89,7 +94,7 @@ class ForAuditTrail extends Base {
 					'show' => true,
 				],
 			],
-			'ip_linked'      => [
+			'ip_linked'  => [
 				'data'        => 'ip_linked',
 				'title'       => __( 'IP' ),
 				'className'   => 'ip_linked',
@@ -100,7 +105,7 @@ class ForAuditTrail extends Base {
 					'show' => false,
 				],
 			],
-			'uid'     => [
+			'uid'        => [
 				'data'       => 'uid',
 				'title'      => __( 'User ID' ),
 				'className'  => 'uid',
@@ -108,7 +113,7 @@ class ForAuditTrail extends Base {
 				'searchable' => false,
 				'visible'    => false,
 			],
-			'user'    => [
+			'user'       => [
 				'data'        => 'user',
 				'title'       => __( 'User' ),
 				'className'   => 'user',
@@ -119,7 +124,7 @@ class ForAuditTrail extends Base {
 					'show' => true
 				],
 			],
-			'message' => [
+			'message'    => [
 				'data'        => 'message',
 				'title'       => __( 'Message' ),
 				'className'   => 'message',
@@ -130,7 +135,7 @@ class ForAuditTrail extends Base {
 					'show' => false
 				],
 			],
-			'date'    => [
+			'date'       => [
 				'data'        => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',
@@ -144,7 +149,7 @@ class ForAuditTrail extends Base {
 					'show' => false
 				],
 			],
-			'meta' => [
+			'meta'       => [
 				'data'        => 'meta',
 				'title'       => __( 'Meta' ),
 				'className'   => 'meta',
