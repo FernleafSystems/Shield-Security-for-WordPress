@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops;
 
 /**
- * @property string $rid
  * @property int    $site_id
  * @property string $event_slug
  * @property string $ip

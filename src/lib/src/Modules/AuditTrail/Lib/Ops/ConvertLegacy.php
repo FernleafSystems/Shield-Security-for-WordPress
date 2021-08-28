@@ -52,6 +52,12 @@ class ConvertLegacy {
 					$metaInserter->insert( $metaRecord );
 				}
 
+				if ( !empty( $entry->rid ) ) {
+					$metaRecord->meta_key = 'rid';
+					$metaRecord->meta_value = $entry->rid;
+					$metaInserter->insert( $metaRecord );
+				}
+
 				foreach ( $entry->meta as $metaKey => $metaValue ) {
 					$metaRecord->meta_key = $metaKey;
 					$metaRecord->meta_value = $metaValue;
@@ -91,7 +97,6 @@ class ConvertLegacy {
 		$record->event_slug = $entry->event;
 		$record->site_id = 1;
 		$record->ip = $entry->ip;
-		$record->rid = $entry->rid;
 		$record->created_at = $entry->created_at;
 
 		$success = $mod->getDbH_Logs()

@@ -30,6 +30,7 @@ class LoadRawTableData {
 
 				$data = $log->getRawData();
 				$data[ 'ip' ] = $this->log->ip;
+				$data[ 'rid' ] = $this->log->meta_data[ 'rid' ] ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();
 				$data[ 'event' ] = $srvEvents->getEventName( $log->event_slug );
 				$data[ 'created_since' ] = $this->getColumnContent_Date();
@@ -150,10 +151,6 @@ class LoadRawTableData {
 			),
 			$metaDefs
 		);
-
-		if ( !empty( $this->log->rid ) ) {
-			$metaToDisplay[ 'rid' ] = $this->log->rid;
-		}
 
 		if ( empty( $metaToDisplay ) ) {
 			$content = 'No Meta';

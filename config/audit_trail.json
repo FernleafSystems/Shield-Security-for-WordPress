@@ -223,10 +223,9 @@
       "has_created_at": true,
       "has_deleted_at": false,
       "cols_custom":    {
-        "rid":        {
-          "macro_type": "char",
-          "length":     10,
-          "comment":    "Request ID"
+        "ip":         {
+          "macro_type": "ip",
+          "comment":    "Binary IP Address"
         },
         "site_id":    {
           "macro_type": "unsigned_int",
@@ -236,10 +235,6 @@
         "event_slug": {
           "macro_type": "varchar",
           "comment":    "Event Slug"
-        },
-        "ip":         {
-          "macro_type": "ip",
-          "comment":    "Binary IP Address"
         }
       }
     },
