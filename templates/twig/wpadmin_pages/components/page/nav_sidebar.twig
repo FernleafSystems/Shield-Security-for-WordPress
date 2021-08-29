@@ -1,9 +1,9 @@
 <div id="NavSideBar">
 
-<ul class="nav top-level-nav flex-column mt-4">
+<ul class="nav top-level-nav flex-column mt-3">
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item pb-4 {% if mitem.sub_items|default([]) is not empty %}with-submenu{% endif %}"
+		<li class="nav-item pb-3 {% if mitem.sub_items|default([]) is not empty %}with-submenu{% endif %}"
 			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
 
@@ -14,8 +14,8 @@
 							<span class="text-secondary font-italic text-monospace">{{ mitem.title }}</span>
 						</li>
 						{% for sub in mitem.sub_items %}
-							<li class="mb-2 pl-0 py-1">
-							<a class="p-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
+							<li class="mb-0 pl-0 py-0">
+							<a class="py-1 px-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
 							   href="{{ sub.href|default('#') }}"
 									{% for data_key,data_val in sub.data|default([]) %}
 										data-{{ data_key }}="{{ data_val }}"
@@ -28,7 +28,7 @@
 				</div>
 			{% endif %}
 
-			<a class="nav-link p-0 {{ mitem.classes|default([])|join( ' ' ) }} mb-1 text-center"
+			<a class="nav-link p-0 mb-0 {{ mitem.classes|default([])|join( ' ' ) }} text-center"
 			   href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
 					{% for data_key,data_val in mitem.data|default([]) %}
 						data-{{ data_key }}="{{ data_val }}"
@@ -43,7 +43,7 @@
 			>
 
 				{% if mitem.img|default('') is not empty %}
-					<span class="nav-icon mb-2 d-block" style="vertical-align: text-bottom;">
+					<span class="nav-icon mb-1 d-block" style="vertical-align: text-bottom;">
 						{{ mitem.img|raw }}
 					</span>
 				{% endif %}

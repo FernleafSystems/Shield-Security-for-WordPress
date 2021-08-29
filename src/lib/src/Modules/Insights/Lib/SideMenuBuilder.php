@@ -136,6 +136,11 @@ class SideMenuBuilder {
 				'active' => $this->getInav() === $slug,
 			],
 			[
+				'slug'  => $slug.'-settings',
+				'title' => __( 'Configure', 'wp-simple-firewall' ),
+				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
+			],
+			[
 				'slug'    => 'audit-download',
 				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
 				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_audit' ),
