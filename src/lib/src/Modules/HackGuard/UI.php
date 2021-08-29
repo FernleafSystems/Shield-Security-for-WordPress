@@ -159,6 +159,7 @@ class UI extends BaseShield\UI {
 				'module_disabled'       => __( "Scans can't run because the module that controls them is currently disabled.", 'wp-simple-firewall' ),
 				'review_scanner_config' => __( "Review Scanner Module configuration", 'wp-simple-firewall' ),
 			],
+			'scans'       => $this->buildScansVars(),
 			'vars'        => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
@@ -175,6 +176,43 @@ class UI extends BaseShield\UI {
 			],
 			'file_locker' => $this->getFileLockerVars(),
 		];
+	}
+
+	private function buildScansVars() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$uiTrack = $mod->getUiTrack();
+
+		/** @var Strings $strings */
+		$strings = $mod->getStrings();
+		$scanStrings = $strings->getScanStrings();
+		$scans = [];
+		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+			$slug = $scanCon->getSlug();
+			$data = [
+				'flags'   => [
+					'is_available'  => $scanCon->isReady(),
+					'is_restricted' => $scanCon->isRestricted(),
+					'is_enabled'    => $scanCon->isEnabled(),
+					'is_selected'   => $scanCon->isReady()
+									   && in_array( $slug, $uiTrack[ 'selected_scans' ] ),
+				],
+				'hrefs'   => [
+					'options' => $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug ),
+				],
+				'strings' => [
+					'title'    => $scanStrings[ $slug ][ 'name' ],
+					'subtitle' => $scanStrings[ $slug ][ 'subtitle' ],
+				],
+				'vars'    => [
+					'slug' => $scanCon->getSlug(),
+				],
+			];
+			$scans[ $slug ] = $data;
+		}
+
+		return $scans;
 	}
 
 	/**

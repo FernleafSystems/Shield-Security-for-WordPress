@@ -740,7 +740,7 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array
 	 */
 	public function getUiTrack() :array {
 		$a = $this->getOptions()->getOpt( 'ui_track' );

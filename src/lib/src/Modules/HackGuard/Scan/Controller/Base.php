@@ -173,7 +173,7 @@ abstract class Base extends ExecOnceModConsumer {
 	public function getScanName() :string {
 		/** @var HackGuard\Strings $strings */
 		$strings = $this->getMod()->getStrings();
-		return $strings->getScanNames()[ static::SCAN_SLUG ];
+		return $strings->getScanStrings()[ static::SCAN_SLUG ][ 'name' ];
 	}
 
 	public function isCronAutoRepair() :bool {

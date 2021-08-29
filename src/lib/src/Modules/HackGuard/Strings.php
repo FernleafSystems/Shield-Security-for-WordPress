@@ -54,20 +54,51 @@ class Strings extends Base\Strings {
 	}
 
 	public function getScanName( string $slug ) :string {
-		return $this->getScanNames()[ $slug ];
+		return $this->getScanStrings()[ $slug ][ 'name' ];
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 12.0
+	 */
+	public function getScanNames() :array {
+		return array_map(
+			function ( $strings ) {
+				return $strings[ 'name' ];
+			},
+			$this->getScanStrings()
+		);
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getScanNames() :array {
+	public function getScanStrings() :array {
 		return [
-			'apc' => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
-			'ptg' => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-			'mal' => __( 'Malware', 'wp-simple-firewall' ),
-			'ufc' => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-			'wcf' => __( 'WordPress Core Files', 'wp-simple-firewall' ),
-			'wpv' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+			'apc' => [
+				'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
+			],
+			'ptg' => [
+				'name'     => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
+				'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
+			],
+			'mal' => [
+				'name'     => __( 'Malware', 'wp-simple-firewall' ),
+				'subtitle' => __( "Detect files that may be infected with malware", 'wp-simple-firewall' ),
+			],
+			'ufc' => [
+				'name'     => __( 'Unrecognised Files', 'wp-simple-firewall' ),
+				'subtitle' => __( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' ),
+			],
+			'wcf' => [
+				'name'     => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+			],
+			'wpv' => [
+				'name'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+				'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
+			],
 		];
 	}
 
