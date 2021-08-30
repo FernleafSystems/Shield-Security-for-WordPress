@@ -359,7 +359,7 @@
             "plugin"
           ]
         },
-        "shield/mainwp":          {
+        "shield/mainwp-extension":          {
           "deps": [
             "wp-jquery"
           ]
