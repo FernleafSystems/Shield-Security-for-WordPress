@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 
@@ -27,10 +28,9 @@ class FindAllPluginIps {
 				   ->getQuerySelector();
 		$ips = array_merge( $ips, $sel->getDistinctIps() );
 
-		// Audit Trail
-		/** @var Databases\AuditTrail\Select $sel */
+		/** @var Select $sel */
 		$sel = $con->getModule_AuditTrail()
-				   ->getDbHandler_AuditTrail()
+				   ->getDbH_Logs()
 				   ->getQuerySelector();
 		$ips = array_merge( $ips, $sel->getDistinctIps() );
 
