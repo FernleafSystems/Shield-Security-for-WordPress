@@ -1,4 +1,3 @@
-
 <h6 class="card-title">
 	{{ strings.title }}
 	<span class="badge badge-info">{{ vars.total_logs }}</span>
@@ -16,14 +15,14 @@
 			</tr>
 			</thead>
 			<tbody>
-			{% for session in vars.logs %}
+			{% for log in vars.logs %}
 				<tr>
-				<td>
-					<span>{{ session.wp_username }}</span>
-				</td>
-				<td class="w-50">{{ session.event|raw }}</td>
-				<td>{{ session.created_at|raw }}</td>
-			</tr>
+					<td>
+						<span>{{ log.user }}</span>
+					</td>
+					<td class="w-50">{{ log.event|raw }}</td>
+					<td>{{ log.created_at|raw }}</td>
+				</tr>
 			{% endfor %}
 			</tbody>
 		</table>

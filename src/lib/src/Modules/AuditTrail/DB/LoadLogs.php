@@ -3,12 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoadLogs {
 
 	use ModConsumer;
+	use IpAddressConsumer;
 
 	/**
 	 * @return LogRecord[]
@@ -47,13 +49,16 @@ class LoadLogs {
 		$mod = $this->getMod();
 		$dbhLogs = $mod->getDbH_Logs();
 		$dbhMeta = $mod->getDbH_Meta();
+		$ip = $this->getIP();
 		return Services::WpDb()->selectCustom(
 			sprintf( 'SELECT  log.*, meta.meta_key, meta.meta_value, meta.log_ref as id
 						FROM `%s` as log
+						%s
 						INNER JOIN `%s` as meta
 							ON log.id = meta.log_ref 
 						ORDER BY log.id DESC;',
 				$dbhLogs->getTableSchema()->table,
+				empty( $ip ) ? '' : sprintf( 'WHERE `log.ip`="%s"', inet_pton( $ip ) ),
 				$dbhMeta->getTableSchema()->table
 			)
 		);

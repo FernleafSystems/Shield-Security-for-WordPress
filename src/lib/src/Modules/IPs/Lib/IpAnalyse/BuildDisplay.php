@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
@@ -362,22 +364,25 @@ class BuildDisplay {
 	}
 
 	private function renderForAuditTrail() :string {
-		$con = $this->getCon();
-		/** @var Databases\AuditTrail\Select $sel */
-		$sel = $con->getModule_AuditTrail()
-				   ->getDbHandler_AuditTrail()
-				   ->getQuerySelector();
-		/** @var Databases\AuditTrail\EntryVO[] $logs */
-		$logs = $sel->filterByIp( $this->getIP() )
-					->query();
+		// TODO: IP Filtering at the SQL query level
+		$logRecords = ( new LoadLogs() )
+			->setMod( $this->getCon()->getModule_AuditTrail() )
+			->run();
 
-		foreach ( $logs as $key => $entry ) {
-			$asArray = $entry->getRawData();
+		$logs = [];
+		$srvEvents = $this->getCon()->loadEventsService();
+		foreach ( $logRecords as $key => $record ) {
+			if ( $srvEvents->eventExists( $record->event_slug ) ) {
+				$asArray = $record->getRawData();
 
-			$asArray[ 'event' ] = AuditMessageBuilder::Build( $entry->event, $entry->meta );
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$entry->created_at );
+				$asArray[ 'event' ] = implode( ' ', AuditMessageBuilder::BuildFromLogRecord( $record ) );
+				$asArray[ 'created_at' ] = $this->formatTimestampField( $record->created_at );
 
-			$logs[ $key ] = $asArray;
+				$user = empty( $record->meta_data[ 'uid' ] ) ? null
+					: Services::WpUsers()->getUserById( $record->meta_data[ 'uid' ] );
+				$asArray[ 'user' ] = empty( $user ) ? '-' : $user->user_login;
+				$logs[ $key ] = $asArray;
+			}
 		}
 
 		return $this->getMod()->renderTemplate(
