@@ -19,7 +19,7 @@ class LogFileHandler extends StreamHandler {
 		$this->rotateLogs();
 	}
 
-	private function getLogFilePath() :string {
+	public function getLogFilePath() :string {
 		return apply_filters(
 			'shield/audit_trail_log_file_path',
 			$this->getCon()->getPluginCachePath( 'logs/shield.log' )

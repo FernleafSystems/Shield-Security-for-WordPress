@@ -9,11 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Processor extends BaseShield\Processor {
 
 	/**
-	 * @var Lib\AuditLogger
-	 */
-	private $auditLogger;
-
-	/**
 	 * @var Lib\AuditWriter
 	 */
 	private $auditWriter;
@@ -24,17 +19,8 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @return Lib\AuditLogger
-	 */
-	private function loadAuditLogger() :Lib\AuditLogger {
-		if ( !isset( $this->auditLogger ) ) {
-			$this->auditLogger = new Lib\AuditLogger( $this->getCon() );
-		}
-		return $this->auditLogger;
-	}
-
-	/**
 	 * @return Lib\AuditWriter
+	 * @deprecated 12.0
 	 */
 	private function loadAuditorWriter() :Lib\AuditWriter {
 		if ( !isset( $this->auditWriter ) ) {
@@ -47,8 +33,9 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function initAuditors() {
-//		$this->loadAuditorWriter()->setIfCommit( true );
-		$this->loadAuditLogger()->setIfCommit( true );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getAuditLogger()->setIfCommit( true );
 		foreach ( $this->getAuditors() as $auditor ) {
 			$auditor->setMod( $this->getMod() )->execute();
 		}

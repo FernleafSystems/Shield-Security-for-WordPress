@@ -142,8 +142,8 @@ class SideMenuBuilder {
 			],
 			[
 				'slug'    => 'audit-download',
-				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
-				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_audit' ),
+				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
+				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
 				'classes' => [ 'shield_file_download' ],
 			],
 			[

@@ -9,6 +9,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	/**
+	 * @var Lib\AuditLogger
+	 */
+	private $auditLogger;
+
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'at_logs' );
 	}
@@ -18,12 +23,30 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'at_meta' );
 	}
 
+	/**
+	 * @deprecated 12.0
+	 */
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
 		return $this->getDbH( 'audit_trail' );
 	}
 
+	public function getAuditLogger() :Lib\AuditLogger {
+		if ( !isset( $this->auditLogger ) ) {
+			$this->auditLogger = new Lib\AuditLogger( $this->getCon() );
+		}
+		return $this->auditLogger;
+	}
+
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
+			case 'db_log':
+				Services::Response()->downloadStringAsFile(
+					( new Lib\Utility\GetLogFileContent() )
+						->setMod( $this )
+						->run(),
+					sprintf( 'log_file-%s.json', date( 'Ymd_His' ) )
+				);
+				break;
 			case 'db_audit':
 				( new DbTableExport() )
 					->setDbHandler( $this->getDbHandler_AuditTrail() )
