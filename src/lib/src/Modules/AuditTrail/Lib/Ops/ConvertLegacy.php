@@ -74,10 +74,12 @@ class ConvertLegacy {
 			}
 		}
 
-		$mod->getDbHandler_AuditTrail()
-			->getQueryDeleter()
-			->addWhereIn( 'in', $toDelete )
-			->query();
+		if ( !empty( $toDelete ) ) {
+			$mod->getDbHandler_AuditTrail()
+				->getQueryDeleter()
+				->addWhereIn( 'in', $toDelete )
+				->query();
+		}
 		// TODO: set hidden marker to say completed and delete table
 	}
 
