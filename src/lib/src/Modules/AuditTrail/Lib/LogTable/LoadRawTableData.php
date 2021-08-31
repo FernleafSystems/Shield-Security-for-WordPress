@@ -29,6 +29,7 @@ class LoadRawTableData {
 				$this->log = $log;
 
 				$data = $log->getRawData();
+
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->meta_data[ 'rid' ] ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();

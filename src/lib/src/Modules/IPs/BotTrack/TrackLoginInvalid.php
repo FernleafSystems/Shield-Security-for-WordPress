@@ -25,7 +25,6 @@ class TrackLoginInvalid extends Base {
 				if ( Services::Request()->isPost() && is_wp_error( $user ) && !empty( $pass )
 					 && ( empty( $login ) || !Services::WpUsers()->exists( $login ) ) ) {
 
-					error_log( $login );
 					if ( empty( $login ) ) {
 						$this->user_login = 'empty username';
 					}

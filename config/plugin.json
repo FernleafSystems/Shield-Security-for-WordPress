@@ -552,6 +552,22 @@
   ],
   "definitions":   {
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
+    "db_handler_classes":     {
+      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\IP\\Ops\\Handler"
+    },
+    "db_table_ips":           {
+      "autoexpire":     0,
+      "slug":           "ips",
+      "col_older_than": "updated_at",
+      "cols_custom":    {
+        "ip": {
+          "macro_type": "ip",
+          "attr":       [
+            "UNIQUE"
+          ]
+        }
+      }
+    },
     "db_classes":             {
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"

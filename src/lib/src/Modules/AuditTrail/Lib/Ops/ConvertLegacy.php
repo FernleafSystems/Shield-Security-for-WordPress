@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IP\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
 	Logs,
 	Meta
@@ -96,7 +97,10 @@ class ConvertLegacy {
 		$record = new Logs\Ops\Record();
 		$record->event_slug = $entry->event;
 		$record->site_id = 1;
-		$record->ip = $entry->ip;
+		$record->ip_ref = ( new IPRecords() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->loadIP( $entry->ip )
+			->id;
 		$record->created_at = $entry->created_at;
 
 		$success = $mod->getDbH_Logs()

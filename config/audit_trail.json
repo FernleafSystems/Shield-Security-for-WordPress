@@ -223,9 +223,11 @@
       "has_created_at": true,
       "has_deleted_at": false,
       "cols_custom":    {
-        "ip":         {
-          "macro_type": "ip",
-          "comment":    "Binary IP Address"
+        "ip_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
         },
         "site_id":    {
           "macro_type": "unsigned_int",

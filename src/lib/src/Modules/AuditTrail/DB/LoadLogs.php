@@ -18,9 +18,16 @@ class LoadLogs {
 	public function run() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$stdKeys = array_flip( $mod->getDbH_Logs()
-								   ->getTableSchema()
-								   ->getColumnNames() );
+		$stdKeys = array_flip( array_merge(
+			$mod->getDbH_Logs()
+				->getTableSchema()
+				->getColumnNames(),
+			$this->getCon()
+				 ->getModule_Plugin()
+				 ->getDbH_IPs()
+				 ->getTableSchema()
+				 ->getColumnNames()
+		) );
 
 		$results = [];
 
@@ -47,19 +54,21 @@ class LoadLogs {
 	private function selectRaw() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbhLogs = $mod->getDbH_Logs();
-		$dbhMeta = $mod->getDbH_Meta();
+		$dbhIPs = $this->getCon()->getModule_Plugin()->getDbH_IPs();
 		$ip = $this->getIP();
 		return Services::WpDb()->selectCustom(
-			sprintf( 'SELECT  log.*, meta.meta_key, meta.meta_value, meta.log_ref as id
+			sprintf( 'SELECT log.*, ips.ip as ip, meta.meta_key, meta.meta_value, meta.log_ref as id
 						FROM `%s` as log
 						%s
+						INNER JOIN `%s` as ips
+							ON log.ip_ref = ips.id 
 						INNER JOIN `%s` as meta
 							ON log.id = meta.log_ref 
 						ORDER BY log.id DESC;',
-				$dbhLogs->getTableSchema()->table,
-				empty( $ip ) ? '' : sprintf( 'WHERE `log.ip`="%s"', inet_pton( $ip ) ),
-				$dbhMeta->getTableSchema()->table
+				$mod->getDbH_Logs()->getTableSchema()->table,
+				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
+				$dbhIPs->getTableSchema()->table,
+				$mod->getDbH_Meta()->getTableSchema()->table
 			)
 		);
 	}

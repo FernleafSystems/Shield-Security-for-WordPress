@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IP\IPRecords;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
@@ -58,7 +59,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record = new Logs\Ops\Record();
 		$record->event_slug = $logData[ 'context' ][ 'event_slug' ];
 		$record->site_id = $logData[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
-		$record->ip = $logData[ 'extra' ][ 'meta_request' ][ 'ip' ];
+		$record->ip_ref = ( new IPRecords() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] )
+			->id;
 
 		$success = $mod->getDbH_Logs()
 					   ->getQueryInserter()
