@@ -6,19 +6,19 @@ var iCWP_WPSF_OptionsPages = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( document ).on( "click", "a.nav-link.module", showWaiting );
+			jQuery( document ).on( 'click', 'a.nav-link.module', showWaiting );
 
 			/** Track active tab */
-			jQuery( document ).on( "click", "#ModuleOptionsNav a.nav-link", function ( e ) {
+			jQuery( document ).on( 'click', '#ModuleOptionsNav a.nav-link', function ( e ) {
 				e.preventDefault();
 				jQuery( this ).tab( 'show' );
 				jQuery( 'html,body' ).scrollTop( 0 );
 			} );
-			jQuery( document ).on( "shown.bs.tab", "#ModuleOptionsNav a.nav-link", function ( e ) {
+			jQuery( document ).on( 'shown.bs.tab', '#ModuleOptionsNav a.nav-link', function ( e ) {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			jQuery( document ).on( "odp-optsrender", onOptsTabRender );
+			jQuery( document ).on( 'odp-optsrender', onOptsTabRender );
 		} );
 	};
 

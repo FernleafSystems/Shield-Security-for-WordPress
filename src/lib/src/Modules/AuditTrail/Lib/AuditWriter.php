@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops\Commit;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 
+/**
+ * @deprecated 12.0
+ */
 class AuditWriter extends EventsListener {
 
 	use HandlerConsumer;

@@ -66,6 +66,8 @@ class EventsService {
 					$events,
 					array_map(
 						function ( $evt ) use ( $mod ) {
+							$evt[ 'module' ] = $mod->getSlug();
+							/** @deprecated 12.0 */
 							$evt[ 'context' ] = $mod->getSlug();
 							return $evt;
 						},
@@ -97,7 +99,7 @@ class EventsService {
 
 	public function getEventStrings( string $eventKey ) :array {
 		return $this->getCon()
-					->getModule( $this->getEventDef( $eventKey )[ 'context' ] )
+					->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
 					->getStrings()
 					->getEventStrings()[ $eventKey ] ?? [];
 	}
