@@ -9,6 +9,15 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'req_logs' );
+	}
+
+	public function getDbH_ReqMeta() :DB\ReqMeta\Ops\Handler {
+		$this->getDbH_ReqLogs();
+		return $this->getDbHandler()->loadDbH( 'req_meta' );
+	}
+
 	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
 		return $this->getDbH( 'traffic' );
 	}

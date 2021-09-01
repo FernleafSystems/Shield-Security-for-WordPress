@@ -234,10 +234,13 @@
       "cols_custom":    {
         "req_id": {
           "macro_type": "varchar",
-          "length":     10
+          "length":     10,
+          "attr":       [
+            "UNIQUE"
+          ]
         }
       },
-      "ip_ref":     {
+      "ip_ref":         {
         "macro_type":  "foreign_key_id",
         "foreign_key": {
           "ref_table": "icwp_wpsf_ips"
