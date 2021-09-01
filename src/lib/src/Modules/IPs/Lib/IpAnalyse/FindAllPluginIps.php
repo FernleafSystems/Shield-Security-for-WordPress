@@ -21,13 +21,6 @@ class FindAllPluginIps {
 				   ->getQuerySelector();
 		$ips = $sel->getDistinctIps();
 
-		// Traffic
-		/** @var Databases\Traffic\Select $sel */
-		$sel = $con->getModule_Traffic()
-				   ->getDbHandler_Traffic()
-				   ->getQuerySelector();
-		$ips = array_merge( $ips, $sel->getDistinctIps() );
-
 		/** @var Select $sel */
 		$sel = $con->getModule_Plugin()
 				   ->getDbH_IPs()
