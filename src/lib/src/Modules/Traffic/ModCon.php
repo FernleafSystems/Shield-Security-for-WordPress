@@ -9,6 +9,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	/**
+	 * @var Lib\RequestLogger
+	 */
+	private $requestLogger;
+
 	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
 		$this->getCon()->getModule_Plugin()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
@@ -21,6 +26,13 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
 		return $this->getDbH( 'traffic' );
+	}
+
+	public function getRequestLogger() :Lib\RequestLogger {
+		if ( !isset( $this->requestLogger ) ) {
+			$this->requestLogger = ( new Lib\RequestLogger() )->setMod( $this );
+		}
+		return $this->requestLogger;
 	}
 
 	protected function handleFileDownload( string $downloadID ) {

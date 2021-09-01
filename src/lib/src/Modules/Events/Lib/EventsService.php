@@ -118,7 +118,6 @@ class EventsService {
 
 	private function buildEvents( array $events ) :array {
 		$defaults = [
-			'cat'              => 1,
 			'stat'             => true,
 			'audit'            => true,
 			'recent'           => false, // whether to show in the recent events logs

@@ -17,5 +17,8 @@ class Processor extends Modules\BaseShield\Processor {
 				->setMod( $this->getMod() )
 				->run();
 		}
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getRequestLogger()->execute();
 	}
 }

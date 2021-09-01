@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LogFileHandler;
@@ -34,6 +35,8 @@ class AuditLogger extends EventsListener {
 				 ->pushHandler(
 					 new FilterHandler( ( new LocalDbWriter() )->setMod( $mod ), $opts->getLogLevelsDB() )
 				 );
+			// The Request Logger is required to link up the DB entries.
+			$con->getModule_Traffic()->getRequestLogger()->execute();
 		}
 
 		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
@@ -51,10 +54,10 @@ class AuditLogger extends EventsListener {
 
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'shield', [], [
-				new LogHandlers\Processors\RequestMetaProcessor(),
-				new LogHandlers\Processors\UserMetaProcessor(),
-				new LogHandlers\Processors\WpMetaProcessor()
+			$this->logger = new Logger( 'audit', [], [
+				new Processors\RequestMetaProcessor(),
+				new Processors\UserMetaProcessor(),
+				new Processors\WpMetaProcessor()
 			] );
 		}
 		return $this->logger;
@@ -85,7 +88,7 @@ class AuditLogger extends EventsListener {
 	protected function onShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
 			foreach ( $this->auditLogs as $auditLog ) {
-				$this->logger->log(
+				$this->getLogger()->log(
 					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
 					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
 					$auditLog

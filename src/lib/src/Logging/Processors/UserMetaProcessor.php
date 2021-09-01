@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Processors;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Processor\ProcessorInterface;

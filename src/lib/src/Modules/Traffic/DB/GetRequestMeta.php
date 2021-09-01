@@ -10,40 +10,47 @@ class GetRequestMeta {
 
 	use ModConsumer;
 
+	private $reqID;
+
 	public function retrieve( string $reqID ) :string {
+		$this->reqID = sanitize_key( $reqID );
 
 		$metaDefs = [
-			'uid'        => [
+			'rid'  => [
+				'name'      => __( 'Request ID', 'wp-simple-firewall' ),
+				'formatter' => function ( $metaDatum ) {
+					return sprintf( '<code>%s</code>', $metaDatum );
+				},
+			],
+			'uid'  => [
 				'name' => __( 'User ID', 'wp-simple-firewall' ),
 			],
-			'ts'         => [
+			'ts'   => [
 				'name' => __( 'Timestamp', 'wp-simple-firewall' ),
 			],
-			'req_method' => [
+			'verb' => [
 				'name'      => __( 'Method', 'wp-simple-firewall' ),
 				'formatter' => function ( $metaDatum ) {
 					return strtoupper( $metaDatum );
 				}
 			],
-			'req_path'   => [
+			'path' => [
 				'name' => __( 'Path', 'wp-simple-firewall' ),
 			],
-			'req_ua'     => [
+			'ua'   => [
 				'name' => __( 'User Agent', 'wp-simple-firewall' ),
 			],
 		];
 
-
 		$lines = [];
-		foreach ( $this->selectRaw( sanitize_key( $reqID ) ) as $meta ) {
-			$metaKey = $meta[ 'meta_key' ];
-			$metaValue = $meta[ 'meta_value' ];
+		$meta = $this->getRawMeta();
+		foreach ( $metaDefs as $metaKey => $metaDef ) {
 
-			if ( !empty( $metaDefs[ $metaKey ] ) ) {
+			if ( !empty( $meta[ $metaKey ] ) ) {
 				$lines[] = sprintf(
 					'<li><strong>%s</strong>: <span>%s</span></li>',
 					( $metaDef[ 'name' ] ?? $metaKey ),
-					isset( $metaDef[ 'formatter' ] ) ? $metaDef[ 'formatter' ]( $metaValue ) : $metaValue
+					isset( $metaDef[ 'formatter' ] ) ? $metaDef[ 'formatter' ]( $meta[ $metaKey ] ) : $meta[ $metaKey ]
 				);
 			}
 		}
@@ -53,10 +60,23 @@ class GetRequestMeta {
 	/**
 	 * @return array[]
 	 */
-	private function selectRaw( string $reqID ) :array {
+	private function getRawMeta() :array {
+		$meta = [
+			'rid' => $this->reqID,
+		];
+		foreach ( $this->selectRaw() as $rawMeta ) {
+			$meta[ $rawMeta[ 'meta_key' ] ] = $rawMeta[ 'meta_value' ];
+		}
+		return $meta;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	private function selectRaw() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return Services::WpDb()->selectCustom(
+		$results = Services::WpDb()->selectCustom(
 			sprintf( 'SELECT req_log.req_id as rid,
 							req_meta.meta_key, req_meta.meta_value
 						FROM `%s` as req_log
@@ -66,8 +86,9 @@ class GetRequestMeta {
 						ORDER BY req_log.created_at DESC;',
 				$mod->getDbH_ReqLogs()->getTableSchema()->table,
 				$mod->getDbH_ReqMeta()->getTableSchema()->table,
-				sprintf( 'WHERE `req_log`.req_id="%s"', $reqID )
+				sprintf( 'WHERE `req_log`.req_id="%s"', $this->reqID )
 			)
 		);
+		return is_array( $results ) ? $results : [];
 	}
 }

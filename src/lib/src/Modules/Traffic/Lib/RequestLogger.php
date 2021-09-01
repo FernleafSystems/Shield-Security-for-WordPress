@@ -2,46 +2,63 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use Monolog\Logger;
 
-class Logger {
+class RequestLogger extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	/**
+	 * @var Logger
+	 */
+	private $logger;
 
-	public function run() {
-		/** @var Traffic\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isTrafficLoggerEnabled() ) {
-			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-				if ( $this->isRequestToBeLogged() ) {
-					$this->logTraffic();
-				}
-			} );
-		}
+	protected function run() {
+		$this->getLogger()
+			 ->pushHandler( ( new LogHandlers\LocalDbWriter() )->setMod( $this->getMod() ) );
+
+		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
+			if ( $this->isRequestToBeLogged() ) {
+				$this->getLogger()->log( 'debug', 'log request' );
+			}
+		} );
 	}
 
 	private function isRequestToBeLogged() :bool {
+		/** @var Traffic\Options $opts */
+		$opts = $this->getOptions();
 		return !$this->getCon()->plugin_deleting
 			   && apply_filters( 'shield/is_log_traffic',
-				!$this->isCustomExcluded() && !$this->isRequestTypeExcluded()
+				$opts->isTrafficLoggerEnabled() && !$this->isCustomExcluded() && !$this->isRequestTypeExcluded()
 			   );
+	}
+
+	public function getLogger() :Logger {
+		if ( !isset( $this->logger ) ) {
+			$this->logger = new Logger( 'request', [], [
+				( new Processors\ShieldMetaProcessor() )->setCon( $this->getCon() ),
+				new Processors\RequestMetaProcessor(),
+				new Processors\UserMetaProcessor(),
+				new Processors\WpMetaProcessor()
+			] );
+		}
+		return $this->logger;
 	}
 
 	private function isRequestTypeExcluded() :bool {
 		/** @var Traffic\Options $opts */
 		$opts = $this->getOptions();
 		$excl = $opts->getReqTypeExclusions();
-		$bLoggedIn = Services::WpUsers()->isUserLoggedIn();
+		$isLoggedIn = Services::WpUsers()->isUserLoggedIn();
 
 		$exclude = ( in_array( 'simple', $excl ) && count( Services::Request()->getRawRequestParams( false ) ) == 0 )
-				   || ( in_array( 'logged_in', $excl ) && $bLoggedIn )
+				   || ( in_array( 'logged_in', $excl ) && $isLoggedIn )
 				   || ( in_array( 'ajax', $excl ) && Services::WpGeneral()->isAjax() )
 				   || ( in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() );
 
-		if ( !$exclude && !$bLoggedIn ) {
+		if ( !$exclude && !$isLoggedIn ) {
 			$exclude = ( in_array( 'search', $excl ) && $this->isServiceIp_Search() )
 					   || ( in_array( 'uptime', $excl ) && $this->isServiceIp_Uptime() );
 		}
@@ -74,34 +91,5 @@ class Logger {
 	private function isServiceIp_Uptime() :bool {
 		return in_array( Services::IP()->getIpDetector()->getIPIdentity(),
 			Services::ServiceProviders()->getUptimeProviders() );
-	}
-
-	private function logTraffic() {
-		/** @var Traffic\ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbHandler_Traffic();
-
-		$req = Services::Request();
-
-		// For multisites that are separated by sub-domains we also show the host.
-		$sLeadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $req->getHost() : '';
-
-		/** @var EntryVO $entry */
-		$entry = $dbh->getVo();
-
-		$entry->rid = $this->getCon()->getShortRequestId();
-		$entry->uid = Services::WpUsers()->getCurrentWpUserId();
-		$entry->ip = Services::IP()->getRequestIp();
-		$entry->verb = $req->getMethod();
-		$entry->path = $sLeadingPath.$req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
-		$entry->code = http_response_code();
-		$entry->ua = $req->getUserAgent();
-		$entry->trans = $this->getCon()
-							 ->getModule_IPs()
-							 ->loadOffenseTracker()
-							 ->getOffenseCount() > 0 ? 1 : 0;
-
-		$dbh->getQueryInserter()
-			->insert( $entry );
 	}
 }

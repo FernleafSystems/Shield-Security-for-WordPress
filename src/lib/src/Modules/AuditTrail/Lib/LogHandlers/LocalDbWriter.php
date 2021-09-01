@@ -26,13 +26,12 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$log = $this->createPrimaryLogRecord( $record );
 
 			// anything stored in the primary log record doesn't need stored in meta
-			unset( $record[ 'extra' ][ 'meta_wp' ][ 'site_id' ] );
-			unset( $record[ 'extra' ][ 'meta_request' ][ 'ip' ] );
-			unset( $record[ 'extra' ][ 'meta_request' ][ 'rid' ] );
+			unset( $record[ 'extra' ][ 'meta_wp' ] );
+			unset( $record[ 'extra' ][ 'meta_wp' ] );
+			unset( $record[ 'extra' ][ 'meta_request' ] );
 
 			$metas = array_merge(
 				$record[ 'context' ][ 'audit_params' ] ?? [],
-				$record[ 'extra' ][ 'meta_request' ],
 				$record[ 'extra' ][ 'meta_user' ]
 			);
 			$metaRecord = new Meta\Ops\Record();
@@ -44,9 +43,14 @@ class LocalDbWriter extends AbstractProcessingHandler {
 					->getQueryInserter()
 					->insert( $metaRecord );
 			}
+			$this->triggerRequestLogger();
 		}
 		catch ( \Exception $e ) {
 		}
+	}
+
+	private function triggerRequestLogger() {
+		add_filter( 'shield/is_log_traffic', '__return_true', PHP_INT_MAX );
 	}
 
 	/**

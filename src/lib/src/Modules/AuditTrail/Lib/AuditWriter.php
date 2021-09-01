@@ -33,7 +33,7 @@ class AuditWriter extends EventsListener {
 			$entry = new AuditTrail\EntryVO();
 			$entry->rid = $con->getShortRequestId();
 			$entry->event = $evt;
-			$entry->category = $def[ 'cat' ];
+			$entry->category = 1;
 			$entry->context = $def[ 'context' ];
 			$entry->meta = $meta[ 'audit' ] ?? [];
 
