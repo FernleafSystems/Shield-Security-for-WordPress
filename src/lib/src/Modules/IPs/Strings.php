@@ -255,7 +255,7 @@ class Strings extends Base\Strings {
 
 			case 'transgression_limit' :
 				$name = __( 'Offense Limit', 'wp-simple-firewall' );
-				$summary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
+				$summary = __( 'The number of permitted offenses before an IP address will be blocked', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( 'An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName ),
 					__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' ),

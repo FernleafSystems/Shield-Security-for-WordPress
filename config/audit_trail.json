@@ -93,6 +93,10 @@
       ],
       "value_options": [
         {
+          "value_key": "disabled",
+          "text":      "Logging Disabled"
+        },
+        {
           "value_key": "alert",
           "text":      "Alert"
         },
@@ -107,10 +111,6 @@
         {
           "value_key": "debug",
           "text":      "Debug"
-        },
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
         }
       ],
       "link_info":     "",
@@ -143,6 +143,10 @@
       ],
       "value_options": [
         {
+          "value_key": "disabled",
+          "text":      "Logging Disabled"
+        },
+        {
           "value_key": "same_as_db",
           "text":      "Same As DB"
         },
@@ -161,10 +165,6 @@
         {
           "value_key": "debug",
           "text":      "Debug"
-        },
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
         }
       ],
       "link_info":     "",
@@ -223,7 +223,7 @@
       "has_created_at": true,
       "has_deleted_at": false,
       "cols_custom":    {
-        "ip_ref": {
+        "ip_ref":     {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_ips"

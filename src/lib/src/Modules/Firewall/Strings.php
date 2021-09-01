@@ -201,7 +201,7 @@ class Strings extends Base\Strings {
 			'fw_email_success' => [
 				'name'  => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' )
+					__( 'Successfully sent Firewall Block email alert to: {{to}}', 'wp-simple-firewall' )
 				],
 			],
 			'fw_email_fail'    => [

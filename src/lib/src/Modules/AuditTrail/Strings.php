@@ -258,13 +258,7 @@ class Strings extends Base\Strings {
 				$summary = __( 'Logging Level For DB-Based Logs', 'wp-simple-firewall' );
 				$description = [
 					__( 'Specify the minimum logging level when using the local database.', 'wp-simple-firewall' ),
-					__( 'Any selected level automatically includes all higher levels.', 'wp-simple-firewall' )
-					.' e.g. '.__( 'Selecting "Info" includes "Info", "Warning" and "Alert" levels.', 'wp-simple-firewall' ),
-					sprintf( '%s - %s',
-						__( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Database logging should really only include Alerts and Warnings.", 'wp-simple-firewall' )
-					),
-					__( "Debug and Info logging would only be enabled when investigating specific problems.", 'wp-simple-firewall' )
+					__( "Debug and Info logging should only be enabled when investigating specific problems.", 'wp-simple-firewall' )
 				];
 				break;
 
