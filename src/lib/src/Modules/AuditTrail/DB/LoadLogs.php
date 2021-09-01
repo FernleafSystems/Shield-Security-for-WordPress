@@ -18,7 +18,7 @@ class LoadLogs {
 	public function run() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$stdKeys = array_flip( array_merge(
+		$stdKeys = array_flip( array_unique( array_merge(
 			$mod->getDbH_Logs()
 				->getTableSchema()
 				->getColumnNames(),
@@ -26,8 +26,11 @@ class LoadLogs {
 				 ->getModule_Plugin()
 				 ->getDbH_IPs()
 				 ->getTableSchema()
-				 ->getColumnNames()
-		) );
+				 ->getColumnNames(),
+			[
+				'rid'
+			]
+		) ) );
 
 		$results = [];
 
@@ -54,20 +57,25 @@ class LoadLogs {
 	private function selectRaw() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbhIPs = $this->getCon()->getModule_Plugin()->getDbH_IPs();
 		$ip = $this->getIP();
 		return Services::WpDb()->selectCustom(
-			sprintf( 'SELECT log.*, ips.ip as ip, meta.meta_key, meta.meta_value, meta.log_ref as id
+			sprintf( 'SELECT log.id, log.site_id, log.event_slug, log.created_at,
+							ips.ip as ip,
+							meta.meta_key, meta.meta_value,
+							req.req_id as rid
 						FROM `%s` as log
 						%s
+						INNER JOIN `%s` as req
+							ON log.req_ref = req.id 
 						INNER JOIN `%s` as ips
-							ON log.ip_ref = ips.id 
+							ON req.ip_ref = ips.id 
 						INNER JOIN `%s` as meta
 							ON log.id = meta.log_ref 
-						ORDER BY log.id DESC;',
+						ORDER BY log.created_at DESC;',
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
-				$dbhIPs->getTableSchema()->table,
+				$this->getCon()->getModule_Traffic()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->getCon()->getModule_Plugin()->getDbH_IPs()->getTableSchema()->table,
 				$mod->getDbH_Meta()->getTableSchema()->table
 			)
 		);

@@ -219,7 +219,7 @@
     },
     "db_table_at_logs":             {
       "slug":           "at_logs",
-      "has_updated_at": true,
+      "has_updated_at": false,
       "has_created_at": true,
       "has_deleted_at": false,
       "cols_custom":    {
