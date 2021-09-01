@@ -14,11 +14,6 @@ class UI extends BaseShield\UI {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$uiTrack = $mod->getUiTrack();
-		if ( empty( $uiTrack[ 'selected_scans' ] ) ) {
-			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
-		}
-
 		foreach ( $opts->getScanSlugs() as $scan ) {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
@@ -111,11 +106,6 @@ class UI extends BaseShield\UI {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$uiTrack = $mod->getUiTrack();
-		if ( empty( $uiTrack[ 'selected_scans' ] ) ) {
-			$uiTrack[ 'selected_scans' ] = $opts->getScanSlugs();
-		}
-
 		foreach ( $opts->getScanSlugs() as $scan ) {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
@@ -182,8 +172,6 @@ class UI extends BaseShield\UI {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$uiTrack = $mod->getUiTrack();
-
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 		$scanStrings = $strings->getScanStrings();
@@ -196,7 +184,7 @@ class UI extends BaseShield\UI {
 					'is_restricted' => $scanCon->isRestricted(),
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
-									   && in_array( $slug, $uiTrack[ 'selected_scans' ] ),
+									   && in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
 				'hrefs'   => [
 					'options' => $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug ),

@@ -265,9 +265,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		if ( !empty( $formParams ) ) {
 			$selected = array_keys( $formParams );
 
-			$aUiTrack = $mod->getUiTrack();
-			$aUiTrack[ 'selected_scans' ] = array_intersect( array_keys( $formParams ), $opts->getScanSlugs() );
-			$mod->setUiTrack( $aUiTrack );
+			$uiTrack = $mod->getUiTrack();
+			$uiTrack->selected_scans = array_intersect( array_keys( $formParams ), $opts->getScanSlugs() );
+			$mod->setUiTrack( $uiTrack );
 
 			$toScan = [];
 			foreach ( $selected as $slug ) {

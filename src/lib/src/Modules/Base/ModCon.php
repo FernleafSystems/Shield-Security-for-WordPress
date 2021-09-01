@@ -739,20 +739,19 @@ abstract class ModCon {
 		return is_array( $notices ) ? $notices : [];
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getUiTrack() :array {
+	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->getOptions()->getOpt( 'ui_track' );
-		return is_array( $a ) ? $a : [];
+		return ( new Lib\Components\UiTrack() )
+			->setCon( $this->getCon() )
+			->applyFromArray( is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {
 		$this->getOptions()->setOpt( 'dismissed_notices', $dis );
 	}
 
-	public function setUiTrack( array $UI ) {
-		$this->getOptions()->setOpt( 'ui_track', $UI );
+	public function setUiTrack( Lib\Components\UiTrack $UI ) {
+		$this->getOptions()->setOpt( 'ui_track', $UI->getRawData() );
 	}
 
 	/**
