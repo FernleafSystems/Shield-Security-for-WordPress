@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ModCon extends BaseShield\ModCon {
 
 	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
+		$this->getCon()->getModule_Plugin()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
 	}
 

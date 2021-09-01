@@ -558,7 +558,9 @@
     "db_table_ips":           {
       "autoexpire":     0,
       "slug":           "ips",
-      "col_older_than": "updated_at",
+      "has_updated_at": false,
+      "has_deleted_at": false,
+      "col_older_than": "created_at",
       "cols_custom":    {
         "ip": {
           "macro_type": "ip",

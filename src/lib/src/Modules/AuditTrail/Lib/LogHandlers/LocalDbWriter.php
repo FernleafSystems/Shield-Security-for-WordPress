@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
@@ -27,6 +28,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			// anything stored in the primary log record doesn't need stored in meta
 			unset( $record[ 'extra' ][ 'meta_wp' ][ 'site_id' ] );
 			unset( $record[ 'extra' ][ 'meta_request' ][ 'ip' ] );
+			unset( $record[ 'extra' ][ 'meta_request' ][ 'rid' ] );
 
 			$metas = array_merge(
 				$record[ 'context' ][ 'audit_params' ] ?? [],
@@ -59,9 +61,14 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record = new Logs\Ops\Record();
 		$record->event_slug = $logData[ 'context' ][ 'event_slug' ];
 		$record->site_id = $logData[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
-		$record->ip_ref = ( new IPRecords() )
+
+		$ipRecordID = ( new IPRecords() )
 			->setMod( $this->getCon()->getModule_Plugin() )
 			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] )
+			->id;
+		$record->req_ref = ( new RequestRecords() )
+			->setMod( $this->getCon()->getModule_Traffic() )
+			->loadReq( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
 			->id;
 
 		$success = $mod->getDbH_Logs()
