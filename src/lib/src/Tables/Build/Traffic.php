@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,36 +18,36 @@ class Traffic extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		$params = $this->getParams();
-		/** @var Databases\Traffic\Select $select */
-		$select = $this->getWorkingSelector();
-
-		$srvIP = Services::IP();
-		// If an IP is specified, it takes priority
-		if ( $srvIP->isValidIp( $params[ 'fIp' ] ) ) {
-			$select->filterByIp( inet_pton( $params[ 'fIp' ] ) );
-		}
-		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
-			$select->filterByNotIp( inet_pton( $srvIP->getRequestIp() ) );
-		}
-
-		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-		if ( !empty( $params[ 'fUsername' ] ) ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $params[ 'fUsername' ] );
-			if ( !empty( $oUser ) ) {
-				$select->filterByUserId( $oUser->ID );
-			}
-		}
-		elseif ( $params[ 'fLoggedIn' ] >= 0 ) {
-			$select->filterByIsLoggedIn( $params[ 'fLoggedIn' ] );
-		}
-
-		if ( $params[ 'fOffense' ] >= 0 ) {
-			$select->filterByIsTransgression( $params[ 'fOffense' ] );
-		}
-
-		$select->filterByPathContains( $params[ 'fPath' ] );
-		$select->filterByResponseCode( $params[ 'fResponse' ] );
+//		$params = $this->getParams();
+//		/** @var Databases\Traffic\Select $select */
+//		$select = $this->getWorkingSelector();
+//
+//		$srvIP = Services::IP();
+//		// If an IP is specified, it takes priority
+//		if ( $srvIP->isValidIp( $params[ 'fIp' ] ) ) {
+//			$select->filterByIp( inet_pton( $params[ 'fIp' ] ) );
+//		}
+//		elseif ( $params[ 'fExcludeYou' ] == 'Y' ) {
+//			$select->filterByNotIp( inet_pton( $srvIP->getRequestIp() ) );
+//		}
+//
+//		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
+//		if ( !empty( $params[ 'fUsername' ] ) ) {
+//			$oUser = Services::WpUsers()->getUserByUsername( $params[ 'fUsername' ] );
+//			if ( !empty( $oUser ) ) {
+//				$select->filterByUserId( $oUser->ID );
+//			}
+//		}
+//		elseif ( $params[ 'fLoggedIn' ] >= 0 ) {
+//			$select->filterByIsLoggedIn( $params[ 'fLoggedIn' ] );
+//		}
+//
+//		if ( $params[ 'fOffense' ] >= 0 ) {
+//			$select->filterByIsTransgression( $params[ 'fOffense' ] );
+//		}
+//
+//		$select->filterByPathContains( $params[ 'fPath' ] );
+//		$select->filterByResponseCode( $params[ 'fResponse' ] );
 
 		return $this;
 	}
@@ -68,12 +70,21 @@ class Traffic extends BaseBuild {
 	}
 
 	/**
+	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
+	 */
+	protected function getEntriesRaw() :array {
+		return ( new LoadLogs() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
 		$entries = [];
 
-		$oWpUsers = Services::WpUsers();
+		$WPU = Services::WpUsers();
 		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $this->getCon()
 															 ->getModule_Plugin()
 															 ->getDbHandler_GeoIp() );
@@ -83,25 +94,25 @@ class Traffic extends BaseBuild {
 		$users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 		$ipInfos = [];
 		foreach ( $this->getEntriesRaw() as $key => $record ) {
-			/** @var Databases\Traffic\EntryVO $record */
+			/** @var LogRecord $record */
 			$ip = $record->ip;
 
-			list( $preQuery, $query ) = explode( '?', $record->path.'?', 2 );
+			list( $preQuery, $query ) = explode( '?', $record->meta_data[ 'path' ].'?', 2 );
 			$query = trim( $query, '?' );
-			$sPath = strtoupper( $record->verb ).': <code>'.$preQuery
-					 .( empty( $query ) ? '' : '?<br/>'.$query ).'</code>';
+			$path = strtoupper( $record->meta_data[ 'verb' ] ).': <code>'.$preQuery
+					.( empty( $query ) ? '' : '?<br/>'.$query ).'</code>';
 
 			$sCodeType = 'success';
-			if ( $record->code >= 400 ) {
+			if ( $record->meta_data[ 'code' ] >= 400 ) {
 				$sCodeType = 'danger';
 			}
-			elseif ( $record->code >= 300 ) {
+			elseif ( $record->meta_data[ 'code' ] >= 300 ) {
 				$sCodeType = 'warning';
 			}
 
 			$e = $record->getRawData();
-			$e[ 'path' ] = $sPath;
-			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->code );
+			$e[ 'path' ] = $path;
+			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->meta_data[ 'code' ] );
 			$e[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
 				$record->trans ? 'danger' : 'info',
@@ -121,12 +132,13 @@ class Traffic extends BaseBuild {
 				$e[ 'is_you' ] ? ' <small>('.__( 'This Is You', 'wp-simple-firewall' ).')</small>' : ''
 			);
 
-			if ( $record->uid > 0 ) {
-				if ( !isset( $users[ $record->uid ] ) ) {
-					$user = $oWpUsers->getUserById( $record->uid );
-					$users[ $record->uid ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+			$userID = $record->meta_data[ 'uid' ] ?? 0;
+			if ( $userID > 0 ) {
+				if ( !isset( $users[ $userID ] ) ) {
+					$user = $WPU->getUserById( $userID );
+					$users[ $record->meta_data[ 'uid' ] ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-							$oWpUsers->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+							$WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 				}
 			}
 
@@ -155,9 +167,9 @@ class Traffic extends BaseBuild {
 			$e[ 'visitor' ] = sprintf( '<div>%s</div>', implode( '</div><div>', [
 				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $ipLink ),
 				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $ipInfos[ $record->ip ] ?? 'n/a' ),
-				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $users[ $record->uid ] ),
+				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $users[ $userID ] ),
 				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
-				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $record->ua ) ) ),
+				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $record->meta_data[ 'ua' ] ) ) ),
 			] ) );
 
 			$e[ 'request_info' ] = sprintf( '<div>%s</div>', implode( '</div><div>', [
