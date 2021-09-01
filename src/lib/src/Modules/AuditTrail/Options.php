@@ -6,6 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function getLogFilePath() :string {
+		return apply_filters(
+			'shield/audit_trail_log_file_path',
+			$this->getCon()->getPluginCachePath( 'logs/shield.log' )
+		);
+	}
+
 	public function getLogLevelsDB() :array {
 		$levels = $this->getOpt( 'log_level_db', [] );
 		if ( empty( $levels ) || !is_array( $levels ) ) {

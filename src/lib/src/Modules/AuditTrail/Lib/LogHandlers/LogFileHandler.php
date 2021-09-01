@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\{
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -20,10 +23,9 @@ class LogFileHandler extends StreamHandler {
 	}
 
 	public function getLogFilePath() :string {
-		return apply_filters(
-			'shield/audit_trail_log_file_path',
-			$this->getCon()->getPluginCachePath( 'logs/shield.log' )
-		);
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getLogFilePath();
 	}
 
 	private function rotateLogs() {
