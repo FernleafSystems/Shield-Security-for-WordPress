@@ -29,6 +29,10 @@ class ConvertLegacy {
 		foreach ( $mod->getDbHandler_AuditTrail()->getIterator() as $entry ) {
 
 			try {
+				if ( empty( $entry->rid ) || empty( $entry->ip ) ) {
+					throw new \Exception( 'No RID or IP' );
+				}
+
 				$log = $this->createPrimaryLogRecord( $entry );
 
 				$metaRecord = new Meta\Ops\Record();
@@ -51,12 +55,6 @@ class ConvertLegacy {
 				if ( !empty( $uid ) ) {
 					$metaRecord->meta_key = 'uid';
 					$metaRecord->meta_value = $uid;
-					$metaInserter->insert( $metaRecord );
-				}
-
-				if ( !empty( $entry->rid ) ) {
-					$metaRecord->meta_key = 'rid';
-					$metaRecord->meta_value = $entry->rid;
 					$metaInserter->insert( $metaRecord );
 				}
 

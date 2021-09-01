@@ -111,68 +111,11 @@ class LoadRawTableData {
 			'<button type="button" class="btn  btn-link" '.
 			'data-toggle="popover" data-placement="left" '.
 			'data-customClass="audit-meta" '.
-			'data-content="%s">%s</button>', $this->getListFormattedMeta(),
+			'data-rid="%s">%s</button>', $this->log->rid,
 			sprintf( '<span class="meta-icon">%s</span>',
 				$this->getCon()->svgs->raw( 'bootstrap/tags.svg' )
 			)
 		);
-	}
-
-	private function getListFormattedMeta() :string {
-		$eventDef = $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug );
-
-		$metaDefs = [
-			'rid'        => [
-				'name' => __( 'Request ID', 'wp-simple-firewall' ),
-			],
-			'uid'        => [
-				'name' => __( 'User ID', 'wp-simple-firewall' ),
-			],
-			'ts'         => [
-				'name' => __( 'Timestamp', 'wp-simple-firewall' ),
-			],
-			'req_method' => [
-				'name'      => __( 'Method', 'wp-simple-firewall' ),
-				'formatter' => function ( $metaDatum ) {
-					return strtoupper( $metaDatum );
-				}
-			],
-			'req_path'   => [
-				'name' => __( 'Path', 'wp-simple-firewall' ),
-			],
-			'req_ua'     => [
-				'name' => __( 'User Agent', 'wp-simple-firewall' ),
-			],
-		];
-
-		$metaToDisplay = array_intersect_key(
-			array_diff_key(
-				$this->log->meta_data,
-				array_flip( $eventDef[ 'audit_params' ] )
-			),
-			$metaDefs
-		);
-
-		if ( !empty( $this->log->rid ) ) {
-			$metaToDisplay[ 'rid' ] = $this->log->rid;
-		}
-
-		if ( empty( $metaToDisplay ) ) {
-			$content = 'No Meta';
-		}
-		else {
-			$lines = [];
-			foreach ( array_intersect_key( $metaDefs, $metaToDisplay ) as $metaKey => $metaDef ) {
-				$lines[] = sprintf(
-					'<li><strong>%s</strong>: <span>%s</span></li>',
-					( $metaDef[ 'name' ] ?? $metaKey ),
-					isset( $metaDef[ 'formatter' ] ) ? $metaDef[ 'formatter' ]( $metaToDisplay[ $metaKey ] ) : $metaToDisplay[ $metaKey ]
-				);
-			}
-			$content = sprintf( '<ul>%s</ul>', implode( '', $lines ) );
-		}
-
-		return $content;
 	}
 
 	private function getColumnContent_Level() :string {

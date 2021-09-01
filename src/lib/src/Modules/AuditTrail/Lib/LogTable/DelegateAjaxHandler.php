@@ -21,8 +21,12 @@ class DelegateAjaxHandler {
 				$response = $this->retrieveTableData();
 				break;
 
+			case 'get_request_meta':
+				$response = $this->getRequestMeta();
+				break;
+
 			default:
-				throw new \Exception( 'Not a supported scan tables sub_action: '.$action );
+				throw new \Exception( 'Not a supported Audit Trail table sub_action: '.$action );
 		}
 		return $response;
 	}
@@ -39,6 +43,19 @@ class DelegateAjaxHandler {
 					->setMod( $this->getMod() )
 					->loadForLogs()
 			],
+		];
+	}
+
+	/**
+	 * @return array
+	 * @throws \Exception
+	 */
+	private function getRequestMeta() :array {
+		return [
+			'success' => true,
+			'html'    => ( new Shield\Modules\Traffic\DB\GetRequestMeta() )
+				->setMod( $this->getCon()->getModule_Traffic() )
+				->retrieve( Services::Request()->post( 'rid' ) )
 		];
 	}
 }

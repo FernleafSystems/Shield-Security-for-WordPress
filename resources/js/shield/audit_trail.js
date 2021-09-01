@@ -43,7 +43,32 @@
 				html: true,
 				animation: true,
 				selector: 'td.meta > button[data-toggle="popover"]',
-				container: '#SectionAuditTable',
+				container: 'body',
+				content: function () {
+					let content = 'no meta';
+					let reqData = base.getBaseAjaxData();
+					reqData.sub_action = 'get_request_meta';
+					reqData.rid = $( this ).data( 'rid' );
+					reqData.apto_wrap_response = 1;
+
+					jQuery.ajax( {
+						type: "POST",
+						url: ajaxurl,
+						data: reqData,
+						dataType: "text",
+						async: false,
+						success: function ( raw ) {
+							let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+							content = resp.data.html;
+						}
+					} ).fail( function () {
+						alert( 'Something went wrong with the request - it was either blocked or there was an error.' );
+					} ).always( function () {
+						iCWP_WPSF_BodyOverlay.hide();
+					} );
+
+					return content;
+				},
 			} );
 
 			base.$table.on( 'draw',
