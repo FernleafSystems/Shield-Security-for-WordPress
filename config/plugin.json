@@ -553,7 +553,7 @@
   "definitions":   {
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_handler_classes":     {
-      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\IP\\Ops\\Handler"
+      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\IPs\\Ops\\Handler"
     },
     "db_table_ips":           {
       "autoexpire":     0,

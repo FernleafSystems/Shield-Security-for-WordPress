@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IP\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Traits\Select_IPTable;

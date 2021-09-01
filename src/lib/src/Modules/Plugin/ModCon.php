@@ -528,7 +528,7 @@ class ModCon extends BaseShield\ModCon {
 		return $enqs;
 	}
 
-	public function getDbH_IPs() :DB\IP\Ops\Handler {
+	public function getDbH_IPs() :DB\IPs\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'ips' );
 	}
 
