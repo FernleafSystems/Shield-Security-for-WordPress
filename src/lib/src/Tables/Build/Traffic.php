@@ -115,8 +115,8 @@ class Traffic extends BaseBuild {
 			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->meta_data[ 'code' ] );
 			$e[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
-				$record->trans ? 'danger' : 'info',
-				$record->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
+				(bool)$record->meta_data[ 'is_offense' ] ? 'danger' : 'info',
+				(bool)$record->meta_data[ 'is_offense' ] ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
 			$e[ 'ip' ] = $ip;
 			$e[ 'created_at' ] = $this->formatTimestampField( $record->created_at );

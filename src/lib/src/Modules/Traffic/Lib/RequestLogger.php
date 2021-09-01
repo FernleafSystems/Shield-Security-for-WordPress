@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use Monolog\Logger;
 
 class RequestLogger extends ExecOnceModConsumer {
@@ -56,7 +57,8 @@ class RequestLogger extends ExecOnceModConsumer {
 		$exclude = ( in_array( 'simple', $excl ) && count( Services::Request()->getRawRequestParams( false ) ) == 0 )
 				   || ( in_array( 'logged_in', $excl ) && $isLoggedIn )
 				   || ( in_array( 'ajax', $excl ) && Services::WpGeneral()->isAjax() )
-				   || ( in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() );
+				   || ( in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() )
+				   || ( in_array( 'server', $excl ) && $this->isThisServer() );
 
 		if ( !$exclude && !$isLoggedIn ) {
 			$exclude = ( in_array( 'search', $excl ) && $this->isServiceIp_Search() )
@@ -91,5 +93,9 @@ class RequestLogger extends ExecOnceModConsumer {
 	private function isServiceIp_Uptime() :bool {
 		return in_array( Services::IP()->getIpDetector()->getIPIdentity(),
 			Services::ServiceProviders()->getUptimeProviders() );
+	}
+
+	private function isThisServer() :bool {
+		return Services::IP()->getIpDetector()->getIPIdentity() === IpID::THIS_SERVER;
 	}
 }

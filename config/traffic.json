@@ -101,6 +101,7 @@
       "advanced":      true,
       "default":       [
         "logged_in",
+        "server",
         "cron",
         "search",
         "uptime"
@@ -125,6 +126,10 @@
         {
           "value_key": "cron",
           "text":      "WP CRON"
+        },
+        {
+          "value_key": "server",
+          "text":      "This Server"
         },
         {
           "value_key": "search",
