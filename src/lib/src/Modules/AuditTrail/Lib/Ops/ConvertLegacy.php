@@ -29,10 +29,6 @@ class ConvertLegacy {
 		foreach ( $mod->getDbHandler_AuditTrail()->getIterator() as $entry ) {
 
 			try {
-				if ( empty( $entry->rid ) || empty( $entry->ip ) ) {
-					throw new \Exception( 'No RID or IP' );
-				}
-
 				$log = $this->createPrimaryLogRecord( $entry );
 
 				$metaRecord = new Meta\Ops\Record();
@@ -90,6 +86,10 @@ class ConvertLegacy {
 	protected function createPrimaryLogRecord( AuditTrail\EntryVO $entry ) :Logs\Ops\Record {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		if ( empty( $entry->rid ) || empty( $entry->ip ) ) {
+			throw new \Exception( 'No RID or IP' );
+		}
 
 		if ( !$this->getCon()->loadEventsService()->eventExists( (string)$entry->event ) ) {
 			throw new \Exception( 'Not a supported event' );

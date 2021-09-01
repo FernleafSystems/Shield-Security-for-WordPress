@@ -16,6 +16,10 @@ class UI extends BaseShield\UI {
 		/** @var Select $dbSel */
 		$dbSel = $mod->getDbHandler_Traffic()->getQuerySelector();
 
+		( new Lib\Ops\ConvertLegacy() )
+			->setMod( $this->getMod() )
+			->run();
+
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/traffic/traffic_table.twig',
 			[
