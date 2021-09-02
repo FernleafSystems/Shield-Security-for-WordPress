@@ -47,3 +47,11 @@ td.severity .severity-icon > svg {
 .shield-section-datatable div.dtsp-topRow.dtsp-bordered {
 	border: 1px solid black;
 }
+
+td.page code {
+	color: #4120a2;
+	display: block;
+	font-size: 0.9rem;
+	background-color: transparent; /* rgba(245, 245, 245, 0.8); */
+	word-break: break-all;
+}

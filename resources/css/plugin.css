@@ -730,17 +730,6 @@ td.column-message textarea {
 	font-size: 0.85rem;
 }
 /** TABLE: TRAFFIC **/
-th.column-visitor {
-}
-th.column-path {
-}
-td.column-path code {
-	color: #4120a2;
-	display: block;
-	font-size: 0.9rem;
-	background-color: transparent; /* rgba(245, 245, 245, 0.8); */
-	word-break: break-all;
-}
 th.column-code {
 	width: 84px;
 }
