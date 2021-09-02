@@ -15,6 +15,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -179,9 +181,9 @@ class BuildDisplay {
 					'ip'       => $ip,
 					'status'   => [
 						'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'               => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
-						'is_blocked'             => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
-						'is_bypass'              => $bypassIP instanceof Databases\IPs\EntryVO,
+						'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
+						'is_blocked'             => !empty( $blockIP ) ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'              => !empty( $bypassIP ),
 						'ip_reputation_score'    => $botScore,
 						'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
 						'is_bot'                 => $isBot,
@@ -247,23 +249,44 @@ class BuildDisplay {
 	}
 
 	private function renderForTraffic() :string {
-		/** @var Databases\Traffic\Select $sel */
-		$sel = $this->getCon()
-					->getModule_Traffic()
-					->getDbHandler_Traffic()
-					->getQuerySelector();
-		/** @var Databases\Traffic\EntryVO[] $requests */
-		$requests = $sel->filterByIp( inet_pton( $this->getIP() ) )
-						->query();
 
-		foreach ( $requests as $key => $request ) {
-			$asArray = $request->getRawData();
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$request->created_at );
-			if ( strpos( $request->path, '?' ) === false ) {
-				$request->path .= '?';
+		try {
+			$ip = ( new IPRecords() )
+				->setMod( $this->getCon()->getModule_Plugin() )
+				->loadIP( $this->getIP(), false );
+			/** @var ReqLogs\Ops\Select $selector */
+			$selector = $this->getCon()
+							 ->getModule_Traffic()
+							 ->getDbH_ReqLogs()
+							 ->getQuerySelector();
+			/** @var ReqLogs\Ops\Record[] $requests */
+			$requests = $selector->filterByIP( $ip->id )->queryWithResult();
+		}
+		catch ( \Exception $e ) {
+			$requests = [];
+		}
+
+		foreach ( $requests as $key => $req ) {
+			$asArray = $req->getRawData();
+			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$req->created_at );
+
+			$asArray = array_merge(
+				[
+					'path'    => '',
+					'code'    => '-',
+					'verb'    => '-',
+					'query'   => '',
+					'offense' => false,
+				],
+				$asArray,
+				$req->meta
+			);
+			if ( strpos( $asArray[ 'path' ], '?' ) === false ) {
+				$asArray[ 'path' ] .= '?';
 			}
-			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $request->path, 2 ) );
-			$asArray[ 'trans' ] = (bool)$asArray[ 'trans' ];
+
+			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $asArray[ 'path' ], 2 ) );
+			$asArray[ 'trans' ] = (bool)$asArray[ 'offense' ];
 			$requests[ $key ] = $asArray;
 		}
 

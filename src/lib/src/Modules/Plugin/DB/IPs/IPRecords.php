@@ -21,6 +21,10 @@ class IPRecords {
 			$record = $this->loadIP( $ip, false );
 		}
 
+		if ( empty( $record ) ) {
+			throw new \Exception( 'IP Record unavailable' );
+		}
+
 		return $record;
 	}
 

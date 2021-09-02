@@ -442,12 +442,6 @@ class SideMenuBuilder {
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_options' ),
 			],
-			[
-				'slug'    => 'traffic-download',
-				'href'    => $con->getModule_Traffic()->createFileDownloadLink( 'db_traffic' ),
-				'classes' => [ 'shield_file_download' ],
-				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
-			],
 		];
 
 		return [

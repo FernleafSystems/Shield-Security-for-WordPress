@@ -19,6 +19,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
 	}
 
+	/**
+	 * @deprecated 12.0
+	 */
 	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
 		return $this->getDbH( 'traffic' );
 	}
@@ -28,16 +31,6 @@ class ModCon extends BaseShield\ModCon {
 			$this->requestLogger = ( new Lib\RequestLogger() )->setMod( $this );
 		}
 		return $this->requestLogger;
-	}
-
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'db_traffic':
-				( new DbTableExport() )
-					->setDbHandler( $this->getDbHandler_Traffic() )
-					->toCSV();
-				break;
-		}
 	}
 
 	protected function preProcessOptions() {
@@ -58,8 +51,7 @@ class ModCon extends BaseShield\ModCon {
 	protected function isReadyToExecute() :bool {
 		$IP = Services::IP();
 		return $IP->isValidIp_PublicRange( $IP->getRequestIp() )
-			   && ( $this->getDbHandler_Traffic() instanceof Databases\Traffic\Handler )
-			   && $this->getDbHandler_Traffic()->isReady()
+			   && $this->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
 	}
 }

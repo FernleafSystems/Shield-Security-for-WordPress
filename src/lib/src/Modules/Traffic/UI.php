@@ -14,8 +14,6 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		/** @var Select $dbSel */
-		$dbSel = $mod->getDbHandler_Traffic()->getQuerySelector();
 
 		( new Lib\Ops\ConvertLegacy() )
 			->setMod( $this->getMod() )

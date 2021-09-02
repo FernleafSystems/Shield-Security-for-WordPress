@@ -2,31 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Limit;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Limiter
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Limit
- */
-class Limiter {
+class Limiter extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	protected function canRun() :bool {
+		/** @var Traffic\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isTrafficLimitEnabled();
+	}
 
-	public function run() {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isTrafficLimitEnabled() ) {
-			add_action( 'init', [ $this, 'limit' ] );
-		}
+	protected function run() {
+		add_action( 'init', [ $this, 'limit' ] );
 	}
 
 	public function limit() {
 		try {
 			( new TestIp() )
 				->setMod( $this->getMod() )
-				->runTest( Services::IP()->getRequestIp() );
+				->setIP( Services::IP()->getRequestIp() )
+				->runTest();
 		}
 		catch ( \Exception $e ) {
 			/** @var Traffic\Options $opts */

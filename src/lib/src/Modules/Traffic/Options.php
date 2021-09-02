@@ -38,7 +38,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrafficLimitEnabled() :bool {
-		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
+		return $this->isPremium() && $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
 }

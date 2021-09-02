@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops\ConvertLegacy;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,6 +20,9 @@ class LoadRawTableData {
 	private $log;
 
 	public function loadForLogs() :array {
+		( new Traffic\Lib\Ops\ConvertLegacy() )
+			->setMod( $this->getMod() )
+			->run();
 		( new ConvertLegacy() )
 			->setMod( $this->getMod() )
 			->run();
