@@ -43,9 +43,11 @@ class LoadLogs {
 				$record = $results[ $raw[ 'id' ] ];
 			}
 
-			$meta = $record->meta_data ?? [];
-			$meta[ $raw[ 'meta_key' ] ] = $raw[ 'meta_value' ];
-			$record->meta_data = $meta;
+			if ( !empty( $raw[ 'meta_key' ] ) ) {
+				$meta = $record->meta_data ?? [];
+				$meta[ $raw[ 'meta_key' ] ] = $raw[ 'meta_value' ];
+				$record->meta_data = $meta;
+			}
 		}
 
 		return $results;
@@ -69,8 +71,8 @@ class LoadLogs {
 							ON log.req_ref = req.id 
 						INNER JOIN `%s` as ips
 							ON req.ip_ref = ips.id 
-						INNER JOIN `%s` as meta
-							ON log.id = meta.log_ref 
+						LEFT JOIN `%s` as `meta`
+							ON log.id = `meta`.log_ref 
 						ORDER BY log.created_at DESC;',
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
