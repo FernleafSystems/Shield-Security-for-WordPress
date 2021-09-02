@@ -54,7 +54,7 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "shield/audit_trail",
+        "shield/datatables",
         "shield/scanners"
       ],
       "js":  [
@@ -64,6 +64,8 @@
         "jquery/fileDownload",
         "shield/tours",
         "bootstrap-select",
+        "shield/datatables",
+        "shield/traffic",
         "shield/audit_trail",
         "shield/scanners"
       ]
@@ -158,7 +160,7 @@
           "footer": true
         },
         "shield/mainwp":          {},
-        "shield/audit_trail":     {
+        "shield/datatables":      {
           "deps": [
             "datatables-select",
             "datatables-buttons",
@@ -315,6 +317,16 @@
           ]
         },
         "shield/audit_trail":      {
+          "deps": [
+            "shield/datatables"
+          ]
+        },
+        "shield/traffic":          {
+          "deps": [
+            "shield/datatables"
+          ]
+        },
+        "shield/datatables":       {
           "deps": [
             "datatables-select",
             "datatables-buttons",

@@ -1,0 +1,49 @@
+﻿
+th.message {
+	min-width: 500px !important;
+}
+th.date {
+	width: 140px !important;
+	max-width: 140px !important;
+}
+td.meta,
+th.meta {
+	width: 40px !important;
+	max-width: 40px !important;
+}
+td.severity,
+th.severity {
+	text-align: center;
+	width: 40px !important;
+	max-width: 40px !important;
+}
+td.message > .message-header {
+	font-weight: bolder;
+	display: block;
+}
+td.severity .severity-icon.severity-alert {
+	color: #d40000;
+}
+td.severity .severity-icon.severity-warning {
+	color: #c18c2a;
+}
+td.severity .severity-icon.severity-info {
+	color: #0303ab;
+}
+td.severity .severity-icon.severity-debug {
+	color: grey;
+}
+td.severity .severity-icon > svg {
+	margin-top: 10px;
+	width: 32px;
+	height: 32px;
+}
+.shield-section-datatable .popover .popover-body li {
+	margin-bottom: 4px;
+}
+.shield-section-datatable .dtsp-title {
+	font-weight: bolder;
+}
+.shield-section-datatable div.dtsp-topRow.dtsp-bordered {
+	border: 1px solid black;
+}

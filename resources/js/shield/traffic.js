@@ -1,14 +1,14 @@
 (function ( $, window, document, undefined ) {
 
-	$.fn.icwpWpsfAuditTableActions = function ( runtimeOptions ) {
+	$.fn.icwpWpsfTrafficTableActions = function ( runtimeOptions ) {
 		return this.each(
 			function () {
-				new $.icwpWpsfAuditTableActions( this, runtimeOptions )
+				new $.icwpWpsfTrafficTableActions( this, runtimeOptions )
 			}
 		);
 	};
 
-	$.icwpWpsfAuditTableActions = function ( el, options ) {
+	$.icwpWpsfTrafficTableActions = function ( el, options ) {
 		// To avoid scope issues, use 'base' instead of 'this'
 		// to reference this class from internal events and functions.
 		const base = this;
@@ -18,10 +18,10 @@
 		base.el = el;
 
 		// Add a reverse reference to the DOM object
-		base.$el.data( "icwpWpsfAuditTableActions", base );
+		base.$el.data( "icwpWpsfTrafficTableActions", base );
 
 		base.init = function () {
-			base.options = $.extend( {}, $.icwpWpsfAuditTableActions.defaultOptions, options );
+			base.options = $.extend( {}, $.icwpWpsfTrafficTableActions.defaultOptions, options );
 			base.setupDatatable();
 			base.bindEvents();
 		};
@@ -36,40 +36,6 @@
 		};
 
 		base.bindEvents = function () {
-
-			$( 'body' ).popover( {
-				trigger: 'click',
-				sanitize: false,
-				html: true,
-				animation: true,
-				selector: 'td.meta > button[data-toggle="popover"]',
-				container: 'body',
-				content: function () {
-					let content = 'no meta';
-					let reqData = base.getBaseAjaxData();
-					reqData.sub_action = 'get_request_meta';
-					reqData.rid = $( this ).data( 'rid' );
-					reqData.apto_wrap_response = 1;
-
-					jQuery.ajax( {
-						type: "POST",
-						url: ajaxurl,
-						data: reqData,
-						dataType: "text",
-						async: false,
-						success: function ( raw ) {
-							let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
-							content = resp.data.html;
-						}
-					} ).fail( function () {
-						alert( 'Something went wrong with the request - it was either blocked or there was an error.' );
-					} ).always( function () {
-						iCWP_WPSF_BodyOverlay.hide();
-					} );
-
-					return content;
-				},
-			} );
 
 			base.$table.on( 'draw',
 				function ( e, dt, type, row_index ) {
@@ -187,6 +153,6 @@
 		base.init();
 	}
 
-	$.icwpWpsfAuditTableActions.defaultOptions = {};
+	$.icwpWpsfTrafficTableActions.defaultOptions = {};
 
 })( jQuery );

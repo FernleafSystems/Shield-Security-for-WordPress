@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
@@ -24,7 +25,7 @@ class UI extends BaseShield\UI {
 			'/wpadmin_pages/insights/traffic/traffic_table.twig',
 			[
 				'ajax'    => [
-					'render_table_traffic' => $mod->getAjaxActionData( 'render_table_traffic', true )
+					'traffictable_action' => $mod->getAjaxActionData( 'traffictable_action', true ),
 				],
 				'flags'   => [
 					'is_enabled' => $opts->isTrafficLoggerEnabled(),
@@ -33,19 +34,11 @@ class UI extends BaseShield\UI {
 					'please_enable' => $mod->getUrl_DirectLinkToOption( 'enable_logger' ),
 				],
 				'strings' => [
-					'title_filter_form'       => __( 'Traffic Table Filters', 'wp-simple-firewall' ),
-					'traffic_title'           => __( 'Traffic Watch', 'wp-simple-firewall' ),
-					'traffic_subtitle'        => __( 'Watch and review requests to your site', 'wp-simple-firewall' ),
-					'response'                => __( 'Response', 'wp-simple-firewall' ),
-					'path_contains'           => __( 'Page/Path Contains', 'wp-simple-firewall' ),
-					'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
-					'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
-					'username_ignores'        => __( "Providing a username will cause the 'logged-in' filter to be ignored.", 'wp-simple-firewall' ),
 				],
 				'vars'    => [
-					'unique_ips'       => $dbSel->getDistinctIps(),
-					'unique_responses' => $dbSel->getDistinctCodes(),
-					'unique_users'     => $dbSel->getDistinctUsernames(),
+					'datatables_init'   => ( new ForTraffic() )
+						->setMod( $this->getMod() )
+						->build()
 				],
 			],
 			true
