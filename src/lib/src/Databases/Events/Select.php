@@ -81,16 +81,16 @@ class Select extends Base\Select {
 	 * @return EntryVO[] - keys are event names
 	 */
 	public function getLatestForAllEvents() {
-		$aKeyedLatest = [];
+		$latest = [];
 		$this->setGroupBy( 'event' )
 			 ->setOrderBy( 'created_at', 'DESC' )
 			 ->addWhere( 'id', $this->getMaxIds(), 'IN' )
 			 ->setResultsAsVo( true );
-		foreach ( $this->query() as $oEntry ) {
-			/** @var EntryVO $oEntry */
-			$aKeyedLatest[ $oEntry->event ] = $oEntry;
+		foreach ( $this->query() as $entry ) {
+			/** @var EntryVO $entry */
+			$latest[ $entry->event ] = $entry;
 		}
-		return $aKeyedLatest;
+		return $latest;
 	}
 
 	/**
