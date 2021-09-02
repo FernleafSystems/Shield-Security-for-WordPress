@@ -14,10 +14,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_AuditTrailTableAction();
 				break;
 
-			case 'render_table_audittrail':
-				$response = $this->ajaxExec_BuildTableAuditTrail();
-				break;
-
 			case 'item_addparamwhite':
 				$response = $this->ajaxExec_AddParamToFirewallWhitelist();
 				break;
@@ -69,17 +65,5 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'message'     => $e->getMessage(),
 			];
 		}
-	}
-
-	private function ajaxExec_BuildTableAuditTrail() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return [
-			'success' => true,
-			'html'    => ( new Shield\Tables\Build\AuditTrail() )
-				->setMod( $mod )
-				->setDbHandler( $mod->getDbHandler_AuditTrail() )
-				->render()
-		];
 	}
 }

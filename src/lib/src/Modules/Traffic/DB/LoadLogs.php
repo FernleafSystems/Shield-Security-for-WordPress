@@ -16,32 +16,11 @@ class LoadLogs {
 	 * @return LogRecord[]
 	 */
 	public function run() :array {
-		$stdKeys = array_flip( [
-			'id',
-			'rid',
-			'ip',
-			'created_at',
-			'meta_key',
-			'meta_value',
-		] );
-
 		$results = [];
-
 		foreach ( $this->selectRaw() as $raw ) {
-
-			if ( empty( $results[ $raw[ 'id' ] ] ) ) {
-				$record = new LogRecord( array_intersect_key( $raw, $stdKeys ) );
-				$results[ $raw[ 'id' ] ] = $record;
-			}
-			else {
-				$record = $results[ $raw[ 'id' ] ];
-			}
-
-			$meta = $record->meta_data ?? [];
-			$meta[ $raw[ 'meta_key' ] ] = $raw[ 'meta_value' ];
-			$record->meta_data = $meta;
+			$record = new LogRecord( $raw );
+			$results[ $raw[ 'id' ] ] = $record;
 		}
-
 		return $results;
 	}
 
@@ -53,20 +32,16 @@ class LoadLogs {
 		$mod = $this->getMod();
 		$ip = $this->getIP();
 		return Services::WpDb()->selectCustom(
-			sprintf( 'SELECT req.id, req.req_id as rid, req.created_at,
-							ips.ip as ip,
-							meta.meta_key, meta.meta_value
+			sprintf( 'SELECT req.id, req.req_id as rid, req.meta, req.created_at,
+							ips.ip as ip
 						FROM `%s` as `req`
 						%s
 						INNER JOIN `%s` as `ips`
 							ON req.ip_ref = ips.id 
-						INNER JOIN `%s` as `meta`
-							ON `req`.id = meta.log_ref 
 						ORDER BY `req`.created_at DESC;',
 				$mod->getDbH_ReqLogs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
-				$this->getCon()->getModule_Plugin()->getDbH_IPs()->getTableSchema()->table,
-				$mod->getDbH_ReqMeta()->getTableSchema()->table
+				$this->getCon()->getModule_Plugin()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
 	}

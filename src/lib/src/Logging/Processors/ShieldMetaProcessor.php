@@ -15,10 +15,10 @@ class ShieldMetaProcessor implements ProcessorInterface {
 	 */
 	public function __invoke( array $record ) {
 		$record[ 'extra' ][ 'meta_shield' ] = array_filter( [
-			'is_offense' => $this->getCon()
-								 ->getModule_IPs()
-								 ->loadOffenseTracker()
-								 ->getOffenseCount() > 0 ? 1 : 0,
+			'offense' => $this->getCon()
+							  ->getModule_IPs()
+							  ->loadOffenseTracker()
+							  ->getOffenseCount() > 0 ? 1 : 0,
 		] );
 		return $record;
 	}

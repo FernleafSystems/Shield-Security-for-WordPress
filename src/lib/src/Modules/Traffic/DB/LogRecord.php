@@ -2,11 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB;
 
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
+
 /**
  * @property string $ip
  * @property string $rid
- * @property array  $meta_data
  */
-class LogRecord extends ReqLogs\Ops\Record {
+class LogRecord extends Record {
 
 }

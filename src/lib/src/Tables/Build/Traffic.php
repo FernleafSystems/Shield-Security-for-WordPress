@@ -97,26 +97,26 @@ class Traffic extends BaseBuild {
 			/** @var LogRecord $record */
 			$ip = $record->ip;
 
-			list( $preQuery, $query ) = explode( '?', $record->meta_data[ 'path' ].'?', 2 );
+			list( $preQuery, $query ) = explode( '?', $record->meta[ 'path' ].'?', 2 );
 			$query = trim( $query, '?' );
-			$path = strtoupper( $record->meta_data[ 'verb' ] ).': <code>'.$preQuery
+			$path = strtoupper( $record->meta[ 'verb' ] ).': <code>'.$preQuery
 					.( empty( $query ) ? '' : '?<br/>'.$query ).'</code>';
 
 			$sCodeType = 'success';
-			if ( $record->meta_data[ 'code' ] >= 400 ) {
+			if ( $record->meta[ 'code' ] >= 400 ) {
 				$sCodeType = 'danger';
 			}
-			elseif ( $record->meta_data[ 'code' ] >= 300 ) {
+			elseif ( $record->meta[ 'code' ] >= 300 ) {
 				$sCodeType = 'warning';
 			}
 
 			$e = $record->getRawData();
 			$e[ 'path' ] = $path;
-			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->meta_data[ 'code' ] );
+			$e[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $record->meta[ 'code' ] );
 			$e[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
-				(bool)$record->meta_data[ 'is_offense' ] ? 'danger' : 'info',
-				(bool)$record->meta_data[ 'is_offense' ] ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
+				@$record->meta[ 'offense' ] ? 'danger' : 'info',
+				@$record->meta[ 'offense' ] ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
 			$e[ 'ip' ] = $ip;
 			$e[ 'created_at' ] = $this->formatTimestampField( $record->created_at );
@@ -132,11 +132,11 @@ class Traffic extends BaseBuild {
 				$e[ 'is_you' ] ? ' <small>('.__( 'This Is You', 'wp-simple-firewall' ).')</small>' : ''
 			);
 
-			$userID = $record->meta_data[ 'uid' ] ?? 0;
+			$userID = $record->meta[ 'uid' ] ?? 0;
 			if ( $userID > 0 ) {
 				if ( !isset( $users[ $userID ] ) ) {
 					$user = $WPU->getUserById( $userID );
-					$users[ $record->meta_data[ 'uid' ] ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+					$users[ $record->meta[ 'uid' ] ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
 							$WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 				}
@@ -169,7 +169,7 @@ class Traffic extends BaseBuild {
 				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $ipInfos[ $record->ip ] ?? 'n/a' ),
 				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $users[ $userID ] ),
 				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
-				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $record->meta_data[ 'ua' ] ) ) ),
+				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $record->meta[ 'ua' ] ) ) ),
 			] ) );
 
 			$e[ 'request_info' ] = sprintf( '<div>%s</div>', implode( '</div><div>', [
