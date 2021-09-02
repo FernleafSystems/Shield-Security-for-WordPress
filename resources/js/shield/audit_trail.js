@@ -134,6 +134,7 @@
 				$.extend( base.options.datatables_init,
 					{
 						ajax: function ( data, callback, settings ) {
+							iCWP_WPSF_BodyOverlay.show();
 							let reqData = base.getBaseAjaxData();
 							reqData.sub_action = 'retrieve_table_data';
 							reqData.type = base.options.type;
@@ -149,7 +150,10 @@
 									}
 									alert( msg );
 								}
-							} );
+							} )
+							 .always( function () {
+								 iCWP_WPSF_BodyOverlay.hide();
+							 } );
 						},
 						deferRender: true,
 						select: {

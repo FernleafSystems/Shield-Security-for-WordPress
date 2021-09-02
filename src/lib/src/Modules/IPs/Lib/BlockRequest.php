@@ -16,7 +16,6 @@ class BlockRequest extends ExecOnceModConsumer {
 				Services::Response()->redirectToHome();
 			}
 			else {
-				add_filter( 'shield/is_log_traffic', '__return_false' ); // don't log killed requests
 				$this->getCon()->fireEvent( 'conn_kill' );
 				$this->renderKillPage();
 			}

@@ -9,28 +9,21 @@ class RequestRecords {
 
 	use ModConsumer;
 
-	private static $ReqCache = [];
+	public function loadReq( string $reqID, int $ipRefID, bool $autoCreate = true ) :Ops\Record {
 
-	public function loadReq( string $reqID, int $ipRef, bool $autoCreate = true ) :Ops\Record {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbH_ReqLogs();
+		/** @var Ops\Select $select */
+		$select = $dbh->getQuerySelector();
+		/** @var Ops\Record|null $record */
+		$record = $select->filterByReqID( $reqID )->first();
 
-		if ( empty( self::$ReqCache[ $reqID ] ) ) {
-
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$dbh = $mod->getDbH_ReqLogs();
-			/** @var Ops\Select $select */
-			$select = $dbh->getQuerySelector();
-			/** @var Ops\Record|null $record */
-			$record = $select->filterByReqID( $reqID )->first();
-
-			if ( empty( $record ) && $autoCreate && $this->addReq( $reqID, $ipRef ) ) {
-				$record = $this->loadReq( $reqID, $ipRef, false );
-			}
-
-			self::$ReqCache[ $reqID ] = $record;
+		if ( empty( $record ) && $autoCreate && $this->addReq( $reqID, $ipRefID ) ) {
+			$record = $this->loadReq( $reqID, $ipRefID, false );
 		}
 
-		return self::$ReqCache[ $reqID ];
+		return $record;
 	}
 
 	public function addReq( string $reqID, int $ipRef ) :bool {

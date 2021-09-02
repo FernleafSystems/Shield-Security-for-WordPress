@@ -27,27 +27,29 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$record = new ReqLogs\Ops\Record();
-		$record->req_id = $logData[ 'extra' ][ 'meta_request' ][ 'rid' ];
-		$record->ip_ref = ( new IPRecords() )
+		$ipRecord = ( new IPRecords() )
 			->setMod( $this->getCon()->getModule_Plugin() )
-			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] )
-			->id;
+			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
+
+		$reqRecord = ( new ReqLogs\RequestRecords() )
+			->setMod( $this->getMod() )
+			->loadReq( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecord->id );
 
 		// anything stored in the primary log record doesn't need stored in meta
 		unset( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 		unset( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ] );
 
-		$record->meta = array_merge(
-			$logData[ 'extra' ][ 'meta_shield' ],
-			$logData[ 'extra' ][ 'meta_request' ],
-			$logData[ 'extra' ][ 'meta_user' ],
-			$logData[ 'extra' ][ 'meta_wp' ]
-		);
-
 		$success = $mod->getDbH_ReqLogs()
-					   ->getQueryInserter()
-					   ->insert( $record );
+			->getQueryUpdater()
+			->updateById( $reqRecord->id, [
+				'meta' => base64_encode( json_encode( array_merge(
+					$logData[ 'extra' ][ 'meta_shield' ],
+					$logData[ 'extra' ][ 'meta_request' ],
+					$logData[ 'extra' ][ 'meta_user' ],
+					$logData[ 'extra' ][ 'meta_wp' ]
+				) ) )
+			] );
+
 		if ( !$success ) {
 			throw new \Exception( 'Failed to insert' );
 		}

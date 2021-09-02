@@ -24,7 +24,7 @@ class RequestLogger extends ExecOnceModConsumer {
 			if ( $this->isRequestToBeLogged() ) {
 				$this->getLogger()->log( 'debug', 'log request' );
 			}
-		} );
+		}, 1000 ); // high enough to come after audit trail
 	}
 
 	private function isRequestToBeLogged() :bool {
