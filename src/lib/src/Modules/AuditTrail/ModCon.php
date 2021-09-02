@@ -48,11 +48,6 @@ class ModCon extends BaseShield\ModCon {
 					sprintf( 'log_file-%s.json', date( 'Ymd_His' ) )
 				);
 				break;
-			case 'db_audit':
-				( new DbTableExport() )
-					->setDbHandler( $this->getDbHandler_AuditTrail() )
-					->toCSV();
-				break;
 		}
 	}
 
@@ -61,7 +56,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbHandler_AuditTrail()->isReady() && parent::isReadyToExecute();
+		return $this->getDbH_Logs()->isReady() && parent::isReadyToExecute();
 	}
 
 	/**

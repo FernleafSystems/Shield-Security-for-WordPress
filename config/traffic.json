@@ -224,6 +224,13 @@
       "name":        "Request Limit Time Interval",
       "summary":     "The Time Interval To Test For Excessive Requests",
       "description": "The time limit within which to monitor for excessive requests that exceed the limit."
+    },
+    {
+      "key":          "legacy_db_deleted_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "text",
+      "default":      0
     }
   ],
   "definitions":      {

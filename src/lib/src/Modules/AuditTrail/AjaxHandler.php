@@ -13,43 +13,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			case 'logtable_action':
 				$response = $this->ajaxExec_AuditTrailTableAction();
 				break;
-
-			case 'item_addparamwhite':
-				$response = $this->ajaxExec_AddParamToFirewallWhitelist();
-				break;
-
 			default:
 				$response = parent::processAjaxAction( $action );
 		}
 
 		return $response;
-	}
-
-	protected function ajaxExec_AddParamToFirewallWhitelist() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$success = false;
-
-		$entryID = Services::Request()->post( 'rid' );
-		if ( empty( $entryID ) || !is_numeric( $entryID ) || $entryID < 1 ) {
-			$msg = __( 'Invalid audit entry selected for this action', 'wp-simple-firewall' );
-		}
-		else {
-			try {
-				$msg = ( new Lib\Utility\AutoWhitelistParamFromAuditEntry() )
-					->setMod( $mod )
-					->run( (int)$entryID );
-				$success = true;
-			}
-			catch ( \Exception $e ) {
-				$msg = $e->getMessage();
-			}
-		}
-
-		return [
-			'success' => $success,
-			'message' => $msg
-		];
 	}
 
 	private function ajaxExec_AuditTrailTableAction() :array {

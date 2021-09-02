@@ -21,7 +21,7 @@ class LoadRawTableData {
 
 	public function loadForLogs() :array {
 		( new Traffic\Lib\Ops\ConvertLegacy() )
-			->setMod( $this->getMod() )
+			->setMod( $this->getCon()->getModule_Traffic() )
 			->run();
 		( new ConvertLegacy() )
 			->setMod( $this->getMod() )

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ConvertLegacy {
 
@@ -15,11 +16,27 @@ class ConvertLegacy {
 	public function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$opts = $this->getOptions();
+
+		if ( empty( $opts->getOpt( 'legacy_db_deleted_at' ) ) ) {
+			$this->convert();
+			$dbh = $mod->getDbHandler_Traffic();
+			if ( $dbh->getQuerySelector()->count() === 0 ) {
+				$opts->setOpt( 'legacy_db_deleted_at', Services::Request()->ts() );
+			}
+			$dbh->tableDelete();
+		}
+	}
+
+	private function convert() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbHandler_Traffic();
 
 		$toDelete = [];
 
 		/** @var Traffic\EntryVO $entry */
-		foreach ( $mod->getDbHandler_Traffic()->getIterator() as $entry ) {
+		foreach ( $dbh->getIterator() as $entry ) {
 
 			try {
 				$this->createPrimaryLogRecord( $entry );
@@ -32,12 +49,10 @@ class ConvertLegacy {
 		}
 
 		if ( !empty( $toDelete ) ) {
-			$mod->getDbHandler_Traffic()
-				->getQueryDeleter()
+			$dbh->getQueryDeleter()
 				->addWhereIn( 'in', $toDelete )
 				->query();
 		}
-		// TODO: set hidden marker to say completed and delete table
 	}
 
 	protected function createPrimaryLogRecord( Traffic\EntryVO $entry ) :bool {

@@ -18,8 +18,6 @@ class ScanRepairs extends BaseReporter {
 							   ->getModule_Events()
 							   ->getDbHandler_Events()
 							   ->getQuerySelector();
-		/** @var Events\Strings $strings */
-		$strings = $modEvents->getStrings();
 
 		$report = $this->getReport();
 

@@ -20,13 +20,29 @@ class ConvertLegacy {
 	public function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$opts = $this->getOptions();
+
+		if ( empty( $opts->getOpt( 'legacy_db_deleted_at' ) ) ) {
+			$this->convert();
+			$dbh = $mod->getDbHandler_AuditTrail();
+			if ( $dbh->getQuerySelector()->count() === 0 ) {
+				$opts->setOpt( 'legacy_db_deleted_at', Services::Request()->ts() );
+			}
+			$dbh->tableDelete();
+		}
+	}
+
+	private function convert() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbHandler_AuditTrail();
 
 		$metaInserter = $mod->getDbH_Meta()->getQueryInserter();
 
 		$toDelete = [];
 
 		/** @var AuditTrail\EntryVO $entry */
-		foreach ( $mod->getDbHandler_AuditTrail()->getIterator() as $entry ) {
+		foreach ( $dbh->getIterator() as $entry ) {
 
 			try {
 				$log = $this->createPrimaryLogRecord( $entry );
@@ -70,8 +86,7 @@ class ConvertLegacy {
 		}
 
 		if ( !empty( $toDelete ) ) {
-			$mod->getDbHandler_AuditTrail()
-				->getQueryDeleter()
+			$dbh->getQueryDeleter()
 				->addWhereIn( 'in', $toDelete )
 				->query();
 		}

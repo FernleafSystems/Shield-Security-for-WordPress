@@ -210,6 +210,13 @@
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",
       "description": "Automatically remove any audit trail entries when this limit is exceeded."
+    },
+    {
+      "key":          "legacy_db_deleted_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      ""
     }
   ],
   "definitions":      {

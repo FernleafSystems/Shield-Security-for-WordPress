@@ -10,7 +10,7 @@ class Processor extends Modules\BaseShield\Processor {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getRequestLogger()->execute();
-		
+
 		( new Lib\Limit\Limiter() )
 			->setMod( $this->getMod() )
 			->execute();

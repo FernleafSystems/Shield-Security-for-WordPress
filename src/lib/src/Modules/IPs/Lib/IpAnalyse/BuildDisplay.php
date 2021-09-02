@@ -390,6 +390,7 @@ class BuildDisplay {
 		// TODO: IP Filtering at the SQL query level
 		$logRecords = ( new LoadLogs() )
 			->setMod( $this->getCon()->getModule_AuditTrail() )
+			->setIP( $this->getIP() )
 			->run();
 
 		$logs = [];
