@@ -56,45 +56,34 @@ class LoadLogs {
 	}
 
 	/**
-	 * TODO: Figure out why the WHERE filter for IPs doesn't work!
+	 * https://stackoverflow.com/questions/55347251/cannot-select-where-ip-inet-ptonip
+	 * We use MySQL built-in IP conversion, not PHPs, as it wasn't working as expected and return 0 results.
+	 * Note: reverse is INET6_ATON
 	 * @return array[]
 	 */
 	private function selectRaw() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$ipID = null;
-		if ( !empty( $this->getIP() ) ) {
-			try {
-				$ipID = ( new IPRecords() )
-					->setMod( $this->getCon()->getModule_Data() )
-					->loadIP( $this->getIP() )
-					->id;
-			}
-			catch ( \Exception $e ) {
-				$ipID = -1;
-			}
-		}
-
 		return Services::WpDb()->selectCustom(
 			sprintf( 'SELECT log.id, log.site_id, log.event_slug, log.created_at,
-							ips.ip as ip,
+							ips.ip,
 							meta.meta_key, meta.meta_value,
 							req.req_id as rid
 						FROM `%s` as log
-						LEFT JOIN `%s` as `meta`
-							ON log.id = `meta`.log_ref
 						INNER JOIN `%s` as req
 							ON log.req_ref = req.id
 						INNER JOIN `%s` as ips
-							ON req.ip_ref = ips.id
-						%s
+							ON ips.id = req.ip_ref 
+							%s
+						LEFT JOIN `%s` as `meta`
+							ON log.id = `meta`.log_ref
 						ORDER BY log.created_at DESC;',
 				$mod->getDbH_Logs()->getTableSchema()->table,
-				$mod->getDbH_Meta()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				is_null( $ipID ) ? '' : sprintf( "WHERE req.ip_ref=%s", $ipID )
+				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
+				$mod->getDbH_Meta()->getTableSchema()->table
 			)
 		);
 	}
