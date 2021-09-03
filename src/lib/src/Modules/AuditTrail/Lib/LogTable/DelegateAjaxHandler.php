@@ -53,8 +53,8 @@ class DelegateAjaxHandler {
 	private function getRequestMeta() :array {
 		return [
 			'success' => true,
-			'html'    => ( new Shield\Modules\Traffic\DB\GetRequestMeta() )
-				->setMod( $this->getCon()->getModule_Traffic() )
+			'html'    => ( new Shield\Modules\Data\DB\ReqLogs\GetRequestMeta() )
+				->setMod( $this->getCon()->getModule_Data() )
 				->retrieve( Services::Request()->post( 'rid' ) )
 		];
 	}

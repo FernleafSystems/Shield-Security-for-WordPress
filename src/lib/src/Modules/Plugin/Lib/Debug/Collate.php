@@ -189,7 +189,7 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_Traffic()->getDbH_ReqLogs();
+		$dbh = $con->getModule_Data()->getDbH_ReqLogs();
 		$data[ 'DB Table: Traffic/Requests' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';

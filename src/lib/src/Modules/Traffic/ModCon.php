@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -13,11 +13,6 @@ class ModCon extends BaseShield\ModCon {
 	 * @var Lib\RequestLogger
 	 */
 	private $requestLogger;
-
-	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
-		$this->getCon()->getModule_Data()->getDbH_IPs();
-		return $this->getDbHandler()->loadDbH( 'req_logs' );
-	}
 
 	/**
 	 * @deprecated 12.0
@@ -51,7 +46,7 @@ class ModCon extends BaseShield\ModCon {
 	protected function isReadyToExecute() :bool {
 		$IP = Services::IP();
 		return $IP->isValidIp_PublicRange( $IP->getRequestIp() )
-			   && $this->getDbH_ReqLogs()->isReady()
+			   && $this->getCon()->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
 	}
 }

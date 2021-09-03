@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs\RequestRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
@@ -71,7 +71,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		$record->req_ref = ( new RequestRecords() )
-			->setMod( $this->getCon()->getModule_Traffic() )
+			->setMod( $this->getCon()->getModule_Data() )
 			->loadReq( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
 			->id;
 

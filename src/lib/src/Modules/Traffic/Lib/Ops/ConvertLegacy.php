@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -56,8 +56,7 @@ class ConvertLegacy {
 	}
 
 	protected function createPrimaryLogRecord( Traffic\EntryVO $entry ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$modData = $this->getCon()->getModule_Data();
 
 		if ( empty( $entry->rid ) || empty( $entry->ip ) ) {
 			throw new \Exception( 'No RID or IP' );
@@ -70,17 +69,18 @@ class ConvertLegacy {
 			}
 		}
 
-		$record = new ReqLogs\Ops\Record();
+		/** @var ReqLogs\Ops\Record $record */
+		$record = $modData->getDbH_ReqLogs()->getRecord();
 		$record->req_id = $entry->rid;
 		$record->ip_ref = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
+			->setMod( $modData )
 			->loadIP( $entry->ip )
 			->id;
 		$record->meta = $meta;
 		$record->created_at = $entry->created_at;
 
-		return $mod->getDbH_ReqLogs()
-				   ->getQueryInserter()
-				   ->insert( $record );
+		return $modData->getDbH_ReqLogs()
+					   ->getQueryInserter()
+					   ->insert( $record );
 	}
 }

@@ -234,33 +234,6 @@
     }
   ],
   "definitions":      {
-    "db_handler_classes": {
-      "req_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Traffic\\DB\\ReqLogs\\Ops\\Handler"
-    },
-    "db_table_req_logs":  {
-      "slug":           "req_logs",
-      "autoexpire":     0,
-      "has_updated_at": false,
-      "has_deleted_at": false,
-      "cols_custom":    {
-        "req_id": {
-          "macro_type": "varchar",
-          "length":     10,
-          "attr":       [
-            "UNIQUE"
-          ]
-        },
-        "ip_ref": {
-          "macro_type":  "foreign_key_id",
-          "foreign_key": {
-            "ref_table": "icwp_wpsf_ips"
-          }
-        },
-        "meta":   {
-          "macro_type": "meta"
-        }
-      }
-    },
     "db_classes":         {
       "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
     },

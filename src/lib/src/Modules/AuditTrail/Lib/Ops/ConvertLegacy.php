@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs\RequestRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
 	Logs,
 	Meta
@@ -120,7 +120,7 @@ class ConvertLegacy {
 			->loadIP( $entry->ip )
 			->id;
 		$record->req_ref = ( new RequestRecords() )
-			->setMod( $this->getCon()->getModule_Traffic() )
+			->setMod( $this->getCon()->getModule_Data() )
 			->loadReq( $entry->rid, $ipID )
 			->id;
 

@@ -1,6 +1,6 @@
 {
-  "slug":       "data",
-  "properties": {
+  "slug":        "data",
+  "properties":  {
     "slug":                  "data",
     "name":                  "Data",
     "show_module_menu_item": false,
@@ -14,18 +14,19 @@
     "skip_processor":        true,
     "tracking_exclude":      true
   },
-  "wpcli":      {
+  "wpcli":       {
     "enabled": false
   },
-  "sections":   [
+  "sections":    [
   ],
-  "options":    [
+  "options":     [
   ],
   "definitions": {
-    "db_handler_classes":     {
-      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IPs\\Ops\\Handler"
+    "db_handler_classes": {
+      "ips":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IPs\\Ops\\Handler",
+      "req_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler"
     },
-    "db_table_ips":           {
+    "db_table_ips":       {
       "autoexpire":     0,
       "slug":           "ips",
       "has_updated_at": false,
@@ -37,6 +38,30 @@
           "attr":       [
             "UNIQUE"
           ]
+        }
+      }
+    },
+    "db_table_req_logs":  {
+      "slug":           "req_logs",
+      "autoexpire":     0,
+      "has_updated_at": false,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "req_id": {
+          "macro_type": "varchar",
+          "length":     10,
+          "attr":       [
+            "UNIQUE"
+          ]
+        },
+        "ip_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
+        },
+        "meta":   {
+          "macro_type": "meta"
         }
       }
     }

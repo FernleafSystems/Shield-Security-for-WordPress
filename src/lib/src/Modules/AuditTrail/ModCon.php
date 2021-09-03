@@ -15,7 +15,7 @@ class ModCon extends BaseShield\ModCon {
 	private $auditLogger;
 
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		$this->getCon()->getModule_Traffic()->getDbH_ReqLogs();
+		$this->getCon()->getModule_Data()->getDbH_ReqLogs();
 		return $this->getDbHandler()->loadDbH( 'at_logs' );
 	}
 

@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -256,7 +256,7 @@ class BuildDisplay {
 				->loadIP( $this->getIP(), false );
 			/** @var ReqLogs\Ops\Select $selector */
 			$selector = $this->getCon()
-							 ->getModule_Traffic()
+							 ->getModule_Data()
 							 ->getDbH_ReqLogs()
 							 ->getQuerySelector();
 			/** @var ReqLogs\Ops\Record[] $requests */

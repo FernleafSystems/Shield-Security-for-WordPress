@@ -1,21 +1,19 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 
 class RequestRecords {
 
 	use ModConsumer;
 
 	public function loadReq( string $reqID, int $ipRefID, bool $autoCreate = true ) :Ops\Record {
-
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbh = $mod->getDbH_ReqLogs();
 		/** @var Ops\Select $select */
-		$select = $dbh->getQuerySelector();
+		$select = $mod->getDbH_ReqLogs()->getQuerySelector();
 		/** @var Ops\Record|null $record */
 		$record = $select->filterByReqID( $reqID )->first();
 

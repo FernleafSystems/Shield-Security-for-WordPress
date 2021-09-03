@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Limit;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TestIp {
@@ -18,8 +17,6 @@ class TestIp {
 	 * @throws \Exception
 	 */
 	public function runTest() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Shield\Modules\Traffic\Options $opts */
 		$opts = $this->getOptions();
 
@@ -30,7 +27,10 @@ class TestIp {
 					->loadIP( $this->getIP(), false );
 				$now = Services::Request()->carbon();
 				/** @var ReqLogs\Ops\Select $selector */
-				$selector = $mod->getDbH_ReqLogs()->getQuerySelector();
+				$selector = $this->getCon()
+								 ->getModule_Data()
+								 ->getDbH_ReqLogs()
+								 ->getQuerySelector();
 				$count = $selector->filterByIP( $ip->id )
 								  ->filterByCreatedAt( $now->subSeconds( $opts->getLimitTimeSpan() )->timestamp, '>' )
 								  ->count();

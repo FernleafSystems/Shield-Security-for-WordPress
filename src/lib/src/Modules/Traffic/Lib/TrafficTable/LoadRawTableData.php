@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTab
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\LoadLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Ops\ConvertLegacy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
@@ -93,7 +93,7 @@ class LoadRawTableData extends BaseLoadTableData {
 	 */
 	private function getLogRecords() :array {
 		return ( new LoadLogs() )
-			->setMod( $this->getCon()->getModule_Traffic() )
+			->setMod( $this->getCon()->getModule_Data() )
 			->run();
 	}
 
