@@ -273,6 +273,7 @@ class UI extends BaseShield\UI {
 	}
 
 	private function renderTabEvents() :string {
+		$con = $this->getCon();
 		$srvEvents = $this->getCon()->loadEventsService();
 
 		$eventsSortedByLevel = [
@@ -283,7 +284,14 @@ class UI extends BaseShield\UI {
 		];
 		foreach ( $srvEvents->getEvents() as $event ) {
 			$level = ucfirst( strtolower( $event[ 'level' ] ) );
-			$eventsSortedByLevel[ $level ][] = $srvEvents->getEventName( $event[ 'key' ] );
+			$eventsSortedByLevel[ $level ][ $event[ 'key' ] ] = [
+				'name' => $srvEvents->getEventName( $event[ 'key' ] ),
+				'attr' => [
+					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
+					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
+					'module'  => sprintf( 'Module: %s', $con->getModule( $event[ 'module' ] )->getMainFeatureName() ),
+				]
+			];
 		}
 		foreach ( $eventsSortedByLevel as &$events ) {
 			natsort( $events );
