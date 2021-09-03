@@ -249,7 +249,6 @@ class BuildDisplay {
 	}
 
 	private function renderForTraffic() :string {
-
 		try {
 			$ip = ( new IPRecords() )
 				->setMod( $this->getCon()->getModule_Data() )
