@@ -14,7 +14,7 @@ class Strings extends Base\Strings {
 			'request_limit_exceeded' => [
 				'name'  => __( 'Rate Limit Exceeded', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Visitor exceeded the maximum allowable requests ({{count}}) within {{span}} seconds.', 'wp-simple-firewall' ),
+					__( 'Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds.', 'wp-simple-firewall' ),
 				],
 			],
 		];

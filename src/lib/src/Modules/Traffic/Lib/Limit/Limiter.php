@@ -20,23 +20,27 @@ class Limiter extends ExecOnceModConsumer {
 
 	public function limit() {
 		try {
-			( new TestIp() )
+			( new TestIpLimit() )
 				->setMod( $this->getMod() )
 				->setIP( Services::IP()->getRequestIp() )
-				->runTest();
+				->run();
 		}
-		catch ( \Exception $e ) {
+		catch ( RateLimitExceededException $rle ) {
 			/** @var Traffic\Options $opts */
 			$opts = $this->getOptions();
 			$this->getCon()->fireEvent(
 				'request_limit_exceeded',
 				[
 					'audit_params' => [
-						'count' => $opts->getLimitRequestCount(),
-						'span'  => $opts->getLimitTimeSpan(),
+						'requests' => $rle->getCount(),
+						'count'    => $opts->getLimitRequestCount(),
+						'span'     => $opts->getLimitTimeSpan(),
 					]
 				]
 			);
+		}
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
 		}
 	}
 }

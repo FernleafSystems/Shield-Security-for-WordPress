@@ -254,6 +254,7 @@
     "events":             {
       "request_limit_exceeded": {
         "audit_params": [
+          "requests",
           "count",
           "span"
         ],

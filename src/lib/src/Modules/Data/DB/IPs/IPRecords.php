@@ -34,7 +34,8 @@ class IPRecords {
 		$dbh = $mod->getDbH_IPs();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
-		$record = new Ops\Record();
+		/** @var Ops\Record $record */
+		$record = $dbh->getRecord();
 		$record->ip = $ip;
 		return $insert->insert( $record );
 	}
