@@ -35,6 +35,7 @@ class LoadLogs {
 		$results = [];
 
 		foreach ( $this->selectRaw() as $raw ) {
+//			error_log( var_export( $raw, true ) );
 			if ( empty( $results[ $raw[ 'id' ] ] ) ) {
 				$record = new LogRecord( array_intersect_key( $raw, $stdKeys ) );
 				$results[ $raw[ 'id' ] ] = $record;
@@ -66,19 +67,19 @@ class LoadLogs {
 							meta.meta_key, meta.meta_value,
 							req.req_id as rid
 						FROM `%s` as log
-						%s
-						INNER JOIN `%s` as req
-							ON log.req_ref = req.id 
-						INNER JOIN `%s` as ips
-							ON req.ip_ref = ips.id 
 						LEFT JOIN `%s` as `meta`
-							ON log.id = `meta`.log_ref 
+							ON log.id = `meta`.log_ref
+						INNER JOIN `%s` as req
+							ON log.req_ref = req.id
+						INNER JOIN `%s` as ips
+							ON req.ip_ref = ips.id
+						%s
 						ORDER BY log.created_at DESC;',
 				$mod->getDbH_Logs()->getTableSchema()->table,
-				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
+				$mod->getDbH_Meta()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				$mod->getDbH_Meta()->getTableSchema()->table
+				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) )
 			)
 		);
 	}
