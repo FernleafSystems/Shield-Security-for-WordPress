@@ -34,7 +34,7 @@ class LoadLogs {
 
 		$results = [];
 
-		foreach ( $this->selectRaw() as $raw ) {
+		foreach ( $this->selectRawAlternative() as $raw ) {
 //			error_log( var_export( $raw, true ) );
 			if ( empty( $results[ $raw[ 'id' ] ] ) ) {
 				$record = new LogRecord( array_intersect_key( $raw, $stdKeys ) );
@@ -55,6 +55,7 @@ class LoadLogs {
 	}
 
 	/**
+	 * TODO: Figure out why the WHERE filter for IPs doesn't work!
 	 * @return array[]
 	 */
 	private function selectRaw() :array {
@@ -67,20 +68,56 @@ class LoadLogs {
 							meta.meta_key, meta.meta_value,
 							req.req_id as rid
 						FROM `%s` as log
+						%s
 						LEFT JOIN `%s` as `meta`
 							ON log.id = `meta`.log_ref
 						INNER JOIN `%s` as req
 							ON log.req_ref = req.id
 						INNER JOIN `%s` as ips
 							ON req.ip_ref = ips.id
-						%s
+						ORDER BY log.created_at DESC;',
+				$mod->getDbH_Logs()->getTableSchema()->table,
+				empty( $ip ) ? '' : sprintf( "WHERE ip='%s'", inet_pton( $ip ) ),
+				$mod->getDbH_Meta()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
+			)
+		);
+	}
+
+	/**
+	 * @return array[]
+	 */
+	private function selectRawAlternative() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$results = Services::WpDb()->selectCustom(
+			sprintf( 'SELECT log.id, log.site_id, log.event_slug, log.created_at,
+							ips.ip as ip,
+							meta.meta_key, meta.meta_value,
+							req.req_id as rid
+						FROM `%s` as log
+						LEFT JOIN `%s` as `meta`
+							ON log.id = `meta`.log_ref
+						INNER JOIN `%s` as req
+							ON log.req_ref = req.id
+						INNER JOIN `%s` as ips
+							ON req.ip_ref = ips.id
 						ORDER BY log.created_at DESC;',
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				$mod->getDbH_Meta()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) )
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
+		if ( !empty( $this->getIP() ) ) {
+			$results = array_filter(
+				is_array( $results ) ? $results : [],
+				function ( $result ) {
+					return !empty( $result[ 'ip' ] ) && $result[ 'ip' ] === inet_pton( $this->getIP() );
+				}
+			);
+		}
+		return $results;
 	}
 }
