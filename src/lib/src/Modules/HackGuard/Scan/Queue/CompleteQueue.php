@@ -50,11 +50,10 @@ class CompleteQueue {
 					__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
 					: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
-				$items .= ' "'.
-						  implode( '", "', array_map( function ( $item ) {
-							  return $item->getDescriptionForAudit();
-						  }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
-						  .'"';
+				$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
+					return $item->getDescriptionForAudit();
+				}, $resultsSet->getItems() ) ), 0, 30 );
+				$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
 
 				$con->fireEvent(
 					'scan_items_found',
