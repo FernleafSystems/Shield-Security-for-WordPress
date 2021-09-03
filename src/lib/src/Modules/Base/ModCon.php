@@ -388,9 +388,8 @@ abstract class ModCon {
 	 */
 	public function onPluginShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
-			if ( rand( 1, 40 ) === 2 ) {
-				// cleanup databases randomly just in-case cron doesn't run.
-				$this->cleanupDatabases();
+			if ( rand( 1, 100 ) === 2 ) {
+				$this->cleanupDatabases(); // cleanup databases randomly just in-case cron doesn't run.
 			}
 			$this->saveModOptions();
 		}

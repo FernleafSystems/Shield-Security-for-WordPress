@@ -14,13 +14,6 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $requestLogger;
 
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
-		return $this->getDbH( 'traffic' );
-	}
-
 	public function getRequestLogger() :Lib\RequestLogger {
 		if ( !isset( $this->requestLogger ) ) {
 			$this->requestLogger = ( new Lib\RequestLogger() )->setMod( $this );
@@ -48,5 +41,18 @@ class ModCon extends BaseShield\ModCon {
 		return $IP->isValidIp_PublicRange( $IP->getRequestIp() )
 			   && $this->getCon()->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function cleanupDatabases() {
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
+		return $this->getDbH( 'traffic' );
 	}
 }

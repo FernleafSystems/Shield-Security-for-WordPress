@@ -12,6 +12,15 @@ class Debug extends Modules\Base\Debug {
 		die( 'finish' );
 	}
 
+	private function getIpRefs() {
+		$ipRefs = $this->getCon()
+			 ->getModule_Data()
+			 ->getDbH_ReqLogs()
+			 ->getQuerySelector()
+			 ->getDistinctForColumn( 'ip_ref' );
+		var_dump($ipRefs);
+	}
+
 	private function tests() {
 		( new RunTests() )
 			->setCon( $this->getCon() )

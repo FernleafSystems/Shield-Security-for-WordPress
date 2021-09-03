@@ -20,6 +20,17 @@ class Databases {
 	}
 
 	/**
+	 * @return Core\Databases\Base\Handler[]
+	 * @throws \Exception
+	 */
+	public function loadAllDbHandlers() :array {
+		foreach ( array_keys( $this->getDbHandlerClasses() ) as $dbKey ) {
+			$this->loadDbH( $dbKey );
+		}
+		return $this->dbHandlers;
+	}
+
+	/**
 	 * @param string $dbKey
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 * @throws \Exception
@@ -27,7 +38,7 @@ class Databases {
 	public function loadDbH( string $dbKey ) {
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;
 
-		if ( !$dbh instanceof Core\Databases\Base\Handler ) {
+		if ( empty( $dbh ) ) {
 
 			$dbDef = $this->getOptions()->getDef( 'db_table_'.$dbKey );
 			if ( empty( $dbDef ) ) {
@@ -45,11 +56,12 @@ class Databases {
 			}
 
 			$dbDef[ 'table_prefix' ] = $this->getCon()->getPluginPrefix( '_' );
-			/** @var Core\Databases\Base\Handler $dbh */
+			/** @var Core\Databases\Base\Handler|mixed $dbh */
 			$dbh = new $dbClass( $dbDef );
 			$dbh->execute();
+
+			$this->dbHandlers[ $dbKey ] = $dbh;
 		}
-		$this->dbHandlers[ $dbKey ] = $dbh;
 
 		return $dbh;
 	}
