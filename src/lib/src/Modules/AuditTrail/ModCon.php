@@ -141,4 +141,10 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $aData;
 	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function cleanupDatabases() {
+	}
 }
