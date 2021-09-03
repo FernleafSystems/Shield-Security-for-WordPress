@@ -506,7 +506,8 @@
         "audit_params": [
           "user_login",
           "method"
-        ]
+        ],
+        "level":        "info"
       },
       "2fa_verify_fail":    {
         "audit_params": [
@@ -523,17 +524,17 @@
           "user_login",
           "action"
         ],
-        "level": "warning"
+        "level":        "warning"
       },
       "botbox_fail":        {
         "audit_params": [
           "user_login",
           "action"
         ],
-        "level": "warning"
+        "level":        "warning"
       },
       "login_block":        {
-        "level":   "debug",
+        "level":   "info",
         "recent":  true,
         "offense": true
       },

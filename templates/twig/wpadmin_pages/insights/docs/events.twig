@@ -1,0 +1,22 @@
+{% block page_main %}
+	<div class="row">
+		<div class="col pt-3">
+			<div class="card-group">
+				{% for level,events in vars.event_defs %}
+					<div class="card">
+						 <div class="card-header">
+							<h5 class="m-0">{{ level }}</h5>
+						 </div>
+						 <div class="card-body">
+							<ul style="list-style: inside circle">
+								{% for event in events %}
+									<li>{{ event }}</li>
+								{% endfor %}
+							</ul>
+						 </div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

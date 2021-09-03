@@ -76,7 +76,10 @@ class EventsService {
 					)
 				);
 			}
-			$this->aEvents = $this->buildEvents( $events );
+			$this->aEvents = (array)apply_filters( 'shield/events_definitions', $this->buildEvents( $events ) );
+			if ( empty( $this->aEvents ) ) {
+				error_log( 'Shield events definitions is empty or not the correct format' );
+			}
 		}
 		return $this->aEvents;
 	}
@@ -98,11 +101,6 @@ class EventsService {
 	}
 
 	public function getEventStrings( string $eventKey ) :array {
-		$def = $this->getEventDef( $eventKey );
-		if ( empty( $def[ 'module' ] ) ) {
-			error_log( var_export( $eventKey, true ) );
-			error_log( var_export( $def, true ) );
-		}
 		return $this->getCon()
 					->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
 					->getStrings()

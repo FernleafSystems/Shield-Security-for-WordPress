@@ -662,7 +662,7 @@
           "from",
           "to"
         ],
-        "level":        "warning"
+        "level":        "alert"
       },
       "ip_unblock":              {
         "level":   "info",
