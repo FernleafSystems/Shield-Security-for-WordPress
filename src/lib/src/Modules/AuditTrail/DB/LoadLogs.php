@@ -23,7 +23,7 @@ class LoadLogs {
 				->getTableSchema()
 				->getColumnNames(),
 			$this->getCon()
-				 ->getModule_Plugin()
+				 ->getModule_Data()
 				 ->getDbH_IPs()
 				 ->getTableSchema()
 				 ->getColumnNames(),
@@ -77,7 +77,7 @@ class LoadLogs {
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
 				$this->getCon()->getModule_Traffic()->getDbH_ReqLogs()->getTableSchema()->table,
-				$this->getCon()->getModule_Plugin()->getDbH_IPs()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$mod->getDbH_Meta()->getTableSchema()->table
 			)
 		);

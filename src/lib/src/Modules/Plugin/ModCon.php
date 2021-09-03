@@ -528,10 +528,6 @@ class ModCon extends BaseShield\ModCon {
 		return $enqs;
 	}
 
-	public function getDbH_IPs() :DB\IPs\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'ips' );
-	}
-
 	public function getDbHandler_GeoIp() :Shield\Databases\GeoIp\Handler {
 		return $this->getDbH( 'geoip' );
 	}

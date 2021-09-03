@@ -1214,6 +1214,10 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'comms' );
 	}
 
+	public function getModule_Data() :Shield\Modules\Data\ModCon {
+		return $this->getModule( 'data' );
+	}
+
 	public function getModule_Email() :Shield\Modules\Email\ModCon {
 		return $this->getModule( 'email' );
 	}

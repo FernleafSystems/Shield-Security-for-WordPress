@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -73,7 +73,7 @@ class ConvertLegacy {
 		$record = new ReqLogs\Ops\Record();
 		$record->req_id = $entry->rid;
 		$record->ip_ref = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Plugin() )
+			->setMod( $this->getCon()->getModule_Data() )
 			->loadIP( $entry->ip )
 			->id;
 		$record->meta = $meta;

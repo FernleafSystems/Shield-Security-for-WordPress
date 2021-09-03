@@ -169,7 +169,7 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_Plugin()->getDbH_IPs();
+		$dbh = $con->getModule_Data()->getDbH_IPs();
 		$data[ 'DB Table: IPs' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';

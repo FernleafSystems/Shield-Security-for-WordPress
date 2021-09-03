@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
@@ -252,7 +252,7 @@ class BuildDisplay {
 
 		try {
 			$ip = ( new IPRecords() )
-				->setMod( $this->getCon()->getModule_Plugin() )
+				->setMod( $this->getCon()->getModule_Data() )
 				->loadIP( $this->getIP(), false );
 			/** @var ReqLogs\Ops\Select $selector */
 			$selector = $this->getCon()

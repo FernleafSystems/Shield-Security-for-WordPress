@@ -15,7 +15,7 @@ class ModCon extends BaseShield\ModCon {
 	private $requestLogger;
 
 	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
-		$this->getCon()->getModule_Plugin()->getDbH_IPs();
+		$this->getCon()->getModule_Data()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
 	}
 

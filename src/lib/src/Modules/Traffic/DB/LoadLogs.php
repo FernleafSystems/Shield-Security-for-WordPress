@@ -41,7 +41,7 @@ class LoadLogs {
 						ORDER BY `req`.created_at DESC;',
 				$mod->getDbH_ReqLogs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( 'WHERE `ips.ip`="%s"', inet_pton( $ip ) ),
-				$this->getCon()->getModule_Plugin()->getDbH_IPs()->getTableSchema()->table
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
 	}

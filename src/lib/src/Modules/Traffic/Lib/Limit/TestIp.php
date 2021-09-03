@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Limit;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
@@ -27,7 +26,7 @@ class TestIp {
 		if ( !empty( $this->getIP() ) ) {
 			try {
 				$ip = ( new IPRecords() )
-					->setMod( $this->getCon()->getModule_Plugin() )
+					->setMod( $this->getCon()->getModule_Data() )
 					->loadIP( $this->getIP(), false );
 				$now = Services::Request()->carbon();
 				/** @var ReqLogs\Ops\Select $selector */
@@ -44,17 +43,5 @@ class TestIp {
 		}
 
 		return true;
-	}
-
-	/**
-	 * @return IPs\Ops\Record|null
-	 */
-	private function getIPRecord() {
-		$dbh = $this->getCon()
-					->getModule_Plugin()
-					->getDbH_IPs();
-		/** @var IPs\Ops\Select $select */
-		$select = $dbh->getQuerySelector();
-		return $select->filterByIPHuman( $this->getIP() )->first();
 	}
 }

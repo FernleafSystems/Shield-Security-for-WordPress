@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 
@@ -22,7 +22,7 @@ class FindAllPluginIps {
 		$ips = $sel->getDistinctIps();
 
 		/** @var Select $sel */
-		$sel = $con->getModule_Plugin()
+		$sel = $con->getModule_Data()
 				   ->getDbH_IPs()
 				   ->getQuerySelector();
 		$ips = array_merge( $ips, $sel->getDistinctIps() );

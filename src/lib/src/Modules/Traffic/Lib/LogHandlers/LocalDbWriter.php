@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandler
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use Monolog\Handler\AbstractProcessingHandler;
 
 class LocalDbWriter extends AbstractProcessingHandler {
@@ -28,7 +28,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$mod = $this->getMod();
 
 		$ipRecord = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Plugin() )
+			->setMod( $this->getCon()->getModule_Data() )
 			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
 		$reqRecord = ( new ReqLogs\RequestRecords() )
