@@ -165,7 +165,7 @@
       "key":         "auto_clean",
       "section":     "section_traffic_options",
       "advanced":    true,
-      "default":     3,
+      "default":     7,
       "min":         1,
       "type":        "integer",
       "link_info":   "",
@@ -173,20 +173,6 @@
       "name":        "Auto Expiry Cleaning",
       "summary":     "Enable Traffic Log Auto Expiry",
       "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
-    },
-    {
-      "key":         "max_entries",
-      "section":     "section_traffic_options",
-      "advanced":    true,
-      "premium":     true,
-      "default":     1000,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Max Log Length",
-      "summary":     "Maximum Traffic Log Length To Keep",
-      "description": "Automated DB cleanup will delete logs to maintain this maximum number of records."
     },
     {
       "key":         "enable_limiter",

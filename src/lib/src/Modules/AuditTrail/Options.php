@@ -42,13 +42,11 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getAutoCleanDays() :int {
+		$days = $this->getOpt( 'audit_trail_auto_clean' );
+		if ( !$this->isPremium() ) {
+			$this->setOpt( 'audit_trail_auto_clean', min( $days, 7 ) );
+		}
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
-	}
-
-	public function getMaxEntries() :int {
-		return $this->isPremium() ?
-			(int)$this->getOpt( 'audit_trail_max_entries' ) :
-			(int)$this->getDef( 'audit_trail_free_max_entries' );
 	}
 
 	public function isLogToDB() :bool {
@@ -57,5 +55,12 @@ class Options extends BaseShield\Options {
 
 	public function isLogToFile() :bool {
 		return !in_array( 'disabled', $this->getLogLevelsFile() );
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getMaxEntries() :int {
+		return PHP_INT_MAX;
 	}
 }

@@ -120,12 +120,6 @@ class Strings extends Base\Strings {
 				$desc = __( 'DB cleanup will delete logs older than this maximum value (in days).', 'wp-simple-firewall' );
 				break;
 
-			case 'max_entries' :
-				$name = __( 'Max Log Length', 'wp-simple-firewall' );
-				$summary = __( 'Maximum Traffic Log Length To Keep', 'wp-simple-firewall' );
-				$desc = __( 'DB cleanup will delete logs to maintain this maximum number of records.', 'wp-simple-firewall' );
-				break;
-
 			case 'enable_limiter' :
 				$name = __( 'Enable Rate Limiting', 'wp-simple-firewall' );
 				$summary = __( 'Turn On The Rate Limiting Feature', 'wp-simple-firewall' );

@@ -1,4 +1,94 @@
 {
+  "12.0": {
+    "version":     "12.0",
+    "released_at": 1626779164,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease120",
+      "upgrade": "https://shsec.io/shieldupgradeguide120"
+    },
+    "title":       "Events & Audit Trail Overhaul",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Complete Audit Trail Overhaul",
+        "description": [
+          "The Audit Trail and Events system has been completely rewritten.",
+          "It allows for extensions to log to any destination, severity levels, search and more."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "New Audit Trail Table & Filters",
+        "description": [
+          "Audit Trail now uses our preferred table UI with built-in, useful search and filter controls.",
+          "There's also rapid and reliable pagination and data reloading."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Audit Trail Events With Severity",
+        "description": [
+          "All events are given a default severity of 'Alert', 'Warning', 'Info' and 'Debug.",
+          "Which event categories are logged can be adjusted in the Configuration."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Audit Trails Logs To File",
+        "description": [
+          "As well as logging to the database, you can elect to log certain events to file."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Audit Trail Logs Description",
+        "description": [
+          "Logged events now have more descriptive messages along with more meta details for the event."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Audit Trail Meta Data",
+        "description": [
+          "By linking the Audit Trail to the Traffic Log, you can now see request data alongside Audit Logs."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Plugin Data Storage",
+        "description": [
+          "We're adding some smarter data storage to the plugin through more complex and interconnected database tables.",
+          "This approach reduces repeated and redundant data storage and disk usage."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Traffic Logging UI.",
+        "description": [
+          "The Traffic Log feature now also uses the improved table UI for faster processing and better search."
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Traffic Log Limits",
+        "description": [
+          "Traffic logs are no longer limited by amount.",
+          "They are instead limited by age (in days). Updated configuration options are available."
+        ]
+      }
+    ]
+  },
   "11.5": {
     "version":     "11.5",
     "released_at": 1626779164,

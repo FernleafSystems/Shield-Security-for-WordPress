@@ -123,7 +123,7 @@
     {
       "key":         "audit_trail_auto_clean",
       "section":     "section_localdb",
-      "default":     14,
+      "default":     7,
       "min":         1,
       "type":        "integer",
       "link_info":   "https://shsec.io/a2",
@@ -198,20 +198,6 @@
       "description":   "Send log data to log files"
     },
     {
-      "key":         "audit_trail_max_entries",
-      "section":     "section_localdb",
-      "premium":     true,
-      "default":     1000,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "https://shsec.io/hc",
-      "link_blog":   "",
-      "beacon_id":   128,
-      "name":        "Max Trail Length",
-      "summary":     "Maximum Audit Trail Length To Keep",
-      "description": "Automatically remove any audit trail entries when this limit is exceeded."
-    },
-    {
       "key":          "legacy_db_deleted_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -220,11 +206,11 @@
     }
   ],
   "definitions":      {
-    "db_handler_classes":           {
+    "db_handler_classes":     {
       "at_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
       "at_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler"
     },
-    "db_table_at_logs":             {
+    "db_table_at_logs":       {
       "slug":           "at_logs",
       "has_updated_at": false,
       "has_created_at": true,
@@ -247,7 +233,7 @@
         }
       }
     },
-    "db_table_at_meta":             {
+    "db_table_at_meta":       {
       "slug":           "at_meta",
       "has_updated_at": false,
       "has_created_at": false,
@@ -271,10 +257,10 @@
         }
       }
     },
-    "db_classes":                   {
+    "db_classes":             {
       "audit_trail": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
-    "db_table_audit_trail":         {
+    "db_table_audit_trail":   {
       "slug":           "audit_trail",
       "has_updated_at": true,
       "cols_custom":    {
@@ -288,9 +274,9 @@
         "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'"
       }
     },
-    "audit_trail_free_max_entries": 100,
-    "audit_trail_table_name":       "audit_trail",
-    "events":                       {
+    "max_free_days":          7,
+    "audit_trail_table_name": "audit_trail",
+    "events":                 {
       "plugin_activated":        {
         "audit_params":   [
           "plugin"

@@ -185,7 +185,7 @@ class Strings extends Base\Strings {
 			case 'section_enable_plugin_feature_audit_trail' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
-																						 ->getMainFeatureName() );
+																						->getMainFeatureName() );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ) )
@@ -240,19 +240,6 @@ class Strings extends Base\Strings {
 				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
 				break;
 
-			case 'audit_trail_max_entries' :
-				$name = __( 'Max Trail Length', 'wp-simple-firewall' );
-				$summary = __( 'Maximum Audit Trail Length To Keep', 'wp-simple-firewall' );
-				$description = [
-					__( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' ),
-				];
-				if ( !$con->isPremiumActive() ) {
-					$description[] = sprintf( __( 'Upgrade to PRO to increase limit above %s.', 'wp-simple-firewall' ),
-						'<code>'.$opts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
-				}
-
-				break;
-
 			case 'log_level_db' :
 				$name = __( 'Logging Level', 'wp-simple-firewall' );
 				$summary = __( 'Logging Level For DB-Based Logs', 'wp-simple-firewall' );
@@ -265,7 +252,13 @@ class Strings extends Base\Strings {
 			case 'audit_trail_auto_clean' :
 				$name = __( 'Auto Clean', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
-				$description = __( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' );
+				$description = [
+					__( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' )
+				];
+				if ( !$con->isPremiumActive() ) {
+					$description[] = sprintf( __( 'Upgrade to PRO to increase limit beyond %s days.', 'wp-simple-firewall' ),
+						'<code>'.$opts->getDef( 'max_free_days' ).'</code>' );
+				}
 				break;
 
 			case 'enable_audit_context_users' :
