@@ -435,16 +435,16 @@
         "audit_params": [
           "user_login"
         ],
-        "level":        "info"
+        "level":        "notice"
       },
       "password_policy_force_change": {
         "audit_params": [
           "user_login"
         ],
-        "level":        "info"
+        "level":        "notice"
       },
       "password_policy_block":        {
-        "level": "info"
+        "level": "notice"
       },
       "user_hard_suspended":          {
         "audit_params": [

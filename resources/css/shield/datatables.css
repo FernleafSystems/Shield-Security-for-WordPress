@@ -27,8 +27,11 @@ td.severity .severity-icon.severity-alert {
 td.severity .severity-icon.severity-warning {
 	color: #c18c2a;
 }
-td.severity .severity-icon.severity-info {
+td.severity .severity-icon.severity-notice {
 	color: #0303ab;
+}
+td.severity .severity-icon.severity-info {
+	color: #039aab;
 }
 td.severity .severity-icon.severity-debug {
 	color: grey;
@@ -54,4 +57,9 @@ td.page code {
 	font-size: 0.9rem;
 	background-color: transparent; /* rgba(245, 245, 245, 0.8); */
 	word-break: break-all;
+}
+
+td.user a[target="_blank"]::after,
+td.ip_linked a[target="_blank"]::after {
+	content: none !important;
 }

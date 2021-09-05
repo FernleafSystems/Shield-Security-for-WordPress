@@ -665,7 +665,7 @@
         "level":        "alert"
       },
       "ip_unblock":              {
-        "level":   "info",
+        "level":   "notice",
         "offense": false,
         "stat":    false
       },
@@ -758,11 +758,11 @@
         "offense":      true
       },
       "comment_markspam":        {
-        "level":   "info",
+        "level":   "notice",
         "offense": true
       },
       "comment_unmarkspam":      {
-        "level":   "debug",
+        "level":   "info",
         "offense": false,
         "stat":    false
       }

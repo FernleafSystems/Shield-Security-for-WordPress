@@ -279,6 +279,7 @@ class UI extends BaseShield\UI {
 		$eventsSortedByLevel = [
 			'Alert'   => [],
 			'Warning' => [],
+			'Notice'  => [],
 			'Info'    => [],
 			'Debug'   => [],
 		];
@@ -294,7 +295,7 @@ class UI extends BaseShield\UI {
 			];
 		}
 		foreach ( $eventsSortedByLevel as &$events ) {
-			natsort( $events );
+			ksort( $events );
 		}
 
 		return $this->getMod()->renderTemplate(

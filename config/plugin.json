@@ -677,14 +677,14 @@
         "audit_params": [
           "master_site"
         ],
-        "level":        "info",
+        "level":        "notice",
         "stat":         false
       },
       "options_exported":       {
         "audit_params": [
           "site"
         ],
-        "level":        "info",
+        "level":        "notice",
         "stat":         true,
         "recent":       true
       },
@@ -692,7 +692,7 @@
         "audit_params": [
           "site"
         ],
-        "level":        "info",
+        "level":        "notice",
         "stat":         true,
         "recent":       true
       },
@@ -707,7 +707,7 @@
         "audit_params": [
           "site"
         ],
-        "level":        "info",
+        "level":        "notice",
         "stat":         false
       },
       "master_url_set":         {

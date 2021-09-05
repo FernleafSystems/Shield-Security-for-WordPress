@@ -507,7 +507,7 @@
           "user_login",
           "method"
         ],
-        "level":        "info"
+        "level":        "notice"
       },
       "2fa_verify_fail":    {
         "audit_params": [
@@ -534,15 +534,15 @@
         "level":        "warning"
       },
       "login_block":        {
-        "level":   "info",
+        "level":   "notice",
         "recent":  true,
         "offense": true
       },
       "hide_login_url":     {
-        "level": "info"
+        "level": "notice"
       },
       "2fa_success":        {
-        "level":  "debug",
+        "level":  "info",
         "recent": true
       }
     }

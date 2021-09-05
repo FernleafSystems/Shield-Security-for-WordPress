@@ -135,6 +135,9 @@ class LoadRawTableData {
 							'warning' => [
 								'icon' => 'exclamation-triangle',
 							],
+							'notice'  => [
+								'icon' => 'info-square',
+							],
 							'info'    => [
 								'icon' => 'info-circle',
 							],

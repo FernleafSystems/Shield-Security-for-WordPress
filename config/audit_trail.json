@@ -89,7 +89,8 @@
       "type":          "multiple_select",
       "default":       [
         "alert",
-        "warning"
+        "warning",
+        "notice"
       ],
       "value_options": [
         {
@@ -103,6 +104,10 @@
         {
           "value_key": "warning",
           "text":      "Warning"
+        },
+        {
+          "value_key": "notice",
+          "text":      "Notice"
         },
         {
           "value_key": "info",
@@ -157,6 +162,10 @@
         {
           "value_key": "warning",
           "text":      "Warning"
+        },
+        {
+          "value_key": "notice",
+          "text":      "Notice"
         },
         {
           "value_key": "info",
@@ -281,7 +290,7 @@
         "audit_params":   [
           "plugin"
         ],
-        "level":          "info",
+        "level":          "notice",
         "context":        "plugins",
         "audit_multiple": true
       },
@@ -289,7 +298,7 @@
         "audit_params":   [
           "plugin"
         ],
-        "level":          "info",
+        "level":          "notice",
         "context":        "plugins",
         "audit_multiple": true
       },
@@ -306,7 +315,7 @@
           "from",
           "to"
         ],
-        "level":          "info",
+        "level":          "notice",
         "context":        "plugins",
         "audit_multiple": true
       },
@@ -314,7 +323,7 @@
         "audit_params": [
           "theme"
         ],
-        "level":        "info",
+        "level":        "notice",
         "context":      "themes"
       },
       "theme_file_edited":       {
@@ -330,7 +339,7 @@
           "from",
           "to"
         ],
-        "level":          "info",
+        "level":          "notice",
         "context":        "themes",
         "audit_multiple": true
       },
@@ -339,7 +348,7 @@
           "from",
           "to"
         ],
-        "level":        "info",
+        "level":        "notice",
         "context":      "wordpress"
       },
       "permalinks_structure":    {
@@ -381,7 +390,7 @@
           "title",
           "type"
         ],
-        "level":          "info",
+        "level":          "notice",
         "context":        "posts",
         "audit_multiple": true
       },
@@ -390,7 +399,7 @@
           "title",
           "type"
         ],
-        "level":          "info",
+        "level":          "notice",
         "context":        "posts",
         "audit_multiple": true
       },
@@ -438,7 +447,7 @@
         "audit_params": [
           "user"
         ],
-        "level":        "info",
+        "level":        "notice",
         "context":      "users"
       },
       "email_attempt_send":      {

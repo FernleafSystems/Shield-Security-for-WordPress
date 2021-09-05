@@ -191,7 +191,7 @@
         "recent":       true
       },
       "block_xml":               {
-        "level":   "info",
+        "level":   "notice",
         "recent":  true,
         "offense": true
       }
