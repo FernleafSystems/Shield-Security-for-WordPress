@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModCon;
 
 abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return $this->isEnabled();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $this->isEnabled() && !$mod->isVisitorWhitelisted();
 	}
 
 	protected function run() {
