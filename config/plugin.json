@@ -662,7 +662,8 @@
         "audit_params": [
           "message"
         ],
-        "level":        "debug"
+        "level":        "debug",
+        "stat":         false
       },
       "test_cron_run":          {
         "level":  "debug",

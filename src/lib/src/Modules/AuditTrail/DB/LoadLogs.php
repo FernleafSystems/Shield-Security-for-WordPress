@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -36,7 +35,6 @@ class LoadLogs {
 		$results = [];
 
 		foreach ( $this->selectRaw() as $raw ) {
-//			error_log( var_export( $raw, true ) );
 			if ( empty( $results[ $raw[ 'id' ] ] ) ) {
 				$record = new LogRecord( array_intersect_key( $raw, $stdKeys ) );
 				$results[ $raw[ 'id' ] ] = $record;
