@@ -21,7 +21,7 @@ class PluginDelete {
 
 		// Delete all the legacy tables first (i.e. no inter-dependencies)
 		array_map( function ( $module ) {
-			foreach ( $module->getDbHandlers() as $dbh ) {
+			foreach ( $module->getDbHandlers( true ) as $dbh ) {
 				$dbh->tableDelete();
 			}
 		}, $con->modules );

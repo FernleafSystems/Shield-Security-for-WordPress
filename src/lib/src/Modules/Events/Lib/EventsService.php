@@ -121,6 +121,7 @@ class EventsService {
 
 	private function buildEvents( array $events ) :array {
 		$defaults = [
+			'cat'              => 0, //@deprecated 12.0
 			'stat'             => true,
 			'audit'            => true,
 			'recent'           => false, // whether to show in the recent events logs

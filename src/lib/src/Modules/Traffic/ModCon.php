@@ -50,6 +50,14 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
+	 * @inheritDoc
+	 * @deprecated 12.0
+	 */
+	public function getDbHandlers( $bInitAll = false ) {
+		return  [];
+	}
+
+	/**
 	 * @deprecated 12.0
 	 */
 	public function getDbHandler_Traffic() :Databases\Traffic\Handler {

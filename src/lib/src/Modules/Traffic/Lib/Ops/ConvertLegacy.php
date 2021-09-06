@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -65,22 +65,24 @@ class ConvertLegacy {
 		$meta = [];
 		foreach ( [ 'uid', 'path', 'code', 'verb', 'ua', 'trans', ] as $metaKey ) {
 			if ( !empty( $entry->{$metaKey} ) ) {
-				$meta[ $metaKey ] = ( $metaKey === 'trans' ) ? 'offense' : $metaKey;
+				$meta[ ( $metaKey === 'trans' ) ? 'offense' : $metaKey ] = $entry->{$metaKey};
 			}
 		}
 
-		/** @var ReqLogs\Ops\Record $record */
-		$record = $modData->getDbH_ReqLogs()->getRecord();
-		$record->req_id = $entry->rid;
-		$record->ip_ref = ( new IPRecords() )
+		$ipID = ( new IPRecords() )
 			->setMod( $modData )
 			->loadIP( $entry->ip )
 			->id;
+		$record = ( new RequestRecords() )
+			->setMod( $modData )
+			->loadReq( $entry->rid, $ipID );
 		$record->meta = $meta;
-		$record->created_at = $entry->created_at;
 
 		return $modData->getDbH_ReqLogs()
-					   ->getQueryInserter()
-					   ->insert( $record );
+					   ->getQueryUpdater()
+					   ->updateById( $record->id, [
+						   'meta'       => $record->getRawData()[ 'meta' ],
+						   'created_at' => $entry->created_at
+					   ] );
 	}
 }
