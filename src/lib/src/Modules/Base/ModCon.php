@@ -143,8 +143,6 @@ abstract class ModCon {
 //		}
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
-
-		$this->dbHandlers = [];
 	}
 
 	protected function setupCustomHooks() {

@@ -14,19 +14,35 @@ class PluginDelete {
 
 	protected function run() {
 		$this->deleteDatabases();
+		$this->deleteTmpDir();
+	}
+
+	private function deleteTmpDir() {
+		Services::WpFs()->deleteDir( $this->getCon()->getPluginCachePath() );
 	}
 
 	private function deleteDatabases() {
 		$con = $this->getCon();
+		$WPDB = Services::WpDb();
 
 		// Delete all the legacy tables first (i.e. no inter-dependencies)
-		array_map( function ( $module ) {
-			foreach ( $module->getDbHandlers( true ) as $dbh ) {
-				$dbh->tableDelete();
-			}
-		}, $con->modules );
+		array_map(
+			function ( $module ) {
+				foreach ( $module->getDbHandlers( true ) as $dbh ) {
+					$dbh->tableDelete();
+				}
+			},
+			[
+				$con->getModule_Plugin(),
+				$con->getModule_Events(),
+				$con->getModule_HackGuard(),
+				$con->getModule_IPs(),
+				$con->getModule_Reporting(),
+				$con->getModule_Sessions(),
+			]
+		);
 
-		Services::WpDb()->doDropTable(
+		$WPDB->doDropTable(
 			implode( '`,`', array_map(
 					function ( $dbh ) {
 						/** @var $dbh Handler */

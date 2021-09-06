@@ -78,9 +78,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onPluginShutdown() {
-		$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
-		if ( !empty( $preferred ) ) {
-			$this->getOptions()->setOpt( 'last_ip_detect_source', $preferred );
+		if ( !$this->getCon()->plugin_deleting ) {
+			$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
+			if ( !empty( $preferred ) ) {
+				$this->getOptions()->setOpt( 'last_ip_detect_source', $preferred );
+			}
 		}
 		parent::onPluginShutdown();
 	}

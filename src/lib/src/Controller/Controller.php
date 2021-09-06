@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -283,18 +284,26 @@ class Controller extends DynPropertiesClass {
 	public function onWpDeactivatePlugin() {
 		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
 		if ( $this->isPluginAdmin() ) {
-			do_action( $this->prefix( 'deactivate_plugin' ) );
-			$this->plugin_deactivating = true;
-			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
-				$this->plugin_deleting = true;
 
-				( new Plugin\PluginDelete() )
-					->setCon( $this )
-					->execute();
-				do_action( $this->prefix( 'delete_plugin' ) );
+			$this->plugin_deactivating = true;
+			do_action( $this->prefix( 'deactivate_plugin' ) );
+
+			( new PluginDeactivate() )
+				->setCon( $this )
+				->execute();
+
+			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+				$this->deletePlugin();
 			}
 		}
-		$this->deleteCronJobs();
+	}
+
+	public function deletePlugin() {
+		$this->plugin_deleting = true;
+		do_action( $this->prefix( 'delete_plugin' ) );
+		( new Plugin\PluginDelete() )
+			->setCon( $this )
+			->execute();
 	}
 
 	public function onWpActivatePlugin() {
@@ -450,6 +459,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
+		$this->getSiteInstallationId();
 		$this->getAdminNotices();
 		$this->initCrons();
 		( new Shield\Controller\Assets\Enqueue() )
@@ -525,15 +535,15 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param array $aActionLinks
+	 * @param array $actionLinks
 	 * @return array
 	 */
-	public function onWpPluginActionLinks( $aActionLinks ) {
+	public function onWpPluginActionLinks( $actionLinks ) {
 
 		if ( $this->isValidAdminArea() ) {
 
-			if ( array_key_exists( 'edit', $aActionLinks ) ) {
-				unset( $aActionLinks[ 'edit' ] );
+			if ( array_key_exists( 'edit', $actionLinks ) ) {
+				unset( $actionLinks[ 'edit' ] );
 			}
 
 			$links = $this->cfg->action_links[ 'add' ];
@@ -573,14 +583,14 @@ class Controller extends DynPropertiesClass {
 						$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );
 					}
 
-					$aActionLinks = array_merge(
+					$actionLinks = array_merge(
 						[ $this->prefix( sanitize_key( $aLink[ 'name' ] ) ) => $sLink ],
-						$aActionLinks
+						$actionLinks
 					);
 				}
 			}
 		}
-		return $aActionLinks;
+		return $actionLinks;
 	}
 
 	/**
@@ -738,7 +748,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpShutdown() {
-		$this->getSiteInstallationId();
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
@@ -1003,22 +1012,6 @@ class Controller extends DynPropertiesClass {
 		return empty( $action ) ? '' : $action;
 	}
 
-	protected function deleteCronJobs() {
-		$WPCron = Services::WpCron();
-		$crons = $WPCron->getCrons();
-
-		$pattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );
-		foreach ( $crons as $cron ) {
-			if ( is_array( $crons ) ) {
-				foreach ( $cron as $key => $cronEntry ) {
-					if ( is_string( $key ) && preg_match( $pattern, $key ) ) {
-						$WPCron->deleteCronJob( $key );
-					}
-				}
-			}
-		}
-	}
-
 	public function isPremiumExtensionsEnabled() :bool {
 		return (bool)$this->getCfgProperty( 'enable_premium' );
 	}
@@ -1259,7 +1252,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
-		return $this->getModule( 'plugin' );
+		return $this->loadCorePluginFeatureHandler();
 	}
 
 	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
@@ -1311,24 +1304,17 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$modName = $modProps[ 'namespace' ];
-		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $modName ); // e.g. oFeatureHandlerPlugin
 
 		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon', $modName );
-		if ( !@class_exists( $className ) ) {
-			$className = sprintf( '%s_FeatureHandler_%s', strtoupper( $this->getPluginPrefix( '_' ) ), $modName );
-		}
-
-		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 		if ( !class_exists( $className ) ) {
-			$sMessage = sprintf( 'Class "%s" is missing', $className );
-			throw new \Exception( $sMessage );
+			// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
+			throw new \Exception( sprintf( 'Class "%s" is missing', $className ) );
 		}
-
-		$this->{$sOptionsVarName} = new $className( $this, $modProps );
 
 		$modules = $this->modules;
-		$modules[ $modSlug ] = $this->{$sOptionsVarName};
+		$modules[ $modSlug ] = new $className( $this, $modProps );
 		$this->modules = $modules;
+
 		return $this->modules[ $modSlug ];
 	}
 
