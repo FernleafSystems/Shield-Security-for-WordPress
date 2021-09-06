@@ -81,8 +81,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$list = $formParams[ 'list' ] ?? '';
 
 		$acceptableIP = $srvIP->isValidIp( $ip )
-						 || $srvIP->isValidIp4Range( $ip )
-						 || $srvIP->isValidIp6Range( $ip );
+						|| $srvIP->isValidIp4Range( $ip )
+						|| $srvIP->isValidIp6Range( $ip );
 
 		$isBlackList = $list != $mod::LIST_MANUAL_WHITE;
 
@@ -226,11 +226,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 									   ->setMod( $this->getMod() )
 									   ->setIP( $ip )
 									   ->toManualBlacklist() instanceof Shield\Databases\IPs\EntryVO;
+						$msg = $success ? __( 'IP address blocked.', 'wp-simple-firewall' )
+							: __( "IP address couldn't be blocked at this time.", 'wp-simple-firewall' );
 					}
 					catch ( \Exception $e ) {
+						$msg = $e->getMessage();
 					}
-					$msg = $success ? __( 'IP address blocked.', 'wp-simple-firewall' )
-						: __( "IP address couldn't be blocked at this time.", 'wp-simple-firewall' );
 					break;
 
 				case 'unblock':
