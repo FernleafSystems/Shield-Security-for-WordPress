@@ -8,6 +8,7 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 		( new Lib\Ops\ConvertLegacy() )
 			->setMod( $this->getMod() )
 			->run();
+
 		// Add "This Server" as a default exclusion.
 		/** @var Options $opts */
 		$opts = $this->getOptions();

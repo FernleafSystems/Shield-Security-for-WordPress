@@ -567,6 +567,7 @@
           "scan",
           "items"
         ],
+        "level":          "alert",
         "audit_multiple": true,
         "recent":         true
       },
