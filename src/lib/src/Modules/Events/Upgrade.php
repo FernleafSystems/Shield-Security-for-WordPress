@@ -22,11 +22,7 @@ class Upgrade extends Base\Upgrade {
 
 		$eventTable = $mod->getDbHandler_Events()->getTableSchema()->table;
 
-		$WPDB->doSql( sprintf( "DELETE FROM `%s` WHERE `event` LIKE 'blockparam_%%'",
-			$eventTable
-		) );
-
-		$WPDB->doSql( sprintf( "DELETE FROM `%s` WHERE `event` in ('%s')",
+		$WPDB->doSql( sprintf( "DELETE FROM `%s` WHERE `event` IN ('%s')",
 			$eventTable,
 			implode( "','", array_map( function ( $scan ) {
 				return $scan.'_alert_sent';
@@ -34,7 +30,7 @@ class Upgrade extends Base\Upgrade {
 		) );
 
 		$WPDB->doSql(
-			sprintf( "UPDATE `%s` SET `event`='scan_run' WHERE `event` in ('%s')",
+			sprintf( "UPDATE `%s` SET `event`='scan_run' WHERE `event` IN ('%s')",
 				$eventTable,
 				implode( "','", array_map( function ( $scan ) {
 					return $scan.'_scan_run';
@@ -43,12 +39,16 @@ class Upgrade extends Base\Upgrade {
 		);
 
 		$WPDB->doSql(
-			sprintf( "UPDATE `%s` SET `event`='scan_items_found' WHERE `event` in ('%s')",
+			sprintf( "UPDATE `%s` SET `event`='scan_items_found' WHERE `event` IN ('%s')",
 				$eventTable,
 				implode( "','", array_map( function ( $scan ) {
 					return $scan.'_scan_found';
 				}, $scans ) )
 			)
+		);
+
+		$WPDB->doSql(
+			sprintf( "UPDATE `%s` SET `event`='firewall_block' WHERE `event` LIKE ('blockparam_%%')", $eventTable )
 		);
 	}
 }
