@@ -514,6 +514,7 @@
           "user_login",
           "method"
         ],
+        "level":        "warning",
         "offense":      true
       },
       "cooldown_fail":      {
@@ -534,7 +535,7 @@
         "level":        "warning"
       },
       "login_block":        {
-        "level":   "notice",
+        "level":   "warning",
         "recent":  true,
         "offense": true
       },

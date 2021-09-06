@@ -648,7 +648,8 @@
         "offense":      true
       },
       "conn_kill":               {
-        "level": "warning"
+        "level":           "warning",
+        "audit_countable": true
       },
       "ip_offense":              {
         "level":        "warning",

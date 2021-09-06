@@ -122,13 +122,14 @@ class EventsService {
 	private function buildEvents( array $events ) :array {
 		$defaults = [
 			'cat'              => 0, //@deprecated 12.0
+			'level'            => 'notice', // events default at "warning" level
 			'stat'             => true,
 			'audit'            => true,
 			'recent'           => false, // whether to show in the recent events logs
 			'offense'          => false, // whether to mark offense against IP
-			'audit_multiple'   => false, // allow multiple audit entries in the same request
 			'suppress_offense' => false, // events that normally trigger offense can be forcefully suppressed
-			'level'            => 'warning', // events default at "warning" level
+			'audit_multiple'   => false, // allow multiple audit entries in the same request
+			'audit_countable'  => false, // allow shortcut to audit trail to allow events to be counted
 			'audit_params'     => [],
 		];
 		foreach ( $events as $eventKey => $evt ) {
