@@ -81,7 +81,7 @@ class Strings extends Base\Strings {
 			],
 			'ptg' => [
 				'name'     => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
+				'subtitle' => __( "Be alerted to file changes for all your plugins and themes", 'wp-simple-firewall' ),
 			],
 			'mal' => [
 				'name'     => __( 'Malware', 'wp-simple-firewall' ),

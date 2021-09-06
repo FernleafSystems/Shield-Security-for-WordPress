@@ -85,7 +85,6 @@
     {
       "key":           "log_level_db",
       "section":       "section_localdb",
-      "premium":       true,
       "type":          "multiple_select",
       "default":       [
         "alert",
@@ -182,29 +181,6 @@
       "name":          "File Logging Level",
       "summary":       "Logging Level For File-Based Logs",
       "description":   "Logging Level For File-Based Logs"
-    },
-    {
-      "key":           "log_format_file",
-      "section":       "section_at_file",
-      "premium":       true,
-      "type":          "select",
-      "default":       "json",
-      "value_options": [
-        {
-          "value_key": "json",
-          "text":      "JSON"
-        },
-        {
-          "value_key": "raw",
-          "text":      "Raw"
-        }
-      ],
-      "link_info":     "",
-      "link_blog":     "",
-      "beacon_id":     375,
-      "name":          "Log To File",
-      "summary":       "Send Log Data To Log File",
-      "description":   "Send log data to log files"
     },
     {
       "key":          "legacy_db_deleted_at",

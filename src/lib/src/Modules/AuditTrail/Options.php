@@ -2,15 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility\LogFileDirCreate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
 	public function getLogFilePath() :string {
-		return apply_filters(
-			'shield/audit_trail_log_file_path',
-			$this->getCon()->getPluginCachePath( 'logs/shield.log' )
-		);
+		try {
+			$dir = ( new LogFileDirCreate() )
+				->setMod( $this->getMod() )
+				->run();
+		}
+		catch ( \Exception $e ) {
+			$dir = '';
+		}
+		$dir = apply_filters( 'shield/audit_trail_log_file_dir', $dir );
+		return empty( $dir ) ? '' :
+			apply_filters( 'shield/audit_trail_log_file_dir', path_join( $dir, 'shield.log' ) );
 	}
 
 	public function getLogLevelsDB() :array {
@@ -54,7 +62,8 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isLogToFile() :bool {
-		return !in_array( 'disabled', $this->getLogLevelsFile() );
+		return !in_array( 'disabled', $this->getLogLevelsFile() )
+			   && !empty( $this->getLogFilePath() );
 	}
 
 	/**

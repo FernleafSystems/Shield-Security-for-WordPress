@@ -25,7 +25,7 @@ class UI extends BaseShield\UI {
 			],
 			'strings' => [
 				'tab_updates'   => __( 'Updates and Changes', 'wp-simple-firewall' ),
-				'tab_events'    => __( 'Event Levels', 'wp-simple-firewall' ),
+				'tab_events'    => __( 'Event Details', 'wp-simple-firewall' ),
 				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
 			],
 		];
