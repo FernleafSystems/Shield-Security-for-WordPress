@@ -169,7 +169,7 @@ abstract class ModCon {
 	 * @param bool $bInitAll
 	 * @return Shield\Databases\Base\Handler[]
 	 */
-	protected function getDbHandlers( $bInitAll = false ) {
+	public function getDbHandlers( $bInitAll = false ) {
 		if ( $bInitAll ) {
 			foreach ( $this->getAllDbClasses() as $dbSlug => $dbClass ) {
 				$this->getDbH( $dbSlug );
@@ -810,11 +810,6 @@ abstract class ModCon {
 	}
 
 	public function onPluginDelete() {
-		foreach ( $this->getDbHandlers( true ) as $dbh ) {
-			if ( !empty( $dbh ) ) {
-				$dbh->tableDelete();
-			}
-		}
 		$this->getOptions()->deleteStorage();
 	}
 

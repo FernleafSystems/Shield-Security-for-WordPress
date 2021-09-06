@@ -579,7 +579,7 @@
       },
       {
         "slug":          "insights",
-        "load_priority": 1,
+        "load_priority": 2,
         "menu_priority": 5
       },
       {

@@ -287,6 +287,10 @@ class Controller extends DynPropertiesClass {
 			$this->plugin_deactivating = true;
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 				$this->plugin_deleting = true;
+
+				( new Plugin\PluginDelete() )
+					->setCon( $this )
+					->execute();
 				do_action( $this->prefix( 'delete_plugin' ) );
 			}
 		}
