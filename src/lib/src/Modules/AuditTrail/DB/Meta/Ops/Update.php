@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops;
 
-trait Common {
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 
+class Update extends Base\Select {
+
+	use Common;
 }

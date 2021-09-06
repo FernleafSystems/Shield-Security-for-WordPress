@@ -76,7 +76,7 @@ class LoadLogs {
 							%s
 						LEFT JOIN `%s` as `meta`
 							ON log.id = `meta`.log_ref
-						ORDER BY log.created_at DESC;',
+						ORDER BY log.updated_at DESC;',
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,

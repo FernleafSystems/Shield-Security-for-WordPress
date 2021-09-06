@@ -20,6 +20,13 @@ class AuditMessageBuilder {
 			$stringSubs[ sprintf( '{{%s}}', $subKey ) ] = $subValue;
 		}
 
-		return preg_replace( '#{{[a-z]+}}#i', 'missing data', strtr( $raw, $stringSubs ) );
+		$log = preg_replace( '#{{[a-z]+}}#i', 'missing data', strtr( $raw, $stringSubs ) );
+
+		$auditCount = (int)( $substitutions[ 'audit_count' ] ?? 1 );
+		if ( $srvEvents->getEventDef( $event )[ 'audit_countable' ] && $auditCount > 1 ) {
+			$log .= "\n".sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
+		}
+
+		return $log;
 	}
 }
