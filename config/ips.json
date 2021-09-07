@@ -651,6 +651,9 @@
         "level":           "warning",
         "audit_countable": true
       },
+      "conn_not_kill_high_rep":  {
+        "level": "debug"
+      },
       "ip_offense":              {
         "level":        "warning",
         "audit_params": [

@@ -10,13 +10,15 @@ use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 class BlockRequest extends ExecOnceModConsumer {
 
 	protected function run() {
-		if ( $this->isBlocked() && !$this->isHighReputationIP() ) {
+		if ( $this->isBlocked() ) {
 
 			if ( $this->isAutoUnBlocked() ) {
 				Services::Response()->redirectToHome();
 			}
+			elseif ( $this->isHighReputationIP() ) {
+				$this->getCon()->fireEvent( 'not_conn_kill_high_rep' );
+			}
 			else {
-				$this->getCon()->fireEvent( 'conn_kill' );
 				$this->renderKillPage();
 			}
 		}
