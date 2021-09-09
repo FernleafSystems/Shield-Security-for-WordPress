@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail as DBAudit;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
@@ -37,28 +39,36 @@ class ScanRepairs extends BaseReporter {
 			$total += $eventTotal;
 
 			if ( $eventTotal > 0 ) {
-				/** @var DBAudit\Select $auditSelector */
-				$auditSelector = $this->getCon()
-									  ->getModule_AuditTrail()
-									  ->getDbHandler_AuditTrail()
-									  ->getQuerySelector();
-				/** @var DBAudit\EntryVO[] $audits */
-				$audits = $auditSelector->filterByEvent( $event )
-										->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
-										->setLimit( 10 )
-										->query();
+				$modAudit = $this->getCon()->getModule_AuditTrail();
+
+				/** @var Logs\Ops\Select $logSelect */
+				$logSelect = $modAudit->getDbH_Logs()->getQuerySelector();
+				/** @var Logs\Ops\Record[] $logs */
+				$logIDs = array_map(
+					function ( $log ) {
+						return $log->id;
+					},
+					$logSelect->filterByEvent( $event )
+							  ->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
+							  ->setLimit( $eventTotal )
+							  ->queryWithResult()
+				);
+
+				/** @var Meta\Ops\Select $metaSelect */
+				$metaSelect = $modAudit->getDbH_Meta()->getQuerySelector();
 
 				$repairs[] = [
 					'count'   => $eventTotal,
 					'name'    => $srvEvents->getEventName( $event ),
-					'repairs' => array_filter( array_map( function ( $entry ) {
-						// see Base ItemActionHandler for audit event data
-						$fragment = $entry->meta[ 'path_full' ] ?? ( $entry->meta[ 'fragment' ] ?? false );
-						if ( !empty( $fragment ) ) {
-							$fragment = str_replace( wp_normalize_path( ABSPATH ), '', $fragment );
-						}
-						return $fragment;
-					}, $audits ) ),
+					'repairs' => array_unique( array_map(
+						function ( $meta ) {
+							/** @var Meta\Ops\Record $meta */
+							return $meta->meta_value;
+						},
+						$metaSelect->filterByIDs( $logIDs )
+								   ->filterByMetaKey( 'path_full' )
+								   ->queryWithResult()
+					) ),
 				];
 			}
 		}
