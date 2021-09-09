@@ -2,18 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpCliTable;
 
-class AuditTrail extends Base {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\LoadRawTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+
+class AuditTrail {
+
+	use ModConsumer;
 
 	public function render() {
-		$aRows = $this->getDataBuilder()
-					  ->getEntriesFormatted();
+		$rows = ( new LoadRawTableData() )
+			->setMod( $this->getMod() )
+			->loadForLogs();
 
 		\WP_CLI\Utils\format_items(
 			'table',
-			$aRows,
+			$rows,
 			[
 				'ip',
-				'wp_username',
+				'user_raw',
 				'message',
 				'created_at',
 			]

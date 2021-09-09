@@ -27,8 +27,8 @@ class ConvertLegacy {
 			$dbh = $mod->getDbHandler_AuditTrail();
 			if ( $dbh->getQuerySelector()->count() === 0 ) {
 				$opts->setOpt( 'legacy_db_deleted_at', Services::Request()->ts() );
+				$dbh->tableDelete();
 			}
-			$dbh->tableDelete();
 		}
 	}
 
