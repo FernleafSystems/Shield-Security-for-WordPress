@@ -123,6 +123,18 @@
         "title":       "Scan results were being reported, but not displayed in results tables in some cases.",
         "description": [],
         "patch":       "11.5.4"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Scan results wouldn't be updated after scans completed in some cases.",
+        "description": [],
+        "patch":       "11.5.5"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Shield would apply login blocks for requests originating from a whitelisted IP addresses.",
+        "description": [],
+        "patch":       "11.5.5"
       }
     ]
   },
