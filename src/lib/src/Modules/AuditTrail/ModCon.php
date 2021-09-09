@@ -60,7 +60,75 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
+	 * @param array  $exportItems
+	 * @param string $email
+	 * @param int    $nPage
 	 * @return array
+	 */
+	public function onWpPrivacyExport( $exportItems, $email, $nPage = 1 ) :array {
+
+		$user = Services::WpUsers()->getUserByEmail( $email );
+		if ( !empty( $user ) ) {
+			$exportItem = [
+				'group_id'    => $this->prefix(),
+				'group_label' => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName() ),
+				'item_id'     => $this->prefix( 'audit-trail' ),
+				'data'        => [],
+			];
+
+			/** @var Shield\Databases\AuditTrail\Select $find */
+			$find = $this->getDbHandler_AuditTrail()->getQuerySelector();
+			$find->filterByUsername( $user->user_login );
+
+			$WP = Services::WpGeneral();
+			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
+			foreach ( $find->query() as $entry ) {
+				$exportItem[ 'data' ][] = [
+					$sTimeStamp = $WP->getTimeStringForDisplay( $entry->getCreatedAt() ),
+					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
+					'value' => sprintf( '[IP:%s] %s', $entry->ip, $entry->message )
+				];
+			}
+
+			if ( !empty( $exportItem[ 'data' ] ) ) {
+				$exportItems[] = $exportItem;
+			}
+		}
+
+		return is_array( $exportItems ) ? $exportItems : [];
+	}
+
+	/**
+	 * See plugin controller for the nature of $aData wpPrivacyErase()
+	 *
+	 * @param array  $data
+	 * @param string $email
+	 * @param int    $page
+	 * @return array
+	 */
+	public function onWpPrivacyErase( $data, $email, $page = 1 ) {
+		try {
+			$user = Services::WpUsers()->getUserByEmail( $email );
+			if ( !empty( $user ) ) {
+				$deleter = $this->getDbH_Meta()->getQueryDeleter();
+				$deleter->addWhereEquals( 'meta_key', 'uid' )
+						->addWhereEquals( 'meta_data', $user->ID )
+						->query();
+				$deleter->addWhereEquals( 'meta_key', 'email' )
+						->addWhereEquals( 'meta_data', $user->user_email )
+						->query();
+				$data[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
+		return $data;
+	}
+
+	/**
+	 * @return array
+	 * @deprecated 12.0 (Shield Central?)
 	 */
 	public function getAllContexts() {
 		return [
@@ -76,78 +144,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * See plugin controller for the nature of $aData wpPrivacyExport()
-	 *
-	 * @param array  $aExportItems
-	 * @param string $sEmail
-	 * @param int    $nPage
-	 * @return array
-	 */
-	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
-
-		$oUser = Services::WpUsers()->getUserByEmail( $sEmail );
-
-		$aExportItem = [
-			'group_id'    => $this->prefix(),
-			'group_label' => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ), $this->getCon()
-																								   ->getHumanName() ),
-			'item_id'     => $this->prefix( 'audit-trail' ),
-			'data'        => [],
-		];
-
-		try {
-			/** @var Shield\Databases\AuditTrail\Select $oFinder */
-			$oFinder = $this->getDbHandler_AuditTrail()->getQuerySelector();
-			$oFinder->filterByUsername( $oUser->user_login );
-
-			$WP = Services::WpGeneral();
-			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
-			foreach ( $oFinder->query() as $entry ) {
-				$aExportItem[ 'data' ][] = [
-					$sTimeStamp = $WP->getTimeStringForDisplay( $entry->getCreatedAt() ),
-					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
-					'value' => sprintf( '[IP:%s] %s', $entry->ip, $entry->message )
-				];
-			}
-
-			if ( !empty( $aExportItem[ 'data' ] ) ) {
-				$aExportItems[] = $aExportItem;
-			}
-		}
-		catch ( \Exception $e ) {
-		}
-
-		return $aExportItems;
-	}
-
-	/**
-	 * See plugin controller for the nature of $aData wpPrivacyErase()
-	 *
-	 * @param array  $aData
-	 * @param string $sEmail
-	 * @param int    $nPage
-	 * @return array
-	 */
-	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
-		try {
-			$oThisUsername = Services::WpUsers()->getUserByEmail( $sEmail )->user_login;
-			$this->getDbHandler_AuditTrail()
-				 ->getQueryDeleter()
-				 ->addWhereSearch( 'wp_username', $oThisUsername )
-				 ->all();
-			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
-		}
-		catch ( \Exception $e ) {
-		}
-		return $aData;
-	}
-
-	/**
 	 * @inheritDoc
 	 * @deprecated 12.0
 	 */
 	public function getDbHandlers( $bInitAll = false ) {
-		return  [];
+		return [];
 	}
 
 	/**

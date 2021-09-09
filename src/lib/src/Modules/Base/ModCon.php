@@ -1243,24 +1243,24 @@ abstract class ModCon {
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
-	 * @param array  $aExportItems
-	 * @param string $sEmail
+	 * @param array  $exportItems
+	 * @param string $email
 	 * @param int    $nPage
 	 * @return array
 	 */
-	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
-		return $aExportItems;
+	public function onWpPrivacyExport( $exportItems, $email, $nPage = 1 ) {
+		return $exportItems;
 	}
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyErase()
-	 * @param array  $aData
-	 * @param string $sEmail
-	 * @param int    $nPage
+	 * @param array  $data
+	 * @param string $email
+	 * @param int    $page
 	 * @return array
 	 */
-	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
-		return $aData;
+	public function onWpPrivacyErase( $data, $email, $page = 1 ) {
+		return $data;
 	}
 
 	/**
