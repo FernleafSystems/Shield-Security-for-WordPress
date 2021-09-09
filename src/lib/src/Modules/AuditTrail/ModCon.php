@@ -62,10 +62,10 @@ class ModCon extends BaseShield\ModCon {
 	 * TODO: This requires some fairly convoluted SQL to pick out records for a specific user in an efficient manner
 	 * @param array  $exportItems
 	 * @param string $email
-	 * @param int    $nPage
+	 * @param int    $page
 	 * @return array
 	 */
-	public function onWpPrivacyExport( $exportItems, $email, $nPage = 1 ) :array {
+	public function onWpPrivacyExport( $exportItems, $email, $page = 1 ) :array {
 
 		$user = Services::WpUsers()->getUserByEmail( $email );
 		if ( !empty( $user ) ) {
@@ -74,7 +74,7 @@ class ModCon extends BaseShield\ModCon {
 			$exportData = array_map(
 				function ( $log ) use ( $WP ) {
 					return [
-						'name'  => sprintf( '[%s] Audit Trail Entry', $WP->getTimeStringForDisplay( $log[ 'created_at' ] ) ),
+						'name'  => sprintf( '%s', $WP->getTimeStringForDisplay( $log[ 'created_at' ] ) ),
 						'value' => sprintf( '[IP:%s] %s', $log[ 'ip' ], $log[ 'message' ] )
 					];
 				},
@@ -95,11 +95,13 @@ class ModCon extends BaseShield\ModCon {
 
 			if ( !empty( $exportData ) ) {
 				$exportItems[] = [
-					'group_id'    => $this->prefix(),
-					'group_label' => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
+					'group_id'          => $this->getModSlug(),
+					'group_label'       => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
 						$this->getCon()->getHumanName() ),
-					'item_id'     => $this->prefix( 'audit-trail' ),
-					'data'        => $exportData,
+					'group_description' => sprintf( __( '[%s] Audit Trail Entries referencing the given user.', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
+					'item_id'           => $this->prefix( 'audit-trail' ),
+					'data'              => $exportData,
 				];
 			}
 		}

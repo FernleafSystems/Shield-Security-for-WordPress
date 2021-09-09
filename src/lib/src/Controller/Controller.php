@@ -1401,7 +1401,7 @@ class Controller extends DynPropertiesClass {
 	 * @param int    $page
 	 * @return array
 	 */
-	public function wpPrivacyExport( $email, $page = 1 ) {
+	public function wpPrivacyExport( $email, $page = 1 ) :array {
 
 		$valid = Services::Data()->validEmail( $email )
 				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );

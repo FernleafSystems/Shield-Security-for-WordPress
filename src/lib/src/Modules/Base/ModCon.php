@@ -1245,10 +1245,10 @@ abstract class ModCon {
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
 	 * @param array  $exportItems
 	 * @param string $email
-	 * @param int    $nPage
+	 * @param int    $page
 	 * @return array
 	 */
-	public function onWpPrivacyExport( $exportItems, $email, $nPage = 1 ) {
+	public function onWpPrivacyExport( $exportItems, $email, $page = 1 ) {
 		return $exportItems;
 	}
 
