@@ -52,7 +52,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
@@ -60,6 +59,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
+	 * TODO: This requires some fairly convoluted SQL to pick out records for a specific user in an efficient manner
 	 * @param array  $exportItems
 	 * @param string $email
 	 * @param int    $nPage
@@ -69,30 +69,38 @@ class ModCon extends BaseShield\ModCon {
 
 		$user = Services::WpUsers()->getUserByEmail( $email );
 		if ( !empty( $user ) ) {
-			$exportItem = [
-				'group_id'    => $this->prefix(),
-				'group_label' => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
-				'item_id'     => $this->prefix( 'audit-trail' ),
-				'data'        => [],
-			];
-
-			/** @var Shield\Databases\AuditTrail\Select $find */
-			$find = $this->getDbHandler_AuditTrail()->getQuerySelector();
-			$find->filterByUsername( $user->user_login );
 
 			$WP = Services::WpGeneral();
-			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
-			foreach ( $find->query() as $entry ) {
-				$exportItem[ 'data' ][] = [
-					$sTimeStamp = $WP->getTimeStringForDisplay( $entry->getCreatedAt() ),
-					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
-					'value' => sprintf( '[IP:%s] %s', $entry->ip, $entry->message )
-				];
-			}
+			$exportData = array_map(
+				function ( $log ) use ( $WP ) {
+					return [
+						'name'  => sprintf( '[%s] Audit Trail Entry', $WP->getTimeStringForDisplay( $log[ 'created_at' ] ) ),
+						'value' => sprintf( '[IP:%s] %s', $log[ 'ip' ], $log[ 'message' ] )
+					];
+				},
+				array_filter( // Get all logs entries pertaining to this user:
+					( new Shield\Modules\AuditTrail\Lib\LogTable\LoadRawTableData() )
+						->setMod( $this )
+						->loadForLogs(),
+					function ( $log ) use ( $user ) {
+						$keep = $log[ 'user_id' ] === $user->ID;
+						if ( !$keep ) {
+							$userParts = array_map( 'preg_quote', [ $user->user_login, $user->user_email ] );
+							$keep = preg_match( sprintf( '/(%s)/i', implode( '|', $userParts ) ), $log[ 'message' ] ) > 0;
+						}
+						return $keep;
+					}
+				)
+			);
 
-			if ( !empty( $exportItem[ 'data' ] ) ) {
-				$exportItems[] = $exportItem;
+			if ( !empty( $exportData ) ) {
+				$exportItems[] = [
+					'group_id'    => $this->prefix(),
+					'group_label' => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
+					'item_id'     => $this->prefix( 'audit-trail' ),
+					'data'        => $exportData,
+				];
 			}
 		}
 

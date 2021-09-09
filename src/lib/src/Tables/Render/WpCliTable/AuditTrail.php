@@ -19,7 +19,7 @@ class AuditTrail {
 			$rows,
 			[
 				'ip',
-				'user_raw',
+				'user_id',
 				'message',
 				'created_at',
 			]

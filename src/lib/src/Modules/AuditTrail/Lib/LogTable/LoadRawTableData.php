@@ -41,7 +41,7 @@ class LoadRawTableData {
 				$data[ 'created_since' ] = $this->getColumnContent_Date();
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
-				$data[ 'user_raw' ] = $this->getColumnContent_UserID();
+				$data[ 'user_id' ] = $this->getColumnContent_UserID();
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
 				$data[ 'meta' ] = $this->getColumnContent_Meta();
