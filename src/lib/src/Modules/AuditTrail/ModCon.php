@@ -115,6 +115,9 @@ class ModCon extends BaseShield\ModCon {
 				$deleter->addWhereEquals( 'meta_key', 'uid' )
 						->addWhereEquals( 'meta_data', $user->ID )
 						->query();
+				$deleter->addWhereEquals( 'meta_key', 'user_login' )
+						->addWhereEquals( 'meta_data', $user->user_login )
+						->query();
 				$deleter->addWhereEquals( 'meta_key', 'email' )
 						->addWhereEquals( 'meta_data', $user->user_email )
 						->query();

@@ -267,7 +267,6 @@
           "plugin"
         ],
         "level":          "notice",
-        "context":        "plugins",
         "audit_multiple": true
       },
       "plugin_deactivated":      {
@@ -275,15 +274,13 @@
           "plugin"
         ],
         "level":          "notice",
-        "context":        "plugins",
         "audit_multiple": true
       },
       "plugin_file_edited":      {
         "audit_params": [
           "file"
         ],
-        "level":        "warning",
-        "context":      "plugins"
+        "level":        "warning"
       },
       "plugin_upgraded":         {
         "audit_params":   [
@@ -292,22 +289,19 @@
           "to"
         ],
         "level":          "notice",
-        "context":        "plugins",
         "audit_multiple": true
       },
       "theme_activated":         {
         "audit_params": [
           "theme"
         ],
-        "level":        "notice",
-        "context":      "themes"
+        "level":        "notice"
       },
       "theme_file_edited":       {
         "audit_params": [
           "file"
         ],
-        "level":        "warning",
-        "context":      "themes"
+        "level":        "warning"
       },
       "theme_upgraded":          {
         "audit_params":   [
@@ -316,7 +310,6 @@
           "to"
         ],
         "level":          "notice",
-        "context":        "themes",
         "audit_multiple": true
       },
       "core_updated":            {
@@ -324,23 +317,20 @@
           "from",
           "to"
         ],
-        "level":        "notice",
-        "context":      "wordpress"
+        "level":        "notice"
       },
       "permalinks_structure":    {
         "audit_params": [
           "from",
           "to"
         ],
-        "level":        "warning",
-        "context":      "wordpress"
+        "level":        "warning"
       },
       "post_deleted":            {
         "audit_params":   [
           "title"
         ],
         "level":          "warning",
-        "context":        "posts",
         "audit_multiple": true
       },
       "post_trashed":            {
@@ -349,7 +339,6 @@
           "type"
         ],
         "level":          "warning",
-        "context":        "posts",
         "audit_multiple": true
       },
       "post_recovered":          {
@@ -358,7 +347,6 @@
           "type"
         ],
         "level":          "info",
-        "context":        "posts",
         "audit_multiple": true
       },
       "post_updated":            {
@@ -367,7 +355,6 @@
           "type"
         ],
         "level":          "notice",
-        "context":        "posts",
         "audit_multiple": true
       },
       "post_published":          {
@@ -376,7 +363,6 @@
           "type"
         ],
         "level":          "notice",
-        "context":        "posts",
         "audit_multiple": true
       },
       "post_unpublished":        {
@@ -385,46 +371,40 @@
           "type"
         ],
         "level":          "warning",
-        "context":        "posts",
         "audit_multiple": true
       },
       "user_login":              {
         "audit_params": [
-          "user"
+          "user_login"
         ],
-        "level":        "warning",
-        "context":      "users"
+        "level":        "warning"
       },
       "user_login_app":          {
         "audit_params": [
-          "user"
+          "user_login"
         ],
-        "level":        "warning",
-        "context":      "users"
+        "level":        "warning"
       },
       "user_registered":         {
         "audit_params": [
-          "user",
+          "user_login",
           "email"
         ],
-        "level":        "alert",
-        "context":      "users"
+        "level":        "alert"
       },
       "user_deleted":            {
         "audit_params":   [
-          "user",
+          "user_login",
           "email"
         ],
         "level":          "warning",
-        "context":        "users",
         "audit_multiple": true
       },
       "user_deleted_reassigned": {
         "audit_params": [
-          "user"
+          "user_login"
         ],
-        "level":        "notice",
-        "context":      "users"
+        "level":        "notice"
       },
       "email_attempt_send":      {
         "audit_params":   [
@@ -436,7 +416,6 @@
           "bt_line"
         ],
         "level":          "info",
-        "context":        "emails",
         "audit_multiple": true
       }
     }

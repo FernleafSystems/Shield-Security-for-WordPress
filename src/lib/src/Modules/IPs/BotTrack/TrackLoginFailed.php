@@ -40,7 +40,7 @@ class TrackLoginFailed extends Base {
 
 	protected function getAuditData() :array {
 		return [
-			'user' => $this->user_login
+			'user_login' => $this->user_login
 		];
 	}
 }

@@ -26,7 +26,7 @@ class Users extends Base {
 			Services::WpUsers()->isAppPasswordAuth() ? 'user_login_app' : 'user_login',
 			[
 				'audit_params' => [
-					'user' => $user->user_login,
+					'user_login' => $user->user_login,
 				]
 			]
 		);
@@ -39,8 +39,8 @@ class Users extends Base {
 				'user_registered',
 				[
 					'audit_params' => [
-						'user'  => sanitize_user( $user->user_login ),
-						'email' => $user->user_email,
+						'user_login' => sanitize_user( $user->user_login ),
+						'email'      => $user->user_email,
 					]
 				]
 			);
@@ -52,28 +52,28 @@ class Users extends Base {
 	 * @param int $nReassigned
 	 */
 	public function auditDeleteUser( $userID, $nReassigned ) {
-		$oWpUsers = Services::WpUsers();
+		$WPU = Services::WpUsers();
 
-		$user = empty( $userID ) ? null : $oWpUsers->getUserById( $userID );
+		$user = empty( $userID ) ? null : $WPU->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
 			$this->getCon()->fireEvent(
 				'user_deleted',
 				[
 					'audit_params' => [
-						'user'  => sanitize_user( $user->user_login ),
-						'email' => $user->user_email,
+						'user_login' => sanitize_user( $user->user_login ),
+						'email'      => $user->user_email,
 					]
 				]
 			);
 		}
 
-		$reassigned = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
+		$reassigned = empty( $nReassigned ) ? null : $WPU->getUserById( $nReassigned );
 		if ( $reassigned instanceof \WP_User ) {
 			$this->getCon()->fireEvent(
 				'user_deleted_reassigned',
 				[
 					'audit_params' => [
-						'user' => sanitize_user( $reassigned->user_login ),
+						'user_login' => sanitize_user( $reassigned->user_login ),
 					]
 				]
 			);

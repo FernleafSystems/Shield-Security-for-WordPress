@@ -71,6 +71,9 @@ class ConvertLegacy {
 				}
 
 				foreach ( $entry->meta as $metaKey => $metaValue ) {
+					if ( $metaKey == 'user' ) {
+						$metaKey = 'user_login';
+					}
 					$metaRecord->meta_key = $metaKey;
 					$metaRecord->meta_value = $metaValue;
 					$mod->getDbH_Meta()

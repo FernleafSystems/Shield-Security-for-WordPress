@@ -737,14 +737,14 @@
       },
       "bottrack_loginfailed":    {
         "audit_params": [
-          "user"
+          "user_login"
         ],
         "level":        "alert",
         "offense":      true
       },
       "bottrack_logininvalid":   {
         "audit_params": [
-          "user"
+          "user_login"
         ],
         "level":        "alert",
         "offense":      true
