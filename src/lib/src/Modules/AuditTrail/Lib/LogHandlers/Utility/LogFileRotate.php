@@ -9,8 +9,14 @@ class LogFileRotate extends ExecOnceModConsumer {
 
 	private $logFile;
 
-	public function __construct( string $logFile ) {
+	/**
+	 * @var int
+	 */
+	private $limit;
+
+	public function __construct( string $logFile, int $limit = 5 ) {
 		$this->logFile = $logFile;
+		$this->limit = $limit;
 	}
 
 	/**
@@ -30,8 +36,9 @@ class LogFileRotate extends ExecOnceModConsumer {
 		}
 	}
 
-	protected function rotateLogs( int $limit = 5 ) {
+	protected function rotateLogs() {
 		$FS = Services::WpFs();
+		$limit = (int)max( 1, $this->limit );
 
 		$basePath = $this->logFile;
 		for ( $i = $limit ; $i >= 0 ; $i-- ) {

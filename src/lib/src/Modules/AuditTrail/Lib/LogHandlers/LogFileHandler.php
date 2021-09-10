@@ -28,10 +28,16 @@ class LogFileHandler extends StreamHandler {
 		return $opts->getLogFilePath();
 	}
 
+	public function getLogFileRotationLimit() :int {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getLogFileRotationLimit();
+	}
+
 	private function rotateLogs() {
 		if ( apply_filters( 'shield/audit_trail_rotate_log_files', true ) ) {
 			try {
-				( new Utility\LogFileRotate( $this->getLogFilePath() ) )->run();
+				( new Utility\LogFileRotate( $this->getLogFilePath(), $this->getLogFileRotationLimit() ) )->run();
 			}
 			catch ( \Exception $e ) {
 			}

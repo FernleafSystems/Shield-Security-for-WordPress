@@ -2,11 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail as DBAudit;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
 class ScanRepairs extends BaseReporter {
@@ -14,7 +12,6 @@ class ScanRepairs extends BaseReporter {
 	public function build() :array {
 		$alerts = [];
 
-		$modEvents = $this->getCon()->getModule_Events();
 		/** @var DBEvents\Select $selectorEvents */
 		$selectorEvents = $this->getCon()
 							   ->getModule_Events()

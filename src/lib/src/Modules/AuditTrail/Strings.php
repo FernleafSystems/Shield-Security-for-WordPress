@@ -277,6 +277,11 @@ class Strings extends Base\Strings {
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'docs' ),
 						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
+					),
+					sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						sprintf( __( 'Log files will be rotated daily up to a limit of %s.', 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', $opts->getLogFileRotationLimit() ) )
 					)
 				];
 				break;

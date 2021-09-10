@@ -16,9 +16,13 @@ class Options extends BaseShield\Options {
 		catch ( \Exception $e ) {
 			$dir = '';
 		}
-		$dir = apply_filters( 'shield/audit_trail_log_file_dir', $dir );
-		return empty( $dir ) ? '' :
-			apply_filters( 'shield/audit_trail_log_file_dir', path_join( $dir, 'shield.log' ) );
+
+		$path = empty( $dir ) ? '' : path_join( $dir, 'shield.log' );
+		return apply_filters( 'shield/audit_trail_log_file_path', $path );
+	}
+
+	public function getLogFileRotationLimit() :int {
+		return (int)apply_filters( 'shield/audit_trail_log_file_rotation_limit', 5 );
 	}
 
 	public function getLogLevelsDB() :array {
