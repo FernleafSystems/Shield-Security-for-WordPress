@@ -103,14 +103,14 @@ class Strings extends Base\Strings {
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Failed Login', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Attempted login failed by user "{{user}}".', 'wp-simple-firewall' ),
+					__( 'Attempted login failed by user "{{user_login}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_logininvalid'   => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Invalid Username Login', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Attempted login with invalid user "{{user}}".', 'wp-simple-firewall' ),
+					__( 'Attempted login with invalid user "{{user_login}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_useragent'      => [

@@ -109,33 +109,33 @@ class Strings extends Base\Strings {
 			'user_login'              => [
 				'name'  => __( 'User Login', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Attempted user login by "{{user}}" was successful.', 'wp-simple-firewall' ),
+					__( 'Attempted user login by "{{user_login}}" was successful.', 'wp-simple-firewall' ),
 				],
 			],
 			'user_login_app'          => [
 				'name'  => __( 'User Login By App Password', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Attempted login by "{{user}}" using application password was successful.', 'wp-simple-firewall' ),
+					__( 'Attempted login by "{{user_login}}" using application password was successful.', 'wp-simple-firewall' ),
 				],
 			],
 			'user_registered'         => [
 				'name'  => __( 'User Registered', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'New WordPress user registered.', 'wp-simple-firewall' ),
-					__( 'New username is "{{user}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+					__( 'New username is "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'user_deleted'            => [
 				'name'  => __( 'User Deleted', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'WordPress user deleted.', 'wp-simple-firewall' ),
-					__( 'Username was "{{user}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+					__( 'Username was "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'user_deleted_reassigned' => [
 				'name'  => __( 'User Deleted And Reassigned', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Deleted user posts were reassigned to user "{{user}}".', 'wp-simple-firewall' )
+					__( 'Deleted user posts were reassigned to user "{{user_login}}".', 'wp-simple-firewall' )
 				],
 			],
 			'email_attempt_send'      => [
