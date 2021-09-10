@@ -60,9 +60,9 @@ class ScanRepairs extends BaseReporter {
 					'repairs' => array_unique( array_map(
 						function ( $meta ) {
 							/** @var Meta\Ops\Record $meta */
-							return $meta->meta_value;
+							return str_replace( ABSPATH, '', $meta->meta_value );
 						},
-						$metaSelect->filterByIDs( $logIDs )
+						$metaSelect->filterByLogRefs( $logIDs )
 								   ->filterByMetaKey( 'path_full' )
 								   ->queryWithResult()
 					) ),

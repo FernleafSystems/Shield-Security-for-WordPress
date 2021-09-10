@@ -2,17 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ReportingController {
+class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 
-	use Modules\ModConsumer;
-	use ExecOnce;
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
