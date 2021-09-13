@@ -121,15 +121,6 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function updateAllAsNotified() {
-		/** @var Databases\Scanner\Update $updater */
-		$updater = $this->getScanResultsDbHandler()->getQueryUpdater();
-		return $updater->setAllNotifiedForScan( $this->getSlug() );
-	}
-
-	/**
 	 * @param bool $includeIgnored
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
@@ -200,24 +191,20 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
 	}
 
-	/**
-	 * @return $this
-	 */
-	public function resetIgnoreStatus() {
-		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
-		$oUpd->clearIgnoredAtForScan( $this->getSlug() );
-		return $this;
+	public function resetIgnoreStatus() :bool {
+		return $this->getScanResultsDbHandler()
+					->getQueryUpdater()
+					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
+					->setUpdateData( [ 'ignored_at' => 0 ] )
+					->query() !== false;
 	}
 
-	/**
-	 * @return $this
-	 */
-	public function resetNotifiedStatus() {
-		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
-		$oUpd->clearNotifiedAtForScan( $this->getSlug() );
-		return $this;
+	public function resetNotifiedStatus() :bool {
+		return $this->getScanResultsDbHandler()
+					->getQueryUpdater()
+					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
+					->setUpdateData( [ 'notified_at' => 0 ] )
+					->query() !== false;
 	}
 
 	/**
