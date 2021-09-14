@@ -37,8 +37,15 @@ class LoadRawTableData extends BaseLoadTableData {
 
 		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 
-		return array_values( array_map(
+		return array_filter( array_values( array_map(
 			function ( $log ) {
+				/**
+				 * @deprecated 12.0 - this just removes dud entries from the conversion.
+				 */
+				if ( empty( $log->meta[ 'path' ] ) ) {
+					return null;
+				}
+
 				$WPU = Services::WpUsers();
 
 				$log->meta = array_merge(
@@ -52,6 +59,7 @@ class LoadRawTableData extends BaseLoadTableData {
 					],
 					$log->meta
 				);
+
 				$this->log = $log;
 
 				$data = $log->getRawData();
@@ -85,7 +93,7 @@ class LoadRawTableData extends BaseLoadTableData {
 				return $data;
 			},
 			$this->getLogRecords()
-		) );
+		) ) );
 	}
 
 	/**

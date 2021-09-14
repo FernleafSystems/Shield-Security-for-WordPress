@@ -37,10 +37,10 @@ class LoadLogs {
 						FROM `%s` as `req`
 						%s
 						INNER JOIN `%s` as `ips`
-							ON req.ip_ref = ips.id 
+							ON req.ip_ref = ips.id
 						ORDER BY `req`.created_at DESC;',
 				$mod->getDbH_ReqLogs()->getTableSchema()->table,
-				empty( $ip ) ? '' : sprintf( "WHERE `ips`.ip='%s'", inet_pton( $ip ) ),
+				empty( $ip ) ? '' : sprintf( "WHERE `ips`.ip==INET6_ATON('%s')", $ip ),
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
