@@ -18,7 +18,7 @@ class Strings extends Base\Strings {
 					__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ),
 				],
 			],
-			'not_conn_kill_high_rep'  => [
+			'conn_not_kill_high_rep'  => [
 				'name'  => __( 'Connection Not Killed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'IP address has a high reputation so connection allowed.', 'wp-simple-firewall' ),

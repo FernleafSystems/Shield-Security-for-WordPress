@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-/**
- * Class Scan
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
- */
 class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 
 	/**

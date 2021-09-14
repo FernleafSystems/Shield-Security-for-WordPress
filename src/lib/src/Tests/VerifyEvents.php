@@ -13,6 +13,8 @@ class VerifyEvents {
 
 		$NoKey = [];
 		$NotEnoughSubstitutions = [];
+		$SubstitutionsMismatch = [];
+		$OldStyleSprintfSubstitutions = [];
 		$NotEnoughParams = [];
 		$NoMsgs = [];
 		$srvEvents = $con->loadEventsService();
@@ -30,19 +32,28 @@ class VerifyEvents {
 				else {
 					$paramCount = count( $evt[ 'audit_params' ] );
 
-					$subCount = substr_count( $msg, '%s' );
-					if ( $subCount > 0 ) {
-						if ( $paramCount > $subCount ) {
-							$NotEnoughSubstitutions[] = $key;
-						}
-						elseif ( $paramCount < $subCount ) {
-							$NotEnoughParams[] = $key;
-						}
+					if ( substr_count( $msg, '%s' ) > 0 ) {
+						$OldStyleSprintfSubstitutions[] = $key;
 					}
 					else {
-						preg_match_all( '#{{[a-z]+}}#i', $msg, $matches );
-						if ( $paramCount < max( 0, count( $matches[ 0 ] ) ) ) {
+						preg_match_all( '#{{[a-z_]+}}#i', $msg, $matches );
+						$substitutionPlaceholders = $matches[ 0 ];
+						if ( $paramCount < count( $substitutionPlaceholders ) ) {
 							$NotEnoughParams[] = $key;
+						}
+						elseif ( count( $substitutionPlaceholders ) > $paramCount ) {
+							$NotEnoughSubstitutions[] = $key;
+						}
+						elseif ( !empty( $substitutionPlaceholders ) ) {
+							$substitutionPlaceholders = array_map(
+								fn( $placeholder ) => trim( $placeholder, '{}' ),
+								$substitutionPlaceholders
+							);
+
+							// audit_params that aren't present in the string is ok, but not the other way around.
+							if ( !empty( array_diff( $substitutionPlaceholders, $evt[ 'audit_params' ] ) ) ) {
+								$SubstitutionsMismatch[] = $key;
+							}
 						}
 					}
 				}
@@ -64,6 +75,10 @@ class VerifyEvents {
 		if ( !empty( $NotEnoughParams ) ) {
 			var_dump( 'Not enough parameters in the event def' );
 			var_dump( $NotEnoughParams );
+		}
+		if ( !empty( $SubstitutionsMismatch ) ) {
+			var_dump( 'There is a mismatch between substitutions placeholders and audit params' );
+			var_dump( $SubstitutionsMismatch );
 		}
 	}
 }

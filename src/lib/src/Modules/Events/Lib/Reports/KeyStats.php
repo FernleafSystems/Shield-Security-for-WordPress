@@ -15,8 +15,6 @@ class KeyStats extends BaseReporter {
 		$mod = $this->getMod();
 		/** @var DBEvents\Select $selector */
 		$selector = $mod->getDbHandler_Events()->getQuerySelector();
-		/** @var Events\Strings $strings */
-		$strings = $mod->getStrings();
 
 		$eventKeys = [
 			'ip_offense',

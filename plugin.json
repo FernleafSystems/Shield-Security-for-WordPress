@@ -1,7 +1,7 @@
 {
   "properties":       {
     "version":                 "11.5.12",
-    "release_timestamp":       1628069509,
+    "release_timestamp":       1628069503,
     "build":                   "202109.0201",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",

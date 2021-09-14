@@ -156,14 +156,14 @@
       }
     },
     "events":           {
-      "report_generated":   {
+      "report_generated": {
         "audit_params": [
           "type",
           "interval"
         ],
         "level":        "debug"
       },
-      "report_sent": {
+      "report_sent":      {
         "audit_params": [
           "medium"
         ],

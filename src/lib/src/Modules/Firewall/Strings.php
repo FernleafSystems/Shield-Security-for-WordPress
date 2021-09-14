@@ -207,7 +207,7 @@ class Strings extends Base\Strings {
 			'fw_email_fail'    => [
 				'name'  => __( 'Firewall Block Email Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' )
+					__( 'Failed to send Firewall Block email alert to: {{to}}', 'wp-simple-firewall' )
 				],
 			],
 		];
