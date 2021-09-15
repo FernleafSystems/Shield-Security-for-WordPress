@@ -84,10 +84,9 @@ class BuildDisplay {
 			->lookup( true );
 
 		$geo = ( new Lookup() )
-			->setDbHandler( $con->getModule_Plugin()->getDbHandler_GeoIp() )
+			->setCon( $con )
 			->setIP( $ip )
 			->lookupIp();
-		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
 
 		$sRDNS = gethostbyaddr( $ip );
 
@@ -191,19 +190,19 @@ class BuildDisplay {
 					'identity' => [
 						'who_is_it'    => $ipName,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
-						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
-						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),
-						'coordinates'  => $validGeo ? sprintf( '%s: %s; %s: %s;',
-							__( 'Latitude', 'wp-simple-firewall' ), $geo->getLatitude(),
-							__( 'Longitude', 'wp-simple-firewall' ), $geo->getLongitude() )
-							: 'Unknown'
+						'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
+						'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
+						'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
+							__( 'Latitude', 'wp-simple-firewall' ), $geo->latitude,
+							__( 'Longitude', 'wp-simple-firewall' ), $geo->longitude )
+							: __( 'Unknown', 'wp-simple-firewall' )
 					],
 					'extras'   => [
 						'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),
 					],
 				],
 				'flags'   => [
-					'has_geo' => $validGeo,
+					'has_geo' => !empty( $geo->getRawData() ),
 				],
 			],
 			true

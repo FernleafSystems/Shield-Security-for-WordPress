@@ -72,9 +72,9 @@ class LoadRawTableData extends BaseLoadTableData {
 				$data[ 'path' ] = empty( $this->log->meta[ 'path' ] ) ? '-'
 					: explode( '?', $this->log->meta[ 'path' ], 2 )[ 0 ];
 
-				$ipGeo = $this->getCountryIP( $this->log->ip );
-				$data[ 'country' ] = empty( $ipGeo->getCountryCode() ) ?
-					__( 'Unknown', 'wp-simple-firewall' ) : $ipGeo->getCountryName();
+				$geo = $this->getCountryIP( $this->log->ip );
+				$data[ 'country' ] = empty( $geo->countryCode ) ?
+					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
 
 				$userID = $this->log->meta[ 'uid' ] ?? 0;
 				if ( $userID > 0 ) {
@@ -106,17 +106,16 @@ class LoadRawTableData extends BaseLoadTableData {
 	}
 
 	private function getColumnContent_Details() :string {
-		$countryGeo = $this->getCountryIP( $this->log->ip );
-		$countryISO = $countryGeo->getCountryCode();
-		if ( empty( $countryISO ) ) {
+		$geo = $this->getCountryIP( $this->log->ip );
+		if ( empty( $geo->countryCode ) ) {
 			$country = __( 'Unknown', 'wp-simple-firewall' );
 		}
 		else {
 			$country = sprintf(
 				'<img class="icon-flag" src="%s" alt="%s" width="24px"/> %s',
-				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', strtolower( $countryISO ) ),
-				$countryISO,
-				$countryGeo->getCountryName()
+				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', strtolower( $geo->countryCode ) ),
+				$geo->countryCode,
+				$geo->countryName
 			);
 		}
 
@@ -202,11 +201,7 @@ class LoadRawTableData extends BaseLoadTableData {
 
 	private function getCountryIP( string $ip ) {
 		if ( empty( $this->geoLookup ) ) {
-			$this->geoLookup = ( new Lookup() )
-				->setDbHandler( $this->getCon()
-									 ->getModule_Plugin()
-									 ->getDbHandler_GeoIp()
-				);
+			$this->geoLookup = ( new Lookup() )->setCon( $this->getCon() );
 		}
 		return $this->geoLookup
 			->setIP( $ip )

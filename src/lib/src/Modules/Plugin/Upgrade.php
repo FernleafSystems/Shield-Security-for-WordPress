@@ -16,6 +16,7 @@ class Upgrade extends Base\Upgrade {
 	protected function upgrade_1200() {
 		// remove old tables that have somehow been missed in the past.
 		$tables = [
+			'geoip',
 			'reporting',
 			'spambot_comments_filter',
 			'statistics',
