@@ -20,7 +20,7 @@ class AuditMessageBuilder {
 			$stringSubs[ sprintf( '{{%s}}', $subKey ) ] = $subValue;
 		}
 
-		$log = preg_replace( '#{{[a-z]+}}#i', 'missing data', strtr( $raw, $stringSubs ) );
+		$log = preg_replace( '#{{[a-z_]+}}#i', 'missing data', strtr( $raw, $stringSubs ) );
 
 		$auditCount = (int)( $substitutions[ 'audit_count' ] ?? 1 );
 		if ( $srvEvents->getEventDef( $event )[ 'audit_countable' ] && $auditCount > 1 ) {
