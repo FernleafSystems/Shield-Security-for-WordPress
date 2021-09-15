@@ -30,7 +30,7 @@ class Lookup {
 				->loadIP( $this->getIP(), true );
 
 			if ( is_null( $ipRecord->geo )
-				 || Services::Request()->carbon()->subMonth() > @$ipRecord->geo[ 'ts' ] ) {
+				 || Services::Request()->carbon()->subMonth()->timestamp > @$ipRecord->geo[ 'ts' ] ) {
 				$ipRecord->geo = $this->redirectliIpLookup();
 				$this->getCon()
 					 ->getModule_Data()
