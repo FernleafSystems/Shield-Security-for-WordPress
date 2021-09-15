@@ -31,6 +31,16 @@
       }
     }
   ],
+  "admin_notices":    {
+    "new-audit-trail": {
+      "id":               "new-audit-trail",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      true,
+      "type":             "info"
+    }
+  },
   "sections":         [
     {
       "slug":        "section_localdb",

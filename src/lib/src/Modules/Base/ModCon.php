@@ -983,7 +983,7 @@ abstract class ModCon {
 
 	public function isPage_InsightsThisModule() :bool {
 		return $this->isPage_Insights()
-			   && Services::Request()->query( 'subnav' ) == $this->getSlug();
+			   && Services::Request()->query( 'inav' ) == $this->getSlug();
 	}
 
 	protected function isModuleOptionsRequest() :bool {

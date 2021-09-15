@@ -142,23 +142,18 @@ class ModCon extends BaseShield\ModCon {
 				case 'scans_results':
 				case 'scans_run':
 				case 'audit':
+				case 'audit_trail':
 				case 'traffic':
 				case 'ips':
 				case 'debug':
 				case 'users':
 				case 'stats':
 
-					$enq[ Enqueue::JS ][] = 'shield-tables';
 					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield-scans';
 					}
 					elseif ( $inav == 'ips' ) {
 						$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
-					}
-
-					if ( in_array( $inav, [ 'audit', 'traffic' ] ) ) {
-						$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
-						$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
 					}
 					break;
 			}

@@ -12,7 +12,7 @@ class UI extends BaseShield\UI {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/audit/audit_table.twig',
+			'/wpadmin_pages/insights/audit_trail/audit_table.twig',
 			[
 				'ajax'    => [
 					'logtable_action' => $mod->getAjaxActionData( 'logtable_action', true ),

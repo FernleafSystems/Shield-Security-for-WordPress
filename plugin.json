@@ -1,6 +1,6 @@
 {
   "properties":       {
-    "version":                 "11.5.12",
+    "version":                 "12.0.0",
     "release_timestamp":       1628069503,
     "build":                   "202109.0201",
     "slug_parent":             "icwp",

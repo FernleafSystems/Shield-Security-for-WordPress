@@ -127,7 +127,7 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$slug = 'audit';
+		$slug = 'audit_trail';
 		$subItems = [
 			[
 				'slug'   => $slug.'-log',

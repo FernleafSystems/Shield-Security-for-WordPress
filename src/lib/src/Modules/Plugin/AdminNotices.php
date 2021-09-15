@@ -21,10 +21,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_PluginTooOld( $notice );
 				break;
 
-			case 'php7':
-				$this->buildNotice_Php7( $notice );
-				break;
-
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $notice );
 				break;
@@ -107,30 +103,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'hrefs'             => [
 				'click_update' => Services::WpGeneral()->getAdminUrl_Updates()
-			]
-		];
-	}
-
-	private function buildNotice_Php7( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'     => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s 10+ Wont Be Available For Your Site", 'wp-simple-firewall' ), $name ) ),
-				'lines'     => [
-					sprintf(
-						__( '%s 10 wont support old versions of PHP, including yours (PHP: %s).', 'wp-simple-firewall' ),
-						$name, Services::Data()->getPhpVersionCleaned( true )
-					),
-					__( "We recommended updating your server's PHP version ASAP.", 'wp-simple-firewall' )
-					.' '.__( "Your webhost will be able to help guide you in this.", 'wp-simple-firewall' ),
-				],
-				'read_more' => __( 'Click here to read more about this', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'read_more' => 'https://shsec.io/h3'
 			]
 		];
 	}
@@ -329,10 +301,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'override-forceoff':
 				$needed = $con->getIfForceOffActive();
-				break;
-
-			case 'php7':
-				$needed = !Services::Data()->getPhpVersionIsAtLeast( '7.0' );
 				break;
 
 			case 'plugin-disabled':

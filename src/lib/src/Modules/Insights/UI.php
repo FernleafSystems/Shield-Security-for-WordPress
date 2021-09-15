@@ -66,6 +66,7 @@ class UI extends BaseShield\UI {
 		switch ( $inav ) {
 
 			case 'audit':
+			case 'audit_trail':
 				$modAudit = $con->getModule_AuditTrail();
 				/** @var Shield\Modules\AuditTrail\UI $auditUI */
 				$auditUI = $modAudit->getUIHandler();
@@ -196,6 +197,7 @@ class UI extends BaseShield\UI {
 			'docs'          => __( 'Docs', 'wp-simple-firewall' ),
 			'ips'           => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
 			'audit'         => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'audit_trail'   => __( 'Audit Trail', 'wp-simple-firewall' ),
 			'traffic'       => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),

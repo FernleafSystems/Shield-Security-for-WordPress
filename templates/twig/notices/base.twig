@@ -13,12 +13,22 @@
 				<h3 class="notice-title">{{ strings.title|title }}</h3>
 			{% endif %}
 			<div>
-				{% block notice_body %}{% endblock %}
+				{% block notice_body %}
+					{% if strings.lines|default([]) is not empty %}
+						{% for line in strings.lines %}
+							<p>{{ line }}</p>
+						{% endfor %}
+					{% endif %}
+
+					{% if strings.read_more|default('') is not empty %}
+						<p><a href="{{ hrefs.read_more }}" target="_blank">{{ strings.read_more }}</a></p>
+					{% endif %}
+				{% endblock %}
 			</div>
 		</div>
 
-		<div class="dismiss-p">
-			<a class="icwp-notice-dismiss" href="#"><?php echo $strings[ 'dismiss' ]; ?></a>
+		<div class="dismiss-p" style="margin-bottom: 15px">
+			<a class="icwp-notice-dismiss" href="#">{{ strings.dismiss|default('Dismss') }}</a>
 		</div>
 
 		<div style="clear:both;"></div>
