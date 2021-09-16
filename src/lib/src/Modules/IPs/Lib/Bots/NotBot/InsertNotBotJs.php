@@ -15,7 +15,27 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			   || ( $req->ts() - ( new BotSignalsRecord() )
 					->setMod( $this->getMod() )
 					->setIP( Services::IP()->getRequestIp() )
-					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*45;
+					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*45
+			   || $this->isForcedForOptimisationPlugins();
+	}
+
+	/**
+	 * Looks for the presence of certain caching plugins and forces notbot to load.
+	 */
+	private function isForcedForOptimisationPlugins() :bool {
+		return (bool)apply_filters(
+			'shield/notbot_force_load',
+			!empty( array_intersect(
+				array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
+				[
+					'wpFastestCache.php',
+					'wp-cache.php', // Super Cache
+					'wp-hummingbird.php',
+					'sg-cachepress.php',
+					'autoptimize.php',
+				]
+			) ) > 0
+		);
 	}
 
 	protected function run() {
