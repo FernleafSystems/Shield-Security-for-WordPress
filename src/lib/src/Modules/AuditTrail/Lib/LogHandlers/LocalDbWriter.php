@@ -124,7 +124,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 		$ipRecordID = ( new IPRecords() )
 			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
+			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
 			->id;
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
 			->setMod( $this->getCon()->getModule_Data() )

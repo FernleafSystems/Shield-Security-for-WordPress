@@ -18,7 +18,7 @@ class RequestMetaProcessor implements ProcessorInterface {
 		$req = Services::Request();
 		$leadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $req->getHost() : '';
 
-		$record[ 'extra' ][ 'meta_request' ] = array_filter( [
+		$record[ 'extra' ][ 'meta_request' ] = [
 			'ip'   => $isWpCli ? '' : (string)Services::IP()->getRequestIp(),
 			'rid'  => Services::Request()->getID( true, 10 ),
 			'ts'   => microtime( true ),
@@ -26,7 +26,7 @@ class RequestMetaProcessor implements ProcessorInterface {
 			'verb' => $isWpCli ? '' : strtoupper( $req->getMethod() ),
 			'path' => $isWpCli ? '' : ( $leadingPath.$req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) ) ),
 			'code' => $isWpCli ? '' : http_response_code(),
-		] );
+		];
 
 		return $record;
 	}
