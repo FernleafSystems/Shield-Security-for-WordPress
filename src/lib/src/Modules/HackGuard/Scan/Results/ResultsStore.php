@@ -16,8 +16,13 @@ class ResultsStore {
 
 	/**
 	 * @param Scans\Base\ResultsSet $resultsToStore
+	 * @throws \Exception
 	 */
 	public function store( $resultsToStore ) {
+		if ( !$resultsToStore->hasItems() ) {
+			throw new \Exception( 'No items' );
+		}
+
 		$scanCon = $this->getScanController();
 		$dbh = $scanCon->getScanResultsDbHandler();
 

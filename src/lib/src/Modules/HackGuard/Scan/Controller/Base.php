@@ -67,9 +67,13 @@ abstract class Base extends ExecOnceModConsumer {
 				$results->removeItemByHash( $item->hash );
 			}
 		}
-		( new HackGuard\Scan\Results\ResultsDelete() )
-			->setScanController( $this )
-			->delete( $results, true );
+		try {
+			( new HackGuard\Scan\Results\ResultsDelete() )
+				->setScanController( $this )
+				->delete( $results, true );
+		}
+		catch ( \Exception $e ) {
+		}
 
 		$this->cleanStalesDeletedResults();
 	}

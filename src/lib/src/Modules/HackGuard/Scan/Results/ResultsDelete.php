@@ -16,9 +16,15 @@ class ResultsDelete {
 
 	/**
 	 * @param Scans\Base\ResultsSet $resultsToDelete
+	 * @param bool                  $softDelete
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public function delete( $resultsToDelete, bool $soft = true ) {
+	public function delete( $resultsToDelete, bool $softDelete = true ) {
+		if ( !$resultsToDelete->hasItems() ) {
+			throw new \Exception( 'No items' );
+		}
+
 		$hashes = array_filter( array_map(
 			function ( $item ) {
 				return (string)$item->hash;
@@ -28,7 +34,7 @@ class ResultsDelete {
 
 		$success = true;
 		if ( !empty( $hashes ) ) {
-			if ( $soft ) {
+			if ( $softDelete ) {
 				$success = $this->softDelete( $hashes );
 			}
 			else {
