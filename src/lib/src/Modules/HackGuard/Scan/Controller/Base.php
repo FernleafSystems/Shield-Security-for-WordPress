@@ -129,6 +129,7 @@ abstract class Base extends ExecOnceModConsumer {
 		/** @var Databases\Scanner\Select $sel */
 		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$sel->filterByScan( $this->getSlug() )
+			->filterByNoRepairAttempted()
 			->filterByNotIgnored();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )

@@ -34,7 +34,8 @@ class ResultsStore {
 		/** @var Databases\Scanner\Select $selector */
 		$selector = $dbh->getQuerySelector();
 		/** @var Databases\Scanner\EntryVO[] $existing */
-		$existing = $selector->filterByHashes( array_keys( $VOs ) )
+		$existing = $selector->filterByScan( $scanCon->getSlug() )
+							 ->filterByHashes( array_keys( $VOs ) )
 							 ->setIncludeSoftDeleted( true )
 							 ->query();
 

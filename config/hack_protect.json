@@ -508,8 +508,9 @@
         "severity": "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'"
       },
       "cols_timestamps": {
-        "ignored_at":  "Scan Result Ignored",
-        "notified_at": "Scan Notifiation Sent"
+        "ignored_at":        "Scan Result Ignored",
+        "notified_at":       "Scan Notifiation Sent",
+        "attempt_repair_at": "Attempted Repair At"
       }
     },
     "db_table_scanq":              {

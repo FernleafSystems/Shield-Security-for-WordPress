@@ -42,6 +42,13 @@ trait Common {
 	/**
 	 * @return $this
 	 */
+	public function filterByNoRepairAttempted() {
+		return $this->addWhereEquals( 'attempt_repair_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 */
 	public function filterByNotified() {
 		return $this->addWhereOlderThan( 0, 'notified_at' );
 	}
