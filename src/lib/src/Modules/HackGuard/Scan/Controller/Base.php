@@ -69,7 +69,18 @@ abstract class Base extends ExecOnceModConsumer {
 		}
 		( new HackGuard\Scan\Results\ResultsDelete() )
 			->setScanController( $this )
-			->delete( $results );
+			->delete( $results, true );
+
+		$this->cleanStalesDeletedResults();
+	}
+
+	public function cleanStalesDeletedResults() {
+		/** @var Databases\Scanner\Delete $deleter */
+		$deleter = $this->getScanResultsDbHandler()->getQueryDeleter();
+		$deleter->addWhere( 'deleted_at', 0, '>' )
+				->addWhereOlderThan( Services::Request()->carbon()->subMonths( 1 )->timestamp, 'deleted_at' )
+				->filterByScan( $this->getSlug() )
+				->query();
 	}
 
 	public function createFileDownloadLink( int $recordID ) :string {

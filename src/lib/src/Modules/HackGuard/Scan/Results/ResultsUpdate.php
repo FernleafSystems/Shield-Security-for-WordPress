@@ -40,13 +40,11 @@ class ResultsUpdate {
 		$converter = ( new ConvertBetweenTypes() )->setScanController( $scanCon );
 		foreach ( $converter->fromResultsToVOs( $existing ) as $vo ) {
 			$updater->reset()
+					->setUpdateWheres( [
+						'scan' => $scanCon->getSlug(),
+						'hash' => $vo->hash,
+					] )
 					->setUpdateData( $vo->getRawData() )
-					->setUpdateWheres(
-						[
-							'scan' => $scanCon->getSlug(),
-							'hash' => $vo->hash,
-						]
-					)
 					->query();
 		}
 	}
