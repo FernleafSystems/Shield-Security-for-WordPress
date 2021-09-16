@@ -32,8 +32,8 @@ class Processor extends BaseShield\Processor {
 			$mod->getImpExpController()->execute();
 		}
 
-		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $isDelete ) use ( $opts ) {
-			return $isDelete || $opts->isOpt( 'delete_on_deactivate', 'Y' );
+		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
 		add_action( $con->prefix( 'dashboard_widget_content' ), function () {
