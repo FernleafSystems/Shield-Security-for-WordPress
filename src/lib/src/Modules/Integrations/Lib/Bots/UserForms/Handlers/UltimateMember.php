@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 /**
  * https://wordpress.org/plugins/ultimate-member/
- *
- * Class UltimateMember
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
  */
 class UltimateMember extends Base {
 

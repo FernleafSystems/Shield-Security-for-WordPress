@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Ssl;
+use ZxcvbnPhp\Zxcvbn;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
@@ -67,11 +68,11 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		// db password strength
-		$bStrong = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] >= 4;
+		$strong = ( new Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] >= 4;
 		$cards[ 'db_strength' ] = [
 			'name'    => __( 'DB Password', 'wp-simple-firewall' ),
-			'state'   => $bStrong >= 4 ? 1 : -1,
-			'summary' => $bStrong ?
+			'state'   => $strong >= 4 ? 1 : -1,
+			'summary' => $strong ?
 				__( 'WP Database password is very strong', 'wp-simple-firewall' )
 				: __( "WP Database password appears to be weak", 'wp-simple-firewall' ),
 			'href'    => '',

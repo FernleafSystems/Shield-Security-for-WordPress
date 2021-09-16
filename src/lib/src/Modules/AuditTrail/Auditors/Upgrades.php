@@ -55,57 +55,57 @@ class Upgrades extends Base {
 		if ( $action === 'update' && in_array( $type, [ 'plugin', 'theme' ] ) ) {
 			if ( !empty( $data[ 'plugins' ] ) && is_array( $data[ 'plugins' ] ) ) {
 				foreach ( $data[ 'plugins' ] as $item ) {
-					if ( isset( $this->plugins[ $item ] ) ) {
-						$this->handlePlugin( $item );
-					}
+					$this->handlePlugin( $item );
 				}
 			}
 			elseif ( !empty( $data[ 'themes' ] ) && is_array( $data[ 'themes' ] ) ) {
 				foreach ( $data[ 'themes' ] as $item ) {
-					if ( isset( $this->themes[ $item ] ) ) {
-						$this->handleTheme( $item );
-					}
+					$this->handleTheme( $item );
 				}
 			}
 		}
 	}
 
 	private function handlePlugin( string $item ) {
-		$WPP = Services::WpPlugins();
-		$VO = $WPP->getPluginAsVo( $item, true );
-		if ( !empty( $VO ) ) {
-			$this->getCon()->fireEvent(
-				'plugin_upgraded',
-				[
-					'audit' => [
-						'file' => $VO->Name,
-						'from' => $this->plugins[ $item ],
-						'to'   => $VO->Version,
+		if ( isset( $this->plugins[ $item ] ) ) {
+			$WPP = Services::WpPlugins();
+			$VO = $WPP->getPluginAsVo( $item, true );
+			if ( !empty( $VO ) ) {
+				$this->getCon()->fireEvent(
+					'plugin_upgraded',
+					[
+						'audit_params' => [
+							'plugin' => $VO->file, // was 'file'
+							'from'   => $this->plugins[ $item ],
+							'to'     => $VO->Version,
+						]
 					]
-				]
-			);
+				);
+				unset( $this->plugins[ $item ] );
+			}
 		}
 	}
 
 	/**
-	 * Hooked into 'shutdown' to ensure that the latest theme data is avaiable
-	 * so that we can get the "upgraded to" version correctly.
-	 * @param string $item
+	 * uses "isset()" to prevent duplicates.
 	 */
 	private function handleTheme( string $item ) {
-		$WPT = Services::WpThemes();
-		$VO = $WPT->getThemeAsVo( $item, true );
-		if ( !empty( $VO ) ) {
-			$this->getCon()->fireEvent(
-				'theme_upgraded',
-				[
-					'audit' => [
-						'file' => $VO->Name,
-						'from' => $this->themes[ $item ],
-						'to'   => $VO->Version,
+		if ( isset( $this->themes[ $item ] ) ) {
+			$WPT = Services::WpThemes();
+			$VO = $WPT->getThemeAsVo( $item, true );
+			if ( !empty( $VO ) ) {
+				$this->getCon()->fireEvent(
+					'theme_upgraded',
+					[
+						'audit_params' => [
+							'theme' => $VO->stylesheet, // was 'file'
+							'from'  => $this->themes[ $item ],
+							'to'    => $VO->Version,
+						]
 					]
-				]
-			);
+				);
+				unset( $this->themes[ $item ] );
+			}
 		}
 	}
 }

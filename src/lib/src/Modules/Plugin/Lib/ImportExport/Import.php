@@ -100,21 +100,21 @@ class Import {
 	}
 
 	/**
-	 * @param string    $sMasterSiteUrl
+	 * @param string    $masterSiteURL
 	 * @param string    $sSecretKey
 	 * @param bool|null $bEnableNetwork
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function fromSite( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null ) {
+	public function fromSite( $masterSiteURL = '', $sSecretKey = '', $bEnableNetwork = null ) {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 		$DP = Services::Data();
 
-		if ( empty( $sMasterSiteUrl ) ) {
-			$sMasterSiteUrl = $opts->getImportExportMasterImportUrl();
+		if ( empty( $masterSiteURL ) ) {
+			$masterSiteURL = $opts->getImportExportMasterImportUrl();
 		}
 
 		$sOriginalMasterSiteUrl = $opts->getImportExportMasterImportUrl();
@@ -132,7 +132,7 @@ class Import {
 		}
 
 		// Ensure we have entries for 'scheme' and 'host'
-		$aUrlParts = wp_parse_url( $sMasterSiteUrl );
+		$aUrlParts = wp_parse_url( $masterSiteURL );
 		$bHasParts = !empty( $aUrlParts )
 					 && count(
 							array_filter( array_intersect_key(
@@ -143,8 +143,8 @@ class Import {
 		if ( !$bHasParts ) {
 			throw new \Exception( "Couldn't parse the URL into its parts", 4 );
 		}
-		$sMasterSiteUrl = $DP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
-		if ( empty( $sMasterSiteUrl ) ) {
+		$masterSiteURL = $DP->validateSimpleHttpUrl( $masterSiteURL ); // final clean
+		if ( empty( $masterSiteURL ) ) {
 			throw new \Exception( "Couldn't validate the URL.", 4 );
 		}
 
@@ -166,7 +166,7 @@ class Import {
 		}
 
 		{ // Make the request
-			$sFinalUrl = add_query_arg( $data, $sMasterSiteUrl );
+			$sFinalUrl = add_query_arg( $data, $masterSiteURL );
 			$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
 			$response = @json_decode( $sResponse, true );
 
@@ -189,7 +189,7 @@ class Import {
 			throw new \Exception( "Response data was empty", 8 );
 		}
 
-		$this->processDataImport( $response[ 'data' ], $sMasterSiteUrl );
+		$this->processDataImport( $response[ 'data' ], $masterSiteURL );
 
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
@@ -199,10 +199,10 @@ class Import {
 			}
 		}
 		elseif ( $bEnableNetwork === true ) {
-			$mod->setImportExportMasterImportUrl( $sMasterSiteUrl );
+			$mod->setImportExportMasterImportUrl( $masterSiteURL );
 			$this->getCon()->fireEvent(
 				'master_url_set',
-				[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
+				[ 'audit_params' => [ 'site' => $masterSiteURL ] ]
 			);
 		}
 		elseif ( $bEnableNetwork === false ) {
@@ -220,7 +220,7 @@ class Import {
 				$oTheseOpts = $mod->getOptions();
 				$oTheseOpts->setMultipleOptions(
 					array_diff_key(
-						$data[ $mod->getOptionsStorageKey() ],
+						$data[ $mod->getOptionsStorageKey() ] ?? [],
 						array_flip( $oTheseOpts->getXferExcluded() )
 					)
 				);
@@ -233,7 +233,7 @@ class Import {
 		if ( $anythingChanged ) {
 			$this->getCon()->fireEvent(
 				'options_imported',
-				[ 'audit' => [ 'site' => $source ] ]
+				[ 'audit_params' => [ 'site' => $source ] ]
 			);
 		}
 	}

@@ -8,64 +8,98 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
+	/**
+	 * @inheritDoc
+	 */
+	public function getEventStrings() :array {
+		return [
+			'scan_run'                 => [
+				'name'  => __( 'Scan Completed', 'wp-simple-firewall' ),
+				'audit' => [
+					sprintf( '%s: {{scan}}', __( 'Scan Completed', 'wp-simple-firewall' ) ),
+				],
+			],
+			'scan_item_delete_success' => [
+				'name'  => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Deleted item found in the scan.', 'wp-simple-firewall' ),
+					__( 'Item deleted: "{{path_full}}"', 'wp-simple-firewall' ),
+				],
+			],
+			'scan_item_repair_success' => [
+				'name'  => __( 'Scan Item Repair Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Repaired item found in the scan.', 'wp-simple-firewall' ),
+					__( 'Item repaired: "{{path_full}}"', 'wp-simple-firewall' ),
+				],
+			],
+			'scan_item_repair_fail'    => [
+				'name'  => __( 'Scan Item Repair Failure', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Failed to repair scan item.', 'wp-simple-firewall' ),
+					__( 'Failed item: "{{path_full}}"', 'wp-simple-firewall' ),
+				],
+			],
+			'scan_items_found'         => [
+				'name'  => __( 'Items Found In Scan', 'wp-simple-firewall' ),
+				'audit' => [
+					__( '{{scan}}: scan completed and items were discovered.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s {{items}}',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
+					),
+				],
+			],
+		];
+	}
+
 	public function getScanName( string $slug ) :string {
-		return $this->getScanNames()[ $slug ];
+		return $this->getScanStrings()[ $slug ][ 'name' ];
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 12.0
+	 */
+	public function getScanNames() :array {
+		return array_map(
+			function ( $strings ) {
+				return $strings[ 'name' ];
+			},
+			$this->getScanStrings()
+		);
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getScanNames() :array {
+	public function getScanStrings() :array {
 		return [
-			'apc' => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
-			'ptg' => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-			'mal' => __( 'Malware', 'wp-simple-firewall' ),
-			'ufc' => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-			'wcf' => __( 'WordPress Core Files', 'wp-simple-firewall' ),
-			'wpv' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+			'apc' => [
+				'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),
+			],
+			'ptg' => [
+				'name'     => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
+				'subtitle' => __( "Be alerted to file changes for all your plugins and themes", 'wp-simple-firewall' ),
+			],
+			'mal' => [
+				'name'     => __( 'Malware', 'wp-simple-firewall' ),
+				'subtitle' => __( "Detect files that may be infected with malware", 'wp-simple-firewall' ),
+			],
+			'ufc' => [
+				'name'     => __( 'Unrecognised Files', 'wp-simple-firewall' ),
+				'subtitle' => __( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' ),
+			],
+			'wcf' => [
+				'name'     => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+			],
+			'wpv' => [
+				'name'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+				'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
+			],
 		];
-	}
-
-	/**
-	 * @return string[][]
-	 */
-	protected function getAuditMessages() :array {
-		$messages = [];
-		foreach ( $this->getScanNames() as $slug => $scanName ) {
-			$messages[ $slug.'_alert_sent' ] = [
-				sprintf( __( '%s scan alert sent.', 'wp-simple-firewall' ), $scanName )
-				.' '.__( 'Alert sent to %s via %s.' )
-			];
-			$messages[ $slug.'_scan_found' ] = [
-				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $scanName ),
-				sprintf( '%s: %s',
-					__( 'Note', 'wp-simple-firewall' ),
-					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
-				),
-				'%s'
-			];
-			$messages[ 'scan_item_delete_success' ] = [
-				__( 'Deleted item found in the scan.', 'wp-simple-firewall' )
-				.' '.__( 'Item deleted: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ 'scan_item_repair_success' ] = [
-				__( 'Repaired item found in the scan.', 'wp-simple-firewall' )
-				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ 'scan_item_repair_fail' ] = [
-				__( 'Failed to repair scan item.', 'wp-simple-firewall' )
-				.' '.__( 'Failed item: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ $slug.'_item_repair_success' ] = [
-				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $scanName )
-				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
-			];
-			$messages[ $slug.'_item_repair_fail' ] = [
-				sprintf( __( '%s scan could not repair item.', 'wp-simple-firewall' ), $scanName )
-				.' '.__( 'Failed repair item: "%s"', 'wp-simple-firewall' ),
-			];
-		}
-		return $messages;
 	}
 
 	/**

@@ -78,9 +78,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onPluginShutdown() {
-		$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
-		if ( !empty( $preferred ) ) {
-			$this->getOptions()->setOpt( 'last_ip_detect_source', $preferred );
+		if ( !$this->getCon()->plugin_deleting ) {
+			$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
+			if ( !empty( $preferred ) ) {
+				$this->getOptions()->setOpt( 'last_ip_detect_source', $preferred );
+			}
 		}
 		parent::onPluginShutdown();
 	}
@@ -158,7 +160,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getActivePluginFeatures() :array {
-		$features = $this->getDef( 'active_plugin_features' );
+		$features = $this->getOptions()->getDef( 'active_plugin_features' );
 
 		$available = [];
 		if ( is_array( $features ) ) {
@@ -475,7 +477,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @param string $sId
 	 * @return bool
 	 */
-	protected function isValidInstallId( $sId ) {
+	protected function isValidInstallId( $sId ) :bool {
 		return !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40;
 	}
 
@@ -526,10 +528,6 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 		return $enqs;
-	}
-
-	public function getDbHandler_GeoIp() :Shield\Databases\GeoIp\Handler {
-		return $this->getDbH( 'geoip' );
 	}
 
 	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {

@@ -18,16 +18,4 @@ class Processor extends BaseShield\Processor {
 			$mod->getFileLocker()->execute();
 		}
 	}
-
-	public function runHourlyCron() {
-	}
-
-	public function runDailyCron() {
-	}
-
-	public function onWpLoaded() {
-	}
-
-	public function onModuleShutdown() {
-	}
 }

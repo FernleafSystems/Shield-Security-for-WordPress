@@ -38,7 +38,7 @@ class CompleteQueue {
 				->setDbHandler( $dbh )
 				->collate( $scanSlug );
 
-			$con->fireEvent( $scanSlug.'_scan_run' );
+			$con->fireEvent( 'scan_run', [ 'audit_params' => [ 'scan' => $scanCon->getScanName() ] ] );
 
 			( new HackGuard\Scan\Results\ResultsUpdate() )
 				->setScanController( $scanCon )
@@ -50,16 +50,16 @@ class CompleteQueue {
 					__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
 					: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
-				$items .= ' "'.
-						  implode( '", "', array_map( function ( $item ) {
-							  return $item->getDescriptionForAudit();
-						  }, array_slice( $resultsSet->getItems(), 0, 30 ) ) )
-						  .'"';
+				$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
+					return $item->getDescriptionForAudit();
+				}, $resultsSet->getItems() ) ), 0, 30 );
+				$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
 
 				$con->fireEvent(
-					$scanSlug.'_scan_found',
+					'scan_items_found',
 					[
-						'audit' => [
+						'audit_params' => [
+							'scan'  => $scanCon->getScanName(),
 							'items' => $items
 						]
 					]

@@ -23,129 +23,127 @@ class UI {
 		$bShowAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		$opts = $this->getOptions();
-		$aOptions = $opts->getOptionsForPluginUse();
+		$options = $opts->getOptionsForPluginUse();
 
-		foreach ( $aOptions as $nSectionKey => $aSection ) {
+		foreach ( $options as $sectionKey => $sect ) {
 
-			if ( !empty( $aSection[ 'options' ] ) ) {
+			if ( !empty( $sect[ 'options' ] ) ) {
 
-				foreach ( $aSection[ 'options' ] as $nKey => $aOption ) {
-					$aOption[ 'is_value_default' ] = ( $aOption[ 'value' ] === $aOption[ 'default' ] );
-					$bIsPrem = isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ];
-					$bIsAdv = isset( $aOption[ 'advanced' ] ) && $aOption[ 'advanced' ];
+				foreach ( $sect[ 'options' ] as $optKey => $option ) {
+					$option[ 'is_value_default' ] = ( $option[ 'value' ] === $option[ 'default' ] );
+					$bIsPrem = $option[ 'premium' ] ?? false;
+					$bIsAdv = $option[ 'advanced' ] ?? false;
 					if ( ( !$bIsPrem || $bPremiumEnabled ) && ( !$bIsAdv || $bShowAdvanced ) ) {
-						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOption );
+						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $option );
 					}
 					else {
-						unset( $aSection[ 'options' ][ $nKey ] );
+						unset( $sect[ 'options' ][ $optKey ] );
 					}
 				}
 
-				if ( empty( $aSection[ 'options' ] ) ) {
-					unset( $aOptions[ $nSectionKey ] );
+				if ( empty( $sect[ 'options' ] ) ) {
+					unset( $options[ $sectionKey ] );
 				}
 				else {
 					try {
-						$aSection = array_merge(
-							$aSection,
+						$sect = array_merge(
+							$sect,
 							$this->getMod()
 								 ->getStrings()
-								 ->getSectionStrings( $aSection[ 'slug' ] )
+								 ->getSectionStrings( $sect[ 'slug' ] )
 						);
 					}
 					catch ( \Exception $e ) {
 					}
-					$aOptions[ $nSectionKey ] = $aSection;
+					$options[ $sectionKey ] = $sect;
 				}
 
-				if ( isset( $aOptions[ $nSectionKey ] ) ) {
-					$aWarnings = [];
-					if ( !$opts->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-						$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
+				if ( isset( $options[ $sectionKey ] ) ) {
+					$warning = [];
+					if ( !$opts->isSectionReqsMet( $sect[ 'slug' ] ) ) {
+						$warning[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
 					}
-					$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
-						$aWarnings,
-						$this->getSectionWarnings( $aSection[ 'slug' ] )
+					$options[ $sectionKey ][ 'warnings' ] = array_merge(
+						$warning,
+						$this->getSectionWarnings( $sect[ 'slug' ] )
 					);
-					$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
+					$options[ $sectionKey ][ 'notices' ] = $this->getSectionNotices( $sect[ 'slug' ] );
 				}
 			}
 		}
 
-		return $aOptions;
+		return $options;
 	}
 
 	/**
-	 * @param array $aOptParams
+	 * @param array $option
 	 * @return array
 	 */
-	protected function buildOptionForUi( $aOptParams ) {
+	protected function buildOptionForUi( $option ) {
 
-		$mCurrent = $aOptParams[ 'value' ];
+		$value = $option[ 'value' ];
 
-		switch ( $aOptParams[ 'type' ] ) {
+		switch ( $option[ 'type' ] ) {
 
 			case 'password':
-				if ( !empty( $mCurrent ) ) {
-					$mCurrent = '';
+				if ( !empty( $value ) ) {
+					$value = '';
 				}
 				break;
 
 			case 'array':
-
-				if ( empty( $mCurrent ) || !is_array( $mCurrent ) ) {
-					$mCurrent = [];
+				if ( empty( $value ) || !is_array( $value ) ) {
+					$value = [];
 				}
 
-				$aOptParams[ 'rows' ] = count( $mCurrent ) + 2;
-				$mCurrent = stripslashes( implode( "\n", $mCurrent ) );
+				$option[ 'rows' ] = count( $value ) + 2;
+				$value = stripslashes( implode( "\n", $value ) );
 
 				break;
 
 			case 'comma_separated_lists':
 
-				$aNewValues = [];
-				if ( !empty( $mCurrent ) && is_array( $mCurrent ) ) {
-
-					foreach ( $mCurrent as $sPage => $aParams ) {
-						$aNewValues[] = $sPage.', '.implode( ", ", $aParams );
+				$converted = [];
+				if ( !empty( $value ) && is_array( $value ) ) {
+					foreach ( $value as $page => $params ) {
+						$converted[] = $page.', '.implode( ", ", $params );
 					}
 				}
-				$aOptParams[ 'rows' ] = count( $aNewValues ) + 1;
-				$mCurrent = implode( "\n", $aNewValues );
+				$option[ 'rows' ] = count( $converted ) + 1;
+				$value = implode( "\n", $converted );
 
 				break;
 
 			case 'multiple_select':
-				if ( !is_array( $mCurrent ) ) {
-					$mCurrent = [];
+				if ( !is_array( $value ) ) {
+					$value = [];
 				}
 				break;
 
 			case 'text':
-				$mCurrent = stripslashes( $this->getMod()->getTextOpt( $aOptParams[ 'key' ] ) );
+				$value = stripslashes( $this->getMod()->getTextOpt( $option[ 'key' ] ) );
 				break;
 		}
 
-		$aParams = [
-			'value'    => is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent,
+		$params = [
+			'value'    => is_scalar( $value ) ? esc_attr( $value ) : $value,
 			'disabled' => !$this->getCon()
-								->isPremiumActive() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] ),
+								->isPremiumActive() && ( isset( $option[ 'premium' ] ) && $option[ 'premium' ] ),
 		];
-		$aParams[ 'enabled' ] = !$aParams[ 'disabled' ];
-		$aOptParams = array_merge( [ 'rows' => 2 ], $aOptParams, $aParams );
+		$params[ 'enabled' ] = !$params[ 'disabled' ];
+		$option = array_merge( [ 'rows' => 2 ], $option, $params );
 
 		// add strings
 		try {
-			$aOptStrings = $this->getMod()->getStrings()->getOptionStrings( $aOptParams[ 'key' ] );
+			$aOptStrings = $this->getMod()->getStrings()->getOptionStrings( $option[ 'key' ] );
 			if ( !is_array( $aOptStrings[ 'description' ] ) ) {
 				$aOptStrings[ 'description' ] = [ $aOptStrings[ 'description' ] ];
 			}
-			$aOptParams = Services::DataManipulation()->mergeArraysRecursive( $aOptParams, $aOptStrings );
+			$option = Services::DataManipulation()->mergeArraysRecursive( $option, $aOptStrings );
 		}
 		catch ( \Exception $e ) {
 		}
-		return $aOptParams;
+		return $option;
 	}
 
 	public function buildSelectData_ModuleSettings() :array {

@@ -127,7 +127,7 @@ class SideMenuBuilder {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$slug = 'audit';
+		$slug = 'audit_trail';
 		$subItems = [
 			[
 				'slug'   => $slug.'-log',
@@ -136,9 +136,14 @@ class SideMenuBuilder {
 				'active' => $this->getInav() === $slug,
 			],
 			[
+				'slug'  => $slug.'-settings',
+				'title' => __( 'Configure', 'wp-simple-firewall' ),
+				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
+			],
+			[
 				'slug'    => 'audit-download',
-				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
-				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_audit' ),
+				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
+				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
 				'classes' => [ 'shield_file_download' ],
 			],
 			[
@@ -436,12 +441,6 @@ class SideMenuBuilder {
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_options' ),
-			],
-			[
-				'slug'    => 'traffic-download',
-				'href'    => $con->getModule_Traffic()->createFileDownloadLink( 'db_traffic' ),
-				'classes' => [ 'shield_file_download' ],
-				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
 			],
 		];
 

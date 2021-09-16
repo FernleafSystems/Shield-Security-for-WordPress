@@ -15,6 +15,7 @@ class UI extends BaseShield\UI {
 		return [
 			'content' => [
 				'tab_updates' => $this->renderTabUpdates(),
+				'tab_events'  => $this->renderTabEvents(),
 			],
 			'flags'   => [
 				'is_pro' => $con->isPremiumActive(),
@@ -23,8 +24,9 @@ class UI extends BaseShield\UI {
 				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',
 			],
 			'strings' => [
-				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
 				'tab_updates'   => __( 'Updates and Changes', 'wp-simple-firewall' ),
+				'tab_events'    => __( 'Event Details', 'wp-simple-firewall' ),
+				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -64,6 +66,7 @@ class UI extends BaseShield\UI {
 		switch ( $inav ) {
 
 			case 'audit':
+			case 'audit_trail':
 				$modAudit = $con->getModule_AuditTrail();
 				/** @var Shield\Modules\AuditTrail\UI $auditUI */
 				$auditUI = $modAudit->getUIHandler();
@@ -134,10 +137,15 @@ class UI extends BaseShield\UI {
 				break;
 
 			case 'scans_results':
+				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
+				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
+				$data = $UIHackGuard->buildInsightsVars_Results();
+				break;
+
 			case 'scans_run':
 				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
 				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
-				$data = $UIHackGuard->buildInsightsVars();
+				$data = $UIHackGuard->buildInsightsVars_Run();
 				break;
 
 			case 'settings':
@@ -189,6 +197,7 @@ class UI extends BaseShield\UI {
 			'docs'          => __( 'Docs', 'wp-simple-firewall' ),
 			'ips'           => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
 			'audit'         => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'audit_trail'   => __( 'Audit Trail', 'wp-simple-firewall' ),
 			'traffic'       => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),
@@ -261,6 +270,51 @@ class UI extends BaseShield\UI {
 		return $mod->renderTemplate(
 			sprintf( '/wpadmin_pages/insights/%s/index.twig', $templateDir ),
 			$data,
+			true
+		);
+	}
+
+	private function renderTabEvents() :string {
+		$con = $this->getCon();
+		$srvEvents = $this->getCon()->loadEventsService();
+
+		$eventsSortedByLevel = [
+			'Alert'   => [],
+			'Warning' => [],
+			'Notice'  => [],
+			'Info'    => [],
+			'Debug'   => [],
+		];
+		foreach ( $srvEvents->getEvents() as $event ) {
+			$level = ucfirst( strtolower( $event[ 'level' ] ) );
+			$eventsSortedByLevel[ $level ][ $event[ 'key' ] ] = [
+				'name' => $srvEvents->getEventName( $event[ 'key' ] ),
+				'attr' => [
+					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
+					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
+					'module'  => sprintf( 'Module: %s', $con->getModule( $event[ 'module' ] )->getMainFeatureName() ),
+				]
+			];
+		}
+		foreach ( $eventsSortedByLevel as &$events ) {
+			ksort( $events );
+		}
+
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/docs/events.twig',
+			[
+				'vars'    => [
+					// the keys here must match the changelog item types
+					'event_defs' => $eventsSortedByLevel
+				],
+				'strings' => [
+					// the keys here must match the changelog item types
+					'version'      => __( 'Version', 'wp-simple-firewall' ),
+					'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
+					'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
+					'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
+				],
+			],
 			true
 		);
 	}

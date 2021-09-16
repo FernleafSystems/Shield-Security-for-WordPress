@@ -16,19 +16,13 @@ class VerifyUniqueEvents {
 	public function run() {
 		$con = $this->getCon();
 
-		$aAllKeys = [];
+		$all = [];
 		foreach ( $con->modules as $mod ) {
-			$aKeys = array_map(
-				function ( $aEvt ) {
-					return $aEvt[ 'key' ];
-				},
-				array_values( $mod->getOptions()->getDef( 'events' ) )
-			);
-			$aAllKeys = array_merge( $aAllKeys, $aKeys );
+			$all = array_merge( $all, array_keys( $mod->getOptions()->getEvents() ) );
 		}
-		if ( count( $aAllKeys ) != count( array_unique( $aAllKeys ) ) ) {
+		if ( count( $all ) != count( array_unique( $all ) ) ) {
 			echo "duplicates!\n";
-			var_dump( array_diff( $aAllKeys, array_unique( $aAllKeys ) ) );
+			var_dump( array_diff( $all, array_unique( $all ) ) );
 		}
 		else {
 			echo 'NO duplicates!';

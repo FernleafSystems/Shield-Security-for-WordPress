@@ -9,6 +9,32 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
+	public function getEventStrings() :array {
+		return [
+			'lic_check_success'   => [
+				'name'  => __( 'License Check Success', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License check succeeded.', 'wp-simple-firewall' ),
+				],
+			],
+			'lic_fail_email'      => [
+				'name'  => __( 'License Failure Email Sent', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License check failed. Sending Warning Email.', 'wp-simple-firewall' ),
+				],
+			],
+			'lic_fail_deactivate'      => [
+				'name'  => __( 'License Deactivated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License check failed. Deactivating Pro.', 'wp-simple-firewall' ),
+				],
+			],
+		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function getAdditionalDisplayStrings() :array {
 		return [
 			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
@@ -33,23 +59,6 @@ class Strings extends Base\Strings {
 			'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 			'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
 			'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
-		];
-	}
-
-	/**
-	 * @return string[][]
-	 */
-	protected function getAuditMessages() :array {
-		return [
-			'lic_check_success'   => [
-				__( 'Pro License check succeeded.', 'wp-simple-firewall' )
-			],
-			'lic_fail_email'      => [
-				__( 'License check failed. Sending Warning Email.', 'wp-simple-firewall' )
-			],
-			'lic_fail_deactivate' => [
-				__( 'License check failed. Deactivating Pro.', 'wp-simple-firewall' )
-			],
 		];
 	}
 }

@@ -19,7 +19,7 @@ class ProcessOffenses extends ExecOnceModConsumer {
 		$mod->loadOffenseTracker()->setIfCommit( true );
 
 		$con = $this->getCon();
-		add_filter( $con->prefix( 'firewall_die_message' ), [ $this, 'augmentFirewallDieMessage' ] );
+		add_filter( 'shield/firewall_die_message', [ $this, 'augmentFirewallDieMessage' ] );
 		add_action( $con->prefix( 'pre_plugin_shutdown' ), function () {
 			$this->processOffense();
 		} );
@@ -41,15 +41,15 @@ class ProcessOffenses extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param array $aMessages
+	 * @param array $msg
 	 * @return array
 	 */
-	public function augmentFirewallDieMessage( $aMessages ) {
-		if ( !is_array( $aMessages ) ) {
-			$aMessages = [];
+	public function augmentFirewallDieMessage( $msg ) {
+		if ( !is_array( $msg ) ) {
+			$msg = [];
 		}
 
-		$aMessages[] = sprintf( '<p>%s</p>', sprintf(
+		$msg[] = sprintf( '<p>%s</p>', sprintf(
 			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
 			max( 0, ( new IPs\Components\QueryRemainingOffenses() )
 				->setMod( $this->getMod() )
@@ -57,27 +57,27 @@ class ProcessOffenses extends ExecOnceModConsumer {
 				->run() )
 		) );
 
-		return $aMessages;
+		return $msg;
 	}
 
 	/**
 	 * Allows 3rd parties to trigger Shield offenses
 	 * @param string $message
 	 * @param int    $offenseCount
-	 * @param bool   $bIncludeLoggedIn
+	 * @param bool   $includedLoggedIn
 	 */
-	public function processCustomShieldOffense( $message, $offenseCount = 1, $bIncludeLoggedIn = true ) {
+	public function processCustomShieldOffense( $message, $offenseCount = 1, $includedLoggedIn = true ) {
 		if ( $this->getCon()->isPremiumActive() ) {
 			if ( empty( $message ) ) {
 				$message = __( 'No custom message provided.', 'wp-simple-firewall' );
 			}
 
-			if ( $bIncludeLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
+			if ( $includedLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->getCon()
 					 ->fireEvent(
 						 'custom_offense',
 						 [
-							 'audit'         => [ 'message' => $message ],
+							 'audit_params'  => [ 'message' => $message ],
 							 'offense_count' => (int)$offenseCount
 						 ]
 					 );

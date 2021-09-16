@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends ExecOnceModConsumer {
@@ -77,16 +76,6 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $recordID ] );
 	}
 
-	public function getLastScanAt() :int {
-		/** @var Databases\Events\Select $sel */
-		$sel = $this->getCon()
-					->getModule_Events()
-					->getDbHandler_Events()
-					->getQuerySelector();
-		$entry = $sel->getLatestForEvent( $this->getSlug().'_scan_run' );
-		return ( $entry instanceof Databases\Events\EntryVO ) ? (int)$entry->created_at : 0;
-	}
-
 	public function countScanProblems() :int {
 		if ( !isset( self::$resultsCounts ) ) {
 			/** @var ModCon $mod */
@@ -118,24 +107,6 @@ abstract class Base extends ExecOnceModConsumer {
 					->process( $action );
 	}
 
-	public function executeItemAction( int $recordID, string $action ) :bool {
-		$success = false;
-
-		if ( is_numeric( $recordID ) ) {
-			/** @var Databases\Scanner\EntryVO $entry */
-			$entry = $this->getScanResultsDbHandler()
-						  ->getQuerySelector()
-						  ->byId( $recordID );
-			if ( empty( $entry ) ) {
-				throw new \Exception( 'Item could not be found.' );
-			}
-
-			$success = $this->executeEntryAction( $entry, $action );
-		}
-
-		return $success;
-	}
-
 	/**
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
@@ -147,15 +118,6 @@ abstract class Base extends ExecOnceModConsumer {
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
 			->fromVOsToResultsSet( $sel->query() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function updateAllAsNotified() {
-		/** @var Databases\Scanner\Update $updater */
-		$updater = $this->getScanResultsDbHandler()->getQueryUpdater();
-		return $updater->setAllNotifiedForScan( $this->getSlug() );
 	}
 
 	/**
@@ -202,7 +164,7 @@ abstract class Base extends ExecOnceModConsumer {
 	public function getScanName() :string {
 		/** @var HackGuard\Strings $strings */
 		$strings = $this->getMod()->getStrings();
-		return $strings->getScanNames()[ static::SCAN_SLUG ];
+		return $strings->getScanStrings()[ static::SCAN_SLUG ][ 'name' ];
 	}
 
 	public function isCronAutoRepair() :bool {
@@ -229,24 +191,20 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
 	}
 
-	/**
-	 * @return $this
-	 */
-	public function resetIgnoreStatus() {
-		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
-		$oUpd->clearIgnoredAtForScan( $this->getSlug() );
-		return $this;
+	public function resetIgnoreStatus() :bool {
+		return $this->getScanResultsDbHandler()
+					->getQueryUpdater()
+					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
+					->setUpdateData( [ 'ignored_at' => 0 ] )
+					->query() !== false;
 	}
 
-	/**
-	 * @return $this
-	 */
-	public function resetNotifiedStatus() {
-		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
-		$oUpd->clearNotifiedAtForScan( $this->getSlug() );
-		return $this;
+	public function resetNotifiedStatus() :bool {
+		return $this->getScanResultsDbHandler()
+					->getQueryUpdater()
+					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
+					->setUpdateData( [ 'notified_at' => 0 ] )
+					->query() !== false;
 	}
 
 	/**
@@ -308,18 +266,6 @@ abstract class Base extends ExecOnceModConsumer {
 	public function getNewResultsSet() {
 		$class = $this->getScanNamespace().'ResultsSet';
 		return new $class();
-	}
-
-	/**
-	 * @return BaseEntryFormatter|mixed
-	 */
-	public function getTableEntryFormatter() {
-		$class = $this->getScanNamespace().'Table\\EntryFormatter';
-		/** @var BaseEntryFormatter $formatter */
-		$formatter = new $class();
-		return $formatter->setScanController( $this )
-						 ->setMod( $this->getMod() )
-						 ->setScanActionVO( $this->getScanActionVO() );
 	}
 
 	public function getScanNamespace() :string {

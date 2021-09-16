@@ -26,7 +26,7 @@ class ScanAlerts extends BaseReporter {
 			foreach ( $scanCounts as $slug => $count ) {
 				$scanCounts[ $slug ] = [
 					'count' => $count,
-					'name'  => $strings->getScanNames()[ $slug ],
+					'name'  => $strings->getScanName( $slug ),
 				];
 			}
 			$alerts[] = $this->getMod()->renderTemplate(

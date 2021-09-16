@@ -14,7 +14,7 @@ abstract class Base extends BaseHandler {
 		$this->getCon()->fireEvent(
 			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
 			[
-				'audit' => [
+				'audit_params' => [
 					'form_provider' => $this->getProviderName(),
 				]
 			]

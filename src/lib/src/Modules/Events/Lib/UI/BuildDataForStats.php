@@ -27,10 +27,7 @@ class BuildDataForStats {
 	private function buildStats() :array {
 		$allStats = [];
 
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Strings $strings */
-		$strings = $mod->getStrings();
+		$srvEvents = $this->getCon()->loadEventsService();
 		foreach ( $this->getAllEvents() as $eventSection ) {
 			$stats = [];
 			foreach ( $eventSection[ 'events' ] as $event ) {
@@ -38,7 +35,7 @@ class BuildDataForStats {
 				if ( !empty( array_filter( $sums ) ) ) {
 					$stats[ $event ] = [
 						'key'    => $event,
-						'name'   => $strings->getEventName( $event ),
+						'name'   => $srvEvents->getEventName( $event ),
 						'counts' => $this->buildSums( $event ),
 					];
 				}

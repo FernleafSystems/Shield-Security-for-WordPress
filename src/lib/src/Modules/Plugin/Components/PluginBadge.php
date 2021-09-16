@@ -31,7 +31,7 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 		add_action( 'widgets_init', [ $this, 'addPluginBadgeWidget' ] );
 
 		add_shortcode( 'SHIELD_BADGE', function () {
-			$this->render( false );
+			$this->render();
 		} );
 	}
 
@@ -59,11 +59,7 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 		echo $this->render( true );
 	}
 
-	/**
-	 * @param bool $isFloating
-	 * @return string
-	 */
-	public function render( $isFloating = false ) {
+	public function render( bool $isFloating = false ) :string {
 		$con = $this->getCon();
 		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
 
@@ -101,34 +97,32 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 			$badgeAttrs = apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $isFloating );
 		}
 
-		$data = [
-			'ajax'    => [
-				'plugin_badge_close' => $this->getMod()->getAjaxActionData( 'plugin_badge_close', true ),
-			],
-			'content' => [
-				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
-			],
-			'flags'   => [
-				'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-				'is_floating' => $isFloating
-			],
-			'hrefs'   => [
-				'badge' => $badgeAttrs[ 'url' ],
-				'logo'  => $badgeAttrs[ 'logo' ],
-			],
-			'strings' => [
-				'protected' => $badgeAttrs[ 'protected_by' ],
-				'name'      => $badgeAttrs[ 'name' ],
-			],
-		];
-
-		try {
-			$render = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $data, true );
-		}
-		catch ( \Exception $e ) {
-			$render = 'Could not generate badge: '.$e->getMessage();
-		}
-		return $render;
+		return $this->getMod()
+					->renderTemplate(
+						'snippets/plugin_badge_widget',
+						[
+							'ajax'    => [
+								'plugin_badge_close' => $this->getMod()
+															 ->getAjaxActionData( 'plugin_badge_close', true ),
+							],
+							'content' => [
+								'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
+							],
+							'flags'   => [
+								'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
+								'is_floating' => $isFloating
+							],
+							'hrefs'   => [
+								'badge' => $badgeAttrs[ 'url' ],
+								'logo'  => $badgeAttrs[ 'logo' ],
+							],
+							'strings' => [
+								'protected' => $badgeAttrs[ 'protected_by' ],
+								'name'      => $badgeAttrs[ 'name' ],
+							],
+						],
+						true
+					);
 	}
 
 	public function setBadgeStateClosed() :bool {

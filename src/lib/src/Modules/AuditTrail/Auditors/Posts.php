@@ -12,73 +12,69 @@ class Posts extends Base {
 	}
 
 	/**
-	 * @param string $nPostId
+	 * @param string $postID
 	 */
-	public function auditDeletedPost( $nPostId ) {
-		$oPost = Services::WpPost()->getById( $nPostId );
-		if ( $oPost instanceof \WP_Post && !$this->isIgnoredPostType( $oPost ) ) {
+	public function auditDeletedPost( $postID ) {
+		$post = Services::WpPost()->getById( $postID );
+		if ( $post instanceof \WP_Post && !$this->isIgnoredPostType( $post ) ) {
 			$this->getCon()->fireEvent(
 				'post_deleted',
-				[ 'audit' => [ 'title' => $oPost->post_title ] ]
+				[ 'audit_params' => [ 'title' => $post->post_title ] ]
 			);
 		}
 	}
 
 	/**
-	 * @param string   $sNewStatus
-	 * @param string   $sOldStatus
-	 * @param \WP_Post $oPost
+	 * @param string   $newStatus
+	 * @param string   $oldStatus
+	 * @param \WP_Post $post
 	 */
-	public function auditPostStatus( $sNewStatus, $sOldStatus, $oPost ) {
+	public function auditPostStatus( $newStatus, $oldStatus, $post ) {
 
-		if ( !$oPost instanceof \WP_Post || $this->isIgnoredPostType( $oPost )
-			 || in_array( $sNewStatus, [ 'auto-draft', 'inherit' ] ) ) {
+		if ( !$post instanceof \WP_Post || $this->isIgnoredPostType( $post )
+			 || in_array( $newStatus, [ 'auto-draft', 'inherit' ] ) ) {
 			return;
 		}
 
-		if ( $sNewStatus == 'trash' ) {
-			$sEvent = 'post_trashed';
+		if ( $newStatus == 'trash' ) {
+			$event = 'post_trashed';
 		}
-		elseif ( $sOldStatus == 'trash' && $sNewStatus != 'trash' ) {
-			$sEvent = 'post_recovered';
+		elseif ( $oldStatus == 'trash' ) {
+			$event = 'post_recovered';
 		}
-		elseif ( in_array( $sNewStatus, [ 'publish', 'private' ] ) ) {
+		elseif ( in_array( $newStatus, [ 'publish', 'private' ] ) ) {
 
-			if ( in_array( $sOldStatus, [ 'publish', 'private' ] ) ) {
-				$sEvent = 'post_updated';
+			if ( in_array( $oldStatus, [ 'publish', 'private' ] ) ) {
+				$event = 'post_updated';
 			}
 			else {
-				$sEvent = 'post_published';
+				$event = 'post_published';
 			}
 		}
-		elseif ( in_array( $sOldStatus, [ 'publish', 'private' ] ) && $sNewStatus == 'draft' ) {
-			$sEvent = 'post_unpublished';
+		elseif ( in_array( $oldStatus, [ 'publish', 'private' ] ) && $newStatus == 'draft' ) {
+			$event = 'post_unpublished';
 		}
 		else {
-			$sEvent = 'post_updated';
+			$event = 'post_updated';
 		}
 
 		$this->getCon()->fireEvent(
-			$sEvent,
+			$event,
 			[
-				'audit' => [
-					'title' => $oPost->post_title,
-					'type'  => $oPost->post_type,
+				'audit_params' => [
+					'title' => $post->post_title,
+					'type'  => $post->post_type,
 				]
 			]
 		);
 	}
 
-	/**
-	 * @param \WP_Post $oPost
-	 * @return bool
-	 */
-	private function isIgnoredPostType( $oPost ) {
+	private function isIgnoredPostType( \WP_Post $post ) :bool {
 		return
-			( $oPost->post_status == 'auto-draft' )
+			( $post->post_status == 'auto-draft' )
 			||
 			in_array(
-				$oPost->post_type,
+				$post->post_type,
 				[
 					'revision',
 					'nav_menu_item',

@@ -1,0 +1,27 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>
+		{{ body.strings.shield_blocked }}
+	</p>
+
+	<p>{{ body.strings.this_is_info }} {{ body.strings.already_blocked }}</p>
+
+	<p><strong>{{ body.strings.details }}</strong>:</p>
+	<table style="border: 0 transparent">
+		{% for detail,detail_value in body.vars.req_details %}
+			<tr>
+				<td style="padding: 3px 10px">{{ detail }}:</td>
+				<td><code>{{ detail_value }}</code></td>
+			</tr>
+		{% endfor %}
+	</table>
+
+	<p>
+		<strong>
+			<a style="display:inline-block; padding:20px; border:1px solid; margin:10px;
+			    text-align:center; border-radius:3px; text-decoration:none;"
+			   href="{{ body.hrefs.ip_lookup }}">{{ body.strings.ip_lookup }} &rarr;</a>
+		</strong>
+	</p>
+{% endblock %}

@@ -25,10 +25,7 @@ class Handler extends Base\Handler {
 		/** @var EntryVO $entry */
 		$entry = $this->getVo();
 		$entry->event = $evt;
-		/**
-		 * @deprecated 11.5
-		 */
-		$entry->count = min( max( 1, $count ), 1627310000 );
+		$entry->count = max( 1, $count );
 		$entry->created_at = Services::Request()->ts();
 		/** @var Insert $QI */
 		$QI = $this->getQueryInserter();

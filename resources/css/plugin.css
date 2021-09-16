@@ -709,11 +709,13 @@ input:checked + .icwp-slider:before {
 	vertical-align: text-bottom;
 }
 /** TABLE: Audit trail **/
+#table_id-audit_trail textarea,
 td.column-message textarea {
 	width: 100%;
 	background: transparent;
 	box-shadow: none;
 	border-color: transparent;
+	font-family: monospace;
 }
 .table-side-filter {
 	position: sticky;
@@ -728,17 +730,6 @@ td.column-message textarea {
 	font-size: 0.85rem;
 }
 /** TABLE: TRAFFIC **/
-th.column-visitor {
-}
-th.column-path {
-}
-td.column-path code {
-	color: #4120a2;
-	display: block;
-	font-size: 0.9rem;
-	background-color: transparent; /* rgba(245, 245, 245, 0.8); */
-	word-break: break-all;
-}
 th.column-code {
 	width: 84px;
 }
@@ -1229,7 +1220,7 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SectionIpsWhite .form-inline {
 	background-color: transparent !important;
 }
-a[target="_blank"]:not(.option_link_info):not(.card-link)::after {
+a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link)::after {
 	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
 	margin: 0 3px;
 }
@@ -1552,14 +1543,14 @@ body.folded #FooterBannerGoPro {
 	border-color: rgb(177 216 178);
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	min-width: 130px;
-	width: 130px;
+	min-width: 115px;
+	width: 115px;
 }
 #NavSideBar a.nav-link:hover {
 }
 #NavSideBar a.nav-link.active {
 	font-weight: bolder;
-	font-size: 1rem;
+	font-size: 0.8rem;
 }
 #NavSideBar:hover ul.top-level-nav > .nav-item {
 }
@@ -1568,8 +1559,8 @@ body.folded #FooterBannerGoPro {
 #NavSideBar .nav-item {
 }
 #NavSideBar .nav-item .nav-icon > svg {
-	width: 24px;
-	height: 24px;
+	width: 18px;
+	height: 18px;
 	color: #333333;
 }
 #NavSideBar .nav-item.activesub .nav-icon > svg,
@@ -1586,8 +1577,8 @@ body.folded #FooterBannerGoPro {
 #NavSideBar .nav-item .top-title > svg {
 	transform-origin: 50% 50%;
 	transform: rotate(60deg);
-	height: 8px;
-	width: 8px;
+	height: 6px;
+	width: 6px;
 	margin-top: -4px;
 	margin-left: 2px;
 	margin-right: -2px;
@@ -1614,11 +1605,11 @@ body.folded #FooterBannerGoPro {
 	/*border-left-width: 0;*/
 	position: absolute;
 	left: 90%;
-	width: 100%;
+	width: 120%;
 	z-index: 1000;
 	height: auto;
 	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-	margin-top: -60px;
+	margin-top: -40px;
 	opacity: 0;
 	transition: visibility 0.15s 0s, opacity 0.15s ease-in;
 }
@@ -1636,6 +1627,7 @@ body.folded #FooterBannerGoPro {
 }
 .primary_side_sub_menu a:hover {
 	color: #008000;
+	text-shadow: 0 1px 1px rgba(0,0,0,0.15);
 }
 .primary_side_sub_menu a.active {
 	border-left: 3px solid rgba(0, 128, 0, 0.4);

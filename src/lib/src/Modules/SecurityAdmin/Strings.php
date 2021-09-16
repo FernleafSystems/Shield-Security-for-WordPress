@@ -7,15 +7,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	public function getEventStrings() :array {
 		return [
-			'key_success' => [
-				__( 'Successful authentication using Security Admin PIN.', 'wp-simple-firewall' ),
+			'key_success'    => [
+				'name'  => __( 'Security PIN Pass', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Security PIN authentication successful.', 'wp-simple-firewall' ),
+				],
 			],
 			'key_fail'    => [
-				__( 'Failed authentication using Security Admin PIN.', 'wp-simple-firewall' ),
+				'name'  => __( 'Security PIN Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Security PIN authentication failed.', 'wp-simple-firewall' ),
+				],
 			],
 		];
 	}
@@ -31,9 +37,9 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ) ),
 					__( 'You need to also enter a new Security PIN to enable this feature.', 'wp-simple-firewall' ),
@@ -41,26 +47,26 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_security_admin_settings' :
-				$sTitle = __( 'Security Admin Restriction Settings', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Security Admin Restriction Settings', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = __( 'Security Admin Settings', 'wp-simple-firewall' );
+				$titleShort = __( 'Security Admin Settings', 'wp-simple-firewall' );
 				break;
 
 			case 'section_admin_access_restriction_areas' :
-				$sTitle = __( 'Security Admin Restriction Zones', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Security Admin Restriction Zones', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = __( 'Access Restriction Zones', 'wp-simple-firewall' );
+				$titleShort = __( 'Access Restriction Zones', 'wp-simple-firewall' );
 				break;
 
 			case 'section_whitelabel' :
-				$sTitle = __( 'White Label', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'White Label', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s',
 						__( 'Purpose', 'wp-simple-firewall' ),
 						sprintf( __( 'Rename and re-brand the %s plugin for your client site installations.', 'wp-simple-firewall' ),
@@ -72,7 +78,7 @@ class Strings extends Base\Strings {
 							$sPlugName )
 					)
 				];
-				$sTitleShort = __( 'White Label', 'wp-simple-firewall' );
+				$titleShort = __( 'White Label', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -80,9 +86,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => $summary,
 		];
 	}
 

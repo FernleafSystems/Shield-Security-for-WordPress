@@ -17,10 +17,10 @@ class ICWP_WPSF_Shield_Security {
 	private static $oInstance = null;
 
 	/**
-	 * @param Shield\Controller\Controller $oController
+	 * @param Shield\Controller\Controller $controller
 	 */
-	private function __construct( Shield\Controller\Controller $oController ) {
-		$oController->loadAllFeatures();
+	private function __construct( Shield\Controller\Controller $controller ) {
+		$controller->loadAllFeatures();
 	}
 
 	/**

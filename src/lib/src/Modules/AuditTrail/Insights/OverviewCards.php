@@ -26,7 +26,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			$cards[ 'audit_length' ] = [
 				'name'    => __( 'Audit Trail', 'wp-simple-firewall' ),
 				'state'   => 0,
-				'summary' => sprintf( __( 'Maximum Audit Trail entries limited to %s', 'wp-simple-firewall' ), $opts->getMaxEntries() ),
+				'summary' => sprintf( __( 'Audit Trail entries limited to maximum %s days', 'wp-simple-firewall' ), $opts->getAutoCleanDays() ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
 			];
 		}

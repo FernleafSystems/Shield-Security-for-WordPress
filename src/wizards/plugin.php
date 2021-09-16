@@ -70,14 +70,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$response = $this->wizardOptin();
 				break;
 
-			case 'add-search-item':
-				$response = $this->wizardAddSearchItem();
-				break;
-
-			case 'confirm-results-delete':
-				$response = $this->wizardConfirmDelete();
-				break;
-
 			default:
 				$response = parent::processWizardStep( $step );
 				break;
@@ -713,78 +705,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			->setMessageText( $sMessage );
 	}
 
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function wizardAddSearchItem() {
-		$sInput = esc_js( esc_html( Services::Request()->post( 'SearchItem' ) ) );
-
-		$aItems = $this->getGdprSearchItems();
-
-		if ( !empty( $sInput ) ) {
-			if ( $sInput === 'CLEAR' ) {
-				$aItems = [];
-			}
-			else {
-				$aItems[] = $sInput;
-				if ( Services::Data()->validEmail( $sInput ) ) {
-					$oUser = Services::WpUsers()->getUserByEmail( $sInput );
-					if ( !is_null( $oUser ) ) {
-						$aItems[] = $oUser->user_login;
-					}
-				}
-				else {
-					$username = sanitize_user( $sInput );
-					if ( !empty( $username ) ) {
-						$oUser = Services::WpUsers()->getUserByUsername( $username );
-						if ( $oUser instanceof WP_User ) {
-							$aItems[] = $oUser->user_email;
-						}
-					}
-				}
-			}
-		}
-
-		$aItems = $this->setGdprSearchItems( $aItems );
-
-		$sSearchList = 'Search list is empty';
-		if ( !empty( $aItems ) ) {
-			$sItems = implode( '</li><li>', $aItems );
-			$sSearchList = sprintf( '<ul><li>%s</li></ul>', $sItems );
-		}
-
-		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( true )
-			->setData( [ 'sSearchList' => $sSearchList ] )
-			->setMessageText( __( 'Search item added.', 'wp-simple-firewall' ) );
-	}
-
-	private function wizardConfirmDelete() {
-		$bDelete = Services::Request()->post( 'ConfirmDelete' ) === 'Y';
-		if ( $bDelete ) {
-			$oDeleter = $this->getCon()
-							 ->getModule_AuditTrail()
-							 ->getDbHandler_AuditTrail()
-							 ->getQueryDeleter();
-			foreach ( $this->getGdprSearchItems() as $sItem ) {
-				$oDeleter->reset()
-						 ->addWhereSearch( 'wp_username', $sItem )
-						 ->all();
-				$oDeleter->reset()
-						 ->addWhereSearch( 'message', $sItem )
-						 ->all();
-			}
-			$sMessage = __( 'All entries were deleted', 'wp-simple-firewall' );
-		}
-		else {
-			$sMessage = __( 'Please check the box to confirm deletion.', 'wp-simple-firewall' );
-		}
-
-		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bDelete )
-			->setMessageText( $sMessage );
-	}
-
 	private function wizardPluginSecurityBadge() :StdResponse {
 		$r = new StdResponse();
 
@@ -886,40 +806,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					$aItems,
 					MINUTE_IN_SECONDS*10
 				);
-		return $aItems;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	private function runGdprSearch() {
-		$oFinder = $this->getCon()
-						->getModule_AuditTrail()
-						->getDbHandler_AuditTrail()
-						->getQuerySelector()
-						->setResultsAsVo( false );
-
-		$aItems = [];
-		foreach ( $this->getGdprSearchItems() as $sItem ) {
-			try {
-				$aResults = $oFinder->reset()
-									->addWhereSearch( 'wp_username', $sItem )
-									->query()
-							+
-							$oFinder->reset()
-									->addWhereSearch( 'message', $sItem )
-									->query();
-			}
-			catch ( \Exception $e ) {
-				$aResults = [];
-			}
-//			$aResults = array_intersect_key( $aResults, array_flip( [ 'wp_username', 'message' ] ) );
-			$aItems[ $sItem ] = [
-				'entries' => $aResults,
-				'count'   => count( $aResults ),
-				'has'     => count( $aResults ) > 0,
-			];
-		}
 		return $aItems;
 	}
 }

@@ -20,6 +20,7 @@ class Processor extends BaseShield\Processor {
 
 	/**
 	 * @return Lib\AuditWriter
+	 * @deprecated 12.0
 	 */
 	private function loadAuditorWriter() :Lib\AuditWriter {
 		if ( !isset( $this->auditWriter ) ) {
@@ -32,7 +33,9 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function initAuditors() {
-		$this->loadAuditorWriter()->setIfCommit( true );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getAuditLogger()->setIfCommit( true );
 		foreach ( $this->getAuditors() as $auditor ) {
 			$auditor->setMod( $this->getMod() )->execute();
 		}

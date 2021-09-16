@@ -29,7 +29,7 @@ abstract class Base {
 	 */
 	public function getInitialOrdering() :array {
 		$thePosition = 0;
-		foreach ( $this->getColumnsForDisplay() as $position => $columnDef ) {
+		foreach ( $this->getColumnsToDisplay() as $position => $columnDef ) {
 			if ( $columnDef === $this->getOrderColumnSlug() ) {
 				$thePosition = $position;
 				break;

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,48 +29,47 @@ class RecentEvents {
 	}
 
 	private function getData() :array {
-		$con = $this->getCon();
+		$srvEvents = $this->getCon()->loadEventsService();
 
-		$aTheStats = array_filter(
-			$con->loadEventsService()->getEvents(),
+		$theStats = array_filter(
+			$srvEvents->getEvents(),
 			function ( $evt ) {
-				return isset( $evt[ 'recent' ] ) && $evt[ 'recent' ];
+				return !empty( $evt[ 'recent' ] );
 			}
 		);
 
-		/** @var Strings $oStrs */
-		$oStrs = $con->getModule_Insights()->getStrings();
-		$aNames = $oStrs->getInsightStatNames();
+		/** @var Events\Select $selector */
+		$selector = $this->getCon()
+						 ->getModule_Events()
+						 ->getDbHandler_Events()
+						 ->getQuerySelector();
 
-		/** @var Events\Select $oSel */
-		$oSel = $con->getModule_Events()
-					->getDbHandler_Events()
-					->getQuerySelector();
-
-		$aRecentStats = array_intersect_key(
-			array_map(
-				function ( $oEntryVO ) use ( $aNames ) {
-					/** @var Events\EntryVO $oEntryVO */
-					return [
-						'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
-						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
-					];
+		$recent = array_intersect_key(
+			array_filter( array_map(
+				function ( $entry ) use ( $srvEvents ) {
+					/** @var Events\EntryVO $entry */
+					return $srvEvents->eventExists( $entry->event ) ?
+						[
+							'name' => $srvEvents->getEventName( $entry->event ),
+							'val'  => Services::WpGeneral()->getTimeStringForDisplay( $entry->created_at )
+						]
+						: null;
 				},
-				$oSel->getLatestForAllEvents()
-			),
-			$aTheStats
+				$selector->getLatestForAllEvents()
+			) ),
+			$theStats
 		);
 
-		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
-			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
-				$aRecentStats[ $sStatKey ] = [
-					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
-					'val'  => $sNotYetRecorded
+		$notYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
+		foreach ( array_keys( $theStats ) as $eventKey ) {
+			if ( !isset( $recent[ $eventKey ] ) ) {
+				$recent[ $eventKey ] = [
+					'name' => $srvEvents->getEventName( $eventKey ),
+					'val'  => $notYetRecorded
 				];
 			}
 		}
 
-		return $aRecentStats;
+		return $recent;
 	}
 }

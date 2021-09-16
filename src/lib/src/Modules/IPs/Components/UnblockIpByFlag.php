@@ -26,7 +26,7 @@ class UnblockIpByFlag {
 						->setIP( $ip )
 						->fromBlacklist();
 					if ( $removed ) {
-						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit' => [ 'ip' => $ip ] ] );
+						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
 					}
 				}
 			}

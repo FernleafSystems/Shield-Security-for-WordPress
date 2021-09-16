@@ -9,9 +9,9 @@ class BuildTransferableOptions {
 	use ModConsumer;
 
 	/**
-	 * @return mixed[]
+	 * @return array[]
 	 */
-	public function build() {
+	public function build() :array {
 		$opts = $this->getOptions();
 		return array_merge(
 			array_fill_keys( $opts->getOptionsKeys(), false ),

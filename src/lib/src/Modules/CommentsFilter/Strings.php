@@ -8,20 +8,52 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	public function getEventStrings() :array {
 		return [
-			'spam_block_antibot'   => [ __( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' ) ],
+			'spam_block_antibot'   => [
+				'name'  => sprintf( '%s: %s',
+					__( 'SPAM Blocked', 'wp-simple-firewall' ),
+					__( 'AntiBot System', 'wp-simple-firewall' )
+				),
+				'audit' => [
+					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
+				],
+			],
 			'spam_block_human'     => [
-				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
-				__( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' )
+				'name'  => sprintf( '%s: %s',
+					__( 'SPAM Blocked', 'wp-simple-firewall' ),
+					__( 'Human', 'wp-simple-firewall' )
+				),
+				'audit' => [
+					__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
+					__( 'Human SPAM filter found "{{word}}" in "{{key}}"', 'wp-simple-firewall' ),
+				],
 			],
 			'spam_block_bot'       => [
-				__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' )
+				'name'  => sprintf( '%s: %s',
+					__( 'SPAM Blocked', 'wp-simple-firewall' ),
+					__( 'Bot', 'wp-simple-firewall' )
+				),
+				'audit' => [
+					__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' ),
+				],
 			],
 			'spam_block_recaptcha' => [
-				__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' )
+				'name'  => sprintf( '%s: %s',
+					__( 'SPAM Blocked', 'wp-simple-firewall' ),
+					__( 'CAPTCHA', 'wp-simple-firewall' )
+				),
+				'audit' => [
+					__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' ),
+				],
+			],
+			'comment_spam_block'   => [
+				'name'  => __( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
+				],
 			],
 		];
 	}

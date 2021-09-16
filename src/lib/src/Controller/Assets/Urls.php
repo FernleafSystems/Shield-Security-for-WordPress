@@ -46,16 +46,6 @@ class Urls {
 	 * @param string $asset
 	 * @param string $type
 	 * @return mixed|null
-	 * @deprecated 11.4
-	 */
-	protected function isAssetDynamic( string $asset, string $type ) :bool {
-		return false;
-	}
-
-	/**
-	 * @param string $asset
-	 * @param string $type
-	 * @return mixed|null
 	 */
 	protected function lookupAssetUrlInSpec( string $asset, string $type ) {
 		$asset = $this->lookupAssetInSpec( $asset, $type );

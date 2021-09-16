@@ -9,19 +9,31 @@ class Strings extends Base\Strings {
 	/**
 	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	public function getEventStrings() :array {
 		return [
 			'spam_form_pass'     => [
-				__( '"%s" submission passed SPAM check.', 'wp-simple-firewall' ),
+				'name'  => __( 'SPAM Check Pass', 'wp-simple-firewall' ),
+				'audit' => [
+					__( '"{{form_provider}}" submission passed SPAM check.', 'wp-simple-firewall' ),
+				],
 			],
 			'spam_form_fail'     => [
-				__( '"%s" submission failed SPAM check.', 'wp-simple-firewall' )
+				'name'  => __( 'SPAM Check Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( '"{{form_provider}}" submission failed SPAM check.', 'wp-simple-firewall' ),
+				],
 			],
 			'user_form_bot_pass' => [
-				__( '"%s" submission for form "%s" with username "%s" passed Bot check.', 'wp-simple-firewall' ),
+				'name'  => __( 'User Bot Check Pass', 'wp-simple-firewall' ),
+				'audit' => [
+					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" passed Bot check.', 'wp-simple-firewall' ),
+				],
 			],
 			'user_form_bot_fail' => [
-				__( '"%s" submission for form "%s" with username "%s" failed Bot check.', 'wp-simple-firewall' ),
+				'name'  => __( 'User Bot Check Fail', 'wp-simple-firewall' ),
+				'audit' => [
+					__( '"{{form_provider}}" submission for form "{{action}}" with username "{{username}}" failed Bot check.', 'wp-simple-firewall' ),
+				],
 			],
 		];
 	}

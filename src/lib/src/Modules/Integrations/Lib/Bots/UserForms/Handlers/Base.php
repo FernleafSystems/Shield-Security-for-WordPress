@@ -78,7 +78,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 			$this->getCon()->fireEvent(
 				sprintf( 'user_form_bot_%s', self::$isBot ? 'fail' : 'pass' ),
 				[
-					'audit' => [
+					'audit_params' => [
 						'form_provider' => $this->getProviderName(),
 						'action'        => $this->getAuditAction(),
 						'username'      => $this->getAuditUser(),

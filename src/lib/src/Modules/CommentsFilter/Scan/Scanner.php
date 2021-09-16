@@ -96,7 +96,7 @@ class Scanner extends ExecOnceModConsumer {
 				$this->getCon()
 					 ->fireEvent(
 						 'spam_block_'.$mResult->get_error_code(),
-						 [ 'audit' => $mResult->get_error_data() ]
+						 [ 'audit_params' => $mResult->get_error_data() ]
 					 );
 				$this->getCon()->fireEvent( 'comment_spam_block' );
 

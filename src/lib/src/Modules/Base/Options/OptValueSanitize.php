@@ -10,71 +10,69 @@ class OptValueSanitize {
 	use ModConsumer;
 
 	/**
-	 * @param string $sKey
-	 * @param mixed  $mVal
+	 * @param string $key
+	 * @param mixed  $value
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public function run( $sKey, $mVal ) {
+	public function run( $key, $value ) {
 		$opts = $this->getOptions();
-		$raw = $opts->getRawData_SingleOption( $sKey );
-
-		if ( !in_array( $sKey, $opts->getOptionsKeys() ) ) {
-			throw new \Exception( sprintf( 'Not a valid option key for module: %s', $sKey ) );
+		if ( !in_array( $key, $opts->getOptionsKeys() ) ) {
+			throw new \Exception( sprintf( 'Not a valid option key for module: %s', $key ) );
 		}
 
 		$validValue = false;
-		switch ( $opts->getOptionType( $sKey ) ) {
+		switch ( $opts->getOptionType( $key ) ) {
 
 			case 'boolean':
-				$validValue = is_bool( $mVal );
+				$validValue = is_bool( $value );
 				break;
 
 			case 'integer':
-				$validValue = is_numeric( $mVal );
+				$validValue = is_numeric( $value );
 				if ( $validValue ) {
-					$mVal = (int)$mVal;
+					$value = (int)$value;
 				}
 				break;
 
 			case 'email':
-				$mVal = trim( (string)$mVal );
-				$validValue = empty( $mVal ) || Services::Data()->validEmail( $mVal );
+				$value = trim( (string)$value );
+				$validValue = empty( $value ) || Services::Data()->validEmail( $value );
 				break;
 
 			case 'array':
-				$validValue = is_array( $mVal );
+				$validValue = is_array( $value );
 				break;
 
 			case 'text':
-				if ( is_null( $mVal ) || is_scalar( $mVal ) ) {
+				if ( is_null( $value ) || is_scalar( $value ) ) {
 					$validValue = true;
-					$mVal = (string)$mVal;
+					$value = (string)$value;
 				}
 				break;
 
 			case 'select':
-				$validValue = is_string( $mVal ) && strlen( $mVal ) > 0;
+				$validValue = is_string( $value ) && strlen( $value ) > 0;
 				break;
 
 			case 'multiple_select':
-				if ( is_array( $mVal ) ) {
+				if ( is_array( $value ) ) {
 					$validValue = count( array_diff(
-							$mVal,
+							$value,
 							array_map(
 								function ( $aValueOption ) {
 									return $aValueOption[ 'value_key' ];
 								},
-								$raw[ 'value_options' ]
+								$opts->getOptDefinition( $key )[ 'value_options' ]
 							)
 						) ) === 0;
 				}
 				break;
 
 			case 'checkbox':
-				if ( is_string( $mVal ) ) {
-					$mVal = strtoupper( $mVal );
-					$validValue = in_array( $mVal, [ 'Y', 'N' ] );
+				if ( is_string( $value ) ) {
+					$value = strtoupper( $value );
+					$validValue = in_array( $value, [ 'Y', 'N' ] );
 				}
 				break;
 
@@ -87,6 +85,6 @@ class OptValueSanitize {
 			throw new \Exception( 'Not a valid value type for option.' );
 		}
 
-		return $mVal;
+		return $value;
 	}
 }

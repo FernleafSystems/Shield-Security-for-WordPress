@@ -93,22 +93,6 @@ class BackupCodes extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param bool     $bIsSuccess
-	 */
-	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
-		$this->getCon()->fireEvent(
-			$bIsSuccess ? '2fa_backupcode_verified' : '2fa_backupcode_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-					'method'     => 'Backup Code',
-				]
-			]
-		);
-	}
-
-	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	protected function genNewSecret( \WP_User $user ) {
