@@ -28,6 +28,24 @@ class BotSignalsRecord {
 		return $select->filterByIP( $this->getIPRecord()->id )->query();
 	}
 
+	public function retrieveNotBotAt() :int {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return (int)Services::WpDb()->getVar(
+			sprintf( "SELECT bs.notbot_at
+						FROM `%s` as bs
+						INNER JOIN `%s` as ips
+							ON `ips`.id = `bs`.ip_ref 
+							AND `ips`.`ip`=INET6_ATON('%s')
+						ORDER BY `bs`.updated_at DESC
+						LIMIT 1;",
+				$mod->getDbH_BotSignal()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->getIP()
+			)
+		);
+	}
+
 	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -115,7 +133,7 @@ class BotSignalsRecord {
 	}
 
 	/**
-	 * @param string $field
+	 * @param string   $field
 	 * @param int|null $ts
 	 * @return BotSignalRecord
 	 * @throws \LogicException

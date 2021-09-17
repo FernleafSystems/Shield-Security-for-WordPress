@@ -12,11 +12,11 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		$req = Services::Request();
 		return $req->query( 'force_notbot' ) == 1
+			   || $this->isForcedForOptimisationPlugins()
 			   || ( $req->ts() - ( new BotSignalsRecord() )
 					->setMod( $this->getMod() )
 					->setIP( Services::IP()->getRequestIp() )
-					->retrieve()->notbot_at ) > MINUTE_IN_SECONDS*45
-			   || $this->isForcedForOptimisationPlugins();
+					->retrieveNotBotAt() ) > MINUTE_IN_SECONDS*45;
 	}
 
 	/**
