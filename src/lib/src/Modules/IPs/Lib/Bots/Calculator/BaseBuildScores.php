@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVoConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 abstract class BaseBuildScores {
 
-	use EntryVoConsumer;
+	use RecordConsumer;
 	use ModConsumer;
 
 	abstract public function build() :array;
@@ -61,9 +60,5 @@ abstract class BaseBuildScores {
 		}
 
 		return $fields;
-	}
-
-	protected function getRecord() :EntryVO {
-		return $this->getEntryVO();
 	}
 }

@@ -51,10 +51,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
-	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
-		return $this->getDbH( 'botsignals' );
-	}
-
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
 	}
@@ -161,5 +157,12 @@ class ModCon extends BaseShield\ModCon {
 				break;
 		}
 		return $text;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
+		return $this->getDbH( 'botsignals' );
 	}
 }

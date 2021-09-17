@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -15,9 +14,9 @@ class BuildData {
 
 	public function build( bool $quiet = false ) :array {
 
-		$recordsToSend = $this->getRecords();
+		$records = $this->getRecords();
 		if ( !$quiet ) {
-			$this->markRecordsAsSent( $recordsToSend );
+			$this->markRecordsAsSent( $records );
 		}
 
 		$records = array_filter( array_map(
@@ -48,7 +47,7 @@ class BuildData {
 
 				return $record;
 			},
-			$recordsToSend
+			$records
 		) );
 
 		// We order with preference towards IPs with more signals.
@@ -80,7 +79,7 @@ class BuildData {
 	}
 
 	/**
-	 * @param EntryVO[] $records
+	 * @param BotSignal\BotSignalRecord[] $records
 	 */
 	private function markRecordsAsSent( array $records ) {
 		if ( !empty( $records ) ) {
@@ -89,7 +88,7 @@ class BuildData {
 			Services::WpDb()
 					->doSql(
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
-							$mod->getDbHandler_BotSignals()->getTableSchema()->table,
+							$mod->getDbH_BotSignal()->getTableSchema()->table,
 							Services::Request()->ts(),
 							implode( ',', array_map( function ( $record ) {
 								return $record->id;
@@ -101,18 +100,38 @@ class BuildData {
 
 	/**
 	 * Optimised to ensure that only signals are sent if they've been updated since the last SNAPI-Send
-	 * @return EntryVO[]
+	 * @return BotSignal\BotSignalRecord[]
 	 */
 	private function getRecords() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Select $select */
-		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		$records = $select->setLimit( 200 )
-						  ->setOrderBy( 'updated_at', 'DESC' )
-						  ->addWhereNotIn( 'ip', array_map( 'inet_pton', Services::IP()->getServerPublicIPs() ) )
-						  ->addWhereCompareColumns( 'updated_at', 'snsent_at', '>' )
-						  ->query();
-		return is_array( $records ) ? $records : [];
+
+		$serverIPs = array_map(
+			function ( $ip ) {
+				return sprintf( "INET6_ATON('%s')", $ip );
+			},
+			is_array( Services::IP()->getServerPublicIPs() ) ? Services::IP()->getServerPublicIPs() : []
+		);
+
+		$records = Services::WpDb()->selectCustom(
+			sprintf( "SELECT ips.ip, bs.*
+						FROM `%s` as bs
+						INNER JOIN `%s` as ips
+							ON `ips`.id = `bs`.ip_ref 
+							%s
+						ORDER BY `bs`.`updated_at` DESC
+						LIMIT 200;",
+				$mod->getDbH_BotSignal()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", implode( ",", $serverIPs ) )
+			)
+		);
+
+		return array_map(
+			function ( $record ) {
+				return ( new BotSignal\BotSignalRecord() )->applyFromArray( $record );
+			},
+			is_array( $records ) ? $records : []
+		);
 	}
 }

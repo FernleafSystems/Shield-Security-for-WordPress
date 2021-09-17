@@ -569,6 +569,13 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "legacy_db_deleted_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      ""
     }
   ],
   "definitions":      {

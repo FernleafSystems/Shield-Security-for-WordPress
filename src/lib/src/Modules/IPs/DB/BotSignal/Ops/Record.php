@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
 
 /**
+ * @property int $ip_ref
  * @property int $notbot_at
  * @property int $frontpage_at
  * @property int $loginpage_at
