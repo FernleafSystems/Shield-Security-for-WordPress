@@ -162,6 +162,16 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @deprecated 12.0
 	 */
+	protected function cleanupDatabases() {
+		$dbhIPs = $this->getDbHandler_IPs();
+		if ( $dbhIPs->isReady() ) {
+			$dbhIPs->autoCleanDb();
+		}
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
 	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
 		return $this->getDbH( 'botsignals' );
 	}

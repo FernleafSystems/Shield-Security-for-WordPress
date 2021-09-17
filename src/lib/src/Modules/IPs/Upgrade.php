@@ -7,6 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {
 
+	protected function upgrade_1201() {
+		( new Lib\Ops\ConvertLegacy() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
 	protected function upgrade_1010() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
