@@ -67,9 +67,24 @@ abstract class Base extends ExecOnceModConsumer {
 				$results->removeItemByHash( $item->hash );
 			}
 		}
-		( new HackGuard\Scan\Results\ResultsDelete() )
-			->setScanController( $this )
-			->delete( $results );
+		try {
+			( new HackGuard\Scan\Results\ResultsDelete() )
+				->setScanController( $this )
+				->delete( $results, true );
+		}
+		catch ( \Exception $e ) {
+		}
+
+		$this->cleanStalesDeletedResults();
+	}
+
+	public function cleanStalesDeletedResults() {
+		/** @var Databases\Scanner\Delete $deleter */
+		$deleter = $this->getScanResultsDbHandler()->getQueryDeleter();
+		$deleter->addWhere( 'deleted_at', 0, '>' )
+				->addWhereOlderThan( Services::Request()->carbon()->subMonths( 1 )->timestamp, 'deleted_at' )
+				->filterByScan( $this->getSlug() )
+				->query();
 	}
 
 	public function createFileDownloadLink( int $recordID ) :string {
@@ -114,6 +129,7 @@ abstract class Base extends ExecOnceModConsumer {
 		/** @var Databases\Scanner\Select $sel */
 		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$sel->filterByScan( $this->getSlug() )
+			->filterByNoRepairAttempted()
 			->filterByNotIgnored();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )

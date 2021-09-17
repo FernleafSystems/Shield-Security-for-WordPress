@@ -25,6 +25,10 @@ class Lookup {
 		}
 
 		try {
+			if ( empty( $ip ) || !Services::IP()->isValidIp_PublicRemote( $ip ) ) {
+				throw new \Exception( 'Not a valid public IP address' );
+			}
+
 			$ipRecord = ( new IPRecords() )
 				->setMod( $this->getCon()->getModule_Data() )
 				->loadIP( $this->getIP(), true );

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ItemActionHandler {
 
@@ -110,13 +111,18 @@ abstract class ItemActionHandler {
 
 		$this->fireRepairEvent();
 
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		if ( $item->repaired ) {
-			/** @var HackGuard\ModCon $mod */
-			$mod = $this->getMod();
 			/** @var Scanner\Delete $deleter */
 			$mod->getDbHandler_ScanResults()
 				->getQueryDeleter()
 				->deleteById( $item->VO->id );
+		}
+		else {
+			$mod->getDbHandler_ScanResults()
+				->getQueryUpdater()
+				->updateById( $item->VO->id, [ 'attempt_repair_at' => Services::Request()->ts() ] );
 		}
 
 		return $item->repaired;
