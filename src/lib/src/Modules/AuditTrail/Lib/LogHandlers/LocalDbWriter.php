@@ -79,11 +79,14 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
 		$reqSelector = $modData->getDbH_ReqLogs()->getQuerySelector();
-		$reqIDs = array_map( function ( $rawRecord ) {
-			return $rawRecord->id;
-		}, (array)$reqSelector->filterByIP( $ipRecordID )
-							  ->setColumnsToSelect( [ 'id' ] )
-							  ->queryWithResult() );
+		$reqIDs = array_map(
+			function ( $rawRecord ) {
+				return $rawRecord->id;
+			},
+			(array)$reqSelector->filterByIP( $ipRecordID )
+							   ->setColumnsToSelect( [ 'id' ] )
+							   ->queryWithResult()
+		);
 
 		/** @var Logs\Ops\Select $select */
 		$select = $mod->getDbH_Logs()->getQuerySelector();
