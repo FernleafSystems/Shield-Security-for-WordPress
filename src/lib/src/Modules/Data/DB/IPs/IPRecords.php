@@ -9,20 +9,30 @@ class IPRecords {
 
 	use ModConsumer;
 
+	private static $ips = [];
+
 	public function loadIP( string $ip, bool $autoCreate = true ) :Ops\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPs();
-		/** @var Ops\Select $select */
-		$select = $dbh->getQuerySelector();
-		$record = $select->filterByIPHuman( $ip )->first();
 
-		if ( empty( $record ) && $autoCreate && $this->addIP( $ip ) ) {
-			$record = $this->loadIP( $ip, false );
+		if ( !empty( self::$ips[ $ip ] ) ) {
+			$record = self::$ips[ $ip ];
 		}
+		else {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			$dbh = $mod->getDbH_IPs();
+			/** @var Ops\Select $select */
+			$select = $dbh->getQuerySelector();
+			$record = $select->filterByIPHuman( $ip )->first();
 
-		if ( empty( $record ) ) {
-			throw new \Exception( 'IP Record unavailable' );
+			if ( empty( $record ) && $autoCreate && $this->addIP( $ip ) ) {
+				$record = $this->loadIP( $ip, false );
+			}
+
+			if ( empty( $record ) ) {
+				throw new \Exception( 'IP Record unavailable' );
+			}
+
+			self::$ips[ $ip ] = $record;
 		}
 
 		return $record;
