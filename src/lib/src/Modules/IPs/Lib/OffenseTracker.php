@@ -23,17 +23,14 @@ class OffenseTracker extends EventsListener {
 	 */
 	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
 		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {
-			$this->incrementCount( (int)( $meta[ 'offense_count' ] ?? 1) );
+			$this->incrementCount( (int)( $meta[ 'offense_count' ] ?? 1 ) );
 			if ( !empty( $meta[ 'block' ] ) ) {
 				$this->setIsBlocked( true );
 			}
 		}
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function hasVisitorOffended() {
+	public function hasVisitorOffended() :bool {
 		return $this->isBlocked() || $this->getOffenseCount() > 0;
 	}
 
