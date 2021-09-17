@@ -37,15 +37,16 @@ abstract class BaseBuildScores {
 	}
 
 	protected function getAllFields( $filterForMethods = false ) :array {
-		$botSignalDBH = shield_security_get_plugin()->getController()
-													->getModule_IPs()
-													->getDbHandler_BotSignals();
 		$fields = array_map(
 			function ( $col ) {
 				return str_replace( '_at', '', $col );
 			},
 			array_filter(
-				$botSignalDBH->getTableSchema()->getColumnNames(),
+				$this->getCon()
+					 ->getModule_IPs()
+					 ->getDbH_BotSignal()
+					 ->getTableSchema()
+					 ->getColumnNames(),
 				function ( $col ) {
 					return preg_match( '#_at$#', $col ) &&
 						   !in_array( $col, [ 'snsent_at', 'updated_at', 'deleted_at' ] );

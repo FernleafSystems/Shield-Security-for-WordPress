@@ -584,6 +584,123 @@
       "woff",
       "woff2"
     ],
+    "db_handler_classes":  {
+      "botsignal": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler"
+    },
+    "db_table_botsignal":  {
+      "autoexpire":     0,
+      "slug":           "botsignal",
+      "has_updated_at": true,
+      "col_older_than": "updated_at",
+      "cols_custom":    {
+        "ip_ref":             {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
+        },
+        "notbot_at":          {
+          "macro_type": "timestamp",
+          "comment":    "NotBot"
+        },
+        "frontpage_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Any Frontend Page Loaded"
+        },
+        "loginpage_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Login Page Loaded"
+        },
+        "bt404_at":           {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack 404"
+        },
+        "btfake_at":          {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack FakeWebCrawler"
+        },
+        "btcheese_at":        {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack LinkCheese"
+        },
+        "btloginfail_at":     {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack LoginFailed"
+        },
+        "btua_at":            {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack Useragent Fail"
+        },
+        "btxml_at":           {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack XMLRPC Access"
+        },
+        "btlogininvalid_at":  {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack LoginInvalid"
+        },
+        "btinvalidscript_at": {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack InvalidScript"
+        },
+        "cooldown_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Cooldown Triggered"
+        },
+        "humanspam_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Comment Marked As Human SPAM"
+        },
+        "markspam_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Mark Comment As SPAM"
+        },
+        "unmarkspam_at":      {
+          "macro_type": "timestamp",
+          "comment":    "Unmark Comment As SPAM"
+        },
+        "captchapass_at":     {
+          "macro_type": "timestamp",
+          "comment":    "Captcha Passed"
+        },
+        "captchafail_at":     {
+          "macro_type": "timestamp",
+          "comment":    "Captcha Failed"
+        },
+        "auth_at":            {
+          "macro_type": "timestamp",
+          "comment":    "Successful Login"
+        },
+        "firewall_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Triggered Firewall"
+        },
+        "ratelimit_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Rate Limit Exceeded"
+        },
+        "offense_at":         {
+          "macro_type": "timestamp",
+          "comment":    "Last Offense"
+        },
+        "blocked_at":         {
+          "macro_type": "timestamp",
+          "comment":    "Last Block"
+        },
+        "unblocked_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Unblocked"
+        },
+        "bypass_at":          {
+          "macro_type": "timestamp",
+          "comment":    "Bypass"
+        },
+        "snsent_at":          {
+          "macro_type": "timestamp",
+          "comment":    "Sent To ShieldNET"
+        }
+      }
+    },
     "db_classes":          {
       "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
       "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"

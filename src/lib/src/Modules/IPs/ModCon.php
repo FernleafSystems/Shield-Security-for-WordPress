@@ -43,6 +43,14 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oBlacklistHandler;
 	}
 
+	protected function doPostConstruction() {
+		$this->getDbH_BotSignal();
+	}
+
+	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'botsignal' );
+	}
+
 	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
 		return $this->getDbH( 'botsignals' );
 	}
