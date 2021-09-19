@@ -35,15 +35,17 @@ class Diff extends BaseOps {
 
 		/**
 		 * The WP Diff is empty if the only difference is white space
-		 * @since v10.3 always use WP Hashes DIFF
-		 *
-		 * $diff = $this->useWpDiff( $original, $current );
-		 * if ( empty( $diff ) ) {
-		 *  $this->useWpHashes( $original, $current );
-		 * }
+		 * @since 10.3 - always use WP Hashes DIFF
+		 * @since 12.0 - use WPHashes and fallback to WP Diff
 		 */
+		try {
+			$diff = $this->useWpHashes( $original, $current );
+		}
+		catch ( \Exception $e ) {
+			$diff = $this->useWpDiff( $original, $current );
+		}
 
-		return $this->useWpHashes( $original, $current );
+		return $diff;
 	}
 
 	/**
