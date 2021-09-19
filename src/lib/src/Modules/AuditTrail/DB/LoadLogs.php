@@ -9,8 +9,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LoadLogs {
 
+	const DEFAULT_LIMIT = 10000;
 	use ModConsumer;
 	use IpAddressConsumer;
+
+	private $limit = null;
 
 	/**
 	 * @return LogRecord[]
@@ -76,13 +79,21 @@ class LoadLogs {
 							%s
 						LEFT JOIN `%s` as `meta`
 							ON log.id = `meta`.log_ref
-						ORDER BY log.updated_at DESC;',
+						ORDER BY log.updated_at DESC
+						%s
+				',
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
-				$mod->getDbH_Meta()->getTableSchema()->table
+				$mod->getDbH_Meta()->getTableSchema()->table,
+				( $this->limit === 0 ) ? '' : sprintf( 'LIMIT %s', is_null( $this->limit ) ? self::DEFAULT_LIMIT : $this->limit )
 			)
 		);
+	}
+
+	public function setLimit( int $limit ) {
+		$this->limit = $limit;
+		return $this;
 	}
 }

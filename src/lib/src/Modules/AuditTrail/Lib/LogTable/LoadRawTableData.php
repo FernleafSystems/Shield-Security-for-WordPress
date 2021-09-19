@@ -56,6 +56,7 @@ class LoadRawTableData extends BaseLoadTableData {
 		return array_filter(
 			( new LoadLogs() )
 				->setMod( $this->getCon()->getModule_AuditTrail() )
+				->setLimit( (int)Services::Request()->post( 'record_limit', 10000 ) )
 				->run(),
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
