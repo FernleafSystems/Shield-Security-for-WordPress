@@ -14,7 +14,7 @@ No-Nonsense Security Hardening that protects WordPress against hackers, maliciou
 
 == Description ==
 
-**No-Nonsense, No-Hype. Just Security Protection**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive, *no-need-for-captcha* security technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
+**No-Nonsense, No-Hype. Just Good Security Protection**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive, *no-need-for-captcha* security technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
 
 **Performance is critical**. Shield Security automatically blocks bad IP addresses while optimising performance so your WordPress site never slows down because of bloated security, with large IP lookup tables .
 
