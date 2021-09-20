@@ -63,19 +63,10 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function ignore() {
-		if ( empty( $this->getScanItem()->VO ) ) {
-			throw new \Exception( 'Item could not be found to ignore.' );
-		}
-
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Scanner\Update $updater */
-		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		if ( !$updater->setIgnored( $this->getScanItem()->VO ) ) {
-			throw new \Exception( 'Item could not be ignored at this time.' );
-		}
-
-		return true;
+		return ( new IgnoreItem() )
+			->setMod( $this->getMod() )
+			->setScanItem( $this->getScanItem() )
+			->ignore();
 	}
 
 	/**

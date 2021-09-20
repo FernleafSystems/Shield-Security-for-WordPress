@@ -13,7 +13,4 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem {
 
-	public function generateHash() :string {
-		return md5( $this->path_full );
-	}
 }

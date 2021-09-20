@@ -10,6 +10,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  */
 class FileResultItem extends ResultItem {
 
+	public function generateHash() :string {
+		return md5( $this->path_full );
+	}
+
 	public function getDescriptionForAudit() :string {
 		return $this->path_full;
 	}
