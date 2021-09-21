@@ -17,6 +17,8 @@ class Lookup {
 
 	private $ips = [];
 
+	private $reqCount = 0;
+
 	public function lookupIp() :IPGeoVO {
 		$ip = $this->getIP();
 		// Small optimization so we don't SQL it every time.
@@ -35,6 +37,11 @@ class Lookup {
 
 			if ( is_null( $ipRecord->geo )
 				 || Services::Request()->carbon()->subMonth()->timestamp > @$ipRecord->geo[ 'ts' ] ) {
+
+				if ( $this->reqCount++ > 30 ) {
+					throw new \Exception( 'Lookup limit reached.' );
+				}
+
 				$ipRecord->geo = $this->redirectliIpLookup();
 				$this->getCon()
 					 ->getModule_Data()
@@ -54,6 +61,9 @@ class Lookup {
 		return $this->ips[ $ip ] = ( new IPGeoVO() )->applyFromArray( $geoData );
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function redirectliIpLookup() :array {
 		$data = @json_decode(
 			Services::HttpRequest()->getContent( self::URL_REDIRECTLI.$this->getIP() ), true
