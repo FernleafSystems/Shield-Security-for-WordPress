@@ -11,10 +11,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem {
 
-	public function generateHash() :string {
-		return md5( $this->path_full );
-	}
-
 	public function isReady() :bool {
 		return !empty( $this->path_full ) && !empty( $this->md5_file_wp ) && !empty( $this->path_fragment );
 	}

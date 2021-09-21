@@ -79,6 +79,14 @@
         ]
       },
       {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Scanning Improvements and Fixes",
+        "description": [
+          "Based on customer feedback we've made some adjustments and fixes to the scans and results processing."
+        ]
+      },
+      {
         "type":        "changed",
         "pro_only":    false,
         "title":       "Traffic Log Limits",
