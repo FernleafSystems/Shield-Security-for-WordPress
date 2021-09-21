@@ -7,22 +7,22 @@ use FernleafSystems\Wordpress\Services\Services;
 trait Common {
 
 	/**
-	 * @param string $sHash
+	 * @param string $hash
 	 * @return $this
 	 */
-	public function filterByHash( $sHash ) {
-		if ( !empty( $sHash ) ) {
-			$this->filterByHashes( [ $sHash ] );
+	public function filterByHash( string $hash ) {
+		if ( !empty( $hash ) ) {
+			$this->addWhereEquals( 'hash', $hash );
 		}
 		return $this;
 	}
 
 	/**
-	 * @param string[] $aHashes
+	 * @param string[] $hashes
 	 * @return $this
 	 */
-	public function filterByHashes( $aHashes ) {
-		return $this->addWhereIn( 'hash', $aHashes );
+	public function filterByHashes( $hashes ) {
+		return $this->addWhereIn( 'hash', $hashes );
 	}
 
 	/**
@@ -37,6 +37,13 @@ trait Common {
 	 */
 	public function filterByNotIgnored() {
 		return $this->addWhereEquals( 'ignored_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByNoRepairAttempted() {
+		return $this->addWhereEquals( 'attempt_repair_at', 0 );
 	}
 
 	/**

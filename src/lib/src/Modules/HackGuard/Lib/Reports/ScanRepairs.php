@@ -85,7 +85,7 @@ class ScanRepairs extends BaseReporter {
 					'hrefs'   => [
 						'audit_trail' => $this->getCon()
 											  ->getModule_Insights()
-											  ->getUrl_SubInsightsPage( 'audit' ),
+											  ->getUrl_SubInsightsPage( 'audit_trail' ),
 					],
 				]
 			);

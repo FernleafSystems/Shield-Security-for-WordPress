@@ -25,6 +25,10 @@ class Update extends Insert {
 		return is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : [];
 	}
 
+	public function setSoftDeleted() {
+		return $this->setUpdateData( [ 'deleted_at' => Services::Request()->ts() ] );
+	}
+
 	/**
 	 * @param array $data
 	 * @return $this
@@ -71,7 +75,8 @@ class Update extends Insert {
 				$success = true;
 			}
 			else {
-				if ( $this->getDbH()->getTableSchema()->hasColumn( 'updated_at' ) && !isset( $updateData[ 'updated_at' ] ) ) {
+				if ( $this->getDbH()->getTableSchema()->hasColumn( 'updated_at' )
+					 && !isset( $updateData[ 'updated_at' ] ) ) {
 					$updateData[ 'updated_at' ] = Services::Request()->ts();
 				}
 				if ( $this->updateById( $entry->id, $updateData ) ) {
@@ -102,10 +107,10 @@ class Update extends Insert {
 
 	public function query() {
 		return (bool)Services::WpDb()
-					   ->updateRowsFromTableWhere(
-						   $this->getDbH()->getTable(),
-						   $this->getUpdateData(),
-						   $this->getUpdateWheres()
-					   );
+							 ->updateRowsFromTableWhere(
+								 $this->getDbH()->getTable(),
+								 $this->getUpdateData(),
+								 $this->getUpdateWheres()
+							 );
 	}
 }

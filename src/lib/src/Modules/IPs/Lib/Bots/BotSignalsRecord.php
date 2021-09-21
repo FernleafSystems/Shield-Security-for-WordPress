@@ -2,12 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	DB\BotSignal\BotSignalRecord,
+	DB\BotSignal\LoadBotSignalRecords,
+	ModCon,
+	DB\BotSignal
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,43 +23,61 @@ class BotSignalsRecord {
 	public function delete() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Select $select */
-		$select = $mod->getDbHandler_BotSignals()->getQueryDeleter();
-		return $select->filterByIPHuman( $this->getIP() )->query();
+		/** @var BotSignal\Ops\Select $select */
+		$select = $mod->getDbH_BotSignal()->getQueryDeleter();
+		return $select->filterByIP( $this->getIPRecord()->id )->query();
 	}
 
-	public function retrieve( bool $storeOnLoad = true ) :EntryVO {
+	public function retrieveNotBotAt() :int {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return (int)Services::WpDb()->getVar(
+			sprintf( "SELECT bs.notbot_at
+						FROM `%s` as bs
+						INNER JOIN `%s` as ips
+							ON `ips`.id = `bs`.ip_ref 
+							AND `ips`.`ip`=INET6_ATON('%s')
+						ORDER BY `bs`.updated_at DESC
+						LIMIT 1;",
+				$mod->getDbH_BotSignal()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->getIP()
+			)
+		);
+	}
+
+	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$e = $this->dbLoad();
-		if ( !$e instanceof EntryVO ) {
-			$e = new EntryVO();
-			$e->ip = $this->getIP();
+		$r = $this->dbLoad();
+		if ( empty( $r ) ) {
+			$r = new BotSignalRecord();
+			$r->ip_ref = $this->getIPRecord()->id;
 		}
 
 		$ipOnList = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setIP( $e->ip )
+			->setIP( $this->getIP() )
 			->lookupIp();
 
 		if ( !empty( $ipOnList ) ) {
-			if ( empty( $e->bypass_at ) && $ipOnList->list === $mod::LIST_MANUAL_WHITE ) {
-				$e->bypass_at = $ipOnList->created_at;
+			if ( empty( $r->bypass_at ) && $ipOnList->list === $mod::LIST_MANUAL_WHITE ) {
+				$r->bypass_at = $ipOnList->created_at;
 			}
-			if ( empty( $e->offense_at ) && $ipOnList->list === $mod::LIST_AUTO_BLACK ) {
-				$e->offense_at = $ipOnList->last_access_at;
+			if ( empty( $r->offense_at ) && $ipOnList->list === $mod::LIST_AUTO_BLACK ) {
+				$r->offense_at = $ipOnList->last_access_at;
 			}
-			$e->blocked_at = $ipOnList->blocked_at;
+			$r->blocked_at = $ipOnList->blocked_at;
 		}
 
-		if ( empty( $e->notbot_at ) && Services::IP()->getRequestIp() === $this->getIP() ) {
-			$e->notbot_at = $mod->getBotSignalsController()
+		if ( empty( $r->notbot_at ) && Services::IP()->getRequestIp() === $this->getIP() ) {
+			$r->notbot_at = $mod->getBotSignalsController()
 								->getHandlerNotBot()
 								->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
-		if ( empty( $e->auth_at ) ) {
+		if ( empty( $r->auth_at ) ) {
 			$dbhSessions = $this->getCon()
 								->getModule_Sessions()
 								->getDbHandler_Sessions();
@@ -64,43 +86,48 @@ class BotSignalsRecord {
 			$session = $selector->setIncludeSoftDeleted( true )
 								->filterByIp( $this->getIP() )
 								->first();
-			$e->auth_at = empty( $session ) ? 0 : $session->created_at;
+			$r->auth_at = empty( $session ) ? 0 : $session->created_at;
 		}
 
 		if ( $storeOnLoad ) {
-			$this->store( $e );
+			$this->store( $r );
 		}
 
-		return $e;
+		return $r;
 	}
 
 	/**
-	 * @return EntryVO|null
+	 * @return BotSignal\BotSignalRecord|null
 	 */
 	private function dbLoad() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Select $select */
-		$select = $mod->getDbHandler_BotSignals()->getQuerySelector();
-		/** @var EntryVO $record */
-		return $select->filterByIPHuman( $this->getIP() )->first();
+		try {
+			$record = ( new LoadBotSignalRecords() )
+				->setMod( $this->getMod() )
+				->setIP( $this->getIP() )
+				->loadRecord();
+		}
+		catch ( \Exception $e ) {
+			$record = null;
+		}
+
+		return $record;
 	}
 
-	public function store( EntryVO $entry ) :bool {
+	public function store( BotSignalRecord $record ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( empty( $entry->id ) ) {
-			$success = $mod->getDbHandler_BotSignals()
+		if ( empty( $record->id ) ) {
+			$success = $mod->getDbH_BotSignal()
 						   ->getQueryInserter()
-						   ->insert( $entry );
+						   ->insert( $record );
 		}
 		else {
-			$data = $entry->getRawData();
+			$data = $record->getRawData();
 			$data[ 'updated_at' ] = Services::Request()->ts();
-			$success = $mod->getDbHandler_BotSignals()
+			$success = $mod->getDbH_BotSignal()
 						   ->getQueryUpdater()
-						   ->updateById( $entry->id, $data );
+						   ->updateById( $record->id, $data );
 		}
 		return $success;
 	}
@@ -108,22 +135,28 @@ class BotSignalsRecord {
 	/**
 	 * @param string   $field
 	 * @param int|null $ts
-	 * @return EntryVO
+	 * @return BotSignalRecord
 	 * @throws \LogicException
 	 */
-	public function updateSignalField( string $field, $ts = null ) :EntryVO {
+	public function updateSignalField( string $field, $ts = null ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( !$mod->getDbHandler_BotSignals()->getTableSchema()->hasColumn( $field ) ) {
+		if ( !$mod->getDbH_BotSignal()->getTableSchema()->hasColumn( $field ) ) {
 			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
 		}
 
-		$entry = $this->retrieve( false ); // false as we're going to store it anyway
-		$entry->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
+		$record = $this->retrieve( false ); // false as we're going to store it anyway
+		$record->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
 
-		$this->store( $entry );
+		$this->store( $record );
 
-		return $entry;
+		return $record;
+	}
+
+	private function getIPRecord() :IPs\Ops\Record {
+		return ( new IPs\IPRecords() )
+			->setMod( $this->getCon()->getModule_Data() )
+			->loadIP( $this->getIP(), true );
 	}
 }

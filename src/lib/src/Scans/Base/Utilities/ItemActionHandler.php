@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ItemActionHandler {
 
@@ -62,19 +63,10 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function ignore() {
-		if ( empty( $this->getScanItem()->VO ) ) {
-			throw new \Exception( 'Item could not be found to ignore.' );
-		}
-
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Scanner\Update $updater */
-		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		if ( !$updater->setIgnored( $this->getScanItem()->VO ) ) {
-			throw new \Exception( 'Item could not be ignored at this time.' );
-		}
-
-		return true;
+		return ( new IgnoreItem() )
+			->setMod( $this->getMod() )
+			->setScanItem( $this->getScanItem() )
+			->ignore();
 	}
 
 	/**
@@ -110,13 +102,18 @@ abstract class ItemActionHandler {
 
 		$this->fireRepairEvent();
 
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		if ( $item->repaired ) {
-			/** @var HackGuard\ModCon $mod */
-			$mod = $this->getMod();
 			/** @var Scanner\Delete $deleter */
 			$mod->getDbHandler_ScanResults()
 				->getQueryDeleter()
 				->deleteById( $item->VO->id );
+		}
+		else {
+			$mod->getDbHandler_ScanResults()
+				->getQueryUpdater()
+				->updateById( $item->VO->id, [ 'attempt_repair_at' => Services::Request()->ts() ] );
 		}
 
 		return $item->repaired;

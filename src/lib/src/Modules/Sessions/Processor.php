@@ -42,25 +42,18 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function onWpLoaded() {
-		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
-			$this->autoAddSession();
-		}
-	}
-
-	public function onModuleShutdown() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
-			$session = $mod->getSessionCon()->getCurrent();
-			if ( $session instanceof Session\EntryVO ) {
-				/** @var Session\Update $update */
-				$update = $mod->getDbHandler_Sessions()->getQueryUpdater();
-				$update->updateLastActivity( $session );
-			}
+		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
+			$this->autoAddSession();
 		}
 
-		parent::onModuleShutdown();
+		if ( $mod->getSessionCon()->hasSession() ) {
+			/** @var Session\Update $update */
+			$update = $mod->getDbHandler_Sessions()->getQueryUpdater();
+			$update->updateLastActivity( $mod->getSessionCon()->getCurrent() );
+		}
 	}
 
 	private function autoAddSession() {
@@ -100,5 +93,12 @@ class Processor extends BaseShield\Processor {
 
 	protected function getHookPriority() :int {
 		return 100;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
 	}
 }

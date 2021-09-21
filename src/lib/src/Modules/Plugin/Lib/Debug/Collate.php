@@ -179,7 +179,7 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_IPs()->getDbHandler_BotSignals();
+		$dbh = $con->getModule_IPs()->getDbH_BotSignal();
 		$data[ 'DB Table: Bot Signals' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';

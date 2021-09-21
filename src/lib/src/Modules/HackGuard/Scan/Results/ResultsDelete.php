@@ -15,39 +15,65 @@ class ResultsDelete {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param Scans\Base\ResultsSet $oResultsToDelete
+	 * @param Scans\Base\ResultsSet $resultsToDelete
+	 * @param bool                  $softDelete
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public function delete( $oResultsToDelete ) {
-		$aHashes = array_map(
-			function ( $oItem ) {
-				/** @var Scans\Base\ResultItem $oItem */
-				return $oItem->hash;
-			},
-			$oResultsToDelete->getAllItems()
-		);
-
-		$bSuccess = true;
-		if ( !empty( $aHashes ) ) {
-			/** @var Databases\Scanner\Delete $oDel */
-			$oDel = $this->getScanController()
-						 ->getScanResultsDbHandler()
-						 ->getQueryDeleter();
-			$bSuccess = $oDel->filterByHashes( $aHashes )
-							 ->query();
+	public function delete( $resultsToDelete, bool $softDelete = true ) {
+		if ( !$resultsToDelete->hasItems() ) {
+			throw new \Exception( 'No items' );
 		}
-		return $bSuccess;
+
+		$hashes = array_filter( array_map(
+			function ( $item ) {
+				return (string)$item->hash;
+			},
+			$resultsToDelete->getAllItems()
+		) );
+
+		$success = true;
+		if ( !empty( $hashes ) ) {
+			if ( $softDelete ) {
+				$success = $this->softDelete( $hashes );
+			}
+			else {
+				/** @var Databases\Scanner\Delete $deleter */
+				$deleter = $this->getScanController()
+								->getScanResultsDbHandler()
+								->getQueryDeleter();
+				$success = $deleter->filterByHashes( $hashes )->query();
+			}
+		}
+		return $success;
+	}
+
+	protected function softDelete( array $hashes ) :bool {
+		/** @var Databases\Scanner\Update $updater */
+		$updater = $this->getScanController()
+						->getScanResultsDbHandler()
+						->getQueryUpdater();
+		// This is an inefficient hack for multiple soft-deletes until we rewrite a custom SQL updater
+		foreach ( $hashes as $hash ) {
+			$updater->setSoftDeleted()
+					->setUpdateWheres( [
+						'hash' => $hash
+					] )
+					->query();
+		}
+
+		return true;
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function deleteAllForScan() {
-		/** @var Databases\Scanner\Delete $oDel */
-		$oDel = $this->getScanController()
-					 ->getScanResultsDbHandler()
-					 ->getQueryDeleter();
-		$oDel->forScan( $this->getScanController()->getSlug() );
+		/** @var Databases\Scanner\Delete $deleter */
+		$deleter = $this->getScanController()
+						->getScanResultsDbHandler()
+						->getQueryDeleter();
+		$deleter->forScan( $this->getScanController()->getSlug() );
 		return $this;
 	}
 }

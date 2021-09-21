@@ -79,11 +79,14 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
 		$reqSelector = $modData->getDbH_ReqLogs()->getQuerySelector();
-		$reqIDs = array_map( function ( $rawRecord ) {
-			return $rawRecord->id;
-		}, (array)$reqSelector->filterByIP( $ipRecordID )
-							  ->setColumnsToSelect( [ 'id' ] )
-							  ->queryWithResult() );
+		$reqIDs = array_map(
+			function ( $rawRecord ) {
+				return $rawRecord->id;
+			},
+			(array)$reqSelector->filterByIP( $ipRecordID )
+							   ->setColumnsToSelect( [ 'id' ] )
+							   ->queryWithResult()
+		);
 
 		/** @var Logs\Ops\Select $select */
 		$select = $mod->getDbH_Logs()->getQuerySelector();
@@ -124,7 +127,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 		$ipRecordID = ( new IPRecords() )
 			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
+			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
 			->id;
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
 			->setMod( $this->getCon()->getModule_Data() )

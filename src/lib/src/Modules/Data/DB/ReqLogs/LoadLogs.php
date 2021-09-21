@@ -40,7 +40,7 @@ class LoadLogs {
 							ON req.ip_ref = ips.id
 						ORDER BY `req`.created_at DESC;',
 				$mod->getDbH_ReqLogs()->getTableSchema()->table,
-				empty( $ip ) ? '' : sprintf( "WHERE `ips`.ip==INET6_ATON('%s')", $ip ),
+				empty( $ip ) ? '' : sprintf( "WHERE `ips`.ip=INET6_ATON('%s')", $ip ),
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);

@@ -155,7 +155,7 @@ class LoadRawTableData extends BaseLoadTableData {
 	private function getColumnContent_Page() :string {
 		list( $preQuery, $query ) = explode( '?', $this->log->meta[ 'path' ].'?', 2 );
 		return strtoupper( $this->log->meta[ 'verb' ] ).': <code>'.$preQuery
-			   .( empty( $query ) ? '' : '?<br/>'.$query ).'</code>';
+			   .( empty( $query ) ? '' : '?<br/>'.rtrim( $query, '?' ) ).'</code>';
 	}
 
 	private function getIpInfo( string $ip ) {

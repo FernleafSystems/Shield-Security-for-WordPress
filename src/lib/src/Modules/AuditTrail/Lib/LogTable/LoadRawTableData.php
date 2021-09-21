@@ -7,12 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops\ConvertLegacy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoadRawTableData {
-
-	use ModConsumer;
+class LoadRawTableData extends BaseLoadTableData {
 
 	/**
 	 * @var LogRecord
@@ -38,7 +36,7 @@ class LoadRawTableData {
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();
 				$data[ 'event' ] = $srvEvents->getEventName( $log->event_slug );
-				$data[ 'created_since' ] = $this->getColumnContent_Date();
+				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
 				$data[ 'user_id' ] = $this->getColumnContent_UserID();
@@ -58,6 +56,7 @@ class LoadRawTableData {
 		return array_filter(
 			( new LoadLogs() )
 				->setMod( $this->getCon()->getModule_AuditTrail() )
+				->setLimit( (int)Services::Request()->post( 'record_limit', 10000 ) )
 				->run(),
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
@@ -66,20 +65,7 @@ class LoadRawTableData {
 	}
 
 	private function getColumnContent_RequestDetails() :string {
-		return sprintf( '<h6><a href="%s" target="_blank">%s</a></h6>',
-			$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $this->log->ip ),
-			$this->log->ip
-		);
-	}
-
-	private function getColumnContent_Date() :string {
-		return sprintf( '%s<br /><small>%s</small>',
-			Services::Request()
-					->carbon( true )
-					->setTimestamp( $this->log->created_at )
-					->diffForHumans(),
-			Services::WpGeneral()->getTimeStringForDisplay( $this->log->created_at )
-		);
+		return sprintf( '<h6>%s</h6>', $this->getIpAnalysisLink( (string)$this->log->ip ) );
 	}
 
 	private function getColumnContent_UserID() :string {

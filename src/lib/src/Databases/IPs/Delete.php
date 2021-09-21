@@ -33,6 +33,6 @@ class Delete extends Base\Delete {
 			$this->filterByIp( $sIp )
 				 ->filterByBlacklist();
 		}
-		return $this->hasWheres() ? $this->query() : false;
+		return $this->hasWheres() && $this->query();
 	}
 }

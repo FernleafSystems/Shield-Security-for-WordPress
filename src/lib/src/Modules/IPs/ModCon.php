@@ -43,8 +43,12 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oBlacklistHandler;
 	}
 
-	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
-		return $this->getDbH( 'botsignals' );
+	protected function doPostConstruction() {
+		$this->getDbH_BotSignal();
+	}
+
+	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
@@ -153,5 +157,22 @@ class ModCon extends BaseShield\ModCon {
 				break;
 		}
 		return $text;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function cleanupDatabases() {
+		$dbhIPs = $this->getDbHandler_IPs();
+		if ( $dbhIPs->isReady() ) {
+			$dbhIPs->autoCleanDb();
+		}
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
+		return $this->getDbH( 'botsignals' );
 	}
 }

@@ -21,11 +21,24 @@ class BaseLoadTableData {
 
 	protected function getIpAnalysisLink( string $ip ) :string {
 		$srvIP = Services::IP();
-		return sprintf( '<a href="%s" target="_blank" title="%s" class="ip-whois">%s</a>',
-			$srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) :
+
+		if ( $srvIP->isValidIpRange( $ip ) ) {
+			$content = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>',
+				$srvIP->getIpWhoisLookup( $ip ),
+				__( 'IP Analysis', 'wp-simple-firewall' ),
+				$ip
+			);
+		}
+		elseif ( Services::IP()->isValidIp( $ip ) ) {
+			$content = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>',
 				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip ),
-			__( 'IP Analysis' ),
-			$ip
-		);
+				__( 'IP Analysis', 'wp-simple-firewall' ),
+				$ip
+			);
+		}
+		else {
+			$content = __( 'IP Unavailable', 'wp-simple-firewall' );
+		}
+		return $content;
 	}
 }

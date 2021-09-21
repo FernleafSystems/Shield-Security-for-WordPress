@@ -27,27 +27,35 @@ class ResultsUpdate {
 
 		$itemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $existing, $newCopy );
 
-		( new ResultsDelete() )
-			->setScanController( $scanCon )
-			->delete( $itemsToDelete );
+		try {
+			( new ResultsDelete() )
+				->setScanController( $scanCon )
+				->delete( $itemsToDelete );
+		}
+		catch ( \Exception $e ) {
+		}
 
-		( new ResultsStore() )
-			->setScanController( $scanCon )
-			->store( $newCopy );
+		try {
+			( new ResultsStore() )
+				->setScanController( $scanCon )
+				->store( $newCopy );
+		}
+		catch ( \Exception $e ) {
+		}
 
-		$updater = $scanCon->getScanResultsDbHandler()->getQueryUpdater();
-		/** @var Databases\Scanner\EntryVO $vo */
-		$converter = ( new ConvertBetweenTypes() )->setScanController( $scanCon );
-		foreach ( $converter->fromResultsToVOs( $existing ) as $vo ) {
-			$updater->reset()
-					->setUpdateData( $vo->getRawData() )
-					->setUpdateWheres(
-						[
+		if ( $existing->hasItems() ) {
+			$updater = $scanCon->getScanResultsDbHandler()->getQueryUpdater();
+			/** @var Databases\Scanner\EntryVO $vo */
+			$converter = ( new ConvertBetweenTypes() )->setScanController( $scanCon );
+			foreach ( $converter->fromResultsToVOs( $existing ) as $vo ) {
+				$updater->reset()
+						->setUpdateWheres( [
 							'scan' => $scanCon->getSlug(),
 							'hash' => $vo->hash,
-						]
-					)
-					->query();
+						] )
+						->setUpdateData( $vo->getRawData() )
+						->query();
+			}
 		}
 	}
 }

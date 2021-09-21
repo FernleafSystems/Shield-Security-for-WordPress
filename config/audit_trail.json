@@ -27,7 +27,7 @@
       "source_mod_page": "audit-redirect",
       "target_mod_page": "insights",
       "query_args":      {
-        "inav": "audit"
+        "inav": "audit_trail"
       }
     }
   ],
