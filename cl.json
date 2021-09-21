@@ -94,6 +94,15 @@
           "Traffic logs are no longer limited by amount.",
           "They are instead limited by age (in days). Updated configuration options are available."
         ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    true,
+        "title":       "U2F 2-Factor Authentication Bypasses MFA",
+        "description": [
+          "U2F is a strong 2FA mechanism and so it doesn't really need to be used in conjunction with other factors.",
+          "When the Chained/MFA option is enabled, when U2F is supplied, this can be done alone without the need for other factors."
+        ]
       }
     ]
   },
