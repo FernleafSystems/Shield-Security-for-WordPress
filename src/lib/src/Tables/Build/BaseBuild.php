@@ -92,11 +92,11 @@ class BaseBuild {
 
 	/**
 	 * Override this to filter entries that cannot be filtered using SQL WHERE
-	 * @param array[] $aEntries
+	 * @param array[] $entries
 	 * @return array[]
 	 */
-	protected function postSelectEntriesFilter( $aEntries ) {
-		return $aEntries;
+	protected function postSelectEntriesFilter( $entries ) {
+		return $entries;
 	}
 
 	/**

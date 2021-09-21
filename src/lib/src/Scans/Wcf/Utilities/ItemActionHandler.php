@@ -15,14 +15,10 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	}
 
 	/**
-	 * @param bool $success
+	 * @return bool
+	 * @throws \Exception
 	 */
-	protected function fireRepairEvent( $success ) {
-		/** @var Wcf\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
-		);
+	public function repairDelete() :bool {
+		return $this->repair();
 	}
 }

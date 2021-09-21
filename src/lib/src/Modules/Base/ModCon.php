@@ -77,6 +77,11 @@ abstract class ModCon {
 	private $aDbHandlers;
 
 	/**
+	 * @var Databases
+	 */
+	private $dbHandler;
+
+	/**
 	 * @param Shield\Controller\Controller $pluginCon
 	 * @param array                        $mod
 	 * @throws \Exception
@@ -118,9 +123,6 @@ abstract class ModCon {
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-		add_filter( $con->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
-
-		add_filter( $con->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 
 		if ( is_admin() || is_network_admin() ) {
 			$this->loadAdminNotices();
@@ -165,7 +167,7 @@ abstract class ModCon {
 	 * @param bool $bInitAll
 	 * @return Shield\Databases\Base\Handler[]
 	 */
-	protected function getDbHandlers( $bInitAll = false ) {
+	public function getDbHandlers( $bInitAll = false ) {
 		if ( $bInitAll ) {
 			foreach ( $this->getAllDbClasses() as $dbSlug => $dbClass ) {
 				$this->getDbH( $dbSlug );
@@ -226,17 +228,6 @@ abstract class ModCon {
 		return $this->loadModElement( 'Upgrade' );
 	}
 
-	/**
-	 * @param array $aAdminNotices
-	 * @return array
-	 */
-	public function fRegisterAdminNotices( $aAdminNotices ) {
-		if ( !is_array( $aAdminNotices ) ) {
-			$aAdminNotices = [];
-		}
-		return array_merge( $aAdminNotices, $this->getOptions()->getAdminNotices() );
-	}
-
 	private function verifyModuleMeetRequirements() :bool {
 		$bMeetsReqs = true;
 
@@ -270,8 +261,8 @@ abstract class ModCon {
 			$this->loadProcessor();
 		}
 		try {
-			$bSkip = (bool)$opts->getFeatureProperty( 'skip_processor' );
-			if ( !$bSkip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+			$skip = (bool)$opts->getFeatureProperty( 'skip_processor' );
+			if ( !$skip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 				$this->doExecuteProcessor();
 			}
 		}
@@ -387,7 +378,7 @@ abstract class ModCon {
 	}
 
 	public function isUpgrading() :bool {
-		return $this->getCon()->cfg->rebuilt || $this->getOptions()->getRebuildFromFile();
+		return $this->getCon()->cfg->rebuilt || $this->getOptions()->getConfigLoader()->isBuiltFromFile();
 	}
 
 	/**
@@ -395,9 +386,8 @@ abstract class ModCon {
 	 */
 	public function onPluginShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
-			if ( rand( 1, 40 ) === 2 ) {
-				// cleanup databases randomly just in-case cron doesn't run.
-				$this->cleanupDatabases();
+			if ( rand( 1, 100 ) === 2 ) {
+				$this->cleanupDatabases(); // cleanup databases randomly just in-case cron doesn't run.
 			}
 			$this->saveModOptions();
 		}
@@ -654,15 +644,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * Get config 'definition'.
-	 * @param string $key
-	 * @return mixed|null
-	 */
-	public function getDef( string $key ) {
-		return $this->getOptions()->getDef( $key );
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function clearLastErrors() {
@@ -742,7 +723,7 @@ abstract class ModCon {
 	 * @return array
 	 */
 	public function getNonceActionData( $action = '' ) {
-		$data = $this->getCon()->getNonceActionData( $action );
+		$data = $this->getCon()->getNonceActionData( (string)$action );
 		$data[ 'mod_slug' ] = $this->getModSlug();
 		return $data;
 	}
@@ -755,20 +736,19 @@ abstract class ModCon {
 		return is_array( $notices ) ? $notices : [];
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getUiTrack() :array {
+	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->getOptions()->getOpt( 'ui_track' );
-		return is_array( $a ) ? $a : [];
+		return ( new Lib\Components\UiTrack() )
+			->setCon( $this->getCon() )
+			->applyFromArray( is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {
 		$this->getOptions()->setOpt( 'dismissed_notices', $dis );
 	}
 
-	public function setUiTrack( array $UI ) {
-		$this->getOptions()->setOpt( 'ui_track', $UI );
+	public function setUiTrack( Lib\Components\UiTrack $UI ) {
+		$this->getOptions()->setOpt( 'ui_track', $UI->getRawData() );
 	}
 
 	/**
@@ -819,14 +799,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param array $aAggregatedOptions
-	 * @return array
-	 */
-	public function aggregateOptionsValues( $aAggregatedOptions ) {
-		return array_merge( $aAggregatedOptions, $this->getOptions()->getAllOptionsValues() );
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
@@ -836,11 +808,6 @@ abstract class ModCon {
 	}
 
 	public function onPluginDelete() {
-		foreach ( $this->getDbHandlers( true ) as $dbh ) {
-			if ( !empty( $dbh ) ) {
-				$dbh->tableDelete();
-			}
-		}
 		$this->getOptions()->deleteStorage();
 	}
 
@@ -1016,7 +983,7 @@ abstract class ModCon {
 
 	public function isPage_InsightsThisModule() :bool {
 		return $this->isPage_Insights()
-			   && Services::Request()->query( 'subnav' ) == $this->getSlug();
+			   && Services::Request()->query( 'inav' ) == $this->getSlug();
 	}
 
 	protected function isModuleOptionsRequest() :bool {
@@ -1133,7 +1100,8 @@ abstract class ModCon {
 	}
 
 	public function getWizardDefinitions() :array {
-		return is_array( $this->getDef( 'wizards' ) ) ? $this->getDef( 'wizards' ) : [];
+		$wiz = $this->getOptions()->getDef( 'wizards' );
+		return is_array( $wiz ) ? $wiz : [];
 	}
 
 	public function hasWizard() :bool {
@@ -1244,9 +1212,9 @@ abstract class ModCon {
 			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$oRndr = $this->getCon()->getRenderer();
+			$rndr = $this->getCon()->getRenderer();
 			if ( $isTwig || preg_match( '#^.*\.twig$#i', $template ) ) {
-				$oRndr->setTemplateEngineTwig();
+				$rndr->setTemplateEngineTwig();
 			}
 
 			$data[ 'strings' ] = Services::DataManipulation()
@@ -1255,9 +1223,9 @@ abstract class ModCon {
 											 $data[ 'strings' ] ?? []
 										 );
 
-			$render = $oRndr->setTemplate( $template )
-							->setRenderVars( $data )
-							->render();
+			$render = $rndr->setTemplate( $template )
+						   ->setRenderVars( $data )
+						   ->render();
 		}
 		catch ( \Exception $e ) {
 			$render = $e->getMessage();
@@ -1265,18 +1233,6 @@ abstract class ModCon {
 		}
 
 		return (string)$render;
-	}
-
-	/**
-	 * @param array $aTransferableOptions
-	 * @return array
-	 */
-	public function exportTransferableOptions( $aTransferableOptions ) {
-		if ( !is_array( $aTransferableOptions ) ) {
-			$aTransferableOptions = [];
-		}
-		$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptions()->getTransferableOptions();
-		return $aTransferableOptions;
 	}
 
 	public function getMainWpData() :array {
@@ -1287,41 +1243,34 @@ abstract class ModCon {
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
-	 * @param array  $aExportItems
-	 * @param string $sEmail
-	 * @param int    $nPage
+	 * @param array  $exportItems
+	 * @param string $email
+	 * @param int    $page
 	 * @return array
 	 */
-	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
-		return $aExportItems;
+	public function onWpPrivacyExport( $exportItems, $email, $page = 1 ) {
+		return $exportItems;
 	}
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyErase()
-	 * @param array  $aData
-	 * @param string $sEmail
-	 * @param int    $nPage
+	 * @param array  $data
+	 * @param string $email
+	 * @param int    $page
 	 * @return array
 	 */
-	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
-		return $aData;
+	public function onWpPrivacyErase( $data, $email, $page = 1 ) {
+		return $data;
 	}
 
 	/**
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
-		$opts = $this->opts ?? $this->oOpts;
-		if ( !$opts instanceof Options ) {
-			$con = $this->getCon();
+		if ( empty( $this->opts ) ) {
 			$this->opts = $this->loadModElement( 'Options' );
-			$this->opts->setPathToConfig( $con->getPath_ConfigFile( $this->getSlug() ) )
-					   ->setRebuildFromFile( $con->cfg->rebuilt )
-					   ->setOptionsStorageKey( $this->getOptionsStorageKey() )
-					   ->setIfLoadOptionsFromStorage( !$con->getIsResetPlugin() );
-			$opts = $this->opts;
 		}
-		return $opts;
+		return $this->opts;
 	}
 
 	/**
@@ -1408,6 +1357,16 @@ abstract class ModCon {
 	}
 
 	/**
+	 * @return Shield\Modules\Base\Databases|mixed
+	 */
+	protected function getDbHandler() {
+		if ( empty( $this->dbHandler ) ) {
+			$this->dbHandler = $this->loadModElement( 'Databases' );
+		}
+		return $this->dbHandler;
+	}
+
+	/**
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
@@ -1484,5 +1443,15 @@ abstract class ModCon {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * Get config 'definition'.
+	 * @param string $key
+	 * @return mixed|null
+	 * @deprecated 12.0
+	 */
+	public function getDef( string $key ) {
+		return $this->getOptions()->getDef( $key );
 	}
 }

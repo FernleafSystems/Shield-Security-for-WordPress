@@ -16,9 +16,8 @@ abstract class Processor {
 	 */
 	public function __construct( $mod ) {
 		$this->setMod( $mod );
-		add_action( 'init', [ $this, 'onWpInit' ], 9 );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
-		add_action( $mod->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
+		add_action( 'init', [ $this, 'onWpInit' ], $this->getWpHookPriority( 'init' ) );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $this->getWpHookPriority( 'wp_loaded' ) );
 		$this->setupCronHooks();
 	}
 
@@ -29,5 +28,16 @@ abstract class Processor {
 	}
 
 	public function onModuleShutdown() {
+	}
+
+	protected function getWpHookPriority( string $hook ) :int {
+		switch ( $hook ) {
+			case 'init':
+				$pri = 9;
+				break;
+			default:
+				$pri = 10;
+		}
+		return $pri;
 	}
 }

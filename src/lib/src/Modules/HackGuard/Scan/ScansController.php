@@ -74,10 +74,10 @@ class ScansController extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $sSlug ) {
-			$oScanCon = $mod->getScanCon( $sSlug );
-			if ( $oScanCon->isCronAutoRepair() ) {
-				$oScanCon->runCronAutoRepair();
+		foreach ( $opts->getScanSlugs() as $slug ) {
+			$scanCon = $mod->getScanCon( $slug );
+			if ( $scanCon->isCronAutoRepair() ) {
+				$scanCon->runCronAutoRepair();
 			}
 		}
 	}
@@ -147,7 +147,7 @@ class ScansController extends ExecOnceModConsumer {
 			$startHour = 3;
 		}
 		if ( $startMinute < 1 || $startMinute > 59 ) {
-			$startMinute = (int)rand( 0, 59 );
+			$startMinute = (int)rand( 1, 59 );
 		}
 
 		$c = Services::Request()->carbon( true );

@@ -70,48 +70,48 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_AddIp() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oIpServ = Services::IP();
+		$srvIP = Services::IP();
 
 		$formParams = FormParams::Retrieve();
 
 		$success = false;
 		$msg = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
-		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $formParams[ 'ip' ] ) ? $formParams[ 'ip' ] : '' ) );
-		$sList = isset( $formParams[ 'list' ] ) ? $formParams[ 'list' ] : '';
+		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( $formParams[ 'ip' ] ?? '' ) );
+		$list = $formParams[ 'list' ] ?? '';
 
-		$bAcceptableIp = $oIpServ->isValidIp( $ip )
-						 || $oIpServ->isValidIp4Range( $ip )
-						 || $oIpServ->isValidIp6Range( $ip );
+		$acceptableIP = $srvIP->isValidIp( $ip )
+						|| $srvIP->isValidIp4Range( $ip )
+						|| $srvIP->isValidIp6Range( $ip );
 
-		$bIsBlackList = $sList != $mod::LIST_MANUAL_WHITE;
+		$isBlackList = $list != $mod::LIST_MANUAL_WHITE;
 
 		// TODO: Bring this IP verification out of here and make it more accessible
 		if ( empty( $ip ) ) {
 			$msg = __( "IP address not provided", 'wp-simple-firewall' );
 		}
-		elseif ( empty( $sList ) ) {
+		elseif ( empty( $list ) ) {
 			$msg = __( "IP list not provided", 'wp-simple-firewall' );
 		}
-		elseif ( !$bAcceptableIp ) {
+		elseif ( !$acceptableIP ) {
 			$msg = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && !$mod->isPremium() ) {
+		elseif ( $isBlackList && !$mod->isPremium() ) {
 			$msg = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && $oIpServ->checkIp( $oIpServ->getRequestIp(), $ip ) ) {
+		elseif ( $isBlackList && $srvIP->checkIp( $srvIP->getRequestIp(), $ip ) ) {
 			$msg = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
+		elseif ( $isBlackList && in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
 			$msg = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
 			$label = $formParams[ 'label' ] ?? '';
-			$oIP = null;
-			switch ( $sList ) {
+			$IP = null;
+			switch ( $list ) {
 				case $mod::LIST_MANUAL_WHITE:
 					try {
-						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						$IP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
 							->setMod( $mod )
 							->setIP( $ip )
 							->toManualWhitelist( (string)$label );
@@ -122,7 +122,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 				case $mod::LIST_MANUAL_BLACK:
 					try {
-						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						$IP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
 							->setMod( $mod )
 							->setIP( $ip )
 							->toManualBlacklist( (string)$label );
@@ -135,7 +135,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 			}
 
-			if ( !empty( $oIP ) ) {
+			if ( !empty( $IP ) ) {
 				$msg = __( 'IP address added successfully', 'wp-simple-firewall' );
 				$success = true;
 			}
@@ -226,11 +226,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 									   ->setMod( $this->getMod() )
 									   ->setIP( $ip )
 									   ->toManualBlacklist() instanceof Shield\Databases\IPs\EntryVO;
+						$msg = $success ? __( 'IP address blocked.', 'wp-simple-firewall' )
+							: __( "IP address couldn't be blocked at this time.", 'wp-simple-firewall' );
 					}
 					catch ( \Exception $e ) {
+						$msg = $e->getMessage();
 					}
-					$msg = $success ? __( 'IP address blocked.', 'wp-simple-firewall' )
-						: __( "IP address couldn't be blocked at this time.", 'wp-simple-firewall' );
 					break;
 
 				case 'unblock':

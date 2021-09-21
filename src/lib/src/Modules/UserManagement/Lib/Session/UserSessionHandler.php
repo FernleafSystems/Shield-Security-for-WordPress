@@ -40,6 +40,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		$srvIP = Services::IP();
 
+		$user = Services::WpUsers()->getCurrentWpUser();
 		try {
 			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) ) {
 				$this->assessSession();
@@ -49,7 +50,13 @@ class UserSessionHandler extends ExecOnceModConsumer {
 			$srvIP->getServerPublicIPs( true );
 			if ( !$srvIP->isLoopback() ) {
 				$event = $e->getMessage();
-				$con->fireEvent( $event );
+
+				$con->fireEvent( $event, [
+					'audit_params' => [
+						'user_login' => $user->user_login
+					]
+				] );
+
 				$con->getModule_Sessions()
 					->getSessionCon()
 					->terminateCurrentSession();
@@ -70,7 +77,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 					 ->getModule_Sessions()
 					 ->getSessionCon()
 					 ->getCurrent();
-		if ( !$sess instanceof EntryVO ) {
+		if ( empty( $sess ) ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
@@ -88,7 +95,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		if ( $opts->isLockToIp() && $srvIP->getRequestIp() != $sess->ip ) {
 			throw new \Exception( 'session_iplock' );
 		}
-		// TODO: 'session_browserlock';
 	}
 
 	/**
@@ -134,36 +140,31 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 			switch ( $forceLogoutParam ) {
 				case 'session_expired':
-					$sMessage = __( 'Your session has expired.', 'wp-simple-firewall' );
+					$msg = __( 'Your session has expired.', 'wp-simple-firewall' );
 					break;
 
 				case 'session_idle':
-					$sMessage = __( 'Your session was idle for too long.', 'wp-simple-firewall' );
+					$msg = __( 'Your session was idle for too long.', 'wp-simple-firewall' );
 					break;
 
 				case 'session_iplock':
-					$sMessage = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
+					$msg = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
 					break;
 
 				case 'session_notfound':
-					$sMessage = sprintf(
+					$msg = sprintf(
 						__( 'You do not currently have a %s user session.', 'wp-simple-firewall' ),
 						$this->getCon()->getHumanName()
 					);
 					break;
 
-				case 'session_browserlock':
-					$sMessage = __( 'Your browser appears to have changed for this session.', 'wp-simple-firewall' );
-					break;
-
-				case 'session_unverified':
 				default:
-					$sMessage = __( 'Your session was terminated.', 'wp-simple-firewall' );
+					$msg = __( 'Your session was terminated.', 'wp-simple-firewall' );
 					break;
 			}
 
-			$sMessage .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
-			$error->add( 'shield-forcelogout', $sMessage );
+			$msg .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
+			$error->add( 'shield-forcelogout', $msg );
 		}
 		return $error;
 	}

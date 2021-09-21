@@ -13,6 +13,13 @@
 					</a>
 				</li>
 
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#tabEvents"
+					   data-bs-toggle="tab">
+						{{ strings.tab_events }}
+					</a>
+				</li>
+
 				{% if not flags.is_pro %}
 					<li class="nav-item">
 						<a class="nav-link" role="tab" href="{{ hrefs.free_trial }}" target="_blank">
@@ -34,6 +41,14 @@
 			<div class="row">
 				<div class="col pt-3" id="TabUpdates">
 					{{ content.tab_updates|raw }}
+				</div>
+			</div>
+		</div>
+
+		<div class="tab-pane" id="tabEvents" role="tabpanel" aria-labelledby="tabEvents">
+			<div class="row">
+				<div class="col pt-3" id="tabEvents">
+					{{ content.tab_events|raw }}
 				</div>
 			</div>
 		</div>

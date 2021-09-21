@@ -14,14 +14,15 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build() {
-		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof BaseScanActionVO ) {
+		$action = $this->getScanActionVO();
+		if ( !$action instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
 		}
-		if ( empty( $oAction->scan ) ) {
+		if ( empty( $action->scan ) ) {
 			throw new \Exception( 'Scan Slug not provided.' );
 		}
 
+		$this->setWhitelists();
 		$this->setCustomFields();
 		$this->buildScanItems();
 		$this->setStandardFields();
@@ -31,26 +32,33 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	protected function buildScanItems() {
-		$oAction = $this->getScanActionVO();
+		$action = $this->getScanActionVO();
 		$this->buildItems();
-		$oAction->total_items = count( $oAction->items );
+		$action->total_items = count( $action->items );
 	}
 
 	abstract protected function buildItems();
 
 	protected function setStandardFields() {
-		$oAction = $this->getScanActionVO();
-		if ( empty( $oAction->created_at ) ) {
-			$oAction->created_at = Services::Request()->ts();
-			$oAction->started_at = 0;
-			$oAction->finished_at = 0;
-			$oAction->usleep = (int)( 1000000*max( 0, apply_filters(
+		$action = $this->getScanActionVO();
+		if ( empty( $action->created_at ) ) {
+			$action->created_at = Services::Request()->ts();
+			$action->started_at = 0;
+			$action->finished_at = 0;
+			$action->usleep = (int)( 1000000*max( 0, apply_filters(
 					$this->getCon()->prefix( 'scan_block_sleep' ),
-					$oAction::DEFAULT_SLEEP_SECONDS, $oAction->scan
+					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
 		}
 	}
 
 	protected function setCustomFields() {
+	}
+
+	protected function setWhitelists() {
+		/** @var Shield\Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$action = $this->getScanActionVO();
+		$action->paths_whitelisted = $opts->getWhitelistedPathsAsRegex();
 	}
 }

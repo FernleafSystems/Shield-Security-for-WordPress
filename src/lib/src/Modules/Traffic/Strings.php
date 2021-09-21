@@ -7,12 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	public function getEventStrings() :array {
 		return [
 			'request_limit_exceeded' => [
-				__( 'Visitor exceeded the maximum allowable requests (%s) within %s seconds.', 'wp-simple-firewall' ),
+				'name'  => __( 'Rate Limit Exceeded', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds.', 'wp-simple-firewall' ),
+				],
 			],
 		];
 	}
@@ -115,12 +118,6 @@ class Strings extends Base\Strings {
 				$name = __( 'Auto Expiry Cleaning', 'wp-simple-firewall' );
 				$summary = __( 'Enable Traffic Log Auto Expiry', 'wp-simple-firewall' );
 				$desc = __( 'DB cleanup will delete logs older than this maximum value (in days).', 'wp-simple-firewall' );
-				break;
-
-			case 'max_entries' :
-				$name = __( 'Max Log Length', 'wp-simple-firewall' );
-				$summary = __( 'Maximum Traffic Log Length To Keep', 'wp-simple-firewall' );
-				$desc = __( 'DB cleanup will delete logs to maintain this maximum number of records.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_limiter' :

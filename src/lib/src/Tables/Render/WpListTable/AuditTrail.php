@@ -18,22 +18,6 @@ class AuditTrail extends Base {
 	}
 
 	/**
-	 * @param int $id
-	 * @return string
-	 */
-	protected function getActionButton_AddParam( $id ) {
-		return $this->buildActionButton_Custom(
-			__( 'Whitelist Param', 'wp-simple-firewall' ),
-			[ 'custom-action' ],
-			[
-				'rid'           => $id,
-				'custom-action' => 'item_addparamwhite'
-			],
-			__( 'Add Parameter To Whitelist', 'wp-simple-firewall' )
-		);
-	}
-
-	/**
 	 * @param array $aItem
 	 * @return string
 	 */
@@ -49,11 +33,7 @@ class AuditTrail extends Base {
 	 * @return string
 	 */
 	public function column_user( $item ) {
-		$content = $item[ 'wp_username' ];
-		if ( isset( $item[ 'meta' ][ 'param' ] ) ) {
-			$content .= $this->buildActions( [ $this->getActionButton_AddParam( $item[ 'id' ] ) ] );
-		}
-		return $content;
+		return $item[ 'wp_username' ];
 	}
 
 	/**

@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 /**
  * https://wordpress.org/plugins/wp-members/
- *
- * Class WPMembers
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
  */
 class WPMembers extends Base {
 

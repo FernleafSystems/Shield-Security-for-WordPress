@@ -144,7 +144,7 @@ class Yubikey extends BaseProvider {
 		if ( preg_match( '#^[a-z]{44}$#', $otp ) ) {
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => md5( uniqid( $this->getCon()->getUniqueRequestId() ) ),
+				'nonce' => wp_create_nonce( 'shield-yubikey-verify-'.$otp ),
 				'id'    => $opts->getYubikeyAppId()
 			];
 
@@ -214,22 +214,6 @@ class Yubikey extends BaseProvider {
 			$IDs = Services::DataManipulation()->removeFromArrayByValue( $IDs, $key );
 		}
 		return $this->setSecret( $user, implode( ',', array_unique( array_filter( $IDs ) ) ) );
-	}
-
-	/**
-	 * @param \WP_User $user
-	 * @param bool     $bIsSuccess
-	 */
-	protected function auditLogin( \WP_User $user, bool $bIsSuccess ) {
-		$this->getCon()->fireEvent(
-			$bIsSuccess ? 'yubikey_verified' : 'yubikey_fail',
-			[
-				'audit' => [
-					'user_login' => $user->user_login,
-					'method'     => 'Yubikey',
-				]
-			]
-		);
 	}
 
 	/**

@@ -2,25 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
-	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
-		return $this->getDbH( 'traffic' );
-	}
+	/**
+	 * @var Lib\RequestLogger
+	 */
+	private $requestLogger;
 
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'db_traffic':
-				( new DbTableExport() )
-					->setDbHandler( $this->getDbHandler_Traffic() )
-					->toCSV();
-				break;
+	public function getRequestLogger() :Lib\RequestLogger {
+		if ( !isset( $this->requestLogger ) ) {
+			$this->requestLogger = ( new Lib\RequestLogger() )->setMod( $this );
 		}
+		return $this->requestLogger;
 	}
 
 	protected function preProcessOptions() {
@@ -41,8 +39,28 @@ class ModCon extends BaseShield\ModCon {
 	protected function isReadyToExecute() :bool {
 		$IP = Services::IP();
 		return $IP->isValidIp_PublicRange( $IP->getRequestIp() )
-			   && ( $this->getDbHandler_Traffic() instanceof Databases\Traffic\Handler )
-			   && $this->getDbHandler_Traffic()->isReady()
+			   && $this->getCon()->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function cleanupDatabases() {
+	}
+
+	/**
+	 * @inheritDoc
+	 * @deprecated 12.0
+	 */
+	public function getDbHandlers( $bInitAll = false ) {
+		return  [];
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
+		return $this->getDbH( 'traffic' );
 	}
 }

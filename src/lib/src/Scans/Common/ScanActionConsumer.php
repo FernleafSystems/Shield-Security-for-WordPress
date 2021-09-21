@@ -19,11 +19,11 @@ trait ScanActionConsumer {
 	}
 
 	/**
-	 * @param BaseScanActionVO $oScanActionVO
+	 * @param BaseScanActionVO $action
 	 * @return $this
 	 */
-	public function setScanActionVO( $oScanActionVO ) {
-		$this->oScanActionVO = $oScanActionVO;
+	public function setScanActionVO( $action ) {
+		$this->oScanActionVO = $action;
 		return $this;
 	}
 }

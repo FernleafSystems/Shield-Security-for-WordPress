@@ -11,10 +11,6 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
-/**
- * Class FileScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
- */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
@@ -42,28 +38,29 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$this->locator->setIsRegEx( false );
 				foreach ( $action->patterns_simple as $signature ) {
 					$item = $this->scanForSig( $signature );
-					if ( $item instanceof ResultItem ) {
-						return $item;
+					if ( !empty( $item ) ) {
+						break;
 					}
 				}
 			}
 
-			// RegEx Patterns
-			if ( empty( $action->patterns_fullregex ) ) {
+			if ( empty( $item ) ) {
+				// RegEx Patterns
 				$this->locator->setIsRegEx( true );
-				foreach ( $action->patterns_regex as $signature ) {
-					$item = $this->scanForSig( $signature );
-					if ( $item instanceof ResultItem ) {
-						return $item;
+				if ( empty( $action->patterns_fullregex ) ) {
+					foreach ( $action->patterns_regex as $signature ) {
+						$item = $this->scanForSig( $signature );
+						if ( !empty( $item ) ) {
+							break;
+						}
 					}
 				}
-			}
-			else { // Full regex patterns
-				$this->locator->setIsRegEx( true );
-				foreach ( $action->patterns_fullregex as $signature ) {
-					$item = $this->scanForSig( $signature );
-					if ( $item instanceof ResultItem ) {
-						return $item;
+				else { // Full regex patterns
+					foreach ( $action->patterns_fullregex as $signature ) {
+						$item = $this->scanForSig( $signature );
+						if ( !empty( $item ) ) {
+							break;
+						}
 					}
 				}
 			}
@@ -89,7 +86,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			if ( $this->canExcludeFile( $fullPath ) ) { // we report false positives: file and lines
 				$reporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
-				foreach ( $lines as $linNum => $line ) {
+				foreach ( $lines as $line ) {
 					$reporter->reportLine( $fullPath, $line, true );
 				}
 				$reporter->reportPath( $fullPath, true );
@@ -106,11 +103,11 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 						->queryPath( $fullPath );
 					if ( $nFalsePositiveConfidence < $action->confidence_threshold ) {
 						// 2. Check each line and filter out fp confident lines
-						$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
+						$lineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
 							->setMod( $this->getMod() )
 							->queryFileLines( $fullPath, array_keys( $lines ) );
 						$lines = array_filter(
-							$aLineScores,
+							$lineScores,
 							function ( $score ) use ( $action ) {
 								return $score < $action->confidence_threshold;
 							}

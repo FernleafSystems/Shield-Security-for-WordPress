@@ -75,28 +75,28 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 
 		let aReqData = aOpts[ 'ajax_scans_check' ];
 		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
-			function ( oResp ) {
+			function ( response ) {
 
 				bCurrentlyRunning = false;
 				nRunningCount = 0;
-				if ( oResp.data.running !== undefined ) {
-					for ( const scankey of Object.keys( oResp.data.running ) ) {
-						if ( oResp.data.running[ scankey ] ) {
+				if ( response.data.running !== undefined ) {
+					for ( const scankey of Object.keys( response.data.running ) ) {
+						if ( response.data.running[ scankey ] ) {
 							nRunningCount++;
 							bFoundRunning = true;
 							bCurrentlyRunning = true;
 						}
 					}
 				}
-				let $oModal = jQuery( '#ScanProgressModal' );
-				jQuery( '.modal-body', $oModal ).html( oResp.data.vars.progress_html );
-				$oModal.modal( 'show' );
+				let modal = jQuery( '#ScanProgressModal' );
+				jQuery( '.modal-body', modal ).html( response.data.vars.progress_html );
+				modal.modal( 'show' );
 			}
 		).always( function () {
 				if ( bCurrentlyRunning ) {
 					setTimeout( function () {
 						sendReq();
-					}, 5000 );
+					}, 3000 );
 				}
 				else {
 					setTimeout( function () {

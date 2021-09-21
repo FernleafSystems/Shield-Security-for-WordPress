@@ -67,8 +67,9 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_insights',
 			[
 				'strings' => [
-					'select_action' => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-					'are_you_sure'  => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
 				],
 			]
 		];
@@ -141,23 +142,19 @@ class ModCon extends BaseShield\ModCon {
 				case 'scans_results':
 				case 'scans_run':
 				case 'audit':
+				case 'audit_trail':
 				case 'traffic':
 				case 'ips':
 				case 'debug':
 				case 'users':
 				case 'stats':
 
-					$enq[ Enqueue::JS ][] = 'shield-tables';
+				$enq[ Enqueue::JS ][] = 'shield/tables';
 					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
-						$enq[ Enqueue::JS ][] = 'shield-scans';
+						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					elseif ( $inav == 'ips' ) {
 						$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
-					}
-
-					if ( in_array( $inav, [ 'audit', 'traffic' ] ) ) {
-						$enq[ Enqueue::JS ][] = 'bootstrap-datepicker';
-						$enq[ Enqueue::CSS ][] = 'bootstrap-datepicker';
 					}
 					break;
 			}

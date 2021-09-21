@@ -50,10 +50,19 @@ class SessionController {
 	public function terminateCurrentSession() :bool {
 		$current = $this->getCurrent();
 
-		$success = $current instanceof Session\EntryVO
+		$success = !empty( $current )
 				   && ( new Ops\Terminate() )
 					   ->setMod( $this->getMod() )
 					   ->byRecordId( $current->id );
+
+		if ( $success ) {
+			$this->getCon()->fireEvent( 'session_terminate_current', [
+				'audit_params' => [
+					'user_login' => $current->wp_username,
+					'session_id' => $current->session_id,
+				]
+			] );
+		}
 
 		$this->current = null;
 		$this->getCon()->clearSession();
@@ -82,7 +91,12 @@ class SessionController {
 			$insert = $mod->getDbHandler_Sessions()->getQueryInserter();
 			$success = $insert->create( $sessionID, $user->user_login );
 
-			$this->getCon()->fireEvent( 'session_start' );
+			$this->getCon()->fireEvent( 'session_start', [
+				'audit_params' => [
+					'user_login' => $user->user_login,
+					'session_id' => $sessionID
+				]
+			] );
 		}
 		return $success;
 	}
@@ -99,20 +113,6 @@ class SessionController {
 			}
 		}
 		return (string)$this->sessionID;
-	}
-
-	public function queryCreateSession( string $sessionID, \WP_User $user ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$success = false;
-		if ( !empty( $sessionID ) && !empty( $user->user_login ) ) {
-			$this->getCon()->fireEvent( 'session_start' );
-			/** @var Session\Insert $insert */
-			$insert = $mod->getDbHandler_Sessions()->getQueryInserter();
-			$success = $insert->create( $sessionID, $user->user_login );
-		}
-		return $success;
 	}
 
 	/**

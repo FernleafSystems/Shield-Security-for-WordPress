@@ -30,11 +30,6 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'visitor_address_source' );
 	}
 
-	public function getShieldNetApiData() :array {
-		$d = $this->getOpt( 'snapi_data', [] );
-		return is_array( $d ) ? $d : [];
-	}
-
 	/**
 	 * @return bool
 	 */
@@ -61,14 +56,6 @@ class Options extends BaseShield\Options {
 
 	public function isTrackingPermissionSet() :bool {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 11.4
-	 */
-	public function isImportExportPermitted() :bool {
-		return $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**

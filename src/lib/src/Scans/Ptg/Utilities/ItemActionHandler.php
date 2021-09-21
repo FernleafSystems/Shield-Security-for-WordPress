@@ -19,19 +19,19 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		switch ( $action ) {
 
 			case 'asset_accept':
-				$bSuccess = $this->assetAccept();
+				$success = $this->assetAccept();
 				break;
 
 			case 'asset_reinstall':
-				$bSuccess = $this->assetReinstall();
+				$success = $this->assetReinstall();
 				break;
 
 			default:
-				$bSuccess = parent::process( $action );
+				$success = parent::process( $action );
 				break;
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**
@@ -45,10 +45,10 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		/** @var Ptg\ResultItem $item */
 		$item = $this->getScanItem();
 
-		foreach ( $results->getItemsForSlug( $item->slug ) as $oItem ) {
+		foreach ( $results->getItemsForSlug( $item->slug ) as $item ) {
 			$tmpHandler = clone $this;
-			$tmpHandler->setScanItem( $oItem )
-						->ignore();
+			$tmpHandler->setScanItem( $item )
+					   ->ignore();
 		}
 
 		( new Snapshots\StoreAction\Build() )
@@ -99,21 +99,18 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	}
 
 	/**
+	 * Repair PTG item if it's repairable, or it's unrecognised (i.e. delete)
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function repairDelete() :bool {
+		return $this->repair( true );
+	}
+
+	/**
 	 * @return Repair
 	 */
 	public function getRepairer() {
 		return ( new Repair() )->setScanItem( $this->getScanItem() );
-	}
-
-	/**
-	 * @param bool $success
-	 */
-	protected function fireRepairEvent( $success ) {
-		/** @var Ptg\ResultItem $oItem */
-		$oItem = $this->getScanItem();
-		$this->getCon()->fireEvent(
-			$this->getScanController()->getSlug().'_item_repair_'.( $success ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
-		);
 	}
 }

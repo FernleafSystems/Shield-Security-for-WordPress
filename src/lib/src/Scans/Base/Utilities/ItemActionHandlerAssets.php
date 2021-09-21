@@ -21,15 +21,15 @@ abstract class ItemActionHandlerAssets extends ItemActionHandler {
 		switch ( $action ) {
 
 			case 'asset_deactivate':
-				$bSuccess = $this->assetDeactivate();
+				$success = $this->assetDeactivate();
 				break;
 
 			default:
-				$bSuccess = parent::process( $action );
+				$success = parent::process( $action );
 				break;
 		}
 
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

@@ -26,7 +26,7 @@ class EntryVO extends Base\EntryVO {
 		switch ( $key ) {
 			case 'content':
 			case 'file':
-				$value = base64_decode( $value );
+				$value = (string)base64_decode( $value );
 				break;
 
 			default:
@@ -42,7 +42,7 @@ class EntryVO extends Base\EntryVO {
 		switch ( $key ) {
 			case 'content':
 			case 'file':
-				$value = base64_encode( $value);
+				$value = base64_encode( $value );
 				break;
 
 			default:

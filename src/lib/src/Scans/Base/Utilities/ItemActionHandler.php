@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ItemActionHandler {
 
@@ -32,22 +34,28 @@ abstract class ItemActionHandler {
 				$success = $this->repair();
 				break;
 
+			case 'repair-delete':
+				$success = $this->repairDelete();
+				break;
+
 			default:
 				throw new \Exception( 'Unsupported Scan Item Action' );
-				break;
 		}
 		return $success;
 	}
 
 	/**
-	 * TODO: Determine if "delete" is always the same as a "repair" - see UFC override
 	 * @return bool
 	 * @throws \Exception
 	 */
 	public function delete() {
-		return $this->getRepairer()
-					->setAllowDelete( true )
-					->repairItem();
+		$item = $this->getScanItem();
+		if ( $this->getRepairer()->deleteItem() ) {
+			$item->repaired = true;
+			$item->repair_event_status = 'delete_success';
+		}
+		$this->fireRepairEvent();
+		return $item->repaired;
 	}
 
 	/**
@@ -55,21 +63,18 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function ignore() {
-		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $this->getEntryVO();
-		if ( empty( $oEntry ) ) {
-			throw new \Exception( 'Item could not be found to ignore.' );
-		}
+		return ( new IgnoreItem() )
+			->setMod( $this->getMod() )
+			->setScanItem( $this->getScanItem() )
+			->ignore();
+	}
 
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Scanner\Update $updater */
-		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
-		if ( !$updater->setIgnored( $oEntry ) ) {
-			throw new \Exception( 'Item could not be ignored at this time.' );
-		}
-
-		return true;
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function repairDelete() :bool {
+		throw new \Exception( 'Certain items cannot be automatically bulk repaired / deleted.' );
 	}
 
 	/**
@@ -79,40 +84,39 @@ abstract class ItemActionHandler {
 	 */
 	public function repair( bool $allowDelete = false ) {
 		$repairer = $this->getRepairer();
-		if ( !$repairer->canRepair() ) {
-			throw new \Exception( 'This item cannot be automatically repaired.' );
-		}
-
-		$repairer->setAllowDelete( $allowDelete );
 
 		$item = $this->getScanItem();
-		$item->repaired = $repairer->repairItem();
-		$this->fireRepairEvent( $item->repaired );
 
+		try {
+			$item->repaired = $repairer->repairItem();
+		}
+		catch ( \Exception $e ) {
+			$item->repaired = false;
+		}
+		$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
+
+		if ( $allowDelete && !$item->repaired && $repairer->deleteItem() ) {
+			$item->repaired = true;
+			$item->repair_event_status = 'delete_success';
+		}
+
+		$this->fireRepairEvent();
+
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		if ( $item->repaired ) {
-			/** @var HackGuard\ModCon $mod */
-			$mod = $this->getMod();
 			/** @var Scanner\Delete $deleter */
-			$deleter = $mod->getDbHandler_ScanResults()->getQueryDeleter();
-			$deleter->filterByHash( $item->hash )
-					->filterByScan( $item->scan )
-					->query();
+			$mod->getDbHandler_ScanResults()
+				->getQueryDeleter()
+				->deleteById( $item->VO->id );
+		}
+		else {
+			$mod->getDbHandler_ScanResults()
+				->getQueryUpdater()
+				->updateById( $item->VO->id, [ 'attempt_repair_at' => Services::Request()->ts() ] );
 		}
 
 		return $item->repaired;
-	}
-
-	/**
-	 * @return Scanner\EntryVO|null
-	 */
-	protected function getEntryVO() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Scanner\Select $selector */
-		$selector = $mod->getDbHandler_ScanResults()->getQuerySelector();
-		return $selector->filterByHash( $this->getScanItem()->hash )
-						->filterByScan( $this->getScanController()->getSlug() )
-						->first();
 	}
 
 	/**
@@ -120,8 +124,15 @@ abstract class ItemActionHandler {
 	 */
 	abstract public function getRepairer();
 
-	/**
-	 * @param bool $success
-	 */
-	abstract protected function fireRepairEvent( $success );
+	protected function fireRepairEvent() {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+
+		if ( !empty( $item->path_full ) && !empty( $item->repair_event_status ) ) {
+			$this->getCon()->fireEvent(
+				sprintf( 'scan_item_%s', $item->repair_event_status ),
+				[ 'audit_params' => [ 'path_full' => $item->path_full ] ]
+			);
+		}
+	}
 }

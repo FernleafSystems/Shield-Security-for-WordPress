@@ -56,10 +56,12 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onPluginShutdown() {
-		try {
-			$this->getLicenseHandler()->verify( false );
-		}
-		catch ( \Exception $e ) {
+		if ( !$this->getCon()->plugin_deleting ) {
+			try {
+				$this->getLicenseHandler()->verify( false );
+			}
+			catch ( \Exception $e ) {
+			}
 		}
 		parent::onPluginShutdown();
 	}

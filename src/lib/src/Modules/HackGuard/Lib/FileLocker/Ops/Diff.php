@@ -14,18 +14,17 @@ class Diff extends BaseOps {
 
 	/**
 	 * @param FileLocker\EntryVO $lock
-	 * @return bool
+	 * @return string
 	 * @throws \Exception
 	 */
-	public function run( $lock ) {
+	public function run( FileLocker\EntryVO $lock ) {
+		$FS = Services::WpFs();
 
-		$oFS = Services::WpFs();
-
-		if ( !$oFS->isFile( $lock->file ) ) {
+		if ( !$FS->isFile( $lock->file ) ) {
 			throw new \Exception( __( 'File is missing or could not be read.', 'wp-simple-firewall' ) );
 		}
 
-		$current = Services::WpFs()->getFileContent( $lock->file );
+		$current = $FS->getFileContent( $lock->file );
 		if ( empty( $current ) ) {
 			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}
@@ -36,33 +35,35 @@ class Diff extends BaseOps {
 
 		/**
 		 * The WP Diff is empty if the only difference is white space
-		 * @since v10.3 always use WP Hashes DIFF
-		 *
-		 * $diff = $this->useWpDiff( $original, $current );
-		 * if ( empty( $diff ) ) {
-		 *  $this->useWpHashes( $original, $current );
-		 * }
+		 * @since 10.3 - always use WP Hashes DIFF
+		 * @since 12.0 - use WPHashes and fallback to WP Diff
 		 */
+		try {
+			$diff = $this->useWpHashes( $original, $current );
+		}
+		catch ( \Exception $e ) {
+			$diff = $this->useWpDiff( $original, $current );
+		}
 
-		return $this->useWpHashes( $original, $current );
+		return $diff;
 	}
 
 	/**
-	 * @param string $sOriginal
-	 * @param string $sCurrent
+	 * @param string $original
+	 * @param string $current
 	 * @return string
 	 * @throws \Exception
 	 */
-	private function useWpHashes( $sOriginal, $sCurrent ) {
-		$aRes = ( new WpHashes\Util\Diff() )->getDiff( $sOriginal, $sCurrent );
-		if ( !is_array( $aRes ) || empty( $aRes[ 'html' ] ) ) {
+	private function useWpHashes( $original, $current ) :string {
+		$res = ( new WpHashes\Util\Diff() )->getDiff( $original, $current );
+		if ( !is_array( $res ) || empty( $res[ 'html' ] ) ) {
 			throw new \Exception( 'Could not get a valid diff for this file.' );
 		}
 		return sprintf( '<style>%s</style>%s',
 			'table.diff.diff-wrapper tbody tr td:nth-child(2){ width:auto;}'.
 			'table.diff.diff-wrapper { table-layout: auto;}'.
-			base64_decode( $aRes[ 'html' ][ 'css_default' ] ),
-			base64_decode( $aRes[ 'html' ][ 'content' ] )
+			base64_decode( $res[ 'html' ][ 'css_default' ] ),
+			base64_decode( $res[ 'html' ][ 'content' ] )
 		);
 	}
 

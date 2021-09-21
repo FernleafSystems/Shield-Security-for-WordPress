@@ -164,28 +164,33 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_AuditTrail()->getDbHandler_AuditTrail();
+		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
 		$data[ 'DB Table: Audit Trail' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
-		$data[ 'DB Table: IP' ] = $dbh->isReady() ?
+		$dbh = $con->getModule_Data()->getDbH_IPs();
+		$data[ 'DB Table: IPs' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_IPs()->getDbHandler_BotSignals();
+		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
+		$data[ 'DB Table: IP Lists' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_IPs()->getDbH_BotSignal();
 		$data[ 'DB Table: Bot Signals' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
 		$dbh = $con->getModule_HackGuard()->getDbHandler_ScanResults();
-		$data[ 'DB Table: Scan' ] = $dbh->isReady() ?
+		$data[ 'DB Table: Scan Results' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_Traffic()->getDbHandler_Traffic();
-		$data[ 'DB Table: Traffic' ] = $dbh->isReady() ?
+		$dbh = $con->getModule_Data()->getDbH_ReqLogs();
+		$data[ 'DB Table: Traffic/Requests' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 

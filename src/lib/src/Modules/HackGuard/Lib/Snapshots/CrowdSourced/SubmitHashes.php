@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -32,11 +33,14 @@ class SubmitHashes {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 */
 	public function run( $asset ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$this->asset = $asset;
 
 		if ( $this->canSubmitAsset() ) {
 			$this->hashes = ( new Build\BuildHashesForCrowdSource() )
-				->build( $asset );
+				->build( $asset, $opts->getDef( 'file_scan_extensions' ) );
 
 			if ( !empty( $this->hashes ) && $this->isSubmitRequired() ) {
 				$this->submit();
@@ -45,8 +49,8 @@ class SubmitHashes {
 	}
 
 	private function canSubmitAsset() :bool {
-		return preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), $this->asset->Version )
-			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), $this->asset->slug );
+		return preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), (string)$this->asset->Version )
+			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), (string)$this->asset->slug );
 	}
 
 	private function isSubmitRequired() :bool {

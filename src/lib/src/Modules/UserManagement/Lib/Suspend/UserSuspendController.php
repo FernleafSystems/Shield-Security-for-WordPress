@@ -57,7 +57,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 
 		// User profile UI
-		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
+		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
 		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
 
 		// Display suspended on the user list table
@@ -150,20 +150,20 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {
 		$con = $this->getCon();
-		$oWpUsers = Services::WpUsers();
+		$WPU = Services::WpUsers();
 
-		$oEditedUser = $oWpUsers->getUserById( $uid );
+		$user = $WPU->getUserById( $uid );
 
-		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $con->isPluginAdmin() ) {
+		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $con->isPluginAdmin() ) ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
-			$mod->addRemoveHardSuspendUserId( $uid, $isSuspend );
+			$mod->addRemoveHardSuspendUser( $user, $isSuspend );
 
 			if ( $isSuspend ) { // Delete any existing user sessions
 				( new Terminate() )
 					->setMod( $con->getModule_Sessions() )
-					->byUsername( $oEditedUser->user_login );
+					->byUsername( $user->user_login );
 			}
 		}
 	}

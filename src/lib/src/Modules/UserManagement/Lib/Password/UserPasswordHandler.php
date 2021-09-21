@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
+use ZxcvbnPhp\Zxcvbn;
 
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
@@ -29,7 +30,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 			if ( $user instanceof \WP_User ) {
 				$this->onPasswordReset( $user );
 			}
-		}, 100, 1 );
+		}, 100 );
 		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
@@ -70,14 +71,16 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isPassExpirationEnabled() ) {
-			$passStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
-			if ( $passStartedAt > 0 ) {
-				if ( Services::Request()->ts() - $passStartedAt > $opts->getPassExpireTimeout() ) {
-					$this->getCon()->fireEvent( 'pass_expired' );
-					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getPassExpireDays() )
-					);
-				}
+			$startedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
+			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
+				$this->getCon()->fireEvent( 'password_expired', [
+					'audit_params' => [
+						'user_login' => Services::WpUsers()->getCurrentWpUsername()
+					]
+				] );
+				$this->redirectToResetPassword(
+					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getPassExpireDays() )
+				);
 			}
 		}
 	}
@@ -103,24 +106,27 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @uses wp_redirect()
 	 */
 	private function redirectToResetPassword( string $msg ) {
-		$nNow = Services::Request()->ts();
+		$now = Services::Request()->ts();
 
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		$nLastRedirect = (int)$oMeta->pass_reset_last_redirect_at;
-		if ( $nNow - $nLastRedirect > MINUTE_IN_SECONDS*2 ) {
+		$meta = $this->getCon()->getCurrentUserMeta();
+		if ( $now - $meta->pass_reset_last_redirect_at > MINUTE_IN_SECONDS*2 ) {
 
-			$oMeta->pass_reset_last_redirect_at = $nNow;
+			$meta->pass_reset_last_redirect_at = $now;
 
-			$oWpUsers = Services::WpUsers();
-			$sAction = Services::Request()->query( 'action' );
-			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
+			$WPU = Services::WpUsers();
+			$action = Services::Request()->query( 'action' );
+			$user = $WPU->getCurrentWpUser();
+			if ( $user && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $action, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
 					 ->setFlashAdminNotice( $msg, true, true );
-				$this->getCon()->fireEvent( 'password_policy_force_change' );
-				Services::Response()->redirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
+				$this->getCon()->fireEvent( 'password_policy_force_change', [
+					'audit_params' => [
+						'user_login' => $user->user_login
+					]
+				] );
+				Services::Response()->redirect( $WPU->getPasswordResetUrl( $user ) );
 			}
 		}
 	}
@@ -137,14 +143,14 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				$failureMsg = '';
 				try {
 					$this->applyPasswordChecks( $password );
-					$bChecksPassed = true;
+					$checksPassed = true;
 				}
 				catch ( \Exception $e ) {
-					$bChecksPassed = ( $e->getCode() === 999 );
+					$checksPassed = ( $e->getCode() === 999 );
 					$failureMsg = $e->getMessage();
 				}
 
-				if ( $bChecksPassed ) {
+				if ( $checksPassed ) {
 					if ( Services::WpUsers()->isUserLoggedIn() ) {
 						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
@@ -152,7 +158,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				else {
 					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
 					if ( !empty( $failureMsg ) ) {
-						$msg .= '<br/>'.__( 'Reason', 'wp-simple-firewall' ).': '.$failureMsg;
+						$msg .= sprintf( '<br/>%s: %s', __( 'Reason', 'wp-simple-firewall' ), $failureMsg );
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
 					$this->getCon()->fireEvent( 'password_policy_block' );
@@ -203,15 +209,15 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	private function testPasswordMeetsMinimumStrength( string $password, int $min ) {
-		$aResults = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( $password );
+		$score = ( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
-		$nScore = $aResults[ 'score' ];
-
-		if ( $nScore < $min ) {
+		if ( $score < $min ) {
 			/** @var UserManagement\ModCon $mod */
 			$mod = $this->getMod();
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-				$mod->getPassStrengthName( $nScore ), $mod->getPassStrengthName( $min ) ) );
+				$mod->getPassStrengthName( $score ),
+				$mod->getPassStrengthName( $min )
+			) );
 		}
 		return true;
 	}

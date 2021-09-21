@@ -21,7 +21,7 @@ class Select extends Base\Select {
 	 * @param string $ip
 	 * @return $this
 	 */
-	public function filterByIp( string $ip ) :self {
+	public function filterByIp( string $ip ) {
 		if ( Services::IP()->isValidIp( $ip ) ) {
 			$this->addWhereEquals( 'ip', trim( $ip ) );
 		}

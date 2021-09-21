@@ -5,15 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class TrackFakeWebCrawler
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack
- */
 class TrackFakeWebCrawler extends Base {
 
 	const OPT_KEY = 'track_fakewebcrawler';
 
-	private $agentUsed = '';
+	private $crawlerUsed = '';
 
 	protected function process() {
 		/** @var ModCon $mod */
@@ -31,7 +27,7 @@ class TrackFakeWebCrawler extends Base {
 			foreach ( Services::ServiceProviders()->getAllCrawlerUseragents() as $possibleAgent ) {
 				if ( stripos( $userAgent, $possibleAgent ) !== false ) {
 					$identifiesAsCrawler = true;
-					$this->agentUsed = $possibleAgent;
+					$this->crawlerUsed = $possibleAgent;
 					break;
 				}
 			}
@@ -42,7 +38,7 @@ class TrackFakeWebCrawler extends Base {
 
 	protected function getAuditData() :array {
 		return array_merge( parent::getAuditData(), [
-			'script' => $this->agentUsed
+			'crawler' => $this->crawlerUsed
 		] );
 	}
 }

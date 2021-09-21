@@ -87,21 +87,21 @@ class Strings extends Base\Strings {
 		switch ( $key ) {
 
 			case 'enable_autoupdates' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
+				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
 				break;
 
 			case 'enable_autoupdate_disable_all' :
-				$sName = __( 'Disable All', 'wp-simple-firewall' );
-				$sSummary = __( 'Completely Disable WordPress Automatic Updates', 'wp-simple-firewall' );
-				$sDescription = __( 'When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!', 'wp-simple-firewall' );
+				$name = __( 'Disable All', 'wp-simple-firewall' );
+				$summary = __( 'Completely Disable WordPress Automatic Updates', 'wp-simple-firewall' );
+				$description = __( 'When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!', 'wp-simple-firewall' );
 				break;
 
 			case 'autoupdate_plugin_self' :
-				$sName = __( 'Auto Update Plugin', 'wp-simple-firewall' );
-				$sSummary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
-				$sDescription = [
+				$name = __( 'Auto Update Plugin', 'wp-simple-firewall' );
+				$summary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
+				$description = [
 					sprintf(
 						__( 'Regardless of any other settings, automatically update the "%s" plugin.', 'wp-simple-firewall' ),
 						$sPlugName
@@ -111,51 +111,51 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'autoupdate_core' :
-				$sName = __( 'WordPress Core Updates', 'wp-simple-firewall' );
-				$sSummary = __( 'Decide how the WordPress Core will automatically update, if at all', 'wp-simple-firewall' );
-				$sDescription = __( 'At least automatically upgrading minor versions is recommended (and is the WordPress default).', 'wp-simple-firewall' );
+				$name = __( 'WordPress Core Updates', 'wp-simple-firewall' );
+				$summary = __( 'Decide how the WordPress Core will automatically update, if at all', 'wp-simple-firewall' );
+				$description = __( 'At least automatically upgrading minor versions is recommended (and is the WordPress default).', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_autoupdate_translations' : // REMOVED 8.6.2
-				$sName = __( 'Translations', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Update Translations', 'wp-simple-firewall' );
-				$sDescription = __( 'Note: Automatic updates for translations are enabled on WordPress by default.', 'wp-simple-firewall' );
+				$name = __( 'Translations', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Update Translations', 'wp-simple-firewall' );
+				$description = __( 'Note: Automatic updates for translations are enabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_autoupdate_plugins' :
-				$sName = __( 'Plugins', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Update All Plugins', 'wp-simple-firewall' );
-				$sDescription = __( 'Note: Automatic updates for plugins are disabled on WordPress by default.', 'wp-simple-firewall' );
+				$name = __( 'Plugins', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Update All Plugins', 'wp-simple-firewall' );
+				$description = __( 'Note: Automatic updates for plugins are disabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_autoupdate_themes' :
-				$sName = __( 'Themes', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Update Themes', 'wp-simple-firewall' );
-				$sDescription = __( 'Note: Automatic updates for themes are disabled on WordPress by default.', 'wp-simple-firewall' );
+				$name = __( 'Themes', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Update Themes', 'wp-simple-firewall' );
+				$description = __( 'Note: Automatic updates for themes are disabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_autoupdate_ignore_vcs' : // REMOVED 8.6.2
-				$sName = __( 'Ignore Version Control', 'wp-simple-firewall' );
-				$sSummary = __( 'Ignore Version Control Systems Such As GIT and SVN', 'wp-simple-firewall' );
-				$sDescription = __( 'If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates.', 'wp-simple-firewall' );
+				$name = __( 'Ignore Version Control', 'wp-simple-firewall' );
+				$summary = __( 'Ignore Version Control Systems Such As GIT and SVN', 'wp-simple-firewall' );
+				$description = __( 'If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_upgrade_notification_email' :
-				$sName = __( 'Send Report Email', 'wp-simple-firewall' );
-				$sSummary = __( 'Send email notices after automatic updates', 'wp-simple-firewall' );
-				$sDescription = __( 'You can turn on/off email notices from automatic updates by un/checking this box.', 'wp-simple-firewall' );
+				$name = __( 'Send Report Email', 'wp-simple-firewall' );
+				$summary = __( 'Send email notices after automatic updates', 'wp-simple-firewall' );
+				$description = __( 'You can turn on/off email notices from automatic updates by un/checking this box.', 'wp-simple-firewall' );
 				break;
 
 			case 'override_email_address' :
-				$sName = __( 'Report Email Address', 'wp-simple-firewall' );
-				$sSummary = __( 'Where to send upgrade notification reports', 'wp-simple-firewall' );
-				$sDescription = __( 'If this is empty, it will default to the Site Admin email address', 'wp-simple-firewall' );
+				$name = __( 'Report Email Address', 'wp-simple-firewall' );
+				$summary = __( 'Where to send upgrade notification reports', 'wp-simple-firewall' );
+				$description = __( 'If this is empty, it will default to the Site Admin email address', 'wp-simple-firewall' );
 				break;
 
 			case 'update_delay' :
-				$sName = __( 'Update Delay', 'wp-simple-firewall' );
-				$sSummary = __( 'Delay Automatic Updates For Period Of Stability', 'wp-simple-firewall' );
-				$sDescription = sprintf( __( '%s will delay upgrades until the new update has been available for the set number of days.', 'wp-simple-firewall' ), $sPlugName )
+				$name = __( 'Update Delay', 'wp-simple-firewall' );
+				$summary = __( 'Delay Automatic Updates For Period Of Stability', 'wp-simple-firewall' );
+				$description = sprintf( __( '%s will delay upgrades until the new update has been available for the set number of days.', 'wp-simple-firewall' ), $sPlugName )
 								.'<br />'.__( "This helps ensure updates are more stable before they're automatically applied to your site.", 'wp-simple-firewall' );
 				break;
 
@@ -164,9 +164,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $description,
 		];
 	}
 }

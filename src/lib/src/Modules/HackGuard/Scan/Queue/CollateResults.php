@@ -16,36 +16,32 @@ class CollateResults {
 	use ScanControllerConsumer;
 
 	/**
-	 * @param string $sScanSlug
-	 * @return Scans\Base\BaseResultsSet|mixed|null
+	 * @param string $scanSlug
+	 * @return Scans\Base\ResultsSet|mixed
 	 */
-	public function collate( $sScanSlug ) {
-		/** @var Databases\ScanQueue\Handler $oDbH */
-		$oDbH = $this->getDbHandler();
-		/** @var Databases\ScanQueue\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
-		$oSel->filterByScan( $sScanSlug )
-			 ->setResultsAsVo( true );
-		$oSCon = $this->getScanController();
+	public function collate( $scanSlug ) {
+		/** @var Databases\ScanQueue\Handler $dbh */
+		$dbh = $this->getDbHandler();
+		/** @var Databases\ScanQueue\Select $selector */
+		$selector = $dbh->getQuerySelector();
+		$selector->filterByScan( $scanSlug )
+				 ->setResultsAsVo( true );
 
-		$oResultsSet = null;
-		/** @var Databases\ScanQueue\EntryVO $oEntry */
-		foreach ( $oSel->query() as $oEntry ) {
-			$oAction = ( new ConvertBetweenTypes() )
-				->setDbHandler( $oDbH )
-				->fromDbEntryToAction( $oEntry );
+		$resultsSet = $this->getScanController()->getNewResultsSet();
 
-			if ( empty( $oResultsSet ) ) {
-				$oResultsSet = $oSCon->getNewResultsSet();
-			}
+		/** @var Databases\ScanQueue\EntryVO $entry */
+		foreach ( $selector->query() as $entry ) {
+			$action = ( new ConvertBetweenTypes() )
+				->setDbHandler( $dbh )
+				->fromDbEntryToAction( $entry );
 
-			foreach ( $oAction->results as $aResItemData ) {
-				$oResultsSet->addItem(
-					$oAction->getNewResultItem()->applyFromArray( $aResItemData )
+			foreach ( $action->results as $resultItemRawData ) {
+				$resultsSet->addItem(
+					$action->getNewResultItem()->applyFromArray( $resultItemRawData )
 				);
 			}
 		}
 
-		return $oResultsSet;
+		return $resultsSet;
 	}
 }

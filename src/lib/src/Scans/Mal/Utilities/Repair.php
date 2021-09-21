@@ -15,10 +15,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 
 	use Shield\Modules\ModConsumer;
 
-	/**
-	 * @return bool
-	 */
-	public function repairItem() {
+	public function repairItem() :bool {
 		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 		/** @var Shield\Modules\HackGuard\Options $opts */
@@ -35,32 +32,28 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		if ( $canRepair ) {
 
 			if ( Services\Services::CoreFileHashes()->isCoreFile( $item->path_fragment ) ) {
-				$success = $this->repairCoreItem( $item );
+				$success = $this->repairCoreItem();
 			}
 			else {
 				$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
 				if ( $plugin instanceof Services\Core\VOs\Assets\WpPluginVo && $plugin->isWpOrg() ) {
 
-					$success = $this->repairItemInPlugin( $item );
+					$success = $this->repairItemInPlugin();
 				}
 				else {
 					$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
 					if ( $theme instanceof Services\Core\VOs\Assets\WpThemeVo && $theme->isWpOrg() ) {
 
-						$success = $this->repairItemInTheme( $item );
+						$success = $this->repairItemInTheme();
 					}
 					elseif ( $opts->isMalAutoRepairSurgical() ) {
-						$success = $this->repairSurgicalItem( $item );
+						$success = $this->repairSurgicalItem();
 					}
 				}
 			}
 		}
-		elseif ( $this->isAllowDelete() ) {
-			$success = $this->repairItemByDelete( $item );
-		}
 
 		if ( $success ) {
-			// 1) Report the file as being malware.
 			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 				->setMod( $this->getMod() )
 				->reportResultItem( $item, false );
@@ -69,59 +62,58 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		return $success;
 	}
 
-	/**
-	 * @param ResultItem $item
-	 * @return bool
-	 */
-	private function repairItemByDelete( $item ) {
-		return Services\Services::WpFs()->deleteFile( $item->path_full );
+	public function deleteItem() :bool {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+		return (bool)Services\Services::WpFs()->deleteFile( $item->path_full );
 	}
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() {
+	public function canRepair() :bool {
 		return $this->canAutoRepairFromSource( $this->getScanItem() );
 	}
 
 	/**
 	 * Can only repair a WP Core file, or a plugin that is WP.org, has no update available
 	 * and the latest version uses SVN tags.
-	 * @param ResultItem $oItem
+	 * @param ResultItem $item
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canAutoRepairFromSource( $oItem ) {
-		$bCanRepair = Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment );
-		if ( !$bCanRepair ) {
+	public function canAutoRepairFromSource( ResultItem $item ) :bool {
 
-			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-			if ( $oPlugin instanceof Services\Core\VOs\Assets\WpPluginVo ) {
-				if ( !$oPlugin->isWpOrg() ) {
+		$canRepair = Services\Services::CoreFileHashes()->isCoreFile( $item->path_fragment );
+		if ( !$canRepair ) {
+
+			$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
+			if ( !empty( $plugin ) ) {
+				if ( !$plugin->isWpOrg() ) {
 					throw new \Exception( sprintf(
 							__( "%s not installed from WordPress.org.", 'wp-simple-firewall' ),
 							__( 'Plugin', 'wp-simple-firewall' )
 						)
 					);
 				}
-				if ( !$oPlugin->svn_uses_tags ) {
+				if ( !$plugin->svn_uses_tags ) {
 					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
 				}
 
-				$bCanRepair = true;
+				$canRepair = true;
 			}
 			else {
-				$oTheme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
-				if ( $oTheme instanceof Services\Core\VOs\Assets\WpThemeVo ) {
-					if ( $oTheme->is_child ) {
+				$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
+				if ( !empty( $theme ) ) {
+					if ( $theme->is_child ) {
 						throw new \Exception( sprintf(
 								__( "%s is a child of another theme.", 'wp-simple-firewall' ),
 								__( 'Theme', 'wp-simple-firewall' )
 							)
 						);
 					}
-					if ( !$oTheme->isWpOrg() ) {
+					if ( !$theme->isWpOrg() ) {
 						throw new \Exception( sprintf(
 								__( "%s not installed from WordPress.org.", 'wp-simple-firewall' ),
 								__( 'Theme', 'wp-simple-firewall' )
@@ -129,67 +121,61 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 						);
 					}
 					if ( !( new WpOrg\Theme\Versions() )
-						->setWorkingSlug( $oTheme->stylesheet )
-						->exists( $oTheme->version, true ) ) {
+						->setWorkingSlug( $theme->stylesheet )
+						->exists( $theme->version, true ) ) {
 						throw new \Exception( __( "Theme version doesn't appear to exist.", 'wp-simple-firewall' ) );
 					}
 
-					$bCanRepair = true;
+					$canRepair = true;
 				}
 			}
 		}
 
-		return $bCanRepair;
+		return $canRepair;
 	}
 
-	/**
-	 * @param ResultItem $oItem
-	 * @return bool
-	 */
-	private function repairCoreItem( $oItem ) {
-		$oFiles = Services\Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
+	private function repairCoreItem() :bool {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+
+		$files = Services\Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 		try {
-			$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
+			$success = $files->replaceFileFromVcs( $item->path_fragment );
 		}
 		catch ( \InvalidArgumentException $e ) {
-			$bSuccess = false;
+			$success = false;
 		}
-		return $bSuccess;
+		return $success;
 	}
 
-	/**
-	 * @param ResultItem $oItem
-	 * @return bool
-	 */
-	private function repairSurgicalItem( $oItem ) {
-		$bSuccess = false;
-		foreach ( $oItem->file_lines as $nLine ) {
+	private function repairSurgicalItem() :bool {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+
+		$success = false;
+		foreach ( $item->file_lines as $nLine ) {
 			try {
-				( new Services\Utilities\File\RemoveLineFromFile() )->run( $oItem->path_full, $nLine );
-				$bSuccess = true;
+				( new Services\Utilities\File\RemoveLineFromFile() )->run( $item->path_full, $nLine );
+				$success = true;
 			}
 			catch ( \Exception $e ) {
-				$bSuccess = false;
+				$success = false;
 				break;
 			}
 		}
-		return $bSuccess;
+		return $success;
 	}
 
-	/**
-	 * @param ResultItem $oItem
-	 * @return bool
-	 */
-	private function repairItemInPlugin( $oItem ) {
+	private function repairItemInPlugin() :bool {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+
 		$success = false;
 
-		$oFiles = new WpOrg\Plugin\Files();
+		$files = new WpOrg\Plugin\Files();
 		try {
-			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
-				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
-			}
-			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+			if ( $files->isValidFileFromPlugin( $item->path_full ) ) {
+				$success = $files->replaceFileFromVcs( $item->path_full );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {
@@ -198,20 +184,16 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		return $success;
 	}
 
-	/**
-	 * @param ResultItem $oItem
-	 * @return bool
-	 */
-	private function repairItemInTheme( $oItem ) {
+	private function repairItemInTheme() :bool {
+		/** @var ResultItem $item */
+		$item = $this->getScanItem();
+
 		$success = false;
 
-		$oFiles = new WpOrg\Theme\Files();
+		$files = new WpOrg\Theme\Files();
 		try {
-			if ( $oFiles->isValidFileFromTheme( $oItem->path_full ) ) {
-				$success = $oFiles->replaceFileFromVcs( $oItem->path_full );
-			}
-			elseif ( $this->isAllowDelete() ) {
-				$success = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
+			if ( $files->isValidFileFromTheme( $item->path_full ) ) {
+				$success = $files->replaceFileFromVcs( $item->path_full );
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {

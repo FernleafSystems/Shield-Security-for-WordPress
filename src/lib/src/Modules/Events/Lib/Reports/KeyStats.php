@@ -8,18 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseRe
 
 class KeyStats extends BaseReporter {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function build() {
+	public function build() :array {
 		$alerts = [];
 
 		/** @var Events\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var DBEvents\Select $selector */
 		$selector = $mod->getDbHandler_Events()->getQuerySelector();
-		/** @var Events\Strings $strings */
-		$strings = $mod->getStrings();
 
 		$eventKeys = [
 			'ip_offense',
@@ -41,6 +36,7 @@ class KeyStats extends BaseReporter {
 		$rep = $this->getReport();
 
 		$sums = [];
+		$srvEvents = $this->getCon()->loadEventsService();
 		foreach ( $eventKeys as $event ) {
 			try {
 				$eventSum = $selector
@@ -49,7 +45,7 @@ class KeyStats extends BaseReporter {
 				if ( $eventSum > 0 ) {
 					$sums[ $event ] = [
 						'count' => $eventSum,
-						'name'  => $strings->getEventName( $event ),
+						'name'  => $srvEvents->getEventName( $event ),
 					];
 				}
 			}

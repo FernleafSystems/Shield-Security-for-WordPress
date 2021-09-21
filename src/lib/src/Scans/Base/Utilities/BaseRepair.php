@@ -2,48 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 
-/**
- * Class BaseRepair
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- */
 abstract class BaseRepair {
 
 	use ScanItemConsumer;
 
 	/**
-	 * @var bool
+	 * @return bool
+	 * @throws \Exception
 	 */
-	private $bAllowDelete = false;
+	abstract public function repairItem() :bool;
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public function isAllowDelete() {
-		return (bool)$this->bAllowDelete;
-	}
-
-	/**
-	 * @param bool $bAllowDelete
-	 * @return $this
-	 */
-	public function setAllowDelete( $bAllowDelete ) {
-		$this->bAllowDelete = $bAllowDelete;
-		return $this;
+	public function deleteItem() :bool {
+		throw new \Exception( 'Delete is not supported' );
 	}
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	abstract public function repairItem();
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function canRepair() {
+	public function canRepair() :bool {
 		return false;
 	}
 }

@@ -2,24 +2,31 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 
 class AuditMessageBuilder {
 
-	public static function Build( EntryVO $entry, array $msgStructure ) :string {
+	public static function BuildFromLogRecord( LogRecord $log ) :array {
+		return explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [] ) );
+	}
 
-		$substitutions = $entry->meta;
-		$rawString = implode( "\n", $msgStructure );
+	public static function Build( string $event, array $substitutions = [] ) :string {
+		$srvEvents = shield_security_get_plugin()->getController()->loadEventsService();
 
-		// In-case we're working with an older audit message without as much data substitutions
-		$missingCount = substr_count( $rawString, '%s' ) - count( $substitutions );
+		$raw = implode( "\n", $srvEvents->getEventAuditStrings( $event ) );
 
-		if ( $missingCount > 0 ) {
-			$substitutions = array_merge(
-				$substitutions,
-				array_fill( 0, $missingCount, 'data missing for older audit logs' )
-			);
+		$stringSubs = [];
+		foreach ( $substitutions as $subKey => $subValue ) {
+			$stringSubs[ sprintf( '{{%s}}', $subKey ) ] = $subValue;
 		}
-		return stripslashes( sanitize_textarea_field( vsprintf( $rawString, $substitutions ) ) );
+
+		$log = preg_replace( '#{{[a-z_]+}}#i', 'missing data', strtr( $raw, $stringSubs ) );
+
+		$auditCount = (int)( $substitutions[ 'audit_count' ] ?? 1 );
+		if ( $srvEvents->getEventDef( $event )[ 'audit_countable' ] && $auditCount > 1 ) {
+			$log .= "\n".sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
+		}
+
+		return $log;
 	}
 }

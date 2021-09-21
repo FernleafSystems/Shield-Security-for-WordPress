@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
@@ -7,27 +7,22 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->items = ( new BuildFileMap() )
-			->setScanActionVO( $oAction )
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		$action->items = ( new BuildFileMap() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $action )
 			->build();
 	}
 
 	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->file_exts = $this->getFileExts();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		$action->file_exts = $this->getFileExts();
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getFileExts() {
-		$aFileExts = apply_filters(
-			$this->getCon()->prefix( 'scan_ptg_file_exts' ),
-			[ 'js', 'json', 'otf', 'svg', 'ttf', 'eot', 'woff', 'woff2', 'php', 'php5', 'php7', 'phtml' ]
-		);
-		return is_array( $aFileExts ) ? $aFileExts : [];
+	private function getFileExts() :array {
+		$ext = apply_filters( 'shield/scan_ptg_file_exts', $this->getOptions()->getDef( 'file_scan_extensions' ) );
+		return is_array( $ext ) ? $ext : $this->getOptions()->getDef( 'file_scan_extensions' );
 	}
 }

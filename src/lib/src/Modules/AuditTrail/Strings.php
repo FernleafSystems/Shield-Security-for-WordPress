@@ -7,86 +7,146 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
-	 * @return string[][]
+	 * @inheritDoc
 	 */
-	protected function getAuditMessages() :array {
+	public function getEventStrings() :array {
 		return [
 			'plugin_activated'        => [
-				__( 'Plugin "%s" was activated.', 'wp-simple-firewall' )
+				'name'  => __( 'Plugin Activated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin "{{plugin}}" was activated.', 'wp-simple-firewall' )
+				],
 			],
 			'plugin_deactivated'      => [
-				__( 'Plugin "%s" was deactivated.', 'wp-simple-firewall' )
-			],
-			'plugin_file_edited'      => [
-				__( 'An attempt was made to edit the plugin file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
+				'name'  => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin "{{plugin}}" was deactivated.', 'wp-simple-firewall' )
+				],
 			],
 			'plugin_upgraded'         => [
-				__( 'Plugin "%s" was upgraded from version %s to version %s.', 'wp-simple-firewall' )
+				'name'  => __( 'Plugin Upgraded', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin "{{plugin}}" was upgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' )
+				],
+			],
+			'plugin_file_edited'      => [
+				'name'  => __( 'Plugin File Edited', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'An attempt was made to edit the plugin file "{{file}}" directly through the WordPress editor.', 'wp-simple-firewall' )
+				],
 			],
 			'theme_activated'         => [
-				__( 'Theme "%s" was activated.', 'wp-simple-firewall' )
+				'name'  => __( 'Theme Activated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Theme "{{theme}}" was activated.', 'wp-simple-firewall' ),
+				],
 			],
 			'theme_file_edited'       => [
-				__( 'An attempt was made to edit the theme file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
+				'name'  => __( 'Theme File Edited', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'An attempt was made to edit the theme file "{{file}}" directly through the WordPress editor.', 'wp-simple-firewall' ),
+				],
 			],
 			'theme_upgraded'          => [
-				__( 'Theme "%s" was upgraded from version %s to version %s.', 'wp-simple-firewall' )
+				'name'  => __( 'Theme Upgraded', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Theme "{{theme}}" was upgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' ),
+				],
 			],
 			'core_updated'            => [
-				__( 'WordPress Core was updated from "%s" to "%s".', 'wp-simple-firewall' )
+				'name'  => __( 'WP Core Updated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'WordPress Core was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+				],
 			],
 			'permalinks_structure'    => [
-				__( 'WordPress Permalinks Structure was updated from "%s" to "%s".', 'wp-simple-firewall' )
+				'name'  => __( 'Permalinks Updated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'WordPress Permalinks Structure was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
+				],
 			],
 			'post_deleted'            => [
-				__( 'WordPress Post entitled "%s" was permanently deleted from trash.', 'wp-simple-firewall' )
+				'name'  => __( 'Post Deleted', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'WordPress Post entitled "{{title}}" was permanently deleted from trash.', 'wp-simple-firewall' )
+				],
 			],
 			'post_trashed'            => [
-				__( 'Post entitled "%s" was trashed.', 'wp-simple-firewall' ),
-				__( 'Post Type: %s' ),
+				'name'  => __( 'Post Trashed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Post entitled "{{title}}" was trashed.', 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}' ),
+				],
 			],
 			'post_recovered'          => [
-				__( 'Post entitled "%s" was recoverd from trash.', 'wp-simple-firewall' ),
-				__( 'Post Type: %s' ),
+				'name'  => __( 'Post Recovered', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Post entitled "{{title}}" was recovered from trash.', 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}' ),
+				],
 			],
 			'post_updated'            => [
-				__( 'Post entitled "%s" was updated.', 'wp-simple-firewall' ),
-				__( 'Post Type: %s' ),
+				'name'  => __( 'Post Updated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Post entitled "{{title}}" was updated.', 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}' ),
+				],
 			],
 			'post_published'          => [
-				__( 'Post entitled "%s" was published.', 'wp-simple-firewall' ),
-				__( 'Post Type: %s' ),
+				'name'  => __( 'Post Published', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Post entitled "{{title}}" was published.', 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}' ),
+				],
 			],
 			'post_unpublished'        => [
-				__( 'Post entitled "%s" was unpublished.', 'wp-simple-firewall' ),
-				__( 'Post Type: %s' ),
+				'name'  => __( 'Post Unpublished', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Post entitled "{{title}}" was unpublished.', 'wp-simple-firewall' ),
+					__( 'Post Type: {{type}}' ),
+				],
 			],
 			'user_login'              => [
-				__( 'Attempted user login by "%s" was successful.', 'wp-simple-firewall' ),
+				'name'  => __( 'User Login', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Attempted user login by "{{user_login}}" was successful.', 'wp-simple-firewall' ),
+				],
 			],
 			'user_login_app'          => [
-				__( 'Attempted login by "%s" using application password was successful.', 'wp-simple-firewall' ),
+				'name'  => __( 'User Login By App Password', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Attempted login by "{{user_login}}" using application password was successful.', 'wp-simple-firewall' ),
+				],
 			],
 			'user_registered'         => [
-				__( 'New WordPress user registered.', 'wp-simple-firewall' )
-				.' '.__( 'New username is "%s" with email address "%s".', 'wp-simple-firewall' )
+				'name'  => __( 'User Registered', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'New WordPress user registered.', 'wp-simple-firewall' ),
+					__( 'New username is "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+				],
 			],
 			'user_deleted'            => [
-				__( 'WordPress user deleted.', 'wp-simple-firewall' )
-				.' '.__( 'Username was "%s" with email address "%s".', 'wp-simple-firewall' )
+				'name'  => __( 'User Deleted', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'WordPress user deleted.', 'wp-simple-firewall' ),
+					__( 'Username was "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+				],
 			],
 			'user_deleted_reassigned' => [
-				__( 'Deleted user posts were reassigned to user "%s".', 'wp-simple-firewall' )
+				'name'  => __( 'User Deleted And Reassigned', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Deleted user posts were reassigned to user "{{user_login}}".', 'wp-simple-firewall' )
+				],
 			],
 			'email_attempt_send'      => [
-				__( 'There was an attempt to send an email using the "wp_mail" function.', 'wp-simple-firewall' ),
-				__( "This log entry doesn't mean it was sent or received successfully, but only that an attempt was made.", 'wp-simple-firewall' ),
-				__( 'It was sent to "%s" with the subject "%s".', 'wp-simple-firewall' ),
-				"CC/BCC Recipients: %s / %s",
-				__( 'The "wp_mail" function was called from the file "%s" on line %s.', 'wp-simple-firewall' )
-			],
-			'email_send_invalid'      => [
-				__( 'Attempting to log email, but data was not of the correct type (%s)', 'wp-simple-firewall' ),
+				'name'  => __( 'Email Sent', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'There was an attempt to send an email using the "wp_mail" function.', 'wp-simple-firewall' ),
+					__( "This log entry doesn't mean it was sent or received successfully, but only that an attempt was made.", 'wp-simple-firewall' ),
+					__( 'It was sent to "{{to}}" with the subject "{{subject}}".', 'wp-simple-firewall' ),
+					"CC/BCC Recipients: {{cc}} / {{bcc}}",
+					__( 'The "wp_mail" function was called from the file "{{bt_file}}" on line {{bt_line}}.', 'wp-simple-firewall' )
+				],
 			],
 		];
 	}
@@ -123,58 +183,41 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_audit_trail' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
-																						 ->getMainFeatureName() );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
+																						->getMainFeatureName() );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
-			case 'section_audit_trail_options' :
-				$sTitle = __( 'Audit Trail Options', 'wp-simple-firewall' );
-				$aSummary = [
+			case 'section_localdb' :
+				$title = __( 'Log To DB', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the audit trail itself.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Audit Trail Options', 'wp-simple-firewall' );
+				$titleShort = __( 'Log To DB', 'wp-simple-firewall' );
 				break;
 
 			case 'section_enable_audit_contexts' :
-				$sTitle = __( 'Enable Audit Areas', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Enable Audit Areas', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Specify which types of actions on your site are logged.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Audit Areas', 'wp-simple-firewall' );
+				$titleShort = __( 'Audit Areas', 'wp-simple-firewall' );
 				break;
-
-			/*
-		case 'section_change_tracking' :
-			$sTitle = __( 'Track All Major Changes To Your Site', 'wp-simple-firewall' );
-			$sTitleShort = __( 'Change Tracking', 'wp-simple-firewall' );
-			$aData = ( new Shield\ChangeTrack\Snapshot\Collate() )->run();
-			$sResult = (int)( strlen( base64_encode( WP_Http_Encoding::compress( json_encode( $aData ) ) ) )/1024 );
-			$aSummary = [
-				sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Track significant changes to your site.', 'wp-simple-firewall' ) )
-				.' '.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( 'This is separate from the Audit Trail.', 'wp-simple-firewall' ) ),
-				sprintf( '%s - %s', __( 'Considerations', 'wp-simple-firewall' ),
-					__( 'Change Tracking uses snapshots that may use take up  lot of data.', 'wp-simple-firewall' )
-					.' '.sprintf( 'Each snapshot will consume ~%sKB in your database', $sResult )
-				),
-			];
-			break;
-			*/
 
 			default:
 				return parent::getSectionStrings( $section );
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => $summary,
 		];
 	}
 
@@ -187,96 +230,60 @@ class Strings extends Base\Strings {
 		$con = $this->getCon();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$sModName = $this->getMod()->getMainFeatureName();
+		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_audit_trail' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
 				break;
 
-			case 'audit_trail_max_entries' :
-				$sName = __( 'Max Trail Length', 'wp-simple-firewall' );
-				$sSummary = __( 'Maximum Audit Trail Length To Keep', 'wp-simple-firewall' );
-				$sDescription = [
-					__( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' ),
+			case 'log_level_db' :
+				$name = __( 'Logging Level', 'wp-simple-firewall' );
+				$summary = __( 'Logging Level For DB-Based Logs', 'wp-simple-firewall' );
+				$description = [
+					__( 'Specify the logging levels when using the local database.', 'wp-simple-firewall' ),
+					__( "Debug and Info logging should only be enabled when investigating specific problems.", 'wp-simple-firewall' ),
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'docs' ),
+						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
+					)
 				];
-				if ( !$con->isPremiumActive() ) {
-					$sDescription[] = sprintf( __( 'Upgrade to PRO to increase limit above %s.', 'wp-simple-firewall' ),
-						'<code>'.$opts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
-				}
-
 				break;
 
 			case 'audit_trail_auto_clean' :
-				$sName = __( 'Auto Clean', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
-				$sDescription = __( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' );
+				$name = __( 'Auto Clean', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
+				$description = [
+					__( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' )
+				];
+				if ( !$con->isPremiumActive() ) {
+					$description[] = sprintf( __( 'Upgrade to PRO to increase limit beyond %s days.', 'wp-simple-firewall' ),
+						'<code>'.$opts->getDef( 'max_free_days' ).'</code>' );
+				}
 				break;
 
-			case 'enable_audit_context_users' :
-				$sName = __( 'Users And Logins', 'wp-simple-firewall' );
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Users And Logins', 'wp-simple-firewall' ) );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'Users And Logins', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_audit_context_plugins' :
-				$sName = __( 'Plugins', 'wp-simple-firewall' );
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Plugins', 'wp-simple-firewall' ) );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'WordPress Plugins', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_audit_context_themes' :
-				$sName = __( 'Themes', 'wp-simple-firewall' );
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'WordPress Themes', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_audit_context_posts' :
-				$sName = __( 'Posts And Pages', 'wp-simple-firewall' );
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Posts And Pages', 'wp-simple-firewall' ) );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'Editing and publishing of posts and pages', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_audit_context_wordpress' :
-				$sName = __( 'WordPress And Settings', 'wp-simple-firewall' );
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'WordPress And Settings', 'wp-simple-firewall' ) );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'WordPress upgrades and changes to particular WordPress settings', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_audit_context_emails' :
-				$sName = __( 'Emails', 'wp-simple-firewall' );
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Emails', 'wp-simple-firewall' ) );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'Email Sending', 'wp-simple-firewall' ) );
-				break;
-
-			case 'enable_audit_context_wpsf' :
-				$sName = $con->getHumanName();
-				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), $con->getHumanName() );
-				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), $con->getHumanName() );
-				break;
-
-			case 'enable_change_tracking' :
-				$sName = __( 'Site Change Tracking', 'wp-simple-firewall' );
-				$sSummary = __( 'Track Major Changes To Your Site', 'wp-simple-firewall' );
-				$sDescription = __( 'Tracking major changes to your site will help you monitor and catch malicious damage.', 'wp-simple-firewall' );
-				break;
-
-			case 'ct_snapshots_per_week' :
-				$sName = __( 'Snapshot Per Week', 'wp-simple-firewall' );
-				$sSummary = __( 'Number Of Snapshots To Take Per Week', 'wp-simple-firewall' );
-				$sDescription = __( 'The number of snapshots to take per week. For daily snapshots, select 7.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Data storage in your database increases with the number of snapshots.', 'wp-simple-firewall' )
-								.'<br />'.__( 'However, increased snapshots provide more granular information on when major site changes occurred.', 'wp-simple-firewall' );
-				break;
-
-			case 'ct_max_snapshots' :
-				$sName = __( 'Max Snapshots', 'wp-simple-firewall' );
-				$sSummary = __( 'Maximum Number Of Snapshots To Retain', 'wp-simple-firewall' );
-				$sDescription = __( 'The more snapshots you retain, the further back you can look at changes over your site.', 'wp-simple-firewall' )
-								.'<br />'.__( 'You will need to consider the implications to database storage requirements.', 'wp-simple-firewall' );
+			case 'log_level_file' :
+				$name = __( 'File Logging Level', 'wp-simple-firewall' );
+				$summary = __( 'Logging Level For File-Based Logs', 'wp-simple-firewall' );
+				$description = [
+					__( 'Specify the logging levels when using the local filesystem.', 'wp-simple-firewall' ),
+					sprintf( '%s: <code>%s</code>',
+						__( 'Log File Location', 'wp-simple-firewall' ),
+						$opts->getLogFilePath()
+					),
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'docs' ),
+						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
+					),
+					sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						sprintf( __( 'Log files will be rotated daily up to a limit of %s.', 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', $opts->getLogFileRotationLimit() ) )
+					)
+				];
 				break;
 
 			default:
@@ -284,9 +291,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $description,
 		];
 	}
 }

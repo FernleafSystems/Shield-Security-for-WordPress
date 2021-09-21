@@ -27,27 +27,43 @@ class CompleteQueue {
 		$con = $this->getCon();
 		/** @var Databases\ScanQueue\Handler $dbh */
 		$dbh = $this->getDbHandler();
-		$oSel = $dbh->getQuerySelector();
+		$selector = $dbh->getQuerySelector();
 
-		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $scanSlug ) {
+		foreach ( $selector->getDistinctForColumn( 'scan' ) as $scanSlug ) {
 
-			$oScanCon = $mod->getScanCon( $scanSlug );
+			$scanCon = $mod->getScanCon( $scanSlug );
 
-			$oResultsSet = ( new CollateResults() )
-				->setScanController( $oScanCon )
+			$resultsSet = ( new CollateResults() )
+				->setScanController( $scanCon )
 				->setDbHandler( $dbh )
 				->collate( $scanSlug );
 
-			$con->fireEvent( $scanSlug.'_scan_run' );
+			$con->fireEvent( 'scan_run', [ 'audit_params' => [ 'scan' => $scanCon->getScanName() ] ] );
 
-			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
-				( new HackGuard\Scan\Results\ResultsUpdate() )
-					->setScanController( $oScanCon )
-					->update( $oResultsSet );
+			( new HackGuard\Scan\Results\ResultsUpdate() )
+				->setScanController( $scanCon )
+				->update( $resultsSet );
 
-				if ( $oResultsSet->countItems() > 0 ) {
-					$con->fireEvent( $scanSlug.'_scan_found' );
-				}
+			if ( $resultsSet->countItems() > 0 ) {
+
+				$items = $resultsSet->countItems() > 30 ?
+					__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
+					: __( 'The following items were discovered.', 'wp-simple-firewall' );
+
+				$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
+					return $item->getDescriptionForAudit();
+				}, $resultsSet->getItems() ) ), 0, 30 );
+				$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
+
+				$con->fireEvent(
+					'scan_items_found',
+					[
+						'audit_params' => [
+							'scan'  => $scanCon->getScanName(),
+							'items' => $items
+						]
+					]
+				);
 			}
 
 			/** @var Databases\ScanQueue\Delete $deleter */

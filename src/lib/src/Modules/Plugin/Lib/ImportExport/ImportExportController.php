@@ -113,7 +113,7 @@ class ImportExportController {
 
 			$this->getCon()->fireEvent(
 				'import_notify_received',
-				[ 'audit' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
+				[ 'audit_params' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
 			);
 		}
 	}
@@ -124,14 +124,11 @@ class ImportExportController {
 	 * window for the handshake to complete.  We do not explicitly fail.
 	 */
 	private function confirmExportHandshake() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( Services::Request()->ts() < (int)$oOpts->getOpt( 'importexport_handshake_expires_at' ) ) {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		if ( Services::Request()->ts() < (int)$opts->getOpt( 'importexport_handshake_expires_at' ) ) {
 			echo json_encode( [ 'success' => true ] );
 			die();
-		}
-		else {
-			return;
 		}
 	}
 

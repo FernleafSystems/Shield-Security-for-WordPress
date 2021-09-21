@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDir;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -116,6 +117,31 @@ class ModCon extends BaseShield\ModCon {
 				$con->purge();
 			}
 		}
+
+		$this->cleanScanExclusions();
+	}
+
+	private function cleanScanExclusions() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$specialDirs = array_map( 'trailingslashit', [
+			ABSPATH,
+			path_join( ABSPATH, 'wp-admin' ),
+			path_join( ABSPATH, 'wp-includes' ),
+			untrailingslashit( WP_CONTENT_DIR ),
+			path_join( WP_CONTENT_DIR, 'plugins' ),
+			path_join( WP_CONTENT_DIR, 'themes' ),
+		] );
+
+		$values = $opts->getOpt( 'scan_path_exclusions', [] );
+		$opts->setOpt( 'scan_path_exclusions',
+			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
+				is_array( $values ) ? $values : [],
+				$specialDirs,
+				Shield\Modules\Base\Options\WildCardOptions::FILE_PATH_REL
+			)
+		);
 	}
 
 	/**
@@ -168,27 +194,24 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		return $this->isModuleEnabled() && $this->isPremium()
 			   && $opts->isOpt( 'ptg_enable', 'enabled' )
-			   && $opts->isOptReqsMet( 'ptg_enable' )
-			   && $this->canCacheDirWrite();
+			   && $this->getCon()->hasCacheDir()
+			   && !empty( $this->getPtgSnapsBaseDir() );
 	}
 
-	/**
-	 * @return string|false
-	 */
-	public function getPtgSnapsBaseDir() {
-		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+	public function getPtgSnapsBaseDir() :string {
+		return ( new CacheDir() )
+			->setCon( $this->getCon() )
+			->buildSubDir( 'ptguard' );
 	}
 
 	public function hasWizard() :bool {
 		return false;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getTempDir() {
-		$dir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $dir ) ? $dir : false;
+	public function getScansTempDir() :string {
+		return ( new CacheDir() )
+			->setCon( $this->getCon() )
+			->buildSubDir( 'scans' );
 	}
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
@@ -211,7 +234,7 @@ class ModCon extends BaseShield\ModCon {
 		return ( $this->getDbHandler_ScanQueue() instanceof Databases\ScanQueue\Handler )
 			   && $this->getDbHandler_ScanQueue()->isReady()
 			   && ( $this->getDbHandler_ScanResults() instanceof Databases\Scanner\Handler )
-			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && $this->getDbHandler_ScanResults()->isReady()
 			   && parent::isReadyToExecute();
 	}
 

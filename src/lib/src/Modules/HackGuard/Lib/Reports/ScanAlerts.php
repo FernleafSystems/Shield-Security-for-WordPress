@@ -9,13 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScanAlerts extends BaseReporter {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function build() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-
+	public function build() :array {
 		$alerts = [];
 
 		/** @var HackGuard\Strings $strings */
@@ -32,7 +26,7 @@ class ScanAlerts extends BaseReporter {
 			foreach ( $scanCounts as $slug => $count ) {
 				$scanCounts[ $slug ] = [
 					'count' => $count,
-					'name'  => $strings->getScanNames()[ $slug ],
+					'name'  => $strings->getScanName( $slug ),
 				];
 			}
 			$alerts[] = $this->getMod()->renderTemplate(
@@ -44,6 +38,9 @@ class ScanAlerts extends BaseReporter {
 					'strings' => [
 						'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),
 						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
+						'note_changes' => sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+							__( 'Depending on previous actions taken on the site or file system changes, these results may no longer be available to view.', 'wp-simple-firewall' ) ),
+
 					],
 					'hrefs'   => [
 						'view_results' => $this->getCon()

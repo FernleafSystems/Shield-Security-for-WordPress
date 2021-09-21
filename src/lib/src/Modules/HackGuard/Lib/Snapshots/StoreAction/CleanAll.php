@@ -12,14 +12,14 @@ class CleanAll extends BaseBulk {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
-			$nBoundary = Services::Request()
+			$boundary = Services::Request()
 								 ->carbon()
 								 ->subDay()->timestamp;
-			$oDirIt = StandardDirectoryIterator::create( $mod->getPtgSnapsBaseDir() );
-			foreach ( $oDirIt as $oFile ) {
-				/** @var \SplFileInfo $oFile */
-				if ( $nBoundary > $oFile->getMTime() ) {
-					Services::WpFs()->deleteFile( $oFile->getPathname() );
+			$IT = StandardDirectoryIterator::create( $mod->getPtgSnapsBaseDir() );
+			foreach ( $IT as $file ) {
+				/** @var \SplFileInfo $file */
+				if ( $boundary > $file->getMTime() ) {
+					Services::WpFs()->deleteFile( $file->getPathname() );
 				}
 			}
 		}

@@ -51,10 +51,16 @@ class UI extends BaseShield\UI {
 		}
 
 		if ( $section == 'section_2fa_email' ) {
+
+			if ( $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
+				$warnings[] = __( "The ability of this site to send email hasn't been verified.", 'wp-simple-firewall' )
+							  .'<br/>'.__( 'Please click to re-save your settings to trigger another verification email.', 'wp-simple-firewall' );
+			}
+
 			$warnings[] =
 				__( '2FA by email demands that your WP site is properly configured to send email.', 'wp-simple-firewall' )
 				.'<br/>'.__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', __( 'Learn More.', 'wp-simple-firewall' ) );
+				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) );
 		}
 
 		return $warnings;

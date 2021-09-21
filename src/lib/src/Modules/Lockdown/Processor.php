@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
+	private $xmlProcessed = false;
+
 	protected function run() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -45,17 +47,17 @@ class Processor extends BaseShield\Processor {
 
 		add_filter( 'user_has_cap',
 			/**
-			 * @param array $aAllCaps
+			 * @param array $allCaps
 			 * @param array $cap
-			 * @param array $aArgs
+			 * @param array $args
 			 * @return array
 			 */
-			function ( $aAllCaps, $cap, $aArgs ) {
-				$sRequestedCapability = $aArgs[ 0 ];
-				if ( in_array( $sRequestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
-					$aAllCaps[ $sRequestedCapability ] = false;
+			function ( $allCaps, $cap, $args ) {
+				$requestedCapability = $args[ 0 ];
+				if ( in_array( $requestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
+					$allCaps[ $requestedCapability ] = false;
 				}
-				return $aAllCaps;
+				return $allCaps;
 			},
 			PHP_INT_MAX, 3
 		);
@@ -77,7 +79,10 @@ class Processor extends BaseShield\Processor {
 	 * @return array|false
 	 */
 	public function disableXmlrpc() {
-		$this->getCon()->fireEvent( 'block_xml' );
+		if ( !$this->xmlProcessed ) {
+			$this->xmlProcessed = true;
+			$this->getCon()->fireEvent( 'block_xml' );
+		}
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
 	}
 
@@ -110,11 +115,11 @@ class Processor extends BaseShield\Processor {
 	public function disableAnonymousRestApi( $mStatus ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$oWpRest = Services::Rest();
+		$WPRest = Services::Rest();
 
-		$sNamespace = $oWpRest->getNamespace();
-		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$mod->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
+		$namespace = $WPRest->getNamespace();
+		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus )
+			 && !$mod->isPermittedAnonRestApiNamespace( $namespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
@@ -125,7 +130,7 @@ class Processor extends BaseShield\Processor {
 			$this->getCon()
 				 ->fireEvent(
 					 'block_anonymous_restapi',
-					 [ 'audit' => [ 'namespace' => $sNamespace ] ]
+					 [ 'audit_params' => [ 'namespace' => $namespace ] ]
 				 );
 		}
 

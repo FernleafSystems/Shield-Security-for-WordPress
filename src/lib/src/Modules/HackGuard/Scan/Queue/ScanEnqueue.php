@@ -19,14 +19,14 @@ class ScanEnqueue {
 	 * @throws \Exception
 	 */
 	public function enqueue() {
-		$oAction = $this->getScanActionVO();
-		$aAllItems = (array)$oAction->items;
-		unset( $oAction->items );
+		$action = $this->getScanActionVO();
+		$aAllItems = (array)$action->items;
+		unset( $action->items );
 
-		$nSliceSize = $oAction::QUEUE_GROUP_SIZE_LIMIT;
+		$nSliceSize = $action::QUEUE_GROUP_SIZE_LIMIT;
 
 		do {
-			$oCurrent = clone $oAction;
+			$oCurrent = clone $action;
 			$oCurrent->items = array_slice( $aAllItems, 0, $nSliceSize );
 			$this->pushActionToQueue( $oCurrent );
 			$aAllItems = array_slice( $aAllItems, $nSliceSize );
@@ -36,12 +36,12 @@ class ScanEnqueue {
 	}
 
 	/**
-	 * @param Scans\Base\BaseScanActionVO $oAction
+	 * @param Scans\Base\BaseScanActionVO $action
 	 */
-	protected function pushActionToQueue( $oAction ) {
-		$oEntry = ( new ConvertBetweenTypes() )
+	protected function pushActionToQueue( $action ) {
+		$entry = ( new ConvertBetweenTypes() )
 			->setDbHandler( $this->getDbHandler() )
-			->fromActionToDbEntry( $oAction );
-		$this->getQueueProcessor()->push_to_queue( $oEntry );
+			->fromActionToDbEntry( $action );
+		$this->getQueueProcessor()->push_to_queue( $entry );
 	}
 }

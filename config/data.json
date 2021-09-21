@@ -1,0 +1,73 @@
+{
+  "slug":        "data",
+  "properties":  {
+    "slug":                  "data",
+    "name":                  "Data",
+    "show_module_menu_item": false,
+    "auto_enabled":          true,
+    "storage_key":           "data",
+    "show_central":          false,
+    "premium":               false,
+    "access_restricted":     true,
+    "run_if_whitelisted":    true,
+    "run_if_wpcli":          true,
+    "skip_processor":        true,
+    "tracking_exclude":      true
+  },
+  "wpcli":       {
+    "enabled": false
+  },
+  "sections":    [
+  ],
+  "options":     [
+  ],
+  "definitions": {
+    "db_handler_classes": {
+      "ips":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IPs\\Ops\\Handler",
+      "req_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler"
+    },
+    "db_table_ips":       {
+      "autoexpire":     0,
+      "slug":           "ips",
+      "has_updated_at": false,
+      "has_deleted_at": false,
+      "col_older_than": "created_at",
+      "cols_custom":    {
+        "ip":  {
+          "macro_type": "ip",
+          "attr":       [
+            "UNIQUE"
+          ]
+        },
+        "geo": {
+          "macro_type": "meta",
+          "comment":    "GeoIP Data"
+        }
+      }
+    },
+    "db_table_req_logs":  {
+      "slug":           "req_logs",
+      "autoexpire":     0,
+      "has_updated_at": false,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "req_id": {
+          "macro_type": "varchar",
+          "length":     10,
+          "attr":       [
+            "UNIQUE"
+          ]
+        },
+        "ip_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
+        },
+        "meta":   {
+          "macro_type": "meta"
+        }
+      }
+    }
+  }
+}

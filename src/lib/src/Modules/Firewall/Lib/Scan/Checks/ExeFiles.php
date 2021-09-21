@@ -13,12 +13,12 @@ class ExeFiles extends Base {
 	 */
 	public function run() {
 		$found = false;
-		foreach ( $this->getFileNames() as $param => $file ) {
+		foreach ( $this->getFileNames() as $file ) {
 			foreach ( $this->getFirewallPatterns_Regex() as $term ) {
 				if ( preg_match( $term, $file ) ) {
 					$found = new \WP_Error( 'shield-firewall', '', [
 						'term'  => $term,
-						'param' => $param,
+						'param' => 'file',
 						'value' => $file,
 						'check' => $this->check,
 						'type'  => 'regex',

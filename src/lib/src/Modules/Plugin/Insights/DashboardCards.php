@@ -217,7 +217,7 @@ class DashboardCards {
 				'actions' => [
 					[
 						'text' => __( "View Audit Log", 'wp-simple-firewall' ),
-						'href' => $modInsights->getUrl_SubInsightsPage( 'audit' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
 					],
 					[
 						'text' => __( "Audit Trail Settings", 'wp-simple-firewall' ),

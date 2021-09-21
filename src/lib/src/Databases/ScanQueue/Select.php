@@ -8,16 +8,48 @@ class Select extends Base\Select {
 
 	use Common;
 
-	/**
-	 * @return string|null
-	 */
-	public function getCurrentScan() {
-		return $this->reset()
-					->setResultsAsVo( true )
-					->setColumnsToSelect( [ 'scan' ] )
-					->filterByStarted()
+	public function countAllForEachScan() :array {
+		/** @var array[] $res */
+		$res = $this->setCustomSelect( '`scan`,COUNT(*) as count' )
+					->setGroupBy( 'scan' )
+					->setResultsAsVo( false )
+					->setSelectResultsFormat( ARRAY_A )
+					->query();
+		$counts = [];
+		if ( is_array( $res ) ) {
+			foreach ( $res as $entry ) {
+				$counts[ $entry[ 'scan' ] ] = $entry[ 'count' ];
+			}
+		}
+		return $counts;
+	}
+
+	public function countUnfinishedForEachScan() :array {
+		/** @var array[] $res */
+		$res = $this->setCustomSelect( '`scan`,COUNT(*) as count' )
 					->filterByNotFinished()
-					->queryVar();
+					->setGroupBy( 'scan' )
+					->setResultsAsVo( false )
+					->setSelectResultsFormat( ARRAY_A )
+					->query();
+		$counts = [];
+		if ( is_array( $res ) ) {
+			foreach ( $res as $entry ) {
+				$counts[ $entry[ 'scan' ] ] = $entry[ 'count' ];
+			}
+		}
+		return $counts;
+	}
+
+	/**
+	 * Not quite right. it'll only get the latest finished_at, not the currently processing item
+	 */
+	public function getCurrentScan() :string {
+		return (string)$this->reset()
+							->setColumnsToSelect( [ 'scan' ] )
+							->setOrderBy( 'finished_at', 'desc' )
+							->setLimit( 1 )
+							->queryVar();
 	}
 
 	/**
@@ -27,21 +59,12 @@ class Select extends Base\Select {
 		return $this->getDistinctForColumn( 'scan' );
 	}
 
-	/**
-	 * @return array[]
-	 */
-	public function getUnfinishedScans() {
-		$aResults = $this->reset()
-						 ->setResultsAsVo( true )
-						 ->setColumnsToSelect( [ 'scan' ] )
-						 ->filterByNotFinished()
-						 ->query();
-		$scans = [];
-		/** @var EntryVO $entry */
-		foreach ( $aResults as $entry ) {
-			$scans[ $entry->scan ] = 1;
-		}
-		return array_keys( $scans );
+	public function getUnfinishedScans() :array {
+		return $this->reset()
+					->filterByNotFinished()
+					->addColumnToSelect( 'scan' )
+					->setIsDistinct( true )
+					->query();
 	}
 
 	public function countForScan( string $scan ) :int {

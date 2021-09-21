@@ -40,26 +40,26 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param ScanQueue\EntryVO $oEntry Queue item to iterate over.
+	 * @param ScanQueue\EntryVO $entry Queue item to iterate over.
 	 * @return mixed
 	 */
-	protected function task( $oEntry ) {
-		$oEntry->started_at = Services::Request()->ts();
-		/** @var ScanQueue\Update $oUpd */
-		$oUpd = $this->getDbHandler()->getQueryUpdater();
-		$oUpd->setStarted( $oEntry );
+	protected function task( $entry ) {
+		$entry->started_at = Services::Request()->ts();
+		/** @var ScanQueue\Update $updater */
+		$updater = $this->getDbHandler()->getQueryUpdater();
+		$updater->setStarted( $entry );
 
 		try {
 			( new ScanExecute() )
 				->setMod( $this->getMod() )
-				->execute( $oEntry );
+				->execute( $entry );
 		}
 		catch ( \Exception $e ) {
 //			error_log( $e->getMessage() );
 		}
 
-		$oUpd->setFinished( $oEntry );
-		return $oEntry;
+		$updater->setFinished( $entry );
+		return $entry;
 	}
 
 	/**
@@ -113,7 +113,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		if ( is_array( $this->data ) ) {
 			/** @var ScanQueue\Insert $inserter */
 			$inserter = $this->getDbHandler()->getQueryInserter();
-			foreach ( $this->data as $nKey => $entry ) {
+			foreach ( $this->data as $entry ) {
 				/** @var ScanQueue\EntryVO $entry */
 				if ( $entry instanceof ScanQueue\EntryVO ) {
 					$inserter->insert( $entry );

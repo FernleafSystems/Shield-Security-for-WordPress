@@ -64,13 +64,8 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdDisplay( array $null, array $aA ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$oTableBuilder = ( new Tables\Build\AuditTrail() )
-			->setMod( $mod )
-			->setDbHandler( $mod->getDbHandler_AuditTrail() );
 		( new Tables\Render\WpCliTable\AuditTrail() )
-			->setDataBuilder( $oTableBuilder )
+			->setMod( $this->getMod() )
 			->render();
 	}
 }

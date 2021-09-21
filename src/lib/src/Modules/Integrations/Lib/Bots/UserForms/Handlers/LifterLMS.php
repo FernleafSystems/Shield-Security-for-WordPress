@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 /**
  * Lost Password is mimicked after WordPress so no separate integration necessary
- * Class LifterLMS
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
  */
 class LifterLMS extends Base {
 

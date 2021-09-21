@@ -8,6 +8,156 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
+	 * @inheritDoc
+	 */
+	public function getEventStrings() :array {
+		return [
+			'conn_kill'               => [
+				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ),
+				],
+			],
+			'conn_not_kill_high_rep'  => [
+				'name'  => __( 'Connection Not Killed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'IP address has a high reputation so connection allowed.', 'wp-simple-firewall' ),
+				],
+			],
+			'ip_offense'              => [
+				'name'  => __( 'Offense Triggered', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Auto Black List offenses counter was incremented from {{from}} to {{to}}.', 'wp-simple-firewall' ),
+				],
+			],
+			'ip_blocked'              => [
+				'name'  => __( 'IP Blocked', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'IP blocked after incrementing offenses from {{from}} to {{to}}.', 'wp-simple-firewall' ),
+				],
+			],
+			'ip_unblock'              => [
+				'name'  => __( 'IP Unblocked', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'IP removed from block list.', 'wp-simple-firewall' ),
+				],
+			],
+			'ip_unblock_flag'         => [
+				'name'  => __( 'IP Unblocked (Flag File)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "IP address '{{ip}}' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' ),
+				],
+			],
+			'ip_block_auto'           => [
+				'name'  => __( 'IP Block List Add (Auto)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "IP address '{{ip}}' automatically added to block list.", 'wp-simple-firewall' ),
+				],
+			],
+			'ip_block_manual'         => [
+				'name'  => __( 'IP Block List Add (Manual)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "IP address '{{ip}}' manually added to block list.", 'wp-simple-firewall' ),
+				],
+			],
+			'ip_bypass_add'           => [
+				'name'  => __( 'IP Bypass List Add (Manual)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "IP address '{{ip}}' manually added to bypass list.", 'wp-simple-firewall' ),
+				],
+			],
+			'ip_bypass_remove'        => [
+				'name'  => __( 'IP Bypass List Removed (Manual)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "IP address '{{ip}}' manually removed from the bypass list.", 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_notbot'         => [
+				'name'  => __( 'NotBot Registration', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Visitor registered using NotBot.', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_404'            => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ), '404' ),
+				'audit' => [
+					__( '404 detected at "{{path}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_fakewebcrawler' => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'Fake Web Crawler', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Fake Web Crawler detected at "{{path}}".', 'wp-simple-firewall' ),
+					__( 'Fake Crawler misrepresented itself as "{{crawler}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_linkcheese'     => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'Link Cheese', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Link cheese access detected at "{{path}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_loginfailed'    => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'Failed Login', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Attempted login failed by user "{{user_login}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_logininvalid'   => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'Invalid Username Login', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Attempted login with invalid user "{{user_login}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_useragent'      => [
+				/** TODO **/
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'Invalid User-Agent', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Invalid user agent detected at "{{useragent}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_xmlrpc'         => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'XML-RPC', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Access to XML-RPC detected at "{{path}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'bottrack_invalidscript'  => [
+				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+					__( 'Invalid Script Load', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Tried to load an invalid WordPress PHP script "{{script}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'comment_markspam'        => [
+				'name'  => __( 'Mark Comment SPAM (Manual)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Comment manually marked as SPAM.', 'wp-simple-firewall' ),
+				],
+			],
+			'comment_unmarkspam'      => [
+				'name'  => __( 'Mark Comment Not SPAM (Manual)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Comment manually marked as not SPAM.', 'wp-simple-firewall' ),
+				],
+			],
+			'custom_offense'          => [
+				'name'  => __( 'Mark Comment Not SPAM (Manual)', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'A custom offense was registered on the site.', 'wp-simple-firewall' ),
+					sprintf( '%s: {{message}}', __( 'Message', 'wp-simple-firewall' ) ),
+				],
+			],
+		];
+	}
+
+	/**
 	 * @param string $section
 	 * @return array
 	 * @throws \Exception
@@ -87,7 +237,7 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
+			'summary'     => $summary,
 		];
 	}
 
@@ -111,7 +261,7 @@ class Strings extends Base\Strings {
 
 			case 'transgression_limit' :
 				$name = __( 'Offense Limit', 'wp-simple-firewall' );
-				$summary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
+				$summary = __( 'The number of permitted offenses before an IP address will be blocked', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( 'An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName ),
 					__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' ),
@@ -301,58 +451,6 @@ class Strings extends Base\Strings {
 			'blocked'         => __( 'IP Blocked', 'wp-simple-firewall' ),
 			'unblocked'       => __( 'IP Unblocked', 'wp-simple-firewall' ),
 			'bypass'          => __( 'IP Bypassed', 'wp-simple-firewall' ),
-		];
-	}
-
-	/**
-	 * @return string[][]
-	 */
-	protected function getAuditMessages() :array {
-		return [
-			'custom_offense'          => [
-				sprintf(
-					__( 'A custom %s offense was registered on the site.', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName()
-				),
-				str_replace( '{{MESSAGE}}', __( 'Message', 'wp-simple-firewall' ), '{{MESSAGE}}: "%s"' ),
-			],
-			'conn_kill'               => [
-				__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' )
-			],
-			'ip_offense'              => [
-				__( 'Auto Black List offenses counter was incremented from %s to %s.', 'wp-simple-firewall' )
-			],
-			'ip_blocked'              => [
-				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
-			],
-			'ip_unblock_flag'         => [
-				__( "IP address '%s' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' )
-			],
-			'bottrack_404'            => [
-				__( '404 detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_fakewebcrawler' => [
-				__( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' ),
-				__( 'Fake Crawler misrepresented itself as "%s".', 'wp-simple-firewall' ),
-			],
-			'bottrack_linkcheese'     => [
-				__( 'Link cheese access detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_loginfailed'    => [
-				__( 'Attempted login failed by user "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_logininvalid'   => [
-				__( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_useragent'      => [
-				__( 'Empty user agent detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_xmlrpc'         => [
-				__( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' )
-			],
-			'bottrack_invalidscript'  => [
-				__( 'Tried to load an invalid WordPress PHP script "%s".', 'wp-simple-firewall' )
-			],
 		];
 	}
 }

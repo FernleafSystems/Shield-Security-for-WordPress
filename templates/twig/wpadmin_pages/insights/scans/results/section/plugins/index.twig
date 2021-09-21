@@ -1,0 +1,39 @@
+<div class="row mt-3 nav-vertical" id="ScanResultsPlugins">
+
+	<div class="col-2">
+		<ul class="nav nav-tabs flex-column">
+			{% for plugin_key,plugin in vars.plugins %}
+				<li class="nav-item mb-2">
+					<a class="nav-link {% if plugin_key < 1 %}active{% endif %}"
+					   href="#plugin-tab-{{ plugin.info.slug }}"
+					   data-toggle="tab"
+					>
+						{% if plugin.vars.count_items > 0 %}
+							<span class="badge badge-danger float-right">{{ plugin.vars.count_items }}</span>
+						{% elseif plugin.flags.has_warning %}
+							<span class="badge badge-warning float-right">&excl;</span>
+						{% else %}
+							<span class="badge badge-success float-right">&check;</span>
+						{% endif %}
+						{{ plugin.info.name }}
+					</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	<div class="col-10">
+		<div class="tab-content">
+			{% for plugin_key,plugin in vars.plugins %}
+				<div class="tab-pane {% if plugin_key < 1 %}show active{% endif %}"
+					 id="plugin-tab-{{ plugin.info.slug }}"
+					 role="tabpanel"
+					 aria-labelledby="profile-tab"
+				>
+					{% include '/wpadmin_pages/insights/scans/results/section/plugins/plugin_panel.twig' %}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+</div>

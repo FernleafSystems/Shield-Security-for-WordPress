@@ -46,13 +46,13 @@ class RenameLogin {
 		add_action( 'login_init', [ $this, 'aLoginFormAction' ], 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
-		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20, 1 );
-		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20, 1 );
-		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20, 1 );
+		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
+		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
+		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20 );
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			add_filter( 'wp_redirect', [ $this, 'fProtectUnauthorizedLoginRedirect' ], 50, 1 );
+			add_filter( 'wp_redirect', [ $this, 'fProtectUnauthorizedLoginRedirect' ], 50 );
 		}
-		add_filter( 'register_url', [ $this, 'blockRegisterUrlRedirect' ], 20, 1 );
+		add_filter( 'register_url', [ $this, 'blockRegisterUrlRedirect' ], 20 );
 
 		add_filter( 'et_anticipate_exceptions', [ $this, 'fAddToEtMaintenanceExceptions' ] );
 	}
@@ -63,42 +63,41 @@ class RenameLogin {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$sMessage = '';
-		$bConflicted = false;
+		$msg = '';
+		$isConflicted = false;
 
 		$path = $opts->getCustomLoginPath();
 
 		$WP = Services::WpGeneral();
 		if ( $WP->isMultisite() ) {
-			$sMessage = __( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.', 'wp-simple-firewall' );
-			$bConflicted = true;
+			$msg = __( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.', 'wp-simple-firewall' );
+			$isConflicted = true;
 		}
 		elseif ( class_exists( 'Rename_WP_Login' ) ) {
-			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Rename WP Login' );
-			$bConflicted = true;
+			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Rename WP Login' );
+			$isConflicted = true;
 		}
 		elseif ( class_exists( 'Theme_My_Login' ) ) {
-			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
-			$bConflicted = true;
+			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
+			$isConflicted = true;
 		}
 		elseif ( !$WP->isPermalinksEnabled() ) {
-			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
-			$bConflicted = true;
+			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
+			$isConflicted = true;
 		}
 		elseif ( $WP->isPermalinksEnabled() && ( $WP->getDoesWpSlugExist( $path ) || in_array( $path, $WP->getAutoRedirectLocations() ) ) ) {
-			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.', 'wp-simple-firewall' ), $path );
-			$bConflicted = true;
+			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is already used on your WordPress site.', 'wp-simple-firewall' ), $path );
+			$isConflicted = true;
 		}
 
-		if ( $bConflicted ) {
-			$sNoticeMessage = sprintf( '<strong>%s</strong>: %s',
+		if ( $isConflicted ) {
+			$mod->setFlashAdminNotice( sprintf( '<strong>%s</strong>: %s',
 				__( 'Warning', 'wp-simple-firewall' ),
-				$sMessage
-			);
-			$mod->setFlashAdminNotice( $sNoticeMessage, true );
+				$msg
+			), true );
 		}
 
-		return $bConflicted;
+		return $isConflicted;
 	}
 
 	private function hasUnsupportedConfiguration() :bool {
@@ -124,11 +123,11 @@ class RenameLogin {
 	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
-		$bDoBlock = is_admin() && !Services::WpGeneral()->isAjax()
-					&& !Services::WpUsers()->isUserLoggedIn();
+		$doBlock = is_admin() && !Services::WpGeneral()->isAjax()
+				   && !Services::WpUsers()->isUserLoggedIn();
 
 		// Next block option is where it's a direct attempt to access the old login URL
-		if ( !$bDoBlock ) {
+		if ( !$doBlock ) {
 			$path = trim( Services::Request()->getPath(), '/' );
 			$possible = [
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
@@ -139,53 +138,54 @@ class RenameLogin {
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			];
-			$bDoBlock = !empty( $path )
-						&& ( in_array( $path, $possible ) || preg_match( '/wp-login\.php/i', $path ) );
+			$doBlock = !empty( $path )
+					   && ( in_array( $path, $possible ) || preg_match( '/wp-login\.php/i', $path ) );
 		}
 
-		if ( $bDoBlock ) {
+		if ( $doBlock ) {
 			$this->doWpLoginFailedRedirect404();
 		}
 	}
 
 	/**
-	 * @param string $sLocation
+	 * @param string $location
 	 * @return string
 	 */
-	public function fCheckForLoginPhp( $sLocation ) {
+	public function fCheckForLoginPhp( $location ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$sRedirectPath = parse_url( $sLocation, PHP_URL_PATH );
-		if ( strpos( $sRedirectPath, 'wp-login.php' ) !== false ) {
+		$redirectPath = parse_url( $location, PHP_URL_PATH );
+		if ( strpos( $redirectPath, 'wp-login.php' ) !== false ) {
 
-			$sLoginUrl = home_url( $opts->getCustomLoginPath() );
-			$aQueryArgs = explode( '?', $sLocation );
-			if ( !empty( $aQueryArgs[ 1 ] ) ) {
-				parse_str( $aQueryArgs[ 1 ], $aNewQueryArgs );
-				$sLoginUrl = add_query_arg( $aNewQueryArgs, $sLoginUrl );
+			$loginUrl = home_url( $opts->getCustomLoginPath() );
+			$queryArgs = explode( '?', $location );
+			if ( !empty( $queryArgs[ 1 ] ) ) {
+				parse_str( $queryArgs[ 1 ], $newQueryArgs );
+				$loginUrl = add_query_arg( $newQueryArgs, $loginUrl );
 			}
-			return $sLoginUrl;
+			$location = $loginUrl;
 		}
-		return $sLocation;
+
+		return $location;
 	}
 
 	/**
-	 * @param string $sLocation
+	 * @param string $location
 	 * @return string
 	 */
-	public function fProtectUnauthorizedLoginRedirect( $sLocation ) {
+	public function fProtectUnauthorizedLoginRedirect( $location ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
-			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
+			$sRedirectPath = trim( parse_url( $location, PHP_URL_PATH ), '/' );
 			$bRedirectIsHiddenUrl = ( $sRedirectPath == $opts->getCustomLoginPath() );
 			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->doWpLoginFailedRedirect404();
 			}
 		}
-		return $sLocation;
+		return $location;
 	}
 
 	/**
@@ -202,6 +202,8 @@ class RenameLogin {
 
 	public function aLoadWpLogin() {
 		if ( Services::WpGeneral()->isLoginUrl() ) {
+			// To prevent PHP warnings about undefined vars
+			$user_login = $error = '';
 			@require_once( ABSPATH.'wp-login.php' );
 			die();
 		}

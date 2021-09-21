@@ -40,16 +40,16 @@ class Export {
 
 		$sNetworkOpt = $req->query( 'network', '' );
 		$bDoNetwork = !empty( $sNetworkOpt );
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
+		$url = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
 
-		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
+		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $url ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
 
 		$bSuccess = false;
 		$aData = [];
 
-		if ( !$this->verifyUrlWithHandshake( $sUrl ) ) {
+		if ( !$this->verifyUrlWithHandshake( $url ) ) {
 			$nCode = 3;
 			$sMessage = __( 'Handshake verification failed.', 'wp-simple-firewall' );
 		}
@@ -61,41 +61,40 @@ class Export {
 
 			$this->getCon()->fireEvent(
 				'options_exported',
-				[ 'audit' => [ 'site' => $sUrl ] ]
+				[ 'audit_params' => [ 'site' => $url ] ]
 			);
 
 			if ( $bDoNetwork ) {
 				if ( $sNetworkOpt === 'Y' ) {
-					$mod->addUrlToImportExportWhitelistUrls( $sUrl );
+					$mod->addUrlToImportExportWhitelistUrls( $url );
 					$this->getCon()->fireEvent(
 						'whitelist_site_added',
-						[ 'audit' => [ 'site' => $sUrl ] ]
+						[ 'audit_params' => [ 'site' => $url ] ]
 					);
 				}
 				else {
-					$mod->removeUrlFromImportExportWhitelistUrls( $sUrl );
+					$mod->removeUrlFromImportExportWhitelistUrls( $url );
 					$this->getCon()->fireEvent(
 						'whitelist_site_removed',
-						[ 'audit' => [ 'site' => $sUrl ] ]
+						[ 'audit_params' => [ 'site' => $url ] ]
 					);
 				}
 			}
 		}
 
-		$aResponse = [
+		echo json_encode( [
 			'success' => $bSuccess,
 			'code'    => $nCode,
 			'message' => $sMessage,
 			'data'    => $aData,
-		];
-		echo json_encode( $aResponse );
+		] );
 		die();
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function toStandardArray() {
+	public function toStandardArray() :array{
 		$sExport = json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
@@ -115,26 +114,23 @@ class Export {
 		);
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getExportData() {
-		$aAll = [];
+	private function getExportData() :array{
+		$all = [];
 		foreach ( $this->getCon()->modules as $mod ) {
 			$oOpts = $mod->getOptions();
-			$aAll[ $mod->getOptionsStorageKey() ] = array_diff_key(
+			$all[ $mod->getOptionsStorageKey() ] = array_diff_key(
 				$oOpts->getTransferableOptions(),
 				array_flip( $oOpts->getXferExcluded() )
 			);
 		}
-		return $aAll;
+		return $all;
 	}
 
 	/**
 	 * @param string $url
 	 * @return bool
 	 */
-	private function isUrlOnWhitelist( $url ) {
+	private function isUrlOnWhitelist( $url ) :bool{
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $url ) && in_array( $url, $opts->getImportExportWhitelist() );
@@ -144,7 +140,7 @@ class Export {
 	 * @param string $url
 	 * @return bool
 	 */
-	private function verifyUrlWithHandshake( $url ) {
+	private function verifyUrlWithHandshake( $url ):bool {
 		$bVerified = false;
 
 		if ( !empty( $url ) ) {

@@ -10,5 +10,6 @@ class Debug extends Modules\Base\Debug {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getReportingController()->runHourlyCron();
+		die( 'finish' );
 	}
 }

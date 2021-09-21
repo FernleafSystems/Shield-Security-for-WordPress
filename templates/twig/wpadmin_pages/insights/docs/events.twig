@@ -1,0 +1,34 @@
+{% block page_main %}
+	<div class="row">
+		<div class="col pt-3">
+			<div class="card-group">
+				{% for level,events in vars.event_defs %}
+					<div class="card">
+						 <div class="card-header">
+							<h5 class="m-0">{{ level }}</h5>
+						 </div>
+						 <div class="card-body">
+							<ul style="list-style: inside circle" class="">
+								{% for slug,event in events %}
+									<li>
+										<a data-toggle="collapse"
+										   style="color: inherit"
+										   href="#event-attr-{{ slug }}"
+										>{{ event.name }}</a>
+										<ul class="collapse ml-4 mb-1" id="event-attr-{{ slug }}"
+											style="list-style: inside square">
+											<li>Slug: <code>{{ slug }}</code></li>
+											{% for attr in event.attr %}
+												<li>{{ attr }}</li>
+											{% endfor %}
+										</ul>
+									</li>
+								{% endfor %}
+							</ul>
+						 </div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

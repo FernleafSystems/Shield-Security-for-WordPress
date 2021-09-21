@@ -3,65 +3,63 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Lookup {
 
 	const URL_REDIRECTLI = 'https://api.redirect.li/v1/ip/';
-	use Databases\Base\HandlerConsumer;
+	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
 	private $ips = [];
 
-	/**
-	 * @return Databases\GeoIp\EntryVO|null
-	 */
-	public function lookupIp() {
+	public function lookupIp() :IPGeoVO {
 		$ip = $this->getIP();
 		// Small optimization so we don't SQL it every time.
 		if ( isset( $this->ips[ $ip ] ) ) {
 			return $this->ips[ $ip ];
 		}
 
-		/** @var Databases\GeoIp\Handler $dbh */
-		$dbh = $this->getDbHandler();
-		/** @var Databases\GeoIp\Select $select */
-		$select = $dbh->getQuerySelector();
-		$IP = $select->byIp( $ip );
+		try {
+			if ( empty( $ip ) || !Services::IP()->isValidIp_PublicRemote( $ip ) ) {
+				throw new \Exception( 'Not a valid public IP address' );
+			}
 
-		/**
-		 * We look up the IP and if the request fails, we store it anyway so that we don't repeatedly
-		 * bombard the API. The address will eventually be expired over time and lookup will process
-		 * again at a later date, as required
-		 */
-		if ( empty( $IP ) ) {
-			$IP = new Databases\GeoIp\EntryVO();
-			$IP->ip = $ip;
-			$IP->meta = $this->redirectliIpLookup();
-			$dbh->getQueryInserter()->insert( $IP );
+			$ipRecord = ( new IPRecords() )
+				->setMod( $this->getCon()->getModule_Data() )
+				->loadIP( $this->getIP(), true );
+
+			if ( is_null( $ipRecord->geo )
+				 || Services::Request()->carbon()->subMonth()->timestamp > @$ipRecord->geo[ 'ts' ] ) {
+				$ipRecord->geo = $this->redirectliIpLookup();
+				$this->getCon()
+					 ->getModule_Data()
+					 ->getDbH_IPs()
+					 ->getQueryUpdater()
+					 ->updateById( $ipRecord->id, [
+						 'geo' => $ipRecord->getRawData()[ 'geo' ]
+					 ] );
+			}
+
+			$geoData = $ipRecord->geo ?? [];
+		}
+		catch ( \Exception $e ) {
+			$geoData = [];
 		}
 
-		$this->ips[ $ip ] = $IP;
-		return $IP;
+		return $this->ips[ $ip ] = ( new IPGeoVO() )->applyFromArray( $geoData );
 	}
 
 	private function redirectliIpLookup() :array {
-		$oHttp = Services::HttpRequest();
-		$aIpData = @json_decode( $oHttp->getContent( self::URL_REDIRECTLI.$this->getIP() ), true );
-		if ( empty( $aIpData ) || !is_array( $aIpData ) ) {
-			$aIpData = [];
-		}
-
-		return array_intersect_key(
-			$aIpData,
-			[
-				'countryCode' => '',
-				'countryName' => '',
-				'timeZone'    => '',
-				'latitude'    => '',
-				'longitude'   => '',
-			]
+		$data = @json_decode(
+			Services::HttpRequest()->getContent( self::URL_REDIRECTLI.$this->getIP() ), true
 		);
+		$data = ( empty( $data ) || !is_array( $data ) ) ? [] : $data;
+		$data[ 'ts' ] = Services::Request()->carbon( true )->timestamp;
+		return $data;
 	}
 }

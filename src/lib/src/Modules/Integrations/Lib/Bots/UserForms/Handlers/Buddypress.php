@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
-/**
- * Class Buddypress
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
- */
 class Buddypress extends Base {
 
 	protected function register() {
@@ -23,6 +19,6 @@ class Buddypress extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return @class_exists( 'BuddyPress' );
+		return @class_exists( '\BuddyPress' );
 	}
 }

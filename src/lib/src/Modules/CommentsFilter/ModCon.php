@@ -91,10 +91,7 @@ class ModCon extends BaseShield\ModCon {
 		$this->getOptions()->setOpt( 'enable_antibot_check', $enabled ? 'Y' : 'N' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSpamBlacklistFile() {
-		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
+	public function getSpamBlacklistFile() :string {
+		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
 	}
 }

@@ -13,17 +13,17 @@ class ScanFromFileMap extends BaseScanFromFileMap {
 	/**
 	 * @var FileScanner
 	 */
-	private $oFileScanner;
+	private $fileScanner;
 
 	/**
 	 * @return FileScanner
 	 */
 	protected function getFileScanner() {
-		if ( empty( $this->oFileScanner ) ) {
-			$this->oFileScanner = ( new FileScanner() )
+		if ( empty( $this->fileScanner ) ) {
+			$this->fileScanner = ( new FileScanner() )
 				->setMod( $this->getMod() )
 				->setScanActionVO( $this->getScanActionVO() );
 		}
-		return $this->oFileScanner;
+		return $this->fileScanner;
 	}
 }

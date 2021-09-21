@@ -11,7 +11,7 @@ class BotEventListener extends ExecOnceModConsumer {
 		$events = $this->getEventsToColumn();
 
 		foreach ( $events as $eventTrigger => $column ) {
-			if ( $eventTrigger === $event || preg_match( sprintf( '#^%s$#', $eventTrigger ), $event ) ) {
+			if ( $eventTrigger === $event ) {
 				try {
 					( new BotSignalsRecord() )
 						->setMod( $this->getMod() )
@@ -62,11 +62,11 @@ class BotEventListener extends ExecOnceModConsumer {
 				'spam_block_human'        => 'humanspam',
 				'comment_markspam'        => 'markspam',
 				'comment_unmarkspam'      => 'unmarkspam',
-				'blockparam_.*'           => 'firewall',
+				'firewall_block'          => 'firewall',
 				'ip_offense'              => 'offense',
 				'ip_blocked'              => 'blocked',
 				'ip_unblock'              => 'unblocked',
-				'ip_bypass'               => 'bypass',
+				'ip_bypass_add'           => 'bypass',
 				'login_success'           => 'auth',
 			]
 		);

@@ -17,24 +17,24 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem|null
 	 */
 	public function scan( string $fullPath ) {
-		$oResult = null;
+		$results = null;
 		$oHashes = Services::CoreFileHashes();
 
-		/** @var ResultItem $oRes */
-		$oRes = $this->getScanActionVO()->getNewResultItem();
-		$oRes->path_full = $fullPath;
-		$oRes->path_fragment = $oHashes->getFileFragment( $fullPath );
-		$oRes->md5_file_wp = $oHashes->getFileHash( $oRes->path_fragment );
-		$oRes->is_missing = !Services::WpFs()->exists( $oRes->path_full );
-		$oRes->is_checksumfail = !$oRes->is_missing && $this->isChecksumFail( $oRes );
-		$oRes->is_excluded = $this->isExcluded( $oRes->path_fragment )
-							 || ( $oRes->is_missing && $this->isExcludedMissing( $oRes->path_fragment ) );
+		/** @var ResultItem $item */
+		$item = $this->getScanActionVO()->getNewResultItem();
+		$item->path_full = $fullPath;
+		$item->path_fragment = $oHashes->getFileFragment( $fullPath );
+		$item->md5_file_wp = $oHashes->getFileHash( $item->path_fragment );
+		$item->is_missing = !Services::WpFs()->exists( $item->path_full );
+		$item->is_checksumfail = !$item->is_missing && $this->isChecksumFail( $item );
+		$item->is_excluded = $this->isExcluded( $item->path_fragment )
+							 || ( $item->is_missing && $this->isExcludedMissing( $item->path_fragment ) );
 
-		if ( !$oRes->is_excluded && ( $oRes->is_missing || $oRes->is_checksumfail ) ) {
-			$oResult = $oRes;
+		if ( !$item->is_excluded && ( $item->is_missing || $item->is_checksumfail ) ) {
+			$results = $item;
 		}
 
-		return $oResult;
+		return $results;
 	}
 
 	/**

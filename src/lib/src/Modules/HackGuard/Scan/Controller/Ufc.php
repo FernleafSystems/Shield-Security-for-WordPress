@@ -17,6 +17,10 @@ class Ufc extends Base {
 		return new Scans\Ufc\Utilities\ItemActionHandler();
 	}
 
+	public function canCronAutoDelete() :bool {
+		return $this->isCronAutoRepair();
+	}
+
 	/**
 	 * @param Scans\Mal\ResultItem $item
 	 * @return bool
@@ -26,9 +30,9 @@ class Ufc extends Base {
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isUfsDeleteFiles();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isUfsDeleteFiles();
 	}
 
 	public function isEnabled() :bool {

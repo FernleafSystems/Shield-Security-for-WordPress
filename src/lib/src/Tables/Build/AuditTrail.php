@@ -86,24 +86,11 @@ class AuditTrail extends BaseBuild {
 
 		$srvIP = Services::IP();
 		$you = $srvIP->getRequestIp();
-		$con = $this->getCon();
-		foreach ( $this->getEntriesRaw() as $key => $entry ) {
+		foreach ( $this->getEntriesRaw() as $entry ) {
 			/** @var Shield\Databases\AuditTrail\EntryVO $entry */
 
-			$msg = 'Audit message could not be retrieved';
 			if ( empty( $entry->message ) ) {
-				/**
-				 * To cater for the contexts that don't refer to a module, but rather a context
-				 * with the Audit Trail module
-				 */
-				$mod = $con->getModule( $entry->context );
-				if ( empty( $mod ) ) {
-					$mod = $con->getModule_AuditTrail();
-				}
-
-				$msg = Shield\Modules\AuditTrail\Lib\AuditMessageBuilder::Build(
-					$entry, $mod->getStrings()->getAuditMessage( $entry->event )
-				);
+				$msg = Shield\Modules\AuditTrail\Lib\AuditMessageBuilder::Build( $entry->event, $entry->meta );
 			}
 			else {
 				$msg = $entry->message;

@@ -9,19 +9,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property ResultItem[] $items
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
-class ResultsSet extends Base\BaseResultsSet {
+class ResultsSet extends Base\ResultsSet {
 
 	/**
-	 * @param ResultItem[] $aItems
+	 * @param ResultItem[] $items
 	 * @return string[]
 	 */
-	public function filterItemsForPaths( $aItems ) {
+	public function filterItemsForPaths( $items ) {
 		return array_map(
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->path_fragment;
+			function ( $item ) {
+				return $item->path_fragment;
 			},
-			$aItems
+			$items
 		);
 	}
 

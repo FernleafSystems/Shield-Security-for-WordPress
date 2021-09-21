@@ -20,10 +20,24 @@ class ScheduleBuildAll extends BaseBulk {
 					->setAsset( $asset )
 					->run();
 
-				if ( $this->getCon()->isPremiumActive() && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
-					( new SubmitHashes() )
-						->setMod( $this->getMod() )
-						->run( $asset );
+				$store = ( new Load() )
+					->setMod( $this->getMod() )
+					->setAsset( $asset )
+					->run();
+
+				if ( $this->getCon()->isPremiumActive()
+					 && $store->verify()
+					 && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
+
+					$meta = $store->getSnapMeta();
+					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
+						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
+						if ( $store->setSnapMeta( $meta )->saveMeta() ) {
+//							( new SubmitHashes() )
+//								->setMod( $this->getMod() )
+//								->run( $asset );
+						}
+					}
 				}
 			}
 			catch ( \Exception $e ) {
@@ -33,7 +47,7 @@ class ScheduleBuildAll extends BaseBulk {
 	}
 
 	public function hookBuild() {
-		if ( wp_next_scheduled( $this->getCronHook() ) !== false ) {
+		if ( is_main_network() && wp_next_scheduled( $this->getCronHook() ) !== false ) {
 			add_action( $this->getCronHook(), [ $this, 'build' ] );
 		}
 	}

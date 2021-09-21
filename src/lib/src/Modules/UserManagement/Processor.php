@@ -163,11 +163,7 @@ class Processor extends BaseShield\Processor {
 		return $aColumns;
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	private function sendAdminLoginEmailNotification( $oUser ) {
+	private function sendAdminLoginEmailNotification( \WP_User $user ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
@@ -188,80 +184,69 @@ class Processor extends BaseShield\Processor {
 		}
 		$sHumanName = ucwords( str_replace( '_', ' ', $sRoleToCheck ) ).'+';
 
-		$bIsUserSignificantEnough = false;
+		$isUserSignificantEnough = false;
 		foreach ( $aUserCapToRolesMap as $sRole => $sCap ) {
-			if ( isset( $oUser->allcaps[ $sCap ] ) && $oUser->allcaps[ $sCap ] ) {
-				$bIsUserSignificantEnough = true;
+			if ( isset( $user->allcaps[ $sCap ] ) && $user->allcaps[ $sCap ] ) {
+				$isUserSignificantEnough = true;
 			}
 			if ( $sRoleToCheck == $sRole ) {
 				break; // we've hit our role limit.
 			}
 		}
-		if ( !$bIsUserSignificantEnough ) {
-			return false;
+		if ( $isUserSignificantEnough ) {
+
+			$sHomeUrl = Services::WpGeneral()->getHomeUrl();
+
+			$emailer = $this->getMod()
+							->getEmailProcessor();
+			foreach ( $mod->getAdminLoginNotificationEmails() as $to ) {
+				$emailer->sendEmailWithWrap(
+					$to,
+					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
+					[
+						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
+							$con->getHumanName(),
+							$sHumanName
+						),
+						'',
+						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
+						'',
+						__( 'Details for this user are below:', 'wp-simple-firewall' ),
+						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $sHomeUrl ),
+						'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+						'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
+						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
+																								  ->getRequestIp() ),
+						'',
+						__( 'Thanks.', 'wp-simple-firewall' )
+					]
+				);
+			}
 		}
-
-		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
-
-		$aMessage = [
-			sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
-				$con->getHumanName(),
-				$sHumanName
-			),
-			'',
-			sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
-			'',
-			__( 'Details for this user are below:', 'wp-simple-firewall' ),
-			'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $sHomeUrl ),
-			'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $oUser->user_email ),
-			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
-			'',
-			__( 'Thanks.', 'wp-simple-firewall' )
-		];
-
-		$oEmailer = $this->getMod()
-						 ->getEmailProcessor();
-		foreach ( $mod->getAdminLoginNotificationEmails() as $to ) {
-			$oEmailer->sendEmailWithWrap(
-				$to,
-				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
-				$aMessage
-			);
-		}
-
-		return true;
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	private function sendUserLoginEmailNotification( $oUser ) {
-		$oWp = Services::WpGeneral();
-		$aMessage = [
-			sprintf( __( '%s is notifying you of a successful login to your WordPress account.', 'wp-simple-firewall' ), $this->getCon()
-																															  ->getHumanName() ),
-			'',
-			__( 'Details for this login are below:', 'wp-simple-firewall' ),
-			'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $oWp->getHomeUrl() ),
-			'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
-			'- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
-			'',
-			__( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),
-			'',
-			__( 'Thanks.', 'wp-simple-firewall' )
-		];
-
-		return $this
-			->getMod()
-			->getEmailProcessor()
-			->sendEmailWithWrap(
-				$oUser->user_email,
-				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-				$aMessage
-			);
+	private function sendUserLoginEmailNotification( \WP_User $user ) {
+		$WP = Services::WpGeneral();
+		$this->getMod()
+			 ->getEmailProcessor()
+			 ->sendEmailWithWrap(
+				 $user->user_email,
+				 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
+				 [
+					 sprintf( __( '%s is notifying you of a successful login to your WordPress account.', 'wp-simple-firewall' ), $this->getCon()
+																																	   ->getHumanName() ),
+					 '',
+					 __( 'Details for this login are below:', 'wp-simple-firewall' ),
+					 '- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $WP->getHomeUrl() ),
+					 '- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+					 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
+					 '- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
+					 '',
+					 __( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),
+					 '',
+					 __( 'Thanks.', 'wp-simple-firewall' )
+				 ]
+			 );
 	}
 
 	public function runDailyCron() {

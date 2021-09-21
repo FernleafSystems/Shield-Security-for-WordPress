@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
@@ -13,6 +15,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -80,10 +84,9 @@ class BuildDisplay {
 			->lookup( true );
 
 		$geo = ( new Lookup() )
-			->setDbHandler( $con->getModule_Plugin()->getDbHandler_GeoIp() )
+			->setCon( $con )
 			->setIP( $ip )
 			->lookupIp();
-		$validGeo = $geo instanceof Databases\GeoIp\EntryVO;
 
 		$sRDNS = gethostbyaddr( $ip );
 
@@ -177,9 +180,9 @@ class BuildDisplay {
 					'ip'       => $ip,
 					'status'   => [
 						'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'               => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->transgressions : 0,
-						'is_blocked'             => $blockIP instanceof Databases\IPs\EntryVO ? $blockIP->blocked_at > 0 : false,
-						'is_bypass'              => $bypassIP instanceof Databases\IPs\EntryVO,
+						'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
+						'is_blocked'             => !empty( $blockIP ) ? $blockIP->blocked_at > 0 : false,
+						'is_bypass'              => !empty( $bypassIP ),
 						'ip_reputation_score'    => $botScore,
 						'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
 						'is_bot'                 => $isBot,
@@ -187,19 +190,19 @@ class BuildDisplay {
 					'identity' => [
 						'who_is_it'    => $ipName,
 						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
-						'country_name' => $validGeo ? $geo->getCountryName() : __( 'Unknown', 'wp-simple-firewall' ),
-						'timezone'     => $validGeo ? $geo->getTimezone() : __( 'Unknown', 'wp-simple-firewall' ),
-						'coordinates'  => $validGeo ? sprintf( '%s: %s; %s: %s;',
-							__( 'Latitude', 'wp-simple-firewall' ), $geo->getLatitude(),
-							__( 'Longitude', 'wp-simple-firewall' ), $geo->getLongitude() )
-							: 'Unknown'
+						'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
+						'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
+						'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
+							__( 'Latitude', 'wp-simple-firewall' ), $geo->latitude,
+							__( 'Longitude', 'wp-simple-firewall' ), $geo->longitude )
+							: __( 'Unknown', 'wp-simple-firewall' )
 					],
 					'extras'   => [
 						'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),
 					],
 				],
 				'flags'   => [
-					'has_geo' => $validGeo,
+					'has_geo' => !empty( $geo->getRawData() ),
 				],
 			],
 			true
@@ -245,23 +248,43 @@ class BuildDisplay {
 	}
 
 	private function renderForTraffic() :string {
-		/** @var Databases\Traffic\Select $sel */
-		$sel = $this->getCon()
-					->getModule_Traffic()
-					->getDbHandler_Traffic()
-					->getQuerySelector();
-		/** @var Databases\Traffic\EntryVO[] $requests */
-		$requests = $sel->filterByIp( inet_pton( $this->getIP() ) )
-						->query();
+		try {
+			$ip = ( new IPRecords() )
+				->setMod( $this->getCon()->getModule_Data() )
+				->loadIP( $this->getIP(), false );
+			/** @var ReqLogs\Ops\Select $selector */
+			$selector = $this->getCon()
+							 ->getModule_Data()
+							 ->getDbH_ReqLogs()
+							 ->getQuerySelector();
+			/** @var ReqLogs\Ops\Record[] $requests */
+			$requests = $selector->filterByIP( $ip->id )->queryWithResult();
+		}
+		catch ( \Exception $e ) {
+			$requests = [];
+		}
 
-		foreach ( $requests as $key => $request ) {
-			$asArray = $request->getRawData();
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$request->created_at );
-			if ( strpos( $request->path, '?' ) === false ) {
-				$request->path .= '?';
+		foreach ( $requests as $key => $req ) {
+			$asArray = $req->getRawData();
+			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$req->created_at );
+
+			$asArray = array_merge(
+				[
+					'path'    => '',
+					'code'    => '-',
+					'verb'    => '-',
+					'query'   => '',
+					'offense' => false,
+				],
+				$asArray,
+				$req->meta
+			);
+			if ( strpos( $asArray[ 'path' ], '?' ) === false ) {
+				$asArray[ 'path' ] .= '?';
 			}
-			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $request->path, 2 ) );
-			$asArray[ 'trans' ] = (bool)$asArray[ 'trans' ];
+
+			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $asArray[ 'path' ], 2 ) );
+			$asArray[ 'trans' ] = (bool)$asArray[ 'offense' ];
 			$requests[ $key ] = $asArray;
 		}
 
@@ -362,28 +385,26 @@ class BuildDisplay {
 	}
 
 	private function renderForAuditTrail() :string {
-		$con = $this->getCon();
-		/** @var Databases\AuditTrail\Select $sel */
-		$sel = $con->getModule_AuditTrail()
-				   ->getDbHandler_AuditTrail()
-				   ->getQuerySelector();
-		/** @var Databases\AuditTrail\EntryVO[] $logs */
-		$logs = $sel->filterByIp( $this->getIP() )
-					->query();
+		// TODO: IP Filtering at the SQL query level
+		$logRecords = ( new LoadLogs() )
+			->setMod( $this->getCon()->getModule_AuditTrail() )
+			->setIP( $this->getIP() )
+			->run();
 
-		foreach ( $logs as $key => $entry ) {
-			$asArray = $entry->getRawData();
+		$logs = [];
+		$srvEvents = $this->getCon()->loadEventsService();
+		foreach ( $logRecords as $key => $record ) {
+			if ( $srvEvents->eventExists( $record->event_slug ) ) {
+				$asArray = $record->getRawData();
 
-			$module = $con->getModule( $entry->context );
-			if ( empty( $module ) ) {
-				$module = $con->getModule_AuditTrail();
+				$asArray[ 'event' ] = implode( ' ', AuditMessageBuilder::BuildFromLogRecord( $record ) );
+				$asArray[ 'created_at' ] = $this->formatTimestampField( $record->created_at );
+
+				$user = empty( $record->meta_data[ 'uid' ] ) ? null
+					: Services::WpUsers()->getUserById( $record->meta_data[ 'uid' ] );
+				$asArray[ 'user' ] = empty( $user ) ? '-' : $user->user_login;
+				$logs[ $key ] = $asArray;
 			}
-			$strings = $module->getStrings();
-
-			$asArray[ 'event' ] = AuditMessageBuilder::Build( $entry, $strings->getAuditMessage( $entry->event ) );
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$entry->created_at );
-
-			$logs[ $key ] = $asArray;
 		}
 
 		return $this->getMod()->renderTemplate(

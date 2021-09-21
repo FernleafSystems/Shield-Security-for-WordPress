@@ -22,21 +22,21 @@ class WpCoreFile {
 	protected $sVersion;
 
 	/**
-	 * @param string $sPath
+	 * @param string $path
 	 * @return bool
 	 */
-	public function replace( $sPath ) {
-		$bSuccess = false;
-		if ( Services::CoreFileHashes()->isCoreFile( $sPath ) ) {
+	public function replace( $path ) :bool {
+		$success = false;
+		if ( Services::CoreFileHashes()->isCoreFile( $path ) ) {
 			$oFiles = Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 			try {
-				$oFiles->replaceFileFromVcs( $sPath );
-				$bSuccess = true;
+				$oFiles->replaceFileFromVcs( $path );
+				$success = true;
 			}
 			catch ( \InvalidArgumentException $e ) {
 			}
 		}
-		return $bSuccess;
+		return $success;
 	}
 
 	/**

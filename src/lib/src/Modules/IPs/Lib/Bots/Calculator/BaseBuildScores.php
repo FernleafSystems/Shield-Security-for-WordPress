@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVoConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\BotSignals\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 abstract class BaseBuildScores {
 
-	use EntryVoConsumer;
+	use RecordConsumer;
 	use ModConsumer;
 
 	abstract public function build() :array;
@@ -37,15 +36,16 @@ abstract class BaseBuildScores {
 	}
 
 	protected function getAllFields( $filterForMethods = false ) :array {
-		$botSignalDBH = shield_security_get_plugin()->getController()
-													->getModule_IPs()
-													->getDbHandler_BotSignals();
 		$fields = array_map(
 			function ( $col ) {
 				return str_replace( '_at', '', $col );
 			},
 			array_filter(
-				$botSignalDBH->getTableSchema()->getColumnNames(),
+				$this->getCon()
+					 ->getModule_IPs()
+					 ->getDbH_BotSignal()
+					 ->getTableSchema()
+					 ->getColumnNames(),
 				function ( $col ) {
 					return preg_match( '#_at$#', $col ) &&
 						   !in_array( $col, [ 'snsent_at', 'updated_at', 'deleted_at' ] );
@@ -60,9 +60,5 @@ abstract class BaseBuildScores {
 		}
 
 		return $fields;
-	}
-
-	protected function getRecord() :EntryVO {
-		return $this->getEntryVO();
 	}
 }

@@ -42,10 +42,10 @@ abstract class BaseProtectionProvider {
 	}
 
 	/**
-	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $oForm
+	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $form
 	 * @throws \Exception
 	 */
-	abstract public function performCheck( $oForm );
+	abstract public function performCheck( $form );
 
 	/**
 	 * @param bool $tested

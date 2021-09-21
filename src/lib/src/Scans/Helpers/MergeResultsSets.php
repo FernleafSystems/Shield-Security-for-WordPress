@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 
 /**
  * Class MergeResultsSets
@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 class MergeResultsSets {
 
 	/**
-	 * @param BaseResultsSet $oRs1
-	 * @param BaseResultsSet $oRs2
-	 * @return BaseResultsSet
+	 * @param ResultsSet $oRs1
+	 * @param ResultsSet $oRs2
+	 * @return ResultsSet
 	 */
 	public function merge( $oRs1, $oRs2 ) {
 		$oNewRs = clone $oRs1;

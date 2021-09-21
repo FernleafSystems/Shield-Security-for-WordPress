@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Resources\Dynamic;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Urls {
@@ -24,14 +23,7 @@ class Urls {
 	public function forJs( string $asset ) :string {
 		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
 		if ( empty( $url ) ) {
-			if ( $this->isAssetDynamic( $asset, 'js' ) ) {
-				$url = ( new Dynamic() )
-					->setCon( $this->getCon() )
-					->getResourceUrl( Services::Data()->addExtensionToFilePath( $asset, 'js' ) );
-			}
-			else {
-				$url = $this->forAsset( 'js/'.Services::Data()->addExtensionToFilePath( $asset, 'js' ) );
-			}
+			$url = $this->forAsset( 'js/'.Services::Data()->addExtensionToFilePath( $asset, 'js' ) );
 		}
 		return $url;
 	}
@@ -48,16 +40,6 @@ class Urls {
 	public function forPluginItem( string $path = '' ) :string {
 		$con = $this->getCon();
 		return add_query_arg( [ 'ver' => $con->getVersion() ], plugins_url( $path, $con->getRootFile() ) );
-	}
-
-	/**
-	 * @param string $asset
-	 * @param string $type
-	 * @return mixed|null
-	 */
-	protected function isAssetDynamic( string $asset, string $type ) :bool {
-		$asset = $this->lookupAssetInSpec( $asset, $type );
-		return !empty( $asset[ 'dynamic' ] );
 	}
 
 	/**

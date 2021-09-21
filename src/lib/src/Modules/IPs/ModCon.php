@@ -43,8 +43,12 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oBlacklistHandler;
 	}
 
-	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
-		return $this->getDbH( 'botsignals' );
+	protected function doPostConstruction() {
+		$this->getDbH_BotSignal();
+	}
+
+	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
@@ -88,6 +92,30 @@ class ModCon extends BaseShield\ModCon {
 		$this->cleanPathWhitelist();
 	}
 
+	private function cleanPathWhitelist() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$specialPaths = array_map(
+			function ( $url ) {
+				return (string)parse_url( $url, PHP_URL_PATH );
+			},
+			[
+				Services::WpGeneral()->getHomeUrl(),
+				Services::WpGeneral()->getWpUrl(),
+			]
+		);
+
+		$values = $opts->getOpt( 'request_whitelist', [] );
+		$opts->setOpt( 'request_whitelist',
+			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
+				is_array( $values ) ? $values : [],
+				$specialPaths,
+				Shield\Modules\Base\Options\WildCardOptions::URL_PATH
+			)
+		);
+	}
+
 	public function canLinkCheese() :bool {
 		$FS = Services::WpFs();
 		$WP = Services::WpGeneral();
@@ -95,32 +123,6 @@ class ModCon extends BaseShield\ModCon {
 				   !== trim( (string)parse_url( $WP->getWpUrl(), PHP_URL_PATH ), '/' );
 		return !$FS->exists( path_join( ABSPATH, 'robots.txt' ) )
 			   && ( !$isSplit || !$FS->exists( path_join( dirname( ABSPATH ), 'robots.txt' ) ) );
-	}
-
-	private function cleanPathWhitelist() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$opts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
-			function ( $rule ) {
-				$rule = strtolower( trim( $rule ) );
-				if ( !empty( $rule ) ) {
-					$toCheck = array_unique( [
-						(string)parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ),
-						(string)parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ),
-					] );
-					$regEx = sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $rule ), '#' ) ) );
-					foreach ( $toCheck as $path ) {
-						$slashPath = rtrim( $path, '/' ).'/';
-						if ( preg_match( $regEx, $path ) || preg_match( $regEx, $slashPath ) ) {
-							$rule = false;
-							break;
-						}
-					}
-				}
-				return $rule;
-			},
-			$opts->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
-		) ) ) );
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {
@@ -155,5 +157,22 @@ class ModCon extends BaseShield\ModCon {
 				break;
 		}
 		return $text;
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	protected function cleanupDatabases() {
+		$dbhIPs = $this->getDbHandler_IPs();
+		if ( $dbhIPs->isReady() ) {
+			$dbhIPs->autoCleanDb();
+		}
+	}
+
+	/**
+	 * @deprecated 12.0
+	 */
+	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
+		return $this->getDbH( 'botsignals' );
 	}
 }
