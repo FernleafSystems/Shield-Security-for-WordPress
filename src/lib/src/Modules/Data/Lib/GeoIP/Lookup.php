@@ -1,10 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\{
+	DB\IPs\IPGeoVO,
+	DB\IPs\IPRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
