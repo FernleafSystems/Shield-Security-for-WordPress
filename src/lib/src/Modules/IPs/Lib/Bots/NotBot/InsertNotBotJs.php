@@ -28,6 +28,7 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			!empty( array_intersect(
 				array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
 				[
+					'breeze.php',
 					'wpFastestCache.php',
 					'wp-cache.php', // Super Cache
 					'wp-hummingbird.php',
