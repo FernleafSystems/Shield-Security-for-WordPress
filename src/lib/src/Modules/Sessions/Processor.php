@@ -94,11 +94,4 @@ class Processor extends BaseShield\Processor {
 	protected function getHookPriority() :int {
 		return 100;
 	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function onModuleShutdown() {
-		parent::onModuleShutdown();
-	}
 }

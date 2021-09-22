@@ -429,19 +429,7 @@ class Options {
 	}
 
 	public function getOptDefinition( string $key ) :array {
-		$def = $this->getRawData_AllOptions()[ $key ] ?? [];
-		if ( empty( $def ) ) {
-			/**
-			 * @deprecated 12.0 - this is the fallback before we switched to using keys
-			 */
-			foreach ( $this->getRawData_AllOptions() as $option ) {
-				if ( $option[ 'key' ] == $key ) {
-					$def = $option;
-					break;
-				}
-			}
-		}
-		return $def;
+		return $this->getRawData_AllOptions()[ $key ] ?? [];
 	}
 
 	/**
@@ -759,32 +747,11 @@ class Options {
 		return $this->cfgLoader;
 	}
 
-	/**
-	 * @deprecated 12.0
-	 */
-	private function loadOptionsValuesFromStorage() :array {
-		return $this->getOptsStorage()->loadOptions();
-	}
-
 	private function getOptsStorage() :Options\Storage {
 		if ( empty( $this->optsStorage ) ) {
 			$this->optsStorage = ( new Options\Storage() )->setMod( $this->getMod() );
 		}
 		return $this->optsStorage;
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 12.0
-	 */
-	private function readConfiguration() :array {
-		try {
-			$cfg = $this->getConfigLoader()->run();
-		}
-		catch ( \Exception $e ) {
-			$cfg = [];
-		}
-		return $cfg;
 	}
 
 	/**
@@ -794,126 +761,6 @@ class Options {
 	public function setOptionsValues( array $values = [] ) {
 		$this->aOptionsValues = $values;
 		$this->setNeedSave( true );
-		return $this;
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getStoredOptions() :array {
-		try {
-			return $this->loadOptionsValuesFromStorage();
-		}
-		catch ( \Exception $e ) {
-			return [];
-		}
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getConfigStorageKey() :string {
-		return '';
-	}
-
-	/**
-	 * @return string
-	 * @throws \Exception
-	 * @deprecated 12.0
-	 */
-	private function readConfigurationFileContents() {
-		return '';
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	private function getConfigFileExists() :bool {
-		return true;
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	protected function getConfigModTime() :int {
-		return 0;
-	}
-
-	/**
-	 * @return array
-	 * @throws \Exception
-	 * @deprecated 12.0
-	 */
-	private function readConfigurationJson() :array {
-		throw new \Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getSlug() ) );
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getPathToConfig() :string {
-		return '';
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getRawData_SingleOption( string $key ) :array {
-		return $this->getOptDefinition( $key );
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getOptionsStorageKey() :string {
-		return $this->getMod()->getOptionsStorageKey();
-	}
-
-	/**
-	 * @param bool $bLoadFromSaved
-	 * @return $this
-	 * @deprecated 12.0
-	 */
-	public function setIfLoadOptionsFromStorage( bool $bLoadFromSaved ) :self {
-		return $this;
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getIfLoadOptionsFromStorage() {
-		return true;
-	}
-
-	/**
-	 * @param string $key
-	 * @return $this
-	 * @deprecated 12.0
-	 */
-	public function setOptionsStorageKey( string $key ) :self {
-		return $this;
-	}
-
-	/**
-	 * @param string $sPathToConfig
-	 * @return $this
-	 * @deprecated 12.0
-	 */
-	public function setPathToConfig( $sPathToConfig ) {
-		return $this;
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getRebuildFromFile() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function setRebuildFromFile( $bRebuild ) {
 		return $this;
 	}
 }

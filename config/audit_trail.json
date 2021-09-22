@@ -191,21 +191,14 @@
       "name":          "File Logging Level",
       "summary":       "Logging Level For File-Based Logs",
       "description":   "Logging Level For File-Based Logs"
-    },
-    {
-      "key":          "legacy_db_deleted_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      ""
     }
   ],
   "definitions":      {
-    "db_handler_classes":     {
+    "db_handler_classes": {
       "at_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
       "at_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler"
     },
-    "db_table_at_logs":       {
+    "db_table_at_logs":   {
       "slug":           "at_logs",
       "has_updated_at": true,
       "has_created_at": true,
@@ -228,7 +221,7 @@
         }
       }
     },
-    "db_table_at_meta":       {
+    "db_table_at_meta":   {
       "slug":           "at_meta",
       "has_updated_at": false,
       "has_created_at": false,
@@ -252,26 +245,8 @@
         }
       }
     },
-    "db_classes":             {
-      "audit_trail": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
-    },
-    "db_table_audit_trail":   {
-      "slug":           "audit_trail",
-      "has_updated_at": true,
-      "cols_custom":    {
-        "rid":         "varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID'",
-        "ip":          "varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address'",
-        "wp_username": "varchar(255) NOT NULL DEFAULT '-' COMMENT 'WP User'",
-        "context":     "varchar(32) NOT NULL DEFAULT 'none' COMMENT 'Audit Context'",
-        "event":       "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event'",
-        "category":    "int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity'",
-        "meta":        "text COMMENT 'Audit Event Data'",
-        "count":       "SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count'"
-      }
-    },
-    "max_free_days":          7,
-    "audit_trail_table_name": "audit_trail",
-    "events":                 {
+    "max_free_days":      7,
+    "events":             {
       "plugin_activated":        {
         "audit_params":   [
           "plugin"

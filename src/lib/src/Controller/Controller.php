@@ -51,11 +51,6 @@ class Controller extends DynPropertiesClass {
 	/**
 	 * @var string
 	 */
-	protected static $sRequestId;
-
-	/**
-	 * @var string
-	 */
 	protected $sAdminNoticeError = '';
 
 	/**
@@ -952,13 +947,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getPath_ConfigFile( string $slug ) :string {
-		return $this->paths->forModuleConfig( $slug );
-	}
-
 	public function getPath_Languages() :string {
 		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
 	}
@@ -1087,30 +1075,6 @@ class Controller extends DynPropertiesClass {
 			}
 		}
 		return self::$sSessionId;
-	}
-
-	/**
-	 * @param bool $setIfNeeded
-	 * @return string
-	 * @deprecated 12.0
-	 */
-	public function getUniqueRequestId( bool $setIfNeeded = false ) :string {
-		if ( !isset( self::$sRequestId ) ) {
-			self::$sRequestId = md5(
-				$this->getSessionId( $setIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
-			);
-		}
-		return self::$sRequestId;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 12
-	 */
-	public function getShortRequestId() :string {
-		$req = Services::Request();
-		/** @deprecated 12.0 */
-		return substr( method_exists( $req, 'getID' ) ? $req->getID() : $this->getUniqueRequestId(), 0, 10 );
 	}
 
 	public function hasSessionId() :bool {

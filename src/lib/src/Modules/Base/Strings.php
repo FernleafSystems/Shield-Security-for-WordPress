@@ -148,15 +148,6 @@ class Strings {
 	}
 
 	/**
-	 * @param string $key
-	 * @return string[]
-	 * @deprecated 12.0
-	 */
-	public function getAuditMessage( string $key ) :array {
-		return [];
-	}
-
-	/**
 	 * @return string[][]|string[]
 	 */
 	protected function getAuditMessages() :array {

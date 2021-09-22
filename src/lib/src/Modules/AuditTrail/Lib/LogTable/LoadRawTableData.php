@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops\ConvertLegacy;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,13 +16,6 @@ class LoadRawTableData extends BaseLoadTableData {
 	private $log;
 
 	public function loadForLogs() :array {
-		( new Traffic\Lib\Ops\ConvertLegacy() )
-			->setMod( $this->getCon()->getModule_Traffic() )
-			->run();
-		( new ConvertLegacy() )
-			->setMod( $this->getMod() )
-			->run();
-
 		$srvEvents = $this->getCon()->loadEventsService();
 		return array_values( array_map(
 			function ( $log ) use ( $srvEvents ) {
