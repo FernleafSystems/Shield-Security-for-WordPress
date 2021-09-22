@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 
