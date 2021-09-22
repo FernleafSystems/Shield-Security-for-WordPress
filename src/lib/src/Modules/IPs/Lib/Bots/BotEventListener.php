@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotEventListener extends ExecOnceModConsumer {
@@ -19,14 +20,20 @@ class BotEventListener extends ExecOnceModConsumer {
 						->updateSignalField( $column );
 				}
 				catch ( \LogicException $e ) {
-					error_log( 'Error updating bot signal: '.$e->getMessage() );
+					error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
+				}
+				catch ( \Exception $e ) {
+//					error_log( 'Error updating bot signal: '.$e->getMessage() );
 				}
 			}
 		}
 	}
 
 	protected function canRun() :bool {
-		return !$this->getMod()->isTrustedVerifiedBot();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return !$mod->isTrustedVerifiedBot()
+			   && $mod->getDbH_BotSignal()->isReady();
 	}
 
 	protected function run() {
