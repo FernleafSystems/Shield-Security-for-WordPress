@@ -40,7 +40,7 @@ class Limiter extends ExecOnceModConsumer {
 			);
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+//			error_log( $e->getMessage() );
 		}
 	}
 }

@@ -29,7 +29,7 @@ class IPRecords {
 			}
 
 			if ( empty( $record ) ) {
-				throw new \Exception( 'IP Record unavailable' );
+				throw new \Exception( 'IP Record unavailable: '.$ip );
 			}
 
 			self::$ips[ $ip ] = $record;
