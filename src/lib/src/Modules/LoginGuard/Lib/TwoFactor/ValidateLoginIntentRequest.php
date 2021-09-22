@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ValidateLoginIntentRequest {
@@ -16,48 +15,49 @@ class ValidateLoginIntentRequest {
 	 * @throws \Exception
 	 */
 	public function run() :bool {
-		$oMfaCon = $this->getMfaCon();
+		$mfaCon = $this->getMfaCon();
 		/** @var LoginGuard\Options $opts */
-		$opts = $oMfaCon->getOptions();
+		$opts = $mfaCon->getOptions();
 
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( !$user instanceof \WP_User ) {
 			throw new \Exception( 'No user logged-in.' );
 		}
-		$providers = $oMfaCon->getProvidersForUser( $user, true );
+
+		$providers = $mfaCon->getProvidersForUser( $user, true );
 		if ( empty( $providers ) ) {
 			throw new \Exception( 'No valid providers' );
 		}
 
-		$aSuccessfulProviders = [];
-
-		$validated = false;
-		{ // Backup code is special case
-			if ( isset( $providers[ Provider\BackupCodes::SLUG ] ) ) {
-				if ( $providers[ Provider\BackupCodes::SLUG ]->validateLoginIntent( $user ) ) {
-					$validated = true;
-					$aSuccessfulProviders[] = $providers[ Provider\BackupCodes::SLUG ];
-				}
-				unset( $providers[ Provider\BackupCodes::SLUG ] );
+		$providerStates = [];
+		$successfulProviders = [];
+		foreach ( $providers as $slug => $provider ) {
+			$providerStates[ $slug ] = $provider->validateLoginIntent( $user );
+			if ( $providerStates[ $slug ] ) {
+				$successfulProviders[ $slug ] = $provider;
 			}
 		}
 
-		if ( !$validated ) {
-			$aStates = [];
-			foreach ( $providers as $sSlug => $provider ) {
-				$aStates[ $sSlug ] = $provider->validateLoginIntent( $user );
-				if ( $aStates[ $sSlug ] ) {
-					$aSuccessfulProviders[] = $provider;
-				}
-			}
+		$validated = false;
 
-			$nSuccessful = count( array_filter( $aStates ) );
-			$validated = $opts->isChainedAuth() ? $nSuccessful == count( $providers ) : $nSuccessful > 0;
+		foreach ( $providers as $slug => $provider ) {
+			if ( $provider::BYPASS_MFA ) {
+				if ( $providerStates[ $slug ] ) {
+					$validated = true;
+				}
+				unset( $providers[ $slug ] );
+				unset( $providerStates[ $slug ] );
+			}
+		}
+
+		if ( !$validated  ) {
+			$countSuccessful = count( array_filter( $providerStates ) );
+			$validated = $opts->isChainedAuth() ? $countSuccessful == count( $providers ) : $countSuccessful > 0;
 		}
 
 		if ( $validated ) {
 			// Some cleanup can only run if login is completely tested and completely valid.
-			foreach ( $aSuccessfulProviders as $provider ) {
+			foreach ( $successfulProviders as $provider ) {
 				$provider->postSuccessActions( $user );
 			}
 		}

@@ -10,9 +10,15 @@ abstract class BaseProvider {
 	use Modules\ModConsumer;
 
 	const SLUG = '';
+
+	/**
+	 * Set to true if this provider can be used to validate 2FA even if MFA is active.
+	 */
+	const BYPASS_MFA = false;
+
 	/**
 	 * Set to true if this provider can be used in isolation. False if there
-	 * must be at least 1 other 2FA provider active.
+	 * must be at least 1 other 2FA provider active alongside it.
 	 */
 	const STANDALONE = true;
 	/**
@@ -31,17 +37,15 @@ abstract class BaseProvider {
 
 	/**
 	 * Assumes this is only called on active profiles
-	 * @param \WP_User $user
-	 * @return bool
 	 */
-	public function validateLoginIntent( \WP_User $user ) {
-		$bOtpSuccess = false;
-		$sReqOtpCode = $this->fetchCodeFromRequest();
-		if ( !empty( $sReqOtpCode ) ) {
-			$bOtpSuccess = $this->processOtp( $user, $sReqOtpCode );
-			$this->postOtpProcessAction( $user, $bOtpSuccess );
+	public function validateLoginIntent( \WP_User $user ) :bool {
+		$otpSuccess = false;
+		$OTP = $this->fetchCodeFromRequest();
+		if ( !empty( $OTP ) ) {
+			$otpSuccess = $this->processOtp( $user, $OTP );
+			$this->postOtpProcessAction( $user, $otpSuccess );
 		}
-		return $bOtpSuccess;
+		return $otpSuccess;
 	}
 
 	/**
