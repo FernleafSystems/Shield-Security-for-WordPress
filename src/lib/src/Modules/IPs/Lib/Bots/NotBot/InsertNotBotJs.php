@@ -25,6 +25,8 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 	private function isForcedForOptimisationPlugins() :bool {
 		return (bool)apply_filters(
 			'shield/notbot_force_load',
+			$this->getOptions()->isOpt( 'force_notbot', 'Y' )
+			||
 			!empty( array_intersect(
 				array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
 				[

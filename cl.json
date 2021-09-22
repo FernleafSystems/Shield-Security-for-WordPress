@@ -97,6 +97,15 @@
       },
       {
         "type":        "changed",
+        "pro_only":    false,
+        "title":       "NotBot JS Is Always Loaded By Default",
+        "description": [
+          "Since many customers are using caching and optimisation plugins that interfere with NotBot JS, it is now loaded for all visitors by default.",
+          "An option within the plugin has been provided to revert to the normal optimised loading of the NotBot JS."
+        ]
+      },
+      {
+        "type":        "changed",
         "pro_only":    true,
         "title":       "U2F 2-Factor Authentication Bypasses MFA",
         "description": [
