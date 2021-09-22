@@ -1,10 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\{
+	DB\IPs\IPGeoVO,
+	DB\IPs\IPRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,6 +18,8 @@ class Lookup {
 	use IpAddressConsumer;
 
 	private $ips = [];
+
+	private $reqCount = 0;
 
 	public function lookupIp() :IPGeoVO {
 		$ip = $this->getIP();
@@ -35,6 +39,11 @@ class Lookup {
 
 			if ( is_null( $ipRecord->geo )
 				 || Services::Request()->carbon()->subMonth()->timestamp > @$ipRecord->geo[ 'ts' ] ) {
+
+				if ( $this->reqCount++ > 30 ) {
+					throw new \Exception( 'Lookup limit reached.' );
+				}
+
 				$ipRecord->geo = $this->redirectliIpLookup();
 				$this->getCon()
 					 ->getModule_Data()
@@ -54,6 +63,9 @@ class Lookup {
 		return $this->ips[ $ip ] = ( new IPGeoVO() )->applyFromArray( $geoData );
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function redirectliIpLookup() :array {
 		$data = @json_decode(
 			Services::HttpRequest()->getContent( self::URL_REDIRECTLI.$this->getIP() ), true

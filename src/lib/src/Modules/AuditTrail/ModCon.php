@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -25,7 +24,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 12.0
+	 * @deprecated 12.1
 	 */
 	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
 		return $this->getDbH( 'audit_trail' );
@@ -140,33 +139,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 12.0 (Shield Central?)
-	 */
-	public function getAllContexts() {
-		return [
-			'all'       => 'All', //special
-			'wpsf'      => $this->getCon()->getHumanName(),
-			'wordpress' => 'WordPress',
-			'users'     => 'Users',
-			'posts'     => 'Posts',
-			'plugins'   => 'Plugins',
-			'themes'    => 'Themes',
-			'emails'    => 'Emails',
-		];
-	}
-
-	/**
 	 * @inheritDoc
-	 * @deprecated 12.0
+	 * @deprecated 12.1
 	 */
 	public function getDbHandlers( $bInitAll = false ) {
 		return [];
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	protected function cleanupDatabases() {
 	}
 }

@@ -41,11 +41,4 @@ class Options extends BaseShield\Options {
 		return $this->isPremium() && $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getMaxEntries() :int {
-		return PHP_INT_MAX;
-	}
 }

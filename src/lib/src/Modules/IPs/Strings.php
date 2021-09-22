@@ -248,22 +248,22 @@ class Strings extends Base\Strings {
 	 */
 	public function getOptionStrings( string $key ) :array {
 
-		$sPlugName = $this->getCon()->getHumanName();
-		$sModName = $this->getMod()->getMainFeatureName();
+		$pluginName = $this->getCon()->getHumanName();
+		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_ips' :
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
 				break;
 
 			case 'transgression_limit' :
 				$name = __( 'Offense Limit', 'wp-simple-firewall' );
 				$summary = __( 'The number of permitted offenses before an IP address will be blocked', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( __( 'An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName ),
+					sprintf( __( 'An offense is registered against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $pluginName ),
 					__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' ),
 					sprintf( __( 'Set this to "0" to turn off the %s feature.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) )
 				];
@@ -317,6 +317,20 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( "Visitors that have accumulated a high IP reputation and AntiBot score should ideally never be blocked.", 'wp-simple-firewall' ),
 					__( "This option ensures that visitors with a high reputation never have their IP blocked by Shield.", 'wp-simple-firewall' ),
+				];
+				break;
+
+			case 'force_notbot' :
+				$name = __( 'Force NotBot JS', 'wp-simple-firewall' );
+				$summary = __( 'Force Loading Of NotBot JS', 'wp-simple-firewall' );
+				$desc = [
+					sprintf( __( '%s uses Javascript to help identify bots versus legitimate visitors.', 'wp-simple-firewall' ),
+						$pluginName )
+					.' '.__( "However, caching plugins often interfere, preventing it loading for your visitors.", 'wp-simple-firewall' ),
+					__( "This may cause some of your legitimate users to be identified as bots, when they're not.", 'wp-simple-firewall' ),
+					__( "Turn this option on if you're using an aggressive caching system, to ensure NotBot JS is loaded for all visitors.", 'wp-simple-firewall' ),
+					__( "When this option is disabled we'll automatically optimise loading of the Javascript so it's only loaded where it's required.", 'wp-simple-firewall' )
+					.' '.__( "You should test your site and keep a lookout for user login issues after disabling this option.", 'wp-simple-firewall' )
 				];
 				break;
 

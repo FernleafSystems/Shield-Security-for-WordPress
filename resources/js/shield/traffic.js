@@ -138,7 +138,7 @@
 							}
 						],
 						language: {
-							emptyTable: "There are no items to display, or they've been set to be ignored."
+							emptyTable: "There are no items to display."
 						}
 					}
 				) );

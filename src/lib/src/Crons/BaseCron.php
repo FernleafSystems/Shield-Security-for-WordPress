@@ -12,10 +12,7 @@ abstract class BaseCron {
 	use Shield\Crons\StandardCron;
 	use PluginControllerConsumer;
 
-	/**
-	 * @deprecated 12 - switch to protected
-	 */
-	public function run() {
+	protected function run() {
 		$this->setupCron();
 	}
 }

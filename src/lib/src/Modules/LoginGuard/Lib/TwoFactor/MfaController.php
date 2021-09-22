@@ -185,7 +185,7 @@ class MfaController {
 			}
 		);
 
-		// Neither BackupCode NOR U2F should EVER be the only 1 provider available.
+		// BackupCode should NEVER be the only 1 provider available.
 		if ( count( $Ps ) === 1 ) {
 			/** @var Provider\BaseProvider $first */
 			$first = reset( $Ps );

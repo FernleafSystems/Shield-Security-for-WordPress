@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Services\Services;
@@ -14,10 +13,6 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		( new Lib\Ops\ConvertLegacy() )
-			->setMod( $this->getMod() )
-			->run();
 
 		return $mod->renderTemplate(
 			'/wpadmin_pages/insights/traffic/traffic_table.twig',

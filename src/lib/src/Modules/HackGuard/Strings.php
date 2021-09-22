@@ -59,19 +59,6 @@ class Strings extends Base\Strings {
 
 	/**
 	 * @return string[]
-	 * @deprecated 12.0
-	 */
-	public function getScanNames() :array {
-		return array_map(
-			function ( $strings ) {
-				return $strings[ 'name' ];
-			},
-			$this->getScanStrings()
-		);
-	}
-
-	/**
-	 * @return string[]
 	 */
 	public function getScanStrings() :array {
 		return [

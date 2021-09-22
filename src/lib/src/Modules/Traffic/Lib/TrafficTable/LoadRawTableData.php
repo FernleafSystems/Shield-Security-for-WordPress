@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Ops\ConvertLegacy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -31,21 +31,10 @@ class LoadRawTableData extends BaseLoadTableData {
 	private $ipInfo = [];
 
 	public function loadForLogs() :array {
-		( new ConvertLegacy() )
-			->setMod( $this->getMod() )
-			->run();
-
 		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 
 		return array_values( array_filter( array_map(
 			function ( $log ) {
-				/**
-				 * @deprecated 12.0 - this just removes dud entries from the conversion.
-				 */
-				if ( empty( @$log->meta[ 'path' ] ) ) {
-					return null;
-				}
-
 				$WPU = Services::WpUsers();
 
 				$log->meta = array_merge(
@@ -199,7 +188,7 @@ class LoadRawTableData extends BaseLoadTableData {
 		return $this->ipInfo[ $ip ];
 	}
 
-	private function getCountryIP( string $ip ) {
+	private function getCountryIP( string $ip ) :IPGeoVO {
 		if ( empty( $this->geoLookup ) ) {
 			$this->geoLookup = ( new Lookup() )->setCon( $this->getCon() );
 		}

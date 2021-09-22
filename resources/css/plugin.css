@@ -1091,15 +1091,6 @@ table.odp-table.scan-table td.column-path code {
 .tooltip .arrow {
 	display: none !important;
 }
-table.odp-table tr.audit-cat-1 td {
-	background-color: #f8fbff;
-}
-table.odp-table tr.audit-cat-2 td {
-	background-color: #fffcfa;
-}
-table.odp-table tr.audit-cat-3 td {
-	background-color: #fffdfd;
-}
 .row-sticky td {
 	background-color: #5a5a5a;
 	position: sticky;
