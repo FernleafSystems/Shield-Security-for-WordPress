@@ -285,8 +285,15 @@ class BuildDisplay {
 
 			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $asArray[ 'path' ], 2 ) );
 			$asArray[ 'trans' ] = (bool)$asArray[ 'offense' ];
+
+			if ( empty( $asArray[ 'path' ] ) ) {
+				$asArray = null;
+			}
 			$requests[ $key ] = $asArray;
 		}
+
+		// remove duds after conversion @12.0
+		$requests = array_filter( $requests );
 
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_traffic.twig',
