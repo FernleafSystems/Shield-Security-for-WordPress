@@ -112,6 +112,12 @@
           "U2F is a strong 2FA mechanism and so it doesn't really need to be used in conjunction with other factors.",
           "When the Chained/MFA option is enabled, when U2F is supplied, this can be done alone without the need for other factors."
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Prevent PHP exception being thrown in certain cases.",
+        "description": [],
+        "patch":       "12.0.4"
       }
     ]
   },
