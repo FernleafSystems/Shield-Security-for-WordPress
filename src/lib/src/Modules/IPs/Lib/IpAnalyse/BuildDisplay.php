@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
