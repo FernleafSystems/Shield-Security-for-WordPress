@@ -20,24 +20,29 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function cleanupDatabases() {
+		$con = $this->getCon();
 
 		// 1. Clean Requests & Audit Trail
 		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
 		/** @var AuditTrail\Options $optsAudit */
-		$optsAudit = $this->getCon()->getModule_AuditTrail()->getOptions();
+		$optsAudit = $con->getModule_AuditTrail()->getOptions();
 		/** @var Traffic\Options $optsTraffic */
-		$optsTraffic = $this->getCon()->getModule_Traffic()->getOptions();
+		$optsTraffic = $con->getModule_Traffic()->getOptions();
 		$this->getDbH_ReqLogs()
-			 ->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
-
-		// 2. Clean Unused IPs.
+			 ->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );// 2. Clean Unused IPs.
+		;
 		$this->getDbH_IPs()
 			 ->getQueryDeleter()
-			 ->addWhere( 'id',
-				 $this->getDbH_ReqLogs()
-					  ->getQuerySelector()
-					  ->getDistinctForColumn( 'ip_ref' ),
-				 'NOT IN'
+			 ->addWhereNotIn( 'id',
+				 array_unique( array_merge(
+					 $this->getDbH_ReqLogs()
+						  ->getQuerySelector()
+						  ->getDistinctForColumn( 'ip_ref' ),
+					 $con->getModule_IPs()
+						 ->getDbH_BotSignal()
+						 ->getQuerySelector()
+						 ->getDistinctForColumn( 'ip_ref' )
+				 ) )
 			 );
 	}
 }
