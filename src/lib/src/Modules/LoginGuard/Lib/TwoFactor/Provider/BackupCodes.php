@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class BackupCodes extends BaseProvider {
 
 	const SLUG = 'backupcode';
+	const BYPASS_MFA = true;
 	const STANDALONE = false;
 
 	public function getProviderName() :string {
@@ -84,11 +85,11 @@ class BackupCodes extends BaseProvider {
 
 	/**
 	 * @param \WP_User $user
-	 * @param string   $sOtpCode
+	 * @param string   $OTP
 	 * @return bool
 	 */
-	private function validateBackupCode( \WP_User $user, $sOtpCode ) :bool {
-		return (bool)wp_check_password( str_replace( '-', '', $sOtpCode ), $this->getSecret( $user ) );
+	private function validateBackupCode( \WP_User $user, $OTP ) :bool {
+		return (bool)wp_check_password( str_replace( '-', '', $OTP ), $this->getSecret( $user ) );
 	}
 
 	/**
