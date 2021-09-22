@@ -29,8 +29,9 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Traffic\Options $optsTraffic */
 		$optsTraffic = $con->getModule_Traffic()->getOptions();
 		$this->getDbH_ReqLogs()
-			 ->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );// 2. Clean Unused IPs.
-		;
+			 ->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+
+		// 2. Clean Unused IPs.
 		$this->getDbH_IPs()
 			 ->getQueryDeleter()
 			 ->addWhereNotIn( 'id',
