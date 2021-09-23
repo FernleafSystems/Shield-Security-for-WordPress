@@ -232,7 +232,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
-		$mysqlInfo = (string)Services::WpDb()->loadWpdb()->db_server_info();
+		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
 		return empty( $versionToSupport )
 			   || empty( $mysqlInfo )
 			   || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
