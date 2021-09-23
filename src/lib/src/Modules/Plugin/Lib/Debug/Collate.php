@@ -33,7 +33,7 @@ class Collate {
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
 			'System Info'    => [
-				'PHP'         => $this->getPHP(),
+				'PHP & MySQL' => $this->getPHP(),
 				'Environment' => $this->getEnv(),
 			],
 			'WordPress Info' => [
@@ -102,6 +102,7 @@ class Collate {
 		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
 			'PHP'           => $phpV,
+			'MySQL'         => Services::WpDb()->loadWpdb()->db_version(),
 			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', ini_get( 'memory_limit' ),
 				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
 			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,

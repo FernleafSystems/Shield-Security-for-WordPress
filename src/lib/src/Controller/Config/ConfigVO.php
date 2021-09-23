@@ -60,6 +60,14 @@ class ConfigVO extends DynPropertiesClass {
 				}
 				break;
 
+			case 'meta':
+			case 'plugin_meta':
+			case 'upgrade_reqs':
+				if ( !is_array( $val ) ) {
+					$val = [];
+				}
+				break;
+
 			default:
 				break;
 		}

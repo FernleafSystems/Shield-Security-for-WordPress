@@ -114,6 +114,16 @@
         ]
       },
       {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Minimum Required MySQL Version",
+        "description": [
+          "Shield processed IPv4 and IPv6 addresses and stores them in the MySQL database.",
+          "With this upgrade, the minimum required MySQL database engine is moving to 5.6."
+        ],
+        "href":        "https://shsec.io/shieldsystemrequirements"
+      },
+      {
         "type":        "fixed",
         "title":       "Prevent PHP exception being thrown in certain cases.",
         "description": [],

@@ -164,5 +164,12 @@ class ModCon extends BaseShield\ModCon {
 		if ( $dbhIPs->isReady() ) {
 			$dbhIPs->autoCleanDb();
 		}
+		$this->getDbH_BotSignal()
+			 ->getQueryDeleter()
+			 ->addWhereOlderThan(
+				 Services::Request()->carbon()->subWeeks( 1 )->timestamp,
+				 'updated_at'
+			 )
+			 ->query();
 	}
 }
