@@ -216,10 +216,11 @@ class Controller extends DynPropertiesClass {
 				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
 			}
 
-			$mysqlInfo = Services::WpDb()->loadWpdb()->db_version();
+			$mysqlInfo = (string)Services::WpDb()->loadWpdb()->db_server_info();
 			$mysqlV = preg_replace( '/[^0-9.].*/', '', $mysqlInfo );
 			$mysql = $this->cfg->requirements[ 'mysql' ];
-			if ( !empty( $mysql ) && version_compare( $mysqlV, $mysql, '<' )
+			if ( !empty( $mysql ) && !empty( $mysqlInfo )
+				 && version_compare( $mysqlV, $mysql, '<' )
 				 && ( stripos( $mysqlInfo, 'MariaDB' ) === false ) ) {
 				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
 					Services::WpDb()->loadWpdb()->db_version(), $mysql );
