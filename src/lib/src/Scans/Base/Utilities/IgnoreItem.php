@@ -27,7 +27,7 @@ class IgnoreItem {
 		$updated = $mod->getDbHandler_ScanResults()
 					   ->getQueryUpdater()
 					   ->setUpdateWheres( [
-						   'hash' => $this->getScanItem()->generateHash()
+						   'hash' => $this->getScanItem()->hash
 					   ] )
 					   ->setUpdateData( [
 						   'ignored_at' => Services::Request()->ts()

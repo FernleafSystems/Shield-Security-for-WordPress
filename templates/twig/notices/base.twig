@@ -1,8 +1,12 @@
 {% import "/common/macros.twig" as icwp_macros %}
+
+{% if unique_render_id|default('') is empty %}
+	{% set unique_render_id= random() %}
+{% endif %}
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
-		 class="{{ notice_classes }} odp-admin-notice notice is-dismissible">
+		 class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible">
 
 		<div class="notice-icon">
 			<span class="dashicons dashicons-shield"></span>&nbsp;
@@ -36,17 +40,19 @@
 {% endblock %}
 
 {% block notice_js %}
-	<script type="text/javascript">
-		jQuery( document ).on(
-			'click',
-			'#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
-			function () {
-				var $oContainer = jQuery( '#{{ unique_render_id }}' );
-				jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
-				$oContainer.fadeOut( 500, function () {
-					$oContainer.remove();
-				} );
-			}
-		);
-	</script>
+	{% if ajax|default([]) is not empty %}
+		<script type="text/javascript">
+			jQuery( document ).on(
+				'click',
+				'#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
+				function () {
+					var $oContainer = jQuery( '#{{ unique_render_id }}' );
+					jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
+					$oContainer.fadeOut( 500, function () {
+						$oContainer.remove();
+					} );
+				}
+			);
+		</script>
+	{% endif %}
 {% endblock %}
