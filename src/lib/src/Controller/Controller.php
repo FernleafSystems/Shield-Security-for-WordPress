@@ -221,12 +221,8 @@ class Controller extends DynPropertiesClass {
 				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
 			}
 
-			$mysqlInfo = (string)Services::WpDb()->loadWpdb()->db_server_info();
-			$mysqlV = preg_replace( '/[^0-9.].*/', '', $mysqlInfo );
 			$mysql = $this->cfg->requirements[ 'mysql' ];
-			if ( !empty( $mysql ) && !empty( $mysqlInfo )
-				 && version_compare( $mysqlV, $mysql, '<' )
-				 && ( stripos( $mysqlInfo, 'MariaDB' ) === false ) ) {
+			if ( !empty( $mysql ) && !$this->isMysqlVersionSupported( $mysql ) ) {
 				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
 					Services::WpDb()->loadWpdb()->db_version(), $mysql );
 			}
@@ -238,6 +234,14 @@ class Controller extends DynPropertiesClass {
 				throw new \Exception( 'Plugin does not meet minimum requirements' );
 			}
 		}
+	}
+
+	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
+		$mysqlInfo = (string)Services::WpDb()->loadWpdb()->db_server_info();
+		return empty( $versionToSupport )
+			   || empty( $mysqlInfo )
+			   || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
+			   || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
 	}
 
 	public function adminNoticeDoesNotMeetRequirements() {
@@ -625,14 +629,12 @@ class Controller extends DynPropertiesClass {
 		if ( !empty( $updates->response ) && isset( $updates->response[ $file ] ) ) {
 			$reqs = $this->cfg->upgrade_reqs;
 			if ( is_array( $reqs ) ) {
-				$DB = Services::WpDb();
 				foreach ( $reqs as $shieldVer => $verReqs ) {
 					$toHide = version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
 							  && (
 								  !Services::Data()->getPhpVersionIsAtLeast( $verReqs[ 'php' ] )
 								  || !Services::WpGeneral()->getWordpressIsAtLeastVersion( $verReqs[ 'wp' ] )
-								  || ( !empty( $verReqs[ 'mysql' ] ) &&
-									   version_compare( $DB->loadWpdb()->db_version(), $verReqs[ 'mysql' ], '<' ) )
+								  || ( !empty( $verReqs[ 'mysql' ] ) && !$this->isMysqlVersionSupported( $verReqs[ 'mysql' ] ) )
 							  );
 					if ( $toHide ) {
 						unset( $updates->response[ $file ] );
