@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
 	protected function buildItems() {
-		$items = ( new BuildFileMap() )
+		$items = ( new BuildScanItems() )
 			->setMod( $this->getMod() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->build();

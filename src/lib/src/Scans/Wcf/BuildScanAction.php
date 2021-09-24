@@ -9,7 +9,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	protected function buildItems() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$action->items = ( new Shield\Scans\Wcf\BuildFileMap() )
+		$action->items = ( new Shield\Scans\Wcf\BuildScanItems() )
 			->setMod( $this->getMod() )
 			->setScanActionVO( $action )
 			->build();

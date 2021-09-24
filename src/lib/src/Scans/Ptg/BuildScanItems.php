@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseBuildFileMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildFileMap extends BaseBuildFileMap {
+class BuildScanItems extends BaseBuildFileMap {
 
 	/**
 	 * @return string[]

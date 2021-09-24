@@ -29,14 +29,14 @@ class ScanInitiate {
 			throw new \Exception( 'Scan is already running' );
 		}
 
-		$oAction = ( new BuildScanAction() )
+		$action = ( new BuildScanAction() )
 			->setMod( $mod )
 			->build( $slug );
 
 		( new ScanEnqueue() )
 			->setMod( $this->getMod() )
 			->setQueueProcessor( $this->getQueueProcessor() )
-			->setScanActionVO( $oAction )
+			->setScanActionVO( $action )
 			->enqueue();
 	}
 }

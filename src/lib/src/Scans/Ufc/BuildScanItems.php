@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildFileMap extends BaseBuildFileMap {
+class BuildScanItems extends BaseBuildFileMap {
 
 	/**
 	 * @return string[]

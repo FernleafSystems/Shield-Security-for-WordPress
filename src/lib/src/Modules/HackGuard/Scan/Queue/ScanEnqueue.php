@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-/**
- * Class ScanEnqueue
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
- */
 class ScanEnqueue {
 
 	use ModConsumer;
@@ -21,17 +17,17 @@ class ScanEnqueue {
 	 */
 	public function enqueue() {
 		$action = $this->getScanActionVO();
-		$aAllItems = (array)$action->items;
+		$allItems = (array)$action->items;
 		unset( $action->items );
 
 		$nSliceSize = $action::QUEUE_GROUP_SIZE_LIMIT;
 
 		do {
-			$oCurrent = clone $action;
-			$oCurrent->items = array_slice( $aAllItems, 0, $nSliceSize );
-			$this->pushActionToQueue( $oCurrent );
-			$aAllItems = array_slice( $aAllItems, $nSliceSize );
-		} while ( !empty( $aAllItems ) );
+			$current = clone $action;
+			$current->items = array_slice( $allItems, 0, $nSliceSize );
+			$this->pushActionToQueue( $current );
+			$allItems = array_slice( $allItems, $nSliceSize );
+		} while ( !empty( $allItems ) );
 
 		$this->getQueueProcessor()->save();
 	}

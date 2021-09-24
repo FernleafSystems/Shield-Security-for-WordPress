@@ -39,4 +39,10 @@ class Wcf extends Base {
 	protected function isPremiumOnly() :bool {
 		return false;
 	}
+
+	public function scan_BuildItems() :array {
+		return ( new Scans\Wcf\BuildScanItems() )
+			->setMod( $this->getMod() )
+			->run();
+	}
 }

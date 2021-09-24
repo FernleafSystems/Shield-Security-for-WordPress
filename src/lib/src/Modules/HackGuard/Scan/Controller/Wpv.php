@@ -73,4 +73,10 @@ class Wpv extends BaseForAssets {
 		$opts = $this->getOptions();
 		return $opts->isPremium() && $opts->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
+
+	public function scan_BuildItems() :array {
+		return ( new Scans\Wpv\BuildScanItems() )
+			->setMod( $this->getMod() )
+			->run();
+	}
 }

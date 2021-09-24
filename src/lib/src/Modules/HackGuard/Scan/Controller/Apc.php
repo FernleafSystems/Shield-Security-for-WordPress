@@ -22,4 +22,10 @@ class Apc extends BaseForAssets {
 	protected function isPremiumOnly() :bool {
 		return false;
 	}
+
+	public function scan_BuildItems() :array {
+		return ( new Scans\Apc\BuildScanItems() )
+			->setMod( $this->getMod() )
+			->run();
+	}
 }

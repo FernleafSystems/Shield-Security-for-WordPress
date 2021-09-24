@@ -7,10 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ScanActionVO;
 
-abstract class BaseBuildFileMap {
+abstract class BaseBuildFileMap extends Shield\Scans\Base\Utilities\BuildScanItems {
 
-	use Shield\Modules\ModConsumer;
 	use ScanActionConsumer;
+
+	public function run() :array {
+		return $this->build();
+	}
 
 	abstract public function build() :array;
 

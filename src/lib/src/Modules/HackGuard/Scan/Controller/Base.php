@@ -300,4 +300,6 @@ abstract class Base extends ExecOnceModConsumer {
 			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
 		}
 	}
+
+	abstract public function scan_BuildItems() :array;
 }

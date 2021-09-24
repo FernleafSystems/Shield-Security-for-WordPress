@@ -17,15 +17,15 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aScans = $oOpts->getScansToBuild();
-		$sScan = key( $aScans );
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$scans = $opts->getScansToBuild();
+		$scan = key( $scans );
 
-		$oBatch = new \stdClass();
-		$oBatch->key = $sScan;
-		$oBatch->data = [ $sScan ];
-		return $oBatch;
+		$batch = new \stdClass();
+		$batch->key = $scan;
+		$batch->data = [ $scan ];
+		return $batch;
 	}
 
 	/**

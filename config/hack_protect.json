@@ -493,6 +493,10 @@
           "length":     3,
           "comment":    "Scan Slug"
         },
+        "ready_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Scan Ready At"
+        },
         "started_at":  {
           "macro_type": "timestamp",
           "comment":    "Scan Started At"

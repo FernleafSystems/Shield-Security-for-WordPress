@@ -27,19 +27,19 @@ class ConvertBetweenTypes {
 	}
 
 	/**
-	 * @param Scans\Base\BaseScanActionVO $oAction
+	 * @param Scans\Base\BaseScanActionVO $action
 	 * @return Databases\ScanQueue\EntryVO
 	 */
-	public function fromActionToDbEntry( $oAction ) {
+	public function fromActionToDbEntry( $action ) {
 		$entry = new Databases\ScanQueue\EntryVO();
 		foreach ( $this->getDbHandler()->getTableSchema()->getColumnNames() as $field ) {
-			if ( isset( $oAction->{$field} ) ) {
-				$entry->{$field} = $oAction->{$field};
+			if ( isset( $action->{$field} ) ) {
+				$entry->{$field} = $action->{$field};
 			}
 		}
-		unset( $oAction->items );
-		unset( $oAction->results );
-		$entry->meta = $oAction->getRawData();
+		unset( $action->items );
+		unset( $action->results );
+		$entry->meta = $action->getRawData();
 		return $entry;
 	}
 }

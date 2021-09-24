@@ -5,11 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseBuildFileMap;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class BuildFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
- */
-class BuildFileMap extends BaseBuildFileMap {
+class BuildScanItems extends BaseBuildFileMap {
 
 	/**
 	 * @return string[]
