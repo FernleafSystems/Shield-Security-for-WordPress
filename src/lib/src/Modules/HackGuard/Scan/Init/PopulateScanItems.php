@@ -21,10 +21,22 @@ class PopulateScanItems {
 		/** @var ModCon $mod */
 		$mod = $scanCon->getMod();
 		$dbhItems = $mod->getDbH_ScanItems();
-		$scanRecord = $this->getRecord();
 
-		$sliceSize = $scanCon->getScanActionVO()::QUEUE_GROUP_SIZE_LIMIT;
-		$allItems = $scanCon->scan_BuildItems();
+		$scanRecord = $this->getRecord();
+		$scanAction = $scanCon->buildScanAction();
+
+		// ScanItems are stored separately
+		$allItems = $scanAction->items;
+		unset( $scanAction->items );
+
+		$scanRecord->meta = $scanAction->getRawData();
+		$mod->getDbH_Scans()
+			->getQueryUpdater()
+			->updateById( $scanRecord->id, [
+				'meta' => $scanRecord->getRawData()[ 'meta' ]
+			] );
+
+		$sliceSize = $scanAction::QUEUE_GROUP_SIZE_LIMIT;
 
 		/** @var ScanItemsDB\Ops\Record $newRecord */
 		$newRecord = $dbhItems->getRecord();

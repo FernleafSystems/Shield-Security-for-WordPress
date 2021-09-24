@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Controller
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
- */
 class Controller {
 
 	use ModConsumer;
@@ -119,10 +115,10 @@ class Controller {
 			$scanSlugs = [ $scanSlugs ];
 		}
 		if ( !empty( $scanSlugs ) ) {
-			/** @var HackGuard\Options $oOpts */
-			$oOpts = $this->getOptions();
-			foreach ( $scanSlugs as $sSlug ) {
-				$oOpts->addRemoveScanToBuild( $sSlug );
+			/** @var HackGuard\Options $opts */
+			$opts = $this->getOptions();
+			foreach ( $scanSlugs as $slug ) {
+				$opts->addRemoveScanToBuild( $slug );
 			}
 			$this->getQueueBuilder()->dispatch();
 		}

@@ -39,7 +39,7 @@ class ScanEnqueue {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$entry = ( new ConvertBetweenTypes() )
-			->setDbHandler( $mod->getDbHandler_ScanQueue() )
+			->setMod( $mod )
 			->fromActionToDbEntry( $action );
 		$this->getQueueProcessor()->push_to_queue( $entry );
 	}

@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
+class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
 		$items = ( new BuildScanItems() )
-			->setMod( $this->getMod() )
+			->setMod( $this->getScanController()->getMod() )
 			->setScanActionVO( $this->getScanActionVO() )
-			->build();
+			->run();
 		asort( $items );
 		$this->getScanActionVO()->items = $items;
 	}

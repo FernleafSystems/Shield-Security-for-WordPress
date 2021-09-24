@@ -40,9 +40,13 @@ class Wcf extends Base {
 		return false;
 	}
 
-	public function scan_BuildItems() :array {
-		return ( new Scans\Wcf\BuildScanItems() )
-			->setMod( $this->getMod() )
-			->run();
+	/**
+	 * @return Scans\Wcf\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Wcf\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

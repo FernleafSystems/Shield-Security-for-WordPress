@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems
 /**
  * @property int   $scan_ref
  * @property array $items
+ * @property int   $started_at
+ * @property int   $finished_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

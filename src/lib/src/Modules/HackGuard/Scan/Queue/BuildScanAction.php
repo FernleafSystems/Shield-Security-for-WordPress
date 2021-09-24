@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 
-/**
- * Class BuildScanAction
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
- */
 class BuildScanAction {
 
 	use Shield\Modules\ModConsumer;
@@ -27,7 +23,7 @@ class BuildScanAction {
 		// Build the action definition:
 
 		$class = $action->getScanNamespace().'BuildScanAction';
-		/** @var Shield\Scans\Base\BaseBuildScanAction $builder */
+		/** @var Shield\Scans\Base\BuildScanAction $builder */
 		$builder = new $class();
 		$builder->setMod( $mod )
 				->setScanActionVO( $action )

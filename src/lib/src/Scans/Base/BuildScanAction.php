@@ -3,38 +3,35 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseBuildScanAction {
+abstract class BuildScanAction {
 
-	use Shield\Modules\ModConsumer;
+	use HackGuard\Scan\Controller\ScanControllerConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @throws \Exception
+	 * @return static
 	 */
 	public function build() {
-		$action = $this->getScanActionVO();
-		if ( !$action instanceof BaseScanActionVO ) {
-			throw new \Exception( 'Scan Action VO not provided.' );
-		}
-		if ( empty( $action->scan ) ) {
-			throw new \Exception( 'Scan Slug not provided.' );
-		}
+		$scanCon = $this->getScanController();
+		$this->setScanActionVO( $scanCon->getScanActionVO() );
 
 		$this->setWhitelists();
 		$this->setCustomFields();
 		$this->buildScanItems();
 		$this->setStandardFields();
+
+		return $this;
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function buildScanItems() {
-		$action = $this->getScanActionVO();
 		$this->buildItems();
-		$action->total_items = count( $action->items );
 	}
 
 	abstract protected function buildItems();
@@ -46,7 +43,7 @@ abstract class BaseBuildScanAction {
 			$action->started_at = 0;
 			$action->finished_at = 0;
 			$action->usleep = (int)( 1000000*max( 0, apply_filters(
-					$this->getCon()->prefix( 'scan_block_sleep' ),
+					$this->getScanController()->getCon()->prefix( 'scan_block_sleep' ),
 					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
 		}
@@ -57,7 +54,7 @@ abstract class BaseBuildScanAction {
 
 	protected function setWhitelists() {
 		/** @var Shield\Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->getScanController()->getOptions();
 		$action = $this->getScanActionVO();
 		$action->paths_whitelisted = $opts->getWhitelistedPathsAsRegex();
 	}

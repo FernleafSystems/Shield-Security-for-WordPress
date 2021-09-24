@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 
 class Apc extends BaseForAssets {
 
@@ -23,9 +24,13 @@ class Apc extends BaseForAssets {
 		return false;
 	}
 
-	public function scan_BuildItems() :array {
-		return ( new Scans\Apc\BuildScanItems() )
-			->setMod( $this->getMod() )
-			->run();
+	/**
+	 * @return Scans\Apc\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Apc\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

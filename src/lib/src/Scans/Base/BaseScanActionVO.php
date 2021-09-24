@@ -11,8 +11,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
  * @property int      $created_at
  * @property int      $started_at
  * @property int      $finished_at
- * @property bool     $is_async
- * @property int      $total_items
  * @property string[] $items
  * @property array[]  $results
  * @property int      $usleep

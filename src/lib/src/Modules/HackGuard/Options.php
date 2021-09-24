@@ -153,19 +153,19 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $sScan
+	 * @param string $scan
 	 * @param bool   $bAdd
 	 * @return Options
 	 */
-	public function addRemoveScanToBuild( $sScan, $bAdd = true ) {
-		$aS = $this->getScansToBuild();
+	public function addRemoveScanToBuild( $scan, $bAdd = true ) {
+		$scans = $this->getScansToBuild();
 		if ( $bAdd ) {
-			$aS[ $sScan ] = Services::Request()->ts();
+			$scans[ $scan ] = Services::Request()->ts();
 		}
-		elseif ( isset( $aS[ $sScan ] ) ) {
-			unset( $aS[ $sScan ] );
+		elseif ( isset( $scans[ $scan ] ) ) {
+			unset( $scans[ $scan ] );
 		}
-		return $this->setScansToBuild( $aS );
+		return $this->setScansToBuild( $scans );
 	}
 
 	/**

@@ -15,7 +15,6 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class CompleteQueue {
 
-	use Databases\Base\HandlerConsumer;
 	use ModConsumer;
 
 	/**
@@ -25,51 +24,49 @@ class CompleteQueue {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$con = $this->getCon();
-		/** @var Databases\ScanQueue\Handler $dbh */
-		$dbh = $this->getDbHandler();
-		$selector = $dbh->getQuerySelector();
+		$dbhQ = $mod->getDbHandler_ScanQueue();
 
-		foreach ( $selector->getDistinctForColumn( 'scan' ) as $scanSlug ) {
-
-			$scanCon = $mod->getScanCon( $scanSlug );
-
-			$resultsSet = ( new CollateResults() )
-				->setScanController( $scanCon )
-				->setDbHandler( $dbh )
-				->collate( $scanSlug );
-
-			$con->fireEvent( 'scan_run', [ 'audit_params' => [ 'scan' => $scanCon->getScanName() ] ] );
-
-			( new HackGuard\Scan\Results\ResultsUpdate() )
-				->setScanController( $scanCon )
-				->update( $resultsSet );
-
-			if ( $resultsSet->countItems() > 0 ) {
-
-				$items = $resultsSet->countItems() > 30 ?
-					__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
-					: __( 'The following items were discovered.', 'wp-simple-firewall' );
-
-				$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
-					return $item->getDescriptionForAudit();
-				}, $resultsSet->getItems() ) ), 0, 30 );
-				$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
-
-				$con->fireEvent(
-					'scan_items_found',
-					[
-						'audit_params' => [
-							'scan'  => $scanCon->getScanName(),
-							'items' => $items
-						]
-					]
-				);
-			}
-
-			/** @var Databases\ScanQueue\Delete $deleter */
-			$deleter = $dbh->getQueryDeleter();
-			$deleter->filterByScan( $scanSlug )->query();
-		}
+//		foreach ( $dbhQ->getQuerySelector()->getDistinctForColumn( 'scan' ) as $scanSlug ) {
+//
+//			$scanCon = $mod->getScanCon( $scanSlug );
+//
+//			$resultsSet = ( new CollateResults() )
+//				->setScanController( $scanCon )
+//				->setDbHandler( $dbhQ )
+//				->collate( $scanSlug );
+//
+//			$con->fireEvent( 'scan_run', [ 'audit_params' => [ 'scan' => $scanCon->getScanName() ] ] );
+//
+//			( new HackGuard\Scan\Results\ResultsUpdate() )
+//				->setScanController( $scanCon )
+//				->update( $resultsSet );
+//
+//			if ( $resultsSet->countItems() > 0 ) {
+//
+//				$items = $resultsSet->countItems() > 30 ?
+//					__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
+//					: __( 'The following items were discovered.', 'wp-simple-firewall' );
+//
+//				$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
+//					return $item->getDescriptionForAudit();
+//				}, $resultsSet->getItems() ) ), 0, 30 );
+//				$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
+//
+//				$con->fireEvent(
+//					'scan_items_found',
+//					[
+//						'audit_params' => [
+//							'scan'  => $scanCon->getScanName(),
+//							'items' => $items
+//						]
+//					]
+//				);
+//			}
+//
+//			/** @var Databases\ScanQueue\Delete $deleter */
+//			$deleter = $dbhQ->getQueryDeleter();
+//			$deleter->filterByScan( $scanSlug )->query();
+//		}
 
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();

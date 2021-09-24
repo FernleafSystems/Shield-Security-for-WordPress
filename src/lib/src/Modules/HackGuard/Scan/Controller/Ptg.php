@@ -143,9 +143,13 @@ class Ptg extends BaseForAssets {
 			->run();
 	}
 
-	public function scan_BuildItems() :array {
-		return ( new Scans\Ptg\BuildScanItems() )
-			->setMod( $this->getMod() )
-			->run();
+	/**
+	 * @return Scans\Ptg\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Ptg\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

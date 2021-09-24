@@ -45,9 +45,13 @@ class Ufc extends Base {
 		return false;
 	}
 
-	public function scan_BuildItems() :array {
-		return ( new Scans\Ufc\BuildScanItems() )
-			->setMod( $this->getMod() )
-			->run();
+	/**
+	 * @return Scans\Ufc\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Ufc\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

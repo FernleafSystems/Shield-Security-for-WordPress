@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-/**
- * Class ResultsStore
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
- */
 class ResultsStore {
 
 	use ScanControllerConsumer;

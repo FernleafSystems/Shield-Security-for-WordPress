@@ -301,5 +301,8 @@ abstract class Base extends ExecOnceModConsumer {
 		}
 	}
 
-	abstract public function scan_BuildItems() :array;
+	/**
+	 * @return BaseScanActionVO|mixed
+	 */
+	abstract public function buildScanAction();
 }

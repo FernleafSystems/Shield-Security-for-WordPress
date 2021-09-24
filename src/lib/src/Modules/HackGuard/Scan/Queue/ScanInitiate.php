@@ -19,25 +19,7 @@ class ScanInitiate {
 	 * @throws \Exception
 	 */
 	public function init( string $slug ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbHandler_ScanQueue();
-
 		$this->initNew( $slug );
-
-		if ( ( new IsScanEnqueued() )->setDbHandler( $dbh )->check( $slug ) ) {
-			throw new \Exception( 'Scan is already running' );
-		}
-
-		$action = ( new BuildScanAction() )
-			->setMod( $mod )
-			->build( $slug );
-
-		( new ScanEnqueue() )
-			->setMod( $this->getMod() )
-			->setQueueProcessor( $this->getQueueProcessor() )
-			->setScanActionVO( $action )
-			->enqueue();
 	}
 
 	/**
@@ -54,5 +36,27 @@ class ScanInitiate {
 			->setRecord( $scanRecord )
 			->setScanController( $mod->getScanCon( $slug ) )
 			->run();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function initOld( string $slug ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbHandler_ScanQueue();
+		if ( ( new IsScanEnqueued() )->setDbHandler( $dbh )->check( $slug ) ) {
+			throw new \Exception( 'Scan is already running' );
+		}
+
+		$action = ( new BuildScanAction() )
+			->setMod( $mod )
+			->build( $slug );
+
+		( new ScanEnqueue() )
+			->setMod( $this->getMod() )
+			->setQueueProcessor( $this->getQueueProcessor() )
+			->setScanActionVO( $action )
+			->enqueue();
 	}
 }

@@ -32,8 +32,8 @@ class CollateResults {
 		/** @var Databases\ScanQueue\EntryVO $entry */
 		foreach ( $selector->query() as $entry ) {
 			$action = ( new ConvertBetweenTypes() )
-				->setDbHandler( $dbh )
-				->fromDbEntryToAction( $entry );
+				->setMod( $this->getScanController()->getMod() )
+				->fromDbEntryToAction( $entry ); // TODO: this uses ->results which wont be available in new DB system
 
 			foreach ( $action->results as $resultItemRawData ) {
 				$resultsSet->addItem(

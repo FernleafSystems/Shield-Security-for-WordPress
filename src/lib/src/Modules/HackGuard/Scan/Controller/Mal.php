@@ -76,9 +76,13 @@ class Mal extends Base {
 		return $this->getOptions()->isOpt( 'mal_scan_enable', 'Y' );
 	}
 
-	public function scan_BuildItems() :array {
-		return ( new Scans\Mal\BuildScanItems() )
-			->setMod( $this->getMod() )
-			->run();
+	/**
+	 * @return Scans\Mal\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Mal\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }
