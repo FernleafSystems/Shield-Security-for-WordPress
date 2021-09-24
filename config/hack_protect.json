@@ -478,6 +478,75 @@
       "twig",
       "hbs"
     ],
+    "db_handler_classes":          {
+      "scans":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scan\\Ops\\Handler",
+      "scanitems":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
+      "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResult\\Ops\\Handler"
+    },
+    "db_table_scans":              {
+      "autoexpire":     0,
+      "slug":           "scans",
+      "col_older_than": "created_at",
+      "cols_custom":    {
+        "scan":        {
+          "macro_type": "char",
+          "length":     3,
+          "comment":    "Scan Slug"
+        },
+        "started_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Scan Started At"
+        },
+        "finished_at": {
+          "macro_type": "timestamp",
+          "comment":    "Scan Completed At"
+        },
+        "meta":        {
+          "macro_type": "meta",
+          "comment":    "Scan Meta Info"
+        }
+      }
+    },
+    "db_table_scanitems":          {
+      "autoexpire":     0,
+      "slug":           "scanitems",
+      "has_updated_at": false,
+      "col_older_than": "created_at",
+      "cols_custom":    {
+        "scan_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_scans"
+          }
+        },
+        "items":    {
+          "macro_type": "text",
+          "comment":    "Array of scan items"
+        }
+      }
+    },
+    "db_table_scanresults":         {
+      "autoexpire":     0,
+      "slug":           "scanresults",
+      "has_updated_at": false,
+      "col_older_than": "created_at",
+      "cols_custom":    {
+        "scan_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_scans"
+          }
+        },
+        "hash":     {
+          "macro_type": "hash",
+          "comment":    "Scan Item Hash"
+        },
+        "meta":     {
+          "macro_type": "meta",
+          "comment":    "Scan Item Meta"
+        }
+      }
+    },
     "db_classes":                  {
       "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "scanner":    "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",

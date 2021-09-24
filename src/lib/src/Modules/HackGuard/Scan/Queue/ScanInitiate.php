@@ -34,7 +34,7 @@ class ScanInitiate {
 			->build( $slug );
 
 		( new ScanEnqueue() )
-			->setDbHandler( $dbh )
+			->setMod( $this->getMod() )
 			->setQueueProcessor( $this->getQueueProcessor() )
 			->setScanActionVO( $oAction )
 			->enqueue();

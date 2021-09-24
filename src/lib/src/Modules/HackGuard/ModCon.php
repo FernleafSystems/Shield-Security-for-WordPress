@@ -58,6 +58,19 @@ class ModCon extends BaseShield\ModCon {
 		return $this->scanQueueCon;
 	}
 
+	public function getDbH_Scans() :DB\Scans\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'scan' );
+	}
+
+	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
+		$this->getDbH_Scans();
+		return $this->getDbHandler()->loadDbH( 'scanitems' );
+	}
+	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
+		$this->getDbH_Scans();
+		return $this->getDbHandler()->loadDbH( 'scanresults' );
+	}
+
 	/**
 	 * @param string $slug
 	 * @return Scan\Controller\Base|mixed
