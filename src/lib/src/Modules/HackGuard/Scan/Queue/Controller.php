@@ -112,16 +112,16 @@ class Controller {
 	}
 
 	/**
-	 * @param string|string[] $aScanSlugs
+	 * @param string|string[] $scanSlugs
 	 */
-	public function startScans( $aScanSlugs ) {
-		if ( !is_array( $aScanSlugs ) ) {
-			$aScanSlugs = [ $aScanSlugs ];
+	public function startScans( $scanSlugs ) {
+		if ( !is_array( $scanSlugs ) ) {
+			$scanSlugs = [ $scanSlugs ];
 		}
-		if ( !empty( $aScanSlugs ) ) {
+		if ( !empty( $scanSlugs ) ) {
 			/** @var HackGuard\Options $oOpts */
 			$oOpts = $this->getOptions();
-			foreach ( $aScanSlugs as $sSlug ) {
+			foreach ( $scanSlugs as $sSlug ) {
 				$oOpts->addRemoveScanToBuild( $sSlug );
 			}
 			$this->getQueueBuilder()->dispatch();

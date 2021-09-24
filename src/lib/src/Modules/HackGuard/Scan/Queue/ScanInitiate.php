@@ -3,13 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-/**
- * Class ScanInitiate
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
- */
 class ScanInitiate {
 
 	use ModConsumer;
@@ -25,6 +23,8 @@ class ScanInitiate {
 		$mod = $this->getMod();
 		$dbh = $mod->getDbHandler_ScanQueue();
 
+		$this->initNew( $slug );
+
 		if ( ( new IsScanEnqueued() )->setDbHandler( $dbh )->check( $slug ) ) {
 			throw new \Exception( 'Scan is already running' );
 		}
@@ -38,5 +38,21 @@ class ScanInitiate {
 			->setQueueProcessor( $this->getQueueProcessor() )
 			->setScanActionVO( $action )
 			->enqueue();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function initNew( string $slug ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$scanRecord = ( new CreateNewScan() )
+			->setMod( $mod )
+			->run( $slug );
+		( new PopulateScanItems() )
+			->setRecord( $scanRecord )
+			->setScanController( $mod->getScanCon( $slug ) )
+			->run();
 	}
 }

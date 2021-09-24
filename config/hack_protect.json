@@ -479,8 +479,8 @@
       "hbs"
     ],
     "db_handler_classes":          {
-      "scans":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scan\\Ops\\Handler",
-      "scanitems":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
+      "scans":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
+      "scanitems":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
       "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResult\\Ops\\Handler"
     },
     "db_table_scans":              {
@@ -493,7 +493,7 @@
           "length":     3,
           "comment":    "Scan Slug"
         },
-        "ready_at":  {
+        "ready_at":    {
           "macro_type": "timestamp",
           "comment":    "Scan Ready At"
         },
@@ -517,19 +517,27 @@
       "has_updated_at": false,
       "col_older_than": "created_at",
       "cols_custom":    {
-        "scan_ref": {
+        "scan_ref":    {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_scans"
           }
         },
-        "items":    {
+        "items":       {
           "macro_type": "text",
           "comment":    "Array of scan items"
+        },
+        "started_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Started Scanning Items At"
+        },
+        "finished_at": {
+          "macro_type": "timestamp",
+          "comment":    "Finished Scanning Items At"
         }
       }
     },
-    "db_table_scanresults":         {
+    "db_table_scanresults":        {
       "autoexpire":     0,
       "slug":           "scanresults",
       "has_updated_at": false,

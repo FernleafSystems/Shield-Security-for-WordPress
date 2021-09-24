@@ -21,12 +21,15 @@ class PopulateScanItems {
 		/** @var ModCon $mod */
 		$mod = $scanCon->getMod();
 		$dbhItems = $mod->getDbH_ScanItems();
+		$scanRecord = $this->getRecord();
 
 		$sliceSize = $scanCon->getScanActionVO()::QUEUE_GROUP_SIZE_LIMIT;
 		$allItems = $scanCon->scan_BuildItems();
+
+		/** @var ScanItemsDB\Ops\Record $newRecord */
+		$newRecord = $dbhItems->getRecord();
+		$newRecord->scan_ref = $scanRecord->id;
 		do {
-			/** @var ScanItemsDB\Ops\Record $newRecord */
-			$newRecord = $dbhItems->getRecord();
 			$newRecord->items = array_slice( $allItems, 0, $sliceSize );
 			$dbhItems->getQueryInserter()->insert( $newRecord );
 
@@ -38,7 +41,7 @@ class PopulateScanItems {
 		// TODO: review whether this entirely necessary depending on how scans are kicked off.
 		$mod->getDbH_Scans()
 			->getQueryUpdater()
-			->updateRecord( $this->getRecord(), [
+			->updateRecord( $scanRecord, [
 				'ready_at' => Services::Request()->ts()
 			] );
 	}

@@ -33,7 +33,7 @@ class CreateNewScan {
 		$select = $dbh->getQuerySelector();
 		return $select->filterByScan( $slug )
 					  ->filterByNotStarted()
-					  ->queryWithResult();
+					  ->first();
 	}
 
 	private function scanExists( string $slug ) :bool {

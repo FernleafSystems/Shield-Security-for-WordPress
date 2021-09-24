@@ -40,14 +40,14 @@ class ScanExecute {
 	}
 
 	/**
-	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
+	 * @param Shield\Scans\Base\BaseScanActionVO $action
 	 * @return Shield\Scans\Base\BaseScan
 	 */
-	private function getScanner( $oAction ) {
-		$sClass = $oAction->getScanNamespace().'Scan';
+	private function getScanner( $action ) {
+		$class = $action->getScanNamespace().'Scan';
 		/** @var Shield\Scans\Base\BaseScan $o */
-		$o = new $sClass();
+		$o = new $class();
 		return $o->setMod( $this->getMod() )
-				 ->setScanActionVO( $oAction );
+				 ->setScanActionVO( $action );
 	}
 }
