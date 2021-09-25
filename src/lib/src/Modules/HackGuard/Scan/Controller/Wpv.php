@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -82,5 +84,17 @@ class Wpv extends BaseForAssets {
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
+	}
+
+	public function buildScanResult( array $rawResult ) :ScanResults\Ops\Record {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var ScanResults\Ops\Record $record */
+		$record = $mod->getDbH_ScanResults()->getRecord();
+		$record->meta = $rawResult;
+		$record->hash = $rawResult[ 'hash' ];
+		$record->item_id = $rawResult[ 'slug' ];
+		$record->item_type = $rawResult[ 'context' ] === 'plugins' ? 'p' : 't';
+		return $record;
 	}
 }

@@ -20,8 +20,7 @@ abstract class BaseBuildFileMap extends Shield\Scans\Base\Utilities\BuildScanIte
 	protected function isAutoFilterFile( \SplFileInfo $file ) :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isAutoFilterResults()
-			   && $file->getSize() === 0;
+		return $opts->isAutoFilterResults() && $file->getSize() === 0;
 	}
 
 	protected function isWhitelistedPath( string $path ) :bool {

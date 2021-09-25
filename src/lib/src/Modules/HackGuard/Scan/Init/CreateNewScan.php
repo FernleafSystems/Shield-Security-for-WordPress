@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class CreateNewScan {
 
@@ -31,9 +32,7 @@ class CreateNewScan {
 		}
 		/** @var Scans\Ops\Select $select */
 		$select = $dbh->getQuerySelector();
-		return $select->filterByScan( $slug )
-					  ->filterByNotStarted()
-					  ->first();
+		return $select->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );;
 	}
 
 	private function scanExists( string $slug ) :bool {

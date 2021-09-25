@@ -231,10 +231,16 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'filelocker' );
 	}
 
+	/**
+	 * @deprecated 12.1
+	 */
 	public function getDbHandler_ScanQueue() :Databases\ScanQueue\Handler {
 		return $this->getDbH( 'scanq' );
 	}
 
+	/**
+	 * @deprecated 12.1
+	 */
 	public function getDbHandler_ScanResults() :Databases\Scanner\Handler {
 		return $this->getDbH( 'scanner' );
 	}

@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -27,7 +31,7 @@ class Wcf extends Base {
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isRepairFileWP();
 	}
@@ -48,5 +52,17 @@ class Wcf extends Base {
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
+	}
+
+	public function buildScanResult( array $rawResult ) :ScanResults\Ops\Record {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var ScanResults\Ops\Record $record */
+		$record = $mod->getDbH_ScanResults()->getRecord();
+		$record->meta = $rawResult;
+		$record->hash = $rawResult[ 'hash' ];
+		$record->item_id = $rawResult[ 'path_fragment' ];
+		$record->item_type = 'f';
+		return $record;
 	}
 }

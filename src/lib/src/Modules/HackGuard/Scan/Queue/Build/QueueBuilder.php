@@ -61,7 +61,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 				->init( (string)$slug );
 		}
 		catch ( \Exception $e ) {
-//			error_log( $e->getMessage() );
+			error_log( $e->getMessage() );
 		}
 
 		// deletes the scan from the to-be-built array

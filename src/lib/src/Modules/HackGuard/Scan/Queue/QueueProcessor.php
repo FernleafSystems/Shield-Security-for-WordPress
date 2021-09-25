@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Scan\Init\QueueItems,
-	Scan\Init\ScanQueueItemVO
+	Scan\Init\ScanQueueItemVO,
+	Scan\Init\StoreResults
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Services\Services;
@@ -62,8 +63,10 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 			$results = ( new ScanExecute() )
 				->setMod( $this->getMod() )
 				->execute( $item );
-			error_log( 'results: '.var_export( $results, true ) );
-			// TODO store results
+
+			( new StoreResults() )
+				->setMod( $this->getMod() )
+				->store( $item, $results );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );

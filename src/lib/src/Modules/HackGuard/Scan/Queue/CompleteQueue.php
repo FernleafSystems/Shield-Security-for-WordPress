@@ -21,6 +21,15 @@ class CompleteQueue {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		Services::WpDb()->doSql(
+			sprintf( "UPDATE `%s`
+					SET `finished_at`=%s
+					WHERE `ready_at`>0 AND `finished_at`=0;",
+				$mod->getDbH_Scans()->getTableSchema()->table,
+				Services::Request()->ts()
+			)
+		);
+
 //		foreach ( $dbhQ->getQuerySelector()->getDistinctForColumn( 'scan' ) as $scanSlug ) {
 //
 //			$scanCon = $mod->getScanCon( $scanSlug );

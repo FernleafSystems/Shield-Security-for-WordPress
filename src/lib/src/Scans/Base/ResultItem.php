@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 
 /**
- * Class BaseResultItem
+ * Class ResultItem
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
  * @property string $hash
  * @property bool   $is_excluded
