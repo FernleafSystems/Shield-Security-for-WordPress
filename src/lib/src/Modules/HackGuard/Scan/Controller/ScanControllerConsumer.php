@@ -17,11 +17,11 @@ trait ScanControllerConsumer {
 	}
 
 	/**
-	 * @param Base $oCon
+	 * @param Base $con
 	 * @return $this
 	 */
-	public function setScanController( $oCon ) {
-		$this->oScanController = $oCon;
+	public function setScanController( $con ) {
+		$this->oScanController = $con;
 		return $this;
 	}
 }

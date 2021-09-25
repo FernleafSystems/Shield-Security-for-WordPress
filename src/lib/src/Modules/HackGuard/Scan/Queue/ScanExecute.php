@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	Scan\Init\ScanQueueItemVO,
+	Scan\ScanActionFromSlug
+};
 
 class ScanExecute {
 
@@ -12,13 +15,13 @@ class ScanExecute {
 	/**
 	 * @throws \Exception
 	 */
-	public function execute( ScanItemsDB\Ops\Record $record ) :array {
+	public function execute( ScanQueueItemVO $item ) :array {
 		/** @var Shield\Modules\HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 
-		$action = ( new ConvertBetweenTypes() )
-			->setMod( $mod )
-			->fromDbEntryToAction( $record );
+		$action = ScanActionFromSlug::GetAction( $item->scan )
+									->applyFromArray( $item->meta );
+		$action->items = $item->items;
 
 		$this->getScanner( $action )
 			 ->setScanActionVO( $action )

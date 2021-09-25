@@ -3,9 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModCon,
+	Scan\Init\QueueItems,
+	Scan\Init\ScanQueueItemVO
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -19,18 +22,21 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		/** @var ScanItemsDB\Ops\Select $select */
-		$select = $this->getDbH_ScanItems()->getQuerySelector();
-
-		/** @var ScanItemsDB\Ops\Record $record */
-		$record = $select->filterByNotStarted()
-						 ->filterByNotFinished()
-						 ->setOrderBy( 'id', 'ASC', true )
-						 ->first();
-
 		$batch = new \stdClass();
-		$batch->key = $record->id;
-		$batch->data = [ $record ];
+
+		try {
+			$qItem = ( new QueueItems() )
+				->setMod( $this->getMod() )
+				->next();
+
+			$batch->key = $qItem->qitem_id;
+			$batch->data = [ $qItem ];
+		}
+		catch ( Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems $e ) {
+			// This should never happen as "is_empty()" is called before
+			error_log( $e->getMessage() );
+		}
+
 		return $batch;
 	}
 
@@ -42,20 +48,20 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param ScanItemsDB\Ops\Record $record Queue item to iterate over.
+	 * @param ScanQueueItemVO $item Queue item to iterate over.
 	 * @return mixed
 	 */
-	protected function task( $record ) {
-		error_log( var_export( 'execute task', true ) );
-		/** @var ScanItemsDB\Ops\Update $updater */
-		$updater = $this->getDbH_ScanItems()->getQueryUpdater();
-		$updater->setStarted( $record );
-		$record->started_at = Services::Request()->ts();
+	protected function task( $item ) {
+		$this->getDbH_ScanItems()
+			 ->getQueryUpdater()
+			 ->updateById( $item->qitem_id, [
+				 'started_at' => Services::Request()->ts()
+			 ] );
 
 		try {
 			$results = ( new ScanExecute() )
 				->setMod( $this->getMod() )
-				->execute( $record );
+				->execute( $item );
 			error_log( 'results: '.var_export( $results, true ) );
 			// TODO store results
 		}
@@ -63,7 +69,6 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 			error_log( $e->getMessage() );
 		}
 
-		$updater->setFinished( $record );
 		return false; //deletes the record upon completion
 	}
 
@@ -100,11 +105,9 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		/** @var ScanItemsDB\Ops\Select $selector */
-		$selector = $this->getDbH_ScanItems()->getQuerySelector();
-		return $selector->filterByNotStarted()
-						->filterByNotFinished()
-						->count() === 0;
+		return !( new QueueItems() )
+			->setMod( $this->getMod() )
+			->hasNextItem();
 	}
 
 	/**

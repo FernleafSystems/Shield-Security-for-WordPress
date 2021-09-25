@@ -9,10 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class CompleteQueue
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
- */
 class CompleteQueue {
 
 	use ModConsumer;
@@ -21,10 +17,9 @@ class CompleteQueue {
 	 * Take care here not to confuse the 2x DB Handlers
 	 */
 	public function complete() {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$con = $this->getCon();
-		$dbhQ = $mod->getDbHandler_ScanQueue();
 
 //		foreach ( $dbhQ->getQuerySelector()->getDistinctForColumn( 'scan' ) as $scanSlug ) {
 //
