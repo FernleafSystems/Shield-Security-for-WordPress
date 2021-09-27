@@ -142,9 +142,10 @@ class Yubikey extends BaseProvider {
 		$success = false;
 
 		if ( preg_match( '#^[a-z]{44}$#', $otp ) ) {
+			// 2021-09-27: API requires at least 16 chars in the nonce, or it fails.
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => wp_create_nonce( 'shield-yubikey-verify-'.$otp ),
+				'nonce' => md5( uniqid( Services::Request()->getID() ) ),
 				'id'    => $opts->getYubikeyAppId()
 			];
 
