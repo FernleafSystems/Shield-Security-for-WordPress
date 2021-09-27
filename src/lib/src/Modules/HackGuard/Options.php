@@ -172,29 +172,29 @@ class Options extends BaseShield\Options {
 	 * @return int[] - keys are scan slugs
 	 */
 	public function getScansToBuild() {
-		$aS = $this->getOpt( 'scans_to_build', [] );
-		if ( !is_array( $aS ) ) {
-			$aS = [];
+		$toBuild = $this->getOpt( 'scans_to_build', [] );
+		if ( !is_array( $toBuild ) ) {
+			$toBuild = [];
 		}
-		if ( !empty( $aS ) ) {
+		if ( !empty( $toBuild ) ) {
 			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
-			$aS = array_filter( $aS,
+			$toBuild = array_filter( $toBuild,
 				function ( $nToBuildAt ) {
 					return is_int( $nToBuildAt )
 						   && Services::Request()->carbon()->subMinute()->timestamp < $nToBuildAt;
 				}
 			);
-			$this->setScansToBuild( $aS );
+			$this->setScansToBuild( $toBuild );
 		}
-		return $aS;
+		return $toBuild;
 	}
 
 	/**
-	 * @param array $aScans
+	 * @param array $scans
 	 * @return Options
 	 */
-	public function setScansToBuild( $aScans ) {
-		return $this->setOpt( 'scans_to_build', array_intersect_key( $aScans, array_flip( $this->getScanSlugs() ) ) );
+	public function setScansToBuild( $scans ) {
+		return $this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getScanSlugs() ) ) );
 	}
 
 	/**

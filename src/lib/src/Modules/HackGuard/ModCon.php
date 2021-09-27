@@ -66,6 +66,7 @@ class ModCon extends BaseShield\ModCon {
 		$this->getDbH_Scans();
 		return $this->getDbHandler()->loadDbH( 'scanitems' );
 	}
+
 	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
 		$this->getDbH_Scans();
 		return $this->getDbHandler()->loadDbH( 'scanresults' );
@@ -95,7 +96,7 @@ class ModCon extends BaseShield\ModCon {
 				break;
 			case 'scan_file':
 				( new Lib\Utility\FileDownloadHandler() )
-					->setDbHandler( $this->getDbHandler_ScanResults() )
+					->setMod( $this )
 					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
 				break;
 		}
@@ -250,10 +251,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return ( $this->getDbHandler_ScanQueue() instanceof Databases\ScanQueue\Handler )
-			   && $this->getDbHandler_ScanQueue()->isReady()
-			   && ( $this->getDbHandler_ScanResults() instanceof Databases\Scanner\Handler )
-			   && $this->getDbHandler_ScanResults()->isReady()
+		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady()
 			   && parent::isReadyToExecute();
 	}
 
@@ -264,8 +262,8 @@ class ModCon extends BaseShield\ModCon {
 		foreach ( $opts->getScanSlugs() as $slug ) {
 			$this->getScanCon( $slug )->purge();
 		}
-		$this->getDbHandler_ScanQueue()->tableDelete();
-		$this->getDbHandler_ScanResults()->tableDelete();
+		$this->getDbH_ScanItems()->tableDelete();
+		$this->getDbH_ScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
 	}

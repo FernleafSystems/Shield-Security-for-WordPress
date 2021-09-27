@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,38 +35,14 @@ class Controller {
 	 * @return bool[]
 	 */
 	public function getScansRunningStates() :array {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		/** @var ScanQueue\Select $sel */
-		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
-
-		// First clean the queue:
-		$this->cleanExpiredFromQueue();
 
 		$scans = array_fill_keys( $opts->getScanSlugs(), false );
-		foreach ( $sel->getInitiatedScans() as $sInitScan ) {
-			$scans[ $sInitScan ] = true;
+		foreach ( ( new HackGuard\Scan\Init\ScansStatus() )->setMod( $this->getMod() )->enqueued() as $enqueued ) {
+			$scans[ $enqueued ] = true;
 		}
 		return $scans;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function cleanExpiredFromQueue() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		$nExpiredBoundary = Services::Request()
-									->carbon()
-									->subSeconds( $opts->getMalQueueExpirationInterval() )->timestamp;
-		/** @var ScanQueue\Delete $deleter */
-		$deleter = $mod->getDbHandler_ScanQueue()->getQueryDeleter();
-		return $deleter->addWhereOlderThan( $nExpiredBoundary )
-					   ->query();
 	}
 
 	/**
@@ -81,11 +58,11 @@ class Controller {
 	public function getScanJobProgress() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var ScanQueue\Select $sel */
-		$sel = $mod->getDbHandler_ScanQueue()->getQuerySelector();
+		/** @var ScanItemsDB\Ops\Select $selector */
+		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
 
-		$countsAll = $sel->countAllForEachScan();
-		$countsUnfinished = $sel->countUnfinishedForEachScan();
+		$countsAll = $selector->countAllForEachScan();
+		$countsUnfinished = $selector->countUnfinishedForEachScan();
 
 		if ( empty( $countsAll ) || empty( $countsUnfinished ) ) {
 			$progress = 1;

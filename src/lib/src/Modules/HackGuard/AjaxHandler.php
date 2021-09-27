@@ -208,11 +208,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
-		/** @var Shield\Databases\ScanQueue\Select $selector */
-		$selector = $mod->getDbHandler_ScanQueue()->getQuerySelector();
 
+		$statusChecker = ( new Scan\Init\ScansStatus() )->setMod( $mod );
 		$queueCon = $mod->getScanQueueController();
-		$current = $selector->getCurrentScan();
+		$current = $statusChecker->current();
 		$hasCurrent = !empty( $current );
 		if ( $hasCurrent ) {
 			$currentScan = $strings->getScanName( $current );
@@ -221,12 +220,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
 		}
 
-		if ( count( $selector->getInitiatedScans() ) === 0 ) {
+		$running = $statusChecker->enqueued();
+
+		if ( count( $running ) === 0 ) {
 			$remainingScans = __( 'No scans remaining.', 'wp-simple-firewall' );
 		}
 		else {
-			$remainingScans = sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
-				count( $selector->getUnfinishedScans() ), count( $selector->getInitiatedScans() ) );
+			$remainingScans = sprintf( __( '%s scans remaining.', 'wp-simple-firewall' ),
+				count( $running ) );
 		}
 
 		return [

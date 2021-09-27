@@ -57,7 +57,6 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 		try {
 			( new HackGuard\Scan\Queue\ScanInitiate() )
 				->setMod( $this->getMod() )
-				->setQueueProcessor( $this->getQueueProcessor() )
 				->init( (string)$slug );
 		}
 		catch ( \Exception $e ) {

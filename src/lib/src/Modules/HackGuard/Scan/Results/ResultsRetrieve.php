@@ -22,7 +22,9 @@ class ResultsRetrieve {
 		$mod = $scanCon->getMod();
 		/** @var ScansDB\Ops\Select $scansSelector */
 		$scansSelector = $mod->getDbH_Scans()->getQuerySelector();
+
 		$latest = $scansSelector->getLatestForScan( $scanCon->getSlug() );
+
 		if ( $scanCon->isRestricted() || empty( $latest ) ) {
 			$raw = [];
 		}
@@ -38,5 +40,25 @@ class ResultsRetrieve {
 		return ( new ConvertBetweenTypes() )
 			->setScanController( $scanCon )
 			->fromRecordsToResultsSet( $raw );
+	}
+
+	public function count() :int {
+		$scanCon = $this->getScanController();
+		/** @var ModCon $mod */
+		$mod = $scanCon->getMod();
+		/** @var ScansDB\Ops\Select $scansSelector */
+		$scansSelector = $mod->getDbH_Scans()->getQuerySelector();
+
+		$latest = $scansSelector->getLatestForScan( $scanCon->getSlug() );
+
+		if ( $scanCon->isRestricted() || empty( $latest ) ) {
+			$count = 0;
+		}
+		else {
+			/** @var ScanResultsDB\Ops\Select $selector */
+			$selector = $mod->getDbH_ScanResults()->getQuerySelector();
+			$count = $selector->filterByScan( $latest->id )->count();
+		}
+		return $count;
 	}
 }

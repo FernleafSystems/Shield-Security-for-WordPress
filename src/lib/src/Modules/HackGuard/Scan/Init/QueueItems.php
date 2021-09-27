@@ -25,7 +25,7 @@ class QueueItems {
 							ON `si`.scan_ref = `scans`.id 
 							AND `si`.`started_at`=0
 						WHERE `scans`.`ready_at` > 0 AND `scans`.`finished_at`=0
-						ORDER BY `si`.`created_at` ASC
+						ORDER BY `si`.`id` ASC
 						LIMIT 1;",
 				$mod->getDbH_Scans()->getTableSchema()->table,
 				$mod->getDbH_ScanItems()->getTableSchema()->table

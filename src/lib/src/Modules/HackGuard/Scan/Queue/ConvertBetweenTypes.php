@@ -34,23 +34,4 @@ class ConvertBetweenTypes {
 		$action->items = $scanItemsRecord->items;
 		return $action;
 	}
-
-	/**
-	 * @param Scans\Base\BaseScanActionVO $action
-	 * @return Databases\ScanQueue\EntryVO
-	 */
-	public function fromActionToDbEntry( $action ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$entry = new Databases\ScanQueue\EntryVO();
-		foreach ( $mod->getDbHandler_ScanQueue()->getTableSchema()->getColumnNames() as $field ) {
-			if ( isset( $action->{$field} ) ) {
-				$entry->{$field} = $action->{$field};
-			}
-		}
-		unset( $action->items );
-		unset( $action->results );
-		$entry->meta = $action->getRawData();
-		return $entry;
-	}
 }

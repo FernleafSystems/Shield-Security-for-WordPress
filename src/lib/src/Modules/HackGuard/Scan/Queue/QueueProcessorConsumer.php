@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-/**
- * Trait QueueProcessorConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
- */
 trait QueueProcessorConsumer {
 
 	/**

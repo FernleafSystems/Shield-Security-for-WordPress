@@ -24,21 +24,4 @@ class Select extends Base\Select {
 		}
 		return $counts;
 	}
-
-	public function countForScan( string $scan ) :int {
-		return $this->reset()
-					->filterByNotIgnored()
-					->filterByScan( $scan )
-					->count();
-	}
-
-	/**
-	 * @param string $scan
-	 * @return EntryVO[]
-	 */
-	public function forScan( $scan ) {
-		return $this->reset()
-					->filterByScan( $scan )
-					->query();
-	}
 }

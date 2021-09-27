@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -13,22 +14,14 @@ class CompleteQueue {
 
 	use ModConsumer;
 
-	/**
-	 * Take care here not to confuse the 2x DB Handlers
-	 */
 	public function complete() {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		Services::WpDb()->doSql(
-			sprintf( "UPDATE `%s`
-					SET `finished_at`=%s
-					WHERE `ready_at`>0 AND `finished_at`=0;",
-				$mod->getDbH_Scans()->getTableSchema()->table,
-				Services::Request()->ts()
-			)
-		);
+		/** @var ScanItemsDB\Ops\Delete $deleter */
+		$deleter = $mod->getDbH_ScanItems()->getQueryDeleter();
+		$deleter->filterByFinished()->query();
 
 //		foreach ( $dbhQ->getQuerySelector()->getDistinctForColumn( 'scan' ) as $scanSlug ) {
 //
@@ -66,10 +59,6 @@ class CompleteQueue {
 //					]
 //				);
 //			}
-//
-//			/** @var Databases\ScanQueue\Delete $deleter */
-//			$deleter = $dbhQ->getQueryDeleter();
-//			$deleter->filterByScan( $scanSlug )->query();
 //		}
 
 		/** @var HackGuard\Options $opts */

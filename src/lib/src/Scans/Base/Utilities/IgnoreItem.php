@@ -24,7 +24,7 @@ class IgnoreItem {
 
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$updated = $mod->getDbHandler_ScanResults()
+		$updated = $mod->getDbH_ScanResults()
 					   ->getQueryUpdater()
 					   ->setUpdateWheres( [
 						   'hash' => $this->getScanItem()->hash

@@ -2,24 +2,30 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults\Ops\{
+	Handler,
+	Record
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileDownloadHandler {
 
-	use HandlerConsumer;
+	use ModConsumer;
 
 	/**
 	 * @param int $itemID
 	 */
 	public function downloadByItemId( int $itemID ) {
-		/** @var Scanner\EntryVO $entry */
-		$entry = $this->getDbHandler()
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Record $record */
+		$record = $mod->getDbH_ScanResults()
 					  ->getQuerySelector()
-					  ->byId( (int)$itemID );
-		if ( $entry instanceof Scanner\EntryVO && !empty( $entry->meta[ 'path_full' ] ) ) {
-			$path = $entry->meta[ 'path_full' ];
+					  ->byId( $itemID );
+		if ( !empty( $record ) && $record->item_type === Handler::ITEM_TYPE_FILE && !empty( $record->item_id ) ) {
+			$path = path_join( ABSPATH, $record->item_id );
 			$FS = Services::WpFs();
 			if ( $FS->isFile( $path ) ) {
 				header( 'Set-Cookie: fileDownload=true; path=/' );

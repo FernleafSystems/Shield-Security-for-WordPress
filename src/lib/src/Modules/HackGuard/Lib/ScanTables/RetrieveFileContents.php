@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ConvertBetweenTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -23,16 +24,16 @@ class RetrieveFileContents {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		/** @var EntryVO $record */
-		$record = $mod->getDbHandler_ScanResults()
+		/** @var Record $record */
+		$record = $mod->getDbH_ScanResults()
 					  ->getQuerySelector()
 					  ->byId( $rid );
 		if ( empty( $record ) ) {
 			throw new \Exception( 'Not a valid file record' );
 		}
 		$item = ( new ConvertBetweenTypes() )
-			->setScanController( $mod->getScanCon( $record->scan ) )
-			->convertVoToResultItem( $record );
+			->setScanController( $mod->getScanCon( $record->meta[ 'scan' ] ) )
+			->convertRecordToResultItem( $record );
 		$path = $item->path_full;
 		if ( empty( $path ) ) {
 			throw new \Exception( 'There is no path associated with this record' );
@@ -51,7 +52,7 @@ class RetrieveFileContents {
 							 ->renderTemplate(
 								 '/wpadmin_pages/insights/scans/modal/code_block.twig',
 								 [
-									 'lines'    => explode( "\n", str_replace( "\t", "    ", $modContents ) ),
+									 'lines' => explode( "\n", str_replace( "\t", "    ", $modContents ) ),
 								 ]
 							 );
 		}

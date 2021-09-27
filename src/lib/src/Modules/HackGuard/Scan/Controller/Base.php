@@ -6,10 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	Scans as ScansDB,
-	ScanResults as ScanResultsDB
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults as ScanResultsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
@@ -20,14 +17,13 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Base extends ExecOnceModConsumer {
 
 	const SCAN_SLUG = '';
-	use PluginCronsConsumer;
 
 	/**
 	 * @var BaseScanActionVO
 	 */
 	private $scanActionVO;
 
-	private static $resultsCounts;
+	private static $resultsCounts = [];
 
 	public function __construct() {
 	}
@@ -78,17 +74,6 @@ abstract class Base extends ExecOnceModConsumer {
 		}
 		catch ( \Exception $e ) {
 		}
-
-		$this->cleanStalesDeletedResults();
-	}
-
-	public function cleanStalesDeletedResults() {
-		/** @var Databases\Scanner\Delete $deleter */
-		$deleter = $this->getScanResultsDbHandler()->getQueryDeleter();
-		$deleter->addWhere( 'deleted_at', 0, '>' )
-				->addWhereOlderThan( Services::Request()->carbon()->subMonths( 1 )->timestamp, 'deleted_at' )
-				->filterByScan( $this->getSlug() )
-				->query();
 	}
 
 	public function createFileDownloadLink( int $recordID ) :string {
@@ -96,14 +81,12 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function countScanProblems() :int {
-		if ( !isset( self::$resultsCounts ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			/** @var Databases\Scanner\Select $sel */
-			$sel = $mod->getDbHandler_ScanResults()->getQuerySelector();
-			self::$resultsCounts = $sel->countForEachScan();
+		if ( !isset( self::$resultsCounts[ $this->getSlug() ] ) ) {
+			self::$resultsCounts[ $this->getSlug() ] = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+				->setScanController( $this )
+				->count();
 		}
-		return self::$resultsCounts[ static::SCAN_SLUG ] ?? 0;
+		return self::$resultsCounts[ static::SCAN_SLUG ];
 	}
 
 	public function getScanHasProblem() :bool {
@@ -130,18 +113,17 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var Databases\Scanner\Select $sel */
-		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
+		/** @var ScanResultsDB\Ops\Select $sel */
+		$sel = $this->getScanResultsDBH()->getQuerySelector();
 		$sel->filterByScan( $this->getSlug() )
 			->filterByNoRepairAttempted()
 			->filterByNotIgnored();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $sel->query() );
+			->fromRecordsToResultsSet( $sel->queryWithResult() );
 	}
 
 	/**
-	 * @param bool $includeIgnored
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
@@ -205,7 +187,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function resetIgnoreStatus() :bool {
-		return $this->getScanResultsDbHandler()
+		return $this->getScanResultsDBH()
 					->getQueryUpdater()
 					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
 					->setUpdateData( [ 'ignored_at' => 0 ] )
@@ -213,7 +195,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function resetNotifiedStatus() :bool {
-		return $this->getScanResultsDbHandler()
+		return $this->getScanResultsDBH()
 					->getQueryUpdater()
 					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
 					->setUpdateData( [ 'notified_at' => 0 ] )
@@ -247,6 +229,12 @@ abstract class Base extends ExecOnceModConsumer {
 			->setScanController( $this )
 			->deleteAllForScan();
 		return $this;
+	}
+
+	public function getScanResultsDBH() :ScanResultsDB\Ops\Handler {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getDbH_ScanResults();
 	}
 
 	public function getScanResultsDbHandler() :Databases\Scanner\Handler {

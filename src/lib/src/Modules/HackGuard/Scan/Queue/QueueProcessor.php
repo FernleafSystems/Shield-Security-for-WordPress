@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Scan\Init\QueueItems,
 	Scan\Init\ScanQueueItemVO,
-	Scan\Init\StoreResults
-};
+	Scan\Init\SetScanCompleted,
+	Scan\Init\StoreResults};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
@@ -67,12 +67,22 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 			( new StoreResults() )
 				->setMod( $this->getMod() )
 				->store( $item, $results );
+
+			$this->getDbH_ScanItems()
+				 ->getQueryUpdater()
+				 ->updateById( $item->qitem_id, [
+					 'finished_at' => Services::Request()->ts()
+				 ] );
+
+			( new SetScanCompleted() )
+				->setMod( $this->getMod() )
+				->run();
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
 
-		return false; //deletes the record upon completion
+		return $item;
 	}
 
 	/**
@@ -130,7 +140,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function update( $key, $data ) {
-		// Do nothing. We delete completed entries as we go.
+		// Do nothing. Results are stored separately.
 		return $this;
 	}
 

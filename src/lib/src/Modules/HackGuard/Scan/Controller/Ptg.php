@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
@@ -13,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 class Ptg extends BaseForAssets {
 
 	const SCAN_SLUG = 'ptg';
+	use PluginCronsConsumer;
 
 	protected function run() {
 		parent::run();

@@ -60,7 +60,7 @@ class ScanAlerts extends BaseReporter {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Scanner\Update $updater */
-		$updater = $mod->getDbHandler_ScanResults()->getQueryUpdater();
+		$updater = $mod->getDbH_ScanResults()->getQueryUpdater();
 		$updater
 			->setUpdateWheres( [
 				'ignored_at'  => 0,

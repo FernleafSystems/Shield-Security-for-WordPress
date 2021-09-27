@@ -185,7 +185,7 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_HackGuard()->getDbHandler_ScanResults();
+		$dbh = $con->getModule_HackGuard()->getDbH_ScanResults();
 		$data[ 'DB Table: Scan Results' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';

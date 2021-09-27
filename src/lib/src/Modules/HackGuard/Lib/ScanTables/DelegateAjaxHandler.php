@@ -53,7 +53,7 @@ class DelegateAjaxHandler {
 
 		$items = $this->getItemIDs();
 
-		$resultIT = $mod->getDbHandler_ScanResults()->getIterator();
+		$resultIT = $mod->getDbH_ScanResults()->getIterator();
 		$resultIT->setSelector(
 			$resultIT->getSelector()->addWhereIn( 'id', $items )
 		);

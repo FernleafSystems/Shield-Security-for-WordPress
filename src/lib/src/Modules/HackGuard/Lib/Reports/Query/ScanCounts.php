@@ -2,8 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports\Query;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+	Scans,
+	ScanResults
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -65,22 +68,33 @@ class ScanCounts {
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		/** @var Scanner\Select $qSel */
-		$qSel = $mod->getDbHandler_ScanResults()->getQuerySelector();
+		/** @var Scans\Ops\Select $scansSelect */
+		$scansSelect = $mod->getDbH_Scans()->getQuerySelector();
+		/** @var ScanResults\Ops\Select $resultsSelect */
+		$resultsSelect = $mod->getDbH_ScanResults()->getQuerySelector();
 
 		$counts = [];
 
 		foreach ( $opts->getScanSlugs() as $slug ) {
-			$qSel->filterByScan( $slug )
-				 ->filterByCreatedAt( $this->from, '>=' )
-				 ->filterByCreatedAt( $this->to, '<=' );
+			$scan = $scansSelect->filterByScan( $slug )
+								->filterByCreatedAt( $this->from, '>=' )
+								->filterByCreatedAt( $this->to, '<=' )
+								->setOrderBy( 'id', 'DESC', true )
+								->first();
+			if ( empty( $scan ) ) {
+				continue;
+			}
+
+			$resultsSelect->filterByScan( $scan->id )
+						  ->filterByCreatedAt( $this->from, '>=' )
+						  ->filterByCreatedAt( $this->to, '<=' );
 			if ( isset( $this->ignored ) ) {
-				$this->ignored ? $qSel->filterByIgnored() : $qSel->filterByNotIgnored();
+				$this->ignored ? $resultsSelect->filterByIgnored() : $resultsSelect->filterByNotIgnored();
 			}
 			if ( isset( $this->notified ) ) {
-				$this->notified ? $qSel->filterByNotified() : $qSel->filterByNotNotified();
+				$this->notified ? $resultsSelect->filterByNotified() : $resultsSelect->filterByNotNotified();
 			}
-			$counts[ $slug ] = $qSel->count();
+			$counts[ $slug ] = $resultsSelect->count();
 		}
 
 		return $counts;

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScansController extends ExecOnceModConsumer {
 
 	use StandardCron;
+	use PluginCronsConsumer;
 
 	private $scanCons;
 
@@ -24,6 +26,7 @@ class ScansController extends ExecOnceModConsumer {
 			$scanCon->execute();
 		}
 		$this->setupCron();
+		$this->setupCronHooks(); // Plugin crons
 		$this->handlePostScanCron();
 	}
 
@@ -169,5 +172,19 @@ class ScansController extends ExecOnceModConsumer {
 
 	protected function getCronName() :string {
 		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
+	}
+
+	public function runDailyCron() {
+		$this->cleanStalesDeletedResults();
+	}
+
+	public function cleanStalesDeletedResults() {
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getDbH_ScanResults()
+			->getQueryDeleter()
+			->addWhere( 'deleted_at', 0, '>' )
+			->addWhereOlderThan( Services::Request()->carbon()->subMonths( 1 )->timestamp, 'deleted_at' )
+			->query();
 	}
 }
