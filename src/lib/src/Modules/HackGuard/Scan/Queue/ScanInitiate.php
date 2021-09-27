@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\ScanExistsException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -32,6 +33,7 @@ class ScanInitiate {
 		$scanRecord = ( new CreateNewScan() )
 			->setMod( $mod )
 			->run( $slug );
+
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )
 			->setScanController( $mod->getScanCon( $slug ) )

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Scans\Ops;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 trait Common {
 
 	public function filterByScan( string $scan ) {
@@ -12,15 +14,20 @@ trait Common {
 		return $this->addWhereEquals( 'finished_at', 0 );
 	}
 
-	public function filterByNotStarted() {
-		return $this->addWhereEquals( 'started_at', 0 );
+	public function filterByNotReady() {
+		return $this->addWhereEquals( 'ready_at', 0 );
 	}
 
 	public function filterByFinished() {
 		return $this->addWhereNewerThan( 0, 'finished_at' );
 	}
 
-	public function filterByStarted() {
-		return $this->addWhereNewerThan( 0, 'started_at' );
+	public function filterByReady() {
+		return $this->addWhereNewerThan( 0, 'ready_at' );
+	}
+
+	public function filterByStale() {
+		return $this->filterByNotReady()
+					->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 20 )->timestamp );
 	}
 }
