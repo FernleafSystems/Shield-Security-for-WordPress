@@ -17,7 +17,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$fullPath = wp_normalize_path( $fullPath );
 		if ( !$this->isExcluded( $fullPath ) ) {
 			/** @var ResultItem $item */
-			$item = $this->getScanActionVO()->getNewResultItem();
+			$item = $this->getScanController()->getNewResultItem();
 			$item->path_full = $fullPath;
 			$item->path_fragment = Services::CoreFileHashes()->getFileFragment( $fullPath );
 		}

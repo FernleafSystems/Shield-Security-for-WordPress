@@ -21,7 +21,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$oHashes = Services::CoreFileHashes();
 
 		/** @var ResultItem $item */
-		$item = $this->getScanActionVO()->getNewResultItem();
+		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = $fullPath;
 		$item->path_fragment = $oHashes->getFileFragment( $fullPath );
 		$item->md5_file_wp = $oHashes->getFileHash( $item->path_fragment );

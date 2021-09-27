@@ -11,10 +11,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSour
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
 
-/**
- * Class FileScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
- */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
@@ -212,7 +208,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function getNewItem( $asset, $file ) {
 		/** @var ResultItem $item */
-		$item = $this->getScanActionVO()->getNewResultItem();
+		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = $file;
 		$item->path_fragment = $file; // will eventually be overwritten
 		$item->is_unrecognised = false;

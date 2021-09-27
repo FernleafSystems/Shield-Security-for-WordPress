@@ -8,9 +8,6 @@ trait Common {
 		return $this->addWhereEquals( 'scan_ref', $scanID );
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function filterByNotIgnored() {
 		return $this->addWhereEquals( 'ignored_at', 0 );
 	}

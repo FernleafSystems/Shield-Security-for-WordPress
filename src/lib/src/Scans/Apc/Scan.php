@@ -7,31 +7,30 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class Scan extends Shield\Scans\Base\BaseScan {
 
 	protected function scanSlice() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
-		$oTempRs = $oAction->getNewResultsSet();
+		$tempResultSet = $this->getScanController()->getNewResultsSet();
 
-		foreach ( $oAction->items as $nKey => $sItem ) {
-			$oItem = $this->getItemScanner()->scan( $sItem );
-			if ( $oItem instanceof Shield\Scans\Base\ResultItem ) {
-				$oTempRs->addItem( $oItem );
+		foreach ( $action->items as $scanItem ) {
+			$resultItem = $this->getItemScanner()->scan( $scanItem );
+			if ( $resultItem instanceof Shield\Scans\Base\ResultItem ) {
+				$tempResultSet->addItem( $resultItem );
 			}
 		}
 
-		$aNewItems = [];
-		if ( $oTempRs->hasItems() ) {
-			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$aNewItems[] = $oItem->getRawData();
+		$newItems = [];
+		if ( $tempResultSet->hasItems() ) {
+			foreach ( $tempResultSet->getAllItems() as $resultItem ) {
+				$newItems[] = $resultItem->getRawData();
 			}
 		}
-		$oAction->results = $aNewItems;
+		$action->results = $newItems;
 	}
 
-	/**
-	 * @return PluginScanner
-	 */
-	protected function getItemScanner() {
-		return ( new PluginScanner() )->setScanActionVO( $this->getScanActionVO() );
+	protected function getItemScanner() :PluginScanner {
+		return ( new PluginScanner() )
+			->setScanController( $this->getScanController() )
+			->setScanActionVO( $this->getScanActionVO() );
 	}
 }

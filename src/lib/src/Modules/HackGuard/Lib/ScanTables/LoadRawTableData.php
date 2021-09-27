@@ -220,7 +220,7 @@ class LoadRawTableData {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$actionHandler = $mod->getScanCon( $item->VO->scan )
+		$actionHandler = $mod->getScanCon( $item->scan )
 							 ->getItemActionHandler()
 							 ->setScanItem( $item );
 
@@ -258,7 +258,7 @@ class LoadRawTableData {
 			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
-				$mod->getScanCon( $item->VO->scan )->createFileDownloadLink( $item->VO->id ),
+				$mod->getScanCon( $item->scan )->createFileDownloadLink( $item->VO->id ),
 				$con->svgs->raw( 'bootstrap/download.svg' )
 			);
 		}

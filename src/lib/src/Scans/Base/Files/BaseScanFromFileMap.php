@@ -4,16 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\VerifyFileByHash;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Utilities\Code\AssessPhpFile;
 
-/**
- * Class BaseScanFromFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files
- */
 abstract class BaseScanFromFileMap {
 
+	use ScanControllerConsumer;
 	use ModConsumer;
 	use Scans\Common\ScanActionConsumer;
 
@@ -25,7 +23,7 @@ abstract class BaseScanFromFileMap {
 		$opts = $this->getOptions();
 
 		$action = $this->getScanActionVO();
-		$results = $action->getNewResultsSet();
+		$results = $this->getScanController()->getNewResultsSet();
 
 		$isAutoFilter = $opts->isAutoFilterResults();
 
@@ -36,7 +34,11 @@ abstract class BaseScanFromFileMap {
 				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
 
 					if ( !$hashVerifier->verify( $fullPath ) ) {
-						$item = $this->getFileScanner()->scan( $fullPath );
+						$item = $this->getFileScanner()
+									 ->setScanController( $this->getScanController() )
+									 ->setMod( $this->getMod() )
+									 ->setScanActionVO( $action )
+									 ->scan( $fullPath );
 						// We can exclude files that are empty of relevant code
 						if ( !empty( $item ) ) {
 							$results->addItem( $item );

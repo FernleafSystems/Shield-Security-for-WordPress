@@ -270,7 +270,10 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	public function getNewResultItem() {
 		$class = $this->getScanNamespace().'ResultItem';
-		return new $class();
+		/** @var ResultItem $item */
+		$item = new $class();
+		$item->scan = $this->getSlug();
+		return $item;
 	}
 
 	/**

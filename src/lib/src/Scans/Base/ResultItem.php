@@ -18,6 +18,9 @@ class ResultItem {
 
 	use DynProperties;
 
+	public function __construct() {
+	}
+
 	/**
 	 * @var Record
 	 */

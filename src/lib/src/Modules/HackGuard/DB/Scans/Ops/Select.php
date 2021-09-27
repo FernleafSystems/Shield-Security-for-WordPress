@@ -8,7 +8,11 @@ class Select extends Base\Select {
 
 	use Common;
 
-	public function getLatestForScan( string $scan ) :Record {
+	/**
+	 * @param string $scan
+	 * @return Record|null
+	 */
+	public function getLatestForScan( string $scan ) {
 		return $this->filterByScan( $scan )
 					->setOrderBy( 'id', 'DESC', true )
 					->first();

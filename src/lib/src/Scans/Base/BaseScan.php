@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseScan {
 
+	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 	use Shield\Modules\ModConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 
@@ -25,11 +26,11 @@ abstract class BaseScan {
 	 * @throws \Exception
 	 */
 	protected function preScan() {
-		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof BaseScanActionVO ) {
+		$action = $this->getScanActionVO();
+		if ( !$action instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
 		}
-		if ( empty( $oAction->scan ) ) {
+		if ( empty( $action->scan ) ) {
 			throw new \Exception( 'Action Slug not provided.' );
 		}
 	}

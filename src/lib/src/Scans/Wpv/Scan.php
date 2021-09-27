@@ -11,7 +11,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanSlice() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$tmpResults = $action->getNewResultsSet();
+		$tmpResults = $this->getScanController()->getNewResultsSet();
 
 		$copier = new Shield\Scans\Helpers\CopyResultsSets();
 		foreach ( $action->items as $file => $context ) {
@@ -35,12 +35,13 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	 * @return ResultsSet
 	 */
 	protected function scanItem( $context, $file ) {
-		$results = new ResultsSet();
+		/** @var ResultsSet $results */
+		$results = $this->getScanController()->getNewResultsSet();
 
-		$sApiToken = $this->getCon()
-						  ->getModule_License()
-						  ->getWpHashesTokenManager()
-						  ->getToken();
+		$apiToken = $this->getCon()
+						 ->getModule_License()
+						 ->getWpHashesTokenManager()
+						 ->getToken();
 
 		if ( $context == 'plugins' ) {
 			$WPP = Services::WpPlugins();
@@ -49,12 +50,12 @@ class Scan extends Shield\Scans\Base\BaseScan {
 				$slug = dirname( $file );
 			}
 			$version = $WPP->getPluginAsVo( $file )->Version;
-			$lookerUpper = new Vulnerabilities\Plugin( $sApiToken );
+			$lookerUpper = new Vulnerabilities\Plugin( $apiToken );
 		}
 		else {
 			$slug = $file;
 			$version = Services::WpThemes()->getTheme( $slug )->get( 'Version' );
-			$lookerUpper = new Vulnerabilities\Theme( $sApiToken );
+			$lookerUpper = new Vulnerabilities\Theme( $apiToken );
 		}
 
 		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
@@ -64,7 +65,8 @@ class Scan extends Shield\Scans\Base\BaseScan {
 				$VO = ( new Shield\Scans\Wpv\WpVulnDb\VulnVO() )->applyFromArray( $vul );
 				$VO->provider = $rawVuls[ 'meta' ][ 'provider' ];
 
-				$item = new ResultItem();
+				/** @var ResultItem $item */
+				$item = $this->getScanController()->getNewResultItem();
 				$item->slug = $file;
 				$item->context = $context;
 				$item->wpvuln_id = $VO->id;

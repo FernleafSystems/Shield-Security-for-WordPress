@@ -40,10 +40,13 @@ class ScanExecute {
 	 * @return Shield\Scans\Base\BaseScan
 	 */
 	private function getScanner( $action ) {
+		/** @var Shield\Modules\HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$class = $action->getScanNamespace().'Scan';
 		/** @var Shield\Scans\Base\BaseScan $o */
 		$o = new $class();
-		return $o->setMod( $this->getMod() )
+		return $o->setScanController( $mod->getScanCon( $action->scan ) )
+				 ->setMod( $mod )
 				 ->setScanActionVO( $action );
 	}
 }

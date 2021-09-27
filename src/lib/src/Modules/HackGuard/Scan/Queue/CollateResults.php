@@ -37,7 +37,7 @@ class CollateResults {
 
 			foreach ( $action->results as $resultItemRawData ) {
 				$resultsSet->addItem(
-					$action->getNewResultItem()->applyFromArray( $resultItemRawData )
+					$this->getScanController()->getNewResultItem()->applyFromArray( $resultItemRawData )
 				);
 			}
 		}

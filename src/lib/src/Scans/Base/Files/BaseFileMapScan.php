@@ -18,6 +18,7 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 			},
 			// run the scan and get results:
 			$this->getScanFromFileMap()
+				 ->setScanController( $this->getScanController() )
 				 ->setScanActionVO( $action )
 				 ->run()
 				 ->getAllItems()

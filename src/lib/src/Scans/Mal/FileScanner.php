@@ -143,7 +143,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem
 	 */
 	private function getResultItemFromLines( array $lines, string $fullPath, string $signature ) :ResultItem {
-		$item = new ResultItem();
+		/** @var ResultItem $item */
+		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
 		$item->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
 		$item->is_mal = true;

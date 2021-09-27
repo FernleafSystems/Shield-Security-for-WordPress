@@ -22,22 +22,6 @@ abstract class BaseScanActionVO {
 	const QUEUE_GROUP_SIZE_LIMIT = 1;
 	const DEFAULT_SLEEP_SECONDS = 0;
 
-	/**
-	 * @return ResultItem|mixed
-	 */
-	public function getNewResultItem() {
-		$class = $this->getScanNamespace().'ResultItem';
-		return new $class();
-	}
-
-	/**
-	 * @return ResultsSet|mixed
-	 */
-	public function getNewResultsSet() {
-		$class = $this->getScanNamespace().'ResultsSet';
-		return new $class();
-	}
-
 	public function getScanNamespace() :string {
 		try {
 			$namespace = ( new \ReflectionClass( $this ) )->getNamespaceName();

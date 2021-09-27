@@ -17,15 +17,15 @@ class BuildScanAction {
 	public function build( string $slug ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
-		$action = $mod->getScanCon( $slug )->getScanActionVO();
+		$scanCon = $mod->getScanCon( $slug );
+		$action = $scanCon->getScanActionVO();
 
 		// Build the action definition:
 
 		$class = $action->getScanNamespace().'BuildScanAction';
 		/** @var Shield\Scans\Base\BuildScanAction $builder */
 		$builder = new $class();
-		$builder->setMod( $mod )
+		$builder->setScanController( $scanCon )
 				->setScanActionVO( $action )
 				->build();
 		return $action;
