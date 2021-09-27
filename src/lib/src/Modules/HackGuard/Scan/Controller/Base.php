@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+	Scans as ScansDB,
+	ScanResults as ScanResultsDB
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
@@ -140,17 +144,10 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @param bool $includeIgnored
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
-	public function getAllResults( $includeIgnored = false ) {
-		/** @var Databases\Scanner\Select $sel */
-		$sel = $this->getScanResultsDbHandler()->getQuerySelector();
-		$sel->filterByScan( $this->getSlug() );
-		if ( !$includeIgnored ) {
-			$sel->filterByNotIgnored();
-		}
-		$raw = $this->isRestricted() ? [] : $sel->query();
-		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+	public function getAllResults() {
+		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
 			->setScanController( $this )
-			->fromVOsToResultsSet( $raw );
+			->retrieve( false );
 	}
 
 	/**

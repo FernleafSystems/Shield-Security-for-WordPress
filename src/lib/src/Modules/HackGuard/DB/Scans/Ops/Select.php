@@ -7,4 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 class Select extends Base\Select {
 
 	use Common;
+
+	public function getLatestForScan( string $scan ) :Record {
+		return $this->filterByScan( $scan )
+					->setOrderBy( 'id', 'DESC', true )
+					->first();
+	}
 }

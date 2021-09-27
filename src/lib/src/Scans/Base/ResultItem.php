@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynProperties;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults\Ops\Record;
 
 /**
  * Class ResultItem
@@ -19,7 +19,7 @@ class ResultItem {
 	use DynProperties;
 
 	/**
-	 * @var EntryVO
+	 * @var Record
 	 */
 	public $VO;
 

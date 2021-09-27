@@ -6,4 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 
 class Handler extends Base\Handler {
 
+	const ITEM_TYPE_FILE = 'f';
+	const ITEM_TYPE_PLUGIN = 'p';
+	const ITEM_TYPE_THEME = 't';
 }

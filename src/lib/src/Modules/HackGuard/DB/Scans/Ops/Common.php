@@ -10,6 +10,10 @@ trait Common {
 		return $this->addWhereEquals( 'scan', $scan );
 	}
 
+	public function filterByScans( array $scans ) {
+		return $this->addWhereIn( 'scan', $scans );
+	}
+
 	public function filterByNotFinished() {
 		return $this->addWhereEquals( 'finished_at', 0 );
 	}

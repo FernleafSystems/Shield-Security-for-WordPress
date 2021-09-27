@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
@@ -28,6 +29,18 @@ class ConvertBetweenTypes {
 	}
 
 	/**
+	 * @param Record[] $records
+	 * @return Scans\Base\ResultsSet|mixed
+	 */
+	public function fromRecordsToResultsSet( $records ) {
+		$results = $this->getScanController()->getNewResultsSet();
+		foreach ( $records as $record ) {
+			$results->addItem( $this->convertRecordToResultItem( $record ) );
+		}
+		return $results;
+	}
+
+	/**
 	 * @param Databases\Scanner\EntryVO[] $VOs
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
@@ -37,6 +50,18 @@ class ConvertBetweenTypes {
 			$results->addItem( $this->convertVoToResultItem( $VO ) );
 		}
 		return $results;
+	}
+
+	/**
+	 * @param Record $record
+	 * @return Scans\Base\ResultItem
+	 */
+	public function convertRecordToResultItem( Record $record ) {
+		$item = $this->getScanController()
+					 ->getNewResultItem()
+					 ->applyFromArray( $record->meta );
+		$item->VO = $record;
+		return $item;
 	}
 
 	/**
