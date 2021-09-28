@@ -18,21 +18,18 @@ class IgnoreItem {
 	 * @throws \Exception
 	 */
 	public function ignore() :bool {
-		if ( empty( $this->getScanItem()->VO ) ) {
+		$item = $this->getScanItem();
+		if ( empty( $item->VO ) ) {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$updated = $mod->getDbH_ScanResults()
+		$updated = $mod->getDbH_ResultItems()
 					   ->getQueryUpdater()
-					   ->setUpdateWheres( [
-						   'hash' => $this->getScanItem()->hash
-					   ] )
-					   ->setUpdateData( [
+					   ->updateById( $item->VO->resultitem_id, [
 						   'ignored_at' => Services::Request()->ts()
-					   ] )
-					   ->query();
+					   ] );
 		if ( !$updated ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}

@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  * @property string $md5_file_wp
  * @property bool   $is_checksumfail
  * @property bool   $is_missing

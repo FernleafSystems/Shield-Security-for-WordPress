@@ -18,13 +18,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	public function scan( string $fullPath ) {
 		$results = null;
-		$oHashes = Services::CoreFileHashes();
+		$hashes = Services::CoreFileHashes();
 
 		/** @var ResultItem $item */
 		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = $fullPath;
-		$item->path_fragment = $oHashes->getFileFragment( $fullPath );
-		$item->md5_file_wp = $oHashes->getFileHash( $item->path_fragment );
+		$item->path_fragment = $hashes->getFileFragment( $fullPath );
+		$item->md5_file_wp = $hashes->getFileHash( $item->path_fragment );
 		$item->is_missing = !Services::WpFs()->exists( $item->path_full );
 		$item->is_checksumfail = !$item->is_missing && $this->isChecksumFail( $item );
 		$item->is_excluded = $this->isExcluded( $item->path_fragment )

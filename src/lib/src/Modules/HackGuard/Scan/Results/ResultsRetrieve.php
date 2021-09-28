@@ -60,6 +60,29 @@ class ResultsRetrieve {
 	/**
 	 * @return Scans\Base\ResultsSet
 	 */
+	public function byIDs( array $IDs ) {
+		$results = [];
+		if ( !$this->getScanController()->isRestricted() ) {
+			$latestID = $this->getLatestScanID();
+			if ( $latestID >= 0 ) {
+				$raw = Services::WpDb()->selectCustom(
+					sprintf( $this->getBaseQuery(),
+						implode( ',', $this->standardSelectFields() ),
+						sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
+					)
+				);
+				if ( !empty( $raw ) ) {
+					$results = $raw;
+				}
+			}
+		}
+
+		return $this->convertToResultsSet( $results );
+	}
+
+	/**
+	 * @return Scans\Base\ResultsSet
+	 */
 	public function retrieve( bool $includeIgnored = true ) {
 		$results = [];
 		if ( !$this->getScanController()->isRestricted() ) {

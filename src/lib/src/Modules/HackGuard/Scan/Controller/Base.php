@@ -111,6 +111,18 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
+	 * @param ResultItem $item
+	 * @param string     $action
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function executeItemAction( $item, string $action ) :bool {
+		return $this->getItemActionHandler()
+					->setScanItem( $item )
+					->process( $action );
+	}
+
+	/**
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
