@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  * @property string $slug
  * @property string $context
  * @property string $is_unrecognised

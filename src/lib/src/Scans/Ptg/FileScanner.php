@@ -62,19 +62,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			throw new \Exception( 'File hashes from store is empty' );
 		}
 
-		$pathFragment = str_replace( wp_normalize_path( ABSPATH ), '', $fullPath );
-
 		$scanFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
 		$hash = $assetHashes[ $scanFragment ] ?? ( $assetHashes[ strtolower( $scanFragment ) ] ?? null );
 
 		if ( empty( $hash ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
-			$item->path_fragment = $pathFragment;
 			$item->is_unrecognised = true;
 		}
 		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $hash ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
-			$item->path_fragment = $pathFragment;
 			$item->is_different = true;
 		}
 		else {
@@ -96,15 +92,14 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		if ( empty( $assetHashes ) ) {
 			throw new \Exception( 'File hashes from WPHashes is empty' );
 		}
-		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
-		if ( empty( $assetHashes[ $pathFragment ] ) ) {
+
+		$scanFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
+		if ( empty( $assetHashes[ $scanFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
-			$item->path_fragment = $pathFragment;
 			$item->is_unrecognised = true;
 		}
-		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $assetHashes[ $pathFragment ] ) ) {
+		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $assetHashes[ $scanFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
-			$item->path_fragment = $pathFragment;
 			$item->is_different = true;
 		}
 		else {
@@ -128,12 +123,10 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 
 		$item = null;
-		$pathFragment = str_replace( wp_normalize_path( ABSPATH ), '', $fullPath );
 		// use a lower-case key for "scan", but can't use this anywhere else.
 		$scanFragment = strtolower( str_replace( $asset->getInstallDir(), '', $fullPath ) );
 		if ( empty( $assetHashes[ $scanFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
-			$item->path_fragment = $pathFragment;
 			$item->is_unrecognised = true;
 		}
 		else {
@@ -147,7 +140,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 			if ( !$found ) {
 				$item = $this->getNewItem( $asset, $fullPath );
-				$item->path_fragment = $pathFragment;
 				$item->is_different = true;
 			}
 		}
@@ -205,14 +197,14 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
 	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @param string                             $file
+	 * @param string                             $fullPath
 	 * @return ResultItem
 	 */
-	private function getNewItem( $asset, $file ) {
+	private function getNewItem( $asset, $fullPath ) {
 		/** @var ResultItem $item */
 		$item = $this->getScanController()->getNewResultItem();
-		$item->path_full = $file;
-		$item->path_fragment = $file; // will eventually be overwritten
+		$item->path_full = $fullPath;
+		$item->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $fullPath );
 		$item->is_unrecognised = false;
 		$item->is_different = false;
 		$item->is_missing = false;

@@ -130,7 +130,7 @@ class DelegateAjaxHandler {
 			'success' => true,
 			'vars'    => ( new RetrieveFileContents() )
 				->setMod( $this->getMod() )
-				->retrieve( (int)$rid ),
+				->run( (int)$rid ),
 		];
 	}
 

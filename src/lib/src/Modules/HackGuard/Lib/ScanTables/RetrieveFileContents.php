@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
-	Controller\Wcf,
-	Results\ResultsRetrieve
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsRetrieve;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,7 +17,7 @@ class RetrieveFileContents {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function retrieve( int $rid, bool $raw = false ) :array {
+	public function run( int $rid, bool $raw = false ) :array {
 		try {
 			$item = ( new ResultsRetrieve() )
 				->setMod( $this->getMod() )

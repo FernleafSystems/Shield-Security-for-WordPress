@@ -156,6 +156,9 @@ class ResultsRetrieve {
 			'ri.item_type',
 			'ri.item_id',
 			'ri.meta',
+			'ri.ignored_at',
+			'ri.attempt_repair_at',
+			'ri.notified_at',
 			'ri.created_at',
 		];
 	}

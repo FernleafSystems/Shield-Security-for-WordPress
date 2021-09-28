@@ -582,7 +582,7 @@
       "autoexpire":     0,
       "slug":           "scanresults",
       "has_updated_at": false,
-      "has_created_at": false,
+      "has_created_at": true,
       "has_deleted_at": false,
       "cols_custom":    {
         "scan_ref":       {
