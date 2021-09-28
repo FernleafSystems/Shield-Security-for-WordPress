@@ -22,9 +22,6 @@ class RetrieveFileContents {
 	 * @throws \Exception
 	 */
 	public function retrieve( int $rid, bool $raw = false ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		try {
 			$item = ( new ResultsRetrieve() )
 				->setMod( $this->getMod() )

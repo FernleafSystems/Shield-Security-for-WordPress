@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Wcf;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsRetrieve;
 
 class Debug extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Debug {
 
@@ -14,9 +15,10 @@ class Debug extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Debug 
 	private function testscans() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$res = ( new QueueItems() )
-			->setMod( $mod )
-			->next();
+		$res = ( new ResultsRetrieve() )
+			->setScanController( $mod->getScanCon( Wcf::SCAN_SLUG ) )
+			->setMod( $this->getMod() )
+			->retrieve();
 		var_dump( $res );
 	}
 }
