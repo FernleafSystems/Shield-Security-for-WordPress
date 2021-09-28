@@ -31,7 +31,7 @@ class RetrieveFileContents {
 			throw new \Exception( 'Not a valid file record' );
 		}
 
-		$path = $item->path_full;
+		$path = path_join( ABSPATH, $item->path_fragment );
 		if ( empty( $path ) ) {
 			throw new \Exception( 'There is no path associated with this record' );
 		}

@@ -61,8 +61,12 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		if ( empty( $assetHashes ) ) {
 			throw new \Exception( 'File hashes from store is empty' );
 		}
-		$pathFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
-		$hash = $assetHashes[ $pathFragment ] ?? ( $assetHashes[ strtolower( $pathFragment ) ] ?? null );
+
+		$pathFragment = str_replace( wp_normalize_path( ABSPATH ), '', $fullPath );
+
+		$scanFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
+		$hash = $assetHashes[ $scanFragment ] ?? ( $assetHashes[ strtolower( $scanFragment ) ] ?? null );
+
 		if ( empty( $hash ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
 			$item->path_fragment = $pathFragment;
@@ -124,14 +128,12 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 
 		$item = null;
-
-		$trueFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
-
-		// we must use a lower-case key for "scan", but can't use this anywhere else.
-		$scanFragment = strtolower( $trueFragment );
+		$pathFragment = str_replace( wp_normalize_path( ABSPATH ), '', $fullPath );
+		// use a lower-case key for "scan", but can't use this anywhere else.
+		$scanFragment = strtolower( str_replace( $asset->getInstallDir(), '', $fullPath ) );
 		if ( empty( $assetHashes[ $scanFragment ] ) ) {
 			$item = $this->getNewItem( $asset, $fullPath );
-			$item->path_fragment = $trueFragment;
+			$item->path_fragment = $pathFragment;
 			$item->is_unrecognised = true;
 		}
 		else {
@@ -145,7 +147,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 			if ( !$found ) {
 				$item = $this->getNewItem( $asset, $fullPath );
-				$item->path_fragment = $trueFragment;
+				$item->path_fragment = $pathFragment;
 				$item->is_different = true;
 			}
 		}
