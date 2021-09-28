@@ -1,9 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,7 +15,7 @@ class QueueItems {
 	/**
 	 * @throws NoQueueItems
 	 */
-	public function next() :ScanQueueItemVO {
+	public function next() :QueueItemVO {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$result = Services::WpDb()->selectRow(
@@ -37,7 +38,7 @@ class QueueItems {
 		foreach ( [ 'items', 'meta' ] as $key ) {
 			$result[ $key ] = json_decode( base64_decode( $result[ $key ] ), true );
 		}
-		return ( new ScanQueueItemVO() )->applyFromArray( $result );
+		return ( new QueueItemVO() )->applyFromArray( $result );
 	}
 
 	public function hasNextItem() :bool {

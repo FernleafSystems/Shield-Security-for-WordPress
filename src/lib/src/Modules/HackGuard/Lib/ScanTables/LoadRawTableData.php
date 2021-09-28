@@ -73,7 +73,7 @@ class LoadRawTableData {
 				/** @var Scans\Mal\ResultItem $item */
 				$data = $item->getRawData();
 
-				$data[ 'rid' ] = $item->VO->id;
+				$data[ 'rid' ] = $item->VO->scanresult_id;
 				$data[ 'file' ] = $item->path_fragment;
 				$data[ 'detected_at' ] = $item->VO->created_at;
 				$data[ 'detected_since' ] = Services::Request()
@@ -118,7 +118,8 @@ class LoadRawTableData {
 				function ( $item ) {
 					/** @var Scans\Wcf\ResultItem|Scans\Ufc\ResultItem $item */
 					$data = $item->getRawData();
-					$data[ 'rid' ] = $item->VO->id;
+
+					$data[ 'rid' ] = $item->VO->scanresult_id;
 					$data[ 'file' ] = $item->path_fragment;
 					$data[ 'detected_at' ] = $item->VO->created_at;
 					$data[ 'detected_since' ] = Services::Request()
@@ -149,6 +150,7 @@ class LoadRawTableData {
 
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
+					error_log( var_export( $data, true ) );
 					return $data;
 				},
 				array_merge(
@@ -173,7 +175,7 @@ class LoadRawTableData {
 			function ( $item ) {
 
 				$data = $item->getRawData();
-				$data[ 'rid' ] = $item->VO->id;
+				$data[ 'rid' ] = $item->VO->scanresult_id;
 				$data[ 'file' ] = $item->path_fragment;
 				$data[ 'detected_at' ] = $item->VO->created_at;
 				$data[ 'detected_since' ] = Services::Request()
@@ -235,7 +237,7 @@ class LoadRawTableData {
 			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
-				$item->VO->id,
+				$item->VO->scanresult_id,
 				$con->svgs->raw( 'bootstrap/x-square.svg' )
 			);
 		}
@@ -246,7 +248,7 @@ class LoadRawTableData {
 				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Repair', 'wp-simple-firewall' ),
-					$item->VO->id,
+					$item->VO->scanresult_id,
 					$con->svgs->raw( 'bootstrap/tools.svg' )
 				);
 			}
@@ -258,7 +260,7 @@ class LoadRawTableData {
 			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Download', 'wp-simple-firewall' ),
-				$mod->getScanCon( $item->scan )->createFileDownloadLink( $item->VO->id ),
+				$mod->getScanCon( $item->scan )->createFileDownloadLink( $item->VO->scanresult_id ),
 				$con->svgs->raw( 'bootstrap/download.svg' )
 			);
 		}
@@ -266,7 +268,7 @@ class LoadRawTableData {
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
 			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
-			$item->VO->id,
+			$item->VO->scanresult_id,
 			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
 		);
 
@@ -317,7 +319,7 @@ class LoadRawTableData {
 	private function getColumnContent_FileAsHref( Scans\Base\FileResultItem $item ) :string {
 		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
-			$item->VO->id,
+			$item->VO->scanresult_id,
 			$item->path_fragment
 		);
 	}

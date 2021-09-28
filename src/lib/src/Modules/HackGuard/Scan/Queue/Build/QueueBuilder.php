@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
-	use HackGuard\Scan\Queue\QueueProcessorConsumer;
 	use Shield\Modules\ModConsumer;
 
 	/**
@@ -55,7 +54,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	protected function task( $slug ) {
 
 		try {
-			( new HackGuard\Scan\Queue\ScanInitiate() )
+			( new HackGuard\Scan\Queue\QueueInit() )
 				->setMod( $this->getMod() )
 				->init( (string)$slug );
 		}
@@ -75,19 +74,23 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-		$this->getQueueProcessor()->dispatch();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getScanQueueController()
+			->getQueueProcessor()
+			->dispatch();
 	}
 
 	/**
 	 * Delete queue
 	 *
-	 * @param string $sScanSlug .
+	 * @param string $scanSlug .
 	 * @return $this
 	 */
-	public function delete( $sScanSlug ) {
+	public function delete( $scanSlug ) {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oOpts->addRemoveScanToBuild( $sScanSlug, false );
+		$oOpts->addRemoveScanToBuild( $scanSlug, false );
 		$this->save();
 		return $this;
 	}

@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
@@ -11,6 +11,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $meta
  * @property array  $items
  */
-class ScanQueueItemVO extends DynPropertiesClass {
+class QueueItemVO extends DynPropertiesClass {
 
 }

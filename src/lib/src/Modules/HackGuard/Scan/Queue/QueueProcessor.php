@@ -5,10 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
-	Scan\Init\QueueItems,
-	Scan\Init\ScanQueueItemVO,
+	Scan\Queue\QueueItems,
+	Scan\Queue\QueueItemVO,
 	Scan\Init\SetScanCompleted,
-	Scan\Init\StoreResults};
+	Scan\Results\StoreResults
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
@@ -49,7 +50,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param ScanQueueItemVO $item Queue item to iterate over.
+	 * @param QueueItemVO $item Queue item to iterate over.
 	 * @return mixed
 	 */
 	protected function task( $item ) {
@@ -60,9 +61,9 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 			 ] );
 
 		try {
-			$results = ( new ScanExecute() )
+			$results = ( new ProcessQueueItem() )
 				->setMod( $this->getMod() )
-				->execute( $item );
+				->run( $item );
 
 			( new StoreResults() )
 				->setMod( $this->getMod() )

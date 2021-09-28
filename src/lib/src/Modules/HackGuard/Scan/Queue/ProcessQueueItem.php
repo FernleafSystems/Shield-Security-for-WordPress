@@ -3,19 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	Scan\Init\ScanQueueItemVO,
-	Scan\ScanActionFromSlug
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 
-class ScanExecute {
+class ProcessQueueItem {
 
 	use Shield\Modules\ModConsumer;
 
 	/**
 	 * @throws \Exception
 	 */
-	public function execute( ScanQueueItemVO $item ) :array {
+	public function run( QueueItemVO $item ) :array {
 		/** @var Shield\Modules\HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 

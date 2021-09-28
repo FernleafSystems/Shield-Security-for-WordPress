@@ -107,8 +107,7 @@ class Controller {
 	public function getQueueBuilder() {
 		if ( empty( $this->oQueueBuilder ) ) {
 			$this->oQueueBuilder = ( new Build\QueueBuilder( 'shield_scanqbuild' ) )
-				->setMod( $this->getMod() )
-				->setQueueProcessor( $this->getQueueProcessor() );
+				->setMod( $this->getMod() );
 		}
 		return $this->oQueueBuilder;
 	}
@@ -118,11 +117,11 @@ class Controller {
 	 */
 	public function getQueueProcessor() {
 		if ( empty( $this->oQueueProcessor ) ) {
-			/** @var HackGuard\Options $oOpts */
-			$oOpts = $this->getOptions();
+			/** @var HackGuard\Options $opts */
+			$opts = $this->getOptions();
 			$this->oQueueProcessor = ( new QueueProcessor( 'shield_scanq' ) )
 				->setMod( $this->getMod() )
-				->setExpirationInterval( $oOpts->getMalQueueExpirationInterval() );
+				->setExpirationInterval( $opts->getMalQueueExpirationInterval() );
 		}
 		return $this->oQueueProcessor;
 	}

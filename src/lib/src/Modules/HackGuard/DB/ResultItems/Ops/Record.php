@@ -1,0 +1,15 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops;
+
+/**
+ * @property string $item_type
+ * @property string $item_id
+ * @property string $hash
+ * @property int    $ignored_at
+ * @property int    $notified_at
+ * @property int    $attempt_repair_at
+ */
+class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
+
+}

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\QueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItems;
 
 class Debug extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Debug {
 

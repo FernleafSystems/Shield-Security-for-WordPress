@@ -297,5 +297,5 @@ abstract class Base extends ExecOnceModConsumer {
 	/**
 	 * @return BaseScanActionVO|mixed
 	 */
-	abstract public function buildScanResult( array $rawResult ) :HackGuard\DB\ScanResults\Ops\Record;
+	abstract public function buildScanResult( array $rawResult ) :HackGuard\DB\ResultItems\Ops\Record;
 }

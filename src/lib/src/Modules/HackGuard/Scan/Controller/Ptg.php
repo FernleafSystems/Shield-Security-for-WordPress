@@ -4,14 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-class Ptg extends BaseForAssets {
+class Ptg extends BaseForFiles {
 
 	const SCAN_SLUG = 'ptg';
 	use PluginCronsConsumer;
@@ -88,8 +88,17 @@ class Ptg extends BaseForAssets {
 	 * @return bool
 	 */
 	protected function isResultItemStale( $item ) :bool {
+		if ( $item->context == 'plugins' ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
+			$absent = empty( $asset );
+		}
+		else {
+			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
+			$absent = empty( $asset );
+		}
+
 		$FS = Services::WPFS();
-		$stale = parent::isResultItemStale( $item )
+		$stale = $absent
 				 || ( ( $item->is_unrecognised || $item->is_different ) && !$FS->isFile( $item->path_full ) );
 
 		if ( !$stale ) {
@@ -155,17 +164,5 @@ class Ptg extends BaseForAssets {
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
-	}
-
-	public function buildScanResult( array $rawResult ) :ScanResults\Ops\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var ScanResults\Ops\Record $record */
-		$record = $mod->getDbH_ScanResults()->getRecord();
-		$record->meta = $rawResult;
-		$record->hash = $rawResult[ 'hash' ];
-		$record->item_id = $rawResult[ 'path_fragment' ];
-		$record->item_type = 'f';
-		return $record;
 	}
 }

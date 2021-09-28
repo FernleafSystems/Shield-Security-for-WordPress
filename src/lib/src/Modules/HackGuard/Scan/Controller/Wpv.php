@@ -85,16 +85,4 @@ class Wpv extends BaseForAssets {
 			->build()
 			->getScanActionVO();
 	}
-
-	public function buildScanResult( array $rawResult ) :ScanResults\Ops\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var ScanResults\Ops\Record $record */
-		$record = $mod->getDbH_ScanResults()->getRecord();
-		$record->meta = $rawResult;
-		$record->hash = $rawResult[ 'hash' ];
-		$record->item_id = $rawResult[ 'slug' ];
-		$record->item_type = $rawResult[ 'context' ] === 'plugins' ? 'p' : 't';
-		return $record;
-	}
 }
