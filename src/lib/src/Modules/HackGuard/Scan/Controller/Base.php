@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
@@ -60,6 +59,7 @@ abstract class Base extends ExecOnceModConsumer {
 
 	public function cleanStalesResults() {
 		$results = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->retrieve();
 		foreach ( $results->getItems() as $item ) {
@@ -84,6 +84,7 @@ abstract class Base extends ExecOnceModConsumer {
 		if ( !isset( self::$resultsCounts[ $this->getSlug() ] ) ) {
 			self::$resultsCounts[ $this->getSlug() ] = ( new HackGuard\Scan\Results\ResultsRetrieve() )
 				->setScanController( $this )
+				->setMod( $this->getMod() )
 				->count();
 		}
 		return self::$resultsCounts[ static::SCAN_SLUG ];
@@ -128,6 +129,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	public function getAllResults() {
 		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->retrieve( false );
 	}

@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ConvertBetweenTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
+	Controller\Wcf,
+	Results\ResultsRetrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,16 +25,15 @@ class RetrieveFileContents {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		/** @var Record $record */
-		$record = $mod->getDbH_ScanResults()
-					  ->getQuerySelector()
-					  ->byId( $rid );
-		if ( empty( $record ) ) {
+		try {
+			$item = ( new ResultsRetrieve() )
+				->setMod( $this->getMod() )
+				->byID( $rid );
+		}
+		catch ( \Exception $e ) {
 			throw new \Exception( 'Not a valid file record' );
 		}
-		$item = ( new ConvertBetweenTypes() )
-			->setScanController( $mod->getScanCon( $record->meta[ 'scan' ] ) )
-			->convertRecordToResultItem( $record );
+
 		$path = $item->path_full;
 		if ( empty( $path ) ) {
 			throw new \Exception( 'There is no path associated with this record' );
@@ -42,10 +42,12 @@ class RetrieveFileContents {
 		if ( !$FS->isFile( $path ) ) {
 			throw new \Exception( 'File does not exist.' );
 		}
+
 		$contents = $FS->getFileContent( $path );
 		if ( empty( $contents ) ) {
 			throw new \Exception( 'File is empty or could not be read.' );
 		}
+
 		if ( !$raw ) {
 			$modContents = Services::DataManipulation()->convertLineEndingsDosToLinux( $path );
 			$contents = $this->getMod()

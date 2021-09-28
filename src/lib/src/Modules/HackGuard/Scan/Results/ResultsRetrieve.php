@@ -6,12 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Scans as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ResultsRetrieve {
 
+	use ModConsumer;
 	use ScanControllerConsumer;
 
 	/**
@@ -20,18 +22,32 @@ class ResultsRetrieve {
 	 * @throws \Exception
 	 */
 	public function byID( int $scanResultID ) {
-		$rawResults = [];
-		if ( !$this->getScanController()->isRestricted() ) {
-			$raw = Services::WpDb()->selectCustom(
-				sprintf( $this->getBaseQuery(),
-					implode( ',', $this->standardSelectFields() ),
-					sprintf( "`sr`.`id`=%s", $scanResultID )
-				)
-			);
-			if ( !empty( $raw ) ) {
-				$rawResults = $raw;
-			}
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$WPDB = Services::WpDb();
+
+		// Need to determine the scan from the scan result.
+		$scan = $WPDB->getVar( sprintf( "SELECT scans.scan
+					FROM `%s` as scans
+					INNER JOIN `%s` as `sr`
+						ON `sr`.scan_ref = `scans`.id AND `sr`.id = %s 
+					LIMIT 1;",
+			$mod->getDbH_Scans()->getTableSchema()->table,
+			$mod->getDbH_ScanResults()->getTableSchema()->table,
+			$scanResultID
+		) );
+		if ( empty( $scan ) ) {
+			throw new \Exception( sprintf( 'Could not determine scan type from the scan result ID %s.', $scanResultID ) );
 		}
+		$this->setScanController( $mod->getScanCon( $scan ) );
+
+		$raw = Services::WpDb()->selectCustom(
+			sprintf( $this->getBaseQuery(),
+				implode( ',', $this->standardSelectFields() ),
+				sprintf( "`sr`.`id`=%s", $scanResultID )
+			)
+		);
+		$rawResults = empty( $raw ) ? [] : $raw;
 
 		$resultSet = $this->convertToResultsSet( $rawResults );
 		if ( $resultSet->countItems() !== 1 ) {
@@ -105,18 +121,17 @@ class ResultsRetrieve {
 	}
 
 	private function getLatestScanID() :int {
-		$scanCon = $this->getScanController();
 		/** @var ModCon $mod */
-		$mod = $scanCon->getMod();
+		$mod = $this->getMod();
 		/** @var ScansDB\Ops\Select $scansSelector */
 		$scansSelector = $mod->getDbH_Scans()->getQuerySelector();
-		$latest = $scansSelector->getLatestForScan( $scanCon->getSlug() );
+		$latest = $scansSelector->getLatestForScan( $this->getScanController()->getSlug() );
 		return empty( $latest ) ? -1 : $latest->id;
 	}
 
 	private function getBaseQuery() :string {
 		/** @var ModCon $mod */
-		$mod = $this->getScanController()->getMod();
+		$mod = $this->getMod();
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`

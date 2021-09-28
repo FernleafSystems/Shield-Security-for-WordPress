@@ -150,7 +150,6 @@ class LoadRawTableData {
 
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
-					error_log( var_export( $data, true ) );
 					return $data;
 				},
 				array_merge(
