@@ -224,7 +224,7 @@ class Controller extends DynPropertiesClass {
 			$mysql = $this->cfg->requirements[ 'mysql' ];
 			if ( !empty( $mysql ) && !$this->isMysqlVersionSupported( $mysql ) ) {
 				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
-					Services::WpDb()->loadWpdb()->db_version(), $mysql );
+					Services::WpDb()->getMysqlServerInfo(), $mysql );
 			}
 
 			if ( !empty( $reqsMsg ) ) {
