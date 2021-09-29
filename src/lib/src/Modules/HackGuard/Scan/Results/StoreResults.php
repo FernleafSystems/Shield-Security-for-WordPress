@@ -29,13 +29,27 @@ class StoreResults {
 			$scanResultsInserter = $mod->getDbH_ScanResults()->getQueryInserter();
 
 			foreach ( $results as $result ) {
+
+				$record = $mod->getScanCon( $scanItem->scan )->buildScanResult( $result );
+
 				/** @var ResultItemsDB\Ops\Record $resultItem */
 				$resultItem = $resultSelector->filterByItemHash( $result[ 'hash' ] )->first();
 				if ( empty( $resultItem ) ) {
-					$record = $mod->getScanCon( $scanItem->scan )->buildScanResult( $result );
 					$dbhResItems->getQueryInserter()->insert( $record );
 					$resultItem = $resultSelector->filterByItemHash( $result[ 'hash' ] )->first();
 				}
+				else {
+					$record->meta = array_merge(
+						$resultItem->meta,
+						$record->meta
+					);
+
+					$dbhResItems->getQueryUpdater()
+								->updateById( $resultItem->id, [
+									'meta' => $record->getRawData()[ 'meta' ]
+								] );
+				}
+
 				$scanResultsInserter->setInsertData( [
 					'scan_ref'       => $scanItem->scan_id,
 					'resultitem_ref' => $resultItem->id,

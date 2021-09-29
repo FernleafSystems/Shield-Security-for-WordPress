@@ -136,7 +136,7 @@ class ResultsRetrieve {
 		$resultsSet = $scanCon->getNewResultsSet();
 		foreach ( $results as $result ) {
 			$vo = ( new ScanResultVO() )->applyFromArray( $result );
-			$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
+			$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $scanCon->getSlug() ] );
 			$item->VO = $vo;
 			$resultsSet->addItem( $item );
 		}
@@ -171,8 +171,8 @@ class ResultsRetrieve {
 
 	private function standardSelectFields() :array {
 		return [
-			'scans.id as scan_id',
 			'scans.scan',
+			'scans.id as scan_id',
 			'sr.id as scanresult_id',
 			'ri.id as resultitem_id',
 			'ri.hash',
@@ -180,8 +180,10 @@ class ResultsRetrieve {
 			'ri.item_id',
 			'ri.meta',
 			'ri.ignored_at',
-			'ri.attempt_repair_at',
 			'ri.notified_at',
+			'ri.attempt_repair_at',
+			'ri.item_repaired_at',
+			'ri.item_deleted_at',
 			'ri.created_at',
 		];
 	}

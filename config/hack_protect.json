@@ -539,8 +539,8 @@
     "db_table_resultitems":        {
       "autoexpire":     0,
       "slug":           "resultitems",
-      "has_updated_at": false,
-      "col_older_than": "created_at",
+      "has_updated_at": true,
+      "col_older_than": "updated_at",
       "cols_custom":    {
         "hash":              {
           "macro_type": "char",
@@ -575,6 +575,14 @@
         "attempt_repair_at": {
           "macro_type": "timestamp",
           "comment":    "Attempted Repair At"
+        },
+        "item_repaired_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Item Repaired At"
+        },
+        "item_deleted_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Item Deleted At"
         }
       }
     },

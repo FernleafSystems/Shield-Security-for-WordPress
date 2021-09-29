@@ -13,7 +13,9 @@ abstract class BaseForFiles extends Base {
 		$mod = $this->getMod();
 		/** @var ResultItems\Ops\Record $record */
 		$record = $mod->getDbH_ResultItems()->getRecord();
-		$record->meta = $rawResult;
+		$record->meta = [
+			$this->getSlug() => $rawResult
+		];
 		$record->hash = $rawResult[ 'hash' ];
 		$record->item_id = $rawResult[ 'path_fragment' ];
 		$record->item_type = ResultItems\Ops\Handler::ITEM_TYPE_FILE;
