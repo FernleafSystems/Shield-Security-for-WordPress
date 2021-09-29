@@ -74,15 +74,15 @@ class Collate {
 			'Server Hostname'                   => gethostname(),
 			'Server Time Difference'            => $diff,
 			'Server IPs'                        => implode( ', ', $aIPs ),
-			'CloudFlare'                        => empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
+			'CloudFlare'                        => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
 			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
 			'Server Name'                       => $req->server( 'SERVER_NAME' ),
 			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
 			'Server Software'                   => empty( $soft ) ? '-' : $soft,
-			'Disk Space (Used/Available/Total)' => sprintf( '%s / %s / %s',
+			'Disk Space (Used/Available/Total)' => sprintf( '%s used out of %s (%s free)',
 				FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ),
-				FormatBytes::Format( $freeDisk, 2, '' ),
-				FormatBytes::Format( $totalDisk, 2, '' )
+				FormatBytes::Format( $totalDisk, 2, '' ),
+				FormatBytes::Format( $freeDisk, 2, '' )
 			)
 		];
 	}
@@ -102,7 +102,7 @@ class Collate {
 		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
 			'PHP'           => $phpV,
-			'MySQL'         => Services::WpDb()->loadWpdb()->db_version(),
+			'MySQL'         => Services::WpDb()->getMysqlServerInfo(),
 			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', ini_get( 'memory_limit' ),
 				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
 			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,
@@ -278,9 +278,10 @@ class Collate {
 			'ABSPATH'     => ABSPATH,
 			'Debug Is On' => $WP->isDebug() ? 'Yes' : 'No',
 			'Database'    => [
-				sprintf( 'Name: %s', DB_NAME ),
-				sprintf( 'User: %s', DB_USER ),
-				sprintf( 'Prefix: %s', Services::WpDb()->getPrefix() ),
+				sprintf( 'Host: <code>%s</code>', DB_HOST ),
+				sprintf( 'Name: <code>%s</code>', DB_NAME ),
+				sprintf( 'User: <code>%s</code>', DB_USER ),
+				sprintf( 'Prefix: <code>%s</code>', Services::WpDb()->getPrefix() ),
 			],
 		];
 		if ( $WP->isClassicPress() ) {
