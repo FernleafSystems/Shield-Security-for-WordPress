@@ -134,6 +134,18 @@
         "title":       "Ensure Shield runs only on supported MySQL servers.",
         "description": [],
         "patch":       "12.0.8"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Error when processing certain types of query strings in the firewall.",
+        "description": [],
+        "patch":       "12.0.9"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Yubikey 2FA verification was failing with a nonce less than 16 characters. Who knew?",
+        "description": [],
+        "patch":       "12.0.9"
       }
     ]
   },
