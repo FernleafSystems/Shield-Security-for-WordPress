@@ -55,7 +55,8 @@ class BotSignalsController extends ExecOnceModConsumer {
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
 		if ( !isset( $this->handlerNotBot ) ) {
-			$this->handlerNotBot = ( new NotBot\NotBotHandler() )->setMod( $this->getMod() );
+			$this->handlerNotBot = ( new NotBot\NotBotHandler( true ) )
+				->setMod( $this->getMod() );
 		}
 		return $this->handlerNotBot;
 	}

@@ -22,12 +22,13 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		this.initialise = function () {
 			/**
 			 * @since 11.2 we no longer wait until DOM is ready.
+			 * @since 12.0.10 we return to using cookies to optimise whether the AJAX request is sent.
 			 * This is mainly AJAX so it's asynchronous and wont hold up any other part of the page load.
 			 * Early execution also helps mitigate the case where login requests are
 			 * sent quickly, before browser has fired NotBot request.
 			 */
 			if ( shield_vars_notbotjs.flags.run ) {
-				sendReq();
+				fire();
 			}
 			/**
 			 * @since 11.2 this script is only loaded if a not bot signal doesn't exist for this IP.
@@ -39,22 +40,13 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		};
 
 		var fire = function () {
-			var sendRequest = false;
-			var current = getCookie( 'icwp-wpsf-notbot' );
-			if ( current === undefined ) {
-				sendRequest = true;
-			}
-			else {
-				var remaining = current.split( "z" )[ 0 ] - Math.floor( Date.now() / 1000 );
-				if ( remaining < 60 ) {
-					sendRequest = true;
-				}
-			}
-
-			if ( sendRequest && request_count < 11 ) {
+			let current = getCookie( 'icwp-wpsf-notbot' );
+			if ( current === undefined || typeof (current) === 'undefined' ) {
 				sendReq();
 			}
-			window.setTimeout( fire, 60000 );
+			if ( request_count < 11 ) {
+				window.setTimeout( fire, 60000 );
+			}
 		};
 
 		var sendReq = function ( name ) {
