@@ -65,11 +65,10 @@ class ResultsDelete {
 	 * @return $this
 	 */
 	public function deleteAllForScan() {
-		/** @var Databases\Scanner\Delete $deleter */
-		$deleter = $this->getScanController()
-						->getScanResultsDbHandler()
-						->getQueryDeleter();
-		$deleter->forScan( $this->getScanController()->getSlug() );
+		( new ResultsUpdate() )
+			->setMod( $this->getScanController()->getMod() )
+			->setScanController( $this->getScanController() )
+			->clearIgnored();
 		return $this;
 	}
 }

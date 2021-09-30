@@ -29,8 +29,23 @@ class ResultsUpdate {
 				] )
 			)
 		);
-		var_dump( $result );
 		return $result;
+	}
+
+	/**
+	 * @return bool|int|mixed
+	 */
+	public function softDeleteAll() {
+		return Services::WpDb()->doSql(
+			sprintf( $this->getBaseQuery(),
+				implode( ', ', [
+					sprintf( "`ri`.`deleted_at`=%s", Services::Request()->ts() ),
+				] ),
+				implode( ' AND ', [
+					sprintf( "`scans`.`scan`='%s'", $this->getScanController()->getSlug() )
+				] )
+			)
+		);
 	}
 
 	private function getBaseQuery() :string {
