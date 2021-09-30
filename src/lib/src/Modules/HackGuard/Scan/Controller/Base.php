@@ -116,24 +116,26 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var ScanResultsDB\Ops\Select $sel */
-		$sel = $this->getScanResultsDBH()->getQuerySelector();
-		$sel->filterByScan( $this->getSlug() )
-			->filterByNoRepairAttempted()
-			->filterByNotIgnored();
-		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			->setMod( $this->getMod() )
 			->setScanController( $this )
-			->fromRecordsToResultsSet( $sel->queryWithResult() );
+			->retrieveForAutoRepair();
 	}
 
 	/**
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->retrieve( false );
+		if ( !$this->isRestricted() ) {
+			$results = $this->getNewResultsSet();
+		}
+		else {
+			$results = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+				->setMod( $this->getMod() )
+				->setScanController( $this )
+				->retrieve( false );
+		}
+		return $results;
 	}
 
 	/**

@@ -83,9 +83,39 @@ class ResultsRetrieve {
 	/**
 	 * @return Scans\Base\ResultsSet
 	 */
+	public function retrieveForAutoRepair() {
+		$results = [];
+
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$wheres = array_filter( [
+				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+				"`si`.`attempt_repair_at`=0",
+				"`si`.`item_repaired_at`=0",
+				"`si`.`item_deleted_at`=0",
+				"`ri`.ignored_at=0"
+			] );
+			$raw = Services::WpDb()->selectCustom(
+				sprintf( $this->getBaseQuery(),
+					implode( ', ', $this->standardSelectFields() ),
+					implode( ' AND ', $wheres )
+				)
+			);
+			if ( !empty( $raw ) ) {
+				$results = $raw;
+			}
+		}
+
+		return $this->convertToResultsSet( $results );
+	}
+
+	/**
+	 * @return Scans\Base\ResultsSet
+	 */
 	public function retrieve( bool $includeIgnored = true ) {
 		$results = [];
 		if ( !$this->getScanController()->isRestricted() ) {
+
 			$latestID = $this->getLatestScanID();
 			if ( $latestID >= 0 ) {
 				$wheres = array_filter( [
