@@ -19,14 +19,6 @@ abstract class BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function deleteItem() :bool {
-		throw new \Exception( 'Delete is not supported' );
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
 	public function canRepair() :bool {
 		return false;
 	}

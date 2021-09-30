@@ -7,17 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-/**
- * Class Repair
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
- */
 class Repair extends Scans\Base\Utilities\BaseRepair {
-
-	public function deleteItem() :bool {
-		/** @var Ptg\ResultItem $item */
-		$item = $this->getScanItem();
-		return $item->is_unrecognised && (bool)Services::WpFs()->deleteFile( $item->path_full );
-	}
 
 	/**
 	 * @return bool

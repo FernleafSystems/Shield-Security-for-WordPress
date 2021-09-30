@@ -50,8 +50,13 @@ abstract class ItemActionHandler {
 	 */
 	public function delete() {
 		$item = $this->getScanItem();
-		if ( $this->getRepairer()->deleteItem() ) {
-			$item->repaired = true;
+
+		$deleter = ( new DeleteItem() )
+			->setMod( $this->getMod() )
+			->setScanItem( $this->getScanItem() );
+		$deleter->canDelete(); // Exception if false;
+		$item->repaired = $deleter->delete();
+		if ( $item->repaired ) {
 			$item->repair_event_status = 'delete_success';
 		}
 		$this->fireRepairEvent();
@@ -59,10 +64,9 @@ abstract class ItemActionHandler {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
-	public function ignore() {
+	public function ignore() :bool {
 		return ( new IgnoreItem() )
 			->setMod( $this->getMod() )
 			->setScanItem( $this->getScanItem() )
@@ -95,7 +99,7 @@ abstract class ItemActionHandler {
 		}
 		$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
 
-		if ( $allowDelete && !$item->repaired && $repairer->deleteItem() ) {
+		if ( $allowDelete && !$item->repaired && $this->delete() ) {
 			$item->repaired = true;
 			$item->repair_event_status = 'delete_success';
 		}

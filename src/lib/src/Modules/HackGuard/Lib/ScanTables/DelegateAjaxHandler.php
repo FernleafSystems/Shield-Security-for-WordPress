@@ -53,11 +53,6 @@ class DelegateAjaxHandler {
 
 		$items = $this->getItemIDs();
 
-		$resultIT = $mod->getDbH_ScanResults()->getIterator();
-		$resultIT->setSelector(
-			$resultIT->getSelector()->addWhereIn( 'id', $items )
-		);
-
 		$scanSlugs = [];
 		$successfulItems = [];
 		foreach ( $items as $itemID ) {
@@ -65,7 +60,7 @@ class DelegateAjaxHandler {
 				$item = ( new HackGuard\Scan\Results\ResultsRetrieve() )
 					->setMod( $this->getMod() )
 					->byID( $itemID );
-				$scanSlugs[ $item->scan ] = 1;
+				$scanSlugs[] = $item->scan;
 				if ( $mod->getScanCon( $item->scan )->executeItemAction( $item, $action ) ) {
 					$successfulItems[] = $item->VO->scanresult_id;
 				}
@@ -74,8 +69,7 @@ class DelegateAjaxHandler {
 			}
 		}
 
-		$scanSlugs = array_keys( $scanSlugs );
-
+		$scanSlugs = array_unique( $scanSlugs );
 		foreach ( $scanSlugs as $slug ) {
 			$mod->getScanCon( $slug )->cleanStalesResults();
 		}
@@ -85,7 +79,8 @@ class DelegateAjaxHandler {
 			$msg = __( 'Action successful.' );
 		}
 		else {
-			$msg = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
+			$msg = __( 'An error occurred.' )
+				   .' '.__( 'Some items may not have been processed.' );
 		}
 
 		// We don't rescan for ignores or malware
@@ -102,6 +97,9 @@ class DelegateAjaxHandler {
 		];
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function getItemIDs() :array {
 		$items = Services::Request()->post( 'rids' );
 		if ( empty( $items ) || !is_array( $items ) ) {

@@ -100,16 +100,6 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	abstract protected function isResultItemStale( $item ) :bool;
 
-	public function executeEntryAction( Databases\Scanner\EntryVO $entry, string $action ) :bool {
-		$item = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanController( $this )
-			->convertVoToResultItem( $entry );
-
-		return $this->getItemActionHandler()
-					->setScanItem( $item )
-					->process( $action );
-	}
-
 	/**
 	 * @param ResultItem $item
 	 * @param string     $action

@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ResultItem;
 use FernleafSystems\Wordpress\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-/**
- * Class Repair
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
- */
 class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 
 	use Shield\Modules\ModConsumer;
@@ -60,12 +56,6 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		}
 
 		return $success;
-	}
-
-	public function deleteItem() :bool {
-		/** @var ResultItem $item */
-		$item = $this->getScanItem();
-		return (bool)Services\Services::WpFs()->deleteFile( $item->path_full );
 	}
 
 	/**
