@@ -13,33 +13,34 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class DeleteItem {
+class ItemDeleteHandler {
 
 	use ModConsumer;
 	use ScanItemConsumer;
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function delete() :bool {
 		$FS = Services::WpFs();
 		$success = false;
 
-		$supportedFileScans = [
-			Controller\Mal::SCAN_SLUG,
-			Controller\Ufc::SCAN_SLUG,
-			Controller\Ptg::SCAN_SLUG
-		];
-
 		/** @var FileResultItem $item */
 		$item = $this->getScanItem();
-		if ( in_array( $item->VO->scan, $supportedFileScans ) ) {
+		if ( $this->canDelete() ) {
 			$FS->deleteFile( $item->path_full );
 			$success = !$FS->isFile( $item->path_full );
 		}
 
 		return $success;
+	}
+
+	protected function deleteSupported() :bool {
+		return in_array( $this->getScanItem()->VO->scan, [
+			Controller\Mal::SCAN_SLUG,
+			Controller\Ufc::SCAN_SLUG,
+			Controller\Ptg::SCAN_SLUG
+		] );
 	}
 
 	/**
@@ -49,6 +50,10 @@ class DeleteItem {
 	public function canDelete() :bool {
 		$FS = Services::WpFs();
 		$item = $this->getScanItem();
+
+		if ( !$this->deleteSupported() ) {
+			throw new \Exception( sprintf( "Deletion isn't support for scan %s", $item->VO->scan ) );
+		}
 
 		switch ( $item->VO->scan ) {
 			case Controller\Mal::SCAN_SLUG:

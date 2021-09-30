@@ -2,26 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 
-abstract class BaseRepair {
+abstract class RepairItemBase {
 
+	use ModConsumer;
 	use ScanItemConsumer;
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repairItem() :bool {
-		throw new \Exception( 'Item Repair is not supported' );
-	}
+	abstract public function repairItem() :bool;
 
 	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function canRepair() :bool {
-		return false;
-	}
+	abstract public function canRepair() :bool;
 }

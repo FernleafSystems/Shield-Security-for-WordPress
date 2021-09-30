@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class IgnoreItem {
+class ItemIgnoreHandler {
 
 	use ModConsumer;
 	use ScanItemConsumer;

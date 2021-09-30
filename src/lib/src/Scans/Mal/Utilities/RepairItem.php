@@ -7,9 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ResultItem;
 use FernleafSystems\Wordpress\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
+class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 
 	use Shield\Modules\ModConsumer;
+	use Shield\Scans\Common\ScanItemConsumer;
 
 	public function repairItem() :bool {
 		/** @var ResultItem $item */
@@ -69,6 +70,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	/**
 	 * Can only repair a WP Core file, or a plugin that is WP.org, has no update available
 	 * and the latest version uses SVN tags.
+	 * TODO: Also need to detect whether the file is unrecognised or not. If unrecog we can't repair.
 	 * @param ResultItem $item
 	 * @return bool
 	 * @throws \Exception

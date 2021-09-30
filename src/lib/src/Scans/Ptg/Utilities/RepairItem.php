@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
+	Base\Utilities\RepairItemBase,
+	Ptg
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-class Repair extends Scans\Base\Utilities\BaseRepair {
+class RepairItem extends RepairItemBase {
 
 	/**
 	 * @return bool
@@ -58,7 +60,11 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	public function canRepair() :bool {
 		/** @var Ptg\ResultItem $item */
 		$item = $this->getScanItem();
-		if ( $item->context == 'plugins' ) {
+
+		if ( $item->is_unrecognised ) {
+			$canRepair = false;
+		}
+		elseif ( $item->context == 'plugins' ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
 			$canRepair = $asset->asset_type === 'plugin'
 						 && $asset->isWpOrg() && $asset->svn_uses_tags;
@@ -67,6 +73,7 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
 			$canRepair = $asset->asset_type === 'theme' && $asset->isWpOrg();
 		}
+
 		return $canRepair;
 	}
 }

@@ -242,8 +242,8 @@ class LoadRawTableData {
 		}
 
 		try {
-			if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) && $actionHandler->getRepairer()
-																							->canRepair() ) {
+			if ( in_array( $status, [ 'modified', 'missing', 'malware' ] )
+				 && $actionHandler->getRepairHandler()->canRepairItem() ) {
 				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Repair', 'wp-simple-firewall' ),

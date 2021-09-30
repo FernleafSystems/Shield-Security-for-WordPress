@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanR
  * @property string $hash
  * @property bool   $is_excluded
  * @property string $scan
+ * @property bool   $deleted
  * @property bool   $repaired
  * @property string $repair_event_status
  */

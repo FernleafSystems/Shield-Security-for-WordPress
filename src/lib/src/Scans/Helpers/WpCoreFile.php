@@ -40,23 +40,23 @@ class WpCoreFile {
 	}
 
 	/**
-	 * @param string $sPath
-	 * @param bool   $bUseLocale
+	 * @param string $path
+	 * @param bool   $useLocale
 	 * @return string - path to downloaded file
 	 * @throws \InvalidArgumentException
 	 */
-	public function download( $sPath, $bUseLocale = true ) {
-		$oHashes = Services::CoreFileHashes();
-		if ( !$oHashes->isCoreFile( $sPath ) ) {
-			throw new \InvalidArgumentException( sprintf( 'Core file "%s" is not an official WordPress core file.', $sPath ) );
+	public function download( string $path, bool $useLocale = true ) {
+		$hashes = Services::CoreFileHashes();
+		if ( !$hashes->isCoreFile( $path ) ) {
+			throw new \InvalidArgumentException( sprintf( 'Core file "%s" is not an official WordPress core file.', $path ) );
 		}
 
 		$sLocale = Services::WpGeneral()->getLocaleForChecksums();
-		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
+		$bUseInternational = $useLocale && ( $sLocale != 'en_US' );
 
-		$sTmpFile = download_url( $this->getFileUrl( $sPath, $bUseLocale ) );
+		$sTmpFile = download_url( $this->getFileUrl( $path, $useLocale ) );
 		if ( $bUseInternational && empty( $sTmpFile ) ) {
-			$sTmpFile = $this->download( $sPath, false );
+			$sTmpFile = $this->download( $path, false );
 		} // try international retrieval and if it fails, we resort to en_US.
 
 		return ( !is_wp_error( $sTmpFile ) && Services::WpFs()->exists( $sTmpFile ) ) ? $sTmpFile : null;
