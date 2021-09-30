@@ -190,20 +190,11 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
 	}
 
-	public function resetIgnoreStatus() :bool {
-		return $this->getScanResultsDBH()
-					->getQueryUpdater()
-					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
-					->setUpdateData( [ 'ignored_at' => 0 ] )
-					->query() !== false;
-	}
-
-	public function resetNotifiedStatus() :bool {
-		return $this->getScanResultsDBH()
-					->getQueryUpdater()
-					->setUpdateWheres( [ 'scan' => $this->getSlug() ] )
-					->setUpdateData( [ 'notified_at' => 0 ] )
-					->query() !== false;
+	public function resetIgnoreStatus() {
+		( new HackGuard\Scan\Results\ResultsUpdate() )
+			->setMod( $this->getMod() )
+			->setScanController( $this )
+			->clearIgnored();
 	}
 
 	/**

@@ -281,9 +281,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						if ( isset( $formParams[ 'opt_clear_ignore' ] ) ) {
 							$thisScanCon->resetIgnoreStatus();
 						}
-						if ( isset( $formParams[ 'opt_clear_notification' ] ) ) {
-							$thisScanCon->resetNotifiedStatus();
-						}
 
 						$success = true;
 						$reloadPage = true;
