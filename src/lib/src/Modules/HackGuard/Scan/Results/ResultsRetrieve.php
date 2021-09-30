@@ -120,7 +120,8 @@ class ResultsRetrieve {
 			if ( $latestID >= 0 ) {
 				$wheres = array_filter( [
 					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					$includeIgnored ? '' : "`ri`.ignored_at = 0"
+					$includeIgnored ? '' : "`ri`.ignored_at = 0",
+					"`ri`.`deleted_at`=0"
 				] );
 				$raw = Services::WpDb()->selectCustom(
 					sprintf( $this->getBaseQuery(),
@@ -144,7 +145,8 @@ class ResultsRetrieve {
 			if ( $latestID >= 0 ) {
 				$wheres = array_filter( [
 					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					$includeIgnored ? '' : "`ri`.ignored_at = 0"
+					$includeIgnored ? '' : "`ri`.ignored_at = 0",
+					"`ri`.`deleted_at`=0"
 				] );
 				$count = (int)Services::WpDb()->getVar(
 					sprintf( $this->getBaseQuery(),
