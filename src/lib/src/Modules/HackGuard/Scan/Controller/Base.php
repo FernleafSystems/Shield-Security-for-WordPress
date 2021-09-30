@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults as ScanResultsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsUpdate;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
@@ -62,15 +63,19 @@ abstract class Base extends ExecOnceModConsumer {
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->retrieve();
+
+		$IDs = [];
 		foreach ( $results->getItems() as $item ) {
-			if ( !$this->isResultItemStale( $item ) ) {
-				$results->removeItemByHash( $item->hash );
+			if ( $this->isResultItemStale( $item ) ) {
+				$IDs[] = $item->VO->resultitem_id;
 			}
 		}
+
 		try {
-			( new HackGuard\Scan\Results\ResultsDelete() )
+			( new ResultsUpdate() )
+				->setMod( $this->getMod() )
 				->setScanController( $this )
-				->delete( $results, true );
+				->softDeleteByResultIDs( $IDs );
 		}
 		catch ( \Exception $e ) {
 		}
@@ -226,12 +231,6 @@ abstract class Base extends ExecOnceModConsumer {
 			->setScanController( $this )
 			->deleteAllForScan();
 		return $this;
-	}
-
-	public function getScanResultsDBH() :ScanResultsDB\Ops\Handler {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getDbH_ScanResults();
 	}
 
 	public function getScanResultsDbHandler() :Databases\Scanner\Handler {

@@ -68,7 +68,7 @@ class ResultsDelete {
 		( new ResultsUpdate() )
 			->setMod( $this->getScanController()->getMod() )
 			->setScanController( $this->getScanController() )
-			->clearIgnored();
+			->softDeleteAll();
 		return $this;
 	}
 }
