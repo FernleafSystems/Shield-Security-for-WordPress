@@ -52,17 +52,21 @@ class ResultsUpdate {
 	 * @return bool|int|mixed
 	 */
 	public function softDeleteByResultIDs( array $IDs ) {
-		return Services::WpDb()->doSql(
-			sprintf( $this->getBaseQuery(),
-				implode( ', ', [
-					sprintf( "`ri`.`deleted_at`=%s", Services::Request()->ts() ),
-				] ),
-				implode( ' AND ', [
-					sprintf( "`ri`.`id` IN (%s)", implode( ',', $IDs ) ),
-					sprintf( "`scans`.`scan`='%s'", $this->getScanController()->getSlug() )
-				] )
-			)
-		);
+		$result = true;
+		if ( !empty( $IDs ) ) {
+			$result = Services::WpDb()->doSql(
+				sprintf( $this->getBaseQuery(),
+					implode( ', ', [
+						sprintf( "`ri`.`deleted_at`=%s", Services::Request()->ts() ),
+					] ),
+					implode( ' AND ', [
+						sprintf( "`ri`.`id` IN (%s)", implode( ',', $IDs ) ),
+						sprintf( "`scans`.`scan`='%s'", $this->getScanController()->getSlug() )
+					] )
+				)
+			);
+		}
+		return $result;
 	}
 
 	private function getBaseQuery() :string {

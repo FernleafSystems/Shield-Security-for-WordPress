@@ -3,22 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	Exceptions,
+	Query
+};
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
-use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
 
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
-
-	/**
-	 * @var Lib\Snapshots\Store
-	 */
-	private $assetStore;
-
-	private $csHashes;
 
 	/**
 	 * @param string $fullPath - in this case it's relative to ABSPATH
@@ -28,20 +21,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$item = null;
 		$fullPath = path_join( wp_normalize_path( ABSPATH ), $fullPath );
 		try {
-			$asset = ( new Plugin\Files() )->findPluginFromFile( $fullPath );
-			if ( empty( $asset ) ) {
-				$asset = ( new Theme\Files() )->findThemeFromFile( $fullPath );
-			}
-			if ( empty( $asset ) ) {
-				throw new \Exception( sprintf( 'Could not load asset for: %s', $fullPath ) );
-			}
-
-			try {
-				$item = $this->scanWithCsHashes( $fullPath, $asset );
-			}
-			catch ( \Exception $eScan ) {
-				$item = $this->scanWithStore( $fullPath, $asset );
-			}
+			$item = $this->scanPath( $fullPath );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
@@ -51,148 +31,45 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param string                             $fullPath
-	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @return ResultItem|null
-	 * @throws \InvalidArgumentException|\Exception
+	 * @param string $fullPath
+	 * @return Assets\WpPluginVo|Assets\WpThemeVo
+	 * @throws \Exception
 	 */
-	private function scanWithStore( string $fullPath, $asset ) {
-		$assetHashes = $this->getStore( $asset )->getSnapData();
-		if ( empty( $assetHashes ) ) {
-			throw new \Exception( 'File hashes from store is empty' );
+	private function getAssetFromPath( string $fullPath ) {
+		$asset = ( new Plugin\Files() )->findPluginFromFile( $fullPath );
+		if ( empty( $asset ) ) {
+			$asset = ( new Theme\Files() )->findThemeFromFile( $fullPath );
 		}
-
-		$scanFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
-		$hash = $assetHashes[ $scanFragment ] ?? ( $assetHashes[ strtolower( $scanFragment ) ] ?? null );
-
-		if ( empty( $hash ) ) {
-			$item = $this->getNewItem( $asset, $fullPath );
-			$item->is_unrecognised = true;
+		if ( empty( $asset ) ) {
+			throw new \Exception( sprintf( 'Could not load asset for: %s', $fullPath ) );
 		}
-		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $hash ) ) {
-			$item = $this->getNewItem( $asset, $fullPath );
-			$item->is_different = true;
-		}
-		else {
-			$item = null;
-		}
-		return $item;
+		return $asset;
 	}
 
 	/**
-	 * @param string                             $fullPath
-	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
+	 * @param string $fullPath
 	 * @return ResultItem|null
-	 * @throws \InvalidArgumentException|\Exception
+	 * @throws Exceptions\AssetHashesNotFound
+	 * @throws Exceptions\NoneAssetFileException
+	 * @throws \Exception
 	 */
-	private function scanWithHashes( string $fullPath, $asset ) {
-		$assetHashes = ( $asset->asset_type === 'plugin' ) ?
-			( new WpHashes\Hashes\Plugin() )->getPluginHashes( $asset )
-			: ( new WpHashes\Hashes\Theme() )->getThemeHashes( $asset );
-		if ( empty( $assetHashes ) ) {
-			throw new \Exception( 'File hashes from WPHashes is empty' );
-		}
-
-		$scanFragment = str_replace( $asset->getInstallDir(), '', $fullPath );
-		if ( empty( $assetHashes[ $scanFragment ] ) ) {
-			$item = $this->getNewItem( $asset, $fullPath );
-			$item->is_unrecognised = true;
-		}
-		elseif ( !( new CompareHash() )->isEqualFileMd5( $fullPath, $assetHashes[ $scanFragment ] ) ) {
-			$item = $this->getNewItem( $asset, $fullPath );
-			$item->is_different = true;
-		}
-		else {
-			$item = null;
-		}
-		return $item;
-	}
-
-	/**
-	 * CSHashes path fragments are all lower-case
-	 * We need to main the true, unchanged fullpath to the file, while looking up with the lower-case path fragment.
-	 * @param string                             $fullPath
-	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @return ResultItem|null
-	 * @throws \InvalidArgumentException|\Exception
-	 */
-	private function scanWithCsHashes( string $fullPath, $asset ) {
-		$assetHashes = $this->loadCsHashes( $asset );
-		if ( empty( $assetHashes ) ) {
-			throw new \Exception( 'Could not retrieve CS Hashes' );
-		}
-
+	private function scanPath( string $fullPath ) {
 		$item = null;
-		// use a lower-case key for "scan", but can't use this anywhere else.
-		$scanFragment = strtolower( str_replace( $asset->getInstallDir(), '', $fullPath ) );
-		if ( empty( $assetHashes[ $scanFragment ] ) ) {
-			$item = $this->getNewItem( $asset, $fullPath );
-			$item->is_unrecognised = true;
-		}
-		else {
-			$found = false;
-			foreach ( $assetHashes[ $scanFragment ] as $hash ) {
-				if ( ( new CompareHash() )->isEqualFileSha1( $fullPath, $hash ) ) {
-					$found = true;
-					break;
-				}
-			}
-
-			if ( !$found ) {
-				$item = $this->getNewItem( $asset, $fullPath );
+		try {
+			$verified = ( new Query() )
+				->setMod( $this->getMod() )
+				->verifyHash( $fullPath );
+			if ( !$verified ) {
+				$item = $this->getNewItem( $this->getAssetFromPath( $fullPath ), $fullPath );
 				$item->is_different = true;
 			}
 		}
+		catch ( Exceptions\UnrecognisedAssetFile $naf ) {
+			$item = $this->getNewItem( $this->getAssetFromPath( $fullPath ), $fullPath );
+			$item->is_unrecognised = true;
+		}
 
 		return $item;
-	}
-
-	/**
-	 * We "cache" the hashes temporarily in this current load
-	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @return string[][]
-	 */
-	private function loadCsHashes( $asset ) :array {
-
-		if ( is_array( $this->csHashes ) && $asset->unique_id !== $this->csHashes[ 0 ] ) {
-			unset( $this->csHashes );
-		}
-
-		if ( empty( $this->csHashes ) ) {
-
-			$hashes = ( $asset->asset_type === 'plugin' ? new Query\Plugin() : new Query\Theme() )
-				->getHashesFromVO( $asset );
-
-			$this->csHashes = [ $asset->unique_id, is_array( $hashes ) ? $hashes : [] ];
-		}
-
-		return $this->csHashes[ 1 ];
-	}
-
-	/**
-	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
-	 * @return Lib\Snapshots\Store
-	 * @throws \Exception
-	 */
-	private function getStore( $asset ) {
-
-		// Re-Use the previous store if it's for the same Asset.
-		if ( !empty( $this->assetStore ) ) {
-			$uniqueId = ( $asset instanceof Assets\WpPluginVo ) ? $asset->file : $asset->stylesheet;
-			$meta = $this->assetStore->getSnapMeta();
-			if ( $uniqueId !== $meta[ 'unique_id' ] ) {
-				unset( $this->assetStore );
-			}
-		}
-
-		if ( empty( $this->assetStore ) ) {
-			$this->assetStore = ( new Lib\Snapshots\StoreAction\Load() )
-				->setMod( $this->getMod() )
-				->setAsset( $asset )
-				->run();
-		}
-
-		return $this->assetStore;
 	}
 
 	/**
@@ -200,7 +77,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @param string                             $fullPath
 	 * @return ResultItem
 	 */
-	private function getNewItem( $asset, $fullPath ) {
+	private function getNewItem( $asset, string $fullPath ) :ResultItem {
 		/** @var ResultItem $item */
 		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = $fullPath;

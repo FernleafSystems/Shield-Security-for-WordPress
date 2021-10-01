@@ -131,7 +131,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		if ( !$this->isRestricted() ) {
+		if ( $this->isRestricted() ) {
 			$results = $this->getNewResultsSet();
 		}
 		else {

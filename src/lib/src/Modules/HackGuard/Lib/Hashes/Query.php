@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\{
+	AssetHashesNotFound,
+	NoneAssetFileException,
+	UnrecognisedAssetFile
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -20,14 +25,14 @@ class Query {
 	/**
 	 * @param string $path
 	 * @return array
+	 * @throws AssetHashesNotFound
+	 * @throws NoneAssetFileException
+	 * @throws UnrecognisedAssetFile
 	 * @throws \Exception
 	 */
 	public function getHashesForFile( string $path ) :array {
 
 		$vo = $this->findAssetFromPath( $path );
-		if ( empty( $vo ) ) {
-			throw new \Exception( 'Not a plugin file path' );
-		}
 
 		if ( $vo->asset_type === 'plugin' ) {
 			$fragment = ( new Plugin\Files() )->getRelativeFilePathFromItsInstallDir( $path );
@@ -39,7 +44,7 @@ class Query {
 		$assetHashes = ( new Retrieve() )->byVO( $vo );
 		$hash = $assetHashes[ $fragment ] ?? ( $assetHashes[ strtolower( $fragment ) ] ?? null );
 		if ( empty( $hash ) ) {
-			throw new \Exception( sprintf( 'No hashes exist for file: %s', $path ) );
+			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );
 		}
 
 		return is_array( $hash ) ? $hash : [ $hash ];
@@ -48,21 +53,25 @@ class Query {
 	/**
 	 * @param string $path
 	 * @return WpPluginVo|WpThemeVo
-	 * @throws \Exception
+	 * @throws NoneAssetFileException
 	 */
 	private function findAssetFromPath( string $path ) {
 		$vo = ( new Plugin\Files() )->findPluginFromFile( $path );;
 		if ( empty( $vo ) ) {
 			$vo = ( new Theme\Files() )->findThemeFromFile( $path );
 			if ( empty( $vo ) ) {
-				throw new \Exception( 'Not a plugin or theme file path' );
+				throw new NoneAssetFileException( 'Not a plugin or theme file path' );
 			}
 		}
 		return $vo;
 	}
 
 	/**
-	 * @throws \Exception
+	 * @param string $path
+	 * @return bool
+	 * @throws AssetHashesNotFound
+	 * @throws NoneAssetFileException
+	 * @throws UnrecognisedAssetFile
 	 */
 	public function fileExistsInHash( string $path ) :bool {
 		return !empty( $this->getHashesForFile( $path ) );
@@ -70,8 +79,11 @@ class Query {
 
 	/**
 	 * @param string $fullPath
-	 * @return array|null
-	 * @throws \Exception
+	 * @return bool
+	 * @throws AssetHashesNotFound
+	 * @throws NoneAssetFileException
+	 * @throws UnrecognisedAssetFile
+	 * @throws \InvalidArgumentException
 	 */
 	public function verifyHash( string $fullPath ) :bool {
 		$verified = false;
