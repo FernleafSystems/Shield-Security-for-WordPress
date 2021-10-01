@@ -67,14 +67,18 @@ class Query {
 	}
 
 	/**
-	 * @param string $path
-	 * @return bool
 	 * @throws AssetHashesNotFound
 	 * @throws NoneAssetFileException
-	 * @throws UnrecognisedAssetFile
+	 * @throws \Exception
 	 */
 	public function fileExistsInHash( string $path ) :bool {
-		return !empty( $this->getHashesForFile( $path ) );
+		try {
+			$exists = !empty( $this->getHashesForFile( $path ) );
+		}
+		catch ( UnrecognisedAssetFile $e ) {
+			$exists = false;
+		}
+		return $exists;
 	}
 
 	/**

@@ -93,7 +93,15 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
 				}
 
-				$canRepair = true;
+				try {
+					$canRepair = ( new Shield\Modules\HackGuard\Lib\Hashes\Query() )
+						->setMod( $this->getMod() )
+						->fileExistsInHash( $item->path_fragment );
+				}
+				catch ( \Exception $e ) {
+					error_log( var_export( $e->getMessage(), true ) );
+					$canRepair = false;
+				}
 			}
 			else {
 				$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
@@ -118,7 +126,15 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 						throw new \Exception( __( "Theme version doesn't appear to exist.", 'wp-simple-firewall' ) );
 					}
 
-					$canRepair = true;
+					try {
+						$canRepair = ( new Shield\Modules\HackGuard\Lib\Hashes\Query() )
+							->setMod( $this->getMod() )
+							->fileExistsInHash( $item->path_fragment );
+					}
+					catch ( \Exception $e ) {
+						error_log( var_export( $e->getMessage(), true ) );
+						$canRepair = false;
+					}
 				}
 			}
 		}
