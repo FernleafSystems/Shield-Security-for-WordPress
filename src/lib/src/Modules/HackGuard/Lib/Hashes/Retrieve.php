@@ -1,0 +1,105 @@
+<?php
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
+
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
+use FernleafSystems\Wordpress\Services\Services;
+
+class Retrieve {
+
+	use ModConsumer;
+
+	private static $hashes = [];
+
+	public function __construct() {
+		self::$hashes = [
+			'plugins' => [],
+			'themes'  => [],
+		];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @param array                $hash
+	 */
+	private function addItemHashesToCache( $vo, array $hash ) {
+		if ( $vo->asset_type == 'plugin' ) {
+			self::$hashes[ 'plugins' ][ $vo->slug ] = $hash;
+		}
+		else {
+			self::$hashes[ 'themes' ][ $vo->slug ] = $hash;
+		}
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return  array
+	 */
+	private function getAssetHashesFromCache( $vo ) {
+		$key = ( $vo->asset_type == 'plugin' ) ? 'plugins' : 'themes';
+		return self::$hashes[ $key ][ $vo->slug ] ?? null;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function fromLocalStore( WpPluginVo $vo ) :array {
+		return ( new StoreAction\Load() )
+			->setMod( $this->getMod() )
+			->setAsset( $vo )
+			->run()
+			->getSnapData();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function bySlug( string $slug ) :array {
+		$vo = Services::WpPlugins()->getPluginAsVo( $slug );
+		if ( empty( $vo ) ) {
+			$vo = Services::WpThemes()->getThemeAsVo( $slug );
+			if ( empty( $vo ) ) {
+				throw new \Exception( sprintf( 'Plugin or theme not installed for slug: %s', $slug ) );
+			}
+		}
+		return $this->byVO( $vo );
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function byVO( $vo ) :array {
+		$hashes = $this->getAssetHashesFromCache( $vo );
+
+		if ( is_null( $hashes ) ) {
+			try {
+				$hashes = $this->fromCsHashes( $vo );
+			}
+			catch ( \Exception $e ) {
+				$hashes = [];
+			}
+			if ( empty( $hashes ) ) {
+				$hashes = $this->fromLocalStore( $vo );
+			}
+			$this->addItemHashesToCache( $vo, $hashes );
+		}
+
+		if ( empty( $hashes ) ) {
+			throw new \Exception( sprintf( 'Could not locate hashes for VO: %s', $vo->slug ) );
+		}
+		return $hashes;
+	}
+
+	public function fromCsHashes( WpPluginVo $vo ) :array {
+		$query = ( $vo->asset_type == 'plugin' ) ? new Query\Plugin() : new Query\Theme();
+		return $query->getHashesFromVO( $vo );
+	}
+}
