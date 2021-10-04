@@ -25,9 +25,6 @@ class LoadRawTableData {
 	private static $GuardFiles;
 
 	/**
-	 * @param string $type
-	 * @param string $file
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function loadFor( string $type, string $file ) :array {

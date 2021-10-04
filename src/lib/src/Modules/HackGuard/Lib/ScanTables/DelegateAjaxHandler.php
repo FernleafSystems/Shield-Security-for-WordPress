@@ -138,7 +138,6 @@ class DelegateAjaxHandler {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function retrieveTableData() :array {
@@ -146,9 +145,9 @@ class DelegateAjaxHandler {
 		return [
 			'success' => true,
 			'vars'    => [
-				'data' => ( new LoadRawTableData() )
+				'data' => array_values( ( new LoadRawTableData() )
 					->setMod( $this->getMod() )
-					->loadFor( $req->post( 'type' ), $req->post( 'file' ) )
+					->loadFor( $req->post( 'type' ), $req->post( 'file' ) ) )
 			],
 		];
 	}
