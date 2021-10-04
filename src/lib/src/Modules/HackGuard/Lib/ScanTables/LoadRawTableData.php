@@ -182,7 +182,7 @@ class LoadRawTableData {
 													->setTimestamp( $item->VO->created_at )
 													->diffForHumans();
 
-				if ( $item->is_different ) {
+				if ( $item->is_checksumfail ) {
 					$data[ 'status_slug' ] = 'modified';
 					$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
 				}

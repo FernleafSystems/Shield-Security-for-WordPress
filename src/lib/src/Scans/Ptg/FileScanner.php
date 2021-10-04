@@ -59,7 +59,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				->verifyHash( $fullPath );
 			if ( !$verified ) {
 				$item = $this->getNewItem( $this->getAssetFromPath( $fullPath ), $fullPath );
-				$item->is_different = true;
+				$item->is_checksumfail = true;
 			}
 		}
 		catch ( Exceptions\UnrecognisedAssetFile $naf ) {
@@ -81,7 +81,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$item->path_full = $fullPath;
 		$item->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $fullPath );
 		$item->is_unrecognised = false;
-		$item->is_different = false;
+		$item->is_checksumfail = false;
 		$item->is_missing = false;
 		$item->context = ( $asset instanceof Assets\WpPluginVo ) ? 'plugins' : 'themes';
 		$item->slug = ( $asset instanceof Assets\WpPluginVo ) ? $asset->file : $asset->stylesheet;

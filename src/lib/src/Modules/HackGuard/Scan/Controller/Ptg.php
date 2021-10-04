@@ -99,7 +99,7 @@ class Ptg extends BaseForFiles {
 
 		$FS = Services::WPFS();
 		$stale = $absent
-				 || ( ( $item->is_unrecognised || $item->is_different ) && !$FS->isFile( $item->path_full ) );
+				 || ( ( $item->is_unrecognised || $item->is_checksumfail ) && !$FS->isFile( $item->path_full ) );
 
 		if ( !$stale ) {
 			$asset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );

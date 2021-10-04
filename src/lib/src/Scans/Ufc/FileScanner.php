@@ -20,6 +20,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			$item = $this->getScanController()->getNewResultItem();
 			$item->path_full = $fullPath;
 			$item->path_fragment = Services::CoreFileHashes()->getFileFragment( $fullPath );
+			$item->is_unrecognised = true;
 		}
 
 		return $item;
