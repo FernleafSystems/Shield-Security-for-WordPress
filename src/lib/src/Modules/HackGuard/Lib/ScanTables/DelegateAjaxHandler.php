@@ -5,6 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	Lib\ScanTables\Modals\FileContents,
+	Lib\ScanTables\Modals\ScanItemView
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class DelegateAjaxHandler {
@@ -32,6 +36,10 @@ class DelegateAjaxHandler {
 
 			case 'view_file':
 				$response = $this->viewFile();
+				break;
+
+			case 'view_scan_item_details':
+				$response = $this->viewScanItemDetails();
 				break;
 
 			default:
@@ -119,7 +127,6 @@ class DelegateAjaxHandler {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function viewFile() :array {
@@ -131,7 +138,25 @@ class DelegateAjaxHandler {
 
 		return [
 			'success' => true,
-			'vars'    => ( new RetrieveFileContents() )
+			'vars'    => ( new ScanItemView() )
+				->setMod( $this->getMod() )
+				->run( (int)$rid ),
+		];
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function viewScanItemDetails() :array {
+		$req = Services::Request();
+		$rid = $req->post( 'rid' );
+		if ( !is_numeric( $rid ) ) {
+			throw new \Exception( 'Not a valid scan items to view' );
+		}
+
+		return [
+			'success' => true,
+			'vars'    => ( new ScanItemView() )
 				->setMod( $this->getMod() )
 				->run( (int)$rid ),
 		];

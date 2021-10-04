@@ -1,23 +1,20 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsRetrieve;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
-class RetrieveFileContents {
+class FileContents {
 
 	use ModConsumer;
 
 	/**
-	 * @param int  $rid
-	 * @param bool $raw
-	 * @return array
 	 * @throws \Exception
 	 */
-	public function run( int $rid, bool $raw = false ) :array {
+	public function run( int $rid, bool $rawContents = false ) :array {
 		try {
 			$item = ( new ResultsRetrieve() )
 				->setMod( $this->getMod() )
@@ -27,10 +24,11 @@ class RetrieveFileContents {
 			throw new \Exception( 'Not a valid file record' );
 		}
 
-		$path = path_join( ABSPATH, $item->path_fragment );
-		if ( empty( $path ) ) {
+		if ( empty( $item->path_fragment ) ) {
 			throw new \Exception( 'There is no path associated with this record' );
 		}
+
+		$path = \path_join( ABSPATH, $item->path_fragment );
 		$FS = Services::WpFs();
 		if ( !$FS->isFile( $path ) ) {
 			throw new \Exception( 'File does not exist.' );
@@ -41,7 +39,7 @@ class RetrieveFileContents {
 			throw new \Exception( 'File is empty or could not be read.' );
 		}
 
-		if ( !$raw ) {
+		if ( !$rawContents ) {
 			$modContents = Services::DataManipulation()->convertLineEndingsDosToLinux( $path );
 			$contents = $this->getMod()
 							 ->renderTemplate(
@@ -53,7 +51,7 @@ class RetrieveFileContents {
 		}
 		return [
 			'contents' => $contents,
-			'path'     => esc_html( $item->path_fragment ),
+			'path'     => \esc_html( $item->path_fragment ),
 		];
 	}
 }
