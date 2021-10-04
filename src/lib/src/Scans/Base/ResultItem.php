@@ -6,10 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
  * @property string $hash
- * @property bool   $is_excluded
  * @property string $scan
  * @property bool   $deleted
  * @property bool   $repaired
@@ -19,19 +16,12 @@ class ResultItem {
 
 	use DynProperties;
 
-	public function __construct() {
-	}
-
 	/**
 	 * @var ScanResultVO
 	 */
 	public $VO;
 
-	/**
-	 * @deprecated 12.1
-	 */
-	public function isReady() :bool {
-		return true;
+	public function __construct() {
 	}
 
 	public function generateHash() :string {
@@ -40,12 +30,5 @@ class ResultItem {
 
 	public function getDescriptionForAudit() :string {
 		return 'No description';
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getData() {
-		return $this->data ?? $this->getRawData();
 	}
 }

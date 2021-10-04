@@ -19,14 +19,12 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	public function scan( string $fullPath ) {
 		$item = null;
-		$fullPath = path_join( wp_normalize_path( ABSPATH ), $fullPath );
 		try {
 			$item = $this->scanPath( $fullPath );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
-
 		return $item;
 	}
 

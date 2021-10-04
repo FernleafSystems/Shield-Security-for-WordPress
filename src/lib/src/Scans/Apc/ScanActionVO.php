@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
 /**
- * Class ScanActionVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc
  * @property int $abandoned_limit
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {

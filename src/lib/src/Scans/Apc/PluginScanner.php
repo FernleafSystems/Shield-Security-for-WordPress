@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class PluginScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc
- */
 class PluginScanner {
 
 	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;

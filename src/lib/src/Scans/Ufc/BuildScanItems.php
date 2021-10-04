@@ -36,7 +36,7 @@ class BuildScanItems extends BaseBuildFileMap {
 					/** @var \SplFileInfo $file */
 					$path = wp_normalize_path( $file->getPathname() );
 					if ( !$coreHashes->isCoreFile( $path ) && !$this->isWhitelistedPath( $path ) && !$this->isAutoFilterFile( $file ) ) {
-						$files[] = wp_normalize_path( $path );
+						$files[] = $path;
 					}
 				}
 			}

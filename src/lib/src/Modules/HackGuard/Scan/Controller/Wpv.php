@@ -51,6 +51,7 @@ class Wpv extends BaseForAssets {
 	public function getPluginVulnerabilities( $file ) {
 		return array_map(
 			function ( $item ) {
+				/** @var $item Scans\Wpv\ResultItem */
 				return $item->getVulnVo();
 			},
 			$this->getAllResults()->getItemsForSlug( $file )

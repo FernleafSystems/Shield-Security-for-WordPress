@@ -15,10 +15,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$copier = new Shield\Scans\Helpers\CopyResultsSets();
 		foreach ( $action->items as $file => $context ) {
-			$copier->copyTo(
-				$this->scanItem( $context, $file ),
-				$tmpResults
-			);
+			$copier->copyTo( $this->scanItem( $context, $file ), $tmpResults );
 		}
 
 		$action->results = array_map(
@@ -29,12 +26,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		);
 	}
 
-	/**
-	 * @param string $context
-	 * @param string $file
-	 * @return ResultsSet
-	 */
-	protected function scanItem( $context, $file ) :ResultsSet {
+	private function scanItem( string $context, string $file ) :ResultsSet {
 		/** @var ResultsSet $results */
 		$results = $this->getScanController()->getNewResultsSet();
 
@@ -59,6 +51,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		}
 
 		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
+
 		if ( is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
 
 			foreach ( array_filter( $rawVuls[ 'vulnerabilities' ] ) as $vul ) {

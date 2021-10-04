@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  * @property bool   $is_mal
  * @property string $mal_sig
  * @property int[]  $file_lines

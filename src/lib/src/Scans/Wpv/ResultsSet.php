@@ -4,19 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-/**
- * Class ResultsSet
- * @property ResultItem[] $items
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv
- */
 class ResultsSet extends Base\ResultsSet {
-
-	/**
-	 * @return int
-	 */
-	public function countUniqueSlugs() {
-		return count( $this->getAllResultsSetsForUniqueSlugs() );
-	}
 
 	public function countUniqueSlugsForPluginsContext() :int {
 		return count( $this->getAllResultsSetsForPluginsContext() );
@@ -63,45 +51,45 @@ class ResultsSet extends Base\ResultsSet {
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForUniqueSlugs() {
-		$aCollection = [];
-		foreach ( $this->getUniqueSlugs() as $sSlug ) {
-			$oRS = $this->getResultsSetForSlug( $sSlug );
-			if ( $oRS->hasItems() ) {
-				$aCollection[ $sSlug ] = $oRS;
+		$collection = [];
+		foreach ( $this->getUniqueSlugs() as $slug ) {
+			$results = $this->getResultsSetForSlug( $slug );
+			if ( $results->hasItems() ) {
+				$collection[ $slug ] = $results;
 			}
 		}
-		ksort( $aCollection, SORT_NATURAL );
-		return $aCollection;
+		ksort( $collection, SORT_NATURAL );
+		return $collection;
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $slug
 	 * @return ResultItem[]
 	 */
-	public function getItemsForSlug( $sSlug ) {
+	public function getItemsForSlug( $slug ) {
 		return array_values( array_filter(
 			$this->getItems(),
-			function ( $oItem ) use ( $sSlug ) {
-				/** @var ResultItem $oItem */
-				return $oItem->slug == $sSlug;
+			function ( $item ) use ( $slug ) {
+				/** @var ResultItem $item */
+				return $item->slug == $slug;
 			}
 		) );
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $slug
 	 * @return ResultsSet
 	 */
-	public function getResultsSetForSlug( $sSlug ) {
-		$oRes = new ResultsSet();
+	public function getResultsSetForSlug( $slug ) {
+		$results = new ResultsSet();
 		array_map(
-			function ( $oItem ) use ( $oRes ) {
-				/** @var ResultItem $oItem */
-				$oRes->addItem( $oItem );
+			function ( $item ) use ( $results ) {
+				/** @var ResultItem $item */
+				$results->addItem( $item );
 			},
-			$this->getItemsForSlug( $sSlug )
+			$this->getItemsForSlug( $slug )
 		);
-		return $oRes;
+		return $results;
 	}
 
 	/**
@@ -109,9 +97,9 @@ class ResultsSet extends Base\ResultsSet {
 	 */
 	public function getUniqueSlugs() {
 		return array_unique( array_map(
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->slug;
+			function ( $item ) {
+				/** @var ResultItem $item */
+				return $item->slug;
 			},
 			$this->getItems()
 		) );

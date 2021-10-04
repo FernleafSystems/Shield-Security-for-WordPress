@@ -3,9 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 /**
- * Class ScanActionVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
- * @property string[] $scan_root_dirs
  * @property string[] $file_exts
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {

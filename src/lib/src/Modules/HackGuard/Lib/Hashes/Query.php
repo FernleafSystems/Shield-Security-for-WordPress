@@ -41,7 +41,9 @@ class Query {
 			$fragment = ( new Theme\Files() )->getRelativeFilePathFromItsInstallDir( $path );
 		}
 
-		$assetHashes = ( new Retrieve() )->byVO( $vo );
+		$assetHashes = ( new Retrieve() )
+			->setMod( $this->getMod() )
+			->byVO( $vo );
 		$hash = $assetHashes[ $fragment ] ?? ( $assetHashes[ strtolower( $fragment ) ] ?? null );
 		if ( empty( $hash ) ) {
 			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );

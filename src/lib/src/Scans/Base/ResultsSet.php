@@ -10,11 +10,6 @@ class ResultsSet {
 	protected $items;
 
 	/**
-	 * @var bool
-	 */
-	protected $bFilterExcluded = true;
-
-	/**
 	 * @param ResultItem $item
 	 * @return $this
 	 */
@@ -40,12 +35,11 @@ class ResultsSet {
 	 * @param string $hash
 	 * @return bool
 	 */
-	public function getItemExists( $hash ) {
+	public function getItemExists( $hash ) :bool {
 		return isset( $this->getAllItems()[ $hash ] );
 	}
 
 	/**
-	 * Ignores the "is_excluded" property on the items
 	 * @return ResultItem[]
 	 */
 	public function getAllItems() :array {
@@ -56,28 +50,11 @@ class ResultsSet {
 	}
 
 	/**
-	 * @return ResultItem[]
-	 */
-	public function getExcludedItems() :array {
-		return array_values( array_filter(
-			$this->getAllItems(),
-			function ( $item ) {
-				return $item->is_excluded;
-			}
-		) );
-	}
-
-	/**
 	 * Honours the exclusion flags
 	 * @return ResultItem[]
 	 */
 	public function getItems() :array {
-		return array_values( array_filter(
-			$this->getAllItems(),
-			function ( $item ) {
-				return !$this->isFilterExcludedItems() || !$item->is_excluded;
-			}
-		) );
+		return $this->getAllItems();
 	}
 
 	public function countItems() :int {
@@ -86,13 +63,6 @@ class ResultsSet {
 
 	public function hasItems() :bool {
 		return $this->countItems() > 0;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isFilterExcludedItems() {
-		return (bool)$this->bFilterExcluded;
 	}
 
 	/**
@@ -113,15 +83,6 @@ class ResultsSet {
 			unset( $items[ $hash ] );
 			$this->items = $items;
 		}
-		return $this;
-	}
-
-	/**
-	 * @param bool $bFilterExcluded
-	 * @return $this
-	 */
-	public function setFilterExcludedItems( $bFilterExcluded ) {
-		$this->bFilterExcluded = $bFilterExcluded;
 		return $this;
 	}
 }

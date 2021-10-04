@@ -17,7 +17,6 @@ class BuildScanItems extends BaseBuildFileMap {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
-		$abspath = wp_normalize_path( ABSPATH );
 		foreach ( $this->getScanRoots() as $dir ) {
 			try {
 				foreach ( StandardDirectoryIterator::create( $dir, 0, $action->file_exts ) as $item ) {
@@ -25,7 +24,7 @@ class BuildScanItems extends BaseBuildFileMap {
 					$path = wp_normalize_path( $item->getPathname() );
 					try {
 						if ( !$this->isWhitelistedPath( $path ) && !$this->isAutoFilterFile( $item ) ) {
-							$files[] = str_replace( $abspath, '', $path );
+							$files[] = $path;
 						}
 					}
 					catch ( \Exception $e ) {

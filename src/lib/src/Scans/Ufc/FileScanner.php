@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
@@ -14,7 +15,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	public function scan( string $fullPath ) {
 		$item = null;
 
-		$fullPath = wp_normalize_path( $fullPath );
 		if ( !$this->isExcluded( $fullPath ) ) {
 			/** @var ResultItem $item */
 			$item = $this->getScanController()->getNewResultItem();
@@ -26,17 +26,18 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	private function isExcluded( string $fullPath ) :bool {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$path = wp_normalize_path( $fullPath );
 		$filename = basename( $path );
 
 		$excluded = false;
 
-		foreach ( $action->exclusions as $exclusion ) {
+		$exclusions = is_array( $opts->getOpt( 'ufc_exclusions', [] ) ) ? $opts->getOpt( 'ufc_exclusions', [] ) : [];
+		foreach ( $exclusions as $exclusion ) {
 
-			if ( preg_match( '/^#(.+)#[a-z]*$/i', $exclusion, $aMatches ) ) { // it's regex
+			if ( preg_match( '/^#(.+)#[a-z]*$/i', $exclusion, $matches ) ) { // it's regex
 				$excluded = @preg_match( stripslashes( $exclusion ), $path );
 			}
 			else {
