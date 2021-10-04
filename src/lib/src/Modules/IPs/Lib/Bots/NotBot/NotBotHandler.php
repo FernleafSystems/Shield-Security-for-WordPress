@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class NotBotHandler extends ExecOnceModConsumer {
 
-	const LIFETIME = 600;
+	const LIFETIME = 75;
 	const SLUG = 'notbot';
 
 	private $useCookies;
@@ -27,7 +27,6 @@ class NotBotHandler extends ExecOnceModConsumer {
 			->execute();
 		$this->registerFrontPageLoad();
 		$this->registerLoginPageLoad();
-		$this->maybeDeleteCookie();
 	}
 
 	private function registerFrontPageLoad() {
@@ -56,16 +55,10 @@ class NotBotHandler extends ExecOnceModConsumer {
 		} );
 	}
 
-	private function maybeDeleteCookie() {
-		$cookie = $this->getCookieParts();
-		if ( !empty( $cookie ) && $cookie[ 'ts' ] - Services::Request()->ts() < 300 ) {
-			$this->clearCookie();
-		}
-	}
-
 	public function registerAsNotBot() :bool {
 		if ( $this->useCookies ) {
-			$ts = Services::Request()->ts() + self::LIFETIME;
+			$ts = Services::Request()->ts() +
+				  apply_filters( 'shield/notbot_cookie_life', self::LIFETIME );
 			Services::Response()->cookieSet(
 				$this->getMod()->prefix( self::SLUG ),
 				sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
