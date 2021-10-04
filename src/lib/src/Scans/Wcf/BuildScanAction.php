@@ -13,14 +13,4 @@ class BuildScanAction extends Base\BuildScanAction {
 			->setScanActionVO( $this->getScanActionVO() )
 			->run();
 	}
-
-	protected function setCustomFields() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-		/** @var Shield\Modules\HackGuard\Options $opts */
-		$opts = $this->getScanController()->getOptions();
-
-		$action->exclusions_missing_regex = $opts->getWcfMissingExclusions();
-		$action->exclusions_files_regex = $opts->getWcfFileExclusions();
-	}
 }

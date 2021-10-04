@@ -27,8 +27,11 @@ class ResultItem {
 	 */
 	public $VO;
 
+	/**
+	 * @deprecated 12.1
+	 */
 	public function isReady() :bool {
-		return false;
+		return true;
 	}
 
 	public function generateHash() :string {
