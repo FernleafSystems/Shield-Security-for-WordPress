@@ -90,9 +90,9 @@ class ResultsRetrieve {
 		if ( $latestID >= 0 ) {
 			$wheres = array_filter( [
 				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`si`.`attempt_repair_at`=0",
-				"`si`.`item_repaired_at`=0",
-				"`si`.`item_deleted_at`=0",
+				"`ri`.`attempt_repair_at`=0",
+				"`ri`.`item_repaired_at`=0",
+				"`ri`.`item_deleted_at`=0",
 				"`ri`.ignored_at=0"
 			] );
 			$raw = Services::WpDb()->selectCustom(

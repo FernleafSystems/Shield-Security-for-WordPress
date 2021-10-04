@@ -130,16 +130,10 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		if ( $this->isRestricted() ) {
-			$results = $this->getNewResultsSet();
-		}
-		else {
-			$results = ( new HackGuard\Scan\Results\ResultsRetrieve() )
-				->setMod( $this->getMod() )
-				->setScanController( $this )
-				->retrieve( false );
-		}
-		return $results;
+		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			->setMod( $this->getMod() )
+			->setScanController( $this )
+			->retrieve( false );
 	}
 
 	/**
@@ -160,7 +154,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
-		if ( !$this->scanActionVO instanceof BaseScanActionVO ) {
+		if ( empty( $this->scanActionVO ) ) {
 			$this->scanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
 		}
 		return $this->scanActionVO;
@@ -226,16 +220,8 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return $this
 	 */
 	public function purge() {
-		( new HackGuard\Scan\Results\ResultsDelete() )
-			->setScanController( $this )
-			->deleteAllForScan();
+		// TODO
 		return $this;
-	}
-
-	public function getScanResultsDbHandler() :Databases\Scanner\Handler {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getDbHandler_ScanResults();
 	}
 
 	public function getSlug() :string {
@@ -293,4 +279,13 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return BaseScanActionVO|mixed
 	 */
 	abstract public function buildScanResult( array $rawResult ) :HackGuard\DB\ResultItems\Ops\Record;
+
+	/**
+	 * @deprecated 12.1
+	 */
+	public function getScanResultsDbHandler() :Databases\Scanner\Handler {
+//		/** @var ModCon $mod */
+//		$mod = $this->getMod();
+//		return $mod->getDbHandler_ScanResults();
+	}
 }
