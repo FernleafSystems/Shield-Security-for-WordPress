@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -43,7 +44,49 @@ class SetScanCompleted {
 						'finished_at' => Services::Request()->ts()
 					] )
 					->query();
+
+				$scanCon = $mod->getScanCon( $scan );
+				$this->getCon()
+					 ->fireEvent( 'scan_run',
+						 [
+							 'audit_params' => [
+								 'scan' => $scanCon->getScanName()
+							 ]
+						 ]
+					 );
+
+				$this->auditLatestScanItems( $scanCon );
 			}
+		}
+	}
+
+	/**
+	 * @param Base $scanCon
+	 */
+	private function auditLatestScanItems( $scanCon ) {
+		$results = $scanCon->getAllResults();
+
+		if ( $results->countItems() > 0 ) {
+
+			$items = $results->countItems() > 30 ?
+				__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
+				: __( 'The following items were discovered.', 'wp-simple-firewall' );
+
+			$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
+				return $item->getDescriptionForAudit();
+			}, $results->getItems() ) ), 0, 30 );
+			$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
+
+			$this->getCon()
+				 ->fireEvent(
+					 'scan_items_found',
+					 [
+						 'audit_params' => [
+							 'scan'  => $scanCon->getScanName(),
+							 'items' => $items
+						 ]
+					 ]
+				 );
 		}
 	}
 }

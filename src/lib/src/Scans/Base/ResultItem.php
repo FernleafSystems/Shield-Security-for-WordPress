@@ -19,9 +19,6 @@ class ResultItem extends DynPropertiesClass {
 	 */
 	public $VO;
 
-	public function __construct() {
-	}
-
 	public function generateHash() :string {
 		return md5( json_encode( $this->getRawData() ) );
 	}

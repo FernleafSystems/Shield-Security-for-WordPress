@@ -22,7 +22,7 @@ class Strings extends Base\Strings {
 			'scan_item_delete_success' => [
 				'name'  => __( 'Scan Item Delete Success', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Deleted item found in the scan.', 'wp-simple-firewall' ),
+					__( 'Item found in the scan was deleted.', 'wp-simple-firewall' ),
 					__( 'Item deleted: "{{path_full}}"', 'wp-simple-firewall' ),
 				],
 			],
