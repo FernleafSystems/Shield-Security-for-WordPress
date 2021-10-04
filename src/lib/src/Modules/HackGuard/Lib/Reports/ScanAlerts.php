@@ -15,9 +15,8 @@ class ScanAlerts extends BaseReporter {
 		/** @var HackGuard\Strings $strings */
 		$strings = $this->getMod()->getStrings();
 
-		$rep = $this->getReport();
 		$scanCounts = array_filter(
-			( new Query\ScanCounts( $rep->interval_start_at, $rep->interval_end_at ) )
+			( new Query\ScanCounts() )
 				->setMod( $this->getMod() )
 				->standard()
 		);
@@ -59,11 +58,9 @@ class ScanAlerts extends BaseReporter {
 	private function markAlertsAsNotified() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Scanner\Update $updater */
-		$updater = $mod->getDbH_ScanResults()->getQueryUpdater();
-		$updater
+		$mod->getDbH_ResultItems()
+			->getQueryUpdater()
 			->setUpdateWheres( [
-				'ignored_at'  => 0,
 				'notified_at' => 0,
 			] )
 			->setUpdateData( [

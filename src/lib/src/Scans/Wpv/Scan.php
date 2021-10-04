@@ -15,10 +15,10 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$copier = new Shield\Scans\Helpers\CopyResultsSets();
 		foreach ( $action->items as $file => $context ) {
-			$results = $this->scanItem( $context, $file );
-			if ( $results instanceof Shield\Scans\Base\ResultsSet ) {
-				$copier->copyTo( $results, $tmpResults );
-			}
+			$copier->copyTo(
+				$this->scanItem( $context, $file ),
+				$tmpResults
+			);
 		}
 
 		$action->results = array_map(
@@ -34,7 +34,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	 * @param string $file
 	 * @return ResultsSet
 	 */
-	protected function scanItem( $context, $file ) {
+	protected function scanItem( $context, $file ) :ResultsSet {
 		/** @var ResultsSet $results */
 		$results = $this->getScanController()->getNewResultsSet();
 

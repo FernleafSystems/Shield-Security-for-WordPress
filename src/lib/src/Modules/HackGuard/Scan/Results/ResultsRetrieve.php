@@ -16,6 +16,8 @@ class ResultsRetrieve {
 	use ModConsumer;
 	use ScanControllerConsumer;
 
+	private $additionalWheres = [];
+
 	/**
 	 * @param int $scanResultID
 	 * @return Scans\Base\ResultItem
@@ -44,7 +46,12 @@ class ResultsRetrieve {
 		$raw = Services::WpDb()->selectCustom(
 			sprintf( $this->getBaseQuery(),
 				implode( ',', $this->standardSelectFields() ),
-				sprintf( "`sr`.`id`=%s", $scanResultID )
+				array_filter( array_merge(
+					[
+						sprintf( "`sr`.`id`=%s", $scanResultID )
+					],
+					$this->getAdditionalWheres()
+				) )
 			)
 		);
 		$rawResults = empty( $raw ) ? [] : $raw;
@@ -68,7 +75,12 @@ class ResultsRetrieve {
 				$raw = Services::WpDb()->selectCustom(
 					sprintf( $this->getBaseQuery(),
 						implode( ',', $this->standardSelectFields() ),
-						sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
+						array_filter( array_merge(
+							[
+								sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
+							],
+							$this->getAdditionalWheres()
+						) )
 					)
 				);
 				if ( !empty( $raw ) ) {
@@ -88,13 +100,16 @@ class ResultsRetrieve {
 
 		$latestID = $this->getLatestScanID();
 		if ( $latestID >= 0 ) {
-			$wheres = array_filter( [
-				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`ri`.`attempt_repair_at`=0",
-				"`ri`.`item_repaired_at`=0",
-				"`ri`.`item_deleted_at`=0",
-				"`ri`.ignored_at=0"
-			] );
+			$wheres = array_filter( array_merge(
+				[
+					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+					"`ri`.`attempt_repair_at`=0",
+					"`ri`.`item_repaired_at`=0",
+					"`ri`.`item_deleted_at`=0",
+					"`ri`.ignored_at=0"
+				],
+				$this->getAdditionalWheres()
+			) );
 			$raw = Services::WpDb()->selectCustom(
 				sprintf( $this->getBaseQuery(),
 					implode( ', ', $this->standardSelectFields() ),
@@ -118,11 +133,14 @@ class ResultsRetrieve {
 
 			$latestID = $this->getLatestScanID();
 			if ( $latestID >= 0 ) {
-				$wheres = array_filter( [
-					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					$includeIgnored ? '' : "`ri`.ignored_at = 0",
-					"`ri`.`deleted_at`=0"
-				] );
+				$wheres = array_filter( array_merge(
+					[
+						sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+						$includeIgnored ? '' : "`ri`.ignored_at = 0",
+						"`ri`.`deleted_at`=0"
+					],
+					$this->getAdditionalWheres()
+				) );
 				$raw = Services::WpDb()->selectCustom(
 					sprintf( $this->getBaseQuery(),
 						implode( ',', $this->standardSelectFields() ),
@@ -143,11 +161,14 @@ class ResultsRetrieve {
 		if ( !$this->getScanController()->isRestricted() ) {
 			$latestID = $this->getLatestScanID();
 			if ( $latestID >= 0 ) {
-				$wheres = array_filter( [
-					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					$includeIgnored ? '' : "`ri`.ignored_at = 0",
-					"`ri`.`deleted_at`=0"
-				] );
+				$wheres = array_filter( array_merge(
+					[
+						sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+						$includeIgnored ? '' : "`ri`.ignored_at = 0",
+						"`ri`.`deleted_at`=0"
+					],
+					$this->getAdditionalWheres()
+				) );
 				$count = (int)Services::WpDb()->getVar(
 					sprintf( $this->getBaseQuery(),
 						'COUNT(*)',
@@ -218,5 +239,14 @@ class ResultsRetrieve {
 			'ri.item_deleted_at',
 			'ri.created_at',
 		];
+	}
+
+	public function getAdditionalWheres() :array {
+		return is_array( $this->additionalWheres ) ? $this->additionalWheres : [];
+	}
+
+	public function setAdditionalWheres( array $wheres ) {
+		$this->additionalWheres = $wheres;
+		return $this;
 	}
 }

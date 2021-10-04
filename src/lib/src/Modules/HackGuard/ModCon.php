@@ -87,10 +87,8 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getMainWpData() :array {
-		$issues = ( new Lib\Reports\Query\ScanCounts() )->setMod( $this );
-		$issues->notified = null;
 		return array_merge( parent::getMainWpData(), [
-			'scan_issues' => array_filter( $issues->all() )
+			'scan_issues' => array_filter( ( new Lib\Reports\Query\ScanCounts() )->setMod( $this )->all() )
 		] );
 	}
 
@@ -207,14 +205,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$opts->setOpt( 'ufc_exclusions', array_unique( $excl ) );
-	}
-
-	public function isPtgEnabled() :bool {
-		$opts = $this->getOptions();
-		return $this->isModuleEnabled() && $this->isPremium()
-			   && $opts->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->getCon()->hasCacheDir()
-			   && !empty( $this->getPtgSnapsBaseDir() );
 	}
 
 	public function getPtgSnapsBaseDir() :string {
