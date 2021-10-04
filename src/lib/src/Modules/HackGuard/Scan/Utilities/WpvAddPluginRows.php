@@ -124,10 +124,19 @@ class WpvAddPluginRows {
 								 ],
 								 'vars'    => [
 									 'vulns'   => array_map(
-										 function ( $vuln ) {
+										 function ( $vuln ) use ( $pluginFile ) {
 											 $data = $vuln->getRawData();
-											 if ( empty( $data[ 'url' ] ) ) {
-												 $data[ 'url' ] = $vuln->url;
+
+											 $plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
+											 if ( !empty( $plugin ) ) {
+												 $data[ 'url' ] = add_query_arg(
+													 [
+														 'type'    => $plugin->asset_type,
+														 'slug'    => $plugin->slug,
+														 'version' => $plugin->Version,
+													 ],
+													 'https://shsec.io/shieldvulnerabilitylookup'
+												 );
 											 }
 											 return $data;
 										 },
