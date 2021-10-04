@@ -50,7 +50,6 @@ class ResultsSet {
 	}
 
 	/**
-	 * Honours the exclusion flags
 	 * @return ResultItem[]
 	 */
 	public function getItems() :array {

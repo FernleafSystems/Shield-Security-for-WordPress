@@ -89,7 +89,7 @@ abstract class Base extends ExecOnceModConsumer {
 			self::$resultsCounts[ $this->getSlug() ] = ( new HackGuard\Scan\Results\ResultsRetrieve() )
 				->setScanController( $this )
 				->setMod( $this->getMod() )
-				->count();
+				->count( false );
 		}
 		return self::$resultsCounts[ static::SCAN_SLUG ];
 	}
