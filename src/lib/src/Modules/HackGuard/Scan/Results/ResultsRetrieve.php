@@ -46,12 +46,12 @@ class ResultsRetrieve {
 		$raw = Services::WpDb()->selectCustom(
 			sprintf( $this->getBaseQuery(),
 				implode( ',', $this->standardSelectFields() ),
-				array_filter( array_merge(
+				implode( ' AND ', array_filter( array_merge(
 					[
 						sprintf( "`sr`.`id`=%s", $scanResultID )
 					],
 					$this->getAdditionalWheres()
-				) )
+				) ) )
 			)
 		);
 		$rawResults = empty( $raw ) ? [] : $raw;
@@ -75,12 +75,12 @@ class ResultsRetrieve {
 				$raw = Services::WpDb()->selectCustom(
 					sprintf( $this->getBaseQuery(),
 						implode( ',', $this->standardSelectFields() ),
-						array_filter( array_merge(
+						implode( ' AND ', array_filter( array_merge(
 							[
 								sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
 							],
 							$this->getAdditionalWheres()
-						) )
+						) ) )
 					)
 				);
 				if ( !empty( $raw ) ) {

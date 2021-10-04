@@ -203,15 +203,15 @@ class Options extends BaseShield\Options {
 	 * @return array[]
 	 */
 	public function getUfcScanDirectories() :array {
-		$aDirs = [
+		$dirs = [
 			path_join( ABSPATH, 'wp-admin' )    => [],
 			path_join( ABSPATH, 'wp-includes' ) => []
 		];
 
 		if ( $this->isOpt( 'ufc_scan_uploads', 'Y' ) ) { // include uploads
-			$sUploadsDir = Services::WpGeneral()->getDirUploads();
-			if ( !empty( $sUploadsDir ) ) {
-				$aDirs[ $sUploadsDir ] = [
+			$uploadsDir = Services::WpGeneral()->getDirUploads();
+			if ( !empty( $uploadsDir ) ) {
+				$dirs[ $uploadsDir ] = [
 					'php',
 					'php5',
 					'js',
@@ -219,7 +219,7 @@ class Options extends BaseShield\Options {
 			}
 		}
 
-		return $aDirs;
+		return $dirs;
 	}
 
 	/**
@@ -238,7 +238,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param bool $isCron
 	 * @return $this
 	 */
 	public function setIsScanCron( bool $isCron ) {
