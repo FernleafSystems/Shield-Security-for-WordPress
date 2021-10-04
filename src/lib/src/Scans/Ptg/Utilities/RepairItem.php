@@ -20,7 +20,7 @@ class RepairItem extends RepairItemBase {
 		$item = $this->getScanItem();
 
 		if ( $this->canRepair() ) {
-			$success = ( $item->context == 'plugins' ) ?
+			$success = strpos( $item->slug, '/' ) ?
 				$this->repairPluginFile( $item->path_full )
 				: $this->repairThemeFile( $item->path_full );
 		}
@@ -64,7 +64,7 @@ class RepairItem extends RepairItemBase {
 		if ( $item->is_unrecognised ) {
 			$canRepair = false;
 		}
-		elseif ( $item->context == 'plugins' ) {
+		elseif ( strpos( $item->slug, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
 			$canRepair = $asset->asset_type === 'plugin'
 						 && $asset->isWpOrg() && $asset->svn_uses_tags;

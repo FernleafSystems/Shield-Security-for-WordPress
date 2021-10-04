@@ -5,10 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\VulnVO;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv
  * @property string $slug
- * @property string $context
  * @property int    $wpvuln_id
  * @property array  $wpvuln_vo
  */
@@ -19,7 +16,7 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	}
 
 	public function getDescriptionForAudit() :string {
-		return sprintf( '%s: %s', $this->context, $this->slug );
+		return sprintf( '%s: %s', ( strpos( $this->slug, '/' ) ? 'Plugin' : 'Theme' ), $this->slug );
 	}
 
 	public function getVulnVo() :VulnVO {

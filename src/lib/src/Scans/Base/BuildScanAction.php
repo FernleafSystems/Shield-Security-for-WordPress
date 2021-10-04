@@ -12,8 +12,8 @@ abstract class BuildScanAction {
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
-	 * @throws \Exception
 	 * @return static
+	 * @throws \Exception
 	 */
 	public function build() {
 		$scanCon = $this->getScanController();

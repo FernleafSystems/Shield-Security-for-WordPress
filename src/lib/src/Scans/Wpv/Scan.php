@@ -14,8 +14,8 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$tmpResults = $this->getScanController()->getNewResultsSet();
 
 		$copier = new Shield\Scans\Helpers\CopyResultsSets();
-		foreach ( $action->items as $file => $context ) {
-			$copier->copyTo( $this->scanItem( $context, $file ), $tmpResults );
+		foreach ( $action->items as $file ) {
+			$copier->copyTo( $this->scanItem( $file ), $tmpResults );
 		}
 
 		$action->results = array_map(
@@ -26,7 +26,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		);
 	}
 
-	private function scanItem( string $context, string $file ) :ResultsSet {
+	private function scanItem( string $scanItem ) :ResultsSet {
 		/** @var ResultsSet $results */
 		$results = $this->getScanController()->getNewResultsSet();
 
@@ -35,17 +35,17 @@ class Scan extends Shield\Scans\Base\BaseScan {
 						 ->getWpHashesTokenManager()
 						 ->getToken();
 
-		if ( $context == 'plugins' ) {
+		if ( strpos( $scanItem, '/' ) ) { // plugin file
 			$WPP = Services::WpPlugins();
-			$slug = $WPP->getSlug( $file );
+			$slug = $WPP->getSlug( $scanItem );
 			if ( empty( $slug ) ) {
-				$slug = dirname( $file );
+				$slug = dirname( $scanItem );
 			}
-			$version = $WPP->getPluginAsVo( $file )->Version;
+			$version = $WPP->getPluginAsVo( $scanItem )->Version;
 			$lookerUpper = new Vulnerabilities\Plugin( $apiToken );
 		}
-		else {
-			$slug = $file;
+		else { // theme dir
+			$slug = $scanItem;
 			$version = Services::WpThemes()->getTheme( $slug )->get( 'Version' );
 			$lookerUpper = new Vulnerabilities\Theme( $apiToken );
 		}
@@ -60,11 +60,9 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 				/** @var ResultItem $item */
 				$item = $this->getScanController()->getNewResultItem();
-				$item->slug = $file;
-				$item->context = $context;
+				$item->slug = $scanItem;
 				$item->wpvuln_id = $VO->id;
 				$item->wpvuln_vo = $VO->getRawData();
-
 				$results->addItem( $item );
 			}
 		}

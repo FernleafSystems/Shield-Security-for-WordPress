@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
+
 /**
  * @property string[] $file_exts
  */
-class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
+class ScanActionVO extends BaseScanActionVO {
 
 	const CONTEXT_PLUGINS = 'plugins';
 	const CONTEXT_THEMES = 'themes';

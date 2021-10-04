@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class BaseEntryVO
- *
  * @property int   $id
  * @property array $meta
  * @property int   $created_at

@@ -8,16 +8,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class BuildScanItems extends Shield\Scans\Base\Utilities\BuildScanItems {
 
 	public function run() :array {
-		$items = array_map(
-			function ( $key ) {
-				return 'plugins';
-			},
-			array_flip( Services::WpPlugins()->getInstalledPluginFiles() )
-		);
+		$items = Services::WpPlugins()->getInstalledPluginFiles();
 
 		$WPT = Services::WpThemes();
-		$theme = $WPT->isActiveThemeAChild() ? $WPT->getCurrentParent() : $WPT->getCurrent();
-		$items[ $theme->get_stylesheet() ] = 'themes';
+		$items[] = ( $WPT->isActiveThemeAChild() ? $WPT->getCurrentParent() : $WPT->getCurrent() )->get_stylesheet();
 
 		return $items;
 	}

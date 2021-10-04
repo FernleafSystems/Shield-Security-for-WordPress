@@ -34,17 +34,17 @@ class ResultsSet extends Base\ResultsSet {
 	}
 
 	/**
-	 * @param string $sContext
+	 * @param string $context
 	 * @return ResultsSet[]
 	 */
-	public function getAllResultsSetsForContext( $sContext ) :array {
-		$aCollection = [];
-		foreach ( $this->getAllResultsSetsForUniqueSlugs() as $sSlug => $oRS ) {
-			if ( $oRS->getItems()[ 0 ]->context == $sContext ) {
-				$aCollection[ $sSlug ] = $oRS;
+	public function getAllResultsSetsForContext( $context ) :array {
+		$collection = [];
+		foreach ( $this->getAllResultsSetsForUniqueSlugs() as $slug => $RS ) {
+			if ( ( strpos( $slug, '/' ) ? 'plugins' : 'themes' ) == $context ) {
+				$collection[ $slug ] = $RS;
 			}
 		}
-		return $aCollection;
+		return $collection;
 	}
 
 	/**

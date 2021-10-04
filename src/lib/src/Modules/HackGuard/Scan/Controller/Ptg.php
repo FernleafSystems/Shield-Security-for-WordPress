@@ -88,14 +88,13 @@ class Ptg extends BaseForFiles {
 	 * @return bool
 	 */
 	protected function isResultItemStale( $item ) :bool {
-		if ( $item->context == 'plugins' ) {
+		if ( strpos( $item->slug, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
-			$absent = empty( $asset );
 		}
 		else {
 			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
-			$absent = empty( $asset );
 		}
+		$absent = empty( $asset );
 
 		$FS = Services::WPFS();
 		$stale = $absent

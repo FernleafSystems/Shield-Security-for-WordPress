@@ -14,7 +14,7 @@ abstract class BaseForAssets extends Base {
 	 * @return bool
 	 */
 	protected function isResultItemStale( $item ) :bool {
-		if ( $item->context == 'plugins' ) {
+		if ( strpos( $item->slug, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
 			$stale = empty( $asset );
 		}
@@ -35,7 +35,7 @@ abstract class BaseForAssets extends Base {
 		];
 		$record->hash = $rawResult[ 'hash' ];
 		$record->item_id = $rawResult[ 'slug' ];
-		$record->item_type = $rawResult[ 'context' ] === 'plugins' ?
+		$record->item_type = strpos( $rawResult[ 'slug' ], '/' ) ?
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
 			ResultItems\Ops\Handler::ITEM_TYPE_THEME;
 		return $record;

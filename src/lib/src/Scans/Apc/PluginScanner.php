@@ -29,7 +29,6 @@ class PluginScanner {
 				/** @var ResultItem $item */
 				$item = $this->getScanController()->getNewResultItem();
 				$item->slug = $pluginFile;
-				$item->context = 'plugins';
 				$item->last_updated_at = $nLastUpdatedAt;
 			}
 		}

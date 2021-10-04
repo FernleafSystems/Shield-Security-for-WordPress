@@ -9,7 +9,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	/**
 	 * @throws \Exception
 	 */
-	public function ignore() :bool{
+	public function ignore() :bool {
 		parent::ignore();
 
 		( new FalsePositiveReporter() )

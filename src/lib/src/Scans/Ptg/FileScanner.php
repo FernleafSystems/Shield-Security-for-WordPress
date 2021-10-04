@@ -83,8 +83,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$item->is_unrecognised = false;
 		$item->is_checksumfail = false;
 		$item->is_missing = false;
-		$item->context = ( $asset instanceof Assets\WpPluginVo ) ? 'plugins' : 'themes';
-		$item->slug = ( $asset instanceof Assets\WpPluginVo ) ? $asset->file : $asset->stylesheet;
+		$item->slug = $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet;
 		return $item;
 	}
 }

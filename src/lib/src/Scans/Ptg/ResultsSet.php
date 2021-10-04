@@ -21,14 +21,13 @@ class ResultsSet extends Base\ResultsSet {
 	}
 
 	/**
-	 * @param string $context
 	 * @return ResultsSet
 	 */
-	public function getResultsForContext( $context ) {
+	public function getResultsForPluginsContext() {
 		$results = new ResultsSet();
 		foreach ( $this->getAllItems() as $item ) {
 			/** @var ResultItem $item */
-			if ( $item->context == $context ) {
+			if ( strpos( $item->slug, '/' ) ) {
 				$results->addItem( $item );
 			}
 		}
@@ -38,14 +37,14 @@ class ResultsSet extends Base\ResultsSet {
 	/**
 	 * @return ResultsSet
 	 */
-	public function getResultsForPluginsContext() {
-		return $this->getResultsForContext( ScanActionVO::CONTEXT_PLUGINS );
-	}
-
-	/**
-	 * @return ResultsSet
-	 */
 	public function getResultsForThemesContext() {
-		return $this->getResultsForContext( ScanActionVO::CONTEXT_THEMES );
+		$results = new ResultsSet();
+		foreach ( $this->getAllItems() as $item ) {
+			/** @var ResultItem $item */
+			if ( strpos( $item->slug, '/' ) === false ) {
+				$results->addItem( $item );
+			}
+		}
+		return $results;
 	}
 }
