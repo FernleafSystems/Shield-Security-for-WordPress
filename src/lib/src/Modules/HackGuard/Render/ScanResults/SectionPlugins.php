@@ -126,7 +126,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 				'is_wporg'        => $plugin->isWpOrg(),
 			],
 			'vars'  => [
-				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->id,
+				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
 				'count_items'   => count( $guardFilesData ) + count( $vulnerabilities )
 								   + ( empty( $abandoned ) ? 0 : 1 )
 			],
