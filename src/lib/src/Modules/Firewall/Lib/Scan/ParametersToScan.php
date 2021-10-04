@@ -31,6 +31,12 @@ class ParametersToScan {
 			if ( !empty( self::$params ) ) {
 				$this->removeAllPageParams();
 			}
+
+			foreach ( self::$params as $key => $param ) {
+				if ( $param === '' ) {
+					unset( self::$params[ $key ] );
+				}
+			}
 		}
 
 		return self::$params;
@@ -40,9 +46,12 @@ class ParametersToScan {
 		foreach ( $this->getAllPageWhitelistedParameters() as $listParam ) {
 
 			if ( preg_match( '#^/.+/$#', $listParam ) ) {
-				foreach ( array_keys( self::$params ) as $param ) {
-					if ( preg_match( $listParam, $param ) ) {
-						unset( self::$params[ $param ] );
+				foreach ( array_keys( self::$params ) as $paramKey ) {
+
+					// Turns out you can have numeric parameter keys in query:
+					// e.g. ?asdf=123&456&
+					if ( preg_match( $listParam, (string)$paramKey ) ) {
+						unset( self::$params[ $paramKey ] );
 					}
 				}
 			}

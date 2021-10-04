@@ -216,6 +216,12 @@ class Controller extends DynPropertiesClass {
 				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
 			}
 
+			$mysql = $this->cfg->requirements[ 'mysql' ];
+			if ( !empty( $mysql ) && !$this->isMysqlVersionSupported( $mysql ) ) {
+				$reqsMsg[] = sprintf( "Your MySQL database server doesn't support IPv6 addresses. Your Version: %s; Required MySQL Version: %s;",
+					Services::WpDb()->getMysqlServerInfo(), $mysql );
+			}
+
 			if ( !empty( $reqsMsg ) ) {
 				$this->reqs_not_met = $reqsMsg;
 				add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
@@ -225,10 +231,19 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
+	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
+		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
+		return empty( $versionToSupport )
+			   || empty( $mysqlInfo )
+			   || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
+			   || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+	}
+
 	public function adminNoticeDoesNotMeetRequirements() {
 		if ( !empty( $this->reqs_not_met ) ) {
 			$this->getRenderer()
 				 ->setTemplate( 'notices/does-not-meet-requirements.twig' )
+				 ->setTemplateEngineTwig()
 				 ->setRenderVars( [
 					 'strings' => [
 						 'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
@@ -237,7 +252,7 @@ class Controller extends DynPropertiesClass {
 						 'more_information' => 'Click here for more information on requirements'
 					 ],
 					 'hrefs'   => [
-						 'more_information' => sprintf( 'https://wordpress.org/plugins/%s/faq', $this->getTextDomain() )
+						 'more_information' => 'https://shsec.io/shieldsystemrequirements'
 					 ]
 				 ] )
 				 ->display();
@@ -609,13 +624,14 @@ class Controller extends DynPropertiesClass {
 		if ( !empty( $updates->response ) && isset( $updates->response[ $file ] ) ) {
 			$reqs = $this->cfg->upgrade_reqs;
 			if ( is_array( $reqs ) ) {
-				foreach ( $reqs as $sShieldVer => $aReqs ) {
-					$bNeedsHidden = version_compare( $updates->response[ $file ]->new_version, $sShieldVer, '>=' )
-									&& (
-										!Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php' ] )
-										|| !Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp' ] )
-									);
-					if ( $bNeedsHidden ) {
+				foreach ( $reqs as $shieldVer => $verReqs ) {
+					$toHide = version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
+							  && (
+								  !Services::Data()->getPhpVersionIsAtLeast( $verReqs[ 'php' ] )
+								  || !Services::WpGeneral()->getWordpressIsAtLeastVersion( $verReqs[ 'wp' ] )
+								  || ( !empty( $verReqs[ 'mysql' ] ) && !$this->isMysqlVersionSupported( $verReqs[ 'mysql' ] ) )
+							  );
+					if ( $toHide ) {
 						unset( $updates->response[ $file ] );
 						break;
 					}

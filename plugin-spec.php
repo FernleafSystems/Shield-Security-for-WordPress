@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "12.0.3",
-    "release_timestamp":       1632305800,
-    "build":                   "202109.2202",
+    "version":                 "12.0.9",
+    "release_timestamp":       1632903440,
+    "build":                   "202109.2901",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -20,12 +20,19 @@
   },
   "requirements":     {
     "php":       "7.0",
-    "wordpress": "3.7"
+    "wordpress": "3.7",
+    "mysql":     "5.6"
   },
   "upgrade_reqs":     {
     "10.0": {
-      "php": "7.0",
-      "wp":  "3.5.2"
+      "php":   "7.0",
+      "wp":    "3.5.2",
+      "mysql": "5.5"
+    },
+    "12.0": {
+      "php":   "7.0",
+      "wp":    "3.7",
+      "mysql": "5.6"
     }
   },
   "paths":            {
