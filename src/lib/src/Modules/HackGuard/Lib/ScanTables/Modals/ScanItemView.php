@@ -82,16 +82,18 @@ class ScanItemView {
 		else {
 			$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $pathFull );
 			if ( !empty( $plugin ) && $plugin->isWpOrg() && $plugin->svn_uses_tags ) {
-				$original = Services::WpFs()->getFileContent(
-					( new WpOrg\Plugin\Files() )->getOriginalFileFromVcs( $pathFull )
-				);
+				$originalFileDownload = ( new WpOrg\Plugin\Files() )->getOriginalFileFromVcs( $pathFull );
+				if ( !empty( $originalFileDownload ) ) {
+					$original = Services::WpFs()->getFileContent( $originalFileDownload );
+				}
 			}
 			else {
 				$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $pathFull );
 				if ( !empty( $theme ) && $theme->isWpOrg() ) {
-					$original = Services::WpFs()->getFileContent(
-						( new WpOrg\Theme\Files() )->getOriginalFileFromVcs( $pathFull )
-					);
+					$originalFileDownload = ( new WpOrg\Theme\Files() )->getOriginalFileFromVcs( $pathFull );
+					if ( !empty( $originalFileDownload ) ) {
+						$original = Services::WpFs()->getFileContent( $originalFileDownload );
+					}
 				}
 			}
 		}
