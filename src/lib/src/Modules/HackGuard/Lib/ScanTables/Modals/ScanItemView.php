@@ -22,6 +22,7 @@ class ScanItemView {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
+			/** @var Scans\Base\FileResultItem $item */
 			$item = ( new ResultsRetrieve() )
 				->setMod( $mod )
 				->byID( $rid );
@@ -35,28 +36,40 @@ class ScanItemView {
 		}
 
 		try {
-			$diff = $this->getFileDiff( $item->path_full );
+			$diffContent = $this->getFileDiff( $item );
 			$hasDiff = true;
 		}
 		catch ( \Exception $e ) {
-			$diff = '';
+			$diffContent = $e->getMessage();
 			$hasDiff = false;
+		}
+
+		try {
+			$historyContent = ( new BuildHistory() )
+				->setMod( $this->getMod() )
+				->run( $item );
+			$hasHistory = true;
+		}
+		catch ( \Exception $e ) {
+			$historyContent = $e->getMessage();
+			$hasHistory = false;
 		}
 
 		return [
 			'path'     => \esc_html( $item->path_fragment ),
 			'contents' => $mod->renderTemplate(
-				'/wpadmin_pages/insights/scans/modal/scan_item_view/scan_item_tabpanel.twig',
+				'/wpadmin_pages/insights/scans/modal/scan_item_view/tabpanel.twig',
 				[
 					'content' => [
 						'tab_filecontents' => ( new FileContents() )
 												  ->setMod( $mod )
 												  ->run( $rid )[ 'contents' ],
-						'tab_diff'         => $diff,
-						'tab_history'      => 'HISTORY',
+						'tab_diff'         => $diffContent,
+						'tab_history'      => $historyContent,
 					],
 					'flags'   => [
-						'has_diff' => $hasDiff
+						'has_diff'    => $hasDiff,
+						'has_history' => $hasHistory,
 					],
 					'strings' => [
 						'tab_filecontents' => 'Contents',
@@ -69,9 +82,13 @@ class ScanItemView {
 	}
 
 	/**
+	 * @param Scans\Base\FileResultItem $resultItem
+	 * @return string
 	 * @throws \Exception
 	 */
-	private function getFileDiff( string $pathFull ) :string {
+	private function getFileDiff( $resultItem ) :string {
+		$pathFull = $resultItem->path_full;
+
 		$original = '';
 		$coreHashes = Services::CoreFileHashes();
 		if ( $coreHashes->isCoreFile( $pathFull ) ) {
@@ -99,7 +116,7 @@ class ScanItemView {
 		}
 
 		if ( empty( $original ) ) {
-			throw new \Exception( 'No original file available to diff' );
+			throw new \Exception( 'There is no original file available to create a diff.' );
 		}
 
 		$converter = new ConvertLineEndings();

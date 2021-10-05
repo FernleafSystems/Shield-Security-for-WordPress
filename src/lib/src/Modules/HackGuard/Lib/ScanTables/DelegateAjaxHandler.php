@@ -38,10 +38,6 @@ class DelegateAjaxHandler {
 				$response = $this->viewFile();
 				break;
 
-			case 'view_scan_item_details':
-				$response = $this->viewScanItemDetails();
-				break;
-
 			default:
 				throw new \Exception( 'Not a supported scan tables sub_action: '.$action );
 		}
@@ -134,24 +130,6 @@ class DelegateAjaxHandler {
 		$rid = $req->post( 'rid' );
 		if ( !is_numeric( $rid ) ) {
 			throw new \Exception( 'Not a valid file to view' );
-		}
-
-		return [
-			'success' => true,
-			'vars'    => ( new ScanItemView() )
-				->setMod( $this->getMod() )
-				->run( (int)$rid ),
-		];
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function viewScanItemDetails() :array {
-		$req = Services::Request();
-		$rid = $req->post( 'rid' );
-		if ( !is_numeric( $rid ) ) {
-			throw new \Exception( 'Not a valid scan items to view' );
 		}
 
 		return [

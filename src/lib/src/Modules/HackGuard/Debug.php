@@ -18,7 +18,7 @@ class Debug extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Debug 
 		$res = ( new ResultsRetrieve() )
 			->setScanController( $mod->getScanCon( Wcf::SCAN_SLUG ) )
 			->setMod( $this->getMod() )
-			->retrieve();
+			->retrieveLatest();
 		var_dump( $res );
 	}
 }

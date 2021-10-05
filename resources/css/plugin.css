@@ -1618,7 +1618,7 @@ body.folded #FooterBannerGoPro {
 }
 .primary_side_sub_menu a:hover {
 	color: #008000;
-	text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 .primary_side_sub_menu a.active {
 	border-left: 3px solid rgba(0, 128, 0, 0.4);
@@ -1735,4 +1735,8 @@ button.btn.action {
 }
 #CodeRenderModal pre.icwp-code-render > code:before {
 	-webkit-user-select: none;
+}
+
+.scan-item-history ul {
+	list-style: inside disc;
 }

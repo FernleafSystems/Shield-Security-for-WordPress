@@ -61,7 +61,7 @@ abstract class Base extends ExecOnceModConsumer {
 		$results = ( new HackGuard\Scan\Results\ResultsRetrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
-			->retrieve();
+			->retrieveLatest();
 
 		$IDs = [];
 		foreach ( $results->getItems() as $item ) {
@@ -133,7 +133,7 @@ abstract class Base extends ExecOnceModConsumer {
 		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
-			->retrieve( false );
+			->retrieveLatest( false );
 	}
 
 	/**

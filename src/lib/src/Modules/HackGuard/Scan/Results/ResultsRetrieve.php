@@ -127,30 +127,43 @@ class ResultsRetrieve {
 	/**
 	 * @return Scans\Base\ResultsSet
 	 */
-	public function retrieve( bool $includeIgnored = true ) {
-		$results = [];
-		if ( !$this->getScanController()->isRestricted() ) {
+	public function retrieveLatest( bool $includeIgnored = true ) {
 
-			$latestID = $this->getLatestScanID();
-			if ( $latestID >= 0 ) {
-				$wheres = array_filter( array_merge(
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$results = $this
+				->setAdditionalWheres( [
+					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+					$includeIgnored ? '' : "`ri`.ignored_at = 0",
+				] )
+				->retrieve();
+		}
+		else {
+			$results = $this->getScanController()->getNewResultsSet();
+		}
+
+		return $results;
+	}
+
+	/**
+	 * @return Scans\Base\ResultsSet
+	 */
+	public function retrieve() {
+		$results = [];
+
+		$raw = Services::WpDb()->selectCustom(
+			sprintf( $this->getBaseQuery(),
+				implode( ',', $this->standardSelectFields() ),
+				implode( ' AND ', array_filter( array_merge(
 					[
-						sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-						$includeIgnored ? '' : "`ri`.ignored_at = 0",
 						"`ri`.`deleted_at`=0"
 					],
 					$this->getAdditionalWheres()
-				) );
-				$raw = Services::WpDb()->selectCustom(
-					sprintf( $this->getBaseQuery(),
-						implode( ',', $this->standardSelectFields() ),
-						implode( ' AND ', $wheres )
-					)
-				);
-				if ( !empty( $raw ) ) {
-					$results = $raw;
-				}
-			}
+				) ) )
+			)
+		);
+		if ( !empty( $raw ) ) {
+			$results = $raw;
 		}
 
 		return $this->convertToResultsSet( $results );
@@ -185,13 +198,17 @@ class ResultsRetrieve {
 	 * @return ResultsSet|mixed
 	 */
 	protected function convertToResultsSet( array $results ) {
-		$scanCon = $this->getScanController();
-		$resultsSet = $scanCon->getNewResultsSet();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$resultsSet = $this->getNewResultsSet();
 		foreach ( $results as $result ) {
 			$vo = ( new ScanResultVO() )->applyFromArray( $result );
-			$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $scanCon->getSlug() ] );
-			$item->VO = $vo;
-			$resultsSet->addItem( $item );
+			foreach ( $vo->meta as $scanSlug => $scanMeta ) {
+				$scanCon = $mod->getScanCon( $scanSlug );
+				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $scanSlug ] );
+				$item->VO = $vo;
+				$resultsSet->addItem( $item );
+			}
 		}
 		return $resultsSet;
 	}
@@ -239,6 +256,11 @@ class ResultsRetrieve {
 			'ri.item_deleted_at',
 			'ri.created_at',
 		];
+	}
+
+	private function getNewResultsSet() {
+		$scanCon = $this->getScanController();
+		return empty( $scanCon ) ? new ResultsSet() : $scanCon->getNewResultsSet();
 	}
 
 	public function getAdditionalWheres() :array {
