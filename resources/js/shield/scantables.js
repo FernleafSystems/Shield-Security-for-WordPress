@@ -96,6 +96,7 @@
 					let reqData = base.getBaseAjaxData();
 					reqData.sub_action = 'view_file';
 					reqData.rid = $( this ).data( 'rid' );
+					jQuery( 'body' ).addClass( 'shield-busy' );
 					$.post( ajaxurl, reqData, function ( response ) {
 						if ( response.success ) {
 							let $codeModal = jQuery( '#CodeRenderModal' );
@@ -113,7 +114,10 @@
 							}
 							alert( msg );
 						}
-					} );
+					} )
+					 .always( function () {
+						 jQuery( 'body' ).removeClass( 'shield-busy' );
+					 } );
 				}
 			);
 

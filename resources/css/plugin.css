@@ -3,6 +3,9 @@
 body {
 	overflow-y: scroll;
 }
+body.shield-busy {
+	cursor: wait !important;
+}
 body.rtl {
 	text-align: right;
 }
