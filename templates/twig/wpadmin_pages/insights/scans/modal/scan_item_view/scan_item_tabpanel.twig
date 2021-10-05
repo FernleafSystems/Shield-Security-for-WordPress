@@ -9,12 +9,14 @@
 				</a>
 			</li>
 
-			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" role="tab" href="#tabDiff"
-				   data-bs-toggle="tab">
-					{{ strings.tab_diff }}
-				</a>
-			</li>
+			{% if flags.has_diff %}
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" role="tab" href="#tabDiff"
+					   data-bs-toggle="tab">
+						{{ strings.tab_diff }}
+					</a>
+				</li>
+			{% endif %}
 
 			<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" role="tab" href="#tabHistory"
@@ -36,13 +38,15 @@
 		</div>
 	</div>
 
-	<div class="tab-pane" id="tabDiff" role="tabpanel" aria-labelledby="tabDiff">
-		<div class="row">
-			<div class="col pt-3" id="TabHistory">
-				{{ content.tab_diff|raw }}
+	{% if flags.has_diff %}
+		<div class="tab-pane" id="tabDiff" role="tabpanel" aria-labelledby="tabDiff">
+			<div class="row">
+				<div class="col pt-3" id="TabHistory">
+					{{ content.tab_diff|raw }}
+				</div>
 			</div>
 		</div>
-	</div>
+	{% endif %}
 
 	<div class="tab-pane" id="tabHistory" role="tabpanel" aria-labelledby="tabHistory">
 		<div class="row">
