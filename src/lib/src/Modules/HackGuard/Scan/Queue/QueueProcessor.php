@@ -146,11 +146,9 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	}
 
 	public function handleExpiredItems() {
-		$this->getDbH_ScanItems()->deleteRowsOlderThan(
-			Services::Request()
-					->carbon()
-					->subSeconds( $this->getExpirationInterval() )->timestamp
-		);
+		( new CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	private function getDbH_ScanItems() :ScanItemsDB\Ops\Handler {

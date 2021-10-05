@@ -56,13 +56,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getMalQueueExpirationInterval() {
-		return MINUTE_IN_SECONDS*10;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	public function getMalSignaturesSimple() :array {

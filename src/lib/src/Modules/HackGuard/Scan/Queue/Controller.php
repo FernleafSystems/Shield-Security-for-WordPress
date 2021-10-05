@@ -2,11 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Controller {
 
@@ -101,10 +99,7 @@ class Controller {
 		}
 	}
 
-	/**
-	 * @return Build\QueueBuilder
-	 */
-	public function getQueueBuilder() {
+	public function getQueueBuilder() :Build\QueueBuilder {
 		if ( empty( $this->oQueueBuilder ) ) {
 			$this->oQueueBuilder = ( new Build\QueueBuilder( 'shield_scanqbuild' ) )
 				->setMod( $this->getMod() );
@@ -112,16 +107,11 @@ class Controller {
 		return $this->oQueueBuilder;
 	}
 
-	/**
-	 * @return QueueProcessor
-	 */
-	public function getQueueProcessor() {
+	public function getQueueProcessor() :QueueProcessor {
 		if ( empty( $this->oQueueProcessor ) ) {
-			/** @var HackGuard\Options $opts */
-			$opts = $this->getOptions();
 			$this->oQueueProcessor = ( new QueueProcessor( 'shield_scanq' ) )
 				->setMod( $this->getMod() )
-				->setExpirationInterval( $opts->getMalQueueExpirationInterval() );
+				->setExpirationInterval( MINUTE_IN_SECONDS*10 );
 		}
 		return $this->oQueueProcessor;
 	}

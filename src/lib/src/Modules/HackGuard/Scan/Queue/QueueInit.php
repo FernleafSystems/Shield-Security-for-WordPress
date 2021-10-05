@@ -18,13 +18,20 @@ class QueueInit {
 	 * @throws \Exception
 	 */
 	public function init( string $slug ) {
-		$this->initNew( $slug );
+		$this->preInit();
+		$this->createScans( $slug );
+	}
+
+	private function preInit() {
+		( new CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	private function initNew( string $slug ) {
+	private function createScans( string $slug ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

@@ -20,11 +20,11 @@ trait QueueProcessorConsumer {
 	}
 
 	/**
-	 * @param QueueProcessor $oQP
+	 * @param QueueProcessor $QP
 	 * @return $this
 	 */
-	public function setQueueProcessor( QueueProcessor $oQP ) {
-		$this->oQueueProcessor = $oQP;
+	public function setQueueProcessor( QueueProcessor $QP ) {
+		$this->oQueueProcessor = $QP;
 		return $this;
 	}
 }

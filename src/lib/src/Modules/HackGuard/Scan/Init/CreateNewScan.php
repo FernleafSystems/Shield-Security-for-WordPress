@@ -21,9 +21,6 @@ class CreateNewScan {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		// Delete any stale scans
-		$this->deleteStaleScan( $slug );
-
 		if ( $this->scanExists( $slug ) ) {
 			throw new ScanExistsException( $slug );
 		}
@@ -48,15 +45,5 @@ class CreateNewScan {
 		return $selector->filterByScan( $slug )
 						->filterByNotFinished()
 						->count() > 0;
-	}
-
-	private function deleteStaleScan( string $slug ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Scans\Ops\Delete $deleter */
-		$deleter = $mod->getDbH_Scans()->getQueryDeleter();
-		return $deleter->filterByScan( $slug )
-					   ->filterByStale()
-					   ->query();
 	}
 }

@@ -29,9 +29,4 @@ trait Common {
 	public function filterByReady() {
 		return $this->addWhereNewerThan( 0, 'ready_at' );
 	}
-
-	public function filterByStale() {
-		return $this->filterByNotReady()
-					->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 20 )->timestamp );
-	}
 }
