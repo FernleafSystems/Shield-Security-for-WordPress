@@ -44,8 +44,8 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			if ( current === undefined || typeof (current) === 'undefined' ) {
 				sendReq();
 			}
-			if ( request_count < 11 ) {
-				window.setTimeout( fire, 60000 );
+			if ( request_count < 10 ) {
+				window.setTimeout( fire, 10000 );
 			}
 		};
 
