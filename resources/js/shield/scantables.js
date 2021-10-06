@@ -96,14 +96,16 @@
 					let reqData = base.getBaseAjaxData();
 					reqData.sub_action = 'view_file';
 					reqData.rid = $( this ).data( 'rid' );
-					jQuery( 'body' ).addClass( 'shield-busy' );
+
+					iCWP_WPSF_BodyOverlay.show();
+
 					$.post( ajaxurl, reqData, function ( response ) {
 						if ( response.success ) {
-							let $codeModal = jQuery( '#CodeRenderModal' );
-							jQuery( '.modal-title', $codeModal ).html( response.data.vars.path );
-							jQuery( '.modal-body', $codeModal ).html( response.data.vars.contents );
-							$codeModal.modal( 'show' );
-							$codeModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
+							let $fileViewModal = jQuery( '#ShieldModalContainer' );
+							// jQuery( '.modal-title', $fileViewModal ).html( response.data.vars.path );
+							jQuery( '.modal-content', $fileViewModal ).html( response.data.vars.contents );
+							$fileViewModal.modal( 'show' );
+							$fileViewModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
 								hljs.highlightElement( el );
 							} );
 						}
@@ -116,7 +118,7 @@
 						}
 					} )
 					 .always( function () {
-						 jQuery( 'body' ).removeClass( 'shield-busy' );
+						 iCWP_WPSF_BodyOverlay.hide();
 					 } );
 				}
 			);

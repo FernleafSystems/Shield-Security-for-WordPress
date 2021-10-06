@@ -45,6 +45,17 @@ class ScanItemView {
 		}
 
 		try {
+			$fileContent = ( new FileContents() )
+							   ->setMod( $mod )
+							   ->run( $rid )[ 'contents' ];
+			$hasContent = true;
+		}
+		catch ( \Exception $e ) {
+			$fileContent = $e->getMessage();
+			$hasContent = false;
+		}
+
+		try {
 			$historyContent = ( new BuildHistory() )
 				->setMod( $this->getMod() )
 				->run( $item );
@@ -58,16 +69,15 @@ class ScanItemView {
 		return [
 			'path'     => \esc_html( $item->path_fragment ),
 			'contents' => $mod->renderTemplate(
-				'/wpadmin_pages/insights/scans/modal/scan_item_view/tabpanel.twig',
+				'/wpadmin_pages/insights/scans/modal/scan_item_view/modal_content.twig',
 				[
 					'content' => [
-						'tab_filecontents' => ( new FileContents() )
-												  ->setMod( $mod )
-												  ->run( $rid )[ 'contents' ],
+						'tab_filecontents' => $fileContent,
 						'tab_diff'         => $diffContent,
 						'tab_history'      => $historyContent,
 					],
 					'flags'   => [
+						'has_content' => $hasContent,
 						'has_diff'    => $hasDiff,
 						'has_history' => $hasHistory,
 					],
@@ -88,6 +98,10 @@ class ScanItemView {
 	 */
 	private function getFileDiff( $resultItem ) :string {
 		$pathFull = $resultItem->path_full;
+
+		if ( $resultItem->is_missing || !Services::WpFs()->isFile( $pathFull ) ) {
+			throw new \Exception( 'Diff is unavailable for missing files.' );
+		}
 
 		$original = '';
 		$coreHashes = Services::CoreFileHashes();

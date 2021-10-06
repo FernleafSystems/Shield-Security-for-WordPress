@@ -1722,21 +1722,21 @@ button.btn.action {
 	line-height: 16px;
 }
 
-#CodeRenderModal pre.icwp-code-render {
+#ShieldModalContainer pre.icwp-code-render {
 	counter-reset: line;
 }
-#CodeRenderModal pre.icwp-code-render > code {
+#ShieldModalContainer pre.icwp-code-render > code {
 	counter-increment: line;
 	background-color: transparent;
 	padding: 0;
 	display: block;
 }
-#CodeRenderModal pre.icwp-code-render > code:before {
+#ShieldModalContainer pre.icwp-code-render > code:before {
 	content: counter(line);
 	width: 32px;
 	display: inline-block;
 }
-#CodeRenderModal pre.icwp-code-render > code:before {
+#ShieldModalContainer pre.icwp-code-render > code:before {
 	-webkit-user-select: none;
 }
 

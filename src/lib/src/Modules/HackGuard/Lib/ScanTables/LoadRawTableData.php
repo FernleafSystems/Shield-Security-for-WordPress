@@ -124,12 +124,7 @@ class LoadRawTableData {
 														->setTimestamp( $item->VO->created_at )
 														->diffForHumans();
 
-					if ( !$item->is_missing ) {
-						$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
-					}
-					else {
-						$data[ 'file_as_href' ] = $item->path_fragment;
-					}
+					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 
 					if ( $item->is_checksumfail ) {
 						$data[ 'status_slug' ] = 'modified';
@@ -193,12 +188,7 @@ class LoadRawTableData {
 				}
 				$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, $data[ 'status' ] );
 
-				if ( !$item->is_missing ) {
-					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
-				}
-				else {
-					$data[ 'file_as_href' ] = $item->path_fragment;
-				}
+				$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
