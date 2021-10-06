@@ -19,6 +19,7 @@ class ScanItemView {
 	 * @throws \Exception
 	 */
 	public function run( int $rid ) :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
@@ -34,6 +35,8 @@ class ScanItemView {
 		if ( empty( $item->path_full ) ) {
 			throw new \Exception( 'Non-file scan items are not supported yet.' );
 		}
+
+		$canDownload = Services::WpFs()->isFile( $item->path_full );
 
 		try {
 			$diffContent = $this->getFileDiff( $item );
@@ -75,20 +78,46 @@ class ScanItemView {
 						'tab_filecontents' => $fileContent,
 						'tab_diff'         => $diffContent,
 						'tab_history'      => $historyContent,
+						'tab_info'         => $this->getFileInfo( $item ),
 					],
 					'flags'   => [
-						'has_content' => $hasContent,
-						'has_diff'    => $hasDiff,
-						'has_history' => $hasHistory,
+						'can_download' => $canDownload,
+						'has_content'  => $hasContent,
+						'has_diff'     => $hasDiff,
+						'has_history'  => $hasHistory,
+					],
+					'hrefs'   => [
+						'file_download' => $mod->getScanCon( $item->scan )
+											   ->createFileDownloadLink( $item->VO->scanresult_id ),
+						'has_content'   => $hasContent,
+						'has_diff'      => $hasDiff,
+						'has_history'   => $hasHistory,
+					],
+					'imgs'    => [
+						'svgs' => [
+							'file_download' => $con->svgs->raw( 'bootstrap/download.svg' ),
+						],
 					],
 					'strings' => [
+						'modal_title'      => sprintf( '%s: %s', 'File', $item->path_fragment ),
 						'tab_filecontents' => 'Contents',
 						'tab_diff'         => 'Diff',
 						'tab_history'      => 'History',
+						'tab_info'         => 'Info',
+						'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
 					],
 				]
 			),
 		];
+	}
+
+	/**
+	 * @param Scans\Base\FileResultItem $resultItem
+	 * @return string
+	 * @throws \Exception
+	 */
+	private function getFileInfo( $resultItem ) :string {
+		return 'info';
 	}
 
 	/**
