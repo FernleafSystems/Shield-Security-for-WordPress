@@ -35,8 +35,11 @@ class CleanQueue extends ExecOnceModConsumer {
 				->addWhereOlderThan(
 					Services::Request()->carbon()->subMinutes( 10 )->timestamp
 				)->query();
-		// Scan set to ready for longer than 20 minutes.
+
+		// Scan set to ready for longer than 20 minutes but never finished.
 		$deleter->reset()
+				->filterByNotFinished()
+				->filterByReady()
 				->addWhereOlderThan(
 					Services::Request()->carbon()->subMinutes( 20 )->timestamp,
 					'ready_at'
