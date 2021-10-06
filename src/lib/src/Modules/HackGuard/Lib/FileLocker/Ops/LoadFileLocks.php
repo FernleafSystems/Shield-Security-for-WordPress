@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-/**
- * Class LoadFileLocks
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
- */
 class LoadFileLocks {
 
 	use ModConsumer;
