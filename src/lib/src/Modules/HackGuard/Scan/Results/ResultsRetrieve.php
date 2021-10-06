@@ -201,11 +201,23 @@ class ResultsRetrieve {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$resultsSet = $this->getNewResultsSet();
+
+		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
 		foreach ( $results as $result ) {
 			$vo = ( new ScanResultVO() )->applyFromArray( $result );
-			foreach ( $vo->meta as $scanSlug => $scanMeta ) {
-				$scanCon = $mod->getScanCon( $scanSlug );
-				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $scanSlug ] );
+
+			// we haven't specified a type of scan, so we're collecting all results.
+			if ( empty( $workingScan ) ) {
+				foreach ( $vo->meta as $scanSlug => $scanMeta ) {
+					$scanCon = $mod->getScanCon( $scanSlug );
+					$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $scanSlug ] );
+					$item->VO = $vo;
+					$resultsSet->addItem( $item );
+				}
+			}
+			elseif ( !empty( $vo->meta[ $workingScan ] ) ) {
+				$scanCon = $mod->getScanCon( $workingScan );
+				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $workingScan ] );
 				$item->VO = $vo;
 				$resultsSet->addItem( $item );
 			}
