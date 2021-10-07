@@ -151,13 +151,13 @@
         "type":        "fixed",
         "title":       "A few minor fixes, along with slight optimisation of NotBot JS.",
         "description": [],
-        "patch":       "12.0.10"
+        "patch":       "12.0.11"
       },
       {
         "type":        "fixed",
         "title":       "Issue with managing Shield Central profiles.",
         "description": [],
-        "patch":       "12.0.10"
+        "patch":       "12.0.11"
       }
     ]
   },
