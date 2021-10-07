@@ -2,7 +2,8 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 
 	var Shield_Antibot = new function () {
 
-		var request_count = 0;
+		let request_count = 0;
+		let can_continue = true;
 
 		var domReady = function ( fn ) {
 			if ( document.readyState !== 'loading' ) {
@@ -39,24 +40,41 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		};
 
 		/**
-		 * @since 12.0.10 - rather than auto send request every page load, check for cookie repeatedly and send if absent.
+		 * @since 12.0.10 - rather than auto send request every page load, check for cookie repeatedly and send if
+		 *     absent.
 		 */
 		var fire = function () {
 			let current = getCookie( 'icwp-wpsf-notbot' );
 			if ( current === undefined || typeof (current) === 'undefined' ) {
 				sendReq();
 			}
-			if ( request_count < 10 ) {
+			if ( can_continue && request_count < 10 ) {
 				window.setTimeout( fire, 10000 );
 			}
 		};
 
 		var sendReq = function ( name ) {
-			var xhttp = new XMLHttpRequest();
-			xhttp.open( "POST", shield_vars_notbotjs.hrefs.ajax, true );
-			xhttp.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;' );
-			xhttp.send( shield_vars_notbotjs.ajax.not_bot );
 			request_count++;
+
+			let xhr = new XMLHttpRequest();
+
+			/**
+			 * Ensures that if there's an error with the AJAX, we don't continue
+			 * to keep trying the requests.
+			 */
+			xhr.onreadystatechange = function () {
+				if ( xhr.readyState === 4 ) {
+					let resp = JSON.parse( xhr.response );
+					can_continue = resp && resp.success;
+					if ( !can_continue ) {
+						console.log( xhr.response );
+					}
+				}
+			}
+
+			xhr.open( "POST", shield_vars_notbotjs.hrefs.ajax, true );
+			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;' );
+			xhr.send( shield_vars_notbotjs.ajax.not_bot );
 		};
 
 		var getCookie = function ( name ) {
