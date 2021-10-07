@@ -26,10 +26,10 @@ class BaseOps {
 	 */
 	protected function findLockRecordForFile() {
 		$theLock = null;
-		foreach ( $this->file->getPossiblePaths() as $sPath ) {
-			foreach ( $this->getFileLocks() as $lock ) {
-				if ( $lock->file === $sPath ) {
-					$theLock = $lock;
+		foreach ( $this->file->getPossiblePaths() as $path ) {
+			foreach ( $this->getFileLocks() as $maybeLock ) {
+				if ( $maybeLock->file === $path ) {
+					$theLock = $maybeLock;
 					break;
 				}
 			}

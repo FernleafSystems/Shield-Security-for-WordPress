@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class BaseFile
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker
  * @property string $dir
  * @property string $file
  * @property int    $max_levels
