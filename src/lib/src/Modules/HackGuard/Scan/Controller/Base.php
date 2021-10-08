@@ -72,12 +72,18 @@ abstract class Base extends ExecOnceModConsumer {
 
 	public function countScanProblems() :int {
 		if ( !isset( self::$resultsCounts[ $this->getSlug() ] ) ) {
-			self::$resultsCounts[ $this->getSlug() ] = ( new ResultsRetrieve() )
-				->setScanController( $this )
-				->setMod( $this->getMod() )
-				->count( false );
+			if ( $this->isRestricted() ) {
+				$count = 0;
+			}
+			else {
+				$count = ( new ResultsRetrieve() )
+					->setScanController( $this )
+					->setMod( $this->getMod() )
+					->count( false );
+			}
+			self::$resultsCounts[ $this->getSlug() ] = $count;
 		}
-		return self::$resultsCounts[ static::SCAN_SLUG ];
+		return self::$resultsCounts[ $this->getSlug() ];
 	}
 
 	public function getScanHasProblem() :bool {
@@ -102,20 +108,32 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
-		return ( new ResultsRetrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->retrieveForAutoRepair();
+		if ( $this->isRestricted() ) {
+			$results = $this->getNewResultsSet();
+		}
+		else {
+			$results = ( new ResultsRetrieve() )
+				->setMod( $this->getMod() )
+				->setScanController( $this )
+				->retrieveForAutoRepair();
+		}
+		return $results;
 	}
 
 	/**
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		return ( new ResultsRetrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->retrieveLatest( true );
+		if ( $this->isRestricted() ) {
+			$results = $this->getNewResultsSet();
+		}
+		else {
+			$results = ( new ResultsRetrieve() )
+				->setMod( $this->getMod() )
+				->setScanController( $this )
+				->retrieveLatest( true );
+		}
+		return $results;
 	}
 
 	/**
