@@ -171,24 +171,21 @@ class ResultsRetrieve {
 
 	public function count( bool $includeIgnored = true ) :int {
 		$count = 0;
-		if ( !$this->getScanController()->isRestricted() ) {
-			$latestID = $this->getLatestScanID();
-			if ( $latestID >= 0 ) {
-				$wheres = array_filter( array_merge(
-					[
-						sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-						$includeIgnored ? '' : "`ri`.ignored_at = 0",
-						"`ri`.`deleted_at`=0"
-					],
-					$this->getAdditionalWheres()
-				) );
-				$count = (int)Services::WpDb()->getVar(
-					sprintf( $this->getBaseQuery(),
-						'COUNT(*)',
-						implode( ' AND ', $wheres )
-					)
-				);
-			}
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$count = (int)Services::WpDb()->getVar(
+				sprintf( $this->getBaseQuery(),
+					'COUNT(*)',
+					implode( ' AND ', array_filter( array_merge(
+						[
+							sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+							$includeIgnored ? '' : "`ri`.ignored_at = 0",
+							"`ri`.`deleted_at`=0"
+						],
+						$this->getAdditionalWheres()
+					) ) )
+				)
+			);
 		}
 		return $count;
 	}

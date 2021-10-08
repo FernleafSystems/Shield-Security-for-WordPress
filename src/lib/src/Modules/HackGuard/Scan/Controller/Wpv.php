@@ -54,7 +54,7 @@ class Wpv extends BaseForAssets {
 				/** @var $item Scans\Wpv\ResultItem */
 				return $item->getVulnVo();
 			},
-			$this->getAllResults()->getItemsForSlug( $file )
+			$this->getResultsForDisplay()->getItemsForSlug( $file )
 		);
 	}
 

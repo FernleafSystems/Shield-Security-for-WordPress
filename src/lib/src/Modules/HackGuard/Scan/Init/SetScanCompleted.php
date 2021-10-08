@@ -64,7 +64,7 @@ class SetScanCompleted {
 	 * @param Base $scanCon
 	 */
 	private function auditLatestScanItems( $scanCon ) {
-		$results = $scanCon->getAllResults();
+		$results = $scanCon->getResultsForDisplay();
 
 		if ( $results->countItems() > 0 ) {
 

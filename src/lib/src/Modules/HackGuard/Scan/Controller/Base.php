@@ -137,6 +137,22 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	/**
+	 * @return Scans\Base\ResultsSet|mixed
+	 */
+	public function getResultsForDisplay() {
+		if ( $this->isRestricted() ) {
+			$results = $this->getNewResultsSet();
+		}
+		else {
+			$results = ( new ResultsRetrieve() )
+				->setMod( $this->getMod() )
+				->setScanController( $this )
+				->retrieveLatest( false );
+		}
+		return $results;
+	}
+
+	/**
 	 * @return Scans\Base\Utilities\ItemActionHandler
 	 */
 	public function getItemActionHandler() {

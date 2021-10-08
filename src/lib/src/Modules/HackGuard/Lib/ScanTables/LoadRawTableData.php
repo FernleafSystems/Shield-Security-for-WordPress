@@ -95,7 +95,7 @@ class LoadRawTableData {
 
 				return $data;
 			},
-			$mod->getScanCon( Mal::SCAN_SLUG )->getAllResults()->getItems()
+			$mod->getScanCon( Mal::SCAN_SLUG )->getResultsForDisplay()->getItems()
 		);
 	}
 
@@ -145,8 +145,8 @@ class LoadRawTableData {
 					return $data;
 				},
 				array_merge(
-					$mod->getScanCon( Wcf::SCAN_SLUG )->getAllResults()->getItems(),
-					$mod->getScanCon( Ufc::SCAN_SLUG )->getAllResults()->getItems()
+					$mod->getScanCon( Wcf::SCAN_SLUG )->getResultsForDisplay()->getItems(),
+					$mod->getScanCon( Ufc::SCAN_SLUG )->getResultsForDisplay()->getItems()
 				)
 			);
 		}
@@ -266,7 +266,7 @@ class LoadRawTableData {
 		$mod = $this->getMod();
 		if ( !isset( self::$GuardFiles ) ) {
 			try {
-				self::$GuardFiles = $mod->getScanCon( Ptg::SCAN_SLUG )->getAllResults();
+				self::$GuardFiles = $mod->getScanCon( Ptg::SCAN_SLUG )->getResultsForDisplay();
 			}
 			catch ( \Exception $e ) {
 				self::$GuardFiles = new Scans\Ptg\ResultsSet();
