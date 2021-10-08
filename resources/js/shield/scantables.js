@@ -90,7 +90,7 @@
 
 			base.$el.on(
 				'click' + '.' + base._name,
-				'a.action.view-file',
+				'.action.view-file',
 				function ( evt ) {
 					evt.preventDefault();
 					let reqData = base.getBaseAjaxData();

@@ -219,6 +219,15 @@ class LoadRawTableData {
 			'action',
 		];
 
+		if ( !empty( $item->path_fragment ) ) {
+			$actions[] = sprintf( '<button class="action view-file btn-dark %s" title="%s" data-rid="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
+				__( 'View File Details', 'wp-simple-firewall' ),
+				$item->VO->scanresult_id,
+				$con->svgs->raw( 'bootstrap/zoom-in.svg' )
+			);
+		}
+
 		if ( in_array( $status, [ 'unrecognised', 'malware' ] ) ) {
 			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
@@ -240,15 +249,6 @@ class LoadRawTableData {
 			}
 		}
 		catch ( \Exception $e ) {
-		}
-
-		if ( in_array( $status, [ 'modified', 'unrecognised', 'malware' ] ) ) {
-			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Download', 'wp-simple-firewall' ),
-				$mod->getScanCon( $item->scan )->createFileDownloadLink( $item->VO->scanresult_id ),
-				$con->svgs->raw( 'bootstrap/download.svg' )
-			);
 		}
 
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
