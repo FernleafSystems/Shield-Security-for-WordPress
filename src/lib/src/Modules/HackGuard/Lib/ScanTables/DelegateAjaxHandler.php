@@ -5,10 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	Lib\ScanTables\Modals\FileContents,
-	Lib\ScanTables\Modals\ScanItemView
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals\ScanItemView;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DelegateAjaxHandler {
@@ -85,12 +82,6 @@ class DelegateAjaxHandler {
 		else {
 			$msg = __( 'An error occurred.' )
 				   .' '.__( 'Some items may not have been processed.' );
-		}
-
-		// We don't rescan for ignores or malware
-		$rescanSlugs = array_diff( $scanSlugs, [ HackGuard\Scan\Controller\Mal::SCAN_SLUG ] );
-		if ( !empty( $rescanSlugs ) && !in_array( $action, [ 'ignore' ] ) ) {
-			$mod->getScanQueueController()->startScans( $rescanSlugs );
 		}
 
 		return [

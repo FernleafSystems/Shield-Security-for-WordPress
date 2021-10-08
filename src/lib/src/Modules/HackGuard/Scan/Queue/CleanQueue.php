@@ -41,7 +41,7 @@ class CleanQueue extends ExecOnceModConsumer {
 				->filterByNotFinished()
 				->filterByReady()
 				->addWhereOlderThan(
-					Services::Request()->carbon()->subMinutes( 20 )->timestamp,
+					Services::Request()->carbon()->subMinutes( 10 )->timestamp,
 					'ready_at'
 				)->query();
 	}

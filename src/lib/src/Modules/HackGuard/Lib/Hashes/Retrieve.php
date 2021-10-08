@@ -50,9 +50,10 @@ class Retrieve {
 	}
 
 	/**
+	 * @param WpPluginVo|WpThemeVo $vo
 	 * @throws \Exception
 	 */
-	private function fromLocalStore( WpPluginVo $vo ) :array {
+	private function fromLocalStore( $vo ) :array {
 		return ( new StoreAction\Load() )
 			->setMod( $this->getMod() )
 			->setAsset( $vo )

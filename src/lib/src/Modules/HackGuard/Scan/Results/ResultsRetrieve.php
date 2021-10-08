@@ -135,6 +135,8 @@ class ResultsRetrieve {
 				->setAdditionalWheres( [
 					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
 					$includeIgnored ? '' : "`ri`.ignored_at = 0",
+					"`ri`.`item_repaired_at`=0",
+					"`ri`.`item_deleted_at`=0"
 				] )
 				->retrieve();
 		}
