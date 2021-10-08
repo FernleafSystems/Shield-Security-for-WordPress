@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class CreateFileLocks
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
- */
 class CreateFileLocks extends BaseOps {
 
 	/**
@@ -18,14 +14,7 @@ class CreateFileLocks extends BaseOps {
 	public function create() :bool {
 		$pathsProcessed = false;
 		foreach ( $this->file->getExistingPossiblePaths() as $path ) {
-			$theLock = null;
-			foreach ( $this->getFileLocks() as $maybeLock ) {
-				if ( $maybeLock->file === $path ) {
-					$theLock = $maybeLock;
-					break;
-				}
-			}
-			if ( !$theLock instanceof FileLocker\EntryVO ) {
+			if ( empty( $this->findLockRecordForFile() ) ) {
 				$this->processPath( $path );
 				$pathsProcessed = true;
 			}
