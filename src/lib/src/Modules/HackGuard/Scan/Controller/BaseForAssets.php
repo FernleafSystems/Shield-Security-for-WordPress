@@ -11,18 +11,23 @@ abstract class BaseForAssets extends Base {
 
 	/**
 	 * @param Scans\Ptg\ResultItem|Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
-	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) :bool {
+	public function cleanStaleResultItem( $item ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
 		if ( strpos( $item->slug, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
-			$stale = empty( $asset );
 		}
 		else {
 			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
-			$stale = empty( $asset );
 		}
-		return $stale;
+
+		if ( empty( $asset ) ) {
+			/** @var ResultItems\Ops\Update $updater */
+			$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+			$updater->setItemDeleted( $item->VO->resultitem_id );
+		}
 	}
 
 	public function buildScanResult( array $rawResult ) :ResultItems\Ops\Record {

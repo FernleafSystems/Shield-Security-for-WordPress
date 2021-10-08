@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -85,30 +86,38 @@ class Ptg extends BaseForFiles {
 
 	/**
 	 * @param Scans\Ptg\ResultItem $item
-	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) :bool {
-		if ( strpos( $item->slug, '/' ) ) {
-			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
+	public function cleanStaleResultItem( $item ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Update $updater */
+		$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+
+		if ( $item->is_unrecognised && !Services::WpFs()->isFile( $item->path_full ) ) {
+			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		else {
-			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
-		}
-		$absent = empty( $asset );
-
-		$FS = Services::WPFS();
-		$stale = $absent
-				 || ( ( $item->is_unrecognised || $item->is_checksumfail ) && !$FS->isFile( $item->path_full ) );
-
-		if ( !$stale ) {
-			$asset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
-			if ( empty( $asset ) ) {
-				$asset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
+			try {
+				$verifiedHash = ( new HackGuard\Lib\Hashes\Query() )->verifyHash( $item->path_full );
+				if ( $item->is_checksumfail && $verifiedHash ) {
+					/** @var Update $updater */
+					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+					$updater->setItemRepaired( $item->VO->resultitem_id );
+				}
 			}
-			$stale = empty( $asset );
+			catch ( HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
+				// hashes are unavailable, so we do nothing
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
+				// asset has probably been since removed
+				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
+				// unrecognised file
+			}
+			catch ( \Exception $e ) {
+			}
 		}
-
-		return $stale;
 	}
 
 	/**

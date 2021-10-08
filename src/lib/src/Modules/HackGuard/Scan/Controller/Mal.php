@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
@@ -53,11 +55,16 @@ class Mal extends BaseForFiles {
 	}
 
 	/**
-	 * @param Scans\Mal\ResultItem $item
-	 * @return bool
+	 * @param Scans\Ufc\ResultItem $item
 	 */
-	protected function isResultItemStale( $item ) :bool {
-		return !Services::WpFs()->exists( $item->path_full );
+	public function cleanStaleResultItem( $item ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		if ( !Services::WpFs()->exists( $item->path_full ) ) {
+			/** @var Update $updater */
+			$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+			$updater->setItemDeleted( $item->VO->resultitem_id );
+		}
 	}
 
 	/**

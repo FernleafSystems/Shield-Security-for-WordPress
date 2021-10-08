@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsUpdate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
+	ResultsRetrieve,
+	ResultsUpdate
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
@@ -58,25 +61,8 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function cleanStalesResults() {
-		$results = ( new HackGuard\Scan\Results\ResultsRetrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->retrieveLatest();
-
-		$IDs = [];
-		foreach ( $results->getItems() as $item ) {
-			if ( $this->isResultItemStale( $item ) ) {
-				$IDs[] = $item->VO->resultitem_id;
-			}
-		}
-
-		try {
-			( new ResultsUpdate() )
-				->setMod( $this->getMod() )
-				->setScanController( $this )
-				->softDeleteByResultIDs( $IDs );
-		}
-		catch ( \Exception $e ) {
+		foreach ( $this->getAllResults()->getItems() as $item ) {
+			$this->cleanStaleResultItem( $item );
 		}
 	}
 
@@ -86,7 +72,7 @@ abstract class Base extends ExecOnceModConsumer {
 
 	public function countScanProblems() :int {
 		if ( !isset( self::$resultsCounts[ $this->getSlug() ] ) ) {
-			self::$resultsCounts[ $this->getSlug() ] = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			self::$resultsCounts[ $this->getSlug() ] = ( new ResultsRetrieve() )
 				->setScanController( $this )
 				->setMod( $this->getMod() )
 				->count( false );
@@ -98,16 +84,12 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->countScanProblems() > 0;
 	}
 
-	/**
-	 * @param ResultItem|mixed $item
-	 * @return bool
-	 */
-	abstract protected function isResultItemStale( $item ) :bool;
+	public function cleanStaleResultItem( $item ) {
+		return true;
+	}
 
 	/**
 	 * @param ResultItem $item
-	 * @param string     $action
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function executeItemAction( $item, string $action ) :bool {
@@ -120,7 +102,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
-		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
+		return ( new ResultsRetrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->retrieveForAutoRepair();
@@ -130,10 +112,10 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		return ( new HackGuard\Scan\Results\ResultsRetrieve() )
+		return ( new ResultsRetrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
-			->retrieveLatest( false );
+			->retrieveLatest( true );
 	}
 
 	/**
@@ -191,7 +173,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function resetIgnoreStatus() {
-		( new HackGuard\Scan\Results\ResultsUpdate() )
+		( new ResultsUpdate() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->clearIgnored();
@@ -284,8 +266,16 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @deprecated 12.1
 	 */
 	public function getScanResultsDbHandler() :Databases\Scanner\Handler {
-//		/** @var ModCon $mod */
-//		$mod = $this->getMod();
-//		return $mod->getDbHandler_ScanResults();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getDbHandler_ScanResults();
+	}
+
+	/**
+	 * @param ResultItem|mixed $item
+	 * @deprecated 12.1
+	 */
+	public function isResultItemStale( $item ) :bool {
+		return false;
 	}
 }
