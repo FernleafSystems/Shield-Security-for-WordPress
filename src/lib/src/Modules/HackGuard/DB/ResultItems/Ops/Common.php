@@ -12,6 +12,14 @@ trait Common {
 		return $this->addWhereEquals( 'ignored_at', 0 );
 	}
 
+	public function filterByItemNotRepaired() {
+		return $this->addWhereEquals( 'item_repaired_at', 0 );
+	}
+
+	public function filterByItemNotDeleted() {
+		return $this->addWhereEquals( 'item_deleted_at', 0 );
+	}
+
 	public function filterByIgnored() {
 		return $this->addWhereNewerThan( 0, 'ignored_at' );
 	}

@@ -102,7 +102,7 @@ class BuildHistory {
 		$WP = Services::WpGeneral();
 		$humanHistory = [];
 		foreach ( $this->history as $ts => $history ) {
-			$humanHistory[ $WP->getTimeStringForDisplay( $WP->getTimeAsGmtOffset( $ts ) ) ] = $history;
+			$humanHistory[ $WP->getTimeStringForDisplay( $WP->getTimeAsGmtOffset( $ts ) ) ] = array_unique( $history );
 		}
 		return array_reverse( $humanHistory );
 	}
@@ -119,6 +119,7 @@ class BuildHistory {
 	}
 
 	private function prepTimestamp( $ts ) {
+		$ts = (int)$ts;
 		if ( !isset( $this->history[ $ts ] ) ) {
 			$this->history[ $ts ] = [];
 		}

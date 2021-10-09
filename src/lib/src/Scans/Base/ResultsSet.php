@@ -18,7 +18,7 @@ class ResultsSet {
 		if ( !isset( $item->hash ) ) {
 			$item->hash = $item->generateHash();
 		}
-		$all[ $item->hash ] = $item;
+		$all[] = $item;
 		$this->items = $all;
 		return $this;
 	}

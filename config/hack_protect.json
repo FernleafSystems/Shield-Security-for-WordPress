@@ -546,9 +546,7 @@
         "hash":              {
           "macro_type": "char",
           "length":     32,
-          "attr":       [
-            "UNIQUE"
-          ],
+          "attr":       [],
           "comment":    "Result Item Hash"
         },
         "item_type":         {

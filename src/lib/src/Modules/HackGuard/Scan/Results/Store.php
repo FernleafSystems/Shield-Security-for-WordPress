@@ -32,25 +32,21 @@ class Store {
 			$record = $mod->getScanCon( $queueItem->scan )->buildScanResult( $result );
 
 			/** @var ResultItemsDB\Ops\Record $resultItem */
-			$resultItem = $resultSelector->filterByItemHash( $result[ 'hash' ] )->first();
+			$resultItem = $resultSelector->filterByItemID( $record->item_id )
+										 ->filterByItemHash( $record->hash )
+										 ->filterByItemNotDeleted()
+										 ->filterByItemNotRepaired()
+										 ->first();
 			if ( empty( $resultItem ) ) {
 				$dbhResItems->getQueryInserter()->insert( $record );
-				$resultItem = $resultSelector->filterByItemHash( $result[ 'hash' ] )->first();
+				$resultItem = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 			}
 			else {
 				$record->meta = array_merge( $resultItem->meta, $record->meta );
-
-				$updateData = [
-					'item_deleted_at'   => 0,
-					'item_repaired_at'  => 0,
-					'attempt_repair_at' => 0,
-					'meta'              => $record->getRawData()[ 'meta' ]
-				];
-
-				// TODO: do we need any dynamic adjustment depending on type of scan result?
-
 				$dbhResItems->getQueryUpdater()
-							->updateById( $resultItem->id, $updateData );
+							->updateById( $resultItem->id, [
+								'meta' => $record->getRawData()[ 'meta' ]
+							] );
 			}
 
 			$scanResultsInserter->setInsertData( [
