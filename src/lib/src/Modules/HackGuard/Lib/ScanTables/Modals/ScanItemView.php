@@ -78,7 +78,9 @@ class ScanItemView {
 						'tab_filecontents' => $fileContent,
 						'tab_diff'         => $diffContent,
 						'tab_history'      => $historyContent,
-						'tab_info'         => $this->getFileInfo( $item ),
+						'tab_info'         =>( new BuildInfo() )
+							->setMod( $this->getMod() )
+							->run( $item ),
 					],
 					'flags'   => [
 						'can_download' => $canDownload,
@@ -109,15 +111,6 @@ class ScanItemView {
 				]
 			),
 		];
-	}
-
-	/**
-	 * @param Scans\Base\FileResultItem $resultItem
-	 * @return string
-	 * @throws \Exception
-	 */
-	private function getFileInfo( $resultItem ) :string {
-		return 'info';
 	}
 
 	/**

@@ -39,16 +39,11 @@ class BuildHistory {
 					$this->prepTimestamp( $ts );
 
 					if ( $column === 'created_at' ) {
-						$this->history[ $ts ][] =
-							sprintf(
-								__( "File detected as %s by %s.", 'wp-simple-firewall' ),
-								sprintf( '<strong>%s</strong>', $this->getItemFileStatus( $item ) ),
-								sprintf( '<strong>%s</strong>', $mod->getScanCon( $item->scan )->getScanName() )
-							)
-							.sprintf( ' (%s: <code>%s</code>)',
-								__( 'File Hash', 'wp-simple-firewall' ),
-								$item->hash
-							);
+						$this->history[ $ts ][] = sprintf(
+							__( "File detected as %s by %s scanner.", 'wp-simple-firewall' ),
+							sprintf( '<strong>%s</strong>', $this->getItemFileStatus( $item ) ),
+							sprintf( '<strong>%s</strong>', $mod->getScanCon( $item->scan )->getScanName() )
+						);
 					}
 					else {
 						$this->history[ $ts ][] = $name;
@@ -67,9 +62,6 @@ class BuildHistory {
 					'history' => $this->convertHistoryToHuman(),
 				],
 				'strings' => [
-					'tab_filecontents' => 'Contents',
-					'tab_diff'         => 'Diff',
-					'tab_history'      => 'History',
 				],
 			]
 		);
@@ -101,6 +93,7 @@ class BuildHistory {
 	private function convertHistoryToHuman() :array {
 		$WP = Services::WpGeneral();
 		$humanHistory = [];
+		ksort( $this->history );
 		foreach ( $this->history as $ts => $history ) {
 			$humanHistory[ $WP->getTimeStringForDisplay( $WP->getTimeAsGmtOffset( $ts ) ) ] = array_unique( $history );
 		}
