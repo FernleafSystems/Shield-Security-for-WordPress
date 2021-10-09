@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	ResultsRetrieve,
-	ResultsUpdate
+	Retrieve,
+	Update
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
@@ -76,7 +76,7 @@ abstract class Base extends ExecOnceModConsumer {
 				$count = 0;
 			}
 			else {
-				$count = ( new ResultsRetrieve() )
+				$count = ( new Retrieve() )
 					->setScanController( $this )
 					->setMod( $this->getMod() )
 					->count( false );
@@ -112,7 +112,7 @@ abstract class Base extends ExecOnceModConsumer {
 			$results = $this->getNewResultsSet();
 		}
 		else {
-			$results = ( new ResultsRetrieve() )
+			$results = ( new Retrieve() )
 				->setMod( $this->getMod() )
 				->setScanController( $this )
 				->retrieveForAutoRepair();
@@ -128,7 +128,7 @@ abstract class Base extends ExecOnceModConsumer {
 			$results = $this->getNewResultsSet();
 		}
 		else {
-			$results = ( new ResultsRetrieve() )
+			$results = ( new Retrieve() )
 				->setMod( $this->getMod() )
 				->setScanController( $this )
 				->retrieveLatest( true );
@@ -144,7 +144,7 @@ abstract class Base extends ExecOnceModConsumer {
 			$results = $this->getNewResultsSet();
 		}
 		else {
-			$results = ( new ResultsRetrieve() )
+			$results = ( new Retrieve() )
 				->setMod( $this->getMod() )
 				->setScanController( $this )
 				->retrieveLatest( false );
@@ -207,7 +207,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function resetIgnoreStatus() {
-		( new ResultsUpdate() )
+		( new Update() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->clearIgnored();

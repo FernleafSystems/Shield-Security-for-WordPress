@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsRetrieve;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,7 +24,7 @@ class ScanItemView {
 		$mod = $this->getMod();
 		try {
 			/** @var Scans\Base\FileResultItem $item */
-			$item = ( new ResultsRetrieve() )
+			$item = ( new Retrieve() )
 				->setMod( $mod )
 				->byID( $rid );
 		}

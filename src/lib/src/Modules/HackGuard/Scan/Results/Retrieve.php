@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ResultsRetrieve {
+class Retrieve {
 
 	use ModConsumer;
 	use ScanControllerConsumer;

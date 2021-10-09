@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 
 /**
  * @property string $path_full
@@ -11,9 +12,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class FileResultItem extends ResultItem {
 
 	public function generateHash() :string {
+		$FS = Services::WpFs();
 		$toHash = $this->path_fragment;
-		if ( Services::WpFs()->isFile( $this->path_full ) ) {
-			$toHash .= Services::DataManipulation()->convertLineEndingsDosToLinux( $this->path_full );
+		if ( $FS->isFile( $this->path_full ) ) {
+			$toHash .= $FS->getModifiedTime( $this->path_full )
+					   .( new ConvertLineEndings() )->fileDosToLinux( $this->path_full );
 		}
 		return md5( $toHash );
 	}

@@ -9,16 +9,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ResultsUpdate {
+class Update {
 
 	use ModConsumer;
 	use ScanControllerConsumer;
 
-	/**
-	 * @return Scans\Base\ResultsSet
-	 */
 	public function clearIgnored() {
-		$result = Services::WpDb()->doSql(
+		Services::WpDb()->doSql(
 			sprintf( $this->getBaseQuery(),
 				implode( ', ', [
 					"`ri`.`ignored_at`=0",
@@ -29,44 +26,6 @@ class ResultsUpdate {
 				] )
 			)
 		);
-		return $result;
-	}
-
-	/**
-	 * @return bool|int|mixed
-	 */
-	public function softDeleteAll() {
-		return Services::WpDb()->doSql(
-			sprintf( $this->getBaseQuery(),
-				implode( ', ', [
-					sprintf( "`ri`.`deleted_at`=%s", Services::Request()->ts() ),
-				] ),
-				implode( ' AND ', [
-					sprintf( "`scans`.`scan`='%s'", $this->getScanController()->getSlug() )
-				] )
-			)
-		);
-	}
-
-	/**
-	 * @return bool|int|mixed
-	 */
-	public function softDeleteByResultIDs( array $IDs ) {
-		$result = true;
-		if ( !empty( $IDs ) ) {
-			$result = Services::WpDb()->doSql(
-				sprintf( $this->getBaseQuery(),
-					implode( ', ', [
-						sprintf( "`ri`.`deleted_at`=%s", Services::Request()->ts() ),
-					] ),
-					implode( ' AND ', [
-						sprintf( "`ri`.`id` IN (%s)", implode( ',', $IDs ) ),
-						sprintf( "`scans`.`scan`='%s'", $this->getScanController()->getSlug() )
-					] )
-				)
-			);
-		}
-		return $result;
 	}
 
 	private function getBaseQuery() :string {

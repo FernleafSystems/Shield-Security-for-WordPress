@@ -43,7 +43,7 @@ class ScanCounts {
 
 		$counts = [];
 		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
-			$counts[ $scanCon->getSlug() ] = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			$counts[ $scanCon->getSlug() ] = ( new HackGuard\Scan\Results\Retrieve() )
 				->setMod( $this->getMod() )
 				->setScanController( $scanCon )
 				->setAdditionalWheres( [

@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Scan\Queue\QueueItems,
 	Scan\Queue\QueueItemVO,
 	Scan\Init\SetScanCompleted,
-	Scan\Results\StoreResults
+	Scan\Results\Store
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Services\Services;
@@ -65,7 +65,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 				->setMod( $this->getMod() )
 				->run( $item );
 
-			( new StoreResults() )
+			( new Store() )
 				->setMod( $this->getMod() )
 				->store( $item, $results );
 

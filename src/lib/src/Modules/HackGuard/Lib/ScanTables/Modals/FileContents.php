@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ResultsRetrieve;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 
 class FileContents {
 
@@ -16,7 +17,7 @@ class FileContents {
 	 */
 	public function run( int $rid, bool $rawContents = false ) :array {
 		try {
-			$item = ( new ResultsRetrieve() )
+			$item = ( new Retrieve() )
 				->setMod( $this->getMod() )
 				->byID( $rid );
 		}
@@ -40,7 +41,7 @@ class FileContents {
 		}
 
 		if ( !$rawContents ) {
-			$modContents = Services::DataManipulation()->convertLineEndingsDosToLinux( $path );
+			$modContents = ( new ConvertLineEndings() )->fileDosToLinux( $path );
 			$contents = $this->getMod()
 							 ->renderTemplate(
 								 '/wpadmin_pages/insights/scans/modal/code_block.twig',

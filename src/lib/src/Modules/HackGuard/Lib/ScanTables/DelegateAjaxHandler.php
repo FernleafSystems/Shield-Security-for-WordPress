@@ -58,7 +58,7 @@ class DelegateAjaxHandler {
 		$successfulItems = [];
 		foreach ( $items as $itemID ) {
 			try {
-				$item = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+				$item = ( new HackGuard\Scan\Results\Retrieve() )
 					->setMod( $this->getMod() )
 					->byID( $itemID );
 				$scanSlugs[] = $item->scan;
