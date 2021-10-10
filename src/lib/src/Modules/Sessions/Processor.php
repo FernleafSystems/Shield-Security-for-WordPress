@@ -41,13 +41,13 @@ class Processor extends BaseShield\Processor {
 		}
 	}
 
+	public function onWpInit() {
+		$this->autoAddSession();
+	}
+
 	public function onWpLoaded() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
-		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
-			$this->autoAddSession();
-		}
 
 		if ( $mod->getSessionCon()->hasSession() ) {
 			/** @var Session\Update $update */
@@ -60,11 +60,9 @@ class Processor extends BaseShield\Processor {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$sessCon = $mod->getSessionCon();
-		if ( !$sessCon->hasSession() && $mod->isAutoAddSessions() ) {
-			$user = Services::WpUsers()->getCurrentWpUser();
-			if ( $user instanceof \WP_User ) {
-				$sessCon->createSession( $user );
-			}
+		$user = Services::WpUsers()->getCurrentWpUser();
+		if ( $user instanceof \WP_User && !$sessCon->hasSession() ) {
+			$sessCon->createSession( $user );
 		}
 	}
 
@@ -89,6 +87,17 @@ class Processor extends BaseShield\Processor {
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
 		return $msg;
+	}
+
+	protected function getWpHookPriority( string $hook ) :int {
+		switch ( $hook ) {
+			case 'init':
+				$pri = 1;
+				break;
+			default:
+				$pri = parent::getWpHookPriority( $hook );
+		}
+		return $pri;
 	}
 
 	protected function getHookPriority() :int {
