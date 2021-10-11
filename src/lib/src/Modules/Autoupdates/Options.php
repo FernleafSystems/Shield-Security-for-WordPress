@@ -42,60 +42,35 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'autoupdate_plugin_self' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAutoUpdateCoreNever() {
+	public function isAutoUpdateCoreNever() :bool {
 		return $this->isOpt( 'autoupdate_core', 'core_never' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAutoUpdateCoreMajor() {
+	public function isAutoUpdateCoreMajor() :bool {
 		return $this->isOpt( 'autoupdate_core', 'core_major' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isAutoUpdateCoreMinor() {
-		return !$this->isAutoUpdateCoreNever();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoupdateAllPlugins() {
+	public function isAutoupdateAllPlugins() :bool {
 		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isDisableAllAutoUpdates() {
+	public function isDisableAllAutoUpdates() :bool {
 		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isDelayUpdates() {
+	public function isDelayUpdates() :bool {
 		return $this->getDelayUpdatesPeriod() > 0;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isSendAutoupdatesNotificationEmail() {
+	public function isSendAutoupdatesNotificationEmail() :bool {
 		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
 	}
 
 	/**
-	 * @param array $aTrackingInfo
+	 * @param array $trackingInfo
 	 * @return $this
 	 */
-	public function setDelayTracking( $aTrackingInfo ) {
-		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
+	public function setDelayTracking( $trackingInfo ) {
+		return $this->setOpt( 'delay_tracking', $trackingInfo );
 	}
 }

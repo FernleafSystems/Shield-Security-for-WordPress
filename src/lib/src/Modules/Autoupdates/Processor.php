@@ -17,34 +17,34 @@ class Processor extends BaseShield\Processor {
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
 	protected function run() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		$nPriority = $this->getHookPriority();
+		$priority = $this->getHookPriority();
 		if ( Services::WpGeneral()->isClassicPress() ) {
-			add_filter( 'allow_patch_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nPriority );
-			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nPriority );
+			add_filter( 'allow_patch_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $priority );
+			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_major' ], $priority );
 		}
 		else {
-			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nPriority );
-			add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nPriority );
+			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $priority );
+			add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $priority );
 		}
 
-		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $nPriority, 2 );
-		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $nPriority, 2 );
-		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $nPriority, 2 );
+		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $priority, 2 );
+		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $priority, 2 );
+		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $priority, 2 );
 
-		if ( !$oOpts->isDisableAllAutoUpdates() ) {
+		if ( !$opts->isDisableAllAutoUpdates() ) {
 			//more parameter options here for later
-			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $nPriority, 1 );
-			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $nPriority, 1 );
-			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $nPriority, 1 );
+			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $priority, 1 );
+			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $priority, 1 );
+			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $priority, 1 );
 
 			add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
 			add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
 			add_action( 'set_site_transient_update_themes', [ $this, 'trackUpdateTimesThemes' ] );
 
-			if ( $oOpts->isSendAutoupdatesNotificationEmail()
+			if ( $opts->isSendAutoupdatesNotificationEmail()
 				 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.5' ) ) {
 				$this->trackAssetsVersions();
 				add_action( 'automatic_updates_complete', [ $this, 'sendNotificationEmail' ] );
@@ -98,11 +98,11 @@ class Processor extends BaseShield\Processor {
 	public function trackUpdateTimesCore( $oUpdates ) {
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
-			/** @var Options $oOpts */
-			$oOpts = $this->getOptions();
+			/** @var Options $opts */
+			$opts = $this->getOptions();
 
-			$aTk = $oOpts->getDelayTracking();
-			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : [];
+			$delayTracking = $opts->getDelayTracking();
+			$aItemTk = $delayTracking[ 'core' ][ 'wp' ] ?? [];
 			foreach ( $oUpdates->updates as $oUpdate ) {
 				if ( 'autoupdate' == $oUpdate->response ) {
 					$sVersion = $oUpdate->current;
@@ -111,219 +111,218 @@ class Processor extends BaseShield\Processor {
 					}
 				}
 			}
-			$aTk[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
-			$oOpts->setDelayTracking( $aTk );
+			$delayTracking[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
+			$opts->setDelayTracking( $delayTracking );
 		}
 	}
 
 	/**
-	 * @param \stdClass $oUpdates
+	 * @param \stdClass $updates
 	 */
-	public function trackUpdateTimesPlugins( $oUpdates ) {
-		$this->trackUpdateTimeCommon( $oUpdates, 'plugins' );
+	public function trackUpdateTimesPlugins( $updates ) {
+		$this->trackUpdateTimeCommon( $updates, 'plugins' );
 	}
 
 	/**
-	 * @param \stdClass $oUpdates
+	 * @param \stdClass $updates
 	 */
-	public function trackUpdateTimesThemes( $oUpdates ) {
-		$this->trackUpdateTimeCommon( $oUpdates, 'themes' );
+	public function trackUpdateTimesThemes( $updates ) {
+		$this->trackUpdateTimeCommon( $updates, 'themes' );
 	}
 
 	/**
-	 * @param \stdClass $oUpdates
-	 * @param string    $sContext - plugins/themes
+	 * @param \stdClass $updates
+	 * @param string    $context - plugins/themes
 	 */
-	protected function trackUpdateTimeCommon( $oUpdates, $sContext ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	protected function trackUpdateTimeCommon( $updates, $context ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( !empty( $oUpdates ) && isset( $oUpdates->response ) && is_array( $oUpdates->response ) ) {
+		if ( !empty( $updates ) && isset( $updates->response ) && is_array( $updates->response ) ) {
 
-			$aTk = $oOpts->getDelayTracking();
-			foreach ( $oUpdates->response as $sSlug => $oUpdate ) {
-				$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : [];
-				if ( is_array( $oUpdate ) ) {
-					$oUpdate = (object)$oUpdate;
+			$delayTracking = $opts->getDelayTracking();
+			foreach ( $updates->response as $slug => $theUpdate ) {
+				$itemTrack = $delayTracking[ $context ][ $slug ] ?? [];
+				if ( is_array( $theUpdate ) ) {
+					$theUpdate = (object)$theUpdate;
 				}
 
-				$sNewVersion = isset( $oUpdate->new_version ) ? $oUpdate->new_version : '';
-				if ( !empty( $sNewVersion ) ) {
-					if ( !isset( $aItemTk[ $sNewVersion ] ) ) {
-						$aItemTk[ $sNewVersion ] = Services::Request()->ts();
+				$newVersion = $theUpdate->new_version ?? '';
+				if ( !empty( $newVersion ) ) {
+					if ( !isset( $itemTrack[ $newVersion ] ) ) {
+						$itemTrack[ $newVersion ] = Services::Request()->ts();
 					}
-					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
+					$delayTracking[ $context ][ $slug ] = array_slice( $itemTrack, -3 );
 				}
 			}
-			$oOpts->setDelayTracking( $aTk );
+			$opts->setDelayTracking( $delayTracking );
 		}
 	}
 
 	/**
 	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
 	 * based on the plugin settings.
-	 * @param bool $bUpdate
+	 * @param bool $toUpdate
 	 * @return bool
 	 */
-	public function autoupdate_core_major( $bUpdate ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	public function autoupdate_core_major( $toUpdate ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() || $oOpts->isAutoUpdateCoreNever() ) {
-			$bUpdate = false;
+		if ( $opts->isDisableAllAutoUpdates() || $opts->isAutoUpdateCoreNever() ) {
+			$toUpdate = false;
 		}
-		elseif ( !$oOpts->isDelayUpdates() ) { // delay handled elsewhere
-			$bUpdate = $oOpts->isAutoUpdateCoreMajor();
+		elseif ( !$opts->isDelayUpdates() ) { // delay handled elsewhere
+			$toUpdate = $opts->isAutoUpdateCoreMajor();
 		}
 
-		return $bUpdate;
+		return $toUpdate;
 	}
 
 	/**
 	 * This is a filter method designed to say whether a minor core WordPress upgrade should be permitted,
 	 * based on the plugin settings.
-	 * @param bool $bUpdate
+	 * @param bool $toUpdate
 	 * @return bool
 	 */
-	public function autoupdate_core_minor( $bUpdate ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	public function autoupdate_core_minor( $toUpdate ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() || $oOpts->isAutoUpdateCoreNever() ) {
-			$bUpdate = false;
+		if ( $opts->isDisableAllAutoUpdates() || $opts->isAutoUpdateCoreNever() ) {
+			$toUpdate = false;
 		}
-		elseif ( !$oOpts->isDelayUpdates() ) {
-			$bUpdate = !$oOpts->isAutoUpdateCoreNever();
+		elseif ( !$opts->isDelayUpdates() ) {
+			$toUpdate = !$opts->isAutoUpdateCoreNever();
 		}
-		return $bUpdate;
+		return $toUpdate;
 	}
 
 	/**
-	 * @param bool      $bDoAutoUpdate
-	 * @param \stdClass $oCoreUpdate
+	 * @param bool      $isDoUpdate
+	 * @param \stdClass $coreUpgrade
 	 * @return bool
 	 */
-	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	public function autoupdate_core( $isDoUpdate, $coreUpgrade ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() ) {
-			$bDoAutoUpdate = false;
+		if ( $opts->isDisableAllAutoUpdates() ) {
+			$isDoUpdate = false;
 		}
-		elseif ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
-			$bDoAutoUpdate = false;
+		elseif ( $this->isDelayed( $coreUpgrade, 'core' ) ) {
+			$isDoUpdate = false;
 		}
 
-		return $bDoAutoUpdate;
+		return $isDoUpdate;
 	}
 
 	/**
-	 * @param bool             $bDoAutoUpdate
+	 * @param bool             $doUpdate
 	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
-	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	public function autoupdate_plugins( $doUpdate, $mItem ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() ) {
-			$bDoAutoUpdate = false;
+		if ( $opts->isDisableAllAutoUpdates() ) {
+			$doUpdate = false;
 		}
 		else {
 			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
 
 			if ( $this->isDelayed( $file, 'plugins' ) ) {
-				$bDoAutoUpdate = false;
+				$doUpdate = false;
 			}
-			elseif ( $oOpts->isAutoupdateAllPlugins() ) {
-				$bDoAutoUpdate = true;
+			elseif ( $opts->isAutoupdateAllPlugins() ) {
+				$doUpdate = true;
 			}
 			elseif ( $file === $this->getCon()->base_file ) {
-				$sAuto = $oOpts->getSelfAutoUpdateOpt();
-				if ( $sAuto === 'immediate' ) {
-					$bDoAutoUpdate = true;
+				$auto = $opts->getSelfAutoUpdateOpt();
+				if ( $auto === 'immediate' ) {
+					$doUpdate = true;
 				}
-				elseif ( $sAuto === 'disabled' ) {
-					$bDoAutoUpdate = false;
+				elseif ( $auto === 'disabled' ) {
+					$doUpdate = false;
 				}
 			}
 		}
 
-		return $bDoAutoUpdate;
+		return $doUpdate;
 	}
 
 	/**
-	 * @param bool             $bDoAutoUpdate
+	 * @param bool             $doAutoUpdate
 	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
-	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
+	public function autoupdate_themes( $doAutoUpdate, $mItem ) {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( $opts->isDisableAllAutoUpdates() ) {
-			$bDoAutoUpdate = false;
+			$doAutoUpdate = false;
 		}
 		else {
 			$file = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
 
 			if ( $this->isDelayed( $file, 'themes' ) ) {
-				$bDoAutoUpdate = false;
+				$doAutoUpdate = false;
 			}
 			elseif ( $opts->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
-				$bDoAutoUpdate = true;
+				$doAutoUpdate = true;
 			}
 		}
 
-		return $bDoAutoUpdate;
+		return $doAutoUpdate;
 	}
 
 	/**
-	 * @param string|\stdClass $sSlug
-	 * @param string           $sContext
-	 * @return bool
+	 * @param string|\stdClass $slug
+	 * @param string           $context
 	 */
-	private function isDelayed( $sSlug, $sContext = 'plugins' ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+	private function isDelayed( $slug, $context = 'plugins' ) :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		$bDelayed = false;
+		$delayed = false;
 
-		if ( $oOpts->isDelayUpdates() ) {
+		if ( $opts->isDelayUpdates() ) {
 
-			$aTk = $oOpts->getDelayTracking();
+			$delayTrack = $opts->getDelayTracking();
 
-			$sVersion = '';
-			if ( $sContext == 'core' ) {
-				$sVersion = $sSlug->current; // \stdClass from transient update_core
-				$sSlug = 'wp';
+			$version = '';
+			if ( $context == 'core' ) {
+				$version = $slug->current; // \stdClass from transient update_core
+				$slug = 'wp';
 			}
 
-			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : [];
+			$itemTrack = $delayTrack[ $context ][ $slug ] ?? [];
 
-			if ( $sContext == 'plugins' ) {
-				$oPlugin = Services::WpPlugins()->getUpdateInfo( $sSlug );
-				$sVersion = isset( $oPlugin->new_version ) ? $oPlugin->new_version : '';
+			if ( $context == 'plugins' ) {
+				$pluginInfo = Services::WpPlugins()->getUpdateInfo( $slug );
+				$version = $pluginInfo->new_version ?? '';
 			}
-			elseif ( $sContext == 'themes' ) {
-				$aThemeInfo = Services::WpThemes()->getUpdateInfo( $sSlug );
-				$sVersion = isset( $aThemeInfo[ 'new_version' ] ) ? $aThemeInfo[ 'new_version' ] : '';
+			elseif ( $context == 'themes' ) {
+				$themeInfo = Services::WpThemes()->getUpdateInfo( $slug );
+				$version = $themeInfo[ 'new_version' ] ?? '';
 			}
 
-			if ( !empty( $sVersion ) && isset( $aItemTk[ $sVersion ] ) ) {
-				$bDelayed = ( Services::Request()->ts() - $aItemTk[ $sVersion ] < $oOpts->getDelayUpdatesPeriod() );
+			if ( !empty( $version ) && isset( $itemTrack[ $version ] ) ) {
+				$delayed = ( Services::Request()->ts() - $itemTrack[ $version ] ) < $opts->getDelayUpdatesPeriod();
 			}
 		}
 
-		return $bDelayed;
+		return $delayed;
 	}
 
 	/**
-	 * A filter on whether or not a notification email is sent after core upgrades are attempted.
-	 * @param bool $bSendEmail
+	 * A filter on whether a notification email is sent after core upgrades are attempted.
+	 * @param bool $sendEmail
 	 * @return bool
 	 */
-	public function autoupdate_send_email( $bSendEmail ) {
+	public function autoupdate_send_email( $sendEmail ) {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isSendAutoupdatesNotificationEmail();
@@ -331,15 +330,15 @@ class Processor extends BaseShield\Processor {
 
 	/**
 	 * A filter on the target email address to which to send upgrade notification emails.
-	 * @param array $aEmailParams
+	 * @param array $emailParams
 	 * @return array
 	 */
-	public function autoupdate_email_override( $aEmailParams ) {
-		$sOverride = $this->getOptions()->getOpt( 'override_email_address', '' );
-		if ( Services::Data()->validEmail( $sOverride ) ) {
-			$aEmailParams[ 'to' ] = $sOverride;
+	public function autoupdate_email_override( $emailParams ) {
+		$override = $this->getOptions()->getOpt( 'override_email_address', '' );
+		if ( Services::Data()->validEmail( $override ) ) {
+			$emailParams[ 'to' ] = $override;
 		}
-		return $aEmailParams;
+		return $emailParams;
 	}
 
 	/**
@@ -361,16 +360,16 @@ class Processor extends BaseShield\Processor {
 			''
 		];
 
-		$aTrkd = $this->getTrackedAssetsVersions();
+		$assetVersionTrack = $this->getTrackedAssetsVersions();
 
-		$oWpPlugins = Services::WpPlugins();
+		$WPP = Services::WpPlugins();
 		if ( !empty( $aUpdateResults[ 'plugin' ] ) && is_array( $aUpdateResults[ 'plugin' ] ) ) {
 			$bHasPluginUpdates = false;
-			$aTrkdPlugs = $aTrkd[ 'plugins' ];
+			$aTrkdPlugs = $assetVersionTrack[ 'plugins' ];
 
 			$aTempContent[] = __( 'Plugins Updated:', 'wp-simple-firewall' );
 			foreach ( $aUpdateResults[ 'plugin' ] as $oUpdate ) {
-				$oP = $oWpPlugins->getPluginAsVo( $oUpdate->item->plugin, true );
+				$oP = $WPP->getPluginAsVo( $oUpdate->item->plugin, true );
 				$bValidUpdate = !empty( $oUpdate->result ) && !empty( $oUpdate->name )
 								&& isset( $aTrkdPlugs[ $oP->file ] )
 								&& version_compare( $aTrkdPlugs[ $oP->file ], $oP->Version, '<' );
@@ -391,7 +390,7 @@ class Processor extends BaseShield\Processor {
 
 		if ( !empty( $aUpdateResults[ 'theme' ] ) && is_array( $aUpdateResults[ 'theme' ] ) ) {
 			$bHasThemesUpdates = false;
-			$aTrkdThemes = $aTrkd[ 'themes' ];
+			$aTrkdThemes = $assetVersionTrack[ 'themes' ];
 
 			$aTempContent = [ __( 'Themes Updated:', 'wp-simple-firewall' ) ];
 			foreach ( $aUpdateResults[ 'theme' ] as $oUpdate ) {
@@ -440,9 +439,9 @@ class Processor extends BaseShield\Processor {
 		$this->getMod()
 			 ->getEmailProcessor()
 			 ->sendEmailWithWrap(
-			 	$this->getOptions()->getOpt( 'override_email_address' ),
+				 $this->getOptions()->getOpt( 'override_email_address' ),
 				 sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) ),
-				$body
+				 $body
 			 );
 		die();
 	}
