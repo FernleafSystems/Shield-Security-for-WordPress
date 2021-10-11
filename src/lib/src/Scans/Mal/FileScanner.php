@@ -156,7 +156,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	private function canExcludeFile( string $fullPath ) :bool {
 		try {
 			$validHash = Services::CoreFileHashes()->isCoreFileHashValid( $fullPath )
-						 || ( new Lib\Hashes\Query() )->verifyHash( $fullPath );
+						 || ( new Lib\Hashes\Query() )
+							 ->setMod( $this->getMod() )
+							 ->verifyHash( $fullPath );
 		}
 		catch ( \Exception $e ) {
 			$validHash = false;
