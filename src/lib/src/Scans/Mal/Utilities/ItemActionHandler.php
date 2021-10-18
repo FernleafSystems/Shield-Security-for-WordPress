@@ -7,10 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
-	public function ignore() {
+	public function ignore() :bool {
 		parent::ignore();
 
 		( new FalsePositiveReporter() )
@@ -21,19 +20,9 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function repairDelete() :bool {
 		return $this->repair( true );
-	}
-
-	/**
-	 * @return Repair
-	 */
-	public function getRepairer() {
-		return ( new Repair() )
-			->setScanItem( $this->getScanItem() )
-			->setMod( $this->getMod() );
 	}
 }

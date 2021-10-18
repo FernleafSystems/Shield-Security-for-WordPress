@@ -1,0 +1,16 @@
+{% extends '/wpadmin_pages/insights/scans/modal/base_modal_content.twig' %}
+
+{% block modal_body %}
+	{% include '/wpadmin_pages/insights/scans/modal/scan_item_view/tabpanel.twig' %}
+{% endblock %}
+{% block modal_footer %}
+
+	<a href="{{ flags.can_download ? hrefs.file_download : '#' }}"
+	   class="btn btn-dark href-download{% if not flags.can_download %} disabled{% endif %}"
+	   {% if not flags.can_download %}disabled="disabled"{% endif %}
+	>
+		{{ imgs.svgs.file_download|raw }}
+		{{ strings.file_download }}
+	</a>
+
+{% endblock %}

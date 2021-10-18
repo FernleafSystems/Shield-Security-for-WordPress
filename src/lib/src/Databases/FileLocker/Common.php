@@ -9,11 +9,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 trait Common {
 
 	/**
-	 * @param string $sFile
+	 * @param string $file
 	 * @return $this
 	 */
-	public function filterByFile( $sFile ) {
-		return $this->addWhereEquals( 'file', base64_encode( $sFile ) );
+	public function filterByFile( $file ) {
+		return $this->addWhereEquals( 'file', base64_encode( $file ) );
 	}
 
 	/**

@@ -3,15 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc
  * @property string $slug
- * @property string $context
  * @property int    $last_updated_at
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
 	public function getDescriptionForAudit() :string {
-		return sprintf( '%s: %s', $this->context, $this->slug );
+		return sprintf( '%s: %s', ( strpos( $this->slug, '/' ) ? 'Plugin' : 'Theme' ), $this->slug );
 	}
 }

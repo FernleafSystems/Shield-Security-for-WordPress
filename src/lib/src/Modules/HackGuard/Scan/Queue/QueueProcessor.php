@@ -3,8 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModCon,
+	Scan\Queue\QueueItems,
+	Scan\Queue\QueueItemVO,
+	Scan\Init\SetScanCompleted,
+	Scan\Results\Store
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -18,18 +24,22 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		/** @var ScanQueue\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$batch = new \stdClass();
 
-		$oEntry = $oSel->filterByNotStarted()
-					   ->filterByNotFinished()
-					   ->setOrderBy( 'id', 'ASC', true )
-					   ->first();
+		try {
+			$qItem = ( new QueueItems() )
+				->setMod( $this->getMod() )
+				->next();
 
-		$oBatch = new \stdClass();
-		$oBatch->key = $oEntry->id;
-		$oBatch->data = [ $oEntry ];
-		return $oBatch;
+			$batch->key = $qItem->qitem_id;
+			$batch->data = [ $qItem ];
+		}
+		catch ( Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems $e ) {
+			// This should never happen as "is_empty()" is called before
+			error_log( $e->getMessage() );
+		}
+
+		return $batch;
 	}
 
 	/**
@@ -40,26 +50,40 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param ScanQueue\EntryVO $entry Queue item to iterate over.
+	 * @param QueueItemVO $item Queue item to iterate over.
 	 * @return mixed
 	 */
-	protected function task( $entry ) {
-		$entry->started_at = Services::Request()->ts();
-		/** @var ScanQueue\Update $updater */
-		$updater = $this->getDbHandler()->getQueryUpdater();
-		$updater->setStarted( $entry );
+	protected function task( $item ) {
+		$this->getDbH_ScanItems()
+			 ->getQueryUpdater()
+			 ->updateById( $item->qitem_id, [
+				 'started_at' => Services::Request()->ts()
+			 ] );
 
 		try {
-			( new ScanExecute() )
+			$results = ( new ProcessQueueItem() )
 				->setMod( $this->getMod() )
-				->execute( $entry );
+				->run( $item );
+
+			( new Store() )
+				->setMod( $this->getMod() )
+				->store( $item, $results );
+
+			$this->getDbH_ScanItems()
+				 ->getQueryUpdater()
+				 ->updateById( $item->qitem_id, [
+					 'finished_at' => Services::Request()->ts()
+				 ] );
+
+			( new SetScanCompleted() )
+				->setMod( $this->getMod() )
+				->run();
 		}
 		catch ( \Exception $e ) {
-//			error_log( $e->getMessage() );
+			error_log( $e->getMessage() );
 		}
 
-		$updater->setFinished( $entry );
-		return $entry;
+		return $item;
 	}
 
 	/**
@@ -72,7 +96,6 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		parent::complete();
 
 		( new CompleteQueue() )
-			->setDbHandler( $this->getDbHandler() )
 			->setMod( $this->getMod() )
 			->complete();
 	}
@@ -84,9 +107,9 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $key ) {
-		/** @var ScanQueue\Delete $oDel */
-		$oDel = $this->getDbHandler()->getQueryDeleter();
-		$oDel->deleteById( $key );
+		$this->getDbH_ScanItems()
+			 ->getQueryDeleter()
+			 ->deleteById( $key );
 		return $this;
 	}
 
@@ -96,11 +119,9 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		/** @var ScanQueue\Select $selector */
-		$selector = $this->getDbHandler()->getQuerySelector();
-		return $selector->filterByNotStarted()
-						->filterByNotFinished()
-						->count() === 0;
+		return !( new QueueItems() )
+			->setMod( $this->getMod() )
+			->hasNextItem();
 	}
 
 	/**
@@ -109,50 +130,30 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function save() {
-
-		if ( is_array( $this->data ) ) {
-			/** @var ScanQueue\Insert $inserter */
-			$inserter = $this->getDbHandler()->getQueryInserter();
-			foreach ( $this->data as $entry ) {
-				/** @var ScanQueue\EntryVO $entry */
-				if ( $entry instanceof ScanQueue\EntryVO ) {
-					$inserter->insert( $entry );
-				}
-			}
-		}
-
-		$this->data = []; // critical to preventing duplicate entries
 		return $this;
 	}
 
 	/**
 	 * Update queue
 	 *
-	 * @param string              $key  Key.
-	 * @param ScanQueue\EntryVO[] $data Data.
+	 * @param string                   $key  Key.
+	 * @param ScanItemsDB\Ops\Record[] $data Data.
 	 * @return $this
 	 */
 	public function update( $key, $data ) {
-		/** @var ScanQueue\Update $updater */
-		$updater = $this->getDbHandler()->getQueryUpdater();
-		$entry = array_shift( $data );
-		$updater->updateById( $entry->id, $entry->getRawData() );
+		// Do nothing. Results are stored separately.
 		return $this;
 	}
 
 	public function handleExpiredItems() {
-		$boundary = Services::Request()
-							->carbon()
-							->subSeconds( $this->getExpirationInterval() )->timestamp;
-		$this->getDbHandler()->deleteRowsOlderThan( $boundary );
+		( new CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
-	/**
-	 * @return ScanQueue\Handler
-	 */
-	public function getDbHandler() {
+	private function getDbH_ScanItems() :ScanItemsDB\Ops\Handler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $mod->getDbHandler_ScanQueue();
+		return $mod->getDbH_ScanItems();
 	}
 }

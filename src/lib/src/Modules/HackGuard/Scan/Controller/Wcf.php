@@ -2,13 +2,57 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	DB\ResultItems\Ops\Update,
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Wcf extends Base {
+class Wcf extends BaseForFiles {
 
 	const SCAN_SLUG = 'wcf';
+
+	public function getScanFileExclusions() :string {
+		$pattern = '';
+
+		$exclusions = $this->getOptions()->getDef( 'wcf_exclusions' );
+		// Flywheel specific mods
+		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
+			$exclusions[] = 'wp-settings.php';
+			$exclusions[] = 'wp-admin/includes/upgrade.php';
+		}
+
+		if ( is_array( $exclusions ) && !empty( $exclusions ) ) {
+			$quoted = array_map(
+				function ( $exclusion ) {
+					return preg_quote( $exclusion, '#' );
+				},
+				$exclusions
+			);
+			$pattern = '#('.implode( '|', $quoted ).')#i';
+		}
+		return $pattern;
+	}
+
+	/**
+	 * Builds a regex-ready pattern for matching file names to exclude from scan if they're missing
+	 */
+	public function getScanExclusionsForMissingItems() :string {
+		$pattern = '';
+		$exclusions = $this->getOptions()->getDef( 'wcf_exclusions_missing_only' );
+		if ( !empty( $exclusions ) ) {
+			$quoted = array_map(
+				function ( $exclusion ) {
+					return preg_quote( $exclusion, '#' );
+				},
+				$exclusions
+			);
+			$pattern = '#('.implode( '|', $quoted ).')#i';
+		}
+		return $pattern;
+	}
 
 	/**
 	 * @return Scans\Wcf\Utilities\ItemActionHandler
@@ -19,15 +63,23 @@ class Wcf extends Base {
 
 	/**
 	 * @param Scans\Wcf\ResultItem $item
-	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) :bool {
+	public function cleanStaleResultItem( $item ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$CFH = Services::CoreFileHashes();
-		return !$CFH->isCoreFile( $item->path_full ) || $CFH->isCoreFileHashValid( $item->path_full );
+		if ( !$CFH->isCoreFile( $item->path_full ) ) {
+			$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+		}
+		elseif ( $CFH->isCoreFileHashValid( $item->path_full ) ) {
+			/** @var Update $updater */
+			$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+			$updater->setItemRepaired( $item->VO->resultitem_id );
+		}
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isRepairFileWP();
 	}
@@ -38,5 +90,15 @@ class Wcf extends Base {
 
 	protected function isPremiumOnly() :bool {
 		return false;
+	}
+
+	/**
+	 * @return Scans\Wcf\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Wcf\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

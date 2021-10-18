@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
+
 /**
  * Class ScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
@@ -13,7 +15,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
  * @property string[] $patterns_simple
  * @property int      $confidence_threshold
  */
-class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
+class ScanActionVO extends BaseScanActionVO {
 
 	const QUEUE_GROUP_SIZE_LIMIT = 50;
 	const DEFAULT_SLEEP_SECONDS = 0.1;

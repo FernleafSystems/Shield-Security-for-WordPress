@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
@@ -16,11 +15,9 @@ abstract class ItemActionHandler {
 	use HackGuard\Scan\Controller\ScanControllerConsumer;
 
 	/**
-	 * @param string $action
-	 * @return bool
 	 * @throws \Exception
 	 */
-	public function process( $action ) {
+	public function process( string $action ) :bool {
 		switch ( $action ) {
 			case 'delete':
 				$success = $this->delete();
@@ -48,22 +45,33 @@ abstract class ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function delete() {
+	public function delete() :bool {
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$item = $this->getScanItem();
-		if ( $this->getRepairer()->deleteItem() ) {
-			$item->repaired = true;
+
+		$item->deleted = ( new ItemDeleteHandler() )
+			->setMod( $this->getMod() )
+			->setScanItem( $this->getScanItem() )
+			->delete(); // Exception if can't delete
+		if ( $item->deleted ) {
+			$mod->getDbH_ResultItems()
+				->getQueryUpdater()
+				->updateById( $item->VO->resultitem_id, [
+					'item_deleted_at' => Services::Request()->ts()
+				] );
 			$item->repair_event_status = 'delete_success';
 		}
+
 		$this->fireRepairEvent();
-		return $item->repaired;
+		return $item->deleted;
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
-	public function ignore() {
-		return ( new IgnoreItem() )
+	public function ignore() :bool {
+		return ( new ItemIgnoreHandler() )
 			->setMod( $this->getMod() )
 			->setScanItem( $this->getScanItem() )
 			->ignore();
@@ -82,47 +90,46 @@ abstract class ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repair( bool $allowDelete = false ) {
-		$repairer = $this->getRepairer();
-
-		$item = $this->getScanItem();
-
-		try {
-			$item->repaired = $repairer->repairItem();
-		}
-		catch ( \Exception $e ) {
-			$item->repaired = false;
-		}
-		$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
-
-		if ( $allowDelete && !$item->repaired && $repairer->deleteItem() ) {
-			$item->repaired = true;
-			$item->repair_event_status = 'delete_success';
-		}
-
-		$this->fireRepairEvent();
-
+	public function repair( bool $allowDelete = false ) :bool {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		if ( $item->repaired ) {
-			/** @var Scanner\Delete $deleter */
-			$mod->getDbHandler_ScanResults()
-				->getQueryDeleter()
-				->deleteById( $item->VO->id );
-		}
-		else {
-			$mod->getDbHandler_ScanResults()
+		$item = $this->getScanItem();
+
+		$repairer = $this->getRepairHandler();
+		if ( $repairer->canRepairItem() ) {
+			try {
+				$item->repaired = $repairer->repairItem();
+			}
+			catch ( \Exception $e ) {
+				$item->repaired = false;
+			}
+
+			$updateInfo = [
+				'attempt_repair_at' => Services::Request()->ts()
+			];
+			if ( $item->repaired ) {
+				$updateInfo[ 'item_repaired_at' ] = Services::Request()->ts();
+			}
+			$mod->getDbH_ResultItems()
 				->getQueryUpdater()
-				->updateById( $item->VO->id, [ 'attempt_repair_at' => Services::Request()->ts() ] );
+				->updateById( $item->VO->resultitem_id, $updateInfo );
+
+			$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
+
+			$this->fireRepairEvent();
+		}
+		elseif ( $allowDelete ) {
+			$this->delete();
 		}
 
-		return $item->repaired;
+		return $item->repaired || $item->deleted;
 	}
 
-	/**
-	 * @return BaseRepair|mixed
-	 */
-	abstract public function getRepairer();
+	public function getRepairHandler() :ItemRepairHandler {
+		return ( new ItemRepairHandler() )
+			->setMod( $this->getMod() )
+			->setScanItem( $this->getScanItem() );
+	}
 
 	protected function fireRepairEvent() {
 		/** @var ResultItem $item */

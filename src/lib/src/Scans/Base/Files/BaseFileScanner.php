@@ -4,12 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-/**
- * Class BaseFileScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files
- */
 abstract class BaseFileScanner {
 
+	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 	use Shield\Modules\ModConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 

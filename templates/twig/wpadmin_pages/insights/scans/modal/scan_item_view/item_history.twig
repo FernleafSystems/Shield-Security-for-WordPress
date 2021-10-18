@@ -1,0 +1,16 @@
+<div class="row">
+	<div class="col scan-item-history">
+		{% if flags.has_history %}
+			{% for ts,ts_history in vars.history %}
+				<p class="font-weight-bold">{{ ts }}</p>
+				<ul>
+					{% for line in ts_history %}
+						<li>{{ line|raw }}</li>
+					{% endfor %}
+				</ul>
+			{% endfor %}
+		{% else %}
+			<p>No history could be loaded.</p>
+		{% endif %}
+	</div>
+</div>

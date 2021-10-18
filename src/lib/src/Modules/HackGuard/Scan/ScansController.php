@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScansController extends ExecOnceModConsumer {
 
 	use StandardCron;
+	use PluginCronsConsumer;
 
 	private $scanCons;
 
@@ -24,6 +26,7 @@ class ScansController extends ExecOnceModConsumer {
 			$scanCon->execute();
 		}
 		$this->setupCron();
+		$this->setupCronHooks(); // Plugin crons
 		$this->handlePostScanCron();
 	}
 

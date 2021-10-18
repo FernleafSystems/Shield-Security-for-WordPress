@@ -2,39 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports\Query;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+	Scans,
+	ScanResults
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ScanCounts {
 
 	use ModConsumer;
-
-	/**
-	 * @var int
-	 */
-	public $from;
-
-	/**
-	 * @var int
-	 */
-	public $to;
-
-	/**
-	 * @var bool
-	 */
-	public $ignored = false;
-
-	/**
-	 * @var bool
-	 */
-	public $notified = false;
-
-	public function __construct( $from = null, $to = null ) {
-		$this->from = is_int( $from ) ? $from : 0;
-		$this->to = is_int( $to ) ? $to : Services::Request()->ts();
-	}
 
 	/**
 	 * @return int[] - key is scan slug
@@ -63,24 +40,16 @@ class ScanCounts {
 	public function standard() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		/** @var Scanner\Select $qSel */
-		$qSel = $mod->getDbHandler_ScanResults()->getQuerySelector();
 
 		$counts = [];
-
-		foreach ( $opts->getScanSlugs() as $slug ) {
-			$qSel->filterByScan( $slug )
-				 ->filterByCreatedAt( $this->from, '>=' )
-				 ->filterByCreatedAt( $this->to, '<=' );
-			if ( isset( $this->ignored ) ) {
-				$this->ignored ? $qSel->filterByIgnored() : $qSel->filterByNotIgnored();
-			}
-			if ( isset( $this->notified ) ) {
-				$this->notified ? $qSel->filterByNotified() : $qSel->filterByNotNotified();
-			}
-			$counts[ $slug ] = $qSel->count();
+		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+			$counts[ $scanCon->getSlug() ] = ( new HackGuard\Scan\Results\Retrieve() )
+				->setMod( $this->getMod() )
+				->setScanController( $scanCon )
+				->setAdditionalWheres( [
+					"`ri`.notified_at = 0"
+				] )
+				->count( false );
 		}
 
 		return $counts;

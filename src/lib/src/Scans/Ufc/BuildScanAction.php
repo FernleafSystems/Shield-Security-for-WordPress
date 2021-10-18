@@ -3,30 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-/**
- * Class BuildScanAction
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
- */
-class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
+class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-		$action->items = ( new Shield\Scans\Ufc\BuildFileMap() )
-			->setMod( $this->getMod() )
-			->setScanActionVO( $action )
-			->build();
+		$this->getScanActionVO()->items = ( new BuildScanItems() )
+			->setMod( $this->getScanController()->getMod() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->run();
 	}
 
 	protected function setCustomFields() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 		/** @var Shield\Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->getScanController()->getOptions();
 
-		$exclusions = $opts->getOpt( 'ufc_exclusions', [] );
-		$action->exclusions = is_array( $exclusions ) ? $exclusions : [];
 		$action->scan_dirs = $opts->getUfcScanDirectories();
 	}
 }

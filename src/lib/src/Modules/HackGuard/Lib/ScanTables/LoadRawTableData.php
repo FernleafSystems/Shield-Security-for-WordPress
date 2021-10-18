@@ -25,9 +25,6 @@ class LoadRawTableData {
 	private static $GuardFiles;
 
 	/**
-	 * @param string $type
-	 * @param string $file
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function loadFor( string $type, string $file ) :array {
@@ -73,7 +70,7 @@ class LoadRawTableData {
 				/** @var Scans\Mal\ResultItem $item */
 				$data = $item->getRawData();
 
-				$data[ 'rid' ] = $item->VO->id;
+				$data[ 'rid' ] = $item->VO->scanresult_id;
 				$data[ 'file' ] = $item->path_fragment;
 				$data[ 'detected_at' ] = $item->VO->created_at;
 				$data[ 'detected_since' ] = Services::Request()
@@ -98,7 +95,7 @@ class LoadRawTableData {
 
 				return $data;
 			},
-			$mod->getScanCon( Mal::SCAN_SLUG )->getAllResults()->getItems()
+			$mod->getScanCon( Mal::SCAN_SLUG )->getResultsForDisplay()->getItems()
 		);
 	}
 
@@ -118,7 +115,8 @@ class LoadRawTableData {
 				function ( $item ) {
 					/** @var Scans\Wcf\ResultItem|Scans\Ufc\ResultItem $item */
 					$data = $item->getRawData();
-					$data[ 'rid' ] = $item->VO->id;
+
+					$data[ 'rid' ] = $item->VO->scanresult_id;
 					$data[ 'file' ] = $item->path_fragment;
 					$data[ 'detected_at' ] = $item->VO->created_at;
 					$data[ 'detected_since' ] = Services::Request()
@@ -126,12 +124,7 @@ class LoadRawTableData {
 														->setTimestamp( $item->VO->created_at )
 														->diffForHumans();
 
-					if ( !$item->is_missing ) {
-						$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
-					}
-					else {
-						$data[ 'file_as_href' ] = $item->path_fragment;
-					}
+					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 
 					if ( $item->is_checksumfail ) {
 						$data[ 'status_slug' ] = 'modified';
@@ -152,8 +145,8 @@ class LoadRawTableData {
 					return $data;
 				},
 				array_merge(
-					$mod->getScanCon( Wcf::SCAN_SLUG )->getAllResults()->getItems(),
-					$mod->getScanCon( Ufc::SCAN_SLUG )->getAllResults()->getItems()
+					$mod->getScanCon( Wcf::SCAN_SLUG )->getResultsForDisplay()->getItems(),
+					$mod->getScanCon( Ufc::SCAN_SLUG )->getResultsForDisplay()->getItems()
 				)
 			);
 		}
@@ -173,7 +166,7 @@ class LoadRawTableData {
 			function ( $item ) {
 
 				$data = $item->getRawData();
-				$data[ 'rid' ] = $item->VO->id;
+				$data[ 'rid' ] = $item->VO->scanresult_id;
 				$data[ 'file' ] = $item->path_fragment;
 				$data[ 'detected_at' ] = $item->VO->created_at;
 				$data[ 'detected_since' ] = Services::Request()
@@ -181,7 +174,7 @@ class LoadRawTableData {
 													->setTimestamp( $item->VO->created_at )
 													->diffForHumans();
 
-				if ( $item->is_different ) {
+				if ( $item->is_checksumfail ) {
 					$data[ 'status_slug' ] = 'modified';
 					$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
 				}
@@ -195,12 +188,7 @@ class LoadRawTableData {
 				}
 				$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, $data[ 'status' ] );
 
-				if ( !$item->is_missing ) {
-					$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
-				}
-				else {
-					$data[ 'file_as_href' ] = $item->path_fragment;
-				}
+				$data[ 'file_as_href' ] = $this->getColumnContent_File( $item );
 
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
@@ -220,7 +208,7 @@ class LoadRawTableData {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$actionHandler = $mod->getScanCon( $item->VO->scan )
+		$actionHandler = $mod->getScanCon( $item->scan )
 							 ->getItemActionHandler()
 							 ->setScanItem( $item );
 
@@ -231,22 +219,31 @@ class LoadRawTableData {
 			'action',
 		];
 
+		if ( !empty( $item->path_fragment ) ) {
+			$actions[] = sprintf( '<button class="action view-file btn-dark %s" title="%s" data-rid="%s">%s</button>',
+				implode( ' ', $defaultButtonClasses ),
+				__( 'View File Details', 'wp-simple-firewall' ),
+				$item->VO->scanresult_id,
+				$con->svgs->raw( 'bootstrap/zoom-in.svg' )
+			);
+		}
+
 		if ( in_array( $status, [ 'unrecognised', 'malware' ] ) ) {
 			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
-				$item->VO->id,
+				$item->VO->scanresult_id,
 				$con->svgs->raw( 'bootstrap/x-square.svg' )
 			);
 		}
 
 		try {
-			if ( in_array( $status, [ 'modified', 'missing', 'malware' ] ) && $actionHandler->getRepairer()
-																							->canRepair() ) {
+			if ( in_array( $status, [ 'modified', 'missing', 'malware' ] )
+				 && $actionHandler->getRepairHandler()->canRepairItem() ) {
 				$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Repair', 'wp-simple-firewall' ),
-					$item->VO->id,
+					$item->VO->scanresult_id,
 					$con->svgs->raw( 'bootstrap/tools.svg' )
 				);
 			}
@@ -254,19 +251,10 @@ class LoadRawTableData {
 		catch ( \Exception $e ) {
 		}
 
-		if ( in_array( $status, [ 'modified', 'unrecognised', 'malware' ] ) ) {
-			$actions[] = sprintf( '<button class="btn-dark href-download %s" title="%s" data-href-download="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
-				__( 'Download', 'wp-simple-firewall' ),
-				$mod->getScanCon( $item->VO->scan )->createFileDownloadLink( $item->VO->id ),
-				$con->svgs->raw( 'bootstrap/download.svg' )
-			);
-		}
-
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
 			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
-			$item->VO->id,
+			$item->VO->scanresult_id,
 			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
 		);
 
@@ -278,7 +266,7 @@ class LoadRawTableData {
 		$mod = $this->getMod();
 		if ( !isset( self::$GuardFiles ) ) {
 			try {
-				self::$GuardFiles = $mod->getScanCon( Ptg::SCAN_SLUG )->getAllResults();
+				self::$GuardFiles = $mod->getScanCon( Ptg::SCAN_SLUG )->getResultsForDisplay();
 			}
 			catch ( \Exception $e ) {
 				self::$GuardFiles = new Scans\Ptg\ResultsSet();
@@ -317,7 +305,7 @@ class LoadRawTableData {
 	private function getColumnContent_FileAsHref( Scans\Base\FileResultItem $item ) :string {
 		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
-			$item->VO->id,
+			$item->VO->scanresult_id,
 			$item->path_fragment
 		);
 	}

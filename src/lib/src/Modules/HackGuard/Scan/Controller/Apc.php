@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
@@ -21,5 +23,15 @@ class Apc extends BaseForAssets {
 
 	protected function isPremiumOnly() :bool {
 		return false;
+	}
+
+	/**
+	 * @return Scans\Apc\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Apc\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

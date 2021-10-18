@@ -89,7 +89,7 @@ class WpvAddPluginRows {
 	public function filterPluginsToView( $plugins ) {
 		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			/** @var Wpv\ResultsSet $oVulnerableRes */
-			$oVulnerableRes = $this->getScanController()->getAllResults();
+			$oVulnerableRes = $this->getScanController()->getResultsForDisplay();
 			global $status;
 			$status = 'vulnerable';
 			$plugins = array_intersect_key(
@@ -164,7 +164,7 @@ class WpvAddPluginRows {
 	private function countVulnerablePlugins() :int {
 		if ( !isset( $this->vulnCount ) ) {
 			$this->vulnCount = $this->getScanController()
-									->getAllResults()
+									->getResultsForDisplay()
 									->countUniqueSlugsForPluginsContext();
 		}
 		return $this->vulnCount;
