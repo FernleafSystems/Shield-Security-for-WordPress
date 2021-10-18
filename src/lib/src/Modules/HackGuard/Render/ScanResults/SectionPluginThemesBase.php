@@ -38,7 +38,7 @@ class SectionPluginThemesBase extends SectionBase {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			try {
-				$this->vulnerable = $mod->getScanCon( Wpv::SCAN_SLUG )->getAllResults();
+				$this->vulnerable = $mod->getScanCon( Wpv::SCAN_SLUG )->getResultsForDisplay();
 			}
 			catch ( \Exception $e ) {
 				$this->vulnerable = new Scans\Wpv\ResultsSet();
@@ -52,7 +52,7 @@ class SectionPluginThemesBase extends SectionBase {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			try {
-				$this->abandoned = $mod->getScanCon( Apc::SCAN_SLUG )->getAllResults();
+				$this->abandoned = $mod->getScanCon( Apc::SCAN_SLUG )->getResultsForDisplay();
 			}
 			catch ( \Exception $e ) {
 				$this->abandoned = new Scans\Apc\ResultsSet();

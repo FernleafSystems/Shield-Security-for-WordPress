@@ -13,14 +13,8 @@ abstract class BaseRepair {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	abstract public function repairItem() :bool;
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function deleteItem() :bool {
-		throw new \Exception( 'Delete is not supported' );
+	public function repairItem() :bool {
+		throw new \Exception( 'Item Repair is not supported' );
 	}
 
 	/**

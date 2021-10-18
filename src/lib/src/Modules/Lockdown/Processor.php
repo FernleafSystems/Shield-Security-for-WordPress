@@ -92,8 +92,8 @@ class Processor extends BaseShield\Processor {
 	private function interceptCanonicalRedirects() {
 
 		if ( $this->getOptions()->isOpt( 'block_author_discovery', 'Y' ) ) {
-			$sAuthor = Services::Request()->query( 'author', '' );
-			if ( !empty( $sAuthor ) ) {
+			$author = Services::Request()->query( 'author', '' );
+			if ( !empty( $author ) ) {
 				Services::WpGeneral()->wpDie( sprintf(
 					__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.', 'wp-simple-firewall' )
 					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',

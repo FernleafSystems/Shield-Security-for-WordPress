@@ -5,12 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class PluginScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc
- */
 class PluginScanner {
 
+	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
@@ -18,25 +15,25 @@ class PluginScanner {
 	 * @return ResultItem|null
 	 */
 	public function scan( $pluginFile ) {
-		$oResultItem = null;
+		$item = null;
 
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
 		$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
 		if ( $plugin->asset_type === 'plugin' && $plugin->isWpOrg() ) {
 			$nLastUpdatedAt = $this->getLastUpdateTime( $pluginFile );
 			if ( $nLastUpdatedAt > 0
-				 && ( Services::Request()->ts() - $nLastUpdatedAt > $oAction->abandoned_limit ) ) {
+				 && ( Services::Request()->ts() - $nLastUpdatedAt > $action->abandoned_limit ) ) {
 
-				$oResultItem = new ResultItem();
-				$oResultItem->slug = $pluginFile;
-				$oResultItem->context = 'plugins';
-				$oResultItem->last_updated_at = $nLastUpdatedAt;
+				/** @var ResultItem $item */
+				$item = $this->getScanController()->getNewResultItem();
+				$item->slug = $pluginFile;
+				$item->last_updated_at = $nLastUpdatedAt;
 			}
 		}
 
-		return $oResultItem;
+		return $item;
 	}
 
 	/**

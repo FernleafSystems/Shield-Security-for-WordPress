@@ -7,7 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class ScanActionFromSlug {
 
-	public static function GetAction( string $slug ) :Scans\Base\BaseScanActionVO {
+	/**
+	 * @return Scans\Base\BaseScanActionVO
+	 */
+	public static function GetAction( string $slug ) {
 		$VO = null;
 		switch ( $slug ) {
 			case Controller\Apc::SCAN_SLUG:

@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
-class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem {
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem;
+
+/**
+ * @property bool $is_unrecognised
+ */
+class ResultItem extends FileResultItem {
 
 }

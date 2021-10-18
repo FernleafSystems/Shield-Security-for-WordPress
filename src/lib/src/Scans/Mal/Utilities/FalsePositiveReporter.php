@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
@@ -47,35 +48,35 @@ class FalsePositiveReporter {
 	/**
 	 * To prevent duplicate reports, we cache what we report and only send the report
 	 * if we've never sent this before.
-	 * @param string $sFullPath
-	 * @param bool   $bIsFalsePositive
+	 * @param string $fullPath
+	 * @param bool   $isFalsePositive
 	 * @return mixed
 	 */
-	public function reportPath( $sFullPath, $bIsFalsePositive = true ) {
-		$bReported = false;
+	public function reportPath( $fullPath, $isFalsePositive = true ) {
+		$reported = false;
 
 		/** @var Modules\HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isMalUseNetworkIntelligence() ) {
 
 			$reportHash = md5( serialize( [
-				basename( $sFullPath ),
-				sha1( Services::DataManipulation()->convertLineEndingsDosToLinux( $sFullPath ) ),
-				$bIsFalsePositive
+				basename( $fullPath ),
+				sha1( ( new ConvertLineEndings() )->fileDosToLinux( $fullPath ) ),
+				$isFalsePositive
 			] ) );
 
 			if ( !$opts->isMalFalsePositiveReported( $reportHash ) ) {
-				$sApiToken = $this->getCon()
-								  ->getModule_License()
-								  ->getWpHashesTokenManager()
-								  ->getToken();
-				$bReported = !empty( $sApiToken ) &&
-							 ( new Malware\Whitelist\ReportFalsePositive( $sApiToken ) )
-								 ->report( $sFullPath, static::HASH_ALGO, $bIsFalsePositive );
+				$apiToken = $this->getCon()
+								 ->getModule_License()
+								 ->getWpHashesTokenManager()
+								 ->getToken();
+				$reported = !empty( $apiToken ) &&
+							( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
+								->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
 			}
 			$this->updateReportedCache( $reportHash );
 		}
-		return $bReported;
+		return $reported;
 	}
 
 	/**

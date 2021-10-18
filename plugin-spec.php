@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "12.0.9",
-    "release_timestamp":       1632903440,
-    "build":                   "202109.2901",
+    "version":                 "12.0.13",
+    "release_timestamp":       1633856080,
+    "build":                   "202110.1001",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -105,7 +105,7 @@
           ]
         },
         "datatables-bootstrap":   {
-          "url":  "https://cdn.datatables.net/1.11.0/css/dataTables.bootstrap4.min.css",
+          "url":  "https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -214,14 +214,14 @@
           ]
         },
         "datatables":              {
-          "url":  "https://cdn.datatables.net/1.11.0/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
           ]
         },
         "datatables-bootstrap":    {
-          "url":  "https://cdn.datatables.net/1.11.0/js/dataTables.bootstrap4.min.js",
+          "url":  "https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js",
           "deps": [
             "datatables"
           ]

@@ -56,13 +56,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getMalQueueExpirationInterval() {
-		return MINUTE_IN_SECONDS*10;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	public function getMalSignaturesSimple() :array {
@@ -153,48 +146,48 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $sScan
+	 * @param string $scan
 	 * @param bool   $bAdd
 	 * @return Options
 	 */
-	public function addRemoveScanToBuild( $sScan, $bAdd = true ) {
-		$aS = $this->getScansToBuild();
+	public function addRemoveScanToBuild( $scan, $bAdd = true ) {
+		$scans = $this->getScansToBuild();
 		if ( $bAdd ) {
-			$aS[ $sScan ] = Services::Request()->ts();
+			$scans[ $scan ] = Services::Request()->ts();
 		}
-		elseif ( isset( $aS[ $sScan ] ) ) {
-			unset( $aS[ $sScan ] );
+		elseif ( isset( $scans[ $scan ] ) ) {
+			unset( $scans[ $scan ] );
 		}
-		return $this->setScansToBuild( $aS );
+		return $this->setScansToBuild( $scans );
 	}
 
 	/**
 	 * @return int[] - keys are scan slugs
 	 */
 	public function getScansToBuild() {
-		$aS = $this->getOpt( 'scans_to_build', [] );
-		if ( !is_array( $aS ) ) {
-			$aS = [];
+		$toBuild = $this->getOpt( 'scans_to_build', [] );
+		if ( !is_array( $toBuild ) ) {
+			$toBuild = [];
 		}
-		if ( !empty( $aS ) ) {
+		if ( !empty( $toBuild ) ) {
 			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
-			$aS = array_filter( $aS,
+			$toBuild = array_filter( $toBuild,
 				function ( $nToBuildAt ) {
 					return is_int( $nToBuildAt )
 						   && Services::Request()->carbon()->subMinute()->timestamp < $nToBuildAt;
 				}
 			);
-			$this->setScansToBuild( $aS );
+			$this->setScansToBuild( $toBuild );
 		}
-		return $aS;
+		return $toBuild;
 	}
 
 	/**
-	 * @param array $aScans
+	 * @param array $scans
 	 * @return Options
 	 */
-	public function setScansToBuild( $aScans ) {
-		return $this->setOpt( 'scans_to_build', array_intersect_key( $aScans, array_flip( $this->getScanSlugs() ) ) );
+	public function setScansToBuild( $scans ) {
+		return $this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getScanSlugs() ) ) );
 	}
 
 	/**
@@ -203,15 +196,15 @@ class Options extends BaseShield\Options {
 	 * @return array[]
 	 */
 	public function getUfcScanDirectories() :array {
-		$aDirs = [
+		$dirs = [
 			path_join( ABSPATH, 'wp-admin' )    => [],
 			path_join( ABSPATH, 'wp-includes' ) => []
 		];
 
 		if ( $this->isOpt( 'ufc_scan_uploads', 'Y' ) ) { // include uploads
-			$sUploadsDir = Services::WpGeneral()->getDirUploads();
-			if ( !empty( $sUploadsDir ) ) {
-				$aDirs[ $sUploadsDir ] = [
+			$uploadsDir = Services::WpGeneral()->getDirUploads();
+			if ( !empty( $uploadsDir ) ) {
+				$dirs[ $uploadsDir ] = [
 					'php',
 					'php5',
 					'js',
@@ -219,7 +212,7 @@ class Options extends BaseShield\Options {
 			}
 		}
 
-		return $aDirs;
+		return $dirs;
 	}
 
 	/**
@@ -233,57 +226,11 @@ class Options extends BaseShield\Options {
 		return $this->getUnrecognisedFileScannerOption() === 'enabled_delete_only';
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getWcfFileExclusions() {
-		$sPattern = null;
-
-		$aExclusions = $this->getOptions()->getDef( 'wcf_exclusions' );
-		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
-		// Flywheel specific mods
-		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
-			$aExclusions[] = 'wp-settings.php';
-			$aExclusions[] = 'wp-admin/includes/upgrade.php';
-		}
-
-		if ( is_array( $aExclusions ) && !empty( $aExclusions ) ) {
-			$aQuoted = array_map(
-				function ( $sExcl ) {
-					return preg_quote( $sExcl, '#' );
-				},
-				$aExclusions
-			);
-			$sPattern = '#('.implode( '|', $aQuoted ).')#i';
-		}
-		return $sPattern;
-	}
-
-	/**
-	 * Builds a regex-ready pattern for matching file names to exclude from scan if they're missing
-	 * @return string|null
-	 */
-	public function getWcfMissingExclusions() {
-		$sPattern = null;
-		$aExclusions = $this->getOptions()->getDef( 'wcf_exclusions_missing_only' );
-		if ( is_array( $aExclusions ) && !empty( $aExclusions ) ) {
-			$aQuoted = array_map(
-				function ( $sExcl ) {
-					return preg_quote( $sExcl, '#' );
-				},
-				$aExclusions
-			);
-			$sPattern = '#('.implode( '|', $aQuoted ).')#i';
-		}
-		return $sPattern;
-	}
-
 	public function isScanCron() :bool {
 		return (bool)$this->getOpt( 'is_scan_cron' );
 	}
 
 	/**
-	 * @param bool $isCron
 	 * @return $this
 	 */
 	public function setIsScanCron( bool $isCron ) {

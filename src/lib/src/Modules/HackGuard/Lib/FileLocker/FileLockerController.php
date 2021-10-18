@@ -142,7 +142,26 @@ class FileLockerController {
 
 		// 2. Create any outstanding locks.
 		if ( is_main_network() ) {
-			$this->runLocksCreation();
+			$this->maybeRunLocksCreation();
+		}
+	}
+
+	private function maybeRunLocksCreation() {
+		if ( ( new Lib\FileLocker\Ops\HasFileLocksToCreate() )->setMod( $this->getMod() )->run() ) {
+			$con = $this->getCon();
+
+			if ( !Services::WpGeneral()->isCron() ) {
+				if ( !wp_next_scheduled( $con->prefix( 'create_file_locks' ) ) ) {
+					wp_schedule_single_event(
+						Services::Request()->ts() + 60,
+						$con->prefix( 'create_file_locks' )
+					);
+				}
+			}
+
+			add_action( $this->getCon()->prefix( 'create_file_locks' ), function () {
+				$this->runLocksCreation();
+			} );
 		}
 	}
 
@@ -151,7 +170,7 @@ class FileLockerController {
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
 	 */
 	private function runLocksCreation() {
-		/** @var Modules\HackGuard\Options $opts */
+		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		$filesToLock = $opts->getFilesToLock();
 
@@ -163,7 +182,9 @@ class FileLockerController {
 				try {
 					$lockCreated = ( new Ops\CreateFileLocks() )
 						->setMod( $this->getMod() )
-						->setWorkingFile( $this->getFile( $fileKey ) )
+						->setWorkingFile(
+							( new Lib\FileLocker\Ops\BuildFileFromFileKey() )->build( $fileKey )
+						)
 						->create();
 				}
 				catch ( \Exception $e ) {
@@ -183,50 +204,10 @@ class FileLockerController {
 	 * @param string $fileKey
 	 * @return File
 	 * @throws \Exception
+	 * @deprecated 12.0.10
 	 */
 	private function getFile( string $fileKey ) :File {
-		$isSplitWpUrl = false; // TODO: is split URL?
-		$maxPaths = 1;
-		switch ( $fileKey ) {
-			case 'wpconfig':
-				$fileKey = 'wp-config.php';
-				$maxPaths = 1;
-				$levels = $isSplitWpUrl ? 3 : 2;
-				$openBaseDir = ini_get( 'open_basedir' );
-				if ( !empty( $openBaseDir ) ) {
-					$levels--;
-				}
-				break;
-
-			case 'root_htaccess':
-				$fileKey = '.htaccess';
-				$levels = $isSplitWpUrl ? 2 : 1;
-				break;
-
-			case 'root_webconfig':
-				$fileKey = 'Web.Config';
-				$levels = $isSplitWpUrl ? 2 : 1;
-				break;
-
-			case 'root_index':
-				$fileKey = 'index.php';
-				$levels = $isSplitWpUrl ? 2 : 1;
-				break;
-			default:
-				if ( Services::WpFs()->isAbsPath( $fileKey ) && Services::WpFs()->isFile( $fileKey ) ) {
-					$levels = 1;
-					$maxPaths = 1;
-				}
-				else {
-					throw new \Exception( 'Not a supported file lock type' );
-				}
-				break;
-		}
-
-		$file = new File( $fileKey );
-		$file->max_levels = $levels;
-		$file->max_paths = $maxPaths;
-		return $file;
+		return ( new Lib\FileLocker\Ops\BuildFileFromFileKey() )->build( $fileKey );
 	}
 
 	protected function getState() :array {

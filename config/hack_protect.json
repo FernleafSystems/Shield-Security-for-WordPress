@@ -478,6 +478,134 @@
       "twig",
       "hbs"
     ],
+    "db_handler_classes":          {
+      "scans":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
+      "scanitems":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
+      "resultitems": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
+      "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+    },
+    "db_table_scans":              {
+      "autoexpire":     0,
+      "slug":           "scans",
+      "col_older_than": "created_at",
+      "has_updated_at": false,
+      "cols_custom":    {
+        "scan":        {
+          "macro_type": "char",
+          "length":     3,
+          "comment":    "Scan Slug"
+        },
+        "ready_at":    {
+          "macro_type": "timestamp",
+          "comment":    "Scan Ready At"
+        },
+        "finished_at": {
+          "macro_type": "timestamp",
+          "comment":    "Scan Completed At"
+        },
+        "meta":        {
+          "macro_type": "meta",
+          "comment":    "Scan Meta Info"
+        }
+      }
+    },
+    "db_table_scanitems":          {
+      "autoexpire":     0,
+      "slug":           "scanitems",
+      "has_updated_at": false,
+      "has_created_at": false,
+      "has_deleted_at": false,
+      "col_older_than": "started_at",
+      "cols_custom":    {
+        "scan_ref":    {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_scans"
+          }
+        },
+        "items":       {
+          "macro_type": "text",
+          "comment":    "Array of scan items"
+        },
+        "started_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Started Scanning Items At"
+        },
+        "finished_at": {
+          "macro_type": "timestamp",
+          "comment":    "Finished Scanning Items At"
+        }
+      }
+    },
+    "db_table_resultitems":        {
+      "autoexpire":     0,
+      "slug":           "resultitems",
+      "has_updated_at": true,
+      "col_older_than": "updated_at",
+      "cols_custom":    {
+        "hash":              {
+          "macro_type": "char",
+          "length":     32,
+          "attr":       [],
+          "comment":    "Result Item Hash"
+        },
+        "item_type":         {
+          "macro_type": "char",
+          "length":     1,
+          "comment":    "Result Item Type"
+        },
+        "item_id":           {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "Result Item ID"
+        },
+        "meta":              {
+          "macro_type": "meta",
+          "comment":    "Result Item Meta"
+        },
+        "ignored_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Result Ignored"
+        },
+        "notified_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Result Notification Sent"
+        },
+        "attempt_repair_at": {
+          "macro_type": "timestamp",
+          "comment":    "Attempted Repair At"
+        },
+        "item_repaired_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Item Repaired At"
+        },
+        "item_deleted_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Item Deleted At"
+        }
+      }
+    },
+    "db_table_scanresults":        {
+      "autoexpire":     0,
+      "slug":           "scanresults",
+      "has_updated_at": false,
+      "has_created_at": true,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "scan_ref":       {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_scans"
+          }
+        },
+        "resultitem_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_resultitems"
+          }
+        }
+      }
+    },
     "db_classes":                  {
       "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "scanner":    "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",

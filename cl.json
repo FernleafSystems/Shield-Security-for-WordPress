@@ -146,6 +146,24 @@
         "title":       "Yubikey 2FA verification was failing with a nonce less than 16 characters. Who knew?",
         "description": [],
         "patch":       "12.0.9"
+      },
+      {
+        "type":        "fixed",
+        "title":       "A few minor fixes, along with slight optimisation of NotBot JS.",
+        "description": [],
+        "patch":       "12.0.11"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Issue with managing Shield Central profiles.",
+        "description": [],
+        "patch":       "12.0.11"
+      },
+      {
+        "type":        "improved",
+        "title":       "Improve support for auto-login systems like ManageWP admin login.",
+        "description": [],
+        "patch":       "12.0.13"
       }
     ]
   },

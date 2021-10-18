@@ -2,15 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-class Ptg extends BaseForAssets {
+class Ptg extends BaseForFiles {
 
 	const SCAN_SLUG = 'ptg';
+	use PluginCronsConsumer;
 
 	protected function run() {
 		parent::run();
@@ -81,22 +86,38 @@ class Ptg extends BaseForAssets {
 
 	/**
 	 * @param Scans\Ptg\ResultItem $item
-	 * @return bool
 	 */
-	protected function isResultItemStale( $item ) :bool {
-		$FS = Services::WPFS();
-		$stale = parent::isResultItemStale( $item )
-				 || ( ( $item->is_unrecognised || $item->is_different ) && !$FS->isFile( $item->path_full ) );
+	public function cleanStaleResultItem( $item ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Update $updater */
+		$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
 
-		if ( !$stale ) {
-			$asset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $item->path_full );
-			if ( empty( $asset ) ) {
-				$asset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $item->path_full );
-			}
-			$stale = empty( $asset );
+		if ( $item->is_unrecognised && !Services::WpFs()->isFile( $item->path_full ) ) {
+			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
-
-		return $stale;
+		else {
+			try {
+				$verifiedHash = ( new HackGuard\Lib\Hashes\Query() )->verifyHash( $item->path_full );
+				if ( $item->is_checksumfail && $verifiedHash ) {
+					/** @var Update $updater */
+					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+					$updater->setItemRepaired( $item->VO->resultitem_id );
+				}
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
+				// hashes are unavailable, so we do nothing
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
+				// asset has probably been since removed
+				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
+				// unrecognised file
+			}
+			catch ( \Exception $e ) {
+			}
+		}
 	}
 
 	/**
@@ -141,5 +162,15 @@ class Ptg extends BaseForAssets {
 		( new HackGuard\Lib\Snapshots\StoreAction\DeleteAll() )
 			->setMod( $this->getMod() )
 			->run();
+	}
+
+	/**
+	 * @return Scans\Ptg\ScanActionVO
+	 */
+	public function buildScanAction() {
+		return ( new Scans\Ptg\BuildScanAction() )
+			->setScanController( $this )
+			->build()
+			->getScanActionVO();
 	}
 }

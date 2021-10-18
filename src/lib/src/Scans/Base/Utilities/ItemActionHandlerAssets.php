@@ -17,7 +17,7 @@ abstract class ItemActionHandlerAssets extends ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function process( $action ) {
+	public function process( string $action ) :bool {
 		switch ( $action ) {
 
 			case 'asset_deactivate':

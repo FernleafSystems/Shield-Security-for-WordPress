@@ -11,11 +11,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 
 	/**
-	 * @param string $action
-	 * @return bool
 	 * @throws \Exception
 	 */
-	public function process( $action ) {
+	public function process( string $action ) :bool {
 		switch ( $action ) {
 
 			case 'asset_accept':
@@ -105,12 +103,5 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	 */
 	public function repairDelete() :bool {
 		return $this->repair( true );
-	}
-
-	/**
-	 * @return Repair
-	 */
-	public function getRepairer() {
-		return ( new Repair() )->setScanItem( $this->getScanItem() );
 	}
 }

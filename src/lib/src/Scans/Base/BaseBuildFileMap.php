@@ -7,18 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ScanActionVO;
 
-abstract class BaseBuildFileMap {
+abstract class BaseBuildFileMap extends Shield\Scans\Base\Utilities\BuildScanItems {
 
-	use Shield\Modules\ModConsumer;
 	use ScanActionConsumer;
+
+	public function run() :array {
+		return $this->build();
+	}
 
 	abstract public function build() :array;
 
 	protected function isAutoFilterFile( \SplFileInfo $file ) :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isAutoFilterResults()
-			   && $file->getSize() === 0;
+		return $opts->isAutoFilterResults() && $file->getSize() === 0;
 	}
 
 	protected function isWhitelistedPath( string $path ) :bool {

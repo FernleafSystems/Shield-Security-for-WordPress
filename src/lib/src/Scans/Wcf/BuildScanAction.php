@@ -3,25 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
+class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-		$action->items = ( new Shield\Scans\Wcf\BuildFileMap() )
-			->setMod( $this->getMod() )
-			->setScanActionVO( $action )
-			->build();
-	}
-
-	protected function setCustomFields() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-		/** @var Shield\Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
-		$action->exclusions_missing_regex = $opts->getWcfMissingExclusions();
-		$action->exclusions_files_regex = $opts->getWcfFileExclusions();
+		$this->getScanActionVO()->items = ( new BuildScanItems() )
+			->setMod( $this->getScanController()->getMod() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->run();
 	}
 }

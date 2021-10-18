@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
-/**
- * Class FileScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
- */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
@@ -17,59 +13,54 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem|null
 	 */
 	public function scan( string $fullPath ) {
-		$results = null;
-		$oHashes = Services::CoreFileHashes();
+		$resultItem = null;
 
 		/** @var ResultItem $item */
-		$item = $this->getScanActionVO()->getNewResultItem();
+		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = $fullPath;
-		$item->path_fragment = $oHashes->getFileFragment( $fullPath );
-		$item->md5_file_wp = $oHashes->getFileHash( $item->path_fragment );
-		$item->is_missing = !Services::WpFs()->exists( $item->path_full );
-		$item->is_checksumfail = !$item->is_missing && $this->isChecksumFail( $item );
-		$item->is_excluded = $this->isExcluded( $item->path_fragment )
-							 || ( $item->is_missing && $this->isExcludedMissing( $item->path_fragment ) );
+		$item->path_fragment = Services::CoreFileHashes()->getFileFragment( $fullPath );
+		$item->is_checksumfail = false;
 
-		if ( !$item->is_excluded && ( $item->is_missing || $item->is_checksumfail ) ) {
-			$results = $item;
+		if ( !$this->isExcluded( $item->path_fragment ) ) {
+
+			$exists = Services::WpFs()->exists( $item->path_full );
+
+			$item->is_missing = !$exists && !$this->isExcludedMissing( $item->path_fragment );
+			$item->is_checksumfail = $exists && $this->isChecksumFail( $item );
+
+			if ( $item->is_missing || $item->is_checksumfail ) {
+				$resultItem = $item;
+			}
 		}
 
-		return $results;
+		return $resultItem;
 	}
 
-	/**
-	 * @param $sPathFragment
-	 * @return false|int
-	 */
-	private function isExcluded( $sPathFragment ) {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		return !empty( $oAction->exclusions_files_regex ) && preg_match( $oAction->exclusions_files_regex, $sPathFragment );
+	private function isExcluded( string $pathFragment ) :bool {
+		/** @var Shield\Modules\HackGuard\Scan\Controller\Wcf $scanCon */
+		$scanCon = $this->getScanController();
+		$exclusionsRegex = $scanCon->getScanFileExclusions();
+		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $pathFragment );
 	}
 
-	/**
-	 * @param $sPathFragment
-	 * @return false|int
-	 */
-	private function isExcludedMissing( $sPathFragment ) {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		return !empty( $oAction->exclusions_missing_regex ) && preg_match( $oAction->exclusions_missing_regex, $sPathFragment );
+	private function isExcludedMissing( string $pathFragment ) :bool {
+		/** @var Shield\Modules\HackGuard\Scan\Controller\Wcf $scanCon */
+		$scanCon = $this->getScanController();
+		$exclusionsRegex = $scanCon->getScanExclusionsForMissingItems();
+		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $pathFragment );
 	}
 
-	/**
-	 * @param ResultItem $item
-	 * @return bool
-	 */
-	private function isChecksumFail( $item ) {
-		$fail = false;
-		if ( !$item->is_missing ) {
-			try {
-				$fail = ( strpos( $item->path_full, '.php' ) > 0 )
-						 && !( new CompareHash() )->isEqualFileMd5( $item->path_full, $item->md5_file_wp );
-			}
-			catch ( \Exception $e ) {
-			}
+	private function isChecksumFail( ResultItem $item ) :bool {
+		try {
+			$fail = ( strpos( $item->path_full, '.php' ) > 0 )
+					&&
+					!( new CompareHash() )->isEqualFile(
+						$item->path_full,
+						Services::CoreFileHashes()->getFileHash( $item->path_fragment )
+					);
+		}
+		catch ( \Exception $e ) {
+			$fail = false;
 		}
 		return $fail;
 	}

@@ -2,17 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
+class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-		$action->items = ( new BuildFileMap() )
-			->setMod( $this->getMod() )
-			->setScanActionVO( $action )
-			->build();
+		$this->getScanActionVO()->items = ( new BuildScanItems() )
+			->setMod( $this->getScanController()->getMod() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->run();
 	}
 
 	protected function setCustomFields() {
@@ -22,7 +20,8 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	}
 
 	private function getFileExts() :array {
-		$ext = apply_filters( 'shield/scan_ptg_file_exts', $this->getOptions()->getDef( 'file_scan_extensions' ) );
-		return is_array( $ext ) ? $ext : $this->getOptions()->getDef( 'file_scan_extensions' );
+		$scanCon = $this->getScanController();
+		$ext = apply_filters( 'shield/scan_ptg_file_exts', $scanCon->getOptions()->getDef( 'file_scan_extensions' ) );
+		return is_array( $ext ) ? $ext : $scanCon->getOptions()->getDef( 'file_scan_extensions' );
 	}
 }
