@@ -47,10 +47,6 @@ class Options extends BaseShield\Options {
 		return is_array( $FP ) ? $FP : [];
 	}
 
-	public function isMalFalsePositiveReported( string $hash ) :bool {
-		return isset( $this->getMalFalsePositiveReports()[ $hash ] );
-	}
-
 	public function getMalConfidenceBoundary() :int {
 		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
 	}
@@ -235,18 +231,5 @@ class Options extends BaseShield\Options {
 	 */
 	public function setIsScanCron( bool $isCron ) {
 		return $this->setOpt( 'is_scan_cron', $isCron );
-	}
-
-	/**
-	 * @param array $aFP
-	 * @return $this
-	 */
-	public function setMalFalsePositiveReports( array $aFP ) {
-		return $this->setOpt( 'mal_fp_reports', array_filter(
-			$aFP,
-			function ( $nTS ) {
-				return $nTS > Services::Request()->carbon()->subMonth()->timestamp;
-			}
-		) );
 	}
 }

@@ -39,25 +39,21 @@ class FalsePositiveReporter {
 	public function reportPath( string $fullPath, bool $isFalsePositive = true ) :bool {
 		$reported = false;
 
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isMalUseNetworkIntelligence() ) {
+		$reportHash = md5( serialize( [
+			basename( $fullPath ),
+			sha1( ( new ConvertLineEndings() )->fileDosToLinux( $fullPath ) ),
+			$isFalsePositive
+		] ) );
 
-			$reportHash = md5( serialize( [
-				basename( $fullPath ),
-				sha1( ( new ConvertLineEndings() )->fileDosToLinux( $fullPath ) ),
-				$isFalsePositive
-			] ) );
+		if ( $this->canSendReport( $reportHash ) ) {
+			$apiToken = $this->getCon()
+							 ->getModule_License()
+							 ->getWpHashesTokenManager()
+							 ->getToken();
+			$reported = !empty( $apiToken ) &&
+						( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
+							->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
 
-			if ( !$opts->isMalFalsePositiveReported( $reportHash ) ) {
-				$apiToken = $this->getCon()
-								 ->getModule_License()
-								 ->getWpHashesTokenManager()
-								 ->getToken();
-				$reported = !empty( $apiToken ) &&
-							( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
-								->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
-			}
 			$this->updateReportedCache( $reportHash );
 		}
 		return $reported;
@@ -70,39 +66,56 @@ class FalsePositiveReporter {
 	public function reportLine( string $fullPath, string $line, bool $isFalsePositive = true ) :bool {
 		$isReported = false;
 
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isMalUseNetworkIntelligence() ) {
-
-			$reportHash = md5( $fullPath.$line.( $isFalsePositive ? 'true' : 'false' ) );
-			if ( !$opts->isMalFalsePositiveReported( $reportHash ) ) {
-				try {
-					$token = $this->getCon()
-								  ->getModule_License()
-								  ->getWpHashesTokenManager()
-								  ->getToken();
-					if ( !empty( $token ) && !$isFalsePositive || count( file( $fullPath ) ) > 1 ) {
-						$isReported = ( new Malware\Signatures\ReportFalsePositive( $token ) )
-							->report( $fullPath, $line, $isFalsePositive );
-					}
+		$reportHash = md5( $fullPath.$line.( $isFalsePositive ? 'true' : 'false' ) );
+		if ( $this->canSendReport( $reportHash ) ) {
+			try {
+				$token = $this->getCon()
+							  ->getModule_License()
+							  ->getWpHashesTokenManager()
+							  ->getToken();
+				if ( !empty( $token ) && !$isFalsePositive || count( file( $fullPath ) ) > 1 ) {
+					$isReported = ( new Malware\Signatures\ReportFalsePositive( $token ) )
+						->report( $fullPath, $line, $isFalsePositive );
 				}
-				catch ( \Exception $e ) {
-				}
+			}
+			catch ( \Exception $e ) {
 			}
 			$this->updateReportedCache( $reportHash );
 		}
+
 		return $isReported;
+	}
+
+	private function canSendReport( string $reportHash ) :bool {
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $this->getCon()->is_mode_live
+			   && $opts->isMalUseNetworkIntelligence()
+			   && !isset( $this->getMalFalsePositiveReports()[ $reportHash ] );
 	}
 
 	private function updateReportedCache( string $reportHash ) {
 		/** @var Modules\HackGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$allReported = $opts->getMalFalsePositiveReports();
+		$allReported = $this->getMalFalsePositiveReports();
 		$allReported[ $reportHash ] = Services::Request()->ts();
 
+		$opts->setOpt( 'mal_fp_reports', array_filter(
+			$allReported,
+			function ( $ts ) {
+				return $ts > Services::Request()->carbon()->subMonth()->timestamp;
+			}
+		) );
 		// important to save immediately due to async nature
-		$opts->setMalFalsePositiveReports( $allReported );
 		$this->getMod()->saveModOptions();
+	}
+
+	/**
+	 * @return int[] - keys are the unique report hash
+	 */
+	private function getMalFalsePositiveReports() :array {
+		$FP = $this->getOptions()->getOpt( 'mal_fp_reports', [] );
+		return is_array( $FP ) ? $FP : [];
 	}
 }
