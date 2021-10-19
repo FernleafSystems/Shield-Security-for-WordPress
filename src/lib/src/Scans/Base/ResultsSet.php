@@ -84,4 +84,12 @@ class ResultsSet {
 		}
 		return $this;
 	}
+
+	/**
+	 * @return static
+	 */
+	public function setItems( array $items ) {
+		$this->items = $items;
+		return $this;
+	}
 }

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\LocateStrInFile;
@@ -61,8 +60,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				}
 			}
 		}
-		catch ( Exceptions\ItemMayBeExcludedException $e ) {
-		}
 		catch ( \Exception $e ) {
 		}
 
@@ -71,15 +68,17 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
 	 * @return ResultItem|null
-	 * @throws Exceptions\ItemMayBeExcludedException
 	 */
 	private function scanForSig( string $signature ) {
-		$resultItem = null;
+		$item = null;
 		$lines = $this->locator->setNeedle( $signature )->run();
 
 		if ( !empty( $lines ) ) {
+			/** @var ScanActionVO $action */
+			$action = $this->getScanActionVO();
 
 			$fullPath = $this->locator->getPath();
+			$item = $this->getResultItemFromLines( array_keys( $lines ), $fullPath, $signature );
 
 			// we report false positives: file and lines
 			if ( $this->canExcludeFile( $fullPath ) ) {
@@ -89,50 +88,41 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$reporter->reportLine( $fullPath, $line, true );
 				}
 				$reporter->reportPath( $fullPath, true );
-				throw new Exceptions\ItemMayBeExcludedException( $fullPath );
+
+				$item->auto_filter = true;
+				$item->fp_confidence = 100;
+				$item->file_lines = array_fill_keys( array_keys( $lines ), 100 );
 			}
+			elseif ( $action->confidence_threshold > 0 ) {
 
-			/** @var ScanActionVO $action */
-			$action = $this->getScanActionVO();
-
-			if ( $action->confidence_threshold > 0 ) {
-				$reportItem = false;
 				// 1. First check whether the FP of the whole file means we can filter it
 				$fpConfidence = ( new Utilities\FalsePositiveQuery() )
 					->setMod( $this->getMod() )
 					->queryPath( $fullPath );
+
+				// 2. Check each line and filter out fp confident lines
 				if ( $fpConfidence < $action->confidence_threshold ) {
-					// 2. Check each line and filter out fp confident lines
-					$lineScores = ( new Utilities\FalsePositiveQuery() )
+					$item->file_lines = ( new Utilities\FalsePositiveQuery() )
 						->setMod( $this->getMod() )
 						->queryFileLines( $fullPath, array_keys( $lines ) );
-					$lines = array_filter(
-						$lineScores,
+
+					$filteredLines = array_filter(
+						$item->file_lines,
 						function ( $score ) use ( $action ) {
 							return $score < $action->confidence_threshold;
 						}
 					);
 
-					if ( empty( $lines ) ) {
+					if ( empty( $filteredLines ) ) {
 						// Now send False Positive report for entire file based on all file lines being FPs.
 						( new Utilities\FalsePositiveReporter() )
 							->setMod( $this->getMod() )
 							->reportPath( $fullPath, true );
 					}
-					else {
-						$reportItem = true;
-					}
 				}
 			}
-			else {
-				$reportItem = true;
-			}
-
-			if ( $reportItem ) {
-				$resultItem = $this->getResultItemFromLines( array_keys( $lines ), $fullPath, $signature );
-			}
 		}
-		return $resultItem;
+		return $item;
 	}
 
 	/**

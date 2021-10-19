@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
@@ -96,32 +96,24 @@ class Retrieve {
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function retrieveForAutoRepair() {
-		$results = [];
 
 		$latestID = $this->getLatestScanID();
 		if ( $latestID >= 0 ) {
-			$wheres = array_filter( array_merge(
-				[
+			$results = $this
+				->setAdditionalWheres( [
 					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
 					"`ri`.`attempt_repair_at`=0",
 					"`ri`.`item_repaired_at`=0",
 					"`ri`.`item_deleted_at`=0",
 					"`ri`.ignored_at=0"
-				],
-				$this->getAdditionalWheres()
-			) );
-			$raw = Services::WpDb()->selectCustom(
-				sprintf( $this->getBaseQuery(),
-					implode( ', ', $this->standardSelectFields() ),
-					implode( ' AND ', $wheres )
-				)
-			);
-			if ( !empty( $raw ) ) {
-				$results = $raw;
-			}
+				] )
+				->retrieve();
+		}
+		else {
+			$results = $this->getScanController()->getNewResultsSet();
 		}
 
-		return $this->convertToResultsSet( $results );
+		return $results;
 	}
 
 	/**
@@ -158,6 +150,7 @@ class Retrieve {
 				implode( ',', $this->standardSelectFields() ),
 				implode( ' AND ', array_filter( array_merge(
 					[
+						"`ri`.`auto_filtered_at`=0",
 						"`ri`.`deleted_at`=0"
 					],
 					$this->getAdditionalWheres()
@@ -182,6 +175,7 @@ class Retrieve {
 						[
 							sprintf( "`sr`.`scan_ref`=%s", $latestID ),
 							$includeIgnored ? '' : "`ri`.ignored_at = 0",
+							"`ri`.`auto_filtered_at`=0",
 							"`ri`.`deleted_at`=0"
 						],
 						$this->getAdditionalWheres()

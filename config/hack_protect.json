@@ -571,15 +571,19 @@
           "macro_type": "timestamp",
           "comment":    "Result Notification Sent"
         },
+        "auto_filtered_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Result Auto Filtered"
+        },
         "attempt_repair_at": {
           "macro_type": "timestamp",
           "comment":    "Attempted Repair At"
         },
-        "item_repaired_at":       {
+        "item_repaired_at":  {
           "macro_type": "timestamp",
           "comment":    "Item Repaired At"
         },
-        "item_deleted_at":        {
+        "item_deleted_at":   {
           "macro_type": "timestamp",
           "comment":    "Item Deleted At"
         }

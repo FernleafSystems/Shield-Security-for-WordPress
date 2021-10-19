@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
@@ -92,5 +93,22 @@ class Mal extends BaseForFiles {
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
+	}
+
+	/**
+	 * @return Scans\Base\ResultsSet|mixed
+	 */
+	public function getResultsForDisplay() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$actualResults = $this->getNewResultsSet();
+		/** @var Scans\Mal\ResultItem $item */
+		foreach ( parent::getResultsForDisplay()->getItems() as $item ) {
+			if ( $opts->getMalConfidenceBoundary() > $item->fp_confidence ) {
+				$actualResults->addItem( $item );
+			}
+		}
+		return $actualResults;
 	}
 }

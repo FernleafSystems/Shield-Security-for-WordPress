@@ -16,12 +16,17 @@ class ResultItem extends FileResultItem {
 	 * @inheritDoc
 	 */
 	public function __get( string $key ) {
+		$value = parent::__get( $key );
 		switch ( $key ) {
 			case 'is_mal':
 				$value = true;
 				break;
+			case 'file_lines':
+				if ( !is_array( $value ) ) {
+					$value = [];
+				}
+				break;
 			default:
-				$value = parent::__get( $key );
 				break;
 		}
 		return $value;
