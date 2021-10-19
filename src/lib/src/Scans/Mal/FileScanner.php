@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
@@ -20,7 +20,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param string $fullPath
 	 * @return ResultItem|null
 	 */
 	public function scan( string $fullPath ) {
@@ -82,7 +81,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 			$fullPath = $this->locator->getPath();
 
-			if ( $this->canExcludeFile( $fullPath ) ) { // we report false positives: file and lines
+			// we report false positives: file and lines
+			if ( $this->canExcludeFile( $fullPath ) ) {
 				$reporter = ( new Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
 				foreach ( $lines as $line ) {
@@ -146,7 +146,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
 		$item->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
-		$item->is_mal = true;
 		$item->mal_sig = base64_encode( $signature );
 		$item->fp_confidence = 0;
 		$item->file_lines = $lines;
