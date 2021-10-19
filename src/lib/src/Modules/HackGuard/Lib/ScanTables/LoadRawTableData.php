@@ -85,9 +85,9 @@ class LoadRawTableData {
 
 				$data[ 'line_numbers' ] = implode( ', ', array_map(
 					function ( $line ) {
-						return $line + 1;
+						return $line + 1;  // because lines start at ZERO
 					},
-					$item->file_lines // because lines start at ZERO
+					array_keys( $item->file_lines )
 				) );
 				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );

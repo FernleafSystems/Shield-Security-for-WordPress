@@ -24,7 +24,7 @@ class FalsePositiveReporter {
 		if ( $opts->isMalUseNetworkIntelligence() ) {
 			$fileLines = array_intersect_key(
 				explode( "\n", Services::WpFs()->getFileContent( $fullPath ) ),
-				array_flip( $lines )
+				$lines
 			);
 			foreach ( $fileLines as $line ) {
 				$this->reportLine( $fullPath, $line, $isFalsePositive );
