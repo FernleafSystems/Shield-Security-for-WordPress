@@ -463,7 +463,8 @@
       "ptg",
       "wpv",
       "wcf",
-      "ufc"
+      "ufc",
+      "afs"
     ],
     "file_scan_extensions":        [
       "php",

@@ -28,21 +28,18 @@ abstract class BaseScanFromFileMap {
 		$isAutoFilter = $opts->isAutoFilterResults();
 
 		if ( is_array( $action->items ) ) {
-			$hashVerifier = ( new VerifyFileByHash() )->setMod( $this->getMod() );
 			foreach ( $action->items as $key => $fullPath ) {
 
+				// We can exclude files that are empty of relevant code
 				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
 
-					if ( !$hashVerifier->verify( $fullPath ) ) {
-						$item = $this->getFileScanner()
-									 ->setScanController( $this->getScanController() )
-									 ->setMod( $this->getMod() )
-									 ->setScanActionVO( $action )
-									 ->scan( $fullPath );
-						// We can exclude files that are empty of relevant code
-						if ( !empty( $item ) ) {
-							$results->addItem( $item );
-						}
+					$item = $this->getFileScanner()
+								 ->setScanController( $this->getScanController() )
+								 ->setMod( $this->getMod() )
+								 ->setScanActionVO( $action )
+								 ->scan( $fullPath );
+					if ( !empty( $item ) ) {
+						$results->addItem( $item );
 					}
 				}
 			}
