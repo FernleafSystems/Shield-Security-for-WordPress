@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
 
-class PluginFileUnrecognisedException extends \Exception {
+class PluginFileUnrecognisedException extends ScanFileException {
 
 }

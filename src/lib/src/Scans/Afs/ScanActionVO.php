@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 
 /**
- * Class ScanActionVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs
  * @property string[] $file_exts
  * @property string[] $scan_root_dirs
  * @property string[] $paths_whitelisted

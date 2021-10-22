@@ -56,7 +56,7 @@ class Mal extends BaseForFiles {
 	}
 
 	/**
-	 * @param Scans\Ufc\ResultItem $item
+	 * @param Scans\Mal\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
 		/** @var ModCon $mod */

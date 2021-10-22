@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
 
-class WpCoreFileMissingException extends \Exception {
+class WpCoreFileMissingException extends ScanFileException {
 
 }

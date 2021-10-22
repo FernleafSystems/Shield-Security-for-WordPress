@@ -17,21 +17,21 @@ class Afs extends BaseForFiles {
 
 	/**
 	 * Can only possibly repair themes, plugins or core files.
-	 * @return Scans\Mal\ResultsSet
+	 * @return Scans\Afs\ResultsSet
 	 */
 	protected function getItemsToAutoRepair() {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$oRes = new Scans\Mal\ResultsSet();
+		$repairResults = new Scans\Afs\ResultsSet();
 
-		/** @var Scans\Mal\ResultItem $item */
+		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $item ) {
 
 			try {
 				if ( $opts->isRepairFilePlugin()
 					 && ( new WpOrg\Plugin\Files() )->isValidFileFromPlugin( $item->path_full ) ) {
-					$oRes->addItem( $item );
+					$repairResults->addItem( $item );
 				}
 			}
 			catch ( \InvalidArgumentException $e ) {
@@ -40,7 +40,7 @@ class Afs extends BaseForFiles {
 			try {
 				if ( $opts->isRepairFileTheme()
 					 && ( new WpOrg\Theme\Files() )->isValidFileFromTheme( $item->path_full ) ) {
-					$oRes->addItem( $item );
+					$repairResults->addItem( $item );
 				}
 			}
 			catch ( \InvalidArgumentException $e ) {
@@ -48,15 +48,15 @@ class Afs extends BaseForFiles {
 
 			if ( !$opts->isRepairFileWP()
 				 && Services::CoreFileHashes()->isCoreFile( $item->path_full ) ) {
-				$oRes->addItem( $item );
+				$repairResults->addItem( $item );
 			}
 		}
 
-		return $oRes;
+		return $repairResults;
 	}
 
 	/**
-	 * @param Scans\Ufc\ResultItem $item
+	 * @param Scans\Afs\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
 		/** @var ModCon $mod */
@@ -69,10 +69,10 @@ class Afs extends BaseForFiles {
 	}
 
 	/**
-	 * @return Scans\Mal\Utilities\ItemActionHandler
+	 * @return Scans\Afs\Utilities\ItemActionHandler
 	 */
 	protected function newItemActionHandler() {
-		return new Scans\Mal\Utilities\ItemActionHandler();
+		return new Scans\Afs\Utilities\ItemActionHandler();
 	}
 
 	public function isCronAutoRepair() :bool {
@@ -82,14 +82,14 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabled() :bool {
-		return $this->getOptions()->isOpt( 'mal_scan_enable', 'Y' );
+		return true;
 	}
 
 	/**
-	 * @return Scans\Mal\ScanActionVO
+	 * @return Scans\Afs\ScanActionVO
 	 */
 	public function buildScanAction() {
-		return ( new Scans\Mal\BuildScanAction() )
+		return ( new Scans\Afs\BuildScanAction() )
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
@@ -103,7 +103,7 @@ class Afs extends BaseForFiles {
 		$opts = $this->getOptions();
 
 		$actualResults = $this->getNewResultsSet();
-		/** @var Scans\Mal\ResultItem $item */
+		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getResultsForDisplay()->getItems() as $item ) {
 			if ( $opts->getMalConfidenceBoundary() > $item->fp_confidence ) {
 				$actualResults->addItem( $item );

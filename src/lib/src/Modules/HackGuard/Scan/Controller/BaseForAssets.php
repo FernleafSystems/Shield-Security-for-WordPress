@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseForAssets extends Base {
 
 	/**
-	 * @param Scans\Ptg\ResultItem|Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
+	 * @param Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
 		/** @var ModCon $mod */

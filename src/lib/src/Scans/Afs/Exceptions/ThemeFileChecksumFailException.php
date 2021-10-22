@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
 
-class ThemeFileChecksumFailException extends \Exception {
+class ThemeFileChecksumFailException extends ScanFileException {
 
 }

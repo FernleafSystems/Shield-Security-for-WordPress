@@ -12,9 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem;
  * @property bool   $is_unrecognised
  * @property bool   $is_missing
  * @property bool   $is_mal
- * @property string $mal_sig
- * @property int[]  $file_lines
- * @property int    $fp_confidence - false positive confidence level
+ * @property array  $mal_meta
  */
 class ResultItem extends FileResultItem {
 
@@ -27,7 +25,7 @@ class ResultItem extends FileResultItem {
 			case 'is_mal':
 				$value = true;
 				break;
-			case 'file_lines':
+			case 'mal_meta':
 				if ( !is_array( $value ) ) {
 					$value = [];
 				}
