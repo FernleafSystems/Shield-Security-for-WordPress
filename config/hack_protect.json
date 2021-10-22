@@ -480,10 +480,11 @@
       "hbs"
     ],
     "db_handler_classes":          {
-      "scans":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
-      "scanitems":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
-      "resultitems": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
-      "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+      "scans":           "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
+      "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
+      "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
+      "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
+      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
     },
     "db_table_scans":              {
       "autoexpire":     0,
@@ -560,10 +561,6 @@
           "length":     256,
           "comment":    "Result Item ID"
         },
-        "meta":              {
-          "macro_type": "meta",
-          "comment":    "Result Item Meta"
-        },
         "ignored_at":        {
           "macro_type": "timestamp",
           "comment":    "Result Ignored"
@@ -587,6 +584,30 @@
         "item_deleted_at":   {
           "macro_type": "timestamp",
           "comment":    "Item Deleted At"
+        }
+      }
+    },
+    "db_table_resultitem_meta":    {
+      "slug":           "resultitem_meta",
+      "has_updated_at": false,
+      "has_created_at": false,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "ri_ref":     {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_resultitems"
+          },
+          "comment":     "Reference to primary Result Item record"
+        },
+        "meta_key":   {
+          "macro_type": "varchar",
+          "length":     32,
+          "comment":    "Meta Key"
+        },
+        "meta_value": {
+          "macro_type": "text",
+          "comment":    "Meta Data"
         }
       }
     },
