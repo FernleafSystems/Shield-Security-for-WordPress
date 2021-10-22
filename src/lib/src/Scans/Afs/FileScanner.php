@@ -3,6 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Mal,
+	Ptg,
+	Ufc,
+	Wcf
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
@@ -13,25 +19,27 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	public function scan( string $fullPath ) {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
+		$scans = $action->scans;
 
 		$item = null;
 
 		$validFile = false;
 		try {
-			$validFile = ( new Scans\WpCoreFile( $fullPath ) )
-							 ->setScanActionVO( $action )
-							 ->scan()
-						 || ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
-							 ->setScanActionVO( $action )
-							 ->scan()
-						 || ( new Scans\PluginFile( $fullPath ) )
-							 ->setMod( $this->getMod() )
-							 ->setScanActionVO( $action )
-							 ->scan()
-						 || ( new Scans\ThemeFile( $fullPath ) )
-							 ->setMod( $this->getMod() )
-							 ->setScanActionVO( $action )
-							 ->scan();
+			$validFile =
+				( in_array( Wcf::SCAN_SLUG, $scans ) && ( new Scans\WpCoreFile( $fullPath ) )
+						->setScanActionVO( $action )
+						->scan() ) ||
+				( in_array( Ufc::SCAN_SLUG, $scans ) && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+						->setScanActionVO( $action )
+						->scan() ) ||
+				( in_array( Ptg::SCAN_SLUG, $scans ) && ( new Scans\PluginFile( $fullPath ) )
+						->setMod( $this->getMod() )
+						->setScanActionVO( $action )
+						->scan() ) ||
+				( in_array( Ptg::SCAN_SLUG, $scans ) && ( new Scans\ThemeFile( $fullPath ) )
+						->setMod( $this->getMod() )
+						->setScanActionVO( $action )
+						->scan() );
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
 			$item = $this->getResultItem( $fullPath );
@@ -69,11 +77,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			$item->is_checksumfail = true;
 		}
 
-		/**
-		 * TODO: flag to bypass malware scan
-		 */
 		try {
-			if ( empty( $item ) || !$item->is_missing ) {
+			if ( in_array( Mal::SCAN_SLUG, $scans ) && ( empty( $item ) || !$item->is_missing ) ) {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setMod( $this->getMod() )
 					->setScanActionVO( $action )

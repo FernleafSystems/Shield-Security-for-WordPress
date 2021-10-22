@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
 	ResultItems as ResultItemsDB,
+	ResultItemMeta as ResultItemMetaDB,
 	ScanResults as ScanResultsDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -22,6 +23,7 @@ class Store {
 		$mod = $this->getMod();
 
 		$dbhResItems = $mod->getDbH_ResultItems();
+		$dbhResItemMetas = $mod->getDbH_ResultItemMeta();
 		/** @var ResultItemsDB\Ops\Select $resultSelector */
 		$resultSelector = $dbhResItems->getQuerySelector();
 		/** @var ScanResultsDB\Ops\Insert $scanResultsInserter */
@@ -42,11 +44,19 @@ class Store {
 				$resultItem = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 			}
 			else {
-				$record->meta = array_merge( $resultItem->meta, $record->meta );
-				$dbhResItems->getQueryUpdater()
-							->updateById( $resultItem->id, [
-								'meta' => $record->getRawData()[ 'meta' ]
-							] );
+				/** @var ResultItemMetaDB\Ops\Delete $metaDeleter */
+				$metaDeleter = $dbhResItemMetas->getQueryDeleter();
+				$metaDeleter->filterByResultItemRef( $resultItem->id )->query();
+
+				foreach ( $record->meta as $metaKey => $metaValue ) {
+					/** @var ResultItemMetaDB\Ops\Insert $metaInserter */
+					$metaInserter = $dbhResItemMetas->getQueryInserter();
+					$metaInserter->setInsertData( [
+						'ri_ref'     => $resultItem->id,
+						'meta_key'   => $metaKey,
+						'meta_value' => is_scalar( $metaValue ) ? $metaValue : serialize( $metaValue ),
+					] )->query();
+				}
 			}
 
 			$scanResultsInserter->setInsertData( [
