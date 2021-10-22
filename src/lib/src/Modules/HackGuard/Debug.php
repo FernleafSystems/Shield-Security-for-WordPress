@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Wcf;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
@@ -16,7 +17,7 @@ class Debug extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Debug 
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$res = ( new Retrieve() )
-			->setScanController( $mod->getScanCon( Wcf::SCAN_SLUG ) )
+			->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) )
 			->setMod( $this->getMod() )
 			->retrieveLatest();
 		var_dump( $res );

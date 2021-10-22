@@ -15,9 +15,6 @@ class ResultsSet {
 	 */
 	public function addItem( $item ) {
 		$all = $this->getAllItems();
-		if ( !isset( $item->hash ) ) {
-			$item->hash = $item->generateHash();
-		}
 		$all[] = $item;
 		$this->items = $all;
 		return $this;

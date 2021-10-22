@@ -196,21 +196,26 @@ class Retrieve {
 		$resultsSet = $this->getNewResultsSet();
 
 		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
-		foreach ( $results as $result ) {
-			$vo = ( new ScanResultVO() )->applyFromArray( $result );
+		foreach ( $results as $r ) {
+
+			$meta = array_combine( explode( '||', $r[ 'meta_keys' ], 2 ), explode( '||', $r[ 'meta_values' ], 2 ) );
+			unset( $r[ 'meta_keys' ], $r[ 'meta_values' ] );
+
+			$vo = ( new ScanResultVO() )->applyFromArray( $r );
+			$vo->meta = $meta;
 
 			// we haven't specified a type of scan, so we're collecting all results.
 			if ( empty( $workingScan ) ) {
 				foreach ( $vo->meta as $scanSlug => $scanMeta ) {
-					$scanCon = $mod->getScanCon( $scanSlug );
-					$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $scanSlug ] );
+					$scanCon = $mod->getScanCon( $r[ 'scan' ] );
+					$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
 					$item->VO = $vo;
 					$resultsSet->addItem( $item );
 				}
 			}
-			elseif ( !empty( $vo->meta[ $workingScan ] ) ) {
+			elseif ( !empty( $vo->scan ) ) {
 				$scanCon = $mod->getScanCon( $workingScan );
-				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta[ $workingScan ] );
+				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
 				$item->VO = $vo;
 				$resultsSet->addItem( $item );
 			}
@@ -239,6 +244,7 @@ class Retrieve {
 						INNER JOIN `%s` as `rim`
 							ON `rim`.`ri_ref` = `ri`.id 
 						WHERE %%s
+						GROUP BY `ri`.id
 						ORDER BY `sr`.`id` ASC;",
 			$mod->getDbH_ScanResults()->getTableSchema()->table,
 			$mod->getDbH_Scans()->getTableSchema()->table,
@@ -262,8 +268,8 @@ class Retrieve {
 			'ri.item_repaired_at',
 			'ri.item_deleted_at',
 			'ri.created_at',
-			'rim.meta_key',
-			'rim.meta_value',
+			"GROUP_CONCAT(rim.meta_key SEPARATOR '||') as meta_keys",
+			"GROUP_CONCAT(rim.meta_value SEPARATOR  '||') as meta_values",
 		];
 	}
 
