@@ -13,6 +13,9 @@ class ScanActionFromSlug {
 	public static function GetAction( string $slug ) {
 		$VO = null;
 		switch ( $slug ) {
+			case Controller\Afs::SCAN_SLUG:
+				$VO = new Scans\Afs\ScanActionVO();
+				break;
 			case Controller\Apc::SCAN_SLUG:
 				$VO = new Scans\Apc\ScanActionVO();
 				break;

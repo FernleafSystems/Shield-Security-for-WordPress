@@ -18,6 +18,6 @@ class BuildScanAction extends Base\BuildScanAction {
 	protected function setCustomFields() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$action->file_exts = [ 'php', 'php5', 'php7' ];
+		$action->file_exts = $this->getFileExts();
 	}
 }

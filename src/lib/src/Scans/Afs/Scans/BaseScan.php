@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 
 abstract class BaseScan {
@@ -20,6 +21,17 @@ abstract class BaseScan {
 
 	public function __construct( string $pathFull ) {
 		$this->setPathFull( $pathFull );
+	}
+
+	protected function getSupportedFileExtensions() :array {
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		return is_array( $action->file_exts ) ? $action->file_exts : [];
+	}
+
+	protected function isSupportedFileExt() :bool {
+		$ext = strtolower( (string)pathinfo( $this->pathFull, PATHINFO_EXTENSION ) );
+		return !empty( $ext ) && in_array( $ext, $this->getSupportedFileExtensions() );
 	}
 
 	abstract public function scan() :bool;

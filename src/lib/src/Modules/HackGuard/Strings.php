@@ -62,6 +62,10 @@ class Strings extends Base\Strings {
 	 */
 	public function getScanStrings() :array {
 		return [
+			'afs' => [
+				'name'     => __( 'All Filesystem Scan', 'wp-simple-firewall' ),
+				'subtitle' => __( "Complete WordPress Filesystem Scanner", 'wp-simple-firewall' ),
+			],
 			'apc' => [
 				'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
 				'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' ),

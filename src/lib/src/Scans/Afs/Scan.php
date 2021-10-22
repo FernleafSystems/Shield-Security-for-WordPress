@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
@@ -21,7 +21,7 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 
 		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
-		$patterns = ( new Utilities\Patterns() )
+		$patterns = ( new Shield\Scans\Mal\Utilities\Patterns() )
 			->setMod( $this->getMod() )
 			->retrieve();
 		$action->patterns_simple = $patterns[ 'simple' ];
