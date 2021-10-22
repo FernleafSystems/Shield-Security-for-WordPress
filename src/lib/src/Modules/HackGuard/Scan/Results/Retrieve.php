@@ -236,11 +236,14 @@ class Retrieve {
 							ON `sr`.scan_ref = `scans`.id 
 						INNER JOIN `%s` as `ri`
 							ON `sr`.resultitem_ref = `ri`.id 
+						INNER JOIN `%s` as `rim`
+							ON `rim`.`ri_ref` = `ri`.id 
 						WHERE %%s
 						ORDER BY `sr`.`id` ASC;",
 			$mod->getDbH_ScanResults()->getTableSchema()->table,
 			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table
+			$mod->getDbH_ResultItems()->getTableSchema()->table,
+			$mod->getDbH_ResultItemMeta()->getTableSchema()->table
 		);
 	}
 
@@ -253,13 +256,14 @@ class Retrieve {
 			'ri.hash',
 			'ri.item_type',
 			'ri.item_id',
-			'ri.meta',
 			'ri.ignored_at',
 			'ri.notified_at',
 			'ri.attempt_repair_at',
 			'ri.item_repaired_at',
 			'ri.item_deleted_at',
 			'ri.created_at',
+			'rim.meta_key',
+			'rim.meta_value',
 		];
 	}
 

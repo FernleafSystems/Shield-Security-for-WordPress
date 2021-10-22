@@ -25,9 +25,11 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 							 ->setScanActionVO( $action )
 							 ->scan()
 						 || ( new Scans\PluginFile( $fullPath ) )
+							 ->setMod( $this->getMod() )
 							 ->setScanActionVO( $action )
 							 ->scan()
 						 || ( new Scans\ThemeFile( $fullPath ) )
+							 ->setMod( $this->getMod() )
 							 ->setScanActionVO( $action )
 							 ->scan();
 		}
@@ -71,19 +73,24 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		 * TODO: flag to bypass malware scan
 		 */
 		try {
-			( new Scans\MalwareFile( $fullPath ) )
-				->setMod( $this->getMod() )
-				->setScanActionVO( $action )
-				->scan();
+			if ( empty( $item ) || !$item->is_missing ) {
+				( new Scans\MalwareFile( $fullPath ) )
+					->setMod( $this->getMod() )
+					->setScanActionVO( $action )
+					->scan();
+			}
 		}
 		catch ( Exceptions\MalwareFileException $mfe ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_mal = true;
+
 			$malMeta = $mfe->getScanFileData();
 			if ( $validFile ) {
 				$malMeta[ 'fp_confidence' ] = 100;
 			}
+			$item->mal_meta = $malMeta;
 
+			// Updates the FP scores stored within mal_meta
 			( new Shield\Scans\Afs\Processing\MalwareFalsePositive() )
 				->setMod( $this->getMod() )
 				->setScanActionVO( $this->getScanActionVO() )
@@ -92,6 +99,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			if ( $item->mal_meta[ 'fp_confidence' ] > $action->confidence_threshold ) {
 				$item->auto_filter = true;
 			}
+		}
+		catch ( \InvalidArgumentException $e ) {
 		}
 
 		return $item;

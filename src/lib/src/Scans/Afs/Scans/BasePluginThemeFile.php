@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+
 abstract class BasePluginThemeFile extends BaseScan {
 
+	use ModConsumer;
 }
