@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Afs,
 	Mal,
 	Ptg,
 	Ufc,
@@ -67,7 +69,7 @@ class LoadRawTableData {
 		$mod = $this->getMod();
 		return array_map(
 			function ( $item ) {
-				/** @var Scans\Mal\ResultItem $item */
+				/** @var Scans\Afs\ResultItem $item */
 				$data = $item->getRawData();
 
 				$data[ 'rid' ] = $item->VO->scanresult_id;
@@ -87,7 +89,7 @@ class LoadRawTableData {
 					function ( $line ) {
 						return $line + 1;  // because lines start at ZERO
 					},
-					array_keys( $item->file_lines )
+					array_keys( $item->mal_fp_lines )
 				) );
 				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
@@ -95,7 +97,11 @@ class LoadRawTableData {
 
 				return $data;
 			},
-			$mod->getScanCon( Mal::SCAN_SLUG )->getResultsForDisplay()->getItems()
+			( new Retrieve() )
+				->setMod( $this->getMod() )
+				->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) )
+				->retrieveLatestForMalware()
+				->getItems()
 		);
 	}
 
@@ -208,7 +214,7 @@ class LoadRawTableData {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$actionHandler = $mod->getScanCon( $item->scan )
+		$actionHandler = $mod->getScanCon( $item->VO->scan )
 							 ->getItemActionHandler()
 							 ->setScanItem( $item );
 

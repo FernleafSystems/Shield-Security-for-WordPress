@@ -82,10 +82,10 @@ class BaseForScan extends Base {
 				'searchable' => false,
 				'visible'    => true,
 			],
-			'fp_confidence' => [
-				'data'       => 'fp_confidence',
+			'mal_fp_confidence' => [
+				'data'       => 'mal_fp_confidence',
 				'title'      => __( 'False Positive Confidence' ),
-				'className'  => 'fp_confidence',
+				'className'  => 'mal_fp_confidence',
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => true,

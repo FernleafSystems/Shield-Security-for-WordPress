@@ -49,6 +49,10 @@ class ItemRepairHandler {
 
 		switch ( $this->getScanItem()->VO->scan ) {
 
+			case ScanController\Afs::SCAN_SLUG:
+				$rep = new Mal\Utilities\RepairItem();
+				break;
+
 			case ScanController\Mal::SCAN_SLUG:
 				$rep = new Mal\Utilities\RepairItem();
 				break;

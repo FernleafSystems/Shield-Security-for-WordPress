@@ -161,7 +161,7 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 		$item = $this->getScanItem();
 
 		$success = false;
-		foreach ( array_keys( $item->file_lines ) as $lineNumber ) {
+		foreach ( array_keys( $item->fp_lines ) as $lineNumber ) {
 			try {
 				( new Services\Utilities\File\RemoveLineFromFile() )->run( $item->path_full, $lineNumber );
 				$success = true;

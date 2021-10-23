@@ -86,14 +86,17 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			}
 		}
 		catch ( Exceptions\MalwareFileException $mfe ) {
-			$item = $this->getResultItem( $fullPath );
+			if ( empty( $item ) ) {
+				$item = $this->getResultItem( $fullPath );
+			}
 			$item->is_mal = true;
 
-			$malMeta = $mfe->getScanFileData();
-			if ( $validFile ) {
-				$malMeta[ 'fp_confidence' ] = 100;
+			foreach ( $mfe->getScanFileData() as $malMetaKey => $malMetaValue ) {
+				$item->{$malMetaKey} = $malMetaValue;
 			}
-			$item->mal_meta = $malMeta;
+			if ( $validFile ) {
+				$item->mal_fp_confidence = 100;
+			}
 
 			// Updates the FP scores stored within mal_meta
 			( new Shield\Scans\Afs\Processing\MalwareFalsePositive() )
@@ -101,7 +104,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				->setScanActionVO( $this->getScanActionVO() )
 				->run( $item );
 
-			if ( $item->mal_meta[ 'fp_confidence' ] > $action->confidence_threshold ) {
+			if ( $item->mal_fp_confidence > $action->confidence_threshold ) {
 				$item->auto_filter = true;
 			}
 		}

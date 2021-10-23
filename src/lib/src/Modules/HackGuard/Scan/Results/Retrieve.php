@@ -116,6 +116,12 @@ class Retrieve {
 		return $results;
 	}
 
+	public function retrieveLatestForMalware() :Scans\Afs\ResultsSet {
+		/** @var Scans\Afs\ResultsSet $results */
+		$results = $this->retrieveLatest();
+		return $results->getMalware();
+	}
+
 	/**
 	 * @return Scans\Base\ResultsSet
 	 */
@@ -198,7 +204,7 @@ class Retrieve {
 		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
 		foreach ( $results as $r ) {
 
-			$meta = array_combine( explode( '||', $r[ 'meta_keys' ], 2 ), explode( '||', $r[ 'meta_values' ], 2 ) );
+			$meta = array_combine( explode( '||', $r[ 'meta_keys' ] ), explode( '||', $r[ 'meta_values' ] ) );
 			unset( $r[ 'meta_keys' ], $r[ 'meta_values' ] );
 
 			$vo = ( new ScanResultVO() )->applyFromArray( $r );

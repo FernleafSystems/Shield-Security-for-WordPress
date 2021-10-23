@@ -35,7 +35,6 @@ class Store {
 
 			/** @var ResultItemsDB\Ops\Record $resultItem */
 			$resultItem = $resultSelector->filterByItemID( $record->item_id )
-										 ->filterByItemHash( $record->hash )
 										 ->filterByItemNotDeleted()
 										 ->filterByItemNotRepaired()
 										 ->first();
@@ -47,16 +46,16 @@ class Store {
 				/** @var ResultItemMetaDB\Ops\Delete $metaDeleter */
 				$metaDeleter = $dbhResItemMetas->getQueryDeleter();
 				$metaDeleter->filterByResultItemRef( $resultItem->id )->query();
+			}
 
-				foreach ( $record->meta as $metaKey => $metaValue ) {
-					/** @var ResultItemMetaDB\Ops\Insert $metaInserter */
-					$metaInserter = $dbhResItemMetas->getQueryInserter();
-					$metaInserter->setInsertData( [
-						'ri_ref'     => $resultItem->id,
-						'meta_key'   => $metaKey,
-						'meta_value' => is_scalar( $metaValue ) ? $metaValue : serialize( $metaValue ),
-					] )->query();
-				}
+			foreach ( $record->meta as $metaKey => $metaValue ) {
+				/** @var ResultItemMetaDB\Ops\Insert $metaInserter */
+				$metaInserter = $dbhResItemMetas->getQueryInserter();
+				$metaInserter->setInsertData( [
+					'ri_ref'     => $resultItem->id,
+					'meta_key'   => $metaKey,
+					'meta_value' => is_scalar( $metaValue ) ? $metaValue : json_encode( $metaValue ),
+				] )->query();
 			}
 
 			$scanResultsInserter->setInsertData( [

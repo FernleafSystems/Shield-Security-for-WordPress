@@ -105,7 +105,7 @@ class Afs extends BaseForFiles {
 		$actualResults = $this->getNewResultsSet();
 		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getResultsForDisplay()->getItems() as $item ) {
-			if ( $opts->getMalConfidenceBoundary() > $item->fp_confidence ) {
+			if ( $opts->getMalConfidenceBoundary() > $item->mal_fp_confidence ) {
 				$actualResults->addItem( $item );
 			}
 		}
