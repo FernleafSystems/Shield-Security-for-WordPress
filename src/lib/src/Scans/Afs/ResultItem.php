@@ -22,12 +22,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  */
 class ResultItem extends Base\ResultItem {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
+			case 'path_full':
+				if ( empty( $value ) ) {
+					$value = path_join( wp_normalize_path( ABSPATH ), $this->path_fragment );
+				}
+				break;
 			case 'mal_fp_lines':
 				if ( !is_array( $value ) ) {
 					$value = json_decode( $value, true );

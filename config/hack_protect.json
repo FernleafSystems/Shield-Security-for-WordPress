@@ -541,12 +541,6 @@
       "has_updated_at": true,
       "col_older_than": "updated_at",
       "cols_custom":    {
-        "hash":              {
-          "macro_type": "char",
-          "length":     32,
-          "attr":       [],
-          "comment":    "Result Item Hash"
-        },
         "item_type":         {
           "macro_type": "char",
           "length":     1,

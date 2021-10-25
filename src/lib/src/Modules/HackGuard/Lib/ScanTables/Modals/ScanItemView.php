@@ -23,7 +23,7 @@ class ScanItemView {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
-			/** @var Scans\Base\FileResultItem $item */
+			/** @var Scans\Afs\ResultItem $item */
 			$item = ( new Retrieve() )
 				->setMod( $mod )
 				->byID( $rid );
@@ -78,9 +78,10 @@ class ScanItemView {
 						'tab_filecontents' => $fileContent,
 						'tab_diff'         => $diffContent,
 						'tab_history'      => $historyContent,
-						'tab_info'         =>( new BuildInfo() )
+						'tab_info'         => ( new BuildInfo() )
 							->setMod( $this->getMod() )
-							->run( $item ),
+							->setScanItem( $item )
+							->run(),
 					],
 					'flags'   => [
 						'can_download' => $canDownload,

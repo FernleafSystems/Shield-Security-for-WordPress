@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Stor
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Ptg extends BaseForFiles {
 
@@ -19,34 +18,15 @@ class Ptg extends BaseForFiles {
 
 	protected function run() {
 		parent::run();
-		( new HackGuard\Scan\Utilities\PtgAddReinstallLinks() )
-			->setScanController( $this )
-			->execute();
-
-		$this->setupCronHooks();
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
-		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
 	}
 
 	public function onWpLoaded() {
-		( new StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->hookBuild();
 	}
 
 	public function onModuleShutdown() {
-		( new StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->schedule();
 	}
 
 	public function runHourlyCron() {
-		( new StoreAction\TouchAll() )
-			->setMod( $this->getMod() )
-			->run();
-		( new StoreAction\CleanAll() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 
 	/**
@@ -88,36 +68,6 @@ class Ptg extends BaseForFiles {
 	 * @param Scans\Ptg\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Update $updater */
-		$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
-
-		if ( $item->is_unrecognised && !Services::WpFs()->isFile( $item->path_full ) ) {
-			$updater->setItemDeleted( $item->VO->resultitem_id );
-		}
-		else {
-			try {
-				$verifiedHash = ( new HackGuard\Lib\Hashes\Query() )->verifyHash( $item->path_full );
-				if ( $item->is_checksumfail && $verifiedHash ) {
-					/** @var Update $updater */
-					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
-					$updater->setItemRepaired( $item->VO->resultitem_id );
-				}
-			}
-			catch ( HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
-				// hashes are unavailable, so we do nothing
-			}
-			catch ( HackGuard\Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
-				// asset has probably been since removed
-				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
-			}
-			catch ( HackGuard\Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
-				// unrecognised file
-			}
-			catch ( \Exception $e ) {
-			}
-		}
 	}
 
 	/**
@@ -125,24 +75,6 @@ class Ptg extends BaseForFiles {
 	 */
 	protected function newItemActionHandler() {
 		return new Scans\Ptg\Utilities\ItemActionHandler();
-	}
-
-	public function actionPluginReinstall( string $file ) :bool {
-		$success = false;
-		$WPP = Services::WpPlugins();
-		$plugin = $WPP->getPluginAsVo( $file );
-		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
-			try {
-				( new HackGuard\Lib\Snapshots\StoreAction\Build() )
-					->setMod( $this->getMod() )
-					->setAsset( $plugin )
-					->run();
-				$success = true;
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $success;
 	}
 
 	public function isEnabled() :bool {

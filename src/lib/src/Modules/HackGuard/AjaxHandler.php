@@ -190,8 +190,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$file = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
 
 		if ( $req->post( 'reinstall' ) ) {
-			/** @var Scan\Controller\Ptg $scan */
-			$scan = $mod->getScansCon()->getScanCon( 'ptg' );
+			/** @var Scan\Controller\Afs $scan */
+			$scan = $mod->getScansCon()->getScanCon( 'afs' );
 			$activate = $scan->actionPluginReinstall( $file );
 		}
 

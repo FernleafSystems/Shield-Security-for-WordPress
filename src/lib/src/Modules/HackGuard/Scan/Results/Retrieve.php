@@ -306,7 +306,6 @@ class Retrieve {
 			'scans.id as scan_id',
 			'sr.id as scanresult_id',
 			'ri.id as resultitem_id',
-			'ri.hash',
 			'ri.item_type',
 			'ri.item_id',
 			'ri.ignored_at',

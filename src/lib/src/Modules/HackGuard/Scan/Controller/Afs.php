@@ -2,11 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	Lib,
+	ModCon,
+	Options,
+	Scan
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
@@ -14,9 +18,26 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 class Afs extends BaseForFiles {
 
 	const SCAN_SLUG = 'afs';
+	use PluginCronsConsumer;
+
+	protected function run() {
+		parent::run();
+		( new Scan\Utilities\PtgAddReinstallLinks() )
+			->setScanController( $this )
+			->execute();
+
+		$this->setupCronHooks();
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+	}
+
+	public function onWpLoaded() {
+		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )
+			->setMod( $this->getMod() )
+			->hookBuild();
+	}
 
 	public function countResultsMalware() :int {
-		return ( new HackGuard\Scan\Results\Retrieve() )
+		return ( new Scan\Results\Retrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->setAdditionalWheres( [
@@ -26,7 +47,7 @@ class Afs extends BaseForFiles {
 	}
 
 	public function countResultsWordpress() :int {
-		return ( new HackGuard\Scan\Results\Retrieve() )
+		return ( new Scan\Results\Retrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->setAdditionalWheres( [
@@ -36,7 +57,7 @@ class Afs extends BaseForFiles {
 	}
 
 	public function countResultsPlugins() :int {
-		return ( new HackGuard\Scan\Results\Retrieve() )
+		return ( new Scan\Results\Retrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->setAdditionalWheres( [
@@ -46,7 +67,7 @@ class Afs extends BaseForFiles {
 	}
 
 	public function countResultsThemes() :int {
-		return ( new HackGuard\Scan\Results\Retrieve() )
+		return ( new Scan\Results\Retrieve() )
 			->setMod( $this->getMod() )
 			->setScanController( $this )
 			->setAdditionalWheres( [
@@ -55,12 +76,39 @@ class Afs extends BaseForFiles {
 			->count();
 	}
 
+	public function runHourlyCron() {
+		( new Lib\Snapshots\StoreAction\TouchAll() )
+			->setMod( $this->getMod() )
+			->run();
+		( new Lib\Snapshots\StoreAction\CleanAll() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
+	public function actionPluginReinstall( string $file ) :bool {
+		$success = false;
+		$WPP = Services::WpPlugins();
+		$plugin = $WPP->getPluginAsVo( $file );
+		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
+			try {
+				( new Lib\Snapshots\StoreAction\Build() )
+					->setMod( $this->getMod() )
+					->setAsset( $plugin )
+					->run();
+				$success = true;
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+		return $success;
+	}
+
 	/**
 	 * Can only possibly repair themes, plugins or core files.
 	 * @return Scans\Afs\ResultsSet
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$repairResults = new Scans\Afs\ResultsSet();
@@ -120,21 +168,21 @@ class Afs extends BaseForFiles {
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
-				$verifiedHash = ( new HackGuard\Lib\Hashes\Query() )->verifyHash( $item->path_full );
+				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
 				if ( $item->is_checksumfail && $verifiedHash ) {
 					/** @var Update $updater */
 					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
 					$updater->setItemRepaired( $item->VO->resultitem_id );
 				}
 			}
-			catch ( HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
+			catch ( Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
 				// hashes are unavailable, so we do nothing
 			}
-			catch ( HackGuard\Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
+			catch ( Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
 				// asset has probably been since removed
 				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
-			catch ( HackGuard\Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
+			catch ( Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
 				// unrecognised file
 			}
 			catch ( \Exception $e ) {
@@ -150,7 +198,7 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isRepairFileAuto();
 	}

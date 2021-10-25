@@ -281,11 +281,11 @@ class LoadRawTableData {
 		return $actions;
 	}
 
-	private function getColumnContent_File( Scans\Base\FileResultItem $item ) :string {
+	private function getColumnContent_File( Scans\Afs\ResultItem $item ) :string {
 		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
 	}
 
-	private function getColumnContent_FileStatus( Scans\Base\FileResultItem $item, string $status ) :string {
+	private function getColumnContent_FileStatus( Scans\Afs\ResultItem $item, string $status ) :string {
 		$content = $status;
 
 		$FS = Services::WpFs();
@@ -308,7 +308,7 @@ class LoadRawTableData {
 		return $content;
 	}
 
-	private function getColumnContent_FileAsHref( Scans\Base\FileResultItem $item ) :string {
+	private function getColumnContent_FileAsHref( Scans\Afs\ResultItem $item ) :string {
 		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
 			$item->VO->scanresult_id,
