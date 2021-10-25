@@ -50,18 +50,6 @@ class ItemRepairHandler {
 				$rep = new Afs\Utilities\RepairItem();
 				break;
 
-			case ScanController\Mal::SCAN_SLUG:
-				$rep = new Mal\Utilities\RepairItem();
-				break;
-
-			case ScanController\Ptg::SCAN_SLUG:
-				$rep = new Ptg\Utilities\RepairItem();
-				break;
-
-			case ScanController\Wcf::SCAN_SLUG:
-				$rep = new Wcf\Utilities\RepairItem();
-				break;
-
 			default:
 				throw new \Exception( 'We never reach this point' );
 		}

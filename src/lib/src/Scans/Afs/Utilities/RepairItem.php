@@ -143,12 +143,6 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 				}
 			}
 		}
-		else {
-			throw new \Exception( sprintf(
-				__( "File status is '%s' and can't be repaired.", 'wp-simple-firewall' ),
-				__( 'unrecognised', 'wp-simple-firewall' )
-			) );
-		}
 
 		return $canRepair;
 	}

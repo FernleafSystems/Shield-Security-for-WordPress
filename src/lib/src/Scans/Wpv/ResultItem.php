@@ -11,10 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\VulnVO;
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
-	public function generateHash() :string {
-		return md5( $this->slug.$this->wpvuln_id );
-	}
-
 	public function getDescriptionForAudit() :string {
 		return sprintf( '%s: %s', ( strpos( $this->slug, '/' ) ? 'Plugin' : 'Theme' ), $this->slug );
 	}

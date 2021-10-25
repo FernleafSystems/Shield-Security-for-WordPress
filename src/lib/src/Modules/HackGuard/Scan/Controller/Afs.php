@@ -101,10 +101,44 @@ class Afs extends BaseForFiles {
 	public function cleanStaleResultItem( $item ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		if ( !Services::WpFs()->exists( $item->path_full ) ) {
-			/** @var Update $updater */
-			$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+		$FS = Services::WpFs();
+		/** @var Update $updater */
+		$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+
+		if ( ( $item->is_unrecognised || $item->is_mal ) && !$FS->isFile( $item->path_full ) ) {
 			$updater->setItemDeleted( $item->VO->resultitem_id );
+		}
+		elseif ( $item->is_in_core ) {
+
+			$CFH = Services::CoreFileHashes();
+			if ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
+				$updater->setItemRepaired( $item->VO->resultitem_id );
+			}
+			elseif ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
+				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+			}
+		}
+		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
+			try {
+				$verifiedHash = ( new HackGuard\Lib\Hashes\Query() )->verifyHash( $item->path_full );
+				if ( $item->is_checksumfail && $verifiedHash ) {
+					/** @var Update $updater */
+					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+					$updater->setItemRepaired( $item->VO->resultitem_id );
+				}
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
+				// hashes are unavailable, so we do nothing
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
+				// asset has probably been since removed
+				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+			}
+			catch ( HackGuard\Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
+				// unrecognised file
+			}
+			catch ( \Exception $e ) {
+			}
 		}
 	}
 
