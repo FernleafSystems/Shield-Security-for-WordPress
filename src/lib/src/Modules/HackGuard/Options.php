@@ -226,6 +226,10 @@ class Options extends BaseShield\Options {
 		return (bool)$this->getOpt( 'is_scan_cron' );
 	}
 
+	public function isEnabledAutoFileScanner() :bool {
+		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
+	}
+
 	/**
 	 * @return $this
 	 */

@@ -10,6 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 13.0
+ */
 class Wcf extends BaseForFiles {
 
 	const SCAN_SLUG = 'wcf';
@@ -65,31 +68,6 @@ class Wcf extends BaseForFiles {
 	 * @param Scans\Wcf\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$CFH = Services::CoreFileHashes();
-		if ( !$CFH->isCoreFile( $item->path_full ) ) {
-			$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
-		}
-		elseif ( $CFH->isCoreFileHashValid( $item->path_full ) ) {
-			/** @var Update $updater */
-			$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
-			$updater->setItemRepaired( $item->VO->resultitem_id );
-		}
-	}
-
-	public function isCronAutoRepair() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isRepairFileWP();
-	}
-
-	public function isEnabled() :bool {
-		return $this->getOptions()->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	protected function isPremiumOnly() :bool {
-		return false;
 	}
 
 	/**

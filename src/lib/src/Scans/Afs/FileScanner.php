@@ -3,12 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
-	Mal,
-	Ptg,
-	Ufc,
-	Wcf
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
@@ -26,17 +21,17 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$validFile = false;
 		try {
 			$validFile =
-				( in_array( Wcf::SCAN_SLUG, $scans ) && ( new Scans\WpCoreFile( $fullPath ) )
+				( in_array( Afs::SCAN_SLUG_WCF, $scans ) && ( new Scans\WpCoreFile( $fullPath ) )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( in_array( Ufc::SCAN_SLUG, $scans ) && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+				( in_array( Afs::SCAN_SLUG_UFC, $scans ) && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( in_array( Ptg::SCAN_SLUG, $scans ) && ( new Scans\PluginFile( $fullPath ) )
+				( in_array( Afs::SCAN_SLUG_PTG, $scans ) && ( new Scans\PluginFile( $fullPath ) )
 						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( in_array( Ptg::SCAN_SLUG, $scans ) && ( new Scans\ThemeFile( $fullPath ) )
+				( in_array( Afs::SCAN_SLUG_PTG, $scans ) && ( new Scans\ThemeFile( $fullPath ) )
 						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() );
@@ -82,7 +77,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 
 		try {
-			if ( in_array( Mal::SCAN_SLUG, $scans ) && ( empty( $item ) || !$item->is_missing ) ) {
+			if ( in_array( Afs::SCAN_SLUG, $scans ) && ( empty( $item ) || !$item->is_missing ) ) {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setMod( $this->getMod() )
 					->setScanActionVO( $action )

@@ -2,12 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
-	Mal,
-	Ptg,
-	Ufc,
-	Wcf
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 class BuildScanAction extends Base\BuildScanAction {
@@ -26,10 +21,10 @@ class BuildScanAction extends Base\BuildScanAction {
 		$action = $this->getScanActionVO();
 		$action->file_exts = $this->getFileExts();
 		$action->scans = [
-			Mal::SCAN_SLUG,
-			Ptg::SCAN_SLUG,
-			Ufc::SCAN_SLUG,
-			Wcf::SCAN_SLUG,
+			Afs::SCAN_SLUG_MAL,
+			Afs::SCAN_SLUG_PTG,
+			Afs::SCAN_SLUG_UFC,
+			Afs::SCAN_SLUG_WCF,
 		];
 	}
 }

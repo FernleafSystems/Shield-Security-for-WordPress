@@ -241,41 +241,25 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_core_file_integrity_scan' :
-				$name = sprintf( __( '%s Core Files', 'wp-simple-firewall' ),
+				$name = sprintf( __( 'Automatic %s File Scanner', 'wp-simple-firewall' ),
 					Services::WpGeneral()->isClassicPress() ? 'ClassicPress' : 'WordPress'
 				);
-				$summary = sprintf( __( 'Scan And Monitor %s Core Files For Changes', 'wp-simple-firewall' ),
+				$summary = sprintf( __( 'Scan And Monitor %s Files For Changes', 'wp-simple-firewall' ),
 					Services::WpGeneral()->isClassicPress() ? 'ClassicPress' : 'WordPress'
 				);
 				$desc = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress core files for changes compared to official WordPress files.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			case 'mal_scan_enable' :
-				$name = __( 'Malware', 'wp-simple-firewall' );
-				$summary = __( 'Scan And Monitor Files For Malware Infections', 'wp-simple-firewall' );
-				$desc = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and detect presence of Malware signatures.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan all files on your site for changes.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( 'Currently files of the following types are supported:', 'wp-simple-firewall' ) )
-					.' '.implode( ', ', [ 'PHP' ] )
 				];
-				break;
-
-			case 'ptg_enable' :
-				$name = __( 'Plugins & Themes', 'wp-simple-firewall' );
-				$summary = __( 'Scan And Monitor Plugin & Theme Files For Changes', 'wp-simple-firewall' );
-
-				$desc = [
-					__( "Looks for new files added to plugins or themes, and also for changes to existing files.", 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Doesn't currently detect missing files.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
-				];
-				if ( !$this->getCon()->hasCacheDir() ) {
-					$desc[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: %s', 'wp-simple-firewall' ),
-						'<code>'.$mod->getPtgSnapsBaseDir().'</code>' );
+				if ( $mod->isPremium() ) {
+					$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						sprintf( __( 'Scan areas include: WordPress Core Files, Plugin and Themes, and PHP Malware.', 'wp-simple-firewall' ), 'ShieldPRO' ) );
+				}
+				else {
+					$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'Scan areas include: WordPress Core Files.', 'wp-simple-firewall' ) );
+					$desc[] = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( 'To also include scanning Plugins and Themes, and for PHP Malware, please upgrade to %s.', 'wp-simple-firewall' ), 'ShieldPRO' ) );
 				}
 				break;
 
@@ -283,9 +267,9 @@ class Strings extends Base\Strings {
 				$name = __( 'Automatic File Repair', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Repair Files That Have Changes Or Malware Infection', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Will attempt to automatically repair files that have been changed or infected with malware.', 'wp-simple-firewall' ),
+					__( 'Will attempt to automatically repair files that have been changed, or infected with malware.', 'wp-simple-firewall' ),
 					'- '.__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),
-					'- '.__( 'In the case of plugins & themes, only those installed from WordPress.org may be repaired.', 'wp-simple-firewall' ),
+					'- '.__( 'In the case of plugins & themes, only those installed from WordPress.org can be repaired.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Auto-Repair will never automatically delete new or unrecognised files.", 'wp-simple-firewall' ) )
 					.' '.__( "Unrecognised files will need to be manually deleted.", 'wp-simple-firewall' ),
 				];

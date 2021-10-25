@@ -19,18 +19,6 @@ class ScanActionFromSlug {
 			case Controller\Apc::SCAN_SLUG:
 				$VO = new Scans\Apc\ScanActionVO();
 				break;
-			case Controller\Mal::SCAN_SLUG:
-				$VO = new Scans\Mal\ScanActionVO();
-				break;
-			case Controller\Ptg::SCAN_SLUG:
-				$VO = new Scans\Ptg\ScanActionVO();
-				break;
-			case Controller\Ufc::SCAN_SLUG:
-				$VO = new Scans\Ufc\ScanActionVO();
-				break;
-			case Controller\Wcf::SCAN_SLUG:
-				$VO = new Scans\Wcf\ScanActionVO();
-				break;
 			case Controller\Wpv::SCAN_SLUG:
 				$VO = new Scans\Wpv\ScanActionVO();
 				break;

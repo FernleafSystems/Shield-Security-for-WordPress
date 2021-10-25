@@ -13,11 +13,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Afs extends BaseForFiles {
 
 	const SCAN_SLUG = 'afs';
+	const SCAN_SLUG_MAL = 'mal';
+	const SCAN_SLUG_PTG = 'ptg';
+	const SCAN_SLUG_UFC = 'ufc';
+	const SCAN_SLUG_WCF = 'wcf';
 	use PluginCronsConsumer;
 
 	protected function run() {
@@ -111,31 +114,18 @@ class Afs extends BaseForFiles {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$repairResults = new Scans\Afs\ResultsSet();
+		$repairResults = $this->getNewResultsSet();
 
 		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $item ) {
 
-			try {
-				if ( $opts->isRepairFilePlugin()
-					 && ( new WpOrg\Plugin\Files() )->isValidFileFromPlugin( $item->path_full ) ) {
-					$repairResults->addItem( $item );
-				}
+			if ( $item->is_in_core && $opts->isRepairFileWP() ) {
+				$repairResults->addItem( $item );
 			}
-			catch ( \InvalidArgumentException $e ) {
+			if ( $item->is_in_plugin && $opts->isRepairFilePlugin() ) {
+				$repairResults->addItem( $item );
 			}
-
-			try {
-				if ( $opts->isRepairFileTheme()
-					 && ( new WpOrg\Theme\Files() )->isValidFileFromTheme( $item->path_full ) ) {
-					$repairResults->addItem( $item );
-				}
-			}
-			catch ( \InvalidArgumentException $e ) {
-			}
-
-			if ( !$opts->isRepairFileWP()
-				 && Services::CoreFileHashes()->isCoreFile( $item->path_full ) ) {
+			if ( $item->is_in_theme && $opts->isRepairFileTheme() ) {
 				$repairResults->addItem( $item );
 			}
 		}
@@ -204,7 +194,18 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabled() :bool {
-		return true;
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledAutoFileScanner();
+	}
+
+	public function isEnabledMalwareScan() :bool {
+		return $this->isEnabled() && $this->getCon()->isPremiumActive();
+	}
+
+	public function isEnabledPluginThemeScan() :bool {
+		return $this->isEnabled() && $this->getCon()->isPremiumActive()
+			   && $this->getCon()->hasCacheDir();
 	}
 
 	protected function isPremiumOnly() :bool {
@@ -231,10 +232,21 @@ class Afs extends BaseForFiles {
 		$actualResults = $this->getNewResultsSet();
 		/** @var Scans\Afs\ResultItem $item */
 		foreach ( parent::getResultsForDisplay()->getItems() as $item ) {
-			if ( $opts->getMalConfidenceBoundary() > $item->mal_fp_confidence ) {
+			if ( !$item->is_mal || $opts->getMalConfidenceBoundary() > $item->mal_fp_confidence ) {
 				$actualResults->addItem( $item );
 			}
 		}
 		return $actualResults;
+	}
+
+	/**
+	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
+	 * are unreliable once the plugin has been deactivated.
+	 */
+	public function purge() {
+		parent::purge();
+		( new Lib\Snapshots\StoreAction\DeleteAll() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 }

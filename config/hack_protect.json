@@ -115,6 +115,18 @@
       "description": "Un-Checking this option will completely disable the Hack Guard module"
     },
     {
+      "key":         "enable_core_file_integrity_scan",
+      "section":     "section_file_guard",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/hd",
+      "link_blog":   "https://shsec.io/wpsf37",
+      "beacon_id":   224,
+      "name":        "WP Core File Scanner",
+      "summary":     "Automatically Scans WordPress Core Files For Alterations",
+      "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
+    },
+    {
       "key":         "enabled_scan_apc",
       "section":     "section_scan_wpv",
       "type":        "checkbox",
@@ -150,44 +162,6 @@
       "name":        "Automatic Updates",
       "summary":     "Apply Updates Automatically To Vulnerable Plugins",
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
-    },
-    {
-      "key":         "enable_core_file_integrity_scan",
-      "section":     "section_file_guard",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/hd",
-      "link_blog":   "https://shsec.io/wpsf37",
-      "beacon_id":   224,
-      "name":        "WP Core File Scanner",
-      "summary":     "Automatically Scans WordPress Core Files For Alterations",
-      "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
-    },
-    {
-      "key":         "mal_scan_enable",
-      "section":     "section_file_guard",
-      "premium":     true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/fp",
-      "link_blog":   "https://shsec.io/fx",
-      "beacon_id":   222,
-      "name":        "Automatic Malware Scan",
-      "summary":     "Enable Malware File Scanner",
-      "description": "When enabled the Malware scanner will run automatically."
-    },
-    {
-      "key":         "ptg_enable",
-      "section":     "section_file_guard",
-      "premium":     true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/bl",
-      "link_blog":   "https://shsec.io/bm",
-      "beacon_id":   133,
-      "name":        "Enable/Disable Guard",
-      "summary":     "Enable The Guard For Plugin And Theme Files",
-      "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
       "key":           "file_locker",
