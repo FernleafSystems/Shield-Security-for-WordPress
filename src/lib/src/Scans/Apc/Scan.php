@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
@@ -14,7 +14,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		foreach ( $action->items as $scanItem ) {
 			$resultItem = $this->getItemScanner()->scan( $scanItem );
-			if ( $resultItem instanceof Shield\Scans\Base\ResultItem ) {
+			if ( !empty( $resultItem ) ) {
 				$tempResultSet->addItem( $resultItem );
 			}
 		}

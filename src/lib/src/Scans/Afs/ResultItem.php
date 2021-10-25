@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
+ * @property string $path_full
+ * @property string $path_fragment - relative to ABSPATH
  * @property bool   $is_in_core
  * @property bool   $is_in_plugin
  * @property bool   $is_in_theme
@@ -18,7 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem;
  * @property string $mal_sig
  * @property string $ptg_slug
  */
-class ResultItem extends FileResultItem {
+class ResultItem extends Base\ResultItem {
 
 	/**
 	 * @inheritDoc

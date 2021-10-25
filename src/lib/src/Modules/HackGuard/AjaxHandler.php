@@ -289,7 +289,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				catch ( \Exception $e ) {
 				}
 			}
-			$scanCon->startScans( [ Scan\Controller\Afs::SCAN_SLUG ] );
+
+			$scanCon->startScans( $toScan );
 		}
 
 		$isScanRunning = $scanCon->hasRunningScans();

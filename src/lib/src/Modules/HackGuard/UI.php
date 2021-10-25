@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
@@ -22,7 +22,6 @@ class UI extends BaseShield\UI {
 		$sectionBuilderThemes = ( new Render\ScanResults\SectionThemes() )->setMod( $this->getMod() );
 		$sectionBuilderWordpress = ( new Render\ScanResults\SectionWordpress() )->setMod( $this->getMod() );
 		$sectionBuilderMalware = ( new Render\ScanResults\SectionMalware() )->setMod( $this->getMod() );
-//		$sectionBuilderLog = ( new Render\ScanResults\SectionMalware() )->setMod( $this->getMod() );
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
@@ -45,11 +44,7 @@ class UI extends BaseShield\UI {
 				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
-				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_file_areas' => __( 'Select File Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_assets'     => __( 'Select Scans For Plugins and Themes', 'wp-simple-firewall' ),
 				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
-				'select_what_to_scan'   => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
@@ -124,10 +119,7 @@ class UI extends BaseShield\UI {
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
 				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_file_areas' => __( 'Select File Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_assets'     => __( 'Select Scans For Plugins and Themes', 'wp-simple-firewall' ),
 				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
-				'select_what_to_scan'   => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
@@ -146,6 +138,9 @@ class UI extends BaseShield\UI {
 			],
 			'hrefs'       => [
 				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scans_results'      => $this->getCon()
+											 ->getModule_Insights()
+											 ->getUrl_ScansResults(),
 			],
 			'content'     => [
 				'section' => [

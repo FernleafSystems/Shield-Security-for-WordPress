@@ -18,7 +18,6 @@ abstract class BaseForFiles extends Base {
 		/** @var ResultItems\Ops\Record $record */
 		$record = $mod->getDbH_ResultItems()->getRecord();
 		$record->auto_filtered_at = $autoFiltered ? Services::Request()->ts() : 0;
-//		$record->hash = $rawResult[ 'hash' ];
 		$record->item_id = $rawResult[ 'path_fragment' ];
 		$record->item_type = ResultItems\Ops\Handler::ITEM_TYPE_FILE;
 
@@ -32,7 +31,6 @@ abstract class BaseForFiles extends Base {
 			unset( $rawResult[ $metaItem ] );
 		}
 
-		error_log( var_export( $rawResult, true ) );
 		$meta = $rawResult;
 		$record->meta = $meta;
 
