@@ -29,7 +29,12 @@ class ThemeFile extends BasePluginThemeFile {
 						->setMod( $this->getMod() )
 						->verifyHash( $this->pathFull );
 					if ( !$verifiedHash ) {
-						throw new Exceptions\ThemeFileChecksumFailException( $this->pathFull );
+						throw new Exceptions\ThemeFileChecksumFailException(
+							$this->pathFull,
+							[
+								'slug' => $asset->unique_id,
+							]
+						);
 					}
 					$valid = true;
 				}
@@ -40,7 +45,12 @@ class ThemeFile extends BasePluginThemeFile {
 					// Never reached since we've already located the asset
 				}
 				catch ( UnrecognisedAssetFile $e ) {
-					throw new Exceptions\ThemeFileUnrecognisedException( $this->pathFull );
+					throw new Exceptions\ThemeFileUnrecognisedException(
+						$this->pathFull,
+						[
+							'slug' => $asset->unique_id,
+						]
+					);
 				}
 				catch ( \InvalidArgumentException $e ) {
 				}

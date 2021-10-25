@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller as
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 	Common\ScanItemConsumer,
+	Afs,
 	Mal,
 	Ptg,
 	Wcf
@@ -33,11 +34,7 @@ class ItemRepairHandler {
 	public function isRepairSupported() :bool {
 		return in_array(
 			$this->getScanItem()->VO->scan,
-			[
-				ScanController\Mal::SCAN_SLUG,
-				ScanController\Ptg::SCAN_SLUG,
-				ScanController\Wcf::SCAN_SLUG,
-			]
+			[ ScanController\Afs::SCAN_SLUG ]
 		);
 	}
 
@@ -50,7 +47,7 @@ class ItemRepairHandler {
 		switch ( $this->getScanItem()->VO->scan ) {
 
 			case ScanController\Afs::SCAN_SLUG:
-				$rep = new Mal\Utilities\RepairItem();
+				$rep = new Afs\Utilities\RepairItem();
 				break;
 
 			case ScanController\Mal::SCAN_SLUG:

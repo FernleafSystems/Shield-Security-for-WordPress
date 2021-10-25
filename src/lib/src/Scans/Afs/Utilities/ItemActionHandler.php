@@ -12,9 +12,9 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	public function ignore() :bool {
 		parent::ignore();
 
-//		( new FalsePositiveReporter() )
-//			->setMod( $this->getMod() )
-//			->reportResultItem( $this->getScanItem(), true );
+		( new MalFalsePositiveReporter() )
+			->setMod( $this->getMod() )
+			->reportResultItem( $this->getScanItem(), true );
 
 		return true;
 	}

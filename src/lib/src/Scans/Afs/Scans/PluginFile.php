@@ -24,12 +24,18 @@ class PluginFile extends BasePluginThemeFile {
 		if ( !empty( $asset ) ) {
 
 			if ( $this->isSupportedFileExt() ) {
+
 				try {
 					$verifiedHash = ( new Query() )
 						->setMod( $this->getMod() )
 						->verifyHash( $this->pathFull );
 					if ( !$verifiedHash ) {
-						throw new Exceptions\PluginFileChecksumFailException( $this->pathFull );
+						throw new Exceptions\PluginFileChecksumFailException(
+							$this->pathFull,
+							[
+								'slug' => $asset->unique_id,
+							]
+						);
 					}
 					$valid = true;
 				}
@@ -40,7 +46,12 @@ class PluginFile extends BasePluginThemeFile {
 					// Never reached since we've already located the asset
 				}
 				catch ( UnrecognisedAssetFile $e ) {
-					throw new Exceptions\PluginFileUnrecognisedException( $this->pathFull );
+					throw new Exceptions\PluginFileUnrecognisedException(
+						$this->pathFull,
+						[
+							'slug' => $asset->unique_id,
+						]
+					);
 				}
 				catch ( \InvalidArgumentException $e ) {
 				}

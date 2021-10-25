@@ -25,6 +25,8 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	private $scanActionVO;
 
+	protected $latestResults;
+
 	private static $resultsCounts = [];
 
 	public function __construct() {
@@ -79,7 +81,7 @@ abstract class Base extends ExecOnceModConsumer {
 				$count = ( new Retrieve() )
 					->setScanController( $this )
 					->setMod( $this->getMod() )
-					->count( false );
+					->count();
 			}
 			self::$resultsCounts[ $this->getSlug() ] = $count;
 		}
@@ -124,32 +126,34 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		if ( $this->isRestricted() ) {
-			$results = $this->getNewResultsSet();
+		if ( !isset( $this->latestResults ) ) {
+			$this->latestResults = $this->getNewResultsSet();
+			if ( !$this->isRestricted() ) {
+				try {
+					$this->latestResults = ( new HackGuard\Scan\Results\Retrieve() )
+						->setMod( $this->getMod() )
+						->setScanController( $this )
+						->retrieveLatest( true );
+				}
+				catch ( \Exception $e ) {
+				}
+			}
 		}
-		else {
-			$results = ( new Retrieve() )
-				->setMod( $this->getMod() )
-				->setScanController( $this )
-				->retrieveLatest( true );
-		}
-		return $results;
+		return $this->latestResults;
+	}
+
+	/**
+	 * @return Scans\Base\ResultsSet|mixed
+	 */
+	public function getLatestResults() {
+		return $this->getNewResultsSet();
 	}
 
 	/**
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getResultsForDisplay() {
-		if ( $this->isRestricted() ) {
-			$results = $this->getNewResultsSet();
-		}
-		else {
-			$results = ( new Retrieve() )
-				->setMod( $this->getMod() )
-				->setScanController( $this )
-				->retrieveLatest( false );
-		}
-		return $results;
+		return $this->getAllResults()->getNotIgnored();
 	}
 
 	/**

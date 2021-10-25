@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem;
  * @property array  $mal_fp_lines
  * @property array  $mal_file_lines
  * @property string $mal_sig
+ * @property string $ptg_slug
  */
 class ResultItem extends FileResultItem {
 

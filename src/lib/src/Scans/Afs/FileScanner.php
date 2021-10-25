@@ -60,21 +60,25 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_plugin = true;
 			$item->is_unrecognised = true;
+			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
 		}
 		catch ( Exceptions\PluginFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_plugin = true;
 			$item->is_checksumfail = true;
+			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
 		}
 		catch ( Exceptions\ThemeFileUnrecognisedException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_unrecognised = true;
+			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
 		}
 		catch ( Exceptions\ThemeFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_checksumfail = true;
+			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
 		}
 
 		try {

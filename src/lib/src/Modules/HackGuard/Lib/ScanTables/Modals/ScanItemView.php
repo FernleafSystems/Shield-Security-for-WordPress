@@ -32,7 +32,7 @@ class ScanItemView {
 			throw new \Exception( 'Not a valid record' );
 		}
 
-		if ( empty( $item->path_full ) ) {
+		if ( empty( $item->path_fragment ) ) {
 			throw new \Exception( 'Non-file scan items are not supported yet.' );
 		}
 
@@ -89,7 +89,7 @@ class ScanItemView {
 						'has_history'  => $hasHistory,
 					],
 					'hrefs'   => [
-						'file_download' => $mod->getScanCon( $item->scan )
+						'file_download' => $mod->getScanCon( $item->VO->scan )
 											   ->createFileDownloadLink( $item->VO->scanresult_id ),
 						'has_content'   => $hasContent,
 						'has_diff'      => $hasDiff,
@@ -114,7 +114,7 @@ class ScanItemView {
 	}
 
 	/**
-	 * @param Scans\Base\FileResultItem $resultItem
+	 * @param Scans\Afs\ResultItem $resultItem
 	 * @return string
 	 * @throws \Exception
 	 */

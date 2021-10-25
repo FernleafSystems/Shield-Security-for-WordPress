@@ -459,11 +459,7 @@
   "definitions":      {
     "all_scan_slugs":              [
       "apc",
-      "mal",
-      "ptg",
       "wpv",
-      "wcf",
-      "ufc",
       "afs"
     ],
     "file_scan_extensions":        [

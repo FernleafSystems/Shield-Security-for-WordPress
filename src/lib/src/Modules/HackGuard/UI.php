@@ -41,8 +41,6 @@ class UI extends BaseShield\UI {
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
-				'click_see_results'     => __( 'Click a scan to see its results', 'wp-simple-firewall' ),
-				'title_scan_site_now'   => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
@@ -103,12 +101,6 @@ class UI extends BaseShield\UI {
 	public function buildInsightsVars_Run() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		foreach ( $opts->getScanSlugs() as $scan ) {
-			$mod->getScanCon( $scan )->cleanStalesResults();
-		}
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
@@ -127,8 +119,6 @@ class UI extends BaseShield\UI {
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
-				'click_see_results'     => __( 'Click a scan to see its results', 'wp-simple-firewall' ),
-				'title_scan_site_now'   => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
@@ -156,9 +146,6 @@ class UI extends BaseShield\UI {
 			],
 			'hrefs'       => [
 				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $this->getCon()
-											 ->getModule_Insights()
-											 ->getUrl_ScansResults(),
 			],
 			'content'     => [
 				'section' => [
@@ -185,9 +172,6 @@ class UI extends BaseShield\UI {
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
 									   && in_array( $slug, $mod->getUiTrack()->selected_scans ),
-				],
-				'hrefs'   => [
-					'options' => $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug ),
 				],
 				'strings' => [
 					'title'    => $scanStrings[ $slug ][ 'name' ],

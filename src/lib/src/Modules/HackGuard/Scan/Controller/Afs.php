@@ -15,6 +15,46 @@ class Afs extends BaseForFiles {
 
 	const SCAN_SLUG = 'afs';
 
+	public function countResultsMalware() :int {
+		return ( new HackGuard\Scan\Results\Retrieve() )
+			->setMod( $this->getMod() )
+			->setScanController( $this )
+			->setAdditionalWheres( [
+				"`rim`.`meta_key`='is_mal'",
+			] )
+			->count();
+	}
+
+	public function countResultsWordpress() :int {
+		return ( new HackGuard\Scan\Results\Retrieve() )
+			->setMod( $this->getMod() )
+			->setScanController( $this )
+			->setAdditionalWheres( [
+				"`rim`.`meta_key`='is_in_core'",
+			] )
+			->count();
+	}
+
+	public function countResultsPlugins() :int {
+		return ( new HackGuard\Scan\Results\Retrieve() )
+			->setMod( $this->getMod() )
+			->setScanController( $this )
+			->setAdditionalWheres( [
+				"`rim`.`meta_key`='is_in_plugin'",
+			] )
+			->count();
+	}
+
+	public function countResultsThemes() :int {
+		return ( new HackGuard\Scan\Results\Retrieve() )
+			->setMod( $this->getMod() )
+			->setScanController( $this )
+			->setAdditionalWheres( [
+				"`rim`.`meta_key`='is_in_theme'",
+			] )
+			->count();
+	}
+
 	/**
 	 * Can only possibly repair themes, plugins or core files.
 	 * @return Scans\Afs\ResultsSet
@@ -83,6 +123,10 @@ class Afs extends BaseForFiles {
 
 	public function isEnabled() :bool {
 		return true;
+	}
+
+	protected function isPremiumOnly() :bool {
+		return false;
 	}
 
 	/**

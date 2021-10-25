@@ -20,10 +20,6 @@ class FileResultItem extends ResultItem {
 		switch ( $key ) {
 			case 'path_full':
 				if ( empty( $value ) ) {
-					if ( empty( $this->path_fragment ) ) {
-						error_log( var_export( $this->getRawData(), true ) );
-						throw new \Exception( 'PATH fragment should never be empty' );
-					}
 					$value = path_join( wp_normalize_path( ABSPATH ), $this->path_fragment );
 				}
 				break;

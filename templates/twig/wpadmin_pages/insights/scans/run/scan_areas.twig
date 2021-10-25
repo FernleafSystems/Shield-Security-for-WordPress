@@ -15,60 +15,15 @@
 
 				<div class="col-xl-3 col-lg-6 col-md-6">
 					<div class="scan-select pl-2 text-nowrap">
-						<label for="_wcf" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="wcf" id="_wcf" value="Y"
-								   {% if not scans.wcf.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.wcf.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.wcf.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.wcf.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
-						<label for="_ufc" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="ufc" id="_ufc" value="Y"
-								   {% if not scans.ufc.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.ufc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.ufc.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.ufc.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
-						<label for="_ptg" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="ptg" id="_ptg" value="Y"
-								   {% if not scans.ptg.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.ptg.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.ptg.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.ptg.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
 						<label for="_mal" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
 								   name="mal" id="_mal" value="Y"
-								   {% if not scans.mal.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.mal.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+								   {% if not scans.afs.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.afs.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
-							{{ scans.mal.strings.title }}
+							{{ scans.afs.strings.title }}
 							<br />
-							<small class="form-text">{{ scans.mal.strings.subtitle }}</small>
+							<small class="form-text">{{ scans.afs.strings.subtitle }}</small>
 						</label>
 					</div>
 				</div>
@@ -153,14 +108,12 @@
 		{
 			'ajax_scans_start': {{ ajax.scans_start|raw }},
 			'ajax_scans_check': {{ ajax.scans_check|raw }},
-			'href_scans_results': "{{ hrefs.scans_results|raw }}"
 		}
 	);
 	{% if vars.initial_check %}
 	jQuery( document ).icwpWpsfScansCheck(
 		{
-			'ajax_scans_check': {{ ajax.scans_check|raw }},
-			'href_scans_results': "{{ hrefs.scans_results|raw }}"
+			'ajax_scans_check': {{ ajax.scans_check|raw }}
 		}
 	);
 	{% endif %}

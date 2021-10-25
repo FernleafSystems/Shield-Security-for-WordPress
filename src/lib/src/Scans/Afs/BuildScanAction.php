@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Mal,
 	Ptg,
 	Ufc,
-	Wcf};
+	Wcf
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 class BuildScanAction extends Base\BuildScanAction {
