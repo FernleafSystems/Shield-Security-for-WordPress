@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property bool   $is_unrecognised
  * @property bool   $is_missing
  * @property bool   $is_mal
+ * @property bool   $is_realtime
  * @property int    $mal_fp_confidence
  * @property array  $mal_fp_lines
  * @property array  $mal_file_lines

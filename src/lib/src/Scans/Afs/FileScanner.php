@@ -118,6 +118,20 @@ class FileScanner {
 		catch ( \InvalidArgumentException $e ) {
 		}
 
+		if ( empty( $item ) && !$validFile ) {
+			try {
+				( new AfsScan\Scans\RealtimeFile( $fullPath ) )
+					->setMod( $this->getMod() )
+					->setScanActionVO( $action )
+					->scan();
+			}
+			catch ( AfsScan\Exceptions\RealtimeFileDiscoveredException $rte ) {
+				error_log( $fullPath );
+				$item = $this->getResultItem( $fullPath );
+				$item->is_realtime = true;
+			}
+		}
+
 		return $item;
 	}
 
