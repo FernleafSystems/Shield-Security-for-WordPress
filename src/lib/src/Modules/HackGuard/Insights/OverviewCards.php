@@ -114,7 +114,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'summary' => $enabled ?
 				__( 'WP Core directories are scanned regularly for unrecognised files', 'wp-simple-firewall' )
 				: __( "WP Core directories are never scanned for unrecognised files!", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+			'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
 			'help'    => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' ),
 			'state'   => $enabled ? 1 : -2,
 		];
@@ -125,7 +125,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 					__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
 					: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
 				'state'   => $opts->isUfsDeleteFiles() ? 1 : -1,
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+				'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
 			];
 		}
 		if ( $scanCon->getScanHasProblem() ) {
@@ -187,7 +187,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				sprintf( __( '%s Scanner runs automatically.' ), $scanCon->getScanName() )
 				: sprintf( __( "%s Scanner isn't set to run automatically." ), $scanCon->getScanName() ),
 			'state'   => $malEnabled ? 1 : -2,
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+			'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
 			'help'    => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 		];
 		if ( $malEnabled && $scanCon->getScanHasProblem() ) {

@@ -22,9 +22,11 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		try {
 			$validFile =
 				( in_array( Afs::SCAN_SLUG_WCF, $scans ) && ( new Scans\WpCoreFile( $fullPath ) )
+						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
 				( in_array( Afs::SCAN_SLUG_UFC, $scans ) && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
 				( in_array( Afs::SCAN_SLUG_PTG, $scans ) && ( new Scans\PluginFile( $fullPath ) )

@@ -151,15 +151,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_scan_ufc' :
-				$shortTitle = __( 'Unrecognised Files', 'wp-simple-firewall' );
-				$title = __( 'Unrecognised Files Scanner', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( "Regularly scan your WordPress core folders for files that don't belong.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $title ) )
-				];
-				break;
-
 			case 'section_scan_apc' :
 				$title = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
 				$shortTitle = __( 'Abandoned Plugins', 'wp-simple-firewall' );
@@ -167,25 +158,6 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
 						__( 'Monitor your site for plugins that have been abandoned by their authors and are no longer maintained.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable this to alert you to your site running unmaintained code.', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			//REMOVED:
-			case 'section_scan_wcf' :
-				$shortTitle = __( 'Core Files', 'wp-simple-firewall' );
-				$title = __( 'WordPress Core File Scanner', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress core files for changes compared to official WordPress files.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $title ) )
-				];
-				break;
-
-			case 'section_scan_mal' :
-				$shortTitle = __( 'Malware', 'wp-simple-firewall' );
-				$title = __( 'Malware Scanner', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and detect presence of Malware signatures.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable this scanner to automatically detect infected files.', 'wp-simple-firewall' ) )
 				];
 				break;
 
