@@ -200,12 +200,19 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabledMalwareScan() :bool {
-		return $this->isEnabled() && $this->getCon()->isPremiumActive();
+		return $this->isEnabled() && !$this->isRestrictedMalwareScan();
 	}
 
 	public function isEnabledPluginThemeScan() :bool {
-		return $this->isEnabled() && $this->getCon()->isPremiumActive()
-			   && $this->getCon()->hasCacheDir();
+		return $this->isEnabled() && $this->getCon()->hasCacheDir() && !$this->isRestrictedPluginThemeScan();
+	}
+
+	public function isRestrictedMalwareScan() :bool {
+		return !$this->getCon()->isPremiumActive();
+	}
+
+	public function isRestrictedPluginThemeScan() :bool {
+		return !$this->getCon()->isPremiumActive();
 	}
 
 	protected function isPremiumOnly() :bool {

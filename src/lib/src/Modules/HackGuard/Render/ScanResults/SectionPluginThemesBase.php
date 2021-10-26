@@ -22,7 +22,7 @@ class SectionPluginThemesBase extends SectionBase {
 							   'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
 						   ],
 						   'flags'   => [
-							   'ptg_is_restricted' => !$mod->isPremium(),
+							   'ptg_is_restricted' => $this->getScanConAFS()->isRestrictedPluginThemeScan(),
 						   ],
 						   'vars'    => [
 							   'datatables_init' => ( new ForPluginTheme() )

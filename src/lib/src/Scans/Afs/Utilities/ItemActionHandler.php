@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalFalsePositiveReporter;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {

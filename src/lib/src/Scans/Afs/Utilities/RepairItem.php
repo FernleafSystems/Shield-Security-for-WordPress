@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalFalsePositiveReporter;
 use FernleafSystems\Wordpress\Services\{
 	Services,
 	Utilities\File\RemoveLineFromFile,
@@ -101,7 +102,6 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 						->fileExistsInHash( $item->path_fragment );
 				}
 				catch ( \Exception $e ) {
-					error_log( var_export( $e->getMessage(), true ) );
 					$canRepair = false;
 				}
 			}
@@ -138,7 +138,6 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 						->fileExistsInHash( $item->path_fragment );
 				}
 				catch ( \Exception $e ) {
-					error_log( var_export( $e->getMessage(), true ) );
 					$canRepair = false;
 				}
 			}
