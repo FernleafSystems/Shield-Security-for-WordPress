@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class VulnVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb
  * @property string|int $id
  * @property string     $title
  * @property string     $description

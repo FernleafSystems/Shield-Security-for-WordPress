@@ -77,27 +77,6 @@ class ResultsSet {
 	}
 
 	/**
-	 * @param ResultItem $item
-	 * @return $this
-	 */
-	public function removeItem( $item ) {
-		return $this->removeItemByHash( $item->hash );
-	}
-
-	/**
-	 * @param string $hash
-	 * @return $this
-	 */
-	public function removeItemByHash( $hash ) {
-		if ( $this->getItemExists( $hash ) ) {
-			$items = $this->getAllItems();
-			unset( $items[ $hash ] );
-			$this->items = $items;
-		}
-		return $this;
-	}
-
-	/**
 	 * @return static
 	 */
 	public function setItems( array $items ) {

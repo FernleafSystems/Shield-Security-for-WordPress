@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
@@ -11,25 +11,16 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanSlice() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$tmpResults = $this->getScanController()->getNewResultsSet();
 
-		$copier = new Shield\Scans\Helpers\CopyResultsSets();
+		$results = [];
 		foreach ( $action->items as $file ) {
-			$copier->copyTo( $this->scanItem( $file ), $tmpResults );
+			$results[] = $this->scanItem( $file );
 		}
 
-		$action->results = array_map(
-			function ( $item ) {
-				return $item->getRawData();
-			},
-			$tmpResults->getAllItems()
-		);
+		$action->results = array_filter( $results );
 	}
 
-	private function scanItem( string $scanItem ) :ResultsSet {
-		/** @var ResultsSet $results */
-		$results = $this->getScanController()->getNewResultsSet();
-
+	private function scanItem( string $scanItem ) :array {
 		$apiToken = $this->getCon()
 						 ->getModule_License()
 						 ->getWpHashesTokenManager()
@@ -50,23 +41,15 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			$lookerUpper = new Vulnerabilities\Theme( $apiToken );
 		}
 
+		$result = [];
+
 		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
-
 		if ( is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
-
-			foreach ( array_filter( $rawVuls[ 'vulnerabilities' ] ) as $vul ) {
-				$VO = ( new Shield\Scans\Wpv\WpVulnDb\VulnVO() )->applyFromArray( $vul );
-				$VO->provider = $rawVuls[ 'meta' ][ 'provider' ];
-
-				/** @var ResultItem $item */
-				$item = $this->getScanController()->getNewResultItem();
-				$item->slug = $scanItem;
-				$item->wpvuln_id = $VO->id;
-				$item->wpvuln_vo = $VO->getRawData();
-				$results->addItem( $item );
-			}
+			$result[ 'slug' ] = $scanItem;
+			$result[ 'is_vulnerable' ] = true;
+			$result[ 'vulnerability_total' ] = $rawVuls[ 'meta' ][ 'total' ];
 		}
 
-		return $results;
+		return $result;
 	}
 }

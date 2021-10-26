@@ -169,16 +169,16 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 
 		$cards = [];
 
-		$bApc = $scanCon->isEnabled();
+		$isAPC = $scanCon->isEnabled();
 		$cards[ $scanCon::SCAN_SLUG ] = [
 			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'state'   => $bApc ? 1 : -1,
-			'summary' => $bApc ?
+			'state'   => $isAPC ? 1 : -1,
+			'summary' => $isAPC ?
 				sprintf( __( '%s Scanner is enabled.' ), $scanCon->getScanName() )
 				: sprintf( __( '%s Scanner is not enabled.' ), $scanCon->getScanName() ),
 			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 		];
-		if ( $scanCon->getScanHasProblem() ) {
+		if ( $isAPC && $scanCon->getScansController()->getScanResultsCount()->countPluginAbandoned() > 0 ) {
 			$cards[ 'apc_problem' ] = [
 				'name'    => __( 'Plugin Abandoned' ),
 				'summary' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
@@ -220,7 +220,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 			];
 		}
-		if ( $scanCon->getScanHasProblem() ) {
+		if ( $enabledWpv && $scanCon->getScansController()->getScanResultsCount()->countVulnerableAssets() > 0 ) {
 			$cards[ 'wpv_problem' ] = [
 				'name'    => __( 'Vulnerable Plugin', 'wp-simple-firewall' ),
 				'summary' => __( 'Plugin with vulnerabilities found on site.', 'wp-simple-firewall' ),

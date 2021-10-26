@@ -91,7 +91,7 @@ class SectionThemes extends SectionPluginThemesBase {
 			->setMod( $this->getMod() )
 			->loadForTheme( $theme );
 
-		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->file );
+		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
 
 		$data = [
 			'info'  => [

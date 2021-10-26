@@ -16,11 +16,11 @@ abstract class BaseForAssets extends Base {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( strpos( $item->slug, '/' ) ) {
-			$asset = Services::WpPlugins()->getPluginAsVo( $item->slug );
+		if ( strpos( $item->VO->item_id, '/' ) ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $item->VO->item_id );
 		}
 		else {
-			$asset = Services::WpThemes()->getThemeAsVo( $item->slug );
+			$asset = Services::WpThemes()->getThemeAsVo( $item->VO->item_id );
 		}
 
 		if ( empty( $asset ) ) {
@@ -40,9 +40,8 @@ abstract class BaseForAssets extends Base {
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
 			ResultItems\Ops\Handler::ITEM_TYPE_THEME;
 
-		unset( $rawResult[ 'scan' ] );
+		unset( $rawResult[ 'slug' ] );
 		$record->meta = $rawResult;
-
 		return $record;
 	}
 }

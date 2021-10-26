@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
-	Scan\Controller\Afs
+	Scan\Controller\Afs,
+	Scan\Controller\Wpv
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -16,6 +17,10 @@ class Counts {
 
 	public function countMalware() :int {
 		return $this->getCount( 'malware_files' );
+	}
+
+	public function countPluginAbandoned() :int {
+		return $this->getCount( 'plugin_files' );
 	}
 
 	public function countPluginFiles() :int {
@@ -59,7 +64,10 @@ class Counts {
 					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='is_in_theme'", ] )->count();
 					break;
 				case 'assets_vulnerable':
-					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='wpvuln_id'", ] )->count();
+					$count = $resultsRetrieve
+						->setScanController( $mod->getScanCon( Wpv::SCAN_SLUG ) )
+						->setAdditionalWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] )
+						->count();
 					break;
 
 				default:

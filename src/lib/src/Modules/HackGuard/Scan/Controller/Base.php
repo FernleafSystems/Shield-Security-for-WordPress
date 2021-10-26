@@ -49,17 +49,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
-		$problems = $this->countScanProblems();
-		if ( $problems > 0 ) {
-			$items[] = [
-				'id'       => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
-				'title'    => $this->getScanName()
-							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
-				'href'     => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
-				'warnings' => $problems
-			];
-		}
-		return $items;
+		return [];
 	}
 
 	public function cleanStalesResults() {
@@ -86,10 +76,6 @@ abstract class Base extends ExecOnceModConsumer {
 			self::$resultsCounts[ $this->getSlug() ] = $count;
 		}
 		return self::$resultsCounts[ $this->getSlug() ];
-	}
-
-	public function getScanHasProblem() :bool {
-		return $this->countScanProblems() > 0;
 	}
 
 	public function getScansController() :HackGuard\Scan\ScansController {
@@ -259,10 +245,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	public function getNewResultItem() {
 		$class = $this->getScanNamespace().'ResultItem';
-		/** @var ResultItem $item */
-		$item = new $class();
-		$item->scan = $this->getSlug();
-		return $item;
+		return new $class();
 	}
 
 	/**
@@ -311,6 +294,13 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @deprecated 12.1
 	 */
 	public function isResultItemStale( $item ) :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 13.0
+	 */
+	public function getScanHasProblem() :bool {
 		return false;
 	}
 }

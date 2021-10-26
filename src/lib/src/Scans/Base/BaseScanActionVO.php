@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
- * Class ScanActionVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
  * @property string   $scan
  * @property int      $created_at
  * @property int      $started_at

@@ -10,6 +10,27 @@ class Apc extends BaseForAssets {
 
 	const SCAN_SLUG = 'apc';
 
+	public function addAdminMenuBarItem( array $items ) :array {
+		$status = $this->getScansController()->getScanResultsCount();
+
+		$template = [
+			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
+			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+		];
+
+		$count = $status->countPluginAbandoned();
+		if ( $count > 0 ) {
+			$warning = $template;
+			$warning[ 'id' ] .= '-apc';
+			$warning[ 'title' ] = __( 'Abandoned Plugins', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
+			$warning[ 'warning' ] = $count;
+			$items[] = $warning;
+		}
+
+		return $items;
+	}
+
 	/**
 	 * @return Scans\Apc\Utilities\ItemActionHandler
 	 */
