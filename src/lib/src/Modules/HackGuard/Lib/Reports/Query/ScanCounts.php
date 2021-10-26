@@ -47,9 +47,9 @@ class ScanCounts {
 				->setMod( $this->getMod() )
 				->setScanController( $scanCon )
 				->setAdditionalWheres( [
-					"`ri`.notified_at = 0"
+					"`ri`.notified_at=0",
 				] )
-				->count( false );
+				->count();
 		}
 
 		return $counts;

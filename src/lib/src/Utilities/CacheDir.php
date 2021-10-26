@@ -59,6 +59,9 @@ class CacheDir {
 		return true;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function addProtections() :bool {
 		$FS = Services::WpFs();
 		$cacheDir = $this->getDir();

@@ -25,6 +25,8 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	private $scanActionVO;
 
+	protected $latestResults;
+
 	private static $resultsCounts = [];
 
 	public function __construct() {
@@ -79,7 +81,7 @@ abstract class Base extends ExecOnceModConsumer {
 				$count = ( new Retrieve() )
 					->setScanController( $this )
 					->setMod( $this->getMod() )
-					->count( false );
+					->count();
 			}
 			self::$resultsCounts[ $this->getSlug() ] = $count;
 		}
@@ -108,7 +110,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	protected function getItemsToAutoRepair() {
-		if ( $this->isRestricted() ) {
+		if ( $this->isRestricted() || !$this->isCronAutoRepair() ) {
 			$results = $this->getNewResultsSet();
 		}
 		else {
@@ -124,32 +126,34 @@ abstract class Base extends ExecOnceModConsumer {
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getAllResults() {
-		if ( $this->isRestricted() ) {
-			$results = $this->getNewResultsSet();
+		if ( !isset( $this->latestResults ) ) {
+			$this->latestResults = $this->getNewResultsSet();
+			if ( !$this->isRestricted() ) {
+				try {
+					$this->latestResults = ( new HackGuard\Scan\Results\Retrieve() )
+						->setMod( $this->getMod() )
+						->setScanController( $this )
+						->retrieveLatest( true );
+				}
+				catch ( \Exception $e ) {
+				}
+			}
 		}
-		else {
-			$results = ( new Retrieve() )
-				->setMod( $this->getMod() )
-				->setScanController( $this )
-				->retrieveLatest( true );
-		}
-		return $results;
+		return $this->latestResults;
+	}
+
+	/**
+	 * @return Scans\Base\ResultsSet|mixed
+	 */
+	public function getLatestResults() {
+		return $this->getNewResultsSet();
 	}
 
 	/**
 	 * @return Scans\Base\ResultsSet|mixed
 	 */
 	public function getResultsForDisplay() {
-		if ( $this->isRestricted() ) {
-			$results = $this->getNewResultsSet();
-		}
-		else {
-			$results = ( new Retrieve() )
-				->setMod( $this->getMod() )
-				->setScanController( $this )
-				->retrieveLatest( false );
-		}
-		return $results;
+		return $this->getAllResults()->getNotIgnored();
 	}
 
 	/**
@@ -186,11 +190,9 @@ abstract class Base extends ExecOnceModConsumer {
 		return false;
 	}
 
-	public function canCronAutoDelete() :bool {
+	public function isEnabled() :bool {
 		return false;
 	}
-
-	abstract public function isEnabled() :bool;
 
 	protected function isPremiumOnly() :bool {
 		return true;
@@ -217,18 +219,14 @@ abstract class Base extends ExecOnceModConsumer {
 	 * TODO: Make private/protected
 	 */
 	public function runCronAutoRepair() {
-		$results = $this->getItemsToAutoRepair();
-		if ( $results->hasItems() ) {
-			foreach ( $results->getAllItems() as $item ) {
-				try {
-					$this->getItemActionHandler()
-						 ->setScanItem( $item )
-						 ->repair( $this->canCronAutoDelete() );
-				}
-				catch ( \Exception $e ) {
-				}
+		foreach ( $this->getItemsToAutoRepair()->getAllItems() as $item ) {
+			try {
+				$this->getItemActionHandler()
+					 ->setScanItem( $item )
+					 ->repair( false );
 			}
-			$this->cleanStalesResults();
+			catch ( \Exception $e ) {
+			}
 		}
 	}
 

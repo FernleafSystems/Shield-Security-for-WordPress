@@ -15,7 +15,6 @@ class SectionPluginThemesBase extends SectionBase {
 	protected function getCommonRenderData() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( parent::getCommonRenderData(), [
 						   'strings' => [
@@ -23,7 +22,7 @@ class SectionPluginThemesBase extends SectionBase {
 							   'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
 						   ],
 						   'flags'   => [
-							   'ptg_is_restricted' => $mod->getScanCon( Ptg::SCAN_SLUG )->isRestricted(),
+							   'ptg_is_restricted' => !$mod->isPremium(),
 						   ],
 						   'vars'    => [
 							   'datatables_init' => ( new ForPluginTheme() )

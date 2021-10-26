@@ -79,9 +79,8 @@ class ScansController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 		foreach ( $opts->getScanSlugs() as $slug ) {
 			$scanCon = $mod->getScanCon( $slug );
-			if ( $scanCon->isCronAutoRepair() ) {
-				$scanCon->runCronAutoRepair();
-			}
+			$scanCon->runCronAutoRepair();
+			$scanCon->cleanStalesResults();
 		}
 	}
 

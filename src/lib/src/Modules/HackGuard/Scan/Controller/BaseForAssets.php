@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseForAssets extends Base {
 
 	/**
-	 * @param Scans\Ptg\ResultItem|Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
+	 * @param Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
 		/** @var ModCon $mod */
@@ -35,14 +35,14 @@ abstract class BaseForAssets extends Base {
 		$mod = $this->getMod();
 		/** @var ResultItems\Ops\Record $record */
 		$record = $mod->getDbH_ResultItems()->getRecord();
-		$record->meta = [
-			$this->getSlug() => $rawResult
-		];
-		$record->hash = $rawResult[ 'hash' ];
 		$record->item_id = $rawResult[ 'slug' ];
 		$record->item_type = strpos( $rawResult[ 'slug' ], '/' ) ?
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
 			ResultItems\Ops\Handler::ITEM_TYPE_THEME;
+
+		unset( $rawResult[ 'scan' ] );
+		$record->meta = $rawResult;
+
 		return $record;
 	}
 }

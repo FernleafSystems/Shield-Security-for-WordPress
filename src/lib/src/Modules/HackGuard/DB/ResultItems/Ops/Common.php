@@ -24,10 +24,6 @@ trait Common {
 		return $this->addWhereNewerThan( 0, 'ignored_at' );
 	}
 
-	public function filterByItemHash( string $hash ) {
-		return $this->addWhereEquals( 'hash', $hash );
-	}
-
 	public function filterByItemID( string $itemID ) {
 		return $this->addWhereEquals( 'item_id', $itemID );
 	}

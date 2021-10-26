@@ -23,7 +23,7 @@ class ScanItemView {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		try {
-			/** @var Scans\Base\FileResultItem $item */
+			/** @var Scans\Afs\ResultItem $item */
 			$item = ( new Retrieve() )
 				->setMod( $mod )
 				->byID( $rid );
@@ -32,7 +32,7 @@ class ScanItemView {
 			throw new \Exception( 'Not a valid record' );
 		}
 
-		if ( empty( $item->path_full ) ) {
+		if ( empty( $item->path_fragment ) ) {
 			throw new \Exception( 'Non-file scan items are not supported yet.' );
 		}
 
@@ -78,9 +78,10 @@ class ScanItemView {
 						'tab_filecontents' => $fileContent,
 						'tab_diff'         => $diffContent,
 						'tab_history'      => $historyContent,
-						'tab_info'         =>( new BuildInfo() )
+						'tab_info'         => ( new BuildInfo() )
 							->setMod( $this->getMod() )
-							->run( $item ),
+							->setScanItem( $item )
+							->run(),
 					],
 					'flags'   => [
 						'can_download' => $canDownload,
@@ -89,7 +90,7 @@ class ScanItemView {
 						'has_history'  => $hasHistory,
 					],
 					'hrefs'   => [
-						'file_download' => $mod->getScanCon( $item->scan )
+						'file_download' => $mod->getScanCon( $item->VO->scan )
 											   ->createFileDownloadLink( $item->VO->scanresult_id ),
 						'has_content'   => $hasContent,
 						'has_diff'      => $hasDiff,
@@ -114,7 +115,7 @@ class ScanItemView {
 	}
 
 	/**
-	 * @param Scans\Base\FileResultItem $resultItem
+	 * @param Scans\Afs\ResultItem $resultItem
 	 * @return string
 	 * @throws \Exception
 	 */

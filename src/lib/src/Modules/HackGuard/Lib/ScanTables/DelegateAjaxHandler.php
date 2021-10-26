@@ -61,8 +61,8 @@ class DelegateAjaxHandler {
 				$item = ( new HackGuard\Scan\Results\Retrieve() )
 					->setMod( $this->getMod() )
 					->byID( $itemID );
-				$scanSlugs[] = $item->scan;
-				if ( $mod->getScanCon( $item->scan )->executeItemAction( $item, $action ) ) {
+				$scanSlugs[] = $item->VO->scan;
+				if ( $mod->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
 					$successfulItems[] = $item->VO->scanresult_id;
 				}
 			}

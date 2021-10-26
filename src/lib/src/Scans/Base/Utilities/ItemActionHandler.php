@@ -86,8 +86,6 @@ abstract class ItemActionHandler {
 	}
 
 	/**
-	 * @param bool $allowDelete
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function repair( bool $allowDelete = false ) :bool {

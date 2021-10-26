@@ -4,12 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
-	Mal,
-	Ptg,
-	Ufc,
-	Wcf
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -21,8 +16,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class LoadRawTableData {
 
 	use ModConsumer;
-
-	private static $GuardFiles;
 
 	/**
 	 * @throws \Exception
@@ -62,12 +55,17 @@ class LoadRawTableData {
 		return $data;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadForMalware() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var Scans\Afs\ResultsSet $RS */
+		$RS = $mod->getScanCon( Afs::SCAN_SLUG )->getResultsForDisplay();
 		return array_map(
 			function ( $item ) {
-				/** @var Scans\Mal\ResultItem $item */
+				/** @var Scans\Afs\ResultItem $item */
 				$data = $item->getRawData();
 
 				$data[ 'rid' ] = $item->VO->scanresult_id;
@@ -85,35 +83,58 @@ class LoadRawTableData {
 
 				$data[ 'line_numbers' ] = implode( ', ', array_map(
 					function ( $line ) {
-						return $line + 1;
+						return $line + 1;  // because lines start at ZERO
 					},
-					$item->file_lines // because lines start at ZERO
+					array_keys( $item->mal_fp_lines )
 				) );
-				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( base64_decode( $item->mal_sig ) ) );
+				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $item->mal_sig ) );
 				$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 
 				return $data;
 			},
-			$mod->getScanCon( Mal::SCAN_SLUG )->getResultsForDisplay()->getItems()
+			$RS->getMalware()->getItems()
 		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadForPlugin( WpPluginVo $plugin ) :array {
-		return $this->getGuardFilesDataFor( $plugin );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Scans\Afs\ResultsSet $RS */
+		$RS = $mod->getScanCon( Afs::SCAN_SLUG )->getResultsForDisplay();
+		return $this->getGuardFilesDataFor(
+			$RS->getForPlugin( $plugin->unique_id )
+		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadForTheme( WpThemeVo $theme ) :array {
-		return $this->getGuardFilesDataFor( $theme );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Scans\Afs\ResultsSet $RS */
+		$RS = $mod->getScanCon( Afs::SCAN_SLUG )->getResultsForDisplay();
+		return $this->getGuardFilesDataFor(
+			$RS->getForTheme( $theme->unique_id )
+		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadForWordPress() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var Scans\Afs\ResultsSet $RS */
+		$RS = $mod->getScanCon( Afs::SCAN_SLUG )->getResultsForDisplay();
 		try {
 			$files = array_map(
 				function ( $item ) {
-					/** @var Scans\Wcf\ResultItem|Scans\Ufc\ResultItem $item */
+					/** @var Scans\Afs\ResultItem $item */
 					$data = $item->getRawData();
 
 					$data[ 'rid' ] = $item->VO->scanresult_id;
@@ -144,10 +165,7 @@ class LoadRawTableData {
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 					return $data;
 				},
-				array_merge(
-					$mod->getScanCon( Wcf::SCAN_SLUG )->getResultsForDisplay()->getItems(),
-					$mod->getScanCon( Ufc::SCAN_SLUG )->getResultsForDisplay()->getItems()
-				)
+				$RS->getWordpressCore()->getItems()
 			);
 		}
 		catch ( \Exception $e ) {
@@ -158,12 +176,14 @@ class LoadRawTableData {
 	}
 
 	/**
-	 * @param WpPluginVo|WpThemeVo $item
+	 * @param Scans\Afs\ResultsSet $results
 	 * @return array
+	 * @throws \Exception
 	 */
-	private function getGuardFilesDataFor( $item ) :array {
+	private function getGuardFilesDataFor( Scans\Afs\ResultsSet $results ) :array {
 		return array_map(
 			function ( $item ) {
+				/** @var Scans\Afs\ResultItem $item */
 
 				$data = $item->getRawData();
 				$data[ 'rid' ] = $item->VO->scanresult_id;
@@ -194,7 +214,7 @@ class LoadRawTableData {
 				$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );
 				return $data;
 			},
-			$this->getGuardFiles()->getItemsForSlug( $item->asset_type === 'plugin' ? $item->file : $item->stylesheet )
+			$results->getItems()
 		);
 	}
 
@@ -208,7 +228,7 @@ class LoadRawTableData {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$actionHandler = $mod->getScanCon( $item->scan )
+		$actionHandler = $mod->getScanCon( $item->VO->scan )
 							 ->getItemActionHandler()
 							 ->setScanItem( $item );
 
@@ -261,25 +281,11 @@ class LoadRawTableData {
 		return $actions;
 	}
 
-	private function getGuardFiles() :Scans\Ptg\ResultsSet {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		if ( !isset( self::$GuardFiles ) ) {
-			try {
-				self::$GuardFiles = $mod->getScanCon( Ptg::SCAN_SLUG )->getResultsForDisplay();
-			}
-			catch ( \Exception $e ) {
-				self::$GuardFiles = new Scans\Ptg\ResultsSet();
-			}
-		}
-		return self::$GuardFiles;
-	}
-
-	private function getColumnContent_File( Scans\Base\FileResultItem $item ) :string {
+	private function getColumnContent_File( Scans\Afs\ResultItem $item ) :string {
 		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
 	}
 
-	private function getColumnContent_FileStatus( Scans\Base\FileResultItem $item, string $status ) :string {
+	private function getColumnContent_FileStatus( Scans\Afs\ResultItem $item, string $status ) :string {
 		$content = $status;
 
 		$FS = Services::WpFs();
@@ -302,7 +308,7 @@ class LoadRawTableData {
 		return $content;
 	}
 
-	private function getColumnContent_FileAsHref( Scans\Base\FileResultItem $item ) :string {
+	private function getColumnContent_FileAsHref( Scans\Afs\ResultItem $item ) :string {
 		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
 			$item->VO->scanresult_id,

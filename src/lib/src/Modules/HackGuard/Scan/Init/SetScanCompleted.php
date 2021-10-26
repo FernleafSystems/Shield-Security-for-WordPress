@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
@@ -75,6 +75,7 @@ class SetScanCompleted {
 			$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
 				return $item->getDescriptionForAudit();
 			}, $results->getItems() ) ), 0, 30 );
+
 			$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
 
 			$this->getCon()

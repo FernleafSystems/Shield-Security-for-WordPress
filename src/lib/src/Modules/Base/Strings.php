@@ -162,8 +162,6 @@ class Strings {
 	}
 
 	/**
-	 * @param string $key
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {

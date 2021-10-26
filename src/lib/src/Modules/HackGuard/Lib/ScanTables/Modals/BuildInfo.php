@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,16 +12,15 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 class BuildInfo {
 
 	use ModConsumer;
+	use Scans\Common\ScanItemConsumer;
 
 	/**
-	 * @param Scans\Base\FileResultItem $item
-	 * @return string
 	 * @throws \Exception
 	 */
-	public function run( $item ) :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+	public function run() :string {
 		$WP = Services::WpGeneral();
+		/** @var Scans\Afs\ResultItem $item */
+		$item = $this->getScanItem();
 
 		$isCoreFile = Services::CoreFileHashes()->isCoreFile( $item->path_fragment );
 
@@ -39,47 +37,92 @@ class BuildInfo {
 						: ''
 				],
 				'vars'    => [
-					'path_fragment' => $item->path_fragment,
+					'path_fragment'    => $item->path_fragment,
+					'file_description' => $this->getFileDescriptionLines()
 				],
 				'strings' => [
-					'file_status'       => sprintf( '%s: %s',
-						__( 'Current File Status', 'wp-simple-firewall' ),
-						$this->getItemFileStatus( $item )
+					'file_status'      => sprintf( '%s: %s',
+						__( 'File Status', 'wp-simple-firewall' ),
+						$this->getFileStatus()
 					),
-					'file_full_path'    => sprintf( '%s: <code>%s</code>',
+					'file_full_path'   => sprintf( '%s: <code>%s</code>',
 						__( 'Full Path To File', 'wp-simple-firewall' ),
 						$item->path_full
 					),
-					'this_is_core_file' => sprintf(
-						__( 'This is a Core WordPress file for your version (%s) of WordPress.', 'wp-simple-firewall' ),
-						$WP->getVersion()
-					),
-					'view_file_vcs'     => __( 'View Original File Contents', 'wp-simple-firewall' ),
+					'file_description' => __( 'Description', 'wp-simple-firewall' ),
+					'view_file_vcs'    => __( 'View Original File Contents', 'wp-simple-firewall' ),
 				],
 			]
 		);
 	}
 
-	/**
-	 * @param Scans\Base\ResultItem $item
-	 * @return string
-	 */
-	private function getItemFileStatus( $item ) :string {
-		if ( $item->is_unrecognised ) {
-			$status = __( 'Unrecognised', 'wp-simple-firewall' );
+	private function getFileDescriptionLines() :array {
+		/** @var Scans\Afs\ResultItem $item */
+		$item = $this->getScanItem();
+
+		$description = [];
+		if ( $item->is_in_core ) {
+			if ( $item->is_unrecognised ) {
+				$description[] = sprintf(
+					__( "This file is located in a core WordPress directory isn't a recognised core file for WordPress %s.", 'wp-simple-firewall' ),
+					Services::WpGeneral()->getVersion()
+				);
+			}
+			else {
+				$description[] = sprintf(
+					__( 'This is a recognised core file for WordPress %s.', 'wp-simple-firewall' ),
+					Services::WpGeneral()->getVersion()
+				);
+			}
 		}
-		elseif ( $item->is_mal ) {
-			$status = __( 'Potential Malware', 'wp-simple-firewall' );
+		elseif ( $item->is_in_plugin ) {
+			if ( $item->is_unrecognised ) {
+				$description[] = __( "It's located in a WordPress plugin directory, but it's not recognised as an official file.", 'wp-simple-firewall' );
+			}
+			else {
+				$description[] = __( "It's located in a WordPress plugin directory, and is a recognised official file.", 'wp-simple-firewall' );
+			}
+		}
+		elseif ( $item->is_in_theme ) {
+			if ( $item->is_unrecognised ) {
+				$description[] = __( "It's located in a WordPress theme directory, but it's not recognised as an official file.", 'wp-simple-firewall' );
+			}
+			else {
+				$description[] = __( "It's located in a WordPress theme directory, and is a recognised official file.", 'wp-simple-firewall' );
+			}
+		}
+		if ( $item->is_checksumfail ) {
+			$description[] = __( 'Contents have been modified from what is expected.', 'wp-simple-firewall' );
+		}
+		if ( $item->is_mal ) {
+			$description[] = __( 'Contents could potentially contain malicious PHP malware.', 'wp-simple-firewall' );
+		}
+
+		return $description;
+	}
+
+	private function getFileStatus() :string {
+		/** @var Scans\Afs\ResultItem $item */
+		$item = $this->getScanItem();
+
+		$status = [];
+		if ( $item->is_mal ) {
+			$status[] = __( 'Potential Malware', 'wp-simple-firewall' );
+		}
+
+		if ( $item->is_unrecognised ) {
+			$status[] = __( 'Unrecognised', 'wp-simple-firewall' );
 		}
 		elseif ( $item->is_missing ) {
-			$status = __( 'Missing', 'wp-simple-firewall' );
+			$status[] = __( 'Missing', 'wp-simple-firewall' );
 		}
 		elseif ( $item->is_checksumfail ) {
-			$status = __( 'Modified', 'wp-simple-firewall' );
+			$status[] = __( 'Modified', 'wp-simple-firewall' );
 		}
 		else {
-			$status = __( 'Unknown', 'wp-simple-firewall' );
+			$status[] = __( 'Unknown', 'wp-simple-firewall' );
 		}
-		return $status;
+
+		return implode( ' / ', $status );
 	}
 }

@@ -9,4 +9,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem;
  */
 class ResultItem extends FileResultItem {
 
+	/**
+	 * @inheritDoc
+	 */
+	public function __get( string $key ) {
+		switch ( $key ) {
+			case 'is_unrecognised':
+				$value = true;
+				break;
+			default:
+				$value = parent::__get( $key );
+				break;
+		}
+		return $value;
+	}
 }

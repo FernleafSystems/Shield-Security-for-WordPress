@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanR
  * @property bool   $deleted
  * @property bool   $repaired
  * @property string $repair_event_status
+ * @property bool   $auto_filter
  */
 class ResultItem extends DynPropertiesClass {
 

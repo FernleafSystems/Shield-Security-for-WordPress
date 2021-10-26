@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
@@ -186,17 +186,16 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$bReinstall = (bool)$req->post( 'reinstall' );
-		$bActivate = (bool)$req->post( 'activate' );
+		$activate = $req->post( 'activate' );
 		$file = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
 
-		if ( $bReinstall ) {
-			/** @var Scan\Controller\Ptg $scan */
-			$scan = $mod->getScansCon()->getScanCon( 'ptg' );
-			$bActivate = $scan->actionPluginReinstall( $file );
+		if ( $req->post( 'reinstall' ) ) {
+			/** @var Scan\Controller\Afs $scan */
+			$scan = $mod->getScansCon()->getScanCon( 'afs' );
+			$activate = $scan->actionPluginReinstall( $file );
 		}
 
-		if ( $bActivate ) {
+		if ( $activate ) {
 			Services::WpPlugins()->activate( $file );
 		}
 
@@ -290,6 +289,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				catch ( \Exception $e ) {
 				}
 			}
+
 			$scanCon->startScans( $toScan );
 		}
 

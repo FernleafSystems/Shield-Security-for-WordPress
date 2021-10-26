@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 
@@ -8,39 +8,26 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
-/**
- * Class FalsePositiveReporter
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities
- */
 class FalsePositiveReporter {
 
 	const HASH_ALGO = 'sha1';
 	use Modules\ModConsumer;
 
-	/**
-	 * @param ResultItem $oIt
-	 * @param bool       $bIsFalsePositive
-	 */
-	public function reportResultItem( ResultItem $oIt, $bIsFalsePositive = true ) {
-		$this->reportPath( $oIt->path_full, $bIsFalsePositive );
-		$this->reportFileLines( $oIt->path_full, $oIt->file_lines, $bIsFalsePositive );
+	public function reportResultItem( ResultItem $item, bool $isFalsePositive = true ) {
+		$this->reportPath( $item->path_full, $isFalsePositive );
+		$this->reportFileLines( $item->path_full, $item->file_lines, $isFalsePositive );
 	}
 
-	/**
-	 * @param string $sFullPath
-	 * @param int[]  $aLines
-	 * @param bool   $bIsFalsePositive
-	 */
-	public function reportFileLines( $sFullPath, $aLines, $bIsFalsePositive = true ) {
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-			$aFile = array_intersect_key(
-				explode( "\n", Services::WpFs()->getFileContent( $sFullPath ) ),
-				array_flip( $aLines )
+	public function reportFileLines( string $fullPath, array $lines, bool $isFalsePositive = true ) {
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isMalUseNetworkIntelligence() ) {
+			$fileLines = array_intersect_key(
+				explode( "\n", Services::WpFs()->getFileContent( $fullPath ) ),
+				$lines
 			);
-			foreach ( $aFile as $sLine ) {
-				$this->reportLine( $sFullPath, $sLine, $bIsFalsePositive );
+			foreach ( $fileLines as $line ) {
+				$this->reportLine( $fullPath, $line, $isFalsePositive );
 			}
 		}
 	}
@@ -48,32 +35,25 @@ class FalsePositiveReporter {
 	/**
 	 * To prevent duplicate reports, we cache what we report and only send the report
 	 * if we've never sent this before.
-	 * @param string $fullPath
-	 * @param bool   $isFalsePositive
-	 * @return mixed
 	 */
-	public function reportPath( $fullPath, $isFalsePositive = true ) {
+	public function reportPath( string $fullPath, bool $isFalsePositive = true ) :bool {
 		$reported = false;
 
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isMalUseNetworkIntelligence() ) {
+		$reportHash = md5( serialize( [
+			basename( $fullPath ),
+			sha1( ( new ConvertLineEndings() )->fileDosToLinux( $fullPath ) ),
+			$isFalsePositive
+		] ) );
 
-			$reportHash = md5( serialize( [
-				basename( $fullPath ),
-				sha1( ( new ConvertLineEndings() )->fileDosToLinux( $fullPath ) ),
-				$isFalsePositive
-			] ) );
+		if ( $this->canSendReport( $reportHash ) ) {
+			$apiToken = $this->getCon()
+							 ->getModule_License()
+							 ->getWpHashesTokenManager()
+							 ->getToken();
+			$reported = !empty( $apiToken ) &&
+						( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
+							->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
 
-			if ( !$opts->isMalFalsePositiveReported( $reportHash ) ) {
-				$apiToken = $this->getCon()
-								 ->getModule_License()
-								 ->getWpHashesTokenManager()
-								 ->getToken();
-				$reported = !empty( $apiToken ) &&
-							( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
-								->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
-			}
 			$this->updateReportedCache( $reportHash );
 		}
 		return $reported;
@@ -82,50 +62,60 @@ class FalsePositiveReporter {
 	/**
 	 * Only reports lines if the files has more than 1 line. i.e. 1-liner false positive files are excluded.
 	 * We still report 1-liner "true positive" files.
-	 *
-	 * @param string $sFile - path to file containing line
-	 * @param string $sLine
-	 * @param bool   $bIsFalsePositive
-	 * @return mixed
 	 */
-	public function reportLine( $sFile, $sLine, $bIsFalsePositive = true ) {
-		$bReported = false;
+	public function reportLine( string $fullPath, string $line, bool $isFalsePositive = true ) :bool {
+		$isReported = false;
 
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-
-			$sReportHash = md5( $sFile.$sLine.( $bIsFalsePositive ? 'true' : 'false' ) );
-			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
-				try {
-					$sApiToken = $this->getCon()
-									  ->getModule_License()
-									  ->getWpHashesTokenManager()
-									  ->getToken();
-					if ( !empty( $sApiToken ) && !$bIsFalsePositive || count( file( $sFile ) ) > 1 ) {
-						$bReported = ( new Malware\Signatures\ReportFalsePositive( $sApiToken ) )
-							->report( $sFile, $sLine, $bIsFalsePositive );
-					}
-				}
-				catch ( \Exception $e ) {
+		$reportHash = md5( $fullPath.$line.( $isFalsePositive ? 'true' : 'false' ) );
+		if ( $this->canSendReport( $reportHash ) ) {
+			try {
+				$token = $this->getCon()
+							  ->getModule_License()
+							  ->getWpHashesTokenManager()
+							  ->getToken();
+				if ( !empty( $token ) && !$isFalsePositive || count( file( $fullPath ) ) > 1 ) {
+					$isReported = ( new Malware\Signatures\ReportFalsePositive( $token ) )
+						->report( $fullPath, $line, $isFalsePositive );
 				}
 			}
-			$this->updateReportedCache( $sReportHash );
+			catch ( \Exception $e ) {
+			}
+			$this->updateReportedCache( $reportHash );
 		}
-		return $bReported;
+
+		return $isReported;
+	}
+
+	private function canSendReport( string $reportHash ) :bool {
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return $this->getCon()->is_mode_live
+			   && $opts->isMalUseNetworkIntelligence()
+			   && !isset( $this->getMalFalsePositiveReports()[ $reportHash ] );
+	}
+
+	private function updateReportedCache( string $reportHash ) {
+		/** @var Modules\HackGuard\Options $opts */
+		$opts = $this->getOptions();
+
+		$allReported = $this->getMalFalsePositiveReports();
+		$allReported[ $reportHash ] = Services::Request()->ts();
+
+		$opts->setOpt( 'mal_fp_reports', array_filter(
+			$allReported,
+			function ( $ts ) {
+				return $ts > Services::Request()->carbon()->subMonth()->timestamp;
+			}
+		) );
+		// important to save immediately due to async nature
+		$this->getMod()->saveModOptions();
 	}
 
 	/**
-	 * @param string $sReportHash
+	 * @return int[] - keys are the unique report hash
 	 */
-	private function updateReportedCache( $sReportHash ) {
-		/** @var Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aReported = $oOpts->getMalFalsePositiveReports();
-		$aReported[ $sReportHash ] = Services::Request()->ts();
-		$oOpts->setMalFalsePositiveReports( $aReported );
-
-		$this->getMod()->saveModOptions(); // important to save immediately due to async nature
+	private function getMalFalsePositiveReports() :array {
+		$FP = $this->getOptions()->getOpt( 'mal_fp_reports', [] );
+		return is_array( $FP ) ? $FP : [];
 	}
 }

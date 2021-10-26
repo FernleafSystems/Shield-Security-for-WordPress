@@ -42,7 +42,7 @@ class BuildHistory {
 						$this->history[ $ts ][] = sprintf(
 							__( "File detected as %s by %s scanner.", 'wp-simple-firewall' ),
 							sprintf( '<strong>%s</strong>', $this->getItemFileStatus( $item ) ),
-							sprintf( '<strong>%s</strong>', $mod->getScanCon( $item->scan )->getScanName() )
+							sprintf( '<strong>%s</strong>', $mod->getScanCon( $item->VO->scan )->getScanName() )
 						);
 					}
 					else {

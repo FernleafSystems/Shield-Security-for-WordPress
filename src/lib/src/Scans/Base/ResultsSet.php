@@ -15,9 +15,6 @@ class ResultsSet {
 	 */
 	public function addItem( $item ) {
 		$all = $this->getAllItems();
-		if ( !isset( $item->hash ) ) {
-			$item->hash = $item->generateHash();
-		}
 		$all[] = $item;
 		$this->items = $all;
 		return $this;
@@ -56,6 +53,21 @@ class ResultsSet {
 		return $this->getAllItems();
 	}
 
+	/**
+	 * @return static
+	 */
+	public function getNotIgnored() {
+		$res = clone $this;
+		$res->setItems( [] );
+		/** @var ResultItem $item */
+		foreach ( $this->getItems() as $item ) {
+			if ( $item->VO->ignored_at == 0 ) {
+				$res->addItem( $item );
+			}
+		}
+		return $res;
+	}
+
 	public function countItems() :int {
 		return count( $this->getItems() );
 	}
@@ -82,6 +94,14 @@ class ResultsSet {
 			unset( $items[ $hash ] );
 			$this->items = $items;
 		}
+		return $this;
+	}
+
+	/**
+	 * @return static
+	 */
+	public function setItems( array $items ) {
+		$this->items = $items;
 		return $this;
 	}
 }
