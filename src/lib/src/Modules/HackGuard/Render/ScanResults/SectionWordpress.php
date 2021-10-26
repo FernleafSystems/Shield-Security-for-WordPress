@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanResults;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForWordpress;
 use FernleafSystems\Wordpress\Services\Services;
@@ -36,8 +37,11 @@ class SectionWordpress extends SectionBase {
 
 	private function buildWordpressData() :array {
 		$WP = Services::WpGeneral();
-		$count = $this->getScanConAFS()->countResultsWordpress();
-
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$count =  $mod->getScansCon()
+					  ->getScanResultsCount()
+					  ->countWPFiles();
 		$data = [
 			'info'  => [
 				'type'    => 'wordpress',

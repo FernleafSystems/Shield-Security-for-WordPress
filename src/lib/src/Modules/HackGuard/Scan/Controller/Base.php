@@ -92,6 +92,12 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->countScanProblems() > 0;
 	}
 
+	public function getScansController() :HackGuard\Scan\ScansController {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getScansCon();
+	}
+
 	public function cleanStaleResultItem( $item ) {
 		return true;
 	}

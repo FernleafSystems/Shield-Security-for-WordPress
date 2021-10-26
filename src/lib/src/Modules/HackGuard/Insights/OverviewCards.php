@@ -37,7 +37,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				$this->getCardsForMal(),
 				$this->getCardsForWpv(),
 				$this->getCardsForPtg(),
-				$this->getCardsForUfc(),
 				$this->getCardsForApc()
 			);
 		}
@@ -85,56 +84,14 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				];
 			}
 		}
-		if ( $scanCon->getScanHasProblem() ) {
+
+		if ( $scanCore && $scanCon->getScansController()->getScanResultsCount()->countWPFiles() ) {
 			$cards[ 'wcf_problem' ] = [
 				'name'    => sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ), __( 'WordPress Core Files', 'wp-simple-firewall' ) ),
 				'summary' => __( 'WordPress core files have been modified.', 'wp-simple-firewall' ),
 				'href'    => $this->getUrlForScanResults(),
 				'state'   => -2,
 				'help'    => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
-			];
-		}
-
-		return $cards;
-	}
-
-	private function getCardsForUfc() :array {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		/** @var Afs $scanCon */
-		$scanCon = $mod->getScanCon( Afs::SCAN_SLUG );
-
-		$cards = [];
-
-		$enabled = $scanCon->isEnabled();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-			'summary' => $enabled ?
-				__( 'WP Core directories are scanned regularly for unrecognised files', 'wp-simple-firewall' )
-				: __( "WP Core directories are never scanned for unrecognised files!", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
-			'help'    => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' ),
-			'state'   => $enabled ? 1 : -2,
-		];
-		if ( $enabled ) {
-			$cards[ 'ufc_repair' ] = [
-				'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
-				'summary' => $opts->isUfsDeleteFiles() ?
-					__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
-					: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
-				'state'   => $opts->isUfsDeleteFiles() ? 1 : -1,
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
-			];
-		}
-		if ( $scanCon->getScanHasProblem() ) {
-			$cards[ 'ufc_problem' ] = [
-				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-				'summary' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
-				'help'    => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' ),
-				'state'   => -2,
-				'href'    => $this->getUrlForScanResults(),
 			];
 		}
 
@@ -159,7 +116,9 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			'help'    => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' ),
 		];
-		if ( $scanCon->getScanHasProblem() ) { //TODO
+
+		$status = $scanCon->getScansController()->getScanResultsCount();
+		if ( $isPTG && ( $status->countPluginFiles() + $status->countPluginFiles() ) > 0 ) {
 			$cards[ 'ptg_problem' ] = [
 				'name'    => sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ), __( 'Plugins & Themes', 'wp-simple-firewall' ) ),
 				'summary' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
@@ -190,7 +149,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 			'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
 			'help'    => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 		];
-		if ( $malEnabled && $scanCon->getScanHasProblem() ) {
+		if ( $malEnabled && $scanCon->getScansController()->getScanResultsCount()->countMalware() ) {
 			$cards[ 'mal_problem' ] = [
 				'name'    => __( 'Potential Malware Detected', 'wp-simple-firewall' ),
 				'summary' => __( 'Potential Malware files have been discovered.', 'wp-simple-firewall' ),

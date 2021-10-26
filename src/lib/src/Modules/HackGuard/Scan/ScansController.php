@@ -17,6 +17,8 @@ class ScansController extends ExecOnceModConsumer {
 
 	private $scanCons;
 
+	private $scanResultsStatus;
+
 	public function __construct() {
 		$this->scanCons = [];
 	}
@@ -64,6 +66,14 @@ class ScansController extends ExecOnceModConsumer {
 			}
 		}
 		return $this->scanCons[ $slug ];
+	}
+
+	public function getScanResultsCount() :Results\Counts {
+		if ( !isset( $this->scanResultsStatus ) ) {
+			$this->scanResultsStatus = ( new Results\Counts() )
+				->setMod( $this->getMod() );
+		}
+		return $this->scanResultsStatus;
 	}
 
 	private function handlePostScanCron() {
