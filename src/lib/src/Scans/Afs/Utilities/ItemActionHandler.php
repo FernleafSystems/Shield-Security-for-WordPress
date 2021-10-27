@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalFalsePositiveReporter;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {
@@ -13,9 +14,13 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	public function ignore() :bool {
 		parent::ignore();
 
-		( new MalFalsePositiveReporter() )
-			->setMod( $this->getMod() )
-			->reportResultItem( $this->getScanItem(), true );
+		/** @var ResultItem $scanItem */
+		$scanItem = $this->getScanItem();
+		if ( $scanItem->is_mal ) {
+			( new MalFalsePositiveReporter() )
+				->setMod( $this->getMod() )
+				->reportResultItem( $this->getScanItem(), true );
+		}
 
 		return true;
 	}
