@@ -43,7 +43,7 @@ class Afs extends BaseForFiles {
 			$warning = $template;
 			$warning[ 'id' ] .= '-malware';
 			$warning[ 'title' ] = __( 'Potential Malware', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warning' ] = $count;
+			$warning[ 'warnings' ] = $count;
 			$items[] = $warning;
 		}
 

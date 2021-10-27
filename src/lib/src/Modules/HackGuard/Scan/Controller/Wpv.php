@@ -48,7 +48,7 @@ class Wpv extends BaseForAssets {
 			$warning = $template;
 			$warning[ 'id' ] .= '-wpv';
 			$warning[ 'title' ] = __( 'Vulnerable Plugins', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warning' ] = $count;
+			$warning[ 'warnings' ] = $count;
 			$items[] = $warning;
 		}
 

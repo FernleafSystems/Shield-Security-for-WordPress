@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
 /**
- * @property string $slug
- * @property int    $last_updated_at
+ * @property int  $last_updated_at
+ * @property bool $is_abandoned
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
@@ -22,6 +22,6 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	}
 
 	public function getDescriptionForAudit() :string {
-		return sprintf( '%s: %s', ( strpos( $this->slug, '/' ) ? 'Plugin' : 'Theme' ), $this->slug );
+		return sprintf( '%s: %s', ( strpos( $this->VO->item_id, '/' ) ? 'Plugin' : 'Theme' ), $this->VO->item_id );
 	}
 }

@@ -1,9 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
@@ -19,12 +18,12 @@ class Apc extends BaseForAssets {
 			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
 		];
 
-		$count = $status->countPluginAbandoned();
+		$count = $status->countAbandoned();
 		if ( $count > 0 ) {
 			$warning = $template;
 			$warning[ 'id' ] .= '-apc';
 			$warning[ 'title' ] = __( 'Abandoned Plugins', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warning' ] = $count;
+			$warning[ 'warnings' ] = $count;
 			$items[] = $warning;
 		}
 

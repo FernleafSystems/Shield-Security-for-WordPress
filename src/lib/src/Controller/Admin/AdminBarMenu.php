@@ -32,17 +32,17 @@ class AdminBarMenu {
 		if ( !empty( $items ) && is_array( $items ) ) {
 			$warningCount = 0;
 			foreach ( $items as $item ) {
-				$warningCount += isset( $item[ 'warnings' ] ) ? $item[ 'warnings' ] : 0;
+				$warningCount += $item[ 'warnings' ] ?? 0;
 			}
 
-			$sNodeId = $con->prefix( 'adminbarmenu' );
+			$nodeId = $con->prefix( 'adminbarmenu' );
 			$adminBar->add_node( [
-				'id'    => $sNodeId,
+				'id'    => $nodeId,
 				'title' => $con->getHumanName()
 						   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $warningCount ),
 			] );
 			foreach ( $items as $item ) {
-				$item[ 'parent' ] = $sNodeId;
+				$item[ 'parent' ] = $nodeId;
 				$adminBar->add_menu( $item );
 			}
 		}
