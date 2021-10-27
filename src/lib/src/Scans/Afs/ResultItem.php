@@ -23,6 +23,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  */
 class ResultItem extends Base\ResultItem {
 
+	public function getDescriptionForAudit() :string {
+		return $this->path_fragment;
+	}
+
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
