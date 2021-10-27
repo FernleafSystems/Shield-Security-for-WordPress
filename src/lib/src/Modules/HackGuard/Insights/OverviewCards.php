@@ -178,7 +178,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				: sprintf( __( '%s Scanner is not enabled.' ), $scanCon->getScanName() ),
 			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 		];
-		if ( $isAPC && $scanCon->getScansController()->getScanResultsCount()->countPluginAbandoned() > 0 ) {
+		if ( $isAPC && $scanCon->getScansController()->getScanResultsCount()->countAbandoned() > 0 ) {
 			$cards[ 'apc_problem' ] = [
 				'name'    => __( 'Plugin Abandoned' ),
 				'summary' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),

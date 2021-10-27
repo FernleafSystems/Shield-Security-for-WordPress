@@ -51,14 +51,6 @@ class Options extends BaseShield\Options {
 		);
 	}
 
-	/**
-	 * @return int[] - keys are the unique report hash
-	 */
-	public function getMalFalsePositiveReports() :array {
-		$FP = $this->getOpt( 'mal_fp_reports', [] );
-		return is_array( $FP ) ? $FP : [];
-	}
-
 	public function getMalConfidenceBoundary() :int {
 		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
 	}
