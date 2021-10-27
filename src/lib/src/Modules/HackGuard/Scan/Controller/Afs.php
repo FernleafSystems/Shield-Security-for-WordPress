@@ -234,23 +234,6 @@ class Afs extends BaseForFiles {
 	}
 
 	/**
-	 * @return Scans\Base\ResultsSet|mixed
-	 */
-	public function getResultsForDisplay() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$actualResults = $this->getNewResultsSet();
-		/** @var Scans\Afs\ResultItem $item */
-		foreach ( parent::getResultsForDisplay()->getItems() as $item ) {
-			if ( !$item->is_mal || $opts->getMalConfidenceBoundary() > $item->mal_fp_confidence ) {
-				$actualResults->addItem( $item );
-			}
-		}
-		return $actualResults;
-	}
-
-	/**
 	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
 	 * are unreliable once the plugin has been deactivated.
 	 */
