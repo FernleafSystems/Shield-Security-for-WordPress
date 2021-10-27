@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
@@ -42,7 +42,6 @@ abstract class ItemActionHandler {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function delete() :bool {
@@ -78,7 +77,6 @@ abstract class ItemActionHandler {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function repairDelete() :bool {
@@ -133,7 +131,7 @@ abstract class ItemActionHandler {
 		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 
-		if ( !empty( $item->path_full ) && !empty( $item->repair_event_status ) ) {
+		if ( !empty( $item->path_fragment ) && !empty( $item->repair_event_status ) ) {
 			$this->getCon()->fireEvent(
 				sprintf( 'scan_item_%s', $item->repair_event_status ),
 				[ 'audit_params' => [ 'path_full' => $item->path_full ] ]

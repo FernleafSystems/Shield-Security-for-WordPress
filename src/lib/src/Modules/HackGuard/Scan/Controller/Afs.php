@@ -80,7 +80,7 @@ class Afs extends BaseForFiles {
 	public function onWpLoaded() {
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )
 			->setMod( $this->getMod() )
-			->hookBuild();
+			->schedule();
 	}
 
 	public function runHourlyCron() {

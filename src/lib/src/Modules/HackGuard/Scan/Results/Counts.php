@@ -67,14 +67,14 @@ class Counts {
 
 				case 'abandoned':
 					$count = $resultsRetrieve
-						->setScanController( $mod->getScanCon( Wpv::SCAN_SLUG ) )
-						->setAdditionalWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] )
+						->setScanController( $mod->getScanCon( Apc::SCAN_SLUG ) )
+						->setAdditionalWheres( [ "`rim`.`meta_key`='is_abandoned'", ] )
 						->count();
 					break;
 				case 'assets_vulnerable':
 					$count = $resultsRetrieve
-						->setScanController( $mod->getScanCon( Apc::SCAN_SLUG ) )
-						->setAdditionalWheres( [ "`rim`.`meta_key`='is_abandoned'", ] )
+						->setScanController( $mod->getScanCon( Wpv::SCAN_SLUG ) )
+						->setAdditionalWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] )
 						->count();
 					break;
 

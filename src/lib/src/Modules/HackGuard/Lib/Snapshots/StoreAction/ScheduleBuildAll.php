@@ -46,16 +46,15 @@ class ScheduleBuildAll extends BaseBulk {
 		}
 	}
 
-	public function hookBuild() {
-		if ( is_main_network() && wp_next_scheduled( $this->getCronHook() ) !== false ) {
-			add_action( $this->getCronHook(), [ $this, 'build' ] );
-		}
-	}
-
 	public function schedule() {
-		$hook = $this->getCronHook();
-		if ( wp_next_scheduled( $hook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-			wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
+		if ( count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+			$hook = $this->getCronHook();
+			if ( wp_next_scheduled( $hook ) === false ) {
+				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
+			}
+			if ( is_main_network() && wp_next_scheduled( $this->getCronHook() ) !== false ) {
+				add_action( $this->getCronHook(), [ $this, 'build' ] );
+			}
 		}
 	}
 
@@ -88,5 +87,11 @@ class ScheduleBuildAll extends BaseBulk {
 
 	private function getCronHook() :string {
 		return $this->getCon()->prefix( 'ptg_build_snapshots' );
+	}
+
+	/**
+	 * @deprecated 13.0
+	 */
+	public function hookBuild() {
 	}
 }
