@@ -49,11 +49,11 @@ class ScheduleBuildAll extends BaseBulk {
 	public function schedule() {
 		if ( count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
 			$hook = $this->getCronHook();
+			if ( is_main_network() ) {
+				add_action( $hook, [ $this, 'build' ] );
+			}
 			if ( wp_next_scheduled( $hook ) === false ) {
 				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
-			}
-			if ( is_main_network() && wp_next_scheduled( $this->getCronHook() ) !== false ) {
-				add_action( $this->getCronHook(), [ $this, 'build' ] );
 			}
 		}
 	}
