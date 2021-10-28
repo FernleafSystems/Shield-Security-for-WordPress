@@ -21,7 +21,7 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 
 		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
-		$patterns = ( new Shield\Scans\Mal\Utilities\Patterns() )
+		$patterns = ( new Utilities\Patterns() )
 			->setMod( $this->getMod() )
 			->retrieve();
 		$action->patterns_simple = $patterns[ 'simple' ];

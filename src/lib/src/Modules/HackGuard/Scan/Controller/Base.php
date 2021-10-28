@@ -84,6 +84,9 @@ abstract class Base extends ExecOnceModConsumer {
 		return $mod->getScansCon();
 	}
 
+	/**
+	 * @param ResultItem $item
+	 */
 	public function cleanStaleResultItem( $item ) {
 		return true;
 	}
@@ -175,7 +178,7 @@ abstract class Base extends ExecOnceModConsumer {
 	public function getScanName() :string {
 		/** @var HackGuard\Strings $strings */
 		$strings = $this->getMod()->getStrings();
-		return $strings->getScanStrings()[ static::SCAN_SLUG ][ 'name' ];
+		return $strings->getScanStrings()[ $this->getSlug() ][ 'name' ];
 	}
 
 	public function isCronAutoRepair() :bool {

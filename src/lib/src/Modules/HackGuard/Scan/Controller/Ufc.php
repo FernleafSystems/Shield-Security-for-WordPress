@@ -11,20 +11,14 @@ class Ufc extends BaseForFiles {
 
 	const SCAN_SLUG = 'ufc';
 
-	/**
-	 * @return Scans\Ufc\Utilities\ItemActionHandler
-	 */
 	protected function newItemActionHandler() {
-		return new Scans\Ufc\Utilities\ItemActionHandler();
+		return null;
 	}
 
 	/**
 	 * @return Scans\Ufc\ScanActionVO
 	 */
 	public function buildScanAction() {
-		return ( new Scans\Ufc\BuildScanAction() )
-			->setScanController( $this )
-			->build()
-			->getScanActionVO();
+		return $this->getScanActionVO();
 	}
 }

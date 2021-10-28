@@ -28,26 +28,18 @@ class Wcf extends BaseForFiles {
 		return '';
 	}
 
-	/**
-	 * @return Scans\Wcf\Utilities\ItemActionHandler
-	 */
 	protected function newItemActionHandler() {
-		return new Scans\Wcf\Utilities\ItemActionHandler();
+		return null;
 	}
 
-	/**
-	 * @param Scans\Wcf\ResultItem $item
-	 */
 	public function cleanStaleResultItem( $item ) {
+		return true;
 	}
 
 	/**
 	 * @return Scans\Wcf\ScanActionVO
 	 */
 	public function buildScanAction() {
-		return ( new Scans\Wcf\BuildScanAction() )
-			->setScanController( $this )
-			->build()
-			->getScanActionVO();
+		return $this->getScanActionVO();
 	}
 }

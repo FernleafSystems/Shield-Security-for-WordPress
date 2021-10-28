@@ -1,15 +1,13 @@
-<?php
+<?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
-/**
- * Class Patterns
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities
- */
+use const HOUR_IN_SECONDS;
+
 class Patterns {
 
 	use Modules\ModConsumer;
