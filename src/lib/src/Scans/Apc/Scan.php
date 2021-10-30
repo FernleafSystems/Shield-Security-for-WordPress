@@ -9,23 +9,12 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanSlice() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-
-		$tempResultSet = $this->getScanController()->getNewResultsSet();
-
-		foreach ( $action->items as $scanItem ) {
-			$resultItem = $this->getItemScanner()->scan( $scanItem );
-			if ( !empty( $resultItem ) ) {
-				$tempResultSet->addItem( $resultItem );
-			}
-		}
-
-		$newItems = [];
-		if ( $tempResultSet->hasItems() ) {
-			foreach ( $tempResultSet->getAllItems() as $resultItem ) {
-				$newItems[] = $resultItem->getRawData();
-			}
-		}
-		$action->results = $newItems;
+		$action->results = array_filter( array_map(
+			function ( $file ) {
+				return $this->getItemScanner()->scan( $file );
+			},
+			$action->items
+		) );
 	}
 
 	protected function getItemScanner() :PluginScanner {

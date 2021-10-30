@@ -260,7 +260,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$msg = __( 'No scans were selected', 'wp-simple-firewall' );
 		$formParams = FormParams::Retrieve();
 
-		$scanCon = $mod->getScanQueueController();
+		$scanQueueCon = $mod->getScanQueueController();
 
 		if ( !empty( $formParams ) ) {
 			$selected = array_keys( $formParams );
@@ -290,10 +290,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				}
 			}
 
-			$scanCon->startScans( $toScan );
+			$scanQueueCon->startScans( $toScan );
 		}
 
-		$isScanRunning = $scanCon->hasRunningScans();
+		$isScanRunning = $scanQueueCon->hasRunningScans();
 
 		return [
 			'success'       => $success,

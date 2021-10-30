@@ -11,32 +11,27 @@ class PluginScanner {
 	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 
-	/**
-	 * @return ResultItem|null
-	 */
-	public function scan( string $pluginFile ) {
-		$item = null;
+	public function scan( string $pluginFile ) :array {
+		$result = [];
 
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
 		$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
-		if ( $plugin->asset_type === 'plugin' && $plugin->isWpOrg() ) {
+		if ( !empty( $plugin ) && $plugin->isWpOrg() ) {
 			$lastUpdatedAt = $this->getLastUpdateTime( $plugin );
 			if ( $lastUpdatedAt > 0
 				 && ( Services::Request()->ts() - $lastUpdatedAt > $action->abandoned_limit ) ) {
-
-				/** @var ResultItem $item */
-				$item = $this->getScanController()->getNewResultItem();
-				$item->slug = $pluginFile;
-				$item->last_updated_at = $lastUpdatedAt;
+				$result[ 'slug' ] = $pluginFile;
+				$result[ 'is_abandoned' ] = true;
+				$result[ 'last_updated_at' ] = $lastUpdatedAt;
 			}
 		}
 
-		return $item;
+		return $result;
 	}
 
-	private function getLastUpdateTime( WpPluginVo $plugin )  :int {
+	private function getLastUpdateTime( WpPluginVo $plugin ) :int {
 		$lastUpdate = -1;
 
 		$slug = $plugin->slug;

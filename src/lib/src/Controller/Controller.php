@@ -553,9 +553,9 @@ class Controller extends DynPropertiesClass {
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
 
 		if ( $pluginFile === $this->base_file ) {
-			$sTemplate = '<strong><a href="%s" target="_blank">%s</a></strong>';
+			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
 			foreach ( $this->cfg->plugin_meta as $aHref ) {
-				array_push( $pluginMeta, sprintf( $sTemplate, $aHref[ 'href' ], $aHref[ 'name' ] ) );
+				array_push( $pluginMeta, sprintf( $template, $aHref[ 'href' ], $aHref[ 'name' ] ) );
 			}
 		}
 		return $pluginMeta;

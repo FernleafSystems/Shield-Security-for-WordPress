@@ -1,21 +1,21 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
-class FalsePositiveReporter {
+class MalFalsePositiveReporter {
 
 	const HASH_ALGO = 'sha1';
 	use Modules\ModConsumer;
 
 	public function reportResultItem( ResultItem $item, bool $isFalsePositive = true ) {
 		$this->reportPath( $item->path_full, $isFalsePositive );
-		$this->reportFileLines( $item->path_full, $item->file_lines, $isFalsePositive );
+		$this->reportFileLines( $item->path_full, $item->mal_file_lines, $isFalsePositive );
 	}
 
 	public function reportFileLines( string $fullPath, array $lines, bool $isFalsePositive = true ) {
@@ -32,10 +32,6 @@ class FalsePositiveReporter {
 		}
 	}
 
-	/**
-	 * To prevent duplicate reports, we cache what we report and only send the report
-	 * if we've never sent this before.
-	 */
 	public function reportPath( string $fullPath, bool $isFalsePositive = true ) :bool {
 		$reported = false;
 
@@ -53,8 +49,11 @@ class FalsePositiveReporter {
 			$reported = !empty( $apiToken ) &&
 						( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
 							->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
-
-			$this->updateReportedCache( $reportHash );
+			if ( $reported ) {
+				$this->getReportCache()
+					 ->setReportHash( $reportHash )
+					 ->updateWithReport();
+			}
 		}
 		return $reported;
 	}
@@ -64,7 +63,7 @@ class FalsePositiveReporter {
 	 * We still report 1-liner "true positive" files.
 	 */
 	public function reportLine( string $fullPath, string $line, bool $isFalsePositive = true ) :bool {
-		$isReported = false;
+		$reported = false;
 
 		$reportHash = md5( $fullPath.$line.( $isFalsePositive ? 'true' : 'false' ) );
 		if ( $this->canSendReport( $reportHash ) ) {
@@ -74,16 +73,20 @@ class FalsePositiveReporter {
 							  ->getWpHashesTokenManager()
 							  ->getToken();
 				if ( !empty( $token ) && !$isFalsePositive || count( file( $fullPath ) ) > 1 ) {
-					$isReported = ( new Malware\Signatures\ReportFalsePositive( $token ) )
+					$reported = ( new Malware\Signatures\ReportFalsePositive( $token ) )
 						->report( $fullPath, $line, $isFalsePositive );
+					if ( $reported ) {
+						$this->getReportCache()
+							 ->setReportHash( $reportHash )
+							 ->updateWithReport();
+					}
 				}
 			}
 			catch ( \Exception $e ) {
 			}
-			$this->updateReportedCache( $reportHash );
 		}
 
-		return $isReported;
+		return $reported;
 	}
 
 	private function canSendReport( string $reportHash ) :bool {
@@ -91,31 +94,12 @@ class FalsePositiveReporter {
 		$opts = $this->getOptions();
 		return $this->getCon()->is_mode_live
 			   && $opts->isMalUseNetworkIntelligence()
-			   && !isset( $this->getMalFalsePositiveReports()[ $reportHash ] );
+			   && !$this->getReportCache()
+						->setReportHash( $reportHash )
+						->isReported();
 	}
 
-	private function updateReportedCache( string $reportHash ) {
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
-		$allReported = $this->getMalFalsePositiveReports();
-		$allReported[ $reportHash ] = Services::Request()->ts();
-
-		$opts->setOpt( 'mal_fp_reports', array_filter(
-			$allReported,
-			function ( $ts ) {
-				return $ts > Services::Request()->carbon()->subMonth()->timestamp;
-			}
-		) );
-		// important to save immediately due to async nature
-		$this->getMod()->saveModOptions();
-	}
-
-	/**
-	 * @return int[] - keys are the unique report hash
-	 */
-	private function getMalFalsePositiveReports() :array {
-		$FP = $this->getOptions()->getOpt( 'mal_fp_reports', [] );
-		return is_array( $FP ) ? $FP : [];
+	private function getReportCache() :MalReportCache {
+		return ( new MalReportCache() )->setMod( $this->getMod() );
 	}
 }

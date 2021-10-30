@@ -17,10 +17,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Afs extends BaseForFiles {
 
 	const SCAN_SLUG = 'afs';
-	const SCAN_SLUG_MAL = 'mal';
-	const SCAN_SLUG_PTG = 'ptg';
-	const SCAN_SLUG_UFC = 'ufc';
-	const SCAN_SLUG_WCF = 'wcf';
 	use PluginCronsConsumer;
 
 	protected function run() {
@@ -33,50 +29,58 @@ class Afs extends BaseForFiles {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
+	public function addAdminMenuBarItem( array $items ) :array {
+		$status = $this->getScansController()->getScanResultsCount();
+
+		$template = [
+			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
+			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+		];
+
+		$count = $status->countMalware();
+		if ( $count > 0 ) {
+			$warning = $template;
+			$warning[ 'id' ] .= '-malware';
+			$warning[ 'title' ] = __( 'Potential Malware', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
+			$warning[ 'warnings' ] = $count;
+			$items[] = $warning;
+		}
+
+		$count = $status->countWPFiles();
+		if ( $count > 0 ) {
+			$warning = $template;
+			$warning[ 'id' ] .= '-wp';
+			$warning[ 'title' ] = __( 'WordPress Core Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
+			$warning[ 'warnings' ] = $count;
+			$items[] = $warning;
+		}
+
+		$count = $status->countPluginFiles();
+		if ( $count > 0 ) {
+			$warning = $template;
+			$warning[ 'id' ] .= '-plugin';
+			$warning[ 'title' ] = __( 'Plugin Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
+			$warning[ 'warnings' ] = $count;
+			$items[] = $warning;
+		}
+
+		$count = $status->countThemeFiles();
+		if ( $count > 0 ) {
+			$warning = $template;
+			$warning[ 'id' ] .= '-plugin';
+			$warning[ 'title' ] = __( 'Theme Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
+			$warning[ 'warnings' ] = $count;
+			$items[] = $warning;
+		}
+
+		return $items;
+	}
+
 	public function onWpLoaded() {
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )
 			->setMod( $this->getMod() )
-			->hookBuild();
-	}
-
-	public function countResultsMalware() :int {
-		return ( new Scan\Results\Retrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->setAdditionalWheres( [
-				"`rim`.`meta_key`='is_mal'",
-			] )
-			->count();
-	}
-
-	public function countResultsWordpress() :int {
-		return ( new Scan\Results\Retrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->setAdditionalWheres( [
-				"`rim`.`meta_key`='is_in_core'",
-			] )
-			->count();
-	}
-
-	public function countResultsPlugins() :int {
-		return ( new Scan\Results\Retrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->setAdditionalWheres( [
-				"`rim`.`meta_key`='is_in_plugin'",
-			] )
-			->count();
-	}
-
-	public function countResultsThemes() :int {
-		return ( new Scan\Results\Retrieve() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->setAdditionalWheres( [
-				"`rim`.`meta_key`='is_in_theme'",
-			] )
-			->count();
+			->schedule();
 	}
 
 	public function runHourlyCron() {
@@ -200,12 +204,19 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabledMalwareScan() :bool {
-		return $this->isEnabled() && $this->getCon()->isPremiumActive();
+		return $this->isEnabled() && !$this->isRestrictedMalwareScan();
 	}
 
 	public function isEnabledPluginThemeScan() :bool {
-		return $this->isEnabled() && $this->getCon()->isPremiumActive()
-			   && $this->getCon()->hasCacheDir();
+		return $this->isEnabled() && $this->getCon()->hasCacheDir() && !$this->isRestrictedPluginThemeScan();
+	}
+
+	public function isRestrictedMalwareScan() :bool {
+		return !$this->getCon()->isPremiumActive();
+	}
+
+	public function isRestrictedPluginThemeScan() :bool {
+		return !$this->getCon()->isPremiumActive();
 	}
 
 	protected function isPremiumOnly() :bool {
@@ -220,23 +231,6 @@ class Afs extends BaseForFiles {
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
-	}
-
-	/**
-	 * @return Scans\Base\ResultsSet|mixed
-	 */
-	public function getResultsForDisplay() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$actualResults = $this->getNewResultsSet();
-		/** @var Scans\Afs\ResultItem $item */
-		foreach ( parent::getResultsForDisplay()->getItems() as $item ) {
-			if ( !$item->is_mal || $opts->getMalConfidenceBoundary() > $item->mal_fp_confidence ) {
-				$actualResults->addItem( $item );
-			}
-		}
-		return $actualResults;
 	}
 
 	/**

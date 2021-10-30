@@ -1,14 +1,32 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
 
 	const SCAN_SLUG = 'apc';
+
+	public function addAdminMenuBarItem( array $items ) :array {
+		$template = [
+			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
+			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+		];
+
+		$count = $this->getScansController()->getScanResultsCount()->countAbandoned();
+		if ( $count > 0 ) {
+			$warning = $template;
+			$warning[ 'id' ] .= '-apc';
+			$warning[ 'title' ] = __( 'Abandoned Plugins', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
+			$warning[ 'warnings' ] = $count;
+			$items[] = $warning;
+		}
+
+		return $items;
+	}
 
 	/**
 	 * @return Scans\Apc\Utilities\ItemActionHandler

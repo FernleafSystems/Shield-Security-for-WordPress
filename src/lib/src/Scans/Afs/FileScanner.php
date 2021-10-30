@@ -3,37 +3,43 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs as AfsScan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 
-class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
+class FileScanner {
+
+	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+	use Shield\Modules\ModConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @return ResultItem|null
 	 */
 	public function scan( string $fullPath ) {
+		/** @var AfsCon $scanCon */
+		$scanCon = $this->getScanController();
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$scans = $action->scans;
 
 		$item = null;
 
 		$validFile = false;
 		try {
 			$validFile =
-				( in_array( Afs::SCAN_SLUG_WCF, $scans ) && ( new Scans\WpCoreFile( $fullPath ) )
+				( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
 						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( in_array( Afs::SCAN_SLUG_UFC, $scans ) && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+				( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
 						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( in_array( Afs::SCAN_SLUG_PTG, $scans ) && ( new Scans\PluginFile( $fullPath ) )
+				( $scanCon->isEnabledPluginThemeScan() && ( new Scans\PluginFile( $fullPath ) )
 						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( in_array( Afs::SCAN_SLUG_PTG, $scans ) && ( new Scans\ThemeFile( $fullPath ) )
+				( $scanCon->isEnabledPluginThemeScan() && ( new Scans\ThemeFile( $fullPath ) )
 						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() );
@@ -79,7 +85,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 
 		try {
-			if ( in_array( Afs::SCAN_SLUG, $scans ) && ( empty( $item ) || !$item->is_missing ) ) {
+			if ( $scanCon->isEnabledMalwareScan() && ( empty( $item ) || !$item->is_missing ) ) {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setMod( $this->getMod() )
 					->setScanActionVO( $action )
@@ -100,7 +106,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			}
 
 			// Updates the FP scores stored within mal_meta
-			( new Shield\Scans\Afs\Processing\MalwareFalsePositive() )
+			( new AfsScan\Processing\MalwareFalsePositive() )
 				->setMod( $this->getMod() )
 				->setScanActionVO( $this->getScanActionVO() )
 				->run( $item );
@@ -110,6 +116,20 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			}
 		}
 		catch ( \InvalidArgumentException $e ) {
+		}
+
+		if ( empty( $item ) && !$validFile ) {
+			try {
+				( new AfsScan\Scans\RealtimeFile( $fullPath ) )
+					->setMod( $this->getMod() )
+					->setScanActionVO( $action )
+					->scan();
+			}
+			catch ( AfsScan\Exceptions\RealtimeFileDiscoveredException $rte ) {
+				error_log( $fullPath );
+				$item = $this->getResultItem( $fullPath );
+				$item->is_realtime = true;
+			}
 		}
 
 		return $item;

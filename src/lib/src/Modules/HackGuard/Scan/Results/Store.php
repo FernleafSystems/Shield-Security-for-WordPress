@@ -31,28 +31,36 @@ class Store {
 
 		foreach ( $results as $result ) {
 
-			$record = $mod->getScanCon( $queueItem->scan )->buildScanResult( $result );
+			$scanResult = $mod->getScanCon( $queueItem->scan )->buildScanResult( $result );
 
-			/** @var ResultItemsDB\Ops\Record $resultItem */
-			$resultItem = $resultSelector->filterByItemID( $record->item_id )
-										 ->filterByItemNotDeleted()
-										 ->filterByItemNotRepaired()
-										 ->first();
-			if ( empty( $resultItem ) ) {
-				$dbhResItems->getQueryInserter()->insert( $record );
-				$resultItem = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
+			/** @var ResultItemsDB\Ops\Record $resultRecord */
+			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )
+										   ->filterByItemNotDeleted()
+										   ->filterByItemNotRepaired()
+										   ->first();
+			if ( empty( $resultRecord ) ) {
+				$dbhResItems->getQueryInserter()->insert( $scanResult );
+				$resultRecord = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 			}
 			else {
+				// If a result item is now auto-filtered, where before it wasn't, update it.
+				if ( empty( $resultRecord->auto_filtered_at ) && $scanResult->auto_filtered_at > 0 ) {
+					$dbhResItems->getQueryUpdater()->updateRecord( $resultRecord, [
+						'auto_filtered_at' => $scanResult->auto_filtered_at
+					] );
+				}
+
+				// Delete/Reset all metadata for the results in preparation for update.
 				/** @var ResultItemMetaDB\Ops\Delete $metaDeleter */
 				$metaDeleter = $dbhResItemMetas->getQueryDeleter();
-				$metaDeleter->filterByResultItemRef( $resultItem->id )->query();
+				$metaDeleter->filterByResultItemRef( $resultRecord->id )->query();
 			}
 
-			foreach ( $record->meta as $metaKey => $metaValue ) {
+			foreach ( $scanResult->meta as $metaKey => $metaValue ) {
 				/** @var ResultItemMetaDB\Ops\Insert $metaInserter */
 				$metaInserter = $dbhResItemMetas->getQueryInserter();
 				$metaInserter->setInsertData( [
-					'ri_ref'     => $resultItem->id,
+					'ri_ref'     => $resultRecord->id,
 					'meta_key'   => $metaKey,
 					'meta_value' => is_scalar( $metaValue ) ? $metaValue : json_encode( $metaValue ),
 				] )->query();
@@ -60,7 +68,7 @@ class Store {
 
 			$scanResultsInserter->setInsertData( [
 				'scan_ref'       => $queueItem->scan_id,
-				'resultitem_ref' => $resultItem->id,
+				'resultitem_ref' => $resultRecord->id,
 			] )->query();
 		}
 		$this->markQueueItemAsFinished( $queueItem );

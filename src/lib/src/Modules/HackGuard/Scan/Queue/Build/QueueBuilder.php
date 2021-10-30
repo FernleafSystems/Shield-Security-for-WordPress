@@ -52,7 +52,6 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return mixed
 	 */
 	protected function task( $slug ) {
-
 		try {
 			( new HackGuard\Scan\Queue\QueueInit() )
 				->setMod( $this->getMod() )
@@ -88,9 +87,9 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $scanSlug ) {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->addRemoveScanToBuild( $scanSlug, false );
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$opts->addRemoveScanToBuild( $scanSlug, false );
 		$this->save();
 		return $this;
 	}
@@ -101,9 +100,9 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return count( $oOpts->getScansToBuild() ) === 0;
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return count( $opts->getScansToBuild() ) === 0;
 	}
 
 	/**

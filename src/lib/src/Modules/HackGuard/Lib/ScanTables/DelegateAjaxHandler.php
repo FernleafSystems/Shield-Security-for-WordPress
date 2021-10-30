@@ -42,8 +42,6 @@ class DelegateAjaxHandler {
 	}
 
 	/**
-	 * @param string $action
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function doAction( string $action ) :array {

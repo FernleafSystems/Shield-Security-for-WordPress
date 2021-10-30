@@ -44,7 +44,6 @@ class PopulateScanItems {
 		do {
 			$newRecord->items = array_slice( $allItems, 0, $sliceSize );
 			$dbhItems->getQueryInserter()->insert( $newRecord );
-
 			$allItems = array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 

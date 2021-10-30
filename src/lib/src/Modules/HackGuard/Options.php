@@ -17,6 +17,18 @@ class Options extends BaseShield\Options {
 		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
 	}
 
+	public function getLastRealtimeScanAt( bool $update = false ) :int {
+		$at = $this->getOpt( 'realtime_scan_last_at' );
+		if ( empty( $at ) ) {
+			$at = Services::Request()->ts();
+			$this->setOpt( 'realtime_scan_last_at', $at );
+		}
+		if ( $update ) {
+			$this->setOpt( 'realtime_scan_last_at', Services::Request()->ts() );
+		}
+		return $at;
+	}
+
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
@@ -37,14 +49,6 @@ class Options extends BaseShield\Options {
 			},
 			is_array( $paths ) ? $paths : []
 		);
-	}
-
-	/**
-	 * @return int[] - keys are the unique report hash
-	 */
-	public function getMalFalsePositiveReports() :array {
-		$FP = $this->getOpt( 'mal_fp_reports', [] );
-		return is_array( $FP ) ? $FP : [];
 	}
 
 	public function getMalConfidenceBoundary() :int {
@@ -142,16 +146,14 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $scan
-	 * @param bool   $bAdd
-	 * @return Options
+	 * @return $this
 	 */
-	public function addRemoveScanToBuild( $scan, $bAdd = true ) {
+	public function addRemoveScanToBuild( string $scan, bool $addScan = true ) {
 		$scans = $this->getScansToBuild();
-		if ( $bAdd ) {
+		if ( $addScan ) {
 			$scans[ $scan ] = Services::Request()->ts();
 		}
-		elseif ( isset( $scans[ $scan ] ) ) {
+		else {
 			unset( $scans[ $scan ] );
 		}
 		return $this->setScansToBuild( $scans );
@@ -160,30 +162,34 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return int[] - keys are scan slugs
 	 */
-	public function getScansToBuild() {
+	public function getScansToBuild() :array {
 		$toBuild = $this->getOpt( 'scans_to_build', [] );
 		if ( !is_array( $toBuild ) ) {
 			$toBuild = [];
 		}
 		if ( !empty( $toBuild ) ) {
+			$wasCount = count( $toBuild );
 			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
 			$toBuild = array_filter( $toBuild,
-				function ( $nToBuildAt ) {
-					return is_int( $nToBuildAt )
-						   && Services::Request()->carbon()->subMinute()->timestamp < $nToBuildAt;
+				function ( $toBuildAt ) {
+					return is_int( $toBuildAt )
+						   && Services::Request()->carbon()->subMinute()->timestamp < $toBuildAt;
 				}
 			);
-			$this->setScansToBuild( $toBuild );
+			if ( $wasCount !== count( $toBuild ) ) {
+				$this->setScansToBuild( $toBuild );
+			}
 		}
 		return $toBuild;
 	}
 
 	/**
-	 * @param array $scans
-	 * @return Options
+	 * @return $this
 	 */
-	public function setScansToBuild( $scans ) {
-		return $this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getScanSlugs() ) ) );
+	public function setScansToBuild( array $scans ) {
+		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getScanSlugs() ) ) );
+		$this->getMod()->saveModOptions();
+		return $this;
 	}
 
 	/**

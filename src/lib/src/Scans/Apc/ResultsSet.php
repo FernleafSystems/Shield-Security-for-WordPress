@@ -7,14 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class ResultsSet extends Base\ResultsSet {
 
 	/**
-	 * @param string $slug
 	 * @return ResultItem|null
 	 */
 	public function getItemForSlug( string $slug ) {
 		$theItem = null;
 		/** @var ResultItem $item */
 		foreach ( $this->getItems() as $item ) {
-			if ( $item->slug === $slug ) {
+			if ( $item->VO->item_id === $slug ) {
 				$theItem = $item;
 				break;
 			}

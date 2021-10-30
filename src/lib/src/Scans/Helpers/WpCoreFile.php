@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
-/**
- * Class WpCoreFileDownload
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
- */
 class WpCoreFile {
 
 	const URL_WP_CORE = 'https://core.svn.wordpress.org';

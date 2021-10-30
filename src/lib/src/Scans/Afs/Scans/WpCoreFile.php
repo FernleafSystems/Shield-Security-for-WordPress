@@ -15,16 +15,14 @@ class WpCoreFile extends BaseScan {
 		$valid = false;
 
 		$WPH = Services::CoreFileHashes();
-		if ( $WPH->isCoreFile( $this->pathFull ) ) {
+		if ( $WPH->isCoreFile( $this->pathFull ) && !$this->isExcluded( $this->pathFragment ) ) {
 			if ( !Services::WpFs()->isFile( $this->pathFull ) ) {
 				if ( !$this->isExcludedMissing( $this->pathFragment ) ) {
 					throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
 				}
 			}
 			elseif ( !$WPH->isCoreFileHashValid( $this->pathFull ) ) {
-				if ( !$this->isExcluded( $this->pathFragment ) ) {
-					throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull );
-				}
+				throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull );
 			}
 			$valid = true;
 		}

@@ -1,25 +1,20 @@
-<?php
+<?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Utilities\File\ExtractLinesFromFile;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
-/**
- * Class FalsePositiveQuery
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities
- */
-class FalsePositiveQuery {
+class MalFalsePositiveQuery {
 
 	use Modules\ModConsumer;
 
 	/**
-	 * @param string $fullPath
 	 * @param int[]  $lines
 	 * @return int[] - key is the file line number, value is the false positive confidence score
 	 */
-	public function queryFileLines( $fullPath, $lines ) {
+	public function queryFileLines( string $fullPath, array $lines ) :array {
 		$scores = [];
 		/** @var Modules\HackGuard\Options $opts */
 		$opts = $this->getOptions();
