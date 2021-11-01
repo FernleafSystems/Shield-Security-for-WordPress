@@ -6,8 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScansController extends ExecOnceModConsumer {
@@ -49,7 +51,6 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param string $slug
 	 * @return Controller\Base|mixed
 	 * @throws \Exception
 	 */
@@ -83,9 +84,9 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	private function runAutoRepair() {
-		/** @var HackGuard\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		foreach ( $opts->getScanSlugs() as $slug ) {
 			$scanCon = $mod->getScanCon( $slug );
@@ -102,9 +103,9 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	private function cronScan() {
-		/** @var HackGuard\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( $this->getCanScansExecute() ) {
@@ -118,8 +119,8 @@ class ScansController extends ExecOnceModConsumer {
 
 			$opts->setIsScanCron( true );
 			$mod->saveModOptions()
-				->getScanQueueController()
-				->startScans( $scans );
+				->getScansCon()
+				->startNewScans( $scans );
 		}
 		else {
 			error_log( 'Shield scans cannot execute.' );
@@ -141,12 +142,35 @@ class ScansController extends ExecOnceModConsumer {
 		return $reasons;
 	}
 
+	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$toScan = [];
+		foreach ( $scans as $slug ) {
+			try {
+				$thisScanCon = $this->getScanCon( $slug );
+				if ( $thisScanCon->isReady() ) {
+					$toScan[] = $slug;
+					if ( $resetIgnored ) {
+						$thisScanCon->resetIgnoreStatus();
+					}
+				}
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+		$mod->getScanQueueController()->startScans( $toScan );
+
+		return !empty( $toScan );
+	}
+
 	public function getCanScansExecute() :bool {
 		return count( $this->getReasonsScansCantExecute() ) === 0;
 	}
 
 	protected function getCronFrequency() {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->getScanFrequency();
 	}

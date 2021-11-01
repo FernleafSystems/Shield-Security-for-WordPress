@@ -40,6 +40,8 @@ abstract class BaseForAssets extends Base {
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
 			ResultItems\Ops\Handler::ITEM_TYPE_THEME;
 
+		unset( $rawResult[ 'context' ] );
+		unset( $rawResult[ 'hash' ] );
 		unset( $rawResult[ 'slug' ] );
 		$record->meta = $rawResult;
 		return $record;

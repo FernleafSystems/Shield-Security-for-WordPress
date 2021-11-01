@@ -42,7 +42,7 @@ abstract class Base extends ExecOnceModConsumer {
 			function () {
 				/** @var HackGuard\ModCon $mod */
 				$mod = $this->getMod();
-				$mod->getScanQueueController()->startScans( [ $this->getSlug() ] );
+				$mod->getScansCon()->startNewScans( [ $this->getSlug() ] );
 			}
 		);
 		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
