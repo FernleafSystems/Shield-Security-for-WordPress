@@ -12,14 +12,4 @@ class Upgrade extends Base\Upgrade {
 			->setMod( $this->getMod() )
 			->execute();
 	}
-
-	protected function upgrade_1021() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$schema = $mod->getDbHandler_FileLocker()->getTableSchema();
-		Services::WpDb()->doSql(
-			sprintf( "ALTER TABLE `%s` MODIFY `%s` %s;",
-				$schema->table, 'content', $schema->enumerateColumns()[ 'content' ] )
-		);
-	}
 }
