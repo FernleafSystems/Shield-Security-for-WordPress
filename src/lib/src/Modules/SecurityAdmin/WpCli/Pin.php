@@ -40,7 +40,7 @@ class Pin extends BaseWpCliCmd {
 	 */
 	public function cmdPin( array $null, array $aA ) {
 
-		$newPIN = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
+		$newPIN = $aA[ 'set' ] ?? null;
 		$isRemove = WP_CLI\Utils\get_flag_value( $aA, 'remove', false );
 
 		if ( !empty( $newPIN ) && !empty( $isRemove ) ) {

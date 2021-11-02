@@ -8,7 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
-	Options
+	Options,
+	Scan\Queue\CompleteQueue,
+	Scan\Queue\ProcessQueueItem,
+	Scan\Queue\ProcessQueueWpcli,
+	Scan\Queue\QueueInit,
+	Scan\Queue\QueueItems
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -145,6 +150,8 @@ class ScansController extends ExecOnceModConsumer {
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		$toScan = [];
 		foreach ( $scans as $slug ) {
@@ -155,12 +162,25 @@ class ScansController extends ExecOnceModConsumer {
 					if ( $resetIgnored ) {
 						$thisScanCon->resetIgnoreStatus();
 					}
+					$opts->addRemoveScanToBuild( $slug );
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-		$mod->getScanQueueController()->startScans( $toScan );
+
+		if ( !empty( $toScan ) ) {
+			if ( Services::WpGeneral()->isWpCli() ) {
+				( new ProcessQueueWpcli() )
+					->setMod( $this->getMod() )
+					->execute();
+			}
+			else {
+				$mod->getScanQueueController()
+					->getQueueBuilder()
+					->dispatch();
+			}
+		}
 
 		return !empty( $toScan );
 	}
