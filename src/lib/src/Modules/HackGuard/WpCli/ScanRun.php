@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use WP_CLI;
 
-class Scan extends Base\WpCli\BaseWpCliCmd {
+class ScanRun extends Base\WpCli\BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception
@@ -32,8 +32,8 @@ class Scan extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'scan' ] ),
-			[ $this, 'cmdScan' ], $this->mergeCommonCmdArgs( [
+			$this->buildCmd( [ 'scan_run' ] ),
+			[ $this, 'cmdScanRun' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Run All Shield Scans',
 			'synopsis'  => array_merge( [
 				[
@@ -49,7 +49,7 @@ class Scan extends Base\WpCli\BaseWpCliCmd {
 	/**
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdScan( array $null, array $args ) {
+	public function cmdScanRun( array $null, array $args ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */

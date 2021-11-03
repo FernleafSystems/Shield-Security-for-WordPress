@@ -14,12 +14,7 @@ class StatsWriter extends EventsListener {
 	 */
 	private $aEventStats;
 
-	/**
-	 * @param string $evt
-	 * @param array  $meta
-	 * @param array  $def
-	 */
-	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
+	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 		if ( !empty( $def[ 'stat' ] ) ) {
 			$stats = $this->getEventStats();
 			if ( !isset( $stats[ $evt ] ) ) {

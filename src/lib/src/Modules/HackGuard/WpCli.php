@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class WpCli extends Base\WpCli {
@@ -12,7 +11,7 @@ class WpCli extends Base\WpCli {
 	 */
 	protected function getCmdHandlers() :array {
 		return [
-			new WpCli\Scan()
+			new WpCli\ScanRun()
 		];
 	}
 }
