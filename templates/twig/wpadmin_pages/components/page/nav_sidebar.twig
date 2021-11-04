@@ -28,7 +28,7 @@
 				</div>
 			{% endif %}
 
-			<a class="nav-link p-0 mb-0 {{ mitem.classes|default([])|join( ' ' ) }} text-center"
+			<a class="nav-link p-0 mb-1 {{ mitem.classes|default([])|join( ' ' ) }} text-left"
 			   href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
 					{% for data_key,data_val in mitem.data|default([]) %}
 						data-{{ data_key }}="{{ data_val }}"
@@ -43,7 +43,7 @@
 			>
 
 				{% if mitem.img|default('') is not empty %}
-					<span class="nav-icon mb-1 d-block" style="vertical-align: text-bottom;">
+					<span class="nav-icon mr-1" style="vertical-align: text-bottom;">
 						{{ mitem.img|raw }}
 					</span>
 				{% endif %}
