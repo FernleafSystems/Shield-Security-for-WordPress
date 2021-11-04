@@ -39,8 +39,8 @@ class Emails extends Base {
 					$CCs = $this->extractCcFromHeaders( $headers );
 				}
 			}
-			$auditData[ 'cc' ] = empty( $CCs[ 'cc' ] ) ? '-' : implode( ',', $CCs[ 'cc' ] );
-			$auditData[ 'bcc' ] = empty( $CCs[ 'bcc' ] ) ? '-' : implode( ',', $CCs[ 'bcc' ] );
+			$auditData[ 'cc' ] = empty( $CCs[ 'cc' ] ) ? '-' : implode( ', ', $CCs[ 'cc' ] );
+			$auditData[ 'bcc' ] = empty( $CCs[ 'bcc' ] ) ? '-' : implode( ', ', $CCs[ 'bcc' ] );
 
 			// Where was the wp_mail function called from
 			$backtrace = $this->findEmailSenderBacktrace();
@@ -59,26 +59,27 @@ class Emails extends Base {
 			'cc'  => []
 		];
 
-		$headers = array_filter( array_map( 'trim', array_map( 'strtolower', $headers ) ) );
-		foreach ( $headers as $header ) {
-			if ( preg_match( '#^\s*b?cc\s*:.+#i', $header ) ) {
-				list( $head, $emails ) = explode( ':', str_replace( ' ', '', $header ), 2 );
-				if ( strpos( ',', $emails ) !== false ) {
-					$emails = explode( ',', $emails );
-				}
-				else {
-					$emails = [ $emails ];
-				}
+		$headers = array_filter(
+			array_map( function ( $header ) {
+				return str_replace( ' ', '', trim( strtolower( $header ) ) );
+			}, $headers ),
+			function ( $header ) {
+				return !empty( $header ) && preg_match( '#^\s*b?cc\s*:.+$#i', $header );
+			}
+		);
 
-				if ( isset( $CCs[ $head ] ) ) {
-					$CCs[ $head ][] = array_unique( array_merge(
-						$CCs[ $head ],
-						array_filter( $emails,
-							function ( $sEmail ) {
-								return Services::Data()->validEmail( $sEmail );
-							} )
-					) );
+		foreach ( $headers as $header ) {
+			list( $headerKey, $emails ) = explode( ':', $header, 2 );
+
+			$emails = array_filter(
+				array_map( 'trim', explode( ',', $emails ) ),
+				function ( $email ) {
+					return Services::Data()->validEmail( $email );
 				}
+			);
+
+			if ( isset( $CCs[ $headerKey ] ) ) {
+				$CCs[ $headerKey ] = array_unique( array_merge( $CCs[ $headerKey ], $emails ) );
 			}
 		}
 		return $CCs;
