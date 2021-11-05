@@ -162,7 +162,9 @@ class Afs extends BaseForFiles {
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
-				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
+				$verifiedHash = ( new Lib\Hashes\Query() )
+					->setMod( $this->getMod() )
+					->verifyHash( $item->path_full );
 				if ( $item->is_checksumfail && $verifiedHash ) {
 					/** @var Update $updater */
 					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
