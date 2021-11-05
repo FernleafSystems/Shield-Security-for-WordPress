@@ -1070,7 +1070,7 @@ table.odp-table.scan-table td.column-path code {
 	border-top: 0 none;
 	padding-top: 14px;
 }
-.icwpOptionsForm .form-group.row {
+.icwpOptionsForm .option_form_row.row {
 	/*margin-bottom: 20px;*/
 	padding: 15px 0 25px;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
@@ -1140,7 +1140,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 }
 .col-form-label {
 	font-weight: bold;
-	padding-top: 0;
 }
 #SectionScanResultsAggregate .card-footer a:hover {
 	color: #ffffff;
@@ -1193,12 +1192,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 }
 #SectionIpsWhite .alert {
 	border-radius: 0;
-}
-#SectionIpsBlack .form-inline {
-	margin: 10px 0 !important;
-}
-#SectionIpsWhite .form-inline {
-	margin: 10px 0 !important;
 }
 #SectionIpsBlack .input-group-text {
 	background-color: transparent !important;
@@ -1740,4 +1733,8 @@ button.btn.action {
 
 .scan-item-history ul {
 	list-style: inside disc;
+}
+
+.audit-meta ul {
+	padding: 0;
 }

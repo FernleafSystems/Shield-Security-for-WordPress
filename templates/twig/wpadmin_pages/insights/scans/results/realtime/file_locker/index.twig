@@ -15,12 +15,9 @@
 					{% if scan.flags.is_enabled %}
 						<div class="col mt-3 mb-3">
 							 <div class="input-group m-auto mt-3 mb-3">
-								 <div class="input-group-prepend">
-									 <label class="input-group-text" for="FileLockerFileSelect">
-										 Select File To Review
-									 </label>
-								 </div>
-								<select class="custom-select mw-100" id="FileLockerFileSelect">
+								<label class="input-group-text" for="FileLockerFileSelect">
+									 Select File To Review</label>
+								<select class="form-select mw-100" id="FileLockerFileSelect">
 									<option selected value="-" disabled="disabled">--</option>
 									{% for lock_key, file_lock in scan.vars.file_locks.bad %}
 										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.file }}</option>

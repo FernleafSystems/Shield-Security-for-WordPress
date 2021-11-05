@@ -46,10 +46,6 @@ class DelegateAjaxHandler {
 		];
 	}
 
-	/**
-	 * @return array
-	 * @throws \Exception
-	 */
 	private function getRequestMeta() :array {
 		return [
 			'success' => true,

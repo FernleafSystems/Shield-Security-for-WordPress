@@ -94,10 +94,9 @@ class LoadRawTableData extends BaseLoadTableData {
 
 	private function getColumnContent_Meta() :string {
 		return sprintf(
-			'<button type="button" class="btn  btn-link" '.
-			'data-toggle="popover" data-placement="left" '.
-			'data-customClass="audit-meta" '.
-			'data-rid="%s">%s</button>', $this->log->rid,
+			'<button type="button" class="btn btn-link"'.
+			' data-toggle="popover"'.
+			' data-rid="%s">%s</button>', $this->log->rid,
 			sprintf( '<span class="meta-icon">%s</span>',
 				$this->getCon()->svgs->raw( 'bootstrap/tags.svg' )
 			)

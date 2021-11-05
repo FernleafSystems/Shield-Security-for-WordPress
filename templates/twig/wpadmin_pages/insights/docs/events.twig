@@ -11,11 +11,11 @@
 							<ul style="list-style: inside circle" class="">
 								{% for slug,event in events %}
 									<li>
-										<a data-toggle="collapse"
+										<a data-bs-toggle="collapse"
 										   style="color: inherit"
 										   href="#event-attr-{{ slug }}"
 										>{{ event.name }}</a>
-										<ul class="collapse ml-4 mb-1" id="event-attr-{{ slug }}"
+										<ul class="collapse ms-4 mb-1" id="event-attr-{{ slug }}"
 											style="list-style: inside square">
 											<li>Slug: <code>{{ slug }}</code></li>
 											{% for attr in event.attr %}

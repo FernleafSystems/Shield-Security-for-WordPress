@@ -4,7 +4,7 @@
 	<div class="row">
 
 		<div class="col-6 mt-3">
-			<h5><label for="_fIpWhite">{{ strings.ip_filter }}</label></h5>
+			<h5><label for="_fIpWhite" class="form-label">{{ strings.ip_filter }}</label></h5>
 			<form class="mb-3" id="FilterIpWhite" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="fLists[]" value="MW" />
 				<div class="row">
@@ -32,7 +32,7 @@
 			<h5>{{ strings.ip_new }}</h5>
 			<form class="mb-3 add-ip" id="NewWhiteIp" action="#" method="post" autocomplete="off">
 				<input type="hidden" name="list" value="MW" />
-				<label class="sr-only" for="IpAddressNew">{{ strings.ip_address }}</label>
+				<label class="visually-hidden" for="IpAddressNew">{{ strings.ip_address }}</label>
 
 				<div class="row">
 					<div class="col">

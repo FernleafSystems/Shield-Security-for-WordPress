@@ -42,6 +42,8 @@
 				sanitize: false,
 				html: true,
 				animation: true,
+				customClass: 'audit-meta',
+				placement: 'left',
 				selector: 'td.meta > button[data-toggle="popover"]',
 				container: 'body',
 				content: function () {

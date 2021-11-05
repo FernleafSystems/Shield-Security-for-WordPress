@@ -3,10 +3,10 @@
 		<h5 class="my-3">Chart Your Desired Stats</h5>
 		<form class="" id="CustomChart">
 
-			<div class="form-row">
+			<div class="row">
 
 				<div class="col-auto mb-3">
-					<label class="sr-only" for="_events">{{ strings.select_events }}</label>
+					<label class="visually-hidden" for="_events">{{ strings.select_events }}</label>
 					<select multiple="multiple" name="events[]" id="_events" class="select2picker">
 						{% for event_key,event_name in vars.events %}
 							<option value="{{ event_key }}">{{ event_name }}</option>
@@ -15,7 +15,7 @@
 				</div>
 
 				<div class="col-auto mb-3">
-					<label class="sr-only" for="_interval">{{ strings.select_interval }}</label>
+					<label class="visually-hidden" for="_interval">{{ strings.select_interval }}</label>
 					<select name="interval" id="_interval">
 						<option value="" disabled="disabled" selected="selected">
 							-- {{ strings.select_interval }} --

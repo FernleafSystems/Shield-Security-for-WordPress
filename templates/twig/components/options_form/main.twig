@@ -14,7 +14,7 @@
 				   class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
 				   id="tab-navlink-{{ opt_section.slug }}"
-				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
+				   data-bs-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
 						<span>{{ opt_section.title_short }}</span>
 				</a>
 			</li>
@@ -44,7 +44,7 @@
 								{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
 
 									<a class="section_title_info"
-									   data-toggle="collapse"
+									   data-bs-toggle="collapse"
 									   data-target="#collapse-{{ opt_section.slug }}"
 									><span class="dashicons dashicons-editor-help"></span></a>
 									<br />
@@ -92,7 +92,7 @@
 	</div>
 		<div class="row">
 			<div class="col text-start">
-				<button type="submit" class="button button-primary ml-3 mt-3 icwp-form-button"
+				<button type="submit" class="button button-primary ms-3 mt-3 icwp-form-button"
 						name="submit">{{ strings.save_all_settings }}</button>
 			</div>
 		</div>

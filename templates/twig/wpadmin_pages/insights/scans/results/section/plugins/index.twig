@@ -6,7 +6,7 @@
 				<li class="nav-item mb-2">
 					<a class="nav-link {% if plugin_key < 1 %}active{% endif %}"
 					   href="#plugin-tab-{{ plugin.info.slug }}"
-					   data-toggle="tab"
+					   data-bs-toggle="tab"
 					>
 						{% if plugin.vars.count_items > 0 %}
 							<span class="badge bg-danger float-right">{{ plugin.vars.count_items }}</span>

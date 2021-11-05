@@ -9,7 +9,7 @@
 				{% for stat_interval_key, stat_interval_name in vars.stat_intervals %}
 					<li class="nav-item">
 						<a class="nav-link {% if stat_interval_key == 'days_1' %}active{% endif %}"
-						   data-toggle="pill"
+						   data-bs-toggle="pill"
 						   href="#statsTab-{{ stat_interval_key }}">
 							{{ stat_interval_name }}</a>
 					</li>

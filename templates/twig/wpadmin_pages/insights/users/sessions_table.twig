@@ -14,7 +14,7 @@
 				<form id="SessionsFilter" autocomplete="off" class="px-3 pt-3">
 					<div class="row">
 						<div class="col-auto mb-3">
-							<label class="sr-only" for="_fIp">{{ strings.ip_address }}</label>
+							<label class="visually-hidden" for="_fIp">{{ strings.ip_address }}</label>
 							<select id="_fIp" name="fIp" class="form-control">
 								<option value="">-- {{ strings.ip_address }} --</option>
 								{% for unique_ip in vars.unique_ips %}
@@ -23,7 +23,7 @@
 							</select>
 						</div>
 						<div class="col-auto mb-3">
-							<label class="sr-only" for="_fIp">{{ strings.username }}</label>
+							<label class="visually-hidden" for="_fIp">{{ strings.username }}</label>
 							<select id="_fUsername" name="fUsername" class="form-control">
 								<option value="">-- {{ strings.username }} --</option>
 								{% for uniq_user in vars.unique_users %}
