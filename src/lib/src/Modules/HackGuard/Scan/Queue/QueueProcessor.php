@@ -3,15 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	Scan\Queue\QueueItems,
-	Scan\Queue\QueueItemVO,
-	Scan\Init\SetScanCompleted,
-	Scan\Results\Store
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
@@ -51,38 +43,12 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * item from the queue.
 	 *
 	 * @param QueueItemVO $item Queue item to iterate over.
-	 * @return mixed
+	 * @return QueueItemVO
 	 */
 	protected function task( $item ) {
-		$this->getDbH_ScanItems()
-			 ->getQueryUpdater()
-			 ->updateById( $item->qitem_id, [
-				 'started_at' => Services::Request()->ts()
-			 ] );
-
-		try {
-			$results = ( new ProcessQueueItem() )
-				->setMod( $this->getMod() )
-				->run( $item );
-
-			( new Store() )
-				->setMod( $this->getMod() )
-				->store( $item, $results );
-
-			$this->getDbH_ScanItems()
-				 ->getQueryUpdater()
-				 ->updateById( $item->qitem_id, [
-					 'finished_at' => Services::Request()->ts()
-				 ] );
-
-			( new SetScanCompleted() )
-				->setMod( $this->getMod() )
-				->run();
-		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
-		}
-
+		( new ProcessQueueItem() )
+			->setMod( $this->getMod() )
+			->run( $item );
 		return $item;
 	}
 
@@ -107,9 +73,11 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $key ) {
-		$this->getDbH_ScanItems()
-			 ->getQueryDeleter()
-			 ->deleteById( $key );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getDbH_ScanItems()
+			->getQueryDeleter()
+			->deleteById( $key );
 		return $this;
 	}
 
@@ -149,11 +117,5 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		( new CleanQueue() )
 			->setMod( $this->getMod() )
 			->execute();
-	}
-
-	private function getDbH_ScanItems() :ScanItemsDB\Ops\Handler {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getDbH_ScanItems();
 	}
 }

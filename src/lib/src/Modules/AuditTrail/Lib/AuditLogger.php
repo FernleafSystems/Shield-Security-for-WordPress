@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
@@ -63,12 +63,7 @@ class AuditLogger extends EventsListener {
 		return $this->logger;
 	}
 
-	/**
-	 * @param string $evt
-	 * @param array  $meta
-	 * @param array  $def
-	 */
-	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
+	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 
 		$meta = apply_filters( 'shield/audit_event_meta', $meta, $evt );
 

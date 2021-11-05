@@ -82,23 +82,6 @@ class Controller {
 		return count( $this->getRunningScans() ) > 0 || count( $opts->getScansToBuild() ) > 0;
 	}
 
-	/**
-	 * @param string|string[] $scanSlugs
-	 */
-	public function startScans( $scanSlugs ) {
-		if ( !is_array( $scanSlugs ) ) {
-			$scanSlugs = [ $scanSlugs ];
-		}
-		if ( !empty( $scanSlugs ) ) {
-			/** @var HackGuard\Options $opts */
-			$opts = $this->getOptions();
-			foreach ( $scanSlugs as $slug ) {
-				$opts->addRemoveScanToBuild( $slug );
-			}
-			$this->getQueueBuilder()->dispatch();
-		}
-	}
-
 	public function getQueueBuilder() :Build\QueueBuilder {
 		if ( empty( $this->oQueueBuilder ) ) {
 			$this->oQueueBuilder = ( new Build\QueueBuilder( 'shield_scanqbuild' ) )
@@ -114,5 +97,11 @@ class Controller {
 				->setExpirationInterval( MINUTE_IN_SECONDS*10 );
 		}
 		return $this->oQueueProcessor;
+	}
+
+	/**
+	 * @deprecated 13.0
+	 */
+	public function startScans( $scanSlugs ) {
 	}
 }

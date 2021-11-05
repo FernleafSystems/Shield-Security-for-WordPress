@@ -64,7 +64,7 @@ class Strings extends Base\Strings {
 		return [
 			'afs' => [
 				'name'     => __( 'All Filesystem Scan', 'wp-simple-firewall' ),
-				'subtitle' => __( "WordPress Filesystem Scan looking for modified, missing and unrecognised files", 'wp-simple-firewall' ),
+				'subtitle' => __( "WordPress Filesystem Scan looking for modified, missing and unrecognised files throughout the entire site", 'wp-simple-firewall' ),
 			],
 			'apc' => [
 				'name'     => __( 'Abandoned Plugins', 'wp-simple-firewall' ),

@@ -260,40 +260,21 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$msg = __( 'No scans were selected', 'wp-simple-firewall' );
 		$formParams = FormParams::Retrieve();
 
-		$scanQueueCon = $mod->getScanQueueController();
-
 		if ( !empty( $formParams ) ) {
 			$selected = array_keys( $formParams );
 
 			$uiTrack = $mod->getUiTrack();
-			$uiTrack->selected_scans = array_intersect( array_keys( $formParams ), $opts->getScanSlugs() );
+			$uiTrack->selected_scans = array_intersect( $selected, $opts->getScanSlugs() );
 			$mod->setUiTrack( $uiTrack );
 
-			$toScan = [];
-			foreach ( $selected as $slug ) {
-				try {
-					$thisScanCon = $mod->getScanCon( $slug );
-					if ( $thisScanCon->isReady() ) {
-
-						$toScan[] = $slug;
-
-						if ( isset( $formParams[ 'opt_clear_ignore' ] ) ) {
-							$thisScanCon->resetIgnoreStatus();
-						}
-
-						$success = true;
-						$reloadPage = true;
-						$msg = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
-					}
-				}
-				catch ( \Exception $e ) {
-				}
+			if ( $mod->getScansCon()->startNewScans( $selected ) ) {
+				$success = true;
+				$reloadPage = true;
+				$msg = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
 			}
-
-			$scanQueueCon->startScans( $toScan );
 		}
 
-		$isScanRunning = $scanQueueCon->hasRunningScans();
+		$isScanRunning = $mod->getScanQueueController()->hasRunningScans();
 
 		return [
 			'success'       => $success,

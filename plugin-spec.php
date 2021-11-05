@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "12.0.13",
-    "release_timestamp":       1633856080,
-    "build":                   "202110.1001",
+    "version":                 "13.0.0",
+    "release_timestamp":       1636020415,
+    "build":                   "202111.0501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -84,7 +84,7 @@
     "register":     {
       "css": {
         "bootstrap":              {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/css/bootstrap.min.css"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css"
         },
         "bootstrap-datepicker":   {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
@@ -190,7 +190,7 @@
       },
       "js":  {
         "bootstrap":               {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/js/bootstrap.bundle.min.js",
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
@@ -450,11 +450,10 @@
     }
   ],
   "version_upgrades": [
-    "10.1.0",
-    "10.2.1",
     "11.2.0",
     "12.0.0",
-    "12.0.1"
+    "12.0.1",
+    "13.0.0"
   ],
   "action_links":     {
     "remove": null,
