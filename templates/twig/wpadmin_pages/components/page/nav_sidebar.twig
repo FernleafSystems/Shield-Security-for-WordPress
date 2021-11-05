@@ -28,7 +28,7 @@
 				</div>
 			{% endif %}
 
-			<a class="nav-link p-0 mb-1 {{ mitem.classes|default([])|join( ' ' ) }} text-left"
+			<a class="nav-link p-0 mb-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start"
 			   href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
 					{% for data_key,data_val in mitem.data|default([]) %}
 						data-{{ data_key }}="{{ data_val }}"
@@ -54,7 +54,7 @@
 					{% endif %}
 				</span>
 				{% if mitem.badge|default([]) is not empty %}
-					<span class="badge badge-{{ mitem.badge.type|default('info') }}">
+					<span class="badge bg-{{ mitem.badge.type|default('info') }}">
 						{{ mitem.badge.text }}
 					</span>
 				{% endif %}

@@ -57,7 +57,7 @@
 												<p class="mb-2">{{ desc }}</p>
 											{% endfor %}
 											{% if item.href|default('') is not empty %}
-												<p class="text-left">
+												<p class="text-start">
 													<a href="{{ item.href }}" target="_blank">More Info</a>
 												</p>
 											{% endif %}
@@ -69,7 +69,7 @@
 					</ul>
 				</div>
 				{% if release.hrefs.release|default('') is not empty %}
-					<div class="card-footer text-right">
+					<div class="card-footer text-end">
 						<a href="{{ release.hrefs.release }}"
 						   class="btn btn-outline-primary"
 						   target="_blank">{{ strings.full_release }}</a>

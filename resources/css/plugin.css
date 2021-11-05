@@ -697,7 +697,7 @@ input:checked + .icwp-slider:before {
 		left: -17px;
 	}
 }
-#FooterWizardBanner .text-left {
+#FooterWizardBanner .text-start {
 	margin-bottom: 0;
 }
 #FooterWizardBanner .offset-1 {
@@ -1128,11 +1128,12 @@ input:checked + .icwp-slider {
 dd, li {
 	margin-bottom: 0;
 }
-a {
+a,
+a:hover,
+a.nav-link,
+a.nav-link:hover {
 	color: #008000;
-}
-a:hover {
-	color: #008000;
+	text-decoration: none;
 }
 a:focus .gravatar, a:focus, a:focus .media-icon img {
 	box-shadow: none !important;
@@ -1212,6 +1213,7 @@ a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link)::afte
 #footer-thankyou {
 	display: none;
 }
+a.beacon-article,
 a.section_title_info {
 	cursor: pointer;
 }
@@ -1593,10 +1595,9 @@ body.folded #FooterBannerGoPro {
 	visibility: hidden;
 	background-color: rgba(238, 246, 238, 0.99);
 	border: 1px solid rgba(177, 216, 178, 0.99);
-	/*border-left-width: 0;*/
 	position: absolute;
-	left: 90%;
-	width: 120%;
+	left: 130px;
+	width: 200px;
 	z-index: 1000;
 	height: auto;
 	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);

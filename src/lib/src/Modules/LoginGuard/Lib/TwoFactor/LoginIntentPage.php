@@ -136,7 +136,7 @@ class LoginIntentPage {
 				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),
 				'js_bootstrap'  => $con->urls->forJs( 'bootstrap' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
-				'what_is_this'  => 'https://support.getshieldsecurity.com/support/solutions/articles/3000064840',
+				'what_is_this'  => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
 			],
 			'imgs'    => [
 				'banner'  => $bannerURL,

@@ -105,7 +105,7 @@
           ]
         },
         "datatables-bootstrap":   {
-          "url":  "https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css",
+          "url":  "https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -221,7 +221,7 @@
           ]
         },
         "datatables-bootstrap":    {
-          "url":  "https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js",
+          "url":  "https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js",
           "deps": [
             "datatables"
           ]
