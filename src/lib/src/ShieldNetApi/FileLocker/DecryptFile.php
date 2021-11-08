@@ -10,11 +10,9 @@ class DecryptFile extends BaseShieldNetApi {
 	const API_ACTION = 'filelocker/decrypt';
 
 	/**
-	 * @param OpenSslEncryptVo $openSslVO
-	 * @param int              $publicKeyId
-	 * @return string|null
+	 * @param int $publicKeyId
 	 */
-	public function retrieve( OpenSslEncryptVo $openSslVO, $publicKeyId ) {
+	public function retrieve( OpenSslEncryptVo $openSslVO, $publicKeyId ) :string {
 		$content = null;
 
 		$this->request_method = 'post';
@@ -29,6 +27,6 @@ class DecryptFile extends BaseShieldNetApi {
 		if ( is_array( $raw ) && !empty( $raw[ 'data' ] ) ) {
 			$content = base64_decode( $raw[ 'data' ][ 'opened_data' ] );
 		}
-		return $content;
+		return (string)$content;
 	}
 }
