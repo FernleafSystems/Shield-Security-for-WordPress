@@ -9,11 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Options,
-	Scan\Queue\CompleteQueue,
-	Scan\Queue\ProcessQueueItem,
-	Scan\Queue\ProcessQueueWpcli,
-	Scan\Queue\QueueInit,
-	Scan\Queue\QueueItems
+	Scan\Queue\ProcessQueueWpcli
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -65,9 +61,6 @@ class ScansController extends ExecOnceModConsumer {
 				/** @var Controller\Base $obj */
 				$obj = new $class();
 				$this->scanCons[ $slug ] = $obj->setMod( $this->getMod() );
-			}
-			else {
-				throw new \Exception( 'Scan slug does not have a class: '.$slug );
 			}
 		}
 		return $this->scanCons[ $slug ];
@@ -195,14 +188,15 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function getFirstRunTimestamp() :int {
+		$defaultStart = rand( 1, 7 );
 
-		$startHour = (int)apply_filters( 'shield/scan_cron_start_hour', 3 );
-		$startMinute = (int)apply_filters( 'shield/scan_cron_start_minute', (int)rand( 0, 59 ) );
+		$startHour = (int)apply_filters( 'shield/scan_cron_start_hour', $defaultStart );
+		$startMinute = (int)apply_filters( 'shield/scan_cron_start_minute', rand( 0, 59 ) );
 		if ( $startHour < 0 || $startHour > 23 ) {
-			$startHour = 3;
+			$startHour = $defaultStart;
 		}
 		if ( $startMinute < 1 || $startMinute > 59 ) {
-			$startMinute = (int)rand( 1, 59 );
+			$startMinute = rand( 1, 59 );
 		}
 
 		$c = Services::Request()->carbon( true );
