@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Options,
+	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -33,6 +34,12 @@ class ScansController extends ExecOnceModConsumer {
 		$this->setupCron();
 		$this->setupCronHooks(); // Plugin crons
 		$this->handlePostScanCron();
+	}
+
+	public function runHourlyCron() {
+		( new CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	/**
@@ -92,9 +99,6 @@ class ScansController extends ExecOnceModConsumer {
 		}
 	}
 
-	/**
-	 * Cron callback
-	 */
 	public function runCron() {
 		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
 	}

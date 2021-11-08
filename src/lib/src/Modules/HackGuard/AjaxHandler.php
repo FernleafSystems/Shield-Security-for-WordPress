@@ -260,14 +260,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$params = FormParams::Retrieve();
 
 		if ( !empty( $params ) ) {
-			$selected = array_keys( $params );
-
 			$uiTrack = $mod->getUiTrack();
-			$uiTrack->selected_scans = array_intersect( $selected, $opts->getScanSlugs() );
+			$uiTrack->selected_scans = array_intersect( array_keys( $params ), $opts->getScanSlugs() );
 			$mod->setUiTrack( $uiTrack );
 
 			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
-			if ( $mod->getScansCon()->startNewScans( $selected, $resetIgnore ) ) {
+			if ( $mod->getScansCon()->startNewScans( $uiTrack->selected_scans, $resetIgnore ) ) {
 				$success = true;
 				$reloadPage = true;
 				$msg = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );

@@ -13,7 +13,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 class CleanQueue extends ExecOnceModConsumer {
 
 	protected function run() {
+		$this->resetStaleScanItems();
 		$this->deleteStaleScans();
+	}
+
+	private function resetStaleScanItems() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbH_ScanItems();
+		Services::WpDb()->doSql(
+			sprintf( "UPDATE `%s` 
+				SET `started_at`=0
+				WHERE `started_at` > 0 AND `started_at` < %s",
+				$dbh->getTableSchema()->table,
+				Services::Request()->carbon()->subMinutes( 5 )->timestamp
+			)
+		);
 	}
 
 	private function deleteStaleScans() {
