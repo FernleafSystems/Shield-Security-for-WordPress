@@ -269,10 +269,10 @@ abstract class Base extends ExecOnceModConsumer {
 		return rtrim( $ns, '\\' ).'\\';
 	}
 
-	protected function scheduleOnDemandScan( int $nDelay = 3 ) {
-		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() );
-		if ( !wp_next_scheduled( $sHook ) ) {
-			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
+	protected function scheduleOnDemandScan() {
+		$hook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() );
+		if ( !wp_next_scheduled( $hook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + 10, $hook );
 		}
 	}
 

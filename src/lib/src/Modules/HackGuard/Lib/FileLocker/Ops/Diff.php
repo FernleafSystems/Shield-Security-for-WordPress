@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 class Diff extends BaseOps {
 
 	/**
-	 * @param FileLocker\EntryVO $lock
 	 * @return string
 	 * @throws \Exception
 	 */

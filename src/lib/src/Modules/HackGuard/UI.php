@@ -14,6 +14,9 @@ class UI extends BaseShield\UI {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
+		( new Scan\Queue\CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 		foreach ( $opts->getScanSlugs() as $scan ) {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
@@ -96,6 +99,10 @@ class UI extends BaseShield\UI {
 	public function buildInsightsVars_Run() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		( new Scan\Queue\CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();

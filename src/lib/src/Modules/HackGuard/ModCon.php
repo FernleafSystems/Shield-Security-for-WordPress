@@ -83,7 +83,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @param string $slug
 	 * @return Scan\Controller\Base|mixed
 	 */
 	public function getScanCon( string $slug ) {

@@ -52,7 +52,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$FLCon = $mod->getFileLocker();
 		$FS = Services::WpFs();
 
-		$nRID = Services::Request()->post( 'rid' );
+		$nRID = (int)Services::Request()->post( 'rid' );
+
 		$data = [
 			'error'   => '',
 			'success' => false,
@@ -95,13 +96,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			]
 		];
 		try {
-			if ( !is_numeric( $nRID ) ) {
-				throw new \Exception( 'Not a valid file lock request.' );
-			}
 			$lock = $FLCon->getFileLock( $nRID );
-			if ( !$lock instanceof Databases\FileLocker\EntryVO ) {
-				throw new \Exception( 'Not a valid file lock request.' );
-			}
 
 			$isDifferent = $lock->detected_at > 0;
 			$data[ 'ajax' ] = $FLCon->createFileDownloadLinks( $lock );
@@ -109,7 +104,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$data[ 'html' ][ 'diff' ] = $isDifferent ?
 				( new FileLocker\Ops\PerformAction() )
 					->setMod( $this->getMod() )
-					->run( $nRID, 'diff' ) : '';
+					->run( $lock, 'diff' ) : '';
 
 			$carb = Services::Request()->carbon( true );
 
@@ -157,14 +152,18 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_FileLockerFileAction() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$FLCon = $mod->getFileLocker();
 		$req = Services::Request();
 		$success = false;
 
 		if ( $req->post( 'confirmed' ) == '1' ) {
 			try {
+				$lock = $FLCon->getFileLock( (int)$req->post( 'rid' ) );
 				$success = ( new FileLocker\Ops\PerformAction() )
 					->setMod( $this->getMod() )
-					->run( $req->post( 'rid' ), $req->post( 'file_action' ) );
+					->run( $lock, (string)$req->post( 'file_action' ) );
 				$msg = __( 'Requested action completed successfully.', 'wp-simple-firewall' );
 			}
 			catch ( \Exception $e ) {
@@ -258,16 +257,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$success = false;
 		$reloadPage = false;
 		$msg = __( 'No scans were selected', 'wp-simple-firewall' );
-		$formParams = FormParams::Retrieve();
+		$params = FormParams::Retrieve();
 
-		if ( !empty( $formParams ) ) {
-			$selected = array_keys( $formParams );
-
+		if ( !empty( $params ) ) {
 			$uiTrack = $mod->getUiTrack();
-			$uiTrack->selected_scans = array_intersect( $selected, $opts->getScanSlugs() );
+			$uiTrack->selected_scans = array_intersect( array_keys( $params ), $opts->getScanSlugs() );
 			$mod->setUiTrack( $uiTrack );
 
-			if ( $mod->getScansCon()->startNewScans( $selected ) ) {
+			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
+			if ( $mod->getScansCon()->startNewScans( $uiTrack->selected_scans, $resetIgnore ) ) {
 				$success = true;
 				$reloadPage = true;
 				$msg = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
