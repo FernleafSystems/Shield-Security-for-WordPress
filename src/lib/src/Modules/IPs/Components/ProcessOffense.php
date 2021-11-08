@@ -62,7 +62,15 @@ class ProcessOffense {
 			if ( $toBlock ) {
 				$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
 				$updater->setBlocked( $IP );
-				$con->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
+				$con->fireEvent( 'ip_offense',
+					[
+						'suppress_audit' => true,
+						'audit_params'   => [
+							'from' => $currentCount,
+							'to'   => $newCount,
+						]
+					]
+				);
 			}
 		}
 	}

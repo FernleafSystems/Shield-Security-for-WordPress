@@ -70,6 +70,10 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 	let bCurrentlyRunning = false;
 	let nRunningCount = 0;
 
+	let loadResultsPage = function ( evt ) {
+		window.location.href = aOpts[ 'href_scans_results' ];
+	};
+
 	let sendReq = function ( aParams ) {
 		iCWP_WPSF_BodyOverlay.show();
 
@@ -100,7 +104,7 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 				}
 				else {
 					setTimeout( function () {
-						window.location.href = aOpts[ 'href_scans_results' ];
+						loadResultsPage();
 					}, 1000 );
 				}
 			}

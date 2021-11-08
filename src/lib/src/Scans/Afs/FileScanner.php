@@ -118,7 +118,8 @@ class FileScanner {
 		catch ( \InvalidArgumentException $e ) {
 		}
 
-		if ( empty( $item ) && !$validFile ) {
+		/** TODO */
+		if ( false && empty( $item ) && !$validFile ) {
 			try {
 				( new AfsScan\Scans\RealtimeFile( $fullPath ) )
 					->setMod( $this->getMod() )
