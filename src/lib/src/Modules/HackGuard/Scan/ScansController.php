@@ -57,7 +57,6 @@ class ScansController extends ExecOnceModConsumer {
 
 	/**
 	 * @return Controller\Base|mixed
-	 * @throws \Exception
 	 */
 	public function getScanCon( string $slug ) {
 		if ( !isset( $this->scanCons[ $slug ] ) ) {
