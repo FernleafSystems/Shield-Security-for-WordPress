@@ -9,11 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaController {
+class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
-	use Shield\Modules\ModConsumer;
 	use Shield\Utilities\Consumer\WpLoginCapture;
-	use ExecOnce;
 
 	/**
 	 * @var Provider\BaseProvider[]
@@ -164,6 +162,7 @@ class MfaController {
 					Provider\Yubikey::SLUG     => new Provider\Yubikey(),
 					Provider\BackupCodes::SLUG => new Provider\BackupCodes(),
 					Provider\U2F::SLUG         => new Provider\U2F(),
+					Provider\Sms::SLUG         => new Provider\Sms(),
 				]
 			);
 		}

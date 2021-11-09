@@ -1,0 +1,32 @@
+<style>
+	input[name=shield_mfasms_phone] {
+		width: 300px;
+	}
+</style>
+<tr>
+	<th>
+		<label for="shield_enable_mfaemail">{{ strings.label_email_authentication }}</label>
+	</th>
+	<td>
+		<label class="" for="shield_mfasms_country">
+			<select id="shield_mfasms_country" name="shield_mfasms_country" >
+				<option value="GB">GB (+44)</option>
+			</select>
+		</label>
+		<label class="" for="shield_mfasms_phone">
+			<input type="text" id="shield_mfasms_phone"
+				   name="shield_mfasms_phone"
+				   placeholder="{{ strings.provide_full_phone_number }}"
+			/>
+		</label>
+		<label class="" for="shield_mfasms_phone">
+			<input type="button" id="shield_mfasms_verify"
+				   value="Verify"
+			/>
+		</label>
+
+		{% if flags.show_explanatory_text %}
+			<p class="description">{{ strings.description_sms_auth_submit }}</p>
+		{% endif %}
+	</td>
+</tr>
