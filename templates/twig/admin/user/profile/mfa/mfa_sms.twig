@@ -9,8 +9,11 @@
 	</th>
 	<td>
 		<label class="" for="shield_mfasms_country">
-			<select id="shield_mfasms_country" name="shield_mfasms_country" >
-				<option value="GB">GB (+44)</option>
+			<select id="shield_mfasms_country" name="shield_mfasms_country">
+				{% for country_iso,country_data in vars.countries %}
+					<option value="{{ country_iso }}">
+						{{ country_iso }} (+{{ country_data.code }})</option>
+				{% endfor %}
 			</select>
 		</label>
 		<label class="" for="shield_mfasms_phone">

@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class BaseShieldNetApi
- * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common
  * @property array $shield_net_params
  * @property bool  $shield_net_params_required
  */

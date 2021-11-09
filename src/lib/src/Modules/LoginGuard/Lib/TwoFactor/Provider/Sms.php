@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -155,7 +156,13 @@ class Sms extends BaseProvider {
 	}
 
 	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+		$countries = ( new GetAvailableCountries() )
+			->setMod( $this->getMod() )
+			->run();
 		return [
+			'flags'   => [
+				'has_countries' => !empty( $countries )
+			],
 			'strings' => [
 				'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
 				'title'                       => __( 'SMS Authentication', 'wp-simple-firewall' ),
@@ -163,6 +170,9 @@ class Sms extends BaseProvider {
 				'description_sms_auth_submit' => __( 'Click to verify your mobile number', 'wp-simple-firewall' ),
 				'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() )
+			],
+			'vars'    => [
+				'countries' => $countries
 			]
 		];
 	}
