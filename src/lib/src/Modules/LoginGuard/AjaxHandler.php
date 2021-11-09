@@ -27,6 +27,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_Disable2faEmail();
 				break;
 
+			case 'user_sms2fa_add':
+				$response = $this->ajaxExec_UserSmsAdd();
+				break;
+
 			case 'user_ga_toggle':
 				$response = $this->ajaxExec_UserGaToggle();
 				break;
@@ -185,6 +189,50 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'page_reload' => true
 			];
 		}
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsAdd() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+
+		$countryCode = $req->post( 'sms_country' );
+		$phoneNum = $req->post( 'sms_phone' );
+
+		$response = [
+			'success'     => false,
+			'message'     => __( 'Either the country code or phone number were missing.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+
+		if ( empty( $countryCode ) ) {
+			$response[ 'message' ] = __( 'The country code was missing.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $phoneNum ) ) {
+			$response[ 'message' ] = __( 'The phone number was missing.', 'wp-simple-firewall' );
+		}
+		else {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			try {
+				$response = [
+					'success'     => true,
+					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
+					'code'        => $provider->addProvisionalRegistration( $user, $countryCode, $phoneNum ),
+					'page_reload' => false
+				];
+			}
+			catch ( \Exception $e ) {
+				$response = [
+					'success'     => false,
+					'message'     => __( 'This phone number is already registered.', 'wp-simple-firewall' ),
+					'page_reload' => false
+				];
+			}
+		}
+
 		return $response;
 	}
 

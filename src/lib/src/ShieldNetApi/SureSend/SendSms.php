@@ -10,22 +10,26 @@ class SendSms extends BaseShieldNetApi {
 	const API_ACTION = 'sure-send/sms';
 
 	public function send2FA( \WP_User $to, string $code ) :bool {
+		$meta = $this->getCon()->getUserMeta( $to );
 		return $this->run(
 			'2fa',
-			$to->user_email,
+			$meta->sms_registration[ 'country' ],
+			$meta->sms_registration[ 'phone' ],
 			[
-				'code' => $code,
-				'ip'   => Services::IP()->getRequestIp(),
+				'code'     => $code,
+				'ip'       => Services::IP()->getRequestIp(),
+				'username' => sanitize_key( $to->user_login ),
 			]
 		);
 	}
 
-	public function run( string $slug, string $to, array $data ) :bool {
+	public function run( string $slug, string $countryTo, string $phoneTo, array $data ) :bool {
 		$this->request_method = 'post';
 		$this->params_body = [
 			'slug'       => $slug,
-			'email_to'   => $to,
-			'email_data' => array_merge(
+			'country_to' => $countryTo,
+			'phone_to'   => $phoneTo,
+			'sms_data'   => array_merge(
 				[
 					'ts' => Services::Request()->ts(),
 					'tz' => Services::WpGeneral()->getOption( 'timezone_string' ),
@@ -41,7 +45,7 @@ class SendSms extends BaseShieldNetApi {
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
 				'audit_params' => [
-					'email' => $to,
+					'email' => $countryTo,
 					'slug'  => $slug,
 				]
 			]

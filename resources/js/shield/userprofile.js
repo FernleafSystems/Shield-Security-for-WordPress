@@ -45,6 +45,47 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		} );
 	};
 
+	let initSms = function ( shield_vars ) {
+		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
+			let reqParams = shield_vars.ajax.user_sms2fa_add;
+			reqParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
+			reqParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+
+			if ( !(new RegExp( "^[0-9]+$" )).test( reqParams.sms_phone ) ) {
+				alert( "Phone number should contain only numbers 0-9." )
+			}
+			else if ( reqParams.sms_phone.length < 7 ) {
+				alert( "Phone number doesn't seem long enough." )
+			}
+			else {
+				let ajaxurl = reqParams.ajaxurl;
+				delete reqParams.ajaxurl;
+
+				jQuery.post( ajaxurl, reqParams, function ( response ) {
+						let msg = 'Communications error with site.';
+						if ( response.data.message !== undefined ) {
+							msg = response.data.message;
+						}
+
+						if ( response.data.success ) {
+							let smsCode = prompt( response.data.message );
+							alert( response.data.code );
+						}
+						else {
+							alert( 'Sending verification SMS failed' );
+						}
+					}
+				).always( function () {
+					}
+				);
+
+			}
+		} );
+		// jQuery( document ).on( 'click', '#IcwpWpsfDelBackupLoginCode', function ( evt ) {
+		// 	sendReq( shield_vars.ajax.del_backup_codes );
+		// } );
+	};
+
 	let initYubi = function ( shield_vars ) {
 		let $yubiText = jQuery( 'input[type=text]#shield_yubi' );
 		jQuery( document ).on( 'keyup', $yubiText, function ( evt ) {
@@ -174,6 +215,9 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			}
 			if ( typeof shield_vars_userprofile.vars.providers.backupcode !== typeof undefined ) {
 				initBackupcodes( shield_vars_userprofile.vars.providers.backupcode );
+			}
+			if ( typeof shield_vars_userprofile.vars.providers.sms !== typeof undefined ) {
+				initSms( shield_vars_userprofile.vars.providers.sms );
 			}
 			initMfaRemoveAll();
 		} );

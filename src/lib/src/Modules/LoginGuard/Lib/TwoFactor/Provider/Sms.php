@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendSms;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sms extends BaseProvider {
@@ -19,9 +20,32 @@ class Sms extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'user_sms2fa_settings' => $this->getMod()->getAjaxActionData( 'user_sms2fa_settings' ),
+				'user_sms2fa_add' => $this->getMod()->getAjaxActionData( 'user_sms2fa_add' ),
 			],
 		];
+	}
+
+	public function addProvisionalRegistration( \WP_User $user, string $country, string $phone ) :string {
+		$meta = $this->getCon()->getUserMeta( $user );
+		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
+
+		if ( @$reg[ 'country' ] === $country && @$reg[ 'phone' ] === $phone
+			 && ( $reg[ 'verified' ] ?? false ) ) {
+			throw new \Exception( 'This Phone number is already added and verified' );
+		}
+
+		$meta->sms_registration = [
+			'country'  => $country,
+			'phone'    => $phone,
+			'code'     => (string)wp_rand( 100000, 999999 ),
+			'verified' => false,
+		];
+
+		( new SendSms() )
+			->setMod( $this->getMod() )
+			->send2FA( $user, $meta->sms_registration[ 'code' ] );
+
+		return $meta->sms_registration[ 'code' ];
 	}
 
 	/**
