@@ -63,9 +63,18 @@ class Sms extends BaseProvider {
 		$meta = $this->getCon()->getUserMeta( $user );
 		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
+		$country = strtoupper( $country );
+
+		if ( !preg_match( '#^[0-9]{7,15}$#', $phone ) ) {
+			throw new \Exception( 'Phone numbers should contain only digits (0-9) and be no more than 15 digits in length.' );
+		}
+		if ( !preg_match( '#^[A-Z]{2}$#', $country ) ) {
+			throw new \Exception( 'Invalid country selected.' ); // TODO: Verify against official countries
+		}
+
 		if ( @$reg[ 'country' ] === $country && @$reg[ 'phone' ] === $phone
 			 && ( $reg[ 'verified' ] ?? false ) ) {
-			throw new \Exception( 'This Phone number is already added and verified' );
+			throw new \Exception( 'This phone number is already verified' );
 		}
 
 		$this->setProfileValidated( $user, false );
@@ -80,7 +89,7 @@ class Sms extends BaseProvider {
 		( new SendSms() )
 			->setMod( $this->getMod() )
 			->send2FA( $user, $meta->sms_registration[ 'code' ] );
-
+//		error_log( $meta->sms_registration[ 'code' ] );
 		return $meta->sms_registration[ 'code' ];
 	}
 
@@ -211,7 +220,8 @@ class Sms extends BaseProvider {
 				'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
 				'title'                       => __( 'SMS Authentication', 'wp-simple-firewall' ),
 				'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
-				'description_sms_auth_submit' => __( 'Click to verify your mobile number', 'wp-simple-firewall' ),
+				'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
+												 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
 				'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
 				'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),

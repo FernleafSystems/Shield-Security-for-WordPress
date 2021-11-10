@@ -53,9 +53,19 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 				sendReq( shield_vars.ajax.user_sms2fa_remove );
 			}
 			return false;
-		} )
+		} );
+
+		jQuery( document ).on( 'change keyup', '#shield_mfasms_phone', function ( evt ) {
+			let $this = jQuery( this );
+			const regex = /[^0-9]+/;
+			$this.val( $this.val().replace( regex, '' ) );
+			if ( $this.val().length > 15 ) {
+				$this.val( $this.val().substring( 0, 15 ) );
+			}
+		} );
 
 		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
+			let $this = jQuery( this );
 			let reqAddParams = shield_vars.ajax.user_sms2fa_add;
 			reqAddParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
 			reqAddParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
@@ -67,6 +77,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 				alert( "Phone number doesn't seem long enough." )
 			}
 			else {
+				$this.attr( 'disabled', 'disabled' );
 				let ajaxurl = reqAddParams.ajaxurl;
 				delete reqAddParams.ajaxurl;
 
@@ -74,34 +85,15 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 						let msg = 'Communications error with site.';
 
 						if ( response.data.success ) {
-							let smsCode = prompt( response.data.message );
 
-							let reqVerifyParams = shield_vars.ajax.user_sms2fa_verify;
-							reqVerifyParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
-							reqVerifyParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
-							reqVerifyParams.sms_code = prompt( response.data.message );
-							delete reqVerifyParams.ajaxurl;
-
-							jQuery.post( ajaxurl, reqVerifyParams, function ( response ) {
-									let msg = 'Communications error with site.';
-
-									if ( response.data.success ) {
-										alert( response.data.message );
-									}
-									else {
-										if ( response.data.message !== undefined ) {
-											msg = response.data.message;
-										}
-										else {
-											msg = 'SMS Verification.';
-										}
-										alert( msg );
-									}
-								}
-							).always( function () {
-								}
-							);
-
+							let verifyCode = prompt( response.data.message )
+							if ( verifyCode !== null ) {
+								let reqVerifyParams = shield_vars.ajax.user_sms2fa_verify;
+								reqVerifyParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
+								reqVerifyParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+								reqVerifyParams.sms_code = verifyCode;
+								sendReq( reqVerifyParams );
+							}
 						}
 						else {
 							if ( response.data.message !== undefined ) {
@@ -114,14 +106,12 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 						}
 					}
 				).always( function () {
+						$this.removeAttr( 'disabled', 'disabled' );
 					}
 				);
-
+				reqAddParams.ajaxurl = ajaxurl;
 			}
 		} );
-		// jQuery( document ).on( 'click', '#IcwpWpsfDelBackupLoginCode', function ( evt ) {
-		// 	sendReq( shield_vars.ajax.del_backup_codes );
-		// } );
 	};
 
 	let initYubi = function ( shield_vars ) {
@@ -217,6 +207,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		).always( function () {
 			}
 		);
+		reqParams.ajaxurl = ajaxurl;
 	};
 
 	var showDialog = function ( success, msg ) {

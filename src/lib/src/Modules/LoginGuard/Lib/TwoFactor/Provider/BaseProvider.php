@@ -273,7 +273,7 @@ abstract class BaseProvider {
 
 	protected function generateSimpleOTP( int $length = 6 ) :string {
 		do {
-			$otp = substr( strtoupper( preg_replace( '#io01l#i', '', wp_generate_password( 50, false ) ) ), 0, $length );
+			$otp = substr( strtoupper( preg_replace( '#[io01l]#i', '', wp_generate_password( 50, false ) ) ), 0, $length );
 		} while ( strlen( $otp ) !== 6 );
 		return $otp;
 	}

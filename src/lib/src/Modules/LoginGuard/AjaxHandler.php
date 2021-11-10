@@ -285,7 +285,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			try {
 				$response = [
 					'success'     => true,
-					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
+					'message'     => __( 'Phone verified and registered successfully for SMS Two-Factor Authentication.', 'wp-simple-firewall' ),
 					'code'        => $provider->verifyProvisionalRegistration( $user, $countryCode, $phoneNum, $verifyCode ),
 					'page_reload' => false
 				];
