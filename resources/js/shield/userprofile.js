@@ -63,16 +63,19 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 				jQuery.post( ajaxurl, reqParams, function ( response ) {
 						let msg = 'Communications error with site.';
-						if ( response.data.message !== undefined ) {
-							msg = response.data.message;
-						}
 
 						if ( response.data.success ) {
 							let smsCode = prompt( response.data.message );
 							alert( response.data.code );
 						}
 						else {
-							alert( 'Sending verification SMS failed' );
+							if ( response.data.message !== undefined ) {
+								msg = response.data.message;
+							}
+							else {
+								msg = 'Sending verification SMS failed';
+							}
+							alert( msg );
 						}
 					}
 				).always( function () {

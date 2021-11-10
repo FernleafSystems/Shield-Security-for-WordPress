@@ -9,6 +9,9 @@ class SendSms extends BaseShieldNetApi {
 
 	const API_ACTION = 'sure-send/sms';
 
+	/**
+	 * @throws \Exception
+	 */
 	public function send2FA( \WP_User $to, string $code ) :bool {
 		$meta = $this->getCon()->getUserMeta( $to );
 		return $this->run(
@@ -23,6 +26,9 @@ class SendSms extends BaseShieldNetApi {
 		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function run( string $slug, string $countryTo, string $phoneTo, array $data ) :bool {
 		$this->request_method = 'post';
 		$this->params_body = [
@@ -50,6 +56,10 @@ class SendSms extends BaseShieldNetApi {
 				]
 			]
 		);
+
+		if ( !$success ) {
+			throw new \Exception( $raw[ 'message' ] ?? 'Unknown Error' );
+		}
 
 		return $success;
 	}

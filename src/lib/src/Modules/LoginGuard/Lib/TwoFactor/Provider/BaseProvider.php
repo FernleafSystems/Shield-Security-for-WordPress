@@ -10,12 +10,10 @@ abstract class BaseProvider {
 	use Modules\ModConsumer;
 
 	const SLUG = '';
-
 	/**
 	 * Set to true if this provider can be used to validate 2FA even if MFA is active.
 	 */
 	const BYPASS_MFA = false;
-
 	/**
 	 * Set to true if this provider can be used in isolation. False if there
 	 * must be at least 1 other 2FA provider active alongside it.
@@ -271,5 +269,12 @@ abstract class BaseProvider {
 				'provider_name' => $this->getProviderName()
 			],
 		];
+	}
+
+	protected function generateSimpleOTP( int $length = 6 ) :string {
+		do {
+			$otp = substr( strtoupper( preg_replace( '#io01l#i', '', wp_generate_password( 50, false ) ) ), 0, $length );
+		} while ( strlen( $otp ) !== 6 );
+		return $otp;
 	}
 }

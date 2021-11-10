@@ -25,6 +25,9 @@ class Sms extends BaseProvider {
 		];
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function addProvisionalRegistration( \WP_User $user, string $country, string $phone ) :string {
 		$meta = $this->getCon()->getUserMeta( $user );
 		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
@@ -37,7 +40,7 @@ class Sms extends BaseProvider {
 		$meta->sms_registration = [
 			'country'  => $country,
 			'phone'    => $phone,
-			'code'     => (string)wp_rand( 100000, 999999 ),
+			'code'     => $this->generateSimpleOTP(),
 			'verified' => false,
 		];
 

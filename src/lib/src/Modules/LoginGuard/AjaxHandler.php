@@ -227,7 +227,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			catch ( \Exception $e ) {
 				$response = [
 					'success'     => false,
-					'message'     => __( 'This phone number is already registered.', 'wp-simple-firewall' ),
+					'message'     => esc_html( $e->getMessage() ),
 					'page_reload' => false
 				];
 			}
