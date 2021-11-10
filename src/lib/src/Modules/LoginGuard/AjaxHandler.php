@@ -31,6 +31,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_UserSmsAdd();
 				break;
 
+			case 'user_sms2fa_verify':
+				$response = $this->ajaxExec_UserSmsVerify();
+				break;
+
 			case 'user_ga_toggle':
 				$response = $this->ajaxExec_UserGaToggle();
 				break;
@@ -221,6 +225,51 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					'success'     => true,
 					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
 					'code'        => $provider->addProvisionalRegistration( $user, $countryCode, $phoneNum ),
+					'page_reload' => false
+				];
+			}
+			catch ( \Exception $e ) {
+				$response = [
+					'success'     => false,
+					'message'     => esc_html( $e->getMessage() ),
+					'page_reload' => false
+				];
+			}
+		}
+
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsVerify() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+
+		$countryCode = $req->post( 'sms_country' );
+		$phoneNum = $req->post( 'sms_phone' );
+		$verifyCode = $req->post( 'sms_code' );
+
+		$response = [
+			'success'     => false,
+			'message'     => __( 'SMS Verification Failed.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+
+		if ( empty( $verifyCode ) ) {
+			$response[ 'message' ] = __( 'The code provided was empty.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $countryCode ) || empty( $phoneNum ) ) {
+			$response[ 'message' ] = __( 'The data provided was inconsistent.', 'wp-simple-firewall' );
+		}
+		else {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			try {
+				$response = [
+					'success'     => true,
+					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
+					'code'        => $provider->verifyProvisionalRegistration( $user, $countryCode, $phoneNum, $verifyCode ),
 					'page_reload' => false
 				];
 			}

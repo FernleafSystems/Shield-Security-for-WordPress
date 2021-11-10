@@ -47,26 +47,52 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 	let initSms = function ( shield_vars ) {
 		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
-			let reqParams = shield_vars.ajax.user_sms2fa_add;
-			reqParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
-			reqParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+			let reqAddParams = shield_vars.ajax.user_sms2fa_add;
+			reqAddParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
+			reqAddParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
 
-			if ( !(new RegExp( "^[0-9]+$" )).test( reqParams.sms_phone ) ) {
+			if ( !(new RegExp( "^[0-9]+$" )).test( reqAddParams.sms_phone ) ) {
 				alert( "Phone number should contain only numbers 0-9." )
 			}
-			else if ( reqParams.sms_phone.length < 7 ) {
+			else if ( reqAddParams.sms_phone.length < 7 ) {
 				alert( "Phone number doesn't seem long enough." )
 			}
 			else {
-				let ajaxurl = reqParams.ajaxurl;
-				delete reqParams.ajaxurl;
+				let ajaxurl = reqAddParams.ajaxurl;
+				delete reqAddParams.ajaxurl;
 
-				jQuery.post( ajaxurl, reqParams, function ( response ) {
+				jQuery.post( ajaxurl, reqAddParams, function ( response ) {
 						let msg = 'Communications error with site.';
 
 						if ( response.data.success ) {
 							let smsCode = prompt( response.data.message );
-							alert( response.data.code );
+
+							let reqVerifyParams = shield_vars.ajax.user_sms2fa_verify;
+							reqVerifyParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
+							reqVerifyParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+							reqVerifyParams.sms_code = prompt( response.data.message );
+							delete reqVerifyParams.ajaxurl;
+
+							jQuery.post( ajaxurl, reqVerifyParams, function ( response ) {
+									let msg = 'Communications error with site.';
+
+									if ( response.data.success ) {
+										alert( response.data.message );
+									}
+									else {
+										if ( response.data.message !== undefined ) {
+											msg = response.data.message;
+										}
+										else {
+											msg = 'SMS Verification.';
+										}
+										alert( msg );
+									}
+								}
+							).always( function () {
+								}
+							);
+
 						}
 						else {
 							if ( response.data.message !== undefined ) {

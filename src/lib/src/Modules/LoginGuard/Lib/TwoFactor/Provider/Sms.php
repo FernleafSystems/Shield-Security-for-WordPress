@@ -20,9 +20,39 @@ class Sms extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'user_sms2fa_add' => $this->getMod()->getAjaxActionData( 'user_sms2fa_add' ),
+				'user_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'user_sms2fa_add' ),
+				'user_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'user_sms2fa_verify' ),
 			],
 		];
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function verifyProvisionalRegistration( \WP_User $user, string $country, string $phone, string $code ) :bool {
+		$meta = $this->getCon()->getUserMeta( $user );
+		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
+
+		if ( @$reg[ 'country' ] === $country && @$reg[ 'phone' ] === $phone
+			 && ( $reg[ 'verified' ] ?? false ) ) {
+			throw new \Exception( 'This Phone number is already added and verified' );
+		}
+		if ( empty( $reg[ 'code' ] ) ) {
+			throw new \Exception( "The verification code couldn't be verified because the profile wasn't ready." );
+		}
+		if ( $reg[ 'code' ] !== trim( strtoupper( $code ) ) ) {
+			throw new \Exception( "The verification code provided wasn't correct." );
+		}
+
+		$meta->sms_registration = [
+			'country'  => $country,
+			'phone'    => $phone,
+			'verified' => true,
+		];
+
+		$this->setProfileValidated( $user );
+
+		return true;
 	}
 
 	/**
@@ -36,6 +66,8 @@ class Sms extends BaseProvider {
 			 && ( $reg[ 'verified' ] ?? false ) ) {
 			throw new \Exception( 'This Phone number is already added and verified' );
 		}
+
+		$this->setProfileValidated( $user, false );
 
 		$meta->sms_registration = [
 			'country'  => $country,
@@ -84,36 +116,6 @@ class Sms extends BaseProvider {
 			'text'        => __( 'SMS OTP', 'wp-simple-firewall' ),
 			'help_link'   => 'https://shsec.io/3t'
 		];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function handleUserProfileSubmit( \WP_User $user ) {
-
-		$bWasEnabled = $this->isProfileActive( $user );
-		$bToEnable = Services::Request()->post( 'shield_enable_mfaemail' ) === 'Y';
-
-		$msg = null;
-		$error = false;
-		if ( $bToEnable ) {
-			$this->setProfileValidated( $user );
-			if ( !$bWasEnabled ) {
-				$msg = __( 'Email Two-Factor Authentication has been enabled.', 'wp-simple-firewall' );
-			}
-		}
-		elseif ( $this->isEnforced( $user ) ) {
-			$msg = __( "Email Two-Factor Authentication couldn't be disabled because it is enforced based on your user roles.", 'wp-simple-firewall' );
-			$error = true;
-		}
-		else {
-			$this->setProfileValidated( $user, false );
-			$msg = __( 'Email Two-Factor Authentication has been disabled.', 'wp-simple-firewall' );
-		}
-
-		if ( !empty( $msg ) ) {
-			$this->getMod()->setFlashAdminNotice( $msg, $error );
-		}
 	}
 
 	/**
@@ -186,9 +188,18 @@ class Sms extends BaseProvider {
 		$countries = ( new GetAvailableCountries() )
 			->setMod( $this->getMod() )
 			->run();
+
+		$validatedNumber = '';
+		if ( $this->hasValidatedProfile( $user ) ) {
+			$smsReg = $this->getCon()->getUserMeta( $user )->sms_registration;
+			$validatedNumber = sprintf( '[%s] (+%s) %s',
+				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
+		}
+
 		return [
 			'flags'   => [
-				'has_countries' => !empty( $countries )
+				'has_countries' => !empty( $countries ),
+				'is_validated'  => $this->isProfileActive( $user )
 			],
 			'strings' => [
 				'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
@@ -196,10 +207,12 @@ class Sms extends BaseProvider {
 				'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
 				'description_sms_auth_submit' => __( 'Click to verify your mobile number', 'wp-simple-firewall' ),
 				'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() )
+					$this->getCon()->getHumanName() ),
+				'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'countries' => $countries
+				'countries'        => $countries,
+				'validated_number' => $validatedNumber,
 			]
 		];
 	}
@@ -210,20 +223,8 @@ class Sms extends BaseProvider {
 		return $opts->isEnabledSmsAuth();
 	}
 
-	private function genLoginLink( \WP_User $user, string $otp ) :string {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		$action = uniqid( '2fa_verify' );
-		return add_query_arg(
-			[
-				'user'                         => $user->user_login,
-				$this->getLoginFormParameter() => $otp,
-				'shield_nonce_action'          => $action,
-				'shield_nonce'                 => $this->getCon()
-					->nonce_handler->create( $action, $opts->getLoginIntentMinutes()*60 ),
-			],
-			Services::WpGeneral()->getHomeUrl()
-		);
+	public function isProfileActive( \WP_User $user ) :bool {
+		return $this->hasValidatedProfile( $user );
 	}
 
 	/**
@@ -259,8 +260,6 @@ class Sms extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @param array    $codes
 	 * @return $this
 	 */
 	private function storeCodes( \WP_User $user, array $codes ) {
