@@ -217,9 +217,6 @@ class Yubikey extends BaseProvider {
 		return $this->setSecret( $user, implode( ',', array_unique( array_filter( $IDs ) ) ) );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getFormField() :array {
 		return [
 			'name'        => $this->getLoginFormParameter(),

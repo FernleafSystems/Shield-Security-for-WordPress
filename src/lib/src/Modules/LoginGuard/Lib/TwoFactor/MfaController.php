@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
@@ -125,7 +124,21 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			if ( $this->isSubjectToLoginIntent( $user ) ) {
 
 				if ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() ) {
-					$this->processActiveLoginIntent();
+
+					$process = true;
+
+					// by pass certain ajax request
+					if ( Services::WpGeneral()->isAjax() ) {
+						$req = Services::Request();
+						if ( $req->post( 'action' ) === $this->getCon()->prefix()
+							 && in_array( $req->post( 'exec' ), [ 'user_sms2fa_intentstart' ] ) ) {
+							$process = false;
+						}
+					}
+
+					if ( $process ) {
+						$this->processActiveLoginIntent();
+					}
 				}
 				else {
 					$this->destroyLogin( $user );
@@ -171,7 +184,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
-	 * @param \WP_User $user
 	 * @param bool     $onlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */

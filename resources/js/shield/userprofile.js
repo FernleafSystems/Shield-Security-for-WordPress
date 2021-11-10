@@ -67,8 +67,12 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
 			let $this = jQuery( this );
 			let reqAddParams = shield_vars.ajax.user_sms2fa_add;
-			reqAddParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
+
+			let $countrySelect = jQuery( 'select#shield_mfasms_country' );
+			reqAddParams.sms_country = $countrySelect.val();
 			reqAddParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+
+			let combined = $countrySelect.find( ':selected' ).data( 'code' ) + ' ' + reqAddParams.sms_phone
 
 			if ( !(new RegExp( "^[0-9]+$" )).test( reqAddParams.sms_phone ) ) {
 				alert( "Phone number should contain only numbers 0-9." )
@@ -76,7 +80,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			else if ( reqAddParams.sms_phone.length < 7 ) {
 				alert( "Phone number doesn't seem long enough." )
 			}
-			else {
+			else if ( confirm( 'Are you sure this country code and number are correct: ' + combined ) ) {
 				$this.attr( 'disabled', 'disabled' );
 				let ajaxurl = reqAddParams.ajaxurl;
 				delete reqAddParams.ajaxurl;

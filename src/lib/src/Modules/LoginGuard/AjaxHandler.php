@@ -39,6 +39,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_UserSmsVerify();
 				break;
 
+			case 'user_sms2fa_intentstart':
+				$response = $this->ajaxExec_UserSmsIntentStart();
+				break;
+
 			case 'user_ga_toggle':
 				$response = $this->ajaxExec_UserGaToggle();
 				break;
@@ -255,6 +259,29 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];
+	}
+
+	private function ajaxExec_UserSmsIntentStart() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		try {
+			$provider->startLoginIntent( Services::WpUsers()->getCurrentWpUser() );
+			$response = [
+				'success'     => true,
+				'message'     => __( 'One-Time Password was sent to your phone.', 'wp-simple-firewall' ),
+				'page_reload' => true
+			];
+		}
+		catch ( \Exception $e ) {
+			$response = [
+				'success'     => false,
+				'message'     => $e->getMessage(),
+				'page_reload' => true
+			];
+		}
+		return $response;
 	}
 
 	private function ajaxExec_UserSmsVerify() :array {

@@ -20,7 +20,7 @@
 			<label class="" for="shield_mfasms_country">
 				<select id="shield_mfasms_country" name="shield_mfasms_country">
 					{% for country_iso,country_data in vars.countries %}
-						<option value="{{ country_iso }}">
+						<option value="{{ country_iso }}" data-code="+{{ country_data.code }}">
 							{{ country_iso }} (+{{ country_data.code }})</option>
 					{% endfor %}
 				</select>
