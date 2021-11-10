@@ -46,6 +46,15 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 	};
 
 	let initSms = function ( shield_vars ) {
+
+		jQuery( 'a.shield_sms_remove' ).on( 'click', function ( evt ) {
+			evt.preventDefault();
+			if ( confirm( shield_vars_userprofile.strings.are_you_sure ) ) {
+				sendReq( shield_vars.ajax.user_sms2fa_remove );
+			}
+			return false;
+		} )
+
 		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
 			let reqAddParams = shield_vars.ajax.user_sms2fa_add;
 			reqAddParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
@@ -129,7 +138,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			shield_vars.ajax.user_yubikey_toggle.otp = jQuery( evt.currentTarget ).data( 'yubikeyid' );
 			sendReq( shield_vars.ajax.user_yubikey_toggle );
 			return false;
-		} )
+		} );
 	};
 
 	let initEmail = function ( shield_vars ) {

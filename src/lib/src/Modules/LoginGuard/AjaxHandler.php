@@ -31,6 +31,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_UserSmsAdd();
 				break;
 
+			case 'user_sms2fa_remove':
+				$response = $this->ajaxExec_UserSmsRemove();
+				break;
+
 			case 'user_sms2fa_verify':
 				$response = $this->ajaxExec_UserSmsVerify();
 				break;
@@ -238,6 +242,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return $response;
+	}
+
+	private function ajaxExec_UserSmsRemove() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider->remove( Services::WpUsers()->getCurrentWpUser() );
+		return [
+			'success'     => true,
+			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
 	}
 
 	private function ajaxExec_UserSmsVerify() :array {

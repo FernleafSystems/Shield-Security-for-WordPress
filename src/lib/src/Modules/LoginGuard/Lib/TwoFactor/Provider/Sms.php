@@ -22,6 +22,7 @@ class Sms extends BaseProvider {
 			'ajax' => [
 				'user_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'user_sms2fa_add' ),
 				'user_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'user_sms2fa_verify' ),
+				'user_sms2fa_remove' => $this->getMod()->getAjaxActionData( 'user_sms2fa_remove' ),
 			],
 		];
 	}
@@ -124,6 +125,11 @@ class Sms extends BaseProvider {
 	 */
 	protected function isSecretValid( $secret ) {
 		return true;
+	}
+
+	public function remove( \WP_User $user ) {
+		$this->getCon()->getUserMeta( $user )->sms_registration = [];
+		parent::remove( $user );
 	}
 
 	/**
@@ -267,6 +273,6 @@ class Sms extends BaseProvider {
 	}
 
 	public function getProviderName() :string {
-		return 'Email';
+		return 'SMS';
 	}
 }

@@ -9,7 +9,13 @@
 	</th>
 	<td>
 		{% if flags.is_validated %}
-			<p>{{ strings.registered_number }}: {{ vars.validated_number }}</p>
+			<p>
+				{{ strings.registered_number }}: {{ vars.validated_number }}
+				<a href="#" class="shield_sms_remove"
+				   style="text-decoration: none;"
+				   title="Remove">
+					&#10006;</a>
+			</p>
 		{% else %}
 			<label class="" for="shield_mfasms_country">
 				<select id="shield_mfasms_country" name="shield_mfasms_country">
