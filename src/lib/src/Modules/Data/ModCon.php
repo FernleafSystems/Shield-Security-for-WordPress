@@ -44,6 +44,7 @@ class ModCon extends BaseShield\ModCon {
 						 ->getQuerySelector()
 						 ->getDistinctForColumn( 'ip_ref' )
 				 ) )
-			 );
+			 )
+			 ->query();
 	}
 }
