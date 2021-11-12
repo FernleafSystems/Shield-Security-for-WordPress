@@ -66,13 +66,13 @@ class Strings extends Base\Strings {
 				],
 			],
 			'user_hard_suspended'          => [
-				'name'  => __( 'User Hard-Suspended', 'wp-simple-firewall' ),
+				'name'  => __( 'User Manually Suspended', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'User "{{user_login}}" suspended by admin ({{admin}})', 'wp-simple-firewall' ),
 				],
 			],
 			'user_hard_unsuspended'        => [
-				'name'  => __( 'User Hard-Unsuspended', 'wp-simple-firewall' ),
+				'name'  => __( 'User Manually Unsuspended', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'User "{{user_login}}" unsuspended by admin ({{admin}})', 'wp-simple-firewall' ),
 				],

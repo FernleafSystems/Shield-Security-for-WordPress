@@ -63,7 +63,7 @@ class Strings extends Base\Strings {
 	public function getScanStrings() :array {
 		return [
 			'afs' => [
-				'name'     => __( 'All Filesystem Scan', 'wp-simple-firewall' ),
+				'name'     => __( 'WordPress Filesystem Scan', 'wp-simple-firewall' ),
 				'subtitle' => __( "WordPress Filesystem Scan looking for modified, missing and unrecognised files throughout the entire site", 'wp-simple-firewall' ),
 			],
 			'apc' => [
