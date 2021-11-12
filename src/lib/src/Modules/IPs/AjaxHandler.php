@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -31,6 +32,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 			case 'ip_analyse_action':
 				$response = $this->ajaxExec_IpAnalyseAction();
+				break;
+
+			case 'ip_review_select':
+				$response = $this->ajaxExec_IpReviewSelect();
 				break;
 
 			case 'not_bot':
@@ -191,6 +196,27 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				->setMod( $mod )
 				->setDbHandler( $dbh )
 				->render()
+		];
+	}
+
+	private function ajaxExec_IpReviewSelect() :array {
+		$req = Services::Request();
+
+		$filter = preg_replace( '#[^0-9a-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
+		$ips = ( new FindAllPluginIps() )
+			->setCon( $this->getCon() )
+			->run( $filter );
+
+		return [
+			'success'     => true,
+			'ips'         => array_map( function ( $ip ) {
+				return [
+					'id'   => $ip,
+					'text' => $ip
+				];
+			}, $ips ),
+			'message'     => '',
+			'page_reload' => false,
 		];
 	}
 

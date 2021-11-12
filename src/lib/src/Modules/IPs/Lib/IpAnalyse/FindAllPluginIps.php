@@ -11,7 +11,7 @@ class FindAllPluginIps {
 
 	use PluginControllerConsumer;
 
-	public function run() :array {
+	public function run( string $ipFilter = '' ) :array {
 		$con = $this->getCon();
 
 		// User Sessions
@@ -34,6 +34,12 @@ class FindAllPluginIps {
 				   ->getQuerySelector();
 		$ips = array_merge( $ips, $sel->getDistinctForColumn( 'ip' ) );
 
-		return IpListSort::Sort( array_unique( $ips ) );
+		$ips = array_unique( $ips );
+		if ( !empty( $ipFilter ) ) {
+			$ips = array_filter( $ips, function ( $ip ) use ( $ipFilter ) {
+				return is_int( strpos( $ip, $ipFilter ) );
+			} );
+		}
+		return IpListSort::Sort( $ips );
 	}
 }

@@ -64,6 +64,15 @@
       {
         "type":        "improved",
         "pro_only":    false,
+        "title":       "Dynamic Search For IP Analyse Tool",
+        "description": [
+          "IP Analyse tool use AJAX-based dynamic searching when selecting an IP address on the IP Analyse tool.",
+          "This makes the tool more practical and performant for sites with large IP datasets."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
         "title":       "Traffic Logging for WP-CLI requests",
         "description": [
           "WP-CLI commands and their arguments are logged for WP-CLI requests just as with paths for web requests."

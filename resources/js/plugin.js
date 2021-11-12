@@ -349,8 +349,26 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 jQuery( document ).ready( function () {
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
-	jQuery( '.select2picker' ).select2( {
+	jQuery( '.select2picker.static' ).select2( {
 		width: 'resolve'
+	} );
+
+	jQuery( '#IpReviewSelect' ).select2( {
+		minimumInputLength: 2,
+		ajax: {
+			url: ajaxurl,
+			method: 'POST',
+			data: function ( params ) {
+				let reqParams = jQuery( this ).data( 'ajaxparams' );
+				reqParams.search = params.term;
+				return reqParams;
+			},
+			processResults: function ( data ) {
+				return {
+					results: data.data.ips
+				};
+			}
+		}
 	} );
 
 	jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
