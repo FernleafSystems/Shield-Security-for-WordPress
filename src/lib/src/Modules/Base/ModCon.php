@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ModCon
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
- */
 abstract class ModCon {
 
 	use Modules\PluginControllerConsumer;

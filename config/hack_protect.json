@@ -362,6 +362,14 @@
       "tracking_exclude": true,
       "type":             "integer",
       "default":          0
+    },
+    {
+      "key":              "legacy_db_conversion_at",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "integer",
+      "default":          0
     }
   ],
   "definitions":      {

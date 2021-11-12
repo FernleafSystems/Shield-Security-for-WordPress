@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	DB\ResultItems\Ops as ResultItemsDB,
 	DB\ResultItemMeta\Ops as ResultItemMetaDB,
+	DB\ResultItems\Ops as ResultItemsDB,
 	ModCon,
 	Options,
 	Scan\Controller\Afs,
@@ -21,9 +21,17 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ConvertLegacyResults extends ExecOnceModConsumer {
 
+	protected function canRun() :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return (int)$opts->getOpt( 'legacy_db_conversion_at' ) === 0;
+	}
+
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 		/** @var ResultItemsDB\Select $selectResItem */
 		$dbhResItems = $mod->getDbH_ResultItems();
 		/** @var ResultItemsDB\Select $selectResItem */
@@ -81,9 +89,13 @@ class ConvertLegacyResults extends ExecOnceModConsumer {
 		}
 
 		if ( !empty( $legacyResults ) ) {
-			/** @var Options $opts */
-			$opts = $this->getOptions();
 			$mod->getScansCon()->startNewScans( $opts->getScanSlugs() );
+		}
+
+		$mod->getDbHandler_ScanQueue()->tableDelete();
+		if ( $mod->getDbHandler_ScanResults()->getQuerySelector()->count() === 0 ) {
+			$mod->getDbHandler_ScanResults()->tableDelete();
+			$opts->setOpt( 'legacy_db_conversion_at', Services::Request()->ts() );
 		}
 	}
 
