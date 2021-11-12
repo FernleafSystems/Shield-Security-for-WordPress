@@ -7,7 +7,7 @@
 
 				<div class="col-auto mb-3">
 					<label class="sr-only" for="_events">{{ strings.select_events }}</label>
-					<select multiple="multiple" name="events[]" id="_events" class="select2picker">
+					<select multiple="multiple" name="events[]" id="_events" class="select2picker static">
 						{% for event_key,event_name in vars.events %}
 							<option value="{{ event_key }}">{{ event_name }}</option>
 						{% endfor %}

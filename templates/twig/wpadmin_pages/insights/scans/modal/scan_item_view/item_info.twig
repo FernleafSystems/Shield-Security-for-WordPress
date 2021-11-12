@@ -9,7 +9,7 @@
 		<h6>{{ strings.file_description }}</h6>
 		<ul>
 			{% for line in vars.file_description %}
-				<li>{{ line }}</li>
+				<li>{{ line|raw }}</li>
 			{% endfor %}
 		</ul>
 	</div>

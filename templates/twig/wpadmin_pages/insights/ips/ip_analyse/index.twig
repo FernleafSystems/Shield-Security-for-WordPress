@@ -6,7 +6,8 @@
 			<div class="form-group row">
 				<div class="col mb-2">
 					<select id="IpReviewSelect" name="fIp"
-							class="select2picker form-control mb-2"
+							data-ajaxparams="{{ ajax.ip_review_select }}"
+							class="select2picker dynamic form-control mb-2"
 							style="min-width: 300px;">
 						<option value="">-- {{ strings.select_ip }} --</option>
 						{% for unique_ip in vars.unique_ips %}

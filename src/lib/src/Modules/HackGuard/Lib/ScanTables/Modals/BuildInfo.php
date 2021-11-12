@@ -96,6 +96,9 @@ class BuildInfo {
 		}
 		if ( $item->is_mal ) {
 			$description[] = __( 'Contents could potentially contain malicious PHP malware.', 'wp-simple-firewall' );
+			$description[] = sprintf( __( 'The false positive score of this file is %s.', 'wp-simple-firewall' ),
+				sprintf( '<code>%s</code>', $item->mal_fp_confidence ) );
+			$description[] = __( "The lower the score the less we know about the file and the more likely it contains malicious code.", 'wp-simple-firewall' );
 		}
 
 		return $description;

@@ -265,4 +265,12 @@ class ModCon extends BaseShield\ModCon {
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
 	}
+
+	/**
+	 * @inheritDoc
+	 * @deprecated 13.0
+	 */
+	public function getDbHandlers( $bInitAll = false ) {
+		return [];
+	}
 }
