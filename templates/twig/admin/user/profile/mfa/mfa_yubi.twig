@@ -4,7 +4,9 @@
 	}
 </style>
 <tr>
-	<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
+	<th>
+		<label for="{{ vars.otp_field_name }}" class="form-label">{{ strings.title }}</label>
+	</th>
 	<td>
 		{% if flags.is_profile_active %}
 			{% if flags.show_explanatory_text %}

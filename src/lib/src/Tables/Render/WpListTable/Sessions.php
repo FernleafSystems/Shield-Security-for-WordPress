@@ -12,7 +12,10 @@ class Sessions extends Base {
 		return sprintf( '%s<br />%s%s',
 			$aItem[ 'wp_username' ],
 			$aItem[ 'ip' ],
-			$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ], __( 'Discard', 'wp-simple-firewall' ) ) ] )
+			$this->buildActions( [
+				$this->getActionButton_Delete( $aItem[ 'id' ],
+					__( 'Discard Session', 'wp-simple-firewall' ) )
+			] )
 		);
 	}
 

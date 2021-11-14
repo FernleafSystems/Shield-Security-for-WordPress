@@ -21,10 +21,10 @@
 
 	<p>Activate your free 14-day trial of <strong>Shield</strong>PRO. Zero obligation.</p>
 
-	<div class="form-row">
+	<div class="row">
 
-		<div class="form-group col-12">
-			<label for="drip-first-name">Your First Name</label><br>
+		<div class="col-12">
+			<label for="drip-first-name" class="form-label">Your First Name</label><br>
 			<input type="text" id="drip-first-name" name="fields[first_name]"
 				   value="{{ vars.name }}"
 				   autocomplete="off"
@@ -32,8 +32,8 @@
 				   placeholder="Your name" />
 		</div>
 
-		<div class="form-group col-12">
-			<label for="drip-email">Email Address</label><br>
+		<div class="col-12">
+			<label for="drip-email" class="form-label">Email Address</label><br>
 			<input type="email" id="drip-email" name="fields[email]"
 				   value="{{ vars.email }}"
 				   autocomplete="off"
@@ -41,8 +41,8 @@
 				   placeholder="Your email address" />
 		</div>
 
-		<div class="form-group col-12">
-			<label for="drip-trial-url">Trial URL</label><br>
+		<div class="col-12">
+			<label for="drip-trial-url" class="form-label">Trial URL</label><br>
 			<input type="url" id="drip-trial-url"
 				   name="fields[trial_url]"
 				   value="{{ vars.activation_url }}"
@@ -51,7 +51,7 @@
 				   placeholder="e.g.  https://www.google.com/" />
 		</div>
 
-		<div class="form-group col-12">
+		<div class="col-12">
 			<div class="form-check">
 				<input type="hidden" name="fields[eu_consent]" id="drip-eu-consent-denied" value="denied">
 				<input type="hidden" name="fields[eu_consent_message]"

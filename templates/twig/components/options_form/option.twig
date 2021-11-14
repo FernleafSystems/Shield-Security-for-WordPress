@@ -1,4 +1,4 @@
-<div class="form-group row option_form_row">
+<div class="row option_form_row">
 
 	<div class="col-2" style="min-width: 140px">
 		<label for="Opt-{{ aOption.key }}"
@@ -24,7 +24,7 @@
 
 			{% if aOption.disabled %}
 				<br />
-				<div class="badge badge-success">
+				<div class="badge bg-success">
 					<a href="{{ hrefs.go_pro }}" target="_blank"
 					   class="text-light">{{ strings.pro_only_option }}</a>
 				</div>
@@ -35,9 +35,9 @@
 	<div class="col-4">
 
 		{% if aOption.type is sameas('checkbox') %}
-			<div class="custom-control custom-switch option-checkbox">
+			<div class="form-check custom-switch option-checkbox">
 				<input type="checkbox"
-					   class="custom-control-input"
+					   class="form-check-input"
 					   id="Opt-{{ aOption.key }}"
 					   name="{{ aOption.key }}"
 					   {% if aOption.disabled %}disabled="disabled"{% endif %}
@@ -45,7 +45,7 @@
 					   value="Y"
 						{{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }}
 				/>
-				<label class="custom-control-label"
+				<label class="form-check-label"
 					   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
 			</div>
 
@@ -88,15 +88,15 @@
 		{% elseif aOption.type is sameas('select') %}
 
 			{% for option_value, option_value_name in aOption.value_options %}
-				<div class="custom-control custom-radio">
+				<div class="form-check">
 					<input type="radio" id="Opt-{{ aOption.key }}_{{ option_value }}"
 						   name="{{ aOption.key }}"
 						   value="{{ option_value }}"
 						   {% if aOption.disabled %}disabled="disabled"{% endif %}
 							{# this type of comparison required for comment spam as value is 0 or '0' #}
 							{% if aOption.value matches "'^"~option_value~"$'" %}checked="checked"{% endif %}
-						   class="custom-control-input">
-					<label class="custom-control-label"
+						   class="form-check-input">
+					<label class="form-check-label"
 						   for="Opt-{{ aOption.key }}_{{ option_value }}">
 							{% if aOption.value matches "'^"~option_value~"$'" %}
 								<strong>{{ option_value_name }}</strong>
@@ -109,9 +109,9 @@
 		{% elseif aOption.type is sameas('multiple_select') %}
 
 			{% for option_value, option_value_name in aOption.value_options %}
-				<div class="custom-control custom-checkbox">
+				<div class="form-check">
 					<input type="checkbox"
-						   class="custom-control-input"
+						   class="form-check-input"
 						   id="Opt-{{ aOption.key }}_{{ option_value }}"
 						   name="{{ aOption.key }}[]"
 						   value="{{ option_value }}"
@@ -120,7 +120,7 @@
 							{% endif %}
 							{% if aOption.disabled %}disabled="disabled"{% endif %}
 					/>
-					<label class="custom-control-label"
+					<label class="form-check-label"
 						   for="Opt-{{ aOption.key }}_{{ option_value }}">
 							{% if option_value in aOption.value %}
 								<strong>{{ option_value_name }}</strong>
@@ -182,7 +182,7 @@
 				{% endfor %}
 			</div>
 
-			<div class="mt-3 text-left text-nowrap">
+			<div class="mt-3 text-start text-nowrap">
 				{% if aOption.link_info or aOption.beacon_id|default(false) %}
 
 					{% if aOption.beacon_id|default(false) %}
@@ -195,24 +195,24 @@
 					{% endif %}
 
 					{% if aOption.link_blog %}
-						<span class="m-1">&vert;</span>
-						<a href="{{ aOption.link_blog }}" target="_blank"
-						   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
-					{% endif %}
+					<span class="m-1">&vert;</span>
+					<a href="{{ aOption.link_blog }}" target="_blank"
+					   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
+				{% endif %}
 				{% endif %}
 
 				{% if flags.is_wpcli %}
 					<span href="#" style="cursor:pointer;"
-						  class="float-right"
+						  class="float-end"
 						  title="WP-CLI Option Key: {{ aOption.key }}"
-						  data-toggle="tooltip"
+						  data-bs-toggle="tooltip"
 					>wp-cli:&gt;</span>
 				{% endif %}
 
 				{% if flags.show_transfer_switch %}
 					{% if attribute(data.xferable_opts, aOption.key) is not same as(false) %}
-						<span class="custom-control custom-switch float-right importexport-checkbox"
-							  title="{{ strings.is_opt_importexport }}" data-toggle="tooltip"
+						<span class="custom-control custom-switch float-end importexport-checkbox"
+							  title="{{ strings.is_opt_importexport }}" data-bs-toggle="tooltip"
 						>
 							<input type="checkbox"
 								   class="custom-control-input optxfer-exclude"

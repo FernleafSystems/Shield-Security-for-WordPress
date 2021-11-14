@@ -1,7 +1,9 @@
 <table class="form-table">
 	<tbody>
 	<tr id="ShieldSuspend" class="shield-user-suspend-wrap">
-		<th><label for="_shield_suspend_user">{{ strings.title }}</label></th>
+		<th>
+			<label for="_shield_suspend_user" class="form-label">{{ strings.title }}</label>
+		</th>
 		{% if flags.can_manage_suspension %}
 			<td>
 				<fieldset>

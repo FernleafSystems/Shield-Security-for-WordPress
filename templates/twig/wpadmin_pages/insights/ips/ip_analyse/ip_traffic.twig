@@ -1,6 +1,6 @@
 <h6 class="card-title">
 	{{ strings.title }}
-	<span class="badge badge-info">{{ vars.total_requests }}</span>
+	<span class="badge bg-info">{{ vars.total_requests }}</span>
 </h6>
 {% if vars.total_requests < 1 %}
 	<div class="alert-info alert">{{ strings.no_requests }}</div>
@@ -26,7 +26,7 @@
 						</div>
 						<div>
 							{{ strings.offense }}:
-							<span class="badge badge-{{ request.trans ? 'danger':'success' }}">
+							<span class="badge bg-{{ request.trans ? 'danger':'success' }}">
 								{{ request.trans ? 'Yes':'No' }}
 							</span>
 

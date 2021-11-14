@@ -69,7 +69,7 @@
 				</form>
 
 				<div class="row">
-					<div class="col-6 text-left">
+					<div class="col-6 text-start">
 						{% if flags.is_pro %}
 							<form method="post" class="licenseForm">
 								{% for ajax_key, ajax_val in ajax.license_handling %}
@@ -89,12 +89,12 @@
 						{% endif %}
 					</div>
 
-					<div class="col-6 text-right">
+					<div class="col-6 text-end">
 						<form method="post" id="ConnectionDebug">
 							{% for ajax_key, ajax_val in ajax.connection_debug %}
 								<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 							{% endfor %}
-							<p class="mb-0">
+							<p class="mb-0 text-end">
 								<button class="btn btn-link btn-sm p-0"
 										title="{{ strings.incase_debug }}"
 										type="submit">{{ strings.debug }}</button>
@@ -132,80 +132,76 @@
 	</div>
 
 	<div class="col-7">
-		<div id="accordion">
+	  <div class="card gopro-card">
 
-			  <div class="card gopro-card">
+		<div id="collone" aria-labelledby="headingOne">
+		  <div class="card-body">
+			  <p><a href="https://shsec.io/gp" target="_blank" class="btn btn-outline-success">
+					  See All PRO Features and Extras</a></p>
+			<dl class="pro-features">
+				<dt>Easiest, Frustration-Free WP Pro-Upgrade Anywhere</dt>
+				<dd>No more license keys to remember/copy-paste! Simply activate your site URL in your
+					{{ icwp_macros.shieldpro }} control panel and get Pro features enabled on your site automatically.
+				</dd>
 
-				<div id="collone" aria-labelledby="headingOne">
-				  <div class="card-body">
-					  <p><a href="https://shsec.io/gp" target="_blank" class="btn btn-outline-success">
-							  See All PRO Features and Extras</a></p>
-					<dl class="pro-features">
-						<dt>Easiest, Frustration-Free WP Pro-Upgrade Anywhere</dt>
-						<dd>No more license keys to remember/copy-paste! Simply activate your site URL in your
-							{{ icwp_macros.shieldpro }} control panel and get Pro features enabled on your site automatically.
-						</dd>
+				<dt>Protect your <code>wp-config.php</code> files</dt>
+				<dd>The only WordPress security plugin to add monitoring of your
+					<code>wp-config.php</code> files with automatic rollback and recovery.</dd>
 
-						<dt>Protect your <code>wp-config.php</code> files</dt>
-						<dd>The only WordPress security plugin to add monitoring of your
-							<code>wp-config.php</code> files with automatic rollback and recovery.</dd>
+				<dt>MainWP Integration (no extra extension plugins required)</dt>
+				<dd>Use MainWP to manage and monitor the security of all your WordPress sites.</dd>
 
-						<dt>MainWP Integration (no extra extension plugins required)</dt>
-						<dd>Use MainWP to manage and monitor the security of all your WordPress sites.</dd>
+				<dt>Malware Scanner: Auto-learning and Detects Never-Before-Seen Malware</dt>
+				<dd>Detects common and uncommon malware patterns in PHP files and alerts you immediately.
+					<br />With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives
+					so you can focus on risks that matter, and can ignore the noise that wastes your time.
+				</dd>
 
-						<dt>Malware Scanner: Auto-learning and Detects Never-Before-Seen Malware</dt>
-						<dd>Detects common and uncommon malware patterns in PHP files and alerts you immediately.
-							<br />With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives
-							so you can focus on risks that matter, and can ignore the noise that wastes your time.
-						</dd>
+				<dt>ShieldNET Integration</dt>
+				<dd>Take advantage of the intelligence gathered throughout the entire Shield network to protect
+					your WordPress sites.</dd>
 
-						<dt>ShieldNET Integration</dt>
-						<dd>Take advantage of the intelligence gathered throughout the entire Shield network to protect
-							your WordPress sites.</dd>
+				<dt>Traffic Rate Limiting</dt>
+				<dd>Prevent abuse of your web hosting resources by detecting and blocking bots that send
+					too many requests to your site.
+				</dd>
 
-						<dt>Traffic Rate Limiting</dt>
-						<dd>Prevent abuse of your web hosting resources by detecting and blocking bots that send
-							too many requests to your site.
-						</dd>
+				<dt>Plugin and Theme Vulnerability Scanner</dt>
+				<dd>Alerts to plugin/theme vulnerabilities.
+					Shield can then automatically upgrade as updates become available.
+				</dd>
 
-						<dt>Plugin and Theme Vulnerability Scanner</dt>
-						<dd>Alerts to plugin/theme vulnerabilities.
-							Shield can then automatically upgrade as updates become available.
-						</dd>
+				<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
+				<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
 
-						<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
-						<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
+				<dt>Powerful User Password Policies</dt>
+				<dd>Ensures that all users maintain strong passwords.</dd>
 
-						<dt>Powerful User Password Policies</dt>
-						<dd>Ensures that all users maintain strong passwords.</dd>
+				<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
+				<dd>Provide tighter security for your WooCommerce customers.
+				</dd>
 
-						<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
-						<dd>Provide tighter security for your WooCommerce customers.
-						</dd>
+				<dt>Exclusive Customer Support</dt>
+				<dd>Technical support for Shield is exclusive to Pro customers.</dd>
 
-						<dt>Exclusive Customer Support</dt>
-						<dd>Technical support for Shield is exclusive to Pro customers.</dd>
+				<dt>Import and Export of plugin options</dt>
+				<dd>Automatically import settings directly from 1 site to another.</dd>
 
-						<dt>Import and Export of plugin options</dt>
-						<dd>Automatically import settings directly from 1 site to another.</dd>
+				<dt>Exclusive Early-Access </dt>
+				<dd>Be 1st to get new security features, as soon as they're available.</dd>
 
-						<dt>Exclusive Early-Access </dt>
-						<dd>Be 1st to get new security features, as soon as they're available.</dd>
+				<dt>Unlimited Audit Trail</dt>
+				<dd>Retain logs for as long as you need - no limits.</dd>
 
-						<dt>Unlimited Audit Trail</dt>
-						<dd>Retain logs for as long as you need - no limits.</dd>
+				<dt>White Label</dt>
+				<dd>Re-Brand Shield Security as your own!</dd>
 
-						<dt>White Label</dt>
-						<dd>Re-Brand Shield Security as your own!</dd>
-
-						<dt>Customize text shown to visitors</dt>
-						<dd>Edit customer-facing messages/text of the Shield plugin.</dd>
-					</dl>
-				  </div>
-				</div>
-			  </div>
-
-			</div>
+				<dt>Customize text shown to visitors</dt>
+				<dd>Edit customer-facing messages/text of the Shield plugin.</dd>
+			</dl>
+		  </div>
+		</div>
+	  </div>
 	</div>
 
 </div>

@@ -32,7 +32,7 @@
 
 	<div class="row row-cols-2 align-items-end mt-5">
 
-		<div class="col-6 text-left">
+		<div class="col-6 text-start">
 			{% block slide_body_button_area_previous %}
 				<button class="button ButtonSlidePrevious wizard-button-go-back">
 					&larr; {{ strings.next_button|default('Go back a step') }}
@@ -40,7 +40,7 @@
 			{% endblock %}
 		</div>
 
-		<div class="col-6 text-right">
+		<div class="col-6 text-end">
 			{% block slide_body_button_area_next %}
 				<button class="button ButtonNextSlide py-2 px-4">
 					{{ strings.next_button|default('Go to next step') }} &rarr;

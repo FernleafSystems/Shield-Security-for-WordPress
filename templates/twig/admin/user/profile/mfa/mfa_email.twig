@@ -47,12 +47,12 @@
 </style>
 <tr>
 	<th>
-		<label for="shield_enable_mfaemail"
+		<label for="shield_enable_mfaemail" class="form-label"
 			   {% if flags.is_enforced %}style="pointer-events: none;"{% endif %}
 		>{{ strings.label_email_authentication }}</label>
 	</th>
 	<td>
-		<label class="switch {% if flags.is_enforced %}disabled{% endif %}"
+		<label class="switch form-label {% if flags.is_enforced %}disabled{% endif %}"
 			   for="shield_enable_mfaemail">
 
 			<input type="checkbox" name="shield_enable_mfaemail" id="shield_enable_mfaemail" value="Y"

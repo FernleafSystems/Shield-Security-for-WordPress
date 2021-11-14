@@ -32,7 +32,7 @@
 
 			 data-state="{{ card.state }}"
 		>
-			<div class="text-left overview card mb-3
+			<div class="text-start overview card mb-3
 				{% if card.state == 'danger' %}
 				state-danger
 				{% elseif card.state == 'warning' %}
@@ -52,7 +52,7 @@
 							<span class="dashicons title-icon"></span>
 							<span class="card-title">{{ card.name }}</span>
 						</div>
-						<div class="d-inline-block text-right float-right">
+						<div class="d-inline-block text-end float-end">
 							{% if card.href|default('') is not empty %}
 								<a href="{{ card.href }}" title="{{ strings.go_to_options }}" target="_blank"
 								   class="card-link"><span class="dashicons dashicons-admin-generic"></span></a>
@@ -105,14 +105,5 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	if ( document.querySelector( '.state-warning' ) !== null ) {
 		document.querySelector('.state-warning').dispatchEvent( new MouseEvent( "click", { bubbles: true, cancellable: true } ) );
 	}
-
-	jQuery( function () {
-		jQuery( '[data-toggle="popover"]' ).popover( {
-			placement: 'top',
-			trigger: 'hover focus',
-			delay: 150,
-			html: false
-		} );
-	} );
 } );
 </script>

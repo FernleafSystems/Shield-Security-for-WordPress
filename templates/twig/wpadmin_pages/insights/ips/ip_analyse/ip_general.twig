@@ -8,7 +8,7 @@
 
 			<dt class="mb-1">{{ strings.status.offenses }}</dt>
 			<dd>
-				<p class="bigger-badge badge badge-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
+				<p class="bigger-badge badge bg-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
 					{{ vars.status.offenses }}
 				</p>
 			</dd>
@@ -16,14 +16,14 @@
 			<dt class="mb-1">{{ strings.status.is_blocked }}</dt>
 			<dd>
 				<p>
-					<span class="bigger-badge badge badge-{{ vars.status.is_blocked ? 'danger' : 'success' }}">
+					<span class="bigger-badge badge bg-{{ vars.status.is_blocked ? 'danger' : 'success' }}">
 						{{ vars.status.is_blocked ? strings.yes : strings.no }}
 					</span>
 					{% if vars.status.is_blocked %}
-						<a href="#" class="ml-2 text-primary ip_analyse_action"
+						<a href="#" class="ms-2 text-primary ip_analyse_action"
 						   data-ip_action="unblock" data-ip="{{ vars.ip }}">{{ strings.unblock_ip }}</a>
 					{% elseif not vars.status.is_bypass %}
-						<a href="#" class="ml-2 text-primary ip_analyse_action"
+						<a href="#" class="ms-2 text-primary ip_analyse_action"
 						   data-ip_action="block" data-ip="{{ vars.ip }}">{{ strings.block_ip }}</a>
 					{% endif %}
 				</p>
@@ -32,14 +32,14 @@
 			<dt class="mb-1">{{ strings.status.is_bypass }}</dt>
 			<dd>
 				<p>
-					<span class="bigger-badge badge badge-{{ vars.status.is_bypass ? 'warning' : 'success' }}">
+					<span class="bigger-badge badge bg-{{ vars.status.is_bypass ? 'warning' : 'success' }}">
 						{{ vars.status.is_bypass ? strings.yes : strings.no }}
 					</span>
 					{% if vars.status.is_bypass %}
-						<a href="#" class="ml-2 text-primary ip_analyse_action"
+						<a href="#" class="ms-2 text-primary ip_analyse_action"
 						   data-ip_action="unbypass" data-ip="{{ vars.ip }}">{{ strings.unbypass_ip }}</a>
 					{% else %}
-						<a href="#" class="ml-2 text-primary ip_analyse_action"
+						<a href="#" class="ms-2 text-primary ip_analyse_action"
 						   data-ip_action="bypass" data-ip="{{ vars.ip }}">{{ strings.bypass_ip }}</a>
 					{% endif %}
 				</p>
@@ -48,10 +48,10 @@
 			<dt class="mb-1">{{ strings.status.ip_reputation }}</dt>
 			<dd>
 				<p>
-					<span class="bigger-badge badge badge-{{ vars.status.is_bot ? 'warning' : 'success' }}">
+					<span class="bigger-badge badge bg-{{ vars.status.is_bot ? 'warning' : 'success' }}">
 						{{ vars.status.ip_reputation_score }}
 					</span>
-					<a href="#" class="ml-2 text-primary ip_analyse_action"
+					<a href="#" class="ms-2 text-primary ip_analyse_action"
 					   data-ip_action="delete_notbot" data-ip="{{ vars.ip }}">{{ strings.delete_notbot }}</a>
 				</p>
 			</dd>
@@ -59,12 +59,12 @@
 			<dt class="mb-1">{{ strings.status.snapi_ip_reputation }}</dt>
 			<dd>
 				<p>
-					<span class="bigger-badge badge badge-{{ vars.status.is_bot ? 'warning' : 'success' }}">
+					<span class="bigger-badge badge bg-{{ vars.status.is_bot ? 'warning' : 'success' }}">
 						{{ vars.status.snapi_reputation_score }}
 					</span>
 					<a href="{{ hrefs.snapi_reputation_details }}"
 					   target="_blank"
-					   class="ml-2 text-primary"
+					   class="ms-2 text-primary"
 					>{{ strings.see_details }}</a>
 				</p>
 			</dd>

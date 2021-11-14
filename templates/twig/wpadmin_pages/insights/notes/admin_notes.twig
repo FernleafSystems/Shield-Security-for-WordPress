@@ -4,19 +4,14 @@
 		<h6 class="card-subtitle text-muted">{{ strings.use_this_area }}</h6>
 	</div>
 	<div class="card-body overflow_container">
-		<form class="form-inline" id="NewAdminNote" action="#" method="post" autocomplete="off">
-			<label class="sr-only" for="AdminNote">{{ strings.note_title }}</label>
+		<form id="NewAdminNote" action="#" method="post" autocomplete="off">
+			<label class="visually-hidden" for="AdminNote">{{ strings.note_title }}</label>
 			<div class="input-group w-100">
-				<div class="input-group-prepend">
-					<div class="input-group-text" style="border-radius: 0">{{ strings.note_new }}:</div>
-				</div>
+				<div class="input-group-text" style="border-radius: 0">{{ strings.note_new }}:</div>
 				<input class="form-control" id="AdminNote" name="admin_note" type="text"
-					   placeholder="{{ strings.note_enter }}"
-				/>
-				<div class="input-group-append">
-					<button type="submit" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
-					>{{ strings.note_add }}</button>
-				</div>
+					   placeholder="{{ strings.note_enter }}" />
+				<button type="submit" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
+				>{{ strings.note_add }}</button>
 			</div>
 		</form>
 
@@ -25,7 +20,7 @@
 	</div>
 </div>
 <script>
-	var $oTableAdminNotes = jQuery( '#TableAdminNotes' ).icwpWpsfAjaxTable(
+	let $oTableAdminNotes = jQuery( '#TableAdminNotes' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_adminnotes|raw }}
 		}

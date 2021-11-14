@@ -1,11 +1,4 @@
 <style>
-	.message {
-		padding: 15px;
-		margin-bottom: 30px;
-	}
-	.submit.form-group {
-		margin-top: 25px;
-	}
 	.input-group-addon a {
 		font-weight: bold;
 		display: block;
@@ -38,9 +31,10 @@
 	{% endif %}
 
 	{% for key_field, aField in data.login_fields %}
-		<div class="form-row {% if aField.type == "hidden" %}d-none{% endif %}">
-			<div class="form-group col">
-				<label for="{{ aField.id|default(aField.name) }}">{{ aField.text }}</label>
+		<div class="row my-2 {% if aField.type == "hidden" %}d-none{% endif %}">
+			<div class="col">
+				<label class="form-label"
+					   for="{{ aField.id|default(aField.name) }}">{{ aField.text }}</label>
 				<div class="input-group">
 					<input type="{{ aField.type }}"
 						   name="{{ aField.name }}"
@@ -56,11 +50,9 @@
 					/>
 
 					{% if flags.show_branded_links %}
-						<div class="input-group-append">
-							<div class="input-group-text">
-								<a href="{{ aField.help_link }}"
-								   target="_blank" class="input-help">&quest;</a>
-							</div>
+						<div class="input-group-text">
+							<a href="{{ aField.help_link }}"
+							   target="_blank" class="input-help">&quest;</a>
 						</div>
 					{% endif %}
 				</div>
@@ -70,25 +62,24 @@
 	{% endfor %}
 
 	{% if flags.can_skip_mfa %}
-		<div class="form-row">
-			<div class="form-group mb-0">
+		<div class="row">
+			<div class="my-2">
 				<div class="input-group">
-					<label for="skip_mfa">
+					<label class="form-label" for="skip_mfa">
 						<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa">
-						{{ strings.skip_mfa }}
-					</label>
+						{{ strings.skip_mfa }}</label>
 				</div>
 			</div>
 		</div>
 	{% endif %}
 
-	<div class="form-group row submit">
-		<div class="col-6 order-2 text-right">
+	<div class="row submit">
+		<div class="col-6 order-2 text-end">
 			<button type="submit" id="mainSubmit" class="pull-right btn btn-success">
 				{{ strings.verify_my_login }}</button>
 		</div>
-		<div class="col-6 order-1 text-left">
-			<button class="btn btn-outline-danger" name="cancel" value="1">
+		<div class="col-6 order-1 text-start">
+			<button class="btn btn-outline-dark" name="cancel" value="1">
 				&larr; {{ strings.cancel }}</button>
 		</div>
 	</div>
