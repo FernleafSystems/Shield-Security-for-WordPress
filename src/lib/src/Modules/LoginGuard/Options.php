@@ -72,6 +72,10 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'enable_email_authentication', 'Y' );
 	}
 
+	public function isEnabledSmsAuth() :bool {
+		return $this->isOpt( 'enable_sms_auth', 'Y' );
+	}
+
 	public function isEnabledCooldown() :bool {
 		return $this->getCooldownInterval() > 0;
 	}

@@ -46,23 +46,20 @@ class U2F extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getFormField() :array {
 		$user = Services::WpUsers()->getCurrentWpUser();
 
-		$aFieldData = [];
+		$fieldData = [];
 		try {
-			/** @var SignRequest[] $aSignReqs */
-			$aSignReqs = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
+			/** @var SignRequest[] $signReqs */
+			$signReqs = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 				->getAuthenticateData( $this->getRegistrations( $user ) );
 
-			if ( empty( $aSignReqs ) ) {
+			if ( empty( $signReqs ) ) {
 				throw new \Exception( 'No signature requests could be created' );
 			}
 
-			$aFieldData = [
+			$fieldData = [
 				'name'        => 'btn_u2f_start',
 				'type'        => 'button',
 				'value'       => 'Click To Begin U2F Authentication',
@@ -71,7 +68,7 @@ class U2F extends BaseProvider {
 				'classes'     => [ 'btn', 'btn-light' ],
 				'help_link'   => '',
 				'datas'       => [
-					'signs'     => base64_encode( json_encode( $aSignReqs ) ),
+					'signs'     => base64_encode( json_encode( $signReqs ) ),
 					'input_otp' => $this->getLoginFormParameter(),
 				]
 			];
@@ -79,7 +76,7 @@ class U2F extends BaseProvider {
 		catch ( \Exception $e ) {
 		}
 
-		return $aFieldData;
+		return $fieldData;
 	}
 
 	/**

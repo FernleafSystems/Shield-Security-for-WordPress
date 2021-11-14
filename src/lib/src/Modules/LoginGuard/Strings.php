@@ -110,8 +110,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_2fa_ga' :
-				$title = __( 'Google Authenticator Two-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( 'Google Auth', 'wp-simple-firewall' );
+				$title = __( 'One-Time Passwords', 'wp-simple-firewall' );
+				$titleShort = __( 'One-Time Passwords', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )

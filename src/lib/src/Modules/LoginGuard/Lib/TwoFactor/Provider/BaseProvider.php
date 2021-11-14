@@ -10,12 +10,10 @@ abstract class BaseProvider {
 	use Modules\ModConsumer;
 
 	const SLUG = '';
-
 	/**
 	 * Set to true if this provider can be used to validate 2FA even if MFA is active.
 	 */
 	const BYPASS_MFA = false;
-
 	/**
 	 * Set to true if this provider can be used in isolation. False if there
 	 * must be at least 1 other 2FA provider active alongside it.
@@ -106,7 +104,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	public function resetSecret( \WP_User $user ) {
@@ -144,7 +141,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string|mixed
 	 */
 	protected function genNewSecret( \WP_User $user ) {
@@ -155,7 +151,6 @@ abstract class BaseProvider {
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @param \WP_User $user
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
@@ -164,8 +159,7 @@ abstract class BaseProvider {
 
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
-	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $user
+	 * functions.  Otherwise, we need to be careful of mixing up users.
 	 * @return string
 	 */
 	public function renderUserProfileOptions( \WP_User $user ) :string {
@@ -179,7 +173,6 @@ abstract class BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	public function renderUserProfileCustomForm( \WP_User $user ) :string {
@@ -212,7 +205,6 @@ abstract class BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $user
 	 */
 	public function handleUserProfileSubmit( \WP_User $user ) {
 	}
@@ -277,5 +269,12 @@ abstract class BaseProvider {
 				'provider_name' => $this->getProviderName()
 			],
 		];
+	}
+
+	protected function generateSimpleOTP( int $length = 6 ) :string {
+		do {
+			$otp = substr( strtoupper( preg_replace( '#[io01l]#i', '', wp_generate_password( 50, false ) ) ), 0, $length );
+		} while ( strlen( $otp ) !== 6 );
+		return $otp;
 	}
 }

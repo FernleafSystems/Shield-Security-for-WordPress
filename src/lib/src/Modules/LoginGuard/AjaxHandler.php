@@ -27,6 +27,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_Disable2faEmail();
 				break;
 
+			case 'user_sms2fa_add':
+				$response = $this->ajaxExec_UserSmsAdd();
+				break;
+
+			case 'user_sms2fa_remove':
+				$response = $this->ajaxExec_UserSmsRemove();
+				break;
+
+			case 'user_sms2fa_verify':
+				$response = $this->ajaxExec_UserSmsVerify();
+				break;
+
+			case 'user_sms2fa_intentstart':
+				$response = $this->ajaxExec_UserSmsIntentStart();
+				break;
+
 			case 'user_ga_toggle':
 				$response = $this->ajaxExec_UserGaToggle();
 				break;
@@ -185,6 +201,131 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'page_reload' => true
 			];
 		}
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsAdd() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+
+		$countryCode = $req->post( 'sms_country' );
+		$phoneNum = $req->post( 'sms_phone' );
+
+		$response = [
+			'success'     => false,
+			'message'     => __( 'Either the country code or phone number were missing.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+
+		if ( empty( $countryCode ) ) {
+			$response[ 'message' ] = __( 'The country code was missing.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $phoneNum ) ) {
+			$response[ 'message' ] = __( 'The phone number was missing.', 'wp-simple-firewall' );
+		}
+		else {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			try {
+				$response = [
+					'success'     => true,
+					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
+					'code'        => $provider->addProvisionalRegistration( $user, $countryCode, $phoneNum ),
+					'page_reload' => false
+				];
+			}
+			catch ( \Exception $e ) {
+				$response = [
+					'success'     => false,
+					'message'     => esc_html( $e->getMessage() ),
+					'page_reload' => false
+				];
+			}
+		}
+
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsRemove() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider->remove( Services::WpUsers()->getCurrentWpUser() );
+		return [
+			'success'     => true,
+			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	private function ajaxExec_UserSmsIntentStart() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		try {
+			$provider->startLoginIntent( Services::WpUsers()->getCurrentWpUser() );
+			$response = [
+				'success'     => true,
+				'message'     => __( 'One-Time Password was sent to your phone.', 'wp-simple-firewall' ),
+				'page_reload' => true
+			];
+		}
+		catch ( \Exception $e ) {
+			$response = [
+				'success'     => false,
+				'message'     => $e->getMessage(),
+				'page_reload' => true
+			];
+		}
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsVerify() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+
+		$countryCode = $req->post( 'sms_country' );
+		$phoneNum = $req->post( 'sms_phone' );
+		$verifyCode = $req->post( 'sms_code' );
+
+		$response = [
+			'success'     => false,
+			'message'     => __( 'SMS Verification Failed.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+
+		if ( empty( $verifyCode ) ) {
+			$response[ 'message' ] = __( 'The code provided was empty.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $countryCode ) || empty( $phoneNum ) ) {
+			$response[ 'message' ] = __( 'The data provided was inconsistent.', 'wp-simple-firewall' );
+		}
+		else {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			try {
+				$response = [
+					'success'     => true,
+					'message'     => __( 'Phone verified and registered successfully for SMS Two-Factor Authentication.', 'wp-simple-firewall' ),
+					'code'        => $provider->verifyProvisionalRegistration( $user, $countryCode, $phoneNum, $verifyCode ),
+					'page_reload' => false
+				];
+			}
+			catch ( \Exception $e ) {
+				$response = [
+					'success'     => false,
+					'message'     => esc_html( $e->getMessage() ),
+					'page_reload' => false
+				];
+			}
+		}
+
 		return $response;
 	}
 

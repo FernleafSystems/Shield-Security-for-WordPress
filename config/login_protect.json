@@ -198,6 +198,19 @@
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
     },
     {
+      "key":         "enable_sms_auth",
+      "section":     "section_2fa_ga",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   245,
+      "name":        "Enable SMS Auth",
+      "summary":     "Enable SMS Authentication",
+      "description": "When enabled, users will have the option to add SMS Auth to their WordPress user profile."
+    },
+    {
       "key":         "enable_email_authentication",
       "section":     "section_2fa_email",
       "default":     "N",

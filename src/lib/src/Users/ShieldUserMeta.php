@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string   $backupcode_validated
  * @property string   $ga_secret
  * @property bool     $ga_validated
+ * @property array    $sms_registration
  * @property string   $u2f_secret
  * @property bool     $u2f_validated
  * @property string[] $u2f_regrequests

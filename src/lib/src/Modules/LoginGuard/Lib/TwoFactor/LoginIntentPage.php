@@ -144,8 +144,6 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
-				'has_u2f'            => isset( $oIC->getProvidersForUser(
-						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
 			'content' => [
 				'form' => $this->renderForm(),
@@ -153,18 +151,16 @@ class LoginIntentPage {
 		];
 
 		// Provide the U2F scripts if required.
-		if ( $data[ 'flags' ][ 'has_u2f' ] ) {
-			$data[ 'head' ] = [
-				'scripts' => [
-					[
-						'src' => $con->urls->forJs( 'u2f-bundle.js' ),
-					],
-					[
-						'src' => $con->urls->forJs( 'login/u2f.js' ),
-					]
+		$data[ 'head' ] = [
+			'scripts' => [
+				[
+					'src' => $con->urls->forJs( 'u2f-bundle.js' ),
+				],
+				[
+					'src' => $con->urls->forJs( 'login/u2f.js' ),
 				]
-			];
-		}
+			]
+		];
 
 		return $mod->renderTemplate( '/pages/login_intent/index.twig',
 			Services::DataManipulation()->mergeArraysRecursive(

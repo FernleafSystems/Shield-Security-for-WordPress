@@ -49,9 +49,6 @@ class Email extends BaseProvider {
 		return $valid;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getFormField() :array {
 		return [
 			'name'        => $this->getLoginFormParameter(),
@@ -225,7 +222,7 @@ class Email extends BaseProvider {
 		$opts = $this->getOptions();
 
 		$secrets = $this->getAllCodes( $user );
-		$new = substr( strtoupper( preg_replace( '#io#i', '', wp_generate_password( 30, false ) ) ), 0, 6 );
+		$new = $this->generateSimpleOTP();
 		$secrets[ wp_hash_password( $new ) ] = Services::Request()
 													   ->carbon()
 													   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;

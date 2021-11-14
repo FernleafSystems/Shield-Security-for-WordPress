@@ -3,17 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaController {
+class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
-	use Shield\Modules\ModConsumer;
 	use Shield\Utilities\Consumer\WpLoginCapture;
-	use ExecOnce;
 
 	/**
 	 * @var Provider\BaseProvider[]
@@ -127,7 +124,21 @@ class MfaController {
 			if ( $this->isSubjectToLoginIntent( $user ) ) {
 
 				if ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() ) {
-					$this->processActiveLoginIntent();
+
+					$process = true;
+
+					// by pass certain ajax request
+					if ( Services::WpGeneral()->isAjax() ) {
+						$req = Services::Request();
+						if ( $req->post( 'action' ) === $this->getCon()->prefix()
+							 && in_array( $req->post( 'exec' ), [ 'user_sms2fa_intentstart' ] ) ) {
+							$process = false;
+						}
+					}
+
+					if ( $process ) {
+						$this->processActiveLoginIntent();
+					}
 				}
 				else {
 					$this->destroyLogin( $user );
@@ -164,6 +175,7 @@ class MfaController {
 					Provider\Yubikey::SLUG     => new Provider\Yubikey(),
 					Provider\BackupCodes::SLUG => new Provider\BackupCodes(),
 					Provider\U2F::SLUG         => new Provider\U2F(),
+					Provider\Sms::SLUG         => new Provider\Sms(),
 				]
 			);
 		}
@@ -172,7 +184,6 @@ class MfaController {
 
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
-	 * @param \WP_User $user
 	 * @param bool     $onlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */

@@ -1,5 +1,50 @@
 jQuery( document ).ready( function () {
 
+	jQuery( 'input#icwp_wpsf_sms_otp' ).on( 'click', function () {
+
+		if ( confirm( 'Are you sure?' ) ) {
+			let $this = jQuery( this );
+			$this.attr( 'disabled', 'disabled' );
+			let reqParamsStart = $this.data( 'ajax_intent_start' );
+			let ajaxurl = reqParamsStart.ajaxurl;
+			delete reqParamsStart.ajaxurl;
+
+			let $body = jQuery( 'body' );
+			$body.addClass( 'shield-busy' );
+			jQuery.post( ajaxurl, reqParamsStart, function ( response ) {
+					let msg = 'Communications error with site.';
+
+					if ( response.data.success ) {
+						alert( response.data.message );
+						let newText = document.createElement( "input" );
+						newText.classList.add( 'form-control' );
+						let $newText = jQuery( newText );
+						$newText.attr( 'autocomplete', 'off' );
+						$newText.attr( 'placeholder', 'Enter SMS One-Time Password' );
+						$newText.attr( 'name', $this.attr( 'name' ) );
+						$newText.attr( 'id', $this.attr( 'id' ) );
+						$newText.insertBefore( $this );
+						$this.remove();
+					}
+					else {
+						if ( response.data.message !== undefined ) {
+							msg = response.data.message;
+						}
+						else {
+							msg = 'Sending verification SMS failed';
+						}
+						alert( msg );
+					}
+				}
+			).always( function () {
+					reqParamsStart.ajaxurl = ajaxurl;
+					$body.removeClass( 'shield-busy' );
+					$this.removeAttr( 'disabled' );
+				}
+			);
+		}
+	} );
+
 	u2fApi.isSupported()
 		  .then( function ( supported ) {
 

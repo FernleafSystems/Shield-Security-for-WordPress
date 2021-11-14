@@ -157,9 +157,6 @@ class Yubikey extends BaseProvider {
 	public function addRemoveRegisteredYubiId( \WP_User $user, string $key, $add = true ) {
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getFormField() :array {
 		return [
 			'name'        => $this->getLoginFormParameter(),
