@@ -10,75 +10,24 @@
 
 			<div class="row mb-3">
 				<div class="col-12">
-					<h6 class="mt-0 mb-2">{{ strings.scanselect_file_areas }}</h6>
+					<h6 class="mt-0 mb-2">{{ strings.scanselect }}</h6>
 				</div>
 
 				<div class="col-xl-3 col-lg-6 col-md-6">
 					<div class="scan-select pl-2 text-nowrap">
-						<label for="_wcf" class="col-form-label">
+						<label for="_afs" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   name="wcf" id="_wcf" value="Y"
-								   {% if not scans.wcf.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.wcf.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+								   name="afs" id="_afs" value="Y"
+								   {% if not scans.afs.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.afs.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
-							{{ scans.wcf.strings.title }}
+							{{ scans.afs.strings.title }}
 							<br />
-							<small class="form-text">{{ scans.wcf.strings.subtitle }}</small>
+							<small class="form-text">{{ scans.afs.strings.subtitle }}</small>
 						</label>
 					</div>
 				</div>
 
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
-						<label for="_ufc" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="ufc" id="_ufc" value="Y"
-								   {% if not scans.ufc.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.ufc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.ufc.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.ufc.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
-						<label for="_ptg" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="ptg" id="_ptg" value="Y"
-								   {% if not scans.ptg.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.ptg.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.ptg.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.ptg.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
-						<label for="_mal" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="mal" id="_mal" value="Y"
-								   {% if not scans.mal.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.mal.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.mal.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.mal.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-			</div>
-
-			<div class="row">
-
-				<div class="col-12">
-					<h6 class="mt-0 mb-2">{{ strings.scanselect_assets }}</h6>
-				</div>
 
 				<div class="col-xl-3 col-lg-6 col-md-6">
 					<div class="scan-select pl-2 text-nowrap">
@@ -125,18 +74,6 @@
 							{{ strings.clear_ignore }}
 							<br />
 							<small class="form-text">{{ strings.clear_ignore_sub }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-6 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
-						<label for="_opt_clear_notification" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="opt_clear_notification" id="_opt_clear_notification" value="Y" />
-							{{ strings.clear_suppression }}
-							<br />
-							<small class="form-text">{{ strings.clear_suppression_sub }}</small>
 						</label>
 					</div>
 				</div>

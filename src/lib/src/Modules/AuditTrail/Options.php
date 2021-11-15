@@ -69,11 +69,4 @@ class Options extends BaseShield\Options {
 		return !in_array( 'disabled', $this->getLogLevelsFile() )
 			   && !empty( $this->getLogFilePath() );
 	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getMaxEntries() :int {
-		return PHP_INT_MAX;
-	}
 }

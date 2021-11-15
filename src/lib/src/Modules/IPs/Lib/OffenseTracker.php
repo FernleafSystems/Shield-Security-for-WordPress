@@ -16,12 +16,7 @@ class OffenseTracker extends EventsListener {
 	 */
 	private $nOffenseCount = 0;
 
-	/**
-	 * @param string $evt
-	 * @param array  $meta
-	 * @param array  $def
-	 */
-	protected function captureEvent( string $evt, $meta = [], $def = [] ) {
+	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {
 			$this->incrementCount( (int)( $meta[ 'offense_count' ] ?? 1 ) );
 			if ( !empty( $meta[ 'block' ] ) ) {
@@ -52,7 +47,6 @@ class OffenseTracker extends EventsListener {
 	}
 
 	/**
-	 * @param int $increment
 	 * @return $this
 	 */
 	public function incrementCount( int $increment = 1 ) {
@@ -60,7 +54,6 @@ class OffenseTracker extends EventsListener {
 	}
 
 	/**
-	 * @param int $offenseCount
 	 * @return $this
 	 */
 	public function setOffenseCount( int $offenseCount ) {

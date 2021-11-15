@@ -7,17 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
-/**
- * Class ReadOriginalFileContent
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
- */
 class ReadOriginalFileContent extends BaseOps {
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $lock
 	 * @return string
 	 */
-	public function run( $lock ) {
+	public function run( Databases\FileLocker\EntryVO $lock ) {
 		try {
 			$content = $this->useOriginalFile( $lock );
 		}
@@ -28,21 +23,18 @@ class ReadOriginalFileContent extends BaseOps {
 	}
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $lock
-	 * @return string|null
 	 * @throws \Exception
 	 */
-	private function useOriginalFile( Databases\FileLocker\EntryVO $lock ) {
+	private function useOriginalFile( Databases\FileLocker\EntryVO $lock ) :string {
 		$FS = Services::WpFs();
 		if ( empty( $lock->detected_at ) && empty( $lock->hash_current )
 			 && $FS->exists( $lock->file ) ) {
-			return $FS->getFileContent( $lock->file );
+			return (string)$FS->getFileContent( $lock->file );
 		}
 		throw new \Exception( 'Cannot use original file' );
 	}
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $lock
 	 * @return string|null
 	 */
 	private function useCacheAndApi( Databases\FileLocker\EntryVO $lock ) {

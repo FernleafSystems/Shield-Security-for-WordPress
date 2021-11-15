@@ -8,28 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
 
-	/**
-	 * @var Lib\AuditWriter
-	 */
-	private $auditWriter;
-
 	protected function run() {
 		$this->initAuditors();
 		$this->getSubProAuditor()->execute();
-	}
-
-	/**
-	 * @return Lib\AuditWriter
-	 * @deprecated 12.0
-	 */
-	private function loadAuditorWriter() :Lib\AuditWriter {
-		if ( !isset( $this->auditWriter ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$this->auditWriter = ( new Lib\AuditWriter( $this->getCon() ) )
-				->setDbHandler( $mod->getDbHandler_AuditTrail() );
-		}
-		return $this->auditWriter;
 	}
 
 	private function initAuditors() {

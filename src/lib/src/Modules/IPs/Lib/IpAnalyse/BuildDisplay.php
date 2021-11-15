@@ -292,9 +292,6 @@ class BuildDisplay {
 			$requests[ $key ] = $asArray;
 		}
 
-		// remove duds after conversion @12.0
-		$requests = array_filter( $requests );
-
 		return $this->getMod()->renderTemplate(
 			'/wpadmin_pages/insights/ips/ip_analyse/ip_traffic.twig',
 			[

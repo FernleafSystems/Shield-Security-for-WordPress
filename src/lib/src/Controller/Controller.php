@@ -17,7 +17,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property bool                                                   $cache_dir_ready
  * @property bool                                                   $is_activating
- * @property bool                                                   $is_debug
+ * @property bool                                                   $is_mode_debug
+ * @property bool                                                   $is_mode_staging
+ * @property bool                                                   $is_mode_live
  * @property bool                                                   $is_my_upgrade
  * @property bool                                                   $modules_loaded
  * @property bool                                                   $plugin_deactivating
@@ -47,11 +49,6 @@ class Controller extends DynPropertiesClass {
 	 * @var string
 	 */
 	protected static $sSessionId;
-
-	/**
-	 * @var string
-	 */
-	protected static $sRequestId;
 
 	/**
 	 * @var string
@@ -166,12 +163,27 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
-			case 'is_debug':
+			case 'is_mode_debug':
 				if ( is_null( $val ) ) {
-					$val = ( new Shield\Controller\Utilities\DebugMode() )
+					$val = ( new Shield\Controller\Modes\DebugMode() )
 						->setCon( $this )
-						->isDebugMode();
-					$this->is_debug = $val;
+						->isModeActive();
+					$this->is_mode_debug = $val;
+				}
+				break;
+
+			case 'is_mode_live':
+				if ( is_null( $val ) ) {
+					$val = $this->is_mode_live = !$this->is_mode_staging && $this->is_mode_debug;
+				}
+				break;
+
+			case 'is_mode_staging':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Controller\Modes\StagingMode() )
+						->setCon( $this )
+						->isModeActive();
+					$this->is_mode_staging = $val;
 				}
 				break;
 
@@ -541,9 +553,9 @@ class Controller extends DynPropertiesClass {
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
 
 		if ( $pluginFile === $this->base_file ) {
-			$sTemplate = '<strong><a href="%s" target="_blank">%s</a></strong>';
+			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
 			foreach ( $this->cfg->plugin_meta as $aHref ) {
-				array_push( $pluginMeta, sprintf( $sTemplate, $aHref[ 'href' ], $aHref[ 'name' ] ) );
+				array_push( $pluginMeta, sprintf( $template, $aHref[ 'href' ], $aHref[ 'name' ] ) );
 			}
 		}
 		return $pluginMeta;
@@ -968,13 +980,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getPath_ConfigFile( string $slug ) :string {
-		return $this->paths->forModuleConfig( $slug );
-	}
-
 	public function getPath_Languages() :string {
 		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
 	}
@@ -1103,30 +1108,6 @@ class Controller extends DynPropertiesClass {
 			}
 		}
 		return self::$sSessionId;
-	}
-
-	/**
-	 * @param bool $setIfNeeded
-	 * @return string
-	 * @deprecated 12.0
-	 */
-	public function getUniqueRequestId( bool $setIfNeeded = false ) :string {
-		if ( !isset( self::$sRequestId ) ) {
-			self::$sRequestId = md5(
-				$this->getSessionId( $setIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
-			);
-		}
-		return self::$sRequestId;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 12
-	 */
-	public function getShortRequestId() :string {
-		$req = Services::Request();
-		/** @deprecated 12.0 */
-		return substr( method_exists( $req, 'getID' ) ? $req->getID() : $this->getUniqueRequestId(), 0, 10 );
 	}
 
 	public function hasSessionId() :bool {

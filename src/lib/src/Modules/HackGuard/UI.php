@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
@@ -14,6 +14,9 @@ class UI extends BaseShield\UI {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
+		( new Scan\Queue\CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 		foreach ( $opts->getScanSlugs() as $scan ) {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
@@ -22,7 +25,6 @@ class UI extends BaseShield\UI {
 		$sectionBuilderThemes = ( new Render\ScanResults\SectionThemes() )->setMod( $this->getMod() );
 		$sectionBuilderWordpress = ( new Render\ScanResults\SectionWordpress() )->setMod( $this->getMod() );
 		$sectionBuilderMalware = ( new Render\ScanResults\SectionMalware() )->setMod( $this->getMod() );
-//		$sectionBuilderLog = ( new Render\ScanResults\SectionMalware() )->setMod( $this->getMod() );
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
@@ -41,17 +43,11 @@ class UI extends BaseShield\UI {
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
-				'click_see_results'     => __( 'Click a scan to see its results', 'wp-simple-firewall' ),
-				'title_scan_site_now'   => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
-				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_file_areas' => __( 'Select File Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_assets'     => __( 'Select Scans For Plugins and Themes', 'wp-simple-firewall' ),
 				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
-				'select_what_to_scan'   => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
@@ -103,12 +99,10 @@ class UI extends BaseShield\UI {
 	public function buildInsightsVars_Run() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 
-		foreach ( $opts->getScanSlugs() as $scan ) {
-			$mod->getScanCon( $scan )->cleanStalesResults();
-		}
+		( new Scan\Queue\CleanQueue() )
+			->setMod( $this->getMod() )
+			->execute();
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
@@ -127,17 +121,12 @@ class UI extends BaseShield\UI {
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
-				'click_see_results'     => __( 'Click a scan to see its results', 'wp-simple-firewall' ),
-				'title_scan_site_now'   => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
 				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
 				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_file_areas' => __( 'Select File Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_assets'     => __( 'Select Scans For Plugins and Themes', 'wp-simple-firewall' ),
 				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
-				'select_what_to_scan'   => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
@@ -185,9 +174,6 @@ class UI extends BaseShield\UI {
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
 									   && in_array( $slug, $mod->getUiTrack()->selected_scans ),
-				],
-				'hrefs'   => [
-					'options' => $mod->getUrl_DirectLinkToSection( 'section_scan_'.$slug ),
 				],
 				'strings' => [
 					'title'    => $scanStrings[ $slug ][ 'name' ],

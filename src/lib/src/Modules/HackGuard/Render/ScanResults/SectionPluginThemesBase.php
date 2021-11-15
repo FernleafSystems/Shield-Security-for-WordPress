@@ -15,7 +15,6 @@ class SectionPluginThemesBase extends SectionBase {
 	protected function getCommonRenderData() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( parent::getCommonRenderData(), [
 						   'strings' => [
@@ -23,7 +22,7 @@ class SectionPluginThemesBase extends SectionBase {
 							   'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
 						   ],
 						   'flags'   => [
-							   'ptg_is_restricted' => $mod->getScanCon( Ptg::SCAN_SLUG )->isRestricted(),
+							   'ptg_is_restricted' => $this->getScanConAFS()->isRestrictedPluginThemeScan(),
 						   ],
 						   'vars'    => [
 							   'datatables_init' => ( new ForPluginTheme() )
@@ -38,7 +37,7 @@ class SectionPluginThemesBase extends SectionBase {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			try {
-				$this->vulnerable = $mod->getScanCon( Wpv::SCAN_SLUG )->getAllResults();
+				$this->vulnerable = $mod->getScanCon( Wpv::SCAN_SLUG )->getResultsForDisplay();
 			}
 			catch ( \Exception $e ) {
 				$this->vulnerable = new Scans\Wpv\ResultsSet();
@@ -52,7 +51,7 @@ class SectionPluginThemesBase extends SectionBase {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			try {
-				$this->abandoned = $mod->getScanCon( Apc::SCAN_SLUG )->getAllResults();
+				$this->abandoned = $mod->getScanCon( Apc::SCAN_SLUG )->getResultsForDisplay();
 			}
 			catch ( \Exception $e ) {
 				$this->abandoned = new Scans\Apc\ResultsSet();

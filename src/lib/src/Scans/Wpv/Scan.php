@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
@@ -11,69 +11,45 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanSlice() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$tmpResults = $action->getNewResultsSet();
 
-		$copier = new Shield\Scans\Helpers\CopyResultsSets();
-		foreach ( $action->items as $file => $context ) {
-			$results = $this->scanItem( $context, $file );
-			if ( $results instanceof Shield\Scans\Base\ResultsSet ) {
-				$copier->copyTo( $results, $tmpResults );
-			}
+		$results = [];
+		foreach ( $action->items as $file ) {
+			$results[] = $this->scanItem( $file );
 		}
 
-		$action->results = array_map(
-			function ( $item ) {
-				return $item->getRawData();
-			},
-			$tmpResults->getAllItems()
-		);
+		$action->results = array_filter( $results );
 	}
 
-	/**
-	 * @param string $context
-	 * @param string $file
-	 * @return ResultsSet
-	 */
-	protected function scanItem( $context, $file ) {
-		$results = new ResultsSet();
+	private function scanItem( string $scanItem ) :array {
+		$apiToken = $this->getCon()
+						 ->getModule_License()
+						 ->getWpHashesTokenManager()
+						 ->getToken();
 
-		$sApiToken = $this->getCon()
-						  ->getModule_License()
-						  ->getWpHashesTokenManager()
-						  ->getToken();
-
-		if ( $context == 'plugins' ) {
+		if ( strpos( $scanItem, '/' ) ) { // plugin file
 			$WPP = Services::WpPlugins();
-			$slug = $WPP->getSlug( $file );
+			$slug = $WPP->getSlug( $scanItem );
 			if ( empty( $slug ) ) {
-				$slug = dirname( $file );
+				$slug = dirname( $scanItem );
 			}
-			$version = $WPP->getPluginAsVo( $file )->Version;
-			$lookerUpper = new Vulnerabilities\Plugin( $sApiToken );
+			$version = $WPP->getPluginAsVo( $scanItem )->Version;
+			$lookerUpper = new Vulnerabilities\Plugin( $apiToken );
 		}
-		else {
-			$slug = $file;
+		else { // theme dir
+			$slug = $scanItem;
 			$version = Services::WpThemes()->getTheme( $slug )->get( 'Version' );
-			$lookerUpper = new Vulnerabilities\Theme( $sApiToken );
+			$lookerUpper = new Vulnerabilities\Theme( $apiToken );
 		}
+
+		$result = [];
 
 		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
 		if ( is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
-
-			foreach ( array_filter( $rawVuls[ 'vulnerabilities' ] ) as $vul ) {
-				$VO = ( new Shield\Scans\Wpv\WpVulnDb\VulnVO() )->applyFromArray( $vul );
-				$VO->provider = $rawVuls[ 'meta' ][ 'provider' ];
-
-				$item = new ResultItem();
-				$item->slug = $file;
-				$item->context = $context;
-				$item->wpvuln_id = $VO->id;
-				$item->wpvuln_vo = $VO->getRawData();
-
-				$results->addItem( $item );
-			}
+			$result[ 'slug' ] = $scanItem;
+			$result[ 'is_vulnerable' ] = true;
+			$result[ 'vulnerability_total' ] = $rawVuls[ 'meta' ][ 'total' ];
 		}
 
-		return $results;
+		return $result;
 	}
 }

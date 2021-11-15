@@ -67,16 +67,6 @@
       ]
     },
     {
-      "slug":        "section_scan_ufc",
-      "title":       "Unrecognised Files Scanner",
-      "title_short": "Unrecognised Files Scanner",
-      "beacon_id":   395,
-      "summary":     [
-        "Purpose - Scan your WordPress core folders for unrecognised files that don't belong.",
-        "Recommendation - Keep the Unrecognised Files Scanner feature turned on."
-      ]
-    },
-    {
       "slug":        "section_scan_options",
       "title":       "Scan Options",
       "title_short": "Scan Options",
@@ -113,6 +103,85 @@
       "name":        "Enable Hack Guard",
       "summary":     "Enable (or Disable) The Hack Guard Module",
       "description": "Un-Checking this option will completely disable the Hack Guard module"
+    },
+    {
+      "key":         "enable_core_file_integrity_scan",
+      "section":     "section_file_guard",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/hd",
+      "link_blog":   "https://shsec.io/wpsf37",
+      "beacon_id":   224,
+      "name":        "WP Core File Scanner",
+      "summary":     "Automatically Scans WordPress Core Files For Alterations",
+      "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
+    },
+    {
+      "key":           "file_repair_areas",
+      "section":       "section_file_guard",
+      "type":          "multiple_select",
+      "default":       [
+        "wp",
+        "plugin"
+      ],
+      "value_options": [
+        {
+          "value_key": "wp",
+          "text":      "WP Core"
+        },
+        {
+          "value_key": "plugin",
+          "text":      "Plugin Files"
+        },
+        {
+          "value_key": "theme",
+          "text":      "Theme Files"
+        }
+      ],
+      "link_info":     "https://shsec.io/wpsf36",
+      "link_blog":     "https://shsec.io/wpsf37",
+      "beacon_id":     228,
+      "name":          "Auto File Repair",
+      "summary":       "Which Files Should Be Automatically Repaired?",
+      "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
+    },
+    {
+      "key":         "auto_filter_results",
+      "section":     "section_file_guard",
+      "premium":     false,
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   439,
+      "name":        "Auto-Filter Results",
+      "summary":     "Automatically Filter Results Of Irrelevant Items",
+      "description": "Automatically remove items from results that are irrelevant."
+    },
+    {
+      "key":         "scan_path_exclusions",
+      "section":     "section_file_guard",
+      "advanced":    true,
+      "premium":     true,
+      "default":     [
+        "wp-content/cache/",
+        "wp-content/nfwlog/",
+        "wp-content/wflogs/",
+        "*/error_log",
+        "*/php_error_log",
+        "*/mail.log",
+        "*/php_mail.log",
+        "*/.stylelintrc-css.json",
+        "*/.stylelintrc.json",
+        "*/sucuri-*.php"
+      ],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   441,
+      "name":        "Scan Exclusions",
+      "summary":     "Scan File and Folder Exclusions",
+      "description": "Scan File and Folder Exclusions."
     },
     {
       "key":         "enabled_scan_apc",
@@ -152,44 +221,6 @@
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
     },
     {
-      "key":         "enable_core_file_integrity_scan",
-      "section":     "section_file_guard",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/hd",
-      "link_blog":   "https://shsec.io/wpsf37",
-      "beacon_id":   224,
-      "name":        "WP Core File Scanner",
-      "summary":     "Automatically Scans WordPress Core Files For Alterations",
-      "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
-    },
-    {
-      "key":         "mal_scan_enable",
-      "section":     "section_file_guard",
-      "premium":     true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/fp",
-      "link_blog":   "https://shsec.io/fx",
-      "beacon_id":   222,
-      "name":        "Automatic Malware Scan",
-      "summary":     "Enable Malware File Scanner",
-      "description": "When enabled the Malware scanner will run automatically."
-    },
-    {
-      "key":         "ptg_enable",
-      "section":     "section_file_guard",
-      "premium":     true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/bl",
-      "link_blog":   "https://shsec.io/bm",
-      "beacon_id":   133,
-      "name":        "Enable/Disable Guard",
-      "summary":     "Enable The Guard For Plugin And Theme Files",
-      "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
-    },
-    {
       "key":           "file_locker",
       "section":       "section_realtime",
       "premium":       true,
@@ -219,35 +250,6 @@
       "name":          "File Locker",
       "summary":       "Lock Files Against Tampering and Changes",
       "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
-    },
-    {
-      "key":           "file_repair_areas",
-      "section":       "section_file_guard",
-      "type":          "multiple_select",
-      "default":       [
-        "wp",
-        "plugin"
-      ],
-      "value_options": [
-        {
-          "value_key": "wp",
-          "text":      "WP Core"
-        },
-        {
-          "value_key": "plugin",
-          "text":      "Plugin Files"
-        },
-        {
-          "value_key": "theme",
-          "text":      "Theme Files"
-        }
-      ],
-      "link_info":     "https://shsec.io/wpsf36",
-      "link_blog":     "https://shsec.io/wpsf37",
-      "beacon_id":     228,
-      "name":          "Auto File Repair",
-      "summary":       "Which Files Should Be Automatically Repaired?",
-      "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
     },
     {
       "key":           "scan_frequency",
@@ -297,70 +299,6 @@
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-      "key":           "enable_unrecognised_file_cleaner_scan",
-      "section":       "section_scan_ufc",
-      "default":       "enabled_report_only",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Automatic Scan Disabled"
-        },
-        {
-          "value_key": "enabled_report_only",
-          "text":      "Scan Enabled - Report Only"
-        },
-        {
-          "value_key": "enabled_delete_only",
-          "text":      "Scan Enabled - Automatically Delete Files"
-        }
-      ],
-      "link_info":     "https://shsec.io/9y",
-      "link_blog":     "https://shsec.io/95",
-      "beacon_id":     227,
-      "name":          "Unrecognised Files Scanner",
-      "summary":       "Scans Core Directories For Unrecognised Files",
-      "description":   "Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation."
-    },
-    {
-      "key":         "ufc_scan_uploads",
-      "section":     "section_scan_ufc",
-      "advanced":    true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/he",
-      "link_blog":   "https://shsec.io/95",
-      "beacon_id":   347,
-      "name":        "Scan Uploads",
-      "summary":     "Scan Uploads Folder For PHP and Javascript",
-      "description": "The Uploads folder is primarily for media, but could be used to store nefarious files."
-    },
-    {
-      "key":         "ufc_exclusions",
-      "section":     "section_scan_ufc",
-      "advanced":    true,
-      "default":     [
-        "error_log",
-        "php_error_log",
-        ".htaccess",
-        ".htpasswd",
-        ".user.ini",
-        "php.ini",
-        "web.config",
-        "php_mail.log",
-        "mail.log",
-        "wp-content/uploads/bb-plugin/cache/",
-        "wp-content/uploads/cache/wpml/twig/"
-      ],
-      "type":        "array",
-      "link_info":   "https://shsec.io/9z",
-      "link_blog":   "https://shsec.io/95",
-      "beacon_id":   231,
-      "name":        "File Exclusions",
-      "summary":     "Provide A List Of Files To Be Excluded From The Scan",
-      "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
-    },
-    {
       "key":         "mal_autorepair_surgical",
       "section":     "section_non_ui",
       "premium":     true,
@@ -384,44 +322,6 @@
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
-    },
-    {
-      "key":         "auto_filter_results",
-      "section":     "section_scan_options",
-      "premium":     false,
-      "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
-      "beacon_id":   439,
-      "name":        "Auto-Filter Results",
-      "summary":     "Automatically Filter Results Of Irrelevant Items",
-      "description": "Automatically remove items from results that are irrelevant."
-    },
-    {
-      "key":         "scan_path_exclusions",
-      "section":     "section_scan_options",
-      "advanced":    true,
-      "premium":     true,
-      "default":     [
-        "wp-content/cache/",
-        "wp-content/nfwlog/",
-        "wp-content/wflogs/",
-        "*/error_log",
-        "*/php_error_log",
-        "*/mail.log",
-        "*/php_mail.log",
-        "*/.stylelintrc-css.json",
-        "*/.stylelintrc.json",
-        "*/sucuri-*.php"
-      ],
-      "type":        "array",
-      "link_info":   "",
-      "link_blog":   "",
-      "beacon_id":   441,
-      "name":        "Scan Exclusions",
-      "summary":     "Scan File and Folder Exclusions",
-      "description": "Scan File and Folder Exclusions."
     },
     {
       "key":              "scans_to_build",
@@ -454,16 +354,29 @@
       "tracking_exclude": true,
       "type":             "array",
       "default":          []
+    },
+    {
+      "key":              "realtime_scan_last_at",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "integer",
+      "default":          0
+    },
+    {
+      "key":              "legacy_db_conversion_at",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "integer",
+      "default":          0
     }
   ],
   "definitions":      {
     "all_scan_slugs":              [
       "apc",
-      "mal",
-      "ptg",
       "wpv",
-      "wcf",
-      "ufc"
+      "afs"
     ],
     "file_scan_extensions":        [
       "php",
@@ -478,6 +391,153 @@
       "twig",
       "hbs"
     ],
+    "db_handler_classes":          {
+      "scans":           "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
+      "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
+      "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
+      "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
+      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+    },
+    "db_table_scans":              {
+      "autoexpire":     0,
+      "slug":           "scans",
+      "col_older_than": "created_at",
+      "has_updated_at": false,
+      "cols_custom":    {
+        "scan":        {
+          "macro_type": "char",
+          "length":     3,
+          "comment":    "Scan Slug"
+        },
+        "ready_at":    {
+          "macro_type": "timestamp",
+          "comment":    "Scan Ready At"
+        },
+        "finished_at": {
+          "macro_type": "timestamp",
+          "comment":    "Scan Completed At"
+        },
+        "meta":        {
+          "macro_type": "meta",
+          "comment":    "Scan Meta Info"
+        }
+      }
+    },
+    "db_table_scanitems":          {
+      "autoexpire":     0,
+      "slug":           "scanitems",
+      "has_updated_at": false,
+      "has_created_at": false,
+      "has_deleted_at": false,
+      "col_older_than": "started_at",
+      "cols_custom":    {
+        "scan_ref":    {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_scans"
+          }
+        },
+        "items":       {
+          "macro_type": "text",
+          "comment":    "Array of scan items"
+        },
+        "started_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Started Scanning Items At"
+        },
+        "finished_at": {
+          "macro_type": "timestamp",
+          "comment":    "Finished Scanning Items At"
+        }
+      }
+    },
+    "db_table_resultitems":        {
+      "autoexpire":     0,
+      "slug":           "resultitems",
+      "has_updated_at": true,
+      "col_older_than": "updated_at",
+      "cols_custom":    {
+        "item_type":         {
+          "macro_type": "char",
+          "length":     1,
+          "comment":    "Result Item Type"
+        },
+        "item_id":           {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "Result Item ID"
+        },
+        "ignored_at":        {
+          "macro_type": "timestamp",
+          "comment":    "Result Ignored"
+        },
+        "notified_at":       {
+          "macro_type": "timestamp",
+          "comment":    "Result Notification Sent"
+        },
+        "auto_filtered_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Result Auto Filtered"
+        },
+        "attempt_repair_at": {
+          "macro_type": "timestamp",
+          "comment":    "Attempted Repair At"
+        },
+        "item_repaired_at":  {
+          "macro_type": "timestamp",
+          "comment":    "Item Repaired At"
+        },
+        "item_deleted_at":   {
+          "macro_type": "timestamp",
+          "comment":    "Item Deleted At"
+        }
+      }
+    },
+    "db_table_resultitem_meta":    {
+      "slug":           "resultitem_meta",
+      "has_updated_at": false,
+      "has_created_at": false,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "ri_ref":     {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_resultitems"
+          },
+          "comment":     "Reference to primary Result Item record"
+        },
+        "meta_key":   {
+          "macro_type": "varchar",
+          "length":     32,
+          "comment":    "Meta Key"
+        },
+        "meta_value": {
+          "macro_type": "text",
+          "comment":    "Meta Data"
+        }
+      }
+    },
+    "db_table_scanresults":        {
+      "autoexpire":     0,
+      "slug":           "scanresults",
+      "has_updated_at": false,
+      "has_created_at": true,
+      "has_deleted_at": false,
+      "cols_custom":    {
+        "scan_ref":       {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_scans"
+          }
+        },
+        "resultitem_ref": {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_resultitems"
+          }
+        }
+      }
+    },
     "db_classes":                  {
       "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
       "scanner":    "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",

@@ -84,9 +84,10 @@ class FileLockerController {
 
 	public function handleFileDownloadRequest() {
 		$req = Services::Request();
-		$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
 
-		if ( $lock instanceof FileLocker\EntryVO ) {
+		$dieMsg = "Something about this request wasn't right";
+		try {
+			$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
 			$type = $req->query( 'type' );
 
 			// Note: Download what's on the disk if nothing is changed.
@@ -108,8 +109,11 @@ class FileLockerController {
 						->downloadStringAsFile( $content, strtoupper( $type ).'-'.basename( $lock->file ) );
 			}
 		}
+		catch ( \Exception $e ) {
+			$dieMsg = $e->getMessage();
+		}
 
-		wp_die( "Something about this request wasn't right" );
+		wp_die( $dieMsg );
 	}
 
 	public function deleteAllLocks() {
@@ -125,13 +129,16 @@ class FileLockerController {
 	}
 
 	/**
-	 * @param int $ID
-	 * @return FileLocker\EntryVO|null
+	 * @throws \Exception
 	 */
-	public function getFileLock( $ID ) {
-		return ( new Lib\FileLocker\Ops\LoadFileLocks() )
-				   ->setMod( $this->getMod() )
-				   ->loadLocks()[ $ID ] ?? null;
+	public function getFileLock( int $ID ) :FileLocker\EntryVO {
+		$lock = ( new Lib\FileLocker\Ops\LoadFileLocks() )
+					->setMod( $this->getMod() )
+					->loadLocks()[ $ID ] ?? null;
+		if ( empty( $lock ) ) {
+			throw new \Exception( 'Not a valid Lock File record' );
+		}
+		return $lock;
 	}
 
 	public function runAnalysis() {

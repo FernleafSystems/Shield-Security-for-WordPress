@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PtgAddReinstallLinks {
@@ -13,15 +12,12 @@ class PtgAddReinstallLinks {
 	use Controller\ScanControllerConsumer;
 	use ExecOnce;
 
-	/**
-	 * @var int
-	 */
-	private $nColumnsCount;
-
-	/**
-	 * @var int
-	 */
-	private $vulnCount;
+	protected function canRun() :bool {
+		$scanCon = $this->getScanController();
+		/** @var HackGuard\Options $opts */
+		$opts = $scanCon->getOptions();
+		return $scanCon->isReady() && $opts->isPtgReinstallLinks();
+	}
 
 	protected function run() {
 		add_action( 'plugin_action_links', function ( $links, $file ) {
@@ -56,13 +52,6 @@ class PtgAddReinstallLinks {
 			}
 			return $localz;
 		}, 10, 2 );
-	}
-
-	protected function canRun() :bool {
-		$scanCon = $this->getScanController();
-		/** @var HackGuard\Options $opts */
-		$opts = $scanCon->getOptions();
-		return $scanCon->isReady() && $opts->isPtgReinstallLinks();
 	}
 
 	private function addActionLinkRefresh( array $links, string $file ) :array {

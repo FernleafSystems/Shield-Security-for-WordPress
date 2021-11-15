@@ -57,9 +57,9 @@ class SectionThemes extends SectionPluginThemesBase {
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( $this->getCommonRenderData(), [
 						   'strings' => [
-							   'no_items'     => __( "Previous scans didn't detect any modified or missing files in any Theme directories.", 'wp-simple-firewall' ),
-							   'no_files'     => __( "Previous scans didn't detect any modified or missing files in the Theme directories.", 'wp-simple-firewall' ),
-							   'files_found'  => __( "Previous scans detected 1 or more modified or missing files in the theme directory.", 'wp-simple-firewall' ),
+							   'no_items'     => __( "Previous scans didn't detect any modified or unrecognised files in any Theme directories.", 'wp-simple-firewall' ),
+							   'no_files'     => __( "Previous scans didn't detect any modified or unrecognised files in the Theme directories.", 'wp-simple-firewall' ),
+							   'files_found'  => __( "Previous scans detected 1 or more modified or unrecognised files in the theme directory.", 'wp-simple-firewall' ),
 							   'not_active'   => __( "This theme isn't active and should be uninstalled.", 'wp-simple-firewall' ),
 							   'go_to_themes' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes' ) ),
 						   ],
@@ -91,7 +91,7 @@ class SectionThemes extends SectionPluginThemesBase {
 			->setMod( $this->getMod() )
 			->loadForTheme( $theme );
 
-		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->file );
+		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
 
 		$data = [
 			'info'  => [

@@ -1,4 +1,101 @@
 {
+  "13.0": {
+    "version":     "13.0",
+    "released_at": 1636970660,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease130",
+      "upgrade": "https://shsec.io/shieldupgradeguide130"
+    },
+    "title":       "Scanning Engine Overhaul",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Complete Scanning Engine Overhaul",
+        "description": [
+          "We've completely rewritten the scanning engine to be faster and more intuitive.",
+          "Includes improvements to reduce cases where results are reported and then are no longer visible."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Scans can now be executed using WP-CLI",
+        "description": [
+          "Audit Trail now uses our preferred table UI with built-in, useful search and filter controls.",
+          "There's also rapid and reliable pagination and data reloading."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Support for WP-CLI based cron execution",
+        "description": [
+          "Running WP Crons using WP-CLI is full supports automatic scans."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Scan Results Management",
+        "description": [
+          "Scan results management is improved with historical scan results display and more descriptive messaging."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Scan Result Diffs",
+        "description": [
+          "Wherever possible scan results will allow you to view a file diff showing any and all file changes clearly.",
+          "This is available only for official WordPress core files and plugins/themes hosted on WordPress.org."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Simplified Scan Options",
+        "description": [
+          "Hugely simplified and reduced the configuration options available for scans."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Dynamic Search For IP Analyse Tool",
+        "description": [
+          "IP Analyse tool use AJAX-based dynamic searching when selecting an IP address on the IP Analyse tool.",
+          "This makes the tool more practical and performant for sites with large IP datasets."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Traffic Logging for WP-CLI requests",
+        "description": [
+          "WP-CLI commands and their arguments are logged for WP-CLI requests just as with paths for web requests."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Yubikey Device Verification",
+        "description": [
+          "Yubikey One-Time Passwords are now verified when attempting to register a Yubikey device to your profile."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    false,
+        "title":       "Adding/Removing Yubikey Device Reliability",
+        "description": [
+          "Adding and removing Yubikey devices to and from your WP user profile is more reliable."
+        ]
+      }
+    ]
+  },
   "12.0": {
     "version":     "12.0",
     "released_at": 1631783098,

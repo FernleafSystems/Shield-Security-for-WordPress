@@ -1,27 +1,14 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
+class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-
-		$items = array_map(
-			function ( $nKey ) {
-				return 'plugins';
-			},
-			array_flip( Services::WpPlugins()->getInstalledPluginFiles() )
-		);
-
-		$WPT = Services::WpThemes();
-		$theme = $WPT->isActiveThemeAChild() ? $WPT->getCurrentParent() : $WPT->getCurrent();
-		$items[ $theme->get_stylesheet() ] = 'themes';
-
-		$action->items = $items;
+		$this->getScanActionVO()->items = ( new BuildScanItems() )
+			->setMod( $this->getScanController()->getMod() )
+			->run();
 	}
 }

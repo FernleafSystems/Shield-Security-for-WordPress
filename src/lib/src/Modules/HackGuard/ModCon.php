@@ -58,20 +58,40 @@ class ModCon extends BaseShield\ModCon {
 		return $this->scanQueueCon;
 	}
 
+	public function getDbH_Scans() :DB\Scans\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'scans' );
+	}
+
+	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
+		$this->getDbH_Scans();
+		return $this->getDbHandler()->loadDbH( 'scanitems' );
+	}
+
+	public function getDbH_ResultItems() :DB\ResultItems\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'resultitems' );
+	}
+
+	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
+		$this->getDbH_ResultItems();
+		return $this->getDbHandler()->loadDbH( 'resultitem_meta' );
+	}
+
+	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
+		$this->getDbH_Scans();
+		$this->getDbH_ResultItems();
+		return $this->getDbHandler()->loadDbH( 'scanresults' );
+	}
+
 	/**
-	 * @param string $slug
 	 * @return Scan\Controller\Base|mixed
-	 * @throws \Exception
 	 */
 	public function getScanCon( string $slug ) {
 		return $this->getScansCon()->getScanCon( $slug );
 	}
 
 	public function getMainWpData() :array {
-		$issues = ( new Lib\Reports\Query\ScanCounts() )->setMod( $this );
-		$issues->notified = null;
 		return array_merge( parent::getMainWpData(), [
-			'scan_issues' => array_filter( $issues->all() )
+			'scan_issues' => array_filter( ( new Lib\Reports\Query\ScanCounts() )->setMod( $this )->all() )
 		] );
 	}
 
@@ -82,7 +102,7 @@ class ModCon extends BaseShield\ModCon {
 				break;
 			case 'scan_file':
 				( new Lib\Utility\FileDownloadHandler() )
-					->setDbHandler( $this->getDbHandler_ScanResults() )
+					->setMod( $this )
 					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
 				break;
 		}
@@ -190,14 +210,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'ufc_exclusions', array_unique( $excl ) );
 	}
 
-	public function isPtgEnabled() :bool {
-		$opts = $this->getOptions();
-		return $this->isModuleEnabled() && $this->isPremium()
-			   && $opts->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->getCon()->hasCacheDir()
-			   && !empty( $this->getPtgSnapsBaseDir() );
-	}
-
 	public function getPtgSnapsBaseDir() :string {
 		return ( new CacheDir() )
 			->setCon( $this->getCon() )
@@ -218,10 +230,16 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'filelocker' );
 	}
 
+	/**
+	 * @deprecated 12.1
+	 */
 	public function getDbHandler_ScanQueue() :Databases\ScanQueue\Handler {
 		return $this->getDbH( 'scanq' );
 	}
 
+	/**
+	 * @deprecated 12.1
+	 */
 	public function getDbHandler_ScanResults() :Databases\Scanner\Handler {
 		return $this->getDbH( 'scanner' );
 	}
@@ -231,10 +249,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return ( $this->getDbHandler_ScanQueue() instanceof Databases\ScanQueue\Handler )
-			   && $this->getDbHandler_ScanQueue()->isReady()
-			   && ( $this->getDbHandler_ScanResults() instanceof Databases\Scanner\Handler )
-			   && $this->getDbHandler_ScanResults()->isReady()
+		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady()
 			   && parent::isReadyToExecute();
 	}
 
@@ -245,9 +260,17 @@ class ModCon extends BaseShield\ModCon {
 		foreach ( $opts->getScanSlugs() as $slug ) {
 			$this->getScanCon( $slug )->purge();
 		}
-		$this->getDbHandler_ScanQueue()->tableDelete();
-		$this->getDbHandler_ScanResults()->tableDelete();
+		$this->getDbH_ScanItems()->tableDelete();
+		$this->getDbH_ScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
+	}
+
+	/**
+	 * @inheritDoc
+	 * @deprecated 13.0
+	 */
+	public function getDbHandlers( $bInitAll = false ) {
+		return [];
 	}
 }

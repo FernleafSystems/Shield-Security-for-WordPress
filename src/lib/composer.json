@@ -20,9 +20,8 @@
   },
   "require":           {
     "php":                                   ">=7.0",
-    "monolog/monolog":                       "^1.26",
     "dolondro/google-authenticator":         "^2.1",
-    "fernleafsystems/wordpress-plugin-core": "^0.6",
+    "fernleafsystems/wordpress-plugin-core": "^0.7",
     "fernleafsystems/zxcvbn-php":            "^1.0",
     "nesbot/carbon":                         "^1.39",
     "nullpunkt/lz-string-php":               "^1.2.0",

@@ -98,8 +98,6 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	/**
-	 * @param string $path
-	 * @param bool   $deleteFile
 	 * @throws \Exception
 	 */
 	private function runImportFromFile( string $path, bool $deleteFile = false ) {
@@ -109,7 +107,6 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $args
 	 * @throws \Exception
 	 */
 	private function runImportFromSite( array $args ) {

@@ -5,21 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\VulnVO;
 
 /**
- * Class ResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv
- * @property string $slug
- * @property string $context
- * @property int    $wpvuln_id
- * @property array  $wpvuln_vo
+ * @property bool $is_vulnerable
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
-	public function generateHash() :string {
-		return md5( $this->slug.$this->wpvuln_id );
-	}
-
 	public function getDescriptionForAudit() :string {
-		return sprintf( '%s: %s', $this->context, $this->slug );
+		return sprintf( '%s: %s', ( strpos( $this->VO->item_id, '/' ) ? 'Plugin' : 'Theme' ), $this->VO->item_id );
 	}
 
 	public function getVulnVo() :VulnVO {

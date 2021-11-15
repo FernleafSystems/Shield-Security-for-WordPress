@@ -2,41 +2,44 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	DB\ResultItems\Ops\Update,
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Wcf extends Base {
+/**
+ * @deprecated 13.0
+ */
+class Wcf extends BaseForFiles {
 
 	const SCAN_SLUG = 'wcf';
 
+	public function getScanFileExclusions() :string {
+		return '';
+	}
+
 	/**
-	 * @return Scans\Wcf\Utilities\ItemActionHandler
+	 * Builds a regex-ready pattern for matching file names to exclude from scan if they're missing
 	 */
+	public function getScanExclusionsForMissingItems() :string {
+		return '';
+	}
+
 	protected function newItemActionHandler() {
-		return new Scans\Wcf\Utilities\ItemActionHandler();
+		return null;
+	}
+
+	public function cleanStaleResultItem( $item ) {
+		return true;
 	}
 
 	/**
-	 * @param Scans\Wcf\ResultItem $item
-	 * @return bool
+	 * @return Scans\Wcf\ScanActionVO
 	 */
-	protected function isResultItemStale( $item ) :bool {
-		$CFH = Services::CoreFileHashes();
-		return !$CFH->isCoreFile( $item->path_full ) || $CFH->isCoreFileHashValid( $item->path_full );
-	}
-
-	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isRepairFileWP();
-	}
-
-	public function isEnabled() :bool {
-		return $this->getOptions()->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	protected function isPremiumOnly() :bool {
-		return false;
+	public function buildScanAction() {
+		return $this->getScanActionVO();
 	}
 }

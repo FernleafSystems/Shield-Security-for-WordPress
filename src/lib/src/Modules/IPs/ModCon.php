@@ -157,7 +157,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 12.0
+	 * @deprecated 12.1
 	 */
 	protected function cleanupDatabases() {
 		$dbhIPs = $this->getDbHandler_IPs();
@@ -171,12 +171,5 @@ class ModCon extends BaseShield\ModCon {
 				 'updated_at'
 			 )
 			 ->query();
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getDbHandler_BotSignals() :Shield\Databases\BotSignals\Handler {
-		return $this->getDbH( 'botsignals' );
 	}
 }

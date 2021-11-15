@@ -18,7 +18,7 @@ class EventsService {
 	}
 
 	public function fireEvent( string $event, array $meta = [] ) {
-		if ( $this->isSupportedEvent( $event ) ) {
+		if ( $this->eventExists( $event ) ) {
 			try {
 				$this->verifyAuditParams( $event, $meta );
 				do_action(
@@ -71,8 +71,7 @@ class EventsService {
 							$evt[ 'context' ] = $mod->getSlug();
 							return $evt;
 						},
-						/** @deprecated 12.0 - replace with $opts->getEvents() */
-						is_array( $opts->getDef( 'events' ) ) ? $opts->getDef( 'events' ) : []
+						$opts->getEvents()
 					)
 				);
 			}
@@ -121,8 +120,7 @@ class EventsService {
 
 	private function buildEvents( array $events ) :array {
 		$defaults = [
-			'cat'              => 0, //@deprecated 12.0
-			'level'            => 'notice', // events default at "warning" level
+			'level'            => 'notice', // events default at "notice" level
 			'stat'             => true,
 			'audit'            => true,
 			'recent'           => false, // whether to show in the recent events logs
@@ -142,7 +140,7 @@ class EventsService {
 	/**
 	 * @param string $eventKey
 	 * @return bool
-	 * @deprecated 12.0
+	 * @deprecated 12.1
 	 */
 	public function isSupportedEvent( string $eventKey ) :bool {
 		return array_key_exists( $eventKey, $this->getEvents() );

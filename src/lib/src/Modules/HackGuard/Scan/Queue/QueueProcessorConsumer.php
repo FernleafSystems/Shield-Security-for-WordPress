@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 /**
- * Trait QueueProcessorConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
+ * @deprecated 12.1
  */
 trait QueueProcessorConsumer {
 
@@ -21,11 +20,11 @@ trait QueueProcessorConsumer {
 	}
 
 	/**
-	 * @param QueueProcessor $oQP
+	 * @param QueueProcessor $QP
 	 * @return $this
 	 */
-	public function setQueueProcessor( QueueProcessor $oQP ) {
-		$this->oQueueProcessor = $oQP;
+	public function setQueueProcessor( QueueProcessor $QP ) {
+		$this->oQueueProcessor = $QP;
 		return $this;
 	}
 }

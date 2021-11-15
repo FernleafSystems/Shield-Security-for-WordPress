@@ -90,19 +90,22 @@
 
 			base.$el.on(
 				'click' + '.' + base._name,
-				'a.action.view-file',
+				'.action.view-file',
 				function ( evt ) {
 					evt.preventDefault();
 					let reqData = base.getBaseAjaxData();
 					reqData.sub_action = 'view_file';
 					reqData.rid = $( this ).data( 'rid' );
+
+					iCWP_WPSF_BodyOverlay.show();
+
 					$.post( ajaxurl, reqData, function ( response ) {
 						if ( response.success ) {
-							let $codeModal = jQuery( '#CodeRenderModal' );
-							jQuery( '.modal-title', $codeModal ).html( response.data.vars.path );
-							jQuery( '.modal-body', $codeModal ).html( response.data.vars.contents );
-							$codeModal.modal( 'show' );
-							$codeModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
+							let $fileViewModal = jQuery( '#ShieldModalContainer' );
+							// jQuery( '.modal-title', $fileViewModal ).html( response.data.vars.path );
+							jQuery( '.modal-content', $fileViewModal ).html( response.data.vars.contents );
+							$fileViewModal.modal( 'show' );
+							$fileViewModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
 								hljs.highlightElement( el );
 							} );
 						}
@@ -113,7 +116,10 @@
 							}
 							alert( msg );
 						}
-					} );
+					} )
+					 .always( function () {
+						 iCWP_WPSF_BodyOverlay.hide();
+					 } );
 				}
 			);
 
@@ -260,7 +266,7 @@
 								className: 'action selected-action repair',
 								action: function ( e, dt, node, config ) {
 
-									if ( base.$table.rows().count() > 20 ) {
+									if ( base.$table.rows( { selected: true } ).count() > 20 ) {
 										alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
 									}
 									else if ( confirm( icwp_wpsf_vars_insights.strings.absolutely_sure ) ) {

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanResults;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForWordpress;
 use FernleafSystems\Wordpress\Services\Services;
@@ -36,25 +36,25 @@ class SectionWordpress extends SectionBase {
 	}
 
 	private function buildWordpressData() :array {
-
-		$coreFilesData = ( new LoadRawTableData() )
-			->setMod( $this->getMod() )
-			->loadForWordPress();
-
 		$WP = Services::WpGeneral();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$count =  $mod->getScansCon()
+					  ->getScanResultsCount()
+					  ->countWPFiles();
 		$data = [
 			'info'  => [
-				'type'    => 'theme',
+				'type'    => 'wordpress',
 				'version' => $WP->getVersion(),
 				'dir'     => wp_normalize_path( ABSPATH ),
 			],
 			'flags' => [
 				'has_update'     => $WP->hasCoreUpdate(),
-				'has_core_files' => !empty( $coreFilesData ),
+				'has_core_files' => $count > 0,
 				'is_vulnerable'  => false,
 			],
 			'vars'  => [
-				'count_items' => count( $coreFilesData )
+				'count_items' => $count
 			]
 		];
 		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'has_core_files' ]

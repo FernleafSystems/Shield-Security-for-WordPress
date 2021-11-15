@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
+class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->items = Services::WpPlugins()->getInstalledPluginFiles();
+		$this->getScanActionVO()->items = ( new BuildScanItems() )
+			->setMod( $this->getScanController()->getMod() )
+			->run();
 	}
 
 	protected function setCustomFields() {

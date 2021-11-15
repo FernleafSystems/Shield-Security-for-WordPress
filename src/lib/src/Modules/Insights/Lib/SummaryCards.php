@@ -3,9 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
-	Wcf
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class SummaryCards {
@@ -108,9 +106,9 @@ class SummaryCards {
 				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
 			],
 			'core_files'    => [
-				'title'   => 'Core File Scan',
+				'title'   => 'WordPress File Scan',
 				'enabled' => $mod->isModuleEnabled()
-							 && $mod->getScanCon( Wcf::SCAN_SLUG )->isEnabled(),
+							 && $mod->getScanCon( Afs::SCAN_SLUG )->isEnabled(),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			]
 		];

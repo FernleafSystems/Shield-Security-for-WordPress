@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ModCon
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
- */
 abstract class ModCon {
 
 	use Modules\PluginControllerConsumer;
@@ -1443,15 +1439,5 @@ abstract class ModCon {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
-	}
-
-	/**
-	 * Get config 'definition'.
-	 * @param string $key
-	 * @return mixed|null
-	 * @deprecated 12.0
-	 */
-	public function getDef( string $key ) {
-		return $this->getOptions()->getDef( $key );
 	}
 }

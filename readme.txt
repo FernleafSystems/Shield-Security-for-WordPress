@@ -8,7 +8,7 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 5.8
-Stable tag: 12.0.13
+Stable tag: 13.0.0
 
 No-Nonsense Security Hardening that protects WordPress against hackers, malicious bots, and spammers (no captchas!). Now with exclusive ShieldNET Technology.
 
@@ -349,11 +349,11 @@ You can view the entire [Shield changelog here](https://shsec.io/shieldwporgfull
 
 == Changelog ==
 
-The full Shield Security Changelog can be viewed from our home page:
+#### [View Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
 
-#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+ShieldPRO delivers exclusive, enhanced security features for the serious site administrator
+looking to maximise their WordPress security for themselves and their clients.
 
-ShieldPRO delivers exclusive security features to the serious site administrator to maximise site security
-You'll also have direct access to our technical support team for any security related questions you might have.
+You'll of course have direct access to our technical support team and the option to reach out to us for any security questions or concerns.
 
 [Go Pro](https://shsec.io/aa) or grab the [free ShieldPRO Trial](https://shsec.io/shieldfreetrialwporgreadme).

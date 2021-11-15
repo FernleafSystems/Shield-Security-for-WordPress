@@ -47,10 +47,12 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 	let initYubi = function ( shield_vars ) {
 		let $yubiText = jQuery( 'input[type=text]#shield_yubi' );
-		jQuery( document ).on( 'keyup', $yubiText, function ( evt ) {
+		jQuery( document ).on( 'keydown', $yubiText, function ( evt ) {
 			if ( evt.key === 'Enter' || evt.keyCode === 13 ) {
+				evt.preventDefault();
 				shield_vars.ajax.user_yubikey_toggle.otp = $yubiText.val();
 				sendReq( shield_vars.ajax.user_yubikey_toggle );
+				return false;
 			}
 		} );
 

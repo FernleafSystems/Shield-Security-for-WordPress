@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals\ScanItemView;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DelegateAjaxHandler {
@@ -41,8 +42,6 @@ class DelegateAjaxHandler {
 	}
 
 	/**
-	 * @param string $action
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function doAction( string $action ) :array {
@@ -53,24 +52,23 @@ class DelegateAjaxHandler {
 
 		$items = $this->getItemIDs();
 
-		$resultIT = $mod->getDbHandler_ScanResults()->getIterator();
-		$resultIT->setSelector(
-			$resultIT->getSelector()->addWhereIn( 'id', $items )
-		);
-
 		$scanSlugs = [];
 		$successfulItems = [];
-
-		/** @var Databases\Scanner\EntryVO $entry */
-		foreach ( $resultIT as $entry ) {
-			$scanSlugs[ $entry->scan ] = 1;
-			if ( $mod->getScanCon( $entry->scan )->executeEntryAction( $entry, $action ) ) {
-				$successfulItems[] = $entry->id;
+		foreach ( $items as $itemID ) {
+			try {
+				$item = ( new HackGuard\Scan\Results\Retrieve() )
+					->setMod( $this->getMod() )
+					->byID( $itemID );
+				$scanSlugs[] = $item->VO->scan;
+				if ( $mod->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
+					$successfulItems[] = $item->VO->scanresult_id;
+				}
+			}
+			catch ( \Exception $e ) {
 			}
 		}
 
-		$scanSlugs = array_keys( $scanSlugs );
-
+		$scanSlugs = array_unique( $scanSlugs );
 		foreach ( $scanSlugs as $slug ) {
 			$mod->getScanCon( $slug )->cleanStalesResults();
 		}
@@ -80,13 +78,8 @@ class DelegateAjaxHandler {
 			$msg = __( 'Action successful.' );
 		}
 		else {
-			$msg = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
-		}
-
-		// We don't rescan for ignores or malware
-		$rescanSlugs = array_diff( $scanSlugs, [ HackGuard\Scan\Controller\Mal::SCAN_SLUG ] );
-		if ( !empty( $rescanSlugs ) && !in_array( $action, [ 'ignore' ] ) ) {
-			$mod->getScanQueueController()->startScans( $rescanSlugs );
+			$msg = __( 'An error occurred.' )
+				   .' '.__( 'Some items may not have been processed.' );
 		}
 
 		return [
@@ -97,6 +90,9 @@ class DelegateAjaxHandler {
 		];
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function getItemIDs() :array {
 		$items = Services::Request()->post( 'rids' );
 		if ( empty( $items ) || !is_array( $items ) ) {
@@ -116,7 +112,6 @@ class DelegateAjaxHandler {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function viewFile() :array {
@@ -128,14 +123,13 @@ class DelegateAjaxHandler {
 
 		return [
 			'success' => true,
-			'vars'    => ( new RetrieveFileContents() )
+			'vars'    => ( new ScanItemView() )
 				->setMod( $this->getMod() )
-				->retrieve( (int)$rid ),
+				->run( (int)$rid ),
 		];
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function retrieveTableData() :array {
@@ -143,9 +137,9 @@ class DelegateAjaxHandler {
 		return [
 			'success' => true,
 			'vars'    => [
-				'data' => ( new LoadRawTableData() )
+				'data' => array_values( ( new LoadRawTableData() )
 					->setMod( $this->getMod() )
-					->loadFor( $req->post( 'type' ), $req->post( 'file' ) )
+					->loadFor( $req->post( 'type' ), $req->post( 'file' ) ) )
 			],
 		];
 	}

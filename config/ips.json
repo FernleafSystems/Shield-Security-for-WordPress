@@ -582,13 +582,6 @@
       "transferable": false,
       "type":         "array",
       "default":      []
-    },
-    {
-      "key":          "legacy_db_deleted_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      ""
     }
   ],
   "definitions":      {
@@ -722,7 +715,6 @@
       }
     },
     "db_classes":          {
-      "botsignals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\BotSignals\\Handler",
       "ip_lists":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name": "ip_lists",
@@ -739,42 +731,6 @@
       "cols_timestamps": {
         "last_access_at": "Last Access By IP",
         "blocked_at":     "IP Blocked"
-      }
-    },
-    "db_table_botsignals": {
-      "autoexpire":      3,
-      "slug":            "botsignals",
-      "col_older_than":  "updated_at",
-      "has_updated_at":  true,
-      "cols_custom":     {
-        "ip": "varbinary(16) DEFAULT NULL COMMENT 'IP Address'"
-      },
-      "cols_timestamps": {
-        "notbot_at":          "NotBot",
-        "frontpage_at":       "Any Frontend Page Loaded",
-        "loginpage_at":       "Login Page Loaded",
-        "bt404_at":           "BotTrack 404",
-        "btfake_at":          "BotTrack FakeWebCrawler",
-        "btcheese_at":        "BotTrack LinkCheese",
-        "btloginfail_at":     "BotTrack LoginFailed",
-        "btua_at":            "BotTrack Useragent Fail",
-        "btxml_at":           "BotTrack XMLRPC Access",
-        "btlogininvalid_at":  "BotTrack LoginInvalid",
-        "btinvalidscript_at": "BotTrack InvalidScript",
-        "cooldown_at":        "Triggered Cooldown",
-        "humanspam_at":       "Comment Marked As Human SPAM",
-        "markspam_at":        "Mark Comment As SPAM",
-        "unmarkspam_at":      "Unmark Comment As SPAM",
-        "captchapass_at":     "Captcha Passed",
-        "captchafail_at":     "Captcha Failed",
-        "auth_at":            "Successful Login",
-        "firewall_at":        "Triggered Firewall",
-        "ratelimit_at":       "Rate Limit Exceeded",
-        "offense_at":         "Last Offense",
-        "blocked_at":         "Last Block",
-        "unblocked_at":       "Unblocked",
-        "bypass_at":          "Bypass",
-        "snsent_at":          "Sent To ShieldNET"
       }
     },
     "events":              {

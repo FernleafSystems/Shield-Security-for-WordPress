@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Ops\ConvertLegacy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -32,21 +31,10 @@ class LoadRawTableData extends BaseLoadTableData {
 	private $ipInfo = [];
 
 	public function loadForLogs() :array {
-		( new ConvertLegacy() )
-			->setMod( $this->getMod() )
-			->run();
-
 		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 
 		return array_values( array_filter( array_map(
 			function ( $log ) {
-				/**
-				 * @deprecated 12.0 - this just removes dud entries from after the conversion.
-				 */
-				if ( empty( @$log->meta[ 'path' ] ) ) {
-					return null;
-				}
-
 				$WPU = Services::WpUsers();
 
 				$log->meta = array_merge(
@@ -120,13 +108,20 @@ class LoadRawTableData extends BaseLoadTableData {
 			);
 		}
 
-		return sprintf( '<div>%s</div>', implode( '</div><div>', [
-			sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpAnalysisLink( $this->log->ip ) ),
-			sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $this->getIpInfo( $this->log->ip ) ),
-			sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->meta[ 'uid' ] ] ),
-			sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
-			esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) ),
-		] ) );
+		if ( $this->isWpCli() ) {
+			$content = 'WP-CLI';
+		}
+		else {
+			$content = sprintf( '<div>%s</div>', implode( '</div><div>', [
+				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpAnalysisLink( $this->log->ip ) ),
+				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $this->getIpInfo( $this->log->ip ) ),
+				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->meta[ 'uid' ] ] ),
+				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
+				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) ),
+			] ) );
+		}
+
+		return $content;
 	}
 
 	private function getColumnContent_Response() :string {
@@ -154,9 +149,15 @@ class LoadRawTableData extends BaseLoadTableData {
 	}
 
 	private function getColumnContent_Page() :string {
-		list( $preQuery, $query ) = explode( '?', $this->log->meta[ 'path' ].'?', 2 );
-		return strtoupper( $this->log->meta[ 'verb' ] ).': <code>'.$preQuery
-			   .( empty( $query ) ? '' : '?<br/>'.rtrim( $query, '?' ) ).'</code>';
+		if ( $this->isWpCli() ) {
+			$content = sprintf( '<code>:> %s</code>', esc_html( $this->log->meta[ 'path' ] ) );
+		}
+		else {
+			list( $preQuery, $query ) = explode( '?', $this->log->meta[ 'path' ].'?', 2 );
+			$content = strtoupper( $this->log->meta[ 'verb' ] ).': <code>'.$preQuery
+					   .( empty( $query ) ? '' : '?<br/>'.rtrim( $query, '?' ) ).'</code>';
+		}
+		return $content;
 	}
 
 	private function getIpInfo( string $ip ) {
@@ -207,5 +208,9 @@ class LoadRawTableData extends BaseLoadTableData {
 		return $this->geoLookup
 			->setIP( $ip )
 			->lookupIp();
+	}
+
+	private function isWpCli() :bool {
+		return $this->log->meta[ 'ua' ] === 'wpcli';
 	}
 }

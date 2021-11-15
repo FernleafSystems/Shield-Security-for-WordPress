@@ -3,6 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Afs,
+	Apc,
+	Wpv
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
@@ -32,7 +37,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				$this->getCardsForMal(),
 				$this->getCardsForWpv(),
 				$this->getCardsForPtg(),
-				$this->getCardsForUfc(),
 				$this->getCardsForApc()
 			);
 		}
@@ -53,21 +57,22 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$mod = $this->getMod();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Wcf::SCAN_SLUG );
+		/** @var Afs $scanCon */
+		$scanCon = $mod->getScanCon( Afs::SCAN_SLUG );
 
 		$cards = [];
 
-		$bCore = $scanCon->isEnabled();
+		$scanCore = $scanCon->isEnabled();
 		$cards[ $scanCon::SCAN_SLUG ] = [
 			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'state'   => $bCore ? 1 : -2,
-			'summary' => $bCore ?
+			'state'   => $scanCore ? 1 : -2,
+			'summary' => $scanCore ?
 				__( 'WP Core files are scanned automatically', 'wp-simple-firewall' )
 				: __( "WP Core files aren't automatically scanned!", 'wp-simple-firewall' ),
 			'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			'help'    => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 		];
-		if ( $bCore ) {
+		if ( $scanCore ) {
 			if ( !$opts->isRepairFileWP() ) {
 				$cards[ 'wcf_repair' ] = [
 					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
@@ -79,9 +84,10 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				];
 			}
 		}
-		if ( $scanCon->getScanHasProblem() ) {
+
+		if ( $scanCore && $scanCon->getScansController()->getScanResultsCount()->countWPFiles() ) {
 			$cards[ 'wcf_problem' ] = [
-				'name'    => __( 'Core Files Changed', 'wp-simple-firewall' ),
+				'name'    => sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ), __( 'WordPress Core Files', 'wp-simple-firewall' ) ),
 				'summary' => __( 'WordPress core files have been modified.', 'wp-simple-firewall' ),
 				'href'    => $this->getUrlForScanResults(),
 				'state'   => -2,
@@ -92,73 +98,33 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		return $cards;
 	}
 
-	private function getCardsForUfc() :array {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Ufc::SCAN_SLUG );
-
-		$cards = [];
-
-		$bUcf = $scanCon->isEnabled();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-			'summary' => $bUcf ?
-				__( 'WP Core directories are scanned regularly for unrecognised files', 'wp-simple-firewall' )
-				: __( "WP Core directories are never scanned for unrecognised files!", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
-			'help'    => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' ),
-			'state'   => $bUcf ? 1 : -2,
-		];
-		if ( $bUcf ) {
-			$cards[ 'ufc_repair' ] = [
-				'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
-				'summary' => $opts->isUfsDeleteFiles() ?
-					__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
-					: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
-				'state'   => $opts->isUfsDeleteFiles() ? 1 : -1,
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
-			];
-		}
-		if ( $scanCon->getScanHasProblem() ) {
-			$cards[ 'ufc_problem' ] = [
-				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
-				'summary' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
-				'help'    => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' ),
-				'state'   => -2,
-				'href'    => $this->getUrlForScanResults(),
-			];
-		}
-
-		return $cards;
-	}
-
 	private function getCardsForPtg() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Ptg::SCAN_SLUG );
+		/** @var Afs $scanCon */
+		$scanCon = $mod->getScanCon( Afs::SCAN_SLUG );
 
 		$cards = [];
 
-		$bPtg = $scanCon->isEnabled();
+		$isPTG = $scanCon->isEnabledPluginThemeScan();
 		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'summary' => $bPtg ?
+			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), __( 'Plugins & Themes', 'wp-simple-firewall' ) ),
+			'summary' => $isPTG ?
 				__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
 				: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
-			'state'   => $bPtg ? 1 : -2,
-			'href'    => $mod->getUrl_DirectLinkToOption( 'ptg_enable' ),
+			'state'   => $isPTG ? 1 : -2,
+			'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			'help'    => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' ),
 		];
-		if ( $scanCon->getScanHasProblem() ) {
+
+		$status = $scanCon->getScansController()->getScanResultsCount();
+		if ( $isPTG && ( $status->countPluginFiles() + $status->countPluginFiles() ) > 0 ) {
 			$cards[ 'ptg_problem' ] = [
-				'name'    => $scanCon->getScanName(),
+				'name'    => sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ), __( 'Plugins & Themes', 'wp-simple-firewall' ) ),
 				'summary' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
 				'state'   => -2,
 				'href'    => $this->getUrlForScanResults(),
 				'help'    => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' ),
-
 			];
 		}
 
@@ -168,23 +134,24 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	private function getCardsForMal() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Mal::SCAN_SLUG );
+		/** @var Afs $scanCon */
+		$scanCon = $mod->getScanCon( Afs::SCAN_SLUG );
 
 		$cards = [];
 
-		$malEnabled = $scanCon->isEnabled();
+		$malEnabled = $scanCon->isEnabledMalwareScan();
 		$cards[ $scanCon::SCAN_SLUG ] = [
 			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
 			'summary' => $malEnabled ?
 				sprintf( __( '%s Scanner runs automatically.' ), $scanCon->getScanName() )
 				: sprintf( __( "%s Scanner isn't set to run automatically." ), $scanCon->getScanName() ),
 			'state'   => $malEnabled ? 1 : -2,
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+			'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
 			'help'    => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 		];
-		if ( $malEnabled && $scanCon->getScanHasProblem() ) {
+		if ( $malEnabled && $scanCon->getScansController()->getScanResultsCount()->countMalware() ) {
 			$cards[ 'mal_problem' ] = [
-				'name'    => __( 'Malware Detected', 'wp-simple-firewall' ),
+				'name'    => __( 'Potential Malware Detected', 'wp-simple-firewall' ),
 				'summary' => __( 'Potential Malware files have been discovered.', 'wp-simple-firewall' ),
 				'state'   => -2,
 				'href'    => $this->getUrlForScanResults(),
@@ -198,20 +165,20 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	private function getCardsForApc() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Apc::SCAN_SLUG );
+		$scanCon = $mod->getScanCon( Apc::SCAN_SLUG );
 
 		$cards = [];
 
-		$bApc = $scanCon->isEnabled();
+		$isAPC = $scanCon->isEnabled();
 		$cards[ $scanCon::SCAN_SLUG ] = [
 			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'state'   => $bApc ? 1 : -1,
-			'summary' => $bApc ?
+			'state'   => $isAPC ? 1 : -1,
+			'summary' => $isAPC ?
 				sprintf( __( '%s Scanner is enabled.' ), $scanCon->getScanName() )
 				: sprintf( __( '%s Scanner is not enabled.' ), $scanCon->getScanName() ),
 			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 		];
-		if ( $scanCon->getScanHasProblem() ) {
+		if ( $isAPC && $scanCon->getScansController()->getScanResultsCount()->countAbandoned() > 0 ) {
 			$cards[ 'apc_problem' ] = [
 				'name'    => __( 'Plugin Abandoned' ),
 				'summary' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
@@ -227,7 +194,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	private function getCardsForWpv() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$scanCon = $mod->getScanCon( HackGuard\Scan\Controller\Wpv::SCAN_SLUG );
+		$scanCon = $mod->getScanCon( Wpv::SCAN_SLUG );
 
 		$cards = [];
 
@@ -253,7 +220,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 			];
 		}
-		if ( $scanCon->getScanHasProblem() ) {
+		if ( $enabledWpv && $scanCon->getScansController()->getScanResultsCount()->countVulnerableAssets() > 0 ) {
 			$cards[ 'wpv_problem' ] = [
 				'name'    => __( 'Vulnerable Plugin', 'wp-simple-firewall' ),
 				'summary' => __( 'Plugin with vulnerabilities found on site.', 'wp-simple-firewall' ),
@@ -266,7 +233,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		return $cards;
 	}
 
-	private function getUrlForScanResults() :string{
+	private function getUrlForScanResults() :string {
 		return $this->getCon()->getModule_Insights()->getUrl_ScansResults();
 	}
 }

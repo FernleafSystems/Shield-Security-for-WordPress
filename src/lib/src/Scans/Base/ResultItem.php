@@ -2,43 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 
 /**
- * Class BaseResultItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- * @property string $hash
- * @property bool   $is_excluded
- * @property string $scan
+ * @property bool   $deleted
  * @property bool   $repaired
  * @property string $repair_event_status
+ * @property bool   $auto_filter
  */
-class ResultItem {
-
-	use DynProperties;
+class ResultItem extends DynPropertiesClass {
 
 	/**
-	 * @var EntryVO
+	 * @var ScanResultVO
 	 */
 	public $VO;
 
-	public function isReady() :bool {
-		return false;
-	}
-
-	public function generateHash() :string {
-		return md5( json_encode( $this->getRawData() ) );
-	}
-
 	public function getDescriptionForAudit() :string {
 		return 'No description';
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getData() {
-		return $this->data ?? $this->getRawData();
 	}
 }

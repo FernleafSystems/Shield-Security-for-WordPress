@@ -44,23 +44,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 12.0
-	 */
-	protected function cleanupDatabases() {
-	}
-
-	/**
 	 * @inheritDoc
-	 * @deprecated 12.0
+	 * @deprecated 12.1
 	 */
 	public function getDbHandlers( $bInitAll = false ) {
-		return  [];
-	}
-
-	/**
-	 * @deprecated 12.0
-	 */
-	public function getDbHandler_Traffic() :Databases\Traffic\Handler {
-		return $this->getDbH( 'traffic' );
+		return [];
 	}
 }

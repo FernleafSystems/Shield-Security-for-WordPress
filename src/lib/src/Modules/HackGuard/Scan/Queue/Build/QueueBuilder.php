@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
-	use HackGuard\Scan\Queue\QueueProcessorConsumer;
 	use Shield\Modules\ModConsumer;
 
 	/**
@@ -17,15 +16,15 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aScans = $oOpts->getScansToBuild();
-		$sScan = key( $aScans );
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$scans = $opts->getScansToBuild();
+		$scan = key( $scans );
 
-		$oBatch = new \stdClass();
-		$oBatch->key = $sScan;
-		$oBatch->data = [ $sScan ];
-		return $oBatch;
+		$batch = new \stdClass();
+		$batch->key = $scan;
+		$batch->data = [ $scan ];
+		return $batch;
 	}
 
 	/**
@@ -53,15 +52,13 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return mixed
 	 */
 	protected function task( $slug ) {
-
 		try {
-			( new HackGuard\Scan\Queue\ScanInitiate() )
+			( new HackGuard\Scan\Queue\QueueInit() )
 				->setMod( $this->getMod() )
-				->setQueueProcessor( $this->getQueueProcessor() )
 				->init( (string)$slug );
 		}
 		catch ( \Exception $e ) {
-//			error_log( $e->getMessage() );
+			error_log( $e->getMessage() );
 		}
 
 		// deletes the scan from the to-be-built array
@@ -76,19 +73,23 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-		$this->getQueueProcessor()->dispatch();
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getScanQueueController()
+			->getQueueProcessor()
+			->dispatch();
 	}
 
 	/**
 	 * Delete queue
 	 *
-	 * @param string $sScanSlug .
+	 * @param string $scanSlug .
 	 * @return $this
 	 */
-	public function delete( $sScanSlug ) {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->addRemoveScanToBuild( $sScanSlug, false );
+	public function delete( $scanSlug ) {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		$opts->addRemoveScanToBuild( $scanSlug, false );
 		$this->save();
 		return $this;
 	}
@@ -99,9 +100,9 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return count( $oOpts->getScansToBuild() ) === 0;
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+		return count( $opts->getScansToBuild() ) === 0;
 	}
 
 	/**

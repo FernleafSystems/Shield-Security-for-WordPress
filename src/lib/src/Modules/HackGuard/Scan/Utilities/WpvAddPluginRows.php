@@ -89,7 +89,7 @@ class WpvAddPluginRows {
 	public function filterPluginsToView( $plugins ) {
 		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			/** @var Wpv\ResultsSet $oVulnerableRes */
-			$oVulnerableRes = $this->getScanController()->getAllResults();
+			$oVulnerableRes = $this->getScanController()->getResultsForDisplay();
 			global $status;
 			$status = 'vulnerable';
 			$plugins = array_intersect_key(
@@ -105,43 +105,33 @@ class WpvAddPluginRows {
 	 * @param array  $pData
 	 */
 	public function attachVulnerabilityWarning( $pluginFile, $pData ) {
+		/** @var Controller\Wpv $scanCon */
 		$scanCon = $this->getScanController();
 
-		$vulns = $scanCon->getPluginVulnerabilities( $pluginFile );
-		if ( count( $vulns ) > 0 ) {
+		if ( $scanCon->hasVulnerabilities( $pluginFile ) ) {
 			$name = $scanCon->getCon()->getHumanName();
+			$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
 			echo $scanCon->getMod()
 						 ->renderTemplate(
 							 '/snippets/plugin_vulnerability.twig',
 							 [
 								 'strings' => [
-									 'known_vuln'     => sprintf( __( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.', 'wp-simple-firewall' ),
+									 'known_vuln' => sprintf(
+										 __( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.', 'wp-simple-firewall' ),
 										 $name, '<strong>'.$pData[ 'Name' ].'</strong>' ),
-									 'name'           => __( 'Vulnerability Name', 'wp-simple-firewall' ),
-									 'type'           => __( 'Vulnerability Type', 'wp-simple-firewall' ),
-									 'fixed_versions' => __( 'Fixed Versions', 'wp-simple-firewall' ),
-									 'more_info'      => __( 'More Info', 'wp-simple-firewall' ),
+									 'more_info'  => __( 'More Info', 'wp-simple-firewall' ),
+								 ],
+								 'hrefs'   => [
+									 'vuln_lookup' => add_query_arg(
+										 [
+											 'type'    => $plugin->asset_type,
+											 'slug'    => $plugin->slug,
+											 'version' => $plugin->Version,
+										 ],
+										 'https://shsec.io/shieldvulnerabilitylookup'
+									 )
 								 ],
 								 'vars'    => [
-									 'vulns'   => array_map(
-										 function ( $vuln ) use ( $pluginFile ) {
-											 $data = $vuln->getRawData();
-
-											 $plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
-											 if ( !empty( $plugin ) ) {
-												 $data[ 'url' ] = add_query_arg(
-													 [
-														 'type'    => $plugin->asset_type,
-														 'slug'    => $plugin->slug,
-														 'version' => $plugin->Version,
-													 ],
-													 'https://shsec.io/shieldvulnerabilitylookup'
-												 );
-											 }
-											 return $data;
-										 },
-										 $vulns
-									 ),
 									 'colspan' => $this->nColumnsCount
 								 ],
 							 ],
@@ -164,8 +154,9 @@ class WpvAddPluginRows {
 	private function countVulnerablePlugins() :int {
 		if ( !isset( $this->vulnCount ) ) {
 			$this->vulnCount = $this->getScanController()
-									->getAllResults()
-									->countUniqueSlugsForPluginsContext();
+									->getScansController()
+									->getScanResultsCount()
+									->countVulnerableAssets();
 		}
 		return $this->vulnCount;
 	}

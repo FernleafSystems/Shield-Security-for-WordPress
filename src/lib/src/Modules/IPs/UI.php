@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -126,6 +125,7 @@ class UI extends BaseShield\UI {
 				'ajax'    => [
 					'build_ip_analyse'  => $mod->getAjaxActionData( 'build_ip_analyse', true ),
 					'ip_analyse_action' => $mod->getAjaxActionData( 'ip_analyse_action', true ),
+					'ip_review_select'  => $mod->getAjaxActionData( 'ip_review_select', true ),
 				],
 				'strings' => [
 					'select_ip'     => __( 'Select IP To Analyse', 'wp-simple-firewall' ),
@@ -134,9 +134,7 @@ class UI extends BaseShield\UI {
 					'please_select' => 'Please select an IP address.',
 				],
 				'vars'    => [
-					'unique_ips' => ( new FindAllPluginIps() )
-						->setCon( $this->getCon() )
-						->run()
+					'unique_ips' => []
 				]
 			],
 			true
