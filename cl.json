@@ -93,6 +93,18 @@
         "description": [
           "Adding and removing Yubikey devices to and from your WP user profile is more reliable."
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Reduce scan chunk size to improve MySQL query memory usage.",
+        "description": [],
+        "patch":       "13.0.1"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Automatic selection of IP addresses in IP Analyse tool after switching to AJAX source.",
+        "description": [],
+        "patch":       "13.0.1"
       }
     ]
   },

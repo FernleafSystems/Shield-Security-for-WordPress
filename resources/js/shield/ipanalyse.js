@@ -2,8 +2,9 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 	var runAnalysis = function () {
 		let newUrl = window.location.href.replace( /&analyse_ip=.+/i, "" );
-		if ( $oIpSelect.val().length > 0 ) {
-			newUrl += "&analyse_ip=" + $oIpSelect.val();
+		if ( $ipSelect.val() && $ipSelect.val().length > 0 ) {
+			newUrl += "&analyse_ip=" + $ipSelect.val();
+			sendReq( { 'fIp': $ipSelect.val() } );
 		}
 		window.history.replaceState(
 			{},
@@ -11,7 +12,6 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 			newUrl
 		);
 
-		sendReq( { 'fIp': $oIpSelect.val() } );
 	};
 
 	var clearAnalyseIpParam = function () {
@@ -65,7 +65,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 		jQuery( document ).ready( function () {
 
-			var $aIpActions = jQuery( document ).on( 'click', 'a.ip_analyse_action', function ( evt ) {
+			let $ipActions = jQuery( document ).on( 'click', 'a.ip_analyse_action', function ( evt ) {
 				evt.preventDefault();
 				if ( confirm( 'Are you sure?' ) ) {
 					let $oThis = jQuery( this );
@@ -77,16 +77,24 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 				return false;
 			} );
 
-			$oIpSelect.on( 'change', runAnalysis );
+			$ipSelect.on( 'change', runAnalysis );
 
 			let urlParams = new URLSearchParams( window.location.search );
 			let theIP = urlParams.get( 'analyse_ip' );
 			if ( theIP ) {
-				$oIpSelect.val( theIP );
+
+				/**
+				 * Since using dynamic AJAX requests to filter IP list,
+				 * we must manually create an option and select it
+				 */
+				if ( $ipSelect.find( "option[value='" + theIP + "']" ).length === 0 ) {
+					$ipSelect.append( new Option( theIP, theIP, true, true ) ).trigger( 'change' );
+				}
+				$ipSelect.val( theIP );
 				runAnalysis();
 			}
 			else {
-				var activeTab = localStorage.getItem( 'ipsActiveTab' );
+				let activeTab = localStorage.getItem( 'ipsActiveTab' );
 				if ( activeTab ) {
 					jQuery( 'a[href="' + activeTab + '"]' ).tab( 'show' );
 				}
@@ -95,7 +103,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		} );
 	};
 
-	var $oIpSelect = jQuery( '#IpReviewSelect' );
+	var $ipSelect = jQuery( '#IpReviewSelect' );
 	var aOpts = jQuery.extend( {}, options );
 	initialise();
 
