@@ -193,7 +193,9 @@ class Enqueue {
 	}
 
 	private function normaliseHandle( string $handle ) :string {
-		return str_replace( '/', '-', $this->getCon()->prefix( $handle ) );
+		return str_replace( '/', '-', $this->getCon()->prefix(
+			\FernleafSystems\Wordpress\Services\Utilities\File\Paths::RemoveExt( $handle )
+		) );
 	}
 
 	private function getAdminAssetsToEnq() {
