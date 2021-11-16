@@ -88,10 +88,4 @@ class ScheduleBuildAll extends BaseBulk {
 	private function getCronHook() :string {
 		return $this->getCon()->prefix( 'ptg_build_snapshots' );
 	}
-
-	/**
-	 * @deprecated 13.0
-	 */
-	public function hookBuild() {
-	}
 }

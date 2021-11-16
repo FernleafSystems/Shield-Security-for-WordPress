@@ -137,12 +137,4 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $data;
 	}
-
-	/**
-	 * @inheritDoc
-	 * @deprecated 13.0
-	 */
-	public function getDbHandlers( $bInitAll = false ) {
-		return [];
-	}
 }

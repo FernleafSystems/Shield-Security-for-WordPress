@@ -136,13 +136,4 @@ class EventsService {
 		}
 		return $events;
 	}
-
-	/**
-	 * @param string $eventKey
-	 * @return bool
-	 * @deprecated 12.1
-	 */
-	public function isSupportedEvent( string $eventKey ) :bool {
-		return array_key_exists( $eventKey, $this->getEvents() );
-	}
 }

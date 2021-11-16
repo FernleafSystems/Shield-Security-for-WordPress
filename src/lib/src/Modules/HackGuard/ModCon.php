@@ -231,21 +231,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 12.1
-	 */
-	public function getDbHandler_ScanQueue() :Databases\ScanQueue\Handler {
-		return $this->getDbH( 'scanq' );
-	}
-
-	/**
-	 * @deprecated 12.1
-	 */
-	public function getDbHandler_ScanResults() :Databases\Scanner\Handler {
-		return $this->getDbH( 'scanner' );
-	}
-
-	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
@@ -268,7 +253,7 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @inheritDoc
-	 * @deprecated 13.0
+	 * @deprecated 13.1
 	 */
 	public function getDbHandlers( $bInitAll = false ) {
 		return [];

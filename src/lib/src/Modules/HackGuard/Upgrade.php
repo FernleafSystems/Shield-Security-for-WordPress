@@ -11,10 +11,6 @@ class Upgrade extends Base\Upgrade {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		( new Scan\Utilities\ConvertLegacyResults() )
-			->setMod( $mod )
-			->execute();
-
 		// Ensure AFS scan is selected by default upon upgrade
 		$uiTrack = $mod->getUiTrack();
 		$selected = $uiTrack->selected_scans;

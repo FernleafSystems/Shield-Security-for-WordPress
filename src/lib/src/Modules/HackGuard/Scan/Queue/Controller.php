@@ -98,10 +98,4 @@ class Controller {
 		}
 		return $this->oQueueProcessor;
 	}
-
-	/**
-	 * @deprecated 13.0
-	 */
-	public function startScans( $scanSlugs ) {
-	}
 }
