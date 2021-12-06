@@ -220,7 +220,11 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function checkMinimumRequirements() {
-		if ( is_admin() ) {
+		$FS = Services::WpFs();
+
+		$flag = $this->paths->forFlag( 'reqs_met.flag' );
+		if ( !$FS->isFile( $flag )
+			 || Services::Request()->carbon()->subDays( 1 )->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
@@ -245,15 +249,29 @@ class Controller extends DynPropertiesClass {
 				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
 				throw new \Exception( 'Plugin does not meet minimum requirements' );
 			}
+
+			$FS->touch( $this->paths->forFlag( 'reqs_met.flag' ) );
 		}
 	}
 
 	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
 		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
-		return empty( $versionToSupport )
-			   || empty( $mysqlInfo )
-			   || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
-			   || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+		$supported = empty( $versionToSupport )
+					 || empty( $mysqlInfo )
+					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
+					 || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+		if ( !$supported ) {
+			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
+			if ( !empty( $miscFunctions ) && is_array( $miscFunctions ) ) {
+				foreach ( $miscFunctions as $func ) {
+					if ( strtoupper( $func[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
+						$supported = true;
+						break;
+					}
+				}
+			}
+		}
+		return $supported;
 	}
 
 	public function adminNoticeDoesNotMeetRequirements() {

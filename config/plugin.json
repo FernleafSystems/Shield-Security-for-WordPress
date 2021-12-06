@@ -108,11 +108,6 @@
       "beacon_id":   129
     },
     {
-      "slug":        "section_integrations",
-      "title":       "Integrations",
-      "title_short": "Integrations"
-    },
-    {
       "slug":        "section_global_security_options",
       "title":       "Global Plugin Security Options",
       "title_short": "Disable Shield"
