@@ -9,8 +9,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * Class Controller
- * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
  * @property Config\ConfigVO                                        $cfg
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -659,10 +657,11 @@ class Controller extends DynPropertiesClass {
 		if ( !empty( $updates->response ) && isset( $updates->response[ $file ] ) ) {
 			$reqs = $this->cfg->upgrade_reqs;
 			if ( is_array( $reqs ) ) {
+				$DP = Services::Data();
 				foreach ( $reqs as $shieldVer => $verReqs ) {
 					$toHide = version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
 							  && (
-								  !Services::Data()->getPhpVersionIsAtLeast( $verReqs[ 'php' ] )
+								  !$DP->getPhpVersionIsAtLeast( (string)$verReqs[ 'php' ] )
 								  || !Services::WpGeneral()->getWordpressIsAtLeastVersion( $verReqs[ 'wp' ] )
 								  || ( !empty( $verReqs[ 'mysql' ] ) && !$this->isMysqlVersionSupported( $verReqs[ 'mysql' ] ) )
 							  );
@@ -1311,11 +1310,6 @@ class Controller extends DynPropertiesClass {
 		}
 		if ( empty( $modProps[ 'namespace' ] ) ) {
 			$modProps[ 'namespace' ] = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
-		}
-
-		if ( !empty( $modProps[ 'min_php' ] )
-			 && !Services::Data()->getPhpVersionIsAtLeast( $modProps[ 'min_php' ] ) ) {
-			return null;
 		}
 
 		$modName = $modProps[ 'namespace' ];
