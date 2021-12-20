@@ -13,12 +13,19 @@ class BuildScanItems extends BaseBuildFileMap {
 	 */
 	public function build() :array {
 		$this->preBuild();
+
 		$files = array_unique( array_merge(
 			$this->buildFilesFromDisk(),
 			$this->buildFilesFromWpHashes()
 		) );
 		natsort( $files );
-		return $files;
+
+		return array_map(
+			function ( $path ) {
+				return base64_encode( $path );
+			},
+			$files
+		);
 	}
 
 	private function buildFilesFromWpHashes() :array {

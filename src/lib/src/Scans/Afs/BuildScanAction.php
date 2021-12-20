@@ -8,12 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildItems() {
-		$items = ( new BuildScanItems() )
+		$this->getScanActionVO()->items = ( new BuildScanItems() )
 			->setMod( $this->getScanController()->getMod() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->run();
-		asort( $items );
-		$this->getScanActionVO()->items = $items;
 	}
 
 	protected function setCustomFields() {

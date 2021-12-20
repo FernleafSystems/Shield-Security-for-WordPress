@@ -164,11 +164,6 @@ class Strings extends Base\Strings {
 				$titleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
-			case 'section_integrations' :
-				$title = __( '3rd Party Integrations', 'wp-simple-firewall' );
-				$titleShort = __( 'Integrations', 'wp-simple-firewall' );
-				break;
-
 			case 'section_third_party_captcha' :
 				$title = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$titleShort = __( 'CAPTCHA', 'wp-simple-firewall' );

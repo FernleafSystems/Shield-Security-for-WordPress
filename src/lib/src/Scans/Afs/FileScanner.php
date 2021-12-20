@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs as AfsScan;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs as AfsScan;
 
 class FileScanner {
 
@@ -23,6 +23,8 @@ class FileScanner {
 		$action = $this->getScanActionVO();
 
 		$item = null;
+
+		$fullPath = base64_decode( $fullPath );
 
 		$validFile = false;
 		try {

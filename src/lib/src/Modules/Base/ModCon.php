@@ -225,27 +225,28 @@ abstract class ModCon {
 	}
 
 	private function verifyModuleMeetRequirements() :bool {
-		$bMeetsReqs = true;
+		$meetReqs = true;
 
-		$aPhpReqs = $this->getOptions()->getFeatureRequirement( 'php' );
-		if ( !empty( $aPhpReqs ) ) {
+		$reqPHP = $this->getOptions()->getFeatureRequirement( 'php' );
+		if ( !empty( $reqPHP ) ) {
 
-			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && Services::Data()->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
+			if ( !empty( $reqPHP[ 'version' ] ) ) {
+				$meetReqs = Services::Data()->getPhpVersionIsAtLeast( $reqPHP[ 'version' ] );
 			}
-			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {
-				foreach ( $aPhpReqs[ 'functions' ] as $sFunction ) {
-					$bMeetsReqs = $bMeetsReqs && function_exists( $sFunction );
+
+			if ( !empty( $reqPHP[ 'functions' ] ) && is_array( $reqPHP[ 'functions' ] ) ) {
+				foreach ( $reqPHP[ 'functions' ] as $func ) {
+					$meetReqs = $meetReqs && function_exists( $func );
 				}
 			}
-			if ( !empty( $aPhpReqs[ 'constants' ] ) && is_array( $aPhpReqs[ 'constants' ] ) ) {
-				foreach ( $aPhpReqs[ 'constants' ] as $sConstant ) {
-					$bMeetsReqs = $bMeetsReqs && defined( $sConstant );
+			if ( !empty( $reqPHP[ 'constants' ] ) && is_array( $reqPHP[ 'constants' ] ) ) {
+				foreach ( $reqPHP[ 'constants' ] as $sConstant ) {
+					$meetReqs = $meetReqs && defined( $sConstant );
 				}
 			}
 		}
 
-		return $bMeetsReqs;
+		return $meetReqs;
 	}
 
 	protected function onModulesLoaded() {
