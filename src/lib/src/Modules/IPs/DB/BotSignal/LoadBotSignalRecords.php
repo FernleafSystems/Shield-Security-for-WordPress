@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoadBotSignalRecords {

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -56,31 +55,16 @@ class Wpv extends BaseForAssets {
 	}
 
 	/**
-	 * @param bool             $bDoAutoUpdate
+	 * @param bool             $doAutoUpdate
 	 * @param \stdClass|string $mItem
-	 * @return bool
 	 */
-	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
+	public function autoupdateVulnerablePlugins( $doAutoUpdate, $mItem ) :bool {
 		$itemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
-		return $bDoAutoUpdate || count( $this->getPluginVulnerabilities( $itemFile ) ) > 0;
+		return $doAutoUpdate || $this->hasVulnerabilities( $itemFile );
 	}
 
 	public function hasVulnerabilities( string $file ) :bool {
 		return count( $this->getResultsForDisplay()->getItemsForSlug( $file ) ) > 0;
-	}
-
-	/**
-	 * @param string $file
-	 * @return Scans\Wpv\WpVulnDb\VulnVO[]
-	 */
-	public function getPluginVulnerabilities( string $file ) {
-		return array_map(
-			function ( $item ) {
-				/** @var $item Scans\Wpv\ResultItem */
-				return $item->getVulnVo();
-			},
-			$this->getResultsForDisplay()->getItemsForSlug( $file )
-		);
 	}
 
 	/**
