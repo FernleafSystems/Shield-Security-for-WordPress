@@ -11,10 +11,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses;
 
-/**
- * Class Collate
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug
- */
 class Collate {
 
 	use ModConsumer;
@@ -41,6 +37,9 @@ class Collate {
 				sprintf( 'Active Plugins (%s)', count( $pluginsActive ) )     => $pluginsActive,
 				sprintf( 'Inactive Plugins (%s)', count( $pluginsInactive ) ) => $pluginsInactive,
 				sprintf( 'Active Themes (%s)', count( $themes ) )             => $themes,
+			],
+			'Service IPs'    => [
+				'Summary' => $this->getServiceIPs(),
 			],
 		];
 	}
@@ -265,6 +264,13 @@ class Collate {
 		$data[ 'Visitor IP Source' ] = $source.': '.var_export( Services::IP()->getRequestIp(), true );
 
 		return $data;
+	}
+
+	private function getServiceIPs() :array {
+		return [
+			'ips'=>var_export(Services::ServiceProviders()::GetProviderIPs(),true),
+
+		];
 	}
 
 	private function getWordPressSummary() :array {

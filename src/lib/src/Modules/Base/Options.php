@@ -273,9 +273,8 @@ class Options {
 
 	/**
 	 * @param string $slug
-	 * @return array
 	 */
-	public function getSection_Requirements( $slug ) {
+	public function getSection_Requirements( $slug ) :array {
 		$section = $this->getSection( $slug );
 		return array_merge(
 			[

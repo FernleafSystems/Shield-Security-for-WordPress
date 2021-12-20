@@ -9,8 +9,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * Class Controller
- * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
  * @property Config\ConfigVO                                        $cfg
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -220,7 +218,11 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function checkMinimumRequirements() {
-		if ( is_admin() ) {
+		$FS = Services::WpFs();
+
+		$flag = $this->paths->forFlag( 'reqs_met.flag' );
+		if ( !$FS->isFile( $flag )
+			 || Services::Request()->carbon()->subDays( 1 )->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
@@ -245,15 +247,29 @@ class Controller extends DynPropertiesClass {
 				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
 				throw new \Exception( 'Plugin does not meet minimum requirements' );
 			}
+
+			$FS->touch( $this->paths->forFlag( 'reqs_met.flag' ) );
 		}
 	}
 
 	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
 		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
-		return empty( $versionToSupport )
-			   || empty( $mysqlInfo )
-			   || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
-			   || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+		$supported = empty( $versionToSupport )
+					 || empty( $mysqlInfo )
+					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
+					 || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+		if ( !$supported ) {
+			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
+			if ( !empty( $miscFunctions ) && is_array( $miscFunctions ) ) {
+				foreach ( $miscFunctions as $func ) {
+					if ( strtoupper( $func[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
+						$supported = true;
+						break;
+					}
+				}
+			}
+		}
+		return $supported;
 	}
 
 	public function adminNoticeDoesNotMeetRequirements() {
@@ -641,10 +657,11 @@ class Controller extends DynPropertiesClass {
 		if ( !empty( $updates->response ) && isset( $updates->response[ $file ] ) ) {
 			$reqs = $this->cfg->upgrade_reqs;
 			if ( is_array( $reqs ) ) {
+				$DP = Services::Data();
 				foreach ( $reqs as $shieldVer => $verReqs ) {
 					$toHide = version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
 							  && (
-								  !Services::Data()->getPhpVersionIsAtLeast( $verReqs[ 'php' ] )
+								  !$DP->getPhpVersionIsAtLeast( (string)$verReqs[ 'php' ] )
 								  || !Services::WpGeneral()->getWordpressIsAtLeastVersion( $verReqs[ 'wp' ] )
 								  || ( !empty( $verReqs[ 'mysql' ] ) && !$this->isMysqlVersionSupported( $verReqs[ 'mysql' ] ) )
 							  );
@@ -1293,11 +1310,6 @@ class Controller extends DynPropertiesClass {
 		}
 		if ( empty( $modProps[ 'namespace' ] ) ) {
 			$modProps[ 'namespace' ] = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
-		}
-
-		if ( !empty( $modProps[ 'min_php' ] )
-			 && !Services::Data()->getPhpVersionIsAtLeast( $modProps[ 'min_php' ] ) ) {
-			return null;
 		}
 
 		$modName = $modProps[ 'namespace' ];

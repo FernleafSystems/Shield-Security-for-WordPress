@@ -231,14 +231,14 @@ class ModCon extends BaseShield\ModCon {
 	public function getOpenSslPrivateKey() {
 		$opts = $this->getOptions();
 		$key = null;
-		$oEnc = Services::Encrypt();
-		if ( $oEnc->isSupportedOpenSslDataEncryption() ) {
+		$srvEnc = Services::Encrypt();
+		if ( $srvEnc->isSupportedOpenSslDataEncryption() ) {
 			$key = $opts->getOpt( 'openssl_private_key' );
 			if ( empty( $key ) ) {
 				try {
-					$aKeys = $oEnc->createNewPrivatePublicKeyPair();
-					if ( !empty( $aKeys[ 'private' ] ) ) {
-						$key = $aKeys[ 'private' ];
+					$keys = $srvEnc->createNewPrivatePublicKeyPair();
+					if ( !empty( $keys[ 'private' ] ) ) {
+						$key = $keys[ 'private' ];
 						$opts->setOpt( 'openssl_private_key', base64_encode( $key ) );
 						$this->saveModOptions();
 					}
