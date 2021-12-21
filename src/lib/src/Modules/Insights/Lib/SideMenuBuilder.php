@@ -190,6 +190,12 @@ class SideMenuBuilder {
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
 			],
+			[
+				'slug'   => $slug.'-guide',
+				'title'  => __( 'Guide', 'wp-simple-firewall' ),
+				'href'   => 'https://shsec.io/shieldscansguide',
+				'target' => '_blank',
+			],
 		];
 
 		return [
