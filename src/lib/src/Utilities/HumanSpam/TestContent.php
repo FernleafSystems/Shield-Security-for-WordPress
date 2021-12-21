@@ -15,8 +15,6 @@ class TestContent {
 	private $list;
 
 	/**
-	 * @param array $itemsToTest
-	 * @param bool  $finishAfterFirst
 	 * @return string[][]
 	 */
 	public function findSpam( array $itemsToTest, bool $finishAfterFirst = true ) :array {

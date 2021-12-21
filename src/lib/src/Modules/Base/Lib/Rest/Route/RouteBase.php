@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class RouteBase
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Route
  * @property bool $bypass_lock
  */
 abstract class RouteBase extends \WP_REST_Controller {

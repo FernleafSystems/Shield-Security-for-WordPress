@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\License;
 
 /**
- * Class EddLicenseVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\License
  * @property bool   $is_central
  * @property string $aff_ref
  */

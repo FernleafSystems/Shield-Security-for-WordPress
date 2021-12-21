@@ -5,16 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class SyncVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
  * @property array[]    $modules
  * @property SyncMetaVO $meta
  */
 class SyncVO extends DynPropertiesClass {
 
 	/**
-	 * @param string $key
-	 * @return mixed
+	 * @inheritDoc
 	 */
 	public function __get( string $key ) {
 

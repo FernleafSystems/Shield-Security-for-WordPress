@@ -83,7 +83,6 @@ class Options {
 
 	/**
 	 * Returns an array of all the transferable options and their values
-	 * @return array
 	 */
 	public function getTransferableOptions() :array {
 		$transferable = [];
@@ -131,7 +130,6 @@ class Options {
 
 	/**
 	 * Returns an array of all the options with the values for "sensitive" options masked out.
-	 * @return array
 	 */
 	public function getOptionsForTracking() :array {
 		$opts = [];
@@ -172,7 +170,6 @@ class Options {
 	}
 
 	/**
-	 * @param string
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {
@@ -239,7 +236,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $section
 	 * @return array|null
 	 */
 	public function getSection( string $section ) {
@@ -287,7 +283,6 @@ class Options {
 
 	/**
 	 * @param string $slug
-	 * @return bool
 	 */
 	public function isSectionReqsMet( $slug ) :bool {
 		$reqs = $this->getSection_Requirements( $slug );

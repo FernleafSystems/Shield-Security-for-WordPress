@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache\CacheDefVO;
 
 /**
- * Class RouteCache
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Route
  * @property bool            $can_cache
  * @property string          $request_file
  * @property bool            $is_touch

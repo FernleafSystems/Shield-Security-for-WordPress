@@ -7,7 +7,6 @@ use Monolog\Processor\ProcessorInterface;
 class WpMetaProcessor implements ProcessorInterface {
 
 	/**
-	 * @param array $record
 	 * @return array
 	 */
 	public function __invoke( array $record ) {

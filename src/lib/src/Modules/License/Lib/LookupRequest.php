@@ -16,19 +16,17 @@ class LookupRequest {
 		$con = $this->getCon();
 		$opts = $this->getOptions();
 
-		{
-			$lookup = new Lookup();
-			$lookup->lookup_url_stub = $opts->getDef( 'license_store_url_api' );
-			$lookup->item_id = $opts->getDef( 'license_item_id' );
-			$lookup->install_id = $con->getSiteInstallationId();
-			$lookup->url = Services::WpGeneral()->getHomeUrl( '', true );
-			$lookup->nonce = ( new HandshakingNonce() )->setMod( $this->getMod() )->create();
-			$lookup->meta = [
-				'version_shield' => $con->getVersion(),
-				'version_php'    => Services::Data()->getPhpVersionCleaned()
-			];
-			$license = $lookup->lookup();
-		}
+		$lookup = new Lookup();
+		$lookup->lookup_url_stub = $opts->getDef( 'license_store_url_api' );
+		$lookup->item_id = $opts->getDef( 'license_item_id' );
+		$lookup->install_id = $con->getSiteInstallationId();
+		$lookup->url = Services::WpGeneral()->getHomeUrl( '', true );
+		$lookup->nonce = ( new HandshakingNonce() )->setMod( $this->getMod() )->create();
+		$lookup->meta = [
+			'version_shield' => $con->getVersion(),
+			'version_php'    => Services::Data()->getPhpVersionCleaned()
+		];
+		$license = $lookup->lookup();
 
 		return ( new EddLicenseVO() )->applyFromArray( $license->getRawData() );
 	}

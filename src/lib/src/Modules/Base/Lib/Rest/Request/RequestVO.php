@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request;
 
 /**
- * Class RequestVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request
  * @property string $action
  * @property string $type
  */

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 abstract class AjaxHandler {
@@ -19,14 +18,14 @@ abstract class AjaxHandler {
 	}
 
 	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) :array {
-		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
+		if ( !empty( $ajaxAction ) && empty( $ajaxResponse ) ) {
 			$ajaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $ajaxAction ) );
 		}
 		return $ajaxResponse;
 	}
 
 	public function handleAjaxNonAuth( array $ajaxResponse, string $ajaxAction ) :array {
-		if ( !empty( $ajaxAction ) && ( empty( $ajaxResponse ) || !is_array( $ajaxResponse ) ) ) {
+		if ( !empty( $ajaxAction ) && empty( $ajaxResponse ) ) {
 			$ajaxResponse = $this->normaliseAjaxResponse( $this->processNonAuthAjaxAction( $ajaxAction ) );
 		}
 		return $ajaxResponse;
@@ -44,8 +43,6 @@ abstract class AjaxHandler {
 	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
 	 * so if we send something back non-empty, it'll be treated like a "handled" response and
 	 * processing will finish
-	 * @param array $ajaxResponse
-	 * @return array
 	 */
 	protected function normaliseAjaxResponse( array $ajaxResponse ) :array {
 		if ( !empty( $ajaxResponse ) ) {

@@ -65,7 +65,7 @@ class Update extends Insert {
 
 		if ( $entry instanceof EntryVO ) {
 
-			foreach ( (array)$entry->getRawData() as $key => $value ) {
+			foreach ( $entry->getRawData() as $key => $value ) {
 				if ( isset( $updateData[ $key ] ) && $updateData[ $key ] === $value ) {
 					unset( $updateData[ $key ] );
 				}
@@ -80,7 +80,7 @@ class Update extends Insert {
 					$updateData[ 'updated_at' ] = Services::Request()->ts();
 				}
 				if ( $this->updateById( $entry->id, $updateData ) ) {
-					$entry->applyFromArray( array_merge( (array)$entry->getRawData(), $updateData ) );
+					$entry->applyFromArray( array_merge( $entry->getRawData(), $updateData ) );
 					$success = true;
 				}
 			}

@@ -102,16 +102,16 @@ class Processor extends BaseShield\Processor {
 			$opts = $this->getOptions();
 
 			$delayTracking = $opts->getDelayTracking();
-			$aItemTk = $delayTracking[ 'core' ][ 'wp' ] ?? [];
-			foreach ( $oUpdates->updates as $oUpdate ) {
-				if ( 'autoupdate' == $oUpdate->response ) {
-					$sVersion = $oUpdate->current;
-					if ( !isset( $aItemTk[ $sVersion ] ) ) {
-						$aItemTk[ $sVersion ] = Services::Request()->ts();
+			$item = $delayTracking[ 'core' ][ 'wp' ] ?? [];
+			foreach ( $oUpdates->updates as $upd ) {
+				if ( 'autoupdate' == $upd->response ) {
+					$version = $upd->current;
+					if ( !isset( $item[ $version ] ) ) {
+						$item[ $version ] = Services::Request()->ts();
 					}
 				}
 			}
-			$delayTracking[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
+			$delayTracking[ 'core' ][ 'wp' ] = array_slice( $item, -5 );
 			$opts->setDelayTracking( $delayTracking );
 		}
 	}
