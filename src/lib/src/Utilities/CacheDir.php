@@ -48,7 +48,6 @@ class CacheDir {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function testWrite() :bool {
@@ -90,7 +89,6 @@ class CacheDir {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function getDir() :string {

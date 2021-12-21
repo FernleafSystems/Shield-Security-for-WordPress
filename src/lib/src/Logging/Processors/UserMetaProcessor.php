@@ -8,7 +8,6 @@ use Monolog\Processor\ProcessorInterface;
 class UserMetaProcessor implements ProcessorInterface {
 
 	/**
-	 * @param array $record
 	 * @return array
 	 */
 	public function __invoke( array $record ) {
