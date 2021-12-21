@@ -81,9 +81,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 			case 'vo':
 				if ( empty( $value ) ) {
 					$data = $opts->getOpt( 'snapi_data', [] );
-					$value = ( new ShieldNetApiDataVO() )->applyFromArray(
-						is_array( $data ) ? $data : []
-					);
+					$value = ( new ShieldNetApiDataVO() )->applyFromArray( is_array( $data ) ? $data : [] );
 					$this->vo = $value;
 				}
 				break;

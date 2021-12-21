@@ -62,7 +62,6 @@ class LoadConfig {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function fromFile() :array {

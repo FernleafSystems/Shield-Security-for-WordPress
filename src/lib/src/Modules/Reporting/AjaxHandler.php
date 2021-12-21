@@ -33,10 +33,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $this->renderChart( $_POST );
 	}
 
-	/**
-	 * @param Shield\Modules\Reporting\Charts\ChartRequestVO $req
-	 * @return array
-	 */
 	private function renderChart( array $data ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

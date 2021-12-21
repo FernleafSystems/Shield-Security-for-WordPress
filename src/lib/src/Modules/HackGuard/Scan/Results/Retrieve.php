@@ -22,7 +22,6 @@ class Retrieve {
 	private $additionalWheres = [];
 
 	/**
-	 * @param int $scanResultID
 	 * @return Scans\Base\ResultItem
 	 * @throws \Exception
 	 */

@@ -11,21 +11,21 @@ class Options extends BaseShield\Options {
 	 * @return array
 	 */
 	public function getDelayTracking() {
-		$aTracking = $this->getOpt( 'delay_tracking', [] );
-		if ( !is_array( $aTracking ) ) {
-			$aTracking = [];
+		$tracking = $this->getOpt( 'delay_tracking', [] );
+		if ( !is_array( $tracking ) ) {
+			$tracking = [];
 		}
-		$aTracking = Services::DataManipulation()->mergeArraysRecursive(
+		$tracking = Services::DataManipulation()->mergeArraysRecursive(
 			[
 				'core'    => [],
 				'plugins' => [],
 				'themes'  => [],
 			],
-			$aTracking
+			$tracking
 		);
-		$this->setOpt( 'delay_tracking', $aTracking );
+		$this->setOpt( 'delay_tracking', $tracking );
 
-		return $aTracking;
+		return $tracking;
 	}
 
 	/**

@@ -24,18 +24,13 @@ abstract class Process {
 	protected $wpRestRequest;
 
 	/**
-	 * Process constructor.
 	 * @param Rest\Route\RouteBase|mixed $route
-	 * @param \WP_REST_Request           $restRequest
 	 */
 	public function __construct( $route, \WP_REST_Request $restRequest ) {
 		$this->setRestRoute( $route );
 		$this->wpRestRequest = $restRequest;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function run() :array {
 		$route = $this->getRestRoute();
 
@@ -111,7 +106,6 @@ abstract class Process {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	abstract protected function process() :array;

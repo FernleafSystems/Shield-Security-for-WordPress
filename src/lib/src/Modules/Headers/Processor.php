@@ -33,11 +33,10 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * Tries to ensure duplicate headers are not sent. Previously sent/supplied headers take priority.
 	 * @param array $wpHeaders
-	 * @return array
 	 */
-	public function addToHeaders( $wpHeaders ) {
+	public function addToHeaders( $wpHeaders ) :array {
 
-		if ( !$this->isHeadersPushed() ) {
+		if ( !$this->pushed ) {
 
 			if ( !is_array( $wpHeaders ) ) {
 				$wpHeaders = [];
@@ -54,24 +53,34 @@ class Processor extends BaseShield\Processor {
 					$wpHeaders[ $header ] = $value;
 				}
 			}
-			$this->setHeadersPushed( true );
+
+			$this->pushed = true;
 		}
-		return $wpHeaders;
+
+		return is_array( $wpHeaders ) ? $wpHeaders : [];
 	}
 
-	/**
-	 * Tries to ensure duplicate headers are not sent.
-	 */
 	public function sendHeaders() {
-		if ( !$this->isHeadersPushed() ) {
-			$aAlreadySent = array_map( 'strtolower', array_keys( $this->getAlreadySentHeaders() ) );
-			foreach ( $this->gatherSecurityHeaders() as $sName => $sValue ) {
-				if ( !in_array( strtolower( $sName ), $aAlreadySent ) ) {
-					@header( sprintf( '%s: %s', $sName, $sValue ) );
+		if ( !$this->pushed ) {
+
+			$sent = array_map( 'strtolower', array_keys( $this->getAlreadySentHeaders() ) );
+			foreach ( $this->gatherSecurityHeaders() as $name => $value ) {
+				if ( !in_array( strtolower( $name ), $sent ) ) {
+					@header( sprintf( '%s: %s', $name, $value ) );
 				}
 			}
-			$this->setHeadersPushed( true );
+
+			$this->pushed = true;
 		}
+	}
+
+	private function gatherSecurityHeaders() :array {
+		$this->addHeader( $this->getReferrerPolicyHeader() );
+		$this->addHeader( $this->getXFrameHeader() );
+		$this->addHeader( $this->getXssProtectionHeader() );
+		$this->addHeader( $this->getContentTypeOptionHeader() );
+		$this->addHeader( $this->setContentSecurityPolicyHeader() );
+		return array_filter( $this->getHeaders() );
 	}
 
 	/**
@@ -81,13 +90,10 @@ class Processor extends BaseShield\Processor {
 		$headers = [];
 
 		if ( function_exists( 'headers_list' ) ) {
-			$sent = headers_list();
-			if ( is_array( $sent ) ) {
-				foreach ( $sent as $header ) {
-					if ( strpos( $header, ':' ) ) {
-						list( $key, $value ) = array_map( 'trim', explode( ':', $header, 2 ) );
-						$headers[ $key ] = $value;
-					}
+			foreach ( headers_list() as $header ) {
+				if ( strpos( $header, ':' ) ) {
+					list( $key, $value ) = array_map( 'trim', explode( ':', $header, 2 ) );
+					$headers[ $key ] = $value;
 				}
 			}
 		}
@@ -111,45 +117,29 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function getXssProtectionHeader() :array {
-		return [ 'X-XSS-Protection' => '1; mode=block' ];
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledXssProtection() ? [ 'X-XSS-Protection' => '1; mode=block' ] : [];
 	}
 
 	private function getContentTypeOptionHeader() :array {
-		return [ 'X-Content-Type-Options' => 'nosniff' ];
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledContentTypeHeader() ? [ 'X-Content-Type-Options' => 'nosniff' ] : [];
 	}
 
 	private function getReferrerPolicyHeader() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return [ 'Referrer-Policy' => $opts->getReferrerPolicyValue() ];
+		return $opts->isReferrerPolicyEnabled() ?
+			[ 'Referrer-Policy' => $opts->getReferrerPolicyValue() ] : [];
 	}
 
 	private function setContentSecurityPolicyHeader() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return [ 'Content-Security-Policy' => implode( ' ', $opts->getCspCustomRules() ) ];
-	}
-
-	private function gatherSecurityHeaders() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		if ( $opts->isReferrerPolicyEnabled() ) {
-			$this->addHeader( $this->getReferrerPolicyHeader() );
-		}
-		if ( $opts->isEnabledXFrame() ) {
-			$this->addHeader( $this->getXFrameHeader() );
-		}
-		if ( $opts->isEnabledXssProtection() ) {
-			$this->addHeader( $this->getXssProtectionHeader() );
-		}
-		if ( $opts->isEnabledContentTypeHeader() ) {
-			$this->addHeader( $this->getContentTypeOptionHeader() );
-		}
-		if ( $opts->isEnabledContentSecurityPolicy() ) {
-			$this->addHeader( $this->setContentSecurityPolicyHeader() );
-		}
-		return $this->getHeaders();
+		return $opts->isEnabledContentSecurityPolicy() ?
+			[ 'Content-Security-Policy' => implode( ' ', $opts->getCspCustomRules() ) ] : [];
 	}
 
 	private function getHeaders() :array {
@@ -160,17 +150,23 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function addHeader( array $header ) {
-		if ( !empty( $header ) && is_array( $header ) ) {
+		if ( !empty( $header ) ) {
 			$this->headers = array_merge( $this->getHeaders(), $header );
 		}
 	}
 
+	/**
+	 * @deprecated 13.0.3
+	 */
 	private function isHeadersPushed() :bool {
 		return (bool)$this->pushed;
 	}
 
-	private function setHeadersPushed( bool $pushed ) :self {
-		$this->pushed = $pushed;
+	/**
+	 * @deprecated 13.0.3
+	 */
+	private function setHeadersPushed() :self {
+		$this->pushed = true;
 		return $this;
 	}
 }

@@ -31,7 +31,6 @@ class Databases {
 	}
 
 	/**
-	 * @param string $dbKey
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 * @throws \Exception
 	 */
