@@ -110,19 +110,19 @@
         "type":        "fixed",
         "title":       "Ensure database states are handled correctly.",
         "description": [],
-        "patch":       "13.0.2"
+        "patch":       "13.0.3"
       },
       {
         "type":        "fixed",
         "title":       "MySQL requirements are checked more flexibly.",
         "description": [],
-        "patch":       "13.0.2"
+        "patch":       "13.0.3"
       },
       {
         "type":        "fixed",
         "title":       "Add a class to Google Authenticator QR image.",
         "description": [],
-        "patch":       "13.0.2"
+        "patch":       "13.0.3"
       }
     ]
   },
