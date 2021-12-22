@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
- * Class SyncVO - property should align with Sync Meta
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
  * @property bool   $is_pro
  * @property bool   $is_mainwp_on
  * @property int    $installed_at

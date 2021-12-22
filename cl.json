@@ -123,6 +123,12 @@
         "title":       "Add a class to Google Authenticator QR image.",
         "description": [],
         "patch":       "13.0.3"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Error with MainWP loading in certain cases.",
+        "description": [],
+        "patch":       "13.0.4"
       }
     ]
   },

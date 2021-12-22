@@ -15,16 +15,16 @@ class SyncVO extends DynPropertiesClass {
 	 */
 	public function __get( string $key ) {
 
-		$mValue = parent::__get( $key );
+		$value = parent::__get( $key );
 
 		switch ( $key ) {
 			case 'meta':
-				$mValue = ( new SyncMetaVO() )->applyFromArray( $mValue );
+				$value = ( new SyncMetaVO() )->applyFromArray( is_array( $value ) ? $value : [] );
 				break;
 			default:
 				break;
 		}
 
-		return $mValue;
+		return $value;
 	}
 }

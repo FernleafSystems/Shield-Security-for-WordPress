@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\{
 	MWPSiteVO,
-	SyncVO};
+	SyncVO
+};
 use MainWP\Dashboard\MainWP_DB;
 
 class LoadShieldSyncData {
@@ -18,6 +19,7 @@ class LoadShieldSyncData {
 		if ( empty( $data ) ) {
 			$data = '[]';
 		}
-		return ( new SyncVO() )->applyFromArray( json_decode( $data, true ) );
+		$decoded = json_decode( $data, true );
+		return ( new SyncVO() )->applyFromArray( is_array( $decoded ) ? $decoded : [] );
 	}
 }
