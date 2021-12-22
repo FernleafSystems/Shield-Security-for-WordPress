@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -38,7 +37,7 @@ class QueueItems {
 		foreach ( [ 'items', 'meta' ] as $key ) {
 			$result[ $key ] = json_decode( base64_decode( $result[ $key ] ), true );
 		}
-		return ( new QueueItemVO() )->applyFromArray( $result );
+		return ( new QueueItemVO() )->applyFromArray( is_array( $result ) ? $result : [] );
 	}
 
 	public function hasNextItem() :bool {
