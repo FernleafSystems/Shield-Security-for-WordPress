@@ -26,7 +26,6 @@ class ClientPluginStatus {
 
 	/**
 	 * TODO: Consider things like global disabled / forceoff
-	 * @return array
 	 */
 	public function detect() :array {
 		$sync = LoadShieldSyncData::Load( $this->getMwpSite() );

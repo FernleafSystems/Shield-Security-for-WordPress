@@ -41,7 +41,8 @@ class ReadOriginalFileContent extends BaseOps {
 		$cacheKey = 'file-content-'.$lock->id;
 		$content = wp_cache_get( $cacheKey, $this->getCon()->prefix( 'filelocker' ) );
 		if ( $content === false ) {
-			$VO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $lock->content, true ) );
+			$decoded = json_decode( $lock->content, true );
+			$VO = ( new OpenSslEncryptVo() )->applyFromArray( is_array( $decoded ) ? $decoded : [] );
 			$content = ( new DecryptFile() )
 				->setMod( $this->getMod() )
 				->retrieve( $VO, $lock->public_key_id );

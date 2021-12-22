@@ -54,7 +54,7 @@ class Lookup {
 					 ] );
 			}
 
-			$geoData = $ipRecord->geo ?? [];
+			$geoData = is_array( $ipRecord->geo ) ? $ipRecord->geo : [];
 		}
 		catch ( \Exception $e ) {
 			$geoData = [];

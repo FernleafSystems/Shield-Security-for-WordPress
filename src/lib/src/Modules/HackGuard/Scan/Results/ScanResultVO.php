@@ -25,7 +25,6 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
 class ScanResultVO extends Record {
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {

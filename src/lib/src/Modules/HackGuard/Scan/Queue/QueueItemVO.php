@@ -23,10 +23,14 @@ class QueueItemVO extends DynPropertiesClass {
 			case 'qitem_id':
 				$value = (int)$value;
 				break;
+			case 'meta':
+				if ( !is_array( $value ) ) {
+					$value = [];
+				}
+				break;
 			default:
 				break;
 		}
 		return $value;
 	}
-
 }
