@@ -16,6 +16,9 @@
     "run_if_wpcli":          false,
     "order":                 50
   },
+  "wpcli":         {
+    "enabled": true
+  },
   "admin_notices": {
     "akismet-running": {
       "id":               "akismet-running",

@@ -17,7 +17,8 @@
     "run_if_wpcli":          true
   },
   "wpcli":            {
-    "root": "hack_guard"
+    "enabled": true,
+    "root":    "hack_guard"
   },
   "menu_items":       [
     {

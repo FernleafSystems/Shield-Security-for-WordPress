@@ -17,7 +17,8 @@
     "order":                 20
   },
   "wpcli":         {
-    "root": "secadmin"
+    "enabled":  true,
+    "cmd_base": "secadmin"
   },
   "admin_notices": {
     "certain-options-restricted": {

@@ -159,6 +159,9 @@ class Options {
 		return ( $this->getRawData_FullFeatureConfig()[ 'properties' ] ?? [] )[ $property ] ?? null;
 	}
 
+	/**
+	 * @deprecated 14.0
+	 */
 	public function getWpCliCfg() :array {
 		return array_merge(
 			[

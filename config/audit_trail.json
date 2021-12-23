@@ -16,6 +16,9 @@
     "run_if_wpcli":          true,
     "order":                 110
   },
+  "wpcli":            {
+    "enabled": true
+  },
   "menu_items":       [
     {
       "title": "Audit Trail",

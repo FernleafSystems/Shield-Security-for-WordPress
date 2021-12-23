@@ -16,6 +16,9 @@
     "run_if_wpcli":          true,
     "order":                 60
   },
+  "wpcli":       {
+    "enabled": true
+  },
   "sections":    [
     {
       "slug":        "section_automatic_updates_for_wordpress_components",

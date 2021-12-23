@@ -16,6 +16,9 @@
     "run_if_wpcli":          false,
     "order":                 110
   },
+  "wpcli":            {
+    "enabled": true
+  },
   "menu_items":       [
     {
       "title": "Traffic Log",
@@ -213,7 +216,7 @@
     }
   ],
   "definitions":      {
-    "events":             {
+    "events": {
       "request_limit_exceeded": {
         "audit_params": [
           "requests",

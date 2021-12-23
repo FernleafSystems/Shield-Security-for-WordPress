@@ -1289,14 +1289,10 @@ abstract class ModCon {
 
 	/**
 	 * @return Shield\Modules\Base\WpCli
-	 * @throws \Exception
 	 */
 	public function getWpCli() {
 		if ( !isset( $this->oWpCli ) ) {
 			$this->oWpCli = $this->loadModElement( 'WpCli' );
-			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-				throw new \Exception( 'WP-CLI not supported' );
-			}
 		}
 		return $this->oWpCli;
 	}

@@ -16,6 +16,9 @@
     "run_if_wpcli":          false,
     "order":                 30
   },
+  "wpcli":       {
+    "enabled": true
+  },
   "sections":    [
     {
       "slug":        "section_firewall_blocking_options",

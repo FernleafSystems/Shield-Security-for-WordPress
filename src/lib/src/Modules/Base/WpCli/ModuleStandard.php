@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 class ModuleStandard extends BaseWpCliCmd {
 
 	/**
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	protected function addCmds() {
 		\WP_CLI::add_command(
@@ -149,52 +149,48 @@ class ModuleStandard extends BaseWpCliCmd {
 		}
 	}
 
-	/**
-	 * @param array $null
-	 * @param array $args
-	 */
 	public function cmdOptSet( array $null, array $args ) {
 		$this->getOptions()->setOpt( $args[ 'key' ], $args[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
 	}
 
 	public function cmdOptList( array $null, array $args ) {
-		$oOpts = $this->getOptions();
-		$oStrings = $this->getMod()->getStrings();
-		$opts = [];
-		foreach ( $oOpts->getOptionsForWpCli() as $sKey ) {
+		$opts = $this->getOptions();
+		$strings = $this->getMod()->getStrings();
+		$optsList = [];
+		foreach ( $opts->getOptionsForWpCli() as $key ) {
 			try {
-				$opts[] = [
-					'key'     => $sKey,
-					'name'    => $oStrings->getOptionStrings( $sKey )[ 'name' ],
-					'type'    => $oOpts->getOptionType( $sKey ),
-					'current' => $oOpts->getOpt( $sKey ),
-					'default' => $oOpts->getOptDefault( $sKey ),
+				$optsList[] = [
+					'key'     => $key,
+					'name'    => $strings->getOptionStrings( $key )[ 'name' ],
+					'type'    => $opts->getOptionType( $key ),
+					'current' => $opts->getOpt( $key ),
+					'default' => $opts->getOptDefault( $key ),
 				];
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		if ( empty( $opts ) ) {
+		if ( empty( $optsList ) ) {
 			\WP_CLI::log( "This module doesn't have any configurable options." );
 		}
 		else {
 			if ( !\WP_CLI\Utils\get_flag_value( $args, 'full', false ) ) {
-				$aKeys = [
+				$allKeys = [
 					'key',
 					'name',
 					'current'
 				];
 			}
 			else {
-				$aKeys = array_keys( $opts[ 0 ] );
+				$allKeys = array_keys( $optsList[ 0 ] );
 			}
 
 			\WP_CLI\Utils\format_items(
 				$args[ 'format' ],
-				$opts,
-				$aKeys
+				$optsList,
+				$allKeys
 			);
 		}
 	}

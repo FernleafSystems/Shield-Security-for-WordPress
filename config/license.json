@@ -16,6 +16,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
   },
+  "wpcli":            {
+    "enabled": true
+  },
   "admin_notices":    {
     "wphashes-token-fail": {
       "id":               "wphashes-token-fail",
