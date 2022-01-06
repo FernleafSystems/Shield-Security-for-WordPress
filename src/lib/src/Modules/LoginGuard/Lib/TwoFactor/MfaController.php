@@ -20,7 +20,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	/**
 	 * @var LoginIntentPage
 	 */
-	private $oLoginIntentPageHandler;
+	private $loginIntentPageHandler;
 
 	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ] );
@@ -37,11 +37,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function onWpLoaded() {
-		( new UserProfile() )
-			->setMfaController( $this )
-			->run();
 		( new MfaProfilesController() )->setMfaController( $this )->execute();
-
 		add_shortcode( 'SHIELD_2FA_LOGIN', function () {
 			return $this->getLoginIntentPageHandler()->renderForm();
 		} );
@@ -154,10 +150,10 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function getLoginIntentPageHandler() :LoginIntentPage {
-		if ( !isset( $this->oLoginIntentPageHandler ) ) {
-			$this->oLoginIntentPageHandler = ( new LoginIntentPage() )->setMfaController( $this );
+		if ( !isset( $this->loginIntentPageHandler ) ) {
+			$this->loginIntentPageHandler = ( new LoginIntentPage() )->setMfaController( $this );
 		}
-		return $this->oLoginIntentPageHandler;
+		return $this->loginIntentPageHandler;
 	}
 
 	/**
@@ -184,15 +180,14 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
-	 * @param bool     $onlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProvidersForUser( \WP_User $user, $onlyActiveProfiles = false ) :array {
+	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
 		$Ps = array_filter( $this->getProviders(),
-			function ( $provider ) use ( $user, $onlyActiveProfiles ) {
+			function ( $provider ) use ( $user, $onlyActive ) {
 				/** @var Provider\BaseProvider $provider */
 				return $provider->isProviderAvailableToUser( $user )
-					   && ( !$onlyActiveProfiles || $provider->isProfileActive( $user ) );
+					   && ( !$onlyActive || $provider->isProfileActive( $user ) );
 			}
 		);
 
@@ -295,7 +290,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
-		return count( $this->getProvidersForUser( $user, true ) ) > 0;
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		return !$mod->isVisitorWhitelisted() && count( $this->getProvidersForUser( $user, true ) ) > 0;
 	}
 
 	public function removeAllFactorsForUser( int $userID ) :StdResponse {

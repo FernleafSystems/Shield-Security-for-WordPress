@@ -2,17 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LicenseHandler {
-
-	use Modules\ModConsumer;
-	use ExecOnce;
+class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'shield_action' ), function ( $action ) {
@@ -44,14 +40,31 @@ class LicenseHandler {
 
 		// performs the license check on-demand
 		add_action( $this->getCon()->prefix( 'adhoc_cron_license_check' ), function () {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
+			$this->runAdhocLicenseCheck();
+		} );
+	}
+
+	/**
+	 * Customer reported that they're using a multilingual system with different hostnames for each language.
+	 * This meant that adhoc lookups that happen on the wrong hostname name request would fail and remove
+	 * the license. So now we tie ad-hoc lookups to the hostname.
+	 *
+	 * This doesn't solve all problems since the ad-hoc lookup is cron-based, and the cron may get triggered
+	 * on the wrong hostname.
+	 */
+	private function runAdhocLicenseCheck() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$licHost = wp_parse_url( $this->getLicense()->url, PHP_URL_HOST );
+		if ( !$this->hasValidWorkingLicense()
+			 || ( !empty( $licHost ) && $licHost === Services::Request()->getHost() ) ) {
 			try {
-				$mod->getLicenseHandler()->verify( true );
+				$mod->getLicenseHandler()->verify();
 			}
 			catch ( \Exception $e ) {
 			}
-		} );
+		}
 	}
 
 	private function canCheck() :bool {
@@ -70,13 +83,13 @@ class LicenseHandler {
 	}
 
 	/**
-	 * @param bool $bSendEmail
+	 * @param bool $sendEmail
 	 */
-	public function deactivate( $bSendEmail = true ) {
+	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
 			$this->getOptions()->setOptAt( 'license_deactivated_at' );
-			if ( $bSendEmail ) {
+			if ( $sendEmail ) {
 				( new LicenseEmails() )
 					->setMod( $this->getMod() )
 					->sendLicenseDeactivatedEmail();
@@ -134,11 +147,9 @@ class LicenseHandler {
 	 * 3) the license is marked as "active"
 	 * 4) the license hasn't expired
 	 * 5) the time since the last check hasn't expired
-	 * @return bool
 	 */
 	public function hasValidWorkingLicense() :bool {
-		$oLic = $this->getLicense();
-		return $oLic->isValid() && $this->isActive();
+		return $this->getLicense()->isValid() && $this->isActive();
 	}
 
 	public function isActive() :bool {
@@ -179,12 +190,11 @@ class LicenseHandler {
 	}
 
 	/**
-	 * @param bool $bForceCheck
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public function verify( $bForceCheck = true ) {
-		if ( $bForceCheck || ( $this->isVerifyRequired() && $this->canCheck() ) ) {
+	public function verify( bool $force = true ) {
+		if ( $force || ( $this->isVerifyRequired() && $this->canCheck() ) ) {
 			( new Verify() )
 				->setMod( $this->getMod() )
 				->run();
@@ -197,9 +207,9 @@ class LicenseHandler {
 	}
 
 	private function canLicenseCheck_FileFlag() :bool {
-		$nMtime = (int)Services::WpFs()->getModifiedTime(
+		$mtime = Services::WpFs()->getModifiedTime(
 			$this->getCon()->paths->forFlag( 'license_check' )
 		);
-		return ( Services::Request()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
+		return ( Services::Request()->ts() - $mtime ) > MINUTE_IN_SECONDS;
 	}
 }

@@ -15,10 +15,7 @@ class LoginIntentPage {
 		echo $this->renderPage();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function renderForm() {
+	public function renderForm() :string {
 		$mfaCon = $this->getMfaCon();
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $mfaCon->getMod();
@@ -114,15 +111,15 @@ class LoginIntentPage {
 	}
 
 	private function renderPage() :string {
-		$oIC = $this->getMfaCon();
+		$IC = $this->getMfaCon();
 		/** @var LoginGuard\ModCon $mod */
-		$mod = $oIC->getMod();
-		$con = $oIC->getCon();
+		$mod = $IC->getMod();
+		$con = $IC->getCon();
 		$req = Services::Request();
 
 		$labels = $con->getLabels();
 		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-		$timeRemaining = $oIC->getLoginIntentExpiresAt() - $req->ts();
+		$timeRemaining = $IC->getLoginIntentExpiresAt() - $req->ts();
 
 		$data = [
 			'strings' => [
