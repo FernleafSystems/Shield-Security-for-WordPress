@@ -137,6 +137,12 @@
         "patch":       "13.0.5"
       },
       {
+        "type":        "improved",
+        "title":       "ShieldPRO license lookups when using separate domains for multilingual site versions.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
         "type":        "fixed",
         "title":       "Prevent a couple of fatal errors when integrating with 3rd parties and their data isn't as expected.",
         "description": [],

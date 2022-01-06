@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
@@ -33,7 +33,7 @@ class HandshakingNonce {
 	/**
 	 * @return int[]
 	 */
-	private function getNonces() {
+	private function getNonces() :array {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getShieldNetApiController()->vo->nonces;
@@ -42,7 +42,6 @@ class HandshakingNonce {
 	/**
 	 * Also filters out expired nonces on-save
 	 * @param int[] $nonces
-	 * @return $this
 	 */
 	private function storeNonces( array $nonces ) {
 		$snapiCon = $this->getCon()
@@ -55,6 +54,5 @@ class HandshakingNonce {
 			}
 		);
 		$snapiCon->storeVoData();
-		return $this;
 	}
 }

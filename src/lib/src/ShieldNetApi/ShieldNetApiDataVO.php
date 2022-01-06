@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class ShieldNetApiDataVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi
  * @property int   $last_handshake_at
  * @property int   $last_handshake_attempt_at
  * @property int   $last_send_iprep_at
