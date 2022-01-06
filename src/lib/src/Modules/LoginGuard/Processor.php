@@ -20,19 +20,23 @@ class Processor extends BaseShield\Processor {
 			->setMod( $mod )
 			->execute();
 
-		if ( !$mod->isVisitorWhitelisted() ) {
-
-			add_action( 'init', function () {
-				$this->launchAntiBot();
-			}, -100 );
-
-			$mod->getLoginIntentController()->execute();
-		}
+		$mod->getLoginIntentController()->execute();
 	}
 
-	private function launchAntiBot() {
+	public function onWpInit() {
 		( new Lib\AntiBot\AntibotSetup() )
 			->setMod( $this->getMod() )
 			->execute();
+	}
+
+	protected function getWpHookPriority( string $hook ) :int {
+		switch ( $hook ) {
+			case 'init':
+				$pri = -100;
+				break;
+			default:
+				$pri = parent::getWpHookPriority( $hook );
+		}
+		return $pri;
 	}
 }

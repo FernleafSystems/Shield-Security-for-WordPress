@@ -129,6 +129,18 @@
         "title":       "Error with MainWP loading in certain cases.",
         "description": [],
         "patch":       "13.0.4"
+      },
+      {
+        "type":        "improved",
+        "title":       "Multi-factor authentication settings are available even when your IP is on the bypass lists.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Prevent a couple of fatal errors when integrating with 3rd parties and their data isn't as expected.",
+        "description": [],
+        "patch":       "13.0.5"
       }
     ]
   },

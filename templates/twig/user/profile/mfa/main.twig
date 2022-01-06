@@ -1,6 +1,11 @@
 <div id="ShieldUserProfileMFA">
 
-	<h3>{{ strings.title }}</h3>
+	<h3>
+		{{ strings.title }}
+		{% if strings.subtitle|default('') is not empty %}
+			<small style="margin-left: 10px">({{ strings.subtitle }})</small>
+		{% endif %}
+	</h3>
 
 	<table>
 		{% if flags.logged_in %}

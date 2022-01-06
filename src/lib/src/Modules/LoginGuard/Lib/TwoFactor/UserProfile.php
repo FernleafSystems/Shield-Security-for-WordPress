@@ -2,18 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 13.0.5
+ */
 class UserProfile {
 
 	use MfaControllerConsumer;
+	use ExecOnce;
 
-	public function run() {
-		if ( is_admin() ) {
-			add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
-			add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
-		}
+	protected function run() {
 	}
 
 	/**
@@ -22,30 +22,6 @@ class UserProfile {
 	 * @param \WP_User $user
 	 */
 	public function addOptionsToUserProfile( $user ) {
-		$oMC = $this->getMfaCon();
-		$WPU = Services::WpUsers();
-		$providers = $oMC->getProvidersForUser( $user );
-		if ( count( $providers ) > 0 ) {
-			$rows = [];
-			foreach ( $providers as $provider ) {
-				$rows[ $provider::SLUG ] = $provider->renderUserProfileOptions( $user );
-			}
-
-			echo $oMC->getMod()
-					 ->renderTemplate(
-						 '/admin/user/profile/mfa/mfa_container.twig',
-						 [
-							 'user_to_edit_is_admin' => $WPU->isUserAdmin( $user ),
-							 'strings'               => [
-								 'title'       => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-								 'provided_by' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
-																											 ->getHumanName() )
-							 ],
-							 'mfa_rows'              => $rows,
-						 ],
-						 true
-					 );
-		}
 	}
 
 	/**
@@ -53,46 +29,5 @@ class UserProfile {
 	 * @param \WP_User $user
 	 */
 	public function addOptionsToUserEditProfile( $user ) {
-		$mfaCon = $this->getMfaCon();
-		$con = $mfaCon->getCon();
-		$WPU = Services::WpUsers();
-		$pluginName = $con->getHumanName();
-
-		$providers = array_map(
-			function ( $provider ) {
-				return $provider->getProviderName();
-			},
-			$mfaCon->getProvidersForUser( $user, true )
-		);
-
-		echo $mfaCon->getMod()
-					->renderTemplate(
-						'/admin/user/profile/mfa/remove_for_other_user.twig',
-						[
-							'flags'   => [
-								'has_factors'      => count( $providers ) > 0,
-								'is_admin_profile' => $WPU->isUserAdmin( $user ),
-								'can_remove'       => $con->isPluginAdmin() || !$WPU->isUserAdmin( $user ),
-							],
-							'vars'    => [
-								'user_id'          => $user->ID,
-								'mfa_factor_names' => $providers,
-							],
-							'strings' => [
-								'title'            => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-								'provided_by'      => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $pluginName ),
-								'currently_active' => __( 'Currently active MFA Providers on this profile are' ),
-								'remove_all'       => __( 'Remove All MFA Providers' ),
-								'remove_all_from'  => __( 'Remove All MFA Providers From This User Profile' ),
-								'remove_warning'   => __( "Certain providers may not be removed if they're enforced." ),
-								'no_providers'     => __( 'There are no MFA providers active on this user account.' ),
-								'only_secadmin'    => sprintf( __( 'Only %s Security Admins may modify the MFA settings of another admin account.' ),
-									$pluginName ),
-								'authenticate'     => sprintf( __( 'You may authenticate with the %s Security Admin system and return here.' ),
-									$pluginName ),
-							],
-						],
-						true
-					);
 	}
 }

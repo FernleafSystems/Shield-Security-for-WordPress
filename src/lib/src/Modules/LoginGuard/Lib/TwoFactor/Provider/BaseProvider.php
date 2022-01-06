@@ -49,7 +49,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string|array
 	 */
 	protected function getSecret( \WP_User $user ) {
@@ -66,7 +65,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return bool
 	 */
 	protected function hasValidSecret( \WP_User $user ) {
@@ -106,7 +104,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	public function resetSecret( \WP_User $user ) {
@@ -144,7 +141,6 @@ abstract class BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string|mixed
 	 */
 	protected function genNewSecret( \WP_User $user ) {
@@ -155,7 +151,6 @@ abstract class BaseProvider {
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @param \WP_User $user
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
@@ -165,8 +160,6 @@ abstract class BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $user
-	 * @return string
 	 */
 	public function renderUserProfileOptions( \WP_User $user ) :string {
 		return $this->getMod()
@@ -179,8 +172,6 @@ abstract class BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $user
-	 * @return string
 	 */
 	public function renderUserProfileCustomForm( \WP_User $user ) :string {
 		$data = $this->getProfileRenderData( $user );

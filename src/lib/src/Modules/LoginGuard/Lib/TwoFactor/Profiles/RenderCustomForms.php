@@ -13,17 +13,25 @@ class RenderCustomForms {
 	private $attributes;
 
 	public function render( array $attributes ) :string {
-		$this->attributes = $attributes;
+		$this->setAttributes( $attributes );
 		return $this->getMfaCon()
 					->getMod()
 					->renderTemplate( '/user/profile/mfa/main.twig', $this->buildRenderData() );
 	}
 
+	public function setAttributes( array $attributes ) {
+		$con = $this->getMfaCon()->getCon();
+		$this->attributes = shortcode_atts(
+			[
+				'title'    => sprintf( __( '%s MFA Options', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'subtitle' => '',
+			],
+			$attributes
+		);
+	}
+
 	private function buildRenderData() :array {
 		$mfaCon = $this->getMfaCon();
-		$con = $mfaCon->getCon();
-		$pluginName = $con->getHumanName();
-
 		$user = $this->getWpUser();
 		$providers = $user instanceof \WP_User ? $mfaCon->getProvidersForUser( $user ) : [];
 		$providerRenders = $user instanceof \WP_User ?
@@ -32,7 +40,7 @@ class RenderCustomForms {
 			}, $providers )
 			: [];
 
-		$data = [
+		return apply_filters( 'shield/render_data_custom_profiles_mfa', [
 			'content' => [
 				'providers' => $providerRenders,
 			],
@@ -41,15 +49,14 @@ class RenderCustomForms {
 				'logged_in'     => $user instanceof \WP_User,
 			],
 			'strings' => [
-				'title'         => sprintf( __( '%s MFA Options', 'wp-simple-firewall' ), $pluginName ),
+				'title'         => esc_html( $this->attributes[ 'title' ] ),
+				'subtitle'      => esc_html( $this->attributes[ 'subtitle' ] ),
 				'not_logged_in' => __( 'Not currently logged-in.', 'wp-simple-firewall' ),
 				'no_providers'  => __( 'There are currently no 2FA providers available on your account.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'provider_data' => ''
 			],
-		];
-
-		return apply_filters( 'shield/render_data_custom_profiles_mfa', $data );
+		] );
 	}
 }
