@@ -143,6 +143,12 @@
         "patch":       "13.0.5"
       },
       {
+        "type":        "improved",
+        "title":       "FluentForms integration wasn't always loading and so SPAM submissions could still come through.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
         "type":        "fixed",
         "title":       "Prevent a couple of fatal errors when integrating with 3rd parties and their data isn't as expected.",
         "description": [],
