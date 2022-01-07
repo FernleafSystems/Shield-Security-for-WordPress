@@ -27,7 +27,7 @@ class WPForms extends Base {
 		}, 1000, 2 );
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'WP Forms';
 	}
 

@@ -14,7 +14,7 @@ class PaidMemberSubscriptions extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Paid Member Subscriptions';
 	}
 

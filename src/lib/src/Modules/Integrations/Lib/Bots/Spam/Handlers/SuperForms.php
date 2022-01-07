@@ -12,7 +12,7 @@ class SuperForms extends Base {
 		}, 1000 );
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Super Forms';
 	}
 

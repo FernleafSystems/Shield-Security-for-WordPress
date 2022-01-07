@@ -15,33 +15,28 @@ abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 
 	protected function run() {
 		array_map(
-			function ( $provider ) {
-				$provider->execute();
-			},
-			$this->getInstalledProviders()
-		);
-	}
-
-	/**
-	 * Inserts the ModCon;
-	 * @return BaseHandler[]
-	 */
-	public function getInstalledProviders() :array {
-		return array_map(
-			function ( $provider ) {
-				return $provider->setMod( $this->getMod() );
+			function ( $providerClass ) {
+				( new $providerClass() )->setMod( $this->getMod() )->execute();
 			},
 			array_filter(
-				$this->enumProviders(),
+				array_intersect_key(
+					$this->enumProviders(),
+					array_flip( $this->getSelectedProviders() )
+				),
 				function ( $provider ) {
-					return $provider::IsProviderInstalled();
+					return call_user_func( $provider.'::IsProviderInstalled' );
 				}
 			)
 		);
 	}
 
 	/**
-	 * @return BaseHandler[]
+	 * @return string[]
+	 */
+	abstract public function getSelectedProviders() :array;
+
+	/**
+	 * @return string[]
 	 */
 	public function enumProviders() :array {
 		return [];

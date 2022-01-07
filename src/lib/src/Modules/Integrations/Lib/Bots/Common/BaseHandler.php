@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseHandler extends ExecOnceModConsumer {
 
-	const SLUG = '';
-
 	protected function canRun() :bool {
 		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
 			   && $this->isEnabled() && static::IsProviderInstalled();
@@ -29,7 +27,7 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 		return false;
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return '';
 	}
 

@@ -17,7 +17,7 @@ class Buddyboss extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'BuddyBoss';
 	}
 

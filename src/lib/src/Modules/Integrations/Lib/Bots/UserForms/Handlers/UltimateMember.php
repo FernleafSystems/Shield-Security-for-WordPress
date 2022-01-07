@@ -37,7 +37,7 @@ class UltimateMember extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Ultimate Member';
 	}
 

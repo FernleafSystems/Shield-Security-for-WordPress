@@ -20,7 +20,7 @@ class FluentForms extends Base {
 			}, 9, 0 );
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Fluent Forms';
 	}
 

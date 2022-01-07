@@ -39,7 +39,7 @@ class WPMembers extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'WP Members';
 	}
 

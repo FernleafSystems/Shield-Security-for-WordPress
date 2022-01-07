@@ -10,7 +10,7 @@ class GravityForms extends Base {
 		}, 1000 );
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Gravity Forms';
 	}
 

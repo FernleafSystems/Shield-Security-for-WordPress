@@ -13,9 +13,7 @@ class Processor extends BaseShield\Processor {
 		$mod->getControllerMWP()->execute();
 
 		if ( !empty( Services::IP()->getRequestIp() ) ) {
-			( new Lib\Bots\Spam\SpamController() )
-				->setMod( $this->getMod() )
-				->execute();
+			$mod->getController_SpamForms()->execute();
 
 			add_action( 'init', function () use ( $mod ) {
 				$mod->getController_UserForms()->execute();
