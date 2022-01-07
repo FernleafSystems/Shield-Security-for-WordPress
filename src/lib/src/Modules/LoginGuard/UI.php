@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 
 class UI extends BaseShield\UI {
@@ -23,11 +24,14 @@ class UI extends BaseShield\UI {
 			$installedButNotEnabledProviders = array_filter(
 				$con->getModule_Integrations()
 					->getController_UserForms()
-					->getInstalledProviders(),
-				function ( $provider ) {
-					return !$provider->isEnabled();
+					->enumProviders(),
+				function ( $providerClass ) {
+					/** @var BaseHandler $provider */
+					$provider = ( new $providerClass() )->setMod( $this->getMod() );
+					return !$provider->isEnabled() && $provider::IsProviderInstalled();
 				}
 			);
+
 			if ( !empty( $installedButNotEnabledProviders ) ) {
 				$warnings[] = sprintf( __( "%s has an integration available to protect the login forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
 					$con->getHumanName(),

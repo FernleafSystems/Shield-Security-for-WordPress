@@ -14,7 +14,7 @@ class EasyDigitalDownloads extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Easy Digital Downloads';
 	}
 

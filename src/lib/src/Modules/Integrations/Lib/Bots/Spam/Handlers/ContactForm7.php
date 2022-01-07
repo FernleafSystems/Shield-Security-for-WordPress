@@ -10,7 +10,7 @@ class ContactForm7 extends Base {
 		}, 1000, 2 );
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'Contact Form 7';
 	}
 

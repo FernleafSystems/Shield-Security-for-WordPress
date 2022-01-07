@@ -61,7 +61,7 @@ class MemberPress extends Base {
 		return $errors;
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'MemberPress';
 	}
 

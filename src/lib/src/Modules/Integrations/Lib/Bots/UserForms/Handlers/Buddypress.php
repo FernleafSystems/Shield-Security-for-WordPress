@@ -14,7 +14,7 @@ class Buddypress extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'BuddyPress';
 	}
 

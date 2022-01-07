@@ -34,7 +34,7 @@ class LearnPress extends Base {
 		return $maybeError;
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'LearnPress';
 	}
 

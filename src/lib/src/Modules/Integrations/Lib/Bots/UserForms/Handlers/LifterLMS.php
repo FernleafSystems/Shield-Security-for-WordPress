@@ -37,7 +37,7 @@ class LifterLMS extends Base {
 		return $valid;
 	}
 
-	protected function getProviderName() :string {
+	public function getProviderName() :string {
 		return 'LifterLMS';
 	}
 
