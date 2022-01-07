@@ -57,8 +57,8 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		$mod = $this->getMod();
 
 		$licHost = wp_parse_url( $this->getLicense()->url, PHP_URL_HOST );
-		if ( !$this->hasValidWorkingLicense()
-			 || ( !empty( $licHost ) && $licHost === Services::Request()->getHost() ) ) {
+		$reqHost = Services::Request()->getHost();
+		if ( !$this->hasValidWorkingLicense() || empty( $licHost ) || empty( $reqHost ) || ( $licHost === $reqHost ) ) {
 			try {
 				$mod->getLicenseHandler()->verify();
 			}
