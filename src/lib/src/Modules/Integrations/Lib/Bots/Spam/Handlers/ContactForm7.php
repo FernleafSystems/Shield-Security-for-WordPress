@@ -10,10 +10,6 @@ class ContactForm7 extends Base {
 		}, 1000, 2 );
 	}
 
-	public function getProviderName() :string {
-		return 'Contact Form 7';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return defined( 'WPCF7_TEXT_DOMAIN' ) && WPCF7_TEXT_DOMAIN === 'contact-form-7';
 	}

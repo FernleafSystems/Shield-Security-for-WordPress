@@ -20,10 +20,6 @@ class FluentForms extends Base {
 			}, 9, 0 );
 	}
 
-	public function getProviderName() :string {
-		return 'Fluent Forms';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return defined( 'FLUENTFORM' )
 			   && @class_exists( '\FluentForm\App' )

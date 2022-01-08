@@ -10,12 +10,7 @@ class Groundhogg extends Base {
 		}, 1000 );
 	}
 
-	public function getProviderName() :string {
-		return 'Groundhogg';
-	}
-
 	public static function IsProviderInstalled() :bool {
-		return defined( 'GROUNDHOGG_TEXT_DOMAIN' ) && defined( 'GROUNDHOGG_VERSION' )
-			   && version_compare( GROUNDHOGG_VERSION, '2.4.5.5', '>=' );
+		return defined( 'GROUNDHOGG_VERSION' ) && version_compare( GROUNDHOGG_VERSION, '2.4.5.5', '>=' );
 	}
 }

@@ -14,10 +14,6 @@ class PaidMemberSubscriptions extends Base {
 		}
 	}
 
-	public function getProviderName() :string {
-		return 'Paid Member Subscriptions';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' );
 	}

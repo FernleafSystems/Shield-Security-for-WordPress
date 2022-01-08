@@ -37,10 +37,6 @@ class UltimateMember extends Base {
 		}
 	}
 
-	public function getProviderName() :string {
-		return 'Ultimate Member';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return function_exists( '\UM' ) && @class_exists( '\UM' ) && method_exists( '\UM', 'form' );
 	}

@@ -6,15 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 
 class SpamController extends BaseBotDetectionController {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getSelectedProviders() :array {
-		return $this->getOptions()->getOpt( 'form_spam_providers', [] );
-	}
-
-	protected function isEnabled() :bool {
-		return !empty( $this->getSelectedProviders() );
+	public function getSelectedProvidersOptKey() :string {
+		return 'form_spam_providers';
 	}
 
 	/**

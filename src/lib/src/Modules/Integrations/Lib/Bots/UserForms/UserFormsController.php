@@ -16,17 +16,8 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 			   && $loginOpts->isEnabledAntiBot();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getSelectedProviders() :array {
-		/** @var Integrations\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getUserFormProviders();
-	}
-
-	protected function isEnabled() :bool {
-		return !empty( $this->getSelectedProviders() );
+	public function getSelectedProvidersOptKey() :string {
+		return 'user_form_providers';
 	}
 
 	/**

@@ -21,13 +21,12 @@ class UI extends BaseShield\UI {
 				$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
 			}
 
+			$modIntegrations = $con->getModule_Integrations();
 			$installedButNotEnabledProviders = array_filter(
-				$con->getModule_Integrations()
-					->getController_UserForms()
-					->enumProviders(),
-				function ( $providerClass ) {
+				$modIntegrations->getController_UserForms()->enumProviders(),
+				function ( $providerClass ) use ( $modIntegrations ) {
 					/** @var BaseHandler $provider */
-					$provider = ( new $providerClass() )->setMod( $this->getMod() );
+					$provider = ( new $providerClass() )->setMod( $modIntegrations );
 					return !$provider->isEnabled() && $provider::IsProviderInstalled();
 				}
 			);

@@ -38,10 +38,6 @@ class NinjaForms extends Base {
 		}, 1000 );
 	}
 
-	public function getProviderName() :string {
-		return 'Ninja Forms';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( '\Ninja_Forms' );
 	}
