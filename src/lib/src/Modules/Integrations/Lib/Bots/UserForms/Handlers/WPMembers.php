@@ -39,10 +39,6 @@ class WPMembers extends Base {
 		}
 	}
 
-	public function getProviderName() :string {
-		return 'WP Members';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' );
 	}

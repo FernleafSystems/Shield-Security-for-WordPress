@@ -14,10 +14,6 @@ class EasyDigitalDownloads extends Base {
 		}
 	}
 
-	public function getProviderName() :string {
-		return 'Easy Digital Downloads';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return function_exists( 'edd_set_error' ) && @class_exists( 'Easy_Digital_Downloads' );
 	}

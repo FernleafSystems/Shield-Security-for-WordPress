@@ -33,7 +33,7 @@ class UI extends Modules\BaseShield\UI {
 				if ( $loginGuardOpts->isEnabledAntiBot() ) {
 					$notices[] = sprintf( '%s: %s %s', __( 'Note', 'wp-simple-firewall' ),
 						sprintf(
-							__( "The following forms are protected by AntiBot Detection: %s.", 'wp-simple-firewall' ),
+							__( "The following types of user forms are protected by AntiBot Detection: %s.", 'wp-simple-firewall' ),
 							$locations
 						),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
@@ -89,7 +89,7 @@ class UI extends Modules\BaseShield\UI {
 						$con->getHumanName(),
 						implode( ', ', array_map(
 							function ( $provider ) {
-								return $provider->getProviderName();
+								return $provider->getHandlerName();
 							}, $installedButNotEnabledProviders
 						) )
 					);

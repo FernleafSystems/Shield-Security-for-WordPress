@@ -22,10 +22,6 @@ class ProfileBuilder extends Base {
 		return $errors;
 	}
 
-	public function getProviderName() :string {
-		return 'Profile Builder';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return defined( 'PROFILE_BUILDER_VERSION' );
 	}

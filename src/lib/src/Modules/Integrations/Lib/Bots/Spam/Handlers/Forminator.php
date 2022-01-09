@@ -10,10 +10,6 @@ class Forminator extends Base {
 		}, 1000 );
 	}
 
-	public function getProviderName() :string {
-		return 'Forminator';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return defined( 'FORMINATOR_VERSION' ) && @class_exists( '\Forminator' );
 	}

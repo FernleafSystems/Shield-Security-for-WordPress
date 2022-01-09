@@ -132,6 +132,12 @@
       },
       {
         "type":        "improved",
+        "title":       "Options to provide custom roles for Email 2FA enforcement is now free-form.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "improved",
         "title":       "Multi-factor authentication settings are available even when your IP is on the bypass lists.",
         "description": [],
         "patch":       "13.0.5"

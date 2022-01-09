@@ -74,10 +74,6 @@ class WordPress extends Base {
 		return $wpError;
 	}
 
-	public function getProviderName() :string {
-		return 'WordPress';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return true;
 	}

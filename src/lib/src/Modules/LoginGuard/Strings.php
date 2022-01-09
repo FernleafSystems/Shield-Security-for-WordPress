@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
@@ -215,8 +216,13 @@ class Strings extends Base\Strings {
 			case 'two_factor_auth_user_roles' :
 				$name = sprintf( '%s - %s', __( 'Enforce', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
 				$summary = __( 'All User Roles Subject To Email Authentication', 'wp-simple-firewall' );
-				$desc = __( 'Enforces email-based authentication on all users with the selected roles.', 'wp-simple-firewall' )
-						.'<br /><strong>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'This setting only applies to %s.', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) ) ).'</strong>';
+				$desc = [
+					__( 'Enforces email-based authentication on all users with the selected roles.', 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong>',
+						sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'This setting only applies to %s.', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) ) ) ),
+					sprintf( '%s:<br /><ul><li><code>%s</code></li></ul>', __( 'Available Roles', 'wp-simple-firewall' ),
+						implode( '</code></li><li><code>', Services::WpUsers()->getAvailableUserRoles() ) )
+				];
 				break;
 
 			case 'enable_google_recaptcha_login' :

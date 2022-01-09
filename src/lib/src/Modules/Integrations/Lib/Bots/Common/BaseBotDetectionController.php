@@ -33,7 +33,11 @@ abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 	/**
 	 * @return string[]
 	 */
-	abstract public function getSelectedProviders() :array;
+	public function getSelectedProviders() :array {
+		return $this->getOptions()->getOpt( $this->getSelectedProvidersOptKey(), [] );
+	}
+
+	abstract public function getSelectedProvidersOptKey() :string;
 
 	/**
 	 * @return string[]
@@ -43,6 +47,6 @@ abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 	}
 
 	protected function isEnabled() :bool {
-		return false;
+		return !empty( $this->getSelectedProviders() );
 	}
 }

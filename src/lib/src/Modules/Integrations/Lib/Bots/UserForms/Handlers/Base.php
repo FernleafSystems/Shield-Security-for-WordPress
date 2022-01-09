@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
@@ -54,6 +55,12 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 		return empty( $this->auditUser ) ? 'unknown' : $this->auditUser;
 	}
 
+	public function getHandlerController() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getController_UserForms();
+	}
+
 	/**
 	 * @param string $action
 	 * @return $this
@@ -79,7 +86,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 				sprintf( 'user_form_bot_%s', self::$isBot ? 'fail' : 'pass' ),
 				[
 					'audit_params' => [
-						'form_provider' => $this->getProviderName(),
+						'form_provider' => $this->getHandlerName(),
 						'action'        => $this->getAuditAction(),
 						'username'      => $this->getAuditUser(),
 					]
@@ -87,12 +94,6 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 			);
 		}
 		return self::$isBot;
-	}
-
-	public function isEnabled() :bool {
-		/** @var Integrations\Options $opts */
-		$opts = $this->getOptions();
-		return in_array( $this->getHandlerSlug(), $opts->getUserFormProviders() );
 	}
 
 	protected function getErrorMessage() :string {

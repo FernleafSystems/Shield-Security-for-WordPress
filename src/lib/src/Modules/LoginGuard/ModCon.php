@@ -48,6 +48,8 @@ class ModCon extends BaseShield\ModCon {
 			$opts->setOpt( 'enable_google_recaptcha_login', 'disabled' );
 			$opts->setOpt( 'enable_login_gasp_check', 'N' );
 		}
+
+		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
 	}
 
 	public function ensureCorrectCaptchaConfig() {
@@ -148,24 +150,12 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @param bool $bAsOptDefaults
-	 * @return array
+	 * @deprecated 13.0.5
 	 */
-	public function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
-		$aTwoAuthRoles = [
-			'type' => 'multiple_select',
-			0      => __( 'Subscribers', 'wp-simple-firewall' ),
-			1      => __( 'Contributors', 'wp-simple-firewall' ),
-			2      => __( 'Authors', 'wp-simple-firewall' ),
-			3      => __( 'Editors', 'wp-simple-firewall' ),
-			8      => __( 'Administrators', 'wp-simple-firewall' )
-		];
-		if ( $bAsOptDefaults ) {
-			unset( $aTwoAuthRoles[ 'type' ] );
-			unset( $aTwoAuthRoles[ 0 ] );
-			return array_keys( $aTwoAuthRoles );
-		}
-		return $aTwoAuthRoles;
+	public function getOptEmailTwoFactorRolesDefaults() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->getEmail2FaRoles();
 	}
 
 	public function getGaspKey() :string {

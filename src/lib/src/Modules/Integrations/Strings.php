@@ -39,9 +39,7 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $section
-	 * @return array
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	public function getSectionStrings( string $section ) :array {
 
@@ -80,14 +78,12 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => is_array( $summary ) ? $summary : [],
+			'summary'     => $summary,
 		];
 	}
 
 	/**
-	 * @param string $key
-	 * @return array
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->getCon();

@@ -10,11 +10,11 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'enable_mainwp', 'Y' );
 	}
 
+	/**
+	 * @deprecated 13.0.5
+	 */
 	public function getUserFormProviders() :array {
 		$userForms = $this->getOpt( 'user_form_providers' );
-		if ( !is_array( $userForms ) ) {
-			$userForms = [];
-		}
 		if ( !in_array( 'wordpress', $userForms ) ) {
 			$userForms[] = 'wordpress';
 			$this->setOpt( 'user_form_providers', $userForms );

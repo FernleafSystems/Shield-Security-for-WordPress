@@ -33,10 +33,6 @@ class WpForo extends Base {
 		];
 	}
 
-	public function getProviderName() :string {
-		return 'wpForo';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return function_exists( 'WPF' ) && @class_exists( 'wpForo' ) && !empty( WPF()->tools_antispam[ 'spam_filter' ] );
 	}
