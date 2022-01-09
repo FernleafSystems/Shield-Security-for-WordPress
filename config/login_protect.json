@@ -213,54 +213,12 @@
       "key":           "two_factor_auth_user_roles",
       "section":       "section_2fa_email",
       "advanced":      true,
-      "type":          "multiple_select",
+      "type":          "array",
       "default":       [
         "contributor",
         "author",
         "editor",
         "administrator"
-      ],
-      "value_options": [
-        {
-          "value_key": "subscriber",
-          "text":      "Subscribers"
-        },
-        {
-          "value_key": "contributor",
-          "text":      "Contributors"
-        },
-        {
-          "value_key": "author",
-          "text":      "Authors"
-        },
-        {
-          "value_key": "editor",
-          "text":      "Editors"
-        },
-        {
-          "value_key": "administrator",
-          "text":      "Administrators"
-        },
-        {
-          "value_key": "customer",
-          "text":      "[Woo] Customer"
-        },
-        {
-          "value_key": "shop_manager",
-          "text":      "[Woo/EDD] Shop Manager"
-        },
-        {
-          "value_key": "shop_accountant",
-          "text":      "[EDD] Shop Accountant"
-        },
-        {
-          "value_key": "shop_worker",
-          "text":      "[EDD] Shop Worker"
-        },
-        {
-          "value_key": "edd_subscriber",
-          "text":      "[EDD] Customer"
-        }
       ],
       "link_info":     "https://shsec.io/4v",
       "link_blog":     "",

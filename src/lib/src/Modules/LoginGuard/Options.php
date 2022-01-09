@@ -31,17 +31,15 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getEmail2FaRoles() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$roles = $this->getOpt( 'two_factor_auth_user_roles', [] );
-		if ( empty( $roles ) || !is_array( $roles ) ) {
-			$roles = $mod->getOptEmailTwoFactorRolesDefaults();
-			$this->setOpt( 'two_factor_auth_user_roles', $roles );
-		}
-		if ( $this->isPremium() ) {
-			$roles = apply_filters( 'odp-shield-2fa_email_user_roles', $roles );
-		}
-		return is_array( $roles ) ? $roles : $mod->getOptEmailTwoFactorRolesDefaults();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$roles = apply_filters(
+			'shield/2fa_email_enforced_user_roles',
+			apply_filters( 'odp-shield-2fa_email_user_roles', $this->getOpt( 'two_factor_auth_user_roles' ) )
+		);
+		return array_unique( array_filter( array_map( 'sanitize_key',
+			is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
+		) ) );
 	}
 
 	public function getIfCanSendEmailVerified() :bool {
