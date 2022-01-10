@@ -11,54 +11,47 @@ class MfaSkip {
 	use Shield\Modules\ModConsumer;
 
 	/**
-	 * @param \WP_User $oUser
+	 * @param \WP_User $user
 	 */
-	public function addMfaSkip( \WP_User $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+	public function addMfaSkip( \WP_User $user ) {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
-		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		$aHashes = is_array( $oMeta->hash_loginmfa ) ? $oMeta->hash_loginmfa : [];
-		$aHashes[ $this->getAgentHash() ] = Services::Request()->ts();
+		$meta = $this->getCon()->getUserMeta( $user );
+		$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
+		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
-		$nMaxExpires = $oOpts->getMfaSkip();
-		if ( $nMaxExpires > 0 ) {
-			$aHashes = array_filter( $aHashes,
-				function ( $nTS ) use ( $nMaxExpires ) {
-					return Services::Request()->ts() - $nTS < $nMaxExpires;
+		$maxExpires = $opts->getMfaSkip();
+		if ( $maxExpires > 0 ) {
+			$hashes = array_filter( $hashes,
+				function ( $ts ) use ( $maxExpires ) {
+					return Services::Request()->ts() - $ts < $maxExpires;
 				}
 			);
 		}
 
-		$oMeta->hash_loginmfa = $aHashes;
+		$meta->hash_loginmfa = $hashes;
 	}
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	public function canMfaSkip( \WP_User $oUser ) {
+	public function canMfaSkip( \WP_User $user ) :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		$req = Services::Request();
 
-		$bCanSkip = false;
+		$canSkip = false;
 
 		if ( $opts->isMfaSkip() ) {
-			$sAgentHash = $this->getAgentHash();
-			$oMeta = $this->getCon()->getUserMeta( $oUser );
-			$aHashes = is_array( $oMeta->hash_loginmfa ) ? $oMeta->hash_loginmfa : [];
-			$bCanSkip = isset( $aHashes[ $sAgentHash ] )
-						&& ( (int)$aHashes[ $sAgentHash ] + $opts->getMfaSkip() ) > $req->ts();
+			$agentHash = $this->getAgentHash();
+			$meta = $this->getCon()->getUserMeta( $user );
+			$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
+			$canSkip = isset( $hashes[ $agentHash ] )
+					   && ( (int)$hashes[ $agentHash ] + $opts->getMfaSkip() ) > $req->ts();
 		}
 
-		return $bCanSkip;
+		return $canSkip;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getAgentHash() {
+	private function getAgentHash() :string {
 		return md5( serialize( [
 			Services::IP()->getRequestIp(),
 			Services::Request()->getUserAgent()

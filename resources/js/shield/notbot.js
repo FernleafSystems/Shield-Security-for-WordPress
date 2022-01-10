@@ -2,10 +2,12 @@
  * @var shield_vars_notbotjs object
  */
 if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !== typeof undefined ) {
-	var Shield_Antibot = new function () {
+	let Shield_Antibot = new function () {
 
 		let request_count = 0;
 		let can_send_request = true;
+		let nonce_cook = '';
+		let ajaxurl = shield_vars_notbotjs.ajax.not_bot.ajaxurl;
 
 		this.initialise = function () {
 			/**
@@ -15,6 +17,12 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			 * Early execution also helps mitigate the case where login requests are
 			 * sent quickly, before browser has fired NotBot request.
 			 */
+			delete shield_vars_notbotjs.ajax.not_bot.ajaxurl;
+			nonce_cook = getCookie( 'shield-notbot-nonce' );
+			if ( typeof nonce_cook !== typeof undefined && nonce_cook.length > 0 ) {
+				/** Overcome limitations of page caching by passing nonce via cookie **/
+				shield_vars_notbotjs.ajax.not_bot.exec_nonce = nonce_cook;
+			}
 			if ( shield_vars_notbotjs.flags.run ) {
 				fire();
 			}
@@ -24,7 +32,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		 * @since 12.0.10 - rather than auto send request every page load, check for cookie repeatedly and send if
 		 *     absent.
 		 */
-		var fire = function () {
+		let fire = function () {
 			if ( can_send_request && request_count < 10 ) {
 				let current = getCookie( 'icwp-wpsf-notbot' );
 				if ( current === undefined || typeof (current) === 'undefined' ) {
@@ -37,10 +45,12 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		/**
 		 * We use the cookie to help ensure we don't send unnecessary requests and keep checking
 		 */
-		var sendReq = function () {
+		let sendReq = function () {
 			request_count++;
 
 			let xhr = new XMLHttpRequest();
+			xhr.open( "POST", ajaxurl, true );
+			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;' );
 
 			/**
 			 * Ensures that if there's an error with the AJAX, we don't keep retrying the requests.
@@ -61,14 +71,12 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 				}
 			}
 
-			xhr.open( "POST", shield_vars_notbotjs.hrefs.ajax, true );
-			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;' );
-			xhr.send( shield_vars_notbotjs.ajax.not_bot );
+			xhr.send( (new URLSearchParams( shield_vars_notbotjs.ajax.not_bot )).toString() );
 		};
 
-		var getCookie = function ( name ) {
-			var value = "; " + document.cookie;
-			var parts = value.split( "; " + name + "=" );
+		let getCookie = function ( name ) {
+			let value = "; " + document.cookie;
+			let parts = value.split( "; " + name + "=" );
 			if ( parts.length === 2 ) return parts.pop().split( ";" ).shift();
 		};
 	}();
