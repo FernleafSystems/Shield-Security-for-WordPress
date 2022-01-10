@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
-/**
- * Trait ModConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules
- */
 trait ModConsumer {
 
 	/**

@@ -11,7 +11,6 @@ class ValidateLoginIntentRequest {
 	use MfaControllerConsumer;
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function run() :bool {

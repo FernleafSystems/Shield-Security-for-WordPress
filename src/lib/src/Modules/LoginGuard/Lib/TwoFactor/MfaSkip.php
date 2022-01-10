@@ -10,9 +10,6 @@ class MfaSkip {
 
 	use Shield\Modules\ModConsumer;
 
-	/**
-	 * @param \WP_User $user
-	 */
 	public function addMfaSkip( \WP_User $user ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
@@ -52,9 +49,14 @@ class MfaSkip {
 	}
 
 	private function getAgentHash() :string {
-		return md5( serialize( [
-			Services::IP()->getRequestIp(),
-			Services::Request()->getUserAgent()
-		] ) );
+		$hashData = apply_filters( 'shield/2fa_remember_me_params', $this->getDefaultHashParams() );
+		return md5( serialize( empty( $hashData ) ? $this->getDefaultHashParams() : $hashData ) );
+	}
+
+	private function getDefaultHashParams() :array {
+		return [
+			'ip'         => Services::IP()->getRequestIp(),
+			'user_agent' => Services::Request()->getUserAgent()
+		];
 	}
 }

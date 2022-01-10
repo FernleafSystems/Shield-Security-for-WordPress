@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
-/**
- * Trait OptsConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules
- */
 trait OptsConsumer {
 
 	/**
