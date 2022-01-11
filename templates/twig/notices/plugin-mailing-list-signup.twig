@@ -3,12 +3,8 @@
 {% block notice_body %}
 	<div class="row">
 		<div class="col">
-			{% include '/snippets/optin_form_drip_inline.twig' %}
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			{{ strings.summary }}
+			<p>{{ strings.summary }}</p>
+			<p><a class="button" target="_blank" href="{{ hrefs.form }}">{{ strings.yes }}</a></p>
 		</div>
 	</div>
 {% endblock %}

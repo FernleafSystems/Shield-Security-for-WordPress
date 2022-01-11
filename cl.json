@@ -156,13 +156,13 @@
       },
       {
         "type":        "improved",
-        "title":       "NotBot Javascript is improved to better handle server timeouts.",
+        "title":       "NotBot Javascript is improved to better handle server timeouts and work around Page Caching limitations.",
         "description": [],
         "patch":       "13.0.5"
       },
       {
         "type":        "fixed",
-        "title":       "Prevent a couple of fatal errors when integrating with 3rd parties and their data isn't as expected.",
+        "title":       "Prevent some fatal errors when integrating with 3rd parties and their data isn't as expected.",
         "description": [],
         "patch":       "13.0.5"
       }

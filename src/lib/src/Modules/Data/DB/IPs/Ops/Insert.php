@@ -9,7 +9,6 @@ class Insert extends Base\Insert {
 
 	/**
 	 * @param Record $record
-	 * @return bool
 	 */
 	public function insert( $record ) :bool {
 		return (bool)Services::WpDb()->doSql( sprintf(
