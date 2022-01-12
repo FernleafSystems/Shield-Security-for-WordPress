@@ -19,6 +19,10 @@ class Handler extends Base\Handler {
 			->query();
 	}
 
+	public function cleanLabel( string $label ) :string {
+		return trim( empty( $label ) ? '' : preg_replace( '#[^\sa-z0-9_-]#i', '', $label ) );
+	}
+
 	/**
 	 * @param int $timestamp
 	 * @return bool
