@@ -61,10 +61,6 @@ class MemberPress extends Base {
 		return $errors;
 	}
 
-	protected function getProviderName() :string {
-		return 'MemberPress';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return function_exists( 'mepr_autoloader' ) || @class_exists( '\MeprAccountCtrl' );
 	}

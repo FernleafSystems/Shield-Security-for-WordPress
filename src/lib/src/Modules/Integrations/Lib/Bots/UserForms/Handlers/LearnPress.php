@@ -34,10 +34,6 @@ class LearnPress extends Base {
 		return $maybeError;
 	}
 
-	protected function getProviderName() :string {
-		return 'LearnPress';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'LearnPress' );
 	}

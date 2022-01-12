@@ -42,8 +42,19 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
+		$this->sendNonceCookie();
 		$this->enqueueJS();
 		$this->nonceJs();
+	}
+
+	protected function sendNonceCookie() {
+		if ( $this->isForcedForOptimisationPlugins() ) {
+			Services::Response()->cookieSet(
+				'shield-notbot-nonce',
+				$this->getMod()->getAjaxActionData( 'not_bot' )[ 'exec_nonce' ],
+				10
+			);
+		}
 	}
 
 	protected function enqueueJS() {
@@ -58,20 +69,12 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 	 */
 	private function nonceJs() {
 		add_filter( 'shield/custom_localisations', function ( array $localz ) {
-
-			$ajaxData = $this->getMod()->getAjaxActionData( 'not_bot' );
-			$ajaxHref = $ajaxData[ 'ajaxurl' ];
-			unset( $ajaxData[ 'ajaxurl' ] );
-
 			$localz[] = [
 				'shield/notbot',
 				'shield_vars_notbotjs',
 				apply_filters( 'shield/notbot_data_js', [
 					'ajax'  => [
-						'not_bot' => http_build_query( $ajaxData )
-					],
-					'hrefs' => [
-						'ajax' => $ajaxHref
+						'not_bot' => $this->getMod()->getAjaxActionData( 'not_bot' )
 					],
 					'flags' => [
 						'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),

@@ -74,5 +74,8 @@ class Processor extends BaseShield\Processor {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
+		if ( @function_exists( '\wp_cache_setting' ) ) {
+			@wp_cache_setting( 'wp_super_cache_late_init', 1 );
+		}
 	}
 }

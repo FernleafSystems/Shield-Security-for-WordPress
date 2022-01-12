@@ -16,10 +16,6 @@ class SupportCandy extends Base {
 		}, 1000 );
 	}
 
-	protected function getProviderName() :string {
-		return 'SupportCandy';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'Support_Candy' )
 			   && defined( 'WPSC_VERSION' ) && version_compare( WPSC_VERSION, '2.2.3', '>=' );

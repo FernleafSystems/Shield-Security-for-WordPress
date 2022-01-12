@@ -129,6 +129,42 @@
         "title":       "Error with MainWP loading in certain cases.",
         "description": [],
         "patch":       "13.0.4"
+      },
+      {
+        "type":        "improved",
+        "title":       "Options to provide custom roles for Email 2FA enforcement is now free-form.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "improved",
+        "title":       "Multi-factor authentication settings are available even when your IP is on the bypass lists.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "improved",
+        "title":       "ShieldPRO license lookups when using separate domains for multilingual site versions.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "improved",
+        "title":       "FluentForms integration wasn't always loading and so SPAM submissions could still come through.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "improved",
+        "title":       "NotBot Javascript is improved to better handle server timeouts and work around Page Caching limitations.",
+        "description": [],
+        "patch":       "13.0.5"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Prevent some fatal errors when integrating with 3rd parties and their data isn't as expected.",
+        "description": [],
+        "patch":       "13.0.5"
       }
     ]
   },

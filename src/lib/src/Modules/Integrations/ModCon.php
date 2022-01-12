@@ -17,6 +17,11 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $userFormsCon;
 
+	/**
+	 * @var Lib\Bots\Spam\SpamController
+	 */
+	private $spamFormsCon;
+
 	public function getControllerMWP() :Lib\MainWP\Controller {
 		if ( empty( $this->mwp ) ) {
 			$this->mwp = ( new Lib\MainWP\Controller() )
@@ -25,10 +30,16 @@ class ModCon extends BaseShield\ModCon {
 		return $this->mwp;
 	}
 
+	public function getController_SpamForms() :Lib\Bots\Spam\SpamController {
+		if ( empty( $this->spamFormsCon ) ) {
+			$this->spamFormsCon = ( new Lib\Bots\Spam\SpamController() )->setMod( $this );
+		}
+		return $this->spamFormsCon;
+	}
+
 	public function getController_UserForms() :Lib\Bots\UserForms\UserFormsController {
-		if ( !$this->userFormsCon instanceof Lib\Bots\UserForms\UserFormsController ) {
-			$this->userFormsCon = ( new Lib\Bots\UserForms\UserFormsController() )
-				->setMod( $this );
+		if ( empty( $this->userFormsCon ) ) {
+			$this->userFormsCon = ( new Lib\Bots\UserForms\UserFormsController() )->setMod( $this );
 		}
 		return $this->userFormsCon;
 	}

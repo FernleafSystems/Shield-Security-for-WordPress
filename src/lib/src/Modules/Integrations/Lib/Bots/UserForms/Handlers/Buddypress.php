@@ -14,10 +14,6 @@ class Buddypress extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
-		return 'BuddyPress';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( '\BuddyPress' );
 	}

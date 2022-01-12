@@ -16,10 +16,6 @@ class ElementorPro extends Base {
 		}, 1000, 2 );
 	}
 
-	protected function getProviderName() :string {
-		return 'Elementor Pro';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return defined( 'ELEMENTOR_PRO_VERSION' ) && @function_exists( 'elementor_pro_load_plugin' );
 	}

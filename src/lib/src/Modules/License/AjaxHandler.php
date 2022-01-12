@@ -58,7 +58,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	private function ajaxExec_LicenseHandling() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$sHandler = $mod->getLicenseHandler();
+		$licHandler = $mod->getLicenseHandler();
 
 		$success = false;
 		$msg = 'Unsupported license action';
@@ -67,14 +67,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		if ( $sLicenseAction == 'clear' ) {
 			$success = true;
-			$sHandler->deactivate( false );
-			$sHandler->clearLicense();
+			$licHandler->deactivate( false );
+			$licHandler->clearLicense();
 			$msg = __( 'Success', 'wp-simple-firewall' ).'! '
 				   .__( 'Reloading page', 'wp-simple-firewall' ).'...';
 		}
 		elseif ( $sLicenseAction == 'check' ) {
 
-			$nCheckInterval = $sHandler->getLicenseNotCheckedForInterval();
+			$nCheckInterval = $licHandler->getLicenseNotCheckedForInterval();
 			if ( $nCheckInterval < 20 ) {
 				$nWait = 20 - $nCheckInterval;
 				$msg = sprintf(
@@ -84,8 +84,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			}
 			else {
 				try {
-					$success = $sHandler->verify( true )
-										->hasValidWorkingLicense();
+					$success = $licHandler->verify( true )
+										  ->hasValidWorkingLicense();
 					$msg = $success ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 				}
 				catch ( \Exception $e ) {

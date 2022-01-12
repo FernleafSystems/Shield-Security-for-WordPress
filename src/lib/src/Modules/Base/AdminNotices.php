@@ -26,14 +26,14 @@ class AdminNotices {
 	}
 
 	protected function ajaxExec_DismissAdminNotice() :array {
-		$aAjaxResponse = [];
+		$ajaxResponse = [];
 
-		$sNoticeId = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
+		$noticeID = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
 
 		foreach ( $this->getAdminNotices() as $notice ) {
-			if ( $sNoticeId == $notice->id ) {
+			if ( $noticeID == $notice->id ) {
 				$this->setNoticeDismissed( $notice );
-				$aAjaxResponse = [
+				$ajaxResponse = [
 					'success'   => true,
 					'message'   => 'Admin notice dismissed', //not currently seen
 					'notice_id' => $notice->id,
@@ -43,22 +43,22 @@ class AdminNotices {
 		}
 
 		// leave response empty if it doesn't apply here, so other modules can process it.
-		return $aAjaxResponse;
+		return $ajaxResponse;
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO[] $aNotices
+	 * @param Shield\Utilities\AdminNotices\NoticeVO[] $notices
 	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
 	 */
-	public function addNotices( $aNotices ) {
-		return array_merge( $aNotices, $this->buildNotices() );
+	public function addNotices( $notices ) {
+		return array_merge( $notices, $this->buildNotices() );
 	}
 
 	/**
 	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
 	 */
-	protected function buildNotices() {
-		$aNotices = [];
+	protected function buildNotices() :array {
+		$notices = [];
 
 		foreach ( $this->getAdminNotices() as $notice ) {
 			$this->preProcessNotice( $notice );
@@ -66,7 +66,7 @@ class AdminNotices {
 				try {
 					$this->processNotice( $notice );
 					if ( $notice->display ) {
-						$aNotices[] = $notice;
+						$notices[] = $notice;
 					}
 				}
 				catch ( \Exception $e ) {
@@ -74,7 +74,7 @@ class AdminNotices {
 			}
 		}
 
-		return $aNotices;
+		return $notices;
 	}
 
 	/**
@@ -145,21 +145,17 @@ class AdminNotices {
 		$notice->template = '/notices/'.$notice->id;
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return bool
-	 */
-	protected function isNoticeDismissed( $notice ) {
-		$bDismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
+	protected function isNoticeDismissed( NoticeVO $notice ) :bool {
+		$dismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
 
-		$aDisd = $this->getMod()->getDismissedNotices();
-		$bDismissedMod = isset( $aDisd[ $notice->id ] ) && $aDisd[ $notice->id ] > 0;
+		$allDisd = $this->getMod()->getDismissedNotices();
+		$dismissedMod = isset( $allDisd[ $notice->id ] ) && $allDisd[ $notice->id ] > 0;
 
-		if ( !$notice->per_user && $bDismissedUser && !$bDismissedMod ) {
+		if ( !$notice->per_user && $dismissedUser && !$dismissedMod ) {
 			$this->setNoticeDismissed( $notice );
 		}
 
-		return $bDismissedUser || $bDismissedMod;
+		return $dismissedUser || $dismissedMod;
 	}
 
 	/**
@@ -170,72 +166,58 @@ class AdminNotices {
 		return true;
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return bool
-	 */
-	protected function isNoticeDismissedForCurrentUser( $notice ) {
-		$bDismissed = false;
+	protected function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
+		$dismissed = false;
 
 		$meta = $this->getCon()->getCurrentUserMeta();
 		if ( $meta instanceof PluginUserMeta ) {
-			$sNoticeMetaKey = $this->getNoticeMetaKey( $notice );
+			$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
-			if ( isset( $meta->{$sNoticeMetaKey} ) ) {
-				$bDismissed = true;
+			if ( isset( $meta->{$noticeMetaKey} ) ) {
+				$dismissed = true;
 
 				// migrate from old-style array storage to plain Timestamp
-				if ( is_array( $meta->{$sNoticeMetaKey} ) ) {
-					$meta->{$sNoticeMetaKey} = $meta->{$sNoticeMetaKey}[ 'time' ];
+				if ( is_array( $meta->{$noticeMetaKey} ) ) {
+					$meta->{$noticeMetaKey} = $meta->{$noticeMetaKey}[ 'time' ];
 				}
 			}
 		}
 
-		return $bDismissed;
+		return $dismissed;
 	}
 
 	/**
-	 * @param NoticeVO $notice
 	 * @throws \Exception
 	 */
 	protected function processNotice( NoticeVO $notice ) {
 		throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return $this
-	 */
-	protected function setNoticeDismissed( $notice ) {
-		$nTs = Services::Request()->ts();
+	protected function setNoticeDismissed( NoticeVO $notice ) {
+		$ts = Services::Request()->ts();
 
 		$meta = $this->getCon()->getCurrentUserMeta();
-		$sNoticeMetaKey = $this->getNoticeMetaKey( $notice );
+		$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
 		if ( $notice->per_user ) {
 			if ( $meta instanceof PluginUserMeta ) {
-				$meta->{$sNoticeMetaKey} = $nTs;
+				$meta->{$noticeMetaKey} = $ts;
 			}
 		}
 		else {
 			$mod = $this->getMod();
-			$aDismissed = $mod->getDismissedNotices();
-			$aDismissed[ $notice->id ] = $nTs;
-			$mod->setDismissedNotices( $aDismissed );
+			$allDismissed = $mod->getDismissedNotices();
+			$allDismissed[ $notice->id ] = $ts;
+			$mod->setDismissedNotices( $allDismissed );
 
 			// Clear out any old
 			if ( $meta instanceof PluginUserMeta ) {
-				unset( $meta->{$sNoticeMetaKey} );
+				unset( $meta->{$noticeMetaKey} );
 			}
 		}
-		return $this;
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return string
-	 */
-	private function getNoticeMetaKey( $notice ) {
+	private function getNoticeMetaKey( NoticeVO $notice ) :string {
 		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
 	}
 }

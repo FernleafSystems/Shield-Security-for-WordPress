@@ -11,7 +11,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class AntibotSetup extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return !Services::WpUsers()->isUserLoggedIn();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		return !$mod->isVisitorWhitelisted() && !Services::WpUsers()->isUserLoggedIn();
 	}
 
 	protected function run() {

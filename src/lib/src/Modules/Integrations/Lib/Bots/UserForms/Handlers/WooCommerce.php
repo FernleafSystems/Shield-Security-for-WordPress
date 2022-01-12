@@ -52,10 +52,6 @@ class WooCommerce extends Base {
 		return $wpError;
 	}
 
-	protected function getProviderName() :string {
-		return 'WooCommerce';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( 'WooCommerce' );
 	}

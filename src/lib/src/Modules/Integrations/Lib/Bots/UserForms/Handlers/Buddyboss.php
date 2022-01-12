@@ -17,10 +17,6 @@ class Buddyboss extends Base {
 		}
 	}
 
-	protected function getProviderName() :string {
-		return 'BuddyBoss';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( '\BuddyPress' )
 			   && method_exists( '\BuddyPress', 'instance' )

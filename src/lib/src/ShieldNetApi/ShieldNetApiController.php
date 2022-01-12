@@ -13,8 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputa
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class ShieldNetApiController
- * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi
  * @property ShieldNetApiDataVO $vo
  */
 class ShieldNetApiController extends DynPropertiesClass {

@@ -98,24 +98,24 @@ class License extends Base\WpCli\BaseWpCliCmd {
 			if ( $this->getCon()->isPremiumActive() ) {
 				WP_CLI::log( 'Premium license is already active. Re-checking...' );
 			}
-			$bSuccess = $mod
+			$success = $mod
 				->getLicenseHandler()
 				->verify()
 				->hasValidWorkingLicense();
-			$sMessage = $bSuccess ? __( 'Valid license found and installed.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+			$msg = $success ? __( 'Valid license found and installed.', 'wp-simple-firewall' )
+				: __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 		}
 		catch ( \Exception $e ) {
-			$bSuccess = false;
-			$sMessage = $e->getMessage();
+			$success = false;
+			$msg = $e->getMessage();
 		}
 
-		$bSuccess ? WP_CLI::success( $sMessage ) : WP_CLI::error( $sMessage );
+		$success ? WP_CLI::success( $msg ) : WP_CLI::error( $msg );
 	}
 
 	/**
 	 * License checking WP-CLI cmds may be run if you're not premium,
 	 * or you're premium and you haven't switched it off (parent).
-	 * @inheritDoc
 	 */
 	protected function canRun() :bool {
 		return !$this->getCon()->isPremiumActive() || parent::canRun();

@@ -6,28 +6,28 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 
 class SpamController extends BaseBotDetectionController {
 
-	protected function isEnabled() :bool {
-		return !empty( $this->getOptions()->getOpt( 'form_spam_providers' ) );
+	public function getSelectedProvidersOptKey() :string {
+		return 'form_spam_providers';
 	}
 
 	/**
-	 * @return Handlers\Base[]
+	 * @inheritDoc
 	 */
 	public function enumProviders() :array {
 		return [
-			new Handlers\ContactForm7(),
-			new Handlers\ElementorPro(),
-			new Handlers\FormidableForms(),
-			new Handlers\FluentForms(),
-			new Handlers\Forminator(),
-			new Handlers\Groundhogg(),
-			new Handlers\GravityForms(),
-			new Handlers\KaliForms(),
-			new Handlers\NinjaForms(),
-			new Handlers\SuperForms(),
-			new Handlers\SupportCandy(),
-			new Handlers\WPForms(),
-			new Handlers\WpForo(),
+			'contactform7'    => Handlers\ContactForm7::class,
+			'elementorpro'    => Handlers\ElementorPro::class,
+			'fluentforms'     => Handlers\FluentForms::class,
+			'formidableforms' => Handlers\FormidableForms::class,
+			'forminator'      => Handlers\Forminator::class,
+			'gravityforms'    => Handlers\GravityForms::class,
+			'groundhogg'      => Handlers\Groundhogg::class,
+			'kaliforms'       => Handlers\KaliForms::class,
+			'ninjaforms'      => Handlers\NinjaForms::class,
+			'superforms'      => Handlers\SuperForms::class,
+			'supportcandy'    => Handlers\SupportCandy::class,
+			'wpforms'         => Handlers\WPForms::class,
+			'wpforo'          => Handlers\WpForo::class,
 		];
 	}
 }

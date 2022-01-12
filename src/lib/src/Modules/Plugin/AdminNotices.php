@@ -179,27 +179,17 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'notice_attributes' => [],
 			'strings'           => [
 				'yes'            => "Yes please! I'd love to join in and learn more",
-				'no'             => "No thanks, I'm not interested in such groups",
-				'your_name'      => __( 'Your Name', 'wp-simple-firewall' ),
-				'your_email'     => __( 'Your Email', 'wp-simple-firewall' ),
-				'signup'         => __( 'Sign-Up', 'wp-simple-firewall' ),
-				'dismiss'        => "No thanks, I'm not interested in such informative groups",
+				'dismiss'        => "No thanks",
 				'summary'        => sprintf( 'The %s team is helping raise awareness of WP Security issues
 				and to provide guidance with the %s plugin.', $name, $name ),
-				'privacy_policy' => sprintf(
-					'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
-					$opts->getDef( 'href_privacy_policy' )
-				),
-				'consent'        => __( 'I agree to Ts & Cs', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'privacy_policy' => $opts->getDef( 'href_privacy_policy' )
+				'form' => 'https://shsec.io/shieldpluginnewsletter'
 			],
 			'install_days'      => $opts->getInstallationDays(),
 			'vars'              => [
 				'name'         => $user->first_name,
 				'user_email'   => $user->user_email,
-				'drip_form_id' => $notice->drip_form_id
 			]
 		];
 	}

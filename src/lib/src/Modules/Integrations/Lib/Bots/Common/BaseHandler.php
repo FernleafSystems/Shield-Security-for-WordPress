@@ -7,31 +7,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseHandler extends ExecOnceModConsumer {
 
-	const SLUG = '';
-
 	protected function canRun() :bool {
-		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
-			   && $this->isEnabled() && static::IsProviderInstalled();
+		return static::IsProviderInstalled()
+			   && $this->isEnabled()
+			   && ( $this->getCon()->isPremiumActive() || !$this->isProOnly() );
 	}
 
-	protected function isBot() :bool {
-		return $this->getCon()
-					->getModule_IPs()
-					->getBotSignalsController()
-					->isBot( Services::IP()->getRequestIp() );
-	}
-
-	public function isEnabled() :bool {
-		return false;
-	}
-
-	public static function IsProviderInstalled() :bool {
-		return false;
-	}
-
-	protected function getProviderName() :string {
-		return '';
-	}
+	/**
+	 * @return BaseBotDetectionController|mixed
+	 */
+	abstract public function getHandlerController();
 
 	public function getHandlerSlug() :string {
 		try {
@@ -41,6 +26,43 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 			$slug = '';
 		}
 		return $slug;
+	}
+
+	public function getHandlerName() :string {
+		$name = 'Undefined Name';
+		$slug = $this->getHandlerSlug();
+
+		$valueOptions = $this->getOptions()
+							 ->getOptDefinition(
+								 $this->getHandlerController()->getSelectedProvidersOptKey()
+							 )[ 'value_options' ];
+
+		foreach ( $valueOptions as $valueOption ) {
+			if ( $valueOption[ 'value_key' ] === $slug ) {
+				$name = __( $valueOption[ 'text' ], 'wp-simple-firewall' );
+				break;
+			}
+		}
+		return $name;
+	}
+
+	protected function isBot() :bool {
+		return $this->getCon()
+					->getModule_IPs()
+					->getBotSignalsController()
+					->isBot( Services::IP()->getRequestIp() );
+	}
+
+	protected function isSpam_Human() :bool {
+		return false;
+	}
+
+	public function isEnabled() :bool {
+		return in_array( $this->getHandlerSlug(), $this->getHandlerController()->getSelectedProviders() );
+	}
+
+	public static function IsProviderInstalled() :bool {
+		return false;
 	}
 
 	protected function isProOnly() :bool {

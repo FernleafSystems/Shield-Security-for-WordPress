@@ -16,29 +16,27 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 			   && $loginOpts->isEnabledAntiBot();
 	}
 
-	protected function isEnabled() :bool {
-		/** @var Integrations\Options $opts */
-		$opts = $this->getOptions();
-		return !empty( $opts->getUserFormProviders() );
+	public function getSelectedProvidersOptKey() :string {
+		return 'user_form_providers';
 	}
 
 	/**
-	 * @return Handlers\Base[]
+	 * @inheritDoc
 	 */
 	public function enumProviders() :array {
 		return [
-			new Handlers\Buddyboss(),
-			new Handlers\Buddypress(),
-			new Handlers\EasyDigitalDownloads(),
-			new Handlers\LearnPress(),
-			new Handlers\LifterLMS(),
-			new Handlers\MemberPress(),
-			new Handlers\PaidMemberSubscriptions(),
-			new Handlers\ProfileBuilder(),
-			new Handlers\UltimateMember(),
-			new Handlers\WooCommerce(),
-			new Handlers\WordPress(),
-			new Handlers\WPMembers(),
+			'buddyboss'               => Handlers\Buddyboss::class,
+			'buddypress'              => Handlers\Buddypress::class,
+			'easydigitaldownloads'    => Handlers\EasyDigitalDownloads::class,
+			'learnpress'              => Handlers\LearnPress::class,
+			'lifterlms'               => Handlers\LifterLMS::class,
+			'memberpress'             => Handlers\MemberPress::class,
+			'paidmembersubscriptions' => Handlers\PaidMemberSubscriptions::class,
+			'profilebuilder'          => Handlers\ProfileBuilder::class,
+			'ultimatemember'          => Handlers\UltimateMember::class,
+			'woocommerce'             => Handlers\WooCommerce::class,
+			'wordpress'               => Handlers\WordPress::class,
+			'wpmembers'               => Handlers\WPMembers::class,
 		];
 	}
 }

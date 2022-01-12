@@ -12,10 +12,6 @@ class SuperForms extends Base {
 		}, 1000 );
 	}
 
-	protected function getProviderName() :string {
-		return 'Super Forms';
-	}
-
 	public static function IsProviderInstalled() :bool {
 		return @class_exists( '\SUPER_Forms' )
 			   && isset( \SUPER_Forms::$version )

@@ -202,6 +202,7 @@ class Options {
 	public function isValidOptionValueType( string $key, $value ) :bool {
 		switch ( $this->getOptionType( $key ) ) {
 			case 'array':
+			case 'multiple_select':
 				$valid = is_array( $value );
 				break;
 			default:
@@ -398,8 +399,7 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $mDefault
+	 * @param mixed $mDefault
 	 * @return mixed
 	 */
 	public function getOpt( string $key, $mDefault = false ) {
@@ -413,7 +413,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
 	 * @param mixed  $mDefault
 	 * @return mixed|null
 	 */
@@ -427,20 +426,17 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
 	 * @param mixed  $mValueToTest
 	 * @param bool   $strict
-	 * @return bool
 	 */
 	public function isOpt( string $key, $mValueToTest, $strict = false ) :bool {
 		return $strict ? $this->getOpt( $key ) === $mValueToTest : $this->getOpt( $key ) == $mValueToTest;
 	}
 
 	/**
-	 * @param string $key
 	 * @return string|null
 	 */
-	public function getOptionType( $key ) {
+	public function getOptionType( string $key ) {
 		return $this->getOptDefinition( $key )[ 'type' ] ?? null;
 	}
 

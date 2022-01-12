@@ -15,24 +15,33 @@ class Processor extends BaseShield\Processor {
 		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
 			return;
 		}
-
+//
+//		/** @var Options $opts */
+//		$opts = $this->getOptions();
+//		var_dump( $opts->getEmail2FaRoles() );
+//		die(0);
+//;
 		( new Lib\Rename\RenameLogin() )
 			->setMod( $mod )
 			->execute();
 
-		if ( !$mod->isVisitorWhitelisted() ) {
-
-			add_action( 'init', function () {
-				$this->launchAntiBot();
-			}, -100 );
-
-			$mod->getLoginIntentController()->execute();
-		}
+		$mod->getLoginIntentController()->execute();
 	}
 
-	private function launchAntiBot() {
+	public function onWpInit() {
 		( new Lib\AntiBot\AntibotSetup() )
 			->setMod( $this->getMod() )
 			->execute();
+	}
+
+	protected function getWpHookPriority( string $hook ) :int {
+		switch ( $hook ) {
+			case 'init':
+				$pri = -100;
+				break;
+			default:
+				$pri = parent::getWpHookPriority( $hook );
+		}
+		return $pri;
 	}
 }
