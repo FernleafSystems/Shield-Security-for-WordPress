@@ -171,6 +171,12 @@
         "title":       "Improved handling of ClassicPress versions and file scanning for migrated WP sites.",
         "description": [],
         "patch":       "13.0.6"
+      },
+      {
+        "type":        "changed",
+        "title":       "Official WP.org themes that are inactive no longer display a warning in results tables.",
+        "description": [],
+        "patch":       "13.0.6"
       }
     ]
   },
