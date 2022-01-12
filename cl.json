@@ -181,7 +181,9 @@
       {
         "type":        "fixed",
         "title":       "[Minor Security Vulnerability] An authenticated (administrator+) Persistent XSS.",
-        "description": [],
+        "description": [
+          "Privately disclosed to us by Yoru Oni - thank you."
+        ],
         "href":        "https://shsec.io/kh",
         "patch":       "13.0.6"
       }
