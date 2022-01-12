@@ -165,6 +165,12 @@
         "title":       "Prevent some fatal errors when integrating with 3rd parties and their data isn't as expected.",
         "description": [],
         "patch":       "13.0.5"
+      },
+      {
+        "type":        "improved",
+        "title":       "Improved handling of ClassicPress versions and file scanning for migrated WP sites.",
+        "description": [],
+        "patch":       "13.0.6"
       }
     ]
   },

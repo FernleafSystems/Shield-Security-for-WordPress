@@ -117,11 +117,11 @@ class Collate {
 
 		$data = [];
 
-		foreach ( $oWpPlugins->getPluginsAsVo() as $oVO ) {
-			if ( $filterByActive === $oVO->active ) {
-				$data[ $oVO->Name ] = sprintf( '%s / %s / %s',
-					$oVO->Version, $oVO->active ? 'Active' : 'Deactivated',
-					$oVO->hasUpdate() ? 'Update Available' : 'No Update'
+		foreach ( $oWpPlugins->getPluginsAsVo() as $VO ) {
+			if ( $filterByActive === $VO->active ) {
+				$data[ $VO->Name ] = sprintf( '%s / %s / %s',
+					$VO->Version, $VO->active ? 'Active' : 'Deactivated',
+					$VO->hasUpdate() ? 'Update Available' : 'No Update'
 				);
 			}
 		}
@@ -268,7 +268,7 @@ class Collate {
 
 	private function getServiceIPs() :array {
 		return [
-			'ips'=>var_export(Services::ServiceProviders()::GetProviderIPs(),true),
+			'ips' => var_export( Services::ServiceProviders()::GetProviderIPs(), true ),
 
 		];
 	}
@@ -276,6 +276,15 @@ class Collate {
 	private function getWordPressSummary() :array {
 		$WP = Services::WpGeneral();
 		$data = [
+			'URL - Home' => $WP->getHomeUrl(),
+			'URL - Site' => $WP->getWpUrl(),
+			'WP'         => $WP->getVersion( true ),
+		];
+		if ( $WP->isClassicPress() ) {
+			$data[ 'ClassicPress' ] = $WP->getVersion();
+		}
+
+		return array_merge( $data, [
 			'URL - Home'  => $WP->getHomeUrl(),
 			'URL - Site'  => $WP->getWpUrl(),
 			'WP'          => $WP->getVersion( true ),
@@ -289,11 +298,6 @@ class Collate {
 				sprintf( 'User: <code>%s</code>', DB_USER ),
 				sprintf( 'Prefix: <code>%s</code>', Services::WpDb()->getPrefix() ),
 			],
-		];
-		if ( $WP->isClassicPress() ) {
-			$data[ 'ClassicPress' ] = $WP->getVersion();
-		}
-
-		return $data;
+		] );
 	}
 }
