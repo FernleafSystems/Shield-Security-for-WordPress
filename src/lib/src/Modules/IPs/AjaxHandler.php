@@ -111,7 +111,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
-			$label = $formParams[ 'label' ] ?? '';
+			$label = (string)$formParams[ 'label' ] ?? '';
 			$IP = null;
 			switch ( $list ) {
 				case $mod::LIST_MANUAL_WHITE:
@@ -119,7 +119,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						$IP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
 							->setMod( $mod )
 							->setIP( $ip )
-							->toManualWhitelist( (string)$label );
+							->toManualWhitelist( $label );
 					}
 					catch ( \Exception $e ) {
 					}
@@ -130,7 +130,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						$IP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
 							->setMod( $mod )
 							->setIP( $ip )
-							->toManualBlacklist( (string)$label );
+							->toManualBlacklist( $label );
 					}
 					catch ( \Exception $e ) {
 					}

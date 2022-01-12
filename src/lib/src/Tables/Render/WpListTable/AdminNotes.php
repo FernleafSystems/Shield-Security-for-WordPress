@@ -4,12 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
 class AdminNotes extends Base {
 
-	/**
-	 * @param array $aItem
-	 * @return string
-	 */
-	public function column_note( $aItem ) {
-		return $aItem[ 'note' ].$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] );
+	public function column_note( array $item ) :string {
+		return esc_html( $item[ 'note' ] ).$this->buildActions( [ $this->getActionButton_Delete( $item[ 'id' ] ) ] );
 	}
 
 	/**

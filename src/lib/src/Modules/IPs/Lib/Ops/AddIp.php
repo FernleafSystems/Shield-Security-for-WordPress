@@ -62,11 +62,10 @@ class AddIp {
 	}
 
 	/**
-	 * @param string $label
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	public function toManualBlacklist( $label = '' ) {
+	public function toManualBlacklist( string $label = '' ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$srvIP = Services::IP();
@@ -126,11 +125,10 @@ class AddIp {
 	}
 
 	/**
-	 * @param string $label
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	public function toManualWhitelist( $label = '' ) {
+	public function toManualWhitelist( string $label = '' ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$srvIP = Services::IP();
@@ -182,13 +180,10 @@ class AddIp {
 	}
 
 	/**
-	 * @param string   $list
-	 * @param string   $label
-	 * @param int|null $lastAccess
 	 * @return Databases\IPs\EntryVO|null
 	 * @throws \Exception
 	 */
-	private function add( string $list, $label = '', $lastAccess = null ) {
+	private function add( string $list, string $label = '', int $accessAt = 0 ) {
 		$IP = null;
 
 		/** @var ModCon $mod */
@@ -201,16 +196,13 @@ class AddIp {
 		$tmp = $dbh->getVo();
 		$tmp->ip = $this->getIP();
 		$tmp->list = $list;
-		$tmp->label = empty( $label ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $label );
-		if ( is_numeric( $lastAccess ) && $lastAccess > 0 ) {
-			$tmp->last_access_at = $lastAccess;
-		}
+		$tmp->label = (string)$label;
+		$tmp->last_access_at = $accessAt;
 
 		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
 			/** @var Databases\IPs\EntryVO $IP */
 			$IP = $dbh->getQuerySelector()
-					  ->setWheresFromVo( $tmp )
-					  ->first();
+					  ->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 		}
 
 		if ( !$IP instanceof Databases\IPs\EntryVO ) {

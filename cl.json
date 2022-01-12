@@ -177,6 +177,13 @@
         "title":       "Official WP.org themes that are inactive no longer display a warning in results tables.",
         "description": [],
         "patch":       "13.0.6"
+      },
+      {
+        "type":        "fixed",
+        "title":       "[Minor Security Vulnerability] An authenticated (administrator+) Persistent XSS.",
+        "description": [],
+        "href":        "https://shsec.io/kh",
+        "patch":       "13.0.6"
       }
     ]
   },
