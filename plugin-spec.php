@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "13.0.4",
-    "release_timestamp":       1640169200,
-    "build":                   "202112.2201",
+    "version":                 "13.0.5",
+    "release_timestamp":       1641981192,
+    "build":                   "202201.1201",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -83,91 +83,95 @@
     },
     "register":     {
       "css": {
-        "bootstrap":              {
+        "bootstrap":                {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css"
         },
-        "bootstrap-datepicker":   {
+        "bootstrap-datepicker":     {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
           "deps": [
             "bootstrap"
           ]
         },
-        "bootstrap-select":       {
+        "bootstrap-select":         {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css",
           "deps": [
             "bootstrap"
           ]
         },
-        "select2":                {
+        "select2":                  {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css",
           "deps": [
             "plugin"
           ]
         },
-        "datatables-bootstrap":   {
+        "datatables-bootstrap":     {
           "url":  "https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css",
           "deps": [
             "bootstrap"
           ]
         },
-        "datatables-searchpanes": {
+        "datatables-searchpanes":   {
           "url":  "https://cdn.datatables.net/searchpanes/1.4.0/css/searchPanes.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
         },
-        "datatables-select":      {
+        "datatables-select":        {
           "url":  "https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
         },
-        "datatables-buttons":     {
+        "datatables-buttons":       {
           "url":  "https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
         },
-        "global-plugin":          {},
-        "plugin":                 {
+        "global-plugin":            {},
+        "plugin":                   {
           "deps": [
             "bootstrap",
             "global-plugin"
           ]
         },
-        "shield/wizard":          {
+        "shield/wizard":            {
           "deps": [
             "bootstrap",
             "global-plugin"
           ]
         },
-        "jquery/featherlight":    {
+        "jquery/featherlight":      {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.css"
         },
-        "chartist":               {
+        "chartist":                 {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.css"
         },
-        "chartist-plugin-legend": {
+        "chartist-plugin-legend":   {
           "deps": [
             "chartist"
           ]
         },
-        "introjs":                {
+        "introjs":                  {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/introjs.min.css"
         },
-        "shield/charts":          {
+        "shield/userprofile": {
+          "deps":   [],
+          "footer": true
+        },
+        "shield/charts":            {
           "deps": [
             "plugin"
           ]
         },
-        "shield/dialog":          {
+        "shield/dialog":            {
           "deps":   [
             "wp-wp-jquery-ui-dialog"
           ],
           "footer": true
         },
-        "shield/mainwp":          {},
-        "shield/datatables":      {
+        "shield/mainwp":            {},
+        "shield/datatables":        {
           "deps": [
             "datatables-select",
             "datatables-buttons",
@@ -176,7 +180,7 @@
             "tp/highlightjs"
           ]
         },
-        "shield/scanners":        {
+        "shield/scanners":          {
           "deps": [
             "datatables-select",
             "datatables-buttons",
@@ -184,7 +188,7 @@
             "tp/highlightjs"
           ]
         },
-        "tp/highlightjs":         {
+        "tp/highlightjs":           {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css"
         }
       },

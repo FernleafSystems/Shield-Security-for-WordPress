@@ -545,8 +545,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $action
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getNonceActionData( string $action = '' ) :array {
@@ -754,24 +752,24 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param array $aPlugins
+	 * @param array $plugins
 	 * @return array
 	 */
-	public function doPluginLabels( $aPlugins ) {
+	public function doPluginLabels( $plugins ) {
 		$labels = $this->getLabels();
 		if ( empty( $labels ) ) {
-			return $aPlugins;
+			return $plugins;
 		}
 
 		$file = $this->base_file;
 		// For this plugin, overwrite any specified settings
-		if ( array_key_exists( $file, $aPlugins ) ) {
+		if ( array_key_exists( $file, $plugins ) ) {
 			foreach ( $labels as $sLabelKey => $sLabel ) {
-				$aPlugins[ $file ][ $sLabelKey ] = $sLabel;
+				$plugins[ $file ][ $sLabelKey ] = $sLabel;
 			}
 		}
 
-		return $aPlugins;
+		return $plugins;
 	}
 
 	public function getLabels() :array {
@@ -863,7 +861,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return Config\ConfigVO
 	 * @throws \Exception
 	 */
 	private function loadConfig() :Config\ConfigVO {
@@ -882,7 +879,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $key
 	 * @return string|null
 	 */
 	public function getPluginSpec_Path( string $key ) {
@@ -890,7 +886,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $key
 	 * @return mixed|null
 	 */
 	protected function getCfgProperty( string $key ) {
@@ -1165,7 +1160,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
@@ -1195,7 +1189,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $slug
 	 * @return Shield\Modules\Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
@@ -1294,7 +1287,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param array $modProps
 	 * @return Shield\Modules\Base\ModCon|mixed
 	 * @throws \Exception
 	 */
