@@ -121,7 +121,20 @@ class Strings extends Base\Strings {
 					__( 'These REST API namespaces will be excluded from the Anonymous API restriction.', 'wp-simple-firewall' ),
 					sprintf( __( 'Some plugins (e.g. %s) use the REST API anonymously so you need to provide exclusions for them to work correctly.', 'wp-simple-firewall' ),
 						'Contact Form 7' ),
+					__( "Please contact the developer of a plugin to ask them for their REST API namespace if you need it." ),
+					__( 'Some common namespaces' ).':',
 				];
+				
+				$defaultEx = [
+					'contact-form-7' => 'Contact Form 7',
+					'tribe'          => 'The Events Calendar',
+					'jetpack'        => 'JetPack',
+					'woocommerce'    => 'WooCommerce',
+					'wpstatistics'   => 'WP Statistics',
+				];
+				foreach ( $defaultEx as $defNamespace => $defName ) {
+					$description[] = sprintf( '<code>%s</code> - %s', $defNamespace, $defName );
+				}
 				break;
 
 			case 'disable_file_editing' :
