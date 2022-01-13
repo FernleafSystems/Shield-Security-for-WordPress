@@ -130,6 +130,7 @@ class MfaProfilesController {
 			},
 			$mfaCon->getProvidersForUser( $user, true )
 		);
+		$this->rendered = true;
 
 		echo $mfaCon->getMod()->renderTemplate( '/admin/user/profile/mfa/remove_for_other_user.twig', [
 			'flags'   => [
