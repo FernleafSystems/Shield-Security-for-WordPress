@@ -84,8 +84,6 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $key
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
@@ -110,29 +108,38 @@ class Strings extends Base\Strings {
 				$name = __( 'Anonymous Rest API', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Disable The %s System', 'wp-simple-firewall' ), __( 'Anonymous Rest API', 'wp-simple-firewall' ) );
 				$description = [
-					__( 'You can choose to completely disable anonymous access to the REST API.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Enabling this option may break plugins that use the REST API for your site visitors.', 'wp-simple-firewall' ) )
+					__( 'You can completely disable anonymous access to the REST API.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Enabling this option may break plugins that use the REST API for your site visitors.', 'wp-simple-firewall' ) ),
+					__( 'Use the exclusions option to allow anonymous access to specific API endpoints.', 'wp-simple-firewall' ),
 				];
 				break;
 
 			case 'api_namespace_exclusions' :
 				$name = __( 'Rest API Exclusions', 'wp-simple-firewall' );
 				$summary = __( 'Anonymous REST API Exclusions', 'wp-simple-firewall' );
-				$description = __( 'Any namespaces provided here will be excluded from the Anonymous API restriction.', 'wp-simple-firewall' );
+				$description = [
+					__( 'These REST API namespaces will be excluded from the Anonymous API restriction.', 'wp-simple-firewall' ),
+					sprintf( __( 'Some plugins (e.g. %s) use the REST API anonymously so you need to provide exclusions for them to work correctly.', 'wp-simple-firewall' ),
+						'Contact Form 7' ),
+				];
 				break;
 
 			case 'disable_file_editing' :
 				$name = __( 'Disable File Editing', 'wp-simple-firewall' );
 				$summary = __( 'Disable Ability To Edit Files From Within WordPress', 'wp-simple-firewall' );
-				$description = __( 'Removes the option to directly edit any files from within the WordPress admin area.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Equivalent to setting "DISALLOW_FILE_EDIT" to TRUE.', 'wp-simple-firewall' );
+				$description = [
+					__( 'Removes the option to directly edit any files from within the WordPress admin area.', 'wp-simple-firewall' ),
+					__( 'Equivalent to setting "DISALLOW_FILE_EDIT" to TRUE.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'force_ssl_admin' :
 				$name = __( 'Force SSL Admin', 'wp-simple-firewall' );
 				$summary = __( 'Forces WordPress Admin Dashboard To Be Delivered Over SSL', 'wp-simple-firewall' );
-				$description = __( 'Please only enable this option if you have a valid SSL certificate installed.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Equivalent to setting "FORCE_SSL_ADMIN" to TRUE.', 'wp-simple-firewall' );
+				$description = [
+					__( 'Please only enable this option if you have a valid SSL certificate installed.', 'wp-simple-firewall' ),
+					__( 'Equivalent to setting "FORCE_SSL_ADMIN" to TRUE.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'hide_wordpress_generator_tag' :
@@ -155,8 +162,10 @@ class Strings extends Base\Strings {
 			case 'block_author_discovery' :
 				$name = __( 'Block Username Fishing', 'wp-simple-firewall' );
 				$summary = __( 'Block the ability to discover WordPress usernames based on author IDs', 'wp-simple-firewall' );
-				$description = sprintf( __( 'When enabled, any URL requests containing "%s" will be killed.', 'wp-simple-firewall' ), 'author=' )
-								.'<br />'.sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Enabling this option may interfere with expected operations of your site.', 'wp-simple-firewall' ) );
+				$description = [
+					sprintf( __( 'When enabled, any URL requests containing "%s" will be killed.', 'wp-simple-firewall' ), 'author=' ),
+					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Enabling this option may interfere with expected operations of your site.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			default:

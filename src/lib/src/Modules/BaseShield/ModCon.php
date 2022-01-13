@@ -192,24 +192,16 @@ class ModCon extends Base\ModCon {
 					->isXmlrpcBypass();
 	}
 
-	/**
-	 * @param string[] $aArray
-	 * @param string   $sPregReplacePattern
-	 * @return string[]
-	 */
-	protected function cleanStringArray( $aArray, $sPregReplacePattern ) {
-		$aCleaned = [];
-		if ( !is_array( $aArray ) ) {
-			return $aCleaned;
-		}
+	public function cleanStringArray( array $arr, string $pregReplacePattern ) :array {
+		$cleaned = [];
 
-		foreach ( $aArray as $nKey => $sVal ) {
-			$sVal = preg_replace( $sPregReplacePattern, '', $sVal );
-			if ( !empty( $sVal ) ) {
-				$aCleaned[] = $sVal;
+		foreach ( $arr as $val ) {
+			$val = preg_replace( $pregReplacePattern, '', $val );
+			if ( strlen( $val ) > 0 ) {
+				$cleaned[] = $val;
 			}
 		}
-		return array_unique( array_filter( $aCleaned ) );
+		return $cleaned;
 	}
 
 	protected function getNamespaceRoots() :array {
