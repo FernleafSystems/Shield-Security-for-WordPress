@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class UI extends BaseShield\UI {
 
-	protected function getSectionWarnings( string $section ) :array {
+	public function getSectionWarnings( string $section ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

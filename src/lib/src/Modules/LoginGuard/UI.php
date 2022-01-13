@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
 
-	protected function getSectionNotices( string $section ) :array {
+	public function getSectionNotices( string $section ) :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
@@ -31,7 +31,7 @@ class UI extends BaseShield\UI {
 		return $notices;
 	}
 
-	protected function getSectionWarnings( string $section ) :array {
+	public function getSectionWarnings( string $section ) :array {
 		$con = $this->getCon();
 		/** @var Options $opts */
 		$opts = $this->getOptions();

@@ -10,140 +10,11 @@ class UI {
 
 	use ModConsumer;
 
-	/**
-	 * Will initiate the plugin options structure for use by the UI builder.
-	 * It doesn't set any values, just populates the array created in buildOptions()
-	 * with values stored.
-	 * It has to handle the conversion of stored values to data to be displayed to the user.
-	 */
-	public function buildOptions() {
-		$con = $this->getCon();
-
-		$bPremiumEnabled = $con->isPremiumExtensionsEnabled();
-		$bShowAdvanced = $con->getModule_Plugin()->isShowAdvanced();
-
-		$opts = $this->getOptions();
-		$options = $opts->getOptionsForPluginUse();
-
-		foreach ( $options as $sectionKey => $sect ) {
-
-			if ( !empty( $sect[ 'options' ] ) ) {
-
-				foreach ( $sect[ 'options' ] as $optKey => $option ) {
-					$option[ 'is_value_default' ] = ( $option[ 'value' ] === $option[ 'default' ] );
-					$bIsPrem = $option[ 'premium' ] ?? false;
-					$bIsAdv = $option[ 'advanced' ] ?? false;
-					if ( ( !$bIsPrem || $bPremiumEnabled ) && ( !$bIsAdv || $bShowAdvanced ) ) {
-						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $option );
-					}
-					else {
-						unset( $sect[ 'options' ][ $optKey ] );
-					}
-				}
-
-				if ( empty( $sect[ 'options' ] ) ) {
-					unset( $options[ $sectionKey ] );
-				}
-				else {
-					try {
-						$sect = array_merge(
-							$sect,
-							$this->getMod()
-								 ->getStrings()
-								 ->getSectionStrings( $sect[ 'slug' ] )
-						);
-					}
-					catch ( \Exception $e ) {
-					}
-					$options[ $sectionKey ] = $sect;
-				}
-
-				if ( isset( $options[ $sectionKey ] ) ) {
-					$warning = [];
-					if ( !$opts->isSectionReqsMet( $sect[ 'slug' ] ) ) {
-						$warning[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
-					}
-					$options[ $sectionKey ][ 'warnings' ] = array_merge(
-						$warning,
-						$this->getSectionWarnings( $sect[ 'slug' ] )
-					);
-					$options[ $sectionKey ][ 'notices' ] = $this->getSectionNotices( $sect[ 'slug' ] );
-				}
-			}
-		}
-
-		return $options;
-	}
-
-	/**
-	 * @param array $option
-	 * @return array
-	 */
-	protected function buildOptionForUi( $option ) {
-
-		$value = $option[ 'value' ];
-
-		switch ( $option[ 'type' ] ) {
-
-			case 'password':
-				if ( !empty( $value ) ) {
-					$value = '';
-				}
-				break;
-
-			case 'array':
-				if ( empty( $value ) || !is_array( $value ) ) {
-					$value = [];
-				}
-
-				$option[ 'rows' ] = count( $value ) + 2;
-				$value = stripslashes( implode( "\n", $value ) );
-
-				break;
-
-			case 'comma_separated_lists':
-
-				$converted = [];
-				if ( !empty( $value ) && is_array( $value ) ) {
-					foreach ( $value as $page => $params ) {
-						$converted[] = $page.', '.implode( ", ", $params );
-					}
-				}
-				$option[ 'rows' ] = count( $converted ) + 1;
-				$value = implode( "\n", $converted );
-
-				break;
-
-			case 'multiple_select':
-				if ( !is_array( $value ) ) {
-					$value = [];
-				}
-				break;
-
-			case 'text':
-				$value = stripslashes( $this->getMod()->getTextOpt( $option[ 'key' ] ) );
-				break;
-		}
-
-		$params = [
-			'value'    => is_scalar( $value ) ? esc_attr( $value ) : $value,
-			'disabled' => !$this->getCon()
-								->isPremiumActive() && ( isset( $option[ 'premium' ] ) && $option[ 'premium' ] ),
-		];
-		$params[ 'enabled' ] = !$params[ 'disabled' ];
-		$option = array_merge( [ 'rows' => 2 ], $option, $params );
-
-		// add strings
-		try {
-			$aOptStrings = $this->getMod()->getStrings()->getOptionStrings( $option[ 'key' ] );
-			if ( !is_array( $aOptStrings[ 'description' ] ) ) {
-				$aOptStrings[ 'description' ] = [ $aOptStrings[ 'description' ] ];
-			}
-			$option = Services::DataManipulation()->mergeArraysRecursive( $option, $aOptStrings );
-		}
-		catch ( \Exception $e ) {
-		}
-		return $option;
+	public function buildOptionsForStandardUI() :array {
+		return ( new Options\BuildForDisplay() )
+			->setMod( $this->getMod() )
+			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
+			->standard();
 	}
 
 	public function buildSelectData_ModuleSettings() :array {
@@ -199,7 +70,7 @@ class UI {
 			'data'       => [
 				'mod_slug'       => $mod->getModSlug( true ),
 				'mod_slug_short' => $mod->getModSlug( false ),
-				'all_options'    => $this->buildOptions(),
+				'all_options'    => $this->buildOptionsForStandardUI(),
 				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions() )
 					->setMod( $mod )
 					->build(),
@@ -342,18 +213,11 @@ class UI {
 		return false;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getHelpVideoId() {
-		return $this->getOptions()->getDef( 'help_video_id' );
-	}
-
-	protected function getSectionNotices( string $section ) :array {
+	public function getSectionNotices( string $section ) :array {
 		return [];
 	}
 
-	protected function getSectionWarnings( string $section ) :array {
+	public function getSectionWarnings( string $section ) :array {
 		return [];
 	}
 

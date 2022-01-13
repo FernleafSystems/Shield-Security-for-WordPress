@@ -45,7 +45,8 @@ class UI extends Base\UI {
 					'has_session'             => $con->getModule_Sessions()
 													 ->getSessionCon()
 													 ->hasSession(),
-					'display_helpdesk_widget' => !$isWhitelabelled
+					'display_helpdesk_widget' => !$isWhitelabelled,
+					'is_whitelabelled'        => $isWhitelabelled
 				],
 				'hrefs'   => [
 					'aar_forget_key' => $isWhitelabelled ?
