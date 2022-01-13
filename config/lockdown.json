@@ -106,11 +106,14 @@
     },
     {
       "key":         "api_namespace_exclusions",
-      "section":     "section_non_ui",
+      "section":     "section_apixml",
       "default":     [
         "contact-form-7",
         "jetpack",
-        "woocommerce"
+        "tho",
+        "woocommerce",
+        "tribe",
+        "wpstatistics"
       ],
       "type":        "array",
       "link_info":   "",
@@ -178,13 +181,6 @@
     }
   ],
   "definitions": {
-    "default_restapi_exclusions": [
-      "contact-form-7",
-      "jetpack",
-      "tho",
-      "wpstatistics",
-      "woocommerce"
-    ],
     "events":                     {
       "block_anonymous_restapi": {
         "audit_params": [

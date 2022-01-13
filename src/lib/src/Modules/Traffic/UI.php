@@ -38,7 +38,7 @@ class UI extends BaseShield\UI {
 		);
 	}
 
-	protected function getSectionWarnings( string $section ) :array {
+	public function getSectionWarnings( string $section ) :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 

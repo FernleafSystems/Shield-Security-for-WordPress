@@ -299,90 +299,45 @@ class Options {
 	}
 
 	/**
+	 * @return array[]
+	 */
+	public function getVisibleOptions() :array {
+		return array_filter(
+			$this->getRawData_AllOptions(),
+			function ( $optDef ) {
+				if ( $optDef[ 'hidden' ] ?? false ) {
+					return null;
+				}
+				$section = $this->getSection( $optDef[ 'section' ] );
+				if ( empty( $section ) || ( $section[ 'hidden' ] ?? false ) ) {
+					return null;
+				}
+				return $optDef;
+			}
+		);
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getVisibleOptionsKeys() :array {
-		$keys = [];
-
-		foreach ( $this->getRawData_AllOptions() as $optDef ) {
-			if ( $optDef[ 'hidden' ] ?? false ) {
-				continue;
-			}
-			$section = $this->getSection( $optDef[ 'section' ] );
-			if ( empty( $section ) || ( $section[ 'hidden' ] ?? false ) ) {
-				continue;
-			}
-
-			$keys[] = $optDef[ 'key' ];
-		}
-
-		return $keys;
+		return array_map( function ( $optDef ) {
+			return $optDef[ 'key' ];
+		}, $this->getVisibleOptions() );
 	}
 
+	/**
+	 * @deprecated 13.0.6
+	 */
 	public function getOptionsForPluginUse() :array {
-
-		$optionsData = [];
-
-		foreach ( $this->getRawData_OptionsSections() as $section ) {
-
-			if ( isset( $section[ 'hidden' ] ) && $section[ 'hidden' ] ) {
-				continue;
-			}
-
-			$section = array_merge(
-				[
-					'primary'       => false,
-					'options'       => $this->getOptionsForSection( $section[ 'slug' ] ),
-					'help_video_id' => ''
-				],
-				$section
-			);
-
-			if ( !empty( $section[ 'options' ] ) ) {
-				$optionsData[] = $section;
-			}
-		}
-
-		return $optionsData;
+		return [];
 	}
 
+	/**
+	 * @deprecated 13.0.6
+	 */
 	protected function getOptionsForSection( string $slug ) :array {
-
-		$allOptions = [];
-		foreach ( $this->getRawData_AllOptions() as $optDef ) {
-
-			if ( ( $optDef[ 'section' ] != $slug ) || ( isset( $optDef[ 'hidden' ] ) && $optDef[ 'hidden' ] ) ) {
-				continue;
-			}
-
-			if ( isset( $optDef[ 'hidden' ] ) && $optDef[ 'hidden' ] ) {
-				continue;
-			}
-
-			$optDef = array_merge(
-				[
-					'link_info'     => '',
-					'link_blog'     => '',
-					'help_video_id' => '',
-					'value_options' => [],
-					'premium'       => false,
-					'advanced'      => false
-				],
-				$optDef
-			);
-			$optDef[ 'value' ] = $this->getOpt( $optDef[ 'key' ] );
-
-			if ( in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
-				$convertedOptions = [];
-				foreach ( $optDef[ 'value_options' ] as $selectValues ) {
-					$convertedOptions[ $selectValues[ 'value_key' ] ] = __( $selectValues[ 'text' ], 'wp-simple-firewall' );
-				}
-				$optDef[ 'value_options' ] = $convertedOptions;
-			}
-
-			$allOptions[] = $optDef;
-		}
-		return $allOptions;
+		return [];
 	}
 
 	public function getAdditionalMenuItems() :array {
@@ -416,7 +371,7 @@ class Options {
 	}
 
 	/**
-	 * @param mixed  $mDefault
+	 * @param mixed $mDefault
 	 * @return mixed|null
 	 */
 	public function getOptDefault( string $key, $mDefault = null ) {
@@ -429,8 +384,8 @@ class Options {
 	}
 
 	/**
-	 * @param mixed  $mValueToTest
-	 * @param bool   $strict
+	 * @param mixed $mValueToTest
+	 * @param bool  $strict
 	 */
 	public function isOpt( string $key, $mValueToTest, $strict = false ) :bool {
 		return $strict ? $this->getOpt( $key ) === $mValueToTest : $this->getOpt( $key ) == $mValueToTest;

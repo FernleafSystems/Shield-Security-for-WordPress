@@ -181,8 +181,16 @@
       {
         "type":        "fixed",
         "title":       "[Minor Security Vulnerability] An authenticated (administrator+) Persistent XSS.",
-        "description": [],
+        "description": [
+          "Privately disclosed to us by Yoru Oni - thank you."
+        ],
         "href":        "https://shsec.io/kh",
+        "patch":       "13.0.6"
+      },
+      {
+        "type":        "changed",
+        "title":       "It's now possible to add custom exclusions to the anonymous REST API block.",
+        "description": [],
         "patch":       "13.0.6"
       }
     ]

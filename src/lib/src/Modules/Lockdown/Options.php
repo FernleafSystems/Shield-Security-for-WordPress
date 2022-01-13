@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
@@ -9,29 +9,20 @@ class Options extends BaseShield\Options {
 	/**
 	 * @return string[]
 	 */
-	public function getRestApiAnonymousExclusions() {
-		$ex = $this->getOpt( 'api_namespace_exclusions' );
-		return array_merge( $this->getDef( 'default_restapi_exclusions' ), is_array( $ex ) ? $ex : [] );
+	public function getRestApiAnonymousExclusions() :array {
+		$exc = apply_filters( 'shield/anonymous_rest_api_exclusions', $this->getOpt( 'api_namespace_exclusions' ) );
+		return $this->getMod()->cleanStringArray( $exc, '#[^a-z0-9_-]#i' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isOptFileEditingDisabled() {
+	public function isOptFileEditingDisabled() :bool {
 		return $this->isOpt( 'disable_file_editing', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isRestApiAnonymousAccessDisabled() {
+	public function isRestApiAnonymousAccessDisabled() :bool {
 		return $this->isOpt( 'disable_anonymous_restapi', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isXmlrpcDisabled() {
+	public function isXmlrpcDisabled() :bool {
 		return $this->isOpt( 'disable_xmlrpc', 'Y' );
 	}
 }

@@ -189,18 +189,6 @@ class UI extends BaseShield\UI {
 		return $scans;
 	}
 
-	/**
-	 * @param array $option
-	 * @return array
-	 */
-	protected function buildOptionForUi( $option ) {
-		$option = parent::buildOptionForUi( $option );
-		if ( $option[ 'key' ] === 'file_locker' && !Services::Data()->isWindows() ) {
-			$option[ 'value_options' ][ 'root_webconfig' ] .= sprintf( ' (%s)', __( 'unavailable', 'wp-simple-firewall' ) );
-		}
-		return $option;
-	}
-
 	protected function getFileLockerVars() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -239,7 +227,7 @@ class UI extends BaseShield\UI {
 		];
 	}
 
-	protected function getSectionWarnings( string $section ) :array {
+	public function getSectionWarnings( string $section ) :array {
 		$warnings = [];
 
 		switch ( $section ) {
