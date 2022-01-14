@@ -9,8 +9,7 @@ class SupportCandy extends Base {
 	protected function run() {
 		add_filter( 'wpsc_before_create_ticket_args', function ( $args ) {
 			if ( $this->isSpam() ) {
-				Services::WpGeneral()->wpDie( sprintf( "Sorry, your request failed %s Bot checking.",
-					$this->getCon()->getHumanName() ) );
+				Services::WpGeneral()->wpDie( $this->getCommonSpamMessage() );
 			}
 			return $args;
 		}, 1000 );

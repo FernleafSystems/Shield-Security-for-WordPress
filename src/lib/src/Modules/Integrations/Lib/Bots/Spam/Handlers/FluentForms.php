@@ -13,8 +13,7 @@ class FluentForms extends Base {
 			function () {
 				if ( $this->isSpam() ) {
 					wp_send_json( [
-						'errors' => sprintf( __( "This appears to be spam - failed %s AntiBot protection checks.", 'wp-simple-firewall' ),
-							$this->getCon()->getHumanName() )
+						'errors' => $this->getCommonSpamMessage()
 					], 422 );
 				}
 			}, 9, 0 );

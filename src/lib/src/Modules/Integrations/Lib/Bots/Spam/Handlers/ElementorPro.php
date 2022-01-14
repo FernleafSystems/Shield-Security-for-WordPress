@@ -8,8 +8,7 @@ class ElementorPro extends Base {
 		add_action( 'elementor_pro/forms/validation', function ( $form, $ajax_handler ) {
 			/** @var \ElementorPro\Modules\Forms\Classes\Ajax_Handler $ajax_handler */
 			if ( empty( $ajax_handler->errors ) && $this->isSpam() ) {
-				$msg = sprintf( __( "This appears to be spam - failed %s AntiBot protection checks.", 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() );
+				$msg = $this->getCommonSpamMessage();
 				$ajax_handler->add_error( 'shield-antibot', $msg );
 				$ajax_handler->add_error_message( $msg );
 			}

@@ -19,7 +19,7 @@ class WPForms extends Base {
 
 			if ( empty( $errors[ $this->workingFormID ] ) && $this->isSpam() ) {
 				$errors[ $this->workingFormID ] = [
-					'header' => __( 'Shield detected this as a SPAM Bot submission.' ),
+					'header' => $this->getCommonSpamMessage(),
 				];
 			}
 
