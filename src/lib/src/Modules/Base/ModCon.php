@@ -809,20 +809,15 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return array - map of each option to its option type
+	 * @deprecated 13.0.6
 	 */
-	protected function getAllFormOptionsAndTypes() {
-		$opts = [];
-
-		foreach ( $this->getUIHandler()->buildOptions() as $aOptionsSection ) {
-			if ( !empty( $aOptionsSection ) ) {
-				foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
-					$opts[ $aOption[ 'key' ] ] = $aOption[ 'type' ];
-				}
-			}
-		}
-
-		return $opts;
+	protected function getAllFormOptionsAndTypes() :array {
+		return array_map(
+			function ( $optDef ) {
+				return $optDef[ 'type' ];
+			},
+			$this->getOptions()->getVisibleOptions()
+		);
 	}
 
 	protected function handleModAction( string $action ) {
@@ -898,9 +893,15 @@ abstract class ModCon {
 		// standard options use b64 and fail-over to lz-string
 		$form = FormParams::Retrieve( FormParams::ENC_BASE64 );
 
-		foreach ( $this->getAllFormOptionsAndTypes() as $key => $optType ) {
+		$optsAndTypes = array_map(
+			function ( $optDef ) {
+				return $optDef[ 'type' ];
+			},
+			$this->getOptions()->getVisibleOptions()
+		);
+		foreach ( $optsAndTypes as $optKey => $optType ) {
 
-			$optValue = $form[ $key ] ?? null;
+			$optValue = $form[ $optKey ] ?? null;
 			if ( is_null( $optValue ) ) {
 
 				if ( in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
@@ -930,7 +931,7 @@ abstract class ModCon {
 						continue;
 					}
 
-					$confirm = $form[ $key.'_confirm' ] ?? null;
+					$confirm = $form[ $optKey.'_confirm' ] ?? null;
 					if ( $sTempValue !== $confirm ) {
 						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
@@ -948,7 +949,7 @@ abstract class ModCon {
 
 			// Prevent overwriting of non-editable fields
 			if ( !in_array( $optType, [ 'noneditable_text' ] ) ) {
-				$this->getOptions()->setOpt( $key, $optValue );
+				$this->getOptions()->setOpt( $optKey, $optValue );
 			}
 		}
 

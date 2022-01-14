@@ -8,6 +8,19 @@ use FernleafSystems\Wordpress\Services\Services;
 class Update extends Base\Update {
 
 	/**
+	 * @return array
+	 */
+	public function getUpdateData() {
+		$data = parent::getUpdateData();
+		if ( !empty( $data[ 'label' ] ) ) {
+			/** @var Handler $dbh */
+			$dbh = $this->getDbH();
+			$data[ 'label' ] = $dbh->cleanLabel( $data[ 'label' ] );
+		}
+		return $data;
+	}
+
+	/**
 	 * Also updates last access at
 	 * @param int     $nIncrement
 	 * @param EntryVO $oIp

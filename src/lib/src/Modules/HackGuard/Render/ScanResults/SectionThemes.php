@@ -126,6 +126,7 @@ class SectionThemes extends SectionPluginThemesBase {
 				'is_abandoned'    => !empty( $abandoned ),
 				'has_guard_files' => !empty( $guardFilesData ),
 				'is_active'       => $theme->active || $theme->is_parent,
+				'is_ignored'      => $theme->active || $theme->is_parent,
 				'is_vulnerable'   => !empty( $vulnerabilities ),
 				'is_wporg'        => $theme->isWpOrg(),
 				'is_child'        => $theme->is_child,
@@ -144,6 +145,33 @@ class SectionThemes extends SectionPluginThemesBase {
 												!$data[ 'flags' ][ 'is_active' ]
 												|| $data[ 'flags' ][ 'has_update' ]
 											);
+		if ( $theme->isWpOrg() && $data[ 'flags' ][ 'has_warning' ] && !$data[ 'flags' ][ 'has_update' ] ) {
+			$wpOrgThemes = implode( '|', array_map( function ( $ver ) {
+				return 'twenty'.$ver;
+			}, [
+				'twentyseven',
+				'twentysix',
+				'twentyfive',
+				'twentyfour',
+				'twentythree',
+				'twentytwo',
+				'twentyone',
+				'twenty',
+				'nineteen',
+				'seventeen',
+				'sixteen',
+				'fifteen',
+				'fourteen',
+				'thirteen',
+				'twelve',
+				'eleven',
+				'ten',
+			] ) );
+			if ( preg_match( sprintf( '#^%s$#', $wpOrgThemes ), strtolower( (string)$theme->slug ) ) ) {
+				$data[ 'flags' ][ 'has_warning' ] = false;
+			}
+		}
+
 		return $data;
 	}
 }

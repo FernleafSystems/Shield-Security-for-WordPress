@@ -20,6 +20,9 @@ class ModCon extends BaseShield\ModCon {
 		$this->cleanApiExclusions();
 	}
 
+	/**
+	 * @deprecated 13.0.6
+	 */
 	private function cleanApiExclusions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

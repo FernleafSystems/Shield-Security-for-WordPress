@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 
 class UI extends Modules\BaseShield\UI {
 
-	protected function getSectionNotices( string $section ) :array {
+	public function getSectionNotices( string $section ) :array {
 		$notices = [];
 
 		/** @var Modules\LoginGuard\Options $loginGuardOpts */
@@ -47,7 +47,7 @@ class UI extends Modules\BaseShield\UI {
 		return $notices;
 	}
 
-	protected function getSectionWarnings( string $section ) :array {
+	public function getSectionWarnings( string $section ) :array {
 		$warnings = [];
 		$con = $this->getCon();
 

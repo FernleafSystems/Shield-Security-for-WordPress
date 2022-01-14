@@ -26,6 +26,10 @@ class Insert extends Base\Insert {
 			$data[ 'is_range' ] = true;
 		}
 
+		/** @var Handler $dbh */
+		$dbh = $this->getDbH();
+		$data[ 'label' ] = $dbh->cleanLabel( $data[ 'label' ] ?? '' );
+
 		return $this->setInsertData( $data );
 	}
 }
