@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\WpLoginPageReplica;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
@@ -23,24 +24,35 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	private $loginIntentPageHandler;
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ] );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+
 		$this->setupLoginCaptureHooks();
-		$this->handleLoginLink();
+
+		if ( $this->useLoginIntentPage() ) {
+			add_action( 'init', [ $this, 'onWpInit' ] );
+		}
+		else {
+			( new WpLoginPageReplica\WPLoginPageHandler() )
+				->setMod( $this->getMod() )
+				->execute();
+		}
+
+		// Profile handling
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
 	public function onWpInit() {
 		$user = Services::WpUsers()->getCurrentWpUser();
-		if ( $user instanceof \WP_User ) {
+		if ( $this->useLoginIntentPage() && $user instanceof \WP_User ) {
 			$this->assessLoginIntent( $user );
 		}
 	}
 
+	private function useLoginIntentPage() :bool {
+		return !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ); //TODO
+	}
+
 	public function onWpLoaded() {
 		( new MfaProfilesController() )->setMfaController( $this )->execute();
-		add_shortcode( 'SHIELD_2FA_LOGIN', function () {
-			return $this->getLoginIntentPageHandler()->renderForm();
-		} );
 	}
 
 	protected function captureLogin( \WP_User $user ) {
@@ -62,55 +74,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				$intents[ $this->getVisitorID() ] = true;
 				$meta->login_intents = $intents;
 			}
-		}
-	}
-
-	private function handleLoginLink() {
-		add_action( $this->getCon()->prefix( 'shield_nonce_action' ), function ( string $action ) {
-			if ( strpos( $action, '2fa_verify' ) === 0 ) {
-				try {
-					$this->processEmail2faLink();
-				}
-				catch ( \Exception $e ) {
-					wp_die( $e->getMessage() );
-				}
-			}
-		} );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function processEmail2faLink() {
-		$req = Services::Request();
-		$user = sanitize_user( $req->query( 'user' ) );
-		if ( empty( $user ) ) {
-			throw new \Exception( 'Not valid data.' );
-		}
-
-		$user = Services::WpUsers()->getUserByUsername( $user );
-		if ( !$user instanceof \WP_User ) {
-			throw new \Exception( 'Not valid data.' );
-		}
-
-		$providers = $this->getProvidersForUser( $user, true );
-		if ( !isset( $providers[ Provider\Email::SLUG ] ) ) {
-			throw new \Exception( 'Not a support provider' );
-		}
-		if ( !$providers[ Provider\Email::SLUG ]->validateLoginIntent( $user ) ) {
-			throw new \Exception( 'Login validation failed.' );
-		}
-
-		$providers[ Provider\Email::SLUG ]->postSuccessActions( $user );
-		if ( (int)$user->ID !== (int)Services::WpUsers()->getCurrentWpUserId() ) {
-			throw new \Exception( 'Action completed successfully. Please refresh your browser where you logged-in.' );
-		}
-
-		if ( $req->query( 'redirect_to' ) ) {
-			Services::Response()->redirect( $req->query( 'redirect_to' ) );
-		}
-		else {
-			Services::Response()->redirectToAdmin();
 		}
 	}
 
@@ -171,7 +134,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 					Provider\Yubikey::SLUG     => new Provider\Yubikey(),
 					Provider\BackupCodes::SLUG => new Provider\BackupCodes(),
 					Provider\U2F::SLUG         => new Provider\U2F(),
-					Provider\Sms::SLUG         => new Provider\Sms(),
 				]
 			);
 		}
@@ -222,7 +184,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				$redirect = $req->post( 'cancel_href' );
 				empty( $redirect ) ? $WPResp->redirectToLogin() : $WPResp->redirect( $redirect );
 			}
-			elseif ( $this->validateLoginIntentRequest() ) {
+
+			try {
+				$this->validateLoginIntentRequest();
 
 				if ( $req->post( 'skip_mfa' ) === 'Y' ) {
 					( new MfaSkip() )
@@ -243,7 +207,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				$redirect = $req->post( 'redirect_to' );
 				empty( $redirect ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $redirect ) );
 			}
-			else {
+			catch ( \Exception $e ) {
 				$con->getAdminNotices()
 					->addFlash(
 						__( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
@@ -266,7 +230,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		try {
 			$valid = ( new ValidateLoginIntentRequest() )
 				->setMfaController( $this )
-				->run();
+				->run( Services::WpUsers()->getCurrentWpUser() );
 		}
 		catch ( \Exception $e ) {
 			$valid = true;
@@ -274,7 +238,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return $valid;
 	}
 
-	private function canUserMfaSkip( \WP_User $user ) :bool {
+	public function canUserMfaSkip( \WP_User $user ) :bool {
 		$canSkip = ( new MfaSkip() )
 			->setMod( $this->getMod() )
 			->canMfaSkip( $user );
@@ -285,7 +249,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$canSkip = $meta->wc_social_login_valid ?? false;
 		}
 
-		return (bool)apply_filters( 'icwp_shield_2fa_skip',
+		return (bool)apply_filters( 'shield/2fa_skip',
 			apply_filters( 'odp-shield-2fa_skip', $canSkip ) );
 	}
 
@@ -333,7 +297,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return $expiresAt;
 	}
 
-	private function hasLoginIntent( \WP_User $user ) :bool {
+	public function hasLoginIntent( \WP_User $user ) :bool {
 		return !empty( $this->getCon()->getUserMeta( $user )->login_intents[ $this->getVisitorID() ] );
 	}
 
@@ -345,7 +309,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 * Use this ONLY when the login intent has been successfully verified.
 	 * @return $this
 	 */
-	private function removeLoginIntent( $user ) {
+	public function removeLoginIntent( $user ) {
 		$meta = $this->getCon()->getUserMeta( $user );
 		$intents = $meta->login_intents ?? [];
 		unset( $intents[ $this->getVisitorID() ] );

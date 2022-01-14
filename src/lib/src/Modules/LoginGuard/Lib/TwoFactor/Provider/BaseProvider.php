@@ -24,6 +24,11 @@ abstract class BaseProvider {
 	 */
 	const DEFAULT_SECRET = '';
 
+	/**
+	 * @var \WP_User
+	 */
+	private $user;
+
 	public function __construct() {
 	}
 
@@ -212,6 +217,13 @@ abstract class BaseProvider {
 		return [];
 	}
 
+	public function renderFormFieldForWpLogin() :string {
+		return $this->getMod()->renderTemplate(
+			sprintf( '/components/wplogin_replica/login_field_%s.twig', static::SLUG ),
+			$this->getFormField()
+		);
+	}
+
 	protected function auditLogin( \WP_User $user, bool $success ) {
 		$this->getCon()->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
@@ -272,5 +284,17 @@ abstract class BaseProvider {
 			$otp = substr( strtoupper( preg_replace( '#[io01l]#i', '', wp_generate_password( 50, false ) ) ), 0, $length );
 		} while ( strlen( $otp ) !== 6 );
 		return $otp;
+	}
+
+	protected function getUser() :\WP_User {
+		return $this->user ?? Services::WpUsers()->getCurrentWpUser();
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setUser( \WP_User $user ) {
+		$this->user = $user;
+		return $this;
 	}
 }

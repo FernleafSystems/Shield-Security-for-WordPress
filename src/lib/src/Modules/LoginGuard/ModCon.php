@@ -14,6 +14,11 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $loginIntentCon;
 
+	/**
+	 * @var Lib\TwoFactor\MfaController
+	 */
+	private $mfaCon;
+
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -201,13 +206,17 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @return Lib\TwoFactor\MfaController
+	 * @deprecated 13.1
 	 */
 	public function getLoginIntentController() {
-		if ( !isset( $this->loginIntentCon ) ) {
-			$this->loginIntentCon = ( new Lib\TwoFactor\MfaController() )
-				->setMod( $this );
+		return $this->getMfaController();
+	}
+
+	public function getMfaController() :Lib\TwoFactor\MfaController {
+		if ( !isset( $this->mfaCon ) ) {
+			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
 		}
-		return $this->loginIntentCon;
+		return $this->mfaCon;
 	}
 
 	public function setIsChainedAuth( bool $isChained ) {

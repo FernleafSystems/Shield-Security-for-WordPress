@@ -1,0 +1,19 @@
+{% block input_row %}
+	<p>
+		<label>
+			{{ text }}
+			<input type="{{ type }}"
+			       name="{{ name }}"
+			       value="{{ value }}"
+			       class="form-control{% for class in classes|default([]) %} {{ class }}{% endfor %}"
+			       id="{{ id|default(name) }}"
+			       placeholder=""
+			       autocomplete="off"
+					{#       {% if key_field == 0 %}autofocus{% endif %} #}
+					{% for datakey, dataval in datas|default([]) %}
+						data-{{ datakey }}="{{ dataval }}"
+					{% endfor %}
+			/>
+		</label>
+	</p>
+{% endblock %}

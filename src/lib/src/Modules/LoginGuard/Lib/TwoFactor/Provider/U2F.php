@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
@@ -20,7 +19,7 @@ class U2F extends BaseProvider {
 	}
 
 	public function getJavascriptVars() :array {
-		$user = Services::WpUsers()->getCurrentWpUser();
+		$user = $this->getUser();
 		list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );
 		return [
 			'reg_request' => $reg,
@@ -47,7 +46,7 @@ class U2F extends BaseProvider {
 	}
 
 	public function getFormField() :array {
-		$user = Services::WpUsers()->getCurrentWpUser();
+		$user = $this->getUser();
 
 		$fieldData = [];
 		try {
@@ -62,7 +61,7 @@ class U2F extends BaseProvider {
 			$fieldData = [
 				'name'        => 'btn_u2f_start',
 				'type'        => 'button',
-				'value'       => 'Click To Begin U2F Authentication',
+				'value'       => __( 'Start U2F Auth', 'wp-simple-firewall' ),
 				'placeholder' => '',
 				'text'        => 'U2F Authentication',
 				'classes'     => [ 'btn', 'btn-light' ],

@@ -56,7 +56,8 @@ class Email extends BaseProvider {
 			'value'       => $this->fetchCodeFromRequest(),
 			'placeholder' => __( 'This code was just sent to your registered Email address.', 'wp-simple-firewall' ),
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
-			'help_link'   => 'https://shsec.io/3t'
+			'help_link'   => 'https://shsec.io/3t',
+			'size'        => 6
 		];
 	}
 

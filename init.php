@@ -24,10 +24,9 @@ class ICWP_WPSF_Shield_Security {
 	}
 
 	/**
-	 * @return Shield\Controller\Controller
 	 * @throws \Exception
 	 */
-	public function getController() {
+	public function getController() :Shield\Controller\Controller {
 		return Shield\Controller\Controller::GetInstance();
 	}
 

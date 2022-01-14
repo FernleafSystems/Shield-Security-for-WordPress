@@ -1,5 +1,9 @@
 jQuery( document ).ready( function () {
 
+	let $theForm = jQuery( 'form#loginform' );
+
+	jQuery( 'input[type=text]:first', $theForm ).focus();
+
 	jQuery( 'input#icwp_wpsf_sms_otp' ).on( 'click', function () {
 
 		if ( confirm( 'Are you sure?' ) ) {
@@ -48,27 +52,32 @@ jQuery( document ).ready( function () {
 	u2fApi.isSupported()
 		  .then( function ( supported ) {
 
-			  let $oU2fStart = jQuery( 'input#btn_u2f_start' );
+			  let $u2fStart = jQuery( 'input#btn_u2f_start' );
 
 			  if ( supported ) {
 
-				  $oU2fStart.on( 'click', function () {
+				  $u2fStart.on( 'click', function () {
 
-					  u2fApi.sign( JSON.parse( atob( $oU2fStart.data( 'signs' ) ) ) )
+					  u2fApi.sign( JSON.parse( atob( $u2fStart.data( 'signs' ) ) ) )
 							.then( function ( response ) {
-								let $oForm = $oU2fStart.closest( 'form' );
 								jQuery( '<input>' ).attr( {
 									type: 'hidden',
 									name: 'u2f_signs',
-									value: $oU2fStart.data( 'signs' )
-								} ).appendTo( $oForm );
+									value: $u2fStart.data( 'signs' )
+								} ).appendTo( $theForm );
 								jQuery( '<input>' ).attr( {
 									type: 'hidden',
-									name: $oU2fStart.data( 'input_otp' ),
+									name: $u2fStart.data( 'input_otp' ),
 									value: JSON.stringify( response )
-								} ).appendTo( $oForm );
-								$oU2fStart.prop( 'disabled', true );
-								$oU2fStart.val( 'U2F successful. Submit the form when ready.' );
+								} ).appendTo( $theForm );
+								jQuery( '<input>' ).attr( {
+									type: 'text',
+									value: 'U2F Successful',
+									class: 'u2f-replacement',
+									readonly: "readonly",
+									name: $u2fStart.data( 'input_otp' )
+								} ).appendTo( $u2fStart.closest( 'p' ) );
+								$u2fStart.remove();
 							} )
 							.catch( function ( response ) {
 								alert( 'U2F authentication failed. Reload the page to retry.' );
@@ -77,8 +86,8 @@ jQuery( document ).ready( function () {
 
 			  }
 			  else {
-				  $oU2fStart.prop( 'disabled', true );
-				  $oU2fStart.val( "U2F Authentication isn't supported on this browser." );
+				  $u2fStart.prop( 'disabled', true );
+				  $u2fStart.val( "U2F Authentication isn't supported on this browser." );
 				  alert( "U2F Authentication isn't supported on this browser." );
 			  }
 		  } )

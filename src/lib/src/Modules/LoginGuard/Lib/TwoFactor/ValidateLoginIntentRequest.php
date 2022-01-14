@@ -1,10 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ValidateLoginIntentRequest {
 
@@ -13,15 +12,15 @@ class ValidateLoginIntentRequest {
 	/**
 	 * @throws \Exception
 	 */
-	public function run() :bool {
+	public function run( \WP_User $user ) :bool {
 		$mfaCon = $this->getMfaCon();
 		/** @var LoginGuard\Options $opts */
 		$opts = $mfaCon->getOptions();
 
-		$user = Services::WpUsers()->getCurrentWpUser();
-		if ( !$user instanceof \WP_User ) {
-			throw new \Exception( 'No user logged-in.' );
+		if ( !$mfaCon->hasLoginIntent( $user ) ) { // TODO: make this a hash
+			throw new \Exception( 'No valid user login intent' );
 		}
+		$mfaCon->removeLoginIntent( $user );
 
 		$providers = $mfaCon->getProvidersForUser( $user, true );
 		if ( empty( $providers ) ) {
@@ -49,7 +48,7 @@ class ValidateLoginIntentRequest {
 			}
 		}
 
-		if ( !$validated  ) {
+		if ( !$validated ) {
 			$countSuccessful = count( array_filter( $providerStates ) );
 			$validated = $opts->isChainedAuth() ? $countSuccessful == count( $providers ) : $countSuccessful > 0;
 		}
@@ -60,7 +59,10 @@ class ValidateLoginIntentRequest {
 				$provider->postSuccessActions( $user );
 			}
 		}
+		else {
+			throw new \Exception( 'Could not validate login 2FA' );
+		}
 
-		return $validated;
+		return true;
 	}
 }
