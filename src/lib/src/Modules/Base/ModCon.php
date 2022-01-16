@@ -808,18 +808,6 @@ abstract class ModCon {
 		$this->getOptions()->deleteStorage();
 	}
 
-	/**
-	 * @deprecated 13.0.6
-	 */
-	protected function getAllFormOptionsAndTypes() :array {
-		return array_map(
-			function ( $optDef ) {
-				return $optDef[ 'type' ];
-			},
-			$this->getOptions()->getVisibleOptions()
-		);
-	}
-
 	protected function handleModAction( string $action ) {
 		switch ( $action ) {
 			case 'file_download':

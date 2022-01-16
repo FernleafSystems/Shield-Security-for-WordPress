@@ -326,20 +326,6 @@ class Options {
 		}, $this->getVisibleOptions() );
 	}
 
-	/**
-	 * @deprecated 13.0.6
-	 */
-	public function getOptionsForPluginUse() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 13.0.6
-	 */
-	protected function getOptionsForSection( string $slug ) :array {
-		return [];
-	}
-
 	public function getAdditionalMenuItems() :array {
 		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
 	}

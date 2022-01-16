@@ -159,15 +159,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	/**
-	 * @deprecated 13.0.5
-	 */
-	public function getOptEmailTwoFactorRolesDefaults() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getEmail2FaRoles();
-	}
-
 	public function getGaspKey() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
