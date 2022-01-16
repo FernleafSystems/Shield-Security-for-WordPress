@@ -27,13 +27,18 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 		$this->setupLoginCaptureHooks();
 
-		if ( $this->useLoginIntentPage() ) {
-			add_action( 'init', [ $this, 'onWpInit' ] );
-		}
-		else {
-			( new WpLoginPageReplica\WPLoginPageHandler() )
-				->setMod( $this->getMod() )
-				->execute();
+		switch ( $this->getOptions()->getOpt( 'mfa_verify_page' ) ) {
+
+			case 'wp_login':
+				( new WpLoginPageReplica\WPLoginPageHandler() )
+					->setMod( $this->getMod() )
+					->execute();
+				break;
+
+			case 'custom_shield':
+			default:
+				add_action( 'init', [ $this, 'onWpInit' ] );
+				break;
 		}
 
 		// Profile handling
@@ -48,7 +53,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function useLoginIntentPage() :bool {
-		return !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ); //TODO
+		return $this->getOptions()->getOpt( 'mfa_verify_page', 'custom_shield' );
 	}
 
 	public function onWpLoaded() {

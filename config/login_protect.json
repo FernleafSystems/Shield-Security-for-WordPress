@@ -150,6 +150,28 @@
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
     {
+      "key":           "mfa_verify_page",
+      "section":       "section_multifactor_authentication",
+      "default":       "custom_shield",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "custom_shield",
+          "text":      "Custom Shield MFA Page"
+        },
+        {
+          "value_key": "wp_login",
+          "text":      "WP Login Page (beta)"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "beacon_id":     0,
+      "name":          "MFA Verification Page",
+      "summary":       "Type Of MFA Verification Page",
+      "description":   "Choose the page type for MFA verification"
+    },
+    {
       "key":         "enable_chained_authentication",
       "section":     "section_multifactor_authentication",
       "default":     "N",

@@ -183,6 +183,18 @@ class Strings extends Base\Strings {
 				$desc = __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' );
 				break;
 
+			case 'mfa_verify_page' :
+				$name = __( 'MFA Verification Page', 'wp-simple-firewall' );
+				$summary = __( 'Type Of MFA Verification Page', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Choose the type of page provided to users for MFA verification.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'WP Login page option is only available for WordPress v4.0 and above.', 'wp-simple-firewall' ) ),
+				];
+				break;
+
 			case 'mfa_skip' :
 				$name = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
 				$summary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );

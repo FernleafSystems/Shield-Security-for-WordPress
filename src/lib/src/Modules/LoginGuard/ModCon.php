@@ -55,6 +55,11 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
+
+		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' )
+			 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ) ) {
+			$opts->resetOptToDefault( 'mfa_verify_page' );
+		}
 	}
 
 	public function ensureCorrectCaptchaConfig() {
