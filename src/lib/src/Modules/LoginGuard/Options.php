@@ -58,10 +58,6 @@ class Options extends BaseShield\Options {
 		return $this->getMfaSkip() > 0;
 	}
 
-	public function isChainedAuth() :bool {
-		return $this->isOpt( 'enable_chained_authentication', 'Y' );
-	}
-
 	public function isEmailAuthenticationActive() :bool {
 		return $this->getIfCanSendEmailVerified() && $this->isEnabledEmailAuth();
 	}

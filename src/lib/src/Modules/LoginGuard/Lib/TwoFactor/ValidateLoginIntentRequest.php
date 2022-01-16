@@ -50,7 +50,7 @@ class ValidateLoginIntentRequest {
 
 		if ( !$validated ) {
 			$countSuccessful = count( array_filter( $providerStates ) );
-			$validated = $opts->isChainedAuth() ? $countSuccessful == count( $providers ) : $countSuccessful > 0;
+			$validated = $countSuccessful > 0;
 		}
 
 		if ( $validated ) {

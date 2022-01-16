@@ -215,10 +215,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->mfaCon;
 	}
 
-	public function setIsChainedAuth( bool $isChained ) {
-		$this->getOptions()->setOpt( 'enable_chained_authentication', $isChained ? 'Y' : 'N' );
-	}
-
 	/**
 	 * @param bool $bCan
 	 * @return $this

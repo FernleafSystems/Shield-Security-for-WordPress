@@ -30,9 +30,7 @@ class LoginIntentPage {
 			$msg = $notice->render_data[ 'message' ];
 		}
 		else {
-			$msg = $opts->isChainedAuth() ?
-				__( 'Please supply all authentication codes', 'wp-simple-firewall' )
-				: __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
+			$msg = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
 
 		if ( !empty( $msg ) && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {

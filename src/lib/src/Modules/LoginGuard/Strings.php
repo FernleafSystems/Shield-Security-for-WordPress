@@ -196,8 +196,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mfa_skip' :
-				$name = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
-				$summary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
+				$name = __( '2FA Remember Me', 'wp-simple-firewall' );
+				$summary = __( 'A User Can Bypass 2FA For The Set Number Of Days', 'wp-simple-firewall' );
 				$desc = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
 				break;
 

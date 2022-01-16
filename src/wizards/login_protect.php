@@ -31,10 +31,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oResponse = $this->processAuthGa();
 				break;
 
-			case 'multiselect':
-				$oResponse = $this->processMultiSelect();
-				break;
-
 			default:
 				$oResponse = parent::processWizardStep( $step );
 				break;
@@ -144,24 +140,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function processMultiSelect() {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-
-		$bEnabledMulti = Services::Request()->post( 'multiselect' ) === 'Y';
-		$mod->setIsChainedAuth( $bEnabledMulti );
-		$sMessage = sprintf( __( 'Multi-Factor Authentication was %s for the site.', 'wp-simple-firewall' ),
-			$bEnabledMulti ? __( 'enabled', 'wp-simple-firewall' ) : __( 'disabled', 'wp-simple-firewall' )
-		);
-
-		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( true )
-			->setMessageText( $sMessage );
-	}
-
-	/**
 	 * @return string[]
 	 * @throws Exception
 	 */
@@ -195,7 +173,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'authga';
 		}
 
-		$aStepsSlugs[] = 'multiselect';
 		$aStepsSlugs[] = 'finished';
 		return $aStepsSlugs;
 	}
@@ -239,14 +216,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					],
 					'flags' => [
 						'has_ga' => $GAProvider->hasValidatedProfile( $user ),
-					]
-				];
-				break;
-
-			case 'multiselect':
-				$aAdditional = [
-					'flags' => [
-						'has_multiselect' => $opts->isChainedAuth(),
 					]
 				];
 				break;

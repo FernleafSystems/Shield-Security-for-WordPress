@@ -172,18 +172,6 @@
       "description":   "Choose the page type for MFA verification"
     },
     {
-      "key":         "enable_chained_authentication",
-      "section":     "section_multifactor_authentication",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/9r",
-      "link_blog":   "https://shsec.io/84",
-      "beacon_id":   326,
-      "name":        "Multi-Factor Authentication",
-      "summary":     "Require All Active Authentication Factors",
-      "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
-    },
-    {
       "key":         "mfa_skip",
       "section":     "section_multifactor_authentication",
       "premium":     true,
@@ -193,7 +181,7 @@
       "link_info":   "https://shsec.io/b1",
       "link_blog":   "",
       "beacon_id":   141,
-      "name":        "Multi-Factor Bypass",
+      "name":        "2FA Remember Me",
       "summary":     "A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days",
       "description": "Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable."
     },
