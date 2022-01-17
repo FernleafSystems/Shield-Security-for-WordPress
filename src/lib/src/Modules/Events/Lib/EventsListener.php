@@ -12,16 +12,21 @@ abstract class EventsListener {
 	/**
 	 * @var bool
 	 */
-	private $bCommit = false;
+	private $commit;
 
 	/**
 	 * @param Controller\Controller $con
+	 * @throws \Exception
 	 */
-	public function __construct( $con ) {
+	public function __construct( $con = null, bool $commit = false ) {
+		if ( !$con instanceof Controller\Controller ) {
+			$con = shield_security_get_plugin()->getController();
+		}
 		$this->setCon( $con );
+		$this->commit = $commit;
 
 		add_action( 'shield/event',
-			function ( $event, $meta = [], $def = [] ) use ( $con ) {
+			function ( $event, $meta = [], $def = [] ) {
 				$this->captureEvent(
 					(string)$event,
 					is_array( $meta ) ? $meta : [],
@@ -45,19 +50,15 @@ abstract class EventsListener {
 
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCommit() {
-		return (bool)$this->bCommit;
+	public function isCommit() :bool {
+		return $this->commit;
 	}
 
 	/**
-	 * @param bool $bCommit
 	 * @return $this
 	 */
-	public function setIfCommit( $bCommit ) {
-		$this->bCommit = $bCommit;
+	public function setIfCommit( bool $commit ) {
+		$this->commit = $commit;
 		return $this;
 	}
 }
