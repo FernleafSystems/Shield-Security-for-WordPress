@@ -15,13 +15,12 @@ abstract class EventsListener {
 	private $bCommit = false;
 
 	/**
-	 * EventsListener constructor.
 	 * @param Controller\Controller $con
 	 */
 	public function __construct( $con ) {
 		$this->setCon( $con );
 
-		add_action( $con->prefix( 'event' ),
+		add_action( 'shield/event',
 			function ( $event, $meta = [], $def = [] ) use ( $con ) {
 				$this->captureEvent(
 					(string)$event,

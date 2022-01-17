@@ -22,7 +22,7 @@ class EventsService {
 			try {
 				$this->verifyAuditParams( $event, $meta );
 				do_action(
-					$this->getCon()->prefix( 'event' ),
+					'shield/event',
 					$event,
 					$meta,
 					$this->getEventDef( $event )
