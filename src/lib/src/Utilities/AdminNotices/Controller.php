@@ -22,9 +22,10 @@ class Controller {
 	 * @return string
 	 */
 	public function onLoginMessage( $msg ) {
-		$aM = $this->retrieveFlashMessage();
-		if ( is_array( $aM ) && isset( $aM[ 'show_login' ] ) && $aM[ 'show_login' ] ) {
-			$msg .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $aM[ 'message' ] ) );
+		$msg = $this->retrieveFlashMessage();
+		if ( is_array( $msg ) && isset( $msg[ 'show_login' ] ) && $msg[ 'show_login' ] ) {
+			$msg .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $msg[ 'message' ] ) );
+			error_log( $msg );
 			$this->clearFlashMessage();
 		}
 		return $msg;
@@ -37,9 +38,9 @@ class Controller {
 	 * @return $this
 	 */
 	public function addFlash( $msg, $isError = false, $bShowOnLoginPage = false ) {
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		if ( $oMeta instanceof PluginUserMeta ) {
-			$oMeta->flash_msg = [
+		$meta = $this->getCon()->getCurrentUserMeta();
+		if ( $meta instanceof PluginUserMeta ) {
+			$meta->flash_msg = [
 				'message'    => sanitize_text_field( $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
 				'error'      => $isError,

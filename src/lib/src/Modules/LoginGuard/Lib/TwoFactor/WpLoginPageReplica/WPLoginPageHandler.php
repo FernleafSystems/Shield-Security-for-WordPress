@@ -4,6 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
+	CouldNotValidate2FA,
+	NoActiveProvidersForUserException,
+	NoLoginIntentForUserException,
+	NotValidUserException
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class WPLoginPageHandler extends Shield\Modules\Base\Common\ExecOnceModConsumer {
@@ -17,22 +23,47 @@ class WPLoginPageHandler extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	private $errorMsg = '';
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		$this->setupLoginCaptureHooks();
 	}
 
-	public function onWpInit() {
+	public function onWpLoaded() {
 		try {
 			$this->capture2faVerify();
 		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+		catch ( NotValidUserException $e ) {
+			// put error about no login intent
+			$this->getCon()->getAdminNotices()->addFlash( 'No user login intent found', true, true );
+			Services::Response()->redirectToLogin();
+		}
+		catch ( NoLoginIntentForUserException $e ) {
+			// put error about no login intent
+			$this->getCon()->getAdminNotices()->addFlash( 'No user login intent found', true, true );
+			Services::Response()->redirectToLogin();
+		}
+		catch ( CouldNotValidate2FA $e ) {
+			// Allow a further attempt to login
+			$req = Services::Request();
+			echo ( new RenderWpLoginReplica(
+				Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) ),
+				(string)$req->post( 'wp_user_id' ),
+				(string)$req->post( 'rememberme' ),
+				'Could not verify your 2FA codes'
+			) )->setMod( $this->getMod() )
+			   ->render();
+			die();
+		}
+		catch ( NoActiveProvidersForUserException $e ) {
+			// put error about no 2FA providers
 			Services::Response()->redirectToLogin();
 		}
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws CouldNotValidate2FA
+	 * @throws NoActiveProvidersForUserException
+	 * @throws NoLoginIntentForUserException
+	 * @throws NotValidUserException
 	 */
 	public function capture2faVerify() {
 		/** @var LoginGuard\ModCon $mod */
@@ -40,9 +71,10 @@ class WPLoginPageHandler extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 		$req = Services::Request();
 
 		if ( $this->getCon()->getShieldAction() === 'wp_login_2fa_verify' ) {
+
 			$user = Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) );
 			if ( empty( $user ) ) {
-				throw new \Exception( 'Not a valid user' );
+				throw new NotValidUserException();
 			}
 
 			$valid = ( new LoginGuard\Lib\TwoFactor\ValidateLoginIntentRequest() )
@@ -55,9 +87,9 @@ class WPLoginPageHandler extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 				global $interim_login;
 				$interim_login = (bool)$req->request( 'interim-login' );
 				if ( $interim_login ) {
-					add_filter( 'login_message', function ( $message ) {
+					add_filter( 'login_message', function () {
 						return '';
-					} );
+					}, 100, 0 );
 					echo ( new RenderWpLoginReplica( $user ) )
 						->setMod( $mod )
 						->setInterimMessage( __( '2FA authentication verified successfully.', 'wp-simple-firewall' ) )
@@ -93,14 +125,6 @@ class WPLoginPageHandler extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		// TODO: Implement captureLogin() method.
-	}
-
-	/**
-	 * @param string   $userLogin
-	 * @param \WP_User $user
-	 */
-	public function onWpLogin( $userLogin, $user ) {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();

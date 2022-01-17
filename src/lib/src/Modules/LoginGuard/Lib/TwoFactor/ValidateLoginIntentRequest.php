@@ -3,64 +3,49 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
+	CouldNotValidate2FA,
+	NoActiveProvidersForUserException,
+	NoLoginIntentForUserException
+};
 
 class ValidateLoginIntentRequest {
 
 	use MfaControllerConsumer;
 
 	/**
-	 * @throws \Exception
+	 * @throws CouldNotValidate2FA
+	 * @throws NoActiveProvidersForUserException
+	 * @throws NoLoginIntentForUserException
 	 */
-	public function run( \WP_User $user ) :bool {
+	public function run( \WP_User $user, bool $removeIntentOnFailure = false ) :bool {
 		$mfaCon = $this->getMfaCon();
-		/** @var LoginGuard\Options $opts */
-		$opts = $mfaCon->getOptions();
 
-		if ( !$mfaCon->hasLoginIntent( $user ) ) { // TODO: make this a hash
-			throw new \Exception( 'No valid user login intent' );
+		if ( !$mfaCon->hasLoginIntent( $user ) ) {
+			throw new NoLoginIntentForUserException();
 		}
-		$mfaCon->removeLoginIntent( $user );
 
 		$providers = $mfaCon->getProvidersForUser( $user, true );
 		if ( empty( $providers ) ) {
-			throw new \Exception( 'No valid providers' );
-		}
-
-		$providerStates = [];
-		$successfulProviders = [];
-		foreach ( $providers as $slug => $provider ) {
-			$providerStates[ $slug ] = $provider->validateLoginIntent( $user );
-			if ( $providerStates[ $slug ] ) {
-				$successfulProviders[ $slug ] = $provider;
-			}
+			throw new NoActiveProvidersForUserException();
 		}
 
 		$validated = false;
-
-		foreach ( $providers as $slug => $provider ) {
-			if ( $provider::BYPASS_MFA ) {
-				if ( $providerStates[ $slug ] ) {
-					$validated = true;
-				}
-				unset( $providers[ $slug ] );
-				unset( $providerStates[ $slug ] );
+		foreach ( $providers as $provider ) {
+			if ( $provider->validateLoginIntent( $user ) ) {
+				$provider->postSuccessActions( $user );
+				$validated = true;
+				break;
 			}
+		}
+
+		// Always remove intent after success, but also after failure if multiple attempts are permitted.
+		if ( $validated || $removeIntentOnFailure ) {
+			$mfaCon->removeLoginIntent( $user );
 		}
 
 		if ( !$validated ) {
-			$countSuccessful = count( array_filter( $providerStates ) );
-			$validated = $countSuccessful > 0;
-		}
-
-		if ( $validated ) {
-			// Some cleanup can only run if login is completely tested and completely valid.
-			foreach ( $successfulProviders as $provider ) {
-				$provider->postSuccessActions( $user );
-			}
-		}
-		else {
-			throw new \Exception( 'Could not validate login 2FA' );
+			throw new CouldNotValidate2FA();
 		}
 
 		return true;

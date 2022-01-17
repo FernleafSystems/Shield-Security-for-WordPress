@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class BackupCodes extends BaseProvider {
 
 	const SLUG = 'backupcode';
-	const BYPASS_MFA = true;
 	const STANDALONE = false;
 
 	public function getProviderName() :string {

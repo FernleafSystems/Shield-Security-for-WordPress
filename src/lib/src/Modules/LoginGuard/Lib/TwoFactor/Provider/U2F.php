@@ -11,7 +11,6 @@ use u2flib_server\SignRequest;
 class U2F extends BaseProvider {
 
 	const SLUG = 'u2f';
-	const BYPASS_MFA = true;
 	const DEFAULT_SECRET = '[]';
 
 	public function isProfileActive( \WP_User $user ) :bool {

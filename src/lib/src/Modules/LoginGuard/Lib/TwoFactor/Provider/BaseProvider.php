@@ -11,10 +11,6 @@ abstract class BaseProvider {
 
 	const SLUG = '';
 	/**
-	 * Set to true if this provider can be used to validate 2FA even if MFA is active.
-	 */
-	const BYPASS_MFA = false;
-	/**
 	 * Set to true if this provider can be used in isolation. False if there
 	 * must be at least 1 other 2FA provider active alongside it.
 	 */

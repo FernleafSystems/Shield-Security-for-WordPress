@@ -373,7 +373,7 @@ class Controller extends DynPropertiesClass {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
 		add_action( 'init', [ $this, 'onWpInit' ], -1000 );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
 		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );

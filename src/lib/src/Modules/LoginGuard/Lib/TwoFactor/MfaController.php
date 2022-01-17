@@ -68,6 +68,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		if ( $this->isSubjectToLoginIntent( $user )
 			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
+
 			$providers = $this->getProvidersForUser( $user, true );
 			if ( !empty( $providers ) ) {
 				foreach ( $providers as $provider ) {
@@ -75,9 +76,10 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				}
 
 				$meta = $this->getCon()->getUserMeta( $user );
+
 				$intents = $meta->login_intents ?? [];
-				$intents[ $this->getVisitorID() ] = true;
-				$meta->login_intents = $intents;
+				$intents[ $this->getVisitorID() ] = Services::Request()->ts();
+				$meta->login_intents = $this->filterExpiredIntents( $intents );
 			}
 		}
 	}
@@ -191,7 +193,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			}
 
 			try {
-				$this->validateLoginIntentRequest();
+				( new ValidateLoginIntentRequest() )
+					->setMfaController( $this )
+					->run( $user );
 
 				if ( $req->post( 'skip_mfa' ) === 'Y' ) {
 					( new MfaSkip() )
@@ -207,12 +211,11 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				}
 				$this->getMod()->setFlashAdminNotice( $flash );
 
-				$this->removeLoginIntent( $user );
-
 				$redirect = $req->post( 'redirect_to' );
 				empty( $redirect ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $redirect ) );
 			}
 			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
 				$con->getAdminNotices()
 					->addFlash(
 						__( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
@@ -226,21 +229,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$this->getLoginIntentPageHandler()->loadPage();
 		}
 		die();
-	}
-
-	/**
-	 * assume that a user is logged in.
-	 */
-	private function validateLoginIntentRequest() :bool {
-		try {
-			$valid = ( new ValidateLoginIntentRequest() )
-				->setMfaController( $this )
-				->run( Services::WpUsers()->getCurrentWpUser() );
-		}
-		catch ( \Exception $e ) {
-			$valid = true;
-		}
-		return $valid;
 	}
 
 	public function canUserMfaSkip( \WP_User $user ) :bool {
@@ -303,7 +291,8 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function hasLoginIntent( \WP_User $user ) :bool {
-		return !empty( $this->getCon()->getUserMeta( $user )->login_intents[ $this->getVisitorID() ] );
+		$meta = $this->getCon()->getUserMeta( $user );
+		return !empty( $this->filterExpiredIntents( $meta->login_intents )[ $this->getVisitorID() ] );
 	}
 
 	private function getVisitorID() :string {
@@ -314,11 +303,11 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 * Use this ONLY when the login intent has been successfully verified.
 	 * @return $this
 	 */
-	public function removeLoginIntent( $user ) {
+	public function removeLoginIntent( \WP_User $user ) {
 		$meta = $this->getCon()->getUserMeta( $user );
 		$intents = $meta->login_intents ?? [];
 		unset( $intents[ $this->getVisitorID() ] );
-		$meta->login_intents = $intents;
+		$meta->login_intents = $this->filterExpiredIntents( $intents );
 
 		return $this;
 	}
@@ -330,5 +319,17 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	private function destroyLogin( \WP_User $user ) {
 		$this->removeLoginIntent( $user );
 		Services::WpUsers()->logoutUser();
+	}
+
+	private function filterExpiredIntents( array $intents ) :array {
+		return array_filter(
+			$intents,
+			function ( $intentStart ) {
+				/** @var LoginGuard\Options $opts */
+				$opts = $this->getOptions();
+				return is_int( $intentStart )
+					   && $intentStart > ( Services::Request()->ts() - $opts->getLoginIntentMinutes()*60 );
+			}
+		);
 	}
 }
