@@ -78,7 +78,6 @@ class U2F extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return object[]
 	 * @throws \u2flib_server\Error
 	 */
@@ -102,7 +101,6 @@ class U2F extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return \stdClass[]
 	 */
 	private function getRegistrations( \WP_User $user ) {
@@ -226,8 +224,6 @@ class U2F extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @param array    $aReg
 	 * @return $this
 	 */
 	private function addRegistration( \WP_User $user, array $aReg ) {
@@ -263,8 +259,6 @@ class U2F extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @param array    $regs
 	 * @return $this
 	 */
 	private function storeRegistrations( \WP_User $user, array $regs ) {
@@ -273,7 +267,6 @@ class U2F extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @param string   $sU2fID
 	 * @return $this
 	 */

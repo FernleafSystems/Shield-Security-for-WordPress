@@ -79,7 +79,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$userID = Services::Request()->post( 'user_id' );
 		if ( !empty( $userID ) ) {
-			$result = $mod->getLoginIntentController()->removeAllFactorsForUser( (int)$userID );
+			$result = $mod->getMfaController()->removeAllFactorsForUser( (int)$userID );
 			$response = [
 				'success' => $result->success,
 				'message' => $result->success ? $result->msg_text : $result->error_text,
@@ -99,7 +99,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
 
 		$pass = $provider->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 		$pass = implode( '-', str_split( $pass, 5 ) );
@@ -115,7 +115,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
 		$provider->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$mod->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
 
@@ -129,7 +129,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\GoogleAuth $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 
 		$otp = Services::Request()->post( 'ga_otp', '' );
 		$result = empty( $otp ) ?
@@ -147,7 +147,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Email $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Email::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Email::SLUG ];
 
 		$turnOn = Services::Request()->post( 'direction' ) == 'on';
 		$provider->setProfileValidated( Services::WpUsers()->getCurrentWpUser(), $turnOn );
@@ -183,7 +183,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\U2F $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
 
 		$u2fReg = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( empty( $u2fReg ) ) {
@@ -209,7 +209,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$req = Services::Request();
 		/** @var TwoFactor\Provider\Sms $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
 
 		$countryCode = $req->post( 'sms_country' );
 		$phoneNum = $req->post( 'sms_phone' );
@@ -252,7 +252,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Sms $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
 		$provider->remove( Services::WpUsers()->getCurrentWpUser() );
 		return [
 			'success'     => true,
@@ -265,7 +265,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Sms $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
 		try {
 			$provider->startLoginIntent( Services::WpUsers()->getCurrentWpUser() );
 			$response = [
@@ -289,7 +289,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$req = Services::Request();
 		/** @var TwoFactor\Provider\Sms $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
 
 		$countryCode = $req->post( 'sms_country' );
 		$phoneNum = $req->post( 'sms_phone' );
@@ -333,7 +333,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\U2F $provider */
-		$provider = $mod->getLoginIntentController()
+		$provider = $mod->getMfaController()
 						->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
 
 		$key = Services::Request()->post( 'u2fid' );
@@ -351,7 +351,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Yubikey $provider */
-		$provider = $mod->getLoginIntentController()
+		$provider = $mod->getMfaController()
 						->getProviders()[ TwoFactor\Provider\Yubikey::SLUG ];
 
 		$otp = Services::Request()->post( 'otp', '' );

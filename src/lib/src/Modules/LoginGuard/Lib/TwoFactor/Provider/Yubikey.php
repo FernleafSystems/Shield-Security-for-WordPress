@@ -137,7 +137,6 @@ class Yubikey extends BaseProvider {
 			}
 
 			if ( !$this->sendYubiOtpRequest( $keyOrOTP ) ) {
-				$response->success = false;
 				$response->error_text = 'One-Time Password verification failed';
 			}
 			$response->success = true;
@@ -146,15 +145,6 @@ class Yubikey extends BaseProvider {
 		}
 
 		return $response;
-	}
-
-	/**
-	 * @param \WP_User $user
-	 * @param string   $key
-	 * @param bool     $add - true to add; false to remove
-	 * @return $this
-	 */
-	public function addRemoveRegisteredYubiId( \WP_User $user, string $key, $add = true ) {
 	}
 
 	public function getFormField() :array {

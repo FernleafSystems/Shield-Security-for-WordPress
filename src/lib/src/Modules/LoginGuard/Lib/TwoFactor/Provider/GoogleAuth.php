@@ -189,11 +189,6 @@ class GoogleAuth extends BaseProvider {
 		return $this->validateGaCode( $user, $otp );
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $otp
-	 * @return bool
-	 */
 	public function validateGaCode( \WP_User $user, string $otp ) :bool {
 		$valid = false;
 		if ( preg_match( '#^[0-9]{6}$#', $otp ) ) {
@@ -210,7 +205,6 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	protected function genNewSecret( \WP_User $user ) {
@@ -238,7 +232,6 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	protected function getSecret( \WP_User $user ) {

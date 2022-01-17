@@ -66,7 +66,6 @@ class BackupCodes extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
@@ -80,7 +79,6 @@ class BackupCodes extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @param string   $OTP
 	 * @return bool
 	 */
@@ -89,7 +87,6 @@ class BackupCodes extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return string
 	 */
 	protected function genNewSecret( \WP_User $user ) {
@@ -112,9 +109,6 @@ class BackupCodes extends BaseProvider {
 		return $this;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 */
 	private function sendBackupCodeUsedEmail( \WP_User $user ) {
 		$this->getMod()
 			 ->getEmailProcessor()

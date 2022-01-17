@@ -111,7 +111,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 			else {
 				/** @var TwoFactor\Provider\GoogleAuth $oGA */
-				$oGA = $mod->getLoginIntentController()
+				$oGA = $mod->getMfaController()
 						   ->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$oUser = Services::WpUsers()->getCurrentWpUser();
 				$bValidated = $oGA->validateGaCode( $oUser, $sCode );
@@ -204,7 +204,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'authga':
 				$user = Services::WpUsers()->getCurrentWpUser();
 				/** @var TwoFactor\Provider\GoogleAuth $GAProvider */
-				$GAProvider = $mod->getLoginIntentController()
+				$GAProvider = $mod->getMfaController()
 						   ->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$aAdditional = [
 					'data'  => [

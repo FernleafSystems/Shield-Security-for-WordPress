@@ -80,7 +80,6 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param \WP_User $user - not checking that user is valid
 	 * @return $this
 	 */
 	private function sendLoginNotifications( \WP_User $user ) {
@@ -102,7 +101,7 @@ class Processor extends BaseShield\Processor {
 		if ( $sendUser ) {
 			$hasLoginIntent = $this->getCon()
 								   ->getModule_LoginGuard()
-								   ->getLoginIntentController()
+								   ->getMfaController()
 								   ->isSubjectToLoginIntent( $user );
 			if ( !$hasLoginIntent ) {
 				$this->sendUserLoginEmailNotification( $user );

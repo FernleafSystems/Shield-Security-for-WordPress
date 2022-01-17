@@ -215,7 +215,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				empty( $redirect ) ? $WPResp->redirectHere() : $WPResp->redirect( rawurldecode( $redirect ) );
 			}
 			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
 				$con->getAdminNotices()
 					->addFlash(
 						__( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),

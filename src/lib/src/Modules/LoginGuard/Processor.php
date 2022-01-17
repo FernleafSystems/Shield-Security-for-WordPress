@@ -15,17 +15,12 @@ class Processor extends BaseShield\Processor {
 		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
 			return;
 		}
-//
-//		/** @var Options $opts */
-//		$opts = $this->getOptions();
-//		var_dump( $opts->getEmail2FaRoles() );
-//		die(0);
-//;
+
 		( new Lib\Rename\RenameLogin() )
 			->setMod( $mod )
 			->execute();
 
-		$mod->getLoginIntentController()->execute();
+		$mod->getMfaController()->execute();
 	}
 
 	public function onWpInit() {
