@@ -50,6 +50,18 @@ class AuditLogger extends EventsListener {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		$this->pushCustomHandlers();
+	}
+
+	private function pushCustomHandlers() {
+		$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
+		array_map(
+			function ( $handler ) {
+				$this->getLogger()->pushHandler( $handler );
+			},
+			( $this->getCon()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
+		);
 	}
 
 	public function getLogger() :Logger {
