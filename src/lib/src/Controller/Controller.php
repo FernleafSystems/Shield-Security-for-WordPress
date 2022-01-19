@@ -31,6 +31,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
+ * @property Users\UserMetas                                        $user_metas
  * @property array|Shield\Modules\Base\ModCon[]                     $modules
  * @property Shield\Crons\HourlyCron                                $cron_hourly
  * @property Shield\Crons\DailyCron                                 $cron_daily
@@ -197,6 +198,12 @@ class Controller extends DynPropertiesClass {
 				if ( !is_array( $val ) ) {
 					$val = [];
 					$this->reqs_not_met = $val;
+				}
+				break;
+
+			case 'user_metas':
+				if ( empty( $val ) ) {
+					$val = ( new Users\UserMetas() )->setCon( $this );
 				}
 				break;
 
@@ -1331,25 +1338,7 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Users\ShieldUserMeta|null
 	 */
 	public function getUserMeta( $user ) {
-		$meta = null;
-		try {
-			if ( $user instanceof \WP_User ) {
-				/** @var Shield\Users\ShieldUserMeta $meta */
-				$meta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $user->ID );
-				if ( !$meta instanceof Shield\Users\ShieldUserMeta ) {
-					// Weird: user reported an error where it wasn't of the correct type
-					$meta = new Shield\Users\ShieldUserMeta( $this->prefix(), $user->ID );
-					Shield\Users\ShieldUserMeta::AddToCache( $meta );
-				}
-				$meta->setPasswordStartedAt( $user->user_pass )
-					 ->updateFirstSeenAt();
-				Services::WpUsers()
-						->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $user->ID );
-			}
-		}
-		catch ( \Exception $e ) {
-		}
-		return $meta;
+		return $user instanceof \WP_User ? $this->user_metas->forUser( $user ) : null;
 	}
 
 	/**

@@ -23,8 +23,9 @@
   ],
   "definitions": {
     "db_handler_classes": {
-      "ips":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IPs\\Ops\\Handler",
-      "req_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler"
+      "ips":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IPs\\Ops\\Handler",
+      "req_logs":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler",
+      "user_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\UserMeta\\Ops\\Handler"
     },
     "db_table_ips":       {
       "autoexpire":     0,
@@ -67,6 +68,37 @@
         "meta":   {
           "macro_type": "meta"
         }
+      }
+    },
+    "db_table_user_meta": {
+      "slug":            "user_meta",
+      "autoexpire":      0,
+      "has_updated_at":  true,
+      "has_deleted_at":  false,
+      "cols_custom":     {
+        "user_id": {
+          "macro_type": "unsigned_int",
+          "type":       "bigint",
+          "length":     11,
+          "attr":       [
+            "UNIQUE"
+          ]
+        }
+      },
+      "cols_timestamps": {
+        "backup_ready_at":             "Backup Ready",
+        "email_ready_at":              "Email Ready",
+        "ga_ready_at":                 "Google Auth Ready",
+        "u2f_ready_at":                "U2F Ready",
+        "yubi_ready_at":               "Yubikey Ready",
+        "first_seen_at":               "User First Seen",
+        "last_login_at":               "Last Login At",
+        "last_2fa_verified_at":        "Last 2FA Verified",
+        "hard_suspended_at":           "Hard Suspend",
+        "soft_suspended_at":           "Soft Suspend",
+        "pass_started_at":             "Password First Seen or Set",
+        "pass_check_failed_at":        "Password Check Failed",
+        "pass_reset_last_redirect_at": "Password Reset last redirect"
       }
     }
   }

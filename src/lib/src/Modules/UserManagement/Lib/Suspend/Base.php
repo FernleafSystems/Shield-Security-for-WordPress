@@ -23,16 +23,17 @@ abstract class Base {
 	 */
 	public function checkUser( $user ) {
 		if ( $user instanceof \WP_User ) {
-			$user = $this->processUser( $user, $this->getCon()->getUserMeta( $user ) );
+			$meta = $this->getCon()->getUserMeta( $user );
+			if ( !empty( $meta ) ) {
+				$user = $this->processUser( $user, $meta );
+			}
 		}
 		return $user;
 	}
 
 	/**
 	 * Test the User and its Meta and if it fails return \WP_Error; Always return Error or User
-	 * @param \WP_User       $user
-	 * @param ShieldUserMeta $meta
 	 * @return \WP_Error|\WP_User
 	 */
-	abstract protected function processUser( \WP_User $user, $meta );
+	abstract protected function processUser( \WP_User $user, ShieldUserMeta $meta );
 }

@@ -68,7 +68,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		if ( $this->isSubjectToLoginIntent( $user )
 			 && !Services::WpUsers()->isAppPasswordAuth() && !$this->canUserMfaSkip( $user ) ) {
 
-
 			$providers = $this->getProvidersForUser( $user, true );
 			if ( !empty( $providers ) ) {
 				foreach ( $providers as $provider ) {
@@ -235,11 +234,11 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $this->getMod() )
 			->canMfaSkip( $user );
 
-		if ( !$canSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
-			// custom support for WooCommerce Social login
-			$meta = $this->getCon()->getUserMeta( $user );
-			$canSkip = $meta->wc_social_login_valid ?? false;
-		}
+//		if ( !$canSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
+//			// custom support for WooCommerce Social login
+//			$meta = $this->getCon()->getUserMeta( $user );
+//			$canSkip = $meta->wc_social_login_valid ?? false;
+//		}
 
 		return (bool)apply_filters( 'shield/2fa_skip',
 			apply_filters( 'odp-shield-2fa_skip', $canSkip ) );

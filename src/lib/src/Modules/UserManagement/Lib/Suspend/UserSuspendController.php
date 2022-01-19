@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
@@ -64,71 +62,69 @@ class UserSuspendController extends ExecOnceModConsumer {
 		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
 
 		// Provide Suspended user filter above table
-		$aUserIds = array_keys( $opts->getSuspendHardUserIds() );
-		if ( !empty( $aUserIds ) ) {
+		$userIDs = array_keys( $opts->getSuspendHardUserIds() );
+		if ( !empty( $userIDs ) ) {
 			// Provide the link above the table.
-			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {
+			add_filter( 'views_users', function ( $aViews ) use ( $userIDs ) {
 				$aViews[ 'shield_suspended_users' ] = sprintf( '<a href="%s">%s</a>',
 					add_query_arg( [ 'suspended' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
-					sprintf( '%s (%s)', __( 'Suspended', 'wp-simple-firewall' ), count( $aUserIds ) ) );
+					sprintf( '%s (%s)', __( 'Suspended', 'wp-simple-firewall' ), count( $userIDs ) ) );
 				return $aViews;
 			} );
 
 			// Filter the database query
-			add_filter( 'users_list_table_query_args', function ( $aQueryArgs ) use ( $aUserIds ) {
-				if ( is_array( $aQueryArgs ) && Services::Request()->query( 'suspended' ) ) {
-					$aQueryArgs[ 'include' ] = $aUserIds;
+			add_filter( 'users_list_table_query_args', function ( $args ) use ( $userIDs ) {
+				if ( is_array( $args ) && Services::Request()->query( 'suspended' ) ) {
+					$args[ 'include' ] = $userIDs;
 				}
-				return $aQueryArgs;
+				return $args;
 			} );
 		}
 	}
 
 	/**
-	 * @param array $aColumns
+	 * @param array $columns
 	 * @return array
 	 */
-	public function addUserListSuspendedFlag( $aColumns ) {
+	public function addUserListSuspendedFlag( $columns ) {
 
-		$sCustomColumnName = $this->getCon()->prefix( 'col_user_status' );
-		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
-			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
+		$customColumnName = $this->getCon()->prefix( 'col_user_status' );
+		if ( !isset( $columns[ $customColumnName ] ) ) {
+			$columns[ $customColumnName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
 		add_filter( 'manage_users_custom_column',
-			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
+			function ( $content, $columnName, $userID ) use ( $customColumnName ) {
 
-				if ( $sColumnName == $sCustomColumnName ) {
-					$oUser = Services::WpUsers()->getUserById( $nUserId );
-					if ( $oUser instanceof \WP_User ) {
-						$oMeta = $this->getCon()->getUserMeta( $oUser );
-						if ( $oMeta->hard_suspended_at > 0 ) {
-							$sNewContent = sprintf( '%s: %s',
+				if ( $columnName == $customColumnName ) {
+					$user = Services::WpUsers()->getUserById( $userID );
+					if ( $user instanceof \WP_User ) {
+						$meta = $this->getCon()->getUserMeta( $user );
+						if ( $meta->hard_suspended_at > 0 ) {
+							$newContent = sprintf( '%s: %s',
 								__( 'Suspended', 'wp-simple-firewall' ),
 								Services::Request()
 										->carbon( true )
-										->setTimestamp( $oMeta->hard_suspended_at )
+										->setTimestamp( $meta->hard_suspended_at )
 										->diffForHumans()
 							);
-							$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
+							$content = empty( $content ) ? $newContent : $content.'<br/>'.$newContent;
 						}
 					}
 				}
 
-				return $sContent;
+				return $content;
 			},
 			10, 3
 		);
 
-		return $aColumns;
+		return $columns;
 	}
 
-	public function addUserBlockOption( \WP_User $oUser ) {
+	public function addUserBlockOption( \WP_User $user ) {
 		$con = $this->getCon();
-		$meta = $con->getUserMeta( $oUser );
-		$oWpUsers = Services::WpUsers();
-
-		$aData = [
+		$meta = $con->getUserMeta( $user );
+		echo $this->getMod()->renderTemplate( '/admin/user/profile/suspend.twig', [
 			'strings' => [
 				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
 				'label'       => __( 'Check to un/suspend user account', 'wp-simple-firewall' ),
@@ -138,14 +134,13 @@ class UserSuspendController extends ExecOnceModConsumer {
 					Services::WpGeneral()->getTimeStringForDisplay( $meta->hard_suspended_at ) ),
 			],
 			'flags'   => [
-				'can_manage_suspension' => !$oWpUsers->isUserAdmin( $oUser ) || $con->isPluginAdmin(),
+				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $user ) || $con->isPluginAdmin(),
 				'is_suspended'          => $meta->hard_suspended_at > 0
 			],
 			'vars'    => [
 				'form_field' => 'shield_suspend_user',
 			]
-		];
-		echo $this->getMod()->renderTemplate( '/admin/user/profile/suspend.twig', $aData, true );
+		], true );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {

@@ -9,11 +9,9 @@ class Suspended extends Base {
 	const HOOK_PRIORITY = 999; // we process hard suspension before all others.
 
 	/**
-	 * @param \WP_User       $user
-	 * @param ShieldUserMeta $meta
 	 * @return \WP_Error|\WP_User
 	 */
-	protected function processUser( \WP_User $user, $meta ) {
+	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
 		if ( $meta->hard_suspended_at > 0 ) {
 			$user = new \WP_Error(
 				$this->getCon()->prefix( 'hard-suspended' ),
