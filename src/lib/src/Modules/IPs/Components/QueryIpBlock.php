@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class QueryIpBlock
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components
- */
 class QueryIpBlock {
 
 	use Shield\Modules\ModConsumer;
