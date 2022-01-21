@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 
+use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
+
 class AuditMessageBuilder {
 
 	public static function BuildFromLogRecord( LogRecord $log ) :array {
@@ -11,7 +13,7 @@ class AuditMessageBuilder {
 	}
 
 	public static function Build( string $event, array $substitutions = [] ) :string {
-		$srvEvents = shield_security_get_plugin()->getController()->loadEventsService();
+		$srvEvents = get_plugin()->getController()->loadEventsService();
 
 		$raw = implode( "\n", $srvEvents->getEventAuditStrings( $event ) );
 

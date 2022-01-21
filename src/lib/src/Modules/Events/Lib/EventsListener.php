@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class EventsListener {
@@ -20,7 +21,7 @@ abstract class EventsListener {
 	 */
 	public function __construct( $con = null, bool $commit = false ) {
 		if ( !$con instanceof Controller\Controller ) {
-			$con = shield_security_get_plugin()->getController();
+			$con = Functions\get_plugin()->getController();
 		}
 		$this->setCon( $con );
 		$this->commit = $commit;

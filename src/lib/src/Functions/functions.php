@@ -1,13 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace Shield;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Functions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
-
-if ( function_exists( '\Shield\shield_security_get_plugin' ) ) {
-	return;
-}
 
 function get_plugin() :\ICWP_WPSF_Shield_Security {
 	return \ICWP_WPSF_Shield_Security::GetInstance();
@@ -39,7 +35,7 @@ function test_ip_is_bot( $IP = null ) :bool {
 									   ->isBot( (string)$IP );
 }
 
-function get_ip_state( string $ip = '', string $state = 'bypass' ) :string {
+function get_ip_state( string $ip = '' ) :string {
 	$mod = get_plugin()->getController()->getModule_IPs();
 
 	$state = 'none';

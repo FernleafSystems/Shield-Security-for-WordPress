@@ -44,7 +44,7 @@
     ],
     "files":    [
       "./functions/functions.php",
-      "./functions/shield_functions.php"
+      "./src/Functions/functions.php"
     ]
   }
 }
