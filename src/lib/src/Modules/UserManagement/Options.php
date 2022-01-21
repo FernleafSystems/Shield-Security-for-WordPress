@@ -6,10 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	/**
+	 * @deprecated 13.1
+	 */
 	public function getSuspendHardUserIds() :array {
 		$ids = $this->getOpt( 'hard_suspended_userids', [] );
-		return is_array( $ids ) ? array_filter( $ids, function ( $nTime ) {
-			return is_int( $nTime ) && $nTime > 0;
+		return is_array( $ids ) ? array_filter( $ids, function ( $ts ) {
+			return is_int( $ts ) && $ts > 0;
 		} ) : [];
 	}
 

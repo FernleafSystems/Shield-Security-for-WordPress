@@ -9,11 +9,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class PasswordExpiry extends Base {
 
 	/**
-	 * @var int
-	 */
-	private $nMaxPasswordAge;
-
-	/**
 	 * @return \WP_Error|\WP_User
 	 */
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
@@ -34,29 +29,17 @@ class PasswordExpiry extends Base {
 		return $user;
 	}
 
-	/**
-	 * @param ShieldUserMeta $meta
-	 * @return bool
-	 */
-	private function isPassExpired( $meta ) {
+	private function isPassExpired( ShieldUserMeta $meta ) :bool {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
-		if ( empty( $meta->pass_started_at ) ) {
-			$meta->pass_started_at = $meta->first_seen_at;
-		}
-		return ( Services::Request()->ts() - $meta->pass_started_at > $opts->getPassExpireTimeout() );
-	}
-
-	public function getMaxPasswordAge() :int {
-		return (int)$this->nMaxPasswordAge;
+		return !empty( $meta->record->pass_started_at )
+			   && ( Services::Request()->ts() - $meta->record->pass_started_at > $opts->getPassExpireTimeout() );
 	}
 
 	/**
-	 * @param int $nMaxPasswordAge
-	 * @return $this
+	 * @deprecated 13.1
 	 */
-	public function setMaxPasswordAge( $nMaxPasswordAge ) {
-		$this->nMaxPasswordAge = $nMaxPasswordAge;
+	public function setMaxPasswordAge() {
 		return $this;
 	}
 }

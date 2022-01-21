@@ -86,19 +86,16 @@
         }
       },
       "cols_timestamps": {
-        "backup_ready_at":             "Backup Ready",
-        "email_ready_at":              "Email Ready",
-        "ga_ready_at":                 "Google Auth Ready",
-        "u2f_ready_at":                "U2F Ready",
-        "yubi_ready_at":               "Yubikey Ready",
-        "first_seen_at":               "User First Seen",
-        "last_login_at":               "Last Login At",
-        "last_2fa_verified_at":        "Last 2FA Verified",
-        "hard_suspended_at":           "Hard Suspend",
-        "soft_suspended_at":           "Soft Suspend",
-        "pass_started_at":             "Password First Seen or Set",
-        "pass_check_failed_at":        "Password Check Failed",
-        "pass_reset_last_redirect_at": "Password Reset last redirect"
+        "backupcode_ready_at":  "Backup Code Ready",
+        "email_ready_at":       "Email Ready",
+        "ga_ready_at":          "Google Auth Ready",
+        "u2f_ready_at":         "U2F Ready",
+        "yubi_ready_at":        "Yubikey Ready",
+        "first_seen_at":        "User First Seen",
+        "last_login_at":        "Last Login At",
+        "last_2fa_verified_at": "Last 2FA Verified",
+        "hard_suspended_at":    "Hard Suspend",
+        "pass_started_at":      "Password First Seen or Set"
       }
     }
   }

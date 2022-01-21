@@ -31,7 +31,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
- * @property Users\UserMetas                                        $user_metas
+ * @property Shield\Users\UserMetas                                 $user_metas
  * @property array|Shield\Modules\Base\ModCon[]                     $modules
  * @property Shield\Crons\HourlyCron                                $cron_hourly
  * @property Shield\Crons\DailyCron                                 $cron_daily
@@ -203,7 +203,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'user_metas':
 				if ( empty( $val ) ) {
-					$val = ( new Users\UserMetas() )->setCon( $this );
+					$val = ( new Shield\Users\UserMetas() )->setCon( $this );
 				}
 				break;
 

@@ -36,30 +36,20 @@ class Processor extends BaseShield\Processor {
 			->execute();
 
 		// All newly created users have their first seen and password start date set
-		add_action( 'user_register', function ( $nUserId ) {
-			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+		add_action( 'user_register', function ( $userID ) {
+			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
 		if ( !$mod->isVisitorWhitelisted() ) {
-
 			( new Lib\Session\UserSessionHandler() )
 				->setMod( $this->getMod() )
 				->execute();
-
 			( new Lib\Password\UserPasswordHandler() )
 				->setMod( $this->getMod() )
 				->execute();
-
 			( new Lib\Registration\EmailValidate() )
 				->setMod( $this->getMod() )
 				->run();
-		}
-	}
-
-	public function onWpInit() {
-		$WPU = Services::WpUsers();
-		if ( $WPU->isUserLoggedIn() ) {
-			$this->setPasswordStartedAt( $WPU->getCurrentWpUser() ); // used by Password Policies
 		}
 	}
 
@@ -73,9 +63,10 @@ class Processor extends BaseShield\Processor {
 		}
 		// One might think it should be. It's not always the case it seems...
 		if ( $user instanceof \WP_User ) {
-			$this->setPasswordStartedAt( $user )// used by Password Policies
-				 ->setUserLastLoginTime( $user )
-				 ->sendLoginNotifications( $user );
+			$meta = $this->getCon()->getUserMeta( $user );
+			$meta->updatePasswordStartedAt( $user->user_pass );
+			$meta->record->last_login_at = Services::Request()->ts();
+			$this->sendLoginNotifications( $user );
 		}
 	}
 
@@ -110,16 +101,17 @@ class Processor extends BaseShield\Processor {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 13.1
+	 */
 	private function setPasswordStartedAt( \WP_User $user ) :self {
-		$this->getCon()
-			 ->getUserMeta( $user )
-			 ->setPasswordStartedAt( $user->user_pass );
 		return $this;
 	}
 
+	/**
+	 * @deprecated 13.1
+	 */
 	protected function setUserLastLoginTime( \WP_User $user ) :self {
-		$meta = $this->getCon()->getUserMeta( $user );
-		$meta->last_login_at = Services::Request()->ts();
 		return $this;
 	}
 
@@ -130,28 +122,28 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function addUserStatusLastLogin( $aColumns ) {
 
-		$sCustomColumnName = $this->getCon()->prefix( 'col_user_status' );
-		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
-			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
+		$customColName = $this->getCon()->prefix( 'col_user_status' );
+		if ( !isset( $aColumns[ $customColName ] ) ) {
+			$aColumns[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
 		add_filter( 'manage_users_custom_column',
-			function ( $content, $sColumnName, $userID ) use ( $sCustomColumnName ) {
+			function ( $content, $colName, $userID ) use ( $customColName ) {
 
-				if ( $sColumnName == $sCustomColumnName ) {
+				if ( $colName == $customColName ) {
 					$value = __( 'Not Recorded', 'wp-simple-firewall' );
 					$user = Services::WpUsers()->getUserById( $userID );
 					if ( $user instanceof \WP_User ) {
-						$nLastLoginTime = $this->getCon()->getUserMeta( $user )->last_login_at;
-						if ( $nLastLoginTime > 0 ) {
+						$lastLogin = $this->getCon()->getUserMeta( $user )->record->last_login_at;
+						if ( $lastLogin > 0 ) {
 							$value = Services::Request()
 											 ->carbon()
-											 ->setTimestamp( $nLastLoginTime )
+											 ->setTimestamp( $lastLogin )
 											 ->diffForHumans();
 						}
 					}
-					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $value );
-					$content = empty( $content ) ? $sNewContent : $content.'<br/>'.$sNewContent;
+					$newContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $value );
+					$content = empty( $content ) ? $newContent : $content.'<br/>'.$newContent;
 				}
 
 				return $content;

@@ -33,13 +33,9 @@ class Idle extends Base {
 		return $user;
 	}
 
-	/**
-	 * @param ShieldUserMeta $meta
-	 * @return bool
-	 */
-	protected function isLastVerifiedAtExpired( $meta ) {
+	protected function isLastVerifiedAtExpired( ShieldUserMeta $meta ) :bool {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
-		return ( Services::Request()->ts() - $meta->getLastVerifiedAt() > $opts->getSuspendAutoIdleTime() );
+		return ( Services::Request()->ts() - $meta->last_verified_at > $opts->getSuspendAutoIdleTime() );
 	}
 }

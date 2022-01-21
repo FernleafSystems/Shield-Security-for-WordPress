@@ -10,8 +10,6 @@ use ZxcvbnPhp\Zxcvbn;
 
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
- * Class UserPasswordController
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password
  */
 class UserPasswordHandler extends ExecOnceModConsumer {
 
@@ -26,11 +24,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	protected function run() {
 		$this->setupLoginCaptureHooks();
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
-		add_action( 'password_reset', function ( $user ) {
-			if ( $user instanceof \WP_User ) {
-				$this->onPasswordReset( $user );
-			}
-		}, 100 );
+		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
 		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
@@ -45,9 +39,12 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				$failed = false;
 			}
 			catch ( \Exception $e ) {
-				$failed = ( $e->getCode() != 999 ); // We don't fail when the PWNED API is not available.
+				// We don't fail when the PWNED API is not available.
+				$failed = ( $e->getCode() != 999 );
 			}
-			$this->setPasswordFailedFlag( $user, $failed );
+
+			$this->getCon()
+				 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
 		}
 	}
 
@@ -59,11 +56,14 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		}
 	}
 
-	private function onPasswordReset( \WP_User $user ) {
-		if ( $user->ID > 0 ) {
+	/**
+	 * This hook is only available on WP 4.4+
+	 */
+	public function onPasswordReset( $user ) {
+		if ( $user instanceof \WP_User && $user->ID > 0 ) {
 			$meta = $this->getCon()->getUserMeta( $user );
 			unset( $meta->pass_hash );
-			$meta->pass_started_at = 0;
+			$meta->updatePasswordStartedAt( $user->user_pass );
 		}
 	}
 
@@ -71,7 +71,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isPassExpirationEnabled() ) {
-			$startedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
+			$startedAt = $this->getCon()->getCurrentUserMeta()->record->pass_started_at;
 			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
 				$this->getCon()->fireEvent( 'password_expired', [
 					'audit_params' => [
@@ -89,7 +89,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		$meta = $this->getCon()->getCurrentUserMeta();
 
 		$checkFailed = $this->getOptions()->isOpt( 'pass_force_existing', 'Y' )
-					   && isset( $meta->pass_check_failed_at ) && $meta->pass_check_failed_at > 0;
+					   && $meta->pass_check_failed_at > 0;
 
 		if ( $checkFailed ) {
 			$this->redirectToResetPassword(
@@ -209,7 +209,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	private function testPasswordMeetsMinimumStrength( string $password, int $min ) {
-		$score = ( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
+		$score = (int)( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
 		if ( $score < $min ) {
 			/** @var UserManagement\ModCon $mod */
@@ -293,8 +293,5 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @param bool     $failed
 	 */
 	private function setPasswordFailedFlag( \WP_User $user, bool $failed = false ) {
-		$this->getCon()
-			 ->getUserMeta( $user )
-			->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
 	}
 }

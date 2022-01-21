@@ -3,16 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops;
 
 /**
- * @property int    user_id
- * @property string pass_hash
- * @property int    first_seen_at
- * @property int    last_login_at
- * @property int    last_2fa_verified_at
- * @property int    hard_suspended_at
- * @property int    soft_suspended_at
- * @property int    pass_started_at
- * @property int    pass_check_failed_at
- * @property int    pass_reset_last_redirect_at
+ * @property int    $user_id
+ * @property string $pass_hash
+ * @property int    $first_seen_at
+ * @property int    $last_login_at
+ * @property int    $last_2fa_verified_at
+ * @property int    $hard_suspended_at
+ * @property int    $pass_started_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

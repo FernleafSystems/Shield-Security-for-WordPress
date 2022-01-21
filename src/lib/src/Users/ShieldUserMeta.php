@@ -1,9 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Record;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
 
 /**
  * @property array    $login_intents
@@ -21,63 +22,69 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool     $yubi_validated
  * @property array    $hash_loginmfa
  * @property string   $pass_hash
- * @property int      $first_seen_at
- * @property int      $pass_started_at
  * @property int      $pass_reset_last_redirect_at
  * @property int      $pass_check_failed_at
- * @property int      $last_login_at
  * @property bool     $wc_social_login_valid
- * @property bool     $hard_suspended_at
  * @property array    $tours
+ * /*** VIRTUAL ***
+ * @property int      $last_verified_at
+ * /*** REMOVED ***
+ * @property int      $first_seen_at
+ * @property int      $last_login_at
+ * @property int      $pass_started_at
+ * @property bool     $hard_suspended_at
  */
-class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta {
+class ShieldUserMeta extends UserMeta {
 
-	private $metaRecord;
-
-	public function getUserMetaRecord() :Record {
-		return $this->metaRecord;
-	}
+	/**
+	 * @var Record
+	 */
+	public $record;
 
 	public function setUserMetaRecord( Record $meta ) :self {
-		$this->metaRecord = $meta;
+		$this->record = $meta;
 		return $this;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getLastVerifiedAt() {
-		return (int)max( [ $this->last_login_at, $this->pass_started_at, $this->first_seen_at ] );
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+			case 'last_verified_at':
+				$value = max( [
+					$this->record->last_login_at,
+					$this->record->pass_started_at,
+					$this->record->first_seen_at
+				] );
+				break;
+			default:
+				break;
+		}
+
+		if ( function_exists( 'str_ends_with' ) && str_ends_with( $key, '_at' ) ) {
+			$value = (int)$value;
+		}
+
+		return $value;
 	}
 
-	/**
-	 * @param string $hashedPassword
-	 * @return $this
-	 */
-	public function setPasswordStartedAt( $hashedPassword ) {
-		$newHash = substr( sha1( $hashedPassword ), 6, 4 );
+	public function getLastVerifiedAt() :int {
+		return (int)$this->last_verified_at;
+	}
+
+	public function updatePasswordStartedAt( string $userPassHash ) :self {
+		$newHash = substr( sha1( $userPassHash ), 6, 4 );
 		if ( !isset( $this->pass_hash ) || ( $this->pass_hash != $newHash ) ) {
 			$this->pass_hash = $newHash;
-			$this->pass_started_at = Services::Request()->ts();
+			$this->record->pass_started_at = Services::Request()->ts();
 		}
 		return $this;
 	}
 
 	/**
 	 * @return $this
+	 * @deprecated 13.1
 	 */
 	public function updateFirstSeenAt() {
-		if ( empty( $this->first_seen_at ) ) {
-			$this->first_seen_at = max(
-				0,
-				min( array_filter( [
-					Services::Request()->ts(),
-					(int)$this->pass_started_at,
-					(int)$this->last_login_at,
-					(int)$this->pass_check_failed_at
-				] ) )
-			);
-		}
 		return $this;
 	}
 }

@@ -30,18 +30,17 @@ class UserSuspendController extends ExecOnceModConsumer {
 			if ( $opts->isSuspendManualEnabled() ) {
 				( new Suspended() )
 					->setMod( $this->getMod() )
-					->run();
+					->execute();
 			}
 			if ( $opts->isSuspendAutoIdleEnabled() ) {
 				( new Idle() )
 					->setMod( $this->getMod() )
-					->run();
+					->execute();
 			}
 			if ( $opts->isSuspendAutoPasswordEnabled() ) {
 				( new PasswordExpiry() )
-					->setMaxPasswordAge( $opts->getPassExpireTimeout() )
 					->setMod( $this->getMod() )
-					->run();
+					->execute();
 			}
 		}
 	}
@@ -87,7 +86,6 @@ class UserSuspendController extends ExecOnceModConsumer {
 	 * @return array
 	 */
 	public function addUserListSuspendedFlag( $columns ) {
-
 		$customColumnName = $this->getCon()->prefix( 'col_user_status' );
 		if ( !isset( $columns[ $customColumnName ] ) ) {
 			$columns[ $customColumnName ] = __( 'User Status', 'wp-simple-firewall' );
@@ -97,19 +95,16 @@ class UserSuspendController extends ExecOnceModConsumer {
 			function ( $content, $columnName, $userID ) use ( $customColumnName ) {
 
 				if ( $columnName == $customColumnName ) {
-					$user = Services::WpUsers()->getUserById( $userID );
-					if ( $user instanceof \WP_User ) {
-						$meta = $this->getCon()->getUserMeta( $user );
-						if ( $meta->hard_suspended_at > 0 ) {
-							$newContent = sprintf( '%s: %s',
-								__( 'Suspended', 'wp-simple-firewall' ),
-								Services::Request()
-										->carbon( true )
-										->setTimestamp( $meta->hard_suspended_at )
-										->diffForHumans()
-							);
-							$content = empty( $content ) ? $newContent : $content.'<br/>'.$newContent;
-						}
+					$meta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
+					if ( $meta->record->hard_suspended_at > 0 ) {
+						$newContent = sprintf( '%s: %s',
+							__( 'Suspended', 'wp-simple-firewall' ),
+							Services::Request()
+									->carbon( true )
+									->setTimestamp( $meta->record->hard_suspended_at )
+									->diffForHumans()
+						);
+						$content = empty( $content ) ? $newContent : $content.'<br/>'.$newContent;
 					}
 				}
 
@@ -131,11 +126,11 @@ class UserSuspendController extends ExecOnceModConsumer {
 				'description' => __( 'The user can never login while their account is suspended.', 'wp-simple-firewall' ),
 				'cant_manage' => __( 'Sorry, suspension for this account may only be managed by a security administrator.', 'wp-simple-firewall' ),
 				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ),
-					Services::WpGeneral()->getTimeStringForDisplay( $meta->hard_suspended_at ) ),
+					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
 			],
 			'flags'   => [
 				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $user ) || $con->isPluginAdmin(),
-				'is_suspended'          => $meta->hard_suspended_at > 0
+				'is_suspended'          => $meta->record->hard_suspended_at > 0
 			],
 			'vars'    => [
 				'form_field' => 'shield_suspend_user',
