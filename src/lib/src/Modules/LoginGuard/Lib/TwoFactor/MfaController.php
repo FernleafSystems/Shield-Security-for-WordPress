@@ -71,7 +71,8 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$providers = $this->getProvidersForUser( $user, true );
 			if ( !empty( $providers ) ) {
 				foreach ( $providers as $provider ) {
-					$provider->captureLoginAttempt( $user );
+					$provider->setUser( $user )
+							 ->captureLoginAttempt();
 				}
 
 				$meta = $this->getCon()->getUserMeta( $user );
@@ -151,11 +152,12 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 * @return Provider\BaseProvider[]
 	 */
 	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
-		$Ps = array_filter( $this->getProviders(),
+		$Ps = array_filter(
+			$this->getProviders(),
 			function ( $provider ) use ( $user, $onlyActive ) {
-				/** @var Provider\BaseProvider $provider */
-				return $provider->isProviderAvailableToUser( $user )
-					   && ( !$onlyActive || $provider->isProfileActive( $user ) );
+				$provider->setUser( $user );
+				return $provider->isProviderAvailableToUser()
+					   && ( !$onlyActive || $provider->isProfileActive() );
 			}
 		);
 
@@ -256,7 +258,8 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
 			foreach ( $this->getProvidersForUser( $user, true ) as $provider ) {
-				$provider->remove( $user );
+				$provider->setUser( $user )
+						 ->remove();
 			}
 			$result->success = true;
 			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.' ),

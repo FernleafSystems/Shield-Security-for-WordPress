@@ -10,9 +10,6 @@ class Sms extends BaseProvider {
 
 	const SLUG = 'sms';
 
-	public function captureLoginAttempt( \WP_User $user ) {
-	}
-
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
@@ -26,7 +23,8 @@ class Sms extends BaseProvider {
 	/**
 	 * @throws \Exception
 	 */
-	public function verifyProvisionalRegistration( \WP_User $user, string $country, string $phone, string $code ) :bool {
+	public function verifyProvisionalRegistration( string $country, string $phone, string $code ) :bool {
+		$user = $this->getUser();
 		$meta = $this->getCon()->getUserMeta( $user );
 		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
@@ -47,7 +45,7 @@ class Sms extends BaseProvider {
 			'verified' => true,
 		];
 
-		$this->setProfileValidated( $user );
+		$this->setProfileValidated( true );
 
 		return true;
 	}
@@ -55,7 +53,8 @@ class Sms extends BaseProvider {
 	/**
 	 * @throws \Exception
 	 */
-	public function addProvisionalRegistration( \WP_User $user, string $country, string $phone ) :string {
+	public function addProvisionalRegistration( string $country, string $phone ) :string {
+		$user = $this->getUser();
 		$meta = $this->getCon()->getUserMeta( $user );
 		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
@@ -73,7 +72,7 @@ class Sms extends BaseProvider {
 			throw new \Exception( 'This phone number is already verified' );
 		}
 
-		$this->setProfileValidated( $user, false );
+		$this->setProfileValidated( false );
 
 		$meta->sms_registration = [
 			'country'  => $country,
@@ -92,7 +91,8 @@ class Sms extends BaseProvider {
 	/**
 	 * @throws \Exception
 	 */
-	public function startLoginIntent( \WP_User $user ) {
+	public function startLoginIntent() {
+		$user = $this->getUser();
 		$meta = $this->getCon()->getUserMeta( $user );
 
 		$reg = $meta->sms_registration;
@@ -105,19 +105,19 @@ class Sms extends BaseProvider {
 	}
 
 	/**
-	 * @return $this
+	 * @inheritDoc
 	 */
-	public function postSuccessActions( \WP_User $user ) {
-		parent::postSuccessActions( $user );
-		$meta = $this->getCon()->getUserMeta( $user );
+	public function postSuccessActions() {
+		parent::postSuccessActions();
+		$meta = $this->getCon()->getUserMeta( $this->getUser() );
 		$reg = $meta->sms_registration;
 		unset( $reg[ 'code' ] );
 		$meta->sms_registration = $reg;
 		return $this;
 	}
 
-	protected function processOtp( \WP_User $user, string $otp ) :bool {
-		$meta = $this->getCon()->getUserMeta( $user );
+	protected function processOtp( string $otp ) :bool {
+		$meta = $this->getCon()->getUserMeta( $this->getUser() );
 		return !empty( $meta->sms_registration[ 'code' ] )
 			   && $meta->sms_registration[ 'code' ] === strtoupper( $otp );
 	}
@@ -138,26 +138,23 @@ class Sms extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @param string $secret
-	 * @return bool
-	 */
-	protected function isSecretValid( $secret ) {
+	protected function hasValidSecret() :bool {
 		return true;
 	}
 
-	public function remove( \WP_User $user ) {
-		$this->getCon()->getUserMeta( $user )->sms_registration = [];
-		parent::remove( $user );
+	public function remove() {
+		$this->getCon()->getUserMeta( $this->getUser() )->sms_registration = [];
+		parent::remove();
 	}
 
-	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+	protected function getProviderSpecificRenderData() :array {
+		$user = $this->getUser();
 		$countries = ( new GetAvailableCountries() )
 			->setMod( $this->getMod() )
 			->run();
 
 		$validatedNumber = '';
-		if ( $this->hasValidatedProfile( $user ) ) {
+		if ( $this->hasValidatedProfile() ) {
 			$smsReg = $this->getCon()->getUserMeta( $user )->sms_registration;
 			$validatedNumber = sprintf( '[%s] (+%s) %s',
 				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
@@ -166,7 +163,7 @@ class Sms extends BaseProvider {
 		return [
 			'flags'   => [
 				'has_countries' => !empty( $countries ),
-				'is_validated'  => $this->isProfileActive( $user )
+				'is_validated'  => $this->isProfileActive()
 			],
 			'strings' => [
 				'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
@@ -191,8 +188,8 @@ class Sms extends BaseProvider {
 		return $opts->isEnabledSmsAuth();
 	}
 
-	public function isProfileActive( \WP_User $user ) :bool {
-		return $this->hasValidatedProfile( $user );
+	public function isProfileActive() :bool {
+		return $this->hasValidatedProfile();
 	}
 
 	public function getProviderName() :string {

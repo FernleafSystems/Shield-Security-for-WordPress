@@ -21,7 +21,7 @@
 
 <div class="alert alert-{{ data.message_type }}" role="alert">{{ strings.message|raw }}</div>
 
-<form action="{{ hrefs.form_action }}" method="post" class="form-horizontal">
+<form action="{{ hrefs.form_action }}" method="post" class="form-horizontal" id="loginform">
 	<input type="hidden" name="{{ data.login_intent_flag }}" value="1" />
 	{% if not hrefs.redirect_to is empty %}
 		<input type="hidden" name="redirect_to" value="{{ hrefs.redirect_to }}" />

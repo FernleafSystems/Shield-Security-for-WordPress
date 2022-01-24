@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
@@ -13,13 +13,12 @@ class U2F extends BaseProvider {
 	const SLUG = 'u2f';
 	const DEFAULT_SECRET = '[]';
 
-	public function isProfileActive( \WP_User $user ) :bool {
-		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
+	public function isProfileActive() :bool {
+		return $this->hasValidatedProfile();
 	}
 
 	public function getJavascriptVars() :array {
-		$user = $this->getUser();
-		list( $reg, $signs ) = $this->createNewU2fRegistrationRequest( $user );
+		list( $reg, $signs ) = $this->createNewU2fRegistrationRequest();
 		return [
 			'reg_request' => $reg,
 			'signs'       => $signs,
@@ -28,7 +27,7 @@ class U2F extends BaseProvider {
 				'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' ),
 			],
 			'flags'       => [
-				'has_validated' => $this->hasValidatedProfile( $user )
+				'has_validated' => $this->hasValidatedProfile()
 			],
 			'strings'     => [
 				'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
@@ -45,13 +44,11 @@ class U2F extends BaseProvider {
 	}
 
 	public function getFormField() :array {
-		$user = $this->getUser();
-
 		$fieldData = [];
 		try {
 			/** @var SignRequest[] $signReqs */
 			$signReqs = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
-				->getAuthenticateData( $this->getRegistrations( $user ) );
+				->getAuthenticateData( $this->getRegistrations() );
 
 			if ( empty( $signReqs ) ) {
 				throw new \Exception( 'No signature requests could be created' );
@@ -81,13 +78,12 @@ class U2F extends BaseProvider {
 	 * @return object[]
 	 * @throws \u2flib_server\Error
 	 */
-	private function createNewU2fRegistrationRequest( \WP_User $user ) {
-		$meta = $this->getCon()->getUserMeta( $user );
+	private function createNewU2fRegistrationRequest() :array {
+		$meta = $this->getCon()->getUserMeta( $this->getUser() );
 		list( $newRegRequest, $signRequests ) = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
-			->getRegisterData( $this->getRegistrations( $user ) );
+			->getRegisterData( $this->getRegistrations() );
 
 		// Store requests as an array to allow for multiple requests to be kept
-		unset( $meta->u2f_regrequest ); // Old property
 		$userRegRequests = array_filter(
 			is_array( $meta->u2f_regrequests ) ? $meta->u2f_regrequests : [],
 			function ( $ts ) {
@@ -103,27 +99,46 @@ class U2F extends BaseProvider {
 	/**
 	 * @return \stdClass[]
 	 */
-	private function getRegistrations( \WP_User $user ) {
-		$regs = json_decode( $this->getSecret( $user ), true );
-		return array_map(
-			function ( $reg ) {
-				return (object)$reg;
-			},
-			is_array( $regs ) ? $regs : []
-		);
+	private function getRegistrations() :array {
+		$regs = $this->getSecret();
+		if ( is_string( $regs ) ) {
+			/**
+			 * @since 13.1 - now store the registrations as an array rather than encode
+			 * and decode it each time, so we need to decode it first and re-save it as the array.
+			 */
+			$regs = json_decode( $regs, true );
+			$regs = array_map(
+				function ( $reg ) {
+					return (object)$reg;
+				},
+				is_array( $regs ) ? $regs : []
+			);
+			$this->storeRegistrations( $regs );
+		}
+
+		// should always be an array of objects
+		foreach ( $regs as $label => $reg ) {
+			if ( is_array( $reg ) ) {
+				if ( empty( $reg ) ) {
+					unset( $regs[ $label ] );
+				}
+				else {
+					$regs[ $label ] = (object)$reg;
+				}
+				$this->storeRegistrations( $regs );
+			}
+		}
+
+		return $regs;
 	}
 
-	/**
-	 * TODO: Does this port stuff make a difference whatsoever?
-	 * @return string
-	 */
-	private function getU2fAppID() {
-		$aPs = wp_parse_url( Services::WpGeneral()->getHomeUrl() );
-		$sPort = ( empty( $aPs[ 'port' ] ) || in_array( $aPs[ 'port' ], [ 80, 443 ] ) ) ? '' : $aPs[ 'port' ];
-		return sprintf( 'https://%s%s', $aPs[ 'host' ], $sPort );
+	private function getU2fAppID() :string {
+		$p = wp_parse_url( Services::WpGeneral()->getHomeUrl() );
+		$port = ( empty( $p[ 'port' ] ) || in_array( $p[ 'port' ], [ 80, 443 ] ) ) ? '' : $p[ 'port' ];
+		return sprintf( 'https://%s%s', $p[ 'host' ], $port );
 	}
 
-	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+	protected function getProviderSpecificRenderData() :array {
 		return [
 			'strings' => [
 				'title'          => __( 'U2F', 'wp-simple-firewall' ),
@@ -131,52 +146,39 @@ class U2F extends BaseProvider {
 				'prompt'         => __( 'Click To Register A U2F Device.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'is_validated' => $this->hasValidatedProfile( $user )
+				'is_validated' => $this->hasValidatedProfile()
 			],
 			'vars'    => [
 				'registrations' => array_map(
-					function ( $oReg ) {
-						$oReg->used_at = sprintf( '(%s: %s)',
+					function ( $reg ) {
+						$reg->used_at = sprintf( '(%s: %s)',
 							__( 'Used', 'wp-simple-firewall' ),
-							empty( $oReg->used_at ) ?
+							empty( $reg->used_at ) ?
 								__( 'Never', 'wp-simple-firewall' )
 								: Services::Request()
 										  ->carbon()
-										  ->setTimestamp( $oReg->used_at )
+										  ->setTimestamp( $reg->used_at )
 										  ->diffForHumans()
 						);
-						return $oReg;
+						return $reg;
 					},
-					$this->getRegistrations( $user )
+					$this->getRegistrations()
 				)
 			],
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function handleUserProfileSubmit( \WP_User $user ) {
-		$rawU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
-		if ( !empty( $rawU2fResponse ) ) {
-			$result = $this->addNewRegistration( $user, json_decode( $rawU2fResponse, true ) );
-			$this->getMod()
-				 ->setFlashAdminNotice( $result->success ? $result->msg_text : $result->error_text, $result->failed );
-		}
-	}
+	public function addNewRegistration( array $u2fResponse ) :StdResponse {
+		$meta = $this->getCon()->getUserMeta( $this->getUser() );
 
-	public function addNewRegistration( \WP_User $user, array $u2fResponse ) :StdResponse {
 		$response = new StdResponse();
-
-		$meta = $this->getCon()->getUserMeta( $user );
-
 		try {
 			$u2fResponse = (object)$u2fResponse;
-			$label = preg_replace( '#[^a-z0-9_-]#i', '', $u2fResponse->label );
+			$label = sanitize_key( $u2fResponse->label );
 			if ( strlen( $label ) > 16 ) {
 				throw new \Exception( 'U2F Device label is larger than 16 characters.' );
 			}
-			if ( array_key_exists( $label, $this->getRegistrations( $user ) ) ) {
+			if ( array_key_exists( $label, $this->getRegistrations() ) ) {
 				throw new \Exception( 'U2F Device with this label already exists.' );
 			}
 
@@ -204,8 +206,7 @@ class U2F extends BaseProvider {
 			// attach the device label
 			$confirmedReg = get_object_vars( $U2FRegistration );
 			$confirmedReg[ 'label' ] = $label;
-			$this->addRegistration( $user, $confirmedReg )
-				 ->setProfileValidated( $user );
+			$this->addRegistration( $confirmedReg );
 
 			$response->msg_text = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
 			$response->success = true;
@@ -219,83 +220,68 @@ class U2F extends BaseProvider {
 		return $response;
 	}
 
-	protected function processOtp( \WP_User $user, string $otp ) :bool {
-		return $this->validateU2F( $user, $otp );
+	protected function processOtp( string $otp ) :bool {
+		try {
+			$registration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
+				->doAuthenticate(
+					json_decode( base64_decode( Services::Request()->post( 'u2f_signs' ) ) ),
+					$this->getRegistrations(),
+					json_decode( $otp )
+				);
+			$reg = get_object_vars( $registration );
+			$reg[ 'used_at' ] = Services::Request()->ts();
+			$this->addRegistration( $reg );
+		}
+		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
+		}
+
+		return !empty( $registration );
 	}
 
-	/**
-	 * @return $this
-	 */
-	private function addRegistration( \WP_User $user, array $aReg ) {
-		$aRegs = $this->getRegistrations( $user );
+	private function addRegistration( array $reg ) {
+		$regs = $this->getRegistrations();
 
 		// We've been passed a Registration without a label. (for example counter increment)
 		// So we try to locate the pre-existing registration and update it.
-		if ( empty( $aReg[ 'label' ] ) ) {
-			$aComparisonKeys = [ 'keyHandle', 'publicKey', 'certificate', ];
-			foreach ( $aRegs as $sLabel => $oMaybeReg ) {
-				$bIsReg = true;
-				foreach ( $aComparisonKeys as $sKeyCompare ) {
-					$bIsReg = $bIsReg && ( $oMaybeReg->{$sKeyCompare} === $aReg[ $sKeyCompare ] );
+		if ( empty( $reg[ 'label' ] ) ) {
+			$comparisonKeys = [ 'keyHandle', 'publicKey', 'certificate', ];
+			foreach ( $regs as $label => $maybeReg ) {
+				$isReg = true;
+				foreach ( $comparisonKeys as $keyCompare ) {
+					$isReg = $isReg && ( $maybeReg->{$keyCompare} === $reg[ $keyCompare ] );
 				}
-				if ( $bIsReg ) {
-					$aReg = array_merge( get_object_vars( $oMaybeReg ), $aReg );
+				if ( $isReg ) {
+					$reg = array_merge( get_object_vars( $maybeReg ), $reg );
 					break;
 				}
 			}
 		}
 
 		// Only add if there's a label, and set defaults
-		if ( !empty( $aReg[ 'label' ] ) ) {
-			$aRegs[ $aReg[ 'label' ] ] = array_merge(
+		if ( !empty( $reg[ 'label' ] ) ) {
+			$regs[ $reg[ 'label' ] ] = array_merge(
 				[
 					'used_at' => 0
 				],
-				$aReg
+				$reg
 			);
 		}
 
-		return $this->storeRegistrations( $user, $aRegs );
+		$this->storeRegistrations( $regs );
 	}
 
-	/**
-	 * @return $this
-	 */
-	private function storeRegistrations( \WP_User $user, array $regs ) {
-		return $this->setProfileValidated( $user, !empty( $regs ) )
-					->setSecret( $user, json_encode( $regs ) );
+	private function storeRegistrations( array $regs ) {
+		$this->setProfileValidated( !empty( $regs ) )
+			 ->setSecret( $regs );
 	}
 
-	/**
-	 * @param string   $sU2fID
-	 * @return $this
-	 */
-	public function removeRegisteredU2fId( \WP_User $user, $sU2fID ) {
-		$regs = $this->getRegistrations( $user );
-		if ( isset( $regs[ $sU2fID ] ) ) {
-			unset( $regs[ $sU2fID ] );
-			$this->storeRegistrations( $user, $regs );
+	public function removeRegisteredU2fId( string $U2fID ) {
+		$regs = $this->getRegistrations();
+		if ( isset( $regs[ $U2fID ] ) ) {
+			unset( $regs[ $U2fID ] );
+			$this->storeRegistrations( $regs );
 		}
-		return $this;
-	}
-
-	private function validateU2F( \WP_User $user, string $otp ) :bool {
-		try {
-			$oRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
-				->doAuthenticate(
-					json_decode( base64_decode( Services::Request()->post( 'u2f_signs' ) ) ),
-					$this->getRegistrations( $user ),
-					json_decode( $otp )
-				);
-			$aReg = get_object_vars( $oRegistration );
-			$aReg[ 'used_at' ] = Services::Request()->ts();
-			$this->addRegistration( $user, $aReg );
-		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
-		}
-
-		return !empty( $oRegistration );
 	}
 
 	public function isProviderEnabled() :bool {

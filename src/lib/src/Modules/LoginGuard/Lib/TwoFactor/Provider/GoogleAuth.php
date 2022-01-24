@@ -1,8 +1,13 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
-use Dolondro\GoogleAuthenticator;
+use Dolondro\GoogleAuthenticator\{
+	GoogleAuthenticator,
+	QrImageGenerator\GoogleQrImageGenerator,
+	Secret,
+	SecretFactory
+};
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\GenerateGoogleAuthQrCode;
@@ -13,12 +18,12 @@ class GoogleAuth extends BaseProvider {
 	const SLUG = 'ga';
 
 	/**
-	 * @var GoogleAuthenticator\Secret
+	 * @var Secret
 	 */
 	private $oWorkingSecret;
 
-	public function isProfileActive( \WP_User $user ) :bool {
-		return parent::isProfileActive( $user ) && $this->hasValidatedProfile( $user );
+	public function isProfileActive() :bool {
+		return $this->hasValidSecret() && $this->hasValidatedProfile();
 	}
 
 	public function getJavascriptVars() :array {
@@ -29,16 +34,16 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+	protected function getProviderSpecificRenderData() :array {
 		$con = $this->getCon();
 
-		$validatedProfile = $this->hasValidatedProfile( $user );
+		$validatedProfile = $this->hasValidatedProfile();
 		return [
 			'hrefs'   => [
-				'src_chart_url' => $validatedProfile ? '' : $this->getQrImage( $user ),
+				'src_chart_url' => $validatedProfile ? '' : $this->getQrImage(),
 			],
 			'vars'    => [
-				'ga_secret' => $validatedProfile ? $this->getSecret( $user ) : $this->resetSecret( $user ),
+				'ga_secret' => $validatedProfile ? $this->getSecret() : $this->resetSecret(),
 			],
 			'strings' => [
 				'enter_auth_app_code'   => __( 'Enter 6-digit Code from App', 'wp-simple-firewall' ),
@@ -60,9 +65,8 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	public function getQrImage( \WP_User $user ) :string {
-		$secret = $this->getGaSecret( $user );
-
+	private function getQrImage() :string {
+		$secret = $this->getGaSecret();
 		try {
 			$qrImage = $this->getGaRegisterChartUrl( $secret );
 		}
@@ -74,15 +78,12 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @param GoogleAuthenticator\Secret $secret
-	 * @return string
 	 * @throws \Exception
 	 */
-	private function getGaRegisterChartUrl( GoogleAuthenticator\Secret $secret ) :string {
+	private function getGaRegisterChartUrl( Secret $secret ) :string {
 		$rawImage = Services::HttpRequest()
 							->getContent(
-								( new GoogleAuthenticator\QrImageGenerator\GoogleQrImageGenerator() )
-									->generateUri( $secret ),
+								( new GoogleQrImageGenerator() )->generateUri( $secret ),
 								[ 'timeout' => 3 ]
 							);
 		if ( empty( $rawImage ) ) {
@@ -91,7 +92,7 @@ class GoogleAuth extends BaseProvider {
 		return base64_encode( $rawImage );
 	}
 
-	private function getGaRegisterChartUrlShieldNet( GoogleAuthenticator\Secret $secret ) :string {
+	private function getGaRegisterChartUrlShieldNet( Secret $secret ) :string {
 		return ( new GenerateGoogleAuthQrCode() )
 			->setMod( $this->getCon()->getModule_Plugin() )
 			->getCode(
@@ -102,73 +103,32 @@ class GoogleAuth extends BaseProvider {
 			);
 	}
 
-	public function removeGaOnAccount( \WP_User $user ) :StdResponse {
-		$this->processRemovalFromAccount( $user );
-		$response = new StdResponse();
-		$response->success = true;
-		$response->msg_text = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
-		return $response;
+	public function removeGA() :StdResponse {
+		$this->setProfileValidated( false )
+			 ->resetSecret();
+
+		$r = new StdResponse();
+		$r->success = true;
+		$r->msg_text = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
+		return $r;
 	}
 
-	public function activateGaOnAccount( \WP_User $user, string $otp ) :StdResponse {
-		$response = new StdResponse();
-		$response->success = $this->processOtp( $user, $otp );
-		if ( $response->success ) {
-			$this->setProfileValidated( $user );
-			$response->msg_text = sprintf(
+	public function activateGA( string $otp ) :StdResponse {
+		$r = new StdResponse();
+		$r->success = $this->processOtp( $otp );
+		if ( $r->success ) {
+			$this->setProfileValidated( true );
+			$r->msg_text = sprintf(
 				__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
 				__( 'Google Authenticator', 'wp-simple-firewall' )
 			);
 		}
 		else {
-			$this->resetSecret( $user );
-			$response->error_text = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
-									.' '.__( 'Please try again.', 'wp-simple-firewall' );
+			$this->resetSecret();
+			$r->error_text = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
+							 .' '.__( 'Please try again.', 'wp-simple-firewall' );
 		}
-		return $response;
-	}
-
-	/**
-	 * @param \WP_User $user
-	 * @return $this
-	 */
-	protected function processRemovalFromAccount( \WP_User $user ) {
-		$this->setProfileValidated( $user, false )
-			 ->resetSecret( $user );
-		return $this;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function handleUserProfileSubmit( \WP_User $user ) {
-		$otp = $this->fetchCodeFromRequest();
-
-		if ( Services::Request()->post( 'shield_turn_off_ga' ) === 'Y' ) {
-			$flash = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
-			$this->processRemovalFromAccount( $user );
-			$this->getMod()->setFlashAdminNotice( $flash );
-			/**
-			 * $flash = __( 'An email has been sent to you in order to confirm Google Authenticator removal', 'wp-simple-firewall' );
-			 * $flash = __( 'We tried to send an email for you to confirm Google Authenticator removal but it failed.', 'wp-simple-firewall' );
-			 */
-		}
-		elseif ( !empty( $otp ) && !$this->hasValidatedProfile( $user ) ) { // Add GA to profile
-			$validOTP = $this->processOtp( $user, $otp );
-			if ( $validOTP ) {
-				$this->setProfileValidated( $user );
-				$flash = sprintf(
-					__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
-					__( 'Google Authenticator', 'wp-simple-firewall' )
-				);
-			}
-			else {
-				$this->resetSecret( $user );
-				$flash = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
-						 .' '.__( 'Please try again.', 'wp-simple-firewall' );
-			}
-			$this->getMod()->setFlashAdminNotice( $flash, !$validOTP );
-		}
+		return $r;
 	}
 
 	public function getFormField() :array {
@@ -185,21 +145,15 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	protected function processOtp( \WP_User $user, string $otp ) :bool {
-		return $this->validateGaCode( $user, $otp );
-	}
-
-	public function validateGaCode( \WP_User $user, string $otp ) :bool {
+	protected function processOtp( string $otp ) :bool {
 		$valid = false;
-		if ( preg_match( '#^[0-9]{6}$#', $otp ) ) {
-			try {
-				$valid = (bool)( new GoogleAuthenticator\GoogleAuthenticator() )
-					->authenticate( $this->getSecret( $user ), $otp );
-			}
-			catch ( \Exception $e ) {
-			}
-			catch ( \Psr\Cache\CacheException $e ) {
-			}
+		try {
+			$valid = preg_match( '#^[0-9]{6}$#', $otp )
+					 && ( new GoogleAuthenticator() )->authenticate( $this->getSecret(), $otp );
+		}
+		catch ( \Exception $e ) {
+		}
+		catch ( \Psr\Cache\CacheException $e ) {
 		}
 		return $valid;
 	}
@@ -207,24 +161,20 @@ class GoogleAuth extends BaseProvider {
 	/**
 	 * @return string
 	 */
-	protected function genNewSecret( \WP_User $user ) {
+	protected function genNewSecret() {
 		try {
-			return $this->getGaSecret( $user )->getSecretKey();
+			return $this->getGaSecret()->getSecretKey();
 		}
 		catch ( \InvalidArgumentException $e ) {
 			return '';
 		}
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return GoogleAuthenticator\Secret
-	 */
-	private function getGaSecret( $user ) {
+	private function getGaSecret() :Secret {
 		if ( !isset( $this->oWorkingSecret ) ) {
-			$this->oWorkingSecret = ( new GoogleAuthenticator\SecretFactory() )
+			$this->oWorkingSecret = ( new SecretFactory() )
 				->create(
-					sanitize_user( $user->user_login ),
+					sanitize_user( $this->getUser()->user_login ),
 					preg_replace( '#[^0-9a-z]#i', '', Services::WpGeneral()->getSiteName() )
 				);
 		}
@@ -232,19 +182,16 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
-	protected function getSecret( \WP_User $user ) {
-		$sSec = parent::getSecret( $user );
-		return empty( $sSec ) ? $this->resetSecret( $user ) : $sSec;
+	protected function getSecret() {
+		$secret = parent::getSecret();
+		return empty( $secret ) ? $this->resetSecret() : $secret;
 	}
 
-	/**
-	 * @param string $secret
-	 * @return bool
-	 */
-	protected function isSecretValid( $secret ) {
-		return parent::isSecretValid( $secret ) && ( strlen( $secret ) == 16 );
+	protected function hasValidSecret() :bool {
+		$secret = $this->getSecret();
+		return is_string( $secret ) && strlen( $secret ) === 16;
 	}
 
 	public function isProviderEnabled() :bool {

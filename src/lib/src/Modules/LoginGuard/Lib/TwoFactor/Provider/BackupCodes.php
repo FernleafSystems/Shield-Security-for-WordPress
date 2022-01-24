@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
@@ -23,7 +23,7 @@ class BackupCodes extends BaseProvider {
 		];
 	}
 
-	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
+	protected function getProviderSpecificRenderData() :array {
 		return [
 			'strings' => [
 				'button_gen_code'       => __( 'Generate ONE-Time Backup 2FA Login Code', 'wp-simple-firewall' ),
@@ -57,41 +57,30 @@ class BackupCodes extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @return bool
-	 */
-	public function hasValidatedProfile( $user ) {
-		return $this->hasValidSecret( $user );
+	public function hasValidatedProfile() :bool {
+		$this->setProfileValidated( $this->hasValidSecret() );
+		return parent::hasValidatedProfile();
 	}
 
 	/**
-	 * @return $this
+	 * @inheritDoc
 	 */
-	public function postSuccessActions( \WP_User $user ) {
-		parent::postSuccessActions( $user );
-		$this->deleteSecret( $user );
-		$this->sendBackupCodeUsedEmail( $user );
+	public function postSuccessActions() {
+		parent::postSuccessActions();
+		$this->remove();
+		$this->sendBackupCodeUsedEmail();
 		return $this;
 	}
 
-	protected function processOtp( \WP_User $user, string $otp ) :bool {
-		return $this->validateBackupCode( $user, $otp );
-	}
-
-	/**
-	 * @param string $OTP
-	 * @return bool
-	 */
-	private function validateBackupCode( \WP_User $user, $OTP ) :bool {
-		return (bool)wp_check_password( str_replace( '-', '', $OTP ), $this->getSecret( $user ) );
+	protected function processOtp( string $otp ) :bool {
+		return (bool)wp_check_password( str_replace( '-', '', $otp ), $this->getSecret() );
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function genNewSecret( \WP_User $user ) {
-		return wp_generate_password( 25, false );
+	protected function genNewSecret() {
+		return (string)wp_generate_password( 25, false );
 	}
 
 	public function isProviderEnabled() :bool {
@@ -101,16 +90,16 @@ class BackupCodes extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
-	 * @param string   $sNewSecret
+	 * @param string $secret
 	 * @return $this
 	 */
-	protected function setSecret( $user, $sNewSecret ) {
-		parent::setSecret( $user, wp_hash_password( $sNewSecret ) );
+	protected function setSecret( $secret ) {
+		parent::setSecret( wp_hash_password( $secret ) );
 		return $this;
 	}
 
-	private function sendBackupCodeUsedEmail( \WP_User $user ) {
+	private function sendBackupCodeUsedEmail() {
+		$user = $this->getUser();
 		$this->getMod()
 			 ->getEmailProcessor()
 			 ->sendEmailWithWrap(

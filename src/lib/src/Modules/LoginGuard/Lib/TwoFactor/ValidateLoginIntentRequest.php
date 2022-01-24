@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	NoActiveProvidersForUserException,
 	NoLoginIntentForUserException
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class ValidateLoginIntentRequest {
 
@@ -33,8 +32,9 @@ class ValidateLoginIntentRequest {
 
 		$validated = false;
 		foreach ( $providers as $provider ) {
-			if ( $provider->validateLoginIntent( $user ) ) {
-				$provider->postSuccessActions( $user );
+			$provider->setUser( $user );
+			if ( $provider->validateLoginIntent() ) {
+				$provider->postSuccessActions();
 				$validated = true;
 				break;
 			}

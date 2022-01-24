@@ -101,7 +101,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var TwoFactor\Provider\BackupCodes $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
 
-		$pass = $provider->resetSecret( Services::WpUsers()->getCurrentWpUser() );
+		$pass = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+						 ->resetSecret();
 		$pass = implode( '-', str_split( $pass, 5 ) );
 
 		return [
@@ -116,7 +117,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
-		$provider->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )->remove();
 		$mod->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
 
 		return [
@@ -130,11 +131,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\GoogleAuth $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() );
 
 		$otp = Services::Request()->post( 'ga_otp', '' );
-		$result = empty( $otp ) ?
-			$provider->removeGaOnAccount( Services::WpUsers()->getCurrentWpUser() )
-			: $provider->activateGaOnAccount( Services::WpUsers()->getCurrentWpUser(), $otp );
+		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );
 
 		return [
 			'success'     => $result->success,
@@ -149,9 +149,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var TwoFactor\Provider\Email $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Email::SLUG ];
 
-		$turnOn = Services::Request()->post( 'direction' ) == 'on';
-		$provider->setProfileValidated( Services::WpUsers()->getCurrentWpUser(), $turnOn );
-		$success = $turnOn === $provider->isProfileActive( Services::WpUsers()->getCurrentWpUser() );
+		$turnOn = Services::Request()->post( 'direction' ) === 'on';
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+				 ->setProfileValidated( $turnOn );
+		$success = $turnOn === $provider->isProfileActive();
 
 		if ( $success ) {
 			$msg = $turnOn ? __( 'Email 2FA activated.', 'wp-simple-firewall' )
@@ -194,7 +195,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			];
 		}
 		else {
-			$result = $provider->addNewRegistration( Services::WpUsers()->getCurrentWpUser(), $u2fReg );
+			$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+							   ->addNewRegistration( $u2fReg );
 			$response = [
 				'success'     => $result->success,
 				'message'     => $result->success ? $result->msg_text : $result->error_text,
@@ -232,7 +234,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = [
 					'success'     => true,
 					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
-					'code'        => $provider->addProvisionalRegistration( $user, $countryCode, $phoneNum ),
+					'code'        => $provider->setUser( $user )
+											  ->addProvisionalRegistration( $countryCode, $phoneNum ),
 					'page_reload' => false
 				];
 			}
@@ -253,7 +256,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Sms $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
-		$provider->remove( Services::WpUsers()->getCurrentWpUser() );
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+				 ->remove();
 		return [
 			'success'     => true,
 			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
@@ -267,7 +271,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var TwoFactor\Provider\Sms $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
 		try {
-			$provider->startLoginIntent( Services::WpUsers()->getCurrentWpUser() );
+			$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+					 ->startLoginIntent();
 			$response = [
 				'success'     => true,
 				'message'     => __( 'One-Time Password was sent to your phone.', 'wp-simple-firewall' ),
@@ -308,12 +313,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$response[ 'message' ] = __( 'The data provided was inconsistent.', 'wp-simple-firewall' );
 		}
 		else {
-			$user = Services::WpUsers()->getCurrentWpUser();
 			try {
 				$response = [
 					'success'     => true,
 					'message'     => __( 'Phone verified and registered successfully for SMS Two-Factor Authentication.', 'wp-simple-firewall' ),
-					'code'        => $provider->verifyProvisionalRegistration( $user, $countryCode, $phoneNum, $verifyCode ),
+					'code'        => $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+											  ->verifyProvisionalRegistration( $countryCode, $phoneNum, $verifyCode ),
 					'page_reload' => false
 				];
 			}
@@ -338,7 +343,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$key = Services::Request()->post( 'u2fid' );
 		if ( !empty( $key ) ) {
-			$provider->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $key );
+			$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+					 ->removeRegisteredU2fId( $key );
 		}
 		return [
 			'success'     => !empty( $key ),
@@ -355,7 +361,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						->getProviders()[ TwoFactor\Provider\Yubikey::SLUG ];
 
 		$otp = Services::Request()->post( 'otp', '' );
-		$result = $provider->toggleRegisteredYubiID( Services::WpUsers()->getCurrentWpUser(), $otp );
+		$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+						   ->toggleRegisteredYubiID( $otp );
 		return [
 			'success'     => $result->success,
 			'message'     => $result->success ? $result->msg_text : $result->error_text,
