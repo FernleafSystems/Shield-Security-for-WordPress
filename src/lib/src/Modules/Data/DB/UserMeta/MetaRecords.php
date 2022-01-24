@@ -15,7 +15,7 @@ class MetaRecords {
 	public function loadMeta( int $userID, bool $autoCreate = true ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPs();
+		$dbh = $mod->getDbH_UserMeta();
 		/** @var Ops\Select $select */
 		$select = $dbh->getQuerySelector();
 		$record = $select->filterByUser( $userID )->first();
@@ -23,6 +23,11 @@ class MetaRecords {
 		if ( empty( $record ) && $autoCreate && $this->addMeta( $userID ) ) {
 			$record = $this->loadMeta( $userID, false );
 		}
+
+		if ( !empty( $record ) ) {
+			$record->setDbHandler( $dbh );
+		}
+
 		return $record;
 	}
 

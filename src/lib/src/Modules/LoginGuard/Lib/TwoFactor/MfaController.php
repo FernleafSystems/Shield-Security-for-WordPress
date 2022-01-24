@@ -306,7 +306,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$intents = $meta->login_intents ?? [];
 		unset( $intents[ $this->getVisitorID() ] );
 		$meta->login_intents = $this->filterExpiredIntents( $intents );
-
 		return $this;
 	}
 

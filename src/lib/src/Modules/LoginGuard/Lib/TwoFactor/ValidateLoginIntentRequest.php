@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	NoActiveProvidersForUserException,
 	NoLoginIntentForUserException
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 class ValidateLoginIntentRequest {
 

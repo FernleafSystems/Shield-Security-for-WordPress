@@ -25,10 +25,10 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $user
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
+		parent::postSuccessActions( $user );
 		if ( !empty( $this->secretToDelete ) ) {
 			$secrets = $this->getAllCodes( $user );
 			unset( $secrets[ $this->secretToDelete ] );

@@ -153,6 +153,7 @@ abstract class BaseProvider {
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
+		$this->getCon()->getUserMeta( $user )->record->last_2fa_verified_at = Services::Request()->ts();
 		return $this;
 	}
 

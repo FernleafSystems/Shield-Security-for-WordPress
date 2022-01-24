@@ -69,6 +69,7 @@ class BackupCodes extends BaseProvider {
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
+		parent::postSuccessActions( $user );
 		$this->deleteSecret( $user );
 		$this->sendBackupCodeUsedEmail( $user );
 		return $this;
@@ -79,7 +80,7 @@ class BackupCodes extends BaseProvider {
 	}
 
 	/**
-	 * @param string   $OTP
+	 * @param string $OTP
 	 * @return bool
 	 */
 	private function validateBackupCode( \WP_User $user, $OTP ) :bool {

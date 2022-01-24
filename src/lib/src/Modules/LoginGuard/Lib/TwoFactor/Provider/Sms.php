@@ -108,6 +108,7 @@ class Sms extends BaseProvider {
 	 * @return $this
 	 */
 	public function postSuccessActions( \WP_User $user ) {
+		parent::postSuccessActions( $user );
 		$meta = $this->getCon()->getUserMeta( $user );
 		$reg = $meta->sms_registration;
 		unset( $reg[ 'code' ] );

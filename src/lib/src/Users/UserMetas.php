@@ -24,6 +24,7 @@ class UserMetas {
 			$this->loadMetaRecord( $meta );
 			$this->setup( $meta );
 
+			// TODO: a query to delete all of these
 			Services::WpUsers()->deleteUserMeta( $con->prefix( 'meta-version' ), $user->ID );
 		}
 		catch ( \Exception $e ) {
@@ -33,18 +34,19 @@ class UserMetas {
 
 	private function setup( Shield\Users\ShieldUserMeta $meta ) {
 		$rec = $meta->record;
+
+		$newHash = substr( sha1( $this->user->user_pass ), 6, 4 );
+		if ( empty( $rec->pass_started_at ) || !isset( $meta->pass_hash ) || ( $meta->pass_hash !== $newHash ) ) {
+			$meta->pass_hash = $newHash;
+			$rec->pass_started_at = Services::Request()->ts();
+		}
+
 		if ( empty( $rec->first_seen_at ) ) {
 			$rec->first_seen_at = min( array_filter( [
 				Services::Request()->ts(),
 				$rec->pass_started_at,
 				$rec->last_login_at
 			] ) );
-		}
-
-		$newHash = substr( sha1( $this->user->user_pass ), 6, 4 );
-		if ( !isset( $meta->pass_hash ) || ( $meta->pass_hash !== $newHash ) ) {
-			$meta->pass_hash = $newHash;
-			$rec->pass_started_at = Services::Request()->ts();
 		}
 	}
 
@@ -55,39 +57,40 @@ class UserMetas {
 		$metaLoader = ( new Shield\Modules\Data\DB\UserMeta\MetaRecords() )->setMod( $modData );
 		$userID = (int)$meta->user_id;
 
-		$metaRecord = $metaLoader->loadMeta( $userID, false );
-		if ( empty( $metaRecord ) && $metaLoader->addMeta( $userID ) ) {
-			$metaRecord = $metaLoader->loadMeta( $userID );
-			$toUpdate = [];
+		$metaRecord = $metaLoader->loadMeta( $userID );
 
-			// Copy old meta to new:
-			$directMap = [
-				'first_seen_at',
-				'last_login_at',
-				'hard_suspended_at',
-				'pass_started_at',
-			];
-			foreach ( $directMap as $directMapKey ) {
-				$toUpdate[ $directMapKey ] = $meta->{$directMapKey};
+		$dataToUpdate = [];
+
+		// Copy old meta to new:
+		$directMap = [
+			'first_seen_at',
+			'last_login_at',
+			'hard_suspended_at',
+			'pass_started_at',
+		];
+		foreach ( $directMap as $directMapKey ) {
+			if ( !empty( $meta->{$directMapKey} ) && $meta->{$directMapKey} !== $metaRecord->{$directMapKey} ) {
+				$dataToUpdate[ $directMapKey ] = $meta->{$directMapKey};
 				unset( $meta->{$directMapKey} );
 			}
+		}
 
-			$mfaProfiles = [
-				'backup',
-				'email',
-				'ga',
-				'u2f',
-				'yubi',
-			];
-			foreach ( $mfaProfiles as $profile ) {
-				$metaKey = $profile.'_validated';
-				if ( !empty( $meta->{$metaKey} ) && empty( $toUpdate[ $profile.'_ready_at' ] ) ) {
-					$toUpdate[ $profile.'_ready_at' ] = Services::Request()->ts();
-				}
+		$mfaProfiles = [
+			'backup',
+			'email',
+			'ga',
+			'u2f',
+			'yubi',
+		];
+		foreach ( $mfaProfiles as $profile ) {
+			$metaKey = $profile.'_validated';
+			if ( !empty( $meta->{$metaKey} ) && empty( $metaRecord->{$profile.'_ready_at'} ) ) {
+				$dataToUpdate[ $profile.'_ready_at' ] = Services::Request()->ts();
 			}
+		}
 
-			$dbh->getQueryUpdater()->updateRecord( $metaRecord, $toUpdate );
-
+		if ( !empty( $dataToUpdate ) ) {
+			$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
 			$metaRecord = $metaLoader->loadMeta( $userID );
 		}
 

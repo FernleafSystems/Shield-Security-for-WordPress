@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Common;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class AlignTableWithSchema
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Common
- */
 class AlignTableWithSchema {
 
 	/**

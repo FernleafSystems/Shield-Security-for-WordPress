@@ -86,16 +86,36 @@
         }
       },
       "cols_timestamps": {
-        "backupcode_ready_at":  "Backup Code Ready",
-        "email_ready_at":       "Email Ready",
-        "ga_ready_at":          "Google Auth Ready",
-        "u2f_ready_at":         "U2F Ready",
-        "yubi_ready_at":        "Yubikey Ready",
-        "first_seen_at":        "User First Seen",
-        "last_login_at":        "Last Login At",
-        "last_2fa_verified_at": "Last 2FA Verified",
-        "hard_suspended_at":    "Hard Suspend",
-        "pass_started_at":      "Password First Seen or Set"
+        "backupcode_ready_at":  {
+          "comment": "Backup Code Ready"
+        },
+        "email_ready_at":       {
+          "comment": "Email Ready"
+        },
+        "ga_ready_at":          {
+          "comment": "Google Auth Ready"
+        },
+        "u2f_ready_at":         {
+          "comment": "U2F Ready"
+        },
+        "yubi_ready_at":        {
+          "comment": "Yubikey Ready"
+        },
+        "first_seen_at":        {
+          "comment": "User First Seen"
+        },
+        "last_login_at":        {
+          "comment": "Last Login At"
+        },
+        "last_2fa_verified_at": {
+          "comment": "Last 2FA Verified"
+        },
+        "hard_suspended_at":    {
+          "comment": "Hard Suspend"
+        },
+        "pass_started_at":      {
+          "comment": "Password First Seen or Set"
+        }
       }
     }
   }

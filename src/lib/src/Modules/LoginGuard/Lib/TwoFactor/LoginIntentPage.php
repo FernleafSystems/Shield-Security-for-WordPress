@@ -80,8 +80,8 @@ class LoginIntentPage {
 			],
 			'data'    => [
 				'login_fields'      => array_filter( array_map(
-					function ( $oProvider ) {
-						return $oProvider->getFormField();
+					function ( $provider ) {
+						return $provider->getFormField();
 					},
 					$mfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
 				) ),
