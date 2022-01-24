@@ -175,9 +175,9 @@
       "key":         "mfa_skip",
       "section":     "section_multifactor_authentication",
       "premium":     true,
+      "type":        "integer",
       "default":     0,
       "min":         0,
-      "type":        "integer",
       "link_info":   "https://shsec.io/b1",
       "link_blog":   "",
       "beacon_id":   141,
@@ -236,22 +236,22 @@
       "description": "All users will be required to verify their login by email-based two-factor authentication."
     },
     {
-      "key":           "two_factor_auth_user_roles",
-      "section":       "section_2fa_email",
-      "advanced":      true,
-      "type":          "array",
-      "default":       [
+      "key":         "two_factor_auth_user_roles",
+      "section":     "section_2fa_email",
+      "advanced":    true,
+      "type":        "array",
+      "default":     [
         "contributor",
         "author",
         "editor",
         "administrator"
       ],
-      "link_info":     "https://shsec.io/4v",
-      "link_blog":     "",
-      "beacon_id":     243,
-      "name":          "Enforce - Email Authentication",
-      "summary":       "All User Roles Subject To Email Authentication",
-      "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
+      "link_info":   "https://shsec.io/4v",
+      "link_blog":   "",
+      "beacon_id":   243,
+      "name":        "Enforce - Email Authentication",
+      "summary":     "All User Roles Subject To Email Authentication",
+      "description": "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
       "key":         "email_any_user_set",
@@ -313,9 +313,9 @@
     {
       "key":         "login_limit_interval",
       "section":     "section_brute_force_login_protection",
-      "default":     "5",
-      "min":         0,
       "type":        "integer",
+      "default":     5,
+      "min":         0,
       "link_info":   "https://shsec.io/3q",
       "link_blog":   "https://shsec.io/9o",
       "beacon_id":   242,

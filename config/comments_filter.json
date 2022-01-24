@@ -101,9 +101,9 @@
     {
       "key":         "trusted_commenter_minimum",
       "section":     "section_bot_comment_spam_common",
+      "type":        "integer",
       "default":     1,
       "min":         1,
-      "type":        "integer",
       "link_info":   "https://shsec.io/fu",
       "link_blog":   "",
       "beacon_id":   152,
@@ -312,9 +312,9 @@
     {
       "key":     "comments_cooldown",
       "section": "section_non_ui",
+      "type":    "integer",
       "default": 10,
-      "min":     0,
-      "type":    "integer"
+      "min":     0
     },
     {
       "key":     "human_spam_items",

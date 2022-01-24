@@ -202,11 +202,28 @@ class Options {
 		return in_array( $key, $this->getOptionsKeys() );
 	}
 
+	public function ensureOptValueType( string $key, $value ) {
+		switch ( $this->getOptionType( $key ) ) {
+			case 'boolean':
+				$value = (bool)$value;
+				break;
+			case 'integer':
+				$value = (int)$value;
+				break;
+			default:
+				break;
+		}
+		return $value;
+	}
+
 	public function isValidOptionValueType( string $key, $value ) :bool {
 		switch ( $this->getOptionType( $key ) ) {
 			case 'array':
 			case 'multiple_select':
 				$valid = is_array( $value );
+				break;
+			case 'integer':
+				$valid = is_numeric( $value );
 				break;
 			default:
 				$valid = true;
@@ -353,7 +370,8 @@ class Options {
 			$value = $this->getOptDefault( $key, $mDefault );
 			$this->setOpt( $key, $value );
 		}
-		return $this->aOptionsValues[ $key ] ?? $mDefault;
+
+		return $this->ensureOptValueType( $key, $this->aOptionsValues[ $key ] ?? $mDefault );
 	}
 
 	/**

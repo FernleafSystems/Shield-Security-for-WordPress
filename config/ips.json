@@ -157,8 +157,8 @@
     {
       "key":         "antibot_high_reputation_minimum",
       "section":     "section_antibot",
-      "default":     200,
       "type":        "integer",
+      "default":     200,
       "min":         0,
       "link_info":   "https://shsec.io/jy",
       "link_blog":   "https://shsec.io/jz",
@@ -183,8 +183,8 @@
     {
       "key":         "transgression_limit",
       "section":     "section_auto_black_list",
-      "default":     10,
       "type":        "integer",
+      "default":     10,
       "link_info":   "https://shsec.io/wpsf24",
       "link_blog":   "https://shsec.io/wpsf26",
       "beacon_id":   207,
