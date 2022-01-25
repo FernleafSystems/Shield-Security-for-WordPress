@@ -120,7 +120,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 
 				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
-					 ->setFlashAdminNotice( $msg, true, true );
+					 ->setFlashAdminNotice( $msg, $user, true, true );
 				$this->getCon()->fireEvent( 'password_policy_force_change', [
 					'audit_params' => [
 						'user_login' => $user->user_login

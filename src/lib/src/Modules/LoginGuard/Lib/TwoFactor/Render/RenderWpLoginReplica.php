@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\WpLoginPageReplica;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Render;
 
 use FernleafSystems\Utilities\Data\CaptureOutput;
 use FernleafSystems\Wordpress\Plugin\Shield;
@@ -8,33 +8,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class RenderWpLoginReplica {
+/**
+ * @property bool $include_body
+ */
+class RenderWpLoginReplica extends RenderBase {
 
-	use Shield\Modules\ModConsumer;
-
-	private $redirectTo;
-
-	private $rememberMe;
-
-	private $errorMsg;
-
-	private $user;
-
-	private $interim_message = '';
-
-	public function __construct( \WP_User $user, string $redirectTo = '', string $rememberMe = '', string $errorMsg = '' ) {
-		$this->user = $user;
-		$this->redirectTo = $redirectTo;
-		$this->rememberMe = $rememberMe;
-		$this->errorMsg = $errorMsg;
+	public function __construct() {
+		$this->include_body = true;
 	}
 
-	public function render( bool $includeBody = true ) :string {
+	protected function buildPage() :string {
 		$this->preRenderSetup();
 		return $this->getMod()->renderTemplate( '/components/wplogin_replica/wp_login.twig', [
 			'content' => [
 				'header' => $this->renderLoginHeader( __( 'Login 2FA Verification', 'wp-simple-firewall' ) ),
-				'body'   => $includeBody ? $this->renderLoginBody() : '',
+				'body'   => $this->include_body ? $this->renderLoginBody() : '',
 				'footer' => $this->renderLoginFooter(),
 			]
 		] );
@@ -52,20 +40,21 @@ class RenderWpLoginReplica {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$WP = Services::WpGeneral();
+		$user = $this->getWpUser();
 
 		global $interim_login;
 
 		return $this->getMod()->renderTemplate( '/components/wplogin_replica/login_body.twig', [
 			'content' => [
 				'providers' => array_filter( array_map(
-					function ( $provider ) {
-						return $provider->setUser( $this->user )->renderFormFieldForWpLogin();
+					function ( $provider ) use ( $user ) {
+						return $provider->setUser( $user )->renderFormFieldForWpLogin();
 					},
-					$mod->getMfaController()->getProvidersForUser( $this->user, true )
+					$mod->getMfaController()->getProvidersForUser( $user, true )
 				) )
 			],
 			'flags'   => [
-				'has_error_msg'    => !empty( $this->errorMsg ),
+				'has_error_msg'    => !empty( $this->msg_error ),
 				'is_interim_login' => (bool)$interim_login,
 			],
 			'hrefs'   => [
@@ -75,14 +64,12 @@ class RenderWpLoginReplica {
 				'home'        => $WP->getHomeUrl(),
 			],
 			'strings' => [
-				'error_msg'     => $this->errorMsg,
+				'error_msg'     => $this->msg_error,
 				'back_home'     => __( 'Go Back Home', 'wp-simple-firewall' ),
 				'button_submit' => __( 'Complete Login', 'wp-simple-firewall' )
 			],
 			'vars'    => [
-				'rememberme'  => esc_attr( $this->rememberMe ),
-				'redirect_to' => esc_attr( esc_url( $this->redirectTo ) ),
-				'wp_user_id'  => $this->user->ID,
+				'form_hidden_fields' => $this->getHiddenFields(),
 			],
 		] );
 	}
@@ -298,10 +285,5 @@ class RenderWpLoginReplica {
 				'classes_body'        => esc_attr( implode( ' ', $classes ) ),
 			]
 		] );
-	}
-
-	public function setInterimMessage( string $msg ) :self {
-		$this->interim_message = $msg;
-		return $this;
 	}
 }

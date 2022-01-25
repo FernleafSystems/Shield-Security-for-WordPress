@@ -118,7 +118,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var TwoFactor\Provider\BackupCodes $provider */
 		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
 		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )->remove();
-		$mod->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
+		$mod->setFlashAdminNotice(
+			__( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' )
+		);
 
 		return [
 			'message' => __( 'Your backup login codes have been deleted.', 'wp-simple-firewall' ),

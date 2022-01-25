@@ -70,14 +70,6 @@ jQuery( document ).ready( function () {
 									name: $u2fStart.data( 'input_otp' ),
 									value: JSON.stringify( response )
 								} ).appendTo( $theForm );
-								jQuery( '<input>' ).attr( {
-									type: 'text',
-									value: 'U2F Successful',
-									class: 'u2f-replacement',
-									readonly: "readonly",
-									name: $u2fStart.data( 'input_otp' )
-								} ).appendTo( $u2fStart.closest( '.shield_2fa_field_container' ) );
-								$u2fStart.remove();
 								/** Automatically submit the form for U2F **/
 								$theForm[ 0 ].requestSubmit();
 							} )

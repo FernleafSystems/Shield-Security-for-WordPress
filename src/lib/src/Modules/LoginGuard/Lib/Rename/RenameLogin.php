@@ -22,7 +22,7 @@ class RenameLogin {
 	}
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], 9 );
+		add_action( 'wp_loaded', [ $this, 'onWpInit' ], 9 );
 	}
 
 	public function onWpInit() {
@@ -94,7 +94,7 @@ class RenameLogin {
 			$mod->setFlashAdminNotice( sprintf( '<strong>%s</strong>: %s',
 				__( 'Warning', 'wp-simple-firewall' ),
 				$msg
-			), true );
+			), null, true );
 		}
 
 		return $isConflicted;
@@ -113,6 +113,7 @@ class RenameLogin {
 					__( 'Warning', 'wp-simple-firewall' ),
 					__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
 				),
+				null,
 				true
 			);
 		}

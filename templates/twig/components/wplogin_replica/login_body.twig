@@ -7,14 +7,10 @@
 <form name="shield_2fa_verify" id="loginform"
       action="{{ hrefs.form_action }}"
       method="post" autocomplete="off">
-	<input type="hidden" name="wp_user_id" id="wp_user_id" value="{{ vars.wp_user_id }}" />
-	{#  <input type="hidden" name="wp_login_nonce" id="wp_login_nonce" value="{{ vars.login_nonce }}" /> #}
-	<input type="hidden" name="rememberme" id="rememberme" value="{{ vars.rememberme }}" />
-	{% if flags.is_interim_login %}
-		<input type="hidden" name="interim-login" value="1" />
-	{% else %}
-		<input type="hidden" name="redirect_to" value="{{ vars.redirect_to }}" />
-	{% endif %}
+
+	{% for hidden_field_name,hidden_field_value in vars.form_hidden_fields %}
+		<input type="hidden" name="{{ hidden_field_name }}" id="{{ hidden_field_name }}" value="{{ hidden_field_value }}" />
+	{% endfor %}
 
 	{% for provider in content.providers %}
 		{{ provider|raw }}

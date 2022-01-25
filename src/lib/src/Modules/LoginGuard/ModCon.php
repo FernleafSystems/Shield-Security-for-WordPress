@@ -101,14 +101,14 @@ class ModCon extends BaseShield\ModCon {
 		$this->saveModOptions();
 
 		if ( $opts->getIfCanSendEmailVerified() ) {
-			$bSuccess = true;
-			$sMessage = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
+			$success = true;
+			$msg = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
 		}
 		else {
-			$bSuccess = false;
-			$sMessage = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
+			$success = false;
+			$msg = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
 		}
-		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
+		$this->setFlashAdminNotice( $msg, null, !$success );
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
@@ -230,13 +230,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function setEnabled2FaGoogleAuthenticator( bool $enable ) {
 		$this->getOptions()->setOpt( 'enable_google_authenticator', $enable ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLoginIntentRequestFlag() {
-		return $this->getCon()->prefix( 'login-intent-request' );
 	}
 
 	public function getTextOptDefault( string $key ) :string {

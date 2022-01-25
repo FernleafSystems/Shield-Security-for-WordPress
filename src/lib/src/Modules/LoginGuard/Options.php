@@ -17,6 +17,10 @@ class Options extends BaseShield\Options {
 		) );
 	}
 
+	public function getLoginIntentMaxAttempts() :int {
+		return (int)max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
+	}
+
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
 		return ( $this->isPremium() && is_array( $ids ) ) ? $ids : [];
@@ -122,10 +126,6 @@ class Options extends BaseShield\Options {
 	public function isProtect( $location ) :bool {
 		$locs = $this->getOpt( 'bot_protection_locations' );
 		return in_array( $location, is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
-	}
-
-	public function isUseLoginIntentPage() :bool {
-		return $this->isOpt( 'use_login_intent_page', true );
 	}
 
 	public function isEnabledYubikey() :bool {

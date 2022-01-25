@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta;
+use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
 
 class Controller {
 
@@ -32,14 +32,16 @@ class Controller {
 	}
 
 	/**
-	 * @param string $msg
-	 * @param bool   $isError
-	 * @param bool   $bShowOnLoginPage
+	 * @param string        $msg
+	 * @param \WP_User|null $user
+	 * @param bool          $isError
+	 * @param bool          $bShowOnLoginPage
 	 * @return $this
 	 */
-	public function addFlash( $msg, $isError = false, $bShowOnLoginPage = false ) {
-		$meta = $this->getCon()->getCurrentUserMeta();
-		if ( $meta instanceof PluginUserMeta ) {
+	public function addFlash( $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
+		$con = $this->getCon();
+		$meta = $user instanceof \WP_User ? $con->getUserMeta( $user ) : $con->getCurrentUserMeta();
+		if ( $meta instanceof UserMeta ) {
 			$meta->flash_msg = [
 				'message'    => sanitize_text_field( $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
@@ -109,26 +111,26 @@ class Controller {
 	 * @return array|null
 	 */
 	private function retrieveFlashMessage() {
-		$aMessage = null;
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		if ( $oMeta instanceof PluginUserMeta && is_array( $oMeta->flash_msg ) ) {
-			if ( empty( $aM[ 'expires_at' ] ) || Services::Request()->ts() < $aM[ 'expires_at' ] ) {
-				$aMessage = $oMeta->flash_msg;
+		$msg = null;
+		$meta = $this->getCon()->getCurrentUserMeta();
+		if ( $meta instanceof UserMeta && is_array( $meta->flash_msg ) ) {
+			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()->ts() < $meta->flash_msg[ 'expires_at' ] ) {
+				$msg = $meta->flash_msg;
 			}
 			else {
 				$this->clearFlashMessage();
 			}
 		}
-		return $aMessage;
+		return $msg;
 	}
 
 	/**
 	 * @return $this
 	 */
 	private function clearFlashMessage() {
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		if ( $oMeta instanceof PluginUserMeta && !empty( $oMeta->flash_msg ) ) {
-			$oMeta->flash_msg = null;
+		$meta = $this->getCon()->getCurrentUserMeta();
+		if ( $meta instanceof UserMeta && !empty( $meta->flash_msg ) ) {
+			$meta->flash_msg = null;
 		}
 		return $this;
 	}

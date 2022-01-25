@@ -19,18 +19,14 @@
 	}
 </style>
 
-<div class="alert alert-{{ data.message_type }}" role="alert">{{ strings.message|raw }}</div>
+<div class="alert alert-{{ vars.message_type }}" role="alert">{{ strings.message|raw }}</div>
 
 <form action="{{ hrefs.form_action }}" method="post" class="form-horizontal" id="loginform">
-	<input type="hidden" name="{{ data.login_intent_flag }}" value="1" />
-	{% if not hrefs.redirect_to is empty %}
-		<input type="hidden" name="redirect_to" value="{{ hrefs.redirect_to }}" />
-	{% endif %}
-	{% if not hrefs.redirect_to is empty %}
-		<input type="hidden" name="cancel_href" value="{{ hrefs.cancel_href }}" />
-	{% endif %}
+	{% for hidden_field_name,hidden_field_value in vars.form_hidden_fields %}
+		<input type="hidden" name="{{ hidden_field_name }}" value="{{ hidden_field_value }}" />
+	{% endfor %}
 
-	{% for key_field, aField in data.login_fields %}
+	{% for key_field, aField in vars.login_fields %}
 		<div class="row my-2 {% if aField.type == "hidden" %}d-none{% endif %}">
 			<div class="col">
 				<label class="form-label"
@@ -96,7 +92,7 @@
 
 <script type="text/javascript">
 	// Set the date we're counting down to
-	var timeRemaining = {{ data.time_remaining }};
+	let timeRemaining = {{ vars.time_remaining }};
 	// Update the count down every 1 second
 	var x = setInterval( function () {
 			timeRemaining -= 1;

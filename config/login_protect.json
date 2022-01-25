@@ -474,18 +474,12 @@
       "sensitive":    true,
       "type":         "text",
       "default":      ""
-    },
-    {
-      "key":          "use_login_intent_page",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "value":        true
     }
   ],
   "definitions":   {
-    "login_intent_timeout": 5,
-    "events":               {
+    "login_intent_timeout":      5,
+    "login_intent_max_attempts": 5,
+    "events":                    {
       "2fa_verify_success": {
         "audit_params": [
           "user_login",

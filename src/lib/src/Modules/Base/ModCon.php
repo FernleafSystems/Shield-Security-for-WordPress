@@ -114,7 +114,7 @@ abstract class ModCon {
 		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( 'init', [ $this, 'onWpLoaded' ], 1 );
+		add_action( 'init', [ $this, 'onWpLoaded' ] );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
@@ -854,16 +854,18 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $msg
-	 * @param bool   $isError
-	 * @param bool   $bShowOnLogin
+	 * @param string        $msg
+	 * @param \WP_User|null $user
+	 * @param bool          $isError
+	 * @param bool          $bShowOnLogin
 	 * @return $this
 	 */
-	public function setFlashAdminNotice( $msg, $isError = false, $bShowOnLogin = false ) {
+	public function setFlashAdminNotice( $msg, $user = null, $isError = false, $bShowOnLogin = false ) {
 		$this->getCon()
 			 ->getAdminNotices()
 			 ->addFlash(
 				 sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
+				 $user,
 				 $isError,
 				 $bShowOnLogin
 			 );
