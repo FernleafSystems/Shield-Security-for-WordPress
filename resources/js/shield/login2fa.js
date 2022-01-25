@@ -76,8 +76,10 @@ jQuery( document ).ready( function () {
 									class: 'u2f-replacement',
 									readonly: "readonly",
 									name: $u2fStart.data( 'input_otp' )
-								} ).appendTo( $u2fStart.closest( 'p' ) );
+								} ).appendTo( $u2fStart.closest( '.shield_2fa_field_container' ) );
 								$u2fStart.remove();
+								/** Automatically submit the form for U2F **/
+								$theForm[ 0 ].requestSubmit();
 							} )
 							.catch( function ( response ) {
 								alert( 'U2F authentication failed. Reload the page to retry.' );
