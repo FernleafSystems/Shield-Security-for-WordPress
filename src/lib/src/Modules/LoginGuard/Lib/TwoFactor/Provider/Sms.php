@@ -124,6 +124,7 @@ class Sms extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
+			'slug'        => static::SLUG,
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'button',
 			'value'       => 'Click To Send 2FA Code via SMS',
@@ -132,8 +133,8 @@ class Sms extends BaseProvider {
 			'classes'     => [ 'btn', 'btn-light' ],
 			'help_link'   => '',
 			'datas'       => [
-				'ajax_intent_start' => $this->getMod()->getAjaxActionData( 'user_sms2fa_intentstart', true ),
-				'input_otp'         => $this->getLoginFormParameter(),
+				'ajax_intent_sms_send' => $this->getMod()->getAjaxActionData( 'intent_sms_send', true ),
+				'input_otp'            => $this->getLoginFormParameter(),
 			]
 		];
 	}

@@ -153,11 +153,13 @@ class Yubikey extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
+			'slug'        => static::SLUG,
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'text',
-			'placeholder' => __( 'Use your Yubikey to generate a new code.', 'wp-simple-firewall' ),
+			'placeholder' => '',
 			'value'       => '',
 			'text'        => __( 'Yubikey OTP', 'wp-simple-firewall' ),
+			'description' => __( 'Use your Yubikey to generate a new code', 'wp-simple-firewall' ),
 			'help_link'   => 'https://shsec.io/4i'
 		];
 	}

@@ -133,11 +133,13 @@ class GoogleAuth extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
+			'slug'        => static::SLUG,
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'text',
 			'value'       => '',
-			'placeholder' => __( 'Please use your Google Authenticator App to retrieve your code.', 'wp-simple-firewall' ),
-			'text'        => __( 'Google Authenticator Code', 'wp-simple-firewall' ),
+			'placeholder' => __( '123456', 'wp-simple-firewall' ),
+			'text'        => __( 'Authenticator OTP', 'wp-simple-firewall' ),
+			'description' => __( 'Enter 6-digit code from your authenticator app', 'wp-simple-firewall' ),
 			'help_link'   => 'https://shsec.io/wpsf42',
 			'extras'      => [
 				'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"

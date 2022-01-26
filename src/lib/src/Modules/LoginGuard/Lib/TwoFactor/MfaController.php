@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
@@ -19,6 +19,12 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		add_action( 'init', [ $this, 'onWpInit' ] ); // Login Intent handling
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
+	}
+
+	public function isAutoSend2faEmail( \WP_User $user ) :bool {
+		$providers = $this->getProvidersForUser( $user, true );
+		unset( $providers[ Provider\BackupCodes::SLUG ] );
+		return count( $providers ) === 1 && isset( $providers[ Provider\Email::SLUG ] );
 	}
 
 	public function onLoginMessage( $msg ) {

@@ -8,6 +8,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
+	protected function processNonAuthAjaxAction( string $action ) :array {
+
+		switch ( $action ) {
+			case 'intent_email_send':
+				$response = $this->ajaxExec_IntentEmailSend();
+				break;
+			default:
+				$response = parent::processNonAuthAjaxAction( $action );
+		}
+
+		return $response;
+	}
+
 	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
@@ -39,7 +52,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$response = $this->ajaxExec_UserSmsVerify();
 				break;
 
-			case 'user_sms2fa_intentstart':
+			case 'intent_sms_send':
 				$response = $this->ajaxExec_UserSmsIntentStart();
 				break;
 
@@ -263,6 +276,31 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [
 			'success'     => true,
 			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	private function ajaxExec_IntentEmailSend() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mfaCon = $mod->getMfaController();
+
+		$success = false;
+		$userID = Services::Request()->post( 'wp_user_id' );
+		if ( !empty( $userID ) ) {
+			$user = Services::WpUsers()->getUserById( $userID );
+			if ( $user instanceof \WP_User && !empty( $mfaCon->getActiveLoginIntents( $user ) ) ) {
+				/** @var TwoFactor\Provider\Email $provider */
+				$provider = $mod->getMfaController()
+								->getProvidersForUser( $user, true )[ TwoFactor\Provider\Email::SLUG ] ?? null;
+				$success = !empty( $provider ) && $provider->sendEmailTwoFactorVerify();
+			}
+		}
+
+		return [
+			'success'     => $success,
+			'message'     => $success ? __( 'One-Time Password was sent to your registered email address.', 'wp-simple-firewall' )
+				: __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];
 	}

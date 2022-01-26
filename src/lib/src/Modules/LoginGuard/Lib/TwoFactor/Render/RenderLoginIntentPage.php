@@ -15,19 +15,14 @@ class RenderLoginIntentPage extends RenderBase {
 		$con = $this->getCon();
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$req = Services::Request();
 
 		$labels = $con->getLabels();
 		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-		$timeRemaining = $this->getLoginIntentExpiresAt() - $req->ts();
 
 		$data = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
-			],
-			'data'    => [
-				'time_remaining' => $timeRemaining,
 			],
 			'hrefs'   => [
 				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),
@@ -51,10 +46,15 @@ class RenderLoginIntentPage extends RenderBase {
 		$data[ 'head' ] = [
 			'scripts' => [
 				[
-					'src' => $con->urls->forJs( 'u2f-bundle.js' ),
+					'src' => $con->urls->forJs( 'u2f-bundle' ),
 				],
 				[
-					'src' => $con->urls->forJs( 'shield/login2fa.js' ),
+					'src' => $con->urls->forJs( 'shield/login2fa' ),
+				]
+			],
+			'styles'  => [
+				[
+					'href' => $con->urls->forCss( 'shield/login2fa' ),
 				]
 			]
 		];
@@ -67,13 +67,7 @@ class RenderLoginIntentPage extends RenderBase {
 	private function renderForm() :string {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$mfaCon = $mod->getMfaController();
-		/** @var LoginGuard\Options $opts */
-		$opts = $mfaCon->getOptions();
-		$con = $mfaCon->getCon();
-		$req = Services::Request();
-		$WP = Services::WpGeneral();
-		$user = $this->getWpUser();
+		$con = $this->getCon();
 
 		$notice = $con->getAdminNotices()->getFlashNotice();
 		if ( $notice instanceof NoticeVO ) {
@@ -87,49 +81,20 @@ class RenderLoginIntentPage extends RenderBase {
 			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldcantaccess', __( 'More Info', 'wp-simple-firewall' ) );
 		}
 
-		$mfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
-
-		$data = [
-			'strings' => [
-				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
-				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
-				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
-				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
-				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
-				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
-				'message'         => $msg,
-				'skip_mfa'        => sprintf(
-					__( "Don't ask again on this browser for %s.", 'wp-simple-firewall' ),
-					sprintf( _n( '%s day', '%s days', $mfaSkip, 'wp-simple-firewall' ), $mfaSkip )
-				)
-			],
-			'hrefs'   => [
-				'form_action' => add_query_arg( [
-					'shield_action' => 'wp_login_2fa_verify'
-				], $WP->getLoginUrl() ),
-			],
-			'flags'   => [
-				'can_skip_mfa'       => $opts->isMfaSkip(),
-				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
-			],
-			'vars'    => [
-				'form_hidden_fields' => $this->getHiddenFields(),
-				'login_fields'       => array_filter( array_map(
-					function ( $provider ) {
-						return $provider->getFormField();
-					},
-					$mfaCon->getProvidersForUser( $user, true )
-				) ),
-				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
-				'time_remaining'     => $this->getLoginIntentExpiresAt() - $req->ts(),
-				'message_type'       => 'info',
-			]
-		];
-
 		return $mod->renderTemplate(
-			'/snippets/login_intent/form.twig',
+			'/components/login_intent/form.twig',
 			Services::DataManipulation()->mergeArraysRecursive(
-				$mod->getUIHandler()->getBaseDisplayData(), $data ),
+				$mod->getUIHandler()->getBaseDisplayData(),
+				$this->getCommonFormData(),
+				[
+					'strings' => [
+						'message' => $msg,
+					],
+					'vars'    => [
+						'message_type' => 'info',
+					],
+				]
+			),
 			true
 		);
 	}

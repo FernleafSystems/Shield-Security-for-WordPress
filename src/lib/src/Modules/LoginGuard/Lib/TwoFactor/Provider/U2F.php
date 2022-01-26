@@ -55,6 +55,7 @@ class U2F extends BaseProvider {
 			}
 
 			$fieldData = [
+				'slug'        => static::SLUG,
 				'name'        => 'btn_u2f_start',
 				'type'        => 'button',
 				'value'       => __( 'Start U2F Auth', 'wp-simple-firewall' ),

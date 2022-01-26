@@ -48,6 +48,7 @@ class BackupCodes extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
+			'slug'        => static::SLUG,
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'text',
 			'value'       => '',

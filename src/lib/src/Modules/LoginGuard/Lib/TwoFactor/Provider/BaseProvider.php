@@ -177,7 +177,9 @@ abstract class BaseProvider {
 	public function renderFormFieldForWpLogin() :string {
 		return $this->getMod()->renderTemplate(
 			sprintf( '/components/wplogin_replica/login_field_%s.twig', static::SLUG ),
-			$this->getFormField()
+			[
+				'field' => $this->getFormField()
+			]
 		);
 	}
 

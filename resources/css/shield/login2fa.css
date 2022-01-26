@@ -1,23 +1,35 @@
 p > label {
-	width: 100%;
 }
 #btn_u2f_start {
 	padding: .1875rem .3125rem;
 	margin: 0 0 16px 0;
-	width: 100%;
 	line-height: 1.4;
 	font-size: 24px;
 	box-shadow: 0 0 0 transparent;
-	border-radius: 4px;
 	border: .0625rem solid #8c8f94;
 	cursor: pointer;
 }
+.shield-2fa-wplogin #btn_u2f_start {
+	border-radius: 4px;
+	width: 100%;
+}
+
+
 input[type="text"].u2f-replacement {
 	text-align: center;
 	background-color: #f0f0f0;
 	cursor: not-allowed;
 }
-input[type="text"][name="icwp_wpsf_yubi_otp"] {
-	font-size: 12px;
+.shield-2fa-wplogin input[type="text"][name="icwp_wpsf_yubi_otp"] {
 	width: 100%;
+}
+
+.otp-description {
+	display: block;
+	margin: 6px 0 20px;
+	font-size: 12px;
+}
+
+input {
+	margin-bottom: 0 !important;
 }

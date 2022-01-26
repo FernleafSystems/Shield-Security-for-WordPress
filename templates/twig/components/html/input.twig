@@ -1,0 +1,16 @@
+{% block input %}
+	{% block before_input %}{% endblock %}
+	<input type="{{ field.type }}"
+	       name="{{ field.name }}"
+	       value="{{ field.value|default('') }}"
+	       class="form-control{% for class in field.classes|default([]) %} {{ class }}{% endfor %}"
+	       id="{{ field.id|default(field.name) }}"
+	       placeholder="{{ field.placeholder|default('') }}"
+	       autocomplete="off"
+			{% for datakey, dataval in field.datas|default([]) %}
+				data-{{ datakey }}="{{ dataval }}"
+			{% endfor %}
+			{% block input_field_attribute %}{% endblock %}
+	/>
+	{% block after_input %}{% endblock %}
+{% endblock %}

@@ -705,11 +705,9 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $action
-	 * @param bool   $asJson
 	 * @return array|string
 	 */
-	public function getAjaxActionData( string $action = '', $asJson = false ) {
+	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
 		$data = $this->getNonceActionData( $action );
 		$data[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
 		return $asJson ? json_encode( (object)$data ) : $data;

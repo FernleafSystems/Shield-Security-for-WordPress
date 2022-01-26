@@ -44,34 +44,35 @@ class RenderWpLoginReplica extends RenderBase {
 
 		global $interim_login;
 
-		return $this->getMod()->renderTemplate( '/components/wplogin_replica/login_body.twig', [
-			'content' => [
-				'providers' => array_filter( array_map(
-					function ( $provider ) use ( $user ) {
-						return $provider->setUser( $user )->renderFormFieldForWpLogin();
-					},
-					$mod->getMfaController()->getProvidersForUser( $user, true )
-				) )
-			],
-			'flags'   => [
-				'has_error_msg'    => !empty( $this->msg_error ),
-				'is_interim_login' => (bool)$interim_login,
-			],
-			'hrefs'   => [
-				'form_action' => add_query_arg( [
-					'shield_action' => 'wp_login_2fa_verify'
-				], $WP->getLoginUrl() ),
-				'home'        => $WP->getHomeUrl(),
-			],
-			'strings' => [
-				'error_msg'     => $this->msg_error,
-				'back_home'     => __( 'Go Back Home', 'wp-simple-firewall' ),
-				'button_submit' => __( 'Complete Login', 'wp-simple-firewall' )
-			],
-			'vars'    => [
-				'form_hidden_fields' => $this->getHiddenFields(),
-			],
-		] );
+		return $this->getMod()->renderTemplate( '/components/wplogin_replica/login_body.twig',
+
+			Services::DataManipulation()->mergeArraysRecursive(
+				$mod->getUIHandler()->getBaseDisplayData(),
+				$this->getCommonFormData(),
+				[
+					'content' => [
+						'providers' => array_filter( array_map(
+							function ( $provider ) use ( $user ) {
+								return $provider->setUser( $user )->renderFormFieldForWpLogin();
+							},
+							$mod->getMfaController()->getProvidersForUser( $user, true )
+						) )
+					],
+					'flags'   => [
+						'has_error_msg'    => !empty( $this->msg_error ),
+						'is_interim_login' => (bool)$interim_login,
+					],
+					'hrefs'   => [
+						'home'        => $WP->getHomeUrl(),
+					],
+					'strings' => [
+						'error_msg'     => $this->msg_error,
+						'back_home'     => __( 'Go Back Home', 'wp-simple-firewall' ),
+						'button_submit' => __( 'Complete Login', 'wp-simple-firewall' )
+					],
+				]
+			)
+		);
 	}
 
 	private function renderLoginFooter() :string {

@@ -1,19 +1,18 @@
 {% block input_row %}
 	<p class="shield_2fa_field_container">
+
+		{% block before_login_field_input %}{% endblock %}
+
 		<label>
-			{{ text }}
-			<input type="{{ type }}"
-			       name="{{ name }}"
-			       value="{{ value }}"
-			       class="form-control{% for class in classes|default([]) %} {{ class }}{% endfor %}"
-			       id="{{ id|default(name) }}"
-			       placeholder=""
-			       autocomplete="off"
-					{#       {% if key_field == 0 %}autofocus{% endif %} #}
-					{% for datakey, dataval in datas|default([]) %}
-						data-{{ datakey }}="{{ dataval }}"
-					{% endfor %}
-			/>
+			{{ field.text }}
+			{% include '/components/html/input.twig' %}
 		</label>
+
+		<span class="otp-description">
+		{% block after_login_field_input %}
+				{{ field.description|default('') }}
+		{% endblock %}
+		</span>
+
 	</p>
 {% endblock %}
