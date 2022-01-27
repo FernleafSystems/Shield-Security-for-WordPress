@@ -14,47 +14,55 @@ class RenameLogin {
 	use ExecOnce;
 
 	protected function canRun() :bool {
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return !Services::IP()->isLoopback()
 			   && !empty( $opts->getCustomLoginPath() )
+			   && !$mod->isVisitorWhitelisted()
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 
 	protected function run() {
-		add_action( 'wp_loaded', [ $this, 'onWpInit' ], 9 );
+		add_action( 'init', [ $this, 'onWpInit' ], 9 );
 	}
 
 	public function onWpInit() {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
+		if ( Services::WpGeneral()->isLoginUrl() && Services::WpUsers()->isUserLoggedIn() ) {
+			return;
+		}
+		if ( is_admin() && !Services::WpUsers()->isUserLoggedIn() ) {
+			return;
+		}
+		$this->replaceLoginURL();
 
-		if ( Services::WpGeneral()->isLoginUrl() &&
-			 ( $mod->isVisitorWhitelisted() || Services::WpUsers()->isUserLoggedIn() ) ) {
-			return;
-		}
-		if ( is_admin() && $mod->isVisitorWhitelisted() && !Services::WpUsers()->isUserLoggedIn() ) {
-			return;
-		}
+		// Intercept requests
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 11 );
+	}
+
+	public function onWpLoaded() {
 
 		$this->doBlockPossibleWpLoginLoad();
-
-		// Loads the wp-login.php if the correct URL is loaded
-		add_action( 'wp_loaded', [ $this, 'aLoadWpLogin' ] );
+		$this->loadWpLoginContent(); // Loads the wp-login.php if the correct URL is loaded
 
 		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
 		add_action( 'login_init', [ $this, 'aLoginFormAction' ], 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
-		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
-		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
-		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20 );
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			add_filter( 'wp_redirect', [ $this, 'fProtectUnauthorizedLoginRedirect' ], 50 );
 		}
 		add_filter( 'register_url', [ $this, 'blockRegisterUrlRedirect' ], 20 );
 
 		add_filter( 'et_anticipate_exceptions', [ $this, 'fAddToEtMaintenanceExceptions' ] );
+	}
+
+	private function replaceLoginURL() {
+		error_log( 'setup replace' );
+		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
+		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
+		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20 );
 	}
 
 	private function hasPluginConflict() :bool {
@@ -123,7 +131,7 @@ class RenameLogin {
 
 	public function doBlockPossibleWpLoginLoad() {
 
-		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
+		// To begin, we block if it's a request to the admin area and the user isn't logged in (and it's not ajax)
 		$doBlock = is_admin() && !Services::WpGeneral()->isAjax()
 				   && !Services::WpUsers()->isUserLoggedIn();
 
@@ -201,7 +209,7 @@ class RenameLogin {
 		return $url;
 	}
 
-	public function aLoadWpLogin() {
+	public function loadWpLoginContent() {
 		if ( Services::WpGeneral()->isLoginUrl() ) {
 			// To prevent PHP warnings about undefined vars
 			$user_login = $error = '';
@@ -219,14 +227,14 @@ class RenameLogin {
 
 	/**
 	 * Add the custom login URL to the Elegant Themes Maintenance Mode plugin URL exceptions list
-	 * @param array $aUrlExceptions
+	 * @param array $urlExceptions
 	 * @return array
 	 */
-	public function fAddToEtMaintenanceExceptions( $aUrlExceptions ) {
+	public function fAddToEtMaintenanceExceptions( $urlExceptions ) {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
-		$aUrlExceptions[] = $opts->getCustomLoginPath();
-		return $aUrlExceptions;
+		$urlExceptions[] = $opts->getCustomLoginPath();
+		return $urlExceptions;
 	}
 
 	/**
