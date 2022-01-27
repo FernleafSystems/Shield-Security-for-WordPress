@@ -39,7 +39,7 @@ class LoginIntentRequestValidate {
 		$validated = false;
 		foreach ( $providers as $provider ) {
 			$provider->setUser( $user );
-			if ( $provider->validateLoginIntent() ) {
+			if ( $provider->validateLoginIntent( $loginNonce ) ) {
 				$provider->postSuccessActions();
 				$validated = true;
 				break;

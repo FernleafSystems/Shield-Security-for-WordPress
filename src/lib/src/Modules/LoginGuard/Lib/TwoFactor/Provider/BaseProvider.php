@@ -34,11 +34,11 @@ abstract class BaseProvider {
 	/**
 	 * Assumes this is only called on active profiles
 	 */
-	public function validateLoginIntent() :bool {
+	public function validateLoginIntent( string $loginNonce ) :bool {
 		$otpSuccess = false;
 		$otp = $this->fetchCodeFromRequest();
 		if ( !empty( $otp ) ) {
-			$otpSuccess = $this->processOtp( $otp );
+			$otpSuccess = $this->processOtp( $otp, $loginNonce );
 			$this->auditLogin( $otpSuccess );
 		}
 		return $otpSuccess;
@@ -122,7 +122,7 @@ abstract class BaseProvider {
 		return '';
 	}
 
-	abstract protected function processOtp( string $otp ) :bool;
+	abstract protected function processOtp( string $otp, string $loginNonce = '' ) :bool;
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.

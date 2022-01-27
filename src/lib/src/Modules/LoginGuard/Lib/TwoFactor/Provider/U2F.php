@@ -221,7 +221,7 @@ class U2F extends BaseProvider {
 		return $response;
 	}
 
-	protected function processOtp( string $otp ) :bool {
+	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
 		try {
 			$registration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 				->doAuthenticate(

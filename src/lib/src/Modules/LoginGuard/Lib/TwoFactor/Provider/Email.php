@@ -18,15 +18,14 @@ class Email extends BaseProvider {
 		];
 	}
 
-	protected function processOtp( string $otp ) :bool {
-		$valid = false;
-		foreach ( $this->getAllCodes() as $secret ) {
-			if ( $otp === $secret ) {
-				$valid = true;
-				break;
-			}
-		}
-		return $valid;
+	/**
+	 * If login nonce is provided, the OTP check is stricter and must be the same as that assigned to the nonce.
+	 * Otherwise, we just check whether the OTP exists.
+	 */
+	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
+		return empty( $loginNonce ) ?
+			in_array( $otp, $this->getAllCodes() )
+			: ( $this->getAllCodes()[ $loginNonce ] ?? '' ) === $otp;
 	}
 
 	public function getFormField() :array {
