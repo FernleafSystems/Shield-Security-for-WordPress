@@ -58,7 +58,7 @@ abstract class RenderBase {
 				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
 				'skip_mfa'        => sprintf(
-					__( "Remember me for %s days.", 'wp-simple-firewall' ),
+					__( "Remember me for %s", 'wp-simple-firewall' ),
 					sprintf( _n( '%s day', '%s days', $mfaSkip, 'wp-simple-firewall' ), $mfaSkip )
 				)
 			],

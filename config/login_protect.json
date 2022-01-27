@@ -212,7 +212,7 @@
     },
     {
       "key":         "enable_sms_auth",
-      "section":     "section_2fa_ga",
+      "section":     "section_non_ui",
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",

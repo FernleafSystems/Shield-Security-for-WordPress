@@ -17,6 +17,11 @@
 		{{ provider|raw }}
 	{% endfor %}
 
+	<p style="margin-bottom: 18px">
+		<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa" />
+		{{ strings.skip_mfa }}
+	</p>
+
 	<p>
 		<input type="submit" name="wp-submit"
 		       id="wp-submit" class="button button-primary button-large"

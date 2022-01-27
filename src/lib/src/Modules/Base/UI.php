@@ -107,7 +107,7 @@ class UI {
 
 				'form_action'      => Services::Request()->getUri(),
 				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap' ),
-				'css_pages'        => $urlBuilder->forCss( 'pages' ),
+				'css_pages'        => $urlBuilder->forCss( 'shield/pages' ),
 				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
 				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
 				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
