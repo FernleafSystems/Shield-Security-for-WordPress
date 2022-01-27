@@ -13,15 +13,16 @@ p > label {
 	border-radius: 4px;
 	width: 100%;
 }
-
-
-input[type="text"].u2f-replacement {
-	text-align: center;
-	background-color: #f0f0f0;
-	cursor: not-allowed;
-}
 .shield-2fa-wplogin input[type="text"][name="icwp_wpsf_yubi_otp"] {
 	width: 100%;
+}
+
+input[type="text"][name="icwp_wpsf_email_otp"],
+input[type="text"][name="icwp_wpsf_ga_otp"] {
+	font-family: monospace;
+	text-align: center;
+	letter-spacing: 10px;
+	font-weight: bolder;
 }
 
 .otp-description {

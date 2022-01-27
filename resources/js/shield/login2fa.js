@@ -3,6 +3,7 @@ jQuery( document ).ready( function () {
 	let $body = jQuery( 'body' );
 	let $theForm = jQuery( 'form#loginform' );
 	let userID = jQuery( 'input[type=hidden]#wp_user_id' ).val();
+	let loginNonce = jQuery( 'input[type=hidden]#login_nonce' ).val();
 
 	jQuery( 'input[type=text]:first', $theForm ).focus();
 
@@ -56,6 +57,7 @@ jQuery( document ).ready( function () {
 
 		let reqParams = $emailInput.data( 'ajax_intent_email_send' );
 		reqParams.wp_user_id = userID;
+		reqParams.login_nonce = loginNonce;
 		$body.addClass( 'shield-busy' );
 		jQuery.post( reqParams.ajaxurl, reqParams, function ( response ) {
 				let msg = 'Communications error with site.';

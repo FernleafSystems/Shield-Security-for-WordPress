@@ -10,8 +10,6 @@ class Email extends BaseProvider {
 
 	const SLUG = 'email';
 
-	private $secretToDelete = '';
-
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
@@ -20,25 +18,11 @@ class Email extends BaseProvider {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function postSuccessActions() {
-		parent::postSuccessActions();
-		if ( !empty( $this->secretToDelete ) ) {
-			$secrets = $this->getAllCodes();
-			unset( $secrets[ $this->secretToDelete ] );
-			$this->storeCodes( $secrets );
-		}
-		return $this;
-	}
-
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
-		foreach ( array_keys( $this->getAllCodes() ) as $secret ) {
-			if ( wp_check_password( $otp, $secret ) ) {
+		foreach ( $this->getAllCodes() as $secret ) {
+			if ( $otp === $secret ) {
 				$valid = true;
-				$this->secretToDelete = $secret;
 				break;
 			}
 		}
@@ -88,14 +72,14 @@ class Email extends BaseProvider {
 		return true;
 	}
 
-	public function sendEmailTwoFactorVerify() :bool {
+	public function sendEmailTwoFactorVerify( string $loginNonce ) :bool {
 		$user = $this->getUser();
 		$sureCon = $this->getCon()->getModule_Comms()->getSureSendController();
 		$useSureSend = $sureCon->isEnabled2Fa() && $sureCon->canUserSend( $user );
 
 		$success = false;
 		try {
-			$code = $this->genNewCode();
+			$code = $this->getValid2faCode( $loginNonce );
 
 			$success = ( $useSureSend && $this->send2faEmailSureSend( $code ) )
 					   || $this->getMod()
@@ -166,27 +150,23 @@ class Email extends BaseProvider {
 			   && ( $this->isEnforced() || $opts->isEnabledEmailAuthAnyUserSet() );
 	}
 
-	private function genNewCode() :string {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-
+	private function getValid2faCode( string $loginNonce ) :string {
 		$secrets = $this->getAllCodes();
-		$new = $this->generateSimpleOTP();
-		$secrets[ wp_hash_password( $new ) ] = Services::Request()
-													   ->carbon()
-													   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
-
-		$this->storeCodes( array_slice( $secrets, -10 ) );
-		return $new;
+		if ( !isset( $secrets[ $loginNonce ] ) ) {
+			$secrets[ $loginNonce ] = $this->generateSimpleOTP();
+			$this->storeCodes( $secrets );
+		}
+		return $secrets[ $loginNonce ];
 	}
 
 	private function getAllCodes() :array {
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$mfaCon = $mod->getMfaController();
 		$secrets = $this->getSecret();
-		return array_filter(
+		return array_intersect_key(
 			is_array( $secrets ) ? $secrets : [],
-			function ( $ts ) {
-				return $ts >= Services::Request()->ts();
-			}
+			$mfaCon->getActiveLoginIntents( $this->getUser() )
 		);
 	}
 

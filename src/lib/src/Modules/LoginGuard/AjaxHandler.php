@@ -287,13 +287,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$success = false;
 		$userID = Services::Request()->post( 'wp_user_id' );
-		if ( !empty( $userID ) ) {
+		$loginNonce = Services::Request()->post( 'login_nonce' );
+		if ( !empty( $userID ) && !empty( $loginNonce ) ) {
 			$user = Services::WpUsers()->getUserById( $userID );
-			if ( $user instanceof \WP_User && !empty( $mfaCon->getActiveLoginIntents( $user ) ) ) {
+			$nonces = array_keys( $mfaCon->getActiveLoginIntents( $user ) );
+			if ( $user instanceof \WP_User && in_array( $loginNonce, $nonces ) ) {
 				/** @var TwoFactor\Provider\Email $provider */
 				$provider = $mod->getMfaController()
 								->getProvidersForUser( $user, true )[ TwoFactor\Provider\Email::SLUG ] ?? null;
-				$success = !empty( $provider ) && $provider->sendEmailTwoFactorVerify();
+				$success = !empty( $provider ) && $provider->sendEmailTwoFactorVerify( $loginNonce );
 			}
 		}
 
