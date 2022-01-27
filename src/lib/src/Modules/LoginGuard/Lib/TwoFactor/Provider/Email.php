@@ -78,7 +78,7 @@ class Email extends BaseProvider {
 
 		$success = false;
 		try {
-			$code = $this->getValid2faCode( $loginNonce );
+			$code = $this->get2faCode( $loginNonce );
 
 			$success = ( $useSureSend && $this->send2faEmailSureSend( $code ) )
 					   || $this->getMod()
@@ -149,13 +149,17 @@ class Email extends BaseProvider {
 			   && ( $this->isEnforced() || $opts->isEnabledEmailAuthAnyUserSet() );
 	}
 
-	private function getValid2faCode( string $loginNonce ) :string {
+	private function get2faCode( string $loginNonce ) :string {
 		$secrets = $this->getAllCodes();
 		if ( !isset( $secrets[ $loginNonce ] ) ) {
 			$secrets[ $loginNonce ] = $this->generateSimpleOTP();
 			$this->storeCodes( $secrets );
 		}
 		return $secrets[ $loginNonce ];
+	}
+
+	public function hasOtpForNonce( string $loginNonce ) :bool {
+		return isset( $this->getAllCodes()[ $loginNonce ] );
 	}
 
 	private function getAllCodes() :array {

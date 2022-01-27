@@ -21,10 +21,25 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
 	}
 
+	/**
+	 * We only want to auto send email if:
+	 * - email is the only provider
+	 * - it's the first time loading the 2FA page (we don't auto-send reloading the page after failure)
+	 */
 	public function isAutoSend2faEmail( \WP_User $user ) :bool {
+		$auto = false;
+
 		$providers = $this->getProvidersForUser( $user, true );
 		unset( $providers[ Provider\BackupCodes::SLUG ] );
-		return count( $providers ) === 1 && isset( $providers[ Provider\Email::SLUG ] );
+
+		/** @var Provider\Email|null $emailProvider */
+		$emailProvider = $providers[ Provider\Email::SLUG ] ?? null;
+		if ( count( $providers ) === 1 && !empty( $emailProvider ) ) {
+			$nonces = array_keys( $this->getActiveLoginIntents( $user ) );
+			$latestNonce = (string)array_pop( $nonces );
+			$auto = !$emailProvider->hasOtpForNonce( $latestNonce );
+		}
+		return $auto;
 	}
 
 	public function onLoginMessage( $msg ) {

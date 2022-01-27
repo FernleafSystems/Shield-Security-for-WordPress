@@ -59,7 +59,6 @@ class RenameLogin {
 	}
 
 	private function replaceLoginURL() {
-		error_log( 'setup replace' );
 		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
 		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20 );
 		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20 );
