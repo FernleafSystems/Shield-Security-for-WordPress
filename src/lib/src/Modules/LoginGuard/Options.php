@@ -6,12 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function getBotProtectionLocations() :array {
+		return $this->getOpt( 'bot_protection_locations' );
+	}
+
 	public function getHiddenLoginRedirect() :string {
 		return $this->getOpt( 'rename_wplogin_redirect' );
 	}
 
-	public function getBotProtectionLocations() :array {
-		return is_array( $this->getOpt( 'rename_wplogin_redirect' ) ) ? $this->getOpt( 'bot_protection_locations' ) : [];
+	public function getLoginIntentMaxAttempts() :int {
+		return (int)max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
 	}
 
 	public function getLoginIntentMinutes() :int {
@@ -19,10 +23,6 @@ class Options extends BaseShield\Options {
 			$this->getCon()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
-	}
-
-	public function getLoginIntentMaxAttempts() :int {
-		return (int)max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
 	}
 
 	public function getAntiBotFormSelectors() :array {
