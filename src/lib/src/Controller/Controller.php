@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property bool                                                   $cache_dir_ready
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -24,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property bool                                                   $rebuild_options
+ * @property Shield\Utilities\CacheDir                              $cache_dir_handler
  * @property bool                                                   $user_can_base_permissions
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
@@ -125,7 +125,6 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
-			case 'cache_dir_ready':
 			case 'is_activating':
 			case 'is_my_upgrade':
 			case 'modules_loaded':
@@ -135,6 +134,12 @@ class Controller extends DynPropertiesClass {
 			case 'rebuild_options':
 			case 'user_can_base_permissions':
 				$val = (bool)$val;
+				break;
+
+			case 'cache_dir_handler':
+				if ( empty( $val ) ) {
+					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
+				}
 				break;
 
 			case 'cfg':
@@ -358,22 +363,24 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpActivatePlugin() {
 		$this->is_activating = true;
-		$modPlugin = $this->getModule_Plugin();
-		if ( $modPlugin instanceof Shield\Modules\Base\ModCon ) {
-			$modPlugin->setActivatedAt();
-			do_action( 'shield/plugin_activated' );
+		$this->getModule_Plugin()->setActivatedAt();
+		do_action( 'shield/plugin_activated' );
+	}
+
+	public function getPluginCachePath( string $subPath = '' ) :string {
+		$path = $this->cache_dir_handler->build();
+		if ( !empty( $path ) && !empty( $subPath ) ) {
+			$path = path_join( $path, $subPath );
 		}
+		return $path;
 	}
 
-	public function getPluginCachePath( $cachePath = '' ) :string {
-		$cacheDir = ( new Shield\Utilities\CacheDir() )
-			->setCon( $this )
-			->build();
-		return empty( $cacheDir ) ? '' : path_join( $cacheDir, $cachePath );
-	}
-
+	/**
+	 * @deprecated 14
+	 */
 	public function hasCacheDir() :bool {
 		return !empty( $this->getPluginCachePath() );
+//		return $this->cache_dir_handler->dirExists();
 	}
 
 	protected function doRegisterHooks() {

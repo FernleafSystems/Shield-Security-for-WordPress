@@ -39,7 +39,7 @@ class AuditLogger extends EventsListener {
 			$con->getModule_Traffic()->getRequestLogger()->execute();
 		}
 
-		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
+		if ( $con->cache_dir_handler->dirExists() && $opts->isLogToFile() ) {
 			try {
 				$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {

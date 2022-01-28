@@ -6,16 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanAll extends BaseBulk {
+class CleanStale extends Base {
 
 	public function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		try {
+			if ( !$this->isTempDirAvailable() ) {
+				throw new \Exception( 'temporary directory is unavailable' );
+			}
+
 			$boundary = Services::Request()
-								 ->carbon()
-								 ->subDay()->timestamp;
-			$IT = StandardDirectoryIterator::create( $mod->getPtgSnapsBaseDir() );
+								->carbon()
+								->subDay()->timestamp;
+			$IT = StandardDirectoryIterator::create( $this->getTempDir() );
 			foreach ( $IT as $file ) {
 				/** @var \SplFileInfo $file */
 				if ( $boundary > $file->getMTime() ) {

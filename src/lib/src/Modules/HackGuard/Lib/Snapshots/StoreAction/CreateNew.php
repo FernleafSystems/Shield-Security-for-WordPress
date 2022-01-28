@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
@@ -8,10 +8,9 @@ class CreateNew extends BaseAction {
 
 	/**
 	 * Will delete any existing stores for the asset
-	 * @return Snapshots\Store
 	 * @throws \Exception
 	 */
-	public function run() {
+	public function run() :Snapshots\Store {
 		( new Delete() )
 			->setMod( $this->getMod() )
 			->setAsset( $this->getAsset() )

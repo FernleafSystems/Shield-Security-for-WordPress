@@ -52,18 +52,6 @@ class UserSuspendController extends ExecOnceModConsumer {
 		} );
 	}
 
-	public function isUserAutoSuspended( \WP_User $user ) :bool {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		$ts = Services::Request()->ts();
-		$meta = $this->getCon()->getUserMeta( $user );
-
-		$idleTime = $opts->getSuspendAutoIdleTime();
-		$passTime = $opts->getPassExpireTimeout();
-		return ( $passTime > 0 && $ts - $passTime > $meta->record->pass_started_at )
-			   || ( $idleTime > 0 && $ts - $passTime > $meta->last_verified_at );
-	}
-
 	/**
 	 * Sets-up all the UI filters necessary to provide manual user suspension
 	 * filter the User Tables
@@ -177,9 +165,6 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 			return $views;
 		} );
-
-		if ( !empty( $manual ) ) {
-		}
 	}
 
 	/**

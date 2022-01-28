@@ -10,8 +10,25 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class ScheduleBuildAll extends BaseBulk {
+class ScheduleBuildAll extends Base {
 
+	public function schedule() {
+		if ( $this->isTempDirAvailable() && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+			$hook = $this->getCronHook();
+			if ( is_main_network() ) {
+				add_action( $hook, function () {
+					$this->build();
+				} );
+			}
+			if ( wp_next_scheduled( $hook ) === false ) {
+				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
+			}
+		}
+	}
+
+	/**
+	 * @deprecated 14.0 - make this private
+	 */
 	public function build() {
 		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
 			try {
@@ -42,18 +59,6 @@ class ScheduleBuildAll extends BaseBulk {
 			}
 			catch ( \Exception $e ) {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
-			}
-		}
-	}
-
-	public function schedule() {
-		if ( count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-			$hook = $this->getCronHook();
-			if ( is_main_network() ) {
-				add_action( $hook, [ $this, 'build' ] );
-			}
-			if ( wp_next_scheduled( $hook ) === false ) {
-				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
 			}
 		}
 	}

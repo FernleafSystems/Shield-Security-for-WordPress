@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 
-class BaseAction {
+class BaseAction extends Base {
 
 	use ModConsumer;
 
@@ -34,13 +34,12 @@ class BaseAction {
 	}
 
 	/**
-	 * @return Snapshots\Store
 	 * @throws \Exception
 	 */
-	protected function getNewStore() {
+	protected function getNewStore() :Snapshots\Store {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return ( new Snapshots\Store( $this->getAsset() ) )
-			->setWorkingDir( $mod->getPtgSnapsBaseDir() );
+			->setWorkingDir( $this->getTempDir() );
 	}
 }
