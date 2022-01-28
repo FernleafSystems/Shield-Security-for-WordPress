@@ -1,4 +1,31 @@
 {
+  "14.0": {
+    "version":     "14.0",
+    "released_at": 1643364060,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease140",
+      "upgrade": "https://shsec.io/shieldupgradeguide140"
+    },
+    "title":       "Two-Factor Authentication Overhaul",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "WP Login Style 2FA Screen",
+        "description": [
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Custom Redirect For Hide WP Login & Admin",
+        "description": [
+        ]
+      }
+    ]
+  },
   "13.0": {
     "version":     "13.0",
     "released_at": 1636970660,

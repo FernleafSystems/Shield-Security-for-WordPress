@@ -145,9 +145,23 @@
       "link_info":   "https://shsec.io/5q",
       "link_blog":   "https://shsec.io/5r",
       "beacon_id":   316,
-      "name":        "Hide Login Page",
-      "summary":     "Rename The WordPress Login Page",
+      "name":        "Hide WP Login & Admin",
+      "summary":     "Hide The WordPress Login And Admin Areas",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
+    },
+    {
+      "key":         "rename_wplogin_redirect",
+      "section":     "section_rename_wplogin",
+      "advanced":    true,
+      "sensitive":   true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://shsec.io/5q",
+      "link_blog":   "https://shsec.io/5r",
+      "beacon_id":   455,
+      "name":        "WP Login & Admin Redirect",
+      "summary":     "Automatic Redirect URL For Hidden Pages",
+      "description": "Automatically redirect requests to this location for the hidden pages."
     },
     {
       "key":           "mfa_verify_page",

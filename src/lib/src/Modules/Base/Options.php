@@ -210,6 +210,9 @@ class Options {
 			case 'integer':
 				$value = (int)$value;
 				break;
+			case 'text':
+				$value = (string)$value;
+				break;
 			default:
 				break;
 		}

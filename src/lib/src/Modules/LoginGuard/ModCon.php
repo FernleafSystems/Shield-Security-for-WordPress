@@ -60,6 +60,16 @@ class ModCon extends BaseShield\ModCon {
 			 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ) ) {
 			$opts->resetOptToDefault( 'mfa_verify_page' );
 		}
+
+		$redirect = preg_replace( '#[^0-9a-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
+		if ( !empty( $redirect ) ) {
+
+			$redirect = preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
+			if ( !empty( $redirect ) ) {
+				$redirect = '/'.ltrim( $redirect, '/' );
+			}
+		}
+		$opts->setOpt( 'rename_wplogin_redirect', $redirect );
 	}
 
 	public function ensureCorrectCaptchaConfig() {

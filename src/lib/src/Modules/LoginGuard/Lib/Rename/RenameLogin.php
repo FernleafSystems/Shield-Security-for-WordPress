@@ -240,13 +240,20 @@ class RenameLogin {
 	 * Will by default send a 404 response screen. Has a filter to specify redirect URL.
 	 */
 	protected function doWpLoginFailedRedirect404() {
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
+
 		$this->getCon()->fireEvent( 'hide_login_url' );
 
-		$sRedirectUrl = apply_filters( 'icwp_shield_renamewplogin_redirect_url', false );
-		if ( !empty( $sRedirectUrl ) ) {
-			$sRedirectUrl = esc_url( $sRedirectUrl );
-			if ( @parse_url( $sRedirectUrl ) !== false ) {
-				Services::Response()->redirect( $sRedirectUrl, [], false );
+		$redirectPath = $opts->getHiddenLoginRedirect();
+		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );
+		$redirectUrl = apply_filters( 'shield/renamewplogin_redirect_url',
+			apply_filters( 'icwp_shield_renamewplogin_redirect_url', $redirectUrl ) );
+
+		if ( !empty( $redirectUrl ) ) {
+			$redirectUrl = esc_url( $redirectUrl );
+			if ( @wp_parse_url( $redirectUrl ) !== false ) {
+				Services::Response()->redirect( $redirectUrl, [], false );
 			}
 		}
 

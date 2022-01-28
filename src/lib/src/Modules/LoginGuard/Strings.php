@@ -168,13 +168,29 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'rename_wplogin_path' :
-				$name = __( 'Hide WP Login Page', 'wp-simple-firewall' );
-				$summary = __( 'Hide The WordPress Login Page', 'wp-simple-firewall' );
-				$desc = __( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' )
-						.'<br />'
-						.sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' )
-						.'<br />'
-						.sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' );
+				$name = __( 'Hide WP Login & Admin', 'wp-simple-firewall' );
+				$summary = __( 'Hide The WordPress Login And Admin Areas', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' ),
+					sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' ),
+					sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' )
+				];
+				break;
+
+			case 'rename_wplogin_redirect' :
+				$name = __( 'WP Login & Admin Redirect', 'wp-simple-firewall' );
+				$summary = __( 'Automatic Redirect URL For Hidden Pages', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Automatically redirect requests to this location for the hidden pages.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( 'Leave this blank to serve a standard "404 Not Found" error page.', 'wp-simple-firewall' )
+					),
+					sprintf( '%s: %s',
+						__( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( 'Use relative paths e.g. %s redirects to your homepage.', 'wp-simple-firewall' ), '<code>/</code>' )
+					),
+				];
 				break;
 
 			case 'enable_chained_authentication' :
