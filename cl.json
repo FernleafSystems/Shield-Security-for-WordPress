@@ -23,6 +23,28 @@
         "title":       "Custom Redirect For Hide WP Login & Admin",
         "description": [
         ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Improved 2FA User Experience",
+        "description": [
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Mutli-factor Authentication Removed",
+        "description": [
+          "The option to force users to supply ALL two-factor authentication options has been removed."
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Updated Bootstrap Libraries",
+        "description": [
+        ]
       }
     ]
   },
