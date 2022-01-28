@@ -143,8 +143,9 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				$this->getMod()->setFlashAdminNotice( $flash, $user );
 			}
 
+			$redirect = $req->request( 'redirect_to', $req->getUri() );
 			Services::Response()->redirect(
-				apply_filters( 'login_redirect', $req->post( 'redirect_to', '/' ), $user ),
+				apply_filters( 'login_redirect', $redirect, $redirect, $user ),
 				[], true, false
 			);
 		}

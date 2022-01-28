@@ -24,7 +24,7 @@
 	{{ content.action_login_header|raw }}
 
 	<div id="login">
-		<h1><a href="{{ hrefs.login_header_url }}">{{ strings.login_header_text }}</a></h1>
+		<h1><a href="{{ hrefs.login_header_url }}">{{ strings.login_header_text|raw }}</a></h1>
 		{{ strings.message|raw }}
 
 		{% if flags.has_login_errors %}

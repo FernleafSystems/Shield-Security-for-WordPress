@@ -96,8 +96,12 @@ class RenderWpLoginReplica extends RenderBase {
 		global $interim_login, $action;
 
 		// Don't index any of these forms.
-		add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
-		add_action( 'login_head', 'wp_strict_cross_origin_referrer' );
+		if ( function_exists( 'wp_robots_sensitive_page' ) ) {
+			add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
+		}
+		if ( function_exists( 'wp_strict_cross_origin_referrer' ) ) {
+			add_action( 'login_head', 'wp_strict_cross_origin_referrer' );
+		}
 
 		if ( !is_wp_error( $wp_error ) ) {
 			$wp_error = new \WP_Error();
