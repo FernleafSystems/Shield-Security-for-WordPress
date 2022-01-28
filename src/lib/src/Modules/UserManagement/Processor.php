@@ -31,9 +31,7 @@ class Processor extends BaseShield\Processor {
 		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
 
 		// This controller handles visitor whitelisted status internally.
-		( new Lib\Suspend\UserSuspendController() )
-			->setMod( $this->getMod() )
-			->execute();
+		$mod->getUserSuspendController()->execute();
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {

@@ -3,9 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
+
+	private $userSuspensionController;
+
+	public function getUserSuspendController() :UserSuspendController {
+		if ( !isset( $this->userSuspensionController ) ) {
+			$this->userSuspensionController = ( new UserSuspendController() )->setMod( $this );
+		}
+		return $this->userSuspensionController;
+	}
 
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.

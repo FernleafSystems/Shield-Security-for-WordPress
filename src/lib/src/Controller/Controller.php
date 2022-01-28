@@ -73,12 +73,12 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Modules\Events\Lib\EventsService
 	 */
 	public function loadEventsService() {
-		if ( !isset( $this->oEventsService ) ) {
-			$this->oEventsService = ( new Shield\Modules\Events\Lib\EventsService() )
+		if ( !isset( $this->service_events ) ) {
+			$this->service_events = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
-			$this->service_events = $this->oEventsService;
+			$this->oEventsService = $this->service_events;
 		}
-		return $this->oEventsService;
+		return $this->service_events;
 	}
 
 	/**

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
@@ -20,10 +21,6 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
-
-		if ( $opts->isSuspendManualEnabled() ) {
-			$this->applyManualSuspendUIFilters();
-		}
 
 		if ( !$mod->isVisitorWhitelisted() ) {
 
@@ -43,41 +40,145 @@ class UserSuspendController extends ExecOnceModConsumer {
 					->execute();
 			}
 		}
+
+		// User profile UI
+		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
+		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
+		// Show suspended user list filters
+		add_action( 'load-users.php', function () {
+			$this->addSuspendedUserFilters();
+			// Display suspended on the user list table
+			add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
+		} );
+	}
+
+	public function isUserAutoSuspended( \WP_User $user ) :bool {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
+		$ts = Services::Request()->ts();
+		$meta = $this->getCon()->getUserMeta( $user );
+
+		$idleTime = $opts->getSuspendAutoIdleTime();
+		$passTime = $opts->getPassExpireTimeout();
+		return ( $passTime > 0 && $ts - $passTime > $meta->record->pass_started_at )
+			   || ( $idleTime > 0 && $ts - $passTime > $meta->last_verified_at );
 	}
 
 	/**
 	 * Sets-up all the UI filters necessary to provide manual user suspension
 	 * filter the User Tables
 	 */
-	private function applyManualSuspendUIFilters() {
+	private function addSuspendedUserFilters() {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
+		$ts = Services::Request()->ts();
 
-		// User profile UI
-		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
-		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
+		/** @var Select $metaSelect */
+		$metaSelect = $this->getCon()
+						   ->getModule_Data()
+						   ->getDbH_UserMeta()
+						   ->getQuerySelector();
 
-		// Display suspended on the user list table
-		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
+		if ( $opts->isSuspendManualEnabled() ) {
+			$manual = array_map(
+				function ( $res ) {
+					return (int)array_pop( $res );
+				},
+				$metaSelect->filterByHardSuspended()
+						   ->setResultsAsVo( false )
+						   ->setSelectResultsFormat( ARRAY_A )
+						   ->setColumnsToSelect( [ 'user_id' ] )
+						   ->queryWithResult()
+			);
+		}
+		else {
+			$manual = [];
+		}
 
-		// Provide Suspended user filter above table
-		$userIDs = array_keys( $opts->getSuspendHardUserIds() );
-		if ( !empty( $userIDs ) ) {
-			// Provide the link above the table.
-			add_filter( 'views_users', function ( $aViews ) use ( $userIDs ) {
-				$aViews[ 'shield_suspended_users' ] = sprintf( '<a href="%s">%s</a>',
-					add_query_arg( [ 'suspended' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
-					sprintf( '%s (%s)', __( 'Suspended', 'wp-simple-firewall' ), count( $userIDs ) ) );
-				return $aViews;
-			} );
+		if ( $opts->isSuspendAutoPasswordEnabled() ) {
+			$passwords = array_map(
+				function ( $res ) {
+					return (int)array_pop( $res );
+				},
+				$metaSelect->filterByPassExpired( $ts - $opts->getPassExpireTimeout() )
+						   ->setResultsAsVo( false )
+						   ->setSelectResultsFormat( ARRAY_A )
+						   ->setColumnsToSelect( [ 'user_id' ] )
+						   ->queryWithResult()
+			);
+		}
+		else {
+			$passwords = [];
+		}
 
-			// Filter the database query
-			add_filter( 'users_list_table_query_args', function ( $args ) use ( $userIDs ) {
-				if ( is_array( $args ) && Services::Request()->query( 'suspended' ) ) {
-					$args[ 'include' ] = $userIDs;
-				}
-				return $args;
-			} );
+		if ( $opts->isSuspendAutoIdleEnabled() ) {
+			$idle = array_map(
+				function ( $res ) {
+					return (int)array_pop( $res );
+				},
+				$metaSelect->filterByIdle( $ts - $opts->getSuspendAutoIdleTime() )
+						   ->setResultsAsVo( false )
+						   ->setSelectResultsFormat( ARRAY_A )
+						   ->setColumnsToSelect( [ 'user_id' ] )
+						   ->queryWithResult()
+			);
+		}
+		else {
+			$idle = [];
+		}
+
+		// Provide the links above the table.
+		add_filter( 'views_users', function ( $views ) use ( $manual, $idle, $passwords ) {
+
+			if ( !empty( $manual ) ) {
+				$views[ 'shield_users_suspended' ] = sprintf(
+					'<a href="%s">%s <span class="count">(%s)</span></a>',
+					add_query_arg( [ 'shield_users_suspended' => 1 ], Services::WpGeneral()
+																			  ->getUrl_CurrentAdminPage() ),
+					__( 'Manually Suspended', 'wp-simple-firewall' ), count( $manual )
+				);
+
+				// Filter the database query
+				add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual ) {
+					if ( is_array( $args ) && Services::Request()->query( 'shield_users_suspended' ) ) {
+						$args[ 'include' ] = $manual;
+					}
+					return $args;
+				} );
+			}
+
+			if ( !empty( $idle ) ) {
+				$views[ 'shield_idle_users' ] = sprintf(
+					'<a href="%s">%s <span class="count">(%s)</span></a>',
+					add_query_arg( [ 'shield_users_idle' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
+					__( 'Idle', 'wp-simple-firewall' ), count( $idle )
+				);
+				add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual ) {
+					if ( is_array( $args ) && Services::Request()->query( 'shield_users_idle' ) ) {
+						$args[ 'include' ] = $manual;
+					}
+					return $args;
+				} );
+			}
+
+			if ( !empty( $passwords ) ) {
+				$views[ 'shield_users_pass' ] = sprintf(
+					'<a href="%s">%s <span class="count">(%s)</span></a>',
+					add_query_arg( [ 'shield_users_pass' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
+					__( 'Password Expired', 'wp-simple-firewall' ), count( $passwords )
+				);
+				add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual ) {
+					if ( is_array( $args ) && Services::Request()->query( 'shield_users_pass' ) ) {
+						$args[ 'include' ] = $manual;
+					}
+					return $args;
+				} );
+			}
+
+			return $views;
+		} );
+
+		if ( !empty( $manual ) ) {
 		}
 	}
 
