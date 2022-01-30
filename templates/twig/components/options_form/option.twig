@@ -33,7 +33,7 @@
 	<div class="col-4">
 
 		{% if aOption.type is sameas('checkbox') %}
-			<div class="form-check custom-switch option-checkbox">
+			<div class="form-check">
 				<input type="checkbox"
 					   class="form-check-input"
 					   id="Opt-{{ aOption.key }}"
@@ -199,18 +199,21 @@
 				{% if flags.is_wpcli %}
 					<span href="#" style="cursor:pointer;"
 						  class="float-end"
-						  title="WP-CLI Option Key: {{ aOption.key }}"
-						  data-bs-toggle="tooltip"
+					    data-bs-toggle="tooltip"
+					    data-bs-placement="left"
+					    data-bs-title="WP-CLI Option Key: {{ aOption.key }}"
 					>wp-cli:&gt;</span>
 				{% endif %}
 
 				{% if flags.show_transfer_switch %}
 					{% if attribute(data.xferable_opts, aOption.key) is not same as(false) %}
-						<span class="custom-control custom-switch float-end importexport-checkbox"
-							  title="{{ strings.is_opt_importexport }}" data-bs-toggle="tooltip"
+						<span class="form-check float-end importexport-checkbox"
+						      data-bs-toggle="tooltip"
+						      data-bs-placement="left"
+						      data-bs-title="{{ strings.is_opt_importexport }}"
 						>
 							<input type="checkbox"
-								   class="custom-control-input optxfer-exclude"
+								   class="form-check-input optxfer-exclude"
 								   id="optxfer-{{ aOption.key }}"
 								   name="optxfer-{{ aOption.key }}"
 								   aria-labelledby="Label-{{ aOption.key }}"

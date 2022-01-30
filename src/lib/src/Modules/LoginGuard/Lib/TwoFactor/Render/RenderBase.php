@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property string $login_nonce
+ * @property string $interim_login
  * @property string $rememberme
  * @property string $redirect_to
  * @property string $msg_error
@@ -41,12 +42,12 @@ abstract class RenderBase {
 		$mfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
 
 		return [
-			'hrefs' => [
+			'hrefs'   => [
 				'form_action' => add_query_arg( [
 					'shield_action' => 'wp_login_2fa_verify'
 				], $WP->getLoginUrl() ),
 			],
-			'flags' => [
+			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			],
@@ -62,7 +63,7 @@ abstract class RenderBase {
 					sprintf( _n( '%s day', '%s days', $mfaSkip, 'wp-simple-firewall' ), $mfaSkip )
 				)
 			],
-			'vars'  => [
+			'vars'    => [
 				'form_hidden_fields' => $this->getHiddenFields(),
 				'login_fields'       => array_filter( array_map(
 					function ( $provider ) {
@@ -111,7 +112,7 @@ abstract class RenderBase {
 		global $interim_login;
 
 		$fields = array_filter( [
-			'interim-login' => $interim_login ? '1' : false,
+			'interim-login' => ( $interim_login || $this->interim_login ) ? '1' : false,
 			'login_nonce'   => $this->login_nonce,
 			'rememberme'    => esc_attr( $this->rememberme ),
 			'redirect_to'   => esc_attr( esc_url( $redirectTo ) ),

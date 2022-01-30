@@ -348,6 +348,19 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 }
 
 jQuery( document ).ready( function () {
+
+	jQuery( document ).ajaxComplete( function () {
+		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
+		popoverTriggerList.map( function ( popoverTriggerEl ) {
+			return new bootstrap.Popover( popoverTriggerEl );
+		} );
+
+		let tooltipTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="tooltip"]' ) )
+		tooltipTriggerList.map( function ( tooltipTriggerEl ) {
+			return new bootstrap.Tooltip( tooltipTriggerEl );
+		} );
+	} );
+
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '.select2picker.static' ).select2( {
@@ -370,15 +383,6 @@ jQuery( document ).ready( function () {
 				};
 			}
 		}
-	} );
-
-	var popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
-	var popoverList = popoverTriggerList.map( function ( popoverTriggerEl ) {
-		return new bootstrap.Popover( popoverTriggerEl );
-	} );
-	var tooltipTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="tooltip"]' ) )
-	var tooltipList = tooltipTriggerList.map( function ( tooltipTriggerEl ) {
-		return new bootstrap.Tooltip( tooltipTriggerEl );
 	} );
 
 	jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
