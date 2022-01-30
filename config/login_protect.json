@@ -186,6 +186,30 @@
       "description":   "Choose the page type for MFA verification"
     },
     {
+      "key":           "mfa_user_setup_pages",
+      "section":       "section_multifactor_authentication",
+      "type":          "multiple_select",
+      "default":       [
+        "profile"
+      ],
+      "value_options": [
+        {
+          "value_key": "profile",
+          "text":      "WP User Profile Page"
+        },
+        {
+          "value_key": "dedicated",
+          "text":      "Dedicated WP Admin Page"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "beacon_id":     456,
+      "name":          "User 2FA Setup",
+      "summary":       "User 2FA Setup Page Locations",
+      "description":   "Pages available to users to configure 2FA."
+    },
+    {
       "key":         "mfa_skip",
       "section":     "section_multifactor_authentication",
       "premium":     true,

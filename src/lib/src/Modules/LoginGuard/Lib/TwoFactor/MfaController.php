@@ -83,7 +83,10 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function onWpLoaded() {
-		( new MfaProfilesController() )->setMfaController( $this )->execute();
+		( new MfaProfilesController() )
+			->setMod( $this->getMod() )
+			->setMfaController( $this ) // TODO: remove
+			->execute();
 	}
 
 	/**

@@ -211,6 +211,15 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'mfa_user_setup_pages' :
+				$name = __( 'User 2FA Setup', 'wp-simple-firewall' );
+				$summary = __( 'User 2FA Setup Page Locations', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Specify pages available to users to configure 2FA on their account.', 'wp-simple-firewall' ),
+					__( 'At least 1 option must be provided and defaults to the user profile page within the WP admin area.', 'wp-simple-firewall' )
+				];
+				break;
+
 			case 'mfa_skip' :
 				$name = __( '2FA Remember Me', 'wp-simple-firewall' );
 				$summary = __( 'A User Can Bypass 2FA For The Set Number Of Days', 'wp-simple-firewall' );

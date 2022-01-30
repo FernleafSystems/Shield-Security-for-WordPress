@@ -2,22 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaProfilesController {
+class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	use MfaControllerConsumer;
-	use ExecOnce;
 
 	private $rendered = false;
 
 	private $isFrontend = false;
 
 	protected function run() {
-		$this->addHooks();
+		$con = $this->getCon();
+
+		// shortcode for placing user authentication handling anywhere
+		if ( $con->isPremiumActive() ) {
+			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
+				return $this->loadUserProfileMFA( is_array( $attributes ) ? $attributes : [] );
+			} );
+		}
+
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			add_action( 'wp', function () {
 				$this->enqueueAssets( true );
@@ -25,14 +32,69 @@ class MfaProfilesController {
 			add_action( 'admin_init', function () {
 				$this->enqueueAssets( false );
 			} );
+
+			/** @var LoginGuard\Options $opts */
+			$opts = $this->getOptions();
+			$locations = $opts->getOpt( 'mfa_user_setup_pages' );
+			if ( in_array( 'dedicated', $locations ) ) {
+				add_action( $con->prefix( 'admin_submenu' ), function () {
+					$this->addLoginSecurityMenuItem();
+				}, 20 );
+			}
+
+			if ( in_array( 'profile', $locations ) ) {
+				// Standard WordPress User Profile Editing
+				add_action( 'show_user_profile', function () {
+					$this->addOptionsToUserProfile();
+				}, 7, 0 );
+				add_action( 'edit_user_profile', function ( $user ) {
+					if ( $user instanceof \WP_User ) {
+						$this->addOptionsToUserEditProfile( $user );
+					}
+				} );
+			}
 		}
+	}
+
+	private function addLoginSecurityMenuItem() {
+		$con = $this->getCon();
+		add_submenu_page(
+			$con->prefix(),
+			sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), $con->getHumanName() ),
+			__( 'My Login Security', 'wp-simple-firewall' ),
+			'read',
+			$con->prefix( 'my-login-security' ),
+			function () {
+				echo $this->renderMyLoginSecurity();
+			}
+		);
+	}
+
+	private function renderMyLoginSecurity() :string {
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->renderTemplate( '/wpadmin_pages/my_login_security/index.twig',
+			Services::DataManipulation()->mergeArraysRecursive(
+				$mod->getUIHandler()->getBaseDisplayData(),
+				[
+					'content' => [
+						'mfa_setup' => $this->loadUserProfileMFA()
+					]
+				]
+			)
+		);
 	}
 
 	private function enqueueAssets( bool $isFrontend ) {
 		$this->isFrontend = $isFrontend;
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
 
-			if ( $this->isFrontend || in_array( $hook, [ 'profile.php', 'user-edit.php' ] ) ) {
+			$isPageWithProfileDisplay = in_array( $hook, [
+				'profile.php',
+				'user-edit.php',
+				'shieldpro_page_icwp-wpsf-my-login-security'
+			] );
+			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
 				$enqueues[ Enqueue::CSS ][] = 'shield/dialog';
 				$enqueues[ Enqueue::CSS ][] = 'shield/userprofile';
@@ -83,24 +145,10 @@ class MfaProfilesController {
 			->render( $attributes );
 	}
 
+	/**
+	 * @deprecated 14.0
+	 */
 	private function addHooks() {
-
-		// shortcode for placing user authentication handling anywhere
-		if ( $this->getMfaCon()->getCon()->isPremiumActive() ) {
-			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-				return $this->loadUserProfileMFA( is_array( $attributes ) ? $attributes : [] );
-			} );
-		}
-
-		// Standard WordPress User Profile Editing
-		add_action( 'show_user_profile', function () {
-			$this->addOptionsToUserProfile();
-		}, 7, 0 );
-		add_action( 'edit_user_profile', function ( $user ) {
-			if ( $user instanceof \WP_User ) {
-				$this->addOptionsToUserEditProfile( $user );
-			}
-		} );
 	}
 
 	/**
@@ -109,7 +157,7 @@ class MfaProfilesController {
 	 */
 	public function addOptionsToUserProfile() {
 		echo $this->loadUserProfileMFA( [
-			'title'=>__( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
+			'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 			'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
 				$this->getMfaCon()->getCon()->getHumanName() )
 		] );

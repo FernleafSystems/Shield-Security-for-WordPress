@@ -119,7 +119,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 	};
 
 	let initYubi = function ( shield_vars ) {
-		let $yubiText = jQuery( 'input[type=text]#shield_yubi' );
+		let $yubiText = jQuery( 'input[type=text]#icwp_wpsf_yubi_otp' );
 		jQuery( document ).on( 'keydown', $yubiText, function ( evt ) {
 			if ( evt.key === 'Enter' || evt.keyCode === 13 ) {
 				evt.preventDefault();

@@ -1738,3 +1738,7 @@ button.btn.action {
 .audit-meta ul {
 	padding: 0;
 }
+
+.ui-dialog-titlebar .ui-dialog-titlebar-close {
+	float: right;
+}

@@ -1,5 +1,5 @@
 <style>
-	#shield_yubi {
+	#icwp_wpsf_yubi_otp {
 		width: 350px
 	}
 </style>
@@ -35,7 +35,7 @@
 		{% endif %}
 		<input class="regular-text"
 			   type="text"
-			   id="shield_yubi"
+			   id="{{ vars.otp_field_name }}"
 			   name="{{ vars.otp_field_name }}"
 			   placeholder="{{ strings.placeholder_enter_otp }}"
 			   value="" autocomplete="off" />

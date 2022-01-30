@@ -12,11 +12,6 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @var Lib\TwoFactor\MfaController
 	 */
-	private $loginIntentCon;
-
-	/**
-	 * @var Lib\TwoFactor\MfaController
-	 */
 	private $mfaCon;
 
 	protected function preProcessOptions() {
@@ -70,6 +65,10 @@ class ModCon extends BaseShield\ModCon {
 			}
 		}
 		$opts->setOpt( 'rename_wplogin_redirect', $redirect );
+
+		if ( empty( $opts->getOpt( 'mfa_user_setup_pages' ) ) ) {
+			$opts->setOpt( 'mfa_user_setup_pages', [ 'profile' ] );
+		}
 	}
 
 	public function ensureCorrectCaptchaConfig() {
