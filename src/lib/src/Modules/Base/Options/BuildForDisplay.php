@@ -220,9 +220,7 @@ class BuildForDisplay {
 
 			case 'file_locker':
 				if ( !Services::Data()->isWindows() ) {
-					error_log( var_export( $option[ 'value_options' ][ 'root_webconfig' ], true ) );
 					$option[ 'value_options' ][ 'root_webconfig' ] .= sprintf( ' (%s)', __( 'unavailable', 'wp-simple-firewall' ) );
-					error_log( var_export( $option, true ) );
 				}
 				break;
 

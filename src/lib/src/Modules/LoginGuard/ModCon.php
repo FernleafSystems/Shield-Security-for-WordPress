@@ -75,16 +75,16 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$sStyle = $opts->getOpt( 'enable_google_recaptcha_login' );
+		$style = $opts->getOpt( 'enable_google_recaptcha_login' );
 		if ( $this->isPremium() ) {
 			$cfg = $this->getCaptchaCfg();
 			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
-				if ( !$cfg->invisible && $sStyle == 'invisible' ) {
+				if ( !$cfg->invisible && $style == 'invisible' ) {
 					$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 				}
 			}
 		}
-		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+		elseif ( !in_array( $style, [ 'disabled', 'default' ] ) ) {
 			$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
 	}

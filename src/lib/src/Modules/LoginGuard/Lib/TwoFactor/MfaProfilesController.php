@@ -159,7 +159,7 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 		echo $this->loadUserProfileMFA( [
 			'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 			'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-				$this->getMfaCon()->getCon()->getHumanName() )
+				$this->getCon()->getHumanName() )
 		] );
 	}
 
@@ -167,24 +167,25 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
 	 */
 	public function addOptionsToUserEditProfile( \WP_User $user ) {
-		$mfaCon = $this->getMfaCon();
-		$con = $mfaCon->getCon();
-		$WPU = Services::WpUsers();
+		$con = $this->getCon();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
 		$pluginName = $con->getHumanName();
 
 		$providers = array_map(
 			function ( $provider ) {
 				return $provider->getProviderName();
 			},
-			$mfaCon->getProvidersForUser( $user, true )
+			$mod->getMfaController()->getProvidersForUser( $user, true )
 		);
 		$this->rendered = true;
 
-		echo $mfaCon->getMod()->renderTemplate( '/admin/user/profile/mfa/remove_for_other_user.twig', [
+		$isAdmin = Services::WpUsers()->isUserAdmin( $user );
+		echo $mod->renderTemplate( '/admin/user/profile/mfa/remove_for_other_user.twig', [
 			'flags'   => [
 				'has_factors'      => count( $providers ) > 0,
-				'is_admin_profile' => $WPU->isUserAdmin( $user ),
-				'can_remove'       => $con->isPluginAdmin() || !$WPU->isUserAdmin( $user ),
+				'is_admin_profile' => $isAdmin,
+				'can_remove'       => $con->isPluginAdmin() || !$isAdmin,
 			],
 			'vars'    => [
 				'user_id'          => $user->ID,
