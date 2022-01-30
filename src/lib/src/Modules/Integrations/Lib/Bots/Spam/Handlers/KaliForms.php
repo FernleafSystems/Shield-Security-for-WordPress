@@ -8,7 +8,7 @@ class KaliForms extends Base {
 		add_filter( 'kaliforms_before_form_process', function ( $data ) {
 			if ( is_array( $data ) && empty( $data[ 'error_bag' ] ) && $this->isSpam() ) {
 				$data[ 'admin_stop_execution' ] = true;
-				$data[ 'admin_stop_reason' ] = __( 'Your entry appears to be spam!', 'wp-simple-firewall' );
+				$data[ 'admin_stop_reason' ] = $this->getCommonSpamMessage();
 				$data[ 'error_bag' ] = [
 					__( 'SPAM Bot detected.', 'wp-simple-firewall' )
 				];

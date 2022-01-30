@@ -7,7 +7,7 @@ class SuperForms extends Base {
 	protected function run() {
 		add_action( 'super_before_sending_email_hook', function ( $formSubmissionData ) {
 			if ( $this->isSpam() ) {
-				\SUPER_Common::output_message( true, esc_html__( 'Shield Anti-Spam detected this form submission as a bot!', 'wp-simple-firewall' ) );
+				\SUPER_Common::output_message( true, esc_html( $this->getCommonSpamMessage() ) );
 			}
 		}, 1000 );
 	}
