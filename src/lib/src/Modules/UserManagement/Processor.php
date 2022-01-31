@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
@@ -236,6 +237,12 @@ class Processor extends BaseShield\Processor {
 					 __( 'Thanks.', 'wp-simple-firewall' )
 				 ]
 			 );
+	}
+
+	public function runHourlyCron() {
+		( new BulkUpdateUserMeta() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	public function runDailyCron() {
