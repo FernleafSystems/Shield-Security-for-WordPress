@@ -44,11 +44,28 @@ class UserSuspendController extends ExecOnceModConsumer {
 		// User profile UI
 		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
 		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
+
 		// Show suspended user list filters
 		add_action( 'load-users.php', function () {
+
 			$this->addSuspendedUserFilters();
-			// Display suspended on the user list table
-			add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
+
+			// Display manually suspended on the user list table; TODO: at auto suspended
+			add_filter( 'shield/user_status_column', function ( array $content, int $userID ) {
+
+				$meta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
+				if ( $meta->record->hard_suspended_at > 0 ) {
+					$content[] = sprintf( '%s: %s',
+						__( 'Suspended', 'wp-simple-firewall' ),
+						Services::Request()
+								->carbon( true )
+								->setTimestamp( $meta->record->hard_suspended_at )
+								->diffForHumans()
+					);
+				}
+
+				return $content;
+			}, 10, 2 );
 		} );
 	}
 
@@ -165,41 +182,6 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 			return $views;
 		} );
-	}
-
-	/**
-	 * @param array $columns
-	 * @return array
-	 */
-	public function addUserListSuspendedFlag( $columns ) {
-		$customColumnName = $this->getCon()->prefix( 'col_user_status' );
-		if ( !isset( $columns[ $customColumnName ] ) ) {
-			$columns[ $customColumnName ] = __( 'User Status', 'wp-simple-firewall' );
-		}
-
-		add_filter( 'manage_users_custom_column',
-			function ( $content, $columnName, $userID ) use ( $customColumnName ) {
-
-				if ( $columnName == $customColumnName ) {
-					$meta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
-					if ( $meta->record->hard_suspended_at > 0 ) {
-						$newContent = sprintf( '%s: %s',
-							__( 'Suspended', 'wp-simple-firewall' ),
-							Services::Request()
-									->carbon( true )
-									->setTimestamp( $meta->record->hard_suspended_at )
-									->diffForHumans()
-						);
-						$content = empty( $content ) ? $newContent : $content.'<br/>'.$newContent;
-					}
-				}
-
-				return $content;
-			},
-			10, 3
-		);
-
-		return $columns;
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {

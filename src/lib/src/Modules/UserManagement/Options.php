@@ -102,15 +102,10 @@ class Options extends BaseShield\Options {
 	 * @return string
 	 */
 	public function getValidateEmailOnRegistration() {
-		return $this->isPremium() ?
-			$this->getOpt( 'reg_email_validate', 'disabled' )
-			: 'disabled';
+		return $this->isPremium() ? $this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getEmailValidationChecks() {
+	public function getEmailValidationChecks() :array {
 		return $this->getOpt( 'email_checks', [] );
 	}
 }

@@ -48,7 +48,7 @@ class Processor extends BaseShield\Processor {
 				->execute();
 			( new Lib\Registration\EmailValidate() )
 				->setMod( $this->getMod() )
-				->run();
+				->execute();
 		}
 	}
 
@@ -60,8 +60,8 @@ class Processor extends BaseShield\Processor {
 		if ( !$user instanceof \WP_User && !empty( $username ) ) {
 			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
-		// One might think it should be. It's not always the case it seems...
-		if ( $user instanceof \WP_User ) {
+
+		if ( $user instanceof \WP_User ) { // One might think it should be. It's not always the case it seems...
 			$meta = $this->getCon()->getUserMeta( $user );
 			$meta->updatePasswordStartedAt( $user->user_pass );
 			$meta->record->last_login_at = Services::Request()->ts();
@@ -116,41 +116,43 @@ class Processor extends BaseShield\Processor {
 
 	/**
 	 * Adds the column to the users listing table to indicate
-	 * @param array $aColumns
+	 * @param array $cols
 	 * @return array
 	 */
-	public function addUserStatusLastLogin( $aColumns ) {
+	public function addUserStatusLastLogin( $cols ) {
 
 		$customColName = $this->getCon()->prefix( 'col_user_status' );
-		if ( !isset( $aColumns[ $customColName ] ) ) {
-			$aColumns[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
+		if ( !isset( $cols[ $customColName ] ) ) {
+			$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
-		add_filter( 'manage_users_custom_column',
-			function ( $content, $colName, $userID ) use ( $customColName ) {
+		add_filter( 'manage_users_custom_column', function ( $content, $colName, $userID ) use ( $customColName ) {
 
-				if ( $colName == $customColName ) {
-					$value = __( 'Not Recorded', 'wp-simple-firewall' );
-					$user = Services::WpUsers()->getUserById( $userID );
-					if ( $user instanceof \WP_User ) {
-						$lastLogin = $this->getCon()->getUserMeta( $user )->record->last_login_at;
-						if ( $lastLogin > 0 ) {
-							$value = Services::Request()
+			if ( $colName === $customColName ) {
+				$lastLogin = __( 'Not Recorded', 'wp-simple-firewall' );
+				$user = Services::WpUsers()->getUserById( $userID );
+				if ( $user instanceof \WP_User ) {
+					$lastLoginAt = $this->getCon()->getUserMeta( $user )->record->last_login_at;
+					if ( $lastLoginAt > 0 ) {
+						$lastLogin = Services::Request()
 											 ->carbon()
-											 ->setTimestamp( $lastLogin )
+											 ->setTimestamp( $lastLoginAt )
 											 ->diffForHumans();
-						}
 					}
-					$newContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $value );
-					$content = empty( $content ) ? $newContent : $content.'<br/>'.$newContent;
 				}
 
-				return $content;
-			},
-			10, 3
-		);
+				$additionalContent = apply_filters( 'shield/user_status_column', [
+					$content,
+					sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $lastLogin )
+				], (int)$userID );
 
-		return $aColumns;
+				$content = implode( '<br/>', array_filter( array_map( 'trim', $additionalContent ) ) );
+			}
+
+			return $content;
+		}, 10, 3 );
+
+		return $cols;
 	}
 
 	private function sendAdminLoginEmailNotification( \WP_User $user ) {

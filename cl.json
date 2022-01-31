@@ -27,6 +27,13 @@
       {
         "type":        "new",
         "pro_only":    false,
+        "title":       "Easier Access To User 2FA Settings with WP Admin Menu",
+        "description": [
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
         "title":       "Improved 2FA User Experience",
         "description": [
         ]
