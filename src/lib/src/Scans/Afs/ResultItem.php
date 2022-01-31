@@ -71,7 +71,7 @@ class ResultItem extends Base\ResultItem {
 				$value = json_encode( $value );
 				break;
 			case 'mal_file_lines':
-				$value = base64_encode( json_encode( is_array( $value ) ? $value : [] ) );
+				$value = base64_encode( wp_json_encode( is_array( $value ) ? $value : [] ) );
 				break;
 			case 'mal_sig':
 				$value = base64_encode( $value );
