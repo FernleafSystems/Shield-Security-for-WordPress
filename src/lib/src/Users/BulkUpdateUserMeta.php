@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class BulkUpdateUserMeta extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		return $this->getCon()
@@ -20,14 +20,14 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	protected function run() {
 		$con = $this->getCon();
 		$userSearch = new \WP_User_Query( [
-			'exclude' => $this->getUserMetaIDs()
+			'exclude' => $this->getExistingUserMetaIDs()
 		] );
 		foreach ( $userSearch->get_results() as $user ) {
 			$con->getUserMeta( $user );
 		}
 	}
 
-	protected function getUserMetaIDs() :array {
+	protected function getExistingUserMetaIDs() :array {
 		/** @var Select $metaSelect */
 		$metaSelect = $this->getCon()
 						   ->getModule_Data()
@@ -37,11 +37,11 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 						  ->setSelectResultsFormat( ARRAY_A )
 						  ->setColumnsToSelect( [ 'user_id' ] )
 						  ->queryWithResult();
-		return array_map(
+		return array_filter( array_map(
 			function ( $res ) {
 				return (int)array_pop( $res );
 			},
 			is_array( $res ) ? $res : []
-		);
+		) );
 	}
 }

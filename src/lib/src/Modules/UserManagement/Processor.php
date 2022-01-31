@@ -241,7 +241,7 @@ class Processor extends BaseShield\Processor {
 
 	public function runHourlyCron() {
 		( new BulkUpdateUserMeta() )
-			->setMod( $this->getMod() )
+			->setCon( $this->getCon() )
 			->execute();
 	}
 
