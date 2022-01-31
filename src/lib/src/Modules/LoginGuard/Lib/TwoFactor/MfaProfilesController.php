@@ -26,32 +26,35 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 		}
 
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
+
 			add_action( 'wp', function () {
 				$this->enqueueAssets( true );
 			} );
-			add_action( 'admin_init', function () {
+
+			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 				$this->enqueueAssets( false );
-			} );
 
-			/** @var LoginGuard\Options $opts */
-			$opts = $this->getOptions();
-			$locations = $opts->getOpt( 'mfa_user_setup_pages' );
-			if ( in_array( 'dedicated', $locations ) ) {
-				add_action( $con->prefix( 'admin_submenu' ), function () {
-					$this->addLoginSecurityMenuItem();
-				}, 20 );
-			}
+				/** @var LoginGuard\Options $opts */
+				$opts = $this->getOptions();
+				$locations = $opts->getOpt( 'mfa_user_setup_pages' );
 
-			if ( in_array( 'profile', $locations ) ) {
-				// Standard WordPress User Profile Editing
-				add_action( 'show_user_profile', function () {
-					$this->addOptionsToUserProfile();
-				}, 7, 0 );
-				add_action( 'edit_user_profile', function ( $user ) {
-					if ( $user instanceof \WP_User ) {
-						$this->addOptionsToUserEditProfile( $user );
-					}
-				} );
+				if ( in_array( 'dedicated', $locations ) ) {
+					add_action( $con->prefix( 'admin_submenu' ), function () {
+						$this->addLoginSecurityMenuItem();
+					}, 20 );
+				}
+
+				if ( in_array( 'profile', $locations ) ) {
+					// Standard WordPress User Profile Editing
+					add_action( 'show_user_profile', function () {
+						$this->addOptionsToUserProfile();
+					}, 7, 0 );
+					add_action( 'edit_user_profile', function ( $user ) {
+						if ( $user instanceof \WP_User ) {
+							$this->addOptionsToUserEditProfile( $user );
+						}
+					} );
+				}
 			}
 		}
 	}
