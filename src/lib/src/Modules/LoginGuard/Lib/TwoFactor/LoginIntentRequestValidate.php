@@ -21,7 +21,7 @@ class LoginIntentRequestValidate {
 	 * @throws NoLoginIntentForUserException
 	 * @throws TooManyAttemptsException
 	 */
-	public function run( string $loginNonce, bool $removeNonceOnFailure = false ) :bool {
+	public function run( string $loginNonce ) :bool {
 		/** @var Shield\Modules\LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
@@ -50,10 +50,8 @@ class LoginIntentRequestValidate {
 		$intents = $mfaCon->getActiveLoginIntents( $user );
 		if ( $validated ) {
 			unset( $intents[ $loginNonce ] );
-			$this->getCon()->getUserMeta( $user )->login_intents = $intents;
 		}
 		else {
-			$intents = $mfaCon->getActiveLoginIntents( $user );
 			$intents[ $loginNonce ][ 'attempts' ]++;
 		}
 		$this->getCon()->getUserMeta( $user )->login_intents = $intents;

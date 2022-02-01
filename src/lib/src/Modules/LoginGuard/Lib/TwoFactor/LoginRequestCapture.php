@@ -47,7 +47,7 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 					}
 				}
 
-				\wp_clear_auth_cookie();
+				Services::WpUsers()->logoutUser( true );
 
 				$req = Services::Request();
 				$pageRender = $mfaCon->useLoginIntentPage() ? new Render\RenderLoginIntentPage() : new Render\RenderWpLoginReplica();
@@ -55,7 +55,7 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 						   ->setWpUser( $user );
 				$pageRender->login_nonce = $loginNonce;
 				$pageRender->interim_login = $req->request( 'interim-login' );
-				$pageRender->redirect_to = $req->request( 'redirect_to', $req->getUri() );
+				$pageRender->redirect_to = $req->request( 'redirect_to', false, $req->getPath() );
 				$pageRender->rememberme = $req->request( 'rememberme' );
 				$pageRender->render(); // die();
 			}

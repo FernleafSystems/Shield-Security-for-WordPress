@@ -68,8 +68,8 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 			$pageRender = $mfaCon->useLoginIntentPage() ? new Render\RenderLoginIntentPage() : new Render\RenderWpLoginReplica();
 			$pageRender->setMod( $mod )
 					   ->setWpUser( $user );
-			$pageRender->login_nonce = $req->request( 'login_nonce', '' );
-			$pageRender->redirect_to = $req->request( 'redirect_to', $req->getUri() );
+			$pageRender->login_nonce = $req->request( 'login_nonce', false, '' );
+			$pageRender->redirect_to = $req->request( 'redirect_to', false, $req->getPath() );
 			$pageRender->rememberme = $req->request( 'rememberme' );
 			$pageRender->msg_error = __( 'Could not verify your 2FA codes', 'wp-simple-firewall' );
 			$pageRender->render(); // die();
@@ -143,7 +143,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				$this->getMod()->setFlashAdminNotice( $flash, $user );
 			}
 
-			$redirect = $req->request( 'redirect_to', $req->getUri() );
+			$redirect = $req->request( 'redirect_to', false, $req->getPath() );
 			Services::Response()->redirect(
 				apply_filters( 'login_redirect', $redirect, $redirect, $user ),
 				[], true, false

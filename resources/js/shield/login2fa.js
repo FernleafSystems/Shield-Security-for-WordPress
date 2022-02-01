@@ -90,7 +90,7 @@ jQuery( document ).ready( function () {
 		}
 		$emailInput.on( 'keyup change keydown', function () {
 			this.value = this.value.toUpperCase();
-			this.value = this.value.replace( /[^0-9A-Z]/, '' );
+			this.value = this.value.replace( /[^0-9A-Z]/, '' ).substring( 0, 6 );
 		} );
 		jQuery( 'a#ajax_intent_email_send' ).on( 'click', ajax_intent_email_send );
 	}

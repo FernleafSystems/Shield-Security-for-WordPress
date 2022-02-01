@@ -93,15 +93,15 @@ abstract class RenderBase {
 		if ( empty( $redirectTo ) ) {
 
 			if ( !empty( $referQuery ) ) {
-				parse_str( $referQuery, $aReferQueryItems );
-				if ( !empty( $aReferQueryItems[ 'redirect_to' ] ) ) {
-					$redirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
+				parse_str( $referQuery, $referQueryItems );
+				if ( !empty( $referQueryItems[ 'redirect_to' ] ) ) {
+					$redirectTo = esc_url( $referQueryItems[ 'redirect_to' ] );
 				}
 			}
 		}
 
 		if ( !empty( $redirectTo ) ) {
-			$redirectTo = rawurlencode( $this->redirect_to );
+			$redirectTo = esc_url( $this->redirect_to );
 		}
 
 		$cancelHref = $req->post( 'cancel_href', '' );
