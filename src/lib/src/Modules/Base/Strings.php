@@ -81,7 +81,7 @@ class Strings {
 
 				'mode'            => __( 'Mode', 'wp-simple-firewall' ),
 				'mode_simple'     => __( 'Simple', 'wp-simple-firewall' ),
-				'mode_advanced'   => __( '', 'wp-simple-firewall' ),
+				'mode_advanced'   => __( 'Advanced', 'wp-simple-firewall' ),
 				'mode_switchto'   => sprintf( '%s: %s', __( 'Switch To', 'wp-simple-firewall' ),
 					$bIsAdvanced ? __( 'Simple', 'wp-simple-firewall' ) : __( 'Advanced', 'wp-simple-firewall' ) ),
 				'mode_switchfrom' => sprintf( '%s: %s', __( 'Mode', 'wp-simple-firewall' ),
