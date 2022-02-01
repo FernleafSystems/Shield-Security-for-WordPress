@@ -129,9 +129,9 @@ class Processor extends BaseShield\Processor {
 		add_filter( 'manage_users_custom_column', function ( $content, $colName, $userID ) use ( $customColName ) {
 
 			if ( $colName === $customColName ) {
-				$lastLogin = __( 'Not Recorded', 'wp-simple-firewall' );
 				$user = Services::WpUsers()->getUserById( $userID );
 				if ( $user instanceof \WP_User ) {
+
 					$lastLoginAt = $this->getCon()->getUserMeta( $user )->record->last_login_at;
 					if ( $lastLoginAt > 0 ) {
 						$lastLogin = Services::Request()
@@ -139,14 +139,17 @@ class Processor extends BaseShield\Processor {
 											 ->setTimestamp( $lastLoginAt )
 											 ->diffForHumans();
 					}
+					else {
+						$lastLogin = __( 'Not Recorded', 'wp-simple-firewall' );
+					}
+
+					$additionalContent = apply_filters( 'shield/user_status_column', [
+						$content,
+						sprintf( '<em>%s</em>: %s', __( 'Last Login', 'wp-simple-firewall' ), $lastLogin )
+					], $user );
+
+					$content = implode( '<br/>', array_filter( array_map( 'trim', $additionalContent ) ) );
 				}
-
-				$additionalContent = apply_filters( 'shield/user_status_column', [
-					$content,
-					sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $lastLogin )
-				], (int)$userID );
-
-				$content = implode( '<br/>', array_filter( array_map( 'trim', $additionalContent ) ) );
 			}
 
 			return $content;

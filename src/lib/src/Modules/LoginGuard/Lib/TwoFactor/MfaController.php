@@ -21,6 +21,31 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
 	}
 
+	private function addToUserStatusColumn() {
+		// Display manually suspended on the user list table; TODO: at auto suspended
+		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
+
+			$last2fa = $this->getCon()->getUserMeta( $user )->record->last_2fa_verified_at;
+			$content[] = sprintf( '<em>%s</em>: %s', __( '2FA At', 'wp-simple-firewall' ),
+				empty( $last2fa ) ? __( 'Never', 'wp-simple-firewall' ) : Services::Request()
+																				  ->carbon()
+																				  ->setTimestamp( $last2fa )
+																				  ->diffForHumans()
+			);
+
+			$providers = array_map(
+				function ( $provider ) {
+					return $provider->getProviderName();
+				},
+				$this->getProvidersForUser( $user )
+			);
+			$content[] = sprintf( '<em>%s</em>: %s', __( '2FA Providers', 'wp-simple-firewall' ),
+				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : implode( ', ', $providers ) );
+
+			return $content;
+		}, 10, 2 );
+	}
+
 	/**
 	 * We only want to auto send email if:
 	 * - email is the only provider
@@ -87,6 +112,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $this->getMod() )
 			->setMfaController( $this ) // TODO: remove
 			->execute();
+		$this->addToUserStatusColumn();
 	}
 
 	/**
