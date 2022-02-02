@@ -52,7 +52,7 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			Services::Response()->cookieSet(
 				'shield-notbot-nonce',
 				$this->getMod()->getAjaxActionData( 'not_bot' )[ 'exec_nonce' ],
-				10
+				15
 			);
 		}
 	}

@@ -17,10 +17,19 @@ class ICWP_WPSF_Shield_Security {
 	private static $oInstance = null;
 
 	/**
+	 * @var Shield\Controller\Controller
+	 */
+	private $con;
+
+	/**
 	 * @param Shield\Controller\Controller $controller
 	 */
 	private function __construct( Shield\Controller\Controller $controller ) {
-		$controller->loadAllFeatures();
+		$this->con = $controller;
+	}
+
+	public function start() {
+		$this->con->loadAllFeatures();
 	}
 
 	/**
@@ -31,16 +40,15 @@ class ICWP_WPSF_Shield_Security {
 	}
 
 	/**
-	 * @param Shield\Controller\Controller $oController
 	 * @return self
 	 * @throws \Exception
 	 */
-	public static function GetInstance( Shield\Controller\Controller $oController = null ) {
+	public static function GetInstance( Shield\Controller\Controller $con = null ) {
 		if ( is_null( self::$oInstance ) ) {
-			if ( !$oController instanceof Shield\Controller\Controller ) {
+			if ( !$con instanceof Shield\Controller\Controller ) {
 				throw new \Exception( 'Trying to create a Shield Plugin instance without a valid Controller' );
 			}
-			self::$oInstance = new self( $oController );
+			self::$oInstance = new self( $con );
 		}
 		return self::$oInstance;
 	}
@@ -49,6 +57,7 @@ class ICWP_WPSF_Shield_Security {
 try {
 	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $rootFile );
 	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
+	$oICWP_Wpsf->start();
 }
 catch ( \Exception $e ) {
 	if ( is_admin() ) {

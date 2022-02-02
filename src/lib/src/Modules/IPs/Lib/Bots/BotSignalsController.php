@@ -74,8 +74,8 @@ class BotSignalsController extends ExecOnceModConsumer {
 			foreach ( $this->enumerateBotTrackers() as $botTracker ) {
 				$botTracker->setMod( $this->getMod() )->execute();
 			}
-			$this->getHandlerNotBot()->execute();
 		} );
+		$this->getHandlerNotBot()->execute();
 	}
 
 	/**

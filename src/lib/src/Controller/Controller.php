@@ -139,6 +139,7 @@ class Controller extends DynPropertiesClass {
 			case 'cache_dir_handler':
 				if ( empty( $val ) ) {
 					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
+					$this->cache_dir_handler = $val;
 				}
 				break;
 
