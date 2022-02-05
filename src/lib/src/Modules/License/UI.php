@@ -16,44 +16,54 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		$opts = $this->getOptions();
 		$WP = Services::WpGeneral();
-		$oCarbon = Services::Request()->carbon();
+		$carb = Services::Request()->carbon();
 
-		$oCurrent = $mod->getLicenseHandler()->getLicense();
+		$lic = $mod->getLicenseHandler()->getLicense();
 
-		$nExpiresAt = $oCurrent->getExpiresAt();
-		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
-			$sExpiresAt = $oCarbon->setTimestamp( $nExpiresAt )->diffForHumans()
-						  .sprintf( '<br/><small>%s</small>', $WP->getTimeStampForDisplay( $nExpiresAt ) );
+		$expiresAt = $lic->getExpiresAt();
+		if ( $expiresAt > 0 && $expiresAt != PHP_INT_MAX ) {
+			// Expires At has a random addition added to disperse future license lookups
+			// So we bring the license expiration back down to normal for user display.
+			$endOfExpireDay = Services::Request()
+										->carbon()
+										->setTimestamp( $expiresAt )
+										->startOfDay()->timestamp - 1;
+			$expiresAtHuman = sprintf( '%s<br/><small>%s</small>',
+				$carb->setTimestamp( $endOfExpireDay )->diffForHumans(),
+				$WP->getTimeStampForDisplay( $endOfExpireDay )
+			);
 		}
 		else {
-			$sExpiresAt = 'n/a';
+			$expiresAtHuman = 'n/a';
 		}
 
-		$nLastReqAt = $oCurrent->last_request_at;
-		if ( empty( $nLastReqAt ) ) {
-			$sChecked = __( 'Never', 'wp-simple-firewall' );
+		$lastReqAt = $lic->last_request_at;
+		if ( empty( $lastReqAt ) ) {
+			$checked = __( 'Never', 'wp-simple-firewall' );
 		}
 		else {
-			$sChecked = $oCarbon->setTimestamp( $nLastReqAt )->diffForHumans()
-						.sprintf( '<br/><small>%s</small>', $WP->getTimeStampForDisplay( $nLastReqAt ) );
+			$checked = sprintf( '%s<br/><small>%s</small>',
+				$carb->setTimestamp( $lastReqAt )->diffForHumans(),
+				$WP->getTimeStampForDisplay( $lastReqAt )
+			);
 		}
-		$aLicenseTableVars = [
-			'product_name'    => $oCurrent->is_central ?
-				$opts->getDef( 'license_item_name_sc' ) :
-				$opts->getDef( 'license_item_name' ),
-			'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ?
-				__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
-			'license_expires' => $sExpiresAt,
-			'license_email'   => $oCurrent->customer_email,
-			'last_checked'    => $sChecked,
-			'last_errors'     => $mod->hasLastErrors() ? $mod->getLastErrors( true ) : '',
-			'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ?
-				__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
-			'installation_id' => $con->getSiteInstallationId(),
-		];
+
 		return [
 			'vars'    => [
-				'license_table'  => $aLicenseTableVars,
+				'license_table'  => [
+					'product_name'    => $lic->is_central ?
+						$opts->getDef( 'license_item_name_sc' ) :
+						$opts->getDef( 'license_item_name' ),
+					'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ?
+						__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
+					'license_expires' => $expiresAtHuman,
+					'license_email'   => $lic->customer_email,
+					'last_checked'    => $checked,
+					'last_errors'     => $mod->hasLastErrors() ? $mod->getLastErrors( true ) : '',
+					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ?
+						__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
+					'installation_id' => $con->getSiteInstallationId(),
+				],
 				'activation_url' => $WP->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true ),
 			],
