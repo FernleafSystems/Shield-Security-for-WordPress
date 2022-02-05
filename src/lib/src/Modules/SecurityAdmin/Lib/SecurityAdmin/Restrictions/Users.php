@@ -46,12 +46,12 @@ class Users extends Base {
 	public function restrictSetUserRole( $userId, $role, $oldRoles = [] ) {
 		$WPU = Services::WpUsers();
 
-		$role = strtolower( $role );
+		$role = strtolower( (string)$role );
 		if ( !is_array( $oldRoles ) ) {
 			$oldRoles = [];
 		}
 
-		if ( $WPU->getCurrentWpUserId() !== $userId ) {
+		if ( !empty( $role ) && $WPU->getCurrentWpUserId() !== (int)$userId ) {
 			$newRoleIsAdmin = $role == 'administrator';
 
 			// 1. Setting administrator role where it doesn't previously exist
@@ -87,7 +87,7 @@ class Users extends Base {
 	public function restrictRemoveUserRole( $userId, $role ) {
 		$WPU = Services::WpUsers();
 
-		if ( $WPU->getCurrentWpUserId() !== $userId && strtolower( $role ) === 'administrator' ) {
+		if ( $WPU->getCurrentWpUserId() !== $userId && strtolower( (string)$role ) === 'administrator' ) {
 			$modifiedUser = $WPU->getUserById( $userId );
 
 			remove_action( 'add_user_role', [ $this, 'restrictAddUserRole' ], 100 );
@@ -113,7 +113,7 @@ class Users extends Base {
 	 * @return array[]
 	 */
 	public function restrictEditableRoles( $roles ) {
-		if ( isset( $roles[ 'administrator' ] ) ) {
+		if ( is_array( $roles ) && isset( $roles[ 'administrator' ] ) ) {
 			unset( $roles[ 'administrator' ] );
 		}
 		return $roles;
