@@ -73,25 +73,28 @@ let iCWP_WPSF_OptsPageRender = new function () {
 
 var iCWP_WPSF_Toaster = new function () {
 
+	let toasterContainer;
+
 	this.showMessage = function ( msg, success ) {
-		let $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
-		let $oToastBody = jQuery( '.toast-body', $oNewToast );
-		$oToastBody.html( '' );
+		let $toaster = jQuery( toasterContainer )
+		let $toastBody = jQuery( '.toast-body', $toaster );
+		$toastBody.html( '' );
 
 		jQuery( '<span></span>' ).html( msg )
 								 .addClass( success ? 'text-dark' : 'text-danger' )
-								 .appendTo( $oToastBody );
+								 .appendTo( $toastBody );
 
-		$oNewToast.css( 'z-index', 1000 );
-		$oNewToast.toast( 'show' );
-		$oNewToast.on( 'hidden.bs.toast', function () {
-			$oNewToast.css( 'z-index', -10 )
+		$toaster.css( 'z-index', 100000000 );
+		$toaster.on( 'hidden.bs.toast', function () {
+			$toaster.css( 'z-index', -10 )
 		} );
+		bootstrap.Toast.getInstance( toasterContainer ).show();
 	};
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( '.toast.icwp-toaster' ).toast( {
+			toasterContainer = document.getElementById( 'icwpWpsfOptionsToast' );
+			new bootstrap.Toast( toasterContainer, {
 				autohide: true,
 				delay: 3000
 			} );
