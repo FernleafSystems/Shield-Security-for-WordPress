@@ -15,6 +15,7 @@
         "pro_only":    false,
         "title":       "WP Login Style 2FA Screen",
         "description": [
+          "Users can complete their 2FA login using the UI they're most familiar with."
         ]
       },
       {
@@ -22,6 +23,7 @@
         "pro_only":    false,
         "title":       "Custom Redirect For Hide WP Login & Admin",
         "description": [
+          "Rather than display an unfriendly 404 error page for the hidden login page, you can decide to redirect requests to any page you wish."
         ]
       },
       {
@@ -29,6 +31,7 @@
         "pro_only":    false,
         "title":       "Easier Access To User 2FA Settings with WP Admin Menu",
         "description": [
+          "Users can now update their 2FA account settings from a dedicated WP admin page."
         ]
       },
       {
@@ -36,6 +39,7 @@
         "pro_only":    false,
         "title":       "Improved 2FA User Experience",
         "description": [
+          "Smoother, faster, more reliable and more secure 2FA experience."
         ]
       },
       {
@@ -47,9 +51,38 @@
         ]
       },
       {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Dedicated table for User meta information",
+        "description": [
+         "This allows for new filters and better user status on the WP Admin User page."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Updated Translations - Dutch (thanks J.P.!)",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Further page caching mitigation for NotBot",
+        "description": [
+        ]
+      },
+      {
         "type":        "changed",
         "pro_only":    false,
         "title":       "Updated Bootstrap Libraries",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    false,
+        "title":       "Various bugs and errors",
         "description": [
         ]
       }
