@@ -7,7 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Options extends BaseShield\Options {
 
 	public function getBotProtectionLocations() :array {
-		return is_array( $this->getOpt( 'bot_protection_locations' ) ) ? $this->getOpt( 'bot_protection_locations' ) : [];
+		return $this->getOpt( 'bot_protection_locations' );
+	}
+
+	public function getHiddenLoginRedirect() :string {
+		return $this->getOpt( 'rename_wplogin_redirect' );
+	}
+
+	public function getLoginIntentMaxAttempts() :int {
+		return (int)max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
 	}
 
 	public function getLoginIntentMinutes() :int {
@@ -19,15 +27,15 @@ class Options extends BaseShield\Options {
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return ( $this->isPremium() && is_array( $ids ) ) ? $ids : [];
+		return $this->isPremium() ? $ids : [];
 	}
 
 	public function getCooldownInterval() :int {
-		return (int)$this->getOpt( 'login_limit_interval' );
+		return $this->getOpt( 'login_limit_interval' );
 	}
 
 	public function getCustomLoginPath() :string {
-		return (string)$this->getOpt( 'rename_wplogin_path', '' );
+		return $this->getOpt( 'rename_wplogin_path', '' );
 	}
 
 	public function getEmail2FaRoles() :array {
@@ -47,19 +55,15 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getMfaSkip() :int { // seconds
-		return DAY_IN_SECONDS*( $this->isPremium() ? (int)$this->getOpt( 'mfa_skip', 0 ) : 0 );
+		return DAY_IN_SECONDS*( $this->isPremium() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
 	}
 
 	public function getYubikeyAppId() :string {
-		return (string)$this->getOpt( 'yubikey_app_id', '' );
+		return $this->getOpt( 'yubikey_app_id', '' );
 	}
 
 	public function isMfaSkip() :bool {
 		return $this->getMfaSkip() > 0;
-	}
-
-	public function isChainedAuth() :bool {
-		return $this->isOpt( 'enable_chained_authentication', 'Y' );
 	}
 
 	public function isEmailAuthenticationActive() :bool {
@@ -70,13 +74,16 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'enable_email_authentication', 'Y' );
 	}
 
+	public function isEnabledSmsAuth() :bool {
+		return $this->isOpt( 'enable_sms_auth', 'Y' );
+	}
+
 	public function isEnabledCooldown() :bool {
 		return $this->getCooldownInterval() > 0;
 	}
 
 	public function isEnabledGaspCheck() :bool {
-		return $this->isOpt( 'enable_login_gasp_check', 'Y' )
-			   && !$this->isEnabledAntiBot();
+		return $this->isOpt( 'enable_login_gasp_check', 'Y' ) && !$this->isEnabledAntiBot();
 	}
 
 	public function isEnabledAntiBot() :bool {
@@ -122,10 +129,6 @@ class Options extends BaseShield\Options {
 	public function isProtect( $location ) :bool {
 		$locs = $this->getOpt( 'bot_protection_locations' );
 		return in_array( $location, is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
-	}
-
-	public function isUseLoginIntentPage() :bool {
-		return $this->isOpt( 'use_login_intent_page', true );
 	}
 
 	public function isEnabledYubikey() :bool {

@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property bool                                                   $cache_dir_ready
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -24,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property bool                                                   $rebuild_options
+ * @property Shield\Utilities\CacheDir                              $cache_dir_handler
  * @property bool                                                   $user_can_base_permissions
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
@@ -31,6 +31,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
+ * @property Shield\Users\UserMetas                                 $user_metas
  * @property array|Shield\Modules\Base\ModCon[]                     $modules
  * @property Shield\Crons\HourlyCron                                $cron_hourly
  * @property Shield\Crons\DailyCron                                 $cron_daily
@@ -72,12 +73,12 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Modules\Events\Lib\EventsService
 	 */
 	public function loadEventsService() {
-		if ( !isset( $this->oEventsService ) ) {
-			$this->oEventsService = ( new Shield\Modules\Events\Lib\EventsService() )
+		if ( !isset( $this->service_events ) ) {
+			$this->service_events = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
-			$this->service_events = $this->oEventsService;
+			$this->oEventsService = $this->service_events;
 		}
-		return $this->oEventsService;
+		return $this->service_events;
 	}
 
 	/**
@@ -124,7 +125,6 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
-			case 'cache_dir_ready':
 			case 'is_activating':
 			case 'is_my_upgrade':
 			case 'modules_loaded':
@@ -134,6 +134,13 @@ class Controller extends DynPropertiesClass {
 			case 'rebuild_options':
 			case 'user_can_base_permissions':
 				$val = (bool)$val;
+				break;
+
+			case 'cache_dir_handler':
+				if ( empty( $val ) ) {
+					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
+					$this->cache_dir_handler = $val;
+				}
 				break;
 
 			case 'cfg':
@@ -197,6 +204,12 @@ class Controller extends DynPropertiesClass {
 				if ( !is_array( $val ) ) {
 					$val = [];
 					$this->reqs_not_met = $val;
+				}
+				break;
+
+			case 'user_metas':
+				if ( empty( $val ) ) {
+					$val = ( new Shield\Users\UserMetas() )->setCon( $this );
 				}
 				break;
 
@@ -351,29 +364,31 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpActivatePlugin() {
 		$this->is_activating = true;
-		$modPlugin = $this->getModule_Plugin();
-		if ( $modPlugin instanceof Shield\Modules\Base\ModCon ) {
-			$modPlugin->setActivatedAt();
-			do_action( 'shield/plugin_activated' );
+		$this->getModule_Plugin()->setActivatedAt();
+		do_action( 'shield/plugin_activated' );
+	}
+
+	public function getPluginCachePath( string $subPath = '' ) :string {
+		$path = $this->cache_dir_handler->build();
+		if ( !empty( $path ) && !empty( $subPath ) ) {
+			$path = path_join( $path, $subPath );
 		}
+		return $path;
 	}
 
-	public function getPluginCachePath( $cachePath = '' ) :string {
-		$cacheDir = ( new Shield\Utilities\CacheDir() )
-			->setCon( $this )
-			->build();
-		return empty( $cacheDir ) ? '' : path_join( $cacheDir, $cachePath );
-	}
-
+	/**
+	 * @deprecated 14
+	 */
 	public function hasCacheDir() :bool {
 		return !empty( $this->getPluginCachePath() );
+//		return $this->cache_dir_handler->dirExists();
 	}
 
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
 		add_action( 'init', [ $this, 'onWpInit' ], -1000 );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
 		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
@@ -1331,25 +1346,7 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Users\ShieldUserMeta|null
 	 */
 	public function getUserMeta( $user ) {
-		$meta = null;
-		try {
-			if ( $user instanceof \WP_User ) {
-				/** @var Shield\Users\ShieldUserMeta $meta */
-				$meta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $user->ID );
-				if ( !$meta instanceof Shield\Users\ShieldUserMeta ) {
-					// Weird: user reported an error where it wasn't of the correct type
-					$meta = new Shield\Users\ShieldUserMeta( $this->prefix(), $user->ID );
-					Shield\Users\ShieldUserMeta::AddToCache( $meta );
-				}
-				$meta->setPasswordStartedAt( $user->user_pass )
-					 ->updateFirstSeenAt();
-				Services::WpUsers()
-						->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $user->ID );
-			}
-		}
-		catch ( \Exception $e ) {
-		}
-		return $meta;
+		return $user instanceof \WP_User ? $this->user_metas->forUser( $user ) : null;
 	}
 
 	/**

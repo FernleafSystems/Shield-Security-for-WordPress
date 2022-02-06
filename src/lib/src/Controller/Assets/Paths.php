@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Paths {
 
@@ -41,7 +42,12 @@ class Paths {
 	}
 
 	public function cacheDir() :string {
-		return path_join( WP_CONTENT_DIR, $this->getCon()->cfg->paths[ 'cache' ] );
+		$FS = Services::WpFs();
+		$wpContent = path_join( ABSPATH, 'wp-content' );
+		if ( !$FS->isDir( $wpContent ) ) {
+			$wpContent = WP_CONTENT_DIR;
+		}
+		return wp_normalize_path( path_join( $wpContent, $this->getCon()->cfg->paths[ 'cache' ] ) );
 	}
 
 	public function forCacheItem( string $item = '' ) :string {

@@ -114,7 +114,7 @@ abstract class ModCon {
 		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( 'init', [ $this, 'onWpLoaded' ], 1 );
+		add_action( 'init', [ $this, 'onWpLoaded' ] );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
@@ -705,11 +705,9 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $action
-	 * @param bool   $asJson
 	 * @return array|string
 	 */
-	public function getAjaxActionData( string $action = '', $asJson = false ) {
+	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
 		$data = $this->getNonceActionData( $action );
 		$data[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
 		return $asJson ? json_encode( (object)$data ) : $data;
@@ -808,18 +806,6 @@ abstract class ModCon {
 		$this->getOptions()->deleteStorage();
 	}
 
-	/**
-	 * @deprecated 13.0.6
-	 */
-	protected function getAllFormOptionsAndTypes() :array {
-		return array_map(
-			function ( $optDef ) {
-				return $optDef[ 'type' ];
-			},
-			$this->getOptions()->getVisibleOptions()
-		);
-	}
-
 	protected function handleModAction( string $action ) {
 		switch ( $action ) {
 			case 'file_download':
@@ -866,16 +852,18 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $msg
-	 * @param bool   $isError
-	 * @param bool   $bShowOnLogin
+	 * @param string        $msg
+	 * @param \WP_User|null $user
+	 * @param bool          $isError
+	 * @param bool          $bShowOnLogin
 	 * @return $this
 	 */
-	public function setFlashAdminNotice( $msg, $isError = false, $bShowOnLogin = false ) {
+	public function setFlashAdminNotice( $msg, $user = null, $isError = false, $bShowOnLogin = false ) {
 		$this->getCon()
 			 ->getAdminNotices()
 			 ->addFlash(
 				 sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
+				 $user,
 				 $isError,
 				 $bShowOnLogin
 			 );
@@ -1290,14 +1278,10 @@ abstract class ModCon {
 
 	/**
 	 * @return Shield\Modules\Base\WpCli
-	 * @throws \Exception
 	 */
 	public function getWpCli() {
 		if ( !isset( $this->oWpCli ) ) {
 			$this->oWpCli = $this->loadModElement( 'WpCli' );
-			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-				throw new \Exception( 'WP-CLI not supported' );
-			}
 		}
 		return $this->oWpCli;
 	}

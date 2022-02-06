@@ -41,13 +41,19 @@ class TestCacheDirWrite {
 
 		$FS = Services::WpFs();
 
-		$testDir = $this->getCon()->paths->forCacheItem( uniqid() );
+		$testDir = $this->getCon()->paths->forCacheItem( 'test-dir' );
+		if ( $FS->isFile( $testDir ) ) {
+			$FS->deleteFile( $testDir );
+		}
+
 		$FS->mkdir( $testDir );
 		if ( $FS->isDir( $testDir ) ) {
 			$file = path_join( $testDir, uniqid() );
 			$FS->touch( $file );
 			$canTouchFile = $FS->isFile( $file );
+			$FS->deleteFile( $file );
 			$FS->deleteDir( $testDir );
+			clearstatcache();
 			$canWrite = $canTouchFile && !$FS->isDir( $testDir );
 		}
 		return $canWrite;
@@ -61,9 +67,10 @@ class TestCacheDirWrite {
 		$testFile = $this->getCon()->paths->forCacheItem( 'test_write_file.txt' );
 		$uniq = uniqid();
 		$FS->putFileContent( $testFile, $uniq );
-		if ( $FS->getFileContent( $testFile ) == $uniq ) {
+		if ( $FS->isFile( $testFile ) ) {
+			$canWrite = $FS->getFileContent( $testFile ) == $uniq;
 			$FS->deleteFile( $testFile );
-			$canWrite = !$FS->exists( $testFile );
+			$canWrite = $canWrite && !$FS->exists( $testFile );
 		}
 		return $canWrite;
 	}

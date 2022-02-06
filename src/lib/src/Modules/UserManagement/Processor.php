@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
@@ -31,35 +32,23 @@ class Processor extends BaseShield\Processor {
 		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
 
 		// This controller handles visitor whitelisted status internally.
-		( new Lib\Suspend\UserSuspendController() )
-			->setMod( $this->getMod() )
-			->execute();
+		$mod->getUserSuspendController()->execute();
 
 		// All newly created users have their first seen and password start date set
-		add_action( 'user_register', function ( $nUserId ) {
-			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+		add_action( 'user_register', function ( $userID ) {
+			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
 		if ( !$mod->isVisitorWhitelisted() ) {
-
 			( new Lib\Session\UserSessionHandler() )
 				->setMod( $this->getMod() )
 				->execute();
-
 			( new Lib\Password\UserPasswordHandler() )
 				->setMod( $this->getMod() )
 				->execute();
-
 			( new Lib\Registration\EmailValidate() )
 				->setMod( $this->getMod() )
-				->run();
-		}
-	}
-
-	public function onWpInit() {
-		$WPU = Services::WpUsers();
-		if ( $WPU->isUserLoggedIn() ) {
-			$this->setPasswordStartedAt( $WPU->getCurrentWpUser() ); // used by Password Policies
+				->execute();
 		}
 	}
 
@@ -71,16 +60,16 @@ class Processor extends BaseShield\Processor {
 		if ( !$user instanceof \WP_User && !empty( $username ) ) {
 			$user = Services::WpUsers()->getUserByUsername( $username );
 		}
-		// One might think it should be. It's not always the case it seems...
-		if ( $user instanceof \WP_User ) {
-			$this->setPasswordStartedAt( $user )// used by Password Policies
-				 ->setUserLastLoginTime( $user )
-				 ->sendLoginNotifications( $user );
+
+		if ( $user instanceof \WP_User ) { // One might think it should be. It's not always the case it seems...
+			$meta = $this->getCon()->getUserMeta( $user );
+			$meta->updatePasswordStartedAt( $user->user_pass );
+			$meta->record->last_login_at = Services::Request()->ts();
+			$this->sendLoginNotifications( $user );
 		}
 	}
 
 	/**
-	 * @param \WP_User $user - not checking that user is valid
 	 * @return $this
 	 */
 	private function sendLoginNotifications( \WP_User $user ) {
@@ -102,7 +91,7 @@ class Processor extends BaseShield\Processor {
 		if ( $sendUser ) {
 			$hasLoginIntent = $this->getCon()
 								   ->getModule_LoginGuard()
-								   ->getLoginIntentController()
+								   ->getMfaController()
 								   ->isSubjectToLoginIntent( $user );
 			if ( !$hasLoginIntent ) {
 				$this->sendUserLoginEmailNotification( $user );
@@ -111,56 +100,62 @@ class Processor extends BaseShield\Processor {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 13.1
+	 */
 	private function setPasswordStartedAt( \WP_User $user ) :self {
-		$this->getCon()
-			 ->getUserMeta( $user )
-			 ->setPasswordStartedAt( $user->user_pass );
 		return $this;
 	}
 
+	/**
+	 * @deprecated 13.1
+	 */
 	protected function setUserLastLoginTime( \WP_User $user ) :self {
-		$meta = $this->getCon()->getUserMeta( $user );
-		$meta->last_login_at = Services::Request()->ts();
 		return $this;
 	}
 
 	/**
 	 * Adds the column to the users listing table to indicate
-	 * @param array $aColumns
+	 * @param array $cols
 	 * @return array
 	 */
-	public function addUserStatusLastLogin( $aColumns ) {
+	public function addUserStatusLastLogin( $cols ) {
 
-		$sCustomColumnName = $this->getCon()->prefix( 'col_user_status' );
-		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
-			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
+		$customColName = $this->getCon()->prefix( 'col_user_status' );
+		if ( !isset( $cols[ $customColName ] ) ) {
+			$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
-		add_filter( 'manage_users_custom_column',
-			function ( $content, $sColumnName, $userID ) use ( $sCustomColumnName ) {
+		add_filter( 'manage_users_custom_column', function ( $content, $colName, $userID ) use ( $customColName ) {
 
-				if ( $sColumnName == $sCustomColumnName ) {
-					$value = __( 'Not Recorded', 'wp-simple-firewall' );
-					$user = Services::WpUsers()->getUserById( $userID );
-					if ( $user instanceof \WP_User ) {
-						$nLastLoginTime = $this->getCon()->getUserMeta( $user )->last_login_at;
-						if ( $nLastLoginTime > 0 ) {
-							$value = Services::Request()
+			if ( $colName === $customColName ) {
+				$user = Services::WpUsers()->getUserById( $userID );
+				if ( $user instanceof \WP_User ) {
+
+					$lastLoginAt = $this->getCon()->getUserMeta( $user )->record->last_login_at;
+					if ( $lastLoginAt > 0 ) {
+						$lastLogin = Services::Request()
 											 ->carbon()
-											 ->setTimestamp( $nLastLoginTime )
+											 ->setTimestamp( $lastLoginAt )
 											 ->diffForHumans();
-						}
 					}
-					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $value );
-					$content = empty( $content ) ? $sNewContent : $content.'<br/>'.$sNewContent;
+					else {
+						$lastLogin = __( 'Not Recorded', 'wp-simple-firewall' );
+					}
+
+					$additionalContent = apply_filters( 'shield/user_status_column', [
+						$content,
+						sprintf( '<em>%s</em>: %s', __( 'Last Login', 'wp-simple-firewall' ), $lastLogin )
+					], $user );
+
+					$content = implode( '<br/>', array_filter( array_map( 'trim', $additionalContent ) ) );
 				}
+			}
 
-				return $content;
-			},
-			10, 3
-		);
+			return $content;
+		}, 10, 3 );
 
-		return $aColumns;
+		return $cols;
 	}
 
 	private function sendAdminLoginEmailNotification( \WP_User $user ) {
@@ -247,6 +242,12 @@ class Processor extends BaseShield\Processor {
 					 __( 'Thanks.', 'wp-simple-firewall' )
 				 ]
 			 );
+	}
+
+	public function runHourlyCron() {
+		( new BulkUpdateUserMeta() )
+			->setCon( $this->getCon() )
+			->execute();
 	}
 
 	public function runDailyCron() {

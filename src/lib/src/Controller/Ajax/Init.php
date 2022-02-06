@@ -28,7 +28,7 @@ class Init {
 		$req = Services::Request();
 		$nonceAction = $req->request( 'exec' );
 
-		// if the ajax action is part of the allow list, is may fail the nonce.
+		// if the ajax action is part of the "allow" list, it may fail the nonce.
 		// This is work around for front-end caching plugin that screw everything up.
 		check_ajax_referer( $nonceAction, 'exec_nonce',
 			$forceDie || !in_array( $nonceAction, $this->getAllowedNoPrivExecs() ) );

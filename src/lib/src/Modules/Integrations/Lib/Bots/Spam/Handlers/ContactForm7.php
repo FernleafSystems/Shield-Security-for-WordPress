@@ -5,8 +5,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 class ContactForm7 extends Base {
 
 	protected function run() {
-		add_filter( 'wpcf7_spam', function ( $wasSpam, $submission ) {
-			return $wasSpam || $this->isSpam();
+		add_filter( 'wpcf7_spam', function ( $isSpam, $submission ) {
+
+			if ( !$isSpam && $this->isSpam() ) {
+				$isSpam = true;
+				add_filter( 'wpcf7_display_message', function ( $msg, $status ) {
+					if ( $status === 'spam' ) {
+						$msg = $this->getCommonSpamMessage();
+					}
+					return $msg;
+				}, 100, 2 );
+			}
+
+			return $isSpam;
 		}, 1000, 2 );
 	}
 

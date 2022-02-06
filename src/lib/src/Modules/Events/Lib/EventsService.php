@@ -22,7 +22,7 @@ class EventsService {
 			try {
 				$this->verifyAuditParams( $event, $meta );
 				do_action(
-					$this->getCon()->prefix( 'event' ),
+					'shield/event',
 					$event,
 					$meta,
 					$this->getEventDef( $event )
@@ -135,14 +135,5 @@ class EventsService {
 			$events[ $eventKey ][ 'key' ] = $eventKey;
 		}
 		return $events;
-	}
-
-	/**
-	 * @param string $eventKey
-	 * @return bool
-	 * @deprecated 12.1
-	 */
-	public function isSupportedEvent( string $eventKey ) :bool {
-		return array_key_exists( $eventKey, $this->getEvents() );
 	}
 }

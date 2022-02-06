@@ -75,7 +75,7 @@ class BuildData {
 			return $order;
 		} );
 
-		return array_slice( $records, 0, 50 );
+		return array_slice( $records, 0, 100 );
 	}
 
 	/**

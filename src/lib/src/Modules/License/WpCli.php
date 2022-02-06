@@ -2,17 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-class WpCli extends Base\WpCli {
+class WpCli extends BaseShield\WpCli {
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getCmdHandlers() :array {
+	protected function enumCmdHandlers() :array {
 		return [
-			new License\WpCli\License()
+			License\WpCli\License::class
 		];
 	}
 }

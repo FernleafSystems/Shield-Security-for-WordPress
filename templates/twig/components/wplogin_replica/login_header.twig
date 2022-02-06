@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html {{ vars.language_attributes|raw }}>
+<head>
+	<meta http-equiv="Content-Type" content="{{ vars.meta_content_type }}; charset={{ vars.meta_content_type }}" />
+	<title>{{ strings.login_title|raw }}</title>
+
+	{{ content.action_login_enqueue_scripts|raw }}
+
+	{{ content.action_login_head|raw }}
+
+	{% if flags.is_interim_login %}
+		<style type="text/css">
+				html {
+			background-color: transparent;
+		}
+		</style>
+	{% endif %}
+</head>
+<body class="login no-js {{ vars.classes_body }}">
+	<script type="text/javascript">
+		document.body.className = document.body.className.replace( 'no-js', 'js' );
+	</script>
+
+	{{ content.action_login_header|raw }}
+
+	<div id="login">
+		<h1><a href="{{ hrefs.login_header_url }}">{{ strings.login_header_text|raw }}</a></h1>
+		{{ strings.message|raw }}
+
+		{% if flags.has_login_errors %}
+			<div id="login_error">{{ content.login_errors }}</div>
+		{% endif %}
+
+		{% if flags.has_login_messages %}
+			<p class="message">{{ content.login_messages }}</p>
+		{% endif %}
+
+		{% if flags.has_interim_message %}
+			<p id="interim_message" class="message">{{ strings.interim_message }}</p>
+		{% endif %}

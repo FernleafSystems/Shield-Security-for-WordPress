@@ -42,12 +42,4 @@ class ModCon extends BaseShield\ModCon {
 			   && $this->getCon()->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
 	}
-
-	/**
-	 * @inheritDoc
-	 * @deprecated 12.1
-	 */
-	public function getDbHandlers( $bInitAll = false ) {
-		return [];
-	}
 }

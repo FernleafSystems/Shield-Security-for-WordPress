@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
 	ModCon,
 	Options,
 	Scan
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
@@ -84,10 +84,10 @@ class Afs extends BaseForFiles {
 	}
 
 	public function runHourlyCron() {
-		( new Lib\Snapshots\StoreAction\TouchAll() )
+		( new Lib\Snapshots\StoreAction\CleanStale() )
 			->setMod( $this->getMod() )
 			->run();
-		( new Lib\Snapshots\StoreAction\CleanAll() )
+		( new Lib\Snapshots\StoreAction\TouchAll() )
 			->setMod( $this->getMod() )
 			->run();
 	}
@@ -210,7 +210,8 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabledPluginThemeScan() :bool {
-		return $this->isEnabled() && $this->getCon()->hasCacheDir() && !$this->isRestrictedPluginThemeScan();
+		return $this->isEnabled() && !$this->isRestrictedPluginThemeScan()
+			   && $this->getCon()->cache_dir_handler->dirExists();
 	}
 
 	public function isRestrictedMalwareScan() :bool {

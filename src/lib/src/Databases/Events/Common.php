@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
-/**
- * Trait Filters
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Events
- */
 trait Common {
 
 	/**

@@ -43,7 +43,8 @@
       "../lib/custom/"
     ],
     "files":    [
-      "./functions/functions.php"
+      "./functions/functions.php",
+      "./src/Functions/functions.php"
     ]
   }
 }

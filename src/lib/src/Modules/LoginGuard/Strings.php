@@ -111,8 +111,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_2fa_ga' :
-				$title = __( 'Google Authenticator Two-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( 'Google Auth', 'wp-simple-firewall' );
+				$title = __( 'One-Time Passwords', 'wp-simple-firewall' );
+				$titleShort = __( 'One-Time Passwords', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
@@ -168,13 +168,29 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'rename_wplogin_path' :
-				$name = __( 'Hide WP Login Page', 'wp-simple-firewall' );
-				$summary = __( 'Hide The WordPress Login Page', 'wp-simple-firewall' );
-				$desc = __( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' )
-						.'<br />'
-						.sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' )
-						.'<br />'
-						.sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' );
+				$name = __( 'Hide WP Login & Admin', 'wp-simple-firewall' );
+				$summary = __( 'Hide The WordPress Login And Admin Areas', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' ),
+					sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' ),
+					sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' )
+				];
+				break;
+
+			case 'rename_wplogin_redirect' :
+				$name = __( 'WP Login & Admin Redirect', 'wp-simple-firewall' );
+				$summary = __( 'Automatic Redirect URL For Hidden Pages', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Automatically redirect requests to this location for the hidden pages.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( 'Leave this blank to serve a standard "404 Not Found" error page.', 'wp-simple-firewall' )
+					),
+					sprintf( '%s: %s',
+						__( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( 'Use relative paths e.g. %s redirects to your homepage.', 'wp-simple-firewall' ), '<code>/</code>' )
+					),
+				];
 				break;
 
 			case 'enable_chained_authentication' :
@@ -183,9 +199,30 @@ class Strings extends Base\Strings {
 				$desc = __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' );
 				break;
 
+			case 'mfa_verify_page' :
+				$name = __( 'MFA Verification Page', 'wp-simple-firewall' );
+				$summary = __( 'Type Of MFA Verification Page', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Choose the type of page provided to users for MFA verification.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'WP Login page option is only available for WordPress v4.0 and above.', 'wp-simple-firewall' ) ),
+				];
+				break;
+
+			case 'mfa_user_setup_pages' :
+				$name = __( 'User 2FA Setup', 'wp-simple-firewall' );
+				$summary = __( 'User 2FA Setup Page Locations', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Specify pages available to users to configure 2FA on their account.', 'wp-simple-firewall' ),
+					__( 'At least 1 option must be provided and defaults to the user profile page within the WP admin area.', 'wp-simple-firewall' )
+				];
+				break;
+
 			case 'mfa_skip' :
-				$name = __( 'Multi-Factor Bypass', 'wp-simple-firewall' );
-				$summary = __( 'A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
+				$name = __( '2FA Remember Me', 'wp-simple-firewall' );
+				$summary = __( 'A User Can Bypass 2FA For The Set Number Of Days', 'wp-simple-firewall' );
 				$desc = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
 				break;
 

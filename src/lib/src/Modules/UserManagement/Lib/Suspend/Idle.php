@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
@@ -9,17 +9,15 @@ use FernleafSystems\Wordpress\Services\Services;
 class Idle extends Base {
 
 	/**
-	 * @param \WP_User       $user
-	 * @param ShieldUserMeta $meta
 	 * @return \WP_Error|\WP_User
 	 */
-	protected function processUser( \WP_User $user, $meta ) {
+	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 
-		$aRoles = array_intersect( $opts->getSuspendAutoIdleUserRoles(), array_map( 'strtolower', $user->roles ) );
+		$roles = array_intersect( $opts->getSuspendAutoIdleUserRoles(), array_map( 'strtolower', $user->roles ) );
 
-		if ( count( $aRoles ) > 0 && $this->isLastVerifiedAtExpired( $meta ) ) {
+		if ( count( $roles ) > 0 && $this->isLastVerifiedAtExpired( $meta ) ) {
 			$user = new \WP_Error(
 				$this->getCon()->prefix( 'pass-expired' ),
 				implode( ' ', [
@@ -35,13 +33,9 @@ class Idle extends Base {
 		return $user;
 	}
 
-	/**
-	 * @param ShieldUserMeta $oMeta
-	 * @return bool
-	 */
-	protected function isLastVerifiedAtExpired( $oMeta ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $oOpts->getSuspendAutoIdleTime() );
+	protected function isLastVerifiedAtExpired( ShieldUserMeta $meta ) :bool {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
+		return ( Services::Request()->ts() - $meta->last_verified_at > $opts->getSuspendAutoIdleTime() );
 	}
 }

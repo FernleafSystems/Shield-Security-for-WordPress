@@ -16,6 +16,9 @@
     "run_if_wpcli":          true,
     "order":                 110
   },
+  "wpcli":            {
+    "enabled": true
+  },
   "menu_items":       [
     {
       "title": "Audit Trail",
@@ -137,9 +140,9 @@
     {
       "key":         "audit_trail_auto_clean",
       "section":     "section_localdb",
+      "type":        "integer",
       "default":     7,
       "min":         1,
-      "type":        "integer",
       "link_info":   "https://shsec.io/a2",
       "link_blog":   "https://shsec.io/a1",
       "beacon_id":   375,

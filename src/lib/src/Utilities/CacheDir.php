@@ -10,35 +10,37 @@ class CacheDir {
 
 	use PluginControllerConsumer;
 
-	public function build() :string {
-		$con = $this->getCon();
+	private $cacheDir;
 
-		$dir = '';
-		try {
-			$maybeDir = $this->getDir();
-			if ( !isset( $con->cache_dir_ready ) ) {
+	public function dirExists() :bool {
+		$dir = $this->build();
+		return !empty( $dir ) && Services::WpFs()->isDir( $dir );
+	}
+
+	public function build() :string {
+		if ( !isset( $this->cacheDir ) ) {
+			$this->cacheDir = '';
+			try {
+				$maybeDir = $this->getDir();
 				if ( !Services::WpFs()->mkdir( $maybeDir ) ) {
 					throw new \Exception( 'Failed to mkdir cache dir' );
 				}
 				$this->testWrite();
 				$this->addProtections();
-				$con->cache_dir_ready = true;
+				$this->cacheDir = $maybeDir;
 			}
-			if ( $con->cache_dir_ready ) {
-				$dir = $maybeDir;
+			catch ( \Exception $e ) {
 			}
 		}
-		catch ( \Exception $e ) {
-			$con->cache_dir_ready = false;
-		}
-		return $dir;
+
+		return $this->cacheDir;
 	}
 
 	public function buildSubDir( string $subDir ) :string {
 		$finalDir = '';
-		$baseDir = $this->build();
-		if ( !empty( $baseDir ) ) {
+		if ( $this->dirExists() ) {
 			$FS = Services::WpFs();
+			$baseDir = $this->build();
 			$finalDir = path_join( $baseDir, $subDir );
 			if ( !$FS->mkdir( $finalDir ) ) {
 				$finalDir = '';

@@ -36,7 +36,8 @@ class RenderCustomForms {
 		$providers = $user instanceof \WP_User ? $mfaCon->getProvidersForUser( $user ) : [];
 		$providerRenders = $user instanceof \WP_User ?
 			array_map( function ( $provider ) {
-				return $provider->renderUserProfileCustomForm( $this->getWpUser() );
+				return $provider->setUser( $this->getWpUser() )
+								->renderUserProfileCustomForm();
 			}, $providers )
 			: [];
 

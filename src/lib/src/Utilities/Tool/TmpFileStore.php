@@ -15,28 +15,24 @@ class TmpFileStore {
 	private static $slugs = [];
 
 	protected function run() {
-		if ( $this->getCon()->hasCacheDir() ) {
+		if ( $this->getCon()->cache_dir_handler->dirExists() ) {
 			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 				$FS = Services::WpFs();
-				foreach ( self::$slugs as $slug ) {
-					$FS->deleteFile( path_join( $this->getTmpDir(), $slug ) );
+				foreach ( self::$slugs as $file ) {
+					$FS->deleteFile( $file );
 				}
 			} );
-		}
-		else {
-			throw new \Exception( "Can't create the cache dir" );
 		}
 	}
 
 	/**
-	 * @param string $slug
 	 * @return mixed|null
 	 */
 	public function load( string $slug ) {
 		$data = null;
 		$tmpFile = path_join( $this->getTmpDir(), $slug );
 		if ( Services::WpFs()->isFile( $tmpFile ) ) {
-			$contents = Services::WpFs()->getFileContent( path_join( $this->getTmpDir(), $slug ) );
+			$contents = Services::WpFs()->getFileContent( $tmpFile );
 			if ( !empty( $contents ) ) {
 				$data = unserialize( $contents );
 			}
@@ -45,8 +41,9 @@ class TmpFileStore {
 	}
 
 	public function store( string $slug, $data ) {
-		Services::WpFs()->putFileContent( path_join( $this->getTmpDir(), $slug ), serialize( $data ) );
-		self::$slugs[] = $slug;
+		$fullPath = path_join( $this->getTmpDir(), $slug );
+		Services::WpFs()->putFileContent( $fullPath, serialize( $data ) );
+		self::$slugs[] = $fullPath;
 	}
 
 	private function getTmpDir() :string {

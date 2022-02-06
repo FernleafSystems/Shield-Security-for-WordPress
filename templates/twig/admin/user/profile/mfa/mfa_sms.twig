@@ -1,0 +1,46 @@
+<style>
+	input[name=shield_mfasms_phone] {
+		width: 300px;
+	}
+</style>
+<tr>
+	<th>
+		<label for="shield_enable_mfaemail">{{ strings.label_email_authentication }}</label>
+	</th>
+	<td>
+		{% if flags.is_validated %}
+			<p>
+				{{ strings.registered_number }}: {{ vars.validated_number }}
+				<a href="#" class="shield_sms_remove"
+				   style="text-decoration: none;"
+				   title="Remove">
+					&#10006;</a>
+			</p>
+		{% else %}
+			<label class="" for="shield_mfasms_country">
+				<select id="shield_mfasms_country" name="shield_mfasms_country">
+					{% for country_iso,country_data in vars.countries %}
+						<option value="{{ country_iso }}" data-code="+{{ country_data.code }}">
+							{{ country_iso }} (+{{ country_data.code }})</option>
+					{% endfor %}
+				</select>
+			</label>
+			<label class="" for="shield_mfasms_phone">
+				<input type="text" id="shield_mfasms_phone"
+					   name="shield_mfasms_phone"
+					   autocomplete="no"
+					   placeholder="{{ strings.provide_full_phone_number }}"
+				/>
+			</label>
+			<label class="" for="shield_mfasms_verify">
+				<input type="button" id="shield_mfasms_verify"
+					   value="Verify"
+				/>
+			</label>
+
+			{% if flags.show_explanatory_text %}
+				<p class="description">{{ strings.description_sms_auth_submit }}</p>
+			{% endif %}
+		{% endif %}
+	</td>
+</tr>

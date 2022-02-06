@@ -12,7 +12,7 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * @var Lib\TwoFactor\MfaController
 	 */
-	private $loginIntentCon;
+	private $mfaCon;
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
@@ -50,22 +50,41 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
+
+		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' )
+			 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ) ) {
+			$opts->resetOptToDefault( 'mfa_verify_page' );
+		}
+
+		$redirect = preg_replace( '#[^0-9a-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
+		if ( !empty( $redirect ) ) {
+
+			$redirect = preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
+			if ( !empty( $redirect ) ) {
+				$redirect = '/'.ltrim( $redirect, '/' );
+			}
+		}
+		$opts->setOpt( 'rename_wplogin_redirect', $redirect );
+
+		if ( empty( $opts->getOpt( 'mfa_user_setup_pages' ) ) ) {
+			$opts->setOpt( 'mfa_user_setup_pages', [ 'profile' ] );
+		}
 	}
 
 	public function ensureCorrectCaptchaConfig() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$sStyle = $opts->getOpt( 'enable_google_recaptcha_login' );
+		$style = $opts->getOpt( 'enable_google_recaptcha_login' );
 		if ( $this->isPremium() ) {
 			$cfg = $this->getCaptchaCfg();
 			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
-				if ( !$cfg->invisible && $sStyle == 'invisible' ) {
+				if ( !$cfg->invisible && $style == 'invisible' ) {
 					$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 				}
 			}
 		}
-		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+		elseif ( !in_array( $style, [ 'disabled', 'default' ] ) ) {
 			$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
 	}
@@ -91,14 +110,14 @@ class ModCon extends BaseShield\ModCon {
 		$this->saveModOptions();
 
 		if ( $opts->getIfCanSendEmailVerified() ) {
-			$bSuccess = true;
-			$sMessage = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
+			$success = true;
+			$msg = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
 		}
 		else {
-			$bSuccess = false;
-			$sMessage = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
+			$success = false;
+			$msg = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
 		}
-		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
+		$this->setFlashAdminNotice( $msg, null, !$success );
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
@@ -149,15 +168,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	/**
-	 * @deprecated 13.0.5
-	 */
-	public function getOptEmailTwoFactorRolesDefaults() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getEmail2FaRoles();
-	}
-
 	public function getGaspKey() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -201,17 +211,17 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @return Lib\TwoFactor\MfaController
+	 * @deprecated 13.1
 	 */
 	public function getLoginIntentController() {
-		if ( !isset( $this->loginIntentCon ) ) {
-			$this->loginIntentCon = ( new Lib\TwoFactor\MfaController() )
-				->setMod( $this );
-		}
-		return $this->loginIntentCon;
+		return $this->getMfaController();
 	}
 
-	public function setIsChainedAuth( bool $isChained ) {
-		$this->getOptions()->setOpt( 'enable_chained_authentication', $isChained ? 'Y' : 'N' );
+	public function getMfaController() :Lib\TwoFactor\MfaController {
+		if ( !isset( $this->mfaCon ) ) {
+			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
+		}
+		return $this->mfaCon;
 	}
 
 	/**
@@ -229,13 +239,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function setEnabled2FaGoogleAuthenticator( bool $enable ) {
 		$this->getOptions()->setOpt( 'enable_google_authenticator', $enable ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLoginIntentRequestFlag() {
-		return $this->getCon()->prefix( 'login-intent-request' );
 	}
 
 	public function getTextOptDefault( string $key ) :string {

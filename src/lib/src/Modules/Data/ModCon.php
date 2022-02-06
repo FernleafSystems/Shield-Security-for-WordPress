@@ -14,6 +14,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'ips' );
 	}
 
+	public function getDbH_UserMeta() :DB\UserMeta\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'user_meta' );
+	}
+
 	public function getDbH_ReqLogs() :DB\ReqLogs\Ops\Handler {
 		$this->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
@@ -46,5 +50,7 @@ class ModCon extends BaseShield\ModCon {
 				 ) )
 			 )
 			 ->query();
+
+		// TODO 3. Clean User Meta.
 	}
 }

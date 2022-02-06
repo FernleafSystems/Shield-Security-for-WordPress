@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
@@ -8,10 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class Load extends BaseAction {
 
 	/**
-	 * @return Snapshots\Store
 	 * @throws \Exception
 	 */
-	public function run() {
+	public function run() :Snapshots\Store {
 		$store = $this->getNewStore();
 
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {

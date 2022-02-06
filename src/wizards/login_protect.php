@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -25,14 +24,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		switch ( $step ) {
 			case 'authemail':
 				$oResponse = $this->processAuthEmail();
-				break;
-
-			case 'authga':
-				$oResponse = $this->processAuthGa();
-				break;
-
-			case 'multiselect':
-				$oResponse = $this->processMultiSelect();
 				break;
 
 			default:
@@ -94,74 +85,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function processAuthGa() {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$req = Services::Request();
-
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		$oResponse->setSuccessful( false );
-
-		$sCode = $req->post( 'gacode' );
-		$bEnableGa = $req->post( 'enablega' ) === 'Y';
-
-		$sMessage = '';
-		if ( $sCode != 'ignore' ) {
-
-			if ( empty( $sCode ) ) {
-				$sMessage = __( 'Code was empty.', 'wp-simple-firewall' );
-			}
-			else {
-				/** @var TwoFactor\Provider\GoogleAuth $oGA */
-				$oGA = $mod->getLoginIntentController()
-						   ->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
-				$oUser = Services::WpUsers()->getCurrentWpUser();
-				$bValidated = $oGA->validateGaCode( $oUser, $sCode );
-
-				if ( $bValidated ) {
-					$oGA->setProfileValidated( $oUser, true );
-					$sMessage = 'Google Authenticator was validated.';
-					$oResponse->setSuccessful( true );
-				}
-				else {
-					$sMessage = 'Could not validate - this does not appear to be the correct 6-digit code.';
-					$bEnableGa = false; // we don't enable GA on the site if the code was bad.
-				}
-			}
-		}
-		else {
-			$oResponse->setSuccessful( true );
-		}
-
-		if ( $bEnableGa ) {
-			$mod->setEnabled2FaGoogleAuthenticator( true );
-			$sMessage .= ' '.__( 'Google Authenticator was enabled for the site.', 'wp-simple-firewall' );
-		}
-
-		return $oResponse->setMessageText( $sMessage );
-	}
-
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function processMultiSelect() {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-
-		$bEnabledMulti = Services::Request()->post( 'multiselect' ) === 'Y';
-		$mod->setIsChainedAuth( $bEnabledMulti );
-		$sMessage = sprintf( __( 'Multi-Factor Authentication was %s for the site.', 'wp-simple-firewall' ),
-			$bEnabledMulti ? __( 'enabled', 'wp-simple-firewall' ) : __( 'disabled', 'wp-simple-firewall' )
-		);
-
-		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( true )
-			->setMessageText( $sMessage );
-	}
-
-	/**
 	 * @return string[]
 	 * @throws Exception
 	 */
@@ -191,11 +114,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'authemail';
 		}
 
-		if ( !$oOpts->isEnabledGoogleAuthenticator() ) {
-			$aStepsSlugs[] = 'authga';
-		}
-
-		$aStepsSlugs[] = 'multiselect';
 		$aStepsSlugs[] = 'finished';
 		return $aStepsSlugs;
 	}
@@ -220,33 +138,6 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					'data' => [
 						'name'       => $user->first_name,
 						'user_email' => $user->user_email
-					]
-				];
-				break;
-
-			case 'authga':
-				$user = Services::WpUsers()->getCurrentWpUser();
-				/** @var TwoFactor\Provider\GoogleAuth $GAProvider */
-				$GAProvider = $mod->getLoginIntentController()
-						   ->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
-				$aAdditional = [
-					'data'  => [
-						'name'       => $user->first_name,
-						'user_email' => $user->user_email
-					],
-					'hrefs' => [
-						'ga_chart' => $GAProvider->getQrImage( $user ),
-					],
-					'flags' => [
-						'has_ga' => $GAProvider->hasValidatedProfile( $user ),
-					]
-				];
-				break;
-
-			case 'multiselect':
-				$aAdditional = [
-					'flags' => [
-						'has_multiselect' => $opts->isChainedAuth(),
 					]
 				];
 				break;

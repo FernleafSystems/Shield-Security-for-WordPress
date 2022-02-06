@@ -1,0 +1,21 @@
+{% extends '/wpadmin_pages/base.twig' %}
+
+{% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
+{% block page_head %}{% endblock %}
+{% block body %}
+	<div class="row justify-content-left">
+	<div class="col-xl-8 col-lg-10 col-md-12 col-sm-12">
+		<div class="options-body" id="">
+
+			{{ content.mfa_setup|raw }}
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block page_foot %}
+{% endblock %}
+
+{% block inline_styles %}
+{% endblock %}

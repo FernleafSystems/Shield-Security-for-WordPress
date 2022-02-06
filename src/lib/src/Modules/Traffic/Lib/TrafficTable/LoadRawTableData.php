@@ -137,10 +137,10 @@ class LoadRawTableData extends BaseLoadTableData {
 
 		return sprintf( '<div>%s</div>', implode( '</div><div>', [
 			sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ),
-				sprintf( '<span class="badge badge-%s">%s</span>', $codeType, $this->log->meta[ 'code' ] ) ),
+				sprintf( '<span class="badge bg-%s">%s</span>', $codeType, $this->log->meta[ 'code' ] ) ),
 			sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ),
 				sprintf(
-					'<span class="badge badge-%s">%s</span>',
+					'<span class="badge bg-%s">%s</span>',
 					@$this->log->meta[ 'offense' ] ? 'danger' : 'info',
 					@$this->log->meta[ 'offense' ] ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 				)
@@ -168,7 +168,7 @@ class LoadRawTableData extends BaseLoadTableData {
 				$this->ipInfo[ '' ] = 'n/a';
 			}
 			else {
-				$badgeTemplate = '<span class="badge badge-%s">%s</span>';
+				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 				$status = __( 'No Record', 'wp-simple-firewall' );
 
 				$record = ( new LookupIpOnList() )

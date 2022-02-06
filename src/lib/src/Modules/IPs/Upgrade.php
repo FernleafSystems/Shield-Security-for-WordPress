@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {

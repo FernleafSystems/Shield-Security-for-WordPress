@@ -1,72 +1,65 @@
 <ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-wordpress-tab" data-toggle="tab" href="#h-tabs-wordpress"
+		<a class="nav-link active" id="h-tabs-wordpress-tab" data-bs-toggle="tab" href="#h-tabs-wordpress"
 		   role="tab" aria-controls="h-tabs-wordpress">
 			WordPress
 			{% if vars.sections.wordpress.count > 0 %}
-				<span class="badge badge-danger">{{ vars.sections.wordpress.count }}</span>
+				<span class="badge bg-danger">{{ vars.sections.wordpress.count }}</span>
 			{% else %}
-				<span class="badge badge-success">&check;</span>
+				<span class="badge bg-success">&check;</span>
 			{% endif %}
 		</a>
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-plugins-tab" data-toggle="tab" href="#h-tabs-plugins"
+		<a class="nav-link" id="h-tabs-plugins-tab" data-bs-toggle="tab" href="#h-tabs-plugins"
 		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
 			{% if vars.sections.plugins.count > 0 %}
-				<span class="badge badge-danger">{{ vars.sections.plugins.count }}</span>
+				<span class="badge bg-danger">{{ vars.sections.plugins.count }}</span>
 			{% else %}
-				<span class="badge badge-success">&check;</span>
+				<span class="badge bg-success">&check;</span>
 			{% endif %}
 		</a>
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-themes-tab" data-toggle="tab" href="#h-tabs-themes"
+		<a class="nav-link" id="h-tabs-themes-tab" data-bs-toggle="tab" href="#h-tabs-themes"
 		   role="tab" aria-controls="h-tabs-themes">
 			Themes
 			{% if vars.sections.themes.count > 0 %}
-				<span class="badge badge-danger">{{ vars.sections.themes.count }}</span>
+				<span class="badge bg-danger">{{ vars.sections.themes.count }}</span>
 			{% else %}
-				<span class="badge badge-success">&check;</span>
+				<span class="badge bg-success">&check;</span>
 			{% endif %}
 		</a>
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-malware-tab" data-toggle="tab" href="#h-tabs-malware"
+		<a class="nav-link" id="h-tabs-malware-tab" data-bs-toggle="tab" href="#h-tabs-malware"
 		   role="tab" aria-controls="h-tabs-malware">
 			Malware
 			{% if vars.sections.malware.count > 0 %}
-				<span class="badge badge-danger">{{ vars.sections.malware.count }}</span>
+				<span class="badge bg-danger">{{ vars.sections.malware.count }}</span>
 			{% else %}
-				<span class="badge badge-success">&check;</span>
+				<span class="badge bg-success">&check;</span>
 			{% endif %}
 		</a>
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-file_locker"
+		<a class="nav-link" id="h-tabs-home-tab" data-bs-toggle="tab" href="#h-tabs-file_locker"
 		   role="tab" aria-controls="h-tabs-file_locker">
 
 			{{ file_locker.strings.title }}
 			{% if file_locker.count > 0 %}
-				<span class="badge badge-danger">{{ file_locker.count }}</span>
+				<span class="badge bg-danger">{{ file_locker.count }}</span>
 			{% else %}
-				<span class="badge badge-success">&check;</span>
+				<span class="badge bg-success">&check;</span>
 			{% endif %}
 		</a>
 	</li>
-
-{#	<li class="nav-item">#}
-{#		<a class="nav-link" id="h-tabs-log-tab" data-toggle="tab" href="#h-tabs-log"#}
-{#		   role="tab" aria-controls="h-tabs-log">#}
-{#			Logs#}
-{#		</a>#}
-{#	</li>#}
 
 </ul>
 
@@ -107,7 +100,7 @@
 <script>
 	(function ( $ ) {
 		$( document ).ready( function () {
-			$( '.nav-vertical a[data-toggle="tab"]' ).on( 'shown.bs.tab', function ( evt ) {
+			$( '.nav-vertical a[data-bs-toggle="tab"]' ).on( 'shown.bs.tab', function ( evt ) {
 				console.log();
 				let target = document.querySelector( evt.currentTarget.getAttribute( 'href' ) );
 				window.scrollTo( { top: 0, behavior: 'smooth' } )

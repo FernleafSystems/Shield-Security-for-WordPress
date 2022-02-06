@@ -697,7 +697,7 @@ input:checked + .icwp-slider:before {
 		left: -17px;
 	}
 }
-#FooterWizardBanner .text-left {
+#FooterWizardBanner .text-start {
 	margin-bottom: 0;
 }
 #FooterWizardBanner .offset-1 {
@@ -1022,17 +1022,8 @@ table.odp-table.scan-table td.column-path code {
 		letter-spacing: 0;
 	}
 }
-.form-check input[type=radio] {
-	margin-top: 4px;
-}
-.form-check .form-check-label {
-	margin-left: 8px;
-}
-input[type=radio].form-check-input,
-input[type=checkbox].form-check-input {
-	margin-top: 5px;
-	margin-left: -20px;
-	margin-right: 5px;
+.form-check .form-check-input {
+	margin-top: 0.25em;
 }
 /** copied from bootstrap to override WP admin styles */
 .icwpOptionsForm {
@@ -1079,7 +1070,7 @@ input[type=checkbox].form-check-input {
 	border-top: 0 none;
 	padding-top: 14px;
 }
-.icwpOptionsForm .form-group.row {
+.icwpOptionsForm .option_form_row.row {
 	/*margin-bottom: 20px;*/
 	padding: 15px 0 25px;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
@@ -1137,18 +1128,18 @@ input:checked + .icwp-slider {
 dd, li {
 	margin-bottom: 0;
 }
-a {
+a,
+a:hover,
+a.nav-link,
+a.nav-link:hover {
 	color: #008000;
-}
-a:hover {
-	color: #008000;
+	text-decoration: none;
 }
 a:focus .gravatar, a:focus, a:focus .media-icon img {
 	box-shadow: none !important;
 }
 .col-form-label {
 	font-weight: bold;
-	padding-top: 0;
 }
 #SectionScanResultsAggregate .card-footer a:hover {
 	color: #ffffff;
@@ -1202,12 +1193,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SectionIpsWhite .alert {
 	border-radius: 0;
 }
-#SectionIpsBlack .form-inline {
-	margin: 10px 0 !important;
-}
-#SectionIpsWhite .form-inline {
-	margin: 10px 0 !important;
-}
 #SectionIpsBlack .input-group-text {
 	background-color: transparent !important;
 }
@@ -1221,6 +1206,7 @@ a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link)::afte
 #footer-thankyou {
 	display: none;
 }
+a.beacon-article,
 a.section_title_info {
 	cursor: pointer;
 }
@@ -1236,19 +1222,22 @@ dl.pro-features dt:before {
 dl.pro-features dd {
 	margin-bottom: 10px;
 }
-.custom-control.custom-radio .custom-control-input:checked ~ .custom-control-label::before,
-.custom-control.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before,
-.option-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-	background-color: rgba(69, 119, 0, 1);
-	border-color: rgba(69, 119, 0, 1);
+.form-check .form-check-input:checked,
+.form-check .form-check-input:checked,
+.option-checkbox.custom-switch .form-check-input:checked {
+	background-color: rgba(69, 119, 0, 1) !important;
+	border-color: rgba(69, 119, 0, 1)!important;
 }
-.option-checkbox.custom-switch .custom-control-input:disabled:checked ~ .custom-control-label::before {
+.form-check .form-check-input:checked::before ,
+.form-check .form-check-input:checked::before ,
+.option-checkbox.custom-switch .form-check-input:checked::before {
+	content: none;
+}
+.option-checkbox.custom-switch .form-check-input:disabled:checked {
 	background-color: rgba(69, 119, 0, 0.3);
 	border-color: rgba(69, 119, 0, 0.3);
 }
-.custom-control.custom-checkbox .custom-control-input:disabled,
-.custom-control.custom-radio .custom-control-input:disabled,
-.option-checkbox.custom-switch .custom-control-input:disabled {
+.form-check .custom-control-input:disabled {
 	opacity: 0;
 }
 .importexport-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
@@ -1274,6 +1263,9 @@ dl.pro-features dd {
 	border: 2px solid white !important;
 }
 .overview.card > .card-header {
+}
+.overview.card > .card-header a {
+	text-decoration: none;
 }
 .overview.card > .card-footer {
 	padding: 10px 15px;
@@ -1596,10 +1588,9 @@ body.folded #FooterBannerGoPro {
 	visibility: hidden;
 	background-color: rgba(238, 246, 238, 0.99);
 	border: 1px solid rgba(177, 216, 178, 0.99);
-	/*border-left-width: 0;*/
 	position: absolute;
-	left: 90%;
-	width: 120%;
+	left: 130px;
+	width: 200px;
 	z-index: 1000;
 	height: auto;
 	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
@@ -1742,4 +1733,12 @@ button.btn.action {
 
 .scan-item-history ul {
 	list-style: inside disc;
+}
+
+.audit-meta ul {
+	padding: 0;
+}
+
+.ui-dialog-titlebar .ui-dialog-titlebar-close {
+	float: right;
 }

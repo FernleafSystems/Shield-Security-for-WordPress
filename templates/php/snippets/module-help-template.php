@@ -8,7 +8,7 @@
 	</div>
 	<div class="col-6">
 		<div class="module-headline">
-			<div class="float-right">
+			<div class="float-end">
 
 				<div class="btn-group icwp-top-buttons" role="group">
 

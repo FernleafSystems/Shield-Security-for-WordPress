@@ -16,6 +16,9 @@
     "run_if_wpcli":          true,
     "order":                 60
   },
+  "wpcli":       {
+    "enabled": true
+  },
   "sections":    [
     {
       "slug":        "section_automatic_updates_for_wordpress_components",
@@ -130,8 +133,8 @@
       "key":         "update_delay",
       "section":     "section_options",
       "premium":     true,
-      "default":     "0",
       "type":        "integer",
+      "default":     0,
       "link_info":   "https://shsec.io/e5",
       "link_blog":   "",
       "beacon_id":   137,

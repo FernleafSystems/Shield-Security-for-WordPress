@@ -207,16 +207,6 @@ class FileLockerController {
 		}
 	}
 
-	/**
-	 * @param string $fileKey
-	 * @return File
-	 * @throws \Exception
-	 * @deprecated 12.0.10
-	 */
-	private function getFile( string $fileKey ) :File {
-		return ( new Lib\FileLocker\Ops\BuildFileFromFileKey() )->build( $fileKey );
-	}
-
 	protected function getState() :array {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();

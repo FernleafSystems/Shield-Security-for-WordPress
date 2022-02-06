@@ -36,17 +36,17 @@ class MainAdminMenu {
 				$menuTitle = $con->getHumanName();
 			}
 
-			$sMenuIcon = $con->urls->forImage( $menu[ 'icon_image' ] );
-			$sIconUrl = empty( $labels[ 'icon_url_16x16' ] ) ? $sMenuIcon : $labels[ 'icon_url_16x16' ];
+			$menuIcon = $con->urls->forImage( $menu[ 'icon_image' ] );
+			$iconUrl = empty( $labels[ 'icon_url_16x16' ] ) ? $menuIcon : $labels[ 'icon_url_16x16' ];
 
 			$parentMenuID = $con->getPluginPrefix();
 			add_menu_page(
 				$con->getHumanName(),
 				$menuTitle,
-				$con->getBasePermissions(),
+				'read',
 				$parentMenuID,
 				[ $this, 'onDisplayTopMenu' ],
-				$sIconUrl
+				$iconUrl
 			);
 
 			if ( $menu[ 'has_submenu' ] ) {
@@ -63,9 +63,14 @@ class MainAdminMenu {
 
 	private function fixSubmenu() {
 		global $submenu;
-		$menuID = $this->getCon()->getPluginPrefix();
+		$con = $this->getCon();
+		$menuID = $con->getPluginPrefix();
 		if ( isset( $submenu[ $menuID ] ) ) {
 			unset( $submenu[ $menuID ][ 0 ] );
+		}
+		else {
+			// remove entire top-level menu if no submenu items - ASSUMES this plugin MUST have submenu or no menu at all
+			remove_menu_page( $menuID );
 		}
 	}
 }

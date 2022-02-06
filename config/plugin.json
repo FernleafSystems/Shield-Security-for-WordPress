@@ -17,6 +17,9 @@
     "run_if_wpcli":          true,
     "order":                 10
   },
+  "wpcli":         {
+    "enabled": true
+  },
   "admin_notices": {
     "plugin-too-old":             {
       "id":               "plugin-too-old",

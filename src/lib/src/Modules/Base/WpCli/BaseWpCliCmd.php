@@ -2,21 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseWpCliCmd {
-
-	use ModConsumer;
-	use \FernleafSystems\Utilities\Logic\ExecOnce;
+abstract class BaseWpCliCmd extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		/** @var Options $pluginModOpts */
-		$pluginModOpts = $this->getCon()
-							  ->getModule_Plugin()
-							  ->getOptions();
-		return $this->getOptions()->getWpCliCfg()[ 'enabled' ] && $pluginModOpts->isEnabledWpcli();
+		return $this->getMod()
+					->getWpCli()
+					->getCfg()[ 'enabled' ];
 	}
 
 	/**
@@ -35,20 +29,19 @@ abstract class BaseWpCliCmd {
 
 	protected function buildCmd( array $parts ) :string {
 		return implode( ' ',
-			array_filter( array_merge( $this->getBaseCmdParts(), $parts ) )
+			array_filter( array_merge( $this->getCmdBase(), $parts ) )
 		);
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getBaseCmdParts() :array {
-		return [ 'shield', $this->getBaseCmdKey() ];
-	}
-
-	protected function getBaseCmdKey() :string {
-		$root = $this->getOptions()->getWpCliCfg()[ 'root' ];
-		return empty( $root ) ? $this->getMod()->getModSlug( false ) : $root;
+	protected function getCmdBase() :array {
+		$cfg = $this->getMod()->getWpCli()->getCfg();
+		return [
+			$cfg[ 'cmd_root' ],
+			$cfg[ 'cmd_base' ]
+		];
 	}
 
 	protected function mergeCommonCmdArgs( array $args ) :array {
@@ -74,22 +67,20 @@ abstract class BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $args
-	 * @return \WP_User
 	 * @throws \WP_CLI\ExitException
 	 */
 	protected function loadUserFromArgs( array $args ) :\WP_User {
-		$oWpUsers = Services::WpUsers();
+		$WPU = Services::WpUsers();
 
 		$user = null;
 		if ( isset( $args[ 'uid' ] ) ) {
-			$user = $oWpUsers->getUserById( $args[ 'uid' ] );
+			$user = $WPU->getUserById( $args[ 'uid' ] );
 		}
 		elseif ( isset( $args[ 'email' ] ) ) {
-			$user = $oWpUsers->getUserByEmail( $args[ 'email' ] );
+			$user = $WPU->getUserByEmail( $args[ 'email' ] );
 		}
 		elseif ( isset( $args[ 'username' ] ) ) {
-			$user = $oWpUsers->getUserByUsername( $args[ 'username' ] );
+			$user = $WPU->getUserByUsername( $args[ 'username' ] );
 		}
 
 		if ( !$user instanceof \WP_User || $user->ID < 1 ) {

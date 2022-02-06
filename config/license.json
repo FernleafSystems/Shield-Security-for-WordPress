@@ -16,6 +16,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
   },
+  "wpcli":            {
+    "enabled": true
+  },
   "admin_notices":    {
     "wphashes-token-fail": {
       "id":               "wphashes-token-fail",
@@ -60,37 +63,37 @@
     {
       "key":          "license_activated_at",
       "section":      "section_non_ui",
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "transferable": false
     },
     {
       "key":          "license_deactivated_at",
       "section":      "section_non_ui",
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "transferable": false
     },
     {
       "key":          "license_last_checked_at",
       "section":      "section_non_ui",
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "transferable": false
     },
     {
       "key":          "last_warning_email_sent_at",
       "section":      "section_non_ui",
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "transferable": false
     },
     {
       "key":          "last_deactivated_email_sent_at",
       "section":      "section_non_ui",
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "transferable": false
     },
     {
       "key":          "last_errors",
@@ -102,10 +105,10 @@
     {
       "key":          "last_error_at",
       "section":      "section_non_ui",
-      "sensitive":    true,
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "sensitive":    true,
+      "transferable": false
     },
     {
       "key":          "keyless_handshake_hash",
@@ -118,10 +121,10 @@
     {
       "key":          "keyless_handshake_until",
       "section":      "section_non_ui",
-      "sensitive":    true,
-      "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "sensitive":    true,
+      "transferable": false
     },
     {
       "key":          "license_data",

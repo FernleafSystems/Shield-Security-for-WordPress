@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class EventsListener {
@@ -12,17 +13,21 @@ abstract class EventsListener {
 	/**
 	 * @var bool
 	 */
-	private $bCommit = false;
+	private $commit;
 
 	/**
-	 * EventsListener constructor.
 	 * @param Controller\Controller $con
+	 * @throws \Exception
 	 */
-	public function __construct( $con ) {
+	public function __construct( $con = null, bool $commit = false ) {
+		if ( !$con instanceof Controller\Controller ) {
+			$con = Functions\get_plugin()->getController();
+		}
 		$this->setCon( $con );
+		$this->commit = $commit;
 
-		add_action( $con->prefix( 'event' ),
-			function ( $event, $meta = [], $def = [] ) use ( $con ) {
+		add_action( 'shield/event',
+			function ( $event, $meta = [], $def = [] ) {
 				$this->captureEvent(
 					(string)$event,
 					is_array( $meta ) ? $meta : [],
@@ -46,19 +51,15 @@ abstract class EventsListener {
 
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCommit() {
-		return (bool)$this->bCommit;
+	public function isCommit() :bool {
+		return $this->commit;
 	}
 
 	/**
-	 * @param bool $bCommit
 	 * @return $this
 	 */
-	public function setIfCommit( $bCommit ) {
-		$this->bCommit = $bCommit;
+	public function setIfCommit( bool $commit ) {
+		$this->commit = $commit;
 		return $this;
 	}
 }

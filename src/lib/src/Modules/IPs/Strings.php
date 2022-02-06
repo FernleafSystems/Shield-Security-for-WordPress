@@ -242,12 +242,9 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $key
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-
 		$pluginName = $this->getCon()->getHumanName();
 		$modName = $this->getMod()->getMainFeatureName();
 

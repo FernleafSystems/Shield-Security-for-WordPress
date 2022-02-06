@@ -154,19 +154,4 @@ class Processor extends BaseShield\Processor {
 			$this->headers = array_merge( $this->getHeaders(), $header );
 		}
 	}
-
-	/**
-	 * @deprecated 13.0.3
-	 */
-	private function isHeadersPushed() :bool {
-		return (bool)$this->pushed;
-	}
-
-	/**
-	 * @deprecated 13.0.3
-	 */
-	private function setHeadersPushed() :self {
-		$this->pushed = true;
-		return $this;
-	}
 }

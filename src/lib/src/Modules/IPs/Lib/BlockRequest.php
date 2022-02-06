@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
@@ -9,26 +9,35 @@ use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class BlockRequest extends ExecOnceModConsumer {
 
-	protected function run() {
-		if ( $this->isBlocked() ) {
+	private $ipBlocked;
 
-			if ( $this->isAutoUnBlocked() ) {
-				Services::Response()->redirectToHome();
-			}
-			elseif ( $this->isHighReputationIP() ) {
-				$this->getCon()->fireEvent( 'not_conn_kill_high_rep' );
-			}
-			else {
-				$this->renderKillPage();
-			}
+	protected function run() {
+		if ( $this->isAutoUnBlocked() ) {
+			Services::Response()->redirectToHome();
+		}
+		elseif ( $this->isRequestBlocked() ) {
+			$this->renderKillPage();
 		}
 	}
 
-	private function isBlocked() :bool {
-		return ( new IPs\Components\QueryIpBlock() )
-			->setMod( $this->getMod() )
-			->setIp( Services::IP()->getRequestIp() )
-			->run();
+	private function isRequestBlocked() :bool {
+		return (bool)apply_filters( 'shield/is_request_blocked', $this->isIpBlocked() );
+	}
+
+	private function isIpBlocked() :bool {
+		if ( !isset( $this->ipBlocked ) ) {
+			$this->ipBlocked = ( new IPs\Components\QueryIpBlock() )
+				->setMod( $this->getMod() )
+				->setIp( Services::IP()->getRequestIp() )
+				->run();
+
+			// do not block IPs with high reputation
+			if ( $this->ipBlocked && $this->isHighReputationIP() ) {
+				$this->ipBlocked = false;
+				$this->getCon()->fireEvent( 'not_conn_kill_high_rep' );
+			}
+		}
+		return $this->ipBlocked;
 	}
 
 	private function isHighReputationIP() :bool {
@@ -42,9 +51,10 @@ class BlockRequest extends ExecOnceModConsumer {
 	}
 
 	private function isAutoUnBlocked() :bool {
-		return ( new AutoUnblock() )
-			->setMod( $this->getMod() )
-			->run();
+		return $this->isIpBlocked()
+			   && ( new AutoUnblock() )
+				   ->setMod( $this->getMod() )
+				   ->run();
 	}
 
 	private function renderKillPage() {
@@ -114,16 +124,12 @@ class BlockRequest extends ExecOnceModConsumer {
 			$data = apply_filters( 'shield/render_data_block_page', $data );
 		}
 
-		Services::WpGeneral()
-				->wpDie(
-					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $data, true )
-				);
+		Services::WpGeneral()->wpDie(
+			$mod->renderTemplate( '/pages/block/blocklist_die.twig', $data, true )
+		);
 	}
 
-	/**
-	 * @return string
-	 */
-	private function renderEmailMagicLinkContent() {
+	private function renderEmailMagicLinkContent() :string {
 		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
@@ -138,36 +144,33 @@ class BlockRequest extends ExecOnceModConsumer {
 			 && $opts->getCanRequestAutoUnblockEmailLink( $user ) ) {
 
 			if ( apply_filters( $con->prefix( 'can_user_magic_link' ), true ) ) {
-				$content = $mod->renderTemplate(
-					'/pages/block/magic_link.twig',
-					[
-						'flags'   => [
-						],
-						'hrefs'   => [
-							'unblock' => add_query_arg(
-								array_merge(
-									$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
-									[
-										'ip' => Services::IP()->getRequestIp()
-									]
-								),
-								Services::WpGeneral()->getHomeUrl()
-							)
-						],
-						'vars'    => [
-							'email' => Obfuscate::Email( $user->user_email )
-						],
-						'strings' => [
-							'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
-							'this_will_send' => __( 'Clicking the button will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
-							'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - many are not.', 'wp-simple-firewall' ),
-							'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
-							'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the audit trail to determine the cause.", 'wp-simple-firewall' ),
-							'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
-							'click_to_send'  => __( 'Send Auto-Unblock Link To My Email', 'wp-simple-firewall' )
-						],
-					]
-				);
+				$content = $mod->renderTemplate( '/pages/block/magic_link.twig', [
+					'flags'   => [
+					],
+					'hrefs'   => [
+						'unblock' => add_query_arg(
+							array_merge(
+								$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
+								[
+									'ip' => Services::IP()->getRequestIp()
+								]
+							),
+							Services::WpGeneral()->getHomeUrl()
+						)
+					],
+					'vars'    => [
+						'email' => Obfuscate::Email( $user->user_email )
+					],
+					'strings' => [
+						'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
+						'this_will_send' => __( 'Clicking the button will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
+						'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - many are not.', 'wp-simple-firewall' ),
+						'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
+						'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the audit trail to determine the cause.", 'wp-simple-firewall' ),
+						'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
+						'click_to_send'  => __( 'Send Auto-Unblock Link To My Email', 'wp-simple-firewall' )
+					],
+				] );
 			}
 		}
 

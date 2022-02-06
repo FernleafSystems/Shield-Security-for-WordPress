@@ -68,8 +68,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $key
-	 * @return mixed
+	 * @inerhitDoc
 	 */
 	public function __get( string $key ) {
 		/** @var Plugin\Options $opts */

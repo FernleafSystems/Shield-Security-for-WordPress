@@ -16,6 +16,9 @@
     "run_if_wpcli":          false,
     "order":                 110
   },
+  "wpcli":            {
+    "enabled": true
+  },
   "menu_items":       [
     {
       "title": "Traffic Log",
@@ -165,9 +168,9 @@
       "key":         "auto_clean",
       "section":     "section_traffic_options",
       "advanced":    true,
+      "type":        "integer",
       "default":     7,
       "min":         1,
-      "type":        "integer",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Auto Expiry Cleaning",
@@ -190,9 +193,9 @@
     {
       "key":         "limit_requests",
       "section":     "section_traffic_limiter",
-      "default":     "60",
-      "min":         0,
       "type":        "integer",
+      "default":     60,
+      "min":         0,
       "link_info":   "",
       "link_blog":   "",
       "name":        "Max Request Limit",
@@ -202,9 +205,9 @@
     {
       "key":         "limit_time_span",
       "section":     "section_traffic_limiter",
-      "default":     "60",
-      "min":         0,
       "type":        "integer",
+      "default":     60,
+      "min":         0,
       "link_info":   "",
       "link_blog":   "",
       "name":        "Request Limit Time Interval",
@@ -213,7 +216,7 @@
     }
   ],
   "definitions":      {
-    "events":             {
+    "events": {
       "request_limit_exceeded": {
         "audit_params": [
           "requests",

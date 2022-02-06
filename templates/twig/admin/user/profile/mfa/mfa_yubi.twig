@@ -1,10 +1,12 @@
 <style>
-	#shield_yubi {
+	#icwp_wpsf_yubi_otp {
 		width: 350px
 	}
 </style>
 <tr>
-	<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
+	<th>
+		<label for="{{ vars.otp_field_name }}" class="form-label">{{ strings.title }}</label>
+	</th>
 	<td>
 		{% if flags.is_profile_active %}
 			{% if flags.show_explanatory_text %}
@@ -33,7 +35,7 @@
 		{% endif %}
 		<input class="regular-text"
 			   type="text"
-			   id="shield_yubi"
+			   id="{{ vars.otp_field_name }}"
 			   name="{{ vars.otp_field_name }}"
 			   placeholder="{{ strings.placeholder_enter_otp }}"
 			   value="" autocomplete="off" />

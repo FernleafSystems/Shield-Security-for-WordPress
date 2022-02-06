@@ -1,18 +1,15 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-class WpCli extends Base\WpCli {
+class WpCli extends BaseShield\WpCli {
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getCmdHandlers() :array {
+	protected function enumCmdHandlers() :array {
 		return [
-			new UserManagement\WpCli\SessionTerminate()
+			UserManagement\WpCli\SessionTerminate::class
 		];
 	}
 }

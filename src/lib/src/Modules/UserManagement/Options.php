@@ -6,16 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	/**
+	 * @deprecated 13.1
+	 */
 	public function getSuspendHardUserIds() :array {
-		$ids = $this->getOpt( 'hard_suspended_userids', [] );
-		return is_array( $ids ) ? array_filter( $ids, function ( $nTime ) {
-			return is_int( $nTime ) && $nTime > 0;
-		} ) : [];
+		return array_filter(
+			$this->getOpt( 'hard_suspended_userids', [] ),
+			function ( $ts ) {
+				return is_int( $ts ) && $ts > 0;
+			}
+		);
 	}
 
 	public function getSuspendAutoIdleUserRoles() :array {
-		$roles = $this->getOpt( 'auto_idle_roles', [] );
-		return is_array( $roles ) ? $roles : [];
+		return $this->getOpt( 'auto_idle_roles', [] );
 	}
 
 	public function isSuspendAutoIdleEnabled() :bool {
@@ -23,24 +27,15 @@ class Options extends BaseShield\Options {
 			   && ( count( $this->getSuspendAutoIdleUserRoles() ) > 0 );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getSuspendAutoIdleTime() {
+	public function getSuspendAutoIdleTime() :int {
 		return $this->getOpt( 'auto_idle_days', 0 )*DAY_IN_SECONDS;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getIdleTimeoutInterval() {
+	public function getIdleTimeoutInterval() :int {
 		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getMaxSessionTime() {
+	public function getMaxSessionTime() :int {
 		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
 	}
 
@@ -107,15 +102,10 @@ class Options extends BaseShield\Options {
 	 * @return string
 	 */
 	public function getValidateEmailOnRegistration() {
-		return $this->isPremium() ?
-			$this->getOpt( 'reg_email_validate', 'disabled' )
-			: 'disabled';
+		return $this->isPremium() ? $this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getEmailValidationChecks() {
+	public function getEmailValidationChecks() :array {
 		return $this->getOpt( 'email_checks', [] );
 	}
 }

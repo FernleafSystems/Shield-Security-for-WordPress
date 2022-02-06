@@ -131,14 +131,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function ajaxExec_DeleteForceOff() :array {
-		$bStillActive = $this->getCon()
-							 ->deleteForceOffFile()
-							 ->getIfForceOffActive();
-		if ( $bStillActive ) {
+		$stillActive = $this->getCon()
+							->deleteForceOffFile()
+							->getIfForceOffActive();
+		if ( $stillActive ) {
 			$this->getMod()
-				 ->setFlashAdminNotice( __( 'File could not be automatically removed.', 'wp-simple-firewall' ), true );
+				 ->setFlashAdminNotice( __( 'File could not be automatically removed.', 'wp-simple-firewall' ), null, true );
 		}
-		return [ 'success' => !$bStillActive ];
+		return [ 'success' => !$stillActive ];
 	}
 
 	private function ajaxExec_RenderTableAdminNotes() :array {

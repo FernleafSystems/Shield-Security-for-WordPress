@@ -159,6 +159,9 @@ class Options {
 		return ( $this->getRawData_FullFeatureConfig()[ 'properties' ] ?? [] )[ $property ] ?? null;
 	}
 
+	/**
+	 * @deprecated 14.0
+	 */
 	public function getWpCliCfg() :array {
 		return array_merge(
 			[
@@ -199,11 +202,31 @@ class Options {
 		return in_array( $key, $this->getOptionsKeys() );
 	}
 
+	public function ensureOptValueType( string $key, $value ) {
+		switch ( $this->getOptionType( $key ) ) {
+			case 'boolean':
+				$value = (bool)$value;
+				break;
+			case 'integer':
+				$value = (int)$value;
+				break;
+			case 'text':
+				$value = (string)$value;
+				break;
+			default:
+				break;
+		}
+		return $value;
+	}
+
 	public function isValidOptionValueType( string $key, $value ) :bool {
 		switch ( $this->getOptionType( $key ) ) {
 			case 'array':
 			case 'multiple_select':
 				$valid = is_array( $value );
+				break;
+			case 'integer':
+				$valid = is_numeric( $value );
 				break;
 			default:
 				$valid = true;
@@ -323,20 +346,6 @@ class Options {
 		}, $this->getVisibleOptions() );
 	}
 
-	/**
-	 * @deprecated 13.0.6
-	 */
-	public function getOptionsForPluginUse() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 13.0.6
-	 */
-	protected function getOptionsForSection( string $slug ) :array {
-		return [];
-	}
-
 	public function getAdditionalMenuItems() :array {
 		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
 	}
@@ -364,7 +373,8 @@ class Options {
 			$value = $this->getOptDefault( $key, $mDefault );
 			$this->setOpt( $key, $value );
 		}
-		return $this->aOptionsValues[ $key ] ?? $mDefault;
+
+		return $this->ensureOptValueType( $key, $this->aOptionsValues[ $key ] ?? $mDefault );
 	}
 
 	/**

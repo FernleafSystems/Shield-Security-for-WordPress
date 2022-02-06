@@ -2,15 +2,15 @@
 	  action="https://www.getdrip.com/forms/{{ vars.drip_form_id }}/submissions"
 	  method="post" data-drip-embedded-form="{{ vars.drip_form_id }}">
 
-	<label class="sr-only" for="_fields[first_name]">{{ strings.your_name }}</label>
-	<input type="text" class="form-control col-2 mb-2 mr-sm-2" id="_fields[first_name]"
+	<label class="visually-hidden" for="_fields[first_name]">{{ strings.your_name }}</label>
+	<input type="text" class="form-control col-2 mb-2 me-sm-2" id="_fields[first_name]"
 		   name="fields[first_name]" placeholder="{{ vars.name }}" value="{{ vars.name }}">
 
-	<label class="sr-only " for="_fields[email]">{{ strings.your_email }}</label>
-	<input type="text" class="form-control col-3 mb-2 mr-sm-2" id="_fields[email]"
+	<label class="visually-hidden " for="_fields[email]">{{ strings.your_email }}</label>
+	<input type="text" class="form-control col-3 mb-2 me-sm-2" id="_fields[email]"
 		   name="fields[email]" placeholder="{{ vars.user_email }}" value="{{ vars.user_email }}">
 
-	<div class="form-check mb-2 mr-sm-2">
+	<div class="form-check mb-2 me-sm-2">
 		<input class="form-check-input" type="checkbox"
 			   id="OptinConsent" name="fields[eu_consent]">
 		<label class="form-check-label" for="OptinConsent">

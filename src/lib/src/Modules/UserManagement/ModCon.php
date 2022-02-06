@@ -3,9 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
+
+	private $userSuspensionController;
+
+	public function getUserSuspendController() :UserSuspendController {
+		if ( !isset( $this->userSuspensionController ) ) {
+			$this->userSuspensionController = ( new UserSuspendController() )->setMod( $this );
+		}
+		return $this->userSuspensionController;
+	}
 
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.
@@ -65,36 +75,22 @@ class ModCon extends BaseShield\ModCon {
 		return $this->isPremium() && $this->getOptions()->isOpt( 'enable_user_login_email_notification', 'Y' );
 	}
 
-	/**
-	 * @param int $nStrength
-	 * @return int
-	 */
-	public function getPassStrengthName( $nStrength ) {
+	public function getPassStrengthName( int $strength ) :string {
 		return [
 				   __( 'Very Weak', 'wp-simple-firewall' ),
 				   __( 'Weak', 'wp-simple-firewall' ),
 				   __( 'Medium', 'wp-simple-firewall' ),
 				   __( 'Strong', 'wp-simple-firewall' ),
 				   __( 'Very Strong', 'wp-simple-firewall' ),
-			   ][ max( 0, min( 4, $nStrength ) ) ];
+			   ][ max( 0, min( 4, $strength ) ) ];
 	}
 
-	/**
-	 * @param int  $userID
-	 * @param bool $add - set true to add, false to remove
-	 */
 	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$IDs = $opts->getSuspendHardUserIds();
-
 		$meta = $this->getCon()->getUserMeta( $user );
-		$isSuspended = isset( $IDs[ $user->ID ] ) || $meta->hard_suspended_at > 0;
+		$isSuspended = $meta->record->hard_suspended_at > 0;
 
 		if ( $add && !$isSuspended ) {
-			$meta->hard_suspended_at = Services::Request()->ts();
-			$IDs[ $user->ID ] = $meta->hard_suspended_at;
+			$meta->record->hard_suspended_at = Services::Request()->ts();
 			$this->getCon()->fireEvent(
 				'user_hard_suspended',
 				[
@@ -106,8 +102,7 @@ class ModCon extends BaseShield\ModCon {
 			);
 		}
 		elseif ( !$add && $isSuspended ) {
-			$meta->hard_suspended_at = 0;
-			unset( $IDs[ $user->ID ] );
+			$meta->record->hard_suspended_at = 0;
 			$this->getCon()->fireEvent(
 				'user_hard_unsuspended',
 				[
@@ -118,7 +113,5 @@ class ModCon extends BaseShield\ModCon {
 				]
 			);
 		}
-
-		$opts->setOpt( 'hard_suspended_userids', $IDs );
 	}
 }

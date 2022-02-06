@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
@@ -21,11 +21,10 @@ class Yubikey extends BaseProvider {
 		];
 	}
 
-	protected function getProviderSpecificRenderData( \WP_User $user ) :array {
-		$con = $this->getCon();
+	protected function getProviderSpecificRenderData() :array {
 		return [
 			'vars'    => [
-				'yubi_ids' => $this->getYubiIds( $user ),
+				'yubi_ids' => $this->getYubiIds(),
 			],
 			'strings' => [
 				'registered_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
@@ -42,21 +41,26 @@ class Yubikey extends BaseProvider {
 				'title'                 => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
 				'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
 				'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
-				'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName() ),
 				'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 			],
 		];
 	}
 
-	private function getYubiIds( \WP_User $user ) :array {
-		return array_filter( array_map( 'trim', explode( ',', $this->getSecret( $user ) ) ) );
+	private function getYubiIds() :array {
+		return array_filter( array_map( 'trim', explode( ',', $this->getSecret() ) ) );
 	}
 
-	protected function processOtp( \WP_User $user, string $otp ) :bool {
+	public function isProfileActive() :bool {
+		return count( $this->getYubiIds() ) > 0;
+	}
+
+	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
 		$valid = false;
 
-		foreach ( $this->getYubiIds( $user ) as $sKey ) {
-			if ( strpos( $otp, $sKey ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
+		foreach ( $this->getYubiIds() as $key ) {
+			if ( strpos( $otp, $key ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
 				$valid = true;
 				break;
 			}
@@ -99,7 +103,7 @@ class Yubikey extends BaseProvider {
 		return $success;
 	}
 
-	public function toggleRegisteredYubiID( \WP_User $user, string $keyOrOTP ) :StdResponse {
+	public function toggleRegisteredYubiID( string $keyOrOTP ) :StdResponse {
 		$response = new StdResponse();
 		$response->success = true;
 
@@ -113,7 +117,7 @@ class Yubikey extends BaseProvider {
 		}
 		else {
 			$keyID = substr( $keyOrOTP, 0, self::OTP_LENGTH );
-			$IDs = $this->getYubiIds( $user );
+			$IDs = $this->getYubiIds();
 
 			if ( in_array( $keyID, $IDs ) ) {
 				$response->success = true;
@@ -137,36 +141,25 @@ class Yubikey extends BaseProvider {
 			}
 
 			if ( !$this->sendYubiOtpRequest( $keyOrOTP ) ) {
-				$response->success = false;
 				$response->error_text = 'One-Time Password verification failed';
 			}
 			$response->success = true;
 
-			$this->setSecret( $user, implode( ',', array_unique( array_filter( $IDs ) ) ) );
+			$this->setSecret( implode( ',', array_unique( array_filter( $IDs ) ) ) );
 		}
 
 		return $response;
 	}
 
-	/**
-	 * @param \WP_User $user
-	 * @param string   $key
-	 * @param bool     $add - true to add; false to remove
-	 * @return $this
-	 */
-	public function addRemoveRegisteredYubiId( \WP_User $user, string $key, $add = true ) {
-	}
-
-	/**
-	 * @return array
-	 */
 	public function getFormField() :array {
 		return [
+			'slug'        => static::SLUG,
 			'name'        => $this->getLoginFormParameter(),
 			'type'        => 'text',
-			'placeholder' => __( 'Use your Yubikey to generate a new code.', 'wp-simple-firewall' ),
+			'placeholder' => '',
 			'value'       => '',
 			'text'        => __( 'Yubikey OTP', 'wp-simple-firewall' ),
+			'description' => __( 'Use your Yubikey to generate a new code', 'wp-simple-firewall' ),
 			'help_link'   => 'https://shsec.io/4i'
 		];
 	}
@@ -177,19 +170,14 @@ class Yubikey extends BaseProvider {
 		return $opts->isEnabledYubikey();
 	}
 
-	/**
-	 * @param string $secret
-	 * @return bool
-	 */
-	protected function isSecretValid( $secret ) {
-		$bValid = parent::isSecretValid( $secret );
-		if ( $bValid ) {
-			foreach ( explode( ',', $secret ) as $sId ) {
-				$bValid = $bValid &&
-						  preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $sId );
-			}
-		}
-		return $bValid;
+	protected function hasValidSecret() :bool {
+		$secret = $this->getSecret();
+		return count( array_filter(
+				explode( ',', is_string( $secret ) ? $secret : '' ),
+				function ( $yubiID ) {
+					return (bool)preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $yubiID );
+				}
+			) ) > 0;
 	}
 
 	public function getProviderName() :string {

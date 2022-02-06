@@ -130,7 +130,7 @@ class ModCon extends BaseShield\ModCon {
 					$success = false;
 					$msg = $e->getMessage();
 				}
-				$this->setFlashAdminNotice( $msg, !$success );
+				$this->setFlashAdminNotice( $msg, null, !$success );
 				Services::Response()->redirect(
 					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
 				);

@@ -8,6 +8,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
+	protected function processNonAuthAjaxAction( string $action ) :array {
+
+		switch ( $action ) {
+			case 'intent_email_send':
+				$response = $this->ajaxExec_IntentEmailSend();
+				break;
+			default:
+				$response = parent::processNonAuthAjaxAction( $action );
+		}
+
+		return $response;
+	}
+
 	protected function processAjaxAction( string $action ) :array {
 
 		switch ( $action ) {
@@ -25,6 +38,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 			case 'disable_2fa_email':
 				$response = $this->ajaxExec_Disable2faEmail();
+				break;
+
+			case 'user_sms2fa_add':
+				$response = $this->ajaxExec_UserSmsAdd();
+				break;
+
+			case 'user_sms2fa_remove':
+				$response = $this->ajaxExec_UserSmsRemove();
+				break;
+
+			case 'user_sms2fa_verify':
+				$response = $this->ajaxExec_UserSmsVerify();
+				break;
+
+			case 'intent_sms_send':
+				$response = $this->ajaxExec_UserSmsIntentStart();
 				break;
 
 			case 'user_ga_toggle':
@@ -63,7 +92,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$mod = $this->getMod();
 		$userID = Services::Request()->post( 'user_id' );
 		if ( !empty( $userID ) ) {
-			$result = $mod->getLoginIntentController()->removeAllFactorsForUser( (int)$userID );
+			$result = $mod->getMfaController()->removeAllFactorsForUser( (int)$userID );
 			$response = [
 				'success' => $result->success,
 				'message' => $result->success ? $result->msg_text : $result->error_text,
@@ -83,9 +112,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
 
-		$pass = $provider->resetSecret( Services::WpUsers()->getCurrentWpUser() );
+		$pass = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+						 ->resetSecret();
 		$pass = implode( '-', str_split( $pass, 5 ) );
 
 		return [
@@ -99,9 +129,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
-		$provider->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
-		$mod->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\BackupCodes::SLUG ];
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )->remove();
+		$mod->setFlashAdminNotice(
+			__( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' )
+		);
 
 		return [
 			'message' => __( 'Your backup login codes have been deleted.', 'wp-simple-firewall' ),
@@ -113,12 +145,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\GoogleAuth $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() );
 
 		$otp = Services::Request()->post( 'ga_otp', '' );
-		$result = empty( $otp ) ?
-			$provider->removeGaOnAccount( Services::WpUsers()->getCurrentWpUser() )
-			: $provider->activateGaOnAccount( Services::WpUsers()->getCurrentWpUser(), $otp );
+		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );
 
 		return [
 			'success'     => $result->success,
@@ -131,11 +162,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Email $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\Email::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Email::SLUG ];
 
-		$turnOn = Services::Request()->post( 'direction' ) == 'on';
-		$provider->setProfileValidated( Services::WpUsers()->getCurrentWpUser(), $turnOn );
-		$success = $turnOn === $provider->isProfileActive( Services::WpUsers()->getCurrentWpUser() );
+		$turnOn = Services::Request()->post( 'direction' ) === 'on';
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+				 ->setProfileValidated( $turnOn );
+		$success = $turnOn === $provider->isProfileActive();
 
 		if ( $success ) {
 			$msg = $turnOn ? __( 'Email 2FA activated.', 'wp-simple-firewall' )
@@ -167,7 +199,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\U2F $provider */
-		$provider = $mod->getLoginIntentController()->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
 
 		$u2fReg = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( empty( $u2fReg ) ) {
@@ -178,7 +210,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			];
 		}
 		else {
-			$result = $provider->addNewRegistration( Services::WpUsers()->getCurrentWpUser(), $u2fReg );
+			$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+							   ->addNewRegistration( $u2fReg );
 			$response = [
 				'success'     => $result->success,
 				'message'     => $result->success ? $result->msg_text : $result->error_text,
@@ -188,16 +221,172 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
+	private function ajaxExec_UserSmsAdd() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+
+		$countryCode = $req->post( 'sms_country' );
+		$phoneNum = $req->post( 'sms_phone' );
+
+		$response = [
+			'success'     => false,
+			'message'     => __( 'Either the country code or phone number were missing.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+
+		if ( empty( $countryCode ) ) {
+			$response[ 'message' ] = __( 'The country code was missing.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $phoneNum ) ) {
+			$response[ 'message' ] = __( 'The phone number was missing.', 'wp-simple-firewall' );
+		}
+		else {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			try {
+				$response = [
+					'success'     => true,
+					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
+					'code'        => $provider->setUser( $user )
+											  ->addProvisionalRegistration( $countryCode, $phoneNum ),
+					'page_reload' => false
+				];
+			}
+			catch ( \Exception $e ) {
+				$response = [
+					'success'     => false,
+					'message'     => esc_html( $e->getMessage() ),
+					'page_reload' => false
+				];
+			}
+		}
+
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsRemove() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+				 ->remove();
+		return [
+			'success'     => true,
+			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	private function ajaxExec_IntentEmailSend() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mfaCon = $mod->getMfaController();
+
+		$success = false;
+		$userID = Services::Request()->post( 'wp_user_id' );
+		$loginNonce = Services::Request()->post( 'login_nonce' );
+		if ( !empty( $userID ) && !empty( $loginNonce ) ) {
+			$user = Services::WpUsers()->getUserById( $userID );
+			$nonces = array_keys( $mfaCon->getActiveLoginIntents( $user ) );
+			if ( $user instanceof \WP_User && in_array( $loginNonce, $nonces ) ) {
+				/** @var TwoFactor\Provider\Email $provider */
+				$provider = $mod->getMfaController()
+								->getProvidersForUser( $user, true )[ TwoFactor\Provider\Email::SLUG ] ?? null;
+				$success = !empty( $provider ) && $provider->sendEmailTwoFactorVerify( $loginNonce );
+			}
+		}
+
+		return [
+			'success'     => $success,
+			'message'     => $success ? __( 'One-Time Password was sent to your registered email address.', 'wp-simple-firewall' )
+				: __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	private function ajaxExec_UserSmsIntentStart() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+		try {
+			$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+					 ->startLoginIntent();
+			$response = [
+				'success'     => true,
+				'message'     => __( 'One-Time Password was sent to your phone.', 'wp-simple-firewall' ),
+				'page_reload' => true
+			];
+		}
+		catch ( \Exception $e ) {
+			$response = [
+				'success'     => false,
+				'message'     => $e->getMessage(),
+				'page_reload' => true
+			];
+		}
+		return $response;
+	}
+
+	private function ajaxExec_UserSmsVerify() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$req = Services::Request();
+		/** @var TwoFactor\Provider\Sms $provider */
+		$provider = $mod->getMfaController()->getProviders()[ TwoFactor\Provider\Sms::SLUG ];
+
+		$countryCode = $req->post( 'sms_country' );
+		$phoneNum = $req->post( 'sms_phone' );
+		$verifyCode = $req->post( 'sms_code' );
+
+		$response = [
+			'success'     => false,
+			'message'     => __( 'SMS Verification Failed.', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+
+		if ( empty( $verifyCode ) ) {
+			$response[ 'message' ] = __( 'The code provided was empty.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $countryCode ) || empty( $phoneNum ) ) {
+			$response[ 'message' ] = __( 'The data provided was inconsistent.', 'wp-simple-firewall' );
+		}
+		else {
+			try {
+				$response = [
+					'success'     => true,
+					'message'     => __( 'Phone verified and registered successfully for SMS Two-Factor Authentication.', 'wp-simple-firewall' ),
+					'code'        => $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+											  ->verifyProvisionalRegistration( $countryCode, $phoneNum, $verifyCode ),
+					'page_reload' => false
+				];
+			}
+			catch ( \Exception $e ) {
+				$response = [
+					'success'     => false,
+					'message'     => esc_html( $e->getMessage() ),
+					'page_reload' => false
+				];
+			}
+		}
+
+		return $response;
+	}
+
 	private function ajaxExec_ProfileU2fRemove() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\U2F $provider */
-		$provider = $mod->getLoginIntentController()
+		$provider = $mod->getMfaController()
 						->getProviders()[ TwoFactor\Provider\U2F::SLUG ];
 
 		$key = Services::Request()->post( 'u2fid' );
 		if ( !empty( $key ) ) {
-			$provider->removeRegisteredU2fId( Services::WpUsers()->getCurrentWpUser(), $key );
+			$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+					 ->removeRegisteredU2fId( $key );
 		}
 		return [
 			'success'     => !empty( $key ),
@@ -210,11 +399,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Yubikey $provider */
-		$provider = $mod->getLoginIntentController()
+		$provider = $mod->getMfaController()
 						->getProviders()[ TwoFactor\Provider\Yubikey::SLUG ];
 
 		$otp = Services::Request()->post( 'otp', '' );
-		$result = $provider->toggleRegisteredYubiID( Services::WpUsers()->getCurrentWpUser(), $otp );
+		$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
+						   ->toggleRegisteredYubiID( $otp );
 		return [
 			'success'     => $result->success,
 			'message'     => $result->success ? $result->msg_text : $result->error_text,

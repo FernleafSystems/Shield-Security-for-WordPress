@@ -37,7 +37,7 @@ class BotEventListener extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'event' ), function ( $event ) {
+		add_action( 'shield/event', function ( $event ) {
 			$this->fireEventForIP( Services::IP()->getRequestIp(), $event );
 		} );
 	}

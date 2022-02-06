@@ -17,7 +17,9 @@
 {% if flags.is_profile_active %}
 
 	<tr>
-		<th><label for="shield_turn_off_ga">{{ strings.label_check_to_remove }}</label></th>
+		<th>
+			<label for="shield_turn_off_ga" class="form-label">{{ strings.label_check_to_remove }}</label>
+		</th>
 		<td>
 			<button type="button" class="button"
 			        name="shield_turn_off_ga" id="shield_ga_remove"
@@ -31,7 +33,7 @@
 {% else %}
 
 	<tr>
-		<th><label for="shield_gacode">{{ strings.title }}</label></th>
+		<th><label for="shield_gacode" class="form-label">{{ strings.title }}</label></th>
 		<td>
 			<div style="width: 350px; margin-bottom: 15px; text-align: center">
 				<img src="{{ hrefs.src_chart_url }}" alt="{{ strings.description_chart_url }}"

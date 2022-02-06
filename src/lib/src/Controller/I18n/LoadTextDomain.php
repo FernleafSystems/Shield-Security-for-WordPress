@@ -53,14 +53,14 @@ class LoadTextDomain {
 		 * This isn't ideal, and in-time we'll like full localizations, but we aren't there.
 		 */
 		$country = substr( $locale, 0, 2 );
-		$aDuplicateMappings = [
+		$duplicateMappings = [
 			'en' => 'en_GB',
 			'es' => 'es_ES',
 			'fr' => 'fr_FR',
 			'pt' => 'pt_PT',
 		];
-		if ( array_key_exists( $country, $aDuplicateMappings ) ) {
-			$locale = $aDuplicateMappings[ $country ];
+		if ( array_key_exists( $country, $duplicateMappings ) ) {
+			$locale = $duplicateMappings[ $country ];
 		}
 
 		$maybeMo = path_join( $con->getPath_Languages(), $con->getTextDomain().'-'.$locale.'.mo' );

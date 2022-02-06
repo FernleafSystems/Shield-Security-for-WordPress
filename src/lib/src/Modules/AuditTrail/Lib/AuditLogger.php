@@ -39,7 +39,7 @@ class AuditLogger extends EventsListener {
 			$con->getModule_Traffic()->getRequestLogger()->execute();
 		}
 
-		if ( $con->hasCacheDir() && $opts->isLogToFile() ) {
+		if ( $con->cache_dir_handler->dirExists() && $opts->isLogToFile() ) {
 			try {
 				$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
@@ -50,6 +50,18 @@ class AuditLogger extends EventsListener {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		$this->pushCustomHandlers();
+	}
+
+	private function pushCustomHandlers() {
+		$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
+		array_map(
+			function ( $handler ) {
+				$this->getLogger()->pushHandler( $handler );
+			},
+			( $this->getCon()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
+		);
 	}
 
 	public function getLogger() :Logger {

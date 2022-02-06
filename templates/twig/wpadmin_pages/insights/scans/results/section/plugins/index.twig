@@ -6,14 +6,14 @@
 				<li class="nav-item mb-2">
 					<a class="nav-link {% if plugin_key < 1 %}active{% endif %}"
 					   href="#plugin-tab-{{ plugin.info.slug }}"
-					   data-toggle="tab"
+					   data-bs-toggle="tab"
 					>
 						{% if plugin.vars.count_items > 0 %}
-							<span class="badge badge-danger float-right">{{ plugin.vars.count_items }}</span>
+							<span class="badge bg-danger float-right">{{ plugin.vars.count_items }}</span>
 						{% elseif plugin.flags.has_warning %}
-							<span class="badge badge-warning float-right">&excl;</span>
+							<span class="badge bg-warning float-right">&excl;</span>
 						{% else %}
-							<span class="badge badge-success float-right">&check;</span>
+							<span class="badge bg-success float-right">&check;</span>
 						{% endif %}
 						{{ plugin.info.name }}
 					</a>

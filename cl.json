@@ -1,4 +1,93 @@
 {
+  "14.0": {
+    "version":     "14.0",
+    "released_at": 1643364060,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease140",
+      "upgrade": "https://shsec.io/shieldupgradeguide140"
+    },
+    "title":       "Two-Factor Authentication Overhaul",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "WP Login Style 2FA Screen",
+        "description": [
+          "Users can complete their 2FA login using the UI they're most familiar with."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Custom Redirect For Hide WP Login & Admin",
+        "description": [
+          "Rather than display an unfriendly 404 error page for the hidden login page, you can decide to redirect requests to any page you wish."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Easier Access To User 2FA Settings with WP Admin Menu",
+        "description": [
+          "Users can now update their 2FA account settings from a dedicated WP admin page."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Improved 2FA User Experience",
+        "description": [
+          "Smoother, faster, more reliable and more secure 2FA experience."
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Mutli-factor Authentication Removed",
+        "description": [
+          "The option to force users to supply ALL two-factor authentication options has been removed."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Dedicated table for User meta information",
+        "description": [
+         "This allows for new filters and better user status on the WP Admin User page."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Updated Translations - Dutch (thanks J.P.!)",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Further page caching mitigation for NotBot",
+        "description": [
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Updated Bootstrap Libraries",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    false,
+        "title":       "Various bugs and errors",
+        "description": [
+        ]
+      }
+    ]
+  },
   "13.0": {
     "version":     "13.0",
     "released_at": 1636970660,

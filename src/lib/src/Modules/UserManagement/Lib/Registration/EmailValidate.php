@@ -2,31 +2,30 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
-class EmailValidate {
-
-	use ModConsumer;
+class EmailValidate extends ExecOnceModConsumer {
 
 	private $track;
 
-	public function run() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->getValidateEmailOnRegistration() != 'disabled' ) {
+	protected function run() {
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->getValidateEmailOnRegistration() != 'disabled' ) {
 			add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
 		}
 	}
 
 	/**
-	 * @param array $aUserData
+	 * @param array $userData
 	 * @return array
 	 */
-	public function validateNewUserEmail( $aUserData ) {
-		$email = $aUserData[ 'user_email' ];
+	public function validateNewUserEmail( $userData ) {
+		$email = $userData[ 'user_email' ];
 		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
 		if ( !is_array( $this->track ) ) {
 			$this->track = [];
@@ -36,7 +35,6 @@ class EmailValidate {
 		if ( !empty( $email ) && !in_array( $email, $this->track ) ) {
 			$this->track[] = $email;
 
-			$opts = $this->getOptions();
 			$invalidBecause = null;
 			if ( !is_email( $email ) ) {
 				$invalidBecause = 'syntax';
@@ -47,12 +45,12 @@ class EmailValidate {
 								 ->getWpHashesTokenManager()
 								 ->getToken();
 				if ( !empty( $apiToken ) ) {
-					$aChecks = $opts->getEmailValidationChecks();
-					$aVerifys = ( new Email( $apiToken ) )->getEmailVerification( $email );
-					if ( is_array( $aVerifys ) ) {
-						foreach ( $aVerifys as $sVerifyKey => $bIsValid ) {
-							if ( !$bIsValid && in_array( $sVerifyKey, $aChecks ) ) {
-								$invalidBecause = $sVerifyKey;
+					$checks = $opts->getEmailValidationChecks();
+					$verifys = ( new Email( $apiToken ) )->getEmailVerification( $email );
+					if ( is_array( $verifys ) ) {
+						foreach ( $verifys as $verifyKey => $valid ) {
+							if ( !$valid && in_array( $verifyKey, $checks ) ) {
+								$invalidBecause = $verifyKey;
 								break;
 							}
 						}
@@ -80,6 +78,6 @@ class EmailValidate {
 			}
 		}
 
-		return $aUserData;
+		return $userData;
 	}
 }

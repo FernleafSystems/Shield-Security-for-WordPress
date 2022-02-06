@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class TableSchema
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Common
  * @property string   $slug
  * @property string   $table
  * @property string   $primary_key

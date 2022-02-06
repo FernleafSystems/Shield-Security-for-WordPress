@@ -2,19 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-class WpCli extends Base\WpCli {
+class WpCli extends BaseShield\WpCli {
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getCmdHandlers() :array {
+	protected function enumCmdHandlers() :array {
 		return [
-			new IPs\WpCli\Add(),
-			new IPs\WpCli\Remove(),
-			new IPs\WpCli\Enumerate(),
+			IPs\WpCli\Add::class,
+			IPs\WpCli\Remove::class,
+			IPs\WpCli\Enumerate::class,
 		];
 	}
 }

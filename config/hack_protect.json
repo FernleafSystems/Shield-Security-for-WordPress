@@ -17,7 +17,8 @@
     "run_if_wpcli":          true
   },
   "wpcli":            {
-    "root": "hack_guard"
+    "enabled": true,
+    "root":    "hack_guard"
   },
   "menu_items":       [
     {
@@ -358,18 +359,18 @@
     {
       "key":              "realtime_scan_last_at",
       "section":          "section_non_ui",
-      "transferable":     false,
-      "tracking_exclude": true,
       "type":             "integer",
-      "default":          0
+      "default":          0,
+      "transferable":     false,
+      "tracking_exclude": true
     },
     {
       "key":              "legacy_db_conversion_at",
       "section":          "section_non_ui",
-      "transferable":     false,
-      "tracking_exclude": true,
       "type":             "integer",
-      "default":          0
+      "default":          0,
+      "transferable":     false,
+      "tracking_exclude": true
     }
   ],
   "definitions":      {
@@ -539,9 +540,7 @@
       }
     },
     "db_classes":                  {
-      "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler",
-      "scanner":    "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
-      "scanq":      "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+      "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler"
     },
     "db_table_filelocker":         {
       "slug":            "filelocker",
@@ -557,33 +556,6 @@
         "detected_at": "Change Last Detected",
         "reverted_at": "Reverted To Backup",
         "notified_at": "Notification Sent"
-      }
-    },
-    "db_table_scanner":            {
-      "slug":            "scanner",
-      "cols_custom":     {
-        "hash":     "varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash'",
-        "meta":     "text COMMENT 'Relevant Item Data'",
-        "scan":     "varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type'",
-        "severity": "int(3) NOT NULL DEFAULT 1 COMMENT 'Severity'"
-      },
-      "cols_timestamps": {
-        "ignored_at":        "Scan Result Ignored",
-        "notified_at":       "Scan Notifiation Sent",
-        "attempt_repair_at": "Attempted Repair At"
-      }
-    },
-    "db_table_scanq":              {
-      "slug":            "scanq",
-      "cols_custom":     {
-        "scan":    "varchar(3) NOT NULL DEFAULT '' COMMENT 'Scan Slug'",
-        "items":   "text COMMENT 'Array of scan items'",
-        "results": "text COMMENT 'Array of results'",
-        "meta":    "text COMMENT 'Meta Data'"
-      },
-      "cols_timestamps": {
-        "started_at":  "Scan Started",
-        "finished_at": "Scan Completed"
       }
     },
     "table_name_filelocker":       "filelocker",

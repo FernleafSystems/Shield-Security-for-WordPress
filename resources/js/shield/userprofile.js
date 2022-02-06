@@ -45,8 +45,81 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		} );
 	};
 
+	let initSms = function ( shield_vars ) {
+
+		jQuery( 'a.shield_sms_remove' ).on( 'click', function ( evt ) {
+			evt.preventDefault();
+			if ( confirm( shield_vars_userprofile.strings.are_you_sure ) ) {
+				sendReq( shield_vars.ajax.user_sms2fa_remove );
+			}
+			return false;
+		} );
+
+		jQuery( document ).on( 'change keyup', '#shield_mfasms_phone', function ( evt ) {
+			let $this = jQuery( this );
+			const regex = /[^0-9]+/;
+			$this.val( $this.val().replace( regex, '' ) );
+			if ( $this.val().length > 15 ) {
+				$this.val( $this.val().substring( 0, 15 ) );
+			}
+		} );
+
+		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
+			let $this = jQuery( this );
+			let reqAddParams = shield_vars.ajax.user_sms2fa_add;
+
+			let $countrySelect = jQuery( 'select#shield_mfasms_country' );
+			reqAddParams.sms_country = $countrySelect.val();
+			reqAddParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+
+			let combined = $countrySelect.find( ':selected' ).data( 'code' ) + ' ' + reqAddParams.sms_phone
+
+			if ( !(new RegExp( "^[0-9]+$" )).test( reqAddParams.sms_phone ) ) {
+				alert( "Phone number should contain only numbers 0-9." )
+			}
+			else if ( reqAddParams.sms_phone.length < 7 ) {
+				alert( "Phone number doesn't seem long enough." )
+			}
+			else if ( confirm( 'Are you sure this country code and number are correct: ' + combined ) ) {
+				$this.attr( 'disabled', 'disabled' );
+				let ajaxurl = reqAddParams.ajaxurl;
+				delete reqAddParams.ajaxurl;
+
+				jQuery.post( ajaxurl, reqAddParams, function ( response ) {
+						let msg = 'Communications error with site.';
+
+						if ( response.data.success ) {
+
+							let verifyCode = prompt( response.data.message )
+							if ( verifyCode !== null ) {
+								let reqVerifyParams = shield_vars.ajax.user_sms2fa_verify;
+								reqVerifyParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
+								reqVerifyParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
+								reqVerifyParams.sms_code = verifyCode;
+								sendReq( reqVerifyParams );
+							}
+						}
+						else {
+							if ( response.data.message !== undefined ) {
+								msg = response.data.message;
+							}
+							else {
+								msg = 'Sending verification SMS failed';
+							}
+							alert( msg );
+						}
+					}
+				).always( function () {
+						$this.removeAttr( 'disabled', 'disabled' );
+					}
+				);
+				reqAddParams.ajaxurl = ajaxurl;
+			}
+		} );
+	};
+
 	let initYubi = function ( shield_vars ) {
-		let $yubiText = jQuery( 'input[type=text]#shield_yubi' );
+		let $yubiText = jQuery( 'input[type=text]#icwp_wpsf_yubi_otp' );
 		jQuery( document ).on( 'keydown', $yubiText, function ( evt ) {
 			if ( evt.key === 'Enter' || evt.keyCode === 13 ) {
 				evt.preventDefault();
@@ -61,7 +134,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			shield_vars.ajax.user_yubikey_toggle.otp = jQuery( evt.currentTarget ).data( 'yubikeyid' );
 			sendReq( shield_vars.ajax.user_yubikey_toggle );
 			return false;
-		} )
+		} );
 	};
 
 	let initEmail = function ( shield_vars ) {
@@ -140,6 +213,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		).always( function () {
 			}
 		);
+		reqParams.ajaxurl = ajaxurl;
 	};
 
 	var showDialog = function ( success, msg ) {
@@ -176,6 +250,9 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 			}
 			if ( typeof shield_vars_userprofile.vars.providers.backupcode !== typeof undefined ) {
 				initBackupcodes( shield_vars_userprofile.vars.providers.backupcode );
+			}
+			if ( typeof shield_vars_userprofile.vars.providers.sms !== typeof undefined ) {
+				initSms( shield_vars_userprofile.vars.providers.sms );
 			}
 			initMfaRemoveAll();
 		} );

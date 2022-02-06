@@ -3,16 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-class WpCli extends Base\WpCli {
+class WpCli extends BaseShield\WpCli {
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getCmdHandlers() :array {
+	protected function enumCmdHandlers() :array {
 		return [
-			new AuditTrail\WpCli\Display()
+			AuditTrail\WpCli\Display::class
 		];
 	}
 }

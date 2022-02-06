@@ -16,6 +16,9 @@
     "run_if_wpcli":          false,
     "order":                 40
   },
+  "wpcli":         {
+    "enabled": true
+  },
   "admin_notices": {
     "email-verification-sent": {
       "id":               "email-verification-sent",
@@ -142,33 +145,81 @@
       "link_info":   "https://shsec.io/5q",
       "link_blog":   "https://shsec.io/5r",
       "beacon_id":   316,
-      "name":        "Hide Login Page",
-      "summary":     "Rename The WordPress Login Page",
+      "name":        "Hide WP Login & Admin",
+      "summary":     "Hide The WordPress Login And Admin Areas",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
     {
-      "key":         "enable_chained_authentication",
-      "section":     "section_multifactor_authentication",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/9r",
-      "link_blog":   "https://shsec.io/84",
-      "beacon_id":   326,
-      "name":        "Multi-Factor Authentication",
-      "summary":     "Require All Active Authentication Factors",
-      "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
+      "key":         "rename_wplogin_redirect",
+      "section":     "section_rename_wplogin",
+      "advanced":    true,
+      "sensitive":   true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://shsec.io/5q",
+      "link_blog":   "https://shsec.io/5r",
+      "beacon_id":   455,
+      "name":        "WP Login & Admin Redirect",
+      "summary":     "Automatic Redirect URL For Hidden Pages",
+      "description": "Automatically redirect requests to this location for the hidden pages."
+    },
+    {
+      "key":           "mfa_verify_page",
+      "section":       "section_multifactor_authentication",
+      "default":       "custom_shield",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "custom_shield",
+          "text":      "Custom Shield MFA Page"
+        },
+        {
+          "value_key": "wp_login",
+          "text":      "WP Login Page (beta)"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "beacon_id":     0,
+      "name":          "MFA Verification Page",
+      "summary":       "Type Of MFA Verification Page",
+      "description":   "Choose the page type for MFA verification"
+    },
+    {
+      "key":           "mfa_user_setup_pages",
+      "section":       "section_multifactor_authentication",
+      "type":          "multiple_select",
+      "default":       [
+        "profile"
+      ],
+      "value_options": [
+        {
+          "value_key": "profile",
+          "text":      "WP User Profile Page"
+        },
+        {
+          "value_key": "dedicated",
+          "text":      "Dedicated WP Admin Page"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "beacon_id":     456,
+      "name":          "User 2FA Setup",
+      "summary":       "User 2FA Setup Page Locations",
+      "description":   "Pages available to users to configure 2FA."
     },
     {
       "key":         "mfa_skip",
       "section":     "section_multifactor_authentication",
       "premium":     true,
+      "type":        "integer",
       "default":     0,
       "min":         0,
-      "type":        "integer",
       "link_info":   "https://shsec.io/b1",
       "link_blog":   "",
       "beacon_id":   141,
-      "name":        "Multi-Factor Bypass",
+      "name":        "2FA Remember Me",
       "summary":     "A User Can Bypass Multi-Factor Authentication (MFA) For The Set Number Of Days",
       "description": "Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable."
     },
@@ -198,6 +249,19 @@
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
     },
     {
+      "key":         "enable_sms_auth",
+      "section":     "section_non_ui",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   245,
+      "name":        "Enable SMS Auth",
+      "summary":     "Enable SMS Authentication",
+      "description": "When enabled, users will have the option to add SMS Auth to their WordPress user profile."
+    },
+    {
       "key":         "enable_email_authentication",
       "section":     "section_2fa_email",
       "default":     "N",
@@ -210,22 +274,22 @@
       "description": "All users will be required to verify their login by email-based two-factor authentication."
     },
     {
-      "key":           "two_factor_auth_user_roles",
-      "section":       "section_2fa_email",
-      "advanced":      true,
-      "type":          "array",
-      "default":       [
+      "key":         "two_factor_auth_user_roles",
+      "section":     "section_2fa_email",
+      "advanced":    true,
+      "type":        "array",
+      "default":     [
         "contributor",
         "author",
         "editor",
         "administrator"
       ],
-      "link_info":     "https://shsec.io/4v",
-      "link_blog":     "",
-      "beacon_id":     243,
-      "name":          "Enforce - Email Authentication",
-      "summary":       "All User Roles Subject To Email Authentication",
-      "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
+      "link_info":   "https://shsec.io/4v",
+      "link_blog":   "",
+      "beacon_id":   243,
+      "name":        "Enforce - Email Authentication",
+      "summary":     "All User Roles Subject To Email Authentication",
+      "description": "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
       "key":         "email_any_user_set",
@@ -287,9 +351,9 @@
     {
       "key":         "login_limit_interval",
       "section":     "section_brute_force_login_protection",
-      "default":     "5",
-      "min":         0,
       "type":        "integer",
+      "default":     5,
+      "min":         0,
       "link_info":   "https://shsec.io/3q",
       "link_blog":   "https://shsec.io/9o",
       "beacon_id":   242,
@@ -448,18 +512,12 @@
       "sensitive":    true,
       "type":         "text",
       "default":      ""
-    },
-    {
-      "key":          "use_login_intent_page",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "value":        true
     }
   ],
   "definitions":   {
-    "login_intent_timeout": 5,
-    "events":               {
+    "login_intent_timeout":      5,
+    "login_intent_max_attempts": 5,
+    "events":                    {
       "2fa_verify_success": {
         "audit_params": [
           "user_login",

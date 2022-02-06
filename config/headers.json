@@ -16,6 +16,9 @@
     "run_if_wpcli":          false,
     "order":                 80
   },
+  "wpcli":      {
+    "enabled": true
+  },
   "sections":   [
     {
       "primary":     true,

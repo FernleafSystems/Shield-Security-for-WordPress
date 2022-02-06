@@ -282,28 +282,4 @@ abstract class Base extends ExecOnceModConsumer {
 	abstract public function buildScanAction();
 
 	abstract public function buildScanResult( array $rawResult ) :HackGuard\DB\ResultItems\Ops\Record;
-
-	/**
-	 * @deprecated 12.1
-	 */
-	public function getScanResultsDbHandler() :Databases\Scanner\Handler {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getDbHandler_ScanResults();
-	}
-
-	/**
-	 * @param ResultItem|mixed $item
-	 * @deprecated 12.1
-	 */
-	public function isResultItemStale( $item ) :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 13.0
-	 */
-	public function getScanHasProblem() :bool {
-		return false;
-	}
 }

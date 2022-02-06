@@ -13,14 +13,14 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			/**
 			 * @since 11.2 we no longer wait until DOM is ready.
 			 * @since 12.0.10 we return to using cookies to optimise whether the AJAX request is sent.
-			 * This is mainly AJAX so it's asynchronous and won't hold up any other part of the page load.
+			 * This is AJAX, so it's asynchronous and won't hold up any other part of the page load.
 			 * Early execution also helps mitigate the case where login requests are
 			 * sent quickly, before browser has fired NotBot request.
 			 */
 			delete shield_vars_notbotjs.ajax.not_bot.ajaxurl;
 			nonce_cook = getCookie( 'shield-notbot-nonce' );
 			if ( typeof nonce_cook !== typeof undefined && nonce_cook.length > 0 ) {
-				/** Overcome limitations of page caching by passing nonce via cookie **/
+				/** Overcome limitations of page caching by passing latest nonce via cookie **/
 				shield_vars_notbotjs.ajax.not_bot.exec_nonce = nonce_cook;
 			}
 			if ( shield_vars_notbotjs.flags.run ) {
