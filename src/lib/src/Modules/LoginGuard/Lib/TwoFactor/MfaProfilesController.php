@@ -149,12 +149,6 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 	}
 
 	/**
-	 * @deprecated 14.0
-	 */
-	private function addHooks() {
-	}
-
-	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 */

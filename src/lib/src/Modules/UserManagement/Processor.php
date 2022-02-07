@@ -101,20 +101,6 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @deprecated 13.1
-	 */
-	private function setPasswordStartedAt( \WP_User $user ) :self {
-		return $this;
-	}
-
-	/**
-	 * @deprecated 13.1
-	 */
-	protected function setUserLastLoginTime( \WP_User $user ) :self {
-		return $this;
-	}
-
-	/**
 	 * Adds the column to the users listing table to indicate
 	 * @param array $cols
 	 * @return array

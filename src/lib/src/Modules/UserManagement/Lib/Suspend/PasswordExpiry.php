@@ -35,11 +35,4 @@ class PasswordExpiry extends Base {
 		return !empty( $meta->record->pass_started_at )
 			   && ( Services::Request()->ts() - $meta->record->pass_started_at > $opts->getPassExpireTimeout() );
 	}
-
-	/**
-	 * @deprecated 13.1
-	 */
-	public function setMaxPasswordAge() {
-		return $this;
-	}
 }

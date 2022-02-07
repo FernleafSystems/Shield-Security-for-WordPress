@@ -160,19 +160,6 @@ class Options {
 	}
 
 	/**
-	 * @deprecated 14.0
-	 */
-	public function getWpCliCfg() :array {
-		return array_merge(
-			[
-				'enabled' => true,
-				'root'    => $this->getSlug(),
-			],
-			$this->getRawData_FullFeatureConfig()[ 'wpcli' ] ?? []
-		);
-	}
-
-	/**
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {

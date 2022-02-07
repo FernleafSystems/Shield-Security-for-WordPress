@@ -26,10 +26,7 @@ class ScheduleBuildAll extends Base {
 		}
 	}
 
-	/**
-	 * @deprecated 14.0 - make this private
-	 */
-	public function build() {
+	private function build() {
 		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
 			try {
 				( new Build() )

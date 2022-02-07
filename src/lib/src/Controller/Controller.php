@@ -376,14 +376,6 @@ class Controller extends DynPropertiesClass {
 		return $path;
 	}
 
-	/**
-	 * @deprecated 14
-	 */
-	public function hasCacheDir() :bool {
-		return !empty( $this->getPluginCachePath() );
-//		return $this->cache_dir_handler->dirExists();
-	}
-
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 

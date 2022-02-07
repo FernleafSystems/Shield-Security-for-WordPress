@@ -210,13 +210,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'ufc_exclusions', array_unique( $excl ) );
 	}
 
-	/**
-	 * @deprecated 14.0
-	 */
-	public function getPtgSnapsBaseDir() :string {
-		return $this->getCon()->cache_dir_handler->buildSubDir( 'ptguard' );
-	}
-
 	public function hasWizard() :bool {
 		return false;
 	}
