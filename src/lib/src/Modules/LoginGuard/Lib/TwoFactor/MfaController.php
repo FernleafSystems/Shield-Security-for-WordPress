@@ -37,9 +37,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				function ( $provider ) {
 					return $provider->getProviderName();
 				},
-				$this->getProvidersForUser( $user )
+				$this->getProvidersForUser( $user, true )
 			);
-			$content[] = sprintf( '<em>%s</em>: %s', __( '2FA Providers', 'wp-simple-firewall' ),
+			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
 				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : implode( ', ', $providers ) );
 
 			return $content;
