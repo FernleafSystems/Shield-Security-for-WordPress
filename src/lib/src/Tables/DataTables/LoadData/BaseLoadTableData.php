@@ -2,10 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseLoadTableData {
+/**
+ * @property int    $start
+ * @property int    $length
+ * @property string $search
+ */
+class BaseLoadTableData extends DynPropertiesClass {
 
 	use ModConsumer;
 

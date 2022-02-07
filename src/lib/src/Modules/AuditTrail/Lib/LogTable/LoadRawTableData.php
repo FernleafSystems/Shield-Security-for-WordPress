@@ -16,17 +16,65 @@ class LoadRawTableData extends BaseLoadTableData {
 	private $log;
 
 	public function loadForLogs() :array {
-		$srvEvents = $this->getCon()->loadEventsService();
+
+		if ( empty( $this->search ) ) {
+			$results = $this->buildTableRowsFromRawLogs(
+				$this->getLogRecords( $this->length, $this->start )
+			);
+		}
+		else {
+			// We keep building logs and filtering by the search string until we have
+			// enough records built to return in order to satisfy the start + length.
+			$results = [];
+			$page = 0;
+			$pageLength = 100;
+			$searchableColumns = array_flip( $this->getSearchableColumns() );
+			do {
+				$interimResults = $this->buildTableRowsFromRawLogs(
+					$this->getLogRecords( $pageLength, $page*$pageLength )
+				);
+				// no more table results to process, so go with what we have.
+				if ( empty( $interimResults ) ) {
+					break;
+				}
+
+				foreach ( $interimResults as $result ) {
+					$searchable = array_intersect_key( $result, $searchableColumns );
+					foreach ( $searchable as $value ) {
+						$value = wp_strip_all_tags( $value );
+						if ( stripos( $value, $this->search ) !== false ) {
+							$results[] = $result;
+							break;
+						}
+					}
+				}
+
+				$page++;
+			} while ( count( $results ) < $this->start + $this->length );
+
+			$results = array_values( $results );
+			if ( count($results) < $this->start  ) {
+				$results = [];
+			}
+			else {
+				$results = array_splice( $results, $this->start, $this->length );
+			}
+		}
+		return array_values( $results );
+	}
+
+	/**
+	 * @param LogRecord[] $records
+	 */
+	private function buildTableRowsFromRawLogs( array $records ) :array {
 		return array_values( array_map(
-			function ( $log ) use ( $srvEvents ) {
+			function ( $log ) {
 				$this->log = $log;
-
-				$data = $log->getRawData();
-
+				$data = $this->log->getRawData();
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();
-				$data[ 'event' ] = $srvEvents->getEventName( $log->event_slug );
+				$data[ 'event' ] = $this->getCon()->loadEventsService()->getEventName( $this->log->event_slug );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
@@ -36,19 +84,31 @@ class LoadRawTableData extends BaseLoadTableData {
 				$data[ 'meta' ] = $this->getColumnContent_Meta();
 				return $data;
 			},
-			$this->getLogRecords()
+			$records
 		) );
+	}
+
+	private function getSearchableColumns() :array {
+		return [
+			'ip',
+			'rid',
+			'user',
+			'event',
+			'message'
+		];
 	}
 
 	/**
 	 * @return LogRecord[]
 	 */
-	private function getLogRecords() :array {
+	private function getLogRecords( int $limit = 0, int $offset = 0 ) :array {
+
+		$logLoader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
+		$logLoader->limit = $limit;
+		$logLoader->offset = $offset;
+
 		return array_filter(
-			( new LoadLogs() )
-				->setMod( $this->getCon()->getModule_AuditTrail() )
-				->setLimit( (int)Services::Request()->post( 'record_limit', 10000 ) )
-				->run(),
+			$logLoader->run(),
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}

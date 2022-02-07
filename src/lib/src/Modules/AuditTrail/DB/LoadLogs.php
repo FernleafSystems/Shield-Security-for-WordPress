@@ -2,18 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoadLogs {
+/**
+ * @property int $limit
+ * @property int $offset
+ */
+class LoadLogs extends DynPropertiesClass {
 
 	const DEFAULT_LIMIT = 10000;
 	use ModConsumer;
 	use IpAddressConsumer;
-
-	private $limit = null;
 
 	/**
 	 * @return LogRecord[]
@@ -81,19 +84,16 @@ class LoadLogs {
 							ON log.id = `meta`.log_ref
 						ORDER BY log.updated_at DESC
 						%s
+						%s
 				',
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				$mod->getDbH_Meta()->getTableSchema()->table,
-				( $this->limit === 0 ) ? '' : sprintf( 'LIMIT %s', is_null( $this->limit ) ? self::DEFAULT_LIMIT : $this->limit )
+				empty( $this->limit ) ? '' : sprintf( 'LIMIT %s', $this->limit ),
+				empty( $this->offset ) ? '' : sprintf( 'OFFSET %s', $this->offset )
 			)
 		);
-	}
-
-	public function setLimit( int $limit ) {
-		$this->limit = $limit;
-		return $this;
 	}
 }
