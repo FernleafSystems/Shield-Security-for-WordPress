@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DelegateAjaxHandler {
@@ -39,7 +40,7 @@ class DelegateAjaxHandler {
 		return [
 			'success'        => true,
 			'datatable_data' => [
-				'data' => $dataLoader->loadForLogs()
+				'data' => $dataLoader->loadForLogs(),
 			],
 		];
 	}

@@ -24,7 +24,6 @@ abstract class Base {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getInitialOrdering() :array {
@@ -45,7 +44,6 @@ abstract class Base {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getColumnsForDisplay() :array {
@@ -57,8 +55,6 @@ abstract class Base {
 	}
 
 	/**
-	 * @param string $columnSlug
-	 * @return array
 	 * @throws \Exception
 	 */
 	protected function pluckColumn( string $columnSlug ) :array {
