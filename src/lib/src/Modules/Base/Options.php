@@ -213,6 +213,12 @@ class Options {
 			case 'text':
 				$value = (string)$value;
 				break;
+			case 'array':
+			case 'multiple_select':
+				if ( !is_array( $value ) ) {
+					$value = (array)$value;
+				}
+				break;
 			default:
 				break;
 		}
