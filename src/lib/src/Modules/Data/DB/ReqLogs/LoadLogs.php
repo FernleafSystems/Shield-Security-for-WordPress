@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressCons
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @property int $limit
+ * @property int $offset
+ */
 class LoadLogs {
 
 	use ModConsumer;
@@ -39,10 +43,13 @@ class LoadLogs {
 						INNER JOIN `%s` as `ips`
 							ON req.ip_ref = ips.id
 						ORDER BY `req`.created_at DESC
-						LIMIT 1000;',
+						%s
+						%s;',
 				$mod->getDbH_ReqLogs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( "WHERE `ips`.ip=INET6_ATON('%s')", $ip ),
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				empty( $this->limit ) ? '' : sprintf( 'LIMIT %s', $this->limit ),
+				empty( $this->offset ) ? '' : sprintf( 'OFFSET %s', $this->offset )
 			)
 		);
 	}

@@ -15,58 +15,10 @@ class LoadRawTableData extends BaseLoadTableData {
 	 */
 	private $log;
 
-	public function loadForLogs() :array {
-
-		if ( empty( $this->search ) ) {
-			$results = $this->buildTableRowsFromRawLogs(
-				$this->getLogRecords( $this->length, $this->start )
-			);
-		}
-		else {
-			// We keep building logs and filtering by the search string until we have
-			// enough records built to return in order to satisfy the start + length.
-			$results = [];
-			$page = 0;
-			$pageLength = 100;
-			$searchableColumns = array_flip( $this->getSearchableColumns() );
-			do {
-				$interimResults = $this->buildTableRowsFromRawLogs(
-					$this->getLogRecords( $pageLength, $page*$pageLength )
-				);
-				// no more table results to process, so go with what we have.
-				if ( empty( $interimResults ) ) {
-					break;
-				}
-
-				foreach ( $interimResults as $result ) {
-					$searchable = array_intersect_key( $result, $searchableColumns );
-					foreach ( $searchable as $value ) {
-						$value = wp_strip_all_tags( $value );
-						if ( stripos( $value, $this->search ) !== false ) {
-							$results[] = $result;
-							break;
-						}
-					}
-				}
-
-				$page++;
-			} while ( count( $results ) < $this->start + $this->length );
-
-			$results = array_values( $results );
-			if ( count($results) < $this->start  ) {
-				$results = [];
-			}
-			else {
-				$results = array_splice( $results, $this->start, $this->length );
-			}
-		}
-		return array_values( $results );
-	}
-
 	/**
 	 * @param LogRecord[] $records
 	 */
-	private function buildTableRowsFromRawLogs( array $records ) :array {
+	protected function buildTableRowsFromRawLogs( array $records ) :array {
 		return array_values( array_map(
 			function ( $log ) {
 				$this->log = $log;
@@ -88,7 +40,7 @@ class LoadRawTableData extends BaseLoadTableData {
 		) );
 	}
 
-	private function getSearchableColumns() :array {
+	protected function getSearchableColumns() :array {
 		return [
 			'ip',
 			'rid',
@@ -101,7 +53,7 @@ class LoadRawTableData extends BaseLoadTableData {
 	/**
 	 * @return LogRecord[]
 	 */
-	private function getLogRecords( int $limit = 0, int $offset = 0 ) :array {
+	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
 
 		$logLoader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
 		$logLoader->limit = $limit;

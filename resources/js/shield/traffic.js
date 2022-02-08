@@ -99,14 +99,17 @@
 			this.$table = this.$el.DataTable(
 				$.extend( base.options.datatables_init,
 					{
+						serverSide: true,
+						searchDelay: 600,
 						ajax: function ( data, callback, settings ) {
 							let reqData = base.getBaseAjaxData();
 							reqData.sub_action = 'retrieve_table_data';
 							reqData.type = base.options.type;
 							reqData.file = base.options.file;
+							reqData.table_data = data;
 							$.post( ajaxurl, reqData, function ( response ) {
 								if ( response.success ) {
-									callback( response.data.vars );
+									callback( response.data.datatable_data );
 								}
 								else {
 									let msg = 'Communications error with site.';

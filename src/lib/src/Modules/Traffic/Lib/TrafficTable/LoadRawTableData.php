@@ -30,7 +30,10 @@ class LoadRawTableData extends BaseLoadTableData {
 
 	private $ipInfo = [];
 
-	public function loadForLogs() :array {
+	/**
+	 * @param LogRecord[] $records
+	 */
+	protected function buildTableRowsFromRawLogs( array $records ) :array {
 		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 
 		return array_values( array_filter( array_map(
@@ -54,7 +57,6 @@ class LoadRawTableData extends BaseLoadTableData {
 				$data = $log->getRawData();
 
 				$data[ 'ip' ] = $this->log->ip;
-				$data[ 'page' ] = $this->log->ip;
 				$data[ 'code' ] = $this->log->meta[ 'code' ];
 				$data[ 'offense' ] = $this->log->meta[ 'offense' ] ? 'Offense' : 'Not Offense';
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
@@ -81,17 +83,18 @@ class LoadRawTableData extends BaseLoadTableData {
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				return $data;
 			},
-			$this->getLogRecords()
+			$records
 		) ) );
 	}
 
 	/**
 	 * @return LogRecord[]
 	 */
-	private function getLogRecords() :array {
-		return ( new LoadLogs() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->run();
+	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
+		$logLoader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
+		$logLoader->limit = $limit;
+		$logLoader->offset = $offset;
+		return $logLoader->run();
 	}
 
 	private function getColumnContent_Details() :string {

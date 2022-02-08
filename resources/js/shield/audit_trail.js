@@ -146,7 +146,7 @@
 							reqData.table_data = data;
 							$.post( ajaxurl, reqData, function ( response ) {
 								if ( response.success ) {
-									callback( response.data.vars );
+									callback( response.data.datatable_data );
 								}
 								else {
 									let msg = 'Communications error with site.';

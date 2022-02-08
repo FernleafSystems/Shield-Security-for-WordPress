@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class LoadLogs extends DynPropertiesClass {
 
-	const DEFAULT_LIMIT = 10000;
 	use ModConsumer;
 	use IpAddressConsumer;
 

@@ -41,8 +41,8 @@ class DelegateAjaxHandler {
 		$dataLoader->length = (int)$tableData[ 'length' ];
 		$dataLoader->search = (string)$tableData[ 'search' ][ 'value' ] ?? '';
 		return [
-			'success' => true,
-			'vars'    => [
+			'success'        => true,
+			'datatable_data' => [
 				'data' => $dataLoader->loadForLogs()
 			],
 		];
