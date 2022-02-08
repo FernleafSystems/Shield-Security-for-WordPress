@@ -4,6 +4,7 @@ jQuery( document ).ready( function () {
 	let $theForm = jQuery( 'form#loginform' );
 	let userID = jQuery( 'input[type=hidden]#wp_user_id' ).val();
 	let loginNonce = jQuery( 'input[type=hidden]#login_nonce' ).val();
+	let $u2fStart = jQuery( 'input#btn_u2f_start' );
 
 	jQuery( 'input[type=text]:first', $theForm ).focus();
 
@@ -103,42 +104,41 @@ jQuery( document ).ready( function () {
 		} );
 	}
 
-	u2fApi.isSupported()
-		  .then( function ( supported ) {
+	if ( $u2fStart.length === 1 ) {
+		u2fApi.isSupported()
+			  .then( function ( supported ) {
 
-			  let $u2fStart = jQuery( 'input#btn_u2f_start' );
+				  if ( supported ) {
 
-			  if ( supported ) {
+					  $u2fStart.on( 'click', function () {
 
-				  $u2fStart.on( 'click', function () {
+						  u2fApi.sign( JSON.parse( atob( $u2fStart.data( 'signs' ) ) ) )
+								.then( function ( response ) {
+									jQuery( '<input>' ).attr( {
+										type: 'hidden',
+										name: 'u2f_signs',
+										value: $u2fStart.data( 'signs' )
+									} ).appendTo( $theForm );
+									jQuery( '<input>' ).attr( {
+										type: 'hidden',
+										name: $u2fStart.data( 'input_otp' ),
+										value: JSON.stringify( response )
+									} ).appendTo( $theForm );
+									/** Automatically submit the form for U2F **/
+									$theForm[ 0 ].requestSubmit();
+								} )
+								.catch( function ( response ) {
+									alert( 'U2F authentication failed. Reload the page to retry.' );
+								} );
+					  } );
 
-					  u2fApi.sign( JSON.parse( atob( $u2fStart.data( 'signs' ) ) ) )
-							.then( function ( response ) {
-								jQuery( '<input>' ).attr( {
-									type: 'hidden',
-									name: 'u2f_signs',
-									value: $u2fStart.data( 'signs' )
-								} ).appendTo( $theForm );
-								jQuery( '<input>' ).attr( {
-									type: 'hidden',
-									name: $u2fStart.data( 'input_otp' ),
-									value: JSON.stringify( response )
-								} ).appendTo( $theForm );
-								/** Automatically submit the form for U2F **/
-								$theForm[ 0 ].requestSubmit();
-							} )
-							.catch( function ( response ) {
-								alert( 'U2F authentication failed. Reload the page to retry.' );
-							} );
-				  } );
-
-			  }
-			  else {
-				  $u2fStart.prop( 'disabled', true );
-				  $u2fStart.val( "U2F Authentication isn't supported on this browser." );
-				  alert( "U2F Authentication isn't supported on this browser." );
-			  }
-		  } )
-		  .catch();
+				  }
+				  else {
+					  $u2fStart.val( 'U2F Not Supported' );
+					  alert( "U2F Authentication isn't supported on this web browser." );
+				  }
+			  } )
+			  .catch();
+	}
 
 } );
