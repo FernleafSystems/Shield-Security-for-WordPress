@@ -164,11 +164,18 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'PBfrptip',
+						dom: 'Bfrptip',
 						searchPanes: {
 							cascadePanes: true,
 							viewTotal: true,
 							initCollapsed: true
+						},
+						searchBuilder: {
+							columns: '.search_builder',
+							depthLimit: 1
+						},
+						search: {
+							return: true
 						},
 						buttons: [
 							{

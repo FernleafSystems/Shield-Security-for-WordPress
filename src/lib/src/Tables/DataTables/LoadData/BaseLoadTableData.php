@@ -7,60 +7,84 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property int    $start
- * @property int    $length
- * @property string $search
+ * @property string $order_by
+ * @property string $order_dir
+ * @property array  $table_data
  */
 abstract class BaseLoadTableData extends DynPropertiesClass {
 
 	use ModConsumer;
 
 	public function loadForLogs() :array {
-		$searchableColumns = array_flip( $this->getSearchableColumns() );
-		error_log( var_export( $this->start, true ) );
-		if ( empty( $this->search ) || empty( $searchableColumns ) ) {
-			$results = $this->buildTableRowsFromRawLogs(
-				$this->getRecords( $this->start, $this->length )
-			);
-		}
-		else {
-			// We keep building logs and filtering by the search string until we have
-			// enough records built to return in order to satisfy the start + length.
-			$results = [];
-			$page = 0;
-			$pageLength = 100;
-			do {
-				$interimResults = $this->buildTableRowsFromRawLogs(
-					$this->getRecords( $page*$pageLength )
-				);
-				// no more table results to process, so go with what we have.
-				if ( empty( $interimResults ) ) {
-					break;
-				}
+		$start = (int)$this->table_data[ 'start' ];
+		$length = (int)$this->table_data[ 'length' ];
+		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
 
-				foreach ( $interimResults as $result ) {
+		$searchableColumns = array_flip( $this->getSearchableColumns() );
+
+		// We keep building logs and filtering by the search string until we have
+		// enough records built to return in order to satisfy the start + length.
+		$results = [];
+		$page = 0;
+		$pageLength = 100;
+		do {
+			$interimResults = $this->buildTableRowsFromRawLogs(
+				$this->getRecords( $page*$pageLength, $pageLength )
+			);
+			// no more table results to process, so go with what we have.
+			if ( empty( $interimResults ) ) {
+				break;
+			}
+
+			foreach ( $interimResults as $result ) {
+
+				if ( empty( $search ) ) {
+					$results[] = $result;
+				}
+				else {
 					$searchable = array_intersect_key( $result, $searchableColumns );
 					foreach ( $searchable as $value ) {
 						$value = wp_strip_all_tags( $value );
-						if ( stripos( $value, $this->search ) !== false ) {
+						if (!is_string($search)) {
+							error_log( var_export( $search, true ) );
+						}
+						if ( stripos( $value, $search ) !== false ) {
 							$results[] = $result;
 							break;
 						}
 					}
 				}
-
-				$page++;
-			} while ( count( $results ) < $this->start + $this->length );
-
-			$results = array_values( $results );
-			if ( count( $results ) < $this->start ) {
-				$results = [];
 			}
-			else {
-				$results = array_splice( $results, $this->start, $this->length );
-			}
+
+			$page++;
+		} while ( count( $results ) < $start + $length );
+
+		$results = array_values( $results );
+		if ( count( $results ) < $start ) {
+			$results = [];
 		}
+		else {
+			$results = array_splice( $results, $start, $length );
+		}
+
 		return array_values( $results );
+	}
+
+	protected function getOrderDirection() :string {
+		if ( !isset( $this->order_dir ) ) {
+			$dir = 'DESC';
+			if ( !empty( $this->table_data[ 'order' ] ) ) {
+				$col = $this->table_data[ 'order' ][ 0 ][ 'column' ];
+				$sortCol = $this->table_data[ 'columns' ][ $col ][ 'data' ];
+				$this->order_by = is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
+				$dir = strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
+				if ( !in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
+					$dir = 'DESC';
+				}
+			}
+			$this->order_dir = $dir;
+		}
+		return $this->order_dir;
 	}
 
 	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {

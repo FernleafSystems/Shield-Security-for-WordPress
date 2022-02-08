@@ -9,8 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property int $limit
- * @property int $offset
+ * @property int    $limit
+ * @property int    $offset
+ * @property string $order_by
+ * @property string $order_dir
  */
 class LoadLogs extends DynPropertiesClass {
 
@@ -67,7 +69,6 @@ class LoadLogs extends DynPropertiesClass {
 	private function selectRaw() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
 		return Services::WpDb()->selectCustom(
 			sprintf( 'SELECT log.id, log.site_id, log.event_slug, log.created_at,
 							ips.ip,
@@ -81,7 +82,7 @@ class LoadLogs extends DynPropertiesClass {
 							%s
 						LEFT JOIN `%s` as `meta`
 							ON log.id = `meta`.log_ref
-						ORDER BY log.updated_at DESC
+						ORDER BY log.updated_at %s
 						%s
 						%s
 				',
@@ -90,8 +91,9 @@ class LoadLogs extends DynPropertiesClass {
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				$mod->getDbH_Meta()->getTableSchema()->table,
-				empty( $this->limit ) ? '' : sprintf( 'LIMIT %s', $this->limit ),
-				empty( $this->offset ) ? '' : sprintf( 'OFFSET %s', $this->offset )
+				$this->order_dir ?? 'DESC',
+				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
+				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
 			)
 		);
 	}

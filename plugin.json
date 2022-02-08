@@ -110,6 +110,12 @@
             "bootstrap"
           ]
         },
+        "datatables-searchbuilder": {
+          "url":  "https://cdn.datatables.net/searchbuilder/1.3.1/css/searchBuilder.bootstrap5.min.css",
+          "deps": [
+            "datatables-bootstrap"
+          ]
+        },
         "datatables-searchpanes": {
           "url":  "https://cdn.datatables.net/searchpanes/1.4.0/css/searchPanes.dataTables.min.css",
           "deps": [
@@ -176,7 +182,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
-            "datatables-searchpanes",
+            "datatables-searchbuilder",
             "tp/highlightjs"
           ]
         },
@@ -230,6 +236,18 @@
           "url":  "https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js",
           "deps": [
             "datatables"
+          ]
+        },
+        "datatables-searchbuilder": {
+          "url":  "https://cdn.datatables.net/searchbuilder/1.3.1/js/dataTables.searchBuilder.min.js",
+          "deps": [
+            "datatables-bootstrap"
+          ]
+        },
+        "datatables-searchbuilder-bs5": {
+          "url":  "https://cdn.datatables.net/searchbuilder/1.3.1/js/searchBuilder.bootstrap5.min.js",
+          "deps": [
+            "datatables-searchbuilder"
           ]
         },
         "datatables-searchpanes":  {
@@ -344,7 +362,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
-            "datatables-searchpanes",
+            "datatables-searchbuilder-bs5",
             "tp/highlightjs"
           ]
         },

@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -87,14 +88,27 @@ class LoadRawTableData extends BaseLoadTableData {
 		) ) );
 	}
 
+	protected function getSearchableColumns() :array {
+		// Use the DataTables definition builder to locate searchable columns
+		return array_filter( array_map(
+			function ( $column ) {
+				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
+			},
+			( new ForTraffic() )
+				->setMod( $this->getMod() )
+				->buildRaw()[ 'columns' ]
+		) );
+	}
+
 	/**
 	 * @return LogRecord[]
 	 */
 	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
-		$logLoader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
-		$logLoader->limit = $limit;
-		$logLoader->offset = $offset;
-		return $logLoader->run();
+		$loader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
+		$loader->limit = $limit;
+		$loader->offset = $offset;
+		$loader->order_dir = $this->getOrderDirection();
+		return $loader->run();
 	}
 
 	private function getColumnContent_Details() :string {

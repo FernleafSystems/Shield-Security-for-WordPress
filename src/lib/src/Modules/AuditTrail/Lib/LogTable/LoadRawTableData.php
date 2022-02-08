@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -41,26 +42,27 @@ class LoadRawTableData extends BaseLoadTableData {
 	}
 
 	protected function getSearchableColumns() :array {
-		return [
-			'ip',
-			'rid',
-			'user',
-			'event',
-			'message'
-		];
+		// Use the DataTables definition builder to locate searchable columns
+		return array_filter( array_map(
+			function ( $column ) {
+				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
+			},
+			( new ForAuditTrail() )
+				->setMod( $this->getMod() )
+				->buildRaw()[ 'columns' ]
+		) );
 	}
 
 	/**
 	 * @return LogRecord[]
 	 */
 	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
-
-		$logLoader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
-		$logLoader->limit = $limit;
-		$logLoader->offset = $offset;
-
+		$loader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
+		$loader->limit = $limit;
+		$loader->offset = $offset;
+		$loader->order_dir = $this->getOrderDirection();
 		return array_filter(
-			$logLoader->run(),
+			$loader->run(),
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}

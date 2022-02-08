@@ -30,7 +30,7 @@ class ForTraffic extends Base {
 				'data'        => 'rid',
 				'title'       => __( 'Request ID' ),
 				'className'   => 'rid',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
@@ -41,7 +41,7 @@ class ForTraffic extends Base {
 				'data'        => 'page',
 				'title'       => __( 'Page' ),
 				'className'   => 'page',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => true,
 				'searchPanes' => [
@@ -74,7 +74,7 @@ class ForTraffic extends Base {
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
 				'className'   => 'ip',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
@@ -85,7 +85,7 @@ class ForTraffic extends Base {
 				'data'        => 'code',
 				'title'       => __( 'Response Code' ),
 				'className'   => 'code',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
@@ -96,7 +96,7 @@ class ForTraffic extends Base {
 				'data'        => 'country',
 				'title'       => __( 'Country' ),
 				'className'   => 'country',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
@@ -129,7 +129,7 @@ class ForTraffic extends Base {
 				'data'       => 'uid',
 				'title'      => __( 'User ID' ),
 				'className'  => 'uid',
-				'orderable'  => true,
+				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => false,
 			],

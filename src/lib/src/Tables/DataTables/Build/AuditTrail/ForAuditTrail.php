@@ -28,32 +28,34 @@ class ForAuditTrail extends Base {
 	protected function getColumnDefs() :array {
 		return [
 			'rid'        => [
-				'data'        => 'rid',
-				'title'       => __( 'Request ID' ),
-				'className'   => 'rid',
-				'orderable'   => true,
-				'searchable'  => true,
-				'visible'     => false,
-				'searchPanes' => [
-					'show' => true,
+				'data'           => 'rid',
+				'title'          => __( 'Request ID' ),
+				'className'      => 'rid',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => true,
+				'visible'        => false,
+				'searchPanes'    => [
+					'show' => false,
 				],
 			],
 			'event'      => [
-				'data'        => 'event',
-				'title'       => __( 'Event' ),
-				'className'   => 'event',
-				'orderable'   => true,
-				'searchable'  => true,
-				'visible'     => false,
-				'searchPanes' => [
-					'show' => true
+				'data'           => 'event',
+				'title'          => __( 'Event' ),
+				'className'      => 'event',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => true,
+				'visible'        => false,
+				'searchPanes'    => [
+					'show' => false
 				],
 			],
 			'event_slug' => [
 				'data'        => 'event',
 				'title'       => __( 'Event Slug' ),
 				'className'   => 'event',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => false,
 				'visible'     => false,
 				'searchPanes' => [
@@ -72,55 +74,60 @@ class ForAuditTrail extends Base {
 				],
 			],
 			'level'      => [
-				'data'        => 'level',
-				'title'       => __( 'Severity' ),
-				'className'   => 'level',
-				'orderable'   => false,
-				'searchable'  => true,
-				'visible'     => false,
-				'searchPanes' => [
-					'show' => true
+				'data'               => 'level',
+				'title'              => __( 'Level' ),
+				'className'          => 'level',
+				'orderable'          => false,
+				'searchable'         => true,
+				'search_builder'     => true,
+				'visible'            => false,
+				'searchPanes'        => [
+					'show' => false
 				],
+				'searchBuilderTitle' => __( 'Severity' )
 			],
 			'ip'         => [
-				'data'        => 'ip',
-				'title'       => __( 'IP Address' ),
-				'className'   => 'ip',
-				'orderable'   => true,
-				'searchable'  => true,
-				'visible'     => false,
-				'searchPanes' => [
-					'show' => true,
+				'data'           => 'ip',
+				'title'          => __( 'IP Address' ),
+				'className'      => 'ip',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => true,
+				'visible'        => false,
+				'searchPanes'    => [
+					'show' => false,
 				],
 			],
 			'ip_linked'  => [
 				'data'        => 'ip_linked',
 				'title'       => __( 'IP' ),
 				'className'   => 'ip_linked',
-				'orderable'   => true,
-				'searchable'  => true,
+				'orderable'   => false,
+				'searchable'  => false,
 				'visible'     => true,
 				'searchPanes' => [
 					'show' => false,
 				],
 			],
 			'uid'        => [
-				'data'       => 'uid',
-				'title'      => __( 'User ID' ),
-				'className'  => 'uid',
-				'orderable'  => true,
-				'searchable' => false,
-				'visible'    => false,
+				'data'           => 'uid',
+				'title'          => __( 'User ID' ),
+				'className'      => 'uid',
+				'orderable'      => false,
+				'searchable'     => false,
+				'search_builder' => true,
+				'visible'        => false,
 			],
 			'user'       => [
-				'data'        => 'user',
-				'title'       => __( 'User' ),
-				'className'   => 'user',
-				'orderable'   => true,
-				'searchable'  => true,
-				'visible'     => true,
-				'searchPanes' => [
-					'show' => true
+				'data'           => 'user',
+				'title'          => __( 'User' ),
+				'className'      => 'user',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => false,
+				'visible'        => true,
+				'searchPanes'    => [
+					'show' => false
 				],
 			],
 			'message'    => [
@@ -149,13 +156,16 @@ class ForAuditTrail extends Base {
 				],
 			],
 			'meta'       => [
-				'data'        => 'meta',
-				'title'       => __( 'Meta' ),
-				'className'   => 'meta',
-				'orderable'   => false,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
+				'data'          => 'meta',
+				'title'         => __( 'Meta' ),
+				'className'     => 'meta',
+				'orderable'     => false,
+				'searchable'    => false,
+				'visible'       => true,
+				'searchPanes'   => [
+					'show' => false
+				],
+				'searchBuilder' => [
 					'show' => false
 				],
 			],
