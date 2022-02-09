@@ -39,7 +39,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 					sendReq();
 				}
 			}
-			window.setTimeout( fire, 30000 );
+			window.setTimeout( fire, 60000 );
 		};
 
 		/**
