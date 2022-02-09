@@ -224,8 +224,8 @@ class SideMenuBuilder {
 				'body' => __( 'Use Search to find any option within the entire plugin' ),
 			],
 			'data'    => [
-				'toggle' => 'modal',
-				'target' => '#SearchDialog',
+				'bs-toggle' => 'modal',
+				'bs-target' => '#SearchDialog',
 			],
 		];
 	}

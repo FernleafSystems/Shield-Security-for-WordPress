@@ -1742,3 +1742,6 @@ button.btn.action {
 .ui-dialog-titlebar .ui-dialog-titlebar-close {
 	float: right;
 }
+button.bs-placeholder {
+	display: none;
+}
