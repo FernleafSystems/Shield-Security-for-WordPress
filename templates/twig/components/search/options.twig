@@ -1,13 +1,8 @@
 {% if vars.search_select is defined %}
-	<label for="sheildoptionsearch">
-		Search For Any Plugin Option
-	</label>
-	<select class="selectpicker" data-live-search="true"
-	        title="asdf"
-	    name="sheildoptionsearch"
-	    id="sheildoptionsearch"
+	<select class="shield-options-search" data-live-search="true"
+	        title="Search for options"
 			data-size="10"
-			data-header=""
+			data-header="Search for options"
 			onchange="location = this.value;"
 			style="max-width: 100%; width: 100%"
 	>
