@@ -134,6 +134,7 @@ jQuery( document ).ready( function () {
 
 				  }
 				  else {
+					  $u2fStart.prop( 'disabled', true );
 					  $u2fStart.val( 'U2F Not Supported' );
 					  alert( "U2F Authentication isn't supported on this web browser." );
 				  }
