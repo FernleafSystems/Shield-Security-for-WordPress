@@ -117,6 +117,11 @@ abstract class RenderBase {
 			'rememberme'    => esc_attr( $this->rememberme ),
 			'redirect_to'   => esc_attr( esc_url( $redirectTo ) ),
 			'cancel_href'   => esc_attr( esc_url( $cancelHref ) ),
+			/**
+			 * This server produced HTTP 402 error if the request to the login form didn't include wp-submit
+			 * https://secure.helpscout.net/conversation/1781553925/1153
+			 */
+			'wp-submit'     => 'Complete Login',
 		] );
 		$fields[ 'wp_user_id' ] = $this->getWpUser()->ID;
 		return $fields;
