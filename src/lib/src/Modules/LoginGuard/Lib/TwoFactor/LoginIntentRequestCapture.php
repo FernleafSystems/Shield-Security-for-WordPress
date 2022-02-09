@@ -17,7 +17,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return $this->getCon()->getShieldAction() === 'wp_login_2fa_verify'
+		return Services::Request()->isPost()
+			   && $this->getCon()->getShieldAction() === 'wp_login_2fa_verify'
 			   && !Services::WpUsers()->isUserLoggedIn();
 	}
 
@@ -69,7 +70,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 			$pageRender->setMod( $mod )
 					   ->setWpUser( $user );
 			$pageRender->login_nonce = $req->request( 'login_nonce', false, '' );
-			$pageRender->redirect_to = $req->request( 'redirect_to', false, $req->getPath() );
+			$pageRender->redirect_to = $req->request( 'redirect_to', false, '' );
 			$pageRender->rememberme = $req->request( 'rememberme' );
 			$pageRender->msg_error = __( 'Could not verify your 2FA codes', 'wp-simple-firewall' );
 			$pageRender->render(); // die();
