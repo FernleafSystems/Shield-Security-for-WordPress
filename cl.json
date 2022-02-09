@@ -85,6 +85,12 @@
         "title":       "Various bugs and errors",
         "description": [
         ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Alert displayed that U2F isn't support when U2F isn't in-use.",
+        "description": [],
+        "patch":       "14.0.2"
       }
     ]
   },

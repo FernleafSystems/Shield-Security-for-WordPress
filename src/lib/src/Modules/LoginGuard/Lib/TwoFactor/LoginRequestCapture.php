@@ -55,7 +55,7 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 						   ->setWpUser( $user );
 				$pageRender->login_nonce = $loginNonce;
 				$pageRender->interim_login = $req->request( 'interim-login' );
-				$pageRender->redirect_to = $req->request( 'redirect_to', false, $req->getPath() );
+				$pageRender->redirect_to = $req->request( 'redirect_to', false, '' );
 				$pageRender->rememberme = $req->request( 'rememberme' );
 				$pageRender->render(); // die();
 			}
