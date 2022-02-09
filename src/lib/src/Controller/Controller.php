@@ -452,6 +452,9 @@ class Controller extends DynPropertiesClass {
 		( new Ajax\Init() )
 			->setCon( $this )
 			->execute();
+		( new Shield\Controller\Assets\Enqueue() )
+			->setCon( $this )
+			->execute();
 	}
 
 	private function processShieldNonceActions() {
@@ -512,9 +515,6 @@ class Controller extends DynPropertiesClass {
 		$this->getSiteInstallationId();
 		$this->getAdminNotices();
 		$this->initCrons();
-		( new Shield\Controller\Assets\Enqueue() )
-			->setCon( $this )
-			->execute();
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
