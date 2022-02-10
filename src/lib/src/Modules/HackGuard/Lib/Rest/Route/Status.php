@@ -4,17 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Rou
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request;
 
-class Start extends Base {
-
-	public function getArgMethods() :array {
-		return [ \WP_REST_Server::CREATABLE ];
-	}
+class Status extends Base {
 
 	protected function getRequestProcessorClass() :string {
-		return Request\Start::class;
+		return Request\Status::class;
 	}
 
 	public function getRoutePath() :string {
-		return '/start';
+		return '/status';
 	}
 }
