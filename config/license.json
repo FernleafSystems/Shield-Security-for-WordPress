@@ -143,6 +143,9 @@
     }
   ],
   "definitions":      {
+    "rest_api":                     {
+      "enabled": true
+    },
     "license_store_url_api":        "https://api.getshieldsecurity.com/wp-json/odp-eddkeyless/v1",
     "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",
