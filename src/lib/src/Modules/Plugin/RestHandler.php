@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Route\OptionsGet;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Route\{
+	Option,
+	Options
+};
 
 class RestHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\RestHandler {
 
-	/**
-	 * @return string[]
-	 */
 	protected function enumRoutes() :array {
 		return [
-			'options_get' => OptionsGet::class
+			'option_get'  => Option\Get::class,
+			'option_set'  => Option\Set::class,
+			'options_get' => Options\Get::class,
+			'options_set' => Options\Set::class,
 		];
 	}
 }
