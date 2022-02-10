@@ -6,11 +6,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request;
  * @property string $action
  * @property string $type
  */
-class RequestVO extends \FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass {
+class RequestVO extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Request\RequestVO {
 
-	public function getCacheFileSlug() :string {
-		$aD = $this->getRawData();
-		ksort( $aD );
-		return md5( serialize( $aD ) );
-	}
 }

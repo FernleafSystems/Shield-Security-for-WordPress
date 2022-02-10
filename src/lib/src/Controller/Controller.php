@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $is_mode_staging
  * @property bool                                                   $is_mode_live
  * @property bool                                                   $is_my_upgrade
+ * @property bool                                                   $is_rest_enabled
  * @property bool                                                   $modules_loaded
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
@@ -134,6 +135,15 @@ class Controller extends DynPropertiesClass {
 			case 'rebuild_options':
 			case 'user_can_base_permissions':
 				$val = (bool)$val;
+				break;
+
+			case 'is_rest_enabled':
+				if ( is_null( $val ) ) {
+					$restReqs = $this->cfg->reqs_rest;
+					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
+						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
+					$this->is_rest_enabled = $val;
+				}
 				break;
 
 			case 'cache_dir_handler':

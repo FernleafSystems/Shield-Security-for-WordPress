@@ -541,6 +541,9 @@
     }
   ],
   "definitions":   {
+    "rest_api":               {
+      "enabled": true
+    },
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_classes":             {
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"

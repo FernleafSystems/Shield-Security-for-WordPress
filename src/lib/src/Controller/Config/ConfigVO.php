@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class ConfigVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Controller\Config
  * @property array  $properties
  * @property array  $requirements
  * @property array  $paths
@@ -18,6 +16,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $plugin_meta
  * @property array  $upgrade_reqs
  * @property array  $version_upgrades
+ * @property array  $reqs_rest
  *                                   -- not part of config file --
  * @property string $hash
  * @property string $previous_version

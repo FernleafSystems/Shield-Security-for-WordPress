@@ -124,16 +124,6 @@ abstract class ModCon {
 			$this->loadAdminNotices();
 		}
 
-		if ( $this->getOptions()->getDef( 'rest_api' ) ) {
-			add_action( 'rest_api_init', function () {
-				try {
-					$this->getRestHandler()->init();
-				}
-				catch ( \Exception $e ) {
-				}
-			} );
-		}
-
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 //		}
@@ -268,7 +258,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
@@ -282,6 +271,26 @@ abstract class ModCon {
 	public function onWpLoaded() {
 		if ( is_admin() || is_network_admin() ) {
 			$this->getAdminPage()->execute();
+		}
+		if ( $this->getCon()->is_rest_enabled ) {
+			$this->initRestApi();
+		}
+	}
+
+	protected function initRestApi() {
+		if ( !empty( $this->getOptions()->getDef( 'rest_api' )[ 'enabled' ] ) ) {
+			add_action( 'rest_api_init', function () {
+				try {
+					/** @var RestHandler $rest */
+					$rest = $this->loadModElement( 'RestHandler' );
+					if ( !empty( $rest ) ) {
+						$rest->applyFromArray( $this->getOptions()->getDef( 'rest_api' ) );
+						$rest->init();
+					}
+				}
+				catch ( \Exception $e ) {
+				}
+			} );
 		}
 	}
 
@@ -1261,6 +1270,7 @@ abstract class ModCon {
 
 	/**
 	 * @return RestHandler|mixed
+	 * @deprecated 14.1
 	 */
 	public function getRestHandler() {
 		return $this->loadModElement( 'RestHandler' );
@@ -1356,7 +1366,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $class
 	 * @return false|Shield\Modules\ModConsumer
 	 */
 	private function loadModElement( string $class ) {
