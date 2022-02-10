@@ -144,7 +144,8 @@
   ],
   "definitions":      {
     "rest_api":                     {
-      "enabled": true
+      "enabled":  true,
+      "pro_only": false
     },
     "license_store_url_api":        "https://api.getshieldsecurity.com/wp-json/odp-eddkeyless/v1",
     "keyless_cp":                   "https://shsec.io/c5",

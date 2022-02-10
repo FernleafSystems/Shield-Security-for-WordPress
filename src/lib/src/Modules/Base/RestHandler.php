@@ -5,6 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Route\RouteBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
+/**
+ * @property bool $enabled
+ * @property bool $pro_only
+ */
 class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 
 	use ModConsumer;
@@ -21,5 +25,14 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 			},
 			$routes
 		);
+	}
+
+	/**
+	 * REST API is a pro-only feature. So, routes are only published if the plugin is pro,
+	 * or the particular module is set to be not pro only.
+	 */
+	protected function isPublishRoutes() :bool {
+		return ( $this->enabled ?? false )
+			   && ( $this->getCon()->isPremiumActive() || !( $this->pro_only ?? true ) );
 	}
 }
