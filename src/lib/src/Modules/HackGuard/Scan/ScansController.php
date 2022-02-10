@@ -143,6 +143,12 @@ class ScansController extends ExecOnceModConsumer {
 		return $reasons;
 	}
 
+	public function startAllScans() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$this->startNewScans( $opts->getScanSlugs() );
+	}
+
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

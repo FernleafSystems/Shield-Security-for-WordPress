@@ -374,6 +374,10 @@
     }
   ],
   "definitions":      {
+    "rest_api":                    {
+      "enabled":  true,
+      "pro_only": true
+    },
     "all_scan_slugs":              [
       "apc",
       "wpv",
