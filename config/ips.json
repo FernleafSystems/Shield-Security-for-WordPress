@@ -588,6 +588,9 @@
     }
   ],
   "definitions":      {
+    "rest_api":            {
+      "enabled": true
+    },
     "allowable_ext_404s":  [
       "js",
       "css",
