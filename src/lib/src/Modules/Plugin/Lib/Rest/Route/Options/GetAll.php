@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Route\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Options;
 
-class Get extends Base {
+class GetAll extends BaseBulk {
 
 	protected function getRequestProcessorClass() :string {
-		return Options\Get::class;
+		return Options\GetAll::class;
 	}
 }

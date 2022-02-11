@@ -2,18 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Options;
 
-class Set extends Base {
+class SetBulk extends Base {
 
 	/**
 	 * @inheritDoc
 	 */
 	protected function process() :array {
+		$con = $this->getCon();
 		$req = $this->getRequestVO();
 		foreach ( $req->options as $option ) {
-			$this->getCon()
-				->modules[ $option[ 'mod' ] ]
-				->getOptions()
-				->setOpt( $option[ 'key' ], $option[ 'value' ] );
+			$def = $this->getOptionData( $option[ 'key' ] );
+			if ( !empty( $def ) ) {
+				$con->modules[ $def[ 'module' ] ]
+					->getOptions()
+					->setOpt( $option[ 'key' ], $option[ 'value' ] );
+			}
 		}
 		return $this->getAllOptions();
 	}

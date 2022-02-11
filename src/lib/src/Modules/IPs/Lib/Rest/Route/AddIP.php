@@ -25,7 +25,7 @@ class AddIP extends Base {
 			],
 			'ip'   => [
 				'description' => 'The IP address to add to the list.',
-				'type'        => 'string',
+				'type'        => 'ip',
 				'required'    => true,
 			],
 			'label'   => [

@@ -6,11 +6,34 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request\Proces
 
 abstract class Base extends Process {
 
-	protected function getAllOptions() :array{
+	protected function getAllOptions() :array {
 		$options = [];
 		foreach ( $this->getCon()->modules as $mod ) {
-			$options[ $mod->getSlug() ] = $mod->getOptions()->getAllOptionsValues();
+			$opts = $mod->getOptions();
+			$allOpts = $opts->getAllOptionsValues();
+			$options[ $mod->getSlug() ] = array_intersect_key(
+				$allOpts,
+				array_flip( $opts->getOptionsForWpCli() )
+			);
 		}
 		return $options;
+	}
+
+	/**
+	 * Option key existence is checked in the Route.
+	 */
+	protected function getOptionData( string $key ) :array {
+		$def = [];
+		foreach ( $this->getCon()->modules as $module ) {
+			$opts = $module->getOptions();
+			$maybe = $opts->getOptDefinition( $key );
+			if ( !empty( $maybe ) ) {
+				$def = $maybe;
+				$def[ 'module' ] = $module->getSlug();
+				$def[ 'value' ] = $opts->getOpt( $key );
+				break;
+			}
+		}
+		return $def;
 	}
 }

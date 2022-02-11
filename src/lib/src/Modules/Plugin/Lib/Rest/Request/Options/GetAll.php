@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Options;
 
-class Get extends Base {
+class GetAll extends Base {
 
 	/**
 	 * @inheritDoc

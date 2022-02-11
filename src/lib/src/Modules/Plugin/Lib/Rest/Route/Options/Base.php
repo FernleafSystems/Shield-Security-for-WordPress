@@ -6,11 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Route\RouteBas
 
 abstract class Base extends RouteBase {
 
-	public function getRoutePath() :string {
-		return '';
-	}
-
 	public function getRoutePathPrefix() :string {
 		return '/options';
+	}
+
+	protected function optKeyExists( string $key ) :bool {
+		$exists = false;
+		foreach ( $this->getCon()->modules as $module ) {
+			if ( $module->getOptions()->optExists( $key ) ) {
+				$exists = true;
+				break;
+			}
+		}
+		return $exists;
 	}
 }
