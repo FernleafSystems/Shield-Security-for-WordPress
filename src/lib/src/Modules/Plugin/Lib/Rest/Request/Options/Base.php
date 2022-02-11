@@ -3,18 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request\Process;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 
 abstract class Base extends Process {
 
 	protected function getAllOptions() :array {
+		$export = ( new Export() )
+			->setMod( $this->getMod() )
+			->getExportData();
 		$options = [];
-		foreach ( $this->getCon()->modules as $mod ) {
-			$opts = $mod->getOptions();
-			$allOpts = $opts->getAllOptionsValues();
-			$options[ $mod->getSlug() ] = array_intersect_key(
-				$allOpts,
-				array_flip( $opts->getOptionsForWpCli() )
-			);
+		foreach ( $export as $moduleExport ) {
+			$options = array_merge( $options, $moduleExport );
 		}
 		return $options;
 	}

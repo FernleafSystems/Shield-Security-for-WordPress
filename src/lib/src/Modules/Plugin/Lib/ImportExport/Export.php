@@ -95,12 +95,12 @@ class Export {
 	 * @return string[]
 	 */
 	public function toStandardArray() :array{
-		$sExport = json_encode( $this->getExportData() );
+		$export = json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
-			'# Hash: '.sha1( $sExport ),
-			$sExport
+			'# Hash: '.sha1( $export ),
+			$export
 		];
 	}
 
@@ -114,13 +114,13 @@ class Export {
 		);
 	}
 
-	private function getExportData() :array{
+	public function getExportData() :array{
 		$all = [];
 		foreach ( $this->getCon()->modules as $mod ) {
-			$oOpts = $mod->getOptions();
+			$opts = $mod->getOptions();
 			$all[ $mod->getOptionsStorageKey() ] = array_diff_key(
-				$oOpts->getTransferableOptions(),
-				array_flip( $oOpts->getXferExcluded() )
+				$opts->getTransferableOptions(),
+				array_flip( $opts->getXferExcluded() )
 			);
 		}
 		return $all;
