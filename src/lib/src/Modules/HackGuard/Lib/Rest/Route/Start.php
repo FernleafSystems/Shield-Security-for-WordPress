@@ -13,8 +13,4 @@ class Start extends Base {
 	protected function getRequestProcessorClass() :string {
 		return Request\Start::class;
 	}
-
-	public function getRoutePath() :string {
-		return '/start';
-	}
 }
