@@ -16,7 +16,7 @@ class SetSingle extends BaseSingle {
 		];
 	}
 
-	public function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
+	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 
 		switch ( $reqArgKey ) {
 

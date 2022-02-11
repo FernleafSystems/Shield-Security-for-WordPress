@@ -15,7 +15,7 @@ abstract class Base extends RouteBase {
 		return '/option';
 	}
 
-	public function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
+	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 		$con = $this->getCon();
 
 		switch ( $reqArgKey ) {

@@ -22,7 +22,7 @@ class SetBulk extends BaseBulk {
 	 * @return \WP_Error|true
 	 * @throws \Exception
 	 */
-	public function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
+	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 
 		switch ( $reqArgKey ) {
 

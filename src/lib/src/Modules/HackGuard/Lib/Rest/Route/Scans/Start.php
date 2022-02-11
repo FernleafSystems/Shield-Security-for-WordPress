@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Route;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Route\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request\Scans;
 
 class Start extends Base {
 
@@ -11,6 +11,6 @@ class Start extends Base {
 	}
 
 	protected function getRequestProcessorClass() :string {
-		return Request\Start::class;
+		return Scans\Start::class;
 	}
 }

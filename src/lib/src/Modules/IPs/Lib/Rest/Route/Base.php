@@ -14,7 +14,7 @@ abstract class Base extends RouteBase {
 		return '/ip_lists';
 	}
 
-	public function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
+	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 
 		switch ( $reqArgKey ) {
 

@@ -10,7 +10,7 @@ abstract class BaseSingle extends Base {
 		return '/(?P<key>[0-9a-z_]{3,})';
 	}
 
-	public function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
+	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 
 		switch ( $reqArgKey ) {
 
