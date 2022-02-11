@@ -14,10 +14,12 @@ class GetList extends Base {
 
 		$retriever = ( new RetrieveIpsForLists() )
 			->setDbHandler( $mod->getDbHandler_IPs() );
-		if ( $req->list === 'bypass' ) {
+		if ( $req->list === 'block' ) {
+			$list = $retriever->black();
+		}
+		else {
 			$list = $retriever->white();
 		}
-		$list = $retriever->white();
 
 		return $list;
 	}

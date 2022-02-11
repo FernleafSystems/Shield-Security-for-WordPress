@@ -2,20 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
 class AddIP extends Base {
 
 	protected function process() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$req = $this->getRequestVO();
 
-		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
-			throw new \Exception( 'Scans are already running.' );
+		$adder = ( new Lib\Ops\AddIp() )
+			->setMod( $mod )
+			->setIP( $req->ip );
+		if ( $req->list === 'block' ) {
+			$IP = $adder->toManualBlacklist( $req->label );
 		}
-		$mod->getScansCon()->startAllScans();
+		elseif ( $req->list === 'bypass' ) {
+			$IP = $adder->toManualWhitelist( $req->label );
+		}
+
+		if ( empty( $IP ) ) {
+			throw new \Exception( 'There was an error adding IP address to list.' );
+		}
+
 		return [
-			'scans_started' => $this->getScansStatus()[ 'enqueued_count' ] > 0
+			'ip' => $this->getIpData( $req->ip, $req->list )
 		];
 	}
 }

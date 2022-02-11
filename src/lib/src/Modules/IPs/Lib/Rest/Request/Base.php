@@ -3,38 +3,39 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Request;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 
 abstract class Base extends Process {
 
-	protected function getScansStatus() :array {
-		/** @var ModCon $mod */
+	protected function getIpData( string $ip, string $list ) :array {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Strings $strings */
-		$strings = $mod->getStrings();
 
-		$statusChecker = ( new ScansStatus() )->setMod( $mod );
-		$queueCon = $mod->getScanQueueController();
-
-		$current = $statusChecker->current();
-		$hasCurrent = !empty( $current );
-		if ( $hasCurrent ) {
-			$currentScan = $strings->getScanName( $current );
+		$retriever = ( new LookupIpOnList() )
+			->setDbHandler( $mod->getDbHandler_IPs() )
+			->setIP( $ip );
+		if ( $list === 'block' ) {
+			$retriever->setListTypeBlock();
 		}
 		else {
-			$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
+			$retriever->setListTypeBypass();
 		}
 
-		$enqueued = $statusChecker->enqueued();
+		$IP = $retriever->lookup( true );
 
-		return [
-			'enqueued_count'  => count( $enqueued ),
-			'enqueued_status' => $queueCon->getScansRunningStates(),
-			'current_slug'    => $current,
-			'current_name'    => $currentScan,
-			'progress'        => 100*$queueCon->getScanJobProgress(),
-		];
+		if ( empty( $IP ) ) {
+			throw new \Exception( 'IP address not found on list' );
+		}
+
+		return array_intersect_key(
+			$IP->getRawData(),
+			array_flip( [
+				'ip',
+				'label',
+				'list',
+				'transgressions',
+				'blocked_at',
+			] )
+		);
 	}
 }

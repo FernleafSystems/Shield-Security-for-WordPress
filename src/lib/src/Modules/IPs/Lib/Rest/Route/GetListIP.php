@@ -2,42 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\{
-	Request
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Request;
 
-class AddIP extends Base {
-
-	public function getArgMethods() :array {
-		return array_map( 'trim', explode( ',', \WP_REST_Server::EDITABLE ) );
-	}
+class GetListIP extends Base {
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'list' => [
-				'description' => 'The IP list to which to add the IP.',
-				'type'        => 'string',
-				'enum'        => [
-					'bypass',
-					'block',
-				],
-				'required'    => true,
-			],
 			'ip'   => [
 				'description' => 'The IP address to add to the list.',
 				'type'        => 'string',
 				'required'    => true,
 			],
-			'label'   => [
-				'description' => 'The label to assign to the IP address.',
+			'list' => [
+				'description' => 'The IP list from which to extract the IP.',
 				'type'        => 'string',
+				'enum'        => [
+					'bypass',
+					'block',
+					'all'
+				],
 				'required'    => true,
 			],
 		];
 	}
 
 	protected function getRequestProcessorClass() :string {
-		return Request\AddIP::class;
+		return Request\GetListIP::class;
 	}
 
 	public function getRoutePath() :string {
