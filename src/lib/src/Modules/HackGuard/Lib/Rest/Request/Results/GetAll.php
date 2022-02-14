@@ -16,17 +16,17 @@ class GetAll extends Base {
 		$req = $this->getRequestVO();
 
 		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
-			throw new \Exception( 'Scans are currently running.' );
+			throw new \Exception( 'Results are unavailable while scans are currently running.' );
 		}
 
 		$scansToFilter = $opts->getScanSlugs();
-		if ( !empty( $req->filter_scan ) ) {
-			$scansToFilter = array_intersect( $scansToFilter, explode( ',', $req->filter_scan ) );
+		if ( !empty( $req->include_scan ) ) {
+			$scansToFilter = array_intersect( $scansToFilter, explode( ',', $req->include_scan ) );
 		}
 
 		$statesToInclude = [];
 		if ( !empty( $req->filter_item_state ) ) {
-			$statesToInclude = explode( ',', $req->filter_item_state );
+			$statesToInclude = array_filter( explode( ',', $req->filter_item_state ) );
 		}
 
 		$results = [];

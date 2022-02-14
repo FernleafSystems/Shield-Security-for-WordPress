@@ -14,8 +14,7 @@ class Start extends Base {
 			throw new \Exception( 'Scans are already running.' );
 		}
 		$mod->getScansCon()->startAllScans();
-		return [
-			'scans_started' => $this->getScansStatus()[ 'enqueued_count' ] > 0
-		];
+
+		return $this->getScansStatus();
 	}
 }
