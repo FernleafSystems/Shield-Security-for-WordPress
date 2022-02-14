@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Route\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Route\RouteBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 
 abstract class Base extends RouteBase {
+
+	private static $allOpts;
 
 	public function getRoutePathPrefix() :string {
 		return '/options';
@@ -38,7 +41,7 @@ abstract class Base extends RouteBase {
 				$sch = [
 					'description' => 'Option key',
 					'type'        => 'string',
-					'pattern'     => '^[0-9a-z_]{3,}$',
+					'enum'        => $this->getAllPossibleOptKeys(),
 					'required'    => true,
 					'readonly'    => true,
 				];
@@ -62,5 +65,17 @@ abstract class Base extends RouteBase {
 				break;
 		}
 		return $sch;
+	}
+
+	private function getAllPossibleOptKeys() :array {
+		if ( !isset( self::$allOpts ) ) {
+			$allOpts = [];
+			foreach ( ( new Export() )->setMod( $this->getMod() )->getRawOptionsExport() as $modOpts ) {
+				$allOpts = array_merge( $allOpts, array_keys( $modOpts ) );
+			}
+			natsort( $allOpts );
+			self::$allOpts = array_values( $allOpts );
+		}
+		return self::$allOpts;
 	}
 }
