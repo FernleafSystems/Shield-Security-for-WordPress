@@ -12,11 +12,11 @@ abstract class Base extends RouteBase {
 		$opts = $this->getOptions();
 		$possible = $opts->getScanSlugs();
 		return [
-			'include_scan' => [
+			'scan_slugs' => [
 				'description' => 'Comma-separated scan slugs include.',
 				'type'        => 'string',
 				'required'    => false,
-				'pattern'     => sprintf( '^((%s),?)+$', implode( '|', $possible ) ),
+				'pattern'     => sprintf( '^(((%s),?)+)?$', implode( '|', $possible ) ),
 			],
 		];
 	}

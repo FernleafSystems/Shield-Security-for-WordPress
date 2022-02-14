@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request\RequestVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
@@ -11,17 +12,11 @@ class GetAll extends Base {
 	protected function process() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
 		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
 			throw new \Exception( 'Results are unavailable while scans are currently running.' );
-		}
-
-		$scansToFilter = $opts->getScanSlugs();
-		if ( !empty( $req->include_scan ) ) {
-			$scansToFilter = array_intersect( $scansToFilter, explode( ',', $req->include_scan ) );
 		}
 
 		$statesToInclude = [];
@@ -30,7 +25,7 @@ class GetAll extends Base {
 		}
 
 		$results = [];
-		foreach ( $scansToFilter as $scanSlug ) {
+		foreach ( $req->scan_slugs as $scanSlug ) {
 			$RS = $mod->getScanCon( $scanSlug )->getAllResults();
 			$thisResults = [];
 			foreach ( $RS->getAllItems() as $item ) {
