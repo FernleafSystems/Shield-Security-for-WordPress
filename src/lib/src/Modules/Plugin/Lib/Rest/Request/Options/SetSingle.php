@@ -2,29 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Options;
 
-class SetSingle extends Base {
+class SetSingle extends SetBulk {
 
 	/**
+	 * We convert the request data to reflect that of SetBulk and call SetBulk's processor.
 	 * @inheritDoc
 	 */
 	protected function process() :array {
+		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
-		$def = $this->getOptionData( $req->key );
-		$opts = $this->getCon()->modules[ $def[ 'module' ] ]->getOptions();
-
-		if ( is_null( $req->value ) ) {
-			$opts->resetOptToDefault( $req->key );
-		}
-		else {
-			$opts->setOpt( $req->key, $req->value );
-		}
-
-		if ( serialize( $req->value ) !== serialize( $opts->getOpt( $req->key ) ) ) {
-			throw new \Exception( 'Failed to update option. Value may be of an incorrect type.' );
-		}
-
-		return [
-			'option' => $this->getOptionData( $req->key )
+		$req->options = [
+			[
+				'key'   => $this->getWpRestRequest()->get_param( 'key' ),
+				'value' => $this->getWpRestRequest()->get_param( 'value' ),
+			]
 		];
+		return parent::process();
 	}
 }

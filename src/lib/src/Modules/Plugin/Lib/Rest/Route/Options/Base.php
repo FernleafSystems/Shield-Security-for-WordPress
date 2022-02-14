@@ -14,25 +14,23 @@ abstract class Base extends RouteBase {
 	}
 
 	protected function getRouteArgsDefaults() :array {
+		$optFields = array_unique( array_merge(
+			[
+				'all', // special case
+				'value',
+				'module',
+			],
+			array_keys( $this->getMod()->getOptions()->getOptDefinition( 'global_enable_plugin_features' ) )
+		) );
+
 		return [
 			'filter_fields' => [
 				'description' => '[Filter] Comma-separated fields to include in option info.',
-				'type'        => 'string',
-				'pattern'     => '^([a-z_]{2,},?)+[a-z]$',
+				'type'        => 'array', // WordPress kindly converts CSV to array
+				'pattern'     => sprintf( '^(((%s),?)+)?$', implode( '|', $optFields ) ),
 				'required'    => false,
 			],
 		];
-	}
-
-	protected function optKeyExists( string $key ) :bool {
-		$exists = false;
-		foreach ( $this->getCon()->modules as $module ) {
-			if ( $module->getOptions()->optExists( $key ) ) {
-				$exists = true;
-				break;
-			}
-		}
-		return $exists;
 	}
 
 	protected function getPropertySchema( string $key ) :array {
@@ -52,7 +50,7 @@ abstract class Base extends RouteBase {
 					'description' => 'Option value',
 					'required'    => true,
 					'type'        => [
-						'array',
+						'object',
 						'string',
 						'number',
 						'null'
@@ -67,7 +65,7 @@ abstract class Base extends RouteBase {
 		return $sch;
 	}
 
-	private function getAllPossibleOptKeys() :array {
+	protected function getAllPossibleOptKeys() :array {
 		if ( !isset( self::$allOpts ) ) {
 			$allOpts = [];
 			foreach ( ( new Export() )->setMod( $this->getMod() )->getRawOptionsExport() as $modOpts ) {

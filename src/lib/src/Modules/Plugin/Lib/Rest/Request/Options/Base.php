@@ -7,52 +7,27 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Expo
 
 abstract class Base extends Process {
 
+	/**
+	 * @return RequestVO
+	 */
+	protected function newReqVO() {
+		return new RequestVO();
+	}
+
 	protected function getAllOptions() :array {
+		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
-		$export = ( new Export() )
-			->setMod( $this->getMod() )
-			->getRawOptionsExport();
-
-		$filterFields = $this->getFilterFields();
-		$filterKeys = is_array( $req->filter_keys ) ? $req->filter_keys : [];
-
-		$allOptions = [];
-		foreach ( $export as $modSlug => $modOpts ) {
-			$mod = $this->getCon()->modules[ $modSlug ];
-			$opts = $mod->getOptions();
-			foreach ( $modOpts as $optKey => $optValue ) {
-
-				if ( empty( $filterKeys ) || in_array( $optKey, $filterKeys ) ) {
-					$optDef = $opts->getOptDefinition( $optKey );
-					$optDef[ 'module' ] = $modSlug;
-					$optDef[ 'value' ] = $opts->getOpt( $optKey );
-					$allOptions[] = empty( $filterFields ) ? $optDef : array_intersect_key( $optDef, $filterFields );
+		$all = [];
+		$filterFields = $req->filter_fields;
+		foreach ( ( new Export() )->setMod( $this->getMod() )->getRawOptionsExport() as $modOpts ) {
+			foreach ( array_keys( $modOpts ) as $key ) {
+				if ( empty( $req->filter_keys ) || in_array( $key, $req->filter_keys ) ) {
+					$optDef = $this->getOptionData( $key );
+					$all[] = empty( $filterFields ) ? $optDef : array_intersect_key( $optDef, $filterFields );
 				}
 			}
 		}
-		return $allOptions;
-	}
-
-	private function getFilterFields() :array {
-		$req = $this->getRequestVO();
-		$defaultFilterFields = [
-			'key',
-			'value',
-			'module',
-		];
-		if ( !empty( $req->filter_fields ) ) {
-			$customFilterFields = array_map( 'trim', explode( ',', $req->filter_fields ) );
-			if ( in_array( 'all', $customFilterFields ) ) {
-				$filterFields = [];
-			}
-			else {
-				$filterFields = array_merge( $defaultFilterFields, $customFilterFields );
-			}
-		}
-		else {
-			$filterFields = $defaultFilterFields;
-		}
-		return array_flip( $filterFields );
+		return $all;
 	}
 
 	/**

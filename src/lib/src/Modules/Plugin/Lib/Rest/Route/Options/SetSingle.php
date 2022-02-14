@@ -12,20 +12,6 @@ class SetSingle extends BaseSingle {
 		];
 	}
 
-	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
-
-		switch ( $reqArgKey ) {
-
-			case 'value':
-				break;
-
-			default:
-				return parent::customValidateRequestArg( $value, $request, $reqArgKey );
-		}
-
-		return true;
-	}
-
 	public function getArgMethods() :array {
 		return array_map( 'trim', explode( ',', \WP_REST_Server::EDITABLE ) );
 	}

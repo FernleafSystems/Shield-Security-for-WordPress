@@ -9,19 +9,23 @@ class SetBulk extends Base {
 	 */
 	protected function process() :array {
 		$con = $this->getCon();
+		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
 		$filterKeys = [];
-		foreach ( $req->options as $option ) {
-			$def = $this->getOptionData( $option[ 'key' ] );
+		foreach ( $req->options as $opt ) {
+			$def = $this->getOptionData( $opt[ 'key' ] );
 			if ( !empty( $def ) ) {
-				$filterKeys[] = $option[ 'key' ];
+				$filterKeys[] = $opt[ 'key' ];
 				$opts = $con->modules[ $def[ 'module' ] ]->getOptions();
-				if ( is_null( $option[ 'value' ] ) ) {
-					$opts->resetOptToDefault( $option[ 'key' ] );
+				if ( is_null( $opt[ 'value' ] ) ) {
+					$opts->resetOptToDefault( $opt[ 'key' ] );
 				}
 				else {
-					$opts->setOpt( $option[ 'key' ], $option[ 'value' ] );
+					$opts->setOpt( $opt[ 'key' ], $opt[ 'value' ] );
+					if ( serialize( $opt[ 'value' ] ) !== serialize( $opts->getOpt( $opt[ 'key' ] ) ) ) {
+						throw new \Exception( sprintf( 'Failed to update option (%s). Value may be of an incorrect type.', $opt[ 'key' ] ) );
+					}
 				}
 			}
 		}

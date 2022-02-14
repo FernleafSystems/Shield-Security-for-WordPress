@@ -14,7 +14,7 @@ abstract class Base extends RouteBase {
 		return [
 			'scan_slugs' => [
 				'description' => 'Comma-separated scan slugs include.',
-				'type'        => 'string',
+				'type'        => 'array',
 				'required'    => false,
 				'pattern'     => sprintf( '^(((%s),?)+)?$', implode( '|', $possible ) ),
 			],
