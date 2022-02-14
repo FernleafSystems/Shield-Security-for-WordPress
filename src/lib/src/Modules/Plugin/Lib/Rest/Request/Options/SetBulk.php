@@ -10,14 +10,18 @@ class SetBulk extends Base {
 	protected function process() :array {
 		$con = $this->getCon();
 		$req = $this->getRequestVO();
+
+		$filterKeys = [];
 		foreach ( $req->options as $option ) {
 			$def = $this->getOptionData( $option[ 'key' ] );
 			if ( !empty( $def ) ) {
+				$filterKeys[] = $option[ 'key' ];
 				$con->modules[ $def[ 'module' ] ]
 					->getOptions()
 					->setOpt( $option[ 'key' ], $option[ 'value' ] );
 			}
 		}
+		$req->filter_keys = $filterKeys;
 		return $this->getAllOptions();
 	}
 }

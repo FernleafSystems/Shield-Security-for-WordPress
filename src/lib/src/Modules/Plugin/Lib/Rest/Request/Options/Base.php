@@ -8,14 +8,37 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Expo
 abstract class Base extends Process {
 
 	protected function getAllOptions() :array {
+		$req = $this->getRequestVO();
 		$export = ( new Export() )
 			->setMod( $this->getMod() )
-			->getExportData();
-		$options = [];
-		foreach ( $export as $moduleExport ) {
-			$options = array_merge( $options, $moduleExport );
+			->getRawOptionsExport();
+
+		$filterFields = array_flip( array_merge(
+			[
+				'key',
+				'value',
+				'module',
+			],
+			is_array( $req->filter_fields ) ? $req->filter_fields : []
+		) );
+
+		$filterKeys = is_array( $req->filter_keys ) ? $req->filter_keys : [];
+
+		$allOptions = [];
+		foreach ( $export as $modSlug => $modOpts ) {
+			$mod = $this->getCon()->modules[ $modSlug ];
+			$opts = $mod->getOptions();
+			foreach ( $modOpts as $optKey => $optValue ) {
+
+				if ( empty( $filterKeys ) || in_array( $optKey, $filterKeys ) ) {
+					$optDef = $opts->getOptDefinition( $optKey );
+					$optDef[ 'module' ] = $modSlug;
+					$optDef[ 'value' ] = $opts->getOpt( $optKey );
+					$allOptions[] = array_intersect_key( $optDef, $filterFields );
+				}
+			}
 		}
-		return $options;
+		return $allOptions;
 	}
 
 	/**
