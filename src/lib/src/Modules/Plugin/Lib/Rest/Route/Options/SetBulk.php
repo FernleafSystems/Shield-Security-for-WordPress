@@ -10,9 +10,16 @@ class SetBulk extends BaseBulk {
 	protected function getRouteArgsCustom() :array {
 		return [
 			'options' => [
-				'description' => 'Array of options to set. Each must include option key, value and module',
-				'type'        => 'object',
+				'description' => 'Array of options to set. Each must include option key and value',
 				'required'    => true,
+				'type'        => 'array',
+				'items'       => [
+					'type'       => 'object',
+					'properties' => [
+						'key'   => $this->getPropertySchema( 'key' ),
+						'value' => $this->getPropertySchema( 'value' ),
+					],
+				],
 			],
 		];
 	}
@@ -27,28 +34,15 @@ class SetBulk extends BaseBulk {
 		switch ( $reqArgKey ) {
 
 			case 'options':
-				if ( !is_array( $value ) ) {
-					throw new \Exception( 'Options parameter is not of the correct type (array)' );
-				}
-
-				$required = array_flip( [
-					'key',
-					'value',
-				] );
 				foreach ( $value as $option ) {
 					if ( !is_array( $option ) ) {
 						throw new \Exception( "Each option in the 'options' parameter must be an array." );
-					}
-					if ( count( array_intersect_key( $option, $required ) ) !== count( $required ) ) {
-						throw new \Exception( sprintf( "One of the options doesn't contain all the necessary parameters (%s).",
-							implode( ', ', $required ) ) );
 					}
 					$optKey = $option[ 'key' ];
 					if ( !$this->optKeyExists( $optKey ) ) {
 						throw new OptionDoesNotExistException( sprintf( "Option with key '%s' doesn't exist.", $optKey ) );
 					}
 				}
-
 				break;
 		}
 		return true;

@@ -13,15 +13,7 @@ abstract class Base extends Process {
 			->setMod( $this->getMod() )
 			->getRawOptionsExport();
 
-		$filterFields = array_flip( array_merge(
-			[
-				'key',
-				'value',
-				'module',
-			],
-			is_array( $req->filter_fields ) ? $req->filter_fields : []
-		) );
-
+		$filterFields = $this->getFilterFields();
 		$filterKeys = is_array( $req->filter_keys ) ? $req->filter_keys : [];
 
 		$allOptions = [];
@@ -34,11 +26,33 @@ abstract class Base extends Process {
 					$optDef = $opts->getOptDefinition( $optKey );
 					$optDef[ 'module' ] = $modSlug;
 					$optDef[ 'value' ] = $opts->getOpt( $optKey );
-					$allOptions[] = array_intersect_key( $optDef, $filterFields );
+					$allOptions[] = empty( $filterFields ) ? $optDef : array_intersect_key( $optDef, $filterFields );
 				}
 			}
 		}
 		return $allOptions;
+	}
+
+	private function getFilterFields() :array {
+		$req = $this->getRequestVO();
+		$defaultFilterFields = [
+			'key',
+			'value',
+			'module',
+		];
+		if ( !empty( $req->filter_fields ) ) {
+			$customFilterFields = array_map( 'trim', explode( ',', $req->filter_fields ) );
+			if ( in_array( 'all', $customFilterFields ) ) {
+				$filterFields = [];
+			}
+			else {
+				$filterFields = array_merge( $defaultFilterFields, $customFilterFields );
+			}
+		}
+		else {
+			$filterFields = $defaultFilterFields;
+		}
+		return array_flip( $filterFields );
 	}
 
 	/**

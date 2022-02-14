@@ -16,9 +16,13 @@ class SetBulk extends Base {
 			$def = $this->getOptionData( $option[ 'key' ] );
 			if ( !empty( $def ) ) {
 				$filterKeys[] = $option[ 'key' ];
-				$con->modules[ $def[ 'module' ] ]
-					->getOptions()
-					->setOpt( $option[ 'key' ], $option[ 'value' ] );
+				$opts = $con->modules[ $def[ 'module' ] ]->getOptions();
+				if ( is_null( $option[ 'value' ] ) ) {
+					$opts->resetOptToDefault( $option[ 'key' ] );
+				}
+				else {
+					$opts->setOpt( $option[ 'key' ], $option[ 'value' ] );
+				}
 			}
 		}
 		$req->filter_keys = $filterKeys;

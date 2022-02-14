@@ -14,11 +14,13 @@ class GetAll extends RouteBase {
 				'description' => '[Filter] Comma-separated scan slugs include.',
 				'type'        => 'string',
 				'required'    => false,
+				'pattern'     => '^([a-z]{2,3},?)+[a-z]$',
 			],
 			'filter_item_state' => [
 				'description' => '[Filter] Comma-separated scan item states to include.',
 				'type'        => 'string',
 				'required'    => false,
+				'pattern'     => sprintf('^(is_[a-z]{2,},?)+[a-z]$'),
 			],
 		];
 	}
@@ -58,24 +60,6 @@ class GetAll extends RouteBase {
 				break;
 		}
 		return true;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function customSanitizeRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
-
-		switch ( $reqArgKey ) {
-
-			case 'filter_scan':
-			case 'filter_item_state':
-				if ( is_string( $value ) ) {
-					$value = strtolower( preg_replace( '#[^a-z_,]#i', '', $value ) );
-				}
-				break;
-		}
-
-		return $value;
 	}
 
 	public function getRoutePath() :string {

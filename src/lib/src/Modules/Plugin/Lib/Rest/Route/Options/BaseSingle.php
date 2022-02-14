@@ -28,12 +28,11 @@ abstract class BaseSingle extends Base {
 	}
 
 	protected function getRouteArgsDefaults() :array {
-		return [
-			'key' => [
-				'description' => 'The option key',
-				'type'        => 'string',
-				'required'    => true,
-			],
-		];
+		return array_merge(
+			parent::getRouteArgsDefaults(),
+			[
+				'key' => $this->getPropertySchema( 'key' ),
+			]
+		);
 	}
 }

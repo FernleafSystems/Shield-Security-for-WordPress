@@ -8,11 +8,7 @@ class SetSingle extends BaseSingle {
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'value' => [
-				'description' => 'The updated option value',
-				'type'        => 'mixed',
-				'required'    => true,
-			],
+			'value' => $this->getPropertySchema( 'value' ),
 		];
 	}
 

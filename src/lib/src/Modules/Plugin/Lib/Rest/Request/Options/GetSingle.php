@@ -25,7 +25,7 @@ class GetSingle extends Base {
 		}
 
 		return [
-			'option' => $theOption
+			'options' => $theOption
 		];
 	}
 }
