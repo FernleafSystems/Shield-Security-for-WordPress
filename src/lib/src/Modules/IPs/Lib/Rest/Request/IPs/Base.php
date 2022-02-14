@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Request;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Request\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request\Process;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;

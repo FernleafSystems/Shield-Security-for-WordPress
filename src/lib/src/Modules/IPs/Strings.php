@@ -438,7 +438,7 @@ class Strings extends Base\Strings {
 		return [
 			'created'         => __( 'New Visitor Bonus', 'wp-simple-firewall' ),
 			'known'           => __( 'A Known Service Provider/Bot', 'wp-simple-firewall' ),
-			'notbot'          => __( '"Not Bot" Registration', 'wp-simple-firewall' ),
+			'notbot'          => __( 'Not Bot Registration', 'wp-simple-firewall' ),
 			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
 			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
