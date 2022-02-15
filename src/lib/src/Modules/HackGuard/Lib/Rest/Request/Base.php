@@ -9,6 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
 abstract class Base extends Process {
 
+	protected function newReqVO() {
+		return new RequestVO();
+	}
+
 	protected function getScansStatus() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -34,7 +38,7 @@ abstract class Base extends Process {
 			'enqueued_status' => $queueCon->getScansRunningStates(),
 			'current_slug'    => $current,
 			'current_name'    => $currentScan,
-			'progress'        => 100*$queueCon->getScanJobProgress(),
+			'progress'        => $queueCon->getScanJobProgress(),
 		];
 	}
 }

@@ -13,18 +13,6 @@ abstract class IPsBase extends Base {
 	protected function getRouteArgSchema( string $key ) :array {
 		switch ( $key ) {
 
-			case 'list':
-				$sch = [
-					'description' => 'The IP list for the IP.',
-					'type'        => 'string',
-					'enum'        => [
-						'bypass',
-						'block',
-					],
-					'required'    => true,
-				];
-				break;
-
 			default:
 				$sch = parent::getRouteArgSchema( $key );
 				break;

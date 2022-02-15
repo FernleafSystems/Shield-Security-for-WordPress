@@ -15,7 +15,7 @@ abstract class ListsBase extends Base {
 
 			case 'list':
 				$sch = [
-					'description' => 'The IP list for the IP.',
+					'description' => 'The IP list name: either block (black) or bypass (white).',
 					'type'        => 'string',
 					'enum'        => [
 						'bypass',

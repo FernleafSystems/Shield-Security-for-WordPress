@@ -27,7 +27,7 @@ class GetAll extends Base {
 	}
 
 	public function getRoutePath() :string {
-		return '/scan_results';
+		return '/results';
 	}
 
 	protected function getRequestProcessorClass() :string {

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Rou
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request\Scans;
 
-class Status extends Base {
+class Status extends ScansBase {
 
 	protected function getRequestProcessorClass() :string {
 		return Scans\Status::class;

@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
 abstract class Base extends RouteBase {
 
+	public function getRoutePathPrefix() :string {
+		return '/scans';
+	}
+
 	protected function getRouteArgSchema( string $key ) :array {
 		switch ( $key ) {
 			case 'scan_slugs':

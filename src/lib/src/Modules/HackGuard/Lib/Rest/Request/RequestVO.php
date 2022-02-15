@@ -2,19 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
+
 /**
  * @property string[] $scan_slugs
  */
 class RequestVO extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Request\RequestVO {
 
 	public function __get( string $key ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$value = parent::__get( $key );
 
 		switch ( $key ) {
 
 			case 'scan_slugs':
-				// we know only valid slugs are ever supplied as it's in the API schema
 				$value = (array)$value;
+				if ( empty( $value ) ) {
+					$value = $opts->getScanSlugs();
+				}
 				break;
 		}
 
