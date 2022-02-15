@@ -6,14 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Opti
 
 class SetSingle extends BaseSingle {
 
+	const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
+
 	protected function getRouteArgsCustom() :array {
 		return [
-			'value' => $this->getPropertySchema( 'value' ),
+			'value' => $this->getRouteArgSchema( 'value' ),
 		];
-	}
-
-	public function getArgMethods() :array {
-		return array_map( 'trim', explode( ',', \WP_REST_Server::EDITABLE ) );
 	}
 
 	protected function getRequestProcessorClass() :string {

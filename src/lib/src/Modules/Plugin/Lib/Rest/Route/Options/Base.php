@@ -33,7 +33,7 @@ abstract class Base extends RouteBase {
 		];
 	}
 
-	protected function getPropertySchema( string $key ) :array {
+	protected function getRouteArgSchema( string $key ) :array {
 		switch ( $key ) {
 			case 'key':
 				$sch = [
@@ -59,7 +59,7 @@ abstract class Base extends RouteBase {
 				break;
 
 			default:
-				$sch = [];
+				$sch = parent::getRouteArgSchema( $key );
 				break;
 		}
 		return $sch;

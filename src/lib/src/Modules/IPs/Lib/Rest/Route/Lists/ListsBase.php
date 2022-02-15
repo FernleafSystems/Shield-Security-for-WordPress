@@ -10,7 +10,7 @@ abstract class ListsBase extends Base {
 		return '/ip_lists';
 	}
 
-	protected function getPropertySchema( string $key ) :array {
+	protected function getRouteArgSchema( string $key ) :array {
 		switch ( $key ) {
 
 			case 'list':
@@ -26,7 +26,7 @@ abstract class ListsBase extends Base {
 				break;
 
 			default:
-				$sch = parent::getPropertySchema( $key );
+				$sch = parent::getRouteArgSchema( $key );
 				break;
 		}
 		return $sch;

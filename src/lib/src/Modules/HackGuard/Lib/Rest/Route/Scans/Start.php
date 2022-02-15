@@ -6,11 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Request\S
 
 class Start extends Base {
 
-	public function getArgMethods() :array {
-		return [ \WP_REST_Server::CREATABLE ];
-	}
+	const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
 
 	protected function getRequestProcessorClass() :string {
 		return Scans\Start::class;
+	}
+
+	protected function getRouteArgsCustom() :array {
+		return [
+			'scan_slugs' => $this->getRouteArgSchema( 'scan_slugs' ),
+		];
 	}
 }

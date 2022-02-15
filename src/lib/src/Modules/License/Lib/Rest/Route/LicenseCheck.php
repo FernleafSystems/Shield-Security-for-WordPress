@@ -6,9 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Rest\Request;
 
 class LicenseCheck extends Base {
 
-	public function getArgMethods() :array {
-		return array_map( 'trim', explode( ',', \WP_REST_Server::EDITABLE ) );
-	}
+	const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
 
 	protected function getRequestProcessorClass() :string {
 		return Request\LicenseCheck::class;

@@ -6,14 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Request\Lists;
 
 class AddIP extends ListsBase {
 
-	public function getArgMethods() :array {
-		return array_map( 'trim', explode( ',', \WP_REST_Server::EDITABLE ) );
-	}
+	const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'ip'    => $this->getPropertySchema( 'ip' ),
-			'list'  => $this->getPropertySchema( 'list' ),
+			'ip'    => $this->getRouteArgSchema( 'ip' ),
+			'list'  => $this->getRouteArgSchema( 'list' ),
 			'label' => [
 				'description' => 'The label to assign to the IP address.',
 				'type'        => 'string',

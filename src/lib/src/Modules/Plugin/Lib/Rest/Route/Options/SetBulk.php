@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Request\Opti
 
 class SetBulk extends BaseBulk {
 
+	const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
+
 	protected function getRouteArgsCustom() :array {
 		return [
 			'options' => [
@@ -15,16 +17,12 @@ class SetBulk extends BaseBulk {
 				'items'       => [
 					'type'       => 'object',
 					'properties' => [
-						'key'   => $this->getPropertySchema( 'key' ),
-						'value' => $this->getPropertySchema( 'value' ),
+						'key'   => $this->getRouteArgSchema( 'key' ),
+						'value' => $this->getRouteArgSchema( 'value' ),
 					],
 				],
 			],
 		];
-	}
-
-	public function getArgMethods() :array {
-		return array_map( 'trim', explode( ',', \WP_REST_Server::EDITABLE ) );
 	}
 
 	protected function getRequestProcessorClass() :string {

@@ -8,7 +8,7 @@ class GetList extends ListsBase {
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'list' => $this->getPropertySchema( 'list' ),
+			'list' => $this->getRouteArgSchema( 'list' ),
 		];
 	}
 

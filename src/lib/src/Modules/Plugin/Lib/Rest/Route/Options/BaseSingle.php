@@ -12,7 +12,7 @@ abstract class BaseSingle extends Base {
 		return array_merge(
 			parent::getRouteArgsDefaults(),
 			[
-				'key' => $this->getPropertySchema( 'key' ),
+				'key' => $this->getRouteArgSchema( 'key' ),
 			]
 		);
 	}

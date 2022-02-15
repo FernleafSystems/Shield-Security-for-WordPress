@@ -8,7 +8,7 @@ class GetIP extends IPsBase {
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'ip' => $this->getPropertySchema( 'ip' ),
+			'ip' => $this->getRouteArgSchema( 'ip' ),
 		];
 	}
 

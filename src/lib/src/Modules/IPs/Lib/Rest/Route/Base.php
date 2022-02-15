@@ -31,7 +31,7 @@ abstract class Base extends RouteBase {
 		return true;
 	}
 
-	protected function getPropertySchema( string $key ) :array {
+	protected function getRouteArgSchema( string $key ) :array {
 		switch ( $key ) {
 			case 'ip':
 				$sch = [
@@ -43,7 +43,7 @@ abstract class Base extends RouteBase {
 				break;
 
 			default:
-				$sch = [];
+				$sch = parent::getRouteArgSchema( $key );
 				break;
 		}
 		return $sch;

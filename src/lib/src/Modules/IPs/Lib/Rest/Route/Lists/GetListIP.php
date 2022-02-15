@@ -12,8 +12,8 @@ class GetListIP extends ListsBase {
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'ip'   => $this->getPropertySchema( 'ip' ),
-			'list' => $this->getPropertySchema( 'list' ),
+			'ip'   => $this->getRouteArgSchema( 'ip' ),
+			'list' => $this->getRouteArgSchema( 'list' ),
 		];
 	}
 
