@@ -7,6 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Route\Bas
 abstract class ScansBase extends Base {
 
 	public function getRoutePath() :string {
-		return '';
+		return '/scans';
 	}
 }
