@@ -109,6 +109,12 @@
         "title":       "Options Search dialog failed to open (can't find-as-you-type yet).",
         "description": [],
         "patch":       "14.0.2"
+      },
+      {
+        "type":        "fixed",
+        "title":       "Work around WP Engine login mechanism blocking 2FA verification.",
+        "description": [],
+        "patch":       "14.0.3"
       }
     ]
   },

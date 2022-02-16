@@ -43,9 +43,10 @@ abstract class RenderBase {
 
 		return [
 			'hrefs'   => [
-				'form_action' => add_query_arg( [
-					'shield_action' => 'wp_login_2fa_verify'
-				], $WP->getLoginUrl() ),
+				'form_action' => add_query_arg( array_filter( [
+					'shield_action' => 'wp_login_2fa_verify',
+					'wpe-login'     => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
+				] ), $WP->getLoginUrl() ),
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
