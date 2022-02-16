@@ -21,14 +21,13 @@ class Controller {
 	 * @param string $msg
 	 * @return string
 	 */
-	public function onLoginMessage( $msg ) {
+	public function onLoginMessage( $loginMsg ) {
 		$msg = $this->retrieveFlashMessage();
 		if ( is_array( $msg ) && isset( $msg[ 'show_login' ] ) && $msg[ 'show_login' ] ) {
-			$msg .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $msg[ 'message' ] ) );
-			error_log( $msg );
+			$loginMsg .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $msg[ 'message' ] ) );
 			$this->clearFlashMessage();
 		}
-		return $msg;
+		return $loginMsg;
 	}
 
 	/**
