@@ -10,6 +10,6 @@ class LicenseCheck extends Base {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getLicenseHandler()->verify( true );
-		return parent::process();
+		return $this->getLicenseDetails();
 	}
 }

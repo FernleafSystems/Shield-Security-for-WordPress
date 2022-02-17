@@ -4,4 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Rest\Reque
 
 class LicenseStatus extends Base {
 
+	protected function process() :array {
+		return $this->getLicenseDetails();
+	}
 }
