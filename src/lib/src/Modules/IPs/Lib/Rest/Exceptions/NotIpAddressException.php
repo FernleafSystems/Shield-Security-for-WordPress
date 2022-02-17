@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Exceptions;
 
-class NotIpAddressException extends \Exception {
+use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\InvalidRequestParametersException;
+
+class NotIpAddressException extends InvalidRequestParametersException {
 
 }
