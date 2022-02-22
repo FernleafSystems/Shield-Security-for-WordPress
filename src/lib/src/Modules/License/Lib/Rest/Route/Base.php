@@ -14,7 +14,7 @@ abstract class Base extends RouteBase {
 	protected function getRouteArgsDefaults() :array {
 		return [
 			'filter_fields' => [
-				'description' => '[Filter] Comma-separated fields to include in license info.',
+				'description' => '[Filter] Comma-separated fields to include.',
 				'type'        => 'array', // WordPress kindly converts CSV to array
 				'pattern'     => '^((([a-z_]+),?)+)?$',
 				'required'    => false,
