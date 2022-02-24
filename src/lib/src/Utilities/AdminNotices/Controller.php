@@ -60,25 +60,25 @@ class Controller {
 	}
 
 	protected function displayNotices() {
-		foreach ( $this->collectAllPluginNotices() as $sKey => $oNotice ) {
-			echo $this->renderNotice( $oNotice );
+		foreach ( $this->collectAllPluginNotices() as $notice ) {
+			echo $this->renderNotice( $notice );
 		}
 	}
 
 	/**
 	 * @return NoticeVO[]
 	 */
-	protected function collectAllPluginNotices() {
-		/** @var NoticeVO[] $aNotices */
-		$aNotices = apply_filters( $this->getCon()->prefix( 'collectNotices' ), [] );
-		if ( !is_array( $aNotices ) ) {
-			$aNotices = [];
+	protected function collectAllPluginNotices() :array {
+		/** @var NoticeVO[] $notices */
+		$notices = apply_filters( $this->getCon()->prefix( 'collectNotices' ), [] );
+		if ( !is_array( $notices ) ) {
+			$notices = [];
 		}
-		$aNotices[] = $this->getFlashNotice();
+		$notices[] = $this->getFlashNotice();
 		return array_filter(
-			$aNotices,
-			function ( $oNotice ) {
-				return ( $oNotice instanceof NoticeVO );
+			$notices,
+			function ( $notice ) {
+				return ( $notice instanceof NoticeVO );
 			}
 		);
 	}
@@ -113,7 +113,8 @@ class Controller {
 		$msg = null;
 		$meta = $this->getCon()->getCurrentUserMeta();
 		if ( $meta instanceof UserMeta && is_array( $meta->flash_msg ) ) {
-			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()->ts() < $meta->flash_msg[ 'expires_at' ] ) {
+			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()
+																	  ->ts() < $meta->flash_msg[ 'expires_at' ] ) {
 				$msg = $meta->flash_msg;
 			}
 			else {
@@ -123,10 +124,7 @@ class Controller {
 		return $msg;
 	}
 
-	/**
-	 * @return $this
-	 */
-	private function clearFlashMessage() {
+	private function clearFlashMessage() :self {
 		$meta = $this->getCon()->getCurrentUserMeta();
 		if ( $meta instanceof UserMeta && !empty( $meta->flash_msg ) ) {
 			$meta->flash_msg = null;
@@ -134,35 +132,31 @@ class Controller {
 		return $this;
 	}
 
-	/**
-	 * @param NoticeVO $oNotice
-	 * @return string
-	 */
-	protected function renderNotice( $oNotice ) {
-		$aRenderVars = $oNotice->render_data;
+	protected function renderNotice( NoticeVO $notice ) :string {
+		$data = $notice->render_data;
 
-		if ( empty( $aRenderVars[ 'notice_classes' ] ) || !is_array( $aRenderVars[ 'notice_classes' ] ) ) {
-			$aRenderVars[ 'notice_classes' ] = [];
+		if ( empty( $data[ 'notice_classes' ] ) || !is_array( $data[ 'notice_classes' ] ) ) {
+			$data[ 'notice_classes' ] = [];
 		}
-		$aRenderVars[ 'notice_classes' ][] = $oNotice->type;
-		if ( !in_array( 'error', $aRenderVars[ 'notice_classes' ] ) ) {
-			$aRenderVars[ 'notice_classes' ][] = 'updated';
+		$data[ 'notice_classes' ][] = $notice->type;
+		if ( !in_array( 'error', $data[ 'notice_classes' ] ) ) {
+			$data[ 'notice_classes' ][] = 'updated';
 		}
-		$aRenderVars[ 'notice_classes' ][] = 'notice-'.$oNotice->id;
-		$aRenderVars[ 'notice_classes' ] = implode( ' ', array_unique( $aRenderVars[ 'notice_classes' ] ) );
+		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
+		$data[ 'notice_classes' ] = implode( ' ', array_unique( $data[ 'notice_classes' ] ) );
 
-		$aRenderVars[ 'unique_render_id' ] = uniqid( $oNotice->id );
-		$aRenderVars[ 'notice_id' ] = $oNotice->id;
+		$data[ 'unique_render_id' ] = uniqid( $notice->id );
+		$data[ 'notice_id' ] = $notice->id;
 
-		$aAjaxData = $this->getCon()->getNonceActionData( 'dismiss_admin_notice' );
-		$aAjaxData[ 'hide' ] = 1;
-		$aAjaxData[ 'notice_id' ] = $oNotice->id;
-		$aRenderVars[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $aAjaxData );
+		$ajaxData = $this->getCon()->getNonceActionData( 'dismiss_admin_notice' );
+		$ajaxData[ 'hide' ] = 1;
+		$ajaxData[ 'notice_id' ] = $notice->id;
+		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $ajaxData );
 
 		return $this->getCon()
 					->getRenderer()
-					->setTemplate( $oNotice->template )
-					->setRenderVars( $aRenderVars )
+					->setTemplate( $notice->template )
+					->setRenderVars( $data )
 					->setTemplateEngineTwig()
 					->render();
 	}

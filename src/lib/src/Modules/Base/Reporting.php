@@ -38,12 +38,12 @@ abstract class Reporting {
 	}
 
 	/**
-	 * @param Reports\BaseReporter[] $aReporters
+	 * @param Reports\BaseReporter[] $reporters
 	 * @return array
 	 */
-	protected function assignMod( array $aReporters ) :array {
+	protected function assignMod( array $reporters ) :array {
 		return array_map( function ( $reporter ) {
 			return $reporter->setMod( $this->getMod() );
-		}, $aReporters );
+		}, $reporters );
 	}
 }

@@ -63,7 +63,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		$IDs = $req->post( 'ids' );
 		if ( empty( $IDs ) || !is_array( $IDs ) ) {
-			$success = false;
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
 		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
@@ -71,9 +70,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 		else {
 			$yourId = $mod->getSession()->id;
-			$bIncludesYourSession = in_array( $yourId, $IDs );
+			$includesYourSession = in_array( $yourId, $IDs );
 
-			if ( $bIncludesYourSession && ( count( $IDs ) == 1 ) ) {
+			if ( $includesYourSession && ( count( $IDs ) == 1 ) ) {
 				$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 			}
 			else {
@@ -87,7 +86,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					}
 				}
 				$msg = __( 'Selected items were deleted.', 'wp-simple-firewall' );
-				if ( $bIncludesYourSession ) {
+				if ( $includesYourSession ) {
 					$msg .= ' *'.__( 'Your session was retained', 'wp-simple-firewall' );
 				}
 			}
@@ -104,14 +103,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
-		$nId = Services::Request()->post( 'rid', -1 );
-		if ( !is_numeric( $nId ) || $nId < 0 ) {
+		$id = Services::Request()->post( 'rid', -1 );
+		if ( !is_numeric( $id ) || $id < 0 ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		elseif ( $mod->getSession()->id === $nId ) {
+		elseif ( $mod->getSession()->id === $id ) {
 			$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
-		elseif ( $con->getModule_Sessions()->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $con->getModule_Sessions()->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $id ) ) {
 			$msg = __( 'User session deleted', 'wp-simple-firewall' );
 			$success = true;
 		}

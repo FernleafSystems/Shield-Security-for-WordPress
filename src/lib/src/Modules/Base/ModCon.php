@@ -674,11 +674,11 @@ abstract class ModCon {
 	}
 
 	public function getTextOpt( string $key ) :string {
-		$sValue = $this->getOptions()->getOpt( $key, 'default' );
-		if ( $sValue == 'default' ) {
-			$sValue = $this->getTextOptDefault( $key );
+		$txt = $this->getOptions()->getOpt( $key, 'default' );
+		if ( $txt == 'default' ) {
+			$txt = $this->getTextOptDefault( $key );
 		}
-		return __( $sValue, 'wp-simple-firewall' );
+		return __( $txt, 'wp-simple-firewall' );
 	}
 
 	public function getTextOptDefault( string $key ) :string {
@@ -702,13 +702,6 @@ abstract class ModCon {
 		return $this;
 	}
 
-	public function setOptions( array $options ) {
-		$opts = $this->getOptions();
-		foreach ( $options as $key => $value ) {
-			$opts->setOpt( $key, $value );
-		}
-	}
-
 	public function isModuleRequest() :bool {
 		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
 	}
@@ -722,12 +715,8 @@ abstract class ModCon {
 		return $asJson ? json_encode( (object)$data ) : $data;
 	}
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	public function getNonceActionData( $action = '' ) {
-		$data = $this->getCon()->getNonceActionData( (string)$action );
+	public function getNonceActionData( string $action = '' ) :array {
+		$data = $this->getCon()->getNonceActionData( $action );
 		$data[ 'mod_slug' ] = $this->getModSlug();
 		return $data;
 	}
@@ -771,12 +760,11 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param bool $bPreProcessOptions
 	 * @return $this
 	 */
-	public function saveModOptions( $bPreProcessOptions = false ) {
+	public function saveModOptions( bool $preProcessOptions = false ) {
 
-		if ( $bPreProcessOptions ) {
+		if ( $preProcessOptions ) {
 			$this->preProcessOptions();
 		}
 

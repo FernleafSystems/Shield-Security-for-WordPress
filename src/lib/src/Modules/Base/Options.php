@@ -514,11 +514,10 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $newValue
+	 * @param mixed $newValue
 	 * @return $this
 	 */
-	public function setOpt( $key, $newValue ) :self {
+	public function setOpt( string $key, $newValue ) :self {
 
 		// NOTE: can't use getOpt() for current value as it'll create infinite loop
 		$mCurrent = $this->getAllOptionsValues()[ $key ] ?? null;

@@ -561,13 +561,7 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function getNonceActionData( string $action = '' ) :array {
-		if ( empty( $action ) ) {
-			throw new \Exception( 'Empty actions are not allowed.' );
-		}
+	public function getNonceActionData( string $action ) :array {
 		return [
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $action,
