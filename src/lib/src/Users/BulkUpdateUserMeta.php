@@ -20,7 +20,8 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	protected function run() {
 		$con = $this->getCon();
 		$userSearch = new \WP_User_Query( [
-			'exclude' => $this->getExistingUserMetaIDs()
+			'exclude' => $this->getExistingUserMetaIDs(),
+			'number'  => 20,
 		] );
 		foreach ( $userSearch->get_results() as $user ) {
 			$con->getUserMeta( $user );
