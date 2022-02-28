@@ -11,66 +11,62 @@
     ],
     "items":       [
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "WP Login Style 2FA Screen",
         "description": [
           "Users can complete their 2FA login using the UI they're most familiar with."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "Custom Redirect For Hide WP Login & Admin",
         "description": [
           "Rather than display an unfriendly 404 error page for the hidden login page, you can decide to redirect requests to any page you wish."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "Easier Access To User 2FA Settings with WP Admin Menu",
         "description": [
           "Users can now update their 2FA account settings from a dedicated WP admin page."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "Improved 2FA User Experience",
         "description": [
           "Smoother, faster, more reliable and more secure 2FA experience."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "changed",
-        "pro_only":    false,
-        "title":       "Mutli-factor Authentication Removed",
+        "title":       "Multi-factor Authentication Removed",
         "description": [
           "The option to force users to supply ALL two-factor authentication options has been removed."
-        ]
+        ],
+        "type":        "changed",
+        "pro_only":    false
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
         "title":       "Dedicated table for User meta information",
         "description": [
-         "This allows for new filters and better user status on the WP Admin User page."
-        ]
+          "This allows for new filters and better user status on the WP Admin User page."
+        ],
+        "type":        "improved",
+        "pro_only":    false
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
-        "title":       "Updated Translations - Dutch (thanks J.P.!)",
-        "description": [
-        ]
+        "title":    "Updated Translations - Dutch (thanks J.P.!)",
+        "type":     "improved",
+        "pro_only": false
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
-        "title":       "Further page caching mitigation for NotBot",
-        "description": [
-        ]
+        "title":    "Further page caching mitigation for NotBot",
+        "type":     "improved",
+        "pro_only": false
       },
       {
         "type":        "changed",
@@ -85,36 +81,40 @@
         "title":       "Various bugs and errors",
         "description": [
         ]
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "2",
+        "released_at": 1644400200,
+        "items":       [
+          {
+            "title": "Integration with some 3rd party membership plugins + 2FA.",
+            "type":  "improved"
+          },
+          {
+            "title": "Alert displayed that U2F isn't support when U2F isn't in-use.",
+            "type":  "fixed"
+          },
+          {
+            "title": "A rare issue which Custom MFA login triggering an HTTP 402 error!",
+            "type":  "fixed"
+          },
+          {
+            "title": "Options Search dialog failed to open (can't find-as-you-type yet).",
+            "type":  "fixed"
+          }
+        ]
       },
       {
-        "type":        "improved",
-        "title":       "Integration with some 3rd party membership plugins + 2FA.",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Alert displayed that U2F isn't support when U2F isn't in-use.",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "A rare issue which Custom MFA login triggering an HTTP 402 error!",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Options Search dialog failed to open (can't find-as-you-type yet).",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Work around WP Engine login mechanism blocking 2FA verification.",
-        "description": [],
-        "patch":       "14.0.3"
+        "version":     "3",
+        "released_at": 1645005000,
+        "items":       [
+          {
+            "title": "Work around WP Engine login mechanism blocking 2FA verification.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
