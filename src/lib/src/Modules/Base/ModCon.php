@@ -1339,7 +1339,7 @@ abstract class ModCon {
 	/**
 	 * @return Shield\Modules\Base\Databases|mixed
 	 */
-	protected function getDbHandler() {
+	public function getDbHandler() {
 		if ( empty( $this->dbHandler ) ) {
 			$this->dbHandler = $this->loadModElement( 'Databases' );
 		}

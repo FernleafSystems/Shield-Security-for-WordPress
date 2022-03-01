@@ -702,7 +702,6 @@ class Options {
 	}
 
 	/**
-	 * @param $values
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {

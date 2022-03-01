@@ -1,13 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-/**
- * Class ResetPlugin
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Ops
- */
 class ResetPlugin {
 
 	use PluginControllerConsumer;
