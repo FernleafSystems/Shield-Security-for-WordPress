@@ -32,7 +32,7 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 	 * or the particular module is set to be not pro only.
 	 */
 	protected function isPublishRoutes() :bool {
-		return ( $this->enabled ?? false )
+		return parent::isPublishRoutes()
 			   && ( $this->getCon()->isPremiumActive() || !( $this->pro_only ?? true ) );
 	}
 }

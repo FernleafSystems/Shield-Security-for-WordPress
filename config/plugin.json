@@ -542,7 +542,7 @@
   ],
   "definitions":   {
     "rest_api":               {
-      "enabled": true
+      "publish": true
     },
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_classes":             {
