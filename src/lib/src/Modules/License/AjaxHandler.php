@@ -25,37 +25,28 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ConnectionDebug() {
-		$oIP = Services::IP();
+	private function ajaxExec_ConnectionDebug() :array {
 
-		$oPing = new Keyless\Ping();
-		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
-		$bSuccess = $oPing->ping();
+		$success = ( new Keyless\Ping() )->ping();
+		$host = wp_parse_url( Keyless\Base::DEFAULT_URL_STUB, PHP_URL_HOST );
 
-		$sHost = wp_parse_url( $oPing->lookup_url_stub, PHP_URL_HOST );
-
-		if ( $bSuccess ) {
-			$sMessage = 'Successfully connected to license server.';
+		if ( $success ) {
+			$msg = 'Successfully connected to license server.';
 		}
-		elseif ( !$oIP->isValidIp( gethostbyname( $sHost ) ) ) {
-			$sMessage = sprintf( 'Could not resolve host IP address: %s', $sHost );
+		elseif ( !Services::IP()->isValidIp( gethostbyname( $host ) ) ) {
+			$msg = sprintf( 'Could not resolve host IP address: %s', $host );
 		}
 		else {
-			$sMessage = 'Failed to connect to license server.';
+			$msg = 'Failed to connect to license server.';
 		}
+
 		return [
-			'success' => $bSuccess,
-			'message' => $sMessage
+			'success' => $success,
+			'message' => $msg
 		];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_LicenseHandling() {
+	private function ajaxExec_LicenseHandling() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$licHandler = $mod->getLicenseHandler();
