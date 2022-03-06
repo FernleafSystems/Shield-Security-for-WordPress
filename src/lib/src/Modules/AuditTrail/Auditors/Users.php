@@ -15,6 +15,21 @@ class Users extends Base {
 
 		add_action( 'user_register', [ $this, 'auditNewUserRegistered' ] );
 		add_action( 'delete_user', [ $this, 'auditDeleteUser' ], 30, 2 );
+
+		if ( Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.6' ) ) {
+			add_action( 'application_password_failed_authentication', function ( $wpError ) {
+				/** @var \WP_Error $wpError */
+				if ( is_wp_error( $wpError ) && $wpError->has_errors() ) {
+					$this->auditFailedAppPassword( $wpError );
+				}
+			} );
+			add_action( 'application_password_did_authenticate', function ( $user ) {
+				/** @var \WP_Error $wpError */
+				if ( $user instanceof \WP_User ) {
+					$this->auditSuccessAppPassword( $user );
+				}
+			} );
+		}
 	}
 
 	protected function captureLogin( \WP_User $user ) {
@@ -77,6 +92,34 @@ class Users extends Base {
 					]
 				]
 			);
+		}
+	}
+
+	private function auditSuccessAppPassword( \WP_User $user ) {
+		$this->getCon()->fireEvent(
+			'user_login_app',
+			[
+				'audit_params' => [
+					'user_login' => $user->user_login,
+				]
+			]
+		);
+	}
+
+	private function auditFailedAppPassword( \WP_Error $error ) {
+
+		$wpErrorToEventMap = [
+			'invalid_email'                           => 'app_invalid_email',
+			'invalid_username'                        => 'app_invalid_username',
+			'incorrect_password'                      => 'app_incorrect_password',
+			'application_passwords_disabled'          => 'app_passwords_disabled',
+			'application_passwords_disabled_for_user' => 'app_passwords_disabled_user',
+		];
+
+		foreach ( $error->get_error_codes() as $code ) {
+			if ( isset( $wpErrorToEventMap[ $code ] ) ) {
+				$this->getCon()->fireEvent( $wpErrorToEventMap[ $code ] );
+			}
 		}
 	}
 }

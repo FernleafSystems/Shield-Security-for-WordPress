@@ -278,7 +278,7 @@ abstract class ModCon {
 	}
 
 	protected function initRestApi() {
-		if ( !empty( $this->getOptions()->getDef( 'rest_api' )[ 'enabled' ] ) ) {
+		if ( !empty( $this->getOptions()->getDef( 'rest_api' )[ 'publish' ] ) ) {
 			add_action( 'rest_api_init', function () {
 				try {
 					/** @var RestHandler $rest */

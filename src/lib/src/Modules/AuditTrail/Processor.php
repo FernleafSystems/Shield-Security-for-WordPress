@@ -1,9 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
@@ -17,23 +16,22 @@ class Processor extends BaseShield\Processor {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getAuditLogger()->setIfCommit( true );
-		foreach ( $this->getAuditors() as $auditor ) {
+		foreach ( $this->getAuditors() as $auditorClass ) {
+			/** @var Auditors\Base $auditor */
+			$auditor = new $auditorClass();
 			$auditor->setMod( $this->getMod() )->execute();
 		}
 	}
 
-	/**
-	 * @return Base[]
-	 */
 	private function getAuditors() :array {
 		return [
-			new Auditors\Users(),
-			new Auditors\Plugins(),
-			new Auditors\Themes(),
-			new Auditors\Wordpress(),
-			new Auditors\Posts(),
-			new Auditors\Emails(),
-			new Auditors\Upgrades(),
+			Auditors\Users::class,
+			Auditors\Plugins::class,
+			Auditors\Themes::class,
+			Auditors\Wordpress::class,
+			Auditors\Posts::class,
+			Auditors\Emails::class,
+			Auditors\Upgrades::class
 		];
 	}
 

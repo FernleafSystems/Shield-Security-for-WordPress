@@ -589,7 +589,7 @@
   ],
   "definitions":      {
     "rest_api":            {
-      "enabled": true
+      "publish": true
     },
     "allowable_ext_404s":  [
       "js",
