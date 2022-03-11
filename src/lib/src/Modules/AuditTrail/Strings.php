@@ -17,6 +17,12 @@ class Strings extends Base\Strings {
 					__( 'Plugin "{{plugin}}" was activated.', 'wp-simple-firewall' )
 				],
 			],
+			'plugin_installed'            => [
+				'name'  => __( 'Plugin Installed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin "{{plugin}}" was installed.', 'wp-simple-firewall' )
+				],
+			],
 			'plugin_deactivated'          => [
 				'name'  => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
 				'audit' => [
@@ -39,6 +45,12 @@ class Strings extends Base\Strings {
 				'name'  => __( 'Theme Activated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Theme "{{theme}}" was activated.', 'wp-simple-firewall' ),
+				],
+			],
+			'theme_installed'            => [
+				'name'  => __( 'Theme Installed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Theme "{{theme}}" was installed.', 'wp-simple-firewall' )
 				],
 			],
 			'theme_file_edited'           => [

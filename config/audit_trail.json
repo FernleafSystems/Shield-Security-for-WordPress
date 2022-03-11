@@ -257,6 +257,13 @@
         "level":          "notice",
         "audit_multiple": true
       },
+      "plugin_installed":            {
+        "audit_params":   [
+          "plugin"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
       "plugin_deactivated":          {
         "audit_params":   [
           "plugin"
@@ -284,6 +291,13 @@
           "theme"
         ],
         "level":        "notice"
+      },
+      "theme_installed":             {
+        "audit_params":   [
+          "theme"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
       },
       "theme_file_edited":           {
         "audit_params": [
