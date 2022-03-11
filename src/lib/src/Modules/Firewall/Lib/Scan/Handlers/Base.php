@@ -16,7 +16,7 @@ abstract class Base {
 
 		if ( !empty( $this->getFirewallPatterns() ) ) {
 			$checkResult = $this->testSimplePatterns();
-			if ( !is_wp_error( $checkResult ) ) {
+			if ( empty( $checkResult->get_error_codes() ) ) {
 				$checkResult = $this->testRegexPatterns();
 			}
 		}
@@ -50,7 +50,7 @@ abstract class Base {
 	}
 
 	protected function testRegexPatterns() :\WP_Error {
-		$found = new \WP_Error;
+		$found = new \WP_Error();
 		foreach ( $this->getFirewallPatterns_Regex() as $term ) {
 			foreach ( $this->getItemsToScan() as $param => $value ) {
 				if ( preg_match( $term, $value ) ) {
@@ -70,7 +70,7 @@ abstract class Base {
 	}
 
 	protected function testSimplePatterns() :\WP_Error {
-		$found = new \WP_Error;
+		$found = new \WP_Error();
 		foreach ( $this->getFirewallPatterns_Simple() as $term ) {
 			foreach ( $this->getItemsToScan() as $param => $value ) {
 				if ( stripos( $value, $term ) !== false ) {
