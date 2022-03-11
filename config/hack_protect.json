@@ -375,8 +375,16 @@
   ],
   "definitions":      {
     "rest_api":                    {
-      "publish":  true,
-      "pro_only": true
+      "publish":    true,
+      "pro_only":   true,
+      "route_defs": {
+        "scan_status":  {
+        },
+        "scan_start":   {
+        },
+        "scan_results": {
+        }
+      }
     },
     "all_scan_slugs":              [
       "apc",

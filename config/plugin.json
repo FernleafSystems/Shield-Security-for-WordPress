@@ -542,7 +542,20 @@
   ],
   "definitions":   {
     "rest_api":               {
-      "publish": true
+      "publish":    true,
+      "pro_only":   true,
+      "route_defs": {
+        "debug_get":   {
+        },
+        "option_get":  {
+        },
+        "option_set":  {
+        },
+        "options_get": {
+        },
+        "options_set": {
+        }
+      }
     },
     "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_classes":             {

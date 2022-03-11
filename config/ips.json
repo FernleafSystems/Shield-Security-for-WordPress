@@ -589,7 +589,18 @@
   ],
   "definitions":      {
     "rest_api":            {
-      "publish": true
+      "publish":    true,
+      "pro_only":   true,
+      "route_defs": {
+        "ips_get":     {
+        },
+        "lists_get":   {
+        },
+        "lists_getip": {
+        },
+        "lists_setip": {
+        }
+      }
     },
     "allowable_ext_404s":  [
       "js",

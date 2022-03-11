@@ -144,8 +144,14 @@
   ],
   "definitions":      {
     "rest_api":                     {
-      "publish":  true,
-      "pro_only": false
+      "publish":    true,
+      "pro_only":   false,
+      "route_defs": {
+        "license_check":  {
+        },
+        "license_status": {
+        }
+      }
     },
     "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",
