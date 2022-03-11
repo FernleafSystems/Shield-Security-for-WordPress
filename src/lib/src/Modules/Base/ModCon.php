@@ -282,11 +282,11 @@ abstract class ModCon {
 		if ( !empty( $cfg[ 'publish' ] ) ) {
 			add_action( 'rest_api_init', function () use ( $cfg ) {
 				try {
-					$restClass = $this->findElementClass( 'RestHandler' );
+					$restClass = $this->findElementClass( 'Rest' );
 					/** @var Shield\Modules\Base\Rest $rest */
 					if ( @class_exists( $restClass ) ) {
 						$rest = new $restClass( $cfg );
-						$rest->init();
+						$rest->setMod( $this )->init();
 					}
 				}
 				catch ( \Exception $e ) {
@@ -360,7 +360,7 @@ abstract class ModCon {
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			try {
-				$class = $this->findElementClass( 'Processor', true );
+				$class = $this->findElementClass( 'Processor' );
 			}
 			catch ( \Exception $e ) {
 				return null;
