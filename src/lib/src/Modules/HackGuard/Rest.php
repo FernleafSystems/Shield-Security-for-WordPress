@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Route\{
 	Scans\Status
 };
 
-class RestHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\RestHandler {
+class Rest extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest {
 
 	protected function enumRoutes() :array {
 		return [

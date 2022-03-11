@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Rest\Route\{
 	LicenseStatus
 };
 
-class RestHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\RestHandler {
+class Rest extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest {
 
 	protected function enumRoutes() :array {
 		return [

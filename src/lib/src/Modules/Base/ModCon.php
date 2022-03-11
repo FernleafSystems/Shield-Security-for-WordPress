@@ -278,13 +278,14 @@ abstract class ModCon {
 	}
 
 	protected function initRestApi() {
-		if ( !empty( $this->getOptions()->getDef( 'rest_api' )[ 'publish' ] ) ) {
-			add_action( 'rest_api_init', function () {
+		$cfg = $this->getOptions()->getDef( 'rest_api' );
+		if ( !empty( $cfg[ 'publish' ] ) ) {
+			add_action( 'rest_api_init', function () use ( $cfg ) {
 				try {
-					/** @var RestHandler $rest */
-					$rest = $this->loadModElement( 'RestHandler' );
-					if ( !empty( $rest ) ) {
-						$rest->applyFromArray( $this->getOptions()->getDef( 'rest_api' ) );
+					$restClass = $this->findElementClass( 'RestHandler' );
+					/** @var Shield\Modules\Base\Rest $rest */
+					if ( @class_exists( $restClass ) ) {
+						$rest = new $restClass( $cfg );
 						$rest->init();
 					}
 				}
@@ -1257,7 +1258,7 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return RestHandler|mixed
+	 * @return Rest|mixed
 	 * @deprecated 14.1
 	 */
 	public function getRestHandler() {

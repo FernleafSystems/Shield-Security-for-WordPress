@@ -11,11 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Route\Lists\{
 	GetListIP
 };
 
-class RestHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\RestHandler {
+class Rest extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest {
 
 	protected function enumRoutes() :array {
 		return [
-			'ips_get'    => GetIP::class,
+			'ips_get'     => GetIP::class,
 			'lists_get'   => GetList::class,
 			'lists_getip' => GetListIP::class,
 			'lists_addip' => AddIP::class,
