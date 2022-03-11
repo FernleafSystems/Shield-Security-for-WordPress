@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Rest\Route\{
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Rest\Route\{
 	LicenseCheck,
 	LicenseStatus
 };

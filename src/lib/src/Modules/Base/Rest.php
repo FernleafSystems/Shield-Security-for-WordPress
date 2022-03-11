@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Rest\Route\RouteBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
@@ -14,10 +13,10 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 	use ModConsumer;
 
 	/**
-	 * @return Lib\Rest\Route\RouteBase[]
+	 * @return Rest\Route\RouteBase[]
 	 */
 	public function buildRoutes() :array {
-		/** @var RouteBase[] $routes */
+		/** @var Rest\Route\RouteBase[] $routes */
 		$routes = parent::buildRoutes();
 		return array_map(
 			function ( $route ) {

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Rest\Route\{
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route\{
 	Results\GetAll,
 	Scans\Start,
 	Scans\Status

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Rest\Route\{
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Route\{
 	Debug\Retrieve,
 	Options
 };

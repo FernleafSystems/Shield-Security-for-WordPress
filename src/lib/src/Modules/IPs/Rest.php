@@ -2,10 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Route\IPs\{
-	GetIP
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Rest\Route\Lists\{
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route\IPs\GetIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route\Lists\{
 	AddIP,
 	GetList,
 	GetListIP
