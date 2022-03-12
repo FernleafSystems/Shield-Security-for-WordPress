@@ -25,8 +25,17 @@ class NotBotHandler extends ExecOnceModConsumer {
 		( new InsertNotBotJs() )
 			->setMod( $this->getMod() )
 			->execute();
+		$this->sendNotBotNonceCookie();
 		$this->registerFrontPageLoad();
 		$this->registerLoginPageLoad();
+	}
+
+	protected function sendNotBotNonceCookie() {
+		Services::Response()->cookieSet(
+			'shield-notbot-nonce',
+			$this->getMod()->getAjaxActionData( 'not_bot' )[ 'exec_nonce' ],
+			15
+		);
 	}
 
 	private function registerFrontPageLoad() {
