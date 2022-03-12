@@ -45,6 +45,35 @@ class Enqueue {
 				$this->dequeue();
 			}, -1000 );
 		}, 1000 );
+
+		add_action( 'admin_enqueue_scripts', function () {
+			if ( $this->getCon()->getIsPage_PluginAdmin() ) {
+				global $wp_scripts;
+				global $wp_styles;
+				$this->removeConflictingAdminAssets( $wp_scripts );
+				$this->removeConflictingAdminAssets( $wp_styles );
+			}
+		}, PHP_INT_MAX );
+	}
+
+	/**
+	 * @param \WP_Styles|\WP_Scripts $depContainer
+	 */
+	private function removeConflictingAdminAssets( $depContainer ) {
+		$toDequeue = [];
+		$prefix = $this->getCon()->prefix();
+		$conflictHandles = array_map( 'preg_quote', [
+			'bootstrap',
+			'wp-notes',
+		] );
+		foreach ( $depContainer->queue as $script ) {
+			$handle = (string)$depContainer->registered[ $script ]->handle;
+			if ( strpos( $handle, $prefix ) === false
+				 && preg_match( sprintf( '/(%s)/i', implode( '|', $conflictHandles ) ), $handle ) ) {
+				$toDequeue[] = $handle;
+			}
+		}
+		$depContainer->dequeue( $toDequeue );
 	}
 
 	protected function dequeue() {
