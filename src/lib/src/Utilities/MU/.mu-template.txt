@@ -1,0 +1,26 @@
+<?php declare( strict_types=1 );
+/*
+ * Plugin Name: Shield Security MU
+ * Plugin URI: https://shsec.io/2f
+ * Description: The Must-Use (MU) version of the Shield plugin.
+ * Text Domain: wp-simple-firewall
+ * Domain Path: /languages
+ * Author: Shield Security
+ * Author URI: https://shsec.io/bv
+ */
+
+call_user_func( function () {
+	$shieldFile = 'SHIELD_ROOT_FILE';
+	if ( file_exists( $shieldFile ) ) {
+		require_once( $shieldFile );
+	}
+	else {
+		add_action( 'admin_notices', function () {
+			echo sprintf(
+				'<div id="message" class="error">'.
+				'<p>The Shield plugin appears to have been removed. Please also remove the MU-Plugin file: <code>%s</code>.</p></div>',
+				esc_html( __FILE__ )
+			);
+		} );
+	}
+} );

@@ -266,6 +266,20 @@
       "description": "Turn off this option to disable this plugin's WP-CLI integration."
     },
     {
+      "key":         "enable_mu",
+      "section":     "section_general_plugin_options",
+      "advanced":    true,
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/i1",
+      "link_blog":   "https://shsec.io/i2",
+      "beacon_id":   308,
+      "name":        "Run In MU Mode",
+      "summary":     "Run Plugin In Must-Use (MU) Mode",
+      "description": "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."
+    },
+    {
       "key":         "display_plugin_badge",
       "section":     "section_general_plugin_options",
       "default":     "N",

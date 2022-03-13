@@ -30,6 +30,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
+ * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property Shield\Users\UserMetas                                 $user_metas
@@ -59,11 +60,6 @@ class Controller extends DynPropertiesClass {
 	 * @var Shield\Utilities\AdminNotices\Controller
 	 */
 	protected $oNotices;
-
-	/**
-	 * @var Shield\Modules\Events\Lib\EventsService
-	 */
-	private $oEventsService;
 
 	public function fireEvent( string $event, array $meta = [] ) :self {
 		$this->loadEventsService()->fireEvent( $event, $meta );
@@ -107,6 +103,9 @@ class Controller extends DynPropertiesClass {
 		$this->modules = [];
 
 		$this->loadServices();
+		if ( $this->mu_handler->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
+			Services::WpPlugins()->activate( $this->base_file );
+		}
 		$this->loadConfig();
 
 		$this->checkMinimumRequirements();
@@ -207,6 +206,14 @@ class Controller extends DynPropertiesClass {
 					$val = ( new Shield\Utilities\Nonce\Handler() )
 						->setCon( $this );
 					$this->nonce_handler = $val;
+				}
+				break;
+
+			case 'mu_handler':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Utilities\MU\MUHandler() )
+						->setCon( $this );
+					$this->mu_handler = $val;
 				}
 				break;
 
@@ -592,6 +599,14 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
 
+		if ( $this->mu_handler->isActiveMU() ) {
+			foreach ( $actionLinks as $key => $actionHref ) {
+				if ( strpos( $actionHref, 'action=deactivate' ) ) {
+					$actionLinks[ $key ] = 'Delete MU To Deactivate';
+				}
+			}
+		}
+
 		if ( $this->isValidAdminArea() ) {
 
 			if ( array_key_exists( 'edit', $actionLinks ) ) {
@@ -603,9 +618,9 @@ class Controller extends DynPropertiesClass {
 
 				$isPro = $this->isPremiumActive();
 				$DP = Services::Data();
-				$sLinkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
-				foreach ( $links as $aLink ) {
-					$aLink = array_merge(
+				$linkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
+				foreach ( $links as $link ) {
+					$link = array_merge(
 						[
 							'highlight' => false,
 							'show'      => 'always',
@@ -614,29 +629,29 @@ class Controller extends DynPropertiesClass {
 							'href'      => '',
 							'target'    => '_top',
 						],
-						$aLink
+						$link
 					);
 
-					$show = $aLink[ 'show' ];
-					$bShow = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
-					if ( !$DP->isValidWebUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
-						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
+					$show = $link[ 'show' ];
+					$show = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
+					if ( !$DP->isValidWebUrl( $link[ 'href' ] ) && method_exists( $this, $link[ 'href' ] ) ) {
+						$link[ 'href' ] = $this->{$link[ 'href' ]}();
 					}
 
-					if ( !$bShow || !$DP->isValidWebUrl( $aLink[ 'href' ] )
-						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
+					if ( !$show || !$DP->isValidWebUrl( $link[ 'href' ] )
+						 || empty( $link[ 'name' ] ) || empty( $link[ 'href' ] ) ) {
 						continue;
 					}
 
-					$aLink[ 'name' ] = __( $aLink[ 'name' ], 'wp-simple-firewall' );
+					$link[ 'name' ] = __( $link[ 'name' ], 'wp-simple-firewall' );
 
-					$sLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], $aLink[ 'target' ], $aLink[ 'title' ], $aLink[ 'name' ] );
-					if ( $aLink[ 'highlight' ] ) {
-						$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );
+					$href = sprintf( $linkTemplate, $link[ 'href' ], $link[ 'target' ], $link[ 'title' ], $link[ 'name' ] );
+					if ( $link[ 'highlight' ] ) {
+						$href = sprintf( '<span style="font-weight: bold;">%s</span>', $href );
 					}
 
 					$actionLinks = array_merge(
-						[ $this->prefix( sanitize_key( $aLink[ 'name' ] ) ) => $sLink ],
+						[ $this->prefix( sanitize_key( $link[ 'name' ] ) ) => $href ],
 						$actionLinks
 					);
 				}

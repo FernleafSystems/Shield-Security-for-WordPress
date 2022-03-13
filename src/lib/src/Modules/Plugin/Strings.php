@@ -13,39 +13,39 @@ class Strings extends Base\Strings {
 	 */
 	public function getEventStrings() :array {
 		return [
-			'debug_log'         => [
+			'debug_log'              => [
 				'name'  => __( 'Custom Debug', 'wp-simple-firewall' ),
 				'audit' => [
 					'{{message}}',
 				],
 			],
-			'frontpage_load'    => [
+			'frontpage_load'         => [
 				'name'  => sprintf( '%s: %s', __( 'Loaded', 'wp-simple-firewall' ),
 					__( 'Front Page', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Front page loaded', 'wp-simple-firewall' ),
 				],
 			],
-			'loginpage_load'    => [
+			'loginpage_load'         => [
 				'name'  => sprintf( '%s: %s', __( 'Loaded', 'wp-simple-firewall' ),
 					__( 'Login Page', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Login page loaded', 'wp-simple-firewall' ),
 				],
 			],
-			'recaptcha_success' => [
+			'recaptcha_success'      => [
 				'name'  => __( 'CAPTCHA Pass', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'CAPTCHA test successful.', 'wp-simple-firewall' ),
 				],
 			],
-			'recaptcha_fail'    => [
+			'recaptcha_fail'         => [
 				'name'  => __( 'CAPTCHA Fail', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'CAPTCHA test failed.', 'wp-simple-firewall' ),
 				],
 			],
-			'test_cron_run'     => [
+			'test_cron_run'          => [
 				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Test WP Cron ran successfully.', 'wp-simple-firewall' ),
@@ -57,50 +57,50 @@ class Strings extends Base\Strings {
 					__( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' ),
 				],
 			],
-			'import_notify_received'     => [
+			'import_notify_received' => [
 				'name'  => __( 'Import Notify Received', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Received notification that options import required.', 'wp-simple-firewall' ),
 					__( 'Current master site: {{master_site}}', 'wp-simple-firewall' ),
 				],
 			],
-			'options_exported'     => [
+			'options_exported'       => [
 				'name'  => __( 'Options Exported', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Options exported to site: {{site}}', 'wp-simple-firewall' ),
 				],
 			],
-			'options_imported'     => [
+			'options_imported'       => [
 				'name'  => __( 'Options Imported', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Options exported from site: {{site}}', 'wp-simple-firewall' ),
 				],
 			],
-			'whitelist_site_added'     => [
+			'whitelist_site_added'   => [
 				'name'  => __( 'Whitelist Site Added', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Site added to export white list: {{site}}', 'wp-simple-firewall' ),
 				],
 			],
-			'whitelist_site_removed'     => [
+			'whitelist_site_removed' => [
 				'name'  => __( 'Whitelist Site Removed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Site removed from export white list: {{site}}', 'wp-simple-firewall' ),
 				],
 			],
-			'master_url_set'     => [
+			'master_url_set'         => [
 				'name'  => __( 'Whitelist Site Removed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Master Site URL set: {{site}}', 'wp-simple-firewall' ),
 				],
 			],
-			'antibot_pass'     => [
+			'antibot_pass'           => [
 				'name'  => __( 'AntiBot Pass', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Request passed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
 				],
 			],
-			'antibot_fail'     => [
+			'antibot_fail'           => [
 				'name'  => __( 'AntiBot Fail', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Request failed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
@@ -304,6 +304,15 @@ class Strings extends Base\Strings {
 				$name = __( 'Allow WP-CLI', 'wp-simple-firewall' );
 				$summary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
 				$desc = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
+				break;
+
+			case 'enable_mu' :
+				$name = __( 'Run In MU Mode', 'wp-simple-firewall' );
+				$summary = __( 'Run Plugin In Must-Use (MU) Mode', 'wp-simple-firewall' );
+				$desc = [
+					__( "Setup the plugin to run as an MU-plugin to prevent accidental deactivation.", 'wp-simple-firewall' ),
+					__( "You should fully understand the implications of this, including the inability to deactivate the plugin from the WordPress dashboard.", 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'delete_on_deactivate' :

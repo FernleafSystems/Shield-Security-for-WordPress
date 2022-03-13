@@ -51,7 +51,12 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledWpcli() :bool {
-		return $this->isPremium() && $this->isOpt( 'enable_wpcli', 'Y' );
+		return $this->isPremium()
+			   && apply_filters( 'shield/enable_wpcli', $this->isOpt( 'enable_wpcli', 'Y' ) );
+	}
+
+	public function isEnabledMU() :bool {
+		return $this->isOpt( 'enable_mu', 'Y' );
 	}
 
 	public function isTrackingPermissionSet() :bool {
