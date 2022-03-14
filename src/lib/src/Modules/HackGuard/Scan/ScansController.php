@@ -34,33 +34,6 @@ class ScansController extends ExecOnceModConsumer {
 		$this->setupCron();
 		$this->setupCronHooks(); // Plugin crons
 		$this->handlePostScanCron();
-		$this->addAdminBarItems();
-	}
-
-	private function addAdminBarItems() {
-		add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), function ( array $groups ) {
-			$thisGroup = [
-				'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
-				'items' => [],
-			];
-			foreach ( $this->getAllScanCons() as $scanCon ) {
-				if ( $scanCon->isEnabled() ) {
-					$thisGroup[ 'items' ] = array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
-				}
-			}
-
-			if ( !empty( $thisGroup[ 'items' ] ) ) {
-				$totalWarnings = 0;
-				foreach ( $thisGroup[ 'items' ] as $item ) {
-					$totalWarnings += $item[ 'warnings' ];
-				}
-				$thisGroup[ 'title' ] = sprintf( '%s %s', __( 'Scan Results', 'wp-simple-firewall' ),
-					sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings ) );
-				$groups[] = $thisGroup;
-			}
-
-			return $groups;
-		}, 100 );
 	}
 
 	public function runHourlyCron() {

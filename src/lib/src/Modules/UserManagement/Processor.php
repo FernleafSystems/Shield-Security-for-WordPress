@@ -52,39 +52,34 @@ class Processor extends BaseShield\Processor {
 				->setMod( $this->getMod() )
 				->execute();
 		}
-
-		$this->addAdminBarItems();
 	}
 
-	private function addAdminBarItems() {
-		add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), function ( array $groups ) {
-			$con = $this->getCon();
-			$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
-			/** @var Select $sel */
-			$sel = $dbh->getQuerySelector();
-			$sessions = $sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
-							->setOrderBy( 'last_activity_at', 'DESC' )
-							->query();
+	public function addAdminBarMenuGroup( array $groups ) :array {
+		$con = $this->getCon();
+		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
+		/** @var Select $sel */
+		$sel = $dbh->getQuerySelector();
+		$sessions = $sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
+						->setOrderBy( 'last_activity_at', 'DESC' )
+						->query();
 
-			$thisGroup = [
-				'title' => __( 'Recent Sessions', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_Insights()->getUrl_Sessions(),
-				'items' => [],
+		$thisGroup = [
+			'title' => __( 'Recent Sessions', 'wp-simple-firewall' ),
+			'href'  => $con->getModule_Insights()->getUrl_Sessions(),
+			'items' => [],
+		];
+		/** @var EntryVO $session */
+		foreach ( $sessions as $session ) {
+			$thisGroup[ 'items' ][] = [
+				'id'    => $con->prefix( $session->id ),
+				'title' => sprintf( '%s (%s)', $session->wp_username, $session->ip ),
 			];
-			/** @var EntryVO $session */
-			foreach ( $sessions as $session ) {
-				$thisGroup[ 'items' ][] = [
-					'id'    => $con->prefix( $session->id ),
-					'title' => sprintf( '%s (%s)', $session->wp_username, $session->ip ),
-				];
-			}
+		}
 
-			if ( !empty( $thisGroup[ 'items' ] ) ) {
-				$groups[] = $thisGroup;
-			}
-
-			return $groups;
-		}, 100 );
+		if ( !empty( $thisGroup[ 'items' ] ) ) {
+			$groups[] = $thisGroup;
+		}
+		return $groups;
 	}
 
 	/**

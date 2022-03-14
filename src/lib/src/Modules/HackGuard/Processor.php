@@ -18,4 +18,30 @@ class Processor extends BaseShield\Processor {
 			$mod->getFileLocker()->execute();
 		}
 	}
+
+	public function addAdminBarMenuGroup( array $groups ) :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$thisGroup = [
+			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+			'items' => [],
+		];
+		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+			if ( $scanCon->isEnabled() ) {
+				$thisGroup[ 'items' ] = array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
+			}
+		}
+
+		if ( !empty( $thisGroup[ 'items' ] ) ) {
+			$totalWarnings = 0;
+			foreach ( $thisGroup[ 'items' ] as $item ) {
+				$totalWarnings += $item[ 'warnings' ];
+			}
+			$thisGroup[ 'title' ] = sprintf( '%s %s', __( 'Scan Results', 'wp-simple-firewall' ),
+				sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings ) );
+			$groups[] = $thisGroup;
+		}
+
+		return $groups;
+	}
 }

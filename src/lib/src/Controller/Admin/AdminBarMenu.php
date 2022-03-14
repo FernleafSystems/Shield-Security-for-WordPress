@@ -12,7 +12,7 @@ class AdminBarMenu {
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
-		return $con->isValidAdminArea( true ) &&
+		return $con->getMeetsBasePermissions() &&
 			   apply_filters( $con->prefix( 'shield/show_admin_bar_menu' ), $con->cfg->properties[ 'show_admin_bar_menu' ] );
 	}
 
@@ -29,7 +29,6 @@ class AdminBarMenu {
 		$con = $this->getCon();
 
 		$groups = apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] );
-
 		$totalWarnings = 0;
 
 		if ( !empty( $groups ) ) {

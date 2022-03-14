@@ -18,7 +18,12 @@ abstract class Processor {
 		$this->setMod( $mod );
 		add_action( 'init', [ $this, 'onWpInit' ], $this->getWpHookPriority( 'init' ) );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $this->getWpHookPriority( 'wp_loaded' ) );
+		add_filter( $mod->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
 		$this->setupCronHooks();
+	}
+
+	public function addAdminBarMenuGroup( array $groups ) :array {
+		return $groups;
 	}
 
 	public function onWpInit() {
