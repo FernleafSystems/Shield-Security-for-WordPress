@@ -23,6 +23,7 @@ abstract class Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
+		
 		return $groups;
 	}
 

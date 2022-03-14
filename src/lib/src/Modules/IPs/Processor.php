@@ -23,10 +23,9 @@ class Processor extends BaseShield\Processor {
 		$modInsights = $this->getCon()->getModule_Insights();
 		/** @var Select $sel */
 		$sel = $mod->getDbHandler_IPs()->getQuerySelector();
-		$ips = $sel->filterByBlocked( true )
-				   ->setOrderBy( 'blocked_at' )
-				   ->setLimit( 10 )
-				   ->query();
+		$sel->filterByBlocked( true )
+			->setOrderBy( 'blocked_at' )
+			->setLimit( 10 );
 
 		$thisGroup = [
 			'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
@@ -34,7 +33,7 @@ class Processor extends BaseShield\Processor {
 			'items' => [],
 		];
 		/** @var EntryVO $ip */
-		foreach ( $ips as $ip ) {
+		foreach ( $sel->query() as $ip ) {
 			$thisGroup[ 'items' ][] = [
 				'id'    => $mod->prefix( 'ip-'.$ip->id ),
 				'title' => $ip->ip,

@@ -57,12 +57,10 @@ class Processor extends BaseShield\Processor {
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
 		$WPUsers = Services::WpUsers();
-		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
 		/** @var Select $sel */
-		$sel = $dbh->getQuerySelector();
-		$sessions = $sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
-						->setOrderBy( 'last_activity_at', 'DESC' )
-						->query();
+		$sel = $con->getModule_Sessions()->getDbHandler_Sessions()->getQuerySelector();
+		$sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
+			->setOrderBy( 'last_activity_at', 'DESC' );
 
 		$thisGroup = [
 			'title' => __( 'Recent Sessions', 'wp-simple-firewall' ),
@@ -70,7 +68,7 @@ class Processor extends BaseShield\Processor {
 			'items' => [],
 		];
 		/** @var EntryVO $session */
-		foreach ( $sessions as $session ) {
+		foreach ( $sel->query() as $session ) {
 			$thisGroup[ 'items' ][] = [
 				'id'    => $con->prefix( 'session-'.$session->id ),
 				'title' => sprintf( '<a href="%s">%s (%s)</a>',
