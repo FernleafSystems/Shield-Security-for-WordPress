@@ -40,7 +40,7 @@ class ScansController extends ExecOnceModConsumer {
 	private function addAdminBarItems() {
 		add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), function ( array $groups ) {
 			$thisGroup = [
-				'href'  => '',
+				'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
 				'items' => [],
 			];
 			foreach ( $this->getAllScanCons() as $scanCon ) {

@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Sessions
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
- */
 class Sessions extends BaseBuild {
 
 	/**

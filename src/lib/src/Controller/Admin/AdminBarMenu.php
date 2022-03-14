@@ -41,7 +41,7 @@ class AdminBarMenu {
 				$group[ 'id' ] = $con->prefix( 'adminbarmenu-sub'.$key );
 
 				foreach ( $group[ 'items' ] as $item ) {
-					$totalWarnings += $item[ 'warnings' ];
+					$totalWarnings += $item[ 'warnings' ] ?? 0;
 					$item[ 'parent' ] = $group[ 'id' ];
 					$adminBar->add_node( $item );
 				}

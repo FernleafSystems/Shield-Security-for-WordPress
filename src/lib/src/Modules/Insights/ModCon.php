@@ -44,6 +44,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getUrl_SubInsightsPage( 'scans_run' );
 	}
 
+	public function getUrl_Sessions() :string {
+		return $this->getUrl_SubInsightsPage( 'users' );
+	}
+
 	public function getUrl_SubInsightsPage( string $subPage ) :string {
 		return add_query_arg(
 			[ 'inav' => sanitize_key( $subPage ) ],
