@@ -29,7 +29,8 @@ class Afs extends BaseForFiles {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
-	public function addAdminMenuBarItem( array $items ) :array {
+	public function getAdminMenuItems() :array {
+		$items = [];
 		$status = $this->getScansController()->getScanResultsCount();
 
 		$template = [
@@ -74,6 +75,13 @@ class Afs extends BaseForFiles {
 			$items[] = $warning;
 		}
 
+		return $items;
+	}
+
+	/**
+	 * @deprecated 14.1
+	 */
+	public function addAdminMenuBarItem( array $items ) :array {
 		return $items;
 	}
 

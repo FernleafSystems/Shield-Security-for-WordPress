@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Update
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends ExecOnceModConsumer {
@@ -45,10 +45,16 @@ abstract class Base extends ExecOnceModConsumer {
 				$mod->getScansCon()->startNewScans( [ $this->getSlug() ] );
 			}
 		);
-		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
+	/**
+	 * @deprecated 14.1
+	 */
 	public function addAdminMenuBarItem( array $items ) :array {
+		return [];
+	}
+
+	public function getAdminMenuItems() :array {
 		return [];
 	}
 

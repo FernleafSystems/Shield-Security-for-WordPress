@@ -28,23 +28,36 @@ class AdminBarMenu {
 	private function createAdminBarMenu( $adminBar ) {
 		$con = $this->getCon();
 
-		$items = apply_filters( $con->prefix( 'admin_bar_menu_items' ), [] );
-		if ( !empty( $items ) && is_array( $items ) ) {
-			$warningCount = 0;
-			foreach ( $items as $item ) {
-				$warningCount += $item[ 'warnings' ] ?? 0;
+		$groups = apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] );
+
+		$totalWarnings = 0;
+
+		if ( !empty( $groups ) ) {
+
+			$topNodeID = $con->prefix( 'adminbarmenu' );
+
+			foreach ( $groups as $key => $group ) {
+
+				$group[ 'id' ] = $con->prefix( 'adminbarmenu-sub'.$key );
+
+				foreach ( $group[ 'items' ] as $item ) {
+					$totalWarnings += $item[ 'warnings' ];
+					$item[ 'parent' ] = $group[ 'id' ];
+					$adminBar->add_node( $item );
+				}
+
+				unset( $group[ 'items' ] );
+				$group[ 'parent' ] = $topNodeID;
+				$adminBar->add_node( $group );
 			}
 
-			$nodeId = $con->prefix( 'adminbarmenu' );
+			// The top menu item.
 			$adminBar->add_node( [
-				'id'    => $nodeId,
+				'id'    => $topNodeID,
 				'title' => $con->getHumanName()
-						   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $warningCount ),
+						   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings ),
+				'href'  => home_url()
 			] );
-			foreach ( $items as $item ) {
-				$item[ 'parent' ] = $nodeId;
-				$adminBar->add_menu( $item );
-			}
 		}
 	}
 }

@@ -9,7 +9,9 @@ class Apc extends BaseForAssets {
 
 	const SCAN_SLUG = 'apc';
 
-	public function addAdminMenuBarItem( array $items ) :array {
+	public function getAdminMenuItems() :array {
+		$items = [];
+
 		$template = [
 			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
@@ -51,5 +53,12 @@ class Apc extends BaseForAssets {
 			->setScanController( $this )
 			->build()
 			->getScanActionVO();
+	}
+
+	/**
+	 * @deprecated 14.1
+	 */
+	public function addAdminMenuBarItem( array $items ) :array {
+		return $items;
 	}
 }
