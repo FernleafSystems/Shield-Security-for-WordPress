@@ -306,15 +306,6 @@ class Strings extends Base\Strings {
 				$desc = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
 				break;
 
-			case 'enable_mu' :
-				$name = __( 'Run In MU Mode', 'wp-simple-firewall' );
-				$summary = __( 'Run Plugin In Must-Use (MU) Mode', 'wp-simple-firewall' );
-				$desc = [
-					__( "Setup the plugin to run as an MU-plugin to prevent accidental deactivation.", 'wp-simple-firewall' ),
-					__( "You should fully understand the implications of this, including the inability to deactivate the plugin from the WordPress dashboard.", 'wp-simple-firewall' ),
-				];
-				break;
-
 			case 'delete_on_deactivate' :
 				$name = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
 				$summary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );

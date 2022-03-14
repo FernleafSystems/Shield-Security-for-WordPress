@@ -152,6 +152,20 @@
       "description": "Allow the use of verification emails to override and switch off the Security Admin restrictions."
     },
     {
+      "key":         "enable_mu",
+      "section":     "section_security_admin_settings",
+      "advanced":    true,
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/i1",
+      "link_blog":   "https://shsec.io/i2",
+      "beacon_id":   308,
+      "name":        "Run In MU Mode",
+      "summary":     "Run Plugin In Must-Use (MU) Mode",
+      "description": "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."
+    },
+    {
       "key":         "admin_access_restrict_options",
       "section":     "section_admin_access_restriction_areas",
       "default":     "Y",

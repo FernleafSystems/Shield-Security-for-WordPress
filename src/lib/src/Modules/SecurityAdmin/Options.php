@@ -68,6 +68,10 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'allow_email_override', 'Y' );
 	}
 
+	public function isEnabledMU() :bool {
+		return $this->isOpt( 'enable_mu', 'Y' );
+	}
+
 	public function isSecAdminRestrictUsersEnabled() :bool {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
 	}

@@ -58,29 +58,10 @@ class ModCon extends BaseShield\ModCon {
 		$this->setVisitorIpSource();
 	}
 
-	public function runDailyCron() {
-		parent::runDailyCron();
-		$this->runMuHandler();
-	}
-
 	protected function preProcessOptions() {
 		( new Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )
 			->checkAll();
-		$this->runMuHandler();
-	}
-
-	private function runMuHandler() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$mu = $this->getCon()->mu_handler;
-		try {
-			$opts->isEnabledMU() ? $mu->convertToMU() : $mu->convertToStandard();
-		}
-		catch ( \Exception $e ) {
-		}
-		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
 	}
 
 	public function deleteAllPluginCrons() {

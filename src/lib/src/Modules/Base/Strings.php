@@ -177,8 +177,6 @@ class Strings {
 	}
 
 	/**
-	 * @param string $section
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getSectionStrings( string $section ) :array {

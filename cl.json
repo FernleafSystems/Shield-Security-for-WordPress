@@ -1,4 +1,102 @@
 {
+  "14.1": {
+    "version":     "14.1",
+    "released_at": 1643364060,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease140",
+      "upgrade": "https://shsec.io/shieldupgradeguide140"
+    },
+    "title":       "REST API Integrations",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Complete REST API",
+        "description": [
+          "Partners and developers can now manage the Shield Security plugin completely with the new REST API."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "REST API Routes",
+        "description": [
+          "New REST API endpoints let you: get/set option(s), get scan results & status, start new scans, add/remove IP addresses.",
+          "get/set any single option, or group of options.",
+          "get scan results & status, and start new scans and check their status.",
+          "add/remove IP addresses to any list (block or bypass).",
+          "check for, and remove, ShieldPRO license.",
+          "run Debug to get general site information summary for debug purposes."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Option To Load Shield as a WordPress Must-Use (MU) Plugin",
+        "description": [
+          "To prevent unwanted or accidental deactivation of the Shield plugin, Shield can be converted to an MU plugin."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Speed-Up For Audit Trail and Traffic Log Tables",
+        "description": [
+          "Audit Trail and Traffic Log tables are usually huge and loading them were slow. They're now entirely AJAX based and fast-loading."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "IP Record Management Error",
+        "description": [
+          "When inserting a duplicate IP address record into the database, we now INSERT IGNORE to reduce error messages in logs."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Support 3rd Party Traffic Log Handlers",
+        "description": [
+          "3rd parties can now easily integrate with Shield's Traffic Log to send log records to any destination."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Support 3rd Party Audit Trail Handlers",
+        "description": [
+          "3rd parties can now easily integrate with Shield's Audit Trail to send log records to any destination."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "IP Record Management Error",
+        "description": [
+          "When inserting a duplicate IP address record into the database, we now INSERT IGNORE to reduce error messages in logs."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Updated Dutch Translations",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    false,
+        "title":       "Firewall didn't always scan all parameters in some cases",
+        "description": [
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "14.0": {
     "version":     "14.0",
     "released_at": 1643364060,
