@@ -35,6 +35,10 @@ class MUHandler {
 	public function convertToMU() :bool {
 		$FS = Services::WpFs();
 
+		if ( !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.6' ) ) {
+			throw new \Exception( sprintf( 'WP Version must be at least: %s', '5.6' ) );
+		}
+
 		$muDir = $this->getMuDir();
 		if ( !$FS->isDir( $muDir ) ) {
 			$FS->mkdir( $muDir );
@@ -84,12 +88,19 @@ class MUHandler {
 	 * @throws \Exception
 	 */
 	private function buildContent() :string {
+		$con = $this->getCon();
 		$FS = Services::WpFs();
 		$templateFile = path_join( __DIR__, '.mu-template.txt' );
 		$template = $FS->getFileContent( $templateFile );
 		if ( empty( $template ) ) {
 			throw new \Exception( sprintf( "Couldn't read mu-plugin template from %s", $templateFile ) );
 		}
-		return str_replace( 'SHIELD_ROOT_FILE', $this->getCon()->getRootFile(), $template );
+		$replacements = [
+			'SHIELD_ROOT_FILE'     => $con->getRootFile(),
+			'SHIELD_PLUGIN_NAME'   => $con->getHumanName(),
+			'SHIELD_PLUGIN_URL'    => $con->getLabels()[ 'PluginURI' ],
+			'SHIELD_PLUGIN_AUTHOR' => $con->getLabels()[ 'Author' ],
+		];
+		return str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
 	}
 }

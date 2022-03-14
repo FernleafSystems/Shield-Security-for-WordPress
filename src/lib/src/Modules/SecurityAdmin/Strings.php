@@ -159,6 +159,8 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( "Setup the plugin to run as an MU-plugin to prevent accidental deactivation.", 'wp-simple-firewall' ),
 					__( "You should fully understand the implications of this, including the inability to deactivate the plugin from the WordPress dashboard while this setting is active.", 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( 'WordPress must be at least version %s to activate this option.', 'wp-simple-firewall' ), '<code>5.6</code>' ) ),
 				];
 				break;
 

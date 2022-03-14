@@ -598,11 +598,15 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
+		$WP = Services::WpGeneral();
 
 		if ( $this->mu_handler->isActiveMU() ) {
 			foreach ( $actionLinks as $key => $actionHref ) {
 				if ( strpos( $actionHref, 'action=deactivate' ) ) {
-					$actionLinks[ $key ] = 'Delete MU To Deactivate';
+					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',
+						add_query_arg( [ 'plugin_status' => 'mustuse' ], $WP->getAdminUrl_Plugins() ),
+						__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
+					);
 				}
 			}
 		}
