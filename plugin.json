@@ -109,7 +109,7 @@
           ]
         },
         "datatables-bootstrap":     {
-          "url":  "https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap5.min.css",
+          "url":  "https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -230,14 +230,14 @@
           ]
         },
         "datatables":                   {
-          "url":  "https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
           ]
         },
         "datatables-bootstrap":         {
-          "url":  "https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js",
+          "url":  "https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js",
           "deps": [
             "datatables"
           ]
