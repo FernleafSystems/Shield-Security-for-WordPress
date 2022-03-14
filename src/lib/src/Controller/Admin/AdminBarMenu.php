@@ -18,17 +18,16 @@ class AdminBarMenu {
 
 	protected function run() {
 		add_action( 'admin_bar_menu', function ( $adminBar ) {
-			$this->createAdminBarMenu( $adminBar );
+			if ( $adminBar instanceof \WP_Admin_Bar ) {
+				$this->createAdminBarMenu( $adminBar );
+			}
 		}, 100 );
 	}
 
-	/**
-	 * @param \WP_Admin_Bar $adminBar
-	 */
-	private function createAdminBarMenu( $adminBar ) {
+	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) {
 		$con = $this->getCon();
 
-		$groups = apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] );
+		$groups = array_filter( apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] ) );
 		$totalWarnings = 0;
 
 		if ( !empty( $groups ) ) {
@@ -53,9 +52,10 @@ class AdminBarMenu {
 			// The top menu item.
 			$adminBar->add_node( [
 				'id'    => $topNodeID,
-				'title' => $con->getHumanName()
-						   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings ),
-				'href'  => home_url()
+				'title' => sprintf( '%s %s', $con->getHumanName(),
+					empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
+				),
+				'href'  => $con->getPluginUrl_DashboardHome()
 			] );
 		}
 	}

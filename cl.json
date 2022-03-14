@@ -1,10 +1,10 @@
 {
   "14.1": {
     "version":     "14.1",
-    "released_at": 1643364060,
+    "released_at": 1647269718,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease140",
-      "upgrade": "https://shsec.io/shieldupgradeguide140"
+      "release": "https://shsec.io/shieldrelease141",
+      "upgrade": "https://shsec.io/shieldupgradeguide141"
     },
     "title":       "REST API Integrations",
     "description": [
@@ -48,6 +48,14 @@
         ]
       },
       {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Support For Application Password Authentication Failures",
+        "description": [
+          "Shield detects and logs when application passwords have been used incorrectly and applies offenses."
+        ]
+      },
+      {
         "type":        "improved",
         "pro_only":    false,
         "title":       "Speed-Up For Audit Trail and Traffic Log Tables",
@@ -60,7 +68,7 @@
         "pro_only":    false,
         "title":       "IP Record Management Error",
         "description": [
-          "When inserting a duplicate IP address record into the database, we now INSERT IGNORE to reduce error messages in logs."
+          "When inserting a duplicate IP address record into the database, we use INSERT IGNORE to reduce error messages in logs."
         ]
       },
       {
