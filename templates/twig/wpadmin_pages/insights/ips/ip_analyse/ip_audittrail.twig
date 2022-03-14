@@ -21,7 +21,10 @@
 						<span>{{ log.user }}</span>
 					</td>
 					<td class="w-50">{{ log.event }}</td>
-					<td>{{ log.created_at|raw }}</td>
+					<td>
+						{{ log.created_at_ago }}
+						<div class="timestamp-small">{{ log.created_at }}</div>
+					</td>
 				</tr>
 			{% endfor %}
 			</tbody>

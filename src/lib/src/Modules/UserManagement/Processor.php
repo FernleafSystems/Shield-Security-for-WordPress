@@ -56,6 +56,7 @@ class Processor extends BaseShield\Processor {
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
+		$WPUsers = Services::WpUsers();
 		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
 		/** @var Select $sel */
 		$sel = $dbh->getQuerySelector();
@@ -71,8 +72,10 @@ class Processor extends BaseShield\Processor {
 		/** @var EntryVO $session */
 		foreach ( $sessions as $session ) {
 			$thisGroup[ 'items' ][] = [
-				'id'    => $con->prefix( $session->id ),
-				'title' => sprintf( '%s (%s)', $session->wp_username, $session->ip ),
+				'id'    => $con->prefix( 'session-'.$session->id ),
+				'title' => sprintf( '<a href="%s">%s (%s)</a>',
+					$WPUsers->getAdminUrl_ProfileEdit( $WPUsers->getUserByUsername( $session->wp_username ) ),
+					$session->wp_username, $session->ip ),
 			];
 		}
 
