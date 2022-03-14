@@ -94,7 +94,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $rootFile
 	 * @throws \Exception
 	 */
 	protected function __construct( string $rootFile ) {
@@ -117,7 +116,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {
@@ -586,8 +584,8 @@ class Controller extends DynPropertiesClass {
 
 		if ( $pluginFile === $this->base_file ) {
 			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $this->cfg->plugin_meta as $aHref ) {
-				array_push( $pluginMeta, sprintf( $template, $aHref[ 'href' ], $aHref[ 'name' ] ) );
+			foreach ( $this->cfg->plugin_meta as $href ) {
+				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
 			}
 		}
 		return $pluginMeta;
