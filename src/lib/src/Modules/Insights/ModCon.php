@@ -33,7 +33,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getUrl_IpAnalysis( string $ip ) :string {
-		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_SubInsightsPage( 'ips' ) );
+		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_IPs() );
+	}
+
+	public function getUrl_IPs() :string {
+		return $this->getUrl_SubInsightsPage( 'ips' );
 	}
 
 	public function getUrl_ScansResults() :string {

@@ -15,11 +15,11 @@ trait CommonFilters {
 	}
 
 	/**
-	 * @param bool $bIsBlocked
+	 * @param bool $isBlocked
 	 * @return $this
 	 */
-	public function filterByBlocked( $bIsBlocked ) {
-		return $this->addWhere( 'blocked_at', 0, $bIsBlocked ? '>' : '=' );
+	public function filterByBlocked( $isBlocked ) {
+		return $this->addWhere( 'blocked_at', 0, $isBlocked ? '>' : '=' );
 	}
 
 	/**
