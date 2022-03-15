@@ -22,8 +22,8 @@ abstract class Base {
 	public function buildRaw() :array {
 		return [
 			// array_values() to ensure data of the correct format
-			'columns' => array_values( $this->getColumnsForDisplay() ),
-			'order'   => $this->getInitialOrdering()
+			'columns'     => array_values( $this->getColumnsForDisplay() ),
+			'order'       => $this->getInitialOrdering(),
 		];
 	}
 

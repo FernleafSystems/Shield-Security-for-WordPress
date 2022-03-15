@@ -31,7 +31,7 @@ class DelegateAjaxHandler {
 	 * @throws \Exception
 	 */
 	private function retrieveTableData() :array {
-		$loader = ( new LoadRawTableData() )->setMod( $this->getMod() );
+		$loader = ( new BuildTrafficTableData() )->setMod( $this->getMod() );
 		$loader->table_data = Services::Request()->post( 'table_data', [] );
 		return [
 			'success'        => true,

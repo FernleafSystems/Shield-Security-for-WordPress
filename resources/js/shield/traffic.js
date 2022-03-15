@@ -124,15 +124,12 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'Bfrptip',
+						dom: 'Pfrptip',
 						searchPanes: {
-							cascadePanes: true,
-							viewTotal: true,
+							cascadePanes: false,
+							viewTotal: false,
+							viewCount: false,
 							initCollapsed: true
-						},
-						searchBuilder: {
-							columns: '.search_builder',
-							depthLimit: 1
 						},
 						search: {
 							return: true

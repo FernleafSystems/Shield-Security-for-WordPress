@@ -6,15 +6,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoadRawTableData extends BaseLoadTableData {
+class BuildAuditTableData extends BaseBuildTableData {
 
 	/**
 	 * @var LogRecord
 	 */
 	private $log;
+
+	public function build() :array {
+		$buildData = parent::build();
+		$buildData[ 'searchPanes' ] = ( new BuildSearchPanesData() )
+			->setMod( $this->getMod() )
+			->build();
+		return $buildData;
+	}
 
 	/**
 	 * @param LogRecord[] $records
@@ -41,6 +49,43 @@ class LoadRawTableData extends BaseLoadTableData {
 		) );
 	}
 
+	/**
+	 * The Wheres need to align with the structure of the Query called from getRecords()
+	 */
+	protected function buildWheresFromSearchPanes() :array {
+		$wheres = [];
+		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
+			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
+				switch ( $column ) {
+					case 'event':
+						if ( count( $selected ) > 1 ) {
+							$wheres[] = sprintf( 'log.event_slug IN (`%s`)', implode( '`,`', $selected ) );
+						}
+						else {
+							$wheres[] = sprintf( "log.event_slug='%s'", array_pop( $selected ) );
+						}
+						break;
+					case 'ip':
+						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return $wheres;
+	}
+
+	protected function countTotalRecords() :int {
+		return $this->getRecordsLoader()->countAll();
+	}
+
+	protected function countTotalRecordsFiltered() :int {
+		$loader = $this->getRecordsLoader();
+		$loader->wheres = $this->buildWheresFromSearchPanes();
+		return $loader->countAll();
+	}
+
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return array_filter( array_map(
@@ -56,17 +101,22 @@ class LoadRawTableData extends BaseLoadTableData {
 	/**
 	 * @return LogRecord[]
 	 */
-	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
-		$loader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
+	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
+		$loader = $this->getRecordsLoader();
+		$loader->wheres = $wheres;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
 		return array_filter(
-			$loader->run(),
+			$loader->run( true ),
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}
 		);
+	}
+
+	protected function getRecordsLoader() :LoadLogs {
+		return ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
 	}
 
 	private function getColumnContent_RequestDetails() :string {

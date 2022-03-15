@@ -10,10 +10,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseLoadTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoadRawTableData extends BaseLoadTableData {
+class BuildTrafficTableData extends BaseBuildTableData {
 
 	use ModConsumer;
 
@@ -103,8 +103,9 @@ class LoadRawTableData extends BaseLoadTableData {
 	/**
 	 * @return LogRecord[]
 	 */
-	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
+	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		$loader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
+		$loader->wheres = $limit;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();

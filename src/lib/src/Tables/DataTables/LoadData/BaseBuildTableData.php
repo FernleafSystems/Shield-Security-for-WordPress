@@ -11,14 +11,23 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string $order_dir
  * @property array  $table_data
  */
-abstract class BaseLoadTableData extends DynPropertiesClass {
+abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use ModConsumer;
+
+	public function build() :array {
+		return [
+			'data'            => $this->loadForLogs(),
+			'recordsTotal'    => $this->countTotalRecords(),
+			'recordsFiltered' => $this->countTotalRecordsFiltered(),
+		];
+	}
 
 	public function loadForLogs() :array {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
 		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
+		$wheres = $this->buildWheresFromSearchPanes();
 
 		$searchableColumns = array_flip( $this->getSearchableColumns() );
 
@@ -29,7 +38,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		$pageLength = 100;
 		do {
 			$interimResults = $this->buildTableRowsFromRawLogs(
-				$this->getRecords( $page*$pageLength, $pageLength )
+				$this->getRecords( $wheres, $page*$pageLength, $pageLength )
 			);
 			// no more table results to process, so go with what we have.
 			if ( empty( $interimResults ) ) {
@@ -45,7 +54,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 					$searchable = array_intersect_key( $result, $searchableColumns );
 					foreach ( $searchable as $value ) {
 						$value = wp_strip_all_tags( $value );
-						if (!is_string($search)) {
+						if ( !is_string( $search ) ) {
 							error_log( var_export( $search, true ) );
 						}
 						if ( stripos( $value, $search ) !== false ) {
@@ -70,6 +79,10 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		return array_values( $results );
 	}
 
+	protected function buildWheresFromSearchPanes() :array {
+		return [];
+	}
+
 	protected function getOrderDirection() :string {
 		if ( !isset( $this->order_dir ) ) {
 			$dir = 'DESC';
@@ -87,9 +100,13 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		return $this->order_dir;
 	}
 
-	protected function getRecords( int $offset = 0, int $limit = 0 ) :array {
+	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		return [];
 	}
+
+	abstract protected function countTotalRecords() :int;
+
+	abstract protected function countTotalRecordsFiltered() :int;
 
 	abstract protected function buildTableRowsFromRawLogs( array $records ) :array;
 

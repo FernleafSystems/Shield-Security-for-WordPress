@@ -1,6 +1,6 @@
 {
   "properties":       {
-    "version":                 "14.1.0",
+    "version":                 "14.0.3",
     "release_timestamp":       1645003743,
     "build":                   "202202.1601",
     "slug_parent":             "icwp",
@@ -180,6 +180,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
+            "datatables-searchpanes",
             "tp/highlightjs"
           ]
         },
@@ -347,6 +348,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
+            "datatables-searchpanes",
             "tp/highlightjs"
           ]
         },
@@ -360,6 +362,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
+            "datatables-searchpanes",
             "tp/highlightjs"
           ]
         },

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpCliTable;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\LoadRawTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\BuildAuditTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class AuditTrail {
@@ -10,7 +10,7 @@ class AuditTrail {
 	use ModConsumer;
 
 	public function render() {
-		$rows = ( new LoadRawTableData() )
+		$rows = ( new BuildAuditTableData() )
 			->setMod( $this->getMod() )
 			->loadForLogs();
 

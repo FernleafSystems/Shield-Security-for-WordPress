@@ -34,13 +34,11 @@ class DelegateAjaxHandler {
 	 * @throws \Exception
 	 */
 	private function retrieveTableData() :array {
-		$loader = ( new LoadRawTableData() )->setMod( $this->getMod() );
-		$loader->table_data = Services::Request()->post( 'table_data', [] );
+		$builder = ( new BuildAuditTableData() )->setMod( $this->getMod() );
+		$builder->table_data = (array)Services::Request()->post( 'table_data', [] );
 		return [
 			'success'        => true,
-			'datatable_data' => [
-				'data' => $loader->loadForLogs()
-			],
+			'datatable_data' => $builder->build(),
 		];
 	}
 

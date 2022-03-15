@@ -8,9 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property int    $limit
- * @property int    $offset
- * @property string $order_dir
+ * @property int      $limit
+ * @property int      $offset
+ * @property string[] $wheres
+ * @property string   $order_dir
  */
 class LoadLogs {
 

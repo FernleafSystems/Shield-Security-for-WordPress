@@ -78,7 +78,7 @@ class ModCon extends BaseShield\ModCon {
 					];
 				},
 				array_filter( // Get all logs entries pertaining to this user:
-					( new Shield\Modules\AuditTrail\Lib\LogTable\LoadRawTableData() )
+					( new Shield\Modules\AuditTrail\Lib\LogTable\BuildAuditTableData() )
 						->setMod( $this )
 						->loadForLogs(),
 					function ( $log ) use ( $user ) {

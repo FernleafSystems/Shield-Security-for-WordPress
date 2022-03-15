@@ -48,7 +48,7 @@ class ForAuditTrail extends Base {
 				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
-					'show' => false
+					'show' => true
 				],
 			],
 			'event_slug' => [
@@ -95,7 +95,7 @@ class ForAuditTrail extends Base {
 				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
-					'show' => false,
+					'show' => true,
 				],
 			],
 			'ip_linked'  => [
@@ -163,9 +163,6 @@ class ForAuditTrail extends Base {
 				'searchable'    => false,
 				'visible'       => true,
 				'searchPanes'   => [
-					'show' => false
-				],
-				'searchBuilder' => [
 					'show' => false
 				],
 			],
