@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
 /**
  * @property string $ip
  * @property string $rid
+ * @property string $type
+ * @property string $path
+ * @property int    $code
+ * @property string $verb
  */
 class LogRecord extends Record {
 

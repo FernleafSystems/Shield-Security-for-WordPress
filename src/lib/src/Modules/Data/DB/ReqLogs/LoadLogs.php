@@ -56,6 +56,10 @@ class LoadLogs {
 		$selectFields = [
 			'req.id',
 			'req.req_id as rid',
+			'req.type',
+			'req.path',
+			'req.code',
+			'req.verb',
 			'req.meta',
 			'req.created_at',
 			'ips.ip as ip',

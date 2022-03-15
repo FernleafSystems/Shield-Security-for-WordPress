@@ -275,7 +275,7 @@ class BuildDisplay {
 
 			$asArray = array_merge(
 				[
-					'path'    => '',
+					'path'    => $req->path,
 					'code'    => '-',
 					'verb'    => '-',
 					'query'   => '',
@@ -284,11 +284,11 @@ class BuildDisplay {
 				$asArray,
 				$req->meta
 			);
-			if ( strpos( $asArray[ 'path' ], '?' ) === false ) {
-				$asArray[ 'path' ] .= '?';
-			}
 
-			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $asArray[ 'path' ], 2 ) );
+			if ( empty( $asArray[ 'code' ] ) ) {
+				$asArray[ 'code' ] = '-';
+			}
+			$asArray[ 'query' ] = esc_js( $asArray[ 'query' ] );
 			$asArray[ 'trans' ] = (bool)$asArray[ 'offense' ];
 
 			if ( empty( $asArray[ 'path' ] ) ) {

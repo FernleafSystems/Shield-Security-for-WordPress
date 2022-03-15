@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Processor\ProcessorInterface;
 
@@ -11,28 +12,58 @@ class RequestMetaProcessor implements ProcessorInterface {
 	 * @return array
 	 */
 	public function __invoke( array $record ) {
-		$isWpCli = Services::WpGeneral()->isWpCli();
+		$WP = Services::WpGeneral();
+		$isWpCli = $WP->isWpCli();
 
 		$req = Services::Request();
 		$leadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $req->getHost() : '';
 
 		if ( $isWpCli ) {
 			global $argv;
-			$path = implode( ' ', $argv );
+			$path = $argv[ 0 ];
+			$query = count( $argv ) === 1 ? '' : implode( ' ', array_slice( $argv, 1 ) );
 		}
 		else {
-			$path = ( $leadingPath.$req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) ) );
+			$path = $leadingPath.$req->getPath();
+			$query = empty( $_GET ) ? '' : http_build_query( $_GET );
 		}
 
-		$record[ 'extra' ][ 'meta_request' ] = [
+		if ( $isWpCli ) {
+			$type = Handler::TYPE_WPCLI;
+		}
+		elseif ( $WP->isAjax() ) {
+			$type = Handler::TYPE_AJAX;
+		}
+		elseif ( Services::Rest()->isRest() ) {
+			$type = Handler::TYPE_REST;
+		}
+		elseif ( $WP->isXmlrpc() ) {
+			$type = Handler::TYPE_XMLRPC;
+		}
+		elseif ( $WP->isCron() ) {
+			$type = Handler::TYPE_CRON;
+		}
+		else {
+			$type = Handler::TYPE_NORMAL;
+		}
+
+		$data = [
 			'ip'   => $isWpCli ? '' : (string)Services::IP()->getRequestIp(),
-			'rid'  => Services::Request()->getID( true, 10 ),
+			'rid'  => Services::Request()->getID( true ),
 			'ts'   => microtime( true ),
-			'ua'   => $isWpCli ? 'wpcli' : $req->getUserAgent(),
-			'verb' => $isWpCli ? '' : strtoupper( $req->getMethod() ),
 			'path' => $path,
-			'code' => $isWpCli ? '' : http_response_code(),
+			'type' => $type,
 		];
+		if ( !$isWpCli ) {
+			$data[ 'ua' ] = $req->getUserAgent();
+			$data[ 'code' ] = http_response_code();
+			$data[ 'verb' ] = strtoupper( $req->getMethod() );
+		}
+		if ( !empty( $query ) ) {
+			$data[ 'query' ] = $query;
+		}
+
+		$record[ 'extra' ][ 'meta_request' ] = $data;
 
 		return $record;
 	}

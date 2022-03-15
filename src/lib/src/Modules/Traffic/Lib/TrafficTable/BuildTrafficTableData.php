@@ -3,11 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -49,10 +50,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 				$log->meta = array_merge(
 					[
-						'path'    => '',
-						'code'    => '200',
 						'ua'      => 'Unknown',
-						'verb'    => 'Unknown',
 						'offense' => false,
 						'uid'     => 0
 					],
@@ -64,11 +62,10 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data = $log->getRawData();
 
 				$data[ 'ip' ] = $this->log->ip;
-				$data[ 'code' ] = $this->log->meta[ 'code' ];
+				$data[ 'code' ] = $this->log->code;
 				$data[ 'offense' ] = $this->log->meta[ 'offense' ] ? 'Offense' : 'Not Offense';
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'path' ] = empty( $this->log->meta[ 'path' ] ) ? '-'
-					: explode( '?', $this->log->meta[ 'path' ], 2 )[ 0 ];
+				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
 
 				$geo = $this->getCountryIP( $this->log->ip );
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
@@ -93,7 +90,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			$records
 		) ) );
 	}
-
 
 	protected function countTotalRecords() :int {
 		return $this->getRecordsLoader()->countAll();
@@ -183,10 +179,10 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Response() :string {
-		if ( $this->log->meta[ 'code' ] >= 400 ) {
+		if ( $this->log->code >= 400 ) {
 			$codeType = 'danger';
 		}
-		elseif ( $this->log->meta[ 'code' ] >= 300 ) {
+		elseif ( $this->log->code >= 300 ) {
 			$codeType = 'warning';
 		}
 		else {
@@ -195,7 +191,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 		return sprintf( '<div>%s</div>', implode( '</div><div>', [
 			sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ),
-				sprintf( '<span class="badge bg-%s">%s</span>', $codeType, $this->log->meta[ 'code' ] ) ),
+				sprintf( '<span class="badge bg-%s">%s</span>', $codeType, $this->log->code ) ),
 			sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ),
 				sprintf(
 					'<span class="badge bg-%s">%s</span>',
@@ -207,15 +203,36 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Page() :string {
+		$query = $this->log->meta[ 'query' ] ?? '';
+
+		$content = sprintf( '[%s] ', $this->getRequestType() );
 		if ( $this->isWpCli() ) {
-			$content = sprintf( '<code>:> %s</code>', esc_html( $this->log->meta[ 'path' ] ) );
+			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
 		}
 		else {
-			list( $preQuery, $query ) = explode( '?', $this->log->meta[ 'path' ].'?', 2 );
-			$content = strtoupper( $this->log->meta[ 'verb' ] ).': <code>'.$preQuery
-					   .( empty( $query ) ? '' : '?<br/>'.rtrim( $query, '?' ) ).'</code>';
+			$content .= strtoupper( $this->log->verb ).': <code>'.$this->log->path
+						.( empty( $query ) ? '' : '?<br/>'.ltrim( $query, '?' ) ).'</code>';
 		}
 		return $content;
+	}
+
+	private function getRequestType() :string {
+		switch ( $this->log->type ) {
+			case Handler::TYPE_AJAX:
+			case Handler::TYPE_CRON:
+			case Handler::TYPE_REST:
+			case Handler::TYPE_WPCLI:
+				$type = $this->log->type;
+				break;
+			case Handler::TYPE_XMLRPC:
+				$type = 'XML-RPC';
+				break;
+			case Handler::TYPE_NORMAL:
+			default:
+				$type = 'HTTP';
+				break;
+		}
+		return $type;
 	}
 
 	private function getIpInfo( string $ip ) {
@@ -269,6 +286,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function isWpCli() :bool {
-		return $this->log->meta[ 'ua' ] === 'wpcli';
+		return $this->log->type === Handler::TYPE_WPCLI;
 	}
 }

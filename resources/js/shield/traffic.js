@@ -124,7 +124,7 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'Pfrptip',
+						dom: 'PBfrptip',
 						searchPanes: {
 							cascadePanes: false,
 							viewTotal: false,
