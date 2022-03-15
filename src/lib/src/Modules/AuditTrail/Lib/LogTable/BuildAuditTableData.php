@@ -16,12 +16,10 @@ class BuildAuditTableData extends BaseBuildTableData {
 	 */
 	private $log;
 
-	public function build() :array {
-		$buildData = parent::build();
-		$buildData[ 'searchPanes' ] = ( new BuildSearchPanesData() )
+	protected function getSearchPanesData() :array {
+		return ( new BuildSearchPanesData() )
 			->setMod( $this->getMod() )
 			->build();
-		return $buildData;
 	}
 
 	/**
@@ -116,7 +114,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 	}
 
 	protected function getRecordsLoader() :LoadLogs {
-		return ( new LoadLogs() )->setMod( $this->getCon()->getModule_AuditTrail() );
+		return ( new LoadLogs() )->setMod( $this->getMod() );
 	}
 
 	private function getColumnContent_RequestDetails() :string {

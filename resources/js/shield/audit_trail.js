@@ -172,7 +172,6 @@
 							initCollapsed: true
 						},
 						search: {
-							return: true
 						},
 						buttons: [
 							{

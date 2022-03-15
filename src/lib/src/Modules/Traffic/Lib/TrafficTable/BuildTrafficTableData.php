@@ -31,6 +31,12 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 	private $ipInfo = [];
 
+	protected function getSearchPanesData() :array {
+		return ( new BuildSearchPanesData() )
+			->setMod( $this->getCon()->getModule_Data() )
+			->build();
+	}
+
 	/**
 	 * @param LogRecord[] $records
 	 */
@@ -88,6 +94,40 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		) ) );
 	}
 
+
+	protected function countTotalRecords() :int {
+		return $this->getRecordsLoader()->countAll();
+	}
+
+	protected function countTotalRecordsFiltered() :int {
+		$loader = $this->getRecordsLoader();
+		$loader->wheres = $this->buildWheresFromSearchPanes();
+		return $loader->countAll();
+	}
+
+	/**
+	 * The Wheres need to align with the structure of the Query called from getRecords()
+	 */
+	protected function buildWheresFromSearchPanes() :array {
+		$wheres = [];
+		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
+			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
+				switch ( $column ) {
+					case 'ip':
+						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return $wheres;
+	}
+
+	protected function getRecordsLoader() :LoadLogs {
+		return ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
+	}
+
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return array_filter( array_map(
@@ -104,8 +144,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	 * @return LogRecord[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
-		$loader = ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
-		$loader->wheres = $limit;
+		$loader = $this->getRecordsLoader();
+		$loader->wheres = $wheres;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();

@@ -20,7 +20,12 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			'data'            => $this->loadForLogs(),
 			'recordsTotal'    => $this->countTotalRecords(),
 			'recordsFiltered' => $this->countTotalRecordsFiltered(),
+			'searchPanes'     => $this->getSearchPanesData(),
 		];
+	}
+
+	protected function getSearchPanesData() :array {
+		return [];
 	}
 
 	public function loadForLogs() :array {

@@ -34,7 +34,7 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'page'     => [
@@ -89,7 +89,7 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'country'  => [
@@ -100,7 +100,7 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'offense'  => [
@@ -111,10 +111,10 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
-			'path'  => [
+			'path'     => [
 				'data'        => 'path',
 				'title'       => __( 'Path' ),
 				'className'   => 'path',
@@ -122,7 +122,7 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'uid'      => [
