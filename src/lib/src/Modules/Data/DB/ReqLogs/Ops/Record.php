@@ -5,11 +5,28 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops;
 /**
  * @property string $req_id
  * @property int    $ip_ref
- * @property int    $path
  * @property string $type
+ * @property string $path
+ * @property string $verb
  * @property int    $code
- * @property int    $verb
+ * @property bool   $offense
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
+	public function __get( string $key ) {
+
+		$value = parent::__get( $key );
+
+		switch ( $key ) {
+
+			case 'offense':
+				$value = (bool)$value;
+				break;
+
+			default:
+				break;
+		}
+
+		return $value;
+	}
 }

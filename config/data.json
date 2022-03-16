@@ -87,6 +87,11 @@
           "default":    0,
           "comment":    "Response Code"
         },
+        "offense":   {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Was Offense"
+        },
         "meta":   {
           "macro_type": "meta"
         }

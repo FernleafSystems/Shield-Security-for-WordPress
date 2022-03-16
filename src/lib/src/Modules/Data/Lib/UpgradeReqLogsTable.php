@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
-use FernleafSystems\Wordpress\Services\Services;
 
 class UpgradeReqLogsTable extends ExecOnceModConsumer {
 
@@ -22,7 +22,7 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			/** @var Record[] $records */
 			$records = $select->setLimit( $pageSize )
 							  ->setPage( $page )
-							  ->addWhere( 'type', '' )
+							  ->addWhere( 'type', 'NORM' )
 							  ->queryWithResult();
 			foreach ( $records as $record ) {
 				try {
@@ -45,8 +45,8 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 
 		$upgradeData = [
-			'type' => 'NORM',
-			'path' => '',
+			'type' => Handler::TYPE_HTTP,
+			'path' => $record->path,
 		];
 
 		$meta = $record->meta;
@@ -65,6 +65,11 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			unset( $meta[ 'code' ] );
 		}
 
+		if ( isset( $meta[ 'offense' ] ) ) {
+			$upgradeData[ 'offense' ] = true;
+			unset( $meta[ 'offense' ] );
+		}
+
 		if ( !empty( $meta[ 'path' ] ) ) {
 			$parts = explode( $isWpCli ? ' ' : '?', (string)$meta[ 'path' ], 2 );
 			$upgradeData[ 'path' ] = $parts[ 0 ];
@@ -76,12 +81,12 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			$upgradeData[ 'verb' ] = strtoupper( (string)$meta[ 'verb' ] );
 			unset( $meta[ 'verb' ] );
 		}
+
 		if ( ( $meta[ 'ua' ] ?? '' ) === 'wpcli' ) {
 			$upgradeData[ 'type' ] = 'WPCLI';
 			unset( $meta[ 'ua' ] );
 		}
-
-		if ( wp_parse_url( admin_url( 'admin-ajax.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {
+		elseif ( wp_parse_url( admin_url( 'admin-ajax.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {
 			$upgradeData[ 'type' ] = 'AJAX';
 		}
 		elseif ( wp_parse_url( home_url( 'wp-cron.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {

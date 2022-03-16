@@ -63,7 +63,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'code' ] = $this->log->code;
-				$data[ 'offense' ] = $this->log->meta[ 'offense' ] ? 'Offense' : 'Not Offense';
+				$data[ 'offense' ] = $this->log->offense ? 'Offense' : 'Not Offense';
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
 
@@ -195,8 +195,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ),
 				sprintf(
 					'<span class="badge bg-%s">%s</span>',
-					@$this->log->meta[ 'offense' ] ? 'danger' : 'info',
-					@$this->log->meta[ 'offense' ] ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
+					@$this->log->offense ? 'danger' : 'info',
+					@$this->log->offense ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 				)
 			),
 		] ) );
@@ -205,7 +205,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	private function getColumnContent_Page() :string {
 		$query = $this->log->meta[ 'query' ] ?? '';
 
-		$content = sprintf( '[%s] ', $this->getRequestType() );
+		$content = sprintf( '[<code style="display: inline !important;">%s</code>] ', $this->getRequestType() );
 		if ( $this->isWpCli() ) {
 			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
 		}
@@ -227,7 +227,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			case Handler::TYPE_XMLRPC:
 				$type = 'XML-RPC';
 				break;
-			case Handler::TYPE_NORMAL:
+			case Handler::TYPE_HTTP:
 			default:
 				$type = 'HTTP';
 				break;

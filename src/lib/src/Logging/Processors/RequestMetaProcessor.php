@@ -44,7 +44,7 @@ class RequestMetaProcessor implements ProcessorInterface {
 			$type = Handler::TYPE_CRON;
 		}
 		else {
-			$type = Handler::TYPE_NORMAL;
+			$type = Handler::TYPE_HTTP;
 		}
 
 		$data = [

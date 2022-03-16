@@ -8,7 +8,7 @@ class Handler extends Base\Handler {
 
 	const TYPE_AJAX = 'AJAX';
 	const TYPE_CRON = 'CRON';
-	const TYPE_NORMAL = 'NORM';
+	const TYPE_HTTP = 'HTTP';
 	const TYPE_REST = 'REST';
 	const TYPE_WPCLI = 'WPCLI';
 	const TYPE_XMLRPC = 'XML';
