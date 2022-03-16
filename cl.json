@@ -119,6 +119,10 @@
         "released_at": 1647424478,
         "items":       [
           {
+            "title": "Fix for 'find as you type' in the options search dialog.",
+            "type":  "fixed"
+          },
+          {
             "title": "PHP Warning.",
             "type":  "fixed"
           }

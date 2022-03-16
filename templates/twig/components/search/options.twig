@@ -1,8 +1,6 @@
+{# https://stackoverflow.com/questions/31620292/bootstrap-modal-with-select2-z-index #}
 {% if vars.search_select is defined %}
-	<select class="shield-options-search" data-live-search="true"
-	        title="Search for options"
-			data-size="10"
-			data-header="Search for options"
+	<select class="select2picker static"
 			onchange="location = this.value;"
 			style="max-width: 100%; width: 100%"
 	>

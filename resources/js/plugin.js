@@ -369,11 +369,9 @@ jQuery( document ).ready( function () {
 	jQuery( '.select2picker.static' ).select2( {
 		width: 'resolve'
 	} );
-	jQuery( '.shield-options-search' ).selectpicker( {
-		title: 'Find Any Shield Option',
-		width: 'auto'
+	jQuery( '#SearchDialog select' ).select2( {
+		dropdownParent: jQuery( "#SearchDialog" )
 	} );
-
 	jQuery( '#IpReviewSelect' ).select2( {
 		minimumInputLength: 2,
 		ajax: {
