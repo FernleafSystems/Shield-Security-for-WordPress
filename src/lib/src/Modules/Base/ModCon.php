@@ -1258,14 +1258,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return Rest|mixed
-	 * @deprecated 14.1
-	 */
-	public function getRestHandler() {
-		return $this->loadModElement( 'RestHandler' );
-	}
-
-	/**
 	 * @return AdminPage
 	 */
 	public function getAdminPage() {

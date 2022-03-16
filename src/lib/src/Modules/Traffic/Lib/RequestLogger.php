@@ -96,27 +96,4 @@ class RequestLogger extends ExecOnceModConsumer {
 		}
 		return $exclude;
 	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	private function isServiceIp_Search() :bool {
-		return in_array( Services::IP()->getIpDetector()->getIPIdentity(),
-			Services::ServiceProviders()->getSearchProviders() );
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	private function isServiceIp_Uptime() :bool {
-		$IP = Services::IP();
-		return in_array( $IP->getIpDetector()->getIPIdentity(), Services::ServiceProviders()->getUptimeProviders() );
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	private function isThisServer() :bool {
-		return Services::IP()->getIpDetector()->getIPIdentity() === IpID::THIS_SERVER;
-	}
 }

@@ -47,13 +47,6 @@ abstract class Base extends ExecOnceModConsumer {
 		);
 	}
 
-	/**
-	 * @deprecated 14.1
-	 */
-	public function addAdminMenuBarItem( array $items ) :array {
-		return [];
-	}
-
 	public function getAdminMenuItems() :array {
 		return [];
 	}

@@ -77,13 +77,6 @@ class Afs extends BaseForFiles {
 		return $items;
 	}
 
-	/**
-	 * @deprecated 14.1
-	 */
-	public function addAdminMenuBarItem( array $items ) :array {
-		return $items;
-	}
-
 	public function onWpLoaded() {
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )
 			->setMod( $this->getMod() )
