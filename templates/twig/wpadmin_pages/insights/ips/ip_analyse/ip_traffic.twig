@@ -9,14 +9,24 @@
 		<table class="table">
 			<thead class="thead-light">
 			<tr>
+				<th scope="col">{{ strings.verb }}</th>
 				<th scope="col">{{ strings.requested_at }}</th>
 				<th scope="col">{{ strings.response }}</th>
-				<th scope="col">{{ strings.verb }}</th>
 			</tr>
 			</thead>
 			<tbody>
 			{% for request in vars.requests %}
 				<tr>
+					<td class="text-wrap" style="word-break: break-all">
+						<code class="text-uppercase d-inline-block">{{ request.verb }}</code> :
+						<div>
+							<code>{{ request.path }}</code>
+						</div>
+						{% if request.query is not empty %}
+							<div>{{ strings.query }}:<code>?{{ request.query }}</code></div>
+						{% endif %}
+					</td>
+
 					<td>
 						{{ request.created_at_ago }}
 						<div class="timestamp-small">{{ request.created_at }}</div>
@@ -36,17 +46,6 @@
 						</div>
 					</td>
 
-					<td class="text-wrap" style="word-break: break-all">
-						<div>
-							{{ strings.verb }}:<code class="text-uppercase d-inline-block">{{ request.verb }}</code>
-						</div>
-						<div>
-							{{ strings.path }}:<code>{{ request.path }}</code>
-						</div>
-						{% if request.query is not empty %}
-							<div>{{ strings.query }}:<code>?{{ request.query }}</code></div>
-						{% endif %}
-					</td>
 				</tr>
 			{% endfor %}
 			</tbody>

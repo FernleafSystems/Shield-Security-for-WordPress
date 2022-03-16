@@ -290,10 +290,6 @@ class BuildDisplay {
 			}
 			$asArray[ 'query' ] = esc_js( $asArray[ 'query' ] );
 			$asArray[ 'trans' ] = (bool)$asArray[ 'offense' ];
-
-			if ( empty( $asArray[ 'path' ] ) ) {
-				$asArray = null;
-			}
 			$requests[ $key ] = $asArray;
 		}
 
