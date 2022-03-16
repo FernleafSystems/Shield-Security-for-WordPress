@@ -58,6 +58,7 @@ class LoadLogs extends DynPropertiesClass {
 		$selectFields = [
 			'req.id',
 			'req.req_id as rid',
+			'req.uid',
 			'req.type',
 			'req.path',
 			'req.code',

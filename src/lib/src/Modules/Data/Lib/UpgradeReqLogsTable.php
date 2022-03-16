@@ -82,6 +82,11 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			unset( $meta[ 'verb' ] );
 		}
 
+		if ( !empty( $meta[ 'uid' ] ) ) {
+			$upgradeData[ 'uid' ] = (int)$meta[ 'uid' ];
+			unset( $meta[ 'uid' ] );
+		}
+
 		if ( ( $meta[ 'ua' ] ?? '' ) === 'wpcli' ) {
 			$upgradeData[ 'type' ] = 'WPCLI';
 			unset( $meta[ 'ua' ] );

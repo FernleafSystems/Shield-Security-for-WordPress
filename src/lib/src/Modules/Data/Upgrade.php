@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\UpgradeReqLogsTable
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgrade_1410() {
+	protected function upgrade_1411() {
 		( new UpgradeReqLogsTable() )
 			->setMod( $this->getMod() )
 			->execute();
