@@ -44,7 +44,7 @@
         "pro_only":    false,
         "title":       "Show Recent User Session In Admin Bar",
         "description": [
-          "Show quick link to user session in the admin bar and the most recently active sessions."
+          "Show quick links to recently active (10 minutes) user sessions in the admin bar and the most recently active sessions."
         ]
       },
       {
