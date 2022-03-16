@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\{
 	DB\ReqLogs\Ops,
+	DB\ReqLogs\Ops\Handler,
 	ModCon
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -24,6 +25,12 @@ class GetRequestMeta {
 					return sprintf( '<code>%s</code>', $metaDatum );
 				},
 			],
+			'type' => [
+				'name'      => __( 'Request Type', 'wp-simple-firewall' ),
+				'formatter' => function ( $metaDatum ) {
+					return Handler::GetTypeName( $metaDatum );
+				}
+			],
 			'uid'  => [
 				'name' => __( 'User ID', 'wp-simple-firewall' ),
 			],
@@ -38,6 +45,9 @@ class GetRequestMeta {
 			],
 			'path' => [
 				'name' => __( 'Path', 'wp-simple-firewall' ),
+			],
+			'code' => [
+				'name' => __( 'Response Code', 'wp-simple-firewall' ),
 			],
 			'ua'   => [
 				'name' => __( 'User Agent', 'wp-simple-firewall' ),
@@ -68,6 +78,7 @@ class GetRequestMeta {
 		$mod = $this->getMod();
 		/** @var Ops\Select $selector */
 		$selector = $mod->getDbH_ReqLogs()->getQuerySelector();
-		return $selector->filterByReqID( $this->reqID )->first()->meta;
+		$record = $selector->filterByReqID( $this->reqID )->first();
+		return array_merge( $record->meta, $record->getRawData() );
 	}
 }

@@ -250,27 +250,34 @@
     },
     "max_free_days":      7,
     "events":             {
-      "plugin_activated":        {
+      "plugin_activated":            {
         "audit_params":   [
           "plugin"
         ],
         "level":          "notice",
         "audit_multiple": true
       },
-      "plugin_deactivated":      {
+      "plugin_installed":            {
+        "audit_params":   [
+          "plugin"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
+      "plugin_deactivated":          {
         "audit_params":   [
           "plugin"
         ],
         "level":          "notice",
         "audit_multiple": true
       },
-      "plugin_file_edited":      {
+      "plugin_file_edited":          {
         "audit_params": [
           "file"
         ],
         "level":        "warning"
       },
-      "plugin_upgraded":         {
+      "plugin_upgraded":             {
         "audit_params":   [
           "plugin",
           "from",
@@ -279,19 +286,26 @@
         "level":          "notice",
         "audit_multiple": true
       },
-      "theme_activated":         {
+      "theme_activated":             {
         "audit_params": [
           "theme"
         ],
         "level":        "notice"
       },
-      "theme_file_edited":       {
+      "theme_installed":             {
+        "audit_params":   [
+          "theme"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
+      "theme_file_edited":           {
         "audit_params": [
           "file"
         ],
         "level":        "warning"
       },
-      "theme_upgraded":          {
+      "theme_upgraded":              {
         "audit_params":   [
           "theme",
           "from",
@@ -300,28 +314,28 @@
         "level":          "notice",
         "audit_multiple": true
       },
-      "core_updated":            {
+      "core_updated":                {
         "audit_params": [
           "from",
           "to"
         ],
         "level":        "notice"
       },
-      "permalinks_structure":    {
+      "permalinks_structure":        {
         "audit_params": [
           "from",
           "to"
         ],
         "level":        "warning"
       },
-      "post_deleted":            {
+      "post_deleted":                {
         "audit_params":   [
           "title"
         ],
         "level":          "warning",
         "audit_multiple": true
       },
-      "post_trashed":            {
+      "post_trashed":                {
         "audit_params":   [
           "title",
           "type"
@@ -329,7 +343,7 @@
         "level":          "warning",
         "audit_multiple": true
       },
-      "post_recovered":          {
+      "post_recovered":              {
         "audit_params":   [
           "title",
           "type"
@@ -337,7 +351,7 @@
         "level":          "info",
         "audit_multiple": true
       },
-      "post_updated":            {
+      "post_updated":                {
         "audit_params":   [
           "title",
           "type"
@@ -345,7 +359,7 @@
         "level":          "notice",
         "audit_multiple": true
       },
-      "post_published":          {
+      "post_published":              {
         "audit_params":   [
           "title",
           "type"
@@ -353,7 +367,7 @@
         "level":          "notice",
         "audit_multiple": true
       },
-      "post_unpublished":        {
+      "post_unpublished":            {
         "audit_params":   [
           "title",
           "type"
@@ -361,26 +375,26 @@
         "level":          "warning",
         "audit_multiple": true
       },
-      "user_login":              {
+      "user_login":                  {
         "audit_params": [
           "user_login"
         ],
         "level":        "warning"
       },
-      "user_login_app":          {
+      "user_login_app":              {
         "audit_params": [
           "user_login"
         ],
         "level":        "warning"
       },
-      "user_registered":         {
+      "user_registered":             {
         "audit_params": [
           "user_login",
           "email"
         ],
         "level":        "alert"
       },
-      "user_deleted":            {
+      "user_deleted":                {
         "audit_params":   [
           "user_login",
           "email"
@@ -388,13 +402,39 @@
         "level":          "warning",
         "audit_multiple": true
       },
-      "user_deleted_reassigned": {
+      "user_deleted_reassigned":     {
         "audit_params": [
           "user_login"
         ],
         "level":        "notice"
       },
-      "email_attempt_send":      {
+      "app_pass_success":            {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "notice"
+      },
+      "app_invalid_email":           {
+        "level":   "warning",
+        "offense": true
+      },
+      "app_invalid_username":        {
+        "level":   "warning",
+        "offense": true
+      },
+      "app_incorrect_password":      {
+        "level":   "warning",
+        "offense": true
+      },
+      "app_passwords_disabled":      {
+        "level":   "warning",
+        "offense": true
+      },
+      "app_passwords_disabled_user": {
+        "level":   "warning",
+        "offense": true
+      },
+      "email_attempt_send":          {
         "audit_params":   [
           "to",
           "subject",

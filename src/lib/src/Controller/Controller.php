@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $is_mode_staging
  * @property bool                                                   $is_mode_live
  * @property bool                                                   $is_my_upgrade
+ * @property bool                                                   $is_rest_enabled
  * @property bool                                                   $modules_loaded
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
@@ -29,6 +30,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
+ * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property Shield\Users\UserMetas                                 $user_metas
@@ -58,11 +60,6 @@ class Controller extends DynPropertiesClass {
 	 * @var Shield\Utilities\AdminNotices\Controller
 	 */
 	protected $oNotices;
-
-	/**
-	 * @var Shield\Modules\Events\Lib\EventsService
-	 */
-	private $oEventsService;
 
 	public function fireEvent( string $event, array $meta = [] ) :self {
 		$this->loadEventsService()->fireEvent( $event, $meta );
@@ -97,7 +94,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $rootFile
 	 * @throws \Exception
 	 */
 	protected function __construct( string $rootFile ) {
@@ -106,6 +102,9 @@ class Controller extends DynPropertiesClass {
 		$this->modules = [];
 
 		$this->loadServices();
+		if ( $this->mu_handler->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
+			Services::WpPlugins()->activate( $this->base_file );
+		}
 		$this->loadConfig();
 
 		$this->checkMinimumRequirements();
@@ -117,7 +116,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {
@@ -134,6 +132,15 @@ class Controller extends DynPropertiesClass {
 			case 'rebuild_options':
 			case 'user_can_base_permissions':
 				$val = (bool)$val;
+				break;
+
+			case 'is_rest_enabled':
+				if ( is_null( $val ) ) {
+					$restReqs = $this->cfg->reqs_rest;
+					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
+						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
+					$this->is_rest_enabled = $val;
+				}
 				break;
 
 			case 'cache_dir_handler':
@@ -197,6 +204,14 @@ class Controller extends DynPropertiesClass {
 					$val = ( new Shield\Utilities\Nonce\Handler() )
 						->setCon( $this );
 					$this->nonce_handler = $val;
+				}
+				break;
+
+			case 'mu_handler':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Utilities\MU\MUHandler() )
+						->setCon( $this );
+					$this->mu_handler = $val;
 				}
 				break;
 
@@ -376,14 +391,6 @@ class Controller extends DynPropertiesClass {
 		return $path;
 	}
 
-	/**
-	 * @deprecated 14
-	 */
-	public function hasCacheDir() :bool {
-		return !empty( $this->getPluginCachePath() );
-//		return $this->cache_dir_handler->dirExists();
-	}
-
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
@@ -559,13 +566,7 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function getNonceActionData( string $action = '' ) :array {
-		if ( empty( $action ) ) {
-			throw new \Exception( 'Empty actions are not allowed.' );
-		}
+	public function getNonceActionData( string $action ) :array {
 		return [
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $action,
@@ -583,8 +584,8 @@ class Controller extends DynPropertiesClass {
 
 		if ( $pluginFile === $this->base_file ) {
 			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $this->cfg->plugin_meta as $aHref ) {
-				array_push( $pluginMeta, sprintf( $template, $aHref[ 'href' ], $aHref[ 'name' ] ) );
+			foreach ( $this->cfg->plugin_meta as $href ) {
+				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
 			}
 		}
 		return $pluginMeta;
@@ -595,6 +596,18 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
+		$WP = Services::WpGeneral();
+
+		if ( $this->mu_handler->isActiveMU() ) {
+			foreach ( $actionLinks as $key => $actionHref ) {
+				if ( strpos( $actionHref, 'action=deactivate' ) ) {
+					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',
+						add_query_arg( [ 'plugin_status' => 'mustuse' ], $WP->getAdminUrl_Plugins() ),
+						__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
+					);
+				}
+			}
+		}
 
 		if ( $this->isValidAdminArea() ) {
 
@@ -607,9 +620,9 @@ class Controller extends DynPropertiesClass {
 
 				$isPro = $this->isPremiumActive();
 				$DP = Services::Data();
-				$sLinkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
-				foreach ( $links as $aLink ) {
-					$aLink = array_merge(
+				$linkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
+				foreach ( $links as $link ) {
+					$link = array_merge(
 						[
 							'highlight' => false,
 							'show'      => 'always',
@@ -618,29 +631,29 @@ class Controller extends DynPropertiesClass {
 							'href'      => '',
 							'target'    => '_top',
 						],
-						$aLink
+						$link
 					);
 
-					$show = $aLink[ 'show' ];
-					$bShow = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
-					if ( !$DP->isValidWebUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
-						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
+					$show = $link[ 'show' ];
+					$show = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
+					if ( !$DP->isValidWebUrl( $link[ 'href' ] ) && method_exists( $this, $link[ 'href' ] ) ) {
+						$link[ 'href' ] = $this->{$link[ 'href' ]}();
 					}
 
-					if ( !$bShow || !$DP->isValidWebUrl( $aLink[ 'href' ] )
-						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
+					if ( !$show || !$DP->isValidWebUrl( $link[ 'href' ] )
+						 || empty( $link[ 'name' ] ) || empty( $link[ 'href' ] ) ) {
 						continue;
 					}
 
-					$aLink[ 'name' ] = __( $aLink[ 'name' ], 'wp-simple-firewall' );
+					$link[ 'name' ] = __( $link[ 'name' ], 'wp-simple-firewall' );
 
-					$sLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], $aLink[ 'target' ], $aLink[ 'title' ], $aLink[ 'name' ] );
-					if ( $aLink[ 'highlight' ] ) {
-						$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );
+					$href = sprintf( $linkTemplate, $link[ 'href' ], $link[ 'target' ], $link[ 'title' ], $link[ 'name' ] );
+					if ( $link[ 'highlight' ] ) {
+						$href = sprintf( '<span style="font-weight: bold;">%s</span>', $href );
 					}
 
 					$actionLinks = array_merge(
-						[ $this->prefix( sanitize_key( $aLink[ 'name' ] ) ) => $sLink ],
+						[ $this->prefix( sanitize_key( $link[ 'name' ] ) ) => $href ],
 						$actionLinks
 					);
 				}

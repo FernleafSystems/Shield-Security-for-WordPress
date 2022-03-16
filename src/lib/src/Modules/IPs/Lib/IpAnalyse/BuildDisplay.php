@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
@@ -15,8 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -181,7 +181,7 @@ class BuildDisplay {
 					'status'   => [
 						'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
 						'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
-						'is_blocked'             => !empty( $blockIP ) ? $blockIP->blocked_at > 0 : false,
+						'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
 						'is_bypass'              => !empty( $bypassIP ),
 						'ip_reputation_score'    => $botScore,
 						'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
@@ -210,6 +210,7 @@ class BuildDisplay {
 	}
 
 	private function renderForSessions() :string {
+		$WP = Services::WpGeneral();
 		/** @var Databases\Session\Select $sel */
 		$sel = $this->getCon()
 					->getModule_Sessions()
@@ -221,8 +222,10 @@ class BuildDisplay {
 
 		foreach ( $sessions as $key => $session ) {
 			$asArray = $session->getRawData();
-			$asArray[ 'logged_in_at' ] = $this->formatTimestampField( (int)$session->logged_in_at );
-			$asArray[ 'last_activity_at' ] = $this->formatTimestampField( (int)$session->last_activity_at );
+			$asArray[ 'logged_in_at' ] = $WP->getTimeStringForDisplay( $session->logged_in_at );
+			$asArray[ 'logged_in_at_ago' ] = $this->getTimeAgo( $session->logged_in_at );
+			$asArray[ 'last_activity_at' ] = $WP->getTimeStringForDisplay( $session->last_activity_at );
+			$asArray[ 'last_activity_at_ago' ] = $this->getTimeAgo( $session->last_activity_at );
 			$asArray[ 'is_sec_admin' ] = $session->secadmin_at > 0;
 			$sessions[ $key ] = $asArray;
 		}
@@ -248,6 +251,7 @@ class BuildDisplay {
 	}
 
 	private function renderForTraffic() :string {
+		$WP = Services::WpGeneral();
 		try {
 			$ip = ( new IPRecords() )
 				->setMod( $this->getCon()->getModule_Data() )
@@ -266,11 +270,12 @@ class BuildDisplay {
 
 		foreach ( $requests as $key => $req ) {
 			$asArray = $req->getRawData();
-			$asArray[ 'created_at' ] = $this->formatTimestampField( (int)$req->created_at );
+			$asArray[ 'created_at' ] = $WP->getTimeStringForDisplay( $req->created_at );
+			$asArray[ 'created_at_ago' ] = $this->getTimeAgo( $req->created_at );
 
 			$asArray = array_merge(
 				[
-					'path'    => '',
+					'path'    => $req->path,
 					'code'    => '-',
 					'verb'    => '-',
 					'query'   => '',
@@ -279,11 +284,11 @@ class BuildDisplay {
 				$asArray,
 				$req->meta
 			);
-			if ( strpos( $asArray[ 'path' ], '?' ) === false ) {
-				$asArray[ 'path' ] .= '?';
-			}
 
-			list( $asArray[ 'path' ], $asArray[ 'query' ] ) = array_map( 'esc_js', explode( '?', $asArray[ 'path' ], 2 ) );
+			if ( empty( $asArray[ 'code' ] ) ) {
+				$asArray[ 'code' ] = '-';
+			}
+			$asArray[ 'query' ] = esc_js( $asArray[ 'query' ] );
 			$asArray[ 'trans' ] = (bool)$asArray[ 'offense' ];
 
 			if ( empty( $asArray[ 'path' ] ) ) {
@@ -389,6 +394,7 @@ class BuildDisplay {
 	}
 
 	private function renderForAuditTrail() :string {
+		$WP = Services::WpGeneral();
 		// TODO: IP Filtering at the SQL query level
 		$logRecords = ( new LoadLogs() )
 			->setMod( $this->getCon()->getModule_AuditTrail() )
@@ -402,7 +408,8 @@ class BuildDisplay {
 				$asArray = $record->getRawData();
 
 				$asArray[ 'event' ] = implode( ' ', AuditMessageBuilder::BuildFromLogRecord( $record ) );
-				$asArray[ 'created_at' ] = $this->formatTimestampField( $record->created_at );
+				$asArray[ 'created_at' ] = $WP->getTimeStringForDisplay( $record->created_at );
+				$asArray[ 'created_at_ago' ] = $this->getTimeAgo( $record->created_at );
 
 				$user = empty( $record->meta_data[ 'uid' ] ) ? null
 					: Services::WpUsers()->getUserById( $record->meta_data[ 'uid' ] );
@@ -431,17 +438,10 @@ class BuildDisplay {
 		);
 	}
 
-	/**
-	 * copied from Table Builder
-	 * @param int $nTimestamp
-	 * @return string
-	 */
-	protected function formatTimestampField( int $nTimestamp ) {
+	protected function getTimeAgo( int $ts ) :string {
 		return Services::Request()
 					   ->carbon()
-					   ->setTimestamp( $nTimestamp )
-					   ->diffForHumans()
-			   .'<br/><span class="timestamp-small">'
-			   .Services::WpGeneral()->getTimeStringForDisplay( $nTimestamp ).'</span>';
+					   ->setTimestamp( $ts )
+					   ->diffForHumans();
 	}
 }

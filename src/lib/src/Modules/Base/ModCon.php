@@ -124,16 +124,6 @@ abstract class ModCon {
 			$this->loadAdminNotices();
 		}
 
-		if ( $this->getOptions()->getDef( 'rest_api' ) ) {
-			add_action( 'rest_api_init', function () {
-				try {
-					$this->getRestHandler()->init();
-				}
-				catch ( \Exception $e ) {
-				}
-			} );
-		}
-
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 //		}
@@ -268,7 +258,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
@@ -282,6 +271,27 @@ abstract class ModCon {
 	public function onWpLoaded() {
 		if ( is_admin() || is_network_admin() ) {
 			$this->getAdminPage()->execute();
+		}
+		if ( $this->getCon()->is_rest_enabled ) {
+			$this->initRestApi();
+		}
+	}
+
+	protected function initRestApi() {
+		$cfg = $this->getOptions()->getDef( 'rest_api' );
+		if ( !empty( $cfg[ 'publish' ] ) ) {
+			add_action( 'rest_api_init', function () use ( $cfg ) {
+				try {
+					$restClass = $this->findElementClass( 'Rest' );
+					/** @var Shield\Modules\Base\Rest $rest */
+					if ( @class_exists( $restClass ) ) {
+						$rest = new $restClass( $cfg );
+						$rest->setMod( $this )->init();
+					}
+				}
+				catch ( \Exception $e ) {
+				}
+			} );
 		}
 	}
 
@@ -350,7 +360,7 @@ abstract class ModCon {
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			try {
-				$class = $this->findElementClass( 'Processor', true );
+				$class = $this->findElementClass( 'Processor' );
 			}
 			catch ( \Exception $e ) {
 				return null;
@@ -665,11 +675,11 @@ abstract class ModCon {
 	}
 
 	public function getTextOpt( string $key ) :string {
-		$sValue = $this->getOptions()->getOpt( $key, 'default' );
-		if ( $sValue == 'default' ) {
-			$sValue = $this->getTextOptDefault( $key );
+		$txt = $this->getOptions()->getOpt( $key, 'default' );
+		if ( $txt == 'default' ) {
+			$txt = $this->getTextOptDefault( $key );
 		}
-		return __( $sValue, 'wp-simple-firewall' );
+		return __( $txt, 'wp-simple-firewall' );
 	}
 
 	public function getTextOptDefault( string $key ) :string {
@@ -693,13 +703,6 @@ abstract class ModCon {
 		return $this;
 	}
 
-	public function setOptions( array $options ) {
-		$opts = $this->getOptions();
-		foreach ( $options as $key => $value ) {
-			$opts->setOpt( $key, $value );
-		}
-	}
-
 	public function isModuleRequest() :bool {
 		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
 	}
@@ -713,12 +716,8 @@ abstract class ModCon {
 		return $asJson ? json_encode( (object)$data ) : $data;
 	}
 
-	/**
-	 * @param string $action
-	 * @return array
-	 */
-	public function getNonceActionData( $action = '' ) {
-		$data = $this->getCon()->getNonceActionData( (string)$action );
+	public function getNonceActionData( string $action = '' ) :array {
+		$data = $this->getCon()->getNonceActionData( $action );
 		$data[ 'mod_slug' ] = $this->getModSlug();
 		return $data;
 	}
@@ -762,12 +761,11 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param bool $bPreProcessOptions
 	 * @return $this
 	 */
-	public function saveModOptions( $bPreProcessOptions = false ) {
+	public function saveModOptions( bool $preProcessOptions = false ) {
 
-		if ( $bPreProcessOptions ) {
+		if ( $preProcessOptions ) {
 			$this->preProcessOptions();
 		}
 
@@ -1260,7 +1258,8 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @return RestHandler|mixed
+	 * @return Rest|mixed
+	 * @deprecated 14.1
 	 */
 	public function getRestHandler() {
 		return $this->loadModElement( 'RestHandler' );
@@ -1341,7 +1340,7 @@ abstract class ModCon {
 	/**
 	 * @return Shield\Modules\Base\Databases|mixed
 	 */
-	protected function getDbHandler() {
+	public function getDbHandler() {
 		if ( empty( $this->dbHandler ) ) {
 			$this->dbHandler = $this->loadModElement( 'Databases' );
 		}
@@ -1356,7 +1355,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param string $class
 	 * @return false|Shield\Modules\ModConsumer
 	 */
 	private function loadModElement( string $class ) {

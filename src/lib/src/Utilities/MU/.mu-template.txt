@@ -1,0 +1,24 @@
+<?php declare( strict_types=1 );
+/*
+ * Plugin Name: SHIELD_PLUGIN_NAME (MU)
+ * Plugin URI: SHIELD_PLUGIN_URL
+ * Description: The Must-Use (MU) version of the SHIELD_PLUGIN_NAME plugin. To disable this, first turn-off the option within the Security Admin module.
+ * Author: SHIELD_PLUGIN_AUTHOR
+ * Author URI: SHIELD_PLUGIN_URL
+ */
+
+call_user_func( function () {
+	$shieldFile = 'SHIELD_ROOT_FILE';
+	if ( file_exists( $shieldFile ) ) {
+		require_once( $shieldFile );
+	}
+	else {
+		add_action( 'admin_notices', function () {
+			echo sprintf(
+				'<div id="message" class="error">'.
+				'<p>The SHIELD_PLUGIN_NAME plugin appears to have been removed. Please also remove the MU-Plugin file: <code>%s</code>.</p></div>',
+				esc_html( __FILE__ )
+			);
+		} );
+	}
+} );

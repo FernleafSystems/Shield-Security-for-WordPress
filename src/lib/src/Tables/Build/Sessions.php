@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Sessions
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
- */
 class Sessions extends BaseBuild {
 
 	/**
@@ -61,29 +57,29 @@ class Sessions extends BaseBuild {
 		$you = $srvIP->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $entry ) {
 			/** @var Session\EntryVO $entry */
-			$aE = $entry->getRawData();
-			$aE[ 'is_secadmin' ] = $this->isSecAdminSession( $entry ) ? __( 'Yes' ) : __( 'No' );
-			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $entry->last_activity_at );
-			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $entry->logged_in_at );
+			$e = $entry->getRawData();
+			$e[ 'is_secadmin' ] = $this->isSecAdminSession( $entry ) ? __( 'Yes' ) : __( 'No' );
+			$e[ 'last_activity_at' ] = $this->formatTimestampField( $entry->last_activity_at );
+			$e[ 'logged_in_at' ] = $this->formatTimestampField( $entry->logged_in_at );
 
 			try {
-				$aE[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
+				$e[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
 			}
-			catch ( \Exception $e ) {
-				$aE[ 'is_you' ] = false;
+			catch ( \Exception $ex ) {
+				$e[ 'is_you' ] = false;
 			}
-			$aE[ 'ip' ] = sprintf( '%s%s',
+			$e[ 'ip' ] = sprintf( '%s%s',
 				$this->getIpAnalysisLink( $entry->ip ),
-				$aE[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
+				$e[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
 			);
 
-			$oWpUsers = Services::WpUsers();
-			$aE[ 'wp_username' ] = sprintf(
+			$WPU = Services::WpUsers();
+			$e[ 'wp_username' ] = sprintf(
 				'<a href="%s">%s</a>',
-				$oWpUsers->getAdminUrl_ProfileEdit( $oWpUsers->getUserByUsername( $aE[ 'wp_username' ] ?? '' ) ),
-				$aE[ 'wp_username' ]
+				$WPU->getAdminUrl_ProfileEdit( $WPU->getUserByUsername( $e[ 'wp_username' ] ?? '' ) ),
+				$e[ 'wp_username' ]
 			);
-			$aEntries[ $nKey ] = $aE;
+			$aEntries[ $nKey ] = $e;
 		}
 		return $aEntries;
 	}

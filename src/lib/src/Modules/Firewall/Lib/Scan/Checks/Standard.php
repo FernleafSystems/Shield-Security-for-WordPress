@@ -7,7 +7,6 @@ class Standard extends Base {
 	private $params;
 
 	/**
-	 * @param array  $params
 	 * @return false|\WP_Error
 	 */
 	public function run( array $params ) {
@@ -32,7 +31,7 @@ class Standard extends Base {
 		$found = false;
 		foreach ( $this->getFirewallPatterns_Regex() as $term ) {
 			foreach ( $this->params as $param => $value ) {
-				if ( preg_match( $term, $value ) ) {
+				if ( preg_match( sprintf( '/%s/i', $term ), $value ) ) {
 					$found = new \WP_Error( 'shield-firewall', '', [
 						'param' => $param,
 						'value' => $value,

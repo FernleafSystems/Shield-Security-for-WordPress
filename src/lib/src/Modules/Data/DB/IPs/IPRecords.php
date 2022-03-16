@@ -24,7 +24,8 @@ class IPRecords {
 			$select = $dbh->getQuerySelector();
 			$record = $select->filterByIPHuman( $ip )->first();
 
-			if ( empty( $record ) && $autoCreate && $this->addIP( $ip ) ) {
+			if ( empty( $record ) && $autoCreate ) {
+				$this->addIP( $ip );
 				$record = $this->loadIP( $ip, false );
 			}
 
@@ -38,7 +39,7 @@ class IPRecords {
 		return $record;
 	}
 
-	public function addIP( string $ip ) :bool {
+	public function addIP( string $ip ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbH_IPs();
@@ -47,6 +48,6 @@ class IPRecords {
 		/** @var Ops\Record $record */
 		$record = $dbh->getRecord();
 		$record->ip = $ip;
-		return $insert->insert( $record );
+		$insert->insert( $record );
 	}
 }

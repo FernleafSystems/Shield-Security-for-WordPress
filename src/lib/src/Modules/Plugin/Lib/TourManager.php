@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class TourManager
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib
- */
 class TourManager {
 
 	use ModConsumer;

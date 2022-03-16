@@ -76,13 +76,6 @@ abstract class BaseProvider {
 	abstract public function isProviderEnabled() :bool;
 
 	/**
-	 * @deprecated 13.1
-	 */
-	protected function isSecretValid() :bool {
-		return false;
-	}
-
-	/**
 	 * @return mixed
 	 */
 	public function resetSecret() {

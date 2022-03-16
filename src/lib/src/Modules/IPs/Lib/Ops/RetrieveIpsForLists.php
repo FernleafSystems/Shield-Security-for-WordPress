@@ -1,9 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 
 class RetrieveIpsForLists {
@@ -13,56 +14,55 @@ class RetrieveIpsForLists {
 	/**
 	 * @return string[]
 	 */
-	public function all() {
-		return $this->forLists( [] );
+	public function all() :array {
+		return $this->forLists();
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function white() {
-		return $this->forLists( [ 'MW' ] );
+	public function white() :array {
+		return $this->forLists( [ ModCon::LIST_MANUAL_WHITE ] );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function black() {
-		return $this->forLists( [ 'AB', 'MB' ] );
+	public function black() :array {
+		return $this->forLists( [ ModCon::LIST_AUTO_BLACK, ModCon::LIST_MANUAL_BLACK ] );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function blackAuto() {
-		return $this->forLists( [ 'AB' ] );
+	public function blackAuto() :array {
+		return $this->forLists( [ ModCon::LIST_AUTO_BLACK ] );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function blackManual() {
-		return $this->forLists( [ 'MB' ] );
+	public function blackManual() :array {
+		return $this->forLists( [ ModCon::LIST_MANUAL_BLACK ] );
 	}
 
 	/**
-	 * @param string[] $aLists
 	 * @return string[]
 	 */
-	private function forLists( $aLists ) {
-		$aResult = [];
-		/** @var IPs\Select $oSel */
-		$oSel = $this->getDbHandler()
-					 ->getQuerySelector()
-					 ->addColumnToSelect( 'ip' )
-					 ->setIsDistinct( true );
-		if ( !empty( $aLists ) ) {
-			$oSel->filterByLists( $aLists );
+	private function forLists( array $lists = [] ) :array {
+		$result = [];
+		/** @var IPs\Select $selector */
+		$selector = $this->getDbHandler()
+						 ->getQuerySelector()
+						 ->addColumnToSelect( 'ip' )
+						 ->setIsDistinct( true );
+		if ( !empty( $lists ) ) {
+			$selector->filterByLists( $lists );
 		}
-		$aDistinct = $oSel->query();
-		if ( is_array( $aDistinct ) ) {
-			$aResult = IpListSort::Sort( $aDistinct );
+		$distinct = $selector->query();
+		if ( is_array( $distinct ) ) {
+			$result = IpListSort::Sort( $distinct );
 		}
-		return $aResult;
+		return $result;
 	}
 }

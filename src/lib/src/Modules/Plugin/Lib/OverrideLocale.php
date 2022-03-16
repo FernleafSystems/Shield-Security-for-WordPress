@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\LoadTextDomain;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-/**
- * Class OverrideLocale
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib
- */
 class OverrideLocale {
 
 	use ModConsumer;

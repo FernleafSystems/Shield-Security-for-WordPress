@@ -40,6 +40,24 @@ class ModCon extends BaseShield\ModCon {
 		return $this->securityAdminCon;
 	}
 
+	public function runDailyCron() {
+		parent::runDailyCron();
+		$this->runMuHandler();
+	}
+
+	private function runMuHandler() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$mu = $this->getCon()->mu_handler;
+		try {
+			$opts->isEnabledMU() ? $mu->convertToMU() : $mu->convertToStandard();
+		}
+		catch ( \Exception $e ) {
+		}
+		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
+	}
+
 	public function getSecAdminLoginAjaxData() :array {
 		return $this->getAjaxActionData( 'sec_admin_login' );
 	}
@@ -65,6 +83,8 @@ class ModCon extends BaseShield\ModCon {
 			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
 			$opts->setOpt( 'sec_admin_users', [] );
 		}
+
+		$this->runMuHandler();
 	}
 
 	protected function handleModAction( string $action ) {

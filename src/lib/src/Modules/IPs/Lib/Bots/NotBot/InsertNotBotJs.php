@@ -36,25 +36,15 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 					'wp-hummingbird.php',
 					'sg-cachepress.php',
 					'autoptimize.php',
+					'wp-optimize.php',
 				]
 			) ) > 0
 		);
 	}
 
 	protected function run() {
-		$this->sendNonceCookie();
 		$this->enqueueJS();
 		$this->nonceJs();
-	}
-
-	protected function sendNonceCookie() {
-		if ( $this->isForcedForOptimisationPlugins() ) {
-			Services::Response()->cookieSet(
-				'shield-notbot-nonce',
-				$this->getMod()->getAjaxActionData( 'not_bot' )[ 'exec_nonce' ],
-				15
-			);
-		}
 	}
 
 	protected function enqueueJS() {

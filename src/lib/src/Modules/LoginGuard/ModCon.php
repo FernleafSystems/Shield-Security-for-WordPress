@@ -209,14 +209,6 @@ class ModCon extends BaseShield\ModCon {
 		return $cfg;
 	}
 
-	/**
-	 * @return Lib\TwoFactor\MfaController
-	 * @deprecated 13.1
-	 */
-	public function getLoginIntentController() {
-		return $this->getMfaController();
-	}
-
 	public function getMfaController() :Lib\TwoFactor\MfaController {
 		if ( !isset( $this->mfaCon ) ) {
 			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );

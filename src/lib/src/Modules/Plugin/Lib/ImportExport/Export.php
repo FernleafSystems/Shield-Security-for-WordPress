@@ -94,13 +94,13 @@ class Export {
 	/**
 	 * @return string[]
 	 */
-	public function toStandardArray() :array{
-		$sExport = json_encode( $this->getExportData() );
+	public function toStandardArray() :array {
+		$export = json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
-			'# Hash: '.sha1( $sExport ),
-			$sExport
+			'# Hash: '.sha1( $export ),
+			$export
 		];
 	}
 
@@ -114,14 +114,27 @@ class Export {
 		);
 	}
 
-	private function getExportData() :array{
+	public function getExportData() :array {
+		$all = [];
+		foreach ( $this->getRawOptionsExport() as $modSlug => $modOptions ) {
+			$mod = $this->getCon()->modules[ $modSlug ];
+			$all[ $mod->getOptionsStorageKey() ] = $modOptions;
+		}
+		return $all;
+	}
+
+	public function getRawOptionsExport( bool $filterExcluded = true ) :array {
 		$all = [];
 		foreach ( $this->getCon()->modules as $mod ) {
-			$oOpts = $mod->getOptions();
-			$all[ $mod->getOptionsStorageKey() ] = array_diff_key(
-				$oOpts->getTransferableOptions(),
-				array_flip( $oOpts->getXferExcluded() )
-			);
+			$opts = $mod->getOptions();
+			$xfr = $opts->getTransferableOptions();
+			if ( $filterExcluded ) {
+				$xfr = array_diff_key(
+					$xfr,
+					array_flip( $opts->getXferExcluded() )
+				);
+			}
+			$all[ $mod->getSlug() ] = $xfr;
 		}
 		return $all;
 	}
@@ -130,7 +143,7 @@ class Export {
 	 * @param string $url
 	 * @return bool
 	 */
-	private function isUrlOnWhitelist( $url ) :bool{
+	private function isUrlOnWhitelist( $url ) :bool {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $url ) && in_array( $url, $opts->getImportExportWhitelist() );
@@ -140,7 +153,7 @@ class Export {
 	 * @param string $url
 	 * @return bool
 	 */
-	private function verifyUrlWithHandshake( $url ):bool {
+	private function verifyUrlWithHandshake( $url ) :bool {
 		$bVerified = false;
 
 		if ( !empty( $url ) ) {

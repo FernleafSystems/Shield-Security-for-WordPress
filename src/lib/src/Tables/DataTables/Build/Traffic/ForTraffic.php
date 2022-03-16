@@ -17,6 +17,7 @@ class ForTraffic extends Base {
 			'details',
 			'response',
 			'date',
+			'type',
 			'path',
 			'code',
 			'offense',
@@ -30,18 +31,18 @@ class ForTraffic extends Base {
 				'data'        => 'rid',
 				'title'       => __( 'Request ID' ),
 				'className'   => 'rid',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'page'     => [
 				'data'        => 'page',
 				'title'       => __( 'Page' ),
 				'className'   => 'page',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => true,
 				'searchPanes' => [
@@ -70,11 +71,22 @@ class ForTraffic extends Base {
 					'show' => false
 				],
 			],
+			'type'     => [
+				'data'        => 'type',
+				'title'       => __( 'Type' ),
+				'className'   => 'type',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => true,
+				],
+			],
 			'ip'       => [
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
 				'className'   => 'ip',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
@@ -85,7 +97,7 @@ class ForTraffic extends Base {
 				'data'        => 'code',
 				'title'       => __( 'Response Code' ),
 				'className'   => 'code',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
@@ -96,11 +108,11 @@ class ForTraffic extends Base {
 				'data'        => 'country',
 				'title'       => __( 'Country' ),
 				'className'   => 'country',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'offense'  => [
@@ -108,13 +120,13 @@ class ForTraffic extends Base {
 				'title'       => __( 'Is Offense' ),
 				'className'   => 'offense',
 				'orderable'   => false,
-				'searchable'  => true,
+				'searchable'  => false,
 				'visible'     => false,
 				'searchPanes' => [
 					'show' => true,
 				],
 			],
-			'path'  => [
+			'path'     => [
 				'data'        => 'path',
 				'title'       => __( 'Path' ),
 				'className'   => 'path',
@@ -122,14 +134,14 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'uid'      => [
 				'data'       => 'uid',
 				'title'      => __( 'User ID' ),
 				'className'  => 'uid',
-				'orderable'  => true,
+				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => false,
 			],

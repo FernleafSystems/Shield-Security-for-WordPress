@@ -10,12 +10,11 @@ class OptValueSanitize {
 	use ModConsumer;
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public function run( $key, $value ) {
+	public function run( string $key, $value ) {
 		$opts = $this->getOptions();
 		if ( !in_array( $key, $opts->getOptionsKeys() ) ) {
 			throw new \Exception( sprintf( 'Not a valid option key for module: %s', $key ) );

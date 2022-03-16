@@ -9,8 +9,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
-		$this->tests();
+		$this->dbIntegrity();
 		die( 'finish' );
+	}
+
+	private function dbIntegrity() {
+		( new Lib\Ops\VerifyDatabaseIntegrity() )
+			->setCon( $this->getCon() )
+			->run();
 	}
 
 	private function testbotsignals() {

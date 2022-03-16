@@ -21,7 +21,6 @@ class Storage {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function loadOptions() :array {
@@ -32,7 +31,6 @@ class Storage {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function loadFromWP() :array {

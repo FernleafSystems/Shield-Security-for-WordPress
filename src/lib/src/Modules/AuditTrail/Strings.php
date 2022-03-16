@@ -11,134 +11,140 @@ class Strings extends Base\Strings {
 	 */
 	public function getEventStrings() :array {
 		return [
-			'plugin_activated'        => [
+			'plugin_activated'            => [
 				'name'  => __( 'Plugin Activated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Plugin "{{plugin}}" was activated.', 'wp-simple-firewall' )
 				],
 			],
-			'plugin_deactivated'      => [
+			'plugin_installed'            => [
+				'name'  => __( 'Plugin Installed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin "{{plugin}}" was installed.', 'wp-simple-firewall' )
+				],
+			],
+			'plugin_deactivated'          => [
 				'name'  => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Plugin "{{plugin}}" was deactivated.', 'wp-simple-firewall' )
 				],
 			],
-			'plugin_upgraded'         => [
+			'plugin_upgraded'             => [
 				'name'  => __( 'Plugin Upgraded', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Plugin "{{plugin}}" was upgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' )
 				],
 			],
-			'plugin_file_edited'      => [
+			'plugin_file_edited'          => [
 				'name'  => __( 'Plugin File Edited', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'An attempt was made to edit the plugin file "{{file}}" directly through the WordPress editor.', 'wp-simple-firewall' )
 				],
 			],
-			'theme_activated'         => [
+			'theme_activated'             => [
 				'name'  => __( 'Theme Activated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Theme "{{theme}}" was activated.', 'wp-simple-firewall' ),
 				],
 			],
-			'theme_file_edited'       => [
+			'theme_installed'            => [
+				'name'  => __( 'Theme Installed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Theme "{{theme}}" was installed.', 'wp-simple-firewall' )
+				],
+			],
+			'theme_file_edited'           => [
 				'name'  => __( 'Theme File Edited', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'An attempt was made to edit the theme file "{{file}}" directly through the WordPress editor.', 'wp-simple-firewall' ),
 				],
 			],
-			'theme_upgraded'          => [
+			'theme_upgraded'              => [
 				'name'  => __( 'Theme Upgraded', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Theme "{{theme}}" was upgraded from version {{from}} to version {{to}}.', 'wp-simple-firewall' ),
 				],
 			],
-			'core_updated'            => [
+			'core_updated'                => [
 				'name'  => __( 'WP Core Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'WordPress Core was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'permalinks_structure'    => [
+			'permalinks_structure'        => [
 				'name'  => __( 'Permalinks Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'WordPress Permalinks Structure was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'post_deleted'            => [
+			'post_deleted'                => [
 				'name'  => __( 'Post Deleted', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'WordPress Post entitled "{{title}}" was permanently deleted from trash.', 'wp-simple-firewall' )
 				],
 			],
-			'post_trashed'            => [
+			'post_trashed'                => [
 				'name'  => __( 'Post Trashed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was trashed.', 'wp-simple-firewall' ),
 					__( 'Post Type: {{type}}' ),
 				],
 			],
-			'post_recovered'          => [
+			'post_recovered'              => [
 				'name'  => __( 'Post Recovered', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was recovered from trash.', 'wp-simple-firewall' ),
 					__( 'Post Type: {{type}}' ),
 				],
 			],
-			'post_updated'            => [
+			'post_updated'                => [
 				'name'  => __( 'Post Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was updated.', 'wp-simple-firewall' ),
 					__( 'Post Type: {{type}}' ),
 				],
 			],
-			'post_published'          => [
+			'post_published'              => [
 				'name'  => __( 'Post Published', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was published.', 'wp-simple-firewall' ),
 					__( 'Post Type: {{type}}' ),
 				],
 			],
-			'post_unpublished'        => [
+			'post_unpublished'            => [
 				'name'  => __( 'Post Unpublished', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Post entitled "{{title}}" was unpublished.', 'wp-simple-firewall' ),
 					__( 'Post Type: {{type}}' ),
 				],
 			],
-			'user_login'              => [
+			'user_login'                  => [
 				'name'  => __( 'User Login', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Attempted user login by "{{user_login}}" was successful.', 'wp-simple-firewall' ),
 				],
 			],
-			'user_login_app'          => [
-				'name'  => __( 'User Login By App Password', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Attempted login by "{{user_login}}" using application password was successful.', 'wp-simple-firewall' ),
-				],
-			],
-			'user_registered'         => [
+			'user_registered'             => [
 				'name'  => __( 'User Registered', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'New WordPress user registered.', 'wp-simple-firewall' ),
 					__( 'New username is "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'user_deleted'            => [
+			'user_deleted'                => [
 				'name'  => __( 'User Deleted', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'WordPress user deleted.', 'wp-simple-firewall' ),
 					__( 'Username was "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'user_deleted_reassigned' => [
+			'user_deleted_reassigned'     => [
 				'name'  => __( 'User Deleted And Reassigned', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Deleted user posts were reassigned to user "{{user_login}}".', 'wp-simple-firewall' )
 				],
 			],
-			'email_attempt_send'      => [
+			'email_attempt_send'          => [
 				'name'  => __( 'Email Sent', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'There was an attempt to send an email using the "wp_mail" function.', 'wp-simple-firewall' ),
@@ -146,6 +152,42 @@ class Strings extends Base\Strings {
 					__( 'It was sent to "{{to}}" with the subject "{{subject}}".', 'wp-simple-firewall' ),
 					"CC/BCC Recipients: {{cc}} / {{bcc}}",
 					__( 'The "wp_mail" function was called from the file "{{bt_file}}" on line {{bt_line}}.', 'wp-simple-firewall' )
+				],
+			],
+			'user_login_app'              => [
+				'name'  => __( 'User Login By App Password', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Attempted login by "{{user_login}}" using application password was successful.', 'wp-simple-firewall' ),
+				],
+			],
+			'app_invalid_email'           => [
+				'name'  => __( 'APP Password Auth - Invalid Email', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Attempt to authenticate App Password with invalid email.', 'wp-simple-firewall' ),
+				],
+			],
+			'app_invalid_username'        => [
+				'name'  => __( 'APP Password Auth - Invalid Username', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Attempt to authenticate App Password with invalid username.', 'wp-simple-firewall' ),
+				],
+			],
+			'app_incorrect_password'      => [
+				'name'  => __( 'Incorrect APP Password', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Attempt to authenticate with incorrect App Password.', 'wp-simple-firewall' ),
+				],
+			],
+			'app_passwords_disabled'      => [
+				'name'  => __( 'App Passwords Disabled', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Attempt to authenticate with App Password when they're disabled.", 'wp-simple-firewall' ),
+				],
+			],
+			'app_passwords_disabled_user' => [
+				'name'  => __( 'App Passwords Disabled For User', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Attempt to authenticate with App Password when they're disabled for the user.", 'wp-simple-firewall' ),
 				],
 			],
 		];

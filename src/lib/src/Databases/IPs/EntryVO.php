@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
- * Class EntryVO
  * @property string $ip
  * @property int    $transgressions
  * @property bool   $is_range

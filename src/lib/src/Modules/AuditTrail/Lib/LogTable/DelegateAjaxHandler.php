@@ -10,7 +10,6 @@ class DelegateAjaxHandler {
 	use Shield\Modules\ModConsumer;
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function processAjaxAction() :array {
@@ -32,17 +31,14 @@ class DelegateAjaxHandler {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function retrieveTableData() :array {
+		$builder = ( new BuildAuditTableData() )->setMod( $this->getMod() );
+		$builder->table_data = (array)Services::Request()->post( 'table_data', [] );
 		return [
-			'success' => true,
-			'vars'    => [
-				'data' => ( new LoadRawTableData() )
-					->setMod( $this->getMod() )
-					->loadForLogs()
-			],
+			'success'        => true,
+			'datatable_data' => $builder->build(),
 		];
 	}
 

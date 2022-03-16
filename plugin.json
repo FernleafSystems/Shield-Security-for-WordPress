@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "14.0.3",
-    "release_timestamp":       1645003743,
-    "build":                   "202202.1601",
+    "version":                 "14.1.0",
+    "release_timestamp":       1647422166,
+    "build":                   "202203.1601",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -22,6 +22,10 @@
     "php":       "7.0",
     "wordpress": "3.7",
     "mysql":     "5.6"
+  },
+  "reqs_rest":        {
+    "php": "7.0",
+    "wp":  "5.7"
   },
   "upgrade_reqs":     {
     "10.0": {
@@ -105,25 +109,25 @@
           ]
         },
         "datatables-bootstrap":   {
-          "url":  "https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css",
+          "url":  "https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css",
           "deps": [
             "bootstrap"
           ]
         },
         "datatables-searchpanes": {
-          "url":  "https://cdn.datatables.net/searchpanes/1.4.0/css/searchPanes.dataTables.min.css",
+          "url":  "https://cdn.datatables.net/searchpanes/2.0.0/css/searchPanes.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
         },
         "datatables-select":      {
-          "url":  "https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css",
+          "url":  "https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
         },
         "datatables-buttons":     {
-          "url":  "https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css",
+          "url":  "https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css",
           "deps": [
             "datatables-bootstrap"
           ]
@@ -220,32 +224,32 @@
           ]
         },
         "datatables":              {
-          "url":  "https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
           ]
         },
         "datatables-bootstrap":    {
-          "url":  "https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js",
+          "url":  "https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js",
           "deps": [
             "datatables"
           ]
         },
         "datatables-searchpanes":  {
-          "url":  "https://cdn.datatables.net/searchpanes/1.4.0/js/dataTables.searchPanes.min.js",
+          "url":  "https://cdn.datatables.net/searchpanes/2.0.0/js/dataTables.searchPanes.min.js",
           "deps": [
             "datatables-bootstrap"
           ]
         },
         "datatables-select":       {
-          "url":  "https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js",
+          "url":  "https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js",
           "deps": [
             "datatables-bootstrap"
           ]
         },
         "datatables-buttons":      {
-          "url":  "https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js",
+          "url":  "https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js",
           "deps": [
             "datatables-bootstrap"
           ]
@@ -358,6 +362,7 @@
             "datatables-select",
             "datatables-buttons",
             "datatables-bootstrap",
+            "datatables-searchpanes",
             "tp/highlightjs"
           ]
         },
@@ -462,6 +467,7 @@
     }
   ],
   "version_upgrades": [
+    "14.1.0",
     "11.2.0",
     "12.0.0",
     "12.0.1",

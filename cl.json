@@ -1,4 +1,118 @@
 {
+  "14.1": {
+    "version":     "14.1",
+    "released_at": 1647269718,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease141",
+      "upgrade": "https://shsec.io/shieldupgradeguide141"
+    },
+    "title":       "REST API Integrations",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Complete REST API",
+        "description": [
+          "Partners and developers can now manage the Shield Security plugin completely with the new REST API."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "REST API Routes",
+        "description": [
+          "New REST API endpoints let you: get/set option(s), get scan results & status, start new scans, add/remove IP addresses.",
+          "get/set any single option, or group of options.",
+          "get scan results & status, and start new scans and check their status.",
+          "add/remove IP addresses to any list (block or bypass).",
+          "check for, and remove, ShieldPRO license.",
+          "run Debug to get general site information summary for debug purposes."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Option To Load Shield as a WordPress Must-Use (MU) Plugin",
+        "description": [
+          "To prevent unwanted or accidental deactivation of the Shield plugin, Shield can be converted to an MU plugin."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Show Recent User Session In Admin Bar",
+        "description": [
+          "Show quick links to recently active (10 minutes) user sessions in the admin bar and the most recently active sessions."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Support For Application Password Authentication Failures",
+        "description": [
+          "Shield detects and logs when application passwords have been used incorrectly and applies offenses."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Speed-Up For Audit Trail and Traffic Log Tables",
+        "description": [
+          "Audit Trail and Traffic Log tables are usually huge and loading them were slow. They're now entirely AJAX based and fast-loading."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "IP Record Management Error",
+        "description": [
+          "When inserting a duplicate IP address record into the database, we use INSERT IGNORE to reduce error messages in logs."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Support 3rd Party Traffic Log Handlers",
+        "description": [
+          "3rd parties can now easily integrate with Shield's Traffic Log to send log records to any destination."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Support 3rd Party Audit Trail Handlers",
+        "description": [
+          "3rd parties can now easily integrate with Shield's Audit Trail to send log records to any destination."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "IP Record Management Error",
+        "description": [
+          "When inserting a duplicate IP address record into the database, we now INSERT IGNORE to reduce error messages in logs."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Updated Dutch Translations",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    false,
+        "title":       "Firewall didn't always scan all parameters in some cases",
+        "description": [
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "14.0": {
     "version":     "14.0",
     "released_at": 1643364060,
@@ -11,66 +125,62 @@
     ],
     "items":       [
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "WP Login Style 2FA Screen",
         "description": [
           "Users can complete their 2FA login using the UI they're most familiar with."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "Custom Redirect For Hide WP Login & Admin",
         "description": [
           "Rather than display an unfriendly 404 error page for the hidden login page, you can decide to redirect requests to any page you wish."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "Easier Access To User 2FA Settings with WP Admin Menu",
         "description": [
           "Users can now update their 2FA account settings from a dedicated WP admin page."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "new",
-        "pro_only":    false,
         "title":       "Improved 2FA User Experience",
         "description": [
           "Smoother, faster, more reliable and more secure 2FA experience."
-        ]
+        ],
+        "type":        "new",
+        "pro_only":    false
       },
       {
-        "type":        "changed",
-        "pro_only":    false,
-        "title":       "Mutli-factor Authentication Removed",
+        "title":       "Multi-factor Authentication Removed",
         "description": [
           "The option to force users to supply ALL two-factor authentication options has been removed."
-        ]
+        ],
+        "type":        "changed",
+        "pro_only":    false
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
         "title":       "Dedicated table for User meta information",
         "description": [
-         "This allows for new filters and better user status on the WP Admin User page."
-        ]
+          "This allows for new filters and better user status on the WP Admin User page."
+        ],
+        "type":        "improved",
+        "pro_only":    false
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
-        "title":       "Updated Translations - Dutch (thanks J.P.!)",
-        "description": [
-        ]
+        "title":    "Updated Translations - Dutch (thanks J.P.!)",
+        "type":     "improved",
+        "pro_only": false
       },
       {
-        "type":        "improved",
-        "pro_only":    false,
-        "title":       "Further page caching mitigation for NotBot",
-        "description": [
-        ]
+        "title":    "Further page caching mitigation for NotBot",
+        "type":     "improved",
+        "pro_only": false
       },
       {
         "type":        "changed",
@@ -85,36 +195,40 @@
         "title":       "Various bugs and errors",
         "description": [
         ]
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "2",
+        "released_at": 1644400200,
+        "items":       [
+          {
+            "title": "Integration with some 3rd party membership plugins + 2FA.",
+            "type":  "improved"
+          },
+          {
+            "title": "Alert displayed that U2F isn't support when U2F isn't in-use.",
+            "type":  "fixed"
+          },
+          {
+            "title": "A rare issue which Custom MFA login triggering an HTTP 402 error!",
+            "type":  "fixed"
+          },
+          {
+            "title": "Options Search dialog failed to open (can't find-as-you-type yet).",
+            "type":  "fixed"
+          }
+        ]
       },
       {
-        "type":        "improved",
-        "title":       "Integration with some 3rd party membership plugins + 2FA.",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Alert displayed that U2F isn't support when U2F isn't in-use.",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "A rare issue which Custom MFA login triggering an HTTP 402 error!",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Options Search dialog failed to open (can't find-as-you-type yet).",
-        "description": [],
-        "patch":       "14.0.2"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Work around WP Engine login mechanism blocking 2FA verification.",
-        "description": [],
-        "patch":       "14.0.3"
+        "version":     "3",
+        "released_at": 1645005000,
+        "items":       [
+          {
+            "title": "Work around WP Engine login mechanism blocking 2FA verification.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
@@ -212,105 +326,106 @@
         "description": [
           "Adding and removing Yubikey devices to and from your WP user profile is more reliable."
         ]
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1636968900,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Reduce scan chunk size to improve MySQL query memory usage."
+          },
+          {
+            "type":  "fixed",
+            "title": "Automatic selection of IP addresses in IP Analyse tool after switching to AJAX source."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Reduce scan chunk size to improve MySQL query memory usage.",
-        "description": [],
-        "patch":       "13.0.1"
+        "version":     "3",
+        "released_at": 1640079300,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Ensure database states are handled correctly."
+          },
+          {
+            "type":  "fixed",
+            "title": "MySQL requirements are checked more flexibly."
+          },
+          {
+            "type":  "fixed",
+            "title": "Add a class to Google Authenticator QR image."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Automatic selection of IP addresses in IP Analyse tool after switching to AJAX source.",
-        "description": [],
-        "patch":       "13.0.1"
+        "version":     "4",
+        "released_at": 1640165700,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Error with MainWP loading in certain cases."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Ensure database states are handled correctly.",
-        "description": [],
-        "patch":       "13.0.3"
+        "version":     "5",
+        "released_at": 1641980100,
+        "items":       [
+          {
+            "type":  "improved",
+            "title": "Options to provide custom roles for Email 2FA enforcement is now free-form."
+          },
+          {
+            "type":  "improved",
+            "title": "Multi-factor authentication settings are available even when your IP is on the bypass lists."
+          },
+          {
+            "type":  "improved",
+            "title": "ShieldPRO license lookups when using separate domains for multilingual site versions."
+          },
+          {
+            "type":  "improved",
+            "title": "FluentForms integration wasn't always loading and so SPAM submissions could still come through."
+          },
+          {
+            "type":  "improved",
+            "title": "NotBot Javascript is improved to better handle server timeouts and work around Page Caching limitations."
+          },
+          {
+            "type":  "fixed",
+            "title": "Prevent some fatal errors when integrating with 3rd parties and their data isn't as expected."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "MySQL requirements are checked more flexibly.",
-        "description": [],
-        "patch":       "13.0.3"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Add a class to Google Authenticator QR image.",
-        "description": [],
-        "patch":       "13.0.3"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Error with MainWP loading in certain cases.",
-        "description": [],
-        "patch":       "13.0.4"
-      },
-      {
-        "type":        "improved",
-        "title":       "Options to provide custom roles for Email 2FA enforcement is now free-form.",
-        "description": [],
-        "patch":       "13.0.5"
-      },
-      {
-        "type":        "improved",
-        "title":       "Multi-factor authentication settings are available even when your IP is on the bypass lists.",
-        "description": [],
-        "patch":       "13.0.5"
-      },
-      {
-        "type":        "improved",
-        "title":       "ShieldPRO license lookups when using separate domains for multilingual site versions.",
-        "description": [],
-        "patch":       "13.0.5"
-      },
-      {
-        "type":        "improved",
-        "title":       "FluentForms integration wasn't always loading and so SPAM submissions could still come through.",
-        "description": [],
-        "patch":       "13.0.5"
-      },
-      {
-        "type":        "improved",
-        "title":       "NotBot Javascript is improved to better handle server timeouts and work around Page Caching limitations.",
-        "description": [],
-        "patch":       "13.0.5"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Prevent some fatal errors when integrating with 3rd parties and their data isn't as expected.",
-        "description": [],
-        "patch":       "13.0.5"
-      },
-      {
-        "type":        "improved",
-        "title":       "Improved handling of ClassicPress versions and file scanning for migrated WP sites.",
-        "description": [],
-        "patch":       "13.0.6"
-      },
-      {
-        "type":        "changed",
-        "title":       "Official WP.org themes that are inactive no longer display a warning in results tables.",
-        "description": [],
-        "patch":       "13.0.6"
-      },
-      {
-        "type":        "fixed",
-        "title":       "[Minor Security Vulnerability] An authenticated (administrator+) Persistent XSS.",
-        "description": [
-          "Privately disclosed to us by Yoru Oni - thank you."
-        ],
-        "href":        "https://shsec.io/kh",
-        "patch":       "13.0.6"
-      },
-      {
-        "type":        "changed",
-        "title":       "It's now possible to add custom exclusions to the anonymous REST API block.",
-        "description": [],
-        "patch":       "13.0.6"
+        "version":     "6",
+        "released_at": 1642152900,
+        "items":       [
+          {
+            "type":  "improved",
+            "title": "Improved handling of ClassicPress versions and file scanning for migrated WP sites."
+          },
+          {
+            "type":  "changed",
+            "title": "Official WP.org themes that are inactive no longer display a warning in results tables."
+          },
+          {
+            "type":        "fixed",
+            "title":       "[Minor Security Vulnerability] An authenticated (administrator+) Persistent XSS.",
+            "description": [
+              "Privately disclosed to us by Yoru Oni - thank you."
+            ],
+            "href":        "https://shsec.io/kh"
+          },
+          {
+            "type":  "changed",
+            "title": "It's now possible to add custom exclusions to the anonymous REST API block."
+          }
+        ]
       }
     ]
   },
@@ -437,48 +552,66 @@
           "With this upgrade, the minimum required MySQL database engine is moving to 5.6."
         ],
         "href":        "https://shsec.io/shieldsystemrequirements"
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "4",
+        "released_at": 1632303300,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Prevent PHP exception being thrown in certain cases."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Prevent PHP exception being thrown in certain cases.",
-        "description": [],
-        "patch":       "12.0.4"
+        "version":     "8",
+        "released_at": 1632389700,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Ensure Shield runs only on supported MySQL servers."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Ensure Shield runs only on supported MySQL servers.",
-        "description": [],
-        "patch":       "12.0.8"
+        "version":     "9",
+        "released_at": 1632908100,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Error when processing certain types of query strings in the firewall."
+          },
+          {
+            "type":  "fixed",
+            "title": "Yubikey 2FA verification was failing with a nonce less than 16 characters. Who knew?"
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Error when processing certain types of query strings in the firewall.",
-        "description": [],
-        "patch":       "12.0.9"
+        "version":     "11",
+        "released_at": 1633599300,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "A few minor fixes, along with slight optimisation of NotBot JS."
+          },
+          {
+            "type":  "fixed",
+            "title": "Issue with managing Shield Central profiles."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Yubikey 2FA verification was failing with a nonce less than 16 characters. Who knew?",
-        "description": [],
-        "patch":       "12.0.9"
-      },
-      {
-        "type":        "fixed",
-        "title":       "A few minor fixes, along with slight optimisation of NotBot JS.",
-        "description": [],
-        "patch":       "12.0.11"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Issue with managing Shield Central profiles.",
-        "description": [],
-        "patch":       "12.0.11"
-      },
-      {
-        "type":        "improved",
-        "title":       "Improve support for auto-login systems like ManageWP admin login.",
-        "description": [],
-        "patch":       "12.0.13"
+        "version":     "13",
+        "released_at": 1633858500,
+        "items":       [
+          {
+            "type":  "improved",
+            "title": "Improve support for auto-login systems like ManageWP admin login."
+          }
+        ]
       }
     ]
   },
@@ -582,42 +715,62 @@
         "type":        "improved",
         "title":       "Improved support and fixes for PHP 8 and WordPress 5.8.",
         "description": []
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1627551300,
+        "items":       [
+          {
+            "type":  "improved",
+            "title": "Prevent overloading ShieldNET API in some cases."
+          }
+        ]
       },
       {
-        "type":        "improved",
-        "title":       "Prevent overloading ShieldNET API in some cases.",
-        "description": [],
-        "patch":       "11.5.1"
+        "version":     "2",
+        "released_at": 1627637700,
+        "items":       [
+          {
+            "type":  "improved",
+            "title": "Add some limited details into the Audit Trail entries for scan results."
+          }
+        ]
       },
       {
-        "type":        "improved",
-        "title":       "Add some limited details into the Audit Trail entries for scan results.",
-        "description": [],
-        "patch":       "11.5.2"
+        "version":     "3",
+        "released_at": 1627896900,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Plugin/Theme scanning could result in large quantities of unrecognised files."
+          }
+        ]
       },
       {
-        "type":        "fixed",
-        "title":       "Plugin/Theme scanning could result in large quantities of unrecognised files.",
-        "description": [],
-        "patch":       "11.5.3"
+        "version":     "4",
+        "released_at": 1628069700,
+        "items":       [
+          {
+            "type":  "improved",
+            "title": "Scan results were being reported, but not displayed in results tables in some cases."
+          }
+        ]
       },
       {
-        "type":        "improved",
-        "title":       "Scan results were being reported, but not displayed in results tables in some cases.",
-        "description": [],
-        "patch":       "11.5.4"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Scan results wouldn't be updated after scans completed in some cases.",
-        "description": [],
-        "patch":       "11.5.5"
-      },
-      {
-        "type":        "fixed",
-        "title":       "Shield would apply login blocks for requests originating from a whitelisted IP addresses.",
-        "description": [],
-        "patch":       "11.5.5"
+        "version":     "5",
+        "released_at": 1631180100,
+        "items":       [
+          {
+            "type":  "fixed",
+            "title": "Scan results wouldn't be updated after scans completed in some cases."
+          },
+          {
+            "type":  "fixed",
+            "title": "Shield would apply login blocks for requests originating from a whitelisted IP addresses."
+          }
+        ]
       }
     ]
   },

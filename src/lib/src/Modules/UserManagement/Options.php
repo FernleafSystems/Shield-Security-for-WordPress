@@ -6,18 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
-	/**
-	 * @deprecated 13.1
-	 */
-	public function getSuspendHardUserIds() :array {
-		return array_filter(
-			$this->getOpt( 'hard_suspended_userids', [] ),
-			function ( $ts ) {
-				return is_int( $ts ) && $ts > 0;
-			}
-		);
-	}
-
 	public function getSuspendAutoIdleUserRoles() :array {
 		return $this->getOpt( 'auto_idle_roles', [] );
 	}

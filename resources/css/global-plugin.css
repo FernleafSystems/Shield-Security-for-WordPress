@@ -59,6 +59,7 @@
 	.notice-icon {
 		display: block;
 	}
+
 	.notice-content {
 		margin-left: 62px;
 	}
@@ -347,10 +348,14 @@ tr.icwp-plugin-vulnerability dd {
 }
 #wpadminbar .shield-counter {
 	display: inline;
-	padding: 1px 7px 1px 6px!important;
+	padding: 1px 7px 1px 6px !important;
 	border-radius: 50%;
 	margin-left: 6px;
 	/*background-color: rgb(0, 128, 0);*/
+}
+
+#wp-admin-bar-icwp-wpsf-adminbarmenu .ab-submenu > li {
+	padding: 0 0 5px;
 }
 
 /* override boostrap */

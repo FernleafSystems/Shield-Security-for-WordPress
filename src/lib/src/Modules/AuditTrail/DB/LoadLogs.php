@@ -2,23 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoadLogs {
+/**
+ * @property int      $limit
+ * @property int      $offset
+ * @property string[] $wheres
+ * @property string   $order_by
+ * @property string   $order_dir
+ */
+class LoadLogs extends DynPropertiesClass {
 
-	const DEFAULT_LIMIT = 10000;
 	use ModConsumer;
 	use IpAddressConsumer;
 
-	private $limit = null;
+	private $includeMeta = true;
 
 	/**
 	 * @return LogRecord[]
 	 */
-	public function run() :array {
+	public function run( bool $includeMeta = true ) :array {
+		$this->includeMeta = $includeMeta;
+
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$stdKeys = array_flip( array_unique( array_merge(
@@ -66,34 +75,71 @@ class LoadLogs {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
+		$selectFields = [
+			'log.id',
+			'log.site_id',
+			'log.event_slug',
+			'log.created_at',
+			'ips.ip',
+			'req.req_id as rid',
+		];
+		if ( $this->includeMeta ) {
+			$selectFields = array_merge( $selectFields, [
+				'meta.meta_key',
+				'meta.meta_value',
+			] );
+		}
+
 		return Services::WpDb()->selectCustom(
-			sprintf( 'SELECT log.id, log.site_id, log.event_slug, log.created_at,
-							ips.ip,
-							meta.meta_key, meta.meta_value,
-							req.req_id as rid
-						FROM `%s` as log
-						INNER JOIN `%s` as req
-							ON log.req_ref = req.id
-						INNER JOIN `%s` as ips
-							ON ips.id = req.ip_ref 
-							%s
-						LEFT JOIN `%s` as `meta`
-							ON log.id = `meta`.log_ref
-						ORDER BY log.updated_at DESC
-						%s
-				',
+			sprintf( $this->getRawQuery( $this->includeMeta ),
+				implode( ', ', $selectFields ),
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
-				$mod->getDbH_Meta()->getTableSchema()->table,
-				( $this->limit === 0 ) ? '' : sprintf( 'LIMIT %s', is_null( $this->limit ) ? self::DEFAULT_LIMIT : $this->limit )
+				$this->includeMeta ? $mod->getDbH_Meta()->getTableSchema()->table : '',
+				empty( $this->wheres ) ? '' : 'WHERE '.implode( ' AND ', $this->wheres ),
+				sprintf( 'ORDER BY log.updated_at %s', $this->order_dir ?? 'DESC' ),
+				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
+				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
 			)
 		);
 	}
 
-	public function setLimit( int $limit ) {
-		$this->limit = $limit;
-		return $this;
+	public function countAll() :int {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return (int)Services::WpDb()->getVar(
+			sprintf( $this->getRawQuery( false ),
+				'COUNT(*)',
+				$mod->getDbH_Logs()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
+				'',
+				empty( $this->wheres ) ? '' : 'WHERE '.implode( ' AND ', $this->wheres ),
+				'',
+				'',
+				''
+			)
+		);
+	}
+
+	private function getRawQuery( bool $includeMeta = true ) :string {
+		return sprintf( 'SELECT %%s
+					FROM `%%s` as log
+					INNER JOIN `%%s` as req
+						ON log.req_ref = req.id
+					INNER JOIN `%%s` as ips
+						ON ips.id = req.ip_ref 
+						%%s
+					%s
+					%%s
+					%%s
+					%%s
+					%%s
+				',
+			$includeMeta ? 'LEFT JOIN `%s` as `meta` ON log.id = `meta`.log_ref' : '%s'
+		);
 	}
 }

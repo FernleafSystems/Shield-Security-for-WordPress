@@ -17,7 +17,6 @@ class LookupRequest {
 		$opts = $this->getOptions();
 
 		$lookup = new Lookup();
-		$lookup->lookup_url_stub = $opts->getDef( 'license_store_url_api' );
 		$lookup->item_id = $opts->getDef( 'license_item_id' );
 		$lookup->install_id = $con->getSiteInstallationId();
 		$lookup->url = Services::WpGeneral()->getHomeUrl( '', true );

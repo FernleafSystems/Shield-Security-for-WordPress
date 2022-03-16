@@ -79,12 +79,4 @@ class ShieldUserMeta extends UserMeta {
 		}
 		return $this;
 	}
-
-	/**
-	 * @return $this
-	 * @deprecated 13.1
-	 */
-	public function updateFirstSeenAt() {
-		return $this;
-	}
 }

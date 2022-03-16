@@ -12,7 +12,7 @@ class Insert extends Base\Insert {
 	 */
 	public function insert( $record ) :bool {
 		return (bool)Services::WpDb()->doSql( sprintf(
-			"INSERT INTO `%s` (`%s`,`created_at`) VALUES (INET6_ATON('%s'), %s)",
+			"INSERT IGNORE INTO `%s` (`%s`,`created_at`) VALUES (INET6_ATON('%s'), %s)",
 			$this->getDbH()->getTableSchema()->table,
 			'ip',
 			$record->ip,

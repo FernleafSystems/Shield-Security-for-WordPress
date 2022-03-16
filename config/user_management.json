@@ -401,13 +401,6 @@
       "type":         "integer",
       "default":      0,
       "transferable": false
-    },
-    {
-      "key":          "hard_suspended_userids",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
     }
   ],
   "definitions": {

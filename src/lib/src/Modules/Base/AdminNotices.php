@@ -35,7 +35,7 @@ class AdminNotices {
 				$this->setNoticeDismissed( $notice );
 				$ajaxResponse = [
 					'success'   => true,
-					'message'   => 'Admin notice dismissed', //not currently seen
+					'message'   => 'Admin notice dismissed', //not currently rendered
 					'notice_id' => $notice->id,
 				];
 				break;

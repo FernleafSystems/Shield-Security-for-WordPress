@@ -12,39 +12,51 @@ class AdminBarMenu {
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
-		return $con->isValidAdminArea( true ) &&
+		return $con->getMeetsBasePermissions() &&
 			   apply_filters( $con->prefix( 'shield/show_admin_bar_menu' ), $con->cfg->properties[ 'show_admin_bar_menu' ] );
 	}
 
 	protected function run() {
 		add_action( 'admin_bar_menu', function ( $adminBar ) {
-			$this->createAdminBarMenu( $adminBar );
+			if ( $adminBar instanceof \WP_Admin_Bar ) {
+				$this->createAdminBarMenu( $adminBar );
+			}
 		}, 100 );
 	}
 
-	/**
-	 * @param \WP_Admin_Bar $adminBar
-	 */
-	private function createAdminBarMenu( $adminBar ) {
+	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) {
 		$con = $this->getCon();
 
-		$items = apply_filters( $con->prefix( 'admin_bar_menu_items' ), [] );
-		if ( !empty( $items ) && is_array( $items ) ) {
-			$warningCount = 0;
-			foreach ( $items as $item ) {
-				$warningCount += $item[ 'warnings' ] ?? 0;
+		$groups = array_filter( apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] ) );
+		$totalWarnings = 0;
+
+		if ( !empty( $groups ) ) {
+
+			$topNodeID = $con->prefix( 'adminbarmenu' );
+
+			foreach ( $groups as $key => $group ) {
+
+				$group[ 'id' ] = $con->prefix( 'adminbarmenu-sub'.$key );
+
+				foreach ( $group[ 'items' ] as $item ) {
+					$totalWarnings += $item[ 'warnings' ] ?? 0;
+					$item[ 'parent' ] = $group[ 'id' ];
+					$adminBar->add_node( $item );
+				}
+
+				unset( $group[ 'items' ] );
+				$group[ 'parent' ] = $topNodeID;
+				$adminBar->add_node( $group );
 			}
 
-			$nodeId = $con->prefix( 'adminbarmenu' );
+			// The top menu item.
 			$adminBar->add_node( [
-				'id'    => $nodeId,
-				'title' => $con->getHumanName()
-						   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $warningCount ),
+				'id'    => $topNodeID,
+				'title' => sprintf( '%s %s', $con->getHumanName(),
+					empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
+				),
+				'href'  => $con->getPluginUrl_DashboardHome()
 			] );
-			foreach ( $items as $item ) {
-				$item[ 'parent' ] = $nodeId;
-				$adminBar->add_menu( $item );
-			}
 		}
 	}
 }

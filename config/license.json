@@ -143,7 +143,16 @@
     }
   ],
   "definitions":      {
-    "license_store_url_api":        "https://api.getshieldsecurity.com/wp-json/odp-eddkeyless/v1",
+    "rest_api":                     {
+      "publish":    true,
+      "pro_only":   false,
+      "route_defs": {
+        "license_check":  {
+        },
+        "license_status": {
+        }
+      }
+    },
     "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",
     "license_item_id":              "6047",

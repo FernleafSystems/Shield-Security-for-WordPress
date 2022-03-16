@@ -16,15 +16,18 @@ abstract class Base {
 	abstract protected function getOrderColumnSlug() :string;
 
 	public function build() :string {
-		return json_encode( [
+		return json_encode( $this->buildRaw() );
+	}
+
+	public function buildRaw() :array {
+		return [
 			// array_values() to ensure data of the correct format
-			'columns' => array_values( $this->getColumnsForDisplay() ),
-			'order'   => $this->getInitialOrdering()
-		] );
+			'columns'     => array_values( $this->getColumnsForDisplay() ),
+			'order'       => $this->getInitialOrdering(),
+		];
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getInitialOrdering() :array {
@@ -45,20 +48,23 @@ abstract class Base {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function getColumnsForDisplay() :array {
 		$columns = [];
 		foreach ( $this->getColumnsToDisplay() as $colSlug ) {
-			$columns[ $colSlug ] = $this->pluckColumn( $colSlug );
+			$col = $this->pluckColumn( $colSlug );
+
+			if ( $col[ 'search_builder' ] ?? false ) {
+				$col[ 'className' ] .= ' search_builder';
+			}
+
+			$columns[ $colSlug ] = $col;
 		}
 		return $columns;
 	}
 
 	/**
-	 * @param string $columnSlug
-	 * @return array
 	 * @throws \Exception
 	 */
 	protected function pluckColumn( string $columnSlug ) :array {

@@ -6,9 +6,24 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Themes extends Base {
 
+	private $slugs;
+
 	protected function run() {
+		$this->slugs = Services::WpThemes()->getInstalledStylesheets();
+		add_action( 'upgrader_process_complete', [ $this, 'auditInstall' ], 10, 0 );
 		add_action( 'switch_theme', [ $this, 'auditSwitchTheme' ] );
 		add_action( 'wp_ajax_edit-theme-plugin-file', [ $this, 'auditEditedFile' ], -1 ); // they hook on 1
+	}
+
+	public function auditInstall() {
+		$current = Services::WpThemes()->getInstalledStylesheets();
+		foreach ( array_diff( $current, $this->slugs ) as $new ) {
+			$this->getCon()->fireEvent(
+				'theme_installed',
+				[ 'audit_params' => [ 'theme' => $new ] ]
+			);
+		}
+		$this->slugs = $current;
 	}
 
 	/**

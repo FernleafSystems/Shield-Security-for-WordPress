@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
@@ -52,6 +54,35 @@ class Processor extends BaseShield\Processor {
 		}
 	}
 
+	public function addAdminBarMenuGroup( array $groups ) :array {
+		$con = $this->getCon();
+		$WPUsers = Services::WpUsers();
+		/** @var Select $sel */
+		$sel = $con->getModule_Sessions()->getDbHandler_Sessions()->getQuerySelector();
+		$sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
+			->setOrderBy( 'last_activity_at', 'DESC' );
+
+		$thisGroup = [
+			'title' => __( 'Recent Sessions', 'wp-simple-firewall' ),
+			'href'  => $con->getModule_Insights()->getUrl_Sessions(),
+			'items' => [],
+		];
+		/** @var EntryVO $session */
+		foreach ( $sel->query() as $session ) {
+			$thisGroup[ 'items' ][] = [
+				'id'    => $con->prefix( 'session-'.$session->id ),
+				'title' => sprintf( '<a href="%s">%s (%s)</a>',
+					$WPUsers->getAdminUrl_ProfileEdit( $WPUsers->getUserByUsername( $session->wp_username ) ),
+					$session->wp_username, $session->ip ),
+			];
+		}
+
+		if ( !empty( $thisGroup[ 'items' ] ) ) {
+			$groups[] = $thisGroup;
+		}
+		return $groups;
+	}
+
 	/**
 	 * @param string   $username
 	 * @param \WP_User $user
@@ -97,20 +128,6 @@ class Processor extends BaseShield\Processor {
 				$this->sendUserLoginEmailNotification( $user );
 			}
 		}
-		return $this;
-	}
-
-	/**
-	 * @deprecated 13.1
-	 */
-	private function setPasswordStartedAt( \WP_User $user ) :self {
-		return $this;
-	}
-
-	/**
-	 * @deprecated 13.1
-	 */
-	protected function setUserLastLoginTime( \WP_User $user ) :self {
 		return $this;
 	}
 

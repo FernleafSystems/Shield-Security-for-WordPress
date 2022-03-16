@@ -26,8 +26,14 @@
 					{% endif %}
 				</span>
 			</td>
-			<td>{{ session.last_activity_at|raw }}</td>
-			<td>{{ session.logged_in_at|raw }}</td>
+			<td>
+				{{ session.last_activity_at_ago }}
+				<div class="timestamp-small">{{ session.last_activity_at }}</div>
+			</td>
+			<td>
+				{{ session.logged_in_at_ago }}
+				<div class="timestamp-small">{{ session.logged_in_at }}</div>
+			</td>
 		</tr>
 		{% endfor %}
 		</tbody>

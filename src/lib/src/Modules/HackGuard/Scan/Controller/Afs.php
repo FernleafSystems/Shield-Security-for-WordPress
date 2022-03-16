@@ -29,13 +29,13 @@ class Afs extends BaseForFiles {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
-	public function addAdminMenuBarItem( array $items ) :array {
+	public function getAdminMenuItems() :array {
+		$items = [];
 		$status = $this->getScansController()->getScanResultsCount();
 
 		$template = [
 			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
-			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
 		];
 
 		$count = $status->countMalware();
@@ -74,6 +74,13 @@ class Afs extends BaseForFiles {
 			$items[] = $warning;
 		}
 
+		return $items;
+	}
+
+	/**
+	 * @deprecated 14.1
+	 */
+	public function addAdminMenuBarItem( array $items ) :array {
 		return $items;
 	}
 

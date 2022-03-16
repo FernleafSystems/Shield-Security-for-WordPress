@@ -223,9 +223,7 @@ class Collate {
 			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
-		$licPing = new Licenses\Keyless\Ping();
-		$licPing->lookup_url_stub = $con->getModule_License()->getOptions()->getDef( 'license_store_url_api' );
-		$data[ 'Ping License Server' ] = $licPing->ping() ? 'Yes' : 'No';
+		$data[ 'Ping License Server' ] = ( new Licenses\Keyless\Ping() )->ping() ? 'Yes' : 'No';
 
 		$data[ 'Write TMP/Cache DIR' ] = $con->cache_dir_handler->dirExists() ? 'Yes: '.$con->getPluginCachePath() : 'No';
 
