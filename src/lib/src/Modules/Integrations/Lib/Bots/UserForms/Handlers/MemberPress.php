@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 /**
  * Errors are passed about using an array of strings.
- *
- * Class MemberPress
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers
  */
 class MemberPress extends Base {
 

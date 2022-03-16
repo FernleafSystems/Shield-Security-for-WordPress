@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-/**
- * Class QueryRemainingOffenses
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components
- */
 class QueryRemainingOffenses {
 
 	use Shield\Modules\ModConsumer;

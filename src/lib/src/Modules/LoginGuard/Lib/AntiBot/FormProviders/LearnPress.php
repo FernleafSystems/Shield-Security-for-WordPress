@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 /**
  * LearnPress actually uses action 'init' to process forms, so that's why we hook AntibotSetup so early (-100).
- * Class LearnPress
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
  */
 class LearnPress extends BaseFormProvider {
 

@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class PluginBadge
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components
- */
 class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function run() {

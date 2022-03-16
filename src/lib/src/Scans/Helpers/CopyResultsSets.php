@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 
-/**
- * Class CopyResultsSets
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
- */
 class CopyResultsSets {
 
 	/**

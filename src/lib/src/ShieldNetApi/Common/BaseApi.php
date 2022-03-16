@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 
 /**
- * Class Lookup
- * @package FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless
  * @property string      $lookup_url_stub
  * @property string      $request_method
  * @property int         $timeout

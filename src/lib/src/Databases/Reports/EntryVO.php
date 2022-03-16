@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
- * Class EntryVO
  * @property int    $rid
  * @property string $type
  * @property string $frequency

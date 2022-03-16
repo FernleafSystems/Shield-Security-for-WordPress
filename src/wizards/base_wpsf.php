@@ -2,9 +2,6 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ICWP_WPSF_Wizard_BaseWpsf
- */
 abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 
 	/**

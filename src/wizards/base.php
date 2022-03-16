@@ -5,10 +5,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @uses php 5.4+
- * Class ICWP_WPSF_Wizard_Base
- */
 abstract class ICWP_WPSF_Wizard_Base {
 
 	use Shield\Modules\ModConsumer;

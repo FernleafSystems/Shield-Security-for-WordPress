@@ -5,9 +5,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
-/**
- * Class ICWP_WPSF_Processor_LoginProtect_Wizard
- */
 class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**

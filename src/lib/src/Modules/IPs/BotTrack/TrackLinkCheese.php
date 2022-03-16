@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Works by inserting a random, nofollow link to the footer of the page and appending to robots.txt
- * Class LinkCheese
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack
  */
 class TrackLinkCheese extends Base {
 

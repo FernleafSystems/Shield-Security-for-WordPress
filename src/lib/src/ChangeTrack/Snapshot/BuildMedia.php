@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot;
 
-/**
- * Class BuildMedia
- * @package FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot
- */
 class BuildMedia extends BuildPosts {
 
 	/**

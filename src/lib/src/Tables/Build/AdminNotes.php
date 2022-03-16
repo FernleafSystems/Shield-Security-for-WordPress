@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
-/**
- * Class AdminNotes
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
- */
 class AdminNotes extends BaseBuild {
 
 	/**

@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports\EntryVO;
 
 /**
- * Class ReportVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build
  * @property int           $rid
  * @property string        $type
  * @property string        $interval
