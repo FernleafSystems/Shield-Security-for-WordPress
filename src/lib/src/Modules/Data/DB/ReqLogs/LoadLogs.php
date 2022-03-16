@@ -33,6 +33,7 @@ class LoadLogs {
 	public function countAll() :int {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$wheres = $this->buildWheres();
 		return (int)Services::WpDb()->getVar(
 			sprintf( $this->getRawQuery(),
 				'COUNT(*)',
@@ -61,6 +62,7 @@ class LoadLogs {
 			'req.code',
 			'req.verb',
 			'req.meta',
+			'req.offense',
 			'req.created_at',
 			'ips.ip as ip',
 		];

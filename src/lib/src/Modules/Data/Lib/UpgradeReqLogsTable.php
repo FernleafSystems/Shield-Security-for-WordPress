@@ -22,7 +22,7 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			/** @var Record[] $records */
 			$records = $select->setLimit( $pageSize )
 							  ->setPage( $page )
-							  ->addWhere( 'type', 'NORM' )
+							  ->addWhere( 'type', '' )
 							  ->queryWithResult();
 			foreach ( $records as $record ) {
 				try {

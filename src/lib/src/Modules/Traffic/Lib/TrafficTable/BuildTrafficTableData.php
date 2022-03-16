@@ -110,7 +110,12 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'ip':
-						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						break;
+					case 'offense':
+					case 'type':
+					case 'code':
+						$wheres[] = sprintf( "`req`.%s IN ('%s')", $column, implode( "','", $selected ) );
 						break;
 					default:
 						break;
@@ -205,7 +210,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	private function getColumnContent_Page() :string {
 		$query = $this->log->meta[ 'query' ] ?? '';
 
-		$content = sprintf( '[<code style="display: inline !important;">%s</code>] ', $this->getRequestType() );
+		$content = sprintf( '[<code style="display: inline !important;">%s</code>] ', Handler::GetTypeName( $this->log->type ) );
 		if ( $this->isWpCli() ) {
 			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
 		}
@@ -214,25 +219,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 						.( empty( $query ) ? '' : '?<br/>'.ltrim( $query, '?' ) ).'</code>';
 		}
 		return $content;
-	}
-
-	private function getRequestType() :string {
-		switch ( $this->log->type ) {
-			case Handler::TYPE_AJAX:
-			case Handler::TYPE_CRON:
-			case Handler::TYPE_REST:
-			case Handler::TYPE_WPCLI:
-				$type = $this->log->type;
-				break;
-			case Handler::TYPE_XMLRPC:
-				$type = 'XML-RPC';
-				break;
-			case Handler::TYPE_HTTP:
-			default:
-				$type = 'HTTP';
-				break;
-		}
-		return $type;
 	}
 
 	private function getIpInfo( string $ip ) {

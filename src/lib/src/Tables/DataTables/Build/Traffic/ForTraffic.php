@@ -17,6 +17,7 @@ class ForTraffic extends Base {
 			'details',
 			'response',
 			'date',
+			'type',
 			'path',
 			'code',
 			'offense',
@@ -70,6 +71,17 @@ class ForTraffic extends Base {
 					'show' => false
 				],
 			],
+			'type'     => [
+				'data'        => 'type',
+				'title'       => __( 'Type' ),
+				'className'   => 'type',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => true,
+				],
+			],
 			'ip'       => [
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
@@ -89,7 +101,7 @@ class ForTraffic extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => false,
+					'show' => true,
 				],
 			],
 			'country'  => [
@@ -108,10 +120,10 @@ class ForTraffic extends Base {
 				'title'       => __( 'Is Offense' ),
 				'className'   => 'offense',
 				'orderable'   => false,
-				'searchable'  => true,
+				'searchable'  => false,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => false,
+					'show' => true,
 				],
 			],
 			'path'     => [
