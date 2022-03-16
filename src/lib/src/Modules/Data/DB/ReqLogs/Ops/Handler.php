@@ -6,12 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 
 class Handler extends Base\Handler {
 
-	const TYPE_AJAX = 'AJAX';
-	const TYPE_CRON = 'CRON';
-	const TYPE_HTTP = 'HTTP';
-	const TYPE_REST = 'REST';
-	const TYPE_WPCLI = 'WPCLI';
-	const TYPE_XMLRPC = 'XML';
+	const TYPE_AJAX = 'A';
+	const TYPE_CRON = 'C';
+	const TYPE_HTTP = 'H';
+	const TYPE_REST = 'R';
+	const TYPE_WPCLI = 'W';
+	const TYPE_XMLRPC = 'X';
 
 	public static function GetTypeName( string $type ) :string {
 		switch ( $type ) {
@@ -24,10 +24,14 @@ class Handler extends Base\Handler {
 			case Handler::TYPE_WPCLI:
 				$type = 'WP-CLI';
 				break;
-			case Handler::TYPE_HTTP:
 			case Handler::TYPE_AJAX:
+				$type = 'AJAX';
+				break;
 			case Handler::TYPE_CRON:
-			default:
+				$type = 'CRON';
+				break;
+			case Handler::TYPE_HTTP:
+				$type = 'HTTP';
 				break;
 		}
 		return $type;

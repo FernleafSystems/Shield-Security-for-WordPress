@@ -23,13 +23,16 @@
         "pro_only":    true,
         "title":       "REST API Routes",
         "description": [
-          "New REST API endpoints let you: get/set option(s), get scan results & status, start new scans, add/remove IP addresses.",
-          "get/set any single option, or group of options.",
-          "get scan results & status, and start new scans and check their status.",
-          "add/remove IP addresses to any list (block or bypass).",
-          "check for, and remove, ShieldPRO license.",
-          "run Debug to get general site information summary for debug purposes."
-        ]
+          "New REST API endpoints let you manage many areas of the Shield Security plugin."
+        ],
+        "list":        [
+          "get/set any single option, or group of options",
+          "get scan results & status, and start new scans and check their status",
+          "add/remove IP addresses to/from any list (block or bypass)",
+          "check for, and remove, ShieldPRO license",
+          "run Debug to get general site information summary for debug purposes"
+        ],
+        "href":        "https://shsec.io/shieldrestapidocs"
       },
       {
         "type":        "new",
@@ -111,6 +114,20 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1647424478,
+        "items":       [
+          {
+            "title": "Fix for 'find as you type' in the options search dialog.",
+            "type":  "fixed"
+          },
+          {
+            "title": "PHP Warning.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "14.0": {
