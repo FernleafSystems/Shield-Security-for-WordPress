@@ -207,7 +207,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	private function getColumnContent_Page() :string {
 		$query = $this->log->meta[ 'query' ] ?? '';
 
-		$content = sprintf( '[<code style="display: inline !important;">%s</code>] ', Handler::GetTypeName( $this->log->type ) );
+		$content = sprintf( '<span class="badge bg-secondary me-1">%s</span>', Handler::GetTypeName( $this->log->type ) );
 		if ( $this->isWpCli() ) {
 			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
 		}
