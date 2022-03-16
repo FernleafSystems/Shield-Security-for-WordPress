@@ -53,7 +53,7 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 
 		if ( $meta[ 'ua' ] === 'wpcli' ) {
 			$isWpCli = true;
-			$upgradeData[ 'type' ] = 'WPCLI';
+			$upgradeData[ 'type' ] = Handler::TYPE_WPCLI;
 			unset( $meta[ 'ua' ] );
 		}
 		else {
@@ -87,13 +87,13 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			unset( $meta[ 'ua' ] );
 		}
 		elseif ( wp_parse_url( admin_url( 'admin-ajax.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {
-			$upgradeData[ 'type' ] = 'AJAX';
+			$upgradeData[ 'type' ] = Handler::TYPE_AJAX;
 		}
 		elseif ( wp_parse_url( home_url( 'wp-cron.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {
-			$upgradeData[ 'type' ] = 'CRON';
+			$upgradeData[ 'type' ] = Handler::TYPE_CRON;
 		}
 		elseif ( wp_parse_url( home_url( 'xmlrpc.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {
-			$upgradeData[ 'type' ] = 'XML';
+			$upgradeData[ 'type' ] = Handler::TYPE_XMLRPC;
 		}
 
 		$record->meta = $meta;

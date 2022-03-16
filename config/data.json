@@ -66,9 +66,9 @@
           }
         },
         "type":   {
-          "macro_type": "varchar",
-          "length":     5,
-          "comment":    "Type of request"
+          "macro_type": "char",
+          "length":     1,
+          "comment":    "Type of requests"
         },
         "verb":   {
           "macro_type": "varchar",
