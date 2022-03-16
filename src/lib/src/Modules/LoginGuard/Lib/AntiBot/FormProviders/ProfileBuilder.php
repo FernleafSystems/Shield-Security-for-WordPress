@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
 /**
- * Class ProfileBuilder
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
  * https://wordpress.org/plugins/profile-builder/
  */
 class ProfileBuilder extends BaseFormProvider {

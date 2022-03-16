@@ -8,10 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class Ip
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
- */
 class Ip extends BaseBuild {
 
 	/**

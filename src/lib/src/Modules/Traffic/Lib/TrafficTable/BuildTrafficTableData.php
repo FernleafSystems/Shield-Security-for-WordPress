@@ -62,7 +62,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data = $log->getRawData();
 
 				$data[ 'ip' ] = $this->log->ip;
-				$data[ 'code' ] = $this->log->code;
 				$data[ 'offense' ] = $this->log->offense ? 'Offense' : 'Not Offense';
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
@@ -71,14 +70,12 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
 
-				$userID = $this->log->meta[ 'uid' ] ?? 0;
-				if ( $userID > 0 ) {
-					if ( !isset( $users[ $userID ] ) ) {
-						$user = $WPU->getUserById( $userID );
-						$this->users[ $userID ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
-							sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-								$WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
-					}
+				$userID = (int)$this->log->uid;
+				if ( $userID > 0 && !isset( $users[ $userID ] ) ) {
+					$user = $WPU->getUserById( $userID );
+					$this->users[ $userID ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
+							$WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 				}
 
 				$data[ 'page' ] = $this->getColumnContent_Page();
@@ -174,7 +171,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			$content = sprintf( '<div>%s</div>', implode( '</div><div>', [
 				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpAnalysisLink( $this->log->ip ) ),
 				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $this->getIpInfo( $this->log->ip ) ),
-				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->meta[ 'uid' ] ] ),
+				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->uid ] ),
 				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
 				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) ),
 			] ) );
@@ -210,7 +207,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	private function getColumnContent_Page() :string {
 		$query = $this->log->meta[ 'query' ] ?? '';
 
-		$content = sprintf( '[<code style="display: inline !important;">%s</code>] ', Handler::GetTypeName( $this->log->type ) );
+		$content = sprintf( '<span class="badge bg-secondary me-1">%s</span>', Handler::GetTypeName( $this->log->type ) );
 		if ( $this->isWpCli() ) {
 			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
 		}

@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 /**
  * TODO: Not ready
- * Class UserRegistration
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
  * https://wordpress.org/plugins/user-registration/
  */
 class UserRegistration extends BaseFormProvider {

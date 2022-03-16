@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class BuildPlugins
- * @package FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot
- */
 class BuildPlugins {
 
 	/**

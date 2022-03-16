@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use MainWP\Dashboard\MainWP_Extensions_Handler;
 
 /**
- * Class MainwpVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
  * @property string         $child_key
  * @property string         $child_file
  * @property bool           $is_client

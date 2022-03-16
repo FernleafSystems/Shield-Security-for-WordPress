@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class CaptchaConfigVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha
  * @property string $provider
  * @property string $key
  * @property string $secret

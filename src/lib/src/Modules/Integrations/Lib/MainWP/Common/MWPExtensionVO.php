@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use MainWP\Dashboard\MainWP_Extensions_Handler;
 
 /**
- * Class MWPExtensionVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
  * @property string $page - e.g. Extensions-Wp-Simple-Firewall
  */
 class MWPExtensionVO extends DynPropertiesClass {

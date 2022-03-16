@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
 /**
- * Class UltimateMember
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
  * https://wordpress.org/plugins/ultimate-member/
  */
 class UltimateMember extends BaseFormProvider {

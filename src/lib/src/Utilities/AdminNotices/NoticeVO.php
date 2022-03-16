@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
- * Class NoticeVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\Notices
  * @property string $id
  * @property bool   $display
  * @property string $non_display_reason

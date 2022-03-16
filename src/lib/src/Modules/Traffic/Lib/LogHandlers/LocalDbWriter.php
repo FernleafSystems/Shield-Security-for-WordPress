@@ -45,7 +45,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		$updateData = [];
-		foreach ( [ 'verb', 'code', 'path', 'type' ] as $item ) {
+		foreach ( [ 'verb', 'code', 'path', 'type', 'uid' ] as $item ) {
 			if ( !empty( $meta[ $item ] ) ) {
 				$updateData[ $item ] = $meta[ $item ];
 				unset( $meta[ $item ] );

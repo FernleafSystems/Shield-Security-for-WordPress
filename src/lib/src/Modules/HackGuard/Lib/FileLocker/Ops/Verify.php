@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker\EntryVO;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
-/**
- * Class Verify
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
- */
 class Verify {
 
 	/**

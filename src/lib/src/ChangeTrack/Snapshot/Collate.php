@@ -1,19 +1,13 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot;
 
-use FernleafSystems\Wordpress\Services\Services;
-
-/**
- * Class Collate
- * @package FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot
- */
 class Collate {
 
 	/**
 	 * @return array
 	 */
-	public function run() {
+	public function run() :array {
 		return [
 			'users'    => ( new BuildUsers() )->run(),
 			'post'     => ( new BuildPosts() )->run(),

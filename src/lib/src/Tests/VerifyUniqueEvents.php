@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * Detects any duplicate event keys
- * Class VerifyUniqueEvents
- * @package FernleafSystems\Wordpress\Plugin\Shield\Tests
  */
 class VerifyUniqueEvents {
 

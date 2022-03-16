@@ -9,6 +9,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops;
  * @property string $path
  * @property string $verb
  * @property int    $code
+ * @property int    $uid
  * @property bool   $offense
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
@@ -21,6 +22,11 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 
 			case 'offense':
 				$value = (bool)$value;
+				break;
+
+			case 'code':
+			case 'uid':
+				$value = (int)$value;
 				break;
 
 			default:

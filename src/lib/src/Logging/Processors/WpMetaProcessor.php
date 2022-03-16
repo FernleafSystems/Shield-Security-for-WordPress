@@ -1,10 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
-use Monolog\Processor\ProcessorInterface;
-
-class WpMetaProcessor implements ProcessorInterface {
+class WpMetaProcessor extends BaseMetaProcessor {
 
 	/**
 	 * @return array

@@ -7,9 +7,6 @@ use MainWP\Child\MainWP_Connect;
 
 /**
  * This reproduces the authentication done by the MainWP client in MainWP_Child::parse_init().
- *
- * Class ReproduceClientAuthByKey
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Auth
  */
 class ReproduceClientAuthByKey {
 

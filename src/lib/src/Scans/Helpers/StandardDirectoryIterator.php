@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
-/**
- * Class StandardDirectoryIterator
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
- */
 class StandardDirectoryIterator {
 
 	/**

@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
- * Class DynamicPageLoader
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Requests
  * @property string $load_type
  * @property string $load_variant
  */

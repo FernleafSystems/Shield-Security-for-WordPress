@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
 
 /**
- * Class MWPSiteVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common
  * @property object  $siteobj // For use with MainWP functions
  * @property array[] $plugins
  * @property array[] $themes

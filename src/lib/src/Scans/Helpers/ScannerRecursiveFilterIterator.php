@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ScannerRecursiveFilterIterator
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
- */
 class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 
 	/**

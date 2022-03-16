@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
- * Class EntryVO
  * @property string $file
  * @property string $hash_original
  * @property string $hash_current

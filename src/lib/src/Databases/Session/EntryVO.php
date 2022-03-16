@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
- * Class EntryVO
  * @property string ip
  * @property string browser
  * @property string wp_username
