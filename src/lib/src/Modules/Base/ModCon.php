@@ -120,10 +120,6 @@ abstract class ModCon {
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
 
-		if ( is_admin() || is_network_admin() ) {
-			$this->loadAdminNotices();
-		}
-
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 //		}
@@ -333,6 +329,10 @@ abstract class ModCon {
 		if ( $this->isPremium() ) {
 			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
+		}
+
+		if ( is_admin() || is_network_admin() ) {
+			$this->loadAdminNotices();
 		}
 
 		$this->loadDebug();
@@ -1317,14 +1317,23 @@ abstract class ModCon {
 	}
 
 	protected function loadAdminNotices() {
+		/** @var AdminNotices $N */
 		$N = $this->loadModElement( 'AdminNotices' );
-		if ( $N instanceof Shield\Modules\Base\AdminNotices ) {
-			$N->run();
+		if ( !empty( $N ) ) {
+			$N->execute();
 		}
 	}
 
 	protected function loadAjaxHandler() {
-		$this->loadModElement( 'AjaxHandler' );
+		try {
+			$class = $this->findElementClass( 'AjaxHandler', true );
+			/** @var Shield\Modules\ModConsumer $AH */
+			if ( !empty( $class ) && @class_exists( $class ) ) {
+				new $class( $this );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
 	}
 
 	protected function loadDebug() {

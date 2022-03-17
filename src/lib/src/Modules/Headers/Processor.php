@@ -131,8 +131,7 @@ class Processor extends BaseShield\Processor {
 	private function getReferrerPolicyHeader() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isReferrerPolicyEnabled() ?
-			[ 'Referrer-Policy' => $opts->getReferrerPolicyValue() ] : [];
+		return $opts->isReferrerPolicyEnabled() ? [ 'Referrer-Policy' => $opts->getReferrerPolicyValue() ] : [];
 	}
 
 	private function setContentSecurityPolicyHeader() :array {

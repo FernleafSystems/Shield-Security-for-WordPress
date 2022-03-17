@@ -59,24 +59,13 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 	}
 
-	public function handleAuthAjax( array $ajaxResponse ) :array {
-
-		if ( empty( $ajaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'set_plugin_tracking':
-					$ajaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
-					break;
-
-				default:
-					$ajaxResponse = parent::handleAuthAjax( $ajaxResponse );
-					break;
-			}
-		}
-		return $ajaxResponse;
+	protected function getAjaxActionCallbackMap() :array {
+		return array_merge( parent::getAjaxActionCallbackMap(), [
+			'set_plugin_tracking' => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
+		] );
 	}
 
-	private function ajaxExec_SetPluginTrackingPerm() :array {
+	public function ajaxExec_SetPluginTrackingPerm() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
@@ -178,9 +167,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'yes'            => "Yes please! I'd love to join in and learn more",
-				'dismiss'        => "No thanks",
-				'summary'        => sprintf( 'The %s team is helping raise awareness of WP Security issues
+				'yes'     => "Yes please! I'd love to join in and learn more",
+				'dismiss' => "No thanks",
+				'summary' => sprintf( 'The %s team is helping raise awareness of WP Security issues
 				and to provide guidance with the %s plugin.', $name, $name ),
 			],
 			'hrefs'             => [
@@ -188,8 +177,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'install_days'      => $opts->getInstallationDays(),
 			'vars'              => [
-				'name'         => $user->first_name,
-				'user_email'   => $user->user_email,
+				'name'       => $user->first_name,
+				'user_email' => $user->user_email,
 			]
 		];
 	}
@@ -331,5 +320,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				}, $versions ) ) ) > 2;
 		}
 		return $needed;
+	}
+
+	/**
+	 * @deprecated 14.1
+	 */
+	public function handleAuthAjax( array $ajaxResponse ) :array {
 	}
 }

@@ -11,31 +11,30 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_headers' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
-																						 ->getMainFeatureName() );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()->getMainFeatureName() );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Protect visitors to your site by implementing increased security response headers.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_security_headers' :
-				$sTitle = __( 'Advanced Security Headers', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Advanced Security Headers', 'wp-simple-firewall' );
+				$titleShort = __( 'Security Headers', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Protect visitors to your site by implementing increased security response headers.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Security Headers', 'wp-simple-firewall' );
 				break;
 
 			case 'section_content_security_policy' :
-				$sTitle = __( 'Content Security Policy', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Content Security Policy', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Content Security Policy', 'wp-simple-firewall' );
+				$titleShort = __( 'Content Security Policy', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -43,17 +42,12 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => $summary,
 		];
 	}
 
-	/**
-	 * @param string $key
-	 * @return array
-	 * @throws \Exception
-	 */
 	public function getOptionStrings( string $key ) :array {
 		$sModName = $this->getMod()->getMainFeatureName();
 

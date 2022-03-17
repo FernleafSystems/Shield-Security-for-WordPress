@@ -6,41 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class AjaxHandler extends Base\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-		$response = [];
-		$mod = $this->getMod();
-
-		switch ( $action ) {
-
-			case 'mod_opts_form_render':
-				$response = $this->ajaxExec_ModOptionsFormRender();
-				break;
-
-			case 'mod_options':
-				$response = $this->ajaxExec_ModOptions();
-				break;
-
-			case 'wiz_process_step':
-				if ( $mod->hasWizard() ) {
-					$response = $mod->getWizardHandler()->ajaxExec_WizProcessStep();
-				}
-				break;
-
-			case 'wiz_render_step':
-				if ( $mod->hasWizard() ) {
-					$response = $mod->getWizardHandler()->ajaxExec_WizRenderStep();
-				}
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'mod_opts_form_render' => [ $this, 'ajaxExec_ModOptionsFormRender' ],
+				'mod_options'          => [ $this, 'ajaxExec_ModOptions' ],
+				'wiz_process_step'     => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizProcessStep' ],
+				'wiz_render_step'      => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizRenderStep' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	protected function ajaxExec_ModOptions() :array {
-
+	public function ajaxExec_ModOptions() :array {
 		$name = $this->getCon()->getHumanName();
 
 		try {
@@ -51,7 +30,7 @@ class AjaxHandler extends Base\AjaxHandler {
 		catch ( \Exception $e ) {
 			$success = false;
 			$msg = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $name )
-						.' '.$e->getMessage();
+				   .' '.$e->getMessage();
 		}
 
 		return [
@@ -61,7 +40,7 @@ class AjaxHandler extends Base\AjaxHandler {
 		];
 	}
 
-	protected function ajaxExec_ModOptionsFormRender() :array {
+	public function ajaxExec_ModOptionsFormRender() :array {
 		return [
 			'success' => true,
 			'html'    => $this->getMod()->renderOptionsForm(),

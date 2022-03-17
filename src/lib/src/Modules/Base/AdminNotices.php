@@ -7,25 +7,31 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta;
 
-class AdminNotices {
-
-	use Shield\Modules\ModConsumer;
+class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected static $nCount = 0;
 
-	public function run() {
+	protected function canRun() :bool {
+		return Services::WpUsers()->isUserLoggedIn();
+	}
+
+	protected function run() {
 		add_filter( $this->getCon()->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
-		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
+		add_filter( $this->getCon()->prefix( 'ajax_handlers' ), function ( array $ajaxHandlers ) {
+			return \array_merge( $ajaxHandlers, $this->getAjaxActionCallbackMap() );
+		} );
 	}
 
-	public function handleAuthAjax( array $ajaxResponse ) :array {
-		if ( empty( $ajaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
-			$ajaxResponse = $this->ajaxExec_DismissAdminNotice();
-		}
-		return $ajaxResponse;
+	/**
+	 * We don't concern ourselves with "$isAuth" as this module is only run if you're logged-in.
+	 */
+	protected function getAjaxActionCallbackMap() :array {
+		return [
+			'dismiss_admin_notice' => [ $this, 'ajaxExec_DismissAdminNotice' ]
+		];
 	}
 
-	protected function ajaxExec_DismissAdminNotice() :array {
+	public function ajaxExec_DismissAdminNotice() :array {
 		$ajaxResponse = [];
 
 		$noticeID = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
@@ -219,5 +225,12 @@ class AdminNotices {
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {
 		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
+	}
+
+	/**
+	 * @deprecated 14.1
+	 */
+	public function handleAuthAjax( array $ajaxResponse ) :array {
+		return $ajaxResponse;
 	}
 }

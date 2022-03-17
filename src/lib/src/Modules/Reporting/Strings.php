@@ -27,11 +27,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @param string $key
-	 * @return array
-	 * @throws \Exception
-	 */
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->getCon();
 

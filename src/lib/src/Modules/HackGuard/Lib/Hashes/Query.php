@@ -23,8 +23,6 @@ class Query {
 	use ModConsumer;
 
 	/**
-	 * @param string $path
-	 * @return array
 	 * @throws AssetHashesNotFound
 	 * @throws NoneAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -53,7 +51,6 @@ class Query {
 	}
 
 	/**
-	 * @param string $path
 	 * @return WpPluginVo|WpThemeVo
 	 * @throws NoneAssetFileException
 	 */

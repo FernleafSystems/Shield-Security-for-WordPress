@@ -56,7 +56,7 @@ class Init {
 			$extensionsPage->execute();
 
 			if ( $this->getMod()->isModuleRequest() && Services::WpGeneral()->isAjax() ) {
-				( new AjaxHandlerMainwp() )->setMod( $this->getMod() );
+				new AjaxHandlerMainwp( $this->getMod() );
 			}
 		}
 

@@ -44,7 +44,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'ajax'              => [
 				'resend_verification_email' => $mod->getAjaxActionData( 'resend_verification_email', true ),
-				'disable_2fa_email'         => $mod->getAjaxActionData( 'disable_2fa_email', true ),
+				'profile_email2fa_disable'     => $mod->getAjaxActionData( 'profile_email2fa_disable', true ),
 			]
 		];
 	}

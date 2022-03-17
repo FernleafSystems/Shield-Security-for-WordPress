@@ -13,7 +13,6 @@ class DelegateAjaxHandler {
 	use Shield\Modules\ModConsumer;
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function processAjaxAction() :array {

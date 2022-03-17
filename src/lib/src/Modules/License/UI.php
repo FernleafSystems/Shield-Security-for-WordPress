@@ -25,9 +25,9 @@ class UI extends BaseShield\UI {
 			// Expires At has a random addition added to disperse future license lookups
 			// So we bring the license expiration back down to normal for user display.
 			$endOfExpireDay = Services::Request()
-										->carbon()
-										->setTimestamp( $expiresAt )
-										->startOfDay()->timestamp - 1;
+									  ->carbon()
+									  ->setTimestamp( $expiresAt )
+									  ->startOfDay()->timestamp - 1;
 			$expiresAtHuman = sprintf( '%s<br/><small>%s</small>',
 				$carb->setTimestamp( $endOfExpireDay )->diffForHumans(),
 				$WP->getTimeStampForDisplay( $endOfExpireDay )
@@ -74,7 +74,7 @@ class UI extends BaseShield\UI {
 				]
 			],
 			'ajax'    => [
-				'license_handling' => $mod->getAjaxActionData( 'license_handling' ),
+				'license_action'   => $mod->getAjaxActionData( 'license_action' ),
 				'connection_debug' => $mod->getAjaxActionData( 'connection_debug' )
 			],
 			'aHrefs'  => [

@@ -8,24 +8,18 @@ use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'license_handling':
-				$response = $this->ajaxExec_LicenseHandling();
-				break;
-			case 'connection_debug':
-				$response = $this->ajaxExec_ConnectionDebug();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'license_action' => [ $this, 'ajaxExec_LicenseHandling' ],
+				'connection_debug' => [ $this, 'ajaxExec_ConnectionDebug' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_ConnectionDebug() :array {
+	public function ajaxExec_ConnectionDebug() :array {
 
 		$success = ( new Keyless\Ping() )->ping();
 		$host = wp_parse_url( Keyless\Base::DEFAULT_URL_STUB, PHP_URL_HOST );
@@ -46,7 +40,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_LicenseHandling() :array {
+	public function ajaxExec_LicenseHandling() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$licHandler = $mod->getLicenseHandler();
@@ -54,29 +48,27 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$success = false;
 		$msg = 'Unsupported license action';
 
-		$sLicenseAction = Services::Request()->post( 'license-action' );
+		$licenseAction = Services::Request()->post( 'license-action' );
 
-		if ( $sLicenseAction == 'clear' ) {
+		if ( $licenseAction == 'clear' ) {
 			$success = true;
 			$licHandler->deactivate( false );
 			$licHandler->clearLicense();
-			$msg = __( 'Success', 'wp-simple-firewall' ).'! '
-				   .__( 'Reloading page', 'wp-simple-firewall' ).'...';
+			$msg = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Reloading page', 'wp-simple-firewall' ).'...';
 		}
-		elseif ( $sLicenseAction == 'check' ) {
+		elseif ( $licenseAction == 'check' ) {
 
-			$nCheckInterval = $licHandler->getLicenseNotCheckedForInterval();
-			if ( $nCheckInterval < 20 ) {
-				$nWait = 20 - $nCheckInterval;
+			$checkInterval = $licHandler->getLicenseNotCheckedForInterval();
+			if ( $checkInterval < 20 ) {
+				$waitFor = 20 - $checkInterval;
 				$msg = sprintf(
 					__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
-					sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
+					sprintf( _n( '%s second', '%s seconds', $waitFor, 'wp-simple-firewall' ), $waitFor )
 				);
 			}
 			else {
 				try {
-					$success = $licHandler->verify( true )
-										  ->hasValidWorkingLicense();
+					$success = $licHandler->verify( true )->hasValidWorkingLicense();
 					$msg = $success ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 				}
 				catch ( \Exception $e ) {

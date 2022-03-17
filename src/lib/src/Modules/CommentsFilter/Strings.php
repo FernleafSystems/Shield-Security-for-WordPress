@@ -109,11 +109,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @param string $key
-	 * @return array
-	 * @throws \Exception
-	 */
 	public function getOptionStrings( string $key ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

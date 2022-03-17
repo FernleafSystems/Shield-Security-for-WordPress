@@ -8,86 +8,35 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processNonAuthAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'intent_email_send':
-				$response = $this->ajaxExec_IntentEmailSend();
-				break;
-			default:
-				$response = parent::processNonAuthAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$parentMap = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $parentMap, [
+				'mfa_remove_all'            => [ $this, 'ajaxExec_MfaRemoveAll' ],
+				'profile_backup_codes_gen'  => [ $this, 'ajaxExec_BackupCodesCreate' ],
+				'profile_backup_codes_del'  => [ $this, 'ajaxExec_BackupCodesDelete' ],
+				'profile_email2fa_disable'  => [ $this, 'ajaxExec_Profile2faEmailDisable' ],
+				'profile_email2fa_toggle'   => [ $this, 'ajaxExec_Profile2faEmailToggle' ],
+				'profile_ga_toggle'         => [ $this, 'ajaxExec_ProfileGaToggle' ],
+				'profile_sms2fa_add'        => [ $this, 'ajaxExec_ProfileSmsAdd' ],
+				'profile_sms2fa_remove'     => [ $this, 'ajaxExec_ProfileSmsRemove' ],
+				'profile_sms2fa_verify'     => [ $this, 'ajaxExec_ProfileSmsVerify' ],
+				'intent_sms_send'           => [ $this, 'ajaxExec_UserSmsIntentStart' ],
+				'resend_verification_email' => [ $this, 'ajaxExec_ResendEmailVerification' ],
+				'profile_u2f_add'           => [ $this, 'ajaxExec_ProfileU2fAdd' ],
+				'profile_u2f_remove'        => [ $this, 'ajaxExec_ProfileU2fRemove' ],
+				'profile_yubikey_toggle'    => [ $this, 'ajaxExec_ProfileYubikeyToggle' ],
+			] );
 		}
-
-		return $response;
+		else {
+			$map = array_merge( $parentMap, [
+				'intent_email_send' => [ $this, 'ajaxExec_IntentEmailSend' ],
+			] );
+		}
+		return $map;
 	}
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'mfa_remove_all':
-				$response = $this->ajaxExec_MfaRemoveAll();
-				break;
-
-			case 'gen_backup_codes':
-				$response = $this->ajaxExec_GenBackupCodes();
-				break;
-
-			case 'del_backup_codes':
-				$response = $this->ajaxExec_DeleteBackupCodes();
-				break;
-
-			case 'disable_2fa_email':
-				$response = $this->ajaxExec_Disable2faEmail();
-				break;
-
-			case 'user_sms2fa_add':
-				$response = $this->ajaxExec_UserSmsAdd();
-				break;
-
-			case 'user_sms2fa_remove':
-				$response = $this->ajaxExec_UserSmsRemove();
-				break;
-
-			case 'user_sms2fa_verify':
-				$response = $this->ajaxExec_UserSmsVerify();
-				break;
-
-			case 'intent_sms_send':
-				$response = $this->ajaxExec_UserSmsIntentStart();
-				break;
-
-			case 'user_ga_toggle':
-				$response = $this->ajaxExec_UserGaToggle();
-				break;
-
-			case 'user_email2fa_toggle':
-				$response = $this->ajaxExec_User2faEmailToggle();
-				break;
-
-			case 'resend_verification_email':
-				$response = $this->ajaxExec_ResendEmailVerification();
-				break;
-
-			case 'u2f_add':
-				$response = $this->ajaxExec_ProfileU2fAdd();
-				break;
-
-			case 'u2f_remove':
-				$response = $this->ajaxExec_ProfileU2fRemove();
-				break;
-
-			case 'user_yubikey_toggle':
-				$response = $this->ajaxExec_UserYubikeyToggle();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
-		}
-
-		return $response;
-	}
-
-	private function ajaxExec_MfaRemoveAll() :array {
+	public function ajaxExec_MfaRemoveAll() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$userID = Services::Request()->post( 'user_id' );
@@ -108,7 +57,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	protected function ajaxExec_GenBackupCodes() :array {
+	public function ajaxExec_BackupCodesCreate() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
@@ -125,7 +74,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_DeleteBackupCodes() :array {
+	public function ajaxExec_BackupCodesDelete() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\BackupCodes $provider */
@@ -141,7 +90,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_UserGaToggle() :array {
+	public function ajaxExec_ProfileGaToggle() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\GoogleAuth $provider */
@@ -158,7 +107,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_User2faEmailToggle() :array {
+	public function ajaxExec_Profile2faEmailToggle() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Email $provider */
@@ -184,7 +133,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_Disable2faEmail() :array {
+	public function ajaxExec_Profile2faEmailDisable() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->setEnabled2FaEmail( false );
@@ -195,7 +144,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_ProfileU2fAdd() :array {
+	public function ajaxExec_ProfileU2fAdd() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\U2F $provider */
@@ -221,7 +170,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	private function ajaxExec_UserSmsAdd() :array {
+	public function ajaxExec_ProfileSmsAdd() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
@@ -266,7 +215,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	private function ajaxExec_UserSmsRemove() :array {
+	public function ajaxExec_ProfileSmsRemove() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Sms $provider */
@@ -280,7 +229,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_IntentEmailSend() :array {
+	public function ajaxExec_IntentEmailSend() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
@@ -307,7 +256,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_UserSmsIntentStart() :array {
+	public function ajaxExec_UserSmsIntentStart() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Sms $provider */
@@ -331,7 +280,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	private function ajaxExec_UserSmsVerify() :array {
+	public function ajaxExec_ProfileSmsVerify() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
@@ -376,7 +325,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return $response;
 	}
 
-	private function ajaxExec_ProfileU2fRemove() :array {
+	public function ajaxExec_ProfileU2fRemove() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\U2F $provider */
@@ -395,7 +344,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_UserYubikeyToggle() :array {
+	public function ajaxExec_ProfileYubikeyToggle() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var TwoFactor\Provider\Yubikey $provider */
@@ -412,7 +361,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_ResendEmailVerification() :array {
+	public function ajaxExec_ResendEmailVerification() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */

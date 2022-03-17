@@ -8,34 +8,18 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-		$resp = [];
-
-		// This allows us to provide a specific MainWP error message
-		if ( strpos( $action, 'mwp_' ) === 0 ) {
-
-			switch ( $action ) {
-				case 'mwp_sh_ext_table':
-					$resp = $this->ajaxExec_ExtensionTableSites();
-					break;
-
-				case 'mwp_sh_site_action':
-					$resp = $this->ajaxExec_SiteAction();
-					break;
-
-				default:
-					$resp = [
-						'success' => false,
-						'message' => sprintf( __( 'Not a supported MainWP+%s action.' ),
-							$this->getCon()->getHumanName() )
-					];
-			}
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'mwp_sh_ext_table'   => [ $this, 'ajaxExec_ExtensionTableSites' ],
+				'mwp_sh_site_action' => [ $this, 'ajaxExec_SiteAction' ],
+			] );
 		}
-
-		return $resp;
+		return $map;
 	}
 
-	private function ajaxExec_SiteAction() :array {
+	public function ajaxExec_SiteAction() :array {
 		$req = Services::Request();
 
 		$siteID = (int)$req->post( 'sid' );
@@ -59,7 +43,7 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 		return $resp;
 	}
 
-	private function ajaxExec_ExtensionTableSites() {
-
+	public function ajaxExec_ExtensionTableSites() :array {
+		return [];
 	}
 }
