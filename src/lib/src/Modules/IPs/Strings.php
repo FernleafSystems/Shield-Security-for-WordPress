@@ -157,11 +157,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @param string $section
-	 * @return array
-	 * @throws \Exception
-	 */
 	public function getSectionStrings( string $section ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
