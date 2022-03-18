@@ -80,6 +80,14 @@
       ]
     },
     {
+      "slug":        "section_deprecated",
+      "title":       "Deprecated Options",
+      "title_short": "Deprecated Options",
+      "summary":     [
+        "These options will be removed in the future. Please use the ADE option under Bot SPAM section."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -131,16 +139,16 @@
       "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
     },
     {
-      "key":         "enable_antibot_check",
+      "key":         "enable_antibot_comments",
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/k1",
       "link_blog":   "https://shsec.io/jo",
       "beacon_id":   427,
-      "name":        "AntiBot Detection Engine",
-      "summary":     "Use Experimental AntiBot Detection Engine",
-      "description": "Use Shield's AntiBot Detection Engine In-Place of GASP Bot checking."
+      "name":        "AntiBot Detection Technology",
+      "summary":     "Use Shield's Unique AntiBot Detection Technology",
+      "description": "Use Shield's AntiBot Detection Engine To Detect and Block SPAM Bots."
     },
     {
       "key":           "comments_default_action_spam_bot",
@@ -174,7 +182,7 @@
     },
     {
       "key":           "google_recaptcha_style_comments",
-      "section":       "section_bot_comment_spam_protection_filter",
+      "section":       "section_deprecated",
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -208,7 +216,7 @@
     },
     {
       "key":         "enable_comments_gasp_protection",
-      "section":     "section_bot_comment_spam_protection_filter",
+      "section":     "section_deprecated",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3n",
@@ -259,7 +267,7 @@
     },
     {
       "key":         "custom_message_checkbox",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
@@ -272,7 +280,7 @@
     },
     {
       "key":         "custom_message_alert",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
@@ -285,7 +293,7 @@
     },
     {
       "key":         "custom_message_comment_wait",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
@@ -298,7 +306,7 @@
     },
     {
       "key":         "custom_message_comment_reload",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
@@ -328,6 +336,12 @@
         "ip_address",
         "user_agent"
       ]
+    },
+    {
+      "key":     "enable_antibot_check",
+      "section": "section_non_ui",
+      "type":    "checkbox",
+      "default": ""
     }
   ],
   "definitions":   {

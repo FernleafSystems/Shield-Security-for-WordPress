@@ -106,6 +106,15 @@
         ]
       },
       {
+        "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Comments",
+        "description": [
+          "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Comment SPAM has been deprecated.",
+          "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
+        ],
+        "type":        "changed",
+        "pro_only":    false
+      },
+      {
         "type":        "fixed",
         "pro_only":    false,
         "title":       "Firewall didn't always scan all parameters in some cases",

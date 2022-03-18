@@ -749,14 +749,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$toEnable = $input === 'Y';
 
 			$modComm = $this->getCon()->getModule_Comments();
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
+			$optsComm = $modComm->getOptions();
 			if ( $toEnable ) { // we don't disable the whole module
 				$modComm->setIsMainFeatureEnabled( true );
 			}
-			$modComm->setEnabledAntiBot( $toEnable );
+			$optsComm->setEnabledAntiBot( $toEnable );
 			$modComm->saveModOptions();
 
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
-			$optsComm = $modComm->getOptions();
 			$success = $optsComm->isEnabledAntiBot() === $toEnable;
 			if ( $success ) {
 				$msg = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),

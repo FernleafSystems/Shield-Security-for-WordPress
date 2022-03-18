@@ -132,22 +132,22 @@ class Strings extends Base\Strings {
 			case 'trusted_user_roles' :
 				$name = __( 'Trusted User Roles', 'wp-simple-firewall' );
 				$summary = __( "Comments From Users With These Roles Will Never Be Scanned", 'wp-simple-firewall' );
-				$desc = __( "Shield doesn't normally scan comments from logged-in or registered users.", 'wp-simple-firewall' )
-						.'<br />'.__( "Specify user roles here that shouldn't be scanned.", 'wp-simple-firewall' )
-						.'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
-						.'<br/>'.sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ), implode( ', ', Services::WpUsers()
-																														  ->getAvailableUserRoles() ) );
+				$desc = [
+					__( "Shield doesn't normally scan comments from logged-in or registered users.", 'wp-simple-firewall' ),
+					__( "Specify user roles here that shouldn't be scanned.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
+						implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) )
+				];
 				break;
 
-			case 'enable_antibot_check' :
+			case 'enable_antibot_comments' :
 				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
 				$summary = __( "Use ADE To Detect SPAM Bots And Block Comment SPAM", 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
 						$this->getCon()->getHumanName() ),
 					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Switching on this feature will disable the CAPTCHA and Bot Protection settings.", 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -191,8 +191,10 @@ class Strings extends Base\Strings {
 			case 'custom_message_checkbox' :
 				$name = __( 'GASP Checkbox Message', 'wp-simple-firewall' );
 				$summary = __( 'If you want a custom checkbox message, please provide this here', 'wp-simple-firewall' );
-				$desc = __( "You can customise the message beside the checkbox.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) );
+				$desc = [
+					__( "You can customise the message beside the checkbox.", 'wp-simple-firewall' ),
+					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'google_recaptcha_style_comments' :
@@ -219,22 +221,28 @@ class Strings extends Base\Strings {
 			case 'custom_message_alert' :
 				$name = __( 'GASP Alert Message', 'wp-simple-firewall' );
 				$summary = __( 'If you want a custom alert message, please provide this here', 'wp-simple-firewall' );
-				$desc = __( "This alert message is displayed when a visitor attempts to submit a comment without checking the box.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) );
+				$desc = [
+					__( "This alert message is displayed when a visitor attempts to submit a comment without checking the box.", 'wp-simple-firewall' ),
+					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'custom_message_comment_wait' :
 				$name = __( 'GASP Wait Message', 'wp-simple-firewall' );
 				$summary = __( 'If you want a custom submit-button wait message, please provide this here.', 'wp-simple-firewall' );
-				$desc = __( "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( 'Please wait %s seconds before posting your comment', 'wp-simple-firewall' ) );
+				$desc = [
+					__( "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these.", 'wp-simple-firewall' ),
+					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( 'Please wait %s seconds before posting your comment', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'custom_message_comment_reload' :
 				$name = __( 'GASP Reload Message', 'wp-simple-firewall' );
 				$summary = __( 'If you want a custom message when the comment token has expired, please provide this here.', 'wp-simple-firewall' );
-				$desc = __( 'This message is displayed on the submit-button when the comment token is expired', 'wp-simple-firewall' )
-						.'<br />'.sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please reload this page to post a comment", 'wp-simple-firewall' ) );
+				$desc = [
+					__( 'This message is displayed on the submit-button when the comment token is expired', 'wp-simple-firewall' ),
+					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please reload this page to post a comment", 'wp-simple-firewall' ) )
+				];
 				break;
 
 			default:
