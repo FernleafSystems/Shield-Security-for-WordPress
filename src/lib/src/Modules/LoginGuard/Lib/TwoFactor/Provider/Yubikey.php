@@ -15,8 +15,7 @@ class Yubikey extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'user_yubikey_toggle' => $this->getMod()->getAjaxActionData( 'user_yubikey_toggle' ),
-				'user_yubikey_remove' => $this->getMod()->getAjaxActionData( 'user_yubikey_remove' )
+				'profile_yubikey_toggle' => $this->getMod()->getAjaxActionData( 'profile_yubikey_toggle' ),
 			],
 		];
 	}

@@ -63,11 +63,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @param string $section
-	 * @return array
-	 * @throws \Exception
-	 */
 	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
@@ -148,11 +143,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @param string $key
-	 * @return array
-	 * @throws \Exception
-	 */
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->getCon();
 		/** @var ModCon $mod */

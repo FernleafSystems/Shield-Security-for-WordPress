@@ -17,8 +17,8 @@ class BackupCodes extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'gen_backup_codes' => $this->getMod()->getAjaxActionData( 'gen_backup_codes' ),
-				'del_backup_codes' => $this->getMod()->getAjaxActionData( 'del_backup_codes' ),
+				'profile_backup_codes_gen' => $this->getMod()->getAjaxActionData( 'profile_backup_codes_gen' ),
+				'profile_backup_codes_del' => $this->getMod()->getAjaxActionData( 'profile_backup_codes_del' ),
 			],
 		];
 	}

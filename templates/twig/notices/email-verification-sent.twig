@@ -14,47 +14,47 @@
 		/
 		<span>
 			<a class="odp-notice-link-action text-warning" href="#"
-			   data-action="disable_2fa_email">{{ strings.how_turn_off }}</a>
+			   data-action="profile_email2fa_disable">{{ strings.how_turn_off }}</a>
 		</span>
 	</p>
 
 	<script type="text/javascript">
 		jQuery( document ).on(
-			'click',
-			'a.odp-notice-link-action',
-			function ( evt ) {
-				iCWP_WPSF_BodyOverlay.show();
-				var aReqData;
-				var $oThis = jQuery( evt.target );
-				if ( $oThis.data( 'action' ) === 'resend_verification_email' ) {
-					aReqData = {{ ajax.resend_verification_email|raw }};
-				}
-				else if ( $oThis.data( 'action' ) === 'disable_2fa_email' ) {
-					aReqData = {{ ajax.disable_2fa_email|raw }};
-				}
-
-				jQuery.post( ajaxurl, aReqData,
-					function ( oResponse ) {
-						var sMessage;
-						if ( oResponse === null || typeof oResponse.data === 'undefined'
-							|| typeof oResponse.data.message === 'undefined' ) {
-							sMessage = oResponse.success ? 'Success' : 'Failure';
-						}
-						else {
-							sMessage = oResponse.data.message;
-						}
-						iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
-						if ( oResponse.data.page_reload ) {
-							location.reload();
-						}
-					}
-				).always( function () {
-					iCWP_WPSF_BodyOverlay.hide();
-					}
-				);
-
-				return false;
+		'click',
+		'a.odp-notice-link-action',
+		function ( evt ) {
+			iCWP_WPSF_BodyOverlay.show();
+			var aReqData;
+			var $oThis = jQuery( evt.target );
+			if ( $oThis.data( 'action' ) === 'resend_verification_email' ) {
+				aReqData = {{ ajax.resend_verification_email|raw }};
 			}
-		);
+			else if ( $oThis.data( 'action' ) === 'profile_email2fa_disable' ) {
+				aReqData = {{ ajax.profile_email2fa_disable|raw }};
+			}
+
+			jQuery.post( ajaxurl, aReqData,
+				function ( oResponse ) {
+					var sMessage;
+					if ( oResponse === null || typeof oResponse.data === 'undefined'
+						|| typeof oResponse.data.message === 'undefined' ) {
+						sMessage = oResponse.success ? 'Success' : 'Failure';
+					}
+					else {
+						sMessage = oResponse.data.message;
+					}
+					iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+					if ( oResponse.data.page_reload ) {
+						location.reload();
+					}
+				}
+			).always( function () {
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			);
+
+			return false;
+		}
+	);
 	</script>
 {% endblock %}

@@ -29,7 +29,7 @@ class GoogleAuth extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'user_ga_toggle' => $this->getMod()->getAjaxActionData( 'user_ga_toggle' ),
+				'profile_ga_toggle' => $this->getMod()->getAjaxActionData( 'profile_ga_toggle' ),
 			],
 		];
 	}

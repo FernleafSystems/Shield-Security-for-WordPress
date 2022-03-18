@@ -123,7 +123,7 @@ class UI extends BaseShield\UI {
 			'/wpadmin_pages/insights/ips/ip_analyse/index.twig',
 			[
 				'ajax'    => [
-					'build_ip_analyse'  => $mod->getAjaxActionData( 'build_ip_analyse', true ),
+					'ip_analyse_build'  => $mod->getAjaxActionData( 'ip_analyse_build', true ),
 					'ip_analyse_action' => $mod->getAjaxActionData( 'ip_analyse_action', true ),
 					'ip_review_select'  => $mod->getAjaxActionData( 'ip_review_select', true ),
 				],

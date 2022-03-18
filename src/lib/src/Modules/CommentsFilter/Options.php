@@ -58,7 +58,11 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledAntiBot() :bool {
-		return $this->isOpt( 'enable_antibot_check', 'Y' );
+		if ( $this->isOpt( 'enable_antibot_check', 'Y' ) ) {
+			/** @deprecated 14.1 - remove the older option */
+			$this->setOpt( 'enable_antibot_comments', 'Y' );
+		}
+		return $this->isOpt( 'enable_antibot_comments', 'Y' );
 	}
 
 	public function isEnabledCaptcha() :bool {
@@ -68,5 +72,9 @@ class Options extends BaseShield\Options {
 	public function isEnabledHumanCheck() :bool {
 		return $this->isOpt( 'enable_comments_human_spam_filter', 'Y' )
 			   && count( $this->getHumanSpamFilterItems() ) > 0;
+	}
+
+	public function setEnabledAntiBot( bool $enabled = true ) {
+		$this->setOpt( 'enable_antibot_comments', $enabled ? 'Y' : 'N' );
 	}
 }

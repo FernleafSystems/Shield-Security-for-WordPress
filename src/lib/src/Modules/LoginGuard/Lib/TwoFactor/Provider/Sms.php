@@ -13,9 +13,9 @@ class Sms extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'user_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'user_sms2fa_add' ),
-				'user_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'user_sms2fa_verify' ),
-				'user_sms2fa_remove' => $this->getMod()->getAjaxActionData( 'user_sms2fa_remove' ),
+				'profile_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'profile_sms2fa_add' ),
+				'profile_sms2fa_remove' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_remove' ),
+				'profile_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_verify' ),
 			],
 		];
 	}

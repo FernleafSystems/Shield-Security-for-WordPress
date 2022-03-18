@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageB
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildAuditTableData extends BaseBuildTableData {
 
@@ -118,7 +119,29 @@ class BuildAuditTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_RequestDetails() :string {
-		return sprintf( '<h6>%s</h6>', $this->getIpAnalysisLink( (string)$this->log->ip ) );
+		if ( !empty( $this->log->ip ) ) {
+			try {
+				$ipID = ( new IpID( (string)$this->log->ip ) )->run();
+				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
+					$id = __( 'This Server', 'wp-simple-firewall' );
+				}
+				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
+					$id = __( 'This Is You', 'wp-simple-firewall' );
+				}
+				else {
+					$id = $ipID[ 1 ];
+				}
+			}
+			catch ( \Exception $e ) {
+				$id = '';
+			}
+			$content = sprintf( '<h6>%s%s</h6>', $this->getIpAnalysisLink( (string)$this->log->ip ),
+				empty( $id ) ? '' : sprintf( '<br/><small>%s</small>', esc_html( $id ) ) );
+		}
+		else {
+			$content = 'No IP';
+		}
+		return $content;
 	}
 
 	private function getColumnContent_UserID() :string {

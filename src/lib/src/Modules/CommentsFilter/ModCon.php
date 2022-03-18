@@ -87,10 +87,6 @@ class ModCon extends BaseShield\ModCon {
 			   && $this->getCaptchaCfg()->ready;
 	}
 
-	public function setEnabledAntiBot( bool $enabled = true ) {
-		$this->getOptions()->setOpt( 'enable_antibot_check', $enabled ? 'Y' : 'N' );
-	}
-
 	public function getSpamBlacklistFile() :string {
 		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
 	}

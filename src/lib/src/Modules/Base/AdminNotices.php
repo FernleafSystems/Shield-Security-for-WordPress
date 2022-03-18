@@ -7,43 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta;
 
-class AdminNotices {
-
-	use Shield\Modules\ModConsumer;
+class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected static $nCount = 0;
 
-	public function run() {
+	protected function canRun() :bool {
+		return Services::WpUsers()->isUserLoggedIn();
+	}
+
+	protected function run() {
 		add_filter( $this->getCon()->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
-		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
-	}
-
-	public function handleAuthAjax( array $ajaxResponse ) :array {
-		if ( empty( $ajaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
-			$ajaxResponse = $this->ajaxExec_DismissAdminNotice();
-		}
-		return $ajaxResponse;
-	}
-
-	protected function ajaxExec_DismissAdminNotice() :array {
-		$ajaxResponse = [];
-
-		$noticeID = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
-
-		foreach ( $this->getAdminNotices() as $notice ) {
-			if ( $noticeID == $notice->id ) {
-				$this->setNoticeDismissed( $notice );
-				$ajaxResponse = [
-					'success'   => true,
-					'message'   => 'Admin notice dismissed', //not currently rendered
-					'notice_id' => $notice->id,
-				];
-				break;
-			}
-		}
-
-		// leave response empty if it doesn't apply here, so other modules can process it.
-		return $ajaxResponse;
 	}
 
 	/**
@@ -80,7 +53,7 @@ class AdminNotices {
 	/**
 	 * @return NoticeVO[]
 	 */
-	protected function getAdminNotices() :array {
+	public function getAdminNotices() :array {
 		return array_map(
 			function ( $noticeDef ) {
 				$noticeDef = Services::DataManipulation()
@@ -96,6 +69,7 @@ class AdminNotices {
 											 'display'          => false,
 											 'min_install_days' => 0,
 											 'twig'             => true,
+											 'mod'              => $this->getMod()->getSlug(),
 										 ],
 										 $noticeDef
 									 );
@@ -193,7 +167,7 @@ class AdminNotices {
 		throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
 	}
 
-	protected function setNoticeDismissed( NoticeVO $notice ) {
+	public function setNoticeDismissed( NoticeVO $notice ) {
 		$ts = Services::Request()->ts();
 
 		$meta = $this->getCon()->getCurrentUserMeta();
@@ -219,5 +193,12 @@ class AdminNotices {
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {
 		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
+	}
+
+	/**
+	 * @deprecated 14.1
+	 */
+	public function handleAuthAjax( array $ajaxResponse ) :array {
+		return $ajaxResponse;
 	}
 }

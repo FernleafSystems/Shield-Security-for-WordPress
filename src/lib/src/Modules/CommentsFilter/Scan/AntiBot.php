@@ -9,7 +9,6 @@ class AntiBot {
 	use ModConsumer;
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function scan() :bool {

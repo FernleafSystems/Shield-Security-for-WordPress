@@ -25,6 +25,7 @@ class Init {
 	}
 
 	private function ajaxAction( bool $forceDie = true ) {
+		$con = $this->getCon();
 		$req = Services::Request();
 		$nonceAction = $req->request( 'exec' );
 
@@ -33,29 +34,47 @@ class Init {
 		check_ajax_referer( $nonceAction, 'exec_nonce',
 			$forceDie || !in_array( $nonceAction, $this->getAllowedNoPrivExecs() ) );
 
-		ob_start();
-		$response = apply_filters(
-			$this->getCon()->prefix( Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction' ),
-			[], $nonceAction
-		);
-		$noise = ob_get_clean();
-
-		if ( is_array( $response ) && isset( $response[ 'success' ] ) ) {
-			$success = $response[ 'success' ];
+		/** @var callable[] $handlers */
+		$handlers = apply_filters( $con->prefix( 'ajax_handlers' ), [], Services::WpUsers()->isUserLoggedIn() );
+		if ( isset( $handlers[ $nonceAction ] ) ) {
+			ob_start();
+			$response = $handlers[ $nonceAction ]();
+			$noise = ob_get_clean();
+			$response = $this->normaliseAjaxResponse( $response );
 		}
 		else {
-			$success = false;
 			$response = [];
+			$noise = [];
 		}
 
 		( new Response() )->issue(
 			[
-				'success' => $success,
+				'success' => $response[ 'success' ] ?? false,
 				'data'    => $response,
 				'noise'   => $noise
 			],
 			false
 		);
+	}
+
+	/**
+	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
+	 * so if we send something back non-empty, it'll be treated like a "handled" response and
+	 * processing will finish
+	 */
+	protected function normaliseAjaxResponse( array $ajaxResponse ) :array {
+		if ( !empty( $ajaxResponse ) ) {
+			$ajaxResponse = array_merge(
+				[
+					'success'     => false,
+					'page_reload' => false,
+					'message'     => 'Unknown',
+					'html'        => '',
+				],
+				$ajaxResponse
+			);
+		}
+		return $ajaxResponse;
 	}
 
 	private function getAllowedNoPrivExecs() :array {

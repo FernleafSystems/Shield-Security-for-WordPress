@@ -10,63 +10,30 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-		switch ( $action ) {
-			case 'bulk_action':
-				$response = $this->ajaxExec_BulkItemAction();
-				break;
-
-			case 'delete_forceoff':
-				$response = $this->ajaxExec_DeleteForceOff();
-				break;
-
-			case 'render_table_adminnotes':
-				$response = $this->ajaxExec_RenderTableAdminNotes();
-				break;
-
-			case 'note_delete':
-				$response = $this->ajaxExec_AdminNotesDelete();
-				break;
-
-			case 'note_insert':
-				$response = $this->ajaxExec_AdminNotesInsert();
-				break;
-
-			case 'import_from_site':
-				$response = $this->ajaxExec_ImportFromSite();
-				break;
-
-			case 'plugin_badge_close':
-				$response = $this->ajaxExec_PluginBadgeClose();
-				break;
-
-			case 'set_plugin_tracking':
-				$response = $this->ajaxExec_SetPluginTrackingPerm();
-				break;
-
-			case 'sgoptimizer_turnoff':
-				$response = $this->ajaxExec_TurnOffSiteGroundOptions();
-				break;
-
-			case 'ipdetect':
-				$response = $this->ajaxExec_IpDetect();
-				break;
-
-			case 'mark_tour_finished':
-				$response = $this->ajaxExec_MarkTourFinished();
-				break;
-
-			case 'wizard_step':
-				$response = $this->ajaxExec_Wizard();
-				break;
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = array_merge( parent::getAjaxActionCallbackMap( $isAuth ), [
+			'plugin_badge_close' => [ $this, 'ajaxExec_PluginBadgeClose' ],
+		] );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'bulk_action'             => [ $this, 'ajaxExec_BulkItemAction' ],
+				'delete_forceoff'         => [ $this, 'ajaxExec_DeleteForceOff' ],
+				'import_from_site'        => [ $this, 'ajaxExec_ImportFromSite' ],
+				'ipdetect'                => [ $this, 'ajaxExec_IpDetect' ],
+				'mark_tour_finished'      => [ $this, 'ajaxExec_MarkTourFinished' ],
+				'note_delete'             => [ $this, 'ajaxExec_AdminNotesDelete' ],
+				'note_insert'             => [ $this, 'ajaxExec_AdminNotesInsert' ],
+				'plugin_badge_close'      => [ $this, 'ajaxExec_PluginBadgeClose' ],
+				'render_table_adminnotes' => [ $this, 'ajaxExec_RenderTableAdminNotes' ],
+				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
+				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
+				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_Wizard() {
+	public function ajaxExec_Wizard() :array {
 		$params = FormParams::Retrieve();
 		// step will be step1, step2 etc.
 		$currentStep = intval( str_replace( 'step', '', $params[ 'step' ] ) );
@@ -78,7 +45,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_PluginBadgeClose() :array {
+	public function ajaxExec_PluginBadgeClose() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = $mod->getPluginBadgeCon()->setBadgeStateClosed();
@@ -88,36 +55,35 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_SetPluginTrackingPerm() :array {
+	public function ajaxExec_SetPluginTrackingPerm() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( !$opts->isTrackingPermissionSet() ) {
 			$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		}
-		return [ 'success' => true ];
+		return $this->ajaxExec_DismissAdminNotice();
 	}
 
-	private function ajaxExec_BulkItemAction() :array {
+	public function ajaxExec_BulkItemAction() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
 
 		$success = false;
 
-		$aIds = $req->post( 'ids' );
-		if ( empty( $aIds ) || !is_array( $aIds ) ) {
-			$success = false;
+		$IDs = $req->post( 'ids' );
+		if ( empty( $IDs ) || !is_array( $IDs ) ) {
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
 		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			/** @var Shield\Databases\AdminNotes\Delete $oDel */
-			$oDel = $mod->getDbHandler_Notes()->getQueryDeleter();
-			foreach ( $aIds as $nId ) {
-				if ( is_numeric( $nId ) ) {
-					$oDel->deleteById( $nId );
+			/** @var Shield\Databases\AdminNotes\Delete $deleter */
+			$deleter = $mod->getDbHandler_Notes()->getQueryDeleter();
+			foreach ( $IDs as $id ) {
+				if ( is_numeric( $id ) ) {
+					$deleter->deleteById( $id );
 				}
 			}
 			$success = true;
@@ -130,7 +96,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_DeleteForceOff() :array {
+	public function ajaxExec_DeleteForceOff() :array {
 		$stillActive = $this->getCon()
 							->deleteForceOffFile()
 							->getIfForceOffActive();
@@ -141,7 +107,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [ 'success' => !$stillActive ];
 	}
 
-	private function ajaxExec_RenderTableAdminNotes() :array {
+	public function ajaxExec_RenderTableAdminNotes() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return [
@@ -153,7 +119,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_AdminNotesDelete() :array {
+	public function ajaxExec_AdminNotesDelete() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -185,7 +151,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_ImportFromSite() :array {
+	public function ajaxExec_ImportFromSite() :array {
 		$success = false;
 		$formParams = array_merge(
 			[
@@ -224,7 +190,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_AdminNotesInsert() :array {
+	public function ajaxExec_AdminNotesInsert() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
@@ -249,7 +215,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_TurnOffSiteGroundOptions() :array {
+	public function ajaxExec_TurnOffSiteGroundOptions() :array {
 		$success = ( new Plugin\Components\SiteGroundPluginCompatibility() )->switchOffOptions();
 		return [
 			'success' => $success,
@@ -258,7 +224,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_IpDetect() :array {
+	public function ajaxExec_IpDetect() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
@@ -271,7 +237,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_MarkTourFinished() :array {
+	public function ajaxExec_MarkTourFinished() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );

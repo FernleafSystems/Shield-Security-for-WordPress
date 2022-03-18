@@ -7,30 +7,20 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'sec_admin_check':
-				$response = $this->ajaxExec_SecAdminCheck();
-				break;
-
-			case 'sec_admin_login':
-			case 'restricted_access':
-				$response = $this->ajaxExec_SecAdminLogin();
-				break;
-
-			case 'req_email_remove':
-				$response = $this->ajaxExec_SendEmailRemove();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'sec_admin_check'   => [ $this, 'ajaxExec_SecAdminCheck' ],
+				'sec_admin_login'   => [ $this, 'ajaxExec_SecAdminLogin' ],
+				'restricted_access' => [ $this, 'ajaxExec_SecAdminLogin' ],
+				'req_email_remove'  => [ $this, 'ajaxExec_SendEmailRemove' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_SecAdminCheck() :array {
+	public function ajaxExec_SecAdminCheck() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$secAdminCon = $mod->getSecurityAdminController();
@@ -40,7 +30,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_SecAdminLogin() :array {
+	public function ajaxExec_SecAdminLogin() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -74,7 +64,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_SendEmailRemove() :array {
+	public function ajaxExec_SendEmailRemove() :array {
 		( new Lib\SecurityAdmin\Ops\RemoveSecAdmin() )
 			->setMod( $this->getMod() )
 			->sendConfirmationEmail();
