@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'spam_block_antibot'   => [
