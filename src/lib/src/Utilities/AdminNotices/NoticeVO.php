@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property string $id
+ * @property string $mod
  * @property bool   $display
  * @property string $non_display_reason
  * @property array  $render_data
@@ -20,7 +21,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
  * @property int    $min_install_days
  * @property bool   $twig
  */
-class NoticeVO {
+class NoticeVO extends DynPropertiesClass {
 
-	use DynProperties;
 }

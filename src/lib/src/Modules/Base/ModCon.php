@@ -78,6 +78,11 @@ abstract class ModCon {
 	private $dbHandler;
 
 	/**
+	 * @var AdminNotices
+	 */
+	private $adminNotices;
+
+	/**
 	 * @param Shield\Controller\Controller $pluginCon
 	 * @param array                        $mod
 	 * @throws \Exception
@@ -332,7 +337,7 @@ abstract class ModCon {
 		}
 
 		if ( is_admin() || is_network_admin() ) {
-			$this->loadAdminNotices();
+			$this->getAdminNotices()->execute();
 		}
 
 		$this->loadDebug();
@@ -1155,42 +1160,6 @@ abstract class ModCon {
 	protected function display( $aData = [], $sSubView = '' ) {
 	}
 
-	/**
-	 * @param array $aData
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function renderAdminNotice( $aData ) {
-		if ( empty( $aData[ 'notice_attributes' ] ) ) {
-			throw new \Exception( 'notice_attributes is empty' );
-		}
-
-		if ( !isset( $aData[ 'icwp_admin_notice_template' ] ) ) {
-			$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
-		}
-
-		if ( !isset( $aData[ 'notice_classes' ] ) ) {
-			$aData[ 'notice_classes' ] = [];
-		}
-		if ( is_array( $aData[ 'notice_classes' ] ) ) {
-			$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
-			if ( empty( $aData[ 'notice_classes' ] )
-				 || ( !in_array( 'error', $aData[ 'notice_classes' ] ) && !in_array( 'updated', $aData[ 'notice_classes' ] ) ) ) {
-				$aData[ 'notice_classes' ][] = 'updated';
-			}
-		}
-		$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
-
-		$aAjaxData = $this->getAjaxActionData( 'dismiss_admin_notice' );
-		$aAjaxData[ 'hide' ] = 1;
-		$aAjaxData[ 'notice_id' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
-		$aData[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $aAjaxData );
-
-		$bTwig = $aData[ 'notice_attributes' ][ 'twig' ];
-		$sTemplate = $bTwig ? '/notices/'.$aAjaxData[ 'notice_id' ] : 'notices/admin-notice-template';
-		return $this->renderTemplate( $sTemplate, $aData, $bTwig );
-	}
-
 	public function renderTemplate( string $template, array $data = [], bool $isTwig = false ) :string {
 		if ( empty( $data[ 'unique_render_id' ] ) ) {
 			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
@@ -1316,12 +1285,11 @@ abstract class ModCon {
 		return $this->oReporting;
 	}
 
-	protected function loadAdminNotices() {
-		/** @var AdminNotices $N */
-		$N = $this->loadModElement( 'AdminNotices' );
-		if ( !empty( $N ) ) {
-			$N->execute();
+	public function getAdminNotices() {
+		if ( !isset( $this->adminNotices ) ) {
+			$this->adminNotices = $this->loadModElement( 'AdminNotices' );
 		}
+		return $this->adminNotices;
 	}
 
 	protected function loadAjaxHandler() {

@@ -59,19 +59,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 	}
 
-	protected function getAjaxActionCallbackMap() :array {
-		return array_merge( parent::getAjaxActionCallbackMap(), [
-			'set_plugin_tracking' => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
-		] );
-	}
-
-	public function ajaxExec_SetPluginTrackingPerm() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
-		return $this->ajaxExec_DismissAdminNotice();
-	}
-
 	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
 		$name = $this->getCon()->getHumanName();
 

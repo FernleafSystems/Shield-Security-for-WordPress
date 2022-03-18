@@ -61,7 +61,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		if ( !$opts->isTrackingPermissionSet() ) {
 			$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		}
-		return [ 'success' => true ];
+		return $this->ajaxExec_DismissAdminNotice();
 	}
 
 	public function ajaxExec_BulkItemAction() :array {

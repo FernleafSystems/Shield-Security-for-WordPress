@@ -17,39 +17,6 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function run() {
 		add_filter( $this->getCon()->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
-		add_filter( $this->getCon()->prefix( 'ajax_handlers' ), function ( array $ajaxHandlers ) {
-			return \array_merge( $ajaxHandlers, $this->getAjaxActionCallbackMap() );
-		} );
-	}
-
-	/**
-	 * We don't concern ourselves with "$isAuth" as this module is only run if you're logged-in.
-	 */
-	protected function getAjaxActionCallbackMap() :array {
-		return [
-			'dismiss_admin_notice' => [ $this, 'ajaxExec_DismissAdminNotice' ]
-		];
-	}
-
-	public function ajaxExec_DismissAdminNotice() :array {
-		$ajaxResponse = [];
-
-		$noticeID = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
-
-		foreach ( $this->getAdminNotices() as $notice ) {
-			if ( $noticeID == $notice->id ) {
-				$this->setNoticeDismissed( $notice );
-				$ajaxResponse = [
-					'success'   => true,
-					'message'   => 'Admin notice dismissed', //not currently rendered
-					'notice_id' => $notice->id,
-				];
-				break;
-			}
-		}
-
-		// leave response empty if it doesn't apply here, so other modules can process it.
-		return $ajaxResponse;
 	}
 
 	/**
@@ -86,7 +53,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	/**
 	 * @return NoticeVO[]
 	 */
-	protected function getAdminNotices() :array {
+	public function getAdminNotices() :array {
 		return array_map(
 			function ( $noticeDef ) {
 				$noticeDef = Services::DataManipulation()
@@ -102,6 +69,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 											 'display'          => false,
 											 'min_install_days' => 0,
 											 'twig'             => true,
+											 'mod'              => $this->getMod()->getSlug(),
 										 ],
 										 $noticeDef
 									 );
@@ -199,7 +167,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
 	}
 
-	protected function setNoticeDismissed( NoticeVO $notice ) {
+	public function setNoticeDismissed( NoticeVO $notice ) {
 		$ts = Services::Request()->ts();
 
 		$meta = $this->getCon()->getCurrentUserMeta();
