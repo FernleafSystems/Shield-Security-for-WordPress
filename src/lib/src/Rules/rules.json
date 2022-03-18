@@ -1,0 +1,43 @@
+{
+  "rules": [
+    {
+      "name":              "IP Match",
+      "slug":              "ip_match",
+      "flags":             [
+        "stop_on_first"
+      ],
+      "conditions":          [
+        "match_request_ip"
+      ],
+      "trigger_responses": [
+        {
+          "action": "request_kill"
+        }
+      ]
+    },
+    {
+      "name":              "Fake Web Crawler",
+      "slug":              "fake_web_crawler",
+      "flags":             [
+        "stop_on_first"
+      ],
+      "conditions":          [
+        "is_fake_web_crawler"
+      ],
+      "trigger_responses": [
+        {
+          "action":        "offense_increment",
+          "action_params": {
+            "offense_count": 1
+          }
+        },
+        {
+          "action":        "event_fire",
+          "action_params": {
+            "event_name": "bottrack_fakewebcrawler"
+          }
+        }
+      ]
+    }
+  ]
+}
