@@ -76,7 +76,9 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 		if ( !empty( $meta[ 'path' ] ) ) {
 			$parts = explode( $isWpCli ? ' ' : '?', (string)$meta[ 'path' ], 2 );
 			$upgradeData[ 'path' ] = $parts[ 0 ];
-			$meta[ 'query' ] = $parts[ 1 ];
+			if ( !empty( $parts[ 1 ] ) ) {
+				$meta[ 'query' ] = $parts[ 1 ];
+			}
 			unset( $meta[ 'path' ] );
 		}
 
