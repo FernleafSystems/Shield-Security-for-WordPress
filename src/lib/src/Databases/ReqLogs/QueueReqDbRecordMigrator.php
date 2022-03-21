@@ -93,6 +93,7 @@ class QueueReqDbRecordMigrator extends Shield\Databases\Utility\QueueDbRecordsMi
 					   ->getQueryUpdater()
 					   ->updateById( $record->id, $upgradeData );
 		if ( !$success ) {
+			$mod->getDbH_ReqLogs()->getQueryDeleter()->deleteById( $record->id );
 			throw new \Exception( 'failed to update' );
 		}
 
