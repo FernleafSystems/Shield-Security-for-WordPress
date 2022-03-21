@@ -117,7 +117,7 @@
     "patches":     [
       {
         "version":     "1",
-        "released_at": 1647424478,
+        "released_at": 1647849231,
         "items":       [
           {
             "title": "Fix for 'find as you type' in the options search dialog.",
