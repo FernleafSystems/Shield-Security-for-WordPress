@@ -194,11 +194,4 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {
 		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
 	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function handleAuthAjax( array $ajaxResponse ) :array {
-		return $ajaxResponse;
-	}
 }

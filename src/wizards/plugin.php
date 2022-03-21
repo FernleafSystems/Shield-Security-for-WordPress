@@ -648,7 +648,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			if ( $enable ) { // we don't disable the whole module
 				$mod->setIsMainFeatureEnabled( true );
 			}
-			$mod->setEnabledAntiBotDetection( $enable );
+			$opts->setOpt( 'enable_antibot_check', $enable ? 'Y' : 'N' );
 			$mod->saveModOptions();
 
 			$success = $opts->isEnabledAntiBot() === $enable;
