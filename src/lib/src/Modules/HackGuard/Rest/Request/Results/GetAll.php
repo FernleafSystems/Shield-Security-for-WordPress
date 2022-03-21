@@ -38,7 +38,8 @@ class GetAll extends Base {
 							'attempt_repair_at',
 							'item_repaired_at',
 							'item_deleted_at',
-							'scanresult_id'
+							'item_id',
+							'item_type'
 						] )
 					)
 				);
