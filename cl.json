@@ -138,6 +138,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "3",
+        "released_at": 1647854124,
+        "items":       [
+          {
+            "title": "Ensure database upgrade doesn't stall for large traffic logs.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
