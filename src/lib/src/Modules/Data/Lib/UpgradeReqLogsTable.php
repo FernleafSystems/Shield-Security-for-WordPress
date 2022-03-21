@@ -34,6 +34,9 @@ class UpgradeReqLogsTable extends ExecOnceModConsumer {
 			}
 
 			$page++;
+			if ( $page > 5 ) {
+				break;
+			}
 		} while ( !empty( $records ) );
 	}
 
