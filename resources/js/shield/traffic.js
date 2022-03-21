@@ -131,8 +131,7 @@
 							viewCount: false,
 							initCollapsed: true
 						},
-						search: {
-						},
+						search: {},
 						buttons: [
 							{
 								text: 'Reload',
@@ -144,7 +143,8 @@
 							}
 						],
 						language: {
-							emptyTable: "There are no items to display."
+							emptyTable: "There are no items to display.",
+							zeroRecords: "No entries found - please try adjusting your search filters."
 						}
 					}
 				) );

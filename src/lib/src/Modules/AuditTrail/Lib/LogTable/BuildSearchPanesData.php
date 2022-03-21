@@ -20,8 +20,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForIPs() :array {
-		$results = $this->runQuery( 'INET6_NTOA(ips.ip) as ip' );
-		return array_filter( array_map(
+		return array_values( array_filter( array_map(
 			function ( $result ) {
 				$ip = $result[ 'ip' ] ?? null;
 				if ( !empty( $ip ) ) {
@@ -32,13 +31,12 @@ class BuildSearchPanesData {
 				}
 				return $ip;
 			},
-			$results
-		) );
+			$this->runQuery( 'INET6_NTOA(ips.ip) as ip' )
+		) ) );
 	}
 
 	private function buildForEvents() :array {
-		$results = $this->runQuery( '`log`.event_slug as event' );
-		return array_filter( array_map(
+		return array_values( array_filter( array_map(
 			function ( $result ) {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
@@ -49,8 +47,8 @@ class BuildSearchPanesData {
 				}
 				return $evt;
 			},
-			$results
-		) );
+			$this->runQuery( '`log`.event_slug as event' )
+		) ) );
 	}
 
 	private function runQuery( string $select ) :array {
