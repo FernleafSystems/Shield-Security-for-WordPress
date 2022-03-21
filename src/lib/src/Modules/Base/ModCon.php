@@ -45,7 +45,7 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\UI
 	 */
-	private $oUI;
+	private $UI;
 
 	/**
 	 * @var Shield\Modules\Base\Options
@@ -1257,14 +1257,10 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\UI
 	 */
 	public function getUIHandler() {
-		if ( !isset( $this->oUI ) ) {
-			$this->oUI = $this->loadModElement( 'UI' );
-			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {
-				// TODO: autoloader for base classes
-				$this->oUI = $this->loadModElement( 'ShieldUI' );
-			}
+		if ( !isset( $this->UI ) ) {
+			$this->UI = $this->loadModElement( 'UI' );
 		}
-		return $this->oUI;
+		return $this->UI;
 	}
 
 	/**

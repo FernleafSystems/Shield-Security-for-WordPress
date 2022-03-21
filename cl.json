@@ -69,14 +69,6 @@
       {
         "type":        "improved",
         "pro_only":    false,
-        "title":       "IP Record Management Error",
-        "description": [
-          "When inserting a duplicate IP address record into the database, we use INSERT IGNORE to reduce error messages in logs."
-        ]
-      },
-      {
-        "type":        "improved",
-        "pro_only":    false,
         "title":       "Support 3rd Party Traffic Log Handlers",
         "description": [
           "3rd parties can now easily integrate with Shield's Traffic Log to send log records to any destination."
@@ -125,7 +117,7 @@
     "patches":     [
       {
         "version":     "1",
-        "released_at": 1647424478,
+        "released_at": 1647849231,
         "items":       [
           {
             "title": "Fix for 'find as you type' in the options search dialog.",

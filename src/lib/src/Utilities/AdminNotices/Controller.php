@@ -148,7 +148,9 @@ class Controller {
 		$data[ 'unique_render_id' ] = uniqid( $notice->id );
 		$data[ 'notice_id' ] = $notice->id;
 
-		$ajaxData = $this->getCon()->getModule( $notice->mod )->getNonceActionData( 'dismiss_admin_notice' );
+		$ajaxData = $this->getCon()
+						 ->getModule( $notice->mod ?? 'plugin' )
+						 ->getNonceActionData( 'dismiss_admin_notice' );
 		$ajaxData[ 'hide' ] = 1;
 		$ajaxData[ 'notice_id' ] = $notice->id;
 		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $ajaxData );
