@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-/**
- * Class HandlerConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
- */
 trait HandlerConsumer {
 
 	/**

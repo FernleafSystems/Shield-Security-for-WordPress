@@ -24,18 +24,14 @@ class ModCon extends BaseShield\ModCon {
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		$aExcls = $opts->getCustomExclusions();
-		foreach ( $aExcls as &$sExcl ) {
-			$sExcl = trim( esc_js( $sExcl ) );
-		}
-		$opts->setOpt( 'custom_exclusions', array_filter( $aExcls ) );
+		$opts->setOpt( 'custom_exclusions', array_filter( array_map(
+			function ( $excl ) {
+				return trim( esc_js( $excl ) );
+			},
+			$opts->getCustomExclusions()
+		) ) );
 	}
 
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
 	protected function isReadyToExecute() :bool {
 		$IP = Services::IP();
 		return $IP->isValidIp_PublicRange( $IP->getRequestIp() )

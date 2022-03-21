@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * Class ChartRequestVO
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts
  * @property string   $interval
  * @property string   $ticks
  * @property string[] $events

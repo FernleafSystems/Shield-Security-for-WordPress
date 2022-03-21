@@ -9,29 +9,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'render_table_sessions':
-				$response = $this->ajaxExec_BuildTableSessions();
-				break;
-
-			case 'bulk_action':
-				$response = $this->ajaxExec_BulkItemAction();
-				break;
-
-			case 'session_delete':
-				$response = $this->ajaxExec_SessionDelete();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'render_table_sessions' => [ $this, 'ajaxExec_BuildTableSessions' ],
+				'bulk_action'           => [ $this, 'ajaxExec_BulkItemAction' ],
+				'session_delete'        => [ $this, 'ajaxExec_SessionDelete' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_BuildTableSessions() :array {
+	public function ajaxExec_BuildTableSessions() :array {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -42,19 +32,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		/** @var Shield\Modules\SecurityAdmin\Options $optsSecAdmin */
 		$optsSecAdmin = $con->getModule_SecAdmin()->getOptions();
-
-		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
-			->setMod( $mod )
-			->setDbHandler( $con->getModule_Sessions()->getDbHandler_Sessions() )
-			->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() );
-
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->render()
+			'html'    => ( new Shield\Tables\Build\Sessions() )
+				->setMod( $mod )
+				->setDbHandler( $con->getModule_Sessions()->getDbHandler_Sessions() )
+				->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() )
+				->render()
 		];
 	}
 
-	private function ajaxExec_BulkItemAction() :array {
+	public function ajaxExec_BulkItemAction() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
@@ -98,7 +86,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_SessionDelete() :array {
+	public function ajaxExec_SessionDelete() :array {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

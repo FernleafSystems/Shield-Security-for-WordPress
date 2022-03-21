@@ -72,11 +72,10 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param bool $bOnOrOff
 	 * @return $this
 	 */
-	public function setPluginTrackingPermission( $bOnOrOff = true ) {
-		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
+	public function setPluginTrackingPermission( bool $onOrOff = true ) {
+		return $this->setOpt( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
 					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
 

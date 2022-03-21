@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
@@ -23,7 +23,7 @@ class Strings extends Base\Strings {
 					__( 'License check failed. Sending Warning Email.', 'wp-simple-firewall' ),
 				],
 			],
-			'lic_fail_deactivate'      => [
+			'lic_fail_deactivate' => [
 				'name'  => __( 'License Deactivated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'License check failed. Deactivating Pro.', 'wp-simple-firewall' ),

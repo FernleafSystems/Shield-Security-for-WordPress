@@ -160,19 +160,6 @@
 								 iCWP_WPSF_BodyOverlay.hide();
 							 } );
 						},
-						deferRender: true,
-						select: {
-							style: 'multi'
-						},
-						dom: 'PBfrptip',
-						searchPanes: {
-							cascadePanes: false,
-							viewTotal: false,
-							viewCount: false,
-							initCollapsed: true
-						},
-						search: {
-						},
 						buttons: [
 							{
 								text: 'Reload',
@@ -183,8 +170,21 @@
 								}
 							}
 						],
+						deferRender: true,
+						dom: 'PBfrptip',
 						language: {
-							emptyTable: "There are no items to display."
+							emptyTable: "There are no items to display.",
+							zeroRecords: "No entries found - please consider adjusting your search filters."
+						},
+						search: {},
+						searchPanes: {
+							cascadePanes: false,
+							viewTotal: false,
+							viewCount: false,
+							initCollapsed: true
+						},
+						select: {
+							style: 'multi'
 						}
 					}
 				) );

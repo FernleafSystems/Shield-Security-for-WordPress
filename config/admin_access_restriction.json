@@ -160,7 +160,7 @@
       "type":        "checkbox",
       "link_info":   "https://shsec.io/i1",
       "link_blog":   "https://shsec.io/i2",
-      "beacon_id":   308,
+      "beacon_id":   460,
       "name":        "Run In MU Mode",
       "summary":     "Run Plugin In Must-Use (MU) Mode",
       "description": "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."

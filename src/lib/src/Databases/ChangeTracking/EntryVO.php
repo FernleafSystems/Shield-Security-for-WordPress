@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\ChangeTracking;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
- * Class EntryVO
  * @property string ip
  * @property array  data
  * @property array  meta

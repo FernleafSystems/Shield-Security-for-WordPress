@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
 
 class Retrieve {
 
@@ -29,7 +29,6 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @param array                $hashes
 	 */
 	private function addItemHashesToCache( $vo, array $hashes ) {
 		if ( $vo->asset_type == 'plugin' ) {
@@ -42,7 +41,7 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return  array
+	 * @return array|null
 	 */
 	private function getAssetHashesFromCache( $vo ) {
 		$key = ( $vo->asset_type == 'plugin' ) ? 'plugins' : 'themes';
@@ -62,8 +61,6 @@ class Retrieve {
 	}
 
 	/**
-	 * @param string $slug
-	 * @return array
 	 * @throws AssetHashesNotFound
 	 * @throws \Exception
 	 */
@@ -80,7 +77,6 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
@@ -107,7 +103,6 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array
 	 */
 	public function fromCsHashes( $vo ) :array {
 		$query = ( $vo->asset_type == 'plugin' ) ? new Query\Plugin() : new Query\Theme();

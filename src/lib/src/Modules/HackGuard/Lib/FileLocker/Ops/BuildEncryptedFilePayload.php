@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class BuildEncryptedFilePayload
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
- */
 class BuildEncryptedFilePayload extends BaseOps {
 
 	/**

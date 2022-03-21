@@ -3,9 +3,6 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ICWP_WPSF_Processor_LoginProtect_Wizard
- */
 class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**

@@ -65,8 +65,8 @@ class ModCon extends BaseShield\ModCon {
 		// clean roles
 		$opts->setOpt( 'trusted_user_roles',
 			array_unique( array_filter( array_map(
-				function ( $sRole ) {
-					return sanitize_key( strtolower( $sRole ) );
+				function ( $role ) {
+					return sanitize_key( strtolower( $role ) );
 				},
 				$opts->getTrustedRoles()
 			) ) )
@@ -85,10 +85,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		return $this->isModOptEnabled() && $opts->isEnabledCaptcha()
 			   && $this->getCaptchaCfg()->ready;
-	}
-
-	public function setEnabledAntiBot( bool $enabled = true ) {
-		$this->getOptions()->setOpt( 'enable_antibot_check', $enabled ? 'Y' : 'N' );
 	}
 
 	public function getSpamBlacklistFile() :string {

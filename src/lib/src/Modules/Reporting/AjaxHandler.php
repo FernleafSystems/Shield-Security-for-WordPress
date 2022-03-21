@@ -7,29 +7,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'render_custom_chart':
-				$response = $this->ajaxExec_RenderCustomChart();
-				break;
-
-			case 'render_summary_chart':
-				$response = $this->ajaxExec_RenderSummaryChart();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'render_custom_chart'  => [ $this, 'ajaxExec_RenderCustomChart' ],
+				'render_summary_chart' => [ $this, 'ajaxExec_RenderSummaryChart' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_RenderCustomChart() :array {
+	public function ajaxExec_RenderCustomChart() :array {
 		return $this->renderChart( FormParams::Retrieve() );
 	}
 
-	private function ajaxExec_RenderSummaryChart() :array {
+	public function ajaxExec_RenderSummaryChart() :array {
 		return $this->renderChart( $_POST );
 	}
 

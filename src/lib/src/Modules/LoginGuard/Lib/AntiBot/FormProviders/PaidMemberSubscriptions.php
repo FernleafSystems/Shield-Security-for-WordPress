@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
 /**
- * Class PaidMemberSubscriptions
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
  * https://wordpress.org/plugins/paid-member-subscriptions
  */
 class PaidMemberSubscriptions extends BaseFormProvider {

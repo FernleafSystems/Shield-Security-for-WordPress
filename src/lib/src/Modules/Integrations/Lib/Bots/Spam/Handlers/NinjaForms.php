@@ -12,9 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\H
  * registered action.
  *
  * Unfortunately the action register is executed early and so hooking to Init breaks it.
- *
- * Class NinjaForms
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers
  */
 class NinjaForms extends Base {
 

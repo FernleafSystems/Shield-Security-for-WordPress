@@ -11,42 +11,22 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-
-			case 'scanresults_action':
-				$response = $this->ajaxExec_ScanTableAction();
-				break;
-
-			case 'scans_start':
-				$response = $this->ajaxExec_StartScans();
-				break;
-
-			case 'scans_check':
-				$response = $this->ajaxExec_CheckScans();
-				break;
-
-			case 'plugin_reinstall':
-				$response = $this->ajaxExec_PluginReinstall();
-				break;
-
-			case 'filelocker_showdiff':
-				$response = $this->ajaxExec_FileLockerShowDiff();
-				break;
-
-			case 'filelocker_fileaction':
-				$response = $this->ajaxExec_FileLockerFileAction();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'scanresults_action'    => [ $this, 'ajaxExec_ScanResultsAction' ],
+				'scans_start'           => [ $this, 'ajaxExec_StartScans' ],
+				'scans_check'           => [ $this, 'ajaxExec_CheckScans' ],
+				'plugin_reinstall'      => [ $this, 'ajaxExec_PluginReinstall' ],
+				'filelocker_showdiff'   => [ $this, 'ajaxExec_FileLockerShowDiff' ],
+				'filelocker_fileaction' => [ $this, 'ajaxExec_FileLockerFileAction' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_FileLockerShowDiff() :array {
+	public function ajaxExec_FileLockerShowDiff() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$FLCon = $mod->getFileLocker();
@@ -151,7 +131,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_FileLockerFileAction() :array {
+	public function ajaxExec_FileLockerFileAction() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$FLCon = $mod->getFileLocker();
@@ -180,7 +160,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_PluginReinstall() :array {
+	public function ajaxExec_PluginReinstall() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$req = Services::Request();
@@ -201,7 +181,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [ 'success' => true ];
 	}
 
-	private function ajaxExec_CheckScans() :array {
+	public function ajaxExec_CheckScans() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Strings $strings */
@@ -249,7 +229,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_StartScans() :array {
+	public function ajaxExec_StartScans() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
@@ -282,7 +262,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_ScanTableAction() :array {
+	public function ajaxExec_ScanResultsAction() :array {
 		try {
 			return ( new Lib\ScanTables\DelegateAjaxHandler() )
 				->setMod( $this->getMod() )

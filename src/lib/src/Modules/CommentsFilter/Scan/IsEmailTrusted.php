@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class IsEmailTrusted
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan
- */
 class IsEmailTrusted {
 
 	/**

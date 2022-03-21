@@ -87,23 +87,23 @@ class Controller {
 	 * @return NoticeVO|null
 	 */
 	public function getFlashNotice() {
-		$oNotice = null;
-		$aM = $this->retrieveFlashMessage();
-		if ( is_array( $aM ) ) {
-			$oNotice = new NoticeVO();
-			$oNotice->type = $aM[ 'error' ] ? 'error' : 'updated';
-			$oNotice->render_data = [
+		$notice = null;
+		$msg = $this->retrieveFlashMessage();
+		if ( is_array( $msg ) ) {
+			$notice = new NoticeVO();
+			$notice->type = $msg[ 'error' ] ? 'error' : 'updated';
+			$notice->render_data = [
 				'notice_classes' => [
 					'flash',
-					$oNotice->type
+					$notice->type
 				],
-				'message'        => sanitize_text_field( $aM[ 'message' ] ),
+				'message'        => sanitize_text_field( $msg[ 'message' ] ),
 			];
-			$oNotice->template = '/notices/flash-message.twig';
-			$oNotice->display = true;
+			$notice->template = '/notices/flash-message.twig';
+			$notice->display = true;
 			$this->clearFlashMessage();
 		}
-		return $oNotice;
+		return $notice;
 	}
 
 	/**
@@ -148,7 +148,9 @@ class Controller {
 		$data[ 'unique_render_id' ] = uniqid( $notice->id );
 		$data[ 'notice_id' ] = $notice->id;
 
-		$ajaxData = $this->getCon()->getNonceActionData( 'dismiss_admin_notice' );
+		$ajaxData = $this->getCon()
+						 ->getModule( $notice->mod ?? 'plugin' )
+						 ->getNonceActionData( 'dismiss_admin_notice' );
 		$ajaxData[ 'hide' ] = 1;
 		$ajaxData[ 'notice_id' ] = $notice->id;
 		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $ajaxData );

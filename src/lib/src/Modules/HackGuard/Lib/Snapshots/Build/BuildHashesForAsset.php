@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 
-/**
- * Class BuildHashesForAsset
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build
- */
 class BuildHashesForAsset {
 
 	/**

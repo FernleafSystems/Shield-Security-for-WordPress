@@ -13,7 +13,7 @@ class Email extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'user_email2fa_toggle' => $this->getMod()->getAjaxActionData( 'user_email2fa_toggle' ),
+				'profile_email2fa_toggle' => $this->getMod()->getAjaxActionData( 'profile_email2fa_toggle' ),
 			],
 		];
 	}

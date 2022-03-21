@@ -45,7 +45,7 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\UI
 	 */
-	private $oUI;
+	private $UI;
 
 	/**
 	 * @var Shield\Modules\Base\Options
@@ -76,6 +76,11 @@ abstract class ModCon {
 	 * @var Databases
 	 */
 	private $dbHandler;
+
+	/**
+	 * @var AdminNotices
+	 */
+	private $adminNotices;
 
 	/**
 	 * @param Shield\Controller\Controller $pluginCon
@@ -119,10 +124,6 @@ abstract class ModCon {
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-
-		if ( is_admin() || is_network_admin() ) {
-			$this->loadAdminNotices();
-		}
 
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
@@ -333,6 +334,10 @@ abstract class ModCon {
 		if ( $this->isPremium() ) {
 			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
+		}
+
+		if ( is_admin() || is_network_admin() ) {
+			$this->getAdminNotices()->execute();
 		}
 
 		$this->loadDebug();
@@ -1155,42 +1160,6 @@ abstract class ModCon {
 	protected function display( $aData = [], $sSubView = '' ) {
 	}
 
-	/**
-	 * @param array $aData
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function renderAdminNotice( $aData ) {
-		if ( empty( $aData[ 'notice_attributes' ] ) ) {
-			throw new \Exception( 'notice_attributes is empty' );
-		}
-
-		if ( !isset( $aData[ 'icwp_admin_notice_template' ] ) ) {
-			$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
-		}
-
-		if ( !isset( $aData[ 'notice_classes' ] ) ) {
-			$aData[ 'notice_classes' ] = [];
-		}
-		if ( is_array( $aData[ 'notice_classes' ] ) ) {
-			$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
-			if ( empty( $aData[ 'notice_classes' ] )
-				 || ( !in_array( 'error', $aData[ 'notice_classes' ] ) && !in_array( 'updated', $aData[ 'notice_classes' ] ) ) ) {
-				$aData[ 'notice_classes' ][] = 'updated';
-			}
-		}
-		$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
-
-		$aAjaxData = $this->getAjaxActionData( 'dismiss_admin_notice' );
-		$aAjaxData[ 'hide' ] = 1;
-		$aAjaxData[ 'notice_id' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
-		$aData[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $aAjaxData );
-
-		$bTwig = $aData[ 'notice_attributes' ][ 'twig' ];
-		$sTemplate = $bTwig ? '/notices/'.$aAjaxData[ 'notice_id' ] : 'notices/admin-notice-template';
-		return $this->renderTemplate( $sTemplate, $aData, $bTwig );
-	}
-
 	public function renderTemplate( string $template, array $data = [], bool $isTwig = false ) :string {
 		if ( empty( $data[ 'unique_render_id' ] ) ) {
 			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
@@ -1296,14 +1265,10 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\UI
 	 */
 	public function getUIHandler() {
-		if ( !isset( $this->oUI ) ) {
-			$this->oUI = $this->loadModElement( 'UI' );
-			if ( !$this->oUI instanceof Shield\Modules\Base\UI ) {
-				// TODO: autoloader for base classes
-				$this->oUI = $this->loadModElement( 'ShieldUI' );
-			}
+		if ( !isset( $this->UI ) ) {
+			$this->UI = $this->loadModElement( 'UI' );
 		}
-		return $this->oUI;
+		return $this->UI;
 	}
 
 	/**
@@ -1316,15 +1281,23 @@ abstract class ModCon {
 		return $this->oReporting;
 	}
 
-	protected function loadAdminNotices() {
-		$N = $this->loadModElement( 'AdminNotices' );
-		if ( $N instanceof Shield\Modules\Base\AdminNotices ) {
-			$N->run();
+	public function getAdminNotices() {
+		if ( !isset( $this->adminNotices ) ) {
+			$this->adminNotices = $this->loadModElement( 'AdminNotices' );
 		}
+		return $this->adminNotices;
 	}
 
 	protected function loadAjaxHandler() {
-		$this->loadModElement( 'AjaxHandler' );
+		try {
+			$class = $this->findElementClass( 'AjaxHandler', true );
+			/** @var Shield\Modules\ModConsumer $AH */
+			if ( !empty( $class ) && @class_exists( $class ) ) {
+				new $class( $this );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
 	}
 
 	protected function loadDebug() {

@@ -5,9 +5,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
-/**
- * Class ICWP_WPSF_Processor_LoginProtect_Wizard
- */
 class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
@@ -679,29 +676,29 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardOptin() {
 		$oReq = Services::Request();
-		$oMod = $this->getCon()->getModule_Plugin();
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		$mod = $this->getCon()->getModule_Plugin();
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
 
-		$bSuccess = true;
+		$success = false;
 		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
 
 		$sInput = $oReq->post( 'BadgeOption' );
 		if ( !empty( $sInput ) ) {
-			$bEnabled = $sInput === 'Y';
-			$oMod->getPluginBadgeCon()->setIsDisplayPluginBadge( $bEnabled );
-			$bSuccess = true;
+			$enabled = $sInput === 'Y';
+			$mod->getPluginBadgeCon()->setIsDisplayPluginBadge( $enabled );
+			$success = true;
 		}
 
 		$sInput = $oReq->post( 'AnonymousOption' );
 		if ( !empty( $sInput ) ) {
-			$bEnabled = $sInput === 'Y';
-			$oOpts->setPluginTrackingPermission( $bEnabled );
-			$bSuccess = true;
+			$enabled = $sInput === 'Y';
+			$opts->setPluginTrackingPermission( $enabled );
+			$success = true;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $bSuccess )
+			->setSuccessful( $success )
 			->setMessageText( $sMessage );
 	}
 
@@ -752,14 +749,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$toEnable = $input === 'Y';
 
 			$modComm = $this->getCon()->getModule_Comments();
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
+			$optsComm = $modComm->getOptions();
 			if ( $toEnable ) { // we don't disable the whole module
 				$modComm->setIsMainFeatureEnabled( true );
 			}
-			$modComm->setEnabledAntiBot( $toEnable );
+			$optsComm->setEnabledAntiBot( $toEnable );
 			$modComm->saveModOptions();
 
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
-			$optsComm = $modComm->getOptions();
 			$success = $optsComm->isEnabledAntiBot() === $toEnable;
 			if ( $success ) {
 				$msg = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),

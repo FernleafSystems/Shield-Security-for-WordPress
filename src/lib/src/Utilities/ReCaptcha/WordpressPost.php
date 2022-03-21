@@ -5,10 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 use ReCaptcha\RequestMethod;
 use ReCaptcha\RequestParameters;
 
-/**
- * Class WordpressPost
- * @package ReCaptcha\RequestMethod
- */
 class WordpressPost implements RequestMethod {
 
 	/**

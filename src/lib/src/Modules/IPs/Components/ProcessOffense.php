@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 /**
  * NOT IMPLEMENTED
- * Class ProcessOffense
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components
  */
 class ProcessOffense {
 

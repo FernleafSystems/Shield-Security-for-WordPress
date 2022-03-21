@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
-/**
- * Class FormatBytes
- * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool
- */
 class FormatBytes {
 
 	/**

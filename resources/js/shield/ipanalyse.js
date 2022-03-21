@@ -27,7 +27,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 		jQuery( '#IpReviewContent' ).html( 'loading IP info ...' );
 
-		var aReqData = aOpts[ 'ajax_build_ip_analyse' ];
+		var aReqData = aOpts[ 'ajax_ip_analyse_build' ];
 		jQuery.post( ajaxurl, jQuery.extend( aReqData, params ),
 			function ( oResponse ) {
 

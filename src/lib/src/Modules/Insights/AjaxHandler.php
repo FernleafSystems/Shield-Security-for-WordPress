@@ -6,22 +6,17 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'dynamic_load':
-				$response = $this->ajaxExec_DynamicLoad();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = parent::getAjaxActionCallbackMap( $isAuth );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'dynamic_load' => [ $this, 'ajaxExec_DynamicLoad' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	private function ajaxExec_DynamicLoad() :array {
-
+	public function ajaxExec_DynamicLoad() :array {
 		try {
 			$pageData = ( new Lib\Requests\DynamicPageLoader() )
 				->setMod( $this->getMod() )

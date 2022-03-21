@@ -23,8 +23,8 @@ class U2F extends BaseProvider {
 			'reg_request' => $reg,
 			'signs'       => $signs,
 			'ajax'        => [
-				'u2f_add'    => $this->getMod()->getAjaxActionData( 'u2f_add' ),
-				'u2f_remove' => $this->getMod()->getAjaxActionData( 'u2f_remove' ),
+				'profile_u2f_add'    => $this->getMod()->getAjaxActionData( 'profile_u2f_add' ),
+				'profile_u2f_remove' => $this->getMod()->getAjaxActionData( 'profile_u2f_remove' ),
 			],
 			'flags'       => [
 				'has_validated' => $this->hasValidatedProfile()

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -13,7 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $wheres
  * @property string   $order_dir
  */
-class LoadLogs {
+class LoadLogs extends DynPropertiesClass {
 
 	use ModConsumer;
 	use IpAddressConsumer;
@@ -57,6 +58,7 @@ class LoadLogs {
 		$selectFields = [
 			'req.id',
 			'req.req_id as rid',
+			'req.uid',
 			'req.type',
 			'req.path',
 			'req.code',

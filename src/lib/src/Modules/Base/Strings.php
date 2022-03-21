@@ -183,16 +183,6 @@ class Strings {
 
 		switch ( $section ) {
 
-			case 'section_user_messages' :
-				$title = __( 'User Messages', 'wp-simple-firewall' );
-				$titleShort = __( 'Messages', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Customize the messages displayed to the user.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use this section if you need to communicate to the user in a particular manner.', 'wp-simple-firewall' ) ),
-					sprintf( '%s: %s', __( 'Hint', 'wp-simple-firewall' ), sprintf( __( 'To reset any message to its default, enter the text exactly: %s', 'wp-simple-firewall' ), 'default' ) )
-				];
-				break;
-
 			default:
 				$section = $this->getOptions()->getSection( $section );
 				if ( is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {

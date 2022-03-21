@@ -23,13 +23,16 @@
         "pro_only":    true,
         "title":       "REST API Routes",
         "description": [
-          "New REST API endpoints let you: get/set option(s), get scan results & status, start new scans, add/remove IP addresses.",
-          "get/set any single option, or group of options.",
-          "get scan results & status, and start new scans and check their status.",
-          "add/remove IP addresses to any list (block or bypass).",
-          "check for, and remove, ShieldPRO license.",
-          "run Debug to get general site information summary for debug purposes."
-        ]
+          "New REST API endpoints let you manage many areas of the Shield Security plugin."
+        ],
+        "list":        [
+          "get/set any single option, or group of options",
+          "get scan results & status, and start new scans and check their status",
+          "add/remove IP addresses to/from any list (block or bypass)",
+          "check for, and remove, ShieldPRO license",
+          "run Debug to get general site information summary for debug purposes"
+        ],
+        "href":        "https://shsec.io/shieldrestapidocs"
       },
       {
         "type":        "new",
@@ -66,14 +69,6 @@
       {
         "type":        "improved",
         "pro_only":    false,
-        "title":       "IP Record Management Error",
-        "description": [
-          "When inserting a duplicate IP address record into the database, we use INSERT IGNORE to reduce error messages in logs."
-        ]
-      },
-      {
-        "type":        "improved",
-        "pro_only":    false,
         "title":       "Support 3rd Party Traffic Log Handlers",
         "description": [
           "3rd parties can now easily integrate with Shield's Traffic Log to send log records to any destination."
@@ -103,6 +98,15 @@
         ]
       },
       {
+        "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Comments",
+        "description": [
+          "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Comment SPAM has been deprecated.",
+          "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
+        ],
+        "type":        "changed",
+        "pro_only":    false
+      },
+      {
         "type":        "fixed",
         "pro_only":    false,
         "title":       "Firewall didn't always scan all parameters in some cases",
@@ -111,6 +115,20 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1647849231,
+        "items":       [
+          {
+            "title": "Fix for 'find as you type' in the options search dialog.",
+            "type":  "fixed"
+          },
+          {
+            "title": "PHP Warning.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "14.0": {

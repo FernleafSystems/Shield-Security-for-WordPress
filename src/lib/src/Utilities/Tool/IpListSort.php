@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
-/**
- * Class IpListSort
- * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool
- */
 class IpListSort {
 
 	/**

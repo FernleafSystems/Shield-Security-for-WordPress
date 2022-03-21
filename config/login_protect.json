@@ -313,8 +313,8 @@
       "link_blog":   "https://shsec.io/jo",
       "beacon_id":   426,
       "name":        "AntiBot",
-      "summary":     "Use Experimental AntiBot Detection Engine",
-      "description": "Use Shield's AntiBot Detection Engine In-Place of GASP/CAPTCHA Bot checking."
+      "summary":     "Use AntiBot Detection Engine",
+      "description": "Use Shield's AntiBot Detection Engine To Block Bots and Brute Force Attacks"
     },
     {
       "key":           "bot_protection_locations",

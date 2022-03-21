@@ -11,58 +11,24 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'ip_insert':
-				$response = $this->ajaxExec_AddIp();
-				break;
-
-			case 'ip_delete':
-				$response = $this->ajaxExec_IpDelete();
-				break;
-
-			case 'render_table_ip':
-				$response = $this->ajaxExec_BuildTableIps();
-				break;
-
-			case 'build_ip_analyse':
-				$response = $this->ajaxExec_BuildIpAnalyse();
-				break;
-
-			case 'ip_analyse_action':
-				$response = $this->ajaxExec_IpAnalyseAction();
-				break;
-
-			case 'ip_review_select':
-				$response = $this->ajaxExec_IpReviewSelect();
-				break;
-
-			case 'not_bot':
-				$response = $this->ajaxExec_CaptureNotBot();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		$map = array_merge( parent::getAjaxActionCallbackMap( $isAuth ), [
+			'not_bot' => [ $this, 'ajaxExec_CaptureNotBot' ],
+		] );
+		if ( $isAuth ) {
+			$map = array_merge( $map, [
+				'ip_insert'         => [ $this, 'ajaxExec_AddIp' ],
+				'ip_delete'         => [ $this, 'ajaxExec_IpDelete' ],
+				'render_table_ip'   => [ $this, 'ajaxExec_BuildTableIps' ],
+				'ip_analyse_build'  => [ $this, 'ajaxExec_BuildIpAnalyse' ],
+				'ip_analyse_action' => [ $this, 'ajaxExec_IpAnalyseAction' ],
+				'ip_review_select'  => [ $this, 'ajaxExec_IpReviewSelect' ],
+			] );
 		}
-
-		return $response;
+		return $map;
 	}
 
-	protected function processNonAuthAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'not_bot':
-				$response = $this->ajaxExec_CaptureNotBot();
-				break;
-			default:
-				$response = parent::processNonAuthAjaxAction( $action );
-		}
-
-		return $response;
-	}
-
-	private function ajaxExec_CaptureNotBot() :array {
+	public function ajaxExec_CaptureNotBot() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return [
@@ -72,7 +38,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_AddIp() :array {
+	public function ajaxExec_AddIp() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$srvIP = Services::IP();
@@ -152,7 +118,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_IpDelete() :array {
+	public function ajaxExec_IpDelete() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$success = false;
@@ -183,7 +149,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_BuildTableIps() :array {
+	public function ajaxExec_BuildTableIps() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -199,7 +165,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_IpReviewSelect() :array {
+	public function ajaxExec_IpReviewSelect() :array {
 		$req = Services::Request();
 
 		$filter = preg_replace( '#[^0-9a-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
@@ -220,7 +186,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_IpAnalyseAction() :array {
+	public function ajaxExec_IpAnalyseAction() :array {
 		$req = Services::Request();
 
 		$ip = $req->post( 'ip' );
@@ -317,7 +283,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	private function ajaxExec_BuildIpAnalyse() :array {
+	public function ajaxExec_BuildIpAnalyse() :array {
 		try {
 			$ip = Services::Request()->post( 'fIp', '' );
 			$response = ( new Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay() )

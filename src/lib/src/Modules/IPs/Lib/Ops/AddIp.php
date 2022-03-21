@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class AddIp
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops
- */
 class AddIp {
 
 	use Modules\ModConsumer;

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
@@ -7,21 +7,13 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
-	protected function processNonAuthAjaxAction( string $action ) :array {
-
-		switch ( $action ) {
-			case 'comment_token'.Services::IP()->getRequestIp():
-				$response = $this->ajaxExec_GenCommentToken();
-				break;
-
-			default:
-				$response = parent::processAjaxAction( $action );
-		}
-
-		return $response;
+	protected function getAjaxActionCallbackMap( bool $isAuth ) :array {
+		return array_merge( parent::getAjaxActionCallbackMap( $isAuth ), [
+			'comment_token'.Services::IP()->getRequestIp() => [ $this, 'ajaxExec_GenCommentToken' ],
+		] );
 	}
 
-	private function ajaxExec_GenCommentToken() :array {
+	public function ajaxExec_GenCommentToken() :array {
 		$req = Services::Request();
 		return [
 			'success' => true,

@@ -16,14 +16,14 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 				);
 				if ( $gaCode.val().length === 6 ) {
 					$gaCode.prop( 'disabled', 'disabled' );
-					shield_vars.ajax.user_ga_toggle.ga_otp = $gaCode.val();
-					sendReq( shield_vars.ajax.user_ga_toggle );
+					shield_vars.ajax.profile_ga_toggle.ga_otp = $gaCode.val();
+					sendReq( shield_vars.ajax.profile_ga_toggle );
 				}
 			} );
 		}
 
 		jQuery( document ).on( 'click', '#shield_ga_remove', function ( evt ) {
-			sendReq( shield_vars.ajax.user_ga_toggle );
+			sendReq( shield_vars.ajax.profile_ga_toggle );
 		} );
 	}
 
@@ -38,10 +38,10 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 	let initBackupcodes = function ( shield_vars ) {
 		jQuery( document ).on( 'click', '#IcwpWpsfGenBackupLoginCode', function ( evt ) {
-			sendReq( shield_vars.ajax.gen_backup_codes );
+			sendReq( shield_vars.ajax.profile_backup_codes_gen );
 		} );
 		jQuery( document ).on( 'click', '#IcwpWpsfDelBackupLoginCode', function ( evt ) {
-			sendReq( shield_vars.ajax.del_backup_codes );
+			sendReq( shield_vars.ajax.profile_backup_codes_del );
 		} );
 	};
 
@@ -50,7 +50,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		jQuery( 'a.shield_sms_remove' ).on( 'click', function ( evt ) {
 			evt.preventDefault();
 			if ( confirm( shield_vars_userprofile.strings.are_you_sure ) ) {
-				sendReq( shield_vars.ajax.user_sms2fa_remove );
+				sendReq( shield_vars.ajax.profile_sms2fa_remove );
 			}
 			return false;
 		} );
@@ -66,7 +66,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 		jQuery( document ).on( 'click', '#shield_mfasms_verify', function ( evt ) {
 			let $this = jQuery( this );
-			let reqAddParams = shield_vars.ajax.user_sms2fa_add;
+			let reqAddParams = shield_vars.ajax.profile_sms2fa_add;
 
 			let $countrySelect = jQuery( 'select#shield_mfasms_country' );
 			reqAddParams.sms_country = $countrySelect.val();
@@ -92,7 +92,7 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 							let verifyCode = prompt( response.data.message )
 							if ( verifyCode !== null ) {
-								let reqVerifyParams = shield_vars.ajax.user_sms2fa_verify;
+								let reqVerifyParams = shield_vars.ajax.profile_sms2fa_verify;
 								reqVerifyParams.sms_country = jQuery( 'select#shield_mfasms_country' ).val();
 								reqVerifyParams.sms_phone = jQuery( 'input[type=text]#shield_mfasms_phone' ).val();
 								reqVerifyParams.sms_code = verifyCode;
@@ -123,16 +123,16 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		jQuery( document ).on( 'keydown', $yubiText, function ( evt ) {
 			if ( evt.key === 'Enter' || evt.keyCode === 13 ) {
 				evt.preventDefault();
-				shield_vars.ajax.user_yubikey_toggle.otp = $yubiText.val();
-				sendReq( shield_vars.ajax.user_yubikey_toggle );
+				shield_vars.ajax.profile_yubikey_toggle.otp = $yubiText.val();
+				sendReq( shield_vars.ajax.profile_yubikey_toggle );
 				return false;
 			}
 		} );
 
 		jQuery( 'a.shield_yubi_remove' ).on( 'click', function ( evt ) {
 			evt.preventDefault();
-			shield_vars.ajax.user_yubikey_toggle.otp = jQuery( evt.currentTarget ).data( 'yubikeyid' );
-			sendReq( shield_vars.ajax.user_yubikey_toggle );
+			shield_vars.ajax.profile_yubikey_toggle.otp = jQuery( evt.currentTarget ).data( 'yubikeyid' );
+			sendReq( shield_vars.ajax.profile_yubikey_toggle );
 			return false;
 		} );
 	};
@@ -142,8 +142,8 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 		jQuery( document ).on( 'change', $emailCheckbox, function ( evt ) {
 			if ( $emailStartState !== $emailCheckbox.is( ':checked' ) ) {
 				$emailCheckbox.prop( 'disabled', true );
-				shield_vars.ajax.user_email2fa_toggle.direction = $emailCheckbox.is( ':checked' ) ? 'on' : 'off';
-				sendReq( shield_vars.ajax.user_email2fa_toggle );
+				shield_vars.ajax.profile_email2fa_toggle.direction = $emailCheckbox.is( ':checked' ) ? 'on' : 'off';
+				sendReq( shield_vars.ajax.profile_email2fa_toggle );
 			}
 		} );
 	}
@@ -170,8 +170,8 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 							  u2fApi.register( shield_vars.reg_request, shield_vars.signs )
 									.then( function ( u2fResponse ) {
 										u2fResponse.label = label;
-										shield_vars.ajax.u2f_add.icwp_wpsf_new_u2f_response = u2fResponse;
-										sendReq( shield_vars.ajax.u2f_add );
+										shield_vars.ajax.profile_u2f_add.icwp_wpsf_new_u2f_response = u2fResponse;
+										sendReq( shield_vars.ajax.profile_u2f_add );
 									} )
 									.catch( function ( response ) {
 										$oU2fStatus.text( shield_vars.strings.failed );
@@ -190,8 +190,8 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 
 		jQuery( 'a.icwpWpsf-U2FRemove' ).on( 'click', function ( evt ) {
 			evt.preventDefault();
-			shield_vars.ajax.u2f_remove.u2fid = jQuery( evt.currentTarget ).data( 'u2fid' );
-			sendReq( shield_vars.ajax.u2f_remove );
+			shield_vars.ajax.profile_u2f_remove.u2fid = jQuery( evt.currentTarget ).data( 'u2fid' );
+			sendReq( shield_vars.ajax.profile_u2f_remove );
 			return false;
 		} );
 	};
