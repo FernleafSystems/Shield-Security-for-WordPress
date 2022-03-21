@@ -23,8 +23,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForCodes() :array {
-		$results = $this->runQuery( 'code as code', false );
-		return array_filter( array_map(
+		return array_values( array_filter( array_map(
 			function ( $result ) {
 				$code = $result[ 'code' ] ?? null;
 				if ( !empty( $code ) ) {
@@ -35,8 +34,8 @@ class BuildSearchPanesData {
 				}
 				return $code;
 			},
-			$results
-		) );
+			$this->runQuery( 'code as code', false )
+		) ) );
 	}
 
 	private function buildForOffense() :array {
@@ -53,8 +52,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForType() :array {
-		$results = $this->runQuery( 'type as type', false );
-		return array_filter( array_map(
+		return array_values( array_filter( array_map(
 			function ( $result ) {
 				$type = $result[ 'type' ] ?? null;
 				if ( !empty( $type ) ) {
@@ -65,13 +63,12 @@ class BuildSearchPanesData {
 				}
 				return $type;
 			},
-			$results
-		) );
+			$this->runQuery( 'type as type', false )
+		) ) );
 	}
 
 	private function buildForIPs() :array {
-		$results = $this->runQuery( 'INET6_NTOA(ips.ip) as ip', true );
-		return array_filter( array_map(
+		return array_values( array_filter( array_map(
 			function ( $result ) {
 				$ip = $result[ 'ip' ] ?? null;
 				if ( !empty( $ip ) ) {
@@ -82,8 +79,8 @@ class BuildSearchPanesData {
 				}
 				return $ip;
 			},
-			$results
-		) );
+			$this->runQuery( 'INET6_NTOA(ips.ip) as ip', true )
+		) ) );
 	}
 
 	private function runQuery( string $select, bool $joinWithIPs ) :array {

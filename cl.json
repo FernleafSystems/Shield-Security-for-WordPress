@@ -128,6 +128,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "2",
+        "released_at": 1647852420,
+        "items":       [
+          {
+            "title": "Audit Trail and Traffic Log search panels didn't always load correctly.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },

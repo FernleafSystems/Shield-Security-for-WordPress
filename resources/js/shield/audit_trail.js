@@ -174,7 +174,7 @@
 						dom: 'PBfrptip',
 						language: {
 							emptyTable: "There are no items to display.",
-							zeroRecords: "No entries found - please consider adjusting your search filters."
+							zeroRecords: "No entries found - please try adjusting your search filters."
 						},
 						search: {},
 						searchPanes: {
