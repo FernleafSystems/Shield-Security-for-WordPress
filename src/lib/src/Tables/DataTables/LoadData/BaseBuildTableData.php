@@ -39,7 +39,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function loadLogsWithDirectQuery() :array {
 		return $this->buildTableRowsFromRawLogs(
-			$this->getRecords( $this->buildWheresFromSearchPanes(), (int)$this->table_data[ 'start' ], (int)$this->table_data[ 'length' ] )
+			$this->getRecords( $this->buildWheresFromSearchParams(), (int)$this->table_data[ 'start' ], (int)$this->table_data[ 'length' ] )
 		);
 	}
 
@@ -47,7 +47,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
 		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
-		$wheres = $this->buildWheresFromSearchPanes();
+		$wheres = $this->buildWheresFromSearchParams();
 
 		$searchableColumns = array_flip( $this->getSearchableColumns() );
 
@@ -99,7 +99,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return array_values( $results );
 	}
 
-	protected function buildWheresFromSearchPanes() :array {
+	protected function buildWheresFromSearchParams() :array {
 		return [];
 	}
 

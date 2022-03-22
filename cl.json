@@ -150,9 +150,13 @@
         ]
       },
       {
-        "version":     "4",
-        "released_at": 1647940000,
+        "version":     "5",
+        "released_at": 1647948720,
         "items":       [
+          {
+            "title": "Allow direct searching of request path in Traffic Log.",
+            "type":  "improve"
+          },
           {
             "title": "Provide a more robust database migration for large request log tables.",
             "type":  "fixed"

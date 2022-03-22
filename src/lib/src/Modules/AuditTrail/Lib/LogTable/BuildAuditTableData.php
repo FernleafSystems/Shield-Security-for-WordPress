@@ -17,6 +17,10 @@ class BuildAuditTableData extends BaseBuildTableData {
 	 */
 	private $log;
 
+	protected function loadLogsWithDirectQuery() :array {
+		return $this->loadLogsWithSearch();
+	}
+
 	protected function getSearchPanesData() :array {
 		return ( new BuildSearchPanesData() )
 			->setMod( $this->getMod() )
@@ -51,7 +55,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 	/**
 	 * The Wheres need to align with the structure of the Query called from getRecords()
 	 */
-	protected function buildWheresFromSearchPanes() :array {
+	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
@@ -81,7 +85,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 
 	protected function countTotalRecordsFiltered() :int {
 		$loader = $this->getRecordsLoader();
-		$loader->wheres = $this->buildWheresFromSearchPanes();
+		$loader->wheres = $this->buildWheresFromSearchParams();
 		return $loader->countAll();
 	}
 
