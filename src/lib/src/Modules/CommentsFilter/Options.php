@@ -58,10 +58,6 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledAntiBot() :bool {
-		if ( $this->isOpt( 'enable_antibot_check', 'Y' ) ) {
-			/** @deprecated 14.1 - remove the older option */
-			$this->setOpt( 'enable_antibot_comments', 'Y' );
-		}
 		return $this->isOpt( 'enable_antibot_comments', 'Y' );
 	}
 

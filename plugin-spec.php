@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "14.1.0",
-    "release_timestamp":       1647422166,
-    "build":                   "202203.1601",
+    "version":                 "14.1.5",
+    "release_timestamp":       1647948720,
+    "build":                   "202203.2201",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -74,7 +74,6 @@
         "jquery/featherlight",
         "jquery/fileDownload",
         "shield/tours",
-        "bootstrap-select",
         "shield/datatables",
         "shield/traffic",
         "shield/audit_trail",
@@ -96,14 +95,8 @@
             "bootstrap"
           ]
         },
-        "bootstrap-select":       {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css",
-          "deps": [
-            "bootstrap"
-          ]
-        },
         "select2":                {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css",
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css",
           "deps": [
             "plugin"
           ]
@@ -206,19 +199,13 @@
           ]
         },
         "select2":                 {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js",
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js",
           "deps": [
             "plugin"
           ]
         },
         "bootstrap-datepicker":    {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
-          "deps": [
-            "bootstrap"
-          ]
-        },
-        "bootstrap-select":        {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js",
           "deps": [
             "bootstrap"
           ]
@@ -467,7 +454,8 @@
     }
   ],
   "version_upgrades": [
-    "14.1.0",
+    "14.1.4",
+    "14.1.1",
     "11.2.0",
     "12.0.0",
     "12.0.1",

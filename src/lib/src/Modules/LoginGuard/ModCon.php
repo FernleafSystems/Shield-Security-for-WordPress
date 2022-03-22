@@ -251,10 +251,6 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	public function setEnabledAntiBotDetection( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_antibot_check', $enable ? 'Y' : 'N' );
-	}
-
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [

@@ -11,6 +11,8 @@ class BuildSearchPanesData {
 
 	use ModConsumer;
 
+	private $distinctQueryResult = null;
+
 	public function build() :array {
 		return [
 			'options' => [
@@ -22,21 +24,28 @@ class BuildSearchPanesData {
 		];
 	}
 
+	protected function getDistinctQueryResult() :array {
+		if ( is_null( $this->distinctQueryResult ) ) {
+			$this->distinctQueryResult = array_map( function ( $raw ) {
+				return explode( ',', $raw );
+			}, $this->compositeDistinctQuery( [ 'type', 'code' ] ) );
+		}
+		return $this->distinctQueryResult;
+	}
+
 	private function buildForCodes() :array {
-		$results = $this->runQuery( 'code as code', false );
-		return array_filter( array_map(
-			function ( $result ) {
-				$code = $result[ 'code' ] ?? null;
-				if ( !empty( $code ) ) {
-					$code = [
-						'label' => $code,
-						'value' => $code,
-					];
+		return array_values( array_filter( array_map(
+			function ( $code ) {
+				if ( empty( $code ) ) {
+					return null;
 				}
-				return $code;
+				return [
+					'label' => $code,
+					'value' => $code,
+				];
 			},
-			$results
-		) );
+			$this->getDistinctQueryResult()[ 'code' ] ?? []
+		) ) );
 	}
 
 	private function buildForOffense() :array {
@@ -53,25 +62,22 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForType() :array {
-		$results = $this->runQuery( 'type as type', false );
-		return array_filter( array_map(
-			function ( $result ) {
-				$type = $result[ 'type' ] ?? null;
-				if ( !empty( $type ) ) {
-					$type = [
-						'label' => Handler::GetTypeName( $type ),
-						'value' => $type,
-					];
+		return array_values( array_filter( array_map(
+			function ( $type ) {
+				if ( empty( $type ) ) {
+					return null;
 				}
-				return $type;
+				return [
+					'label' => Handler::GetTypeName( $type ),
+					'value' => $type,
+				];
 			},
-			$results
-		) );
+			$this->getDistinctQueryResult()[ 'type' ] ?? []
+		) ) );
 	}
 
 	private function buildForIPs() :array {
-		$results = $this->runQuery( 'INET6_NTOA(ips.ip) as ip', true );
-		return array_filter( array_map(
+		return array_values( array_filter( array_map(
 			function ( $result ) {
 				$ip = $result[ 'ip' ] ?? null;
 				if ( !empty( $ip ) ) {
@@ -82,8 +88,8 @@ class BuildSearchPanesData {
 				}
 				return $ip;
 			},
-			$results
-		) );
+			$this->runQuery( 'INET6_NTOA(ips.ip) as ip', true )
+		) ) );
 	}
 
 	private function runQuery( string $select, bool $joinWithIPs ) :array {
@@ -101,5 +107,20 @@ class BuildSearchPanesData {
 			)
 		);
 		return is_array( $results ) ? $results : [];
+	}
+
+	/**
+	 * https://stackoverflow.com/questions/12188027/mysql-select-distinct-multiple-columns#answer-12188117
+	 */
+	private function compositeDistinctQuery( array $columns ) :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$results = Services::WpDb()->selectCustom( sprintf( 'SELECT %s',
+				implode( ', ', array_map( function ( $col ) use ( $mod ) {
+					return sprintf( '(SELECT group_concat(DISTINCT %s) FROM %s) as %s',
+						$col, $mod->getDbH_ReqLogs()->getTableSchema()->table, $col );
+				}, $columns ) ) )
+		);
+		return empty( $results ) ? [] : $results[ 0 ];
 	}
 }

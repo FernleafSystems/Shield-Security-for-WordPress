@@ -308,10 +308,4 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 		return $needed;
 	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function handleAuthAjax( array $ajaxResponse ) :array {
-	}
 }

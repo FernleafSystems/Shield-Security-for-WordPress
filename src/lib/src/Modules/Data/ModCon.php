@@ -50,7 +50,6 @@ class ModCon extends BaseShield\ModCon {
 				 ) )
 			 )
 			 ->query();
-
 		// TODO 3. Clean User Meta.
 	}
 }

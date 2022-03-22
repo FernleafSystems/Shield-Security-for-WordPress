@@ -336,12 +336,6 @@
         "ip_address",
         "user_agent"
       ]
-    },
-    {
-      "key":     "enable_antibot_check",
-      "section": "section_non_ui",
-      "type":    "checkbox",
-      "default": ""
     }
   ],
   "definitions":   {

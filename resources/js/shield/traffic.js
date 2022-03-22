@@ -107,6 +107,8 @@
 							reqData.type = base.options.type;
 							reqData.file = base.options.file;
 							reqData.table_data = data;
+
+							iCWP_WPSF_BodyOverlay.show();
 							$.post( ajaxurl, reqData, function ( response ) {
 								if ( response.success ) {
 									callback( response.data.datatable_data );
@@ -118,7 +120,10 @@
 									}
 									alert( msg );
 								}
-							} );
+							} )
+							 .always( function () {
+								 iCWP_WPSF_BodyOverlay.hide();
+							 } );
 						},
 						deferRender: true,
 						select: {
@@ -131,8 +136,7 @@
 							viewCount: false,
 							initCollapsed: true
 						},
-						search: {
-						},
+						search: {},
 						buttons: [
 							{
 								text: 'Reload',
@@ -144,7 +148,8 @@
 							}
 						],
 						language: {
-							emptyTable: "There are no items to display."
+							emptyTable: "There are no items to display.",
+							zeroRecords: "No entries found - please try adjusting your search filters."
 						}
 					}
 				) );
