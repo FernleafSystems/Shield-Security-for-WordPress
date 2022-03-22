@@ -77,7 +77,7 @@
         },
         "path":    {
           "macro_type": "varchar",
-          "length":     256,
+          "length":     512,
           "comment":    "Request Path"
         },
         "code":    {
