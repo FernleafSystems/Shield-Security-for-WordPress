@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class IsFakeWebCrawler extends Base {
 
-	const CONDITION_SLUG = 'is_fake_web_crawler';
+	const SLUG = 'is_fake_web_crawler';
 
 	protected function execConditionCheck() :bool {
 
@@ -23,7 +23,7 @@ class IsFakeWebCrawler extends Base {
 
 		$detected = $uaMatch->run() && $idMatch->run();
 
-		$this->conditionTriggerMeta = array_merge( $uaMatch->getTriggerMetaData(), $idMatch->getTriggerMetaData() );
+		$this->conditionTriggerMeta = array_merge( $uaMatch->getConditionTriggerMetaData(), $idMatch->getConditionTriggerMetaData() );
 		return $detected;
 	}
 }

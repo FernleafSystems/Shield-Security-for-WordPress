@@ -9,7 +9,7 @@ class IsTrustedBot extends Base {
 
 	use RequestIP;
 
-	const CONDITION_SLUG = 'is_trusted_bot';
+	const SLUG = 'is_trusted_bot';
 
 	protected function execConditionCheck() :bool {
 		$isLoopback = ( new IsServerLoopback() )->setCon( $this->getCon() );
@@ -23,7 +23,7 @@ class IsTrustedBot extends Base {
 		];
 
 		$detected = !$isLoopback->run() && $idMatch->run();
-		$this->conditionTriggerMeta = $isLoopback->getTriggerMetaData();
+		$this->conditionTriggerMeta = $isLoopback->getConditionTriggerMetaData();
 		return $detected;
 	}
 }

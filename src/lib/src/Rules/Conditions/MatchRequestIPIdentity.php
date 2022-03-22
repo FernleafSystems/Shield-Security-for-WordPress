@@ -18,7 +18,7 @@ class MatchRequestIPIdentity extends Base {
 	use RequestIP;
 	use UserAgent;
 
-	const CONDITION_SLUG = 'match_request_ip_identity';
+	const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
 		try {

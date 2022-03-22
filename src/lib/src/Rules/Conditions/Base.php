@@ -13,7 +13,7 @@ abstract class Base extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
-	const CONDITION_SLUG = 'is_fake_web_crawler';
+	const SLUG = 'is_fake_web_crawler';
 
 	protected $conditionTriggerMeta = [];
 
@@ -53,7 +53,7 @@ abstract class Base extends DynPropertiesClass {
 		}
 	}
 
-	public function getTriggerMetaData() :array {
+	public function getConditionTriggerMetaData() :array {
 		return $this->conditionTriggerMeta;
 	}
 

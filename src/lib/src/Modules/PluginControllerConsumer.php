@@ -19,11 +19,11 @@ trait PluginControllerConsumer {
 	}
 
 	/**
-	 * @param Controller $oCon
+	 * @param Controller $con
 	 * @return $this
 	 */
-	public function setCon( $oCon ) {
-		$this->oPlugCon = $oCon;
+	public function setCon( $con ) {
+		$this->oPlugCon = $con;
 		return $this;
 	}
 }

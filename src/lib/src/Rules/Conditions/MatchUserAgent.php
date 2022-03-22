@@ -13,7 +13,7 @@ class MatchUserAgent extends Base {
 
 	use UserAgent;
 
-	const CONDITION_SLUG = 'match_request_useragent';
+	const SLUG = 'match_request_useragent';
 
 	/**
 	 * @throws RequestUseragentUnavailableException

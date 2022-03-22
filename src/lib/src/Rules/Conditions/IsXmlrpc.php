@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsXmlrpc extends Base {
 
-	const CONDITION_SLUG = 'is_xmlrpc';
+	const SLUG = 'is_xmlrpc';
 
 	protected function execConditionCheck() :bool {
 		$pathMatch = ( new MatchRequestPath() )->setCon( $this->getCon() );
@@ -15,7 +15,7 @@ class IsXmlrpc extends Base {
 		$pathMatch->is_match_regex = true;
 
 		$detected = Services::WpGeneral()->isXmlrpc() || $pathMatch->run();
-		$this->conditionTriggerMeta = $pathMatch->getTriggerMetaData();
+		$this->conditionTriggerMeta = $pathMatch->getConditionTriggerMetaData();
 		return $detected;
 	}
 }

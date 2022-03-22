@@ -1,39 +1,53 @@
 {
   "rules": [
     {
-      "name":              "IP Match",
-      "slug":              "ip_match",
-      "flags":             [
+      "name":       "Is Trust Bot",
+      "slug":       "is_trusted_bot",
+      "flags":      [
+      ],
+      "conditions": [
+        "is_trusted_bot"
+      ],
+      "responses":  [
+        {
+          "action": "is_trusted_bot"
+        }
+      ]
+    },
+    {
+      "name":       "IP Match",
+      "slug":       "ip_match",
+      "flags":      [
         "stop_on_first"
       ],
-      "conditions":          [
+      "conditions": [
         "match_request_ip"
       ],
-      "trigger_responses": [
+      "responses":  [
         {
           "action": "request_kill"
         }
       ]
     },
     {
-      "name":              "Fake Web Crawler",
-      "slug":              "fake_web_crawler",
-      "flags":             [
+      "name":       "Fake Web Crawler",
+      "slug":       "fake_web_crawler",
+      "flags":      [
         "stop_on_first"
       ],
-      "conditions":          [
+      "conditions": [
         "is_fake_web_crawler"
       ],
-      "trigger_responses": [
+      "responses":  [
         {
-          "action":        "offense_increment",
-          "action_params": {
+          "action": "offense_increment",
+          "params": {
             "offense_count": 1
           }
         },
         {
-          "action":        "event_fire",
-          "action_params": {
+          "action": "event_fire",
+          "params": {
             "event_name": "bottrack_fakewebcrawler"
           }
         }

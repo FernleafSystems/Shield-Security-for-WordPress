@@ -11,7 +11,7 @@ class MatchRequestIP extends Base {
 
 	use RequestIP;
 
-	const CONDITION_SLUG = 'match_request_ip';
+	const SLUG = 'match_request_ip';
 
 	protected function execConditionCheck() :bool {
 		return $this->matchRequestIP();

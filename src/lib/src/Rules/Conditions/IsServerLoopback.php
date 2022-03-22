@@ -9,7 +9,7 @@ class IsServerLoopback extends Base {
 
 	use RequestIP;
 
-	const CONDITION_SLUG = 'is_server_loopback';
+	const SLUG = 'is_server_loopback';
 
 	protected function execConditionCheck() :bool {
 		$ipMatch = ( new MatchRequestIP() )->setCon( $this->getCon() );
@@ -17,7 +17,7 @@ class IsServerLoopback extends Base {
 		$ipMatch->match_ips = Services::IP()->getServerPublicIPs();
 
 		$detected = $ipMatch->run();
-		$this->conditionTriggerMeta = $ipMatch->getTriggerMetaData();
+		$this->conditionTriggerMeta = $ipMatch->getConditionTriggerMetaData();
 		return $detected;
 	}
 }

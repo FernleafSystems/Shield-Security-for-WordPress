@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $req
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -123,6 +124,12 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'req':
+				if ( is_null( $val ) ) {
+					$val = new Shield\Request\ThisRequest( $this );
+					$this->req = $val;
+				}
+				break;
 			case 'is_activating':
 			case 'is_my_upgrade':
 			case 'modules_loaded':
@@ -1191,7 +1198,11 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
-		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $slug ) {
+
+		$coreModule = $this->loadCorePluginFeatureHandler();
+		$this->runRulesController();
+
+		foreach ( array_keys( $coreModule->getActivePluginFeatures() ) as $slug ) {
 			try {
 				$this->getModule( $slug );
 			}
@@ -1214,6 +1225,12 @@ class Controller extends DynPropertiesClass {
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
 		return true;
+	}
+
+	private function runRulesController() {
+		( new Shield\Rules\RulesController() )
+			->setCon( $this )
+			->execute();
 	}
 
 	/**
