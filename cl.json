@@ -148,6 +148,20 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "4",
+        "released_at": 1647940000,
+        "items":       [
+          {
+            "title": "Provide a more robust database migration for large request log tables.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Adjust the traffic log database to account for very long request paths.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
