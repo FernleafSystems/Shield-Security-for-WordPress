@@ -2,13 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\ReqLogs\QueueReqDbRecordMigrator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Data\Lib\UpgradeReqLogsTable,
-	Traffic};
+	Traffic
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
+
+	private $reqDbMigrator;
+
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+		$this->getReqDbMigrator();
+	}
+
+	public function getReqDbMigrator() :QueueReqDbRecordMigrator {
+		if ( !isset( $this->reqDbMigrator ) ) {
+			$this->reqDbMigrator = ( new QueueReqDbRecordMigrator() )->setMod( $this );
+		}
+		return $this->reqDbMigrator;
+	}
 
 	public function getDbH_IPs() :DB\IPs\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'ips' );
@@ -23,10 +38,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
 	}
 
-	public function runHourlyCron() {
-		( new UpgradeReqLogsTable() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->execute();
+	public function runDailyCron() {
+		parent::runDailyCron();
+		$this->getReqDbMigrator()->dispatch();
 	}
 
 	protected function cleanupDatabases() {
@@ -56,7 +70,6 @@ class ModCon extends BaseShield\ModCon {
 				 ) )
 			 )
 			 ->query();
-
 		// TODO 3. Clean User Meta.
 	}
 }
