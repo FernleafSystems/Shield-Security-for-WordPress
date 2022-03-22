@@ -29,6 +29,21 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	public function loadForLogs() :array {
+		if ( empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
+			return $this->loadLogsWithDirectQuery();
+		}
+		else {
+			return $this->loadLogsWithSearch();
+		}
+	}
+
+	protected function loadLogsWithDirectQuery() :array {
+		return $this->buildTableRowsFromRawLogs(
+			$this->getRecords( $this->buildWheresFromSearchPanes(), (int)$this->table_data[ 'start' ], (int)$this->table_data[ 'length' ] )
+		);
+	}
+
+	protected function loadLogsWithSearch() :array {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
 		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
