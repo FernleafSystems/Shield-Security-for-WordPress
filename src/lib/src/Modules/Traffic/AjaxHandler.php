@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\UpgradeReqLogsTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable\BuildTrafficTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -44,10 +43,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	private function retrieveTableData() :array {
-		( new UpgradeReqLogsTable() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->execute();
-
 		$builder = ( new BuildTrafficTableData() )->setMod( $this->getMod() );
 		$builder->table_data = Services::Request()->post( 'table_data', [] );
 		return [

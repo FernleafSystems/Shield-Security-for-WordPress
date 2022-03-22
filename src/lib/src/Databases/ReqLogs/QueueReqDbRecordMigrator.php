@@ -23,13 +23,13 @@ class QueueReqDbRecordMigrator extends Shield\Databases\Utility\QueueDbRecordsMi
 	}
 
 	protected function processRecord( $record ) {
-		/** @var Shield\Modules\Data\DB\ReqLogs\Ops\Record */
+		/** @var $record Shield\Modules\Data\DB\ReqLogs\Ops\Record */
 		/** @var Shield\Modules\Data\ModCon $mod */
 		$mod = $this->getMod();
 
 		$upgradeData = [
 			'type' => ReqDB\Handler::TYPE_HTTP,
-			'path' => $record->path,
+			'path' => $record->path ?? '',
 		];
 
 		$meta = $record->meta;
@@ -73,7 +73,7 @@ class QueueReqDbRecordMigrator extends Shield\Databases\Utility\QueueDbRecordsMi
 		}
 
 		if ( ( $meta[ 'ua' ] ?? '' ) === 'wpcli' ) {
-			$upgradeData[ 'type' ] = 'WPCLI';
+			$upgradeData[ 'type' ] = ReqDB\Handler::TYPE_WPCLI;
 			unset( $meta[ 'ua' ] );
 		}
 		elseif ( wp_parse_url( admin_url( 'admin-ajax.php' ), PHP_URL_PATH ) === $upgradeData[ 'path' ] ) {
