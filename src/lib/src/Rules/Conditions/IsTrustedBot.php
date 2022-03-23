@@ -26,8 +26,20 @@ class IsTrustedBot extends Base {
 			IpID::VISITOR,
 		] );
 
-		$detected = !$isLoopback->run() && $idMatch->run();
-		$this->conditionTriggerMeta = $isLoopback->getConditionTriggerMetaData();
-		return $detected;
+		$match = !$isLoopback->run() && $idMatch->run();
+		if ( $match ) {
+			$this->conditionTriggerMeta = array_merge(
+				$isLoopback->getConditionTriggerMetaData(),
+				$idMatch->getConditionTriggerMetaData()
+			);
+		}
+		return $match;
+	}
+
+	public static function RequiredConditions() :array {
+		return [
+			IsServerLoopback::class,
+			MatchRequestIPIdentity::class,
+		];
 	}
 }

@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\IpsToMatchUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestIpUnavailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
+	IpsToMatchUnavailableException,
+	RequestIpUnavailableException
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class MatchRequestIP extends Base {
@@ -13,15 +15,11 @@ class MatchRequestIP extends Base {
 
 	const SLUG = 'match_request_ip';
 
-	protected function execConditionCheck() :bool {
-		return $this->matchRequestIP();
-	}
-
 	/**
 	 * @throws IpsToMatchUnavailableException
 	 * @throws RequestIpUnavailableException
 	 */
-	protected function matchRequestIP() :bool {
+	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_ips ) ) {
 			throw new IpsToMatchUnavailableException();
 		}

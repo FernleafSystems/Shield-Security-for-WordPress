@@ -5,10 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\UserAgent;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
- * You're a fake web crawler/bot is you identify as-such, but you're not a trusted/verified bot.
+ * You're a fake web crawler/bot when you identify as-such, but you're not actually a trusted/verified bot.
  */
 class IsFakeWebCrawler extends Base {
 
@@ -27,9 +26,21 @@ class IsFakeWebCrawler extends Base {
 		$isTrustedBot->request_ip = $this->getRequestIP();
 		$isTrustedBot->request_useragent = $this->getUserAgent();
 
-		$detected = $uaMatch->run() && !$isTrustedBot->run();
+		$match = $uaMatch->run() && !$isTrustedBot->run();
 
-		$this->conditionTriggerMeta = array_merge( $uaMatch->getConditionTriggerMetaData(), $isTrustedBot->getConditionTriggerMetaData() );
-		return $detected;
+		if ( $match ) {
+			$this->conditionTriggerMeta = array_merge(
+				$uaMatch->getConditionTriggerMetaData(),
+				$isTrustedBot->getConditionTriggerMetaData(),
+			);
+		}
+		return $match;
+	}
+
+	public static function RequiredConditions() :array {
+		return [
+			MatchUserAgent::class,
+			IsTrustedBot::class
+		];
 	}
 }

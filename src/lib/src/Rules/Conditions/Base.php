@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -13,9 +14,35 @@ abstract class Base extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
-	const SLUG = 'is_fake_web_crawler';
+	const SLUG = '';
 
 	protected $conditionTriggerMeta = [];
+
+	public static function BuildRequiredConditions() :array {
+		$conditions = static::RequiredConditions();
+		foreach ( static::RequiredConditions() as $requiredCondition ) {
+			/** @var $requiredCondition Base */
+			$conditions = array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
+		}
+		return array_unique( $conditions );
+	}
+
+	public static function FindMinimumHook() :int {
+		$minimum = static::MinimumHook();
+		foreach ( static::BuildRequiredConditions() as $requiredCondition ) {
+			/** @var $requiredCondition Base */
+			$minimum = max( $minimum, $requiredCondition::MinimumHook() );
+		}
+		return (int)$minimum;
+	}
+
+	public static function RequiredConditions() :array {
+		return [];
+	}
+
+	public static function MinimumHook() :int {
+		return WPHooksOrder::NONE;
+	}
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

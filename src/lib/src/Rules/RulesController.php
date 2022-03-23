@@ -4,11 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchResponseHandlerException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ConditionsProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ResponseProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RulesController {
@@ -56,12 +58,28 @@ class RulesController {
 		if ( !isset( $this->rules ) ) {
 			$this->rules = array_map(
 				function ( $rule ) {
-					return ( new RuleVO() )->applyFromArray( $rule );
+					$rule = ( new RuleVO() )->applyFromArray( $rule );
+					$this->preProcessRule( $rule );
+					return $rule;
 				},
 				json_decode( Services::WpFs()->getFileContent( path_join( __DIR__, 'rules.json' ) ), true )[ 'rules' ]
 			);
 		}
 		return $this->rules;
+	}
+
+	private function preProcessRule( RuleVO $rule ) {
+		foreach ( $rule->conditions as $condition ) {
+			try {
+				/** @var Base $class */
+				$class = $this->locateConditionHandlerClass( $condition );
+				if ( empty( $rule->wp_hook ) ) {
+					$rule->wp_hook = WPHooksOrder::HOOK_NAME( $class::FindMinimumHook() );
+				}
+			}
+			catch ( NoSuchConditionHandlerException $e ) {
+			}
+		}
 	}
 
 	/**
@@ -84,6 +102,16 @@ class RulesController {
 	 * @throws NoSuchConditionHandlerException
 	 */
 	public function getConditionHandler( string $condition ) :Conditions\Base {
+		/** @var Conditions\Base $cond */
+		$class = $this->locateConditionHandlerClass( $condition );
+		$cond = new $class();
+		return $cond->setCon( $this->getCon() );
+	}
+
+	/**
+	 * @throws NoSuchConditionHandlerException
+	 */
+	public function locateConditionHandlerClass( string $condition ) :string {
 		$theHandlerClass = null;
 		foreach ( $this->enumConditionHandlers() as $class ) {
 			if ( $condition === constant( sprintf( '%s::%s', $class, 'SLUG' ) ) ) {
@@ -94,9 +122,12 @@ class RulesController {
 		if ( empty( $theHandlerClass ) ) {
 			throw new NoSuchConditionHandlerException( 'No Condition Handler available for: '.$condition );
 		}
-		/** @var Conditions\Base $d */
-		$d = new $theHandlerClass();
-		return $d->setCon( $this->getCon() );
+		return $theHandlerClass;
+	}
+
+	public function getDefaultEventFireResponseHandler() :Responses\EventFire {
+		/** @var Responses\Base $d */
+		return ( new EventFire( [] ) )->setCon( $this->getCon() );
 	}
 
 	/**
@@ -120,13 +151,15 @@ class RulesController {
 			throw new NoSuchResponseHandlerException( 'No Response Handler available for: '.$response[ 'action' ] );
 		}
 		/** @var Responses\Base $d */
-		$d = new $theHandlerClass();
+		$d = new $theHandlerClass( $response[ 'params' ] ?? [] );
 		return $d->setCon( $this->getCon() );
 	}
 
 	protected function enumConditionHandlers() :array {
 		return [
 			Conditions\IsFakeWebCrawler::class,
+			Conditions\Is404::class,
+			Conditions\IsBotProbe404::class,
 			Conditions\IsIpBlacklisted::class,
 			Conditions\IsIpBlocked::class,
 			Conditions\IsIpWhitelisted::class,
@@ -136,6 +169,7 @@ class RulesController {
 			Conditions\MatchRequestIP::class,
 			Conditions\MatchRequestIPIdentity::class,
 			Conditions\MatchRequestPath::class,
+			Conditions\MatchRequestStatus::class,
 			Conditions\MatchUserAgent::class,
 		];
 	}
@@ -144,6 +178,9 @@ class RulesController {
 		return [
 			Responses\IsIpWhitelisted::class,
 			Responses\IsTrustedBot::class,
+			Responses\IsIpBlocked::class,
+
+			Responses\EventFire::class,
 			//			Responses\IsFakeWebCrawler::class,
 			//			Responses\IsServerLoopback::class,
 			//			Responses\IsXmlrpc::class,

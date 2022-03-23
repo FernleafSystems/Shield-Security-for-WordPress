@@ -9,7 +9,7 @@ class ConditionsProcessor extends BaseProcessor {
 	private $consolidatedMeta = [];
 
 	public function getConsolidatedMeta() :array {
-		return $this->consolidatedMeta;
+		return array_filter( $this->consolidatedMeta );
 	}
 
 	public function run() {

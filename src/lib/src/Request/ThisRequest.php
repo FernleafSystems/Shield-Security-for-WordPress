@@ -4,15 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string $ip
- * @property string $ip_id
- * @property bool   $is_bypass_restrictions
- * @property bool   $is_trusted_bot
- * @property bool   $is_ip_whitelisted
- * @property bool   $rules_completed
+ * @property string          $ip
+ * @property BotSignalRecord $botsignal_record
+ * @property string          $ip_id
+ * @property bool            $is_bypass_restrictions
+ * @property bool            $is_trusted_bot
+ * @property bool            $is_ip_blocked
+ * @property bool            $is_ip_whitelisted
+ * @property bool            $rules_completed
  */
 class ThisRequest extends DynPropertiesClass {
 
@@ -27,7 +30,10 @@ class ThisRequest extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'ip':
-				$value = Services::IP()->getRequestIp();
+				if ( empty( $value ) ) {
+					$value = Services::IP()->getRequestIp();
+					$this->ip = $value;
+				}
 				break;
 
 			case 'is_bypass_restrictions':

@@ -57,6 +57,11 @@ class MatchRequestIPIdentity extends Base {
 		elseif ( !empty( $matchNotIDs ) ) {
 			$match = !in_array( $id, $matchNotIDs );
 		}
+
+		if ( $match ) {
+			$this->addConditionTriggerMeta( 'ip_id', $id );
+		}
+
 		return $match;
 	}
 }

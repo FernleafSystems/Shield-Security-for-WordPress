@@ -8,6 +8,7 @@ class IsTrustedBot extends Base {
 
 	protected function execResponse() :bool {
 		$this->getCon()->req->is_trusted_bot = true;
+		error_log( var_export( $this->conditionTriggerMeta, true ) );
 		return true;
 	}
 }

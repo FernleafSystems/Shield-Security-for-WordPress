@@ -4,14 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
-	ModCon,
-	DB\BotSignal
+	ModCon
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -23,8 +23,14 @@ class BotSignalsRecord {
 	public function delete() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$thisReq = $this->getCon()->req;
 		/** @var BotSignal\Ops\Select $select */
 		$select = $mod->getDbH_BotSignal()->getQueryDeleter();
+
+		if ( $thisReq->ip === $this->getIP() ) {
+			unset( $thisReq->botsignal_record );
+		}
+
 		return $select->filterByIP( $this->getIPRecord()->id )->query();
 	}
 
@@ -49,6 +55,11 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$thisReq = $this->getCon()->req;
+
+		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
+			return $thisReq->botsignal_record;
+		}
 
 		$r = $this->dbLoad();
 		if ( empty( $r ) ) {
@@ -129,13 +140,17 @@ class BotSignalsRecord {
 						   ->getQueryUpdater()
 						   ->updateById( $record->id, $data );
 		}
+
+		$thisReq = $this->getCon()->req;
+		if ( $thisReq->ip === $record->ip ) {
+			$thisReq->botsignal_record = $record;
+		}
+
 		return $success;
 	}
 
 	/**
-	 * @param string   $field
 	 * @param int|null $ts
-	 * @return BotSignalRecord
 	 * @throws \LogicException
 	 */
 	public function updateSignalField( string $field, $ts = null ) :BotSignalRecord {

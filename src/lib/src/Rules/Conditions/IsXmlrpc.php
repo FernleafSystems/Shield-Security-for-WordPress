@@ -18,4 +18,10 @@ class IsXmlrpc extends Base {
 		$this->conditionTriggerMeta = $pathMatch->getConditionTriggerMetaData();
 		return $detected;
 	}
+
+	public static function RequiredConditions() :array {
+		return [
+			MatchRequestPath::class
+		];
+	}
 }

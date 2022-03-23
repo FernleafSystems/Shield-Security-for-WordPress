@@ -29,17 +29,38 @@
       ]
     },
     {
-      "name":       "IP Match",
-      "slug":       "ip_match",
+      "name":       "Is IP Blocked",
+      "slug":       "is_ip_blocked",
       "flags":      [
-        "stop_on_first"
       ],
       "conditions": [
-        "match_request_ip"
+        "is_ip_blocked"
       ],
       "responses":  [
         {
-          "action": "request_kill"
+          "action": "is_ip_blocked"
+        }
+      ]
+    },
+    {
+      "name":       "Is IP Blocked",
+      "slug":       "is_bot_probe_404",
+      "flags":      [
+      ],
+      "conditions": [
+        "is_bot_probe_404"
+      ],
+      "responses":  [
+        {
+          "action": "is_bot_probe_404"
+        },
+        {
+          "action": "event_fire",
+          "params": {
+            "event":         "bottrack_404",
+            "offense_count": 1,
+            "block":         false
+          }
         }
       ]
     },

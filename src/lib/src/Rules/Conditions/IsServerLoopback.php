@@ -20,4 +20,10 @@ class IsServerLoopback extends Base {
 		$this->conditionTriggerMeta = $ipMatch->getConditionTriggerMetaData();
 		return $detected;
 	}
+
+	public static function RequiredConditions() :array {
+		return [
+			MatchRequestIP::class
+		];
+	}
 }

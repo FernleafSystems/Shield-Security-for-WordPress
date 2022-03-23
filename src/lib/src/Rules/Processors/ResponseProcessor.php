@@ -19,16 +19,29 @@ class ResponseProcessor extends BaseProcessor {
 	}
 
 	public function run() {
+		$eventFireResponseProcessed = false;
 		foreach ( $this->rule->responses as $response ) {
 			try {
 				$this->controller->getResponseHandler( $response )
 								 ->setConditionTriggerMeta( $this->triggerMetaData )
+								 ->setRule( $this->rule )
 								 ->run();
+				if ( $response[ 'action' ] === 'event_fire' ) {
+					$eventFireResponseProcessed = true;
+				}
 			}
 			catch ( Exceptions\NoResponseActionDefinedException $e ) {
 			}
 			catch ( Exceptions\NoSuchResponseHandlerException $e ) {
 			}
+		}
+
+		// We always fire the default event if an event wasn't fired already
+		if ( !$eventFireResponseProcessed ) {
+			$this->controller->getDefaultEventFireResponseHandler()
+							 ->setConditionTriggerMeta( $this->triggerMetaData )
+							 ->setRule( $this->rule )
+							 ->run();
 		}
 	}
 }
