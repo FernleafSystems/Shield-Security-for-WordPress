@@ -17,12 +17,10 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		/** @var UserManagement\ModCon $mod */
-		$mod = $this->getMod();
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 
-		if ( !$mod->isVisitorWhitelisted() ) {
+		if ( !$this->getCon()->req->is_ip_whitelisted ) {
 
 			if ( $opts->isSuspendManualEnabled() ) {
 				( new Suspended() )

@@ -127,6 +127,9 @@ class RulesController {
 	protected function enumConditionHandlers() :array {
 		return [
 			Conditions\IsFakeWebCrawler::class,
+			Conditions\IsIpBlacklisted::class,
+			Conditions\IsIpBlocked::class,
+			Conditions\IsIpWhitelisted::class,
 			Conditions\IsServerLoopback::class,
 			Conditions\IsTrustedBot::class,
 			Conditions\IsXmlrpc::class,
@@ -139,14 +142,15 @@ class RulesController {
 
 	protected function enumResponseHandlers() :array {
 		return [
-//			Responses\IsFakeWebCrawler::class,
-//			Responses\IsServerLoopback::class,
+			Responses\IsIpWhitelisted::class,
 			Responses\IsTrustedBot::class,
-//			Responses\IsXmlrpc::class,
-//			Responses\MatchRequestIP::class,
-//			Responses\MatchRequestIPIdentity::class,
-//			Responses\MatchRequestPath::class,
-//			Responses\MatchUserAgent::class,
+			//			Responses\IsFakeWebCrawler::class,
+			//			Responses\IsServerLoopback::class,
+			//			Responses\IsXmlrpc::class,
+			//			Responses\MatchRequestIP::class,
+			//			Responses\MatchRequestIPIdentity::class,
+			//			Responses\MatchRequestPath::class,
+			//			Responses\MatchUserAgent::class,
 		];
 	}
 }

@@ -32,8 +32,7 @@ class BotEventListener extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return !$mod->isTrustedVerifiedBot()
-			   && $mod->getDbH_BotSignal()->isReady();
+		return !$this->getCon()->req->is_trusted_bot && $mod->getDbH_BotSignal()->isReady();
 	}
 
 	protected function run() {

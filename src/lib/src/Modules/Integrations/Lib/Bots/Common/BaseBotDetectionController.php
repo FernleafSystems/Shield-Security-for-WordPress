@@ -8,9 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModCon;
 abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $this->isEnabled() && !$mod->isVisitorWhitelisted();
+		return $this->isEnabled() && !$this->getCon()->req->is_bypass_restrictions;
 	}
 
 	protected function run() {

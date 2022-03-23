@@ -41,7 +41,7 @@ class Processor extends BaseShield\Processor {
 			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
-		if ( !$mod->isVisitorWhitelisted() ) {
+		if ( !$this->getCon()->req->is_ip_whitelisted ) {
 			( new Lib\Session\UserSessionHandler() )
 				->setMod( $this->getMod() )
 				->execute();

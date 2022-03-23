@@ -44,13 +44,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		switch ( $notice->id ) {
 
 			case 'visitor-whitelisted':
-				$needed = $mod->isVisitorWhitelisted();
+				$needed = $this->getCon()->req->is_ip_whitelisted;
 				break;
 
 			default:

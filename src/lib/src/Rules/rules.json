@@ -1,7 +1,7 @@
 {
   "rules": [
     {
-      "name":       "Is Trust Bot",
+      "name":       "Is Trusted Bot",
       "slug":       "is_trusted_bot",
       "flags":      [
       ],
@@ -11,6 +11,20 @@
       "responses":  [
         {
           "action": "is_trusted_bot"
+        }
+      ]
+    },
+    {
+      "name":       "Is IP Bypass",
+      "slug":       "is_ip_whitelisted",
+      "flags":      [
+      ],
+      "conditions": [
+        "is_ip_whitelisted"
+      ],
+      "responses":  [
+        {
+          "action": "is_ip_whitelisted"
         }
       ]
     },

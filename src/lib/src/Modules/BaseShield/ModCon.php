@@ -12,11 +12,13 @@ class ModCon extends Base\ModCon {
 
 	/**
 	 * @var bool
+	 * @deprecated 15.0
 	 */
 	protected static $bIsVerifiedBot;
 
 	/**
 	 * @var bool
+	 * @deprecated 15.0
 	 */
 	private static $bVisitorIsWhitelisted;
 
@@ -129,61 +131,41 @@ class ModCon extends Base\ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
+		$req = $this->getCon()->req;
 		$opts = $this->getOptions();
-		return ( $opts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
-			   && ( $opts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
+		return ( $opts->isModuleRunIfWhitelisted() || !$req->is_bypass_restrictions )
+			   && ( $opts->isModuleRunIfVerifiedBot() || !$req->is_trusted_bot )
 			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
 			   && parent::isReadyToExecute();
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isVisitorWhitelisted() :bool {
-		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-
-			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-
-			if ( in_array( $ipID, $this->getUntrustedProviders() ) ) {
-				self::$bVisitorIsWhitelisted = false;
-			}
-			elseif ( in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() ) ) {
-				self::$bVisitorIsWhitelisted = true; // iControlWP / ManageWP
-			}
-			else {
-				self::$bVisitorIsWhitelisted =
-					( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-						->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-						->setIP( Services::IP()->getRequestIp() )
-						->setListTypeBypass()
-						->lookup() instanceof Shield\Databases\IPs\EntryVO;
-			}
-		}
-		return self::$bVisitorIsWhitelisted;
+		return $this->getCon()->req->is_ip_whitelisted;
 	}
 
 	public function isTrustedVerifiedBot() :bool {
-		return $this->isVerifiedBot()
-			   && !in_array( Services::IP()->getIpDetector()->getIPIdentity(), $this->getUntrustedProviders() );
+		return $this->getCon()->req->is_trusted_bot;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	protected function getUntrustedProviders() :array {
 		$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
 		return is_array( $untrustedProviders ) ? $untrustedProviders : [];
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isVerifiedBot() :bool {
-		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-			self::$bIsVerifiedBot = !Services::IP()->isLoopback() &&
-									!in_array( $ipID, [
-										Utilities\Net\IpID::UNKNOWN,
-										Utilities\Net\IpID::THIS_SERVER,
-										Utilities\Net\IpID::VISITOR,
-									] );
-		}
-		return self::$bIsVerifiedBot;
+		return $this->isTrustedVerifiedBot();
 	}
 
 	public function isXmlrpcBypass() :bool {

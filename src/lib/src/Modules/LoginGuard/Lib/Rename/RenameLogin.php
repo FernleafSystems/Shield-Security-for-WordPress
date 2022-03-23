@@ -14,13 +14,11 @@ class RenameLogin {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return !Services::IP()->isLoopback()
 			   && !empty( $opts->getCustomLoginPath() )
-			   && !$mod->isVisitorWhitelisted()
+			   && !$this->getCon()->req->is_ip_whitelisted
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 

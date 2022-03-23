@@ -15,8 +15,8 @@ class QueryIpBlock {
 	public function run() :bool {
 		$isBlocked = false;
 
-		$oIP = $this->getBlockedIpRecord();
-		if ( $oIP instanceof Databases\IPs\EntryVO ) {
+		$IP = $this->getBlockedIpRecord();
+		if ( !empty( $IP ) ) {
 
 			$isBlocked = true;
 
@@ -24,7 +24,7 @@ class QueryIpBlock {
 			$mod = $this->getMod();
 			/** @var Databases\IPs\Update $upd */
 			$upd = $mod->getDbHandler_IPs()->getQueryUpdater();
-			$upd->updateLastAccessAt( $oIP );
+			$upd->updateLastAccessAt( $IP );
 		}
 		return $isBlocked;
 	}
@@ -33,24 +33,24 @@ class QueryIpBlock {
 	 * @return Databases\IPs\EntryVO|null
 	 */
 	private function getBlockedIpRecord() {
-		$oBlockIP = null;
+		$blockIP = null;
 
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		$oIP = ( new IPs\Lib\Ops\LookupIpOnList() )
+		$IP = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )
 			->setListTypeBlock()
 			->setIsIpBlocked( true )
 			->lookup();
 
-		if ( $oIP instanceof Databases\IPs\EntryVO ) {
-			/** @var IPs\Options $oOpts */
-			$oOpts = $this->getOptions();
+		if ( !empty( $IP ) ) {
+			/** @var IPs\Options $opts */
+			$opts = $this->getOptions();
 
 			// Clean out old IPs as we go so they don't show up in future queries.
-			if ( $oIP->list == $mod::LIST_AUTO_BLACK
-				 && $oIP->last_access_at < Services::Request()->ts() - $oOpts->getAutoExpireTime() ) {
+			if ( $IP->list == $mod::LIST_AUTO_BLACK
+				 && $IP->last_access_at < Services::Request()->ts() - $opts->getAutoExpireTime() ) {
 
 				( new IPs\Lib\Ops\DeleteIp() )
 					->setMod( $mod )
@@ -58,10 +58,10 @@ class QueryIpBlock {
 					->fromBlacklist();
 			}
 			else {
-				$oBlockIP = $oIP;
+				$blockIP = $IP;
 			}
 		}
 
-		return $oBlockIP;
+		return $blockIP;
 	}
 }

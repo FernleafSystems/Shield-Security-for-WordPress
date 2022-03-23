@@ -43,7 +43,7 @@ class RuleVO extends DynPropertiesClass {
 
 	private function determineWpHook() :string {
 		$hook = '';
-		if ( in_array( 'is_logged_in', $this->prerequisites ) ) {
+		if ( isset( $this->prerequisites[ 'is_logged_in' ] ) ) {
 			$hook = 'init';
 		}
 		return $hook;

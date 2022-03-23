@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class IsTrustedBot extends Base {
+class IsIpWhitelisted extends Base {
 
-	const SLUG = 'is_trusted_bot';
+	const SLUG = 'is_ip_whitelisted';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->is_trusted_bot = true;
+		$this->getCon()->req->is_ip_whitelisted = true;
 		return true;
 	}
 }

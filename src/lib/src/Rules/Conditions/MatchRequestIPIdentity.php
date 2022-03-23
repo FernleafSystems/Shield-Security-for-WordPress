@@ -55,7 +55,7 @@ class MatchRequestIPIdentity extends Base {
 			$match = in_array( $id, $matchIDs );
 		}
 		elseif ( !empty( $matchNotIDs ) ) {
-			$match = in_array( $id, $matchNotIDs );
+			$match = !in_array( $id, $matchNotIDs );
 		}
 		return $match;
 	}

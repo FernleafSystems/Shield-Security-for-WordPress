@@ -8,7 +8,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property string $ip
+ * @property string $ip_id
+ * @property bool   $is_bypass_restrictions
  * @property bool   $is_trusted_bot
+ * @property bool   $is_ip_whitelisted
  * @property bool   $rules_completed
  */
 class ThisRequest extends DynPropertiesClass {
@@ -27,7 +30,19 @@ class ThisRequest extends DynPropertiesClass {
 				$value = Services::IP()->getRequestIp();
 				break;
 
+			case 'is_bypass_restrictions':
+				$value = $this->is_trusted_bot || $this->is_ip_whitelisted;
+				break;
+
+			case 'ip_id':
+				if ( is_null( $value ) ) {
+					$value = $this->getIpID();
+					$this->ip_id = $value;
+				}
+				break;
+
 			case 'is_trusted_bot':
+			case 'is_ip_whitelisted':
 			case 'rules_completed':
 				$value = (bool)$value;
 				break;
@@ -38,8 +53,7 @@ class ThisRequest extends DynPropertiesClass {
 		return $value;
 	}
 
-	private function init() {
-
-
+	private function getIpID() :string {
+		return Services::IP()->getIpDetector()->getIPIdentity();
 	}
 }
