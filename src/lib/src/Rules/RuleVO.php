@@ -12,6 +12,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string[] $prerequisites
  * @property array[]  $conditions
  * @property array[]  $responses
+ * @property string[] $all_actions
  */
 class RuleVO extends DynPropertiesClass {
 

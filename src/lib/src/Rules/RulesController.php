@@ -60,27 +60,14 @@ class RulesController {
 			$this->rules = array_map(
 				function ( $rule ) {
 					$rule = ( new RuleVO() )->applyFromArray( $rule );
-					$this->preProcessRule( $rule );
+					( new PreProcessRule() )->run( $rule, $this );
+					error_log( var_export( $rule->all_actions, true ) );
 					return $rule;
 				},
 				json_decode( Services::WpFs()->getFileContent( path_join( __DIR__, 'rules.json' ) ), true )[ 'rules' ]
 			);
 		}
 		return $this->rules;
-	}
-
-	private function preProcessRule( RuleVO $rule ) {
-		foreach ( $rule->conditions as $condition ) {
-			try {
-				/** @var Base $class */
-				$class = $this->locateConditionHandlerClass( $condition[ 'action' ] );
-				if ( empty( $rule->wp_hook ) ) {
-					$rule->wp_hook = WPHooksOrder::HOOK_NAME( $class::FindMinimumHook() );
-				}
-			}
-			catch ( NoSuchConditionHandlerException $e ) {
-			}
-		}
 	}
 
 	/**

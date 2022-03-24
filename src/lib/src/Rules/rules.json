@@ -7,16 +7,63 @@
       ],
       "conditions": [
         {
-          "action": "is_ip_blocked"
-        },
-        {
-          "action":       "is_ip_high_reputation",
-          "invert_match": true
+          "logic": "AND",
+          "group": [
+            {
+              "action": "is_ip_blocked"
+            },
+            {
+              "action":       "is_ip_high_reputation",
+              "invert_match": true
+            }
+          ]
         }
       ],
       "responses":  [
         {
           "action": "is_ip_blocked"
+        }
+      ]
+    },
+    {
+      "name":       "Is IP Blocked",
+      "slug":       "is_bot_probe_404",
+      "flags":      [
+      ],
+      "conditions": [
+        {
+          "logic":      "AND",
+          "group": [
+            {
+              "action": "is_not_logged_in_normal"
+            },
+            {
+              "action":       "match_request_path",
+              "invert_match": true,
+              "params":       {
+                "is_match_regex": true,
+                "match_paths":    [
+                  "\\.(css|gif|jpg|jpeg|js|map|png|ttf|woff|woff2)$"
+                ]
+              }
+            },
+            {
+              "action": "is_request_to_invalid_asset"
+            }
+          ]
+        }
+      ],
+      "responses":  [
+        {
+          "action": "is_bot_probe_404"
+        },
+        {
+          "action": "event_fire",
+          "params": {
+            "event":         "bottrack_404",
+            "offense_count": 1,
+            "block":         false
+          }
         }
       ]
     },
@@ -27,16 +74,21 @@
       ],
       "conditions": [
         {
-          "action": "match_request_path",
-          "params": {
-            "is_match_regex": true,
-            "match_paths":    [
-              "/xmlrpc\\.php$"
-            ]
-          }
-        },
-        {
-          "action": "is_xmlrpc"
+          "logic":      "AND",
+          "group": [
+            {
+              "action": "match_request_path",
+              "params": {
+                "is_match_regex": true,
+                "match_paths":    [
+                  "/xmlrpc\\.php$"
+                ]
+              }
+            },
+            {
+              "action": "is_xmlrpc"
+            }
+          ]
         }
       ],
       "responses":  [
