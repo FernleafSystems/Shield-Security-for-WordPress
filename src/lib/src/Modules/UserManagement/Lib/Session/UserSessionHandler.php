@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
@@ -42,12 +41,14 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 		$user = Services::WpUsers()->getCurrentWpUser();
 		try {
-			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) ) {
+			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) && !$srvIP->isLoopback() ) {
 				$this->assessSession();
 			}
 		}
 		catch ( \Exception $e ) {
-			$srvIP->getServerPublicIPs( true );
+			if ( $e->getMessage() === 'session_iplock' ) {
+				$srvIP->getServerPublicIPs( true );
+			}
 			if ( !$srvIP->isLoopback() ) {
 				$event = $e->getMessage();
 
@@ -92,7 +93,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && $srvIP->getRequestIp() != $sess->ip ) {
+		if ( $opts->isLockToIp() && !$srvIP->checkIp( $srvIP->getRequestIp(), $sess->ip ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}
