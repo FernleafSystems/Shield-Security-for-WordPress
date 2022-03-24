@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class BulkUpdateUserMeta extends ExecOnceModConsumer {
 
@@ -18,31 +19,34 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		$con = $this->getCon();
-		$userSearch = new \WP_User_Query( [
-			'exclude' => $this->getExistingUserMetaIDs(),
-			'number'  => 20,
-		] );
-		foreach ( $userSearch->get_results() as $user ) {
-			$con->getUserMeta( $user );
-		}
+		$WPDB = Services::WpDb();
+		/** @var array[] $IDs */
+		$IDs = $WPDB->selectCustom( sprintf(
+			'SELECT `ID` from `%s` WHERE `ID` NOT IN (%s) LIMIT 20',
+			$WPDB->getTable_Users(),
+			$this->getExistingUserMetaIDsQuery()
+		) );
+
+		array_map(
+			function ( $ID ) {
+				if ( is_array( $ID ) && !empty( $ID[ 'ID' ] ) ) {
+					$user = Services::WpUsers()->getUserById( $ID[ 'ID' ] );
+					$this->getCon()->getUserMeta( $user );
+				}
+			},
+			is_array( $IDs ) ? $IDs : []
+		);
 	}
 
-	protected function getExistingUserMetaIDs() :array {
+	private function getExistingUserMetaIDsQuery() :string {
 		/** @var Select $metaSelect */
 		$metaSelect = $this->getCon()
 						   ->getModule_Data()
 						   ->getDbH_UserMeta()
 						   ->getQuerySelector();
-		$res = $metaSelect->setResultsAsVo( false )
+		return $metaSelect->setResultsAsVo( false )
 						  ->setSelectResultsFormat( ARRAY_A )
 						  ->setColumnsToSelect( [ 'user_id' ] )
-						  ->queryWithResult();
-		return array_filter( array_map(
-			function ( $res ) {
-				return (int)array_pop( $res );
-			},
-			is_array( $res ) ? $res : []
-		) );
+						  ->buildQuery();
 	}
 }

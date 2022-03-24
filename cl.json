@@ -166,6 +166,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "6",
+        "released_at": 1648112414,
+        "items":       [
+          {
+            "title": "Improve the process of updating Shield user metas to bypass WP's User Query subsystem.",
+            "type":  "improve"
+          }
+        ]
       }
     ]
   },
