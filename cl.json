@@ -169,10 +169,10 @@
       },
       {
         "version":     "6",
-        "released_at": 1648112414,
+        "released_at": 1648122640,
         "items":       [
           {
-            "title": "Improve the process of updating Shield user metas to bypass WP's User Query subsystem.",
+            "title": "Improve the updating Shield user metas to now bypass WP's User Query subsystem that fires massive SQL queries.",
             "type":  "improve"
           }
         ]
