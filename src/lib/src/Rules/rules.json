@@ -1,40 +1,18 @@
 {
   "rules": [
     {
-      "name":       "Is Trusted Bot",
-      "slug":       "is_trusted_bot",
-      "flags":      [
-      ],
-      "conditions": [
-        "is_trusted_bot"
-      ],
-      "responses":  [
-        {
-          "action": "is_trusted_bot"
-        }
-      ]
-    },
-    {
-      "name":       "Is IP Bypass",
-      "slug":       "is_ip_whitelisted",
-      "flags":      [
-      ],
-      "conditions": [
-        "is_ip_whitelisted"
-      ],
-      "responses":  [
-        {
-          "action": "is_ip_whitelisted"
-        }
-      ]
-    },
-    {
       "name":       "Is IP Blocked",
       "slug":       "is_ip_blocked",
       "flags":      [
       ],
       "conditions": [
-        "is_ip_blocked"
+        {
+          "action": "is_ip_blocked"
+        },
+        {
+          "action":       "is_ip_high_reputation",
+          "invert_match": true
+        }
       ],
       "responses":  [
         {
@@ -43,48 +21,27 @@
       ]
     },
     {
-      "name":       "Is IP Blocked",
-      "slug":       "is_bot_probe_404",
+      "name":       "Is XML-RPC",
+      "slug":       "is_xmlrpc",
       "flags":      [
       ],
       "conditions": [
-        "is_bot_probe_404"
-      ],
-      "responses":  [
         {
-          "action": "is_bot_probe_404"
+          "action": "match_request_path",
+          "params": {
+            "is_match_regex": true,
+            "match_paths":    [
+              "/xmlrpc\\.php$"
+            ]
+          }
         },
         {
-          "action": "event_fire",
-          "params": {
-            "event":         "bottrack_404",
-            "offense_count": 1,
-            "block":         false
-          }
+          "action": "is_xmlrpc"
         }
-      ]
-    },
-    {
-      "name":       "Fake Web Crawler",
-      "slug":       "fake_web_crawler",
-      "flags":      [
-        "stop_on_first"
-      ],
-      "conditions": [
-        "is_fake_web_crawler"
       ],
       "responses":  [
         {
-          "action": "offense_increment",
-          "params": {
-            "offense_count": 1
-          }
-        },
-        {
-          "action": "event_fire",
-          "params": {
-            "event_name": "bottrack_fakewebcrawler"
-          }
+          "action": "is_xmlrpc"
         }
       ]
     }

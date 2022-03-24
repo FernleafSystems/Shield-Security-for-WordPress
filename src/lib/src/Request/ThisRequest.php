@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_whitelisted
+ * @property bool            $is_xmlrpc
  * @property bool            $rules_completed
  */
 class ThisRequest extends DynPropertiesClass {

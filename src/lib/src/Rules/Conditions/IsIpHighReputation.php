@@ -2,22 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryIpBlock;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 
-class IsIpBlocked extends Base {
+class IsIpHighReputation extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_blocked';
+	const SLUG = 'is_ip_high_reputation';
 
-	/**
-	 * TODO: $con->fireEvent( 'not_conn_kill_high_rep' );
-	 */
 	protected function execConditionCheck() :bool {
-		return ( new QueryIpBlock() )
+		return ( new IsHighReputationIP() )
 			->setMod( $this->getCon()->getModule_IPs() )
-			->setIp( $this->getRequestIP() )
-			->run();
+			->setIP( $this->getRequestIP() )
+			->query();
 	}
 }

@@ -18,18 +18,31 @@ class ConditionsProcessor extends BaseProcessor {
 			try {
 				$handler = $this->controller->getConditionHandler( $condition );
 				$matched = $handler->run();
-				if ( $handler->run() ) {
+				if ( $condition[ 'invert_match' ] ?? false ) {
+					$matched = !$matched;
+				}
+
+				if ( $matched ) {
 					$matched = true;
-					$this->consolidatedMeta[ $condition ] = $handler->getConditionTriggerMetaData();
+					$this->consolidatedMeta[ $condition[ 'action' ] ] = $handler->getConditionTriggerMetaData();
 
 					if ( $this->isStopOnFirst() ) {
 						break;
 					}
 				}
+				else {
+					$matched = false;
+					break;
+				}
 			}
 			catch ( Exceptions\NoSuchConditionHandlerException $e ) {
+				error_log( $e->getMessage() );
+			}
+			catch ( Exceptions\NoConditionActionDefinedException $e ) {
+				error_log( $e->getMessage() );
 			}
 		}
+
 		return $matched;
 	}
 

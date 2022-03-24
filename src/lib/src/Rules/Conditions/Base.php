@@ -18,6 +18,10 @@ abstract class Base extends DynPropertiesClass {
 
 	protected $conditionTriggerMeta = [];
 
+	public function __construct( array $conditionParams = [] ) {
+		$this->applyFromArray( $conditionParams );
+	}
+
 	public static function BuildRequiredConditions() :array {
 		$conditions = static::RequiredConditions();
 		foreach ( static::RequiredConditions() as $requiredCondition ) {

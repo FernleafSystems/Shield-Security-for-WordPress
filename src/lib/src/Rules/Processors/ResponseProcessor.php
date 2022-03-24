@@ -31,8 +31,10 @@ class ResponseProcessor extends BaseProcessor {
 				}
 			}
 			catch ( Exceptions\NoResponseActionDefinedException $e ) {
+				error_log( $e->getMessage() );
 			}
 			catch ( Exceptions\NoSuchResponseHandlerException $e ) {
+				error_log( $e->getMessage() );
 			}
 		}
 

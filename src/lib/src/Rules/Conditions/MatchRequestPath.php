@@ -15,13 +15,6 @@ class MatchRequestPath extends Base {
 	const SLUG = 'match_request_path';
 
 	protected function execConditionCheck() :bool {
-		return $this->matchRequestPath();
-	}
-
-	/**
-	 * @throws PathsToMatchUnavailableException
-	 */
-	protected function matchRequestPath() :bool {
 		if ( empty( $this->match_paths ) ) {
 			throw new PathsToMatchUnavailableException();
 		}

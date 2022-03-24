@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoConditionActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchResponseHandlerException;
@@ -72,7 +73,7 @@ class RulesController {
 		foreach ( $rule->conditions as $condition ) {
 			try {
 				/** @var Base $class */
-				$class = $this->locateConditionHandlerClass( $condition );
+				$class = $this->locateConditionHandlerClass( $condition[ 'action' ] );
 				if ( empty( $rule->wp_hook ) ) {
 					$rule->wp_hook = WPHooksOrder::HOOK_NAME( $class::FindMinimumHook() );
 				}
@@ -99,12 +100,16 @@ class RulesController {
 	}
 
 	/**
+	 * @throws NoConditionActionDefinedException
 	 * @throws NoSuchConditionHandlerException
 	 */
-	public function getConditionHandler( string $condition ) :Conditions\Base {
+	public function getConditionHandler( array $condition ) :Conditions\Base {
+		if ( empty( $condition[ 'action' ] ) ) {
+			throw new NoConditionActionDefinedException( 'No Condition Handler available for: '.var_export( $condition, true ) );
+		}
+		$class = $this->locateConditionHandlerClass( $condition[ 'action' ] );
 		/** @var Conditions\Base $cond */
-		$class = $this->locateConditionHandlerClass( $condition );
-		$cond = new $class();
+		$cond = new $class( $condition[ 'params' ] ?? [] );
 		return $cond->setCon( $this->getCon() );
 	}
 
@@ -112,15 +117,10 @@ class RulesController {
 	 * @throws NoSuchConditionHandlerException
 	 */
 	public function locateConditionHandlerClass( string $condition ) :string {
-		$theHandlerClass = null;
-		foreach ( $this->enumConditionHandlers() as $class ) {
-			if ( $condition === constant( sprintf( '%s::%s', $class, 'SLUG' ) ) ) {
-				$theHandlerClass = $class;
-				break;
-			}
-		}
-		if ( empty( $theHandlerClass ) ) {
-			throw new NoSuchConditionHandlerException( 'No Condition Handler available for: '.$condition );
+		$theHandlerClass = sprintf( '%s\\Conditions\\%s', __NAMESPACE__,
+			implode( '', array_map( 'ucfirst', explode( '_', $condition ) ) ) );
+		if ( !class_exists( $theHandlerClass ) ) {
+			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$theHandlerClass );
 		}
 		return $theHandlerClass;
 	}
@@ -135,59 +135,24 @@ class RulesController {
 	 * @throws NoSuchResponseHandlerException
 	 */
 	public function getResponseHandler( array $response ) :Responses\Base {
-		$theHandlerClass = null;
-
 		if ( empty( $response[ 'action' ] ) ) {
 			throw new NoResponseActionDefinedException( 'No Response Handler available for: '.var_export( $response, true ) );
 		}
-
-		foreach ( $this->enumResponseHandlers() as $class ) {
-			if ( $response[ 'action' ] === constant( sprintf( '%s::%s', $class, 'SLUG' ) ) ) {
-				$theHandlerClass = $class;
-				break;
-			}
-		}
-		if ( empty( $theHandlerClass ) ) {
-			throw new NoSuchResponseHandlerException( 'No Response Handler available for: '.$response[ 'action' ] );
-		}
+		$theResponseClass = $this->locateResponseHandlerClass( $response[ 'action' ] );
 		/** @var Responses\Base $d */
-		$d = new $theHandlerClass( $response[ 'params' ] ?? [] );
+		$d = new $theResponseClass( $response[ 'params' ] ?? [] );
 		return $d->setCon( $this->getCon() );
 	}
 
-	protected function enumConditionHandlers() :array {
-		return [
-			Conditions\IsFakeWebCrawler::class,
-			Conditions\Is404::class,
-			Conditions\IsBotProbe404::class,
-			Conditions\IsIpBlacklisted::class,
-			Conditions\IsIpBlocked::class,
-			Conditions\IsIpWhitelisted::class,
-			Conditions\IsServerLoopback::class,
-			Conditions\IsTrustedBot::class,
-			Conditions\IsXmlrpc::class,
-			Conditions\MatchRequestIP::class,
-			Conditions\MatchRequestIPIdentity::class,
-			Conditions\MatchRequestPath::class,
-			Conditions\MatchRequestStatus::class,
-			Conditions\MatchUserAgent::class,
-		];
-	}
-
-	protected function enumResponseHandlers() :array {
-		return [
-			Responses\IsIpWhitelisted::class,
-			Responses\IsTrustedBot::class,
-			Responses\IsIpBlocked::class,
-
-			Responses\EventFire::class,
-			//			Responses\IsFakeWebCrawler::class,
-			//			Responses\IsServerLoopback::class,
-			//			Responses\IsXmlrpc::class,
-			//			Responses\MatchRequestIP::class,
-			//			Responses\MatchRequestIPIdentity::class,
-			//			Responses\MatchRequestPath::class,
-			//			Responses\MatchUserAgent::class,
-		];
+	/**
+	 * @throws NoSuchResponseHandlerException
+	 */
+	public function locateResponseHandlerClass( string $response ) :string {
+		$theHandlerClass = sprintf( '%s\\Responses\\%s', __NAMESPACE__,
+			implode( '', array_map( 'ucfirst', explode( '_', $response ) ) ) );
+		if ( !class_exists( $theHandlerClass ) ) {
+			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$theHandlerClass );
+		}
+		return $theHandlerClass;
 	}
 }

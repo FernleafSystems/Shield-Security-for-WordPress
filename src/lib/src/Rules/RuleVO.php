@@ -10,7 +10,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $wp_hook
  * @property string[] $flags
  * @property string[] $prerequisites
- * @property string[] $conditions
+ * @property array[]  $conditions
  * @property array[]  $responses
  */
 class RuleVO extends DynPropertiesClass {
