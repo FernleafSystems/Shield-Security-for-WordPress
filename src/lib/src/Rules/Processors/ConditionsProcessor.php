@@ -12,11 +12,15 @@ class ConditionsProcessor extends BaseProcessor {
 		return array_filter( $this->consolidatedMeta );
 	}
 
-	public function run() :bool {
-		return $this->processConditionGroup(
-			$this->rule->conditions[ 'group' ],
-			( $condition[ 'logic' ] ?? 'AND' ) === 'AND'
-		);
+	public function runAllRuleConditions() :bool {
+		$thisReq = $this->controller->getCon()->req;
+		if ( !isset( $thisReq->rules_conditions_results[ $this->rule->slug ] ) ) {
+			$thisReq->rules_conditions_results[ $this->rule->slug ] = $this->processConditionGroup(
+				$this->rule->conditions[ 'group' ],
+				( $condition[ 'logic' ] ?? 'AND' ) === 'AND'
+			);
+		}
+		return $thisReq->rules_conditions_results[ $this->rule->slug ];
 	}
 
 	/**
@@ -34,7 +38,8 @@ class ConditionsProcessor extends BaseProcessor {
 				$matched = false;
 				try {
 					$handler = $this->controller->getConditionHandler( $subCondition );
-					$matched = $handler->run();
+					$matched = $handler->setRule( $this->rule )
+									   ->run();
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;
 					}

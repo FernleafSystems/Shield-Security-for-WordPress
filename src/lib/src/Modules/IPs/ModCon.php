@@ -53,13 +53,27 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function enumRuleBuilders() :array {
-		return [
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$rules = [
 			Rules\Build\IpWhitelisted::class,
 			Rules\Build\IpBlocked::class,
-			Rules\Build\BotTrack404::class,
-			Rules\Build\BotTrackFakeWebCrawler::class,
-			Rules\Build\BotTrackXmlrpc::class,
 		];
+
+		if ( $opts->isEnabledTrack404() ) {
+			$rules[] = Rules\Build\BotTrack404::class;
+		}
+		if ( $opts->isEnabledTrackXmlRpc() ) {
+			$rules[] = Rules\Build\BotTrackXmlrpc::class;
+		}
+		if ( $opts->isEnabledTrackFakeWebCrawler() ) {
+			$rules[] = Rules\Build\BotTrackFakeWebCrawler::class;
+		}
+		if ( $opts->isEnabledTrackInvalidScript() ) {
+			$rules[] = Rules\Build\BotTrackInvalidScript::class;
+		}
+
+		return $rules;
 	}
 
 	/**

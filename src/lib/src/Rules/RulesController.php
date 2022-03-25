@@ -61,7 +61,7 @@ class RulesController {
 
 	private function processRule( RuleVO $rule ) {
 		$conditionPro = new ConditionsProcessor( $rule, $this );
-		if ( $conditionPro->run() ) {
+		if ( $conditionPro->runAllRuleConditions() ) {
 			$responsePro = new ResponseProcessor( $rule, $this, $conditionPro->getConsolidatedMeta() );
 			$responsePro->run();
 		}

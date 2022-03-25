@@ -31,6 +31,13 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 					'action' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
+					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'invert_match' => true,
+					'params'       => [
+						'other_condition_slug' => 'shield/is_trusted_bot',
+					],
+				],
+				[
 					'action' => Conditions\MatchRequestStatusCode::SLUG,
 					'params' => [
 						'code' => '404',
@@ -67,9 +74,10 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 			[
 				'action' => Responses\EventFire::SLUG,
 				'params' => [
-					'event'         => 'bottrack_404',
-					'offense_count' => $opts->getOffenseCountFor( 'track_404' ),
-					'block'         => $opts->isTrackOptImmediateBlock( 'track_404' ),
+					'event'            => 'bottrack_404',
+					'offense_count'    => $opts->getOffenseCountFor( 'track_404' ),
+					'block'            => $opts->isTrackOptImmediateBlock( 'track_404' ),
+					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
 		];

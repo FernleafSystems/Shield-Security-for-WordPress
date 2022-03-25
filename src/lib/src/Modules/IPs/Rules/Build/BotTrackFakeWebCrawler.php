@@ -32,14 +32,17 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 					'action' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
+					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'invert_match' => true,
+					'params'       => [
+						'other_condition_slug' => 'shield/is_trusted_bot',
+					],
+				],
+				[
 					'action' => Conditions\MatchRequestUseragent::SLUG,
 					'params' => [
 						'match_useragents' => Services::ServiceProviders()->getAllCrawlerUseragents(),
 					],
-				],
-				[
-					'action'       => Conditions\IsTrustedBot::SLUG,
-					'invert_match' => true
 				],
 			]
 		];
@@ -52,9 +55,10 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 			[
 				'action' => Responses\EventFire::SLUG,
 				'params' => [
-					'event'         => 'bottrack_fakewebcrawler',
-					'offense_count' => $opts->getOffenseCountFor( 'track_fakewebcrawler' ),
-					'block'         => $opts->isTrackOptImmediateBlock( 'track_fakewebcrawler' ),
+					'event'            => 'bottrack_fakewebcrawler',
+					'offense_count'    => $opts->getOffenseCountFor( 'track_fakewebcrawler' ),
+					'block'            => $opts->isTrackOptImmediateBlock( 'track_fakewebcrawler' ),
+					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
 		];

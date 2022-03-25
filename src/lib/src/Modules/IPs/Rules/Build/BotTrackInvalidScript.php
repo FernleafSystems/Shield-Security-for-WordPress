@@ -31,8 +31,16 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 					'action' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
-					'action' => Conditions\MatchRequestScriptName::SLUG,
-					'params' => [
+					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'invert_match' => true,
+					'params'       => [
+						'other_condition_slug' => 'shield/is_trusted_bot',
+					],
+				],
+				[
+					'action'       => Conditions\MatchRequestScriptName::SLUG,
+					'invert_match' => true,
+					'params'       => [
 						'is_match_regex'     => false,
 						'match_script_names' => $this->getAllowedScripts(),
 					],
@@ -48,9 +56,10 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 			[
 				'action' => Responses\EventFire::SLUG,
 				'params' => [
-					'event'         => 'bottrack_invalidscript',
-					'offense_count' => $opts->getOffenseCountFor( 'track_invalidscript' ),
-					'block'         => $opts->isTrackOptImmediateBlock( 'track_invalidscript' ),
+					'event'            => 'bottrack_invalidscript',
+					'offense_count'    => $opts->getOffenseCountFor( 'track_invalidscript' ),
+					'block'            => $opts->isTrackOptImmediateBlock( 'track_invalidscript' ),
+					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
 		];

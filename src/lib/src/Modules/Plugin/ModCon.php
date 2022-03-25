@@ -58,6 +58,13 @@ class ModCon extends BaseShield\ModCon {
 		$this->setVisitorIpSource();
 	}
 
+	protected function enumRuleBuilders() :array {
+		return [
+			Rules\Build\IsServerLoopback::class,
+			Rules\Build\IsTrustedBot::class,
+		];
+	}
+
 	protected function preProcessOptions() {
 		( new Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )

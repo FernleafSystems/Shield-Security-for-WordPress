@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string[] $match_ips
  */
 abstract class Base extends DynPropertiesClass {
 
@@ -18,8 +18,18 @@ abstract class Base extends DynPropertiesClass {
 
 	protected $conditionTriggerMeta = [];
 
+	/**
+	 * @var RuleVO
+	 */
+	protected $rule;
+
 	public function __construct( array $conditionParams = [] ) {
 		$this->applyFromArray( $conditionParams );
+	}
+
+	public function setRule( RuleVO $rule ) :self {
+		$this->rule = $rule;
+		return $this;
 	}
 
 	public static function BuildRequiredConditions() :array {
@@ -77,11 +87,12 @@ abstract class Base extends DynPropertiesClass {
 
 	public function run() :bool {
 		try {
-			return $this->execConditionCheck();
+			$result = $this->execConditionCheck();
 		}
 		catch ( \Exception $e ) {
-			return false;
+			$result = false;
 		}
+		return $result;
 	}
 
 	public function getConditionTriggerMetaData() :array {

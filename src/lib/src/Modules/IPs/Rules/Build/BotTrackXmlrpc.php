@@ -34,6 +34,13 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 					'action' => Conditions\WpIsXmlrpc::SLUG,
 				],
 				[
+					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'invert_match' => true,
+					'params'       => [
+						'other_condition_slug' => 'shield/is_trusted_bot',
+					],
+				],
+				[
 					'action' => Conditions\MatchRequestPath::SLUG,
 					'params' => [
 						'is_match_regex' => true,
@@ -53,9 +60,10 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 			[
 				'action' => Responses\EventFire::SLUG,
 				'params' => [
-					'event'         => 'bottrack_xmlrpc',
-					'offense_count' => $opts->getOffenseCountFor( 'track_xmlrpc' ),
-					'block'         => $opts->isTrackOptImmediateBlock( 'track_xmlrpc' ),
+					'event'            => 'bottrack_xmlrpc',
+					'offense_count'    => $opts->getOffenseCountFor( 'track_xmlrpc' ),
+					'block'            => $opts->isTrackOptImmediateBlock( 'track_xmlrpc' ),
+					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
 		];

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\UserAgent;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchIpIdsUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestIpUnavailableException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -13,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
  * @property string[] $match_ip_ids
  * @property string[] $match_not_ip_ids
  */
-class MatchRequestIPIdentity extends Base {
+class MatchRequestIpIdentity extends Base {
 
 	use RequestIP;
 	use UserAgent;
@@ -21,20 +20,6 @@ class MatchRequestIPIdentity extends Base {
 	const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
-		try {
-			$result = $this->matchRequestIPIdentity();
-		}
-		catch ( \Exception $e ) {
-			$result = false;
-		}
-		return $result;
-	}
-
-	/**
-	 * @throws MatchIpIdsUnavailableException
-	 * @throws RequestIpUnavailableException
-	 */
-	protected function matchRequestIPIdentity() :bool {
 		$matchIDs = $this->match_ip_ids;
 		$matchNotIDs = $this->match_not_ip_ids;
 		if ( empty( $matchIDs ) && empty( $matchNotIDs ) ) {

@@ -99,7 +99,7 @@ class BotSignalsController extends ExecOnceModConsumer {
 //					$trackers[] = new BotTrack\Track404();
 				}
 				if ( $opts->isEnabledTrackXmlRpc() ) {
-					$trackers[] = new BotTrack\TrackXmlRpc();
+//					$trackers[] = new BotTrack\TrackXmlRpc();
 				}
 				if ( $opts->isEnabledTrackLoginFailed() ) {
 					$trackers[] = new BotTrack\TrackLoginFailed();
@@ -108,10 +108,10 @@ class BotSignalsController extends ExecOnceModConsumer {
 					$trackers[] = new BotTrack\TrackLoginInvalid();
 				}
 				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
-					$trackers[] = new BotTrack\TrackFakeWebCrawler();
+//					$trackers[] = new BotTrack\TrackFakeWebCrawler();
 				}
 				if ( $opts->isEnabledTrackInvalidScript() ) {
-					$trackers[] = new BotTrack\TrackInvalidScriptLoad();
+//					$trackers[] = new BotTrack\TrackInvalidScriptLoad();
 				}
 			}
 

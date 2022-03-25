@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class MatchRequestIP extends Base {
+class MatchRequestIp extends Base {
 
 	use RequestIP;
 

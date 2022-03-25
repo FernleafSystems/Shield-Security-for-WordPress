@@ -24,7 +24,7 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getPriority() :int {
-		return 5;
+		return 20;
 	}
 
 	protected function getConditions() :array {

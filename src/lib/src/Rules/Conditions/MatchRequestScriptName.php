@@ -19,20 +19,24 @@ class MatchRequestScriptName extends Base {
 		if ( empty( $this->match_script_names ) ) {
 			throw new ScriptNamesToMatchUnavailableException();
 		}
+
 		$matched = false;
 		$scriptName = $this->getRequestScriptName();
-		foreach ( $this->match_script_names as $matchPath ) {
-			if ( $this->is_match_regex ) {
-				$matched = (bool)preg_match( sprintf( '#%s#i', $matchPath ), $scriptName );
-				if ( $matched ) {
-					$this->addConditionTriggerMeta( 'matched_script_name', $matchPath );
+
+		if ( $this->is_match_regex ) {
+			foreach ( $this->match_script_names as $matchScriptName ) {
+				if ( preg_match( sprintf( '#%s#i', $matchScriptName ), $scriptName ) ) {
+					$matched = true;
 					break;
 				}
 			}
-			else {
-				$matched = stripos( $scriptName, $scriptName ) !== false;
-			}
 		}
+		else {
+			$matched = in_array( $scriptName, $this->match_script_names );
+		}
+
+		// always add this incase we need to invert_match
+		$this->addConditionTriggerMeta( 'matched_script_name', $scriptName );
 		return $matched;
 	}
 }

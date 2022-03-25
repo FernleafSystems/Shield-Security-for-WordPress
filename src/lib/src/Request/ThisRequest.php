@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_whitelisted
+ * @property bool            $is_server_loopback
  * @property bool            $rules_completed
  * @property bool            $wp_is_ajax
  * @property bool            $wp_is_wpcli
@@ -23,6 +24,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class ThisRequest extends DynPropertiesClass {
 
 	use Shield\Modules\PluginControllerConsumer;
+
+	public $rules_conditions_results = [];
 
 	public function __construct( Shield\Controller\Controller $con ) {
 		$this->setCon( $con );
