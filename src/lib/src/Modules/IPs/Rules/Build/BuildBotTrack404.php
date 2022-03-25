@@ -3,17 +3,51 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	RuleVO
+};
 
-class BuildBotTrack404 {
+class BuildBotTrack404 extends BuildRuleBase {
 
 	use Shield\Modules\ModConsumer;
 
 	public function build() {
-		$rules = new Rules\RuleVO();
-		$rules->slug = Rules\Conditions\IsBotProbe404::SLUG;
-		$rules->flags = [
-			'is_logged_in'
+		$rules = new RuleVO();
+		$rules->slug = 'is_bot_probe_404';
+		$rules->conditions = [
+			'logic' => static::LOGIC_AND,
+			'group' => [
+				[
+					'action' => Conditions\IsNotLoggedInNormal::SLUG
+				],
+				[
+					'logic' => static::LOGIC_OR,
+					'group' => [
+						[
+							'action' => Conditions\NotMatchRequestPath::SLUG,
+							'params' => [
+								'is_match_regex' => true,
+								'match_paths'    => [
+									sprintf( "\\.(%s)$", implode( '|', $this->getAllowableExtensions() ) )
+								],
+							],
+						],
+						[
+							'action' => Conditions\IsRequestToInvalidPlugin::SLUG,
+						],
+						[
+							'action' => Conditions\IsRequestToInvalidTheme::SLUG,
+						],
+					]
+				]
+			]
 		];
+	}
+
+	private function getAllowableExtensions() :array {
+		$defExt = $this->getOptions()->getDef( 'allowable_ext_404s' );
+		$extensions = apply_filters( 'shield/allowable_extensions_404s', $defExt );
+		return is_array( $extensions ) ? array_filter( $extensions ) : $defExt;
 	}
 }

@@ -13,11 +13,13 @@ class IsIpBlocked extends Base {
 
 	/**
 	 * TODO: $con->fireEvent( 'not_conn_kill_high_rep' );
+	 * @inheritDoc
 	 */
 	protected function execConditionCheck() :bool {
-		return ( new QueryIpBlock() )
-			->setMod( $this->getCon()->getModule_IPs() )
-			->setIp( $this->getRequestIP() )
-			->run();
+		return $this->getCon()->req->is_ip_blocked ??
+			   ( new QueryIpBlock() )
+				   ->setMod( $this->getCon()->getModule_IPs() )
+				   ->setIp( $this->getRequestIP() )
+				   ->run();
 	}
 }

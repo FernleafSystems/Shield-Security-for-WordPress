@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUna
 /**
  * @property string[] $match_useragents
  */
-class MatchUserAgent extends Base {
+class MatchRequestUseragent extends Base {
 
 	use UserAgent;
 

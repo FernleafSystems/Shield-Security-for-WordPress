@@ -12,60 +12,57 @@ class ConditionsProcessor extends BaseProcessor {
 		return array_filter( $this->consolidatedMeta );
 	}
 
-	public function run() {
-		return $this->processConditionGroup( $this->rule->conditions );
+	public function run() :bool {
+		return $this->processConditionGroup(
+			$this->rule->conditions[ 'group' ],
+			( $condition[ 'logic' ] ?? 'AND' ) === 'AND'
+		);
 	}
 
 	/**
 	 * This is recursive and essentially allows for infinite nesting of groups of rules with different logic.
 	 */
-	private function processConditionGroup( array $condition ) :bool {
+	private function processConditionGroup( array $condition, $isLogicAnd = true ) :bool {
 		$finalMatch = null;
 
-		if ( isset( $condition[ 'group' ] ) ) {
-			$finalMatch = $this->processConditionGroup( $condition[ 'group' ] );
-		}
-		else {
-			$logicAnd = ( $condition[ 'logic' ] ?? 'AND' ) === 'AND';
-			foreach ( $condition as $subCondition ) {
+		foreach ( $condition as $subCondition ) {
 
-				if ( isset( $subCondition[ 'group' ] ) ) {
-					$matched = $this->processConditionGroup( $subCondition[ 'group' ] );
-				}
-				else {
-					$matched = false;
-					try {
-						$handler = $this->controller->getConditionHandler( $subCondition );
-						$matched = $handler->run();
-						if ( $subCondition[ 'invert_match' ] ?? false ) {
-							$matched = !$matched;
-						}
-
-						$this->consolidatedMeta[ $subCondition[ 'action' ] ] = $handler->getConditionTriggerMetaData();
+			if ( isset( $subCondition[ 'group' ] ) ) {
+				$matched = $this->processConditionGroup( $subCondition[ 'group' ], ( $subCondition[ 'logic' ] ?? 'AND' ) === 'AND' );
+			}
+			else {
+				$matched = false;
+				try {
+					$handler = $this->controller->getConditionHandler( $subCondition );
+					$matched = $handler->run();
+					if ( $subCondition[ 'invert_match' ] ?? false ) {
+						$matched = !$matched;
 					}
-					catch ( Exceptions\NoSuchConditionHandlerException $e ) {
-						error_log( $e->getMessage() );
-					}
-					catch ( Exceptions\NoConditionActionDefinedException $e ) {
-						error_log( $e->getMessage() );
-					}
-				}
 
-				if ( is_null( $finalMatch ) ) {
-					$finalMatch = $matched;
-					continue;
+					$this->consolidatedMeta[ $subCondition[ 'action' ] ] = $handler->getConditionTriggerMetaData();
 				}
+				catch ( Exceptions\NoSuchConditionHandlerException $e ) {
+					error_log( $e->getMessage() );
+				}
+				catch ( Exceptions\NoConditionActionDefinedException $e ) {
+					error_log( $e->getMessage() );
+				}
+			}
 
-				if ( $logicAnd ) {
-					$finalMatch = $finalMatch && $matched;
-				}
-				else {
-					$finalMatch = $finalMatch || $matched;
-				}
+			if ( is_null( $finalMatch ) ) {
+				$finalMatch = $matched;
+				continue;
+			}
 
-				if ( $logicAnd && !$finalMatch ) {
-					break;
-				}
+			if ( $isLogicAnd ) {
+				$finalMatch = $finalMatch && $matched;
+			}
+			else {
+				$finalMatch = $finalMatch || $matched;
+			}
+
+			if ( $isLogicAnd && !$finalMatch ) {
+				break;
 			}
 		}
 

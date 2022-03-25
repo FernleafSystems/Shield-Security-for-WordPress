@@ -2,14 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Services\Services;
+class WpIsXmlrpc extends Base {
 
-class IsBotProbe404 extends Base {
-
-	const SLUG = 'is_bot_probe_404';
+	const SLUG = 'wp_is_xmlrpc';
 
 	protected function execResponse() :bool {
-		error_log( Services::Request()->getPath() );
+		$this->getCon()->req->wp_is_xmlrpc = true;
 		return true;
 	}
 }

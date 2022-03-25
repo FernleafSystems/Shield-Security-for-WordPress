@@ -61,7 +61,6 @@ class RulesController {
 				function ( $rule ) {
 					$rule = ( new RuleVO() )->applyFromArray( $rule );
 					( new PreProcessRule() )->run( $rule, $this );
-					error_log( var_export( $rule->all_actions, true ) );
 					return $rule;
 				},
 				json_decode( Services::WpFs()->getFileContent( path_join( __DIR__, 'rules.json' ) ), true )[ 'rules' ]

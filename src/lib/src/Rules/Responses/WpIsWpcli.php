@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class IsXmlrpc extends Base {
+class WpIsWpcli extends Base {
 
-	const SLUG = 'is_xmlrpc';
+	const SLUG = 'wp_is_wpcli';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->is_xmlrpc = true;
+		$this->getCon()->req->wp_is_wpcli = true;
 		return true;
 	}
 }

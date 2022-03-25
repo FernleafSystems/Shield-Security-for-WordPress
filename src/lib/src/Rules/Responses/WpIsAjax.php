@@ -2,14 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Services\Services;
+class WpIsAjax extends Base {
 
-class IsBotProbe404 extends Base {
-
-	const SLUG = 'is_bot_probe_404';
+	const SLUG = 'wp_is_ajax';
 
 	protected function execResponse() :bool {
-		error_log( Services::Request()->getPath() );
+		$this->getCon()->req->wp_is_ajax = true;
 		return true;
 	}
 }

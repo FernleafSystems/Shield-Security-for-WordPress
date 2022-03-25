@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHand
 class PreProcessRule {
 
 	public function run( RuleVO $rule, RulesController $ruleCon ) {
-		$rule->all_actions = $this->getAllConditionActions( $rule->conditions );
+		$rule->all_actions = $this->getAllConditionActions( $rule->conditions[ 'group' ] );
 
 		foreach ( $rule->all_actions as $action ) {
 			try {
@@ -29,19 +29,15 @@ class PreProcessRule {
 	private function getAllConditionActions( array $condition ) :array {
 		$actions = [];
 
-		if ( isset( $condition[ 'group' ] ) ) {
-			$actions = $this->getAllConditionActions( $condition[ 'group' ] );
-		}
-		else {
-			foreach ( $condition as $subCondition ) {
-				if ( isset( $subCondition[ 'group' ] ) ) {
-					$actions = array_merge( $actions, $this->getAllConditionActions( $subCondition[ 'group' ] ) );
-				}
-				else {
-					$actions[] = $subCondition[ 'action' ];
-				}
+		foreach ( $condition as $subCondition ) {
+			if ( isset( $subCondition[ 'group' ] ) ) {
+				$actions = array_merge( $actions, $this->getAllConditionActions( $subCondition[ 'group' ] ) );
+			}
+			else {
+				$actions[] = $subCondition[ 'action' ];
 			}
 		}
+
 		return array_unique( $actions );
 	}
 }

@@ -8,6 +8,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $slug
  * @property string   $name
  * @property string   $wp_hook
+ * @property int      $priority
  * @property string[] $flags
  * @property string[] $prerequisites
  * @property array[]  $conditions
@@ -23,6 +24,13 @@ class RuleVO extends DynPropertiesClass {
 				if ( empty( $value ) ) {
 					$value = $this->determineWpHook();
 					$this->wp_hook = $value;
+				}
+				break;
+
+			case 'priority':
+				if ( !is_numeric( $value ) ) {
+					$value = 100;
+					$this->priority = $value;
 				}
 				break;
 
