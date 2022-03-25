@@ -49,7 +49,7 @@ class EventsService {
 			}
 			if ( array_diff( $metaParams, $def ) ) {
 				// Previously we threw an exception. Now we just clean out the unwanted params.
-				$meta = array_intersect_key( $meta, array_flip( $def ) );
+				$meta[ 'audit_params' ] = array_intersect_key( $meta[ 'audit_params' ], array_flip( $def ) );
 			}
 		}
 		return $meta;
