@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoConditionActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
@@ -64,6 +63,19 @@ class RulesController {
 					return $rule;
 				},
 				json_decode( Services::WpFs()->getFileContent( path_join( __DIR__, 'rules.json' ) ), true )[ 'rules' ]
+			);
+
+			usort( $this->rules,
+				function ( $a, $b ) {
+					/**
+					 * @var RuleVO $a
+					 * @var RuleVO $b
+					 */
+					if ( $a->priority == $b->priority ) {
+						return 0;
+					}
+					return ( $a->priority < $b->priority ) ? -1 : 1;
+				}
 			);
 		}
 		return $this->rules;
