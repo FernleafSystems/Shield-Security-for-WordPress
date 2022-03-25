@@ -20,8 +20,8 @@ class IsRequestToInvalidPlugin extends Base {
 
 	public static function RequiredConditions() :array {
 		return [
-			IsRequestToPluginAsset::SLUG,
-			IsRequestToValidPluginAsset::SLUG
+			IsRequestToPluginAsset::class,
+			IsRequestToValidPluginAsset::class
 		];
 	}
 }

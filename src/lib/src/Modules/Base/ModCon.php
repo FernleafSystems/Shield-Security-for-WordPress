@@ -130,6 +130,14 @@ abstract class ModCon {
 //		}
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
+
+		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
+			return array_merge( $builders, $this->getRuleBuilders() );
+		} );
+	}
+
+	protected function getRuleBuilders() :array {
+		return [];
 	}
 
 	protected function setupCustomHooks() {

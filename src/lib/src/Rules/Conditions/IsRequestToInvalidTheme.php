@@ -20,8 +20,8 @@ class IsRequestToInvalidTheme extends Base {
 
 	public static function RequiredConditions() :array {
 		return [
-			IsRequestToThemeAsset::SLUG,
-			IsRequestToValidThemeAsset::SLUG
+			IsRequestToThemeAsset::class,
+			IsRequestToValidThemeAsset::class
 		];
 	}
 }

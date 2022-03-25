@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDef
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchResponseHandlerException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ConditionsProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\PreProcessRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ResponseProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
 use FernleafSystems\Wordpress\Services\Services;
@@ -59,7 +60,7 @@ class RulesController {
 			$this->rules = array_map(
 				function ( $rule ) {
 					$rule = ( new RuleVO() )->applyFromArray( $rule );
-					( new PreProcessRule() )->run( $rule, $this );
+					( new PreProcessRule( $rule, $this ) )->run();
 					return $rule;
 				},
 				json_decode( Services::WpFs()->getFileContent( path_join( __DIR__, 'rules.json' ) ), true )[ 'rules' ]

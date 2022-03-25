@@ -9,7 +9,6 @@ class IsBotProbe404 extends Base {
 	const SLUG = 'is_bot_probe_404';
 
 	protected function execResponse() :bool {
-		error_log( Services::Request()->getPath() );
 		return true;
 	}
 }

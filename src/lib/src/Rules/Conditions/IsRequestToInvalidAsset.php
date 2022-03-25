@@ -13,8 +13,8 @@ class IsRequestToInvalidAsset extends Base {
 
 	public static function RequiredConditions() :array {
 		return [
-			IsRequestToInvalidPlugin::SLUG,
-			IsRequestToInvalidTheme::SLUG
+			IsRequestToInvalidPlugin::class,
+			IsRequestToInvalidTheme::class
 		];
 	}
 }

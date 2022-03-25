@@ -58,6 +58,12 @@
             "action": "is_not_logged_in_normal"
           },
           {
+            "action": "match_request_status_code",
+            "params": {
+              "status": "404"
+            }
+          },
+          {
             "logic": "OR",
             "group": [
               {

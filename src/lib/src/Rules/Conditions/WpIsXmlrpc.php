@@ -9,6 +9,6 @@ class WpIsXmlrpc extends Base {
 	const SLUG = 'wp_is_xmlrpc';
 
 	protected function execConditionCheck() :bool {
-		return Services::WpGeneral()->isXmlrpc();
+		return $this->getCon()->req->wp_is_xmlrpc ?? Services::WpGeneral()->isXmlrpc();
 	}
 }

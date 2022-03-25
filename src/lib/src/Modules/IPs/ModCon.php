@@ -52,8 +52,13 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'ip_lists' );
 	}
 
+	protected function getRuleBuilders() :array {
+		return [
+			( new Rules\Build\BuildBotTrack404() )->setMod( $this )
+		];
+	}
+
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {

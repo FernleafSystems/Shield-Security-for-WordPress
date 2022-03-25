@@ -22,7 +22,7 @@ class IsRequestToThemeAsset extends Base {
 
 	public static function RequiredConditions() :array {
 		return [
-			MatchRequestPath::SLUG
+			MatchRequestPath::class
 		];
 	}
 }

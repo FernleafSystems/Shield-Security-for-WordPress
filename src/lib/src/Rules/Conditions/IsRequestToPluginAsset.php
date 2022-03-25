@@ -22,7 +22,7 @@ class IsRequestToPluginAsset extends Base {
 
 	public static function RequiredConditions() :array {
 		return [
-			MatchRequestPath::SLUG
+			MatchRequestPath::class
 		];
 	}
 }

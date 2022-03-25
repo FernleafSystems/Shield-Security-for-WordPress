@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Responses,
 	RuleVO
 };
 
@@ -13,13 +15,23 @@ class BuildBotTrack404 extends BuildRuleBase {
 	use Shield\Modules\ModConsumer;
 
 	public function build() {
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+
 		$rules = new RuleVO();
+		$rules->name = 'Bot-Track 404';
 		$rules->slug = 'is_bot_probe_404';
 		$rules->conditions = [
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
 					'action' => Conditions\IsNotLoggedInNormal::SLUG
+				],
+				[
+					'action' => Conditions\MatchRequestStatusCode::SLUG,
+					'params' => [
+						'code' => '404',
+					],
 				],
 				[
 					'logic' => static::LOGIC_OR,
@@ -38,6 +50,36 @@ class BuildBotTrack404 extends BuildRuleBase {
 						],
 						[
 							'action' => Conditions\IsRequestToInvalidTheme::SLUG,
+						],
+					]
+				]
+			]
+		];
+		$rules->responses = [
+			'logic' => static::LOGIC_AND,
+			'group' => [
+				[
+					'action' => Conditions\IsNotLoggedInNormal::SLUG
+				],
+				[
+					'logic' => static::LOGIC_OR,
+					'group' => [
+						[
+							'action' => Conditions\NotMatchRequestPath::SLUG,
+							'params' => [
+								'is_match_regex' => true,
+								'match_paths'    => [
+									sprintf( "\\.(%s)$", implode( '|', $this->getAllowableExtensions() ) )
+								],
+							],
+						],
+						[
+							'action' => Responses\EventFire::SLUG,
+							'params' => [
+								'event'         => 'bottrack_404',
+								'offense_count' => $opts->getOffenseCountFor( 'track_404' ),
+								'block'         => $opts->isTrackOptImmediateBlock( 'track_404' ),
+							],
 						],
 					]
 				]

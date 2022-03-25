@@ -21,8 +21,4 @@ class BaseProcessor {
 		$this->rule = $rule;
 		$this->controller = $controller;
 	}
-
-	private function isStopOnFirst() :bool {
-		return in_array( 'stop_on_first', $this->rule->flags );
-	}
 }
