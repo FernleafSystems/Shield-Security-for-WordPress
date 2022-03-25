@@ -53,7 +53,7 @@ abstract class Base {
 		$found = new \WP_Error();
 		foreach ( $this->getFirewallPatterns_Regex() as $term ) {
 			foreach ( $this->getItemsToScan() as $param => $value ) {
-				if ( preg_match( $term, $value ) ) {
+				if ( is_string( $value ) && preg_match( $term, $value ) ) {
 					$found = new \WP_Error( 'shield-firewall', '', [
 						'name'  => $this->getScanName(),
 						'term'  => $term,
