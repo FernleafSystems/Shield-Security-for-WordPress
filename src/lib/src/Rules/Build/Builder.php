@@ -4,18 +4,33 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 
 class Builder {
 
 	use PluginControllerConsumer;
 
 	public function run( RulesController $controller ) {
-		$rawRules = [];
+		$rules = [];
 		foreach ( $this->getRules() as $builder ) {
 			$rule = $builder->build();
-			$rawRules[ $rule->slug ] = $rule->getRawData();
+			$rules[ $rule->slug ] = $rule;
 		}
-		$controller->storeRules( $rawRules );
+
+		usort( $rules,
+			function ( $a, $b ) {
+				/**
+				 * @var RuleVO $a
+				 * @var RuleVO $b
+				 */
+				if ( $a->priority == $b->priority ) {
+					return 0;
+				}
+				return ( $a->priority < $b->priority ) ? -1 : 1;
+			}
+		);
+
+		$controller->storeRules( $rules );
 	}
 
 	/**

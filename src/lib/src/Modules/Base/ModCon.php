@@ -128,15 +128,26 @@ abstract class ModCon {
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 //		}
+		$this->collateRuleBuilders();
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
+	}
 
+	protected function collateRuleBuilders() {
 		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
-			return array_merge( $builders, $this->getRuleBuilders() );
+			return array_merge( $builders, array_map(
+				function ( $class ) {
+					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
+					$theClass = new $class();
+					$theClass->setMod( $this );
+					return $theClass;
+				},
+				$this->enumRuleBuilders()
+			) );
 		} );
 	}
 
-	protected function getRuleBuilders() :array {
+	protected function enumRuleBuilders() :array {
 		return [];
 	}
 

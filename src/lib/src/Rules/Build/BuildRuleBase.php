@@ -17,17 +17,18 @@ abstract class BuildRuleBase {
 		$rule->name = $this->getName();
 		$rule->description = $this->getDescription();
 		$rule->slug = $this->getSlug();
+		$rule->priority = $this->getPriority();
 		$rule->flags = $this->getFlags();
 		$rule->conditions = $this->getConditions();
 		$rule->responses = $this->getResponses();
 		return $rule;
 	}
 
-	protected function getConditions() :array {
-		return [];
-	}
+	abstract protected function getName() :string;
 
-	protected function getResponses() :array {
+	abstract protected function getDescription() :string;
+
+	protected function getConditions() :array {
 		return [];
 	}
 
@@ -35,9 +36,11 @@ abstract class BuildRuleBase {
 		return [];
 	}
 
-	abstract protected function getName() :string;
+	protected function getPriority() :int {
+		return 100;
+	}
 
-	abstract protected function getDescription() :string;
-
-	abstract protected function getSlug() :string;
+	protected function getResponses() :array {
+		return [];
+	}
 }

@@ -52,9 +52,13 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'ip_lists' );
 	}
 
-	protected function getRuleBuilders() :array {
+	protected function enumRuleBuilders() :array {
 		return [
-			( new Rules\Build\BuildBotTrack404() )->setMod( $this )
+			Rules\Build\IpWhitelisted::class,
+			Rules\Build\IpBlocked::class,
+			Rules\Build\BotTrack404::class,
+			Rules\Build\BotTrackFakeWebCrawler::class,
+			Rules\Build\BotTrackXmlrpc::class,
 		];
 	}
 

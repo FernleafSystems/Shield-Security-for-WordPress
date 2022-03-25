@@ -4,18 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleBase,
+	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
 
-class BuildBotTrack404 extends BuildRuleBase {
-
-	private function getAllowableExtensions() :array {
-		$defExt = $this->getOptions()->getDef( 'allowable_ext_404s' );
-		$extensions = apply_filters( 'shield/allowable_extensions_404s', $defExt );
-		return is_array( $extensions ) ? array_filter( $extensions ) : $defExt;
-	}
+class BotTrack404 extends BuildRuleCoreShieldBase {
 
 	protected function getName() :string {
 		return 'Bot-Track 404';
@@ -66,12 +60,6 @@ class BuildBotTrack404 extends BuildRuleBase {
 		];
 	}
 
-	protected function getFlags() :array {
-		return [
-			'is_core_shield' => true
-		];
-	}
-
 	protected function getResponses() :array {
 		/** @var Shield\Modules\IPs\Options $opts */
 		$opts = $this->getOptions();
@@ -85,5 +73,11 @@ class BuildBotTrack404 extends BuildRuleBase {
 				],
 			],
 		];
+	}
+
+	private function getAllowableExtensions() :array {
+		$defExt = $this->getOptions()->getDef( 'allowable_ext_404s' );
+		$extensions = apply_filters( 'shield/allowable_extensions_404s', $defExt );
+		return is_array( $extensions ) ? array_filter( $extensions ) : $defExt;
 	}
 }

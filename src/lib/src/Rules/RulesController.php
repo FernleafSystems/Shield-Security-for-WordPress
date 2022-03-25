@@ -67,9 +67,9 @@ class RulesController {
 		}
 	}
 
-	public function storeRules( array $rawRules ) :bool {
+	public function storeRules( array $rules ) :bool {
 		return (bool)Services::WpFs()->putFileContent( $this->getPathToRules(), json_encode( [
-			'rules' => $rawRules
+			'rules' => array_map( fn( RuleVO $rule ) => $rule->getRawData(), $rules )
 		] ) );
 	}
 
@@ -82,19 +82,6 @@ class RulesController {
 					return $rule;
 				},
 				json_decode( Services::WpFs()->getFileContent( $this->getPathToRules() ), true )[ 'rules' ]
-			);
-
-			usort( $this->rules,
-				function ( $a, $b ) {
-					/**
-					 * @var RuleVO $a
-					 * @var RuleVO $b
-					 */
-					if ( $a->priority == $b->priority ) {
-						return 0;
-					}
-					return ( $a->priority < $b->priority ) ? -1 : 1;
-				}
 			);
 		}
 		return $this->rules;
