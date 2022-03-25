@@ -7,6 +7,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 /**
  * @property string   $slug
  * @property string   $name
+ * @property string   $description
  * @property string   $wp_hook
  * @property int      $priority
  * @property string[] $flags

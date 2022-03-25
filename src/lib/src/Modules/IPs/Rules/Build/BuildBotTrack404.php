@@ -20,7 +20,11 @@ class BuildBotTrack404 extends BuildRuleBase {
 
 		$rules = new RuleVO();
 		$rules->name = 'Bot-Track 404';
-		$rules->slug = 'is_bot_probe_404';
+		$rules->description = 'Tracking HTTP 404 errors by bots probing a site.';
+		$rules->slug = 'shield/is_bot_probe_404';
+		$rules->flags = [
+			'is_core_shield' => true
+		];
 		$rules->conditions = [
 			'logic' => static::LOGIC_AND,
 			'group' => [

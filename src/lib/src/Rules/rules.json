@@ -60,7 +60,7 @@
           {
             "action": "match_request_status_code",
             "params": {
-              "status": "404"
+              "code": "404"
             }
           },
           {
@@ -86,9 +86,6 @@
         ]
       },
       "responses":  [
-        {
-          "action": "is_bot_probe_404"
-        },
         {
           "action": "event_fire",
           "params": {
