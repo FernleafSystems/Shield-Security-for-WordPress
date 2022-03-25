@@ -176,6 +176,16 @@
             "type":  "improve"
           }
         ]
+      },
+      {
+        "version":     "7",
+        "released_at": 1648194288,
+        "items":       [
+          {
+            "title": "Fix for an error during certain Firewall scanning.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
