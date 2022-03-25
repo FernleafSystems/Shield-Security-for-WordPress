@@ -20,11 +20,10 @@ class EventsService {
 	public function fireEvent( string $event, array $meta = [] ) {
 		if ( $this->eventExists( $event ) ) {
 			try {
-				$this->verifyAuditParams( $event, $meta );
 				do_action(
 					'shield/event',
 					$event,
-					$meta,
+					$this->verifyAuditParams( $event, $meta ),
 					$this->getEventDef( $event )
 				);
 			}
@@ -37,7 +36,7 @@ class EventsService {
 	/**
 	 * @throws \Exception
 	 */
-	private function verifyAuditParams( string $event, array $meta ) {
+	private function verifyAuditParams( string $event, array $meta ) :array {
 		$def = $this->getEventDef( $event )[ 'audit_params' ] ?? [];
 		$metaParams = array_keys( $meta[ 'audit_params' ] ?? [] );
 
@@ -49,9 +48,11 @@ class EventsService {
 				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $def ) ) );
 			}
 			if ( array_diff( $metaParams, $def ) ) {
-				throw new \Exception( sprintf( "Event (%s) has audit params that aren't present in def: %s", $event, implode( ', ', $metaParams ) ) );
+				// Previously we threw an exception. Now we just clean out the unwanted params.
+				$meta = array_intersect_key( $meta, array_flip( $def ) );
 			}
 		}
+		return $meta;
 	}
 
 	/**
