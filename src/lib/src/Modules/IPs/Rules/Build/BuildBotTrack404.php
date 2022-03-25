@@ -3,29 +3,34 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Build\BuildRuleBase,
 	Conditions,
-	Responses,
-	RuleVO
+	Responses
 };
 
 class BuildBotTrack404 extends BuildRuleBase {
 
-	use Shield\Modules\ModConsumer;
+	private function getAllowableExtensions() :array {
+		$defExt = $this->getOptions()->getDef( 'allowable_ext_404s' );
+		$extensions = apply_filters( 'shield/allowable_extensions_404s', $defExt );
+		return is_array( $extensions ) ? array_filter( $extensions ) : $defExt;
+	}
 
-	public function build() {
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
+	protected function getName() :string {
+		return 'Bot-Track 404';
+	}
 
-		$rules = new RuleVO();
-		$rules->name = 'Bot-Track 404';
-		$rules->description = 'Tracking HTTP 404 errors by bots probing a site.';
-		$rules->slug = 'shield/is_bot_probe_404';
-		$rules->flags = [
-			'is_core_shield' => true
-		];
-		$rules->conditions = [
+	protected function getDescription() :string {
+		return 'Tracking HTTP 404 errors by bots probing a site';
+	}
+
+	protected function getSlug() :string {
+		return 'shield/is_bot_probe_404';
+	}
+
+	protected function getConditions() :array {
+		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
@@ -59,41 +64,26 @@ class BuildBotTrack404 extends BuildRuleBase {
 				]
 			]
 		];
-		$rules->responses = [
-			'logic' => static::LOGIC_AND,
-			'group' => [
-				[
-					'action' => Conditions\IsNotLoggedInNormal::SLUG
-				],
-				[
-					'logic' => static::LOGIC_OR,
-					'group' => [
-						[
-							'action' => Conditions\NotMatchRequestPath::SLUG,
-							'params' => [
-								'is_match_regex' => true,
-								'match_paths'    => [
-									sprintf( "\\.(%s)$", implode( '|', $this->getAllowableExtensions() ) )
-								],
-							],
-						],
-						[
-							'action' => Responses\EventFire::SLUG,
-							'params' => [
-								'event'         => 'bottrack_404',
-								'offense_count' => $opts->getOffenseCountFor( 'track_404' ),
-								'block'         => $opts->isTrackOptImmediateBlock( 'track_404' ),
-							],
-						],
-					]
-				]
-			]
+	}
+
+	protected function getFlags() :array {
+		return [
+			'is_core_shield' => true
 		];
 	}
 
-	private function getAllowableExtensions() :array {
-		$defExt = $this->getOptions()->getDef( 'allowable_ext_404s' );
-		$extensions = apply_filters( 'shield/allowable_extensions_404s', $defExt );
-		return is_array( $extensions ) ? array_filter( $extensions ) : $defExt;
+	protected function getResponses() :array {
+		/** @var Shield\Modules\IPs\Options $opts */
+		$opts = $this->getOptions();
+		return [
+			[
+				'action' => Responses\EventFire::SLUG,
+				'params' => [
+					'event'         => 'bottrack_404',
+					'offense_count' => $opts->getOffenseCountFor( 'track_404' ),
+					'block'         => $opts->isTrackOptImmediateBlock( 'track_404' ),
+				],
+			],
+		];
 	}
 }

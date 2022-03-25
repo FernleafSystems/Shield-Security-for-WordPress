@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoConditionActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
@@ -29,6 +30,17 @@ class RulesController {
 	}
 
 	protected function run() {
+		$this->processRules();
+		add_action( $this->getCon()->prefix( 'pre_options_store' ), fn() => $this->buildRules() );
+	}
+
+	private function buildRules() {
+		( new Builder() )
+			->setCon( $this->getCon() )
+			->run( $this );
+	}
+
+	private function processRules() {
 		foreach ( $this->getImmediateRules() as $rule ) {
 			$this->processRule( $rule );
 		}
@@ -55,6 +67,12 @@ class RulesController {
 		}
 	}
 
+	public function storeRules( array $rawRules ) :bool {
+		return (bool)Services::WpFs()->putFileContent( $this->getPathToRules(), json_encode( [
+			'rules' => $rawRules
+		] ) );
+	}
+
 	protected function getRules() :array {
 		if ( !isset( $this->rules ) ) {
 			$this->rules = array_map(
@@ -63,7 +81,7 @@ class RulesController {
 					( new PreProcessRule( $rule, $this ) )->run();
 					return $rule;
 				},
-				json_decode( Services::WpFs()->getFileContent( path_join( __DIR__, 'rules.json' ) ), true )[ 'rules' ]
+				json_decode( Services::WpFs()->getFileContent( $this->getPathToRules() ), true )[ 'rules' ]
 			);
 
 			usort( $this->rules,
@@ -80,6 +98,10 @@ class RulesController {
 			);
 		}
 		return $this->rules;
+	}
+
+	private function getPathToRules() :string {
+		return path_join( __DIR__, 'rules.json' );
 	}
 
 	/**

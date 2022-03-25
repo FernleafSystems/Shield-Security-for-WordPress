@@ -789,7 +789,10 @@ abstract class ModCon {
 		}
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
-		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
+		if ( $this->getOptions()->getNeedSave() ) {
+			$this->bImportExportWhitelistNotify = true;
+			do_action( $this->prefix( 'pre_options_store' ), $this );
+		}
 		$this->store();
 		return $this;
 	}
@@ -855,7 +858,7 @@ abstract class ModCon {
 		$this->saveModOptions( true );
 
 		// only use this flag when the options are being updated with a MANUAL save.
-		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
+		if ( $this->bImportExportWhitelistNotify ?? false ) {
 			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
 				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
 			}
