@@ -20,11 +20,11 @@ class MatchRequestPath extends Base {
 		}
 		$matched = false;
 		$path = $this->getRequestPath();
+		$this->addConditionTriggerMeta( 'matched_path', $path );
 		foreach ( $this->match_paths as $matchPath ) {
 			if ( $this->is_match_regex ) {
 				$matched = (bool)preg_match( sprintf( '#%s#i', $matchPath ), $path );
 				if ( $matched ) {
-					$this->addConditionTriggerMeta( 'matched_path', $matchPath );
 					break;
 				}
 			}
