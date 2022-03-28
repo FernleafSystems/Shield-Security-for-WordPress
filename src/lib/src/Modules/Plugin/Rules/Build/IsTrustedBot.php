@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class IsTrustedBot extends BuildRuleCoreShieldBase {
 
+	const SLUG = 'shield/is_trusted_bot';
+
 	protected function getName() :string {
 		return 'Is Trusted Bot';
 	}
@@ -21,7 +23,7 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getSlug() :string {
-		return 'shield/is_trusted_bot';
+		return static::SLUG;
 	}
 
 	protected function getPriority() :int {
@@ -33,11 +35,8 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'action'       => IsServerLoopback::SLUG,
 					'invert_match' => true,
-					'params'       => [
-						'other_condition_slug' => 'shield/is_server_loopback',
-					],
 				],
 				[
 					'action' => Conditions\MatchRequestIpIdentity::SLUG,

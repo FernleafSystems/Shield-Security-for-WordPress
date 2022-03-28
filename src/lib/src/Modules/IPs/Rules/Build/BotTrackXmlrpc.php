@@ -34,11 +34,8 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 					'action' => Conditions\WpIsXmlrpc::SLUG,
 				],
 				[
-					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'rule'         => Shield\Modules\Plugin\Rules\Build\IsTrustedBot::SLUG,
 					'invert_match' => true,
-					'params'       => [
-						'other_condition_slug' => 'shield/is_trusted_bot',
-					],
 				],
 				[
 					'action' => Conditions\MatchRequestPath::SLUG,

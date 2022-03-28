@@ -9,20 +9,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class IsServerLoopback extends BuildRuleCoreShieldBase {
-
-	const SLUG = 'shield/is_server_loopback';
+class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
 	protected function getName() :string {
-		return 'Is Server Loopback';
+		return 'Is Public Web Request';
 	}
 
 	protected function getDescription() :string {
-		return 'Is Server Loopback request.';
+		return 'Is a public web request.';
 	}
 
 	protected function getSlug() :string {
-		return static::SLUG;
+		return 'shield/is_public_web_request';
 	}
 
 	protected function getPriority() :int {

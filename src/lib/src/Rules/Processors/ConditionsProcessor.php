@@ -34,8 +34,18 @@ class ConditionsProcessor extends BaseProcessor {
 			if ( isset( $subCondition[ 'group' ] ) ) {
 				$matched = $this->processConditionGroup( $subCondition[ 'group' ], ( $subCondition[ 'logic' ] ?? 'AND' ) === 'AND' );
 			}
+			elseif ( isset( $subCondition[ 'rule' ] ) ) {
+				try {
+					$matched = $this->lookupPreviousRule( $subCondition[ 'action' ] );
+					if ( $subCondition[ 'invert_match' ] ?? false ) {
+						$matched = !$matched;
+					}
+				}
+				catch ( Exceptions\RuleNotYetRunException $e ) {
+					return false;
+				}
+			}
 			else {
-				$matched = false;
 				try {
 					$handler = $this->controller->getConditionHandler( $subCondition );
 					$matched = $handler->setRule( $this->rule )
@@ -43,14 +53,15 @@ class ConditionsProcessor extends BaseProcessor {
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;
 					}
-
 					$this->consolidatedMeta[ $subCondition[ 'action' ] ] = $handler->getConditionTriggerMetaData();
 				}
 				catch ( Exceptions\NoSuchConditionHandlerException $e ) {
 					error_log( $e->getMessage() );
+					continue;
 				}
 				catch ( Exceptions\NoConditionActionDefinedException $e ) {
 					error_log( $e->getMessage() );
+					continue;
 				}
 			}
 
@@ -72,6 +83,19 @@ class ConditionsProcessor extends BaseProcessor {
 		}
 
 		return $finalMatch;
+	}
+
+	/**
+	 * @throws Exceptions\RuleNotYetRunException
+	 */
+	private function lookupPreviousRule( string $rule ) :bool {
+		$result = $this->getCon()
+					  ->req
+					  ->rules_conditions_results[ $rule ] ?? null;
+		if ( is_null( $result ) ) {
+			throw new Exceptions\RuleNotYetRunException( 'Rule not yet run: '.$rule );
+		}
+		return $result;
 	}
 
 	private function isStopOnFirst() :bool {

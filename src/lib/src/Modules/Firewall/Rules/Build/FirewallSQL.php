@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
@@ -9,9 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class IsServerLoopback extends BuildRuleCoreShieldBase {
-
-	const SLUG = 'shield/is_server_loopback';
+class FirewallSQL extends BuildRuleCoreShieldBase {
 
 	protected function getName() :string {
 		return 'Is Server Loopback';
@@ -22,7 +20,7 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getSlug() :string {
-		return static::SLUG;
+		return 'shield/is_server_loopback';
 	}
 
 	protected function getPriority() :int {

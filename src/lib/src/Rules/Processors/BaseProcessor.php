@@ -2,10 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 
 class BaseProcessor {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @var RuleVO

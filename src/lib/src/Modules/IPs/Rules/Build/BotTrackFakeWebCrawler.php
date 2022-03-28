@@ -32,11 +32,8 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 					'action' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
-					'action'       => Conditions\MatchOtherCondition::SLUG,
+					'rule'         => Shield\Modules\Plugin\Rules\Build\IsTrustedBot::SLUG,
 					'invert_match' => true,
-					'params'       => [
-						'other_condition_slug' => 'shield/is_trusted_bot',
-					],
 				],
 				[
 					'action' => Conditions\MatchRequestUseragent::SLUG,
