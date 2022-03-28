@@ -21,10 +21,6 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 		return 'Is Server Loopback request.';
 	}
 
-	protected function getSlug() :string {
-		return static::SLUG;
-	}
-
 	protected function getPriority() :int {
 		return 10;
 	}

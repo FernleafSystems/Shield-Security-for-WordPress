@@ -8,16 +8,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions
 };
 
-class IsPublicWebRequest extends BuildRuleCoreShieldBase {
+class RequestBypassAllRestrictions extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_public_web_request';
+	const SLUG = 'shield/request_bypass_all_restrictions';
 
 	protected function getName() :string {
-		return 'Is Public Web Request';
+		return 'A Request That Bypasses Restrictions';
 	}
 
 	protected function getDescription() :string {
-		return 'Is a public web request.';
+		return 'Does the request bypass all plugin restrictions.';
+	}
+
+	protected function getSlug() :string {
+		return 'shield/is_public_web_request';
 	}
 
 	protected function getPriority() :int {
@@ -26,17 +30,19 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
+			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'action'       => Conditions\WpIsWpcli::SLUG,
-					'invert_match' => true,
+					'action' => Conditions\WpIsWpcli::SLUG,
 				],
 				[
-					'action' => Conditions\IsIpValidPublic::SLUG,
+					'action' => Conditions\IsIpWhitelisted::SLUG,
 				],
 				[
-					'rule'         => IsServerLoopback::SLUG,
+					'rule' => IsTrustedBot::SLUG,
+				],
+				[
+					'rule'         => IsPublicWebRequest::SLUG,
 					'invert_match' => true,
 				],
 			]

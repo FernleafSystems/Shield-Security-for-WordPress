@@ -22,10 +22,6 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 		return 'Test whether the visitor is a trusted bot.';
 	}
 
-	protected function getSlug() :string {
-		return static::SLUG;
-	}
-
 	protected function getPriority() :int {
 		return 12;
 	}

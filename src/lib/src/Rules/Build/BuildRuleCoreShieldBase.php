@@ -14,6 +14,10 @@ abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
 		];
 	}
 
+	protected function getSlug() :string {
+		return static::SLUG;
+	}
+
 	protected function getCommonAuditParamsMapping() :array {
 		return [
 			'path'   => 'matched_path',
