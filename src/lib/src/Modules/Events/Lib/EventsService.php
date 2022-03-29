@@ -44,8 +44,9 @@ class EventsService {
 			error_log( sprintf( 'WARNING: Event (%s) receives params but none are defined.', $event ) );
 		}
 		elseif ( !empty( $def ) ) {
-			if ( array_diff( $def, $metaParams ) ) {
-				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $def ) ) );
+			$missingParams = array_diff( $def, $metaParams );
+			if ( !empty( $missingParams ) ) {
+				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $missingParams ) ) );
 			}
 			if ( array_diff( $metaParams, $def ) ) {
 				// Previously we threw an exception. Now we just clean out the unwanted params.

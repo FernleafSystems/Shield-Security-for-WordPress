@@ -14,7 +14,9 @@ class EventFire extends Base {
 
 			// Translate rules condition meta items to audit trail params.
 			if ( !empty( $params[ 'audit_params_map' ] ) ) {
-				$params[ 'audit_params' ] = [];
+				if ( empty( $params[ 'audit_params' ] ) ) {
+					$params[ 'audit_params' ] = [];
+				}
 				$conditionMeta = $this->getConsolidatedConditionMeta();
 				foreach ( $params[ 'audit_params_map' ] as $paramKey => $metaKey ) {
 					if ( isset( $conditionMeta[ $metaKey ] ) ) {

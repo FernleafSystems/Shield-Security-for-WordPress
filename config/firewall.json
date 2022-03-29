@@ -266,66 +266,82 @@
   "definitions": {
     "default_whitelist": {
       "/wp-admin/options-general.php": [],
-      "/wp-admin/options.php":         [
-        "home",
-        "siteurl"
-      ],
-      "/wp-admin/plugins.php":         [
-        "plugin"
-      ],
+      "/wp-admin/options.php":         {
+        "simple": [
+          "home",
+          "siteurl"
+        ]
+      },
+      "/wp-admin/plugins.php":         {
+        "simple": [
+          "plugin"
+        ]
+      },
       "/wp-admin/post-new.php":        [],
       "/wp-admin/page-new.php":        [],
       "/wp-admin/link-add.php":        [],
       "/wp-admin/media-upload.php":    [],
-      "/wp-admin/admin.php":           [
-        "page"
-      ],
-      "/wp-admin/post.php":            [
-        "content"
-      ],
-      "/wp-admin/plugin-editor.php":   [
-        "newcontent"
-      ],
+      "/wp-admin/admin.php":         {
+        "simple": [
+          "page"
+        ]
+      },
+      "/wp-admin/post.php":         {
+        "simple": [
+          "content"
+        ]
+      },
+      "/wp-admin/plugin-editor.php":         {
+        "simple": [
+          "newcontent"
+        ]
+      },
       "/wp-admin/page.php":            [],
       "/wp-admin/admin-ajax.php":      [],
-      "/wp-comments-post.php":         [
-        "url",
-        "comment"
-      ],
-      "*":                             [
-        "affwp_action",
-        "ajaxurl",
-        "g-recaptcha-response",
-        "verify_sign",
-        "txn_id",
-        "wp_http_referer",
-        "_wp_http_referer",
-        "_wp_original_http_referer",
-        "JCS_INENREF",
-        "pass1",
-        "pass1-text",
-        "pwd",
-        "url",
-        "referredby",
-        "redirect_to",
-        "jetpack_sso_original_request",
-        "jetpack_sso_redirect_to",
-        "/^wordpress_logged_in_[0-9a-f]+$/",
-        "edd_action",
-        "edd_redirect",
-        "wpcf7-form",
-        "yoast_wpseo_metadesc",
-        "icwp_wpsf_new_u2f_response",
-        "icwp_wpsf_u2f_otp",
-        "shield_action",
-        "appId",
-        "/^et_.*/",
-        "ping_sites",
-        "aioseo-post-settings",
-        "joe-chnlcustid",
-        "spd-custhash",
-        "joe-custinfo"
-      ]
+      "/wp-comments-post.php":         {
+        "simple": [
+          "url",
+          "comment"
+        ]
+      },
+      "*":                             {
+        "regex":  [
+          "^wordpress_logged_in_[0-9a-f]+$",
+          "^et_.*"
+        ],
+        "simple": [
+          "affwp_action",
+          "ajaxurl",
+          "g-recaptcha-response",
+          "verify_sign",
+          "txn_id",
+          "wp_http_referer",
+          "_wp_http_referer",
+          "_wp_original_http_referer",
+          "JCS_INENREF",
+          "pass1",
+          "pass1-text",
+          "pwd",
+          "url",
+          "referredby",
+          "redirect_to",
+          "jetpack_sso_original_request",
+          "jetpack_sso_redirect_to",
+          "edd_action",
+          "edd_redirect",
+          "wpcf7-form",
+          "yoast_wpseo_metadesc",
+          "icwp_wpsf_new_u2f_response",
+          "icwp_wpsf_u2f_otp",
+          "shield_action",
+          "appId",
+          "ping_sites",
+          "aioseo-post-settings",
+          "joe-chnlcustid",
+          "spd-custhash",
+          "joe-custinfo"
+        ]
+      }
     },
     "firewall_patterns": {
       "dir_traversal":    {
@@ -364,7 +380,7 @@
           "union.*select"
         ]
       },
-      "exe_file_uploads":          {
+      "exe_file_uploads": {
         "regex": [
           "\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$"
         ]

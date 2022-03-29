@@ -22,11 +22,11 @@ class MatchRequestPath extends Base {
 		$path = $this->getRequestPath();
 		$this->addConditionTriggerMeta( 'matched_path', $path );
 		foreach ( $this->match_paths as $matchPath ) {
-			if ( $this->is_match_regex ) {
-				$matched = (bool)preg_match( sprintf( '#%s#i', $matchPath ), $path );
-				if ( $matched ) {
-					break;
-				}
+			$matched = $this->is_match_regex ?
+				(bool)preg_match( sprintf( '#%s#i', $matchPath ), $path ) : $matchPath == $path;
+
+			if ( $matched ) {
+				break;
 			}
 		}
 		return $matched;

@@ -1224,10 +1224,11 @@ class Controller extends DynPropertiesClass {
 			->setCon( $this )
 			->execute();
 
-		$this->runRulesController();
-
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
+
+		$this->runRulesController();
+
 		return true;
 	}
 

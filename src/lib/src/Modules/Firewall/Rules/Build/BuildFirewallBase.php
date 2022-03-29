@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
@@ -18,6 +19,16 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		return $this->getMod()
 					->getStrings()
 					->getOptionStrings( 'block_'.static::SCAN_CATEGORY )[ 'name' ];
+	}
+
+	protected function getCommonAuditParamsMapping() :array {
+		return array_merge( parent::getCommonAuditParamsMapping(), [
+			'term'  => 'match_pattern',
+			'param' => 'match_request_param',
+			'value' => 'match_request_value',
+			'scan'  => 'match_category',
+			'type'  => 'match_type',
+		] );
 	}
 
 	protected function getDescription() :string {
@@ -40,58 +51,97 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			]
 		];
 
-		$matchGroup = [
+		$excludedPaths = $this->getExcludedPaths();
+		if ( !empty( $excludedPaths ) ) {
+			$conditions[ 'group' ][] = [
+				'action' => Conditions\NotMatchRequestPath::SLUG,
+				'params' => [
+					'is_match_regex' => false,
+					'match_paths'    => $excludedPaths,
+				],
+			];
+		}
+
+		$firewallRulesGroup = [
 			'logic' => static::LOGIC_OR,
 			'group' => [],
 		];
 
 		$simple = $this->getFirewallPatterns_Simple();
 		if ( !empty( $simple ) ) {
-			$matchGroup[ 'group' ][] = [
+			$firewallRulesGroup[ 'group' ][] = [
 				'action' => Conditions\MatchRequestParamQuery::SLUG,
 				'params' => [
-					'is_match_regex' => false,
-					'match_patterns' => $simple,
-					'match_category' => static::SCAN_CATEGORY,
+					'is_match_regex'  => false,
+					'match_patterns'  => $simple,
+					'match_category'  => static::SCAN_CATEGORY,
+					'excluded_params' => $this->getExclusions(),
 				],
 			];
-			$matchGroup[ 'group' ][] = [
+			$firewallRulesGroup[ 'group' ][] = [
 				'action' => Conditions\MatchRequestParamPost::SLUG,
 				'params' => [
-					'is_match_regex' => false,
-					'match_patterns' => $simple,
-					'match_category' => static::SCAN_CATEGORY,
+					'is_match_regex'  => false,
+					'match_patterns'  => $simple,
+					'match_category'  => static::SCAN_CATEGORY,
+					'excluded_params' => $this->getExclusions(),
 				],
 			];
 		}
 
 		$regex = $this->getFirewallPatterns_Regex();
 		if ( !empty( $regex ) ) {
-			$matchGroup[ 'group' ][] = [
+			$firewallRulesGroup[ 'group' ][] = [
 				'action' => Conditions\MatchRequestParamQuery::SLUG,
 				'params' => [
-					'is_match_regex' => true,
-					'match_patterns' => $regex,
-					'match_category' => static::SCAN_CATEGORY,
+					'is_match_regex'  => true,
+					'match_patterns'  => $regex,
+					'match_category'  => static::SCAN_CATEGORY,
+					'excluded_params' => $this->getExclusions(),
 				],
 			];
-			$matchGroup[ 'group' ][] = [
+			$firewallRulesGroup[ 'group' ][] = [
 				'action' => Conditions\MatchRequestParamPost::SLUG,
 				'params' => [
-					'is_match_regex' => true,
-					'match_patterns' => $regex,
-					'match_category' => static::SCAN_CATEGORY,
+					'is_match_regex'  => true,
+					'match_patterns'  => $regex,
+					'match_category'  => static::SCAN_CATEGORY,
+					'excluded_params' => $this->getExclusions(),
 				],
 			];
 		}
 
-		$conditions[ 'group' ][] = $matchGroup;
+		$conditions[ 'group' ][] = $firewallRulesGroup;
 
 		return $conditions;
 	}
 
+	protected function getExcludedPaths() :array {
+		return array_keys( array_filter( $this->getExclusions(), fn( $excl ) => empty( $excl ) ) );
+	}
+
+	protected function getExclusions() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$exclusions = $opts->getDef( 'default_whitelist' );
+		$custom = $opts->getCustomWhitelist(); //TODO
+		return $exclusions;
+	}
+
 	protected function getResponses() :array {
 		return [
+			[
+				'action' => Responses\EventFire::SLUG,
+				'params' => [
+					'event'            => 'firewall_block',
+					'offense_count'    => 1,
+					'block'            => false,
+					'audit_params'     => [
+						'name' => $this->getName()
+					],
+					'audit_params_map' => $this->getCommonAuditParamsMapping(),
+				],
+			],
 			[
 				'action' => Responses\FirewallBlock::SLUG,
 				'params' => [],
