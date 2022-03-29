@@ -1126,7 +1126,10 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getIfForceOffActive() :bool {
-		return $this->getForceOffFilePath() !== false;
+		if ( is_null( $this->req->is_force_off ) ) {
+			$this->req->is_force_off = $this->getForceOffFilePath() !== false;
+		}
+		return $this->req->is_force_off;
 	}
 
 	/**

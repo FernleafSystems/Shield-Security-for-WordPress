@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
@@ -32,7 +33,7 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'action'       => Conditions\IsIpWhitelisted::SLUG,
+					'rule'         => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[

@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions
 };
 
-class RequestBypassAllRestrictions extends BuildRuleCoreShieldBase {
+class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/request_bypass_all_restrictions';
+	const SLUG = 'shield/request_bypasses_all_restrictions';
 
 	protected function getName() :string {
 		return 'A Request That Bypasses Restrictions';
@@ -20,12 +20,8 @@ class RequestBypassAllRestrictions extends BuildRuleCoreShieldBase {
 		return 'Does the request bypass all plugin restrictions.';
 	}
 
-	protected function getSlug() :string {
-		return 'shield/is_public_web_request';
-	}
-
 	protected function getPriority() :int {
-		return 10;
+		return 15;
 	}
 
 	protected function getConditions() :array {
@@ -33,17 +29,17 @@ class RequestBypassAllRestrictions extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'action' => Conditions\WpIsWpcli::SLUG,
+					'action' => Conditions\IsForceOff::SLUG,
+				],
+				[
+					'rule'         => IsPublicWebRequest::SLUG,
+					'invert_match' => true,
 				],
 				[
 					'action' => Conditions\IsIpWhitelisted::SLUG,
 				],
 				[
 					'rule' => IsTrustedBot::SLUG,
-				],
-				[
-					'rule'         => IsPublicWebRequest::SLUG,
-					'invert_match' => true,
 				],
 			]
 		];

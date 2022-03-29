@@ -29,11 +29,11 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'action' => Conditions\IsNotLoggedInNormal::SLUG
+					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'invert_match' => true
 				],
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\IsTrustedBot::SLUG,
-					'invert_match' => true,
+					'action' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
 					'action' => Conditions\MatchRequestUseragent::SLUG,

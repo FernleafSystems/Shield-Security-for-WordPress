@@ -63,7 +63,7 @@ class ModCon extends BaseShield\ModCon {
 			Rules\Build\IsServerLoopback::class,
 			Rules\Build\IsTrustedBot::class,
 			Rules\Build\IsPublicWebRequest::class,
-			Rules\Build\RequestBypassAllRestrictions::class,
+			Rules\Build\RequestBypassesAllRestrictions::class,
 		];
 	}
 

@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property BotSignalRecord $botsignal_record
  * @property string          $ip_id
  * @property bool            $is_bypass_restrictions
+ * @property bool            $is_force_off
  * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_whitelisted

@@ -28,14 +28,14 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
+					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'invert_match' => true
+				],
+				[
 					'action' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
 					'action' => Conditions\WpIsXmlrpc::SLUG,
-				],
-				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\IsTrustedBot::SLUG,
-					'invert_match' => true,
 				],
 				[
 					'action' => Conditions\MatchRequestPath::SLUG,

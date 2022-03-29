@@ -36,7 +36,7 @@ class ConditionsProcessor extends BaseProcessor {
 			}
 			elseif ( isset( $subCondition[ 'rule' ] ) ) {
 				try {
-					$matched = $this->lookupPreviousRule( $subCondition[ 'action' ] );
+					$matched = $this->lookupPreviousRule( $subCondition[ 'rule' ] );
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;
 					}

@@ -38,7 +38,7 @@ class PreProcessRule extends BaseProcessor {
 			if ( isset( $subCondition[ 'group' ] ) ) {
 				$actions = array_merge( $actions, $this->getAllConditionActions( $subCondition[ 'group' ] ) );
 			}
-			else {
+			elseif ( !empty( $subCondition[ 'action' ] ) ) {
 				$actions[] = $subCondition[ 'action' ];
 			}
 		}

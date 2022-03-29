@@ -31,7 +31,7 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'action'       => IsServerLoopback::SLUG,
+					'rule'         => IsServerLoopback::SLUG,
 					'invert_match' => true,
 				],
 				[
