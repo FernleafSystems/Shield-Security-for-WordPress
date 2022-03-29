@@ -1,11 +1,14 @@
 {
   "rules": [
     {
-      "name":       "Is IP Whitelisted",
-      "slug":       "is_ip_whitelisted",
-      "flags":      [
-      ],
-      "conditions": {
+      "name":        "Is IP Whitelisted",
+      "description": "Test whether the current Request IP is whitelisted.",
+      "slug":        "shield\/is_ip_whitelisted",
+      "priority":    0,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
         "logic": "AND",
         "group": [
           {
@@ -13,22 +16,136 @@
           }
         ]
       },
-      "responses":  [
+      "responses":   [
         {
           "action": "is_ip_whitelisted"
         }
       ]
     },
     {
-      "name":       "Is IP Blocked",
-      "slug":       "is_ip_blocked",
-      "flags":      [
-      ],
-      "conditions": {
+      "name":        "Is Server Loopback",
+      "description": "Is Server Loopback request.",
+      "slug":        "shield\/is_server_loopback",
+      "priority":    10,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
         "logic": "AND",
         "group": [
           {
-            "action":       "is_ip_whitelisted",
+            "action": "match_request_ip",
+            "params": {
+              "match_ips": [
+                "178.128.145.236",
+                "2604:a880:400:d0::1c31:a001"
+              ]
+            }
+          }
+        ]
+      },
+      "responses":   []
+    },
+    {
+      "name":        "Is Public Web Request",
+      "description": "Is a public web request.",
+      "slug":        "shield\/is_public_web_request",
+      "priority":    10,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "action":       "wp_is_wpcli",
+            "invert_match": true
+          },
+          {
+            "action": "is_ip_valid_public"
+          },
+          {
+            "rule":         "shield\/is_server_loopback",
+            "invert_match": true
+          }
+        ]
+      },
+      "responses":   []
+    },
+    {
+      "name":        "Is Trusted Bot",
+      "description": "Test whether the visitor is a trusted bot.",
+      "slug":        "shield\/is_trusted_bot",
+      "priority":    12,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/is_server_loopback",
+            "invert_match": true
+          },
+          {
+            "action": "match_request_ip_identity",
+            "params": {
+              "match_not_ip_ids": [
+                "unknown",
+                "server",
+                "visitor"
+              ]
+            }
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "is_ip_blocked"
+        }
+      ]
+    },
+    {
+      "name":        "A Request That Bypasses Restrictions",
+      "description": "Does the request bypass all plugin restrictions.",
+      "slug":        "shield\/request_bypasses_all_restrictions",
+      "priority":    15,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "OR",
+        "group": [
+          {
+            "action": "is_force_off"
+          },
+          {
+            "rule":         "shield\/is_public_web_request",
+            "invert_match": true
+          },
+          {
+            "action": "is_ip_whitelisted"
+          },
+          {
+            "rule": "shield\/is_trusted_bot"
+          }
+        ]
+      },
+      "responses":   []
+    },
+    {
+      "name":        "Is IP Blocked",
+      "description": "Test whether the current Request IP is Blocked.",
+      "slug":        "shield\/is_ip_blocked",
+      "priority":    20,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
             "invert_match": true
           },
           {
@@ -40,20 +157,454 @@
           }
         ]
       },
-      "responses":  [
+      "responses":   [
         {
           "action": "is_ip_blocked"
         }
       ]
     },
     {
-      "name":       "Bot-Track 404",
-      "slug":       "is_bot_probe_404",
-      "flags":      [
-      ],
-      "conditions": {
+      "name":        "SQL Queries",
+      "description": "Check request parameters that trigger \"SQL Queries\" patterns.",
+      "slug":        "shield\/firewall_sql_queries",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
         "logic": "AND",
         "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "concat\\s*\\(",
+                    "group_concat",
+                    "union.*select"
+                  ],
+                  "match_category": "sql_queries"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "concat\\s*\\(",
+                    "group_concat",
+                    "union.*select"
+                  ],
+                  "match_category": "sql_queries"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "Directory Traversals",
+      "description": "Check request parameters that trigger \"Directory Traversals\" patterns.",
+      "slug":        "shield\/firewall_dir_traversal",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": false,
+                  "match_patterns": [
+                    "etc\/passwd",
+                    "proc\/self\/environ",
+                    "etc\/passwd",
+                    "makefile",
+                    "wwwroot",
+                    "pingserver",
+                    "..\/",
+                    "loopback"
+                  ],
+                  "match_category": "dir_traversal"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": false,
+                  "match_patterns": [
+                    "etc\/passwd",
+                    "proc\/self\/environ",
+                    "etc\/passwd",
+                    "makefile",
+                    "wwwroot",
+                    "pingserver",
+                    "..\/",
+                    "loopback"
+                  ],
+                  "match_category": "dir_traversal"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "Field Truncation",
+      "description": "Check request parameters that trigger \"Field Truncation\" patterns.",
+      "slug":        "shield\/firewall_field_truncation",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "\\s{49,}",
+                    "\\x00"
+                  ],
+                  "match_category": "field_truncation"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "\\s{49,}",
+                    "\\x00"
+                  ],
+                  "match_category": "field_truncation"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "WordPress Terms",
+      "description": "Check request parameters that trigger \"WordPress Terms\" patterns.",
+      "slug":        "shield\/firewall_wordpress_terms",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": false,
+                  "match_patterns": [
+                    "\/**\/",
+                    "wp-config.php"
+                  ],
+                  "match_category": "wordpress_terms"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": false,
+                  "match_patterns": [
+                    "\/**\/",
+                    "wp-config.php"
+                  ],
+                  "match_category": "wordpress_terms"
+                }
+              },
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "^wp_",
+                    "^user_login",
+                    "^user_pass"
+                  ],
+                  "match_category": "wordpress_terms"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "^wp_",
+                    "^user_login",
+                    "^user_pass"
+                  ],
+                  "match_category": "wordpress_terms"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "PHP Code",
+      "description": "Check request parameters that trigger \"PHP Code\" patterns.",
+      "slug":        "shield\/firewall_php_code",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "(include|include_once|require|require_once)\\s*\\(.*\\)"
+                  ],
+                  "match_category": "php_code"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "(include|include_once|require|require_once)\\s*\\(.*\\)"
+                  ],
+                  "match_category": "php_code"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "Aggressive Scan",
+      "description": "Check request parameters that trigger \"Aggressive Scan\" patterns.",
+      "slug":        "shield\/firewall_aggressive",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": false,
+                  "match_patterns": [
+                    "eval(",
+                    "(null)",
+                    "base64_",
+                    "localhost",
+                    "(function(",
+                    "{x.html(",
+                    ").html(",
+                    "...",
+                    "\/httpdocs\/",
+                    "\/tmp\/",
+                    "boot.ini"
+                  ],
+                  "match_category": "aggressive"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": false,
+                  "match_patterns": [
+                    "eval(",
+                    "(null)",
+                    "base64_",
+                    "localhost",
+                    "(function(",
+                    "{x.html(",
+                    ").html(",
+                    "...",
+                    "\/httpdocs\/",
+                    "\/tmp\/",
+                    "boot.ini"
+                  ],
+                  "match_category": "aggressive"
+                }
+              },
+              {
+                "action": "match_request_param_query",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "GLOBALS(=|\\[|%%)",
+                    "REQUEST(=|\\[|%%)",
+                    "(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)",
+                    "drop\\s+table\\s+(`|'?)[a-z0-9]+\\1",
+                    "'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\\/\\*)\\s+"
+                  ],
+                  "match_category": "aggressive"
+                }
+              },
+              {
+                "action": "match_request_param_post",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "GLOBALS(=|\\[|%%)",
+                    "REQUEST(=|\\[|%%)",
+                    "(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)",
+                    "drop\\s+table\\s+(`|'?)[a-z0-9]+\\1",
+                    "'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\\/\\*)\\s+"
+                  ],
+                  "match_category": "aggressive"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "Exe File Uploads",
+      "description": "Check request parameters that trigger \"Exe File Uploads\" patterns.",
+      "slug":        "shield\/firewall_exe_file_uploads",
+      "priority":    50,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "logic": "OR",
+            "group": [
+              {
+                "action": "match_request_param_file_uploads",
+                "params": {
+                  "is_match_regex": true,
+                  "match_patterns": [
+                    "\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$"
+                  ],
+                  "match_category": "exe_file_uploads"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "firewall_block",
+          "params": []
+        }
+      ]
+    },
+    {
+      "name":        "Bot-Track 404",
+      "description": "Tracking HTTP 404 errors by bots probing a site",
+      "slug":        "shield\/is_bot_probe_404",
+      "priority":    100,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
           {
             "action": "is_not_logged_in_normal"
           },
@@ -71,7 +622,7 @@
                 "params": {
                   "is_match_regex": true,
                   "match_paths":    [
-                    "\\.(css|gif|jpg|jpeg|js|map|png|ttf|woff|woff2)$"
+                    "\\.(js|css|gif|jpg|jpeg|png|map|ttf|woff|woff2)$"
                   ]
                 }
               },
@@ -85,25 +636,83 @@
           }
         ]
       },
-      "responses":  [
+      "responses":   [
         {
           "action": "event_fire",
           "params": {
-            "event":         "bottrack_404",
-            "offense_count": 1,
-            "block":         false
+            "event":            "bottrack_404",
+            "offense_count":    0,
+            "block":            false,
+            "audit_params_map": {
+              "path":   "matched_path",
+              "script": "matched_script_name"
+            }
           }
         }
       ]
     },
     {
-      "name":       "Bot-Track Fake Web Crawler",
-      "slug":       "is_bot_probe_fakewebcrawler",
-      "flags":      [
-      ],
-      "conditions": {
+      "name":        "Bot-Track XML-RPC",
+      "description": "Track probing bots that send requests to XML-RPC.",
+      "slug":        "shield\/is_bot_probe_xmlrpc",
+      "priority":    100,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
         "logic": "AND",
         "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
+          {
+            "action": "is_not_logged_in_normal"
+          },
+          {
+            "action": "wp_is_xmlrpc"
+          },
+          {
+            "action": "match_request_path",
+            "params": {
+              "is_match_regex": true,
+              "match_paths":    [
+                "\/xmlrpc\\.php$"
+              ]
+            }
+          }
+        ]
+      },
+      "responses":   [
+        {
+          "action": "event_fire",
+          "params": {
+            "event":            "bottrack_xmlrpc",
+            "offense_count":    0,
+            "block":            false,
+            "audit_params_map": {
+              "path":   "matched_path",
+              "script": "matched_script_name"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name":        "Bot-Track Fake Web Crawler",
+      "description": "Track probing bots that incorrectly identify as official web crawlers.",
+      "slug":        "shield\/is_bot_probe_fakewebcrawler",
+      "priority":    100,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
+        "logic": "AND",
+        "group": [
+          {
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
+          },
           {
             "action": "is_not_logged_in_normal"
           },
@@ -111,7 +720,7 @@
             "action": "match_request_useragent",
             "params": {
               "match_useragents": [
-                "Applebot/",
+                "Applebot\/",
                 "baidu",
                 "bingbot",
                 "Googlebot",
@@ -120,56 +729,81 @@
                 "Mediapartners-Google",
                 "PetalBot",
                 "SemrushBot",
-                "yandex.com/bots",
+                "yandex.com\/bots",
                 "yahoo!"
               ]
             }
-          },
-          {
-            "action":       "is_trusted_bot",
-            "invert_match": true
           }
         ]
       },
-      "responses":  [
-        {
-          "action": "is_bot_probe_404"
-        },
+      "responses":   [
         {
           "action": "event_fire",
           "params": {
-            "event":         "bottrack_404",
-            "offense_count": 1,
-            "block":         false
+            "event":            "bottrack_fakewebcrawler",
+            "offense_count":    0,
+            "block":            false,
+            "audit_params_map": {
+              "path":   "matched_path",
+              "script": "matched_script_name"
+            }
           }
         }
       ]
     },
     {
-      "name":       "Is XML-RPC",
-      "slug":       "is_xmlrpc",
-      "flags":      [
-      ],
-      "conditions": {
+      "name":        "Bot-Track Invalid Script",
+      "description": "Track probing bots that send requests to invalid scripts.",
+      "slug":        "shield\/is_bot_probe_invalidscript",
+      "priority":    100,
+      "flags":       {
+        "is_core_shield": true
+      },
+      "conditions":  {
         "logic": "AND",
         "group": [
           {
-            "action": "match_request_path",
-            "params": {
-              "is_match_regex": true,
-              "match_paths":    [
-                "/xmlrpc\\.php$"
-              ]
-            }
+            "rule":         "shield\/request_bypasses_all_restrictions",
+            "invert_match": true
           },
           {
-            "action": "wp_is_xmlrpc"
+            "action": "is_not_logged_in_normal"
+          },
+          {
+            "action":       "match_request_script_name",
+            "invert_match": true,
+            "params":       {
+              "is_match_regex":     false,
+              "match_script_names": [
+                "index.php",
+                "admin-ajax.php",
+                "wp-activate.php",
+                "wp-links-opml.php",
+                "wp-cron.php",
+                "wp-login.php",
+                "wp-mail.php",
+                "wp-comments-post.php",
+                "wp-signup.php",
+                "wp-trackback.php",
+                "xmlrpc.php",
+                "admin.php"
+              ]
+            }
           }
         ]
       },
-      "responses":  [
+      "responses":   [
         {
-          "action": "wp_is_xmlrpc"
+          "action": "event_fire",
+          "params": {
+            "event":            "bottrack_invalidscript",
+            "offense_count":    0,
+            "block":            false,
+            "audit_params_map": {
+              "path":   "matched_path",
+              "script": "matched_script_name"
+            }
+          }
         }
       ]
     }

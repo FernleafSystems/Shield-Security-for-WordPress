@@ -85,7 +85,6 @@ class EventsService {
 	}
 
 	/**
-	 * @param string $eventKey
 	 * @return array|null
 	 */
 	public function getEventDef( string $eventKey ) {

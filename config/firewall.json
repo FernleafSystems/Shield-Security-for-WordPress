@@ -328,7 +328,7 @@
       ]
     },
     "firewall_patterns": {
-      "dirtraversal":    {
+      "dir_traversal":    {
         "simple": [
           "etc/passwd",
           "proc/self/environ",
@@ -340,7 +340,7 @@
           "loopback"
         ]
       },
-      "wpterms":         {
+      "wordpress_terms":  {
         "simple": [
           "/**/",
           "wp-config.php"
@@ -351,25 +351,25 @@
           "^user_pass"
         ]
       },
-      "fieldtruncation": {
+      "field_truncation": {
         "regex": [
           "\\s{49,}",
           "\\x00"
         ]
       },
-      "sqlqueries":      {
+      "sql_queries":      {
         "regex": [
           "concat\\s*\\(",
           "group_concat",
           "union.*select"
         ]
       },
-      "exefile":         {
+      "exe_file_uploads":          {
         "regex": [
           "\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$"
         ]
       },
-      "schema":          {
+      "leading_schema":   {
         "simple": [
           ".shtml"
         ],
@@ -377,13 +377,13 @@
           "^(http|https|ftp|file):"
         ]
       },
-      "phpcode":         {
+      "php_code":         {
         "simple": null,
         "regex":  [
           "(include|include_once|require|require_once)\\s*\\(.*\\)"
         ]
       },
-      "aggressive":      {
+      "aggressive":       {
         "simple": [
           "eval(",
           "(null)",

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Lib\Scan\Hand
 
 class SqlQueries extends BaseRequestParams {
 
-	const SLUG = 'sqlqueries';
+	const SLUG = 'sql_queries';
 
 	protected function getScanName() :string {
 		return __( 'SQL Queries', 'wp-simple-firewall' );

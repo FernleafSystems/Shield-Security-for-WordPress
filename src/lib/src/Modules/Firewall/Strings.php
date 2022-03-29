@@ -124,8 +124,10 @@ class Strings extends Base\Strings {
 			case 'block_aggressive' :
 				$name = __( 'Aggressive Scan', 'wp-simple-firewall' );
 				$summary = __( 'Aggressively Block Data', 'wp-simple-firewall' );
-				$desc = __( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.', 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'May cause an increase in false-positive firewall blocks.', 'wp-simple-firewall' ) );
+				$desc = [
+					__( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.', 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong> - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'May cause an increase in false-positive firewall blocks.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'block_response' :
@@ -218,7 +220,7 @@ class Strings extends Base\Strings {
 			'blockparam_fieldtruncation' => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'Field Truncation', 'wp-simple-firewall' ) )
 			],
-			'blockparam_sqlqueries'      => [
+			'blockparam_sql_queries'     => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'SQL Queries', 'wp-simple-firewall' ) )
 			],
 			'blockparam_schema'          => [

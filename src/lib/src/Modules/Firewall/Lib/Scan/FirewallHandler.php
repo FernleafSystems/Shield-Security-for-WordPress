@@ -148,27 +148,27 @@ class FirewallHandler extends ExecOnceModConsumer {
 	 */
 	private function enumHandlers() :array {
 		return [
-			'dir_traversal'    => function () {
-				return new Handlers\DirTraversal();
-			},
-			'sql_queries'      => function () {
-				return new Handlers\SqlQueries();
-			},
-			'wordpress_terms'  => function () {
-				return new Handlers\WpTerms();
-			},
-			'field_truncation' => function () {
-				return new Handlers\FieldTruncation();
-			},
-			'php_code'         => function () {
-				return new Handlers\PhpCode();
-			},
-			'leading_schema'   => function () {
-				return new Handlers\LeadingSchema();
-			},
-			'aggressive'       => function () {
-				return new Handlers\Aggressive();
-			},
+//			'dir_traversal'    => function () {
+//				return new Handlers\DirTraversal();
+//			},
+//			'sql_queries'      => function () {
+//				return new Handlers\SqlQueries();
+//			},
+//			'wordpress_terms'  => function () {
+//				return new Handlers\WpTerms();
+//			},
+//			'field_truncation' => function () {
+//				return new Handlers\FieldTruncation();
+//			},
+//			'php_code'         => function () {
+//				return new Handlers\PhpCode();
+//			},
+//			'leading_schema'   => function () {
+//				return new Handlers\LeadingSchema();
+//			},
+//			'aggressive'       => function () {
+//				return new Handlers\Aggressive();
+//			},
 			'exe_file_uploads' => function () {
 				return new Handlers\ExeFiles();
 			},

@@ -26,10 +26,10 @@ class ConditionsProcessor extends BaseProcessor {
 	/**
 	 * This is recursive and essentially allows for infinite nesting of groups of rules with different logic.
 	 */
-	private function processConditionGroup( array $condition, $isLogicAnd = true ) :bool {
+	private function processConditionGroup( array $conditionGroup, $isLogicAnd = true ) :bool {
 		$finalMatch = null;
 
-		foreach ( $condition as $subCondition ) {
+		foreach ( $conditionGroup as $subCondition ) {
 
 			if ( isset( $subCondition[ 'group' ] ) ) {
 				$matched = $this->processConditionGroup( $subCondition[ 'group' ], ( $subCondition[ 'logic' ] ?? 'AND' ) === 'AND' );
@@ -82,7 +82,7 @@ class ConditionsProcessor extends BaseProcessor {
 			}
 		}
 
-		return $finalMatch;
+		return (bool)$finalMatch;
 	}
 
 	/**

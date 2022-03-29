@@ -1203,7 +1203,6 @@ class Controller extends DynPropertiesClass {
 	public function loadAllFeatures() :bool {
 
 		$coreModule = $this->loadCorePluginFeatureHandler();
-		$this->runRulesController();
 
 		foreach ( array_keys( $coreModule->getActivePluginFeatures() ) as $slug ) {
 			try {
@@ -1224,6 +1223,8 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Controller\Utilities\Upgrade() )
 			->setCon( $this )
 			->execute();
+
+		$this->runRulesController();
 
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );

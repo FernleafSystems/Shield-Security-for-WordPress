@@ -7,25 +7,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
-	/**
-	 * @param string $sParam
-	 * @param string $sPage
-	 */
-	public function addParamToWhitelist( $sParam, $sPage = '*' ) {
+	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
+		$rules = [];
 
-		if ( empty( $sPage ) ) {
-			$sPage = '*';
+		foreach (
+			[
+				Rules\Build\FirewallSqlQueries::class,
+				Rules\Build\FirewallDirTraversal::class,
+				Rules\Build\FirewallFieldTruncation::class,
+				Rules\Build\FirewallWordpressTerms::class,
+				Rules\Build\FirewallPhpCode::class,
+				Rules\Build\FirewallLeadingSchema::class,
+				Rules\Build\FirewallAggressive::class,
+				Rules\Build\FirewallExeFileUploads::class,
+			] as $blockTypeClass
+		) {
+			if ( $opts->isOpt( 'block_'.$blockTypeClass::SCAN_CATEGORY, 'Y' ) ) {
+				$rules[] = $blockTypeClass;
+			}
 		}
 
-		$aW = $opts->getCustomWhitelist();
-		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : [];
-		$aParams[] = $sParam;
-		natsort( $aParams );
-		$aW[ $sPage ] = array_unique( $aParams );
-
-		$opts->setOpt( 'page_params_whitelist', $aW );
+		return $rules;
 	}
 
 	public function getBlockResponse() :string {
