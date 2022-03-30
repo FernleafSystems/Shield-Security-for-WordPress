@@ -184,12 +184,6 @@ class Strings extends Base\Strings {
 					__( 'The offending request parameter was "{{param}}" with a value of "{{value}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'check_skip'       => [
-				'name'  => __( 'Firewall Skip Checking', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Skipping firewall checking for this visit: {{path}}.', 'wp-simple-firewall' )
-				],
-			],
 			'fw_email_success' => [
 				'name'  => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 				'audit' => [

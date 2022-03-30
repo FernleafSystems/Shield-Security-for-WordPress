@@ -41,12 +41,18 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$conditions = [
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
 					'rule'         => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
+				],
+				[
+					'action' => Conditions\RequestHasParameters::SLUG,
 				],
 			]
 		];
@@ -59,6 +65,13 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'is_match_regex' => false,
 					'match_paths'    => $excludedPaths,
 				],
+			];
+		}
+
+		if ( $opts->isIgnoreAdmin() ) {
+			$conditions[ 'group' ][] = [
+				'action'       => Conditions\IsUserAdminNormal::SLUG,
+				'invert_match' => true,
 			];
 		}
 

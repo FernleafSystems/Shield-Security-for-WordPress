@@ -10,6 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 15.0
+ */
 class FirewallHandler extends ExecOnceModConsumer {
 
 	/**
@@ -169,9 +172,9 @@ class FirewallHandler extends ExecOnceModConsumer {
 //			'aggressive'       => function () {
 //				return new Handlers\Aggressive();
 //			},
-			'exe_file_uploads' => function () {
-				return new Handlers\ExeFiles();
-			},
+'exe_file_uploads' => function () {
+	return new Handlers\ExeFiles();
+},
 		];
 	}
 }

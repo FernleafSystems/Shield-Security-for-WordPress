@@ -423,13 +423,6 @@
       }
     },
     "events":            {
-      "check_skip":       {
-        "audit_params": [
-          "path"
-        ],
-        "level":        "debug",
-        "stat":         false
-      },
       "firewall_block":   {
         "audit_params": [
           "name",
