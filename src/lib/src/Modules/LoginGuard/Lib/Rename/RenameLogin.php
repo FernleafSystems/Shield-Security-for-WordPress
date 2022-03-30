@@ -163,16 +163,14 @@ class RenameLogin {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$redirectPath = parse_url( $location, PHP_URL_PATH );
+		$redirectPath = wp_parse_url( $location, PHP_URL_PATH );
 		if ( strpos( $redirectPath, 'wp-login.php' ) !== false ) {
 
-			$loginUrl = home_url( $opts->getCustomLoginPath() );
 			$queryArgs = explode( '?', $location );
+			$location = home_url( $opts->getCustomLoginPath() );
 			if ( !empty( $queryArgs[ 1 ] ) ) {
-				parse_str( $queryArgs[ 1 ], $newQueryArgs );
-				$loginUrl = add_query_arg( $newQueryArgs, $loginUrl );
+				$location .= '?'.$queryArgs[ 1 ];
 			}
-			$location = $loginUrl;
 		}
 
 		return $location;

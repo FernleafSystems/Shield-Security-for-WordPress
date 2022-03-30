@@ -186,6 +186,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "8",
+        "released_at": 1648194288,
+        "items":       [
+          {
+            "title": "Fix for non-URL-encoding of password reset URL parameters when using Rename Login feature.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
