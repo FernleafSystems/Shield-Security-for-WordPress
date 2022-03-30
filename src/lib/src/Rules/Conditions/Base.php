@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- */
 abstract class Base extends DynPropertiesClass {
 
 	use PluginControllerConsumer;

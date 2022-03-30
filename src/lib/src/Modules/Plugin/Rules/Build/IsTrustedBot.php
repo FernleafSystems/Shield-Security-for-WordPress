@@ -51,7 +51,7 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\IsIpBlocked::SLUG,
+				'response' => Responses\IsTrustedBot::SLUG,
 			],
 		];
 	}

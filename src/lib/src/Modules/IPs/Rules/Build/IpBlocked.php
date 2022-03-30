@@ -12,16 +12,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class IpBlocked extends BuildRuleCoreShieldBase {
 
+	const SLUG = 'shield/is_ip_blocked';
+
 	protected function getName() :string {
 		return 'Is IP Blocked';
 	}
 
 	protected function getDescription() :string {
 		return 'Test whether the current Request IP is Blocked.';
-	}
-
-	protected function getSlug() :string {
-		return 'shield/is_ip_blocked';
 	}
 
 	protected function getPriority() :int {

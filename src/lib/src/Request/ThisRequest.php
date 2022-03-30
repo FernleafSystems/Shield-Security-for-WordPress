@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @property string          $ip
  * @property BotSignalRecord $botsignal_record
+ * @property bool            $rules_completed
  * @property string          $ip_id
  * @property bool            $is_bypass_restrictions
  * @property bool            $is_force_off
@@ -17,7 +18,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_whitelisted
  * @property bool            $is_server_loopback
- * @property bool            $rules_completed
+ * @property bool            $request_bypasses_all_restrictions
  * @property bool            $wp_is_ajax
  * @property bool            $wp_is_wpcli
  * @property bool            $wp_is_xmlrpc

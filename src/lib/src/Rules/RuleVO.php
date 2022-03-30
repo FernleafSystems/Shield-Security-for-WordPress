@@ -9,6 +9,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $name
  * @property string   $description
  * @property string   $wp_hook
+ * @property int      $wp_hook_level
  * @property int      $priority
  * @property bool     $result
  * @property string[] $flags

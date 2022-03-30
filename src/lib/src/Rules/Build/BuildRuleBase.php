@@ -14,9 +14,11 @@ abstract class BuildRuleBase {
 
 	public function build() :Shield\Rules\RuleVO {
 		$rule = new RuleVO();
+		$rule->slug = $this->getSlug();
 		$rule->name = $this->getName();
 		$rule->description = $this->getDescription();
-		$rule->slug = $this->getSlug();
+		$rule->wp_hook = '';
+		$rule->wp_hook_level = $this->getWpHookLevel();
 		$rule->priority = $this->getPriority();
 		$rule->flags = $this->getFlags();
 		$rule->conditions = $this->getConditions();
@@ -27,6 +29,14 @@ abstract class BuildRuleBase {
 	abstract protected function getName() :string;
 
 	abstract protected function getDescription() :string;
+
+	protected function getWpHook() :string {
+		return ''; // you need a VERY good reason to overload this method as hooks are handled dynamically
+	}
+
+	protected function getWpHookLevel() :int {
+		return Shield\Rules\WPHooksOrder::NONE;
+	}
 
 	protected function getConditions() :array {
 		return [];

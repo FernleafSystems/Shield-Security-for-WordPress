@@ -74,6 +74,9 @@ class RulesController {
 		}
 	}
 
+	/**
+	 * @throws AttemptToAccessNonExistingRuleException
+	 */
 	public function getRule( string $slug ) :RuleVO {
 		$rules = $this->getRules();
 		if ( !isset( $rules[ $slug ] ) ) {
@@ -87,14 +90,19 @@ class RulesController {
 	 */
 	protected function getRules() :array {
 		if ( !isset( $this->rules ) ) {
-			$this->rules = array_map(
-				function ( $rule ) {
-					$rule = ( new RuleVO() )->applyFromArray( $rule );
-					( new PreProcessRule( $rule, $this ) )->run();
-					return $rule;
-				},
-				json_decode( Services::WpFs()->getFileContent( $this->getPathToRules() ), true )[ 'rules' ]
-			);
+			try {
+				$this->rules = array_map(
+					function ( $rule ) {
+						$rule = ( new RuleVO() )->applyFromArray( $rule );
+						( new PreProcessRule( $rule, $this ) )->run();
+						return $rule;
+					},
+					$this->load()[ 'rules' ]
+				);
+			}
+			catch ( \Exception $e ) {
+				$this->rules = [];
+			}
 		}
 		return $this->rules;
 	}
@@ -176,15 +184,36 @@ class RulesController {
 		return $theHandlerClass;
 	}
 
-	public function storeRules( array $rules ) :bool {
-		return Services::WpFs()->putFileContent( $this->getPathToRules(), json_encode( [
+	/**
+	 * @throws \Exception
+	 */
+	public function load() :array {
+		$FS = Services::WpFs();
+		$rules = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'rules' ) );
+		if ( empty( $rules ) || !is_array( $rules ) && $FS->isFile( $this->getPathToRules() ) ) {
+			$rules = json_decode( $FS->getFileContent( $this->getPathToRules() ), true );
+		}
+		if ( !is_array( $rules ) || empty( $rules ) ) {
+			throw new \Exception( 'No rules to load' );
+		}
+		return $rules;
+	}
+
+	public function store( array $rules ) :bool {
+		$WP = Services::WpGeneral();
+		$req = Services::Request();
+		$data = [
+			'ts'    => $req->ts(),
+			'time'  => $WP->getTimeStampForDisplay( $req->ts() ),
 			'rules' => array_map( function ( RuleVO $rule ) {
 				return $rule->getRawData();
-			}, $rules )
-		] ) );
+			}, $rules ),
+		];
+		$WP->updateOption( $this->getCon()->prefix( 'rules' ), $data );
+		return Services::WpFs()->putFileContent( $this->getPathToRules(), wp_json_encode( $data ) );
 	}
 
 	private function verifyRulesStatus() :bool {
-		return Services::WpFs()->isFile( $this->getPathToRules() ) && !empty( $this->getRules() );
+		return !empty( $this->getRules() );
 	}
 }

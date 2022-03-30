@@ -11,16 +11,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class BotTrack404 extends BuildRuleCoreShieldBase {
 
+	const SLUG = 'shield/is_bot_probe_404';
+
 	protected function getName() :string {
 		return 'Bot-Track 404';
 	}
 
 	protected function getDescription() :string {
 		return 'Tracking HTTP 404 errors by bots probing a site';
-	}
-
-	protected function getSlug() :string {
-		return 'shield/is_bot_probe_404';
 	}
 
 	protected function getConditions() :array {

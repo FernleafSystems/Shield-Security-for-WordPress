@@ -15,7 +15,7 @@ class ConditionsProcessor extends BaseProcessor {
 	public function runAllRuleConditions() :bool {
 		return $this->processConditionGroup(
 			$this->rule->conditions[ 'group' ],
-			( $condition[ 'logic' ] ?? 'AND' ) === 'AND'
+			( $this->rule->conditions[ 'logic' ] ?? 'AND' ) === 'AND'
 		);
 	}
 
@@ -68,18 +68,16 @@ class ConditionsProcessor extends BaseProcessor {
 
 			if ( is_null( $finalMatch ) ) {
 				$finalMatch = $matched;
-				continue;
 			}
 
 			if ( $isLogicAnd ) {
 				$finalMatch = $finalMatch && $matched;
+				if ( !$finalMatch ) {
+					break;
+				}
 			}
 			else {
 				$finalMatch = $finalMatch || $matched;
-			}
-
-			if ( $isLogicAnd && !$finalMatch ) {
-				break;
 			}
 		}
 

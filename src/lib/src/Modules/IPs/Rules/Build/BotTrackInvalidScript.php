@@ -11,16 +11,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 
+	const SLUG = 'shield/is_bot_probe_invalidscript';
+
 	protected function getName() :string {
 		return 'Bot-Track Invalid Script';
 	}
 
 	protected function getDescription() :string {
 		return 'Track probing bots that send requests to invalid scripts.';
-	}
-
-	protected function getSlug() :string {
-		return 'shield/is_bot_probe_invalidscript';
 	}
 
 	protected function getConditions() :array {

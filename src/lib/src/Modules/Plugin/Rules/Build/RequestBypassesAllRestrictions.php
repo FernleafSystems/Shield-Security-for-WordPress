@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
-	Conditions
+	Conditions,
+	Responses
 };
 
 class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
@@ -36,12 +37,21 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 					'invert_match' => true,
 				],
 				[
-					'condition' => Conditions\IsIpWhitelisted::SLUG,
-				],
-				[
 					'rule' => IsTrustedBot::SLUG,
 				],
+				[
+					'rule'         => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
+					'invert_match' => true,
+				],
 			]
+		];
+	}
+
+	protected function getResponses() :array {
+		return [
+			[
+				'response' => Responses\RequestBypassesAllRestrictions::SLUG,
+			],
 		];
 	}
 }

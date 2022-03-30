@@ -11,16 +11,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class IpWhitelisted extends BuildRuleCoreShieldBase {
 
+	const SLUG = 'shield/is_ip_whitelisted';
+
 	protected function getName() :string {
 		return 'Is IP Whitelisted';
 	}
 
 	protected function getDescription() :string {
 		return 'Test whether the current Request IP is whitelisted.';
-	}
-
-	protected function getSlug() :string {
-		return 'shield/is_ip_whitelisted';
 	}
 
 	protected function getPriority() :int {
