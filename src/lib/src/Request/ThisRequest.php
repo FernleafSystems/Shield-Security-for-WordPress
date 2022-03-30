@@ -26,11 +26,6 @@ class ThisRequest extends DynPropertiesClass {
 
 	use Shield\Modules\PluginControllerConsumer;
 
-	/**
-	 * @var bool[]
-	 */
-	public $rules_conditions_results = [];
-
 	public function __construct( Shield\Controller\Controller $con ) {
 		$this->setCon( $con );
 	}

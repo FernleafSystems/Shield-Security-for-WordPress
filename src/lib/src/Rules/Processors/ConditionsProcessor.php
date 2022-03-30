@@ -13,14 +13,10 @@ class ConditionsProcessor extends BaseProcessor {
 	}
 
 	public function runAllRuleConditions() :bool {
-		$thisReq = $this->controller->getCon()->this_req;
-		if ( !isset( $thisReq->rules_conditions_results[ $this->rule->slug ] ) ) {
-			$thisReq->rules_conditions_results[ $this->rule->slug ] = $this->processConditionGroup(
-				$this->rule->conditions[ 'group' ],
-				( $condition[ 'logic' ] ?? 'AND' ) === 'AND'
-			);
-		}
-		return $thisReq->rules_conditions_results[ $this->rule->slug ];
+		return $this->processConditionGroup(
+			$this->rule->conditions[ 'group' ],
+			( $condition[ 'logic' ] ?? 'AND' ) === 'AND'
+		);
 	}
 
 	/**
@@ -42,6 +38,11 @@ class ConditionsProcessor extends BaseProcessor {
 					}
 				}
 				catch ( Exceptions\RuleNotYetRunException $e ) {
+					error_log( $e->getMessage() );
+					return false;
+				}
+				catch ( Exceptions\AttemptToAccessNonExistingRuleException $e ) {
+					error_log( $e->getMessage() );
 					return false;
 				}
 			}
@@ -86,12 +87,11 @@ class ConditionsProcessor extends BaseProcessor {
 	}
 
 	/**
+	 * @throws Exceptions\AttemptToAccessNonExistingRuleException
 	 * @throws Exceptions\RuleNotYetRunException
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
-		$result = $this->getCon()
-					  ->this_req
-					  ->rules_conditions_results[ $rule ] ?? null;
+		$result = $this->controller->getRule( $rule )->result;
 		if ( is_null( $result ) ) {
 			throw new Exceptions\RuleNotYetRunException( 'Rule not yet run: '.$rule );
 		}

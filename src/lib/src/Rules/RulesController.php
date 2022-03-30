@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\AttemptToAccessNonExistingRuleException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoConditionActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDefinedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
@@ -61,19 +62,25 @@ class RulesController {
 
 	private function processRule( RuleVO $rule ) {
 		$conditionPro = ( new ConditionsProcessor( $rule, $this ) )->setCon( $this->getCon() );
-		$rule->result = $conditionPro->runAllRuleConditions();
-		if ( $rule->result ) {
-			$responsePro = new ResponseProcessor( $rule, $this, $conditionPro->getConsolidatedMeta() );
-			$responsePro->run();
+		if ( !isset( $rule->result ) ) {
+			$rule->result = $conditionPro->runAllRuleConditions();
+			if ( $rule->result ) {
+				( new ResponseProcessor( $rule, $this, $conditionPro->getConsolidatedMeta() ) )->run();
+			}
 		}
 	}
 
-	public function storeRules( array $rules ) :bool {
-		return (bool)Services::WpFs()->putFileContent( $this->getPathToRules(), json_encode( [
-			'rules' => array_map( fn( RuleVO $rule ) => $rule->getRawData(), $rules )
-		] ) );
+	public function getRule( string $slug ) :RuleVO {
+		$rules = $this->getRules();
+		if ( !isset( $rules[ $slug ] ) ) {
+			throw new AttemptToAccessNonExistingRuleException( sprintf( 'Rule "%s" does not exist', $slug ) );
+		}
+		return $rules[ $slug ];
 	}
 
+	/**
+	 * @return RuleVO[]
+	 */
 	protected function getRules() :array {
 		if ( !isset( $this->rules ) ) {
 			$this->rules = array_map(
@@ -163,5 +170,11 @@ class RulesController {
 			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$theHandlerClass );
 		}
 		return $theHandlerClass;
+	}
+
+	public function storeRules( array $rules ) :bool {
+		return Services::WpFs()->putFileContent( $this->getPathToRules(), json_encode( [
+			'rules' => array_map( fn( RuleVO $rule ) => $rule->getRawData(), $rules )
+		] ) );
 	}
 }
