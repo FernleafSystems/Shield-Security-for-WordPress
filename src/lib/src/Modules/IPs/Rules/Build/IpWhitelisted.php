@@ -32,7 +32,7 @@ class IpWhitelisted extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'action' => Conditions\IsIpWhitelisted::SLUG
+					'condition' => Conditions\IsIpWhitelisted::SLUG
 				],
 			]
 		];
@@ -41,7 +41,7 @@ class IpWhitelisted extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'action' => Responses\IsIpWhitelisted::SLUG,
+				'response' => Responses\IsIpWhitelisted::SLUG,
 			],
 		];
 	}

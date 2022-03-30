@@ -29,14 +29,14 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'action' => Conditions\IsForceOff::SLUG,
+					'condition' => Conditions\IsForceOff::SLUG,
 				],
 				[
 					'rule'         => IsPublicWebRequest::SLUG,
 					'invert_match' => true,
 				],
 				[
-					'action' => Conditions\IsIpWhitelisted::SLUG,
+					'condition' => Conditions\IsIpWhitelisted::SLUG,
 				],
 				[
 					'rule' => IsTrustedBot::SLUG,

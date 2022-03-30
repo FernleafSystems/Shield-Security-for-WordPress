@@ -32,14 +32,14 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'action' => Conditions\IsNotLoggedInNormal::SLUG
+					'condition' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
-					'action' => Conditions\WpIsXmlrpc::SLUG,
+					'condition' => Conditions\WpIsXmlrpc::SLUG,
 				],
 				[
-					'action' => Conditions\MatchRequestPath::SLUG,
-					'params' => [
+					'condition' => Conditions\MatchRequestPath::SLUG,
+					'params'    => [
 						'is_match_regex' => true,
 						'match_paths'    => [
 							'/xmlrpc\\.php$'
@@ -55,8 +55,8 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 		$opts = $this->getOptions();
 		return [
 			[
-				'action' => Responses\EventFire::SLUG,
-				'params' => [
+				'response' => Responses\EventFire::SLUG,
+				'params'   => [
 					'event'            => 'bottrack_xmlrpc',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_xmlrpc' ),
 					'block'            => $opts->isTrackOptImmediateBlock( 'track_xmlrpc' ),

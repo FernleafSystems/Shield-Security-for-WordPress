@@ -35,8 +35,8 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 					'invert_match' => true,
 				],
 				[
-					'action' => Conditions\MatchRequestIpIdentity::SLUG,
-					'params' => [
+					'condition' => Conditions\MatchRequestIpIdentity::SLUG,
+					'params'    => [
 						'match_not_ip_ids' => (array)apply_filters( 'shield/untrusted_service_providers', [
 							IpID::UNKNOWN,
 							IpID::THIS_SERVER,
@@ -51,7 +51,7 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'action' => Responses\IsIpBlocked::SLUG,
+				'response' => Responses\IsIpBlocked::SLUG,
 			],
 		];
 	}

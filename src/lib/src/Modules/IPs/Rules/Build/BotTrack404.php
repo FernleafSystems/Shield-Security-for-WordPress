@@ -32,11 +32,11 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'action' => Conditions\IsNotLoggedInNormal::SLUG
+					'condition' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
-					'action' => Conditions\MatchRequestStatusCode::SLUG,
-					'params' => [
+					'condition' => Conditions\MatchRequestStatusCode::SLUG,
+					'params'    => [
 						'code' => '404',
 					],
 				],
@@ -44,8 +44,8 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 					'logic' => static::LOGIC_OR,
 					'group' => [
 						[
-							'action' => Conditions\NotMatchRequestPath::SLUG,
-							'params' => [
+							'condition' => Conditions\NotMatchRequestPath::SLUG,
+							'params'    => [
 								'is_match_regex' => true,
 								'match_paths'    => [
 									sprintf( "\\.(%s)$", implode( '|', $this->getAllowableExtensions() ) )
@@ -53,10 +53,10 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 							],
 						],
 						[
-							'action' => Conditions\IsRequestToInvalidPlugin::SLUG,
+							'condition' => Conditions\IsRequestToInvalidPlugin::SLUG,
 						],
 						[
-							'action' => Conditions\IsRequestToInvalidTheme::SLUG,
+							'condition' => Conditions\IsRequestToInvalidTheme::SLUG,
 						],
 					]
 				]
@@ -69,8 +69,8 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 		$opts = $this->getOptions();
 		return [
 			[
-				'action' => Responses\EventFire::SLUG,
-				'params' => [
+				'response' => Responses\EventFire::SLUG,
+				'params'   => [
 					'event'            => 'bottrack_404',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_404' ),
 					'block'            => $opts->isTrackOptImmediateBlock( 'track_404' ),

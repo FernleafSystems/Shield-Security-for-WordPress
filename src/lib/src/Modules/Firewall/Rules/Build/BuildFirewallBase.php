@@ -52,7 +52,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'action' => Conditions\RequestHasParameters::SLUG,
+					'condition' => Conditions\RequestHasParameters::SLUG,
 				],
 			]
 		];
@@ -60,8 +60,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		$excludedPaths = $this->getExcludedPaths();
 		if ( !empty( $excludedPaths ) ) {
 			$conditions[ 'group' ][] = [
-				'action' => Conditions\NotMatchRequestPath::SLUG,
-				'params' => [
+				'condition' => Conditions\NotMatchRequestPath::SLUG,
+				'params'    => [
 					'is_match_regex' => false,
 					'match_paths'    => $excludedPaths,
 				],
@@ -70,7 +70,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 		if ( $opts->isIgnoreAdmin() ) {
 			$conditions[ 'group' ][] = [
-				'action'       => Conditions\IsUserAdminNormal::SLUG,
+				'condition'    => Conditions\IsUserAdminNormal::SLUG,
 				'invert_match' => true,
 			];
 		}
@@ -83,8 +83,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		$simple = $this->getFirewallPatterns_Simple();
 		if ( !empty( $simple ) ) {
 			$firewallRulesGroup[ 'group' ][] = [
-				'action' => Conditions\MatchRequestParamQuery::SLUG,
-				'params' => [
+				'condition' => Conditions\MatchRequestParamQuery::SLUG,
+				'params'    => [
 					'is_match_regex'  => false,
 					'match_patterns'  => $simple,
 					'match_category'  => static::SCAN_CATEGORY,
@@ -92,8 +92,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				],
 			];
 			$firewallRulesGroup[ 'group' ][] = [
-				'action' => Conditions\MatchRequestParamPost::SLUG,
-				'params' => [
+				'condition' => Conditions\MatchRequestParamPost::SLUG,
+				'params'    => [
 					'is_match_regex'  => false,
 					'match_patterns'  => $simple,
 					'match_category'  => static::SCAN_CATEGORY,
@@ -105,8 +105,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		$regex = $this->getFirewallPatterns_Regex();
 		if ( !empty( $regex ) ) {
 			$firewallRulesGroup[ 'group' ][] = [
-				'action' => Conditions\MatchRequestParamQuery::SLUG,
-				'params' => [
+				'condition' => Conditions\MatchRequestParamQuery::SLUG,
+				'params'    => [
 					'is_match_regex'  => true,
 					'match_patterns'  => $regex,
 					'match_category'  => static::SCAN_CATEGORY,
@@ -114,8 +114,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				],
 			];
 			$firewallRulesGroup[ 'group' ][] = [
-				'action' => Conditions\MatchRequestParamPost::SLUG,
-				'params' => [
+				'condition' => Conditions\MatchRequestParamPost::SLUG,
+				'params'    => [
 					'is_match_regex'  => true,
 					'match_patterns'  => $regex,
 					'match_category'  => static::SCAN_CATEGORY,
@@ -156,8 +156,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'action' => Responses\EventFire::SLUG,
-				'params' => [
+				'response' => Responses\EventFire::SLUG,
+				'params'   => [
 					'event'            => 'firewall_block',
 					'offense_count'    => 1,
 					'block'            => false,
@@ -168,8 +168,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				],
 			],
 			[
-				'action' => Responses\FirewallBlock::SLUG,
-				'params' => [],
+				'response' => Responses\FirewallBlock::SLUG,
+				'params'   => [],
 			],
 		];
 	}

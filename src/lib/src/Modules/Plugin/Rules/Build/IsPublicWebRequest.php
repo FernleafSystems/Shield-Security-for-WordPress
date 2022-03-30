@@ -29,11 +29,11 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'action'       => Conditions\WpIsWpcli::SLUG,
+					'condition'       => Conditions\WpIsWpcli::SLUG,
 					'invert_match' => true,
 				],
 				[
-					'action' => Conditions\IsIpValidPublic::SLUG,
+					'condition' => Conditions\IsIpValidPublic::SLUG,
 				],
 				[
 					'rule'         => IsServerLoopback::SLUG,

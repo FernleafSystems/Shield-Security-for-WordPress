@@ -475,7 +475,6 @@ abstract class ModCon {
 		$exec = $req->request( 'exec' );
 		if ( !empty( $exec ) && $req->request( 'action' ) == $con->prefix() ) {
 
-
 			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $exec ) && $con->getMeetsBasePermissions() ) {
 				$valid = true;
 			}

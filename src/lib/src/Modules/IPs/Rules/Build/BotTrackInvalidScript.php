@@ -32,10 +32,10 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'action' => Conditions\IsNotLoggedInNormal::SLUG
+					'condition' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
-					'action'       => Conditions\MatchRequestScriptName::SLUG,
+					'condition'    => Conditions\MatchRequestScriptName::SLUG,
 					'invert_match' => true,
 					'params'       => [
 						'is_match_regex'     => false,
@@ -51,8 +51,8 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 		$opts = $this->getOptions();
 		return [
 			[
-				'action' => Responses\EventFire::SLUG,
-				'params' => [
+				'response' => Responses\EventFire::SLUG,
+				'params'   => [
 					'event'            => 'bottrack_invalidscript',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_invalidscript' ),
 					'block'            => $opts->isTrackOptImmediateBlock( 'track_invalidscript' ),

@@ -26,7 +26,7 @@ class ResponseProcessor extends BaseProcessor {
 								 ->setConditionTriggerMeta( $this->triggerMetaData )
 								 ->setRule( $this->rule )
 								 ->run();
-				if ( $response[ 'action' ] === 'event_fire' ) {
+				if ( $response[ 'response' ] === 'event_fire' ) {
 					$eventFireResponseProcessed = true;
 				}
 			}

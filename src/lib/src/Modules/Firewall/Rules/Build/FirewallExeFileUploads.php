@@ -28,8 +28,8 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 		$simple = $this->getFirewallPatterns_Simple();
 		if ( !empty( $simple ) ) {
 			$matchGroup[ 'group' ][] = [
-				'action' => Shield\Rules\Conditions\MatchRequestParamFileUploads::SLUG,
-				'params' => [
+				'condition' => Shield\Rules\Conditions\MatchRequestParamFileUploads::SLUG,
+				'params'    => [
 					'is_match_regex' => false,
 					'match_patterns' => $simple,
 					'match_category' => static::SCAN_CATEGORY,
@@ -40,8 +40,8 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 		$regex = $this->getFirewallPatterns_Regex();
 		if ( !empty( $regex ) ) {
 			$matchGroup[ 'group' ][] = [
-				'action' => Shield\Rules\Conditions\MatchRequestParamFileUploads::SLUG,
-				'params' => [
+				'condition' => Shield\Rules\Conditions\MatchRequestParamFileUploads::SLUG,
+				'params'    => [
 					'is_match_regex' => true,
 					'match_patterns' => $regex,
 					'match_category' => static::SCAN_CATEGORY,

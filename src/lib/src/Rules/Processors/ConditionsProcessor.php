@@ -54,7 +54,7 @@ class ConditionsProcessor extends BaseProcessor {
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;
 					}
-					$this->consolidatedMeta[ $subCondition[ 'action' ] ] = $handler->getConditionTriggerMetaData();
+					$this->consolidatedMeta[ $subCondition[ 'condition' ] ] = $handler->getConditionTriggerMetaData();
 				}
 				catch ( Exceptions\NoSuchConditionHandlerException $e ) {
 					error_log( $e->getMessage() );

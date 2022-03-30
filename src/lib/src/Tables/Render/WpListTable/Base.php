@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 if ( !class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php' );
 }
@@ -194,19 +192,19 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param array  $aClasses
-	 * @param array  $aData
-	 * @param string $sText
-	 * @param string $sTitle
+	 * @param array  $classes
+	 * @param array  $data
+	 * @param string $text
+	 * @param string $title
 	 * @return string
 	 */
-	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) :string {
-		$aClasses[] = 'action';
+	protected function buildActionButton_Custom( $text, $classes, $data, $title = '' ) :string {
+		$classes[] = 'action';
 		return $this->buildActionButton_CustomArray( [
-			'text'    => $sText,
-			'classes' => $aClasses,
-			'data'    => $aData,
-			'title'   => $sTitle
+			'text'    => $text,
+			'classes' => $classes,
+			'data'    => $data,
+			'title'   => $title
 		] );
 	}
 

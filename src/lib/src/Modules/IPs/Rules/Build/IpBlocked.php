@@ -37,10 +37,10 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'action' => Conditions\IsIpBlocked::SLUG,
+					'condition' => Conditions\IsIpBlocked::SLUG,
 				],
 				[
-					'action'       => Conditions\IsIpHighReputation::SLUG,
+					'condition'    => Conditions\IsIpHighReputation::SLUG,
 					'invert_match' => true
 				],
 			]
@@ -50,7 +50,7 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'action' => Responses\IsIpBlocked::SLUG,
+				'response' => Responses\IsIpBlocked::SLUG,
 			],
 		];
 	}

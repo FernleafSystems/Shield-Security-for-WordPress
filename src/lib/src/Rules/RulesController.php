@@ -27,11 +27,13 @@ class RulesController {
 	private $rules;
 
 	protected function canRun() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && !$this->getCon()->this_req->rules_completed;
+		return !$this->getCon()->this_req->rules_completed;
 	}
 
 	protected function run() {
-		$this->processRules();
+		if ( $this->verifyRulesStatus() ) {
+			$this->processRules();
+		}
 		add_action( $this->getCon()->prefix( 'pre_options_store' ), function () {
 			$this->buildRules();
 		} );
@@ -122,10 +124,10 @@ class RulesController {
 	 * @throws NoSuchConditionHandlerException
 	 */
 	public function getConditionHandler( array $condition ) :Conditions\Base {
-		if ( empty( $condition[ 'action' ] ) ) {
+		if ( empty( $condition[ 'condition' ] ) ) {
 			throw new NoConditionActionDefinedException( 'No Condition Handler available for: '.var_export( $condition, true ) );
 		}
-		$class = $this->locateConditionHandlerClass( $condition[ 'action' ] );
+		$class = $this->locateConditionHandlerClass( $condition[ 'condition' ] );
 		/** @var Conditions\Base $cond */
 		$cond = new $class( $condition[ 'params' ] ?? [] );
 		return $cond->setCon( $this->getCon() );
@@ -153,10 +155,10 @@ class RulesController {
 	 * @throws NoSuchResponseHandlerException
 	 */
 	public function getResponseHandler( array $response ) :Responses\Base {
-		if ( empty( $response[ 'action' ] ) ) {
+		if ( empty( $response[ 'response' ] ) ) {
 			throw new NoResponseActionDefinedException( 'No Response Handler available for: '.var_export( $response, true ) );
 		}
-		$theResponseClass = $this->locateResponseHandlerClass( $response[ 'action' ] );
+		$theResponseClass = $this->locateResponseHandlerClass( $response[ 'response' ] );
 		/** @var Responses\Base $d */
 		$d = new $theResponseClass( $response[ 'params' ] ?? [] );
 		return $d->setCon( $this->getCon() );
@@ -180,5 +182,9 @@ class RulesController {
 				return $rule->getRawData();
 			}, $rules )
 		] ) );
+	}
+
+	private function verifyRulesStatus() :bool {
+		return Services::WpFs()->isFile( $this->getPathToRules() ) && !empty( $this->getRules() );
 	}
 }
