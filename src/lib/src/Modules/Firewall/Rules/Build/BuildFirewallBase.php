@@ -130,14 +130,26 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getExcludedPaths() :array {
-		return array_keys( array_filter( $this->getExclusions(), fn( $excl ) => empty( $excl ) ) );
+		return array_keys( array_filter( $this->getExclusions(), function ( $excl ) {
+			return empty( $excl );
+		} ) );
 	}
 
 	protected function getExclusions() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$exclusions = $opts->getDef( 'default_whitelist' );
-		$custom = $opts->getCustomWhitelist(); //TODO
+		foreach ( $opts->getCustomWhitelist() as $page => $params ) {
+			if ( empty( $params ) || !is_array( $params ) ) {
+				continue;
+			}
+			if ( !isset( $exclusions[ $page ] ) ) {
+				$exclusions[ $page ] = [
+					'simple' => [],
+				];
+			}
+			$exclusions[ $page ][ 'simple' ] = array_merge( $exclusions[ $page ][ 'simple' ], $params );
+		}
 		return $exclusions;
 	}
 

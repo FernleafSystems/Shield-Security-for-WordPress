@@ -32,7 +32,9 @@ class RulesController {
 
 	protected function run() {
 		$this->processRules();
-		add_action( $this->getCon()->prefix( 'pre_options_store' ), fn() => $this->buildRules() );
+		add_action( $this->getCon()->prefix( 'pre_options_store' ), function () {
+			$this->buildRules();
+		} );
 	}
 
 	private function buildRules() {
@@ -174,7 +176,9 @@ class RulesController {
 
 	public function storeRules( array $rules ) :bool {
 		return Services::WpFs()->putFileContent( $this->getPathToRules(), json_encode( [
-			'rules' => array_map( fn( RuleVO $rule ) => $rule->getRawData(), $rules )
+			'rules' => array_map( function ( RuleVO $rule ) {
+				return $rule->getRawData();
+			}, $rules )
 		] ) );
 	}
 }
