@@ -18,7 +18,7 @@ class RenameLogin {
 		$opts = $this->getOptions();
 		return !Services::IP()->isLoopback()
 			   && !empty( $opts->getCustomLoginPath() )
-			   && !$this->getCon()->req->is_ip_whitelisted
+			   && !$this->getCon()->this_req->is_ip_whitelisted
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 

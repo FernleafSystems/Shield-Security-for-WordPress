@@ -26,7 +26,7 @@ class RulesController {
 	private $rules;
 
 	protected function canRun() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && !$this->getCon()->req->rules_completed;
+		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && !$this->getCon()->this_req->rules_completed;
 	}
 
 	protected function run() {
@@ -56,12 +56,13 @@ class RulesController {
 			} );
 		}
 
-		$this->getCon()->req->rules_completed = true;
+		$this->getCon()->this_req->rules_completed = true;
 	}
 
 	private function processRule( RuleVO $rule ) {
 		$conditionPro = ( new ConditionsProcessor( $rule, $this ) )->setCon( $this->getCon() );
-		if ( $conditionPro->runAllRuleConditions() ) {
+		$rule->result = $conditionPro->runAllRuleConditions();
+		if ( $rule->result ) {
 			$responsePro = new ResponseProcessor( $rule, $this, $conditionPro->getConsolidatedMeta() );
 			$responsePro->run();
 		}

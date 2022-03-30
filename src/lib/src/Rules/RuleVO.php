@@ -10,6 +10,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $description
  * @property string   $wp_hook
  * @property int      $priority
+ * @property bool     $result
  * @property string[] $flags
  * @property string[] $prerequisites
  * @property array[]  $conditions

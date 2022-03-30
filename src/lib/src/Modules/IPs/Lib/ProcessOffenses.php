@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ProcessOffenses extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return !$this->getCon()->req->is_trusted_bot;
+		return !$this->getCon()->this_req->is_trusted_bot;
 	}
 
 	protected function run() {

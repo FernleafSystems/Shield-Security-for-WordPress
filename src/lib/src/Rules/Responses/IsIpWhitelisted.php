@@ -7,7 +7,7 @@ class IsIpWhitelisted extends Base {
 	const SLUG = 'is_ip_whitelisted';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->is_ip_whitelisted = true;
+		$this->getCon()->this_req->is_ip_whitelisted = true;
 		return true;
 	}
 }

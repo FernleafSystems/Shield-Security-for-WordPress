@@ -12,7 +12,7 @@ class IsIpWhitelisted extends Base {
 	const SLUG = 'is_ip_whitelisted';
 
 	protected function execConditionCheck() :bool {
-		return $this->getCon()->req->is_ip_whitelisted ??
+		return $this->getCon()->this_req->is_ip_whitelisted ??
 			   !empty( ( new LookupIpOnList() )
 				   ->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
 				   ->setIP( $this->getRequestIP() )

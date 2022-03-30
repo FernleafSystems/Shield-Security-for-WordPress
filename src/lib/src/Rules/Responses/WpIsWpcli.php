@@ -7,7 +7,7 @@ class WpIsWpcli extends Base {
 	const SLUG = 'wp_is_wpcli';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->wp_is_wpcli = true;
+		$this->getCon()->this_req->wp_is_wpcli = true;
 		return true;
 	}
 }

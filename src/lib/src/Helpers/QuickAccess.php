@@ -8,7 +8,7 @@ class QuickAccess {
 
 	public static function IsRequestWhiteListed() :bool {
 		try {
-			return Controller::GetInstance()->req->is_ip_whitelisted;
+			return Controller::GetInstance()->this_req->is_ip_whitelisted;
 		}
 		catch ( \Exception $e ) {
 			return false;

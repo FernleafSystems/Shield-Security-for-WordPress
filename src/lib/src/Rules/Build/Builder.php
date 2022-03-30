@@ -17,7 +17,7 @@ class Builder {
 			$rules[ $rule->slug ] = $rule;
 		}
 
-		usort( $rules,
+		uasort( $rules,
 			function ( $a, $b ) {
 				/**
 				 * @var RuleVO $a

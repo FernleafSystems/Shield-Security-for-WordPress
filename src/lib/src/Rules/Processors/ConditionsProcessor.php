@@ -13,7 +13,7 @@ class ConditionsProcessor extends BaseProcessor {
 	}
 
 	public function runAllRuleConditions() :bool {
-		$thisReq = $this->controller->getCon()->req;
+		$thisReq = $this->controller->getCon()->this_req;
 		if ( !isset( $thisReq->rules_conditions_results[ $this->rule->slug ] ) ) {
 			$thisReq->rules_conditions_results[ $this->rule->slug ] = $this->processConditionGroup(
 				$this->rule->conditions[ 'group' ],
@@ -90,7 +90,7 @@ class ConditionsProcessor extends BaseProcessor {
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
 		$result = $this->getCon()
-					  ->req
+					  ->this_req
 					  ->rules_conditions_results[ $rule ] ?? null;
 		if ( is_null( $result ) ) {
 			throw new Exceptions\RuleNotYetRunException( 'Rule not yet run: '.$rule );

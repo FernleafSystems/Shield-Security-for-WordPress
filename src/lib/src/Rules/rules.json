@@ -1,6 +1,6 @@
 {
-  "rules": [
-    {
+  "rules": {
+    "shield\/is_ip_whitelisted":                 {
       "name":        "Is IP Whitelisted",
       "description": "Test whether the current Request IP is whitelisted.",
       "slug":        "shield\/is_ip_whitelisted",
@@ -22,7 +22,7 @@
         }
       ]
     },
-    {
+    "shield\/is_server_loopback":                {
       "name":        "Is Server Loopback",
       "description": "Is Server Loopback request.",
       "slug":        "shield\/is_server_loopback",
@@ -46,7 +46,7 @@
       },
       "responses":   []
     },
-    {
+    "shield\/is_public_web_request":             {
       "name":        "Is Public Web Request",
       "description": "Is a public web request.",
       "slug":        "shield\/is_public_web_request",
@@ -72,7 +72,7 @@
       },
       "responses":   []
     },
-    {
+    "shield\/is_trusted_bot":                    {
       "name":        "Is Trusted Bot",
       "description": "Test whether the visitor is a trusted bot.",
       "slug":        "shield\/is_trusted_bot",
@@ -105,7 +105,7 @@
         }
       ]
     },
-    {
+    "shield\/request_bypasses_all_restrictions": {
       "name":        "A Request That Bypasses Restrictions",
       "description": "Does the request bypass all plugin restrictions.",
       "slug":        "shield\/request_bypasses_all_restrictions",
@@ -133,7 +133,7 @@
       },
       "responses":   []
     },
-    {
+    "shield\/is_ip_blocked":                     {
       "name":        "Is IP Blocked",
       "description": "Test whether the current Request IP is Blocked.",
       "slug":        "shield\/is_ip_blocked",
@@ -163,7 +163,7 @@
         }
       ]
     },
-    {
+    "shield\/firewall_sql_queries":              {
       "name":        "SQL Queries",
       "description": "Check request parameters that trigger \"SQL Queries\" patterns.",
       "slug":        "shield\/firewall_sql_queries",
@@ -409,7 +409,7 @@
         }
       ]
     },
-    {
+    "shield\/firewall_dir_traversal":            {
       "name":        "Directory Traversals",
       "description": "Check request parameters that trigger \"Directory Traversals\" patterns.",
       "slug":        "shield\/firewall_dir_traversal",
@@ -665,7 +665,7 @@
         }
       ]
     },
-    {
+    "shield\/firewall_field_truncation":         {
       "name":        "Field Truncation",
       "description": "Check request parameters that trigger \"Field Truncation\" patterns.",
       "slug":        "shield\/firewall_field_truncation",
@@ -909,7 +909,7 @@
         }
       ]
     },
-    {
+    "shield\/firewall_wordpress_terms":          {
       "name":        "WordPress Terms",
       "description": "Check request parameters that trigger \"WordPress Terms\" patterns.",
       "slug":        "shield\/firewall_wordpress_terms",
@@ -1335,7 +1335,7 @@
         }
       ]
     },
-    {
+    "shield\/firewall_aggressive":               {
       "name":        "Aggressive Scan",
       "description": "Check request parameters that trigger \"Aggressive Scan\" patterns.",
       "slug":        "shield\/firewall_aggressive",
@@ -1783,7 +1783,7 @@
         }
       ]
     },
-    {
+    "shield\/firewall_exe_file_uploads":         {
       "name":        "Exe File Uploads",
       "description": "Check request parameters that trigger \"Exe File Uploads\" patterns.",
       "slug":        "shield\/firewall_exe_file_uploads",
@@ -1842,7 +1842,7 @@
         }
       ]
     },
-    {
+    "shield\/is_bot_probe_404":                  {
       "name":        "Bot-Track 404",
       "description": "Tracking HTTP 404 errors by bots probing a site",
       "slug":        "shield\/is_bot_probe_404",
@@ -1903,7 +1903,7 @@
         }
       ]
     },
-    {
+    "shield\/is_bot_probe_xmlrpc":               {
       "name":        "Bot-Track XML-RPC",
       "description": "Track probing bots that send requests to XML-RPC.",
       "slug":        "shield\/is_bot_probe_xmlrpc",
@@ -1950,7 +1950,7 @@
         }
       ]
     },
-    {
+    "shield\/is_bot_probe_fakewebcrawler":       {
       "name":        "Bot-Track Fake Web Crawler",
       "description": "Track probing bots that incorrectly identify as official web crawlers.",
       "slug":        "shield\/is_bot_probe_fakewebcrawler",
@@ -2003,7 +2003,7 @@
         }
       ]
     },
-    {
+    "shield\/is_bot_probe_invalidscript":        {
       "name":        "Bot-Track Invalid Script",
       "description": "Track probing bots that send requests to invalid scripts.",
       "slug":        "shield\/is_bot_probe_invalidscript",
@@ -2059,5 +2059,5 @@
         }
       ]
     }
-  ]
+  }
 }

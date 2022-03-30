@@ -7,7 +7,7 @@ class WpIsXmlrpc extends Base {
 	const SLUG = 'wp_is_xmlrpc';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->wp_is_xmlrpc = true;
+		$this->getCon()->this_req->wp_is_xmlrpc = true;
 		return true;
 	}
 }

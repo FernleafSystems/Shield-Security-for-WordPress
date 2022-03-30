@@ -7,7 +7,7 @@ class IsTrustedBot extends Base {
 	const SLUG = 'is_trusted_bot';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->is_trusted_bot = true;
+		$this->getCon()->this_req->is_trusted_bot = true;
 		return true;
 	}
 }

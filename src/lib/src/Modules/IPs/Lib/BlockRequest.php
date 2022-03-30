@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class BlockRequest extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return (bool)apply_filters( 'shield/is_request_blocked', $this->getCon()->req->is_ip_blocked );
+		return (bool)apply_filters( 'shield/is_request_blocked', $this->getCon()->this_req->is_ip_blocked );
 	}
 
 	protected function run() {

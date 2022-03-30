@@ -93,7 +93,7 @@ class BotSignalsController extends ExecOnceModConsumer {
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$this->getCon()->req->is_trusted_bot ) {
+			if ( !$this->getCon()->this_req->is_trusted_bot ) {
 
 				if ( $opts->isEnabledTrack404() ) {
 //					$trackers[] = new BotTrack\Track404();

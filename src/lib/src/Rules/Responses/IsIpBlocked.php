@@ -7,7 +7,7 @@ class IsIpBlocked extends Base {
 	const SLUG = 'is_ip_blocked';
 
 	protected function execResponse() :bool {
-		$this->getCon()->req->is_ip_blocked = true;
+		$this->getCon()->this_req->is_ip_blocked = true;
 		return true;
 	}
 }

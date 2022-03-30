@@ -134,7 +134,7 @@ class ModCon extends Base\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		$req = $this->getCon()->req;
+		$req = $this->getCon()->this_req;
 		$opts = $this->getOptions();
 		return ( $opts->isModuleRunIfWhitelisted() || !$req->is_bypass_restrictions )
 			   && ( $opts->isModuleRunIfVerifiedBot() || !$req->is_trusted_bot )
@@ -146,11 +146,11 @@ class ModCon extends Base\ModCon {
 	 * @deprecated 15.0
 	 */
 	public function isVisitorWhitelisted() :bool {
-		return $this->getCon()->req->is_ip_whitelisted;
+		return $this->getCon()->this_req->is_ip_whitelisted;
 	}
 
 	public function isTrustedVerifiedBot() :bool {
-		return $this->getCon()->req->is_trusted_bot;
+		return $this->getCon()->this_req->is_trusted_bot;
 	}
 
 	/**

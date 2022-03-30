@@ -29,7 +29,7 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $mod )
 			->run();
 
-		if ( !$this->getCon()->req->is_bypass_restrictions && !$this->isRequestWhitelisted() ) {
+		if ( !$this->getCon()->this_req->is_bypass_restrictions && !$this->isRequestWhitelisted() ) {
 
 			// We setup offenses processing immediately but run the blocks on 'init'
 			( new ProcessOffenses() )

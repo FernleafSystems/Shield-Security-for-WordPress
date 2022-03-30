@@ -23,7 +23,7 @@ class BotSignalsRecord {
 	public function delete() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$thisReq = $this->getCon()->req;
+		$thisReq = $this->getCon()->this_req;
 		/** @var BotSignal\Ops\Select $select */
 		$select = $mod->getDbH_BotSignal()->getQueryDeleter();
 
@@ -55,7 +55,7 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$thisReq = $this->getCon()->req;
+		$thisReq = $this->getCon()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
 			return $thisReq->botsignal_record;
@@ -141,7 +141,7 @@ class BotSignalsRecord {
 						   ->updateById( $record->id, $data );
 		}
 
-		$thisReq = $this->getCon()->req;
+		$thisReq = $this->getCon()->this_req;
 		if ( $thisReq->ip === $record->ip ) {
 			$thisReq->botsignal_record = $record;
 		}

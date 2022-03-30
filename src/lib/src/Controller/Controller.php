@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property Shield\Request\ThisRequest                             $req
+ * @property Shield\Request\ThisRequest                             $this_req
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -31,6 +31,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
+ * @property Shield\Rules\RulesController                           $rules
  * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
@@ -124,12 +125,20 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
-			case 'req':
+			case 'this_req':
 				if ( is_null( $val ) ) {
 					$val = new Shield\Request\ThisRequest( $this );
-					$this->req = $val;
+					$this->this_req = $val;
 				}
 				break;
+
+			case 'rules':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Rules\RulesController() )->setCon( $this );
+					$this->rules = $val;
+				}
+				break;
+
 			case 'is_activating':
 			case 'is_my_upgrade':
 			case 'modules_loaded':
@@ -1126,10 +1135,10 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getIfForceOffActive() :bool {
-		if ( is_null( $this->req->is_force_off ) ) {
-			$this->req->is_force_off = $this->getForceOffFilePath() !== false;
+		if ( is_null( $this->this_req->is_force_off ) ) {
+			$this->this_req->is_force_off = $this->getForceOffFilePath() !== false;
 		}
-		return $this->req->is_force_off;
+		return $this->this_req->is_force_off;
 	}
 
 	/**
@@ -1227,15 +1236,9 @@ class Controller extends DynPropertiesClass {
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
 
-		$this->runRulesController();
+		$this->rules->execute();
 
 		return true;
-	}
-
-	private function runRulesController() {
-		( new Shield\Rules\RulesController() )
-			->setCon( $this )
-			->execute();
 	}
 
 	/**

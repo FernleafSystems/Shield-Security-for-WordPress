@@ -162,7 +162,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
-		return !$this->getCon()->req->is_ip_whitelisted && count( $this->getProvidersForUser( $user, true ) ) > 0;
+		return !$this->getCon()->this_req->is_ip_whitelisted && count( $this->getProvidersForUser( $user, true ) ) > 0;
 	}
 
 	public function removeAllFactorsForUser( int $userID ) :StdResponse {

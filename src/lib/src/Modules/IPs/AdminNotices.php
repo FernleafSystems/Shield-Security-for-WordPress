@@ -47,7 +47,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $notice->id ) {
 
 			case 'visitor-whitelisted':
-				$needed = $this->getCon()->req->is_ip_whitelisted;
+				$needed = $this->getCon()->this_req->is_ip_whitelisted;
 				break;
 
 			default:

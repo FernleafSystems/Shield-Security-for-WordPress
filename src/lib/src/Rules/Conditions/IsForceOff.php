@@ -13,10 +13,10 @@ class IsForceOff extends Base {
 
 	protected function execConditionCheck() :bool {
 		$con = $this->getCon();
-		if ( is_null( $con->req->is_force_off ) ) {
-			$con->req->is_force_off = !is_null( $con->file_forceoff ) || ( $this->getForceOffFilePath() !== false );
+		if ( is_null( $con->this_req->is_force_off ) ) {
+			$con->this_req->is_force_off = !is_null( $con->file_forceoff ) || ( $this->getForceOffFilePath() !== false );
 		}
-		return $con->req->is_force_off;
+		return $con->this_req->is_force_off;
 	}
 
 	/**

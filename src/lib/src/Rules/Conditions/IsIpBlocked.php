@@ -16,7 +16,7 @@ class IsIpBlocked extends Base {
 	 * @inheritDoc
 	 */
 	protected function execConditionCheck() :bool {
-		return $this->getCon()->req->is_ip_blocked ??
+		return $this->getCon()->this_req->is_ip_blocked ??
 			   ( new QueryIpBlock() )
 				   ->setMod( $this->getCon()->getModule_IPs() )
 				   ->setIp( $this->getRequestIP() )
