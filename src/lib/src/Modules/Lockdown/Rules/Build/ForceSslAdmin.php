@@ -20,13 +20,6 @@ class ForceSslAdmin extends BuildRuleCoreShieldBase {
 		return 'Force SSL Admin.';
 	}
 
-	protected function getConditions() :array {
-		return [
-			'logic' => static::LOGIC_AND,
-			'group' => []
-		];
-	}
-
 	protected function getResponses() :array {
 		return [
 			[

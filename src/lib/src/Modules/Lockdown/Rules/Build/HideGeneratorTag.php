@@ -8,22 +8,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
-class DisableFileEditing extends BuildRuleCoreShieldBase {
+class HideGeneratorTag extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/disable_file_editing';
+	const SLUG = 'shield/hide_generator_tag';
 
 	protected function getName() :string {
-		return 'Disable File Editing';
+		return 'Hide Generator Tag';
 	}
 
 	protected function getDescription() :string {
-		return 'Disable File editing from within the WP admin dashboard.';
+		return 'Hide Generator Tag.';
+	}
+
+	protected function getWpHookLevel() :int {
+		return Shield\Rules\WPHooksOrder::WP;
 	}
 
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\DisableFileEditing::SLUG,
+				'response' => Responses\HideGeneratorTag::SLUG,
 			],
 		];
 	}

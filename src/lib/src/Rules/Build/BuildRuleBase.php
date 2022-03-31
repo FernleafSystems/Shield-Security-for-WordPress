@@ -38,7 +38,10 @@ abstract class BuildRuleBase {
 	}
 
 	protected function getConditions() :array {
-		return [];
+		return [
+			'logic' => static::LOGIC_AND,
+			'group' => []
+		];
 	}
 
 	protected function getFlags() :array {

@@ -13,6 +13,7 @@ class ModCon extends BaseShield\ModCon {
 			$opts->isXmlrpcDisabled() ? Rules\Build\DisableXmlrpc::class : null,
 			$opts->isOptFileEditingDisabled() ? Rules\Build\DisableFileEditing::class : null,
 			$opts->isOpt( 'block_author_discovery', 'Y' ) ? Rules\Build\IsRequestAuthorDiscovery::class : null,
+			$opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ? Rules\Build\HideGeneratorTag::class : null,
 			( $opts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) ? Rules\Build\ForceSslAdmin::class : null,
 		];
 	}

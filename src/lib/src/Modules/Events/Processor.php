@@ -18,10 +18,7 @@ class Processor extends BaseShield\Processor {
 		add_action( $this->getCon()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
 	}
 
-	/**
-	 * @return Events\Lib\StatsWriter
-	 */
-	public function loadStatsWriter() {
+	public function loadStatsWriter() :Events\Lib\StatsWriter {
 		if ( !isset( $this->oStatsWriter ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
@@ -38,7 +35,7 @@ class Processor extends BaseShield\Processor {
 						 ->getDbHandler_Events()
 						 ->getQuerySelector();
 
-		$aKeyStats = [
+		$keyStats = [
 			'comments'          => [
 				__( 'Comment Blocks', 'wp-simple-firewall' ),
 				$selector->clearWheres()->sumEvents( [
@@ -76,8 +73,8 @@ class Processor extends BaseShield\Processor {
 		echo $this->getMod()->renderTemplate(
 			'snippets/widget_dashboard_statistics.php',
 			[
-				'sHeading'  => sprintf( __( '%s Statistics', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
-				'aKeyStats' => $aKeyStats,
+				'heading'  => sprintf( __( '%s Statistics', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
+				'keyStats' => $keyStats,
 			]
 		);
 	}

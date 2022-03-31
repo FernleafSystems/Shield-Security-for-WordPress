@@ -88,7 +88,7 @@ class SortRulesByDependencies {
 				}
 			}
 
-			if ( $count++ > 20 ) {
+			if ( $count++ > 1000 ) {
 				break;
 			}
 		} while ( !empty( $rulesDependenciesMap ) );

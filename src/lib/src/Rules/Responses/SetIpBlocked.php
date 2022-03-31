@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class IsIpBlocked extends Base {
+class SetIpBlocked extends Base {
 
-	const SLUG = 'is_ip_blocked';
+	const SLUG = 'set_ip_blocked';
 
 	protected function execResponse() :bool {
 		$this->getCon()->this_req->is_ip_blocked = true;

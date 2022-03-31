@@ -9,15 +9,6 @@ class Processor extends BaseShield\Processor {
 
 	private $xmlProcessed = false;
 
-	protected function run() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		if ( $opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
-			remove_action( 'wp_head', 'wp_generator' );
-		}
-	}
-
 	public function runDailyCron() {
 		( new Lib\CleanRubbish() )
 			->setMod( $this->getMod() )

@@ -44,7 +44,7 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\IsIpBlocked::SLUG,
+				'response' => Responses\SetIpBlocked::SLUG,
 			],
 		];
 	}
