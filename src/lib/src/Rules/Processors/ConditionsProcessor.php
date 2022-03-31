@@ -95,8 +95,4 @@ class ConditionsProcessor extends BaseProcessor {
 		}
 		return $result;
 	}
-
-	private function isStopOnFirst() :bool {
-		return in_array( 'stop_on_first', $this->rule->flags );
-	}
 }

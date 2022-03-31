@@ -40,8 +40,7 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 					'rule' => IsTrustedBot::SLUG,
 				],
 				[
-					'rule'         => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
-					'invert_match' => true,
+					'rule' => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
 				],
 			]
 		];

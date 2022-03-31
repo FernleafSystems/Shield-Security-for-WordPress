@@ -39,6 +39,15 @@ class RulesController {
 		} );
 	}
 
+	public function getRulesResultsSummary() :array {
+		return array_map(
+			function ( $rule ) {
+				return $rule->result;
+			},
+			$this->getRules()
+		);
+	}
+
 	private function buildRules() {
 		( new Builder() )
 			->setCon( $this->getCon() )

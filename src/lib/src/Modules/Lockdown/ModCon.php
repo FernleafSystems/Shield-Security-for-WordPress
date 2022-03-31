@@ -6,6 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
+	protected function enumRuleBuilders() :array {
+		return [
+			Rules\Build\DisableXmlrpc::class,
+		];
+	}
+
 	/**
 	 * @param string $namespace
 	 * @return bool

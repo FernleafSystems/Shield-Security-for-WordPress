@@ -27,11 +27,6 @@ class Processor extends BaseShield\Processor {
 		if ( $opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
-
-		if ( $opts->isXmlrpcDisabled() ) {
-			add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
-			add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
-		}
 	}
 
 	public function runDailyCron() {
@@ -73,17 +68,6 @@ class Processor extends BaseShield\Processor {
 				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
 			}
 		}
-	}
-
-	/**
-	 * @return array|false
-	 */
-	public function disableXmlrpc() {
-		if ( !$this->xmlProcessed ) {
-			$this->xmlProcessed = true;
-			$this->getCon()->fireEvent( 'block_xml' );
-		}
-		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
 	}
 
 	/**

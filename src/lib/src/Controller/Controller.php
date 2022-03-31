@@ -1287,6 +1287,10 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'firewall' );
 	}
 
+	public function getModule_Lockdown() :Shield\Modules\Lockdown\ModCon {
+		return $this->getModule( 'lockdown' );
+	}
+
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
 		return $this->getModule( 'hack_protect' );
 	}
