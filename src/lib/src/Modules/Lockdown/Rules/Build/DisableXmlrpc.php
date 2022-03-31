@@ -21,19 +21,12 @@ class DisableXmlrpc extends BuildRuleCoreShieldBase {
 		return 'Disable XML-RPC if required.';
 	}
 
-	protected function getPriority() :int {
-		return 12;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
 					'condition' => Conditions\WpIsXmlrpc::SLUG,
-				],
-				[
-					'condition' => Conditions\IsXmlrpcDisabled::SLUG,
 				],
 			]
 		];

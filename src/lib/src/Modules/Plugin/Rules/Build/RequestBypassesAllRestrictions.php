@@ -21,10 +21,6 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 		return 'Does the request bypass all plugin restrictions.';
 	}
 
-	protected function getPriority() :int {
-		return 15;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_OR,

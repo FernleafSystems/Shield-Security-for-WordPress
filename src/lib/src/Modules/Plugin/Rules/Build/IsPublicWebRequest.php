@@ -20,10 +20,6 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 		return 'Is a public web request.';
 	}
 
-	protected function getPriority() :int {
-		return 10;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,

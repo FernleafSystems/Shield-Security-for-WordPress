@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
@@ -105,8 +105,10 @@ class Strings extends Base\Strings {
 			case 'block_php_code' :
 				$name = __( 'PHP Code', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Block %s', 'wp-simple-firewall' ), __( 'PHP Code Includes', 'wp-simple-firewall' ) );
-				$desc = __( 'This will block any data that appears to try and include PHP files.', 'wp-simple-firewall' )
-						.'<br />'.__( 'Will probably block saving within the Plugin/Theme file editors.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'This will block any data that appears to try and include PHP files.', 'wp-simple-firewall' ),
+					__( 'Will probably block saving within the Plugin/Theme file editors.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'block_exe_file_uploads' :

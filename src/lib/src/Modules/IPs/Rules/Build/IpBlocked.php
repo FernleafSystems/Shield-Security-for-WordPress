@@ -22,10 +22,6 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 		return 'Test whether the current Request IP is Blocked.';
 	}
 
-	protected function getPriority() :int {
-		return 20;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,

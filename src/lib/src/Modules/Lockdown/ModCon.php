@@ -7,8 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 		return [
-			Rules\Build\DisableXmlrpc::class,
+			$opts->isXmlrpcDisabled() ? Rules\Build\DisableXmlrpc::class : null,
 		];
 	}
 

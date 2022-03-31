@@ -21,10 +21,6 @@ class IpWhitelisted extends BuildRuleCoreShieldBase {
 		return 'Test whether the current Request IP is whitelisted.';
 	}
 
-	protected function getPriority() :int {
-		return 0;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,

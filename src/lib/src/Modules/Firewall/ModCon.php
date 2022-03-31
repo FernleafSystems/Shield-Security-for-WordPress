@@ -10,9 +10,8 @@ class ModCon extends BaseShield\ModCon {
 	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$rules = [];
 
-		foreach (
+		return array_filter(
 			[
 				Rules\Build\FirewallSqlQueries::class,
 				Rules\Build\FirewallDirTraversal::class,
@@ -22,14 +21,12 @@ class ModCon extends BaseShield\ModCon {
 				Rules\Build\FirewallLeadingSchema::class,
 				Rules\Build\FirewallAggressive::class,
 				Rules\Build\FirewallExeFileUploads::class,
-			] as $blockTypeClass
-		) {
-			if ( $opts->isOpt( 'block_'.$blockTypeClass::SCAN_CATEGORY, 'Y' ) ) {
-				$rules[] = $blockTypeClass;
+			],
+			function ( $blockTypeClass ) use ( $opts ) {
+				/** @var Rules\Build\BuildFirewallBase $blockTypeClass */
+				return $opts->isOpt( 'block_'.$blockTypeClass::SCAN_CATEGORY, 'Y' );
 			}
-		}
-
-		return $rules;
+		);
 	}
 
 	public function getBlockResponse() :string {

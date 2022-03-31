@@ -19,7 +19,6 @@ abstract class BuildRuleBase {
 		$rule->description = $this->getDescription();
 		$rule->wp_hook = '';
 		$rule->wp_hook_level = $this->getWpHookLevel();
-		$rule->priority = $this->getPriority();
 		$rule->flags = $this->getFlags();
 		$rule->conditions = $this->getConditions();
 		$rule->responses = $this->getResponses();
@@ -44,10 +43,6 @@ abstract class BuildRuleBase {
 
 	protected function getFlags() :array {
 		return [];
-	}
-
-	protected function getPriority() :int {
-		return 100;
 	}
 
 	protected function getResponses() :array {

@@ -21,6 +21,14 @@ class ModCon extends BaseShield\ModCon {
 		return $this->requestLogger;
 	}
 
+	protected function enumRuleBuilders() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return [
+			$opts->isTrafficLimitEnabled() ? Rules\Build\IsRateLimitExceeded::class : null,
+		];
+	}
+
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

@@ -21,10 +21,6 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 		return 'Is Server Loopback request.';
 	}
 
-	protected function getPriority() :int {
-		return 10;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,

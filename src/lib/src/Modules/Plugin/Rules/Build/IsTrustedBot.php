@@ -22,10 +22,6 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 		return 'Test whether the visitor is a trusted bot.';
 	}
 
-	protected function getPriority() :int {
-		return 12;
-	}
-
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,

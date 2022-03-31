@@ -55,25 +55,14 @@ class ModCon extends BaseShield\ModCon {
 	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$rules = [
+		return [
 			Rules\Build\IpWhitelisted::class,
 			Rules\Build\IpBlocked::class,
+			$opts->isEnabledTrack404() ? Rules\Build\BotTrack404::class : null,
+			$opts->isEnabledTrackXmlRpc() ? Rules\Build\BotTrackXmlrpc::class : null,
+			$opts->isEnabledTrackFakeWebCrawler() ? Rules\Build\BotTrackFakeWebCrawler::class : null,
+			$opts->isEnabledTrackInvalidScript() ? Rules\Build\BotTrackInvalidScript::class : null,
 		];
-
-		if ( $opts->isEnabledTrack404() ) {
-			$rules[] = Rules\Build\BotTrack404::class;
-		}
-		if ( $opts->isEnabledTrackXmlRpc() ) {
-			$rules[] = Rules\Build\BotTrackXmlrpc::class;
-		}
-		if ( $opts->isEnabledTrackFakeWebCrawler() ) {
-			$rules[] = Rules\Build\BotTrackFakeWebCrawler::class;
-		}
-		if ( $opts->isEnabledTrackInvalidScript() ) {
-			$rules[] = Rules\Build\BotTrackInvalidScript::class;
-		}
-
-		return $rules;
 	}
 
 	/**

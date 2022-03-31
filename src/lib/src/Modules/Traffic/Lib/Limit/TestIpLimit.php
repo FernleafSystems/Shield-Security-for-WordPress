@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Limit;
 
@@ -13,7 +13,7 @@ class TestIpLimit {
 	use Shield\Modules\IPs\Components\IpAddressConsumer;
 
 	/**
-	 * @return bool  - true if request is allowed (i.e. request limit has not been exceeded)
+	 * returns true if request is allowed (i.e. request limit has not been exceeded)
 	 * @throws \Exception|RateLimitExceededException
 	 */
 	public function run() :bool {

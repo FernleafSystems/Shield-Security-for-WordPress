@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 15.0
+ */
 class Limiter extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {

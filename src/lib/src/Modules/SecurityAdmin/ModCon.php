@@ -22,7 +22,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
-			Rules\Build\IsSecurityAdmin::class,
+			$this->getSecurityAdminController()->isEnabledSecAdmin() ? Rules\Build\IsSecurityAdmin::class : null,
 		];
 	}
 

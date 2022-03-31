@@ -36,10 +36,6 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			$this->getName() );
 	}
 
-	protected function getPriority() :int {
-		return 50;
-	}
-
 	protected function getConditions() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

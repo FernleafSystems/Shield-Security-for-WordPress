@@ -142,7 +142,7 @@ abstract class ModCon {
 					$theClass->setMod( $this );
 					return $theClass;
 				},
-				$this->enumRuleBuilders()
+				array_filter( $this->enumRuleBuilders() )
 			) );
 		} );
 	}
