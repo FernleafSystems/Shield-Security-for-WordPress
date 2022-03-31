@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string          $ip_id
  * @property bool            $is_bypass_restrictions
  * @property bool            $is_force_off
+ * @property bool            $is_security_admin
  * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_whitelisted
@@ -53,8 +54,9 @@ class ThisRequest extends DynPropertiesClass {
 				}
 				break;
 
-			case 'is_trusted_bot':
 			case 'is_ip_whitelisted':
+			case 'is_security_admin':
+			case 'is_trusted_bot':
 			case 'rules_completed':
 				$value = (bool)$value;
 				break;

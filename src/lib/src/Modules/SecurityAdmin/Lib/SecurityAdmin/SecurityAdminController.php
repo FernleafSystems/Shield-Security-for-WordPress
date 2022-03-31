@@ -66,7 +66,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 				/** @var Options $opts */
 				$opts = $this->getOptions();
 
-				$isCurrentlySecAdmin = $this->isCurrentlySecAdmin();
+				$isSecAdmin = $this->getCon()->this_req->is_security_admin;
 				$localz[] = [
 					'shield/secadmin',
 					'shield_vars_secadmin',
@@ -77,8 +77,8 @@ class SecurityAdminController extends ExecOnceModConsumer {
 							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
 						],
 						'flags'   => [
-							'restrict_options' => !$isCurrentlySecAdmin && $opts->getAdminAccessArea_Options(),
-							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isCurrentlySecAdmin
+							'restrict_options' => !$isSecAdmin && $opts->getAdminAccessArea_Options(),
+							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
@@ -154,7 +154,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
 		return $isPluginAdmin &&
-			   ( $this->isCurrentlySecAdmin() || $this->verifyPinRequest() );
+			   ( $this->getCon()->this_req->is_security_admin || $this->verifyPinRequest() );
 	}
 
 	public function renderPinLoginForm() :string {

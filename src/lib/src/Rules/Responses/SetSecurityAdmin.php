@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class IsTrustedBot extends Base {
+class SetSecurityAdmin extends Base {
 
-	const SLUG = 'is_trusted_bot';
+	const SLUG = 'set_security_admin';
 
 	protected function execResponse() :bool {
-		$this->getCon()->this_req->is_trusted_bot = true;
+		$this->getCon()->this_req->is_security_admin = true;
 		return true;
 	}
 }

@@ -33,6 +33,9 @@ class RulesController {
 	protected function run() {
 		if ( $this->verifyRulesStatus() ) {
 			$this->processRules();
+			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
+//				error_log( var_export( $this->getRulesResultsSummary(), true ) );
+			} );
 		}
 		add_action( $this->getCon()->prefix( 'pre_options_store' ), function () {
 			$this->buildRules();
@@ -67,7 +70,7 @@ class RulesController {
 				foreach ( $this->getRulesForHook( $wpHook ) as $rule ) {
 					$this->processRule( $rule );
 				}
-			} );
+			}, PHP_INT_MIN );
 		}
 
 		$this->getCon()->this_req->rules_completed = true;

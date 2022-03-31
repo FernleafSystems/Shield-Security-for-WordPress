@@ -20,6 +20,12 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $securityAdminCon;
 
+	protected function enumRuleBuilders() :array {
+		return [
+			Rules\Build\IsSecurityAdmin::class,
+		];
+	}
+
 	protected function setupCustomHooks() {
 		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
@@ -102,7 +108,6 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * Used by Wizard. TODO: sort out the wizard requests!
-	 * @param string $pin
 	 * @return $this
 	 * @throws \Exception
 	 */
