@@ -13,13 +13,6 @@ class Processor extends BaseShield\Processor {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		if ( $opts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
-			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
-				define( 'FORCE_SSL_ADMIN', true );
-			}
-			force_ssl_admin( true );
-		}
-
 		if ( $opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
