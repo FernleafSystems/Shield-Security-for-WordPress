@@ -11,6 +11,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
  * @property int $btcheese_at
  * @property int $btfake_at
  * @property int $btinvalidscript_at
+ * @property int $btauthorfishing_at
  * @property int $btloginfail_at
  * @property int $btlogininvalid_at
  * @property int $btua_at

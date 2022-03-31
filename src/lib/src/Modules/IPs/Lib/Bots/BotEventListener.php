@@ -61,6 +61,7 @@ class BotEventListener extends ExecOnceModConsumer {
 				'bottrack_xmlrpc'         => 'btxml',
 				'bottrack_logininvalid'   => 'btlogininvalid',
 				'bottrack_invalidscript'  => 'btinvalidscript',
+				'block_author_fishing'    => 'btauthorfishing',
 				'cooldown_fail'           => 'cooldown',
 				'recaptcha_success'       => 'captchapass',
 				'request_limit_exceeded'  => 'ratelimit',

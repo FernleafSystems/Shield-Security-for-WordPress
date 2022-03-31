@@ -673,6 +673,10 @@
           "macro_type": "timestamp",
           "comment":    "BotTrack InvalidScript"
         },
+        "btauthorfishing_at": {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack Author Username Fishing"
+        },
         "cooldown_at":        {
           "macro_type": "timestamp",
           "comment":    "Cooldown Triggered"

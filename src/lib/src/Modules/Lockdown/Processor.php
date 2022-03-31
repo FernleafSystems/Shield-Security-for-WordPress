@@ -59,29 +59,8 @@ class Processor extends BaseShield\Processor {
 		$opts = $this->getOptions();
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			$this->interceptCanonicalRedirects();
 			if ( $opts->isRestApiAnonymousAccessDisabled() ) {
 				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
-			}
-		}
-	}
-
-	/**
-	 * @uses wp_die()
-	 */
-	private function interceptCanonicalRedirects() {
-
-		if ( $this->getOptions()->isOpt( 'block_author_discovery', 'Y' ) ) {
-			$author = Services::Request()->query( 'author', '' );
-			if ( !empty( $author ) ) {
-				Services::WpGeneral()->wpDie( sprintf(
-					__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.', 'wp-simple-firewall' )
-					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
-						'https://shsec.io/7l',
-						__( 'Learn More.', 'wp-simple-firewall' )
-					),
-					$this->getCon()->getHumanName()
-				) );
 			}
 		}
 	}

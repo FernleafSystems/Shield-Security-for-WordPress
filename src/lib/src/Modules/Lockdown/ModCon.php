@@ -12,6 +12,7 @@ class ModCon extends BaseShield\ModCon {
 		return [
 			$opts->isXmlrpcDisabled() ? Rules\Build\DisableXmlrpc::class : null,
 			$opts->isOptFileEditingDisabled() ? Rules\Build\DisableFileEditing::class : null,
+			$opts->isOpt( 'block_author_discovery', 'Y' ) ? Rules\Build\IsRequestAuthorDiscovery::class : null,
 		];
 	}
 

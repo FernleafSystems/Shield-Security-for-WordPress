@@ -181,13 +181,17 @@
     }
   ],
   "definitions": {
-    "events":                     {
+    "events": {
       "block_anonymous_restapi": {
         "audit_params": [
           "namespace"
         ],
         "level":        "warning",
         "recent":       true
+      },
+      "block_author_fishing":    {
+        "level":   "notice",
+        "offense": true
       },
       "block_xml":               {
         "level":   "notice",
