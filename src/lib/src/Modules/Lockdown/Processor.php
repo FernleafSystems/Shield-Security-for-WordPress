@@ -13,10 +13,6 @@ class Processor extends BaseShield\Processor {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		if ( $opts->isOptFileEditingDisabled() ) {
-			$this->blockFileEditing();
-		}
-
 		if ( $opts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );

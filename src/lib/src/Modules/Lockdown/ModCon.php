@@ -11,6 +11,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		return [
 			$opts->isXmlrpcDisabled() ? Rules\Build\DisableXmlrpc::class : null,
+			$opts->isOptFileEditingDisabled() ? Rules\Build\DisableFileEditing::class : null,
 		];
 	}
 

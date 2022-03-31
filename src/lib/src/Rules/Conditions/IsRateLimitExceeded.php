@@ -34,9 +34,6 @@ class IsRateLimitExceeded extends Conditions\Base {
 						  ->count();
 		$matched = $count > $this->limit_count;
 
-		error_log( var_export( $this->limit_count,true ) );
-		error_log( var_export( $this->limit_time_span,true ) );
-		error_log( var_export( $count,true ) );
 		if ( $matched ) {
 			$this->addConditionTriggerMeta( 'request_count', $count );
 			$this->addConditionTriggerMeta( 'limit_count', $this->limit_count );

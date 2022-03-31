@@ -13,10 +13,12 @@ class ConditionsProcessor extends BaseProcessor {
 	}
 
 	public function runAllRuleConditions() :bool {
-		return $this->processConditionGroup(
-			$this->rule->conditions[ 'group' ],
-			( $this->rule->conditions[ 'logic' ] ?? 'AND' ) === 'AND'
-		);
+		// If there are no conditions, then we're 'true'
+		return empty( $this->rule->conditions[ 'group' ] ) ||
+			   $this->processConditionGroup(
+				   $this->rule->conditions[ 'group' ],
+				   ( $this->rule->conditions[ 'logic' ] ?? 'AND' ) === 'AND'
+			   );
 	}
 
 	/**

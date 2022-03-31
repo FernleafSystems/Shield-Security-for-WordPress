@@ -20,6 +20,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_ip_whitelisted
  * @property bool            $is_server_loopback
  * @property bool            $request_bypasses_all_restrictions
+ * @property bool            $wp_is_admin
+ * @property bool            $wp_is_networkadmin
  * @property bool            $wp_is_ajax
  * @property bool            $wp_is_wpcli
  * @property bool            $wp_is_xmlrpc
