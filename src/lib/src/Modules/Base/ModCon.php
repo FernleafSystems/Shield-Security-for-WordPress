@@ -543,7 +543,7 @@ abstract class ModCon {
 		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
-		elseif ( $this->getCon()->getIfForceOffActive() ) {
+		elseif ( $this->getCon()->this_req->is_force_off ) {
 			$enabled = false;
 		}
 		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {

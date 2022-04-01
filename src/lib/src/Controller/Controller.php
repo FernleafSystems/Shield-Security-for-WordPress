@@ -1122,27 +1122,24 @@ class Controller extends DynPropertiesClass {
 		self::$sSessionId = null;
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function deleteForceOffFile() {
-		if ( $this->getIfForceOffActive() ) {
-			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
-			unset( $this->file_forceoff );
+		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
+			Services::WpFs()->deleteFile( $this->file_forceoff );
+			$this->this_req->is_force_off = false;
 			clearstatcache();
 		}
-		return $this;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getIfForceOffActive() :bool {
-		if ( is_null( $this->this_req->is_force_off ) ) {
-			$this->this_req->is_force_off = $this->getForceOffFilePath() !== false;
-		}
-		return $this->this_req->is_force_off;
+		return (bool)$this->this_req->is_force_off;
 	}
 
 	/**
 	 * @return false|string
+	 * @deprecated 15.0
 	 */
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->file_forceoff ) ) {
@@ -1234,8 +1231,13 @@ class Controller extends DynPropertiesClass {
 			->execute();
 
 		do_action( $this->prefix( 'modules_loaded' ) );
-		$this->rules->execute(); // Before processors are executed
+
+		$this->rules->execute();
+
 		do_action( $this->prefix( 'run_processors' ) );
+
+		// This is where any rules responses will execute (i.e. after processors are run):
+		do_action( $this->prefix( 'after_run_processors' ) );
 
 		return true;
 	}

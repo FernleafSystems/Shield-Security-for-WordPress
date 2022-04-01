@@ -74,12 +74,6 @@ class UI extends BaseShield\UI {
 					number_format( $eventSelector->clearWheres()->sumEvent( 'login_block' ) ) ),
 				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
 			],
-			//			'firewall'       => [
-			//				'id'      => 'firewall_block',
-			//				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
-			//				'val'     => $eventSelector->clearWheres()->sumEvent( 'firewall_block' ),
-			//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
-			//			],
 			'bot_blocks'     => [
 				'id'        => 'bot_blocks',
 				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),

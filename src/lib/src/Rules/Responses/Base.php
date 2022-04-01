@@ -40,7 +40,19 @@ abstract class Base {
 		return $this;
 	}
 
-	public function run() :bool {
+	public function run() {
+		$con = $this->getCon();
+		if ( did_action( $con->prefix( 'after_run_processors' ) ) ) {
+			$this->runExecResponse();
+		}
+		else {
+			add_action( $con->prefix( 'after_run_processors' ), function () {
+				$this->runExecResponse();
+			} );
+		}
+	}
+
+	private function runExecResponse() :bool {
 		try {
 			return $this->execResponse();
 		}

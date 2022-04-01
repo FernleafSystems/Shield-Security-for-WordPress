@@ -10,6 +10,11 @@ class FirewallBlock extends Base {
 	const SLUG = 'firewall_block';
 
 	protected function execResponse() :bool {
+		$this->runBlock();
+		return true;
+	}
+
+	private function runBlock() {
 		$mod = $this->getCon()->getModule_Firewall();
 
 		$this->preBlock();
@@ -62,11 +67,12 @@ class FirewallBlock extends Base {
 				[ 'audit_params' => [ 'to' => $mod->getPluginReportEmail() ] ]
 			);
 		}
-//		$this->getCon()->fireEvent( 'firewall_block', [ 'audit_params' => $this->getResult()->get_error_data() ] );
 	}
 
 	private function sendBlockEmail() :bool {
 		$ip = Services::IP()->getRequestIp();
+
+		$resultData = $this->getConsolidatedConditionMeta();
 
 		$mod = $this->getCon()->getModule_Firewall();
 		return $mod->getEmailProcessor()->sendEmailWithTemplate(
@@ -90,10 +96,14 @@ class FirewallBlock extends Base {
 				'vars'    => [
 					'req_details' => [
 						__( 'Visitor IP Address', 'wp-simple-firewall' ) => $ip,
-						__( 'Firewall Rule', 'wp-simple-firewall' )      => $resultData[ 'name' ] ?? 'No name',
+						__( 'Firewall Rule', 'wp-simple-firewall' )      => $this->getCon()
+																				 ->getModule_Firewall()
+																				 ->getStrings()
+																				 ->getOptionStrings( 'block_'.$resultData[ 'match_category' ] )[ 'name' ] ?? 'No name',
+						__( 'Firewall Pattern', 'wp-simple-firewall' )   => $resultData[ 'match_pattern' ] ?? 'Unavailable',
 						__( 'Request Path', 'wp-simple-firewall' )       => Services::Request()->getPath(),
-						__( 'Request Parameter', 'wp-simple-firewall' )  => $resultData[ 'param' ] ?? 'No param',
-						__( 'Request Value', 'wp-simple-firewall' )      => $resultData[ 'value' ] ?? 'No value',
+						__( 'Parameter Name', 'wp-simple-firewall' )     => $resultData[ 'match_request_param' ] ?? 'Unavailable',
+						__( 'Parameter Value', 'wp-simple-firewall' )    => $resultData[ 'match_request_value' ] ?? 'Unavailable',
 					]
 				]
 			]

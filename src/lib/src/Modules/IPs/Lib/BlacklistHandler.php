@@ -21,26 +21,23 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	protected function run() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-
-		if ( $this->getCon()->isPremiumActive() ) {
-			$this->setupCronHooks();
-		}
+		$this->setupCronHooks();
 
 		( new IPs\Components\UnblockIpByFlag() )
 			->setMod( $mod )
 			->run();
+		( new ProcessOffenses() )
+			->setMod( $mod )
+			->execute();
+		( new AutoUnblock() )
+			->setMod( $this->getMod() )
+			->execute();
+	}
 
-		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
-
-			( new AutoUnblock() )
-				->setMod( $this->getMod() )
-				->execute();
-
-			// We setup offenses processing immediately but run the blocks on 'init'
-			( new ProcessOffenses() )
-				->setMod( $this->getMod() )
-				->execute();
-		}
+	public function runHourlyCron() {
+		( new IPs\Components\ImportIpsFromFile() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	/**
@@ -68,11 +65,5 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 			}
 		}
 		return $isWhitelisted;
-	}
-
-	public function runHourlyCron() {
-		( new IPs\Components\ImportIpsFromFile() )
-			->setMod( $this->getMod() )
-			->execute();
 	}
 }

@@ -40,7 +40,7 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 	}
 
 	private function buildPaths() :array {
-		$homeUrlPath = wp_parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH );
+		$homeUrlPath = (string)wp_parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH );
 		return array_map(
 			function ( $value ) use ( $homeUrlPath ) {
 				$regEx = ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH, false );

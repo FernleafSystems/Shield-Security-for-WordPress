@@ -13,8 +13,8 @@ class IsForceOff extends Base {
 
 	protected function execConditionCheck() :bool {
 		$con = $this->getCon();
-		if ( is_null( $con->this_req->is_force_off ) ) {
-			$con->this_req->is_force_off = !is_null( $con->file_forceoff ) || ( $this->getForceOffFilePath() !== false );
+		if ( !isset( $con->this_req->is_force_off ) ) {
+			$con->this_req->is_force_off = $this->findForceOffFile() !== false;
 		}
 		return $con->this_req->is_force_off;
 	}
@@ -22,7 +22,7 @@ class IsForceOff extends Base {
 	/**
 	 * @return false|string
 	 */
-	private function getForceOffFilePath() {
+	private function findForceOffFile() {
 		$con = $this->getCon();
 		if ( !isset( $con->file_forceoff ) ) {
 			$FS = Services::WpFs();

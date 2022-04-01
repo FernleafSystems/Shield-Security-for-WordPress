@@ -13,7 +13,6 @@ class AutoUnblock extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * This should only be run if the current IP has been verified as being blocked
 	 * @return bool - true if IP is unblocked, false otherwise.
 	 */
 	public function run() :bool {
