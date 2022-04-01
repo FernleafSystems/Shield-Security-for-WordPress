@@ -30,18 +30,16 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $mod )
 			->run();
 
-		if ( !$this->getCon()->this_req->is_bypass_restrictions ) {
+		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
+
+			( new AutoUnblock() )
+				->setMod( $this->getMod() )
+				->execute();
 
 			// We setup offenses processing immediately but run the blocks on 'init'
 			( new ProcessOffenses() )
 				->setMod( $this->getMod() )
 				->execute();
-
-			add_action( 'init', function () {
-				( new BlockRequest() )
-					->setMod( $this->getMod() )
-					->execute();
-			}, -100000 );
 		}
 	}
 

@@ -3,22 +3,27 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\AttemptToAccessNonExistingRuleException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoConditionActionDefinedException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoResponseActionDefinedException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchConditionHandlerException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoSuchResponseHandlerException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ConditionsProcessor;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\PreProcessRule;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ResponseProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
+	AttemptToAccessNonExistingRuleException,
+	NoConditionActionDefinedException,
+	NoResponseActionDefinedException,
+	NoSuchConditionHandlerException,
+	NoSuchResponseHandlerException
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\{
+	ConditionsProcessor,
+	ResponseProcessor
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RulesController {
 
 	use ExecOnce;
+	use PluginCronsConsumer;
 	use PluginControllerConsumer;
 
 	/**
@@ -40,6 +45,11 @@ class RulesController {
 		add_action( $this->getCon()->prefix( 'pre_options_store' ), function () {
 			$this->buildRules();
 		} );
+		$this->setupCronHooks();
+	}
+
+	public function runHourlyCron() {
+		$this->buildRules();
 	}
 
 	public function getRulesResultsSummary() :array {
@@ -105,9 +115,7 @@ class RulesController {
 			try {
 				$this->rules = array_map(
 					function ( $rule ) {
-						$rule = ( new RuleVO() )->applyFromArray( $rule );
-						( new PreProcessRule( $rule, $this ) )->run();
-						return $rule;
+						return ( new RuleVO() )->applyFromArray( $rule );
 					},
 					$this->load()[ 'rules' ]
 				);
@@ -199,11 +207,19 @@ class RulesController {
 	/**
 	 * @throws \Exception
 	 */
-	public function load() :array {
+	public function load( bool $attemptRebuild = true ) :array {
 		$FS = Services::WpFs();
 		$rules = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'rules' ) );
-		if ( empty( $rules ) || !is_array( $rules ) && $FS->isFile( $this->getPathToRules() ) ) {
-			$rules = json_decode( $FS->getFileContent( $this->getPathToRules() ), true );
+		if ( empty( $rules ) || !is_array( $rules ) ) {
+
+			if ( $FS->isFile( $this->getPathToRules() ) ) {
+				$rules = json_decode( $FS->getFileContent( $this->getPathToRules() ), true );
+				Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'rules' ), $rules );
+			}
+			elseif ( $attemptRebuild ) {
+				$this->buildRules();
+				return $this->load( false );
+			}
 		}
 		if ( !is_array( $rules ) || empty( $rules ) ) {
 			throw new \Exception( 'No rules to load' );

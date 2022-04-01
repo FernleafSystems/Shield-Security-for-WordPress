@@ -1,14 +1,16 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AutoUnblock {
+class AutoUnblock extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	protected function canRun() :bool {
+		return $this->getCon()->this_req->is_ip_blocked;
+	}
 
 	/**
 	 * This should only be run if the current IP has been verified as being blocked
@@ -28,11 +30,15 @@ class AutoUnblock {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		if ( $unblocked ) {
+			Services::Response()->redirectToHome();
+		}
+
 		return $unblocked;
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() :bool {

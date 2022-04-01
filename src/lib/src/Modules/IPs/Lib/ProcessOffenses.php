@@ -8,10 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ProcessOffenses extends ExecOnceModConsumer {
 
-	protected function canRun() :bool {
-		return !$this->getCon()->this_req->is_trusted_bot;
-	}
-
 	protected function run() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
@@ -31,8 +27,7 @@ class ProcessOffenses extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 
 		$tracker = $mod->loadOffenseTracker();
-		if ( !$this->getCon()->plugin_deleting
-			 && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
+		if ( !$this->getCon()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $mod )
 				->setIp( Services::IP()->getRequestIp() )

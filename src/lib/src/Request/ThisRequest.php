@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property BotSignalRecord $botsignal_record
  * @property bool            $rules_completed
  * @property string          $ip_id
- * @property bool            $is_bypass_restrictions
  * @property bool            $is_force_off
  * @property bool            $is_security_admin
  * @property bool            $is_trusted_bot
@@ -45,10 +44,6 @@ class ThisRequest extends DynPropertiesClass {
 				}
 				break;
 
-			case 'is_bypass_restrictions':
-				$value = $this->is_trusted_bot || $this->is_ip_whitelisted;
-				break;
-
 			case 'ip_id':
 				if ( is_null( $value ) ) {
 					$value = $this->getIpID();
@@ -56,7 +51,9 @@ class ThisRequest extends DynPropertiesClass {
 				}
 				break;
 
+			case 'is_ip_blocked':
 			case 'is_ip_whitelisted':
+			case 'request_bypasses_all_restrictions':
 			case 'is_security_admin':
 			case 'is_trusted_bot':
 			case 'rules_completed':

@@ -1234,9 +1234,8 @@ class Controller extends DynPropertiesClass {
 			->execute();
 
 		do_action( $this->prefix( 'modules_loaded' ) );
+		$this->rules->execute(); // Before processors are executed
 		do_action( $this->prefix( 'run_processors' ) );
-
-		$this->rules->execute();
 
 		return true;
 	}

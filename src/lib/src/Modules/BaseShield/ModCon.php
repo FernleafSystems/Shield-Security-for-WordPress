@@ -136,7 +136,7 @@ class ModCon extends Base\ModCon {
 	protected function isReadyToExecute() :bool {
 		$req = $this->getCon()->this_req;
 		$opts = $this->getOptions();
-		return ( $opts->isModuleRunIfWhitelisted() || !$req->is_bypass_restrictions )
+		return ( $opts->isModuleRunIfWhitelisted() || !$req->request_bypasses_all_restrictions )
 			   && ( $opts->isModuleRunIfVerifiedBot() || !$req->is_trusted_bot )
 			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
 			   && parent::isReadyToExecute();

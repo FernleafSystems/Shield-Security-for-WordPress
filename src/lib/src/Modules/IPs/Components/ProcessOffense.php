@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-/**
- * NOT IMPLEMENTED
- */
 class ProcessOffense {
 
 	use Shield\Modules\ModConsumer;
