@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class IsIpWhitelisted extends Base {
+class SetIpWhitelisted extends Base {
 
-	const SLUG = 'is_ip_whitelisted';
+	const SLUG = 'set_ip_whitelisted';
 
 	protected function execResponse() :bool {
 		$this->getCon()->this_req->is_ip_whitelisted = true;

@@ -35,7 +35,7 @@ class IpWhitelisted extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\IsIpWhitelisted::SLUG,
+				'response' => Responses\SetIpWhitelisted::SLUG,
 			],
 		];
 	}

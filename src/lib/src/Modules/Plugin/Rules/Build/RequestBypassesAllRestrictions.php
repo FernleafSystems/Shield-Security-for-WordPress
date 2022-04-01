@@ -22,6 +22,7 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+
 		return [
 			'logic' => static::LOGIC_OR,
 			'group' => [
@@ -36,6 +37,9 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 					'rule' => IsTrustedBot::SLUG,
 				],
 				[
+					'rule' => Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::SLUG,
+				],
+				[
 					'rule' => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
 				],
 			]
@@ -45,7 +49,7 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\RequestBypassesAllRestrictions::SLUG,
+				'response' => Responses\SetRequestBypassesAllRestrictions::SLUG,
 			],
 		];
 	}

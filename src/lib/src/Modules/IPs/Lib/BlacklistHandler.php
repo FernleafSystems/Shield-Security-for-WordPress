@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -29,7 +30,7 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 			->setMod( $mod )
 			->run();
 
-		if ( !$this->getCon()->this_req->is_bypass_restrictions && !$this->isRequestWhitelisted() ) {
+		if ( !$this->getCon()->this_req->is_bypass_restrictions ) {
 
 			// We setup offenses processing immediately but run the blocks on 'init'
 			( new ProcessOffenses() )
@@ -44,15 +45,25 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		}
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	private function isRequestWhitelisted() :bool {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 		$isWhitelisted = false;
-		$whitelistPaths = $opts->getRequestWhitelistAsRegex();
+
+		$whitelistPaths = array_map(
+			function ( $value ) {
+				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH );
+			},
+			$this->getCon()->isPremiumActive() ? $opts->getOpt( 'request_whitelist', [] ) : []
+		);
+
 		if ( !empty( $whitelistPaths ) ) {
-			$sPath = strtolower( '/'.ltrim( (string)Services::Request()->getPath(), '/' ) );
+			$path = strtolower( '/'.ltrim( Services::Request()->getPath(), '/' ) );
 			foreach ( $whitelistPaths as $rule ) {
-				if ( preg_match( $rule, $sPath ) ) {
+				if ( preg_match( $rule, $path ) ) {
 					$isWhitelisted = true;
 					break;
 				}
