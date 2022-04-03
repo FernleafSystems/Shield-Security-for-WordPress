@@ -40,8 +40,8 @@ class NotBotHandler extends ExecOnceModConsumer {
 
 	private function registerFrontPageLoad() {
 		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
-			$req = Services::Request();
-			if ( $req->isGet() && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+			if ( Services::Request()->isGet() && did_action( 'wp' )
+				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
 				$mod->getBotSignalsController()

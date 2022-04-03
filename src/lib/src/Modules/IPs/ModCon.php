@@ -93,12 +93,6 @@ class ModCon extends BaseShield\ModCon {
 		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
-
-		$nLimit = $opts->getOffenseLimit();
-		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
-			$opts->resetOptToDefault( 'transgression_limit' );
-		}
-
 		$this->cleanPathWhitelist();
 	}
 
