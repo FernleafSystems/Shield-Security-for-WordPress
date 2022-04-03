@@ -173,6 +173,7 @@ abstract class Handler extends ExecOnceModConsumer {
 		$sch = $this->getTableSchema();
 		if ( !$DB->getIfTableExists( $sch->table ) ) {
 			$DB->doSql( $sch->buildCreate() );
+			$DB->clearResultShowTables();
 		}
 		return $this;
 	}

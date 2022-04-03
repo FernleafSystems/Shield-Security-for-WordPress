@@ -29,5 +29,6 @@ class Upgrade extends Base\Upgrade {
 				$WPDB->doDropTable( $table );
 			}
 		}
+		$WPDB->clearResultShowTables();
 	}
 }
