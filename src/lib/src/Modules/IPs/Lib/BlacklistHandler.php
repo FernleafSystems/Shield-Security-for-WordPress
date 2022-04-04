@@ -25,7 +25,7 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
 		( new IPs\Components\UnblockIpByFlag() )
 			->setMod( $mod )
-			->run();
+			->execute();
 		( new ProcessOffenses() )
 			->setMod( $mod )
 			->execute();
