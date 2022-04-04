@@ -481,27 +481,28 @@
       }
     ]
   },
-  "modules": [
+  "modules":          [
+    "plugin",
     "data",
-    "insights",
     "admin_access_restriction",
-    "ips",
     "audit_trail",
-    "hack_protect",
-    "traffic",
-    "firewall",
-    "login_protect",
-    "user_management",
+    "autoupdates",
     "comments_filter",
+    "comms",
+    "email",
     "events",
+    "firewall",
+    "hack_protect",
+    "headers",
+    "insights",
+    "integrations",
+    "ips",
+    "license",
+    "lockdown",
+    "login_protect",
     "reporting",
     "sessions",
-    "integrations",
-    "license",
-    "autoupdates",
-    "headers",
-    "lockdown",
-    "comms",
-    "email"
+    "traffic",
+    "user_management"
   ]
 }
