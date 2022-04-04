@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "integrations",
     "storage_key":           "integrations",
+    "load_priority":         20,
     "name":                  "Integrations",
     "menu_title":            "Integrations",
     "sidebar_name":          "Integrations",

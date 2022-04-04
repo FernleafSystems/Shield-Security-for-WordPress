@@ -2,6 +2,7 @@
   "slug":        "user_management",
   "properties":  {
     "slug":                  "user_management",
+    "load_priority":         100,
     "name":                  "User Management",
     "sidebar_name":          "Users",
     "show_module_menu_item": false,

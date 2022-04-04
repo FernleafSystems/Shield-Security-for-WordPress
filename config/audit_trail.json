@@ -3,6 +3,7 @@
   "properties":       {
     "slug":                  "audit_trail",
     "name":                  "Audit Trail",
+    "load_priority":         11,
     "sidebar_name":          "Audit Trail",
     "show_module_menu_item": false,
     "show_module_options":   true,

@@ -1,6 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
+    "load_priority":         0,
     "name":                  "General Settings",
     "sidebar_name":          "General",
     "menu_title":            "Configuration",
@@ -569,91 +570,6 @@
         "note":        "TEXT"
       }
     },
-    "active_plugin_features": [
-      {
-        "slug":          "data",
-        "load_priority": 1
-      },
-      {
-        "slug":          "insights",
-        "load_priority": 2,
-        "menu_priority": 5
-      },
-      {
-        "slug":          "admin_access_restriction",
-        "namespace":     "SecurityAdmin",
-        "load_priority": 11
-      },
-      {
-        "slug":          "ips",
-        "load_priority": 15,
-        "namespace":     "IPs"
-      },
-      {
-        "slug":          "audit_trail",
-        "load_priority": 11,
-        "hidden":        false
-      },
-      {
-        "slug":      "hack_protect",
-        "namespace": "HackGuard"
-      },
-      {
-        "slug":          "traffic",
-        "load_priority": 12
-      },
-      {
-        "slug":          "firewall",
-        "load_priority": 1000
-      },
-      {
-        "slug":        "login_protect",
-        "storage_key": "loginprotect",
-        "namespace":   "LoginGuard"
-      },
-      {
-        "slug": "user_management"
-      },
-      {
-        "slug":        "comments_filter",
-        "storage_key": "commentsfilter"
-      },
-      {
-        "slug":          "events",
-        "load_priority": 11
-      },
-      {
-        "slug":          "reporting",
-        "load_priority": 12
-      },
-      {
-        "slug":          "sessions",
-        "load_priority": 5
-      },
-      {
-        "slug":          "integrations",
-        "load_priority": 20
-      },
-      {
-        "slug":          "license",
-        "load_priority": 10
-      },
-      {
-        "slug": "autoupdates"
-      },
-      {
-        "slug": "headers"
-      },
-      {
-        "slug": "lockdown"
-      },
-      {
-        "slug": "comms"
-      },
-      {
-        "slug": "email"
-      }
-    ],
     "events":                 {
       "debug_log":              {
         "audit_params": [

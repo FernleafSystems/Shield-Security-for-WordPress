@@ -480,5 +480,28 @@
         "show":      "free"
       }
     ]
-  }
+  },
+  "modules": [
+    "data",
+    "insights",
+    "admin_access_restriction",
+    "ips",
+    "audit_trail",
+    "hack_protect",
+    "traffic",
+    "firewall",
+    "login_protect",
+    "user_management",
+    "comments_filter",
+    "events",
+    "reporting",
+    "sessions",
+    "integrations",
+    "license",
+    "autoupdates",
+    "headers",
+    "lockdown",
+    "comms",
+    "email"
+  ]
 }

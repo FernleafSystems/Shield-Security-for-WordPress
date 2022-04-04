@@ -2,6 +2,7 @@
   "slug":        "lockdown",
   "properties":  {
     "slug":                  "lockdown",
+    "load_priority":         100,
     "name":                  "WP Lockdown",
     "sidebar_name":          "Lockdown",
     "show_module_menu_item": false,

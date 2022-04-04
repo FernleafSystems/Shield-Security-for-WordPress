@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "autoupdates",
     "name":                  "Automatic Updates",
+    "load_priority":         100,
     "sidebar_name":          "Auto Updates",
     "show_module_menu_item": false,
     "show_module_options":   true,

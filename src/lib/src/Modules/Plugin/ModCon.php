@@ -159,20 +159,11 @@ class ModCon extends BaseShield\ModCon {
 		return $canLoopback;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getActivePluginFeatures() :array {
-		$features = $this->getOptions()->getDef( 'active_plugin_features' );
-
-		$available = [];
-		if ( is_array( $features ) ) {
-
-			foreach ( $features as $feature ) {
-				if ( isset( $feature[ 'hidden' ] ) && $feature[ 'hidden' ] ) {
-					continue;
-				}
-				$available[ $feature[ 'slug' ] ] = $feature;
-			}
-		}
-		return $available;
+		return $this->getOptions()->getDef( 'active_plugin_features' );
 	}
 
 	public function getLinkToTrackingDataDump() :string {

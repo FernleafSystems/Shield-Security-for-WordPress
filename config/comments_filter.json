@@ -2,11 +2,12 @@
   "slug":          "comments_filter",
   "properties":    {
     "slug":                  "comments_filter",
+    "storage_key":           "commentsfilter",
+    "load_priority":         100,
     "name":                  "Comments SPAM",
     "sidebar_name":          "SPAM",
     "show_module_menu_item": false,
     "show_module_options":   true,
-    "storage_key":           "commentsfilter",
     "tagline":               "Block comment SPAM and retain your privacy",
     "show_central":          true,
     "access_restricted":     true,

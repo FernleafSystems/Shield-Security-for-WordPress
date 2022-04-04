@@ -3,6 +3,8 @@
   "properties":    {
     "slug":                  "admin_access_restriction",
     "name":                  "Security Admin",
+    "namespace":             "SecurityAdmin",
+    "load_priority":         11,
     "sidebar_name":          "Security Admin",
     "show_module_menu_item": false,
     "show_module_options":   true,

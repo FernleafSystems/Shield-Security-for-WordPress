@@ -2,7 +2,9 @@
   "slug":             "hack_protect",
   "properties":       {
     "slug":                  "hack_protect",
+    "load_priority":         100,
     "name":                  "Hack Guard",
+    "namespace":             "HackGuard",
     "sidebar_name":          "Scanners",
     "show_module_menu_item": false,
     "show_module_options":   true,

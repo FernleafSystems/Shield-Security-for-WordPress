@@ -2,6 +2,7 @@
   "slug":       "email",
   "properties": {
     "slug":                  "email",
+    "load_priority":         100,
     "name":                  "Email",
     "show_module_menu_item": false,
     "auto_enabled":          true,
