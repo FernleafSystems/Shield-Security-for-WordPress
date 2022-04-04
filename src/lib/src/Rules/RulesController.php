@@ -208,22 +208,17 @@ class RulesController {
 	 * @throws \Exception
 	 */
 	public function load( bool $attemptRebuild = true ) :array {
-		$FS = Services::WpFs();
 		$rules = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'rules' ) );
-		if ( empty( $rules ) || !is_array( $rules ) ) {
-
-			if ( $FS->isFile( $this->getPathToRules() ) ) {
-				$rules = json_decode( $FS->getFileContent( $this->getPathToRules() ), true );
-				Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'rules' ), $rules );
-			}
-			elseif ( $attemptRebuild ) {
-				$this->buildRules();
-				return $this->load( false );
-			}
+		if ( ( empty( $rules ) || !is_array( $rules ) ) && $attemptRebuild ) {
+			$this->buildRules();
+			$rules = $this->load( false );
+			Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'rules' ), $rules );
 		}
+
 		if ( !is_array( $rules ) || empty( $rules ) ) {
 			throw new \Exception( 'No rules to load' );
 		}
+
 		return $rules;
 	}
 

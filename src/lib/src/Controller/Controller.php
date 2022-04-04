@@ -1203,9 +1203,30 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
+		$modsCfg = empty( $this->cfg->mods_cfg ) ? [] : $this->cfg->mods_cfg;
+
+		// First load all module Configs
 		foreach ( $this->cfg->modules as $slug ) {
+			$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
+				->setCon( $this )
+				->run();
+		}
+
+		// Order Modules
+		uasort( $modsCfg, function ( $a, $b ) {
+			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
+			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
+			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
+				return 0;
+			}
+			return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
+		} );
+
+		$this->cfg->mods_cfg = $modsCfg;
+
+		foreach ( $this->cfg->mods_cfg as $cfg ) {
 			try {
-				$this->getModule( $slug );
+				$this->getModule( $cfg->properties[ 'slug' ] );
 			}
 			catch ( \Exception $e ) {
 				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
@@ -1242,16 +1263,6 @@ class Controller extends DynPropertiesClass {
 		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
-				// Load Module Config/Options
-				$modsCfg = $this->cfg->mods_cfg;
-				if ( empty( $modsCfg ) ) {
-					$modsCfg = [];
-				}
-				$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
-					->setCon( $this )
-					->run();
-				$this->cfg->mods_cfg = $modsCfg;
-
 				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
 			}
 			catch ( \Exception $e ) {

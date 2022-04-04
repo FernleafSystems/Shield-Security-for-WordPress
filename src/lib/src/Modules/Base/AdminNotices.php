@@ -132,10 +132,6 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return $dismissedUser || $dismissedMod;
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return bool
-	 */
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		return true;
 	}

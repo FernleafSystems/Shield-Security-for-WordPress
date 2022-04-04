@@ -51,6 +51,7 @@ class ThisRequest extends DynPropertiesClass {
 				}
 				break;
 
+			case 'is_force_off':
 			case 'is_ip_blocked':
 			case 'is_ip_whitelisted':
 			case 'request_bypasses_all_restrictions':
