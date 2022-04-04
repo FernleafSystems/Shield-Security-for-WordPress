@@ -1224,11 +1224,9 @@ class Controller extends DynPropertiesClass {
 				if ( empty( $modsCfg ) ) {
 					$modsCfg = [];
 				}
-				if ( empty( $modsCfg[ $slug ] ) ) {
-					$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
-						->setCon( $this )
-						->run();
-				}
+				$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
+					->setCon( $this )
+					->run();
 				$this->cfg->mods_cfg = $modsCfg;
 
 				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
