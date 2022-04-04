@@ -71,15 +71,15 @@ class BotSignalsController extends ExecOnceModConsumer {
 	protected function run() {
 		$this->getEventListener()->execute();
 		add_action( 'init', function () {
-			foreach ( $this->enumerateBotTrackers() as $botTracker ) {
-				$botTracker->setMod( $this->getMod() )->execute();
+			foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
+				( new $botTrackerClass() )->setMod( $this->getMod() )->execute();
 			}
 		} );
 		$this->getHandlerNotBot()->execute();
 	}
 
 	/**
-	 * @return BotTrack\Base[]
+	 * @return string[]
 	 */
 	private function enumerateBotTrackers() :array {
 		/** @var ModCon $mod */
@@ -88,35 +88,22 @@ class BotSignalsController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 
 		$trackers = [
-			new BotTrack\TrackCommentSpam()
+			BotTrack\TrackCommentSpam::class
 		];
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$this->getCon()->this_req->is_trusted_bot ) {
-
-				if ( $opts->isEnabledTrack404() ) {
-//					$trackers[] = new BotTrack\Track404();
-				}
-				if ( $opts->isEnabledTrackXmlRpc() ) {
-//					$trackers[] = new BotTrack\TrackXmlRpc();
-				}
+			if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
 				if ( $opts->isEnabledTrackLoginFailed() ) {
-					$trackers[] = new BotTrack\TrackLoginFailed();
+					$trackers[] = BotTrack\TrackLoginFailed::class;
 				}
 				if ( $opts->isEnabledTrackLoginInvalid() ) {
-					$trackers[] = new BotTrack\TrackLoginInvalid();
-				}
-				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
-//					$trackers[] = new BotTrack\TrackFakeWebCrawler();
-				}
-				if ( $opts->isEnabledTrackInvalidScript() ) {
-//					$trackers[] = new BotTrack\TrackInvalidScriptLoad();
+					$trackers[] = BotTrack\TrackLoginInvalid::class;
 				}
 			}
 
 			if ( $opts->isEnabledTrackLinkCheese() && $mod->canLinkCheese() ) {
-				$trackers[] = new BotTrack\TrackLinkCheese();
+				$trackers[] = BotTrack\TrackLinkCheese::class;
 			}
 		}
 
