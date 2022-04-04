@@ -27,7 +27,7 @@ class BuildScores extends BaseBuildScores {
 		$score = $logic[ -1 ] ?? 0;
 
 		if ( $this->lastAtTs( $field ) === 0 ) {
-			$score = $logic[ 0 ];
+			$score = $logic[ 0 ] ?? 0;
 		}
 		else {
 			unset( $logic[ 0 ] );
