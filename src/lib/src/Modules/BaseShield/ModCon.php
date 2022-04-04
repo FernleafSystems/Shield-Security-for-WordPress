@@ -135,10 +135,9 @@ class ModCon extends Base\ModCon {
 	 */
 	protected function isReadyToExecute() :bool {
 		$req = $this->getCon()->this_req;
-		$opts = $this->getOptions();
-		return ( $opts->isModuleRunIfWhitelisted() || !$req->request_bypasses_all_restrictions )
-			   && ( $opts->isModuleRunIfVerifiedBot() || !$req->is_trusted_bot )
-			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
+		return ( !$req->request_bypasses_all_restrictions || $this->cfg->properties[ 'run_if_whitelisted' ] )
+			   && ( !$req->is_trusted_bot || $this->cfg->properties[ 'run_if_verified_bot' ] )
+			   && ( !$req->wp_is_wpcli || $this->cfg->properties[ 'run_if_wpcli' ] )
 			   && parent::isReadyToExecute();
 	}
 
@@ -149,6 +148,9 @@ class ModCon extends Base\ModCon {
 		return $this->getCon()->this_req->is_ip_whitelisted;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isTrustedVerifiedBot() :bool {
 		return $this->getCon()->this_req->is_trusted_bot;
 	}

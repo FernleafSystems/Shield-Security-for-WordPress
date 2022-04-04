@@ -1226,7 +1226,7 @@ class Controller extends DynPropertiesClass {
 
 		foreach ( $this->cfg->mods_cfg as $cfg ) {
 			try {
-				$this->getModule( $cfg->properties[ 'slug' ] );
+				$this->getModule( $cfg->slug );
 			}
 			catch ( \Exception $e ) {
 				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
@@ -1248,8 +1248,10 @@ class Controller extends DynPropertiesClass {
 
 		$this->rules->execute();
 
-		foreach ( $this->modules as $module ) {
-			$module->onRunProcessors();
+		if ( !$this->cfg->rebuilt ) {
+			foreach ( $this->modules as $module ) {
+				$module->onRunProcessors();
+			}
 		}
 
 		// This is where any rules responses will execute (i.e. after processors are run):

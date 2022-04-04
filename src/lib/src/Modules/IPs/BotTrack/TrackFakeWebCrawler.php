@@ -12,11 +12,6 @@ class TrackFakeWebCrawler extends Base {
 	private $crawlerUsed = '';
 
 	protected function process() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		if ( $this->identifiesAsCrawler() && !$mod->isTrustedVerifiedBot() ) {
-			$this->doTransgression();
-		}
 	}
 
 	private function identifiesAsCrawler() :bool {

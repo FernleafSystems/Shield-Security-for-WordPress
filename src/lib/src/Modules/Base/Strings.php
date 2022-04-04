@@ -10,7 +10,7 @@ class Strings {
 	use ModConsumer;
 
 	public function getModTagLine() :string {
-		return (string)__( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+		return __( $this->getMod()->cfg->properties[ 'tagline' ], 'wp-simple-firewall' );
 	}
 
 	/**
@@ -19,7 +19,7 @@ class Strings {
 	public function getDisplayStrings() :array {
 		$con = $this->getCon();
 
-		$aProFeatures = [
+		$proFeatures = [
 			__( 'More Scans', 'wp-simple-firewall' ),
 			__( 'Malware Scanner', 'wp-simple-firewall' ),
 			__( 'Scan Every Hour', 'wp-simple-firewall' ),
@@ -30,7 +30,7 @@ class Strings {
 			__( 'WooCommerce Support', 'wp-simple-firewall' ),
 			__( 'MainWP Integration', 'wp-simple-firewall' ),
 		];
-		$aProFeaturesDisplay = array_intersect_key( $aProFeatures, array_flip( array_rand( $aProFeatures, 6 ) ) );
+		$aProFeaturesDisplay = array_intersect_key( $proFeatures, array_flip( array_rand( $proFeatures, 6 ) ) );
 		$aProFeaturesDisplay[] = __( 'and much more!' );
 
 		$bIsAdvanced = $this->getCon()->getModule_Plugin()->isShowAdvanced();

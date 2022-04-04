@@ -26,6 +26,10 @@ class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
+					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'invert_match' => true
+				],
+				[
 					'condition' => Conditions\IsNotLoggedInNormal::SLUG,
 				],
 				[

@@ -24,6 +24,18 @@ class HideGeneratorTag extends BuildRuleCoreShieldBase {
 		return Shield\Rules\WPHooksOrder::WP;
 	}
 
+	protected function getConditions() :array {
+		return [
+			'logic' => static::LOGIC_AND,
+			'group' => [
+				[
+					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'invert_match' => true
+				],
+			]
+		];
+	}
+
 	protected function getResponses() :array {
 		return [
 			[

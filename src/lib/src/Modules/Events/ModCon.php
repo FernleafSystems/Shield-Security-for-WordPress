@@ -12,7 +12,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {

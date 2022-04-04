@@ -20,6 +20,18 @@ class DisableFileEditing extends BuildRuleCoreShieldBase {
 		return 'Disable File editing from within the WP admin dashboard.';
 	}
 
+	protected function getConditions() :array {
+		return [
+			'logic' => static::LOGIC_AND,
+			'group' => [
+				[
+					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'invert_match' => true
+				],
+			]
+		];
+	}
+
 	protected function getResponses() :array {
 		return [
 			[
