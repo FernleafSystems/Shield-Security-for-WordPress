@@ -1,8 +1,8 @@
 {
   "properties":       {
     "version":                 "14.1.7",
-    "release_timestamp":       1648194288,
-    "build":                   "202203.2501",
+    "release_timestamp":       1649079500,
+    "build":                   "202204.0401",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -480,5 +480,29 @@
         "show":      "free"
       }
     ]
-  }
+  },
+  "modules":          [
+    "plugin",
+    "data",
+    "admin_access_restriction",
+    "audit_trail",
+    "autoupdates",
+    "comments_filter",
+    "comms",
+    "email",
+    "events",
+    "firewall",
+    "hack_protect",
+    "headers",
+    "insights",
+    "integrations",
+    "ips",
+    "license",
+    "lockdown",
+    "login_protect",
+    "reporting",
+    "sessions",
+    "traffic",
+    "user_management"
+  ]
 }

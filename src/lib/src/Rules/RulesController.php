@@ -42,9 +42,13 @@ class RulesController {
 //				error_log( var_export( $this->getRulesResultsSummary(), true ) );
 			} );
 		}
+
+		// Rebuild the rules when configuration is updated
 		add_action( $this->getCon()->prefix( 'pre_options_store' ), function () {
 			$this->buildRules();
 		} );
+
+		// Rebuild the rules every hour
 		$this->setupCronHooks();
 	}
 
@@ -237,6 +241,10 @@ class RulesController {
 	}
 
 	private function verifyRulesStatus() :bool {
+		// Rebuild the rules upon upgrade or settings change
+		if ( $this->getCon()->cfg->rebuilt ) {
+			$this->buildRules();
+		}
 		return !empty( $this->getRules() );
 	}
 }
