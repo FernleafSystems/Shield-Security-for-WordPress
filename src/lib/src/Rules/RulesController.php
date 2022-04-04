@@ -209,13 +209,13 @@ class RulesController {
 	 */
 	public function load( bool $attemptRebuild = true ) :array {
 		$rules = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'rules' ) );
-		if ( ( empty( $rules ) || !is_array( $rules ) ) && $attemptRebuild ) {
+		if ( ( empty( $rules[ 'rules' ] ) || !is_array( $rules[ 'rules' ] ) ) && $attemptRebuild ) {
 			$this->buildRules();
 			$rules = $this->load( false );
 			Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'rules' ), $rules );
 		}
 
-		if ( !is_array( $rules ) || empty( $rules ) ) {
+		if ( !is_array( $rules[ 'rules' ] ) || empty( $rules[ 'rules' ] ) ) {
 			throw new \Exception( 'No rules to load' );
 		}
 

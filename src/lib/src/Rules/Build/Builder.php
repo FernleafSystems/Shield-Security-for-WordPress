@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MutuallyDependentRulesException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 
 class Builder {
 
@@ -18,7 +17,7 @@ class Builder {
 			$rules[ $rule->slug ] = $rule;
 		}
 
-		$sorter = ( new SortRulesByDependencies($rules) )->setCon( $this->getCon() );
+		$sorter = ( new SortRulesByDependencies( $rules ) )->setCon( $this->getCon() );
 		try {
 			$rules = $sorter->run();
 			$controller->store( $rules );
@@ -26,7 +25,6 @@ class Builder {
 		catch ( MutuallyDependentRulesException $e ) {
 			error_log( $e->getMessage() );
 		}
-
 	}
 
 	/**

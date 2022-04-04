@@ -17,7 +17,7 @@ class AdminPage extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		add_action( $con->prefix( 'admin_submenu' ), function () {
 			$this->addSubMenuItem();
-		}, $this->getMenuPriority() );
+		}, $this->getMod()->cfg->properties[ 'menu_priority' ] ?? 100 );
 	}
 
 	protected function addSubMenuItem() {
@@ -67,9 +67,11 @@ class AdminPage extends ExecOnceModConsumer {
 		);
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	protected function getMenuPriority() :int {
-		$pri = $this->getOptions()->getFeatureProperty( 'menu_priority' );
-		return is_null( $pri ) ? 100 : (int)$pri;
+		return $this->getMod()->cfg->properties[ 'menu_priority' ] ?? 100;
 	}
 
 	public function getCap() :string {
