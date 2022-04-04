@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -1188,17 +1189,12 @@ class Controller extends DynPropertiesClass {
 	 * We let the \Exception from the core plugin feature to bubble up because it's critical.
 	 * @return Shield\Modules\Plugin\ModCon
 	 * @throws \Exception from loadFeatureHandler()
+	 * @deprecated 15.0
 	 */
 	public function loadCorePluginFeatureHandler() {
 		$plugin = $this->modules[ 'plugin' ] ?? null;
 		if ( !$plugin instanceof Shield\Modules\Plugin\ModCon ) {
-			$this->loadFeatureHandler(
-				[
-					'slug'          => 'plugin',
-					'storage_key'   => 'plugin',
-					'load_priority' => 10
-				]
-			);
+			$this->getModule_Plugin();
 		}
 		return $this->modules[ 'plugin' ];
 	}
@@ -1207,10 +1203,7 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
-
-		$coreModule = $this->loadCorePluginFeatureHandler();
-
-		foreach ( array_keys( $coreModule->getActivePluginFeatures() ) as $slug ) {
+		foreach ( $this->cfg->modules as $slug ) {
 			try {
 				$this->getModule( $slug );
 			}
@@ -1249,12 +1242,23 @@ class Controller extends DynPropertiesClass {
 		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
-				$mods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
-				if ( isset( $mods[ $slug ] ) ) {
-					$mod = $this->loadFeatureHandler( $mods[ $slug ] );
+				// Load Module Config/Options
+				$modsCfg = $this->cfg->mods_cfg;
+				if ( empty( $modsCfg ) ) {
+					$modsCfg = [];
 				}
+				if ( empty( $modsCfg[ $slug ] ) ) {
+					$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
+						->setCon( $this )
+						->run();
+				}
+				$this->cfg->mods_cfg = $modsCfg;
+
+				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
 			}
 			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
+				die();
 			}
 		}
 		return $mod;
@@ -1317,7 +1321,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
-		return $this->loadCorePluginFeatureHandler();
+		return $this->getModule( 'plugin' );
 	}
 
 	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
@@ -1348,30 +1352,18 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Modules\Base\ModCon|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( array $modProps ) {
-		$modSlug = $modProps[ 'slug' ];
-		$mod = $this->modules[ $modSlug ] ?? null;
-		if ( $mod instanceof Shield\Modules\Base\ModCon ) {
-			return $mod;
-		}
+	private function loadFeatureHandler( Shield\Modules\Base\Config\ModConfigVO $cfg ) {
+		$modSlug = $cfg->properties[ 'slug' ];
 
-		if ( empty( $modProps[ 'storage_key' ] ) ) {
-			$modProps[ 'storage_key' ] = $modSlug;
-		}
-		if ( empty( $modProps[ 'namespace' ] ) ) {
-			$modProps[ 'namespace' ] = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
-		}
-
-		$modName = $modProps[ 'namespace' ];
-
-		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon', $modName );
+		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
+				$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) ) );
 		if ( !class_exists( $className ) ) {
 			// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 			throw new \Exception( sprintf( 'Class "%s" is missing', $className ) );
 		}
 
 		$modules = $this->modules;
-		$modules[ $modSlug ] = new $className( $this, $modProps );
+		$modules[ $modSlug ] = new $className( $this, $cfg );
 		$this->modules = $modules;
 
 		return $this->modules[ $modSlug ];

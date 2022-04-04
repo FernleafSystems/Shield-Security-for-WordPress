@@ -2,7 +2,9 @@
   "slug":             "ips",
   "properties":       {
     "slug":                  "ips",
+    "load_priority":         15,
     "name":                  "Block Bad IPs/Visitors",
+    "namespace":             "IPs",
     "sidebar_name":          "IP Blocking",
     "show_module_menu_item": false,
     "show_module_options":   true,

@@ -2,6 +2,7 @@
   "slug":        "firewall",
   "properties":  {
     "slug":                  "firewall",
+    "load_priority":         1000,
     "name":                  "Firewall",
     "sidebar_name":          "Firewall",
     "show_module_menu_item": false,

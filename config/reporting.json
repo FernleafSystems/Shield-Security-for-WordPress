@@ -1,6 +1,7 @@
 {
   "properties":       {
     "slug":                  "reporting",
+    "load_priority":         12,
     "name":                  "Reporting",
     "storage_key":           "reporting",
     "tagline":               "Shield Reporting",

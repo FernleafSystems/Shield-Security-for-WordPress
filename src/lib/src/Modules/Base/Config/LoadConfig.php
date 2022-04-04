@@ -2,13 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class LoadConfig {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
+
+	private $slug;
+
+	/**
+	 * @var ModConfigVO|null
+	 */
+	private $cfg;
+
+	public function __construct( string $slug, $cfg = null ) {
+		$this->slug = $slug;
+		$this->cfg = $cfg;
+	}
 
 	private $configSourceFile = '';
 
@@ -23,27 +35,19 @@ class LoadConfig {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
-	public function run() :array {
-		try {
-			if ( $this->getCon()->cfg->rebuilt ) {
-				throw new \Exception( 'Force rebuild from file' );
-			}
-			$cfg = $this->fromWP();
-			$this->isBuiltFromFile = false;
-		}
-		catch ( \Exception $e ) {
-			$cfg = $this->fromFile();
-			$this->isBuiltFromFile = true;
-		}
-		return $cfg;
+	public function run() :ModConfigVO {
+		$rebuild = $this->getCon()->cfg->rebuilt
+				   || !$this->cfg instanceof ModConfigVO
+				   || ( Services::WpFs()
+								->getModifiedTime( $this->getConfigSourceFile() ) > $this->cfg->meta[ 'ts_mod' ] );
+		return $rebuild ? ( new ModConfigVO() )->applyFromArray( $this->fromFile() ) : $this->cfg;
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
+	 * @deprecated 15.0
 	 */
 	public function fromWP() :array {
 		$FS = Services::WpFs();
@@ -56,11 +60,10 @@ class LoadConfig {
 	}
 
 	public function storeKey() :string {
-		return 'shield_mod_config_'.$this->getMod()->getSlug();
+		return 'shield_mod_config_'.$this->slug;
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function fromFile() :array {
@@ -70,18 +73,18 @@ class LoadConfig {
 			$this->configSourceFile = $path;
 		}
 		catch ( \Exception $e ) {
-			$path = $this->getCon()->paths->forModuleConfig( $this->getMod()->getSlug(), false );
+			$path = $this->getCon()->paths->forModuleConfig( $this->slug, false );
 			$raw = $this->loadRawFromFile( $path );
 			$this->configSourceFile = $path;
 		}
 
 		$cfg = json_decode( $raw, true );
 		if ( empty( $cfg ) || !is_array( $cfg ) ) {
-			throw new \Exception( sprintf( "Couldn't part JSON from (%s) file '%s'.", $this->configSourceFile, $path ) );
+			throw new \Exception( sprintf( "Couldn't parse JSON from (%s) file '%s'.", $this->configSourceFile, $path ) );
 		}
 
 		$keyedOptions = [];
-		foreach ( $cfg[ 'options' ] as $option ) {
+		foreach ( $cfg[ 'options' ] ?? [] as $option ) {
 			if ( !empty( $option[ 'key' ] ) ) {
 				$keyedOptions[ $option[ 'key' ] ] = $option;
 			}
@@ -92,17 +95,14 @@ class LoadConfig {
 			'ts_mod' => Services::WpFs()->getModifiedTime( $this->getConfigSourceFile() ),
 		];
 
-		Transient::Set( $this->storeKey(), $cfg, WEEK_IN_SECONDS );
 		return $cfg;
 	}
 
 	private function getPathCfg() :string {
-		return $this->getCon()->paths->forModuleConfig( $this->getMod()->getSlug(), true );
+		return $this->getCon()->paths->forModuleConfig( $this->slug, true );
 	}
 
 	/**
-	 * @param string $file
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function loadRawFromFile( string $file ) :string {

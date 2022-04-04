@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "comms",
     "storage_key":           "comms",
+    "load_priority":         100,
     "name":                  "Comms",
     "menu_title":            "Comms",
     "show_module_options":   true,

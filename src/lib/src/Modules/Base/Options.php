@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\OptValueSanitize;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,11 +24,6 @@ class Options {
 	 * @var array
 	 */
 	protected $aOld;
-
-	/**
-	 * @var array
-	 */
-	protected $aRawOptionsConfigData;
 
 	/**
 	 * @var bool
@@ -410,24 +406,19 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param string $prop
 	 * @return mixed|null
 	 */
 	public function getOptProperty( string $key, string $prop ) {
 		return $this->getOptDefinition( $key )[ $prop ] ?? null;
 	}
 
+	public function cfg() :ModConfigVO {
+		return $this->getMod()->cfg;
+	}
+
 	public function getRawData_FullFeatureConfig() :array {
-		if ( empty( $this->aRawOptionsConfigData ) ) {
-			try {
-				$this->aRawOptionsConfigData = $this->getConfigLoader()->run();
-			}
-			catch ( \Exception $e ) {
-				$this->aRawOptionsConfigData = [];
-			}
-		}
-		return $this->aRawOptionsConfigData;
+		// TODO: use the cfg directly throughout instead of via array
+		return empty( $this->aRawOptionsConfigData ) ? $this->cfg()->getRawData() : $this->aRawOptionsConfigData;
 	}
 
 	protected function getRawData_AllOptions() :array {
@@ -560,7 +551,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
 	 * @return $this
 	 */
 	public function setOptAt( string $key ) {
@@ -569,8 +559,7 @@ class Options {
 
 	/**
 	 * Use this to directly set the option value without the risk of any recursion.
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return $this
 	 */
 	protected function setOptValue( string $key, $value ) {
@@ -581,7 +570,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
 	 * @param mixed  $mPotentialValue
 	 * @return bool
 	 */
@@ -689,7 +677,7 @@ class Options {
 
 	public function getConfigLoader() :Config\LoadConfig {
 		if ( empty( $this->cfgLoader ) ) {
-			$this->cfgLoader = ( new Config\LoadConfig() )->setMod( $this->getMod() );
+			$this->cfgLoader = new Config\LoadConfig( $this->getMod()->getSlug() );
 		}
 		return $this->cfgLoader;
 	}

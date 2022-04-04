@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Read {
 
 	/**
-	 * @param string $path
-	 * @return array
 	 * @throws \Exception
 	 */
 	public static function FromFile( string $path ) :array {
@@ -27,8 +25,6 @@ class Read {
 	}
 
 	/**
-	 * @param string $def
-	 * @return array
 	 * @throws \Exception
 	 */
 	public static function FromString( string $def ) :array {

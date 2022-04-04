@@ -2,6 +2,7 @@
   "slug":             "traffic",
   "properties":       {
     "slug":                  "traffic",
+    "load_priority":         12,
     "name":                  "Traffic Watch",
     "sidebar_name":          "Traffic",
     "show_module_menu_item": false,

@@ -13,6 +13,11 @@ abstract class ModCon {
 	use Shield\Crons\PluginCronsConsumer;
 
 	/**
+	 * @var Config\ModConfigVO
+	 */
+	public $cfg;
+
+	/**
 	 * @var string
 	 */
 	private $sOptionsStoreKey;
@@ -84,39 +89,33 @@ abstract class ModCon {
 
 	/**
 	 * @param Shield\Controller\Controller $pluginCon
-	 * @param array                        $mod
+	 * @param Config\ModConfigVO           $cfg
 	 * @throws \Exception
 	 */
-	public function __construct( $pluginCon, $mod = [] ) {
-		if ( !$pluginCon instanceof Shield\Controller\Controller ) {
-			throw new \Exception( 'Plugin controller not supplied to Module' );
-		}
+	public function __construct( Shield\Controller\Controller $pluginCon, Config\ModConfigVO $cfg ) {
 		$this->setCon( $pluginCon );
+		$this->cfg = $cfg;
 
-		if ( empty( $mod[ 'storage_key' ] ) && empty( $mod[ 'slug' ] ) ) {
-			throw new \Exception( 'Module storage key AND slug are undefined' );
+		if ( empty( $cfg->properties[ 'slug' ] ) ) {
+			throw new \Exception( 'No slug defined' );
 		}
 
-		$this->sOptionsStoreKey = empty( $mod[ 'storage_key' ] ) ? $mod[ 'slug' ] : $mod[ 'storage_key' ];
-		if ( isset( $mod[ 'slug' ] ) ) {
-			$this->sModSlug = $mod[ 'slug' ];
-		}
+		$this->sOptionsStoreKey = $cfg->properties[ 'storage_key' ] ?? $cfg->properties[ 'slug' ];
+		$this->sModSlug = $cfg->properties[ 'slug' ];
 
 		if ( $this->verifyModuleMeetRequirements() ) {
 			$this->handleAutoPageRedirects();
-			$this->setupHooks( $mod );
+			$this->setupHooks();
 			$this->doPostConstruction();
 		}
 	}
 
-	protected function setupHooks( array $modProps ) {
+	protected function setupHooks() {
 		$con = $this->getCon();
-		$nRunPriority = $modProps[ 'load_priority' ] ?? 100;
 
 		add_action( $con->prefix( 'modules_loaded' ), function () {
 			$this->onModulesLoaded();
-		}, $nRunPriority );
-		add_action( $con->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
+		}, $this->cfg->properties[ 'load_priority' ] );
 
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 		add_action( 'init', [ $this, 'onWpLoaded' ] );
