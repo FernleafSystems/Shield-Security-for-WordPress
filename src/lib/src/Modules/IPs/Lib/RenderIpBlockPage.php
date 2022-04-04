@@ -59,7 +59,7 @@ class RenderIpBlockPage extends ExecOnceModConsumer {
 				'email_unblock' => $this->renderEmailMagicLinkContent()
 			],
 			'hrefs'   => [
-				'home' => Services::WpGeneral()->getHomeUrl()
+				'home' => Services::WpGeneral()->getHomeUrl( '/' )
 			],
 			'vars'    => [
 				'nonce' => $mod->getNonceActionData( 'uau' ),

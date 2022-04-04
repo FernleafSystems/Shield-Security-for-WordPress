@@ -50,12 +50,12 @@ class AutoUnblock extends ExecOnceModConsumer {
 		$unblocked = false;
 
 		if ( $opts->isEnabledAutoVisitorRecover() && $req->isPost()
-			 && $req->request( 'action' ) == $mod->prefix() && $req->request( 'exec' ) == 'uau' ) {
+			 && $req->post( 'action' ) == $mod->prefix() && $req->post( 'exec' ) == 'uau' ) {
 
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
 			}
-			if ( strlen( $req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
+			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
 				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
 
@@ -95,7 +95,6 @@ class AutoUnblock extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function processUserMagicLink() :bool {

@@ -1248,7 +1248,9 @@ class Controller extends DynPropertiesClass {
 
 		$this->rules->execute();
 
-		do_action( $this->prefix( 'run_processors' ) );
+		foreach ( $this->modules as $module ) {
+			$module->onRunProcessors();
+		}
 
 		// This is where any rules responses will execute (i.e. after processors are run):
 		do_action( $this->prefix( 'after_run_processors' ) );
