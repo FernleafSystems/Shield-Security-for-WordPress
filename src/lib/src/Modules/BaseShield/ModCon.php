@@ -28,14 +28,22 @@ class ModCon extends Base\ModCon {
 					->getDbHandler_Sessions();
 	}
 
+	public function getSessionWP() :Shield\Modules\Sessions\Lib\SessionVO {
+		return $this->getCon()
+					->getModule_Sessions()
+					->getSessionCon()
+					->getCurrentWP();
+	}
+
 	/**
 	 * @return Shield\Databases\Session\EntryVO|null
+	 * @deprecated 15.0
 	 */
 	public function getSession() :array {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getSessionCon()
-					->getCurrentWP();
+					->getCurrent();
 	}
 
 	public function onWpInit() {

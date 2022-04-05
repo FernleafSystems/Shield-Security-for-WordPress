@@ -22,7 +22,7 @@ class Processor extends BaseShield\Processor {
 			add_action( 'clear_auth_cookie', function () {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
-				$mod->getSessionCon()->terminateCurrentSession();
+				$mod->getSessionCon()->getCurrentWP();
 			}, 0 );
 		}
 
@@ -39,14 +39,8 @@ class Processor extends BaseShield\Processor {
 		}
 	}
 
-	public function onWpLoaded() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getSessionCon()->updateLastActivityAt();
-	}
-
 	/**
-	 * Only show Go To Admin link for Authors and above.
+	 * Only show Go To Admin link for Authors+.
 	 * @param string $msg
 	 * @return string
 	 * @throws \Exception
@@ -56,11 +50,11 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$user = Services::WpUsers()->getCurrentWpUser();
 
-		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
-			 && ( $user instanceof \WP_User ) && $mod->getSessionCon()->hasSession() ) {
-			$msg .= sprintf( '<p class="message">%s<br />%s</p>',
-				__( "You're already logged-in.", 'wp-simple-firewall' )
-				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $user->user_login ),
+		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] ) && $mod->getSessionWP()->valid
+			 && $user instanceof \WP_User ) {
+			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
+				__( "You're already logged-in.", 'wp-simple-firewall' ),
+				sprintf( '<span style="white-space: nowrap">(%s)</span>', $user->user_login ),
 				( $user->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
 					Services::WpGeneral()->getAdminUrl(),
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );

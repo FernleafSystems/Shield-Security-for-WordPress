@@ -12,25 +12,30 @@ class SessionController {
 	use ModConsumer;
 
 	/**
-	 * @var array
+	 * @var SessionVO
 	 */
 	private $currentWP;
 
 	/**
 	 * @var Session\EntryVO
+	 * @deprecated 15.0
 	 */
 	private $current;
 
 	/**
 	 * @var ?string
+	 * @deprecated 15.0
 	 */
 	private $sessionID;
 
-	public function getCurrentWP() :array {
-		$WPUsers = Services::WpUsers();
+	public function getCurrentWP() :SessionVO {
 
-		if ( !isset( $this->currentWP ) && did_action( 'init' ) && $WPUsers->isUserLoggedIn() ) {
-			$user = $WPUsers->getCurrentWpUser();
+		if ( !isset( $this->currentWP ) ) {
+			$this->currentWP = new SessionVO();
+		}
+
+		$WPUsers = Services::WpUsers();
+		if ( !$this->currentWP->valid && did_action( 'init' ) && $WPUsers->isUserLoggedIn() ) {
 
 			foreach ( [ 'logged_in', 'secure_auth', 'auth' ] as $type ) {
 				$parsed = wp_parse_auth_cookie( '', $type );
@@ -40,28 +45,40 @@ class SessionController {
 			}
 
 			if ( is_array( $parsed ) && !empty( $parsed[ 'token' ] ) ) {
-				$maybe = \WP_Session_Tokens::get_instance( $user->ID )->get( $parsed[ 'token' ] );
+				$manager = \WP_Session_Tokens::get_instance( $WPUsers->getCurrentWpUser()->ID );
 
-				if ( is_array( $maybe ) ) {
-					if ( empty( $maybe[ 'shield_unique' ] ) ) {
-						$maybe[ 'shield_unique' ] = uniqid();
-					}
+				$session = $manager->get( $parsed[ 'token' ] );
 
+				if ( is_array( $session ) ) {
+
+					// Ensure the correct IP is stored
 					$srvIP = Services::IP();
 					$ip = $srvIP->getRequestIp();
-					if ( !empty( $ip ) && ( empty( $maybe[ 'ip' ] ) || !$srvIP->checkIp( $ip, $maybe[ 'ip' ] ) ) ) {
-						$maybe[ 'ip' ] = $ip;
+					if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->checkIp( $ip, $session[ 'ip' ] ) ) ) {
+						$session[ 'ip' ] = $ip;
 					}
 
-					$maybe[ 'token' ] = $parsed[ 'token' ];
+					$shieldSessionMeta = $session[ 'shield' ] ?? [];
+
+					$shieldSessionMeta[ 'last_activity_at' ] = Services::Request()->ts();
+					if ( empty( $shieldSessionMeta[ 'unique' ] ) ) {
+						$shieldSessionMeta[ 'unique' ] = uniqid();
+					}
+
+					$session[ 'shield' ] = $shieldSessionMeta;
+					$manager->update( $parsed[ 'token' ], $session );
+
+					// all that follows should not be stored
+					$session[ 'token' ] = $parsed[ 'token' ];
 					// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
-					$maybe[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
-					$this->currentWP = $maybe;
+					$session[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
+					$session[ 'valid' ] = true;
+					$this->currentWP->applyFromArray( $session );
 				}
 			}
 		}
 
-		return $this->currentWP ?? [];
+		return $this->currentWP;
 	}
 
 	/**
@@ -72,7 +89,7 @@ class SessionController {
 		if ( $manager instanceof \WP_User_Meta_Session_Tokens ) {
 			$raw = get_user_meta( $userID, 'session_tokens', true );
 			foreach ( $raw as $hash => $session ) {
-				if ( is_array( $session ) && $uniqueID === ( $session[ 'shield_unique' ] ?? '' ) ) {
+				if ( is_array( $session ) && $uniqueID === ( $session[ 'shield' ][ 'unique' ] ?? '' ) ) {
 					unset( $raw[ $hash ] );
 					update_user_meta( $userID, 'session_tokens', $raw );
 					break;
@@ -81,38 +98,43 @@ class SessionController {
 		}
 	}
 
-	public function updateLastActivityAt() {
-		$this->updateSessionParameter( 'last_activity_at', Services::Request()->ts() );
-	}
-
 	public function updateSessionParameter( string $key, $value ) {
 		$WPUsers = Services::WpUsers();
 		$current = $this->getCurrentWP();
-		if ( !empty( $current ) ) {
-			$current[ $key ] = $value;
+		if ( $current->valid ) {
+			$shield = $current->shield;
+			$shield[ $key ] = $value;
+			$current->shield = $shield;
 			\WP_Session_Tokens::get_instance( $WPUsers->getCurrentWpUserId() )
 							  ->update(
-								  $current[ 'token' ],
-								  array_diff_key( $current, array_flip( [ 'token', 'hashed_token' ] ) )
+								  $current->token,
+								  array_diff_key( $current->getRawData(), array_flip( [
+									  'token',
+									  'hashed_token',
+									  'valid'
+								  ] ) )
 							  );
-			unset( $this->currentWP );
 		}
 	}
 
+
+	/**
+	 * @deprecated 15.0
+	 */
 	public function hasSession() :bool {
-		return !empty( $this->getCurrentWP() );
+		return (bool)$this->getCurrentWP()->valid;
 	}
 
 	public function terminateCurrentSession() :bool {
 		$current = $this->getCurrentWP();
 
-		if ( !empty( $current ) ) {
+		if ( $current->valid ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
-			\WP_Session_Tokens::get_instance( $user->ID )->destroy( $current[ 'token' ] );
+			\WP_Session_Tokens::get_instance( $user->ID )->destroy( $current->token );
 			$this->getCon()->fireEvent( 'session_terminate_current', [
 				'audit_params' => [
 					'user_login' => $user->user_login,
-					'session_id' => $current[ 'token' ],
+					'session_id' => $current->token,
 				]
 			] );
 		}
@@ -122,13 +144,15 @@ class SessionController {
 		return true;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function hasSessionID() :bool {
 		return !empty( $this->getSessionID() );
 	}
 
 	public function getSessionID() :string {
-		$current = $this->getCurrentWP();
-		return empty( $current ) ? '' : $current[ 'token' ];
+		return '';
 	}
 
 	/**

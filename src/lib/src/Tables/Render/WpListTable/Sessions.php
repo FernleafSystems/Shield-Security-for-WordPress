@@ -9,8 +9,8 @@ class Sessions extends Base {
 	 * @return string
 	 */
 	public function column_cb( $item ) {
-		return empty( $item[ 'shield_unique' ] ) ? ''
-			: sprintf( '<input type="checkbox" name="ids" value="%s-%s" />', $item[ 'user_id' ], $item[ 'shield_unique' ] );
+		return empty( $item[ 'shield' ][ 'unique' ] ) ? ''
+			: sprintf( '<input type="checkbox" name="ids" value="%s-%s" />', $item[ 'user_id' ], $item[ 'shield' ][ 'unique' ] );
 	}
 
 	/**
@@ -19,9 +19,9 @@ class Sessions extends Base {
 	 */
 	public function column_details( $item ) {
 		$actions = [];
-		if ( !empty( $item[ 'shield_unique' ] ) ) {
+		if ( !empty( $item[ 'shield' ][ 'unique' ] ) ) {
 			$actions[] = $this->getActionButton_Delete(
-				sprintf( '%s-%s', $item[ 'user_id' ], $item[ 'shield_unique' ] ),
+				sprintf( '%s-%s', $item[ 'user_id' ], $item[ 'shield' ][ 'unique' ] ),
 				__( 'Discard Session', 'wp-simple-firewall' )
 			);
 		}

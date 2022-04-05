@@ -42,9 +42,7 @@ class UI extends Base\UI {
 					'sec_admin_login' => $con->getModule_SecAdmin()->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'has_session'             => $con->getModule_Sessions()
-													 ->getSessionCon()
-													 ->hasSession(),
+					'has_session'             => $mod->getSessionWP()->valid,
 					'display_helpdesk_widget' => !$isWhitelabelled,
 					'is_whitelabelled'        => $isWhitelabelled
 				],

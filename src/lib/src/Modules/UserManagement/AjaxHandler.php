@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -57,27 +56,26 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			$yourId = $mod->getSession()->id;
-			$includesYourSession = in_array( $yourId, $IDs );
+			$sessionCon = $this->getCon()->getModule_Sessions()->getSessionCon();
+			$yourId = $mod->getSessionWP()->shield[ 'unique' ] ?? '';
+			$includesYourSession = false;
 
-			if ( $includesYourSession && ( count( $IDs ) == 1 ) ) {
-				$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
-			}
-			else {
-				$success = true;
+			foreach ( $IDs as $IDunique ) {
+				list( $userID, $uniqueID ) = explode( '-', $IDunique );
+				if ( $yourId === $uniqueID ) {
+					$includesYourSession = true;
+					continue;
+				}
 
-				$terminator = ( new Sessions\Lib\Ops\Terminate() )
-					->setMod( $this->getCon()->getModule_Sessions() );
-				foreach ( $IDs as $id ) {
-					if ( is_numeric( $id ) && ( $id != $yourId ) ) {
-						$terminator->byRecordId( (int)$id );
-					}
-				}
-				$msg = __( 'Selected items were deleted.', 'wp-simple-firewall' );
-				if ( $includesYourSession ) {
-					$msg .= ' *'.__( 'Your session was retained', 'wp-simple-firewall' );
-				}
+				$sessionCon->removeSessionBasedOnUniqueID( $userID, $uniqueID );
 			}
+
+			$msg = __( 'Selected items were deleted.', 'wp-simple-firewall' );
+			if ( $includesYourSession ) {
+				$msg .= ' *'.__( 'Your session was retained', 'wp-simple-firewall' );
+			}
+
+			$success = true;
 		}
 
 		return [
@@ -97,7 +95,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		if ( empty( $userID ) || !is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		elseif ( $mod->getSession()[ 'shield_unique' ] === $uniqueID ) {
+		elseif ( $mod->getSessionWP()->shield[ 'unique' ] === $uniqueID ) {
 			$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
 		else {

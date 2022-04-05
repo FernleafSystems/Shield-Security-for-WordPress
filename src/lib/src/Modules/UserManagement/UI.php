@@ -2,20 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class UI extends BaseShield\UI {
 
 	public function buildInsightsVars() :array {
-		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Select $dbSel */
-		$dbSel = $con->getModule_Sessions()
-					 ->getDbHandler_Sessions()
-					 ->getQuerySelector();
-
 		return [
 			'ajax'    => [
 				'render_table_sessions' => $mod->getAjaxActionData( 'render_table_sessions', true ),
@@ -32,9 +25,39 @@ class UI extends BaseShield\UI {
 				'username'            => __( 'Username', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'unique_ips'    => $dbSel->getDistinctIps(),
-				'unique_users'  => $dbSel->getDistinctUsernames(),
+				'unique_users' => $this->getDistinctUsernames(),
 			],
 		];
+	}
+
+	private function getDistinctUsernames() :array {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select $metaSelect */
+		$metaSelect = $this->getCon()
+						   ->getModule_Data()
+						   ->getDbH_UserMeta()
+						   ->getQuerySelector();
+		$results = $metaSelect->setResultsAsVo( false )
+							  ->setSelectResultsFormat( ARRAY_A )
+							  ->setColumnsToSelect( [ 'user_id' ] )
+							  ->setOrderBy( 'updated_at', 'DESC' )
+							  ->setLimit( 20 )
+							  ->queryWithResult();
+
+		$results = array_map(
+			function ( $object ) {
+				return $object->user_login;
+			},
+			( new \WP_User_Query( [
+				'fields'  => [ 'user_login' ],
+				'include' => array_map(
+					function ( $res ) {
+						return (int)$res[ 'user_id' ];
+					},
+					is_array( $results ) ? $results : []
+				)
+			] ) )->get_results()
+		);
+		asort( $results );
+		return $results;
 	}
 }

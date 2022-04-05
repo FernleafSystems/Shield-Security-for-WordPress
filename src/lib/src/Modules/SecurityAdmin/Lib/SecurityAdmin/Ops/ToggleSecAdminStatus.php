@@ -10,38 +10,21 @@ class ToggleSecAdminStatus {
 	use ModConsumer;
 
 	public function turnOn() :bool {
-		try {
-			$success = $this->toggle( true );
-		}
-		catch ( \Exception $e ) {
-			$success = false;
-		}
-		return $success;
+		return $this->toggle( true );
 	}
 
 	public function turnOff() :bool {
-		try {
-			$success = $this->toggle( false );
-		}
-		catch ( \Exception $e ) {
-			$success = false;
-		}
-		return $success;
+		return $this->toggle( false );
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	private function toggle( bool $onOrOff ) :bool {
-		$session = $this->getMod()->getSession();
-		if ( empty( $session ) ) {
-			throw new \Exception( 'No session' );
+		$session = $this->getMod()->getSessionWP();
+		if ( $session->valid ) {
+			$this->getCon()
+				 ->getModule_Sessions()
+				 ->getSessionCon()
+				 ->updateSessionParameter( 'secadmin_at', $onOrOff ? Services::Request()->ts() : 0 );
 		}
-
-		$this->getCon()
-			 ->getModule_Sessions()
-			 ->getSessionCon()
-			 ->updateSessionParameter( 'secadmin_at', $onOrOff ? Services::Request()->ts() : 0 );
-		return true;
+		return (bool)$session->valid;
 	}
 }

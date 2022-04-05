@@ -70,22 +70,22 @@ class UserSessionHandler extends ExecOnceModConsumer {
 					 ->getModule_Sessions()
 					 ->getSessionCon()
 					 ->getCurrentWP();
-		if ( empty( $sess ) ) {
+		if ( !$sess->valid ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
 		$ts = Services::Request()->ts();
 
-		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess[ 'login' ] > $opts->getMaxSessionTime() ) ) {
+		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess->login > $opts->getMaxSessionTime() ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 
-		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess[ 'last_activity_at' ] > $opts->getIdleTimeoutInterval() ) ) {
+		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess->shield[ 'last_activity_at' ] > $opts->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->checkIp( $srvIP->getRequestIp(), $sess[ 'ip' ] ) ) {
+		if ( $opts->isLockToIp() && !$srvIP->checkIp( $srvIP->getRequestIp(), $sess->ip ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}

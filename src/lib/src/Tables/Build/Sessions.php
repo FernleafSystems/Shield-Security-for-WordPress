@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -29,14 +30,35 @@ class Sessions extends BaseBuild {
 
 	private function loadSessions() :array {
 		if ( !isset( $this->sessions ) ) {
-			$DB = Services::WpDb();
-			$results = $DB->selectCustom( sprintf( 'SELECT DISTINCT(user_id) FROM %s limit 10;', $DB->loadWpdb()->usermeta ) );
-			$UIDs = array_map(
-				function ( $res ) {
-					return (int)$res[ 'user_id' ];
-				},
-				is_array( $results ) ? $results : []
-			);
+
+			$params = $this->getParams();
+			if ( !empty( $params[ 'fUsername' ] ) ) {
+				$user = Services::WpUsers()->getUserByUsername( $params[ 'fUsername' ] );
+				if ( !empty( $user ) ) {
+					$UIDs = [ $user->ID ];
+				}
+			}
+
+			if ( empty( $UIDs ) ) {
+				// Select the most recently active based on updated Shield User Meta
+				/** @var Select $metaSelect */
+				$metaSelect = $this->getCon()
+								   ->getModule_Data()
+								   ->getDbH_UserMeta()
+								   ->getQuerySelector();
+				$results = $metaSelect->setResultsAsVo( false )
+									  ->setSelectResultsFormat( ARRAY_A )
+									  ->setColumnsToSelect( [ 'user_id' ] )
+									  ->setOrderBy( 'updated_at', 'DESC' )
+									  ->setLimit( 20 )
+									  ->queryWithResult();
+				$UIDs = array_map(
+					function ( $res ) {
+						return (int)$res[ 'user_id' ];
+					},
+					is_array( $results ) ? $results : []
+				);
+			}
 
 			$this->sessions = [];
 			foreach ( $UIDs as $UID ) {
@@ -48,19 +70,15 @@ class Sessions extends BaseBuild {
 	}
 
 	/**
-	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
+	 * @return array[]
 	 */
 	protected function getEntriesRaw() :array {
 		$allSessions = [];
 		foreach ( $this->loadSessions() as $uid => $sessions ) {
 			$user = Services::WpUsers()->getUserById( $uid );
 			foreach ( $sessions as $session ) {
-				if ( !isset( $session[ 'last_activity_at' ] ) ) {
-					$session[ 'last_activity_at' ] = $session[ 'login' ];
-				}
-				if ( !isset( $session[ 'secadmin_at' ] ) ) {
-					$session[ 'secadmin_at' ] = 0;
-				}
+				$session[ 'last_activity_at' ] = $session[ 'shield' ][ 'last_activity_at' ] ?? $session[ 'login' ];
+				$session[ 'secadmin_at' ] = $session[ 'shield' ][ 'secadmin_at' ] ?? 0;
 				$session[ 'user' ] = $user;
 				$session[ 'user_id' ] = $user->ID;
 				$allSessions[] = $session;
@@ -89,18 +107,11 @@ class Sessions extends BaseBuild {
 		/** @var Session\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
-		$aParams = $this->getParams();
+		$params = $this->getParams();
 
 		// If an IP is specified, it takes priority
-		if ( Services::IP()->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( $aParams[ 'fIp' ] );
-		}
-
-		if ( !empty( $aParams[ 'fUsername' ] ) ) {
-			$oUser = Services::WpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
-			if ( !empty( $oUser ) ) {
-				$oSelector->filterByUsername( $oUser->user_login );
-			}
+		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {
+			$oSelector->filterByIp( $params[ 'fIp' ] );
 		}
 
 		$oSelector->setOrderBy( 'last_activity_at', 'DESC', true );
