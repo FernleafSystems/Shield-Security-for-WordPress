@@ -13,6 +13,7 @@ class Processor extends BaseShield\Processor {
 
 	/**
 	 * @var Session\EntryVO
+	 * @deprecated 15.0
 	 */
 	private $current;
 
@@ -34,36 +35,14 @@ class Processor extends BaseShield\Processor {
 
 	protected function captureLogin( \WP_User $user ) {
 		if ( !empty( $this->getLoggedInCookie() ) ) {
-			$sessonCon = $this->getCon()->getModule_Sessions()->getSessionCon();
-			$sessonCon->terminateCurrentSession();
-			$sessonCon->createSession( $user, $this->getLoggedInCookie() );
 			$this->getCon()->fireEvent( 'login_success' );
 		}
-	}
-
-	public function onWpInit() {
-		$this->autoAddSession();
 	}
 
 	public function onWpLoaded() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
-		if ( $mod->getSessionCon()->hasSession() ) {
-			/** @var Session\Update $update */
-			$update = $mod->getDbHandler_Sessions()->getQueryUpdater();
-			$update->updateLastActivity( $mod->getSessionCon()->getCurrent() );
-		}
-	}
-
-	private function autoAddSession() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$sessCon = $mod->getSessionCon();
-		$user = Services::WpUsers()->getCurrentWpUser();
-		if ( $user instanceof \WP_User && !$sessCon->hasSession() ) {
-			$sessCon->createSession( $user );
-		}
+		$mod->getSessionCon()->updateLastActivityAt();
 	}
 
 	/**
@@ -87,17 +66,6 @@ class Processor extends BaseShield\Processor {
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
 		return $msg;
-	}
-
-	protected function getWpHookPriority( string $hook ) :int {
-		switch ( $hook ) {
-			case 'init':
-				$pri = 1;
-				break;
-			default:
-				$pri = parent::getWpHookPriority( $hook );
-		}
-		return $pri;
 	}
 
 	protected function getHookPriority() :int {

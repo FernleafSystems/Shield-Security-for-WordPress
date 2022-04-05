@@ -76,13 +76,6 @@
       }
     },
     "events":              {
-      "session_start":             {
-        "audit_params": [
-          "user_login",
-          "session_id"
-        ],
-        "level":        "info"
-      },
       "session_terminate":         {
         "level": "info"
       },

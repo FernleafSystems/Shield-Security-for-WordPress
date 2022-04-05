@@ -2,10 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ToggleSecAdminStatus {
 
@@ -32,19 +30,18 @@ class ToggleSecAdminStatus {
 	}
 
 	/**
-	 * @param bool $onOrOff
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function toggle( bool $onOrOff ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$session = $this->getMod()->getSession();
-		if ( !$session instanceof EntryVO ) {
+		if ( empty( $session ) ) {
 			throw new \Exception( 'No session' );
 		}
-		/** @var Update $updater */
-		$updater = $mod->getDbHandler_Sessions()->getQueryUpdater();
-		return $onOrOff ? $updater->startSecurityAdmin( $session ) : $updater->terminateSecurityAdmin( $session );
+
+		$this->getCon()
+			 ->getModule_Sessions()
+			 ->getSessionCon()
+			 ->updateSessionParameter( 'secadmin_at', $onOrOff ? Services::Request()->ts() : 0 );
+		return true;
 	}
 }

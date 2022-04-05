@@ -56,10 +56,6 @@ class Processor extends BaseShield\Processor {
 				__( 'Login Verified', 'wp-simple-firewall' ),
 				$selector->clearWheres()->sumEvent( '2fa_success' )
 			],
-			'session_start'     => [
-				__( 'User Sessions', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( 'session_start' )
-			],
 			'ip_killed'         => [
 				__( 'IP Blocks', 'wp-simple-firewall' ),
 				$selector->clearWheres()->sumEvent( 'conn_kill' )

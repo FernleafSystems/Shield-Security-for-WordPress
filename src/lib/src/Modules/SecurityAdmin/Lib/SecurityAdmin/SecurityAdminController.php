@@ -115,7 +115,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		$remaining = 0;
 		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
 
-			$secAdminAt = $this->getMod()->getSession()->getSecAdminAt();
+			$secAdminAt = $this->getMod()->getSession()[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isRegisteredSecAdminUser() && $secAdminAt > 0 ) {
 				$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
 			}

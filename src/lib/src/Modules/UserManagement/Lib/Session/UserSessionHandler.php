@@ -11,13 +11,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 	use WpLoginCapture;
 
-	protected function canRun() :bool {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getDbHandler_Sessions()
-					->isReady();
-	}
-
 	protected function run() {
 		$this->setupLoginCaptureHooks();
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -39,7 +32,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		$srvIP = Services::IP();
 
-		$user = Services::WpUsers()->getCurrentWpUser();
 		try {
 			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) && !$srvIP->isLoopback() ) {
 				$this->assessSession();
@@ -54,7 +46,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 				$con->fireEvent( $event, [
 					'audit_params' => [
-						'user_login' => $user->user_login
+						'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
 					]
 				] );
 
@@ -77,23 +69,23 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$sess = $this->getCon()
 					 ->getModule_Sessions()
 					 ->getSessionCon()
-					 ->getCurrent();
+					 ->getCurrentWP();
 		if ( empty( $sess ) ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
 		$ts = Services::Request()->ts();
 
-		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess->logged_in_at > $opts->getMaxSessionTime() ) ) {
+		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess[ 'login' ] > $opts->getMaxSessionTime() ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 
-		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess->last_activity_at > $opts->getIdleTimeoutInterval() ) ) {
+		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess[ 'last_activity_at' ] > $opts->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->checkIp( $srvIP->getRequestIp(), $sess->ip ) ) {
+		if ( $opts->isLockToIp() && !$srvIP->checkIp( $srvIP->getRequestIp(), $sess[ 'ip' ] ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}

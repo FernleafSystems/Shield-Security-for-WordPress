@@ -31,11 +31,11 @@ class ModCon extends Base\ModCon {
 	/**
 	 * @return Shield\Databases\Session\EntryVO|null
 	 */
-	public function getSession() {
+	public function getSession() :array {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getSessionCon()
-					->getCurrent();
+					->getCurrentWP();
 	}
 
 	public function onWpInit() {
