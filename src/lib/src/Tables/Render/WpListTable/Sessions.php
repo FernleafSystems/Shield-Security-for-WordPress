@@ -5,17 +5,30 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 class Sessions extends Base {
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_details( $aItem ) {
+	public function column_cb( $item ) {
+		return empty( $item[ 'shield_unique' ] ) ? ''
+			: sprintf( '<input type="checkbox" name="ids" value="%s-%s" />', $item[ 'user_id' ], $item[ 'shield_unique' ] );
+	}
+
+	/**
+	 * @param array $item
+	 * @return string
+	 */
+	public function column_details( $item ) {
+		$actions = [];
+		if ( !empty( $item[ 'shield_unique' ] ) ) {
+			$actions[] = $this->getActionButton_Delete(
+				sprintf( '%s-%s', $item[ 'user_id' ], $item[ 'shield_unique' ] ),
+				__( 'Discard Session', 'wp-simple-firewall' )
+			);
+		}
 		return sprintf( '%s<br />%s%s',
-			$aItem[ 'wp_username' ],
-			$aItem[ 'ip' ],
-			$this->buildActions( [
-				$this->getActionButton_Delete( $aItem[ 'id' ],
-					__( 'Discard Session', 'wp-simple-firewall' ) )
-			] )
+			$item[ 'wp_username' ],
+			$item[ 'ip' ],
+			$this->buildActions( $actions )
 		);
 	}
 

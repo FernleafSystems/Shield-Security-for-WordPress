@@ -49,11 +49,11 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_cb( $aItem ) {
-		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $aItem[ 'id' ] );
+	public function column_cb( $item ) {
+		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $item[ 'id' ] );
 	}
 
 	/**

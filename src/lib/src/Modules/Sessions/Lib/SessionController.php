@@ -43,8 +43,18 @@ class SessionController {
 				$maybe = \WP_Session_Tokens::get_instance( $user->ID )->get( $parsed[ 'token' ] );
 
 				if ( is_array( $maybe ) ) {
-					// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
+					if ( empty( $maybe[ 'shield_unique' ] ) ) {
+						$maybe[ 'shield_unique' ] = uniqid();
+					}
+
+					$srvIP = Services::IP();
+					$ip = $srvIP->getRequestIp();
+					if ( !empty( $ip ) && ( empty( $maybe[ 'ip' ] ) || !$srvIP->checkIp( $ip, $maybe[ 'ip' ] ) ) ) {
+						$maybe[ 'ip' ] = $ip;
+					}
+
 					$maybe[ 'token' ] = $parsed[ 'token' ];
+					// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
 					$maybe[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
 					$this->currentWP = $maybe;
 				}
@@ -52,6 +62,23 @@ class SessionController {
 		}
 
 		return $this->currentWP ?? [];
+	}
+
+	/**
+	 * This is a hack to directly access and set the raw data for the user sessions by removing 1 of the array entries.
+	 */
+	public function removeSessionBasedOnUniqueID( int $userID, string $uniqueID ) {
+		$manager = \WP_Session_Tokens::get_instance( $userID );
+		if ( $manager instanceof \WP_User_Meta_Session_Tokens ) {
+			$raw = get_user_meta( $userID, 'session_tokens', true );
+			foreach ( $raw as $hash => $session ) {
+				if ( is_array( $session ) && $uniqueID === ( $session[ 'shield_unique' ] ?? '' ) ) {
+					unset( $raw[ $hash ] );
+					update_user_meta( $userID, 'session_tokens', $raw );
+					break;
+				}
+			}
+		}
 	}
 
 	public function updateLastActivityAt() {
