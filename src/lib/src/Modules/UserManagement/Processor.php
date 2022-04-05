@@ -25,7 +25,7 @@ class Processor extends BaseShield\Processor {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
+		if ( $this->getCon()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 
