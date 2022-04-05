@@ -42,7 +42,7 @@ abstract class Base {
 
 	public function run() {
 		$con = $this->getCon();
-		if ( did_action( $con->prefix( 'after_run_processors' ) ) ) {
+		if ( $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
 			$this->runExecResponse();
 		}
 		else {

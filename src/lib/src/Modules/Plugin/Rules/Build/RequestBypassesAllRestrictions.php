@@ -22,7 +22,6 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-
 		return [
 			'logic' => static::LOGIC_OR,
 			'group' => [
@@ -52,5 +51,9 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 				'response' => Responses\SetRequestBypassesAllRestrictions::SLUG,
 			],
 		];
+	}
+
+	protected function isInstantExecResponse() :bool {
+		return true;
 	}
 }

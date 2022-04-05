@@ -11,6 +11,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $wp_hook
  * @property int      $wp_hook_level
  * @property bool     $result
+ * @property bool     $immediate_exec_response
  * @property string[] $flags
  * @property string[] $prerequisites
  * @property array[]  $conditions
@@ -27,6 +28,10 @@ class RuleVO extends DynPropertiesClass {
 					$value = $this->determineWpHook();
 					$this->wp_hook = $value;
 				}
+				break;
+
+			case 'immediate_exec_response':
+				$value = (bool)$value;
 				break;
 
 			case 'flags':

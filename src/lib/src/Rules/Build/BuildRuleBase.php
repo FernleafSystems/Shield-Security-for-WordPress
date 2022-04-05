@@ -22,6 +22,7 @@ abstract class BuildRuleBase {
 		$rule->flags = $this->getFlags();
 		$rule->conditions = $this->getConditions();
 		$rule->responses = $this->getResponses();
+		$rule->immediate_exec_response = $this->isInstantExecResponse();
 		return $rule;
 	}
 
@@ -50,5 +51,9 @@ abstract class BuildRuleBase {
 
 	protected function getResponses() :array {
 		return [];
+	}
+
+	protected function isInstantExecResponse() :bool {
+		return false;
 	}
 }

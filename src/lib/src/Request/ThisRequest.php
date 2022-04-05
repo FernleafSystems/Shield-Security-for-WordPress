@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_security_admin
  * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
+ * @property bool            $is_ip_blacklisted
  * @property bool            $is_ip_whitelisted
  * @property bool            $is_server_loopback
  * @property bool            $request_bypasses_all_restrictions

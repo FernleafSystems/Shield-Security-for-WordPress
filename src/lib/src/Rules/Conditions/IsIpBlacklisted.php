@@ -12,10 +12,14 @@ class IsIpBlacklisted extends Base {
 	const SLUG = 'is_ip_blacklisted';
 
 	protected function execConditionCheck() :bool {
-		return !empty( ( new LookupIpOnList() )
-			->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-			->setIP( $this->getRequestIP() )
-			->setListTypeBlock()
-			->lookup() );
+		$thisReq = $this->getCon()->this_req;
+		if ( !isset( $thisReq->is_ip_blacklisted ) ) {
+			$thisReq->is_ip_blacklisted = !empty( ( new LookupIpOnList() )
+				->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+				->setIP( $this->getRequestIP() )
+				->setListTypeBlock()
+				->lookup() );
+		}
+		return $thisReq->is_ip_blacklisted;
 	}
 }
