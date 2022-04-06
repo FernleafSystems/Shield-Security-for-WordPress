@@ -33,4 +33,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+
+		if ( $key === 'ip_ref' ) {
+			$value = (int)$value;
+		}
+
+		return $value;
+	}
 }

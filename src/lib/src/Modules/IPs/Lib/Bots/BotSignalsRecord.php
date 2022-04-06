@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
@@ -89,15 +89,15 @@ class BotSignalsRecord {
 		}
 
 		if ( empty( $r->auth_at ) ) {
-			$dbhSessions = $this->getCon()
-								->getModule_Sessions()
-								->getDbHandler_Sessions();
-			/** @var Session\Select $selector */
-			$selector = $dbhSessions->getQuerySelector();
-			$session = $selector->setIncludeSoftDeleted( true )
-								->filterByIp( $this->getIP() )
-								->first();
-			$r->auth_at = empty( $session ) ? 0 : $session->created_at;
+			/** @var UserMetaDB\Select $userMetaSelect */
+			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
+												->setColumnsToSelect( [ 'last_login_at' ] )
+												->setOrderBy( 'last_login_at' )
+												->first();
+			if ( !empty( $lastUserMetaLogin ) ) {
+				$r->auth_at = $lastUserMetaLogin->last_login_at;
+			}
 		}
 
 		if ( $storeOnLoad ) {

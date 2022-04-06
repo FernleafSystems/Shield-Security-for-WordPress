@@ -330,7 +330,6 @@ class BuildDisplay {
 		}
 		catch ( \Exception $e ) {
 			$record = null;
-			$signals = [];
 		}
 
 		foreach ( $scores as $scoreKey => $scoreValue ) {
