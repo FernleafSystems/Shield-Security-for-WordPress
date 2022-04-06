@@ -35,7 +35,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success' => true,
 			'html'    => ( new Shield\Tables\Build\Sessions() )
 				->setMod( $mod )
-				->setDbHandler( $con->getModule_Sessions()->getDbHandler_Sessions() )
 				->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() )
 				->render()
 		];

@@ -437,6 +437,7 @@ class Strings extends Base\Strings {
 			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
 			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
+			'btauthorfishing' => __( 'Username Fishing', 'wp-simple-firewall' ),
 			'btfake'          => __( 'Fake Web Crawler', 'wp-simple-firewall' ),
 			'btcheese'        => __( 'Link Cheese', 'wp-simple-firewall' ),
 			'btloginfail'     => __( 'Login Fail', 'wp-simple-firewall' ),

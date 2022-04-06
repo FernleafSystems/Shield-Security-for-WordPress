@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
@@ -74,6 +75,16 @@ class SessionController {
 					$session[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
 					$session[ 'valid' ] = true;
 					$this->currentWP->applyFromArray( $session );
+
+					// Update User Last Seen IP.
+					try {
+						$this->getCon()->getCurrentUserMeta()->record->ip_ref = ( new IPRecords() )
+							->setMod( $this->getCon()->getModule_Data() )
+							->loadIP( $session[ 'ip' ], true )
+							->id;
+					}
+					catch ( \Exception $e ) {
+					}
 				}
 			}
 		}
@@ -116,7 +127,6 @@ class SessionController {
 							  );
 		}
 	}
-
 
 	/**
 	 * @deprecated 15.0

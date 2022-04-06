@@ -116,6 +116,12 @@
           "attr":       [
             "UNIQUE"
           ]
+        },
+        "ip_ref":  {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
         }
       },
       "cols_timestamps": {

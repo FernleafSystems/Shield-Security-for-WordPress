@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops;
 
 /**
  * @property int $user_id
+ * @property int $ip_ref
  * @property int $first_seen_at
  * @property int $last_login_at
  * @property int $last_2fa_verified_at
@@ -13,16 +14,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops;
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 */
 	public function __set( string $key, $value ) {
 		$dbh = $this->getDbHandler();
 		if ( isset( $this->id ) && !empty( $dbh ) ) {
-			$dbh->getQueryUpdater()
-				->updateRecord( $this, [
-					$key => $value
-				] );
+			$dbh->getQueryUpdater()->updateRecord( $this, [
+				$key => $value
+			] );
 		}
 		parent::__set( $key, $value );
 	}

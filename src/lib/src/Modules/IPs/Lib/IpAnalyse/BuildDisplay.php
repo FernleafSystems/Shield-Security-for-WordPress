@@ -230,24 +230,20 @@ class BuildDisplay {
 			$sessions[ $key ] = $asArray;
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_sessions.twig',
-			[
-				'strings' => [
-					'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
-					'no_sessions'      => __( 'No sessions at this IP', 'wp-simple-firewall' ),
-					'username'         => __( 'Username', 'wp-simple-firewall' ),
-					'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
-					'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),
-					'last_activity_at' => __( 'Last Seen At', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'sessions'       => $sessions,
-					'total_sessions' => count( $sessions ),
-				],
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_sessions.twig', [
+			'strings' => [
+				'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
+				'no_sessions'      => __( 'No sessions at this IP', 'wp-simple-firewall' ),
+				'username'         => __( 'Username', 'wp-simple-firewall' ),
+				'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
+				'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),
+				'last_activity_at' => __( 'Last Seen At', 'wp-simple-firewall' ),
 			],
-			true
-		);
+			'vars'    => [
+				'sessions'       => $sessions,
+				'total_sessions' => count( $sessions ),
+			],
+		] );
 	}
 
 	private function renderForTraffic() :string {

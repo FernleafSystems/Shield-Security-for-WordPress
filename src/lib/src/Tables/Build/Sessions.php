@@ -130,35 +130,36 @@ class Sessions extends BaseBuild {
 	 * @return array[]
 	 */
 	public function getEntriesFormatted() :array {
-		$aEntries = [];
+		$entries = [];
 
 		$srvIP = Services::IP();
+		$WPU = Services::WpUsers();
 		$you = $srvIP->getRequestIp();
-		foreach ( $this->getEntriesRaw() as $nKey => $e ) {
-			$e[ 'is_secadmin' ] = $e[ 'secadmin_at' ] ? __( 'Yes' ) : __( 'No' );
-			$e[ 'last_activity_at' ] = $this->formatTimestampField( $e[ 'last_activity_at' ] );
-			$e[ 'logged_in_at' ] = $this->formatTimestampField( $e[ 'login' ] );
+		foreach ( $this->getEntriesRaw() as $key => $e ) {
 
 			try {
-				$e[ 'is_you' ] = $srvIP->checkIp( $you, $e[ 'ip' ] );
+				$isYou = $srvIP->checkIp( $you, $e[ 'ip' ] );
 			}
 			catch ( \Exception $ex ) {
-				$e[ 'is_you' ] = false;
+				$isYou = false;
 			}
-			$e[ 'ip' ] = sprintf( '%s%s',
-				$this->getIpAnalysisLink( $e[ 'ip' ] ),
-				$e[ 'is_you' ] ? ' <small>('.__( 'You', 'wp-simple-firewall' ).')</small>' : ''
-			);
 
-			$WPU = Services::WpUsers();
-			$e[ 'wp_username' ] = sprintf(
-				'<a href="%s">%s</a>',
-				$WPU->getAdminUrl_ProfileEdit( $e[ 'user' ] ),
-				$e[ 'user' ]->user_login
-			);
-			$aEntries[ $nKey ] = $e;
+			$entries[ $key ] = array_merge( $e, [
+				'is_secadmin'      => $e[ 'secadmin_at' ] ? __( 'Yes' ) : __( 'No' ),
+				'last_activity_at' => $this->formatTimestampField( $e[ 'last_activity_at' ] ),
+				'logged_in_at'     => $this->formatTimestampField( $e[ 'login' ] ),
+				'ip'               => sprintf( '%s <small>%s</small>',
+					$this->getIpAnalysisLink( $e[ 'ip' ] ),
+					$isYou ? __( 'You', 'wp-simple-firewall' ) : ''
+				),
+				'is_you'           => $isYou,
+				'wp_username'      => sprintf( '<a href="%s">%s</a>',
+					$WPU->getAdminUrl_ProfileEdit( $e[ 'user' ] ),
+					$e[ 'user' ]->user_login
+				),
+			] );
 		}
-		return $aEntries;
+		return $entries;
 	}
 
 	/**

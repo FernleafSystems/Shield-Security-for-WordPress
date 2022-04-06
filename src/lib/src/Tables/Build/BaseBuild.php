@@ -22,7 +22,8 @@ class BaseBuild {
 
 	public function render() :string {
 
-		if ( !$this->getDbHandler()->isReady() ) {
+		$db = $this->getDbHandler();
+		if ( $db && !$this->getDbHandler()->isReady() ) {
 			$render = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
 		}
 		else {
