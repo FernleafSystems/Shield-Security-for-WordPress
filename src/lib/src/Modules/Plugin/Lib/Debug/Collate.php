@@ -159,11 +159,6 @@ class Collate {
 		$con = $this->getCon();
 		$data = [];
 
-		$dbh = $con->getModule_Sessions()->getDbHandler_Sessions();
-		$data[ 'DB Table: Sessions' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
 		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
 		$data[ 'DB Table: Audit Trail' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )

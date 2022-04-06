@@ -21,20 +21,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	public function ajaxExec_BuildTableSessions() :array {
-		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		( new UserManagement\Lib\CleanExpired() )
-			->setMod( $mod )
-			->run();
-
 		/** @var Shield\Modules\SecurityAdmin\Options $optsSecAdmin */
-		$optsSecAdmin = $con->getModule_SecAdmin()->getOptions();
+		$optsSecAdmin = $this->getCon()->getModule_SecAdmin()->getOptions();
 		return [
 			'success' => true,
 			'html'    => ( new Shield\Tables\Build\Sessions() )
-				->setMod( $mod )
+				->setMod( $this->getMod() )
 				->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() )
 				->render()
 		];

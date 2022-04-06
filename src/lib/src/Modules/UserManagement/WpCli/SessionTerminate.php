@@ -3,9 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use WP_CLI;
 
+/**
+ * @deprecated 15.0
+ */
 class SessionTerminate extends BaseWpCliCmd {
 
 	/**
@@ -57,35 +59,6 @@ class SessionTerminate extends BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdTerminate( $null, $aA ) {
-
-		$bShowConfirm = true;
-		if ( $this->isForceFlag( $aA ) ) {
-			$bShowConfirm = false;
-			unset( $aA[ 'force' ] );
-		}
-
-		if ( WP_CLI\Utils\get_flag_value( $aA, 'all', false ) ) {
-			if ( $bShowConfirm ) {
-				WP_CLI::confirm( 'This will logout all users. Are you sure?' );
-			}
-			$this->runTerminateAll();
-			return;
-		}
-
-		if ( count( $aA ) === 0 ) {
-			WP_CLI::error( 'Please specify the user for which you want to terminate sessions.' );
-		}
-		if ( count( $aA ) > 1 ) {
-			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
-		}
-
-		$oU = $this->loadUserFromArgs( $aA );
-
-		if ( $bShowConfirm ) {
-			WP_CLI::confirm( 'This will logout all session for this user. Are you sure?' );
-		}
-
-		$this->runTerminateByUser( $oU );
 	}
 
 	/**
@@ -93,23 +66,8 @@ class SessionTerminate extends BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	private function runTerminateByUser( $oUser ) {
-		if ( empty( $oUser ) ) {
-			WP_CLI::error( "User doesn't exist." );
-		}
-		( new Terminate() )
-			->setMod( $this->getMod() )
-			->byUsername( $oUser->user_login );
-		WP_CLI::success(
-			__( 'All sessions for user have been terminated.', 'wp-simple-firewall' )
-		);
 	}
 
 	private function runTerminateAll() {
-		( new Terminate() )
-			->setMod( $this->getMod() )
-			->all();
-		WP_CLI::success(
-			__( 'All user sessions have been terminated.', 'wp-simple-firewall' )
-		);
 	}
 }

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
@@ -57,24 +55,45 @@ class Processor extends BaseShield\Processor {
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
 		$WPUsers = Services::WpUsers();
-		/** @var Select $sel */
-		$sel = $con->getModule_Sessions()->getDbHandler_Sessions()->getQuerySelector();
-		$sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
-			->setOrderBy( 'last_activity_at', 'DESC' );
+
+		$results = Services::WpDb()->selectCustom(
+			sprintf( 'SELECT `user_meta`.user_id as user_id, INET6_NTOA(`ips`.ip) as ip
+						FROM `%s` as `user_meta`
+						INNER JOIN `%s` as `ips`
+							ON `user_meta`.ip_ref = `ips`.id
+						ORDER BY `user_meta`.last_login_at DESC
+						LIMIT 10;',
+				$con->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
+			)
+		);
 
 		$thisGroup = [
-			'title' => __( 'Recent Sessions', 'wp-simple-firewall' ),
+			'title' => __( 'Recent Users', 'wp-simple-firewall' ),
 			'href'  => $con->getModule_Insights()->getUrl_Sessions(),
 			'items' => [],
 		];
-		/** @var EntryVO $session */
-		foreach ( $sel->query() as $session ) {
-			$thisGroup[ 'items' ][] = [
-				'id'    => $con->prefix( 'session-'.$session->id ),
-				'title' => sprintf( '<a href="%s">%s (%s)</a>',
-					$WPUsers->getAdminUrl_ProfileEdit( $WPUsers->getUserByUsername( $session->wp_username ) ),
-					$session->wp_username, $session->ip ),
-			];
+		if ( !empty( $results ) && is_array( $results ) ) {
+			$byUser = [];
+			foreach ( $results as $result ) {
+				$byUser[ $result[ 'user_id' ] ] = $result[ 'ip' ];
+			}
+
+			$users = ( new \WP_User_Query( [
+				'fields'  => [ 'user_login', 'ID' ],
+				'include' => array_keys( $byUser )
+			] ) )->get_results();
+
+			foreach ( $users as $user ) {
+				$thisGroup[ 'items' ][] = [
+					'id'    => $con->prefix( 'meta-'.$user->ID ),
+					'title' => sprintf( '<a href="%s">%s (%s)</a>',
+						$WPUsers->getAdminUrl_ProfileEdit( $user->ID ),
+						$user->user_login,
+						$byUser[ $user->ID ]
+					),
+				];
+			}
 		}
 
 		if ( !empty( $thisGroup[ 'items' ] ) ) {
@@ -265,11 +284,5 @@ class Processor extends BaseShield\Processor {
 		( new BulkUpdateUserMeta() )
 			->setCon( $this->getCon() )
 			->execute();
-	}
-
-	public function runDailyCron() {
-		( new Lib\CleanExpired() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 }

@@ -19,7 +19,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$this->enforceSessionLimits( $user );
 	}
 
 	public function onWpLoaded() {
@@ -98,25 +97,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->hasMaxSessionTimeout() ? min( $timeout, $opts->getMaxSessionTime() ) : $timeout;
-	}
-
-	private function enforceSessionLimits( \WP_User $user ) {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-
-		$sessionLimit = (int)$opts->getOpt( 'session_username_concurrent_limit', 1 );
-		if ( $sessionLimit > 0 ) {
-			try {
-				$this->getCon()
-					 ->getModule_Sessions()
-					 ->getDbHandler_Sessions()
-					 ->getQueryDeleter()
-					 ->addWhere( 'wp_username', $user->user_login )
-					 ->deleteExcess( $sessionLimit, 'last_activity_at', true );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
 	}
 
 	/**
