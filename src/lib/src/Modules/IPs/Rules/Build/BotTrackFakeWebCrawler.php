@@ -34,6 +34,15 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 					'condition' => Conditions\IsNotLoggedInNormal::SLUG
 				],
 				[
+					'condition' => Conditions\MatchRequestPath::SLUG,
+					'params' => [
+						'is_match_regex' => true,
+						'match_paths' => [
+							'.*'
+						],
+					],
+				],
+				[
 					'condition' => Conditions\MatchRequestUseragent::SLUG,
 					'params' => [
 						'match_useragents' => Services::ServiceProviders()->getAllCrawlerUseragents(),

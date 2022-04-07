@@ -25,13 +25,13 @@ class SetupRequestStatus extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'rule' => Conditions\WpIsAjax::SLUG,
+					'condition' => Conditions\WpIsAjax::SLUG,
 				],
 				[
-					'rule' => Conditions\WpIsAdmin::SLUG,
+					'condition' => Conditions\WpIsAdmin::SLUG,
 				],
 				[
-					'rule' => Conditions\WpIsWpcli::SLUG,
+					'condition' => Conditions\WpIsWpcli::SLUG,
 				],
 			]
 		];

@@ -51,7 +51,8 @@ class Strings extends Base\Strings {
 			'ip_block_auto'           => [
 				'name'  => __( 'IP Block List Add (Auto)', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "IP address '{{ip}}' automatically added to block list.", 'wp-simple-firewall' ),
+					__( "IP address '{{ip}}' automatically added to block list as an offender.", 'wp-simple-firewall' )
+					.' '.__( "The IP may not be blocked yet.", 'wp-simple-firewall' ),
 				],
 			],
 			'ip_block_manual'         => [

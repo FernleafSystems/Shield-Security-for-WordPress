@@ -20,8 +20,9 @@ abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
 
 	protected function getCommonAuditParamsMapping() :array {
 		return [
-			'path'   => 'matched_path',
-			'script' => 'matched_script_name',
+			'path'    => 'matched_path',
+			'script'  => 'matched_script_name',
+			'crawler' => 'matched_useragent',
 		];
 	}
 }
