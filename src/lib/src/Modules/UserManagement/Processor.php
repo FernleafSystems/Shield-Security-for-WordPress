@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -56,41 +57,24 @@ class Processor extends BaseShield\Processor {
 		$con = $this->getCon();
 		$WPUsers = Services::WpUsers();
 
-		$results = Services::WpDb()->selectCustom(
-			sprintf( 'SELECT `user_meta`.user_id as user_id, INET6_NTOA(`ips`.ip) as ip
-						FROM `%s` as `user_meta`
-						INNER JOIN `%s` as `ips`
-							ON `user_meta`.ip_ref = `ips`.id
-						ORDER BY `user_meta`.last_login_at DESC
-						LIMIT 10;',
-				$con->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
-			)
-		);
+		$recent = ( new FindSessions() )
+			->setMod( $this->getMod() )
+			->mostRecent();
 
 		$thisGroup = [
 			'title' => __( 'Recent Users', 'wp-simple-firewall' ),
 			'href'  => $con->getModule_Insights()->getUrl_Sessions(),
 			'items' => [],
 		];
-		if ( !empty( $results ) && is_array( $results ) ) {
-			$byUser = [];
-			foreach ( $results as $result ) {
-				$byUser[ $result[ 'user_id' ] ] = $result[ 'ip' ];
-			}
+		if ( !empty( $recent ) ) {
 
-			$users = ( new \WP_User_Query( [
-				'fields'  => [ 'user_login', 'ID' ],
-				'include' => array_keys( $byUser )
-			] ) )->get_results();
-
-			foreach ( $users as $user ) {
+			foreach ( $recent as $userID => $user ) {
 				$thisGroup[ 'items' ][] = [
-					'id'    => $con->prefix( 'meta-'.$user->ID ),
+					'id'    => $con->prefix( 'meta-'.$userID ),
 					'title' => sprintf( '<a href="%s">%s (%s)</a>',
-						$WPUsers->getAdminUrl_ProfileEdit( $user->ID ),
-						$user->user_login,
-						$byUser[ $user->ID ]
+						$WPUsers->getAdminUrl_ProfileEdit( $userID ),
+						$user[ 'user_login' ],
+						$user[ 'ip' ]
 					),
 				];
 			}

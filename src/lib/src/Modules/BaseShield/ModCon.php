@@ -22,6 +22,9 @@ class ModCon extends Base\ModCon {
 	 */
 	private static $bVisitorIsWhitelisted;
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getDbHandler_Sessions() :Shield\Databases\Session\Handler {
 		return $this->getCon()
 					->getModule_Sessions()
