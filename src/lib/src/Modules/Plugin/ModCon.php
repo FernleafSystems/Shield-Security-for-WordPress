@@ -60,6 +60,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
+			Rules\Build\SetupRequestStatus::class,
 			Rules\Build\IsServerLoopback::class,
 			Rules\Build\IsTrustedBot::class,
 			Rules\Build\IsPublicWebRequest::class,

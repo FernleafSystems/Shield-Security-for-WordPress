@@ -7,6 +7,11 @@ class WpIsAdmin extends Base {
 	const SLUG = 'wp_is_admin';
 
 	protected function execConditionCheck() :bool {
-		return $this->getCon()->this_req->wp_is_admin ?? ( is_network_admin() || is_admin() );
+		$thisReq = $this->getCon()->this_req;
+		if ( !isset( $thisReq->wp_is_admin ) ) {
+			$thisReq->wp_is_admin = ( is_network_admin() || is_admin() );
+			$thisReq->wp_is_networkadmin = is_network_admin();
+		}
+		return $thisReq->wp_is_admin;
 	}
 }
