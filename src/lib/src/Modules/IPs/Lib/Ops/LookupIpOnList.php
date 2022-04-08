@@ -22,11 +22,10 @@ class LookupIpOnList {
 	private $isBlocked;
 
 	/**
-	 * @param bool $includeRanges
 	 * @return Databases\IPs\EntryVO|null
 	 * @version 8.6.0 - switched to lookup ranges first
 	 */
-	public function lookup( $includeRanges = true ) {
+	public function lookup( bool $includeRanges = true ) {
 		$IP = null;
 		if ( !empty( $this->getIP() ) ) {
 			if ( $includeRanges ) {
@@ -41,7 +40,7 @@ class LookupIpOnList {
 					}
 				}
 			}
-			if ( !$IP instanceof Databases\IPs\EntryVO ) {
+			if ( empty( $IP ) ) {
 				$IP = $this->lookupIp();
 			}
 		}
@@ -106,7 +105,6 @@ class LookupIpOnList {
 	}
 
 	/**
-	 * @param bool $blocked
 	 * @return $this
 	 */
 	public function setIsIpBlocked( bool $blocked ) {

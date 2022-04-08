@@ -1,10 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 

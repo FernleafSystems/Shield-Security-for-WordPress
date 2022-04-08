@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 class WpCli extends BaseShield\WpCli {
 
 	protected function enumCmdHandlers() :array {
-		return [
-			UserManagement\WpCli\SessionTerminate::class
-		];
+		return [];
 	}
 }

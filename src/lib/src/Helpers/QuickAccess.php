@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Helpers;
 
@@ -6,11 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 
 class QuickAccess {
 
-	public static function IsRequestWhiteListed() {
+	public static function IsRequestWhiteListed() :bool {
 		try {
-			return Controller::GetInstance()
-							 ->getModule_IPs()
-							 ->isVisitorWhitelisted();
+			return Controller::GetInstance()->this_req->is_ip_whitelisted;
 		}
 		catch ( \Exception $e ) {
 			return false;

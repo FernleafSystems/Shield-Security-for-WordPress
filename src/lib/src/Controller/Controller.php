@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $this_req
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -31,6 +32,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
+ * @property Shield\Rules\RulesController                           $rules
  * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
@@ -123,6 +125,20 @@ class Controller extends DynPropertiesClass {
 		$val = parent::__get( $key );
 
 		switch ( $key ) {
+
+			case 'this_req':
+				if ( is_null( $val ) ) {
+					$val = new Shield\Request\ThisRequest( $this );
+					$this->this_req = $val;
+				}
+				break;
+
+			case 'rules':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Rules\RulesController() )->setCon( $this );
+					$this->rules = $val;
+				}
+				break;
 
 			case 'is_activating':
 			case 'is_my_upgrade':
@@ -1107,24 +1123,24 @@ class Controller extends DynPropertiesClass {
 		self::$sSessionId = null;
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function deleteForceOffFile() {
-		if ( $this->getIfForceOffActive() ) {
-			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
-			unset( $this->file_forceoff );
+		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
+			Services::WpFs()->deleteFile( $this->file_forceoff );
+			$this->this_req->is_force_off = false;
 			clearstatcache();
 		}
-		return $this;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getIfForceOffActive() :bool {
-		return $this->getForceOffFilePath() !== false;
+		return (bool)$this->this_req->is_force_off;
 	}
 
 	/**
 	 * @return false|string
+	 * @deprecated 15.0
 	 */
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->file_forceoff ) ) {
@@ -1187,9 +1203,30 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
+		$modsCfg = empty( $this->cfg->mods_cfg ) ? [] : $this->cfg->mods_cfg;
+
+		// First load all module Configs
 		foreach ( $this->cfg->modules as $slug ) {
+			$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
+				->setCon( $this )
+				->run();
+		}
+
+		// Order Modules
+		uasort( $modsCfg, function ( $a, $b ) {
+			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
+			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
+			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
+				return 0;
+			}
+			return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
+		} );
+
+		$this->cfg->mods_cfg = $modsCfg;
+
+		foreach ( $this->cfg->mods_cfg as $cfg ) {
 			try {
-				$this->getModule( $slug );
+				$this->getModule( $cfg->slug );
 			}
 			catch ( \Exception $e ) {
 				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
@@ -1208,7 +1245,18 @@ class Controller extends DynPropertiesClass {
 			->execute();
 
 		do_action( $this->prefix( 'modules_loaded' ) );
-		do_action( $this->prefix( 'run_processors' ) );
+
+		$this->rules->execute();
+
+		if ( !$this->cfg->rebuilt ) {
+			foreach ( $this->modules as $module ) {
+				$module->onRunProcessors();
+			}
+		}
+
+		// This is where any rules responses will execute (i.e. after processors are run):
+		do_action( $this->prefix( 'after_run_processors' ) );
+
 		return true;
 	}
 
@@ -1219,16 +1267,6 @@ class Controller extends DynPropertiesClass {
 		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
-				// Load Module Config/Options
-				$modsCfg = $this->cfg->mods_cfg;
-				if ( empty( $modsCfg ) ) {
-					$modsCfg = [];
-				}
-				$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
-					->setCon( $this )
-					->run();
-				$this->cfg->mods_cfg = $modsCfg;
-
 				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
 			}
 			catch ( \Exception $e ) {
@@ -1265,6 +1303,10 @@ class Controller extends DynPropertiesClass {
 
 	public function getModule_Firewall() :Shield\Modules\Firewall\ModCon {
 		return $this->getModule( 'firewall' );
+	}
+
+	public function getModule_Lockdown() :Shield\Modules\Lockdown\ModCon {
+		return $this->getModule( 'lockdown' );
 	}
 
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {

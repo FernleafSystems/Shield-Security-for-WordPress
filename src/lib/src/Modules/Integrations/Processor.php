@@ -12,7 +12,7 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$mod->getControllerMWP()->execute();
 
-		if ( !empty( Services::IP()->getRequestIp() ) ) {
+		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
 			$mod->getController_SpamForms()->execute();
 
 			add_action( 'init', function () use ( $mod ) {

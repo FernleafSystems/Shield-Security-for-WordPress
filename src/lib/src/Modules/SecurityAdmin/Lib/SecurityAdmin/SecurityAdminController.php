@@ -22,30 +22,27 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		add_action( 'admin_init', function () {
 			$this->enqueueJS();
 		} );
-		add_action( 'init', function () {
-			if ( !$this->getCon()->isPluginAdmin() ) {
 
-				foreach ( $this->getAllRestrictionZones() as $zone ) {
-					$zone->setMod( $this->getMod() )->execute();
-				}
-
-				if ( !$this->getCon()->isThisPluginModuleRequest() ) {
-					add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
-				}
+		if ( !$this->getCon()->isPluginAdmin() ) {
+			foreach ( $this->enumRestrictionZones() as $zone ) {
+				( new $zone() )->setMod( $this->getMod() )->execute();
 			}
-		} );
+			if ( !$this->getCon()->isThisPluginModuleRequest() ) {
+				add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
+			}
+		}
 	}
 
 	/**
 	 * @return Restrictions\Base[]
 	 */
-	private function getAllRestrictionZones() :array {
+	private function enumRestrictionZones() :array {
 		return [
-			new Restrictions\WpOptions(),
-			new Restrictions\Plugins(),
-			new Restrictions\Themes(),
-			new Restrictions\Posts(),
-			new Restrictions\Users(),
+			Restrictions\WpOptions::class,
+			Restrictions\Plugins::class,
+			Restrictions\Themes::class,
+			Restrictions\Posts::class,
+			Restrictions\Users::class,
 		];
 	}
 
@@ -53,7 +50,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $this->getMod()->isModOptEnabled() &&
-			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 2;
+			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
 	}
 
 	private function enqueueJS() {
@@ -66,7 +63,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 				/** @var Options $opts */
 				$opts = $this->getOptions();
 
-				$isCurrentlySecAdmin = $this->isCurrentlySecAdmin();
+				$isSecAdmin = $this->getCon()->this_req->is_security_admin;
 				$localz[] = [
 					'shield/secadmin',
 					'shield_vars_secadmin',
@@ -77,8 +74,8 @@ class SecurityAdminController extends ExecOnceModConsumer {
 							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
 						],
 						'flags'   => [
-							'restrict_options' => !$isCurrentlySecAdmin && $opts->getAdminAccessArea_Options(),
-							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isCurrentlySecAdmin
+							'restrict_options' => !$isSecAdmin && $opts->getAdminAccessArea_Options(),
+							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
@@ -116,13 +113,10 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	 */
 	public function getSecAdminTimeRemaining() :int {
 		$remaining = 0;
-		if ( $this->getCon()->getModule_Sessions()->getSessionCon()->hasSession() ) {
-
-			$secAdminAt = $this->getMod()->getSession()->getSecAdminAt();
-			if ( $this->isRegisteredSecAdminUser() ) {
-				$remaining = 0;
-			}
-			elseif ( $secAdminAt > 0 ) {
+		$session = $this->getMod()->getSessionWP();
+		if ( $session->valid ) {
+			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
+			if ( !$this->isRegisteredSecAdminUser() && $secAdminAt > 0 ) {
 				$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
 			}
 		}
@@ -154,7 +148,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
 		return $isPluginAdmin &&
-			   ( $this->isCurrentlySecAdmin() || $this->verifyPinRequest() );
+			   ( $this->getCon()->this_req->is_security_admin || $this->verifyPinRequest() );
 	}
 
 	public function renderPinLoginForm() :string {

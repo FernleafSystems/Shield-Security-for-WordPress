@@ -1,17 +1,18 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AutoUnblock {
+class AutoUnblock extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	protected function canRun() :bool {
+		return $this->getCon()->this_req->is_ip_blocked;
+	}
 
 	/**
-	 * This should only be run if the current IP has been verified as being blocked
 	 * @return bool - true if IP is unblocked, false otherwise.
 	 */
 	public function run() :bool {
@@ -28,11 +29,15 @@ class AutoUnblock {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		if ( $unblocked ) {
+			Services::Response()->redirectToHome();
+		}
+
 		return $unblocked;
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() :bool {
@@ -45,12 +50,12 @@ class AutoUnblock {
 		$unblocked = false;
 
 		if ( $opts->isEnabledAutoVisitorRecover() && $req->isPost()
-			 && $req->request( 'action' ) == $mod->prefix() && $req->request( 'exec' ) == 'uau' ) {
+			 && $req->post( 'action' ) == $mod->prefix() && $req->post( 'exec' ) == 'uau' ) {
 
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
 			}
-			if ( strlen( $req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
+			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
 				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
 
@@ -90,7 +95,6 @@ class AutoUnblock {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function processUserMagicLink() :bool {

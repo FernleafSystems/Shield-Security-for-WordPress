@@ -38,7 +38,6 @@ class OffenseTracker extends EventsListener {
 	}
 
 	/**
-	 * @param bool $isBlocked
 	 * @return $this
 	 */
 	public function setIsBlocked( bool $isBlocked ) {

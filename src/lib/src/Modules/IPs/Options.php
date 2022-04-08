@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
@@ -104,6 +104,19 @@ class Options extends BaseShield\Options {
 
 	public function isEnabledTrackXmlRpc() :bool {
 		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
+	}
+
+	public function getOffenseCountFor( string $key ) :int {
+		if ( $this->isTrackOptDoubleTransgression( $key ) ) {
+			$count = 2;
+		}
+		elseif ( $this->isTrackOptTransgression( $key ) ) {
+			$count = 1;
+		}
+		else {
+			$count = 0;
+		}
+		return $count;
 	}
 
 	public function isTrackOptTransgression( string $key ) :bool {

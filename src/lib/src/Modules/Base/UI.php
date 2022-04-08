@@ -45,8 +45,8 @@ class UI {
 
 		return [
 			'sPluginName'   => $con->getHumanName(),
-			'sTagline'      => $this->getOptions()->getFeatureTagline(),
-			'nonce_field'   => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
+			'sTagline'      => $mod->cfg->properties[ 'tagline' ],
+			'nonce_field'   => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 			'form_action'   => 'admin.php?page='.$mod->getModSlug(),
 			'aPluginLabels' => $con->getLabels(),
 			'help_video'    => [
@@ -82,9 +82,6 @@ class UI {
 			'ajax'       => [
 				'mod_options'          => $mod->getAjaxActionData( 'mod_options', true ),
 				'mod_opts_form_render' => $mod->getAjaxActionData( 'mod_opts_form_render', true ),
-			],
-			'vendors'    => [
-				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [

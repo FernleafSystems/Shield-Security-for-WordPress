@@ -32,8 +32,7 @@ class BotEventListener extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return !$mod->isTrustedVerifiedBot()
-			   && $mod->getDbH_BotSignal()->isReady();
+		return !$this->getCon()->this_req->is_trusted_bot && $mod->getDbH_BotSignal()->isReady();
 	}
 
 	protected function run() {
@@ -62,6 +61,7 @@ class BotEventListener extends ExecOnceModConsumer {
 				'bottrack_xmlrpc'         => 'btxml',
 				'bottrack_logininvalid'   => 'btlogininvalid',
 				'bottrack_invalidscript'  => 'btinvalidscript',
+				'block_author_fishing'    => 'btauthorfishing',
 				'cooldown_fail'           => 'cooldown',
 				'recaptcha_success'       => 'captchapass',
 				'request_limit_exceeded'  => 'ratelimit',

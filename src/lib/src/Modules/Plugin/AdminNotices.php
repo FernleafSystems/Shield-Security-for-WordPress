@@ -266,7 +266,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'override-forceoff':
-				$needed = $con->getIfForceOffActive();
+				$needed = $con->this_req->is_force_off;
 				break;
 
 			case 'plugin-disabled':

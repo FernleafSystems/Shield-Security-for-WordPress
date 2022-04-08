@@ -1,12 +1,12 @@
-<h4><?php echo $sHeading;?></h4>
+<h4><?php echo $heading;?></h4>
 <table id="tableShieldStatisticsWidget">
-	<?php foreach( $aKeyStats as $sKey => $aKeyStat ) : ?>
+	<?php foreach( $keyStats as $keyStat ) : ?>
 		<tr>
 			<td style="text-align: left">
-				<?php echo $aKeyStat[ 0 ]; ?>
+				<?php echo $keyStat[ 0 ]; ?>
 			</td>
 			<td style="text-align: right">
-				<?php echo $aKeyStat[ 1 ]; ?>
+				<?php echo $keyStat[ 1 ]; ?>
 			</td>
 		</tr>
 	<?php endforeach; ?>

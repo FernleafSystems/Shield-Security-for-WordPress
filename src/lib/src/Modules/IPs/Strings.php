@@ -51,7 +51,8 @@ class Strings extends Base\Strings {
 			'ip_block_auto'           => [
 				'name'  => __( 'IP Block List Add (Auto)', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "IP address '{{ip}}' automatically added to block list.", 'wp-simple-firewall' ),
+					__( "IP address '{{ip}}' automatically added to block list as an offender.", 'wp-simple-firewall' )
+					.' '.__( "The IP may not be blocked yet.", 'wp-simple-firewall' ),
 				],
 			],
 			'ip_block_manual'         => [
@@ -437,6 +438,7 @@ class Strings extends Base\Strings {
 			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
 			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
+			'btauthorfishing' => __( 'Username Fishing', 'wp-simple-firewall' ),
 			'btfake'          => __( 'Fake Web Crawler', 'wp-simple-firewall' ),
 			'btcheese'        => __( 'Link Cheese', 'wp-simple-firewall' ),
 			'btloginfail'     => __( 'Login Fail', 'wp-simple-firewall' ),

@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 if ( !class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php' );
 }
@@ -51,11 +49,11 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param array $aItem
+	 * @param array $item
 	 * @return string
 	 */
-	public function column_cb( $aItem ) {
-		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $aItem[ 'id' ] );
+	public function column_cb( $item ) {
+		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $item[ 'id' ] );
 	}
 
 	/**
@@ -81,11 +79,8 @@ class Base extends \WP_List_Table {
 	 * @return $this
 	 */
 	public function prepare_items() {
-		$aCols = $this->get_columns();
-		$aHidden = [];
-		$this->_column_headers = [ $aCols, $aHidden, $this->get_sortable_columns() ];
+		$this->_column_headers = [ $this->get_columns(), [], $this->get_sortable_columns() ];
 		$this->items = $this->getItemEntries();
-
 		$this->set_pagination_args(
 			[
 				'total_items' => $this->getTotalRecords(),
@@ -194,19 +189,19 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param array  $aClasses
-	 * @param array  $aData
-	 * @param string $sText
-	 * @param string $sTitle
+	 * @param array  $classes
+	 * @param array  $data
+	 * @param string $text
+	 * @param string $title
 	 * @return string
 	 */
-	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) :string {
-		$aClasses[] = 'action';
+	protected function buildActionButton_Custom( $text, $classes, $data, $title = '' ) :string {
+		$classes[] = 'action';
 		return $this->buildActionButton_CustomArray( [
-			'text'    => $sText,
-			'classes' => $aClasses,
-			'data'    => $aData,
-			'title'   => $sTitle
+			'text'    => $text,
+			'classes' => $classes,
+			'data'    => $data,
+			'title'   => $title
 		] );
 	}
 

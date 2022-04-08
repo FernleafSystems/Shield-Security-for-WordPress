@@ -24,10 +24,10 @@ class BuildScores extends BaseBuildScores {
 		$logic = $this->getScoringLogic()->getFieldScoreLogic( $field );
 
 		// -1 represents the default if none of the following boundaries are satisfied
-		$score = $logic[ -1 ];
+		$score = $logic[ -1 ] ?? 0;
 
 		if ( $this->lastAtTs( $field ) === 0 ) {
-			$score = $logic[ 0 ];
+			$score = $logic[ 0 ] ?? 0;
 		}
 		else {
 			unset( $logic[ 0 ] );

@@ -30,6 +30,9 @@ class LoadConfig {
 		return empty( $this->configSourceFile ) ? $this->getPathCfg() : $this->configSourceFile;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isBuiltFromFile() :bool {
 		return $this->isBuiltFromFile;
 	}
@@ -40,8 +43,10 @@ class LoadConfig {
 	public function run() :ModConfigVO {
 		$rebuild = $this->getCon()->cfg->rebuilt
 				   || !$this->cfg instanceof ModConfigVO
-				   || ( Services::WpFs()
-								->getModifiedTime( $this->getConfigSourceFile() ) > $this->cfg->meta[ 'ts_mod' ] );
+				   || ( Services::WpFs()->getModifiedTime( $this->getPathCfg() ) > $this->cfg->meta[ 'ts_mod' ] );
+		if ( $rebuild ) {
+			$this->getCon()->cfg->rebuilt = true;
+		}
 		return $rebuild ? ( new ModConfigVO() )->applyFromArray( $this->fromFile() ) : $this->cfg;
 	}
 
@@ -94,6 +99,35 @@ class LoadConfig {
 		$cfg[ 'meta' ] = [
 			'ts_mod' => Services::WpFs()->getModifiedTime( $this->getConfigSourceFile() ),
 		];
+
+		if ( empty( $cfg[ 'slug' ] ) ) {
+			$cfg[ 'slug' ] = $cfg[ 'properties' ][ 'slug' ];
+		}
+
+		$cfg[ 'properties' ] = array_merge( [
+			'namespace'             => str_replace( ' ', '', ucwords( str_replace( '_', ' ', $cfg[ 'slug' ] ) ) ),
+			'storage_key'           => $cfg[ 'slug' ],
+			'tagline'               => '',
+			'premium'               => false,
+			'access_restricted'     => true,
+			'auto_enabled'          => false,
+			'auto_load_processor'   => false,
+			'skip_processor'        => false,
+			'show_module_options'   => false,
+			'run_if_whitelisted'    => true,
+			'run_if_verified_bot'   => true,
+			'run_if_wpcli'          => true,
+			'tracking_exclude'      => false,
+			'sidebar_name'          => $cfg[ 'properties' ][ 'name' ],
+			'menu_title'            => $cfg[ 'properties' ][ 'name' ],
+			'menu_priority'         => 100,
+			'highlight_menu_item'   => false,
+			'show_module_menu_item' => false,
+		], $cfg[ 'properties' ] );
+
+		if ( empty( $cfg[ 'properties' ][ 'storage_key' ] ) ) {
+			$cfg[ 'properties' ][ 'storage_key' ] = $cfg[ 'properties' ][ 'slug' ];
+		}
 
 		return $cfg;
 	}

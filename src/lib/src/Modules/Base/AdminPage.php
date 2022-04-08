@@ -17,18 +17,20 @@ class AdminPage extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		add_action( $con->prefix( 'admin_submenu' ), function () {
 			$this->addSubMenuItem();
-		}, $this->getMenuPriority() );
+		}, $this->getMod()->cfg->properties[ 'menu_priority' ] );
 	}
 
 	protected function addSubMenuItem() {
-		$this->screenID = add_submenu_page(
-			$this->isShowMenu() ? $this->getCon()->prefix() : null,
-			$this->getPageTitle(),
-			$this->getMenuTitle(),
-			$this->getCap(),
-			$this->getMod()->getModSlug(),
-			[ $this, 'displayModuleAdminPage' ]
-		);
+		if ( $this->getMod()->cfg->properties[ 'show_module_menu_item' ] ) {
+			$this->screenID = add_submenu_page(
+				$this->getCon()->prefix(),
+				$this->getPageTitle(),
+				$this->getMenuTitle(),
+				$this->getCap(),
+				$this->getMod()->getModSlug(),
+				[ $this, 'displayModuleAdminPage' ]
+			);
+		}
 
 		foreach ( $this->getAdditionalMenuItems() as $additionalMenuItem ) {
 			list( $itemText, $itemID, $itemCallback, $showItem ) = $additionalMenuItem;
@@ -67,17 +69,22 @@ class AdminPage extends ExecOnceModConsumer {
 		);
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	protected function getMenuPriority() :int {
-		$pri = $this->getOptions()->getFeatureProperty( 'menu_priority' );
-		return is_null( $pri ) ? 100 : (int)$pri;
+		return $this->getMod()->cfg->properties[ 'menu_priority' ] ?? 100;
 	}
 
 	public function getCap() :string {
 		return $this->getCon()->getBasePermissions();
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isShowMenu() :bool {
-		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
+		return $this->getMod()->cfg->properties[ 'show_module_menu_item' ] ?? false;
 	}
 
 	public function isCurrentPage() :bool {
@@ -88,9 +95,10 @@ class AdminPage extends ExecOnceModConsumer {
 
 	public function getMenuTitle( bool $markup = true ) :string {
 		$mod = $this->getMod();
-		$title = $this->getOptions()->getFeatureProperty( 'menu_title' );
-		$title = empty( $title ) ? $mod->getMainFeatureName() : __( $title, 'wp-simple-firewall' );
-		if ( $markup && $this->getOptions()->getFeatureProperty( 'highlight_menu_item' ) ) {
+
+		$title = __( $mod->cfg->properties[ 'menu_title' ], 'wp-simple-firewall' );
+
+		if ( $markup && $mod->cfg->properties[ 'highlight_menu_item' ] ) {
 			$title = sprintf( '<span class="shield_highlighted_menu">%s</span>', $title );
 		}
 		return $title;

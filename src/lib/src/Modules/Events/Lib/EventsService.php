@@ -20,11 +20,10 @@ class EventsService {
 	public function fireEvent( string $event, array $meta = [] ) {
 		if ( $this->eventExists( $event ) ) {
 			try {
-				$this->verifyAuditParams( $event, $meta );
 				do_action(
 					'shield/event',
 					$event,
-					$meta,
+					$this->verifyAuditParams( $event, $meta ),
 					$this->getEventDef( $event )
 				);
 			}
@@ -37,7 +36,7 @@ class EventsService {
 	/**
 	 * @throws \Exception
 	 */
-	private function verifyAuditParams( string $event, array $meta ) {
+	private function verifyAuditParams( string $event, array $meta ) :array {
 		$def = $this->getEventDef( $event )[ 'audit_params' ] ?? [];
 		$metaParams = array_keys( $meta[ 'audit_params' ] ?? [] );
 
@@ -45,13 +44,16 @@ class EventsService {
 			error_log( sprintf( 'WARNING: Event (%s) receives params but none are defined.', $event ) );
 		}
 		elseif ( !empty( $def ) ) {
-			if ( array_diff( $def, $metaParams ) ) {
-				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $def ) ) );
+			$missingParams = array_diff( $def, $metaParams );
+			if ( !empty( $missingParams ) ) {
+				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $missingParams ) ) );
 			}
 			if ( array_diff( $metaParams, $def ) ) {
-				throw new \Exception( sprintf( "Event (%s) has audit params that aren't present in def: %s", $event, implode( ', ', $metaParams ) ) );
+				// Previously we threw an exception. Now we just clean out the unwanted params.
+				$meta[ 'audit_params' ] = array_intersect_key( $meta[ 'audit_params' ], array_flip( $def ) );
 			}
 		}
+		return $meta;
 	}
 
 	/**
@@ -84,7 +86,6 @@ class EventsService {
 	}
 
 	/**
-	 * @param string $eventKey
 	 * @return array|null
 	 */
 	public function getEventDef( string $eventKey ) {

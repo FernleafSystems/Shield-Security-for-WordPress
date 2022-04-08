@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
@@ -12,7 +11,7 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
+		if ( $this->getCon()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 

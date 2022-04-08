@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
@@ -15,6 +15,12 @@ class Strings extends Base\Strings {
 				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Anonymous REST API' ) ),
 				'audit' => [
 					__( 'Blocked Anonymous API Access through "{{namespace}}" namespace.', 'wp-simple-firewall' ),
+				],
+			],
+			'block_author_fishing'    => [
+				'name'  => sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), __( 'Author Fishing' ) ),
+				'audit' => [
+					__( 'Blocked Author Discovery via username fishing technique.', 'wp-simple-firewall' ),
 				],
 			],
 			'block_xml'               => [
@@ -119,7 +125,7 @@ class Strings extends Base\Strings {
 					__( "Please contact the developer of a plugin to ask them for their REST API namespace if you need it." ),
 					__( 'Some common namespaces' ).':',
 				];
-				
+
 				$defaultEx = [
 					'contact-form-7' => 'Contact Form 7',
 					'tribe'          => 'The Events Calendar',

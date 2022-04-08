@@ -17,13 +17,6 @@ class ModCon extends BaseShield\ModCon {
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		/**
-		 * $oWp = $this->loadWpFunctionsProcessor();
-		 * $sCustomLoginPath = $this->cleanLoginUrlPath();
-		 * if ( !empty( $sCustomLoginPath ) && $oWp->getIsPermalinksEnabled() ) {
-		 * $oWp->resavePermalinks();
-		 * }
-		 */
 		if ( $this->isModuleOptionsRequest() && $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
@@ -171,12 +164,12 @@ class ModCon extends BaseShield\ModCon {
 	public function getGaspKey() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$sKey = $opts->getOpt( 'gasp_key' );
-		if ( empty( $sKey ) ) {
-			$sKey = uniqid();
-			$opts->setOpt( 'gasp_key', $sKey );
+		$key = $opts->getOpt( 'gasp_key' );
+		if ( empty( $key ) ) {
+			$key = uniqid();
+			$opts->setOpt( 'gasp_key', $key );
 		}
-		return $this->prefix( $sKey );
+		return $this->prefix( $key );
 	}
 
 	public function getTextImAHuman() :string {

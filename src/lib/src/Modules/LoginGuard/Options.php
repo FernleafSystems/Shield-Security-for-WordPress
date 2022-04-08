@@ -124,7 +124,6 @@ class Options extends BaseShield\Options {
 
 	/**
 	 * @param string $location - see config for keys, e.g. login, register, password, checkout_woo
-	 * @return bool
 	 */
 	public function isProtect( $location ) :bool {
 		$locs = $this->getOpt( 'bot_protection_locations' );

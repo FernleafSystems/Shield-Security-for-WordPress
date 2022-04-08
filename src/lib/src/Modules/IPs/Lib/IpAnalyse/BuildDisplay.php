@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -211,43 +212,43 @@ class BuildDisplay {
 
 	private function renderForSessions() :string {
 		$WP = Services::WpGeneral();
-		/** @var Databases\Session\Select $sel */
-		$sel = $this->getCon()
-					->getModule_Sessions()
-					->getDbHandler_Sessions()
-					->getQuerySelector();
-		/** @var Databases\Session\EntryVO[] $sessions */
-		$sessions = $sel->filterByIp( $this->getIP() )
-						->query();
 
-		foreach ( $sessions as $key => $session ) {
-			$asArray = $session->getRawData();
-			$asArray[ 'logged_in_at' ] = $WP->getTimeStringForDisplay( $session->logged_in_at );
-			$asArray[ 'logged_in_at_ago' ] = $this->getTimeAgo( $session->logged_in_at );
-			$asArray[ 'last_activity_at' ] = $WP->getTimeStringForDisplay( $session->last_activity_at );
-			$asArray[ 'last_activity_at_ago' ] = $this->getTimeAgo( $session->last_activity_at );
-			$asArray[ 'is_sec_admin' ] = $session->secadmin_at > 0;
-			$sessions[ $key ] = $asArray;
+		$finder = ( new FindSessions() )->setMod( $this->getMod() );
+		$allSessions = [];
+		foreach ( $finder->byIP( $this->getIP() ) as $userID => $sessions ) {
+			foreach ( $sessions as $session ) {
+				$loginAt = $session[ 'login' ];
+				$activityAt = $session[ 'shield' ][ 'last_activity_at' ] ?? $loginAt;
+				$session[ 'logged_in_at' ] = $WP->getTimeStringForDisplay( $loginAt );
+				$session[ 'logged_in_at_ago' ] = $this->getTimeAgo( $loginAt );
+				$session[ 'last_activity_at' ] = $WP->getTimeStringForDisplay( $activityAt );
+				$session[ 'last_activity_at_ago' ] = $this->getTimeAgo( $activityAt );
+				$session[ 'is_sec_admin' ] = (bool)( $session[ 'shield' ][ 'secadmin_at' ] ?? false );
+				$allSessions[] = $session;
+			}
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_sessions.twig',
-			[
-				'strings' => [
-					'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
-					'no_sessions'      => __( 'No sessions at this IP', 'wp-simple-firewall' ),
-					'username'         => __( 'Username', 'wp-simple-firewall' ),
-					'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
-					'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),
-					'last_activity_at' => __( 'Last Seen At', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'sessions'       => $sessions,
-					'total_sessions' => count( $sessions ),
-				],
+		uasort( $allSessions, function ( $a, $b ) {
+			if ( $a[ 'last_activity_at' ] == $b[ 'last_activity_at' ] ) {
+				return 0;
+			}
+			return ( $a[ 'last_activity_at' ] < $b[ 'last_activity_at' ] ) ? 1 : -1;
+		} );
+
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_sessions.twig', [
+			'strings' => [
+				'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
+				'no_sessions'      => __( 'No sessions at this IP', 'wp-simple-firewall' ),
+				'username'         => __( 'Username', 'wp-simple-firewall' ),
+				'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
+				'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),
+				'last_activity_at' => __( 'Last Seen At', 'wp-simple-firewall' ),
 			],
-			true
-		);
+			'vars'    => [
+				'sessions'       => $allSessions,
+				'total_sessions' => count( $allSessions ),
+			],
+		] );
 	}
 
 	private function renderForTraffic() :string {
@@ -334,7 +335,6 @@ class BuildDisplay {
 		}
 		catch ( \Exception $e ) {
 			$record = null;
-			$signals = [];
 		}
 
 		foreach ( $scores as $scoreKey => $scoreValue ) {

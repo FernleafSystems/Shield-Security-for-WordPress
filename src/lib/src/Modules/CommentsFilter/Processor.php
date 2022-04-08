@@ -12,18 +12,19 @@ class Processor extends BaseShield\Processor {
 		$opts = $this->getOptions();
 		$WPU = Services::WpUsers();
 
-		$loadCommentFilter = !$WPU->isUserLoggedIn() ||
-							 !( new Scan\IsEmailTrusted() )->trusted(
-								 $WPU->getCurrentWpUser()->user_email,
-								 $opts->getApprovedMinimum(),
-								 $opts->getTrustedRoles()
-							 );
+		$commentsFilterBypass = $this->getCon()->this_req->request_bypasses_all_restrictions ||
+								( $WPU->isUserLoggedIn() &&
+								  ( new Scan\IsEmailTrusted() )->trusted(
+									  $WPU->getCurrentWpUser()->user_email,
+									  $opts->getApprovedMinimum(),
+									  $opts->getTrustedRoles()
+								  ) );
 
-		( new Scan\CommentAdditiveCleaner() )
-			->setMod( $this->getMod() )
-			->execute();
+		if ( !$commentsFilterBypass ) {
 
-		if ( $loadCommentFilter ) {
+			( new Scan\CommentAdditiveCleaner() )
+				->setMod( $this->getMod() )
+				->execute();
 
 			( new Forms\GoogleRecaptcha() )
 				->setMod( $this->getMod() )

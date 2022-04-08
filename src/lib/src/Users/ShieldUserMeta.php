@@ -41,11 +41,6 @@ class ShieldUserMeta extends UserMeta {
 	 */
 	public $record;
 
-	public function setUserMetaRecord( Record $meta ) :self {
-		$this->record = $meta;
-		return $this;
-	}
-
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {

@@ -55,7 +55,6 @@ class TourManager {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function loadUserTourStates() :array {

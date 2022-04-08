@@ -73,10 +73,6 @@ class Options {
 		return $this->aOptionsValues;
 	}
 
-	public function getSlug() :string {
-		return (string)$this->getFeatureProperty( 'slug' );
-	}
-
 	/**
 	 * Returns an array of all the transferable options and their values
 	 */
@@ -129,7 +125,7 @@ class Options {
 	 */
 	public function getOptionsForTracking() :array {
 		$opts = [];
-		if ( (bool)$this->getFeatureProperty( 'tracking_exclude' ) === false ) {
+		if ( !$this->getMod()->cfg->properties[ 'tracking_exclude' ] ) {
 
 			$options = $this->getAllOptionsValues();
 			foreach ( $this->getOptionsKeys() as $key ) {
@@ -148,7 +144,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $property
 	 * @return mixed|null
 	 */
 	public function getFeatureProperty( string $property ) {
@@ -175,7 +170,7 @@ class Options {
 	}
 
 	/**
-	 * @return string
+	 * @deprecated 15.0
 	 */
 	public function getFeatureTagline() {
 		return $this->getFeatureProperty( 'tagline' );
@@ -444,21 +439,33 @@ class Options {
 		return $text;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isAccessRestricted() :bool {
 		$state = $this->getFeatureProperty( 'access_restricted' );
 		return is_null( $state ) || $state;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isModuleRunIfWhitelisted() :bool {
 		$state = $this->getFeatureProperty( 'run_if_whitelisted' );
 		return is_null( $state ) || $state;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isModuleRunUnderWpCli() :bool {
 		$state = $this->getFeatureProperty( 'run_if_wpcli' );
 		return is_null( $state ) || $state;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isModuleRunIfVerifiedBot() :bool {
 		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
 	}
@@ -570,8 +577,7 @@ class Options {
 	}
 
 	/**
-	 * @param mixed  $mPotentialValue
-	 * @return bool
+	 * @param mixed $mPotentialValue
 	 */
 	private function verifyCanSet( string $key, $mPotentialValue ) :bool {
 		$valid = true;
@@ -579,14 +585,14 @@ class Options {
 		switch ( $this->getOptionType( $key ) ) {
 
 			case 'integer':
-				$nMin = $this->getOptProperty( $key, 'min' );
-				if ( !is_null( $nMin ) ) {
-					$valid = $mPotentialValue >= $nMin;
+				$min = $this->getOptProperty( $key, 'min' );
+				if ( !is_null( $min ) ) {
+					$valid = $mPotentialValue >= $min;
 				}
 				if ( $valid ) {
-					$nMax = $this->getOptProperty( $key, 'max' );
-					if ( !is_null( $nMax ) ) {
-						$valid = $mPotentialValue <= $nMax;
+					$max = $this->getOptProperty( $key, 'max' );
+					if ( !is_null( $max ) ) {
+						$valid = $mPotentialValue <= $max;
 					}
 				}
 				break;

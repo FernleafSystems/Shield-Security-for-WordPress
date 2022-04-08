@@ -3,6 +3,7 @@
   "properties":       {
     "slug":                  "ips",
     "load_priority":         15,
+    "menu_priority":         30,
     "name":                  "Block Bad IPs/Visitors",
     "namespace":             "IPs",
     "sidebar_name":          "IP Blocking",
@@ -675,6 +676,10 @@
         "btinvalidscript_at": {
           "macro_type": "timestamp",
           "comment":    "BotTrack InvalidScript"
+        },
+        "btauthorfishing_at": {
+          "macro_type": "timestamp",
+          "comment":    "BotTrack Author Username Fishing"
         },
         "cooldown_at":        {
           "macro_type": "timestamp",
