@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 
 /**
+ * @property int         $api_version
  * @property string      $lookup_url_stub
  * @property string      $request_method
  * @property int         $timeout
@@ -23,43 +24,43 @@ abstract class BaseApi extends DynPropertiesClass {
 	 * @return array|null
 	 */
 	protected function sendReq() {
-		$oHttpReq = Services::HttpRequest();
+		$httpReq = Services::HttpRequest();
 
-		$aReqParams = [
+		$reqParams = [
 			'timeout' => $this->timeout,
 		];
 
 		switch ( $this->request_method ) {
 
 			case 'post':
-				$aReqParams[ 'body' ] = $this->params_body;
-				$bReqSuccess = $oHttpReq->post( $this->getApiRequestUrl(), $aReqParams );
+				$reqParams[ 'body' ] = $this->params_body;
+				$bReqSuccess = $httpReq->post( $this->getApiRequestUrl(), $reqParams );
 				break;
 
 			case 'get':
 			default:
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.
 				// if they're not using the newer WP Request() class. WP 4.6+
-				$bReqSuccess = $oHttpReq->get(
+				$bReqSuccess = $httpReq->get(
 					add_query_arg( $this->params_query, $this->getApiRequestUrl() ),
-					$aReqParams
+					$reqParams
 				);
 				break;
 		}
 
 		if ( $bReqSuccess ) {
-			$aResponse = empty( $oHttpReq->lastResponse->body ) ? [] : @json_decode( $oHttpReq->lastResponse->body, true );
+			$aResponse = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
 		}
 		else {
 			$aResponse = null;
 		}
 
-		$this->last_http_req = $oHttpReq;
+		$this->last_http_req = $httpReq;
 		return $aResponse;
 	}
 
 	protected function getApiRequestUrl() :string {
-		return sprintf( '%s/%s', $this->lookup_url_stub, static::API_ACTION );
+		return sprintf( '%s/v%s/%s', $this->lookup_url_stub, $this->api_version, static::API_ACTION );
 	}
 
 	/**
@@ -70,7 +71,6 @@ abstract class BaseApi extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {
@@ -88,6 +88,12 @@ abstract class BaseApi extends DynPropertiesClass {
 
 			case 'request_method':
 				$value = empty( $value ) ? 'get' : strtolower( $value );
+				break;
+
+			case 'api_version':
+				if ( empty( $value ) ) {
+					$value = 1;
+				}
 				break;
 
 			case 'lookup_url_stub':

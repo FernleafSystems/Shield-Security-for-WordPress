@@ -23,16 +23,10 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'importexport_masterurl', '' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getIpSource() {
-		return $this->getOpt( 'visitor_address_source' );
+	public function getIpSource() :string {
+		return (string)$this->getOpt( 'visitor_address_source' );
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function hasImportExportMasterImportUrl() :bool {
 		$sMaster = $this->getImportExportMasterImportUrl();
 		return !empty( $sMaster );
@@ -80,10 +74,10 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $sSource
+	 * @param string $source
 	 * @return $this
 	 */
-	public function setVisitorAddressSource( $sSource ) {
-		return $this->setOpt( 'visitor_address_source', $sSource );
+	public function setVisitorAddressSource( string $source ) {
+		return $this->setOpt( 'visitor_address_source', $source );
 	}
 }

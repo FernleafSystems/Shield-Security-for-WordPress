@@ -15,17 +15,10 @@ class Upgrade extends Base\Upgrade {
 
 	protected function upgrade_1200() {
 		// remove old tables that have somehow been missed in the past.
-		$tables = [
-			'geoip',
-			'reporting',
-			'spambot_comments_filter',
-			'statistics',
-		];
-
 		$WPDB = Services::WpDb();
-		foreach ( $tables as $table ) {
+		foreach ( [ 'geoip', 'reporting', 'spambot_comments_filter', 'statistics', ] as $table ) {
 			$table = sprintf( '%s%s%s', $WPDB->getPrefix(), $this->getCon()->getOptionStoragePrefix(), $table );
-			if ( $WPDB->getIfTableExists( $table ) ) {
+			if ( $WPDB->tableExists( $table ) ) {
 				$WPDB->doDropTable( $table );
 			}
 		}

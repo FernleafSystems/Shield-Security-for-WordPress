@@ -87,16 +87,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	public function onPluginShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
-			$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
-			if ( !empty( $preferred ) ) {
-				$this->getOptions()->setOpt( 'last_ip_detect_source', $preferred );
-			}
-		}
-		parent::onPluginShutdown();
-	}
-
 	public function onWpInit() {
 		parent::onWpInit();
 		$this->getImportExportSecretKey();
@@ -153,7 +143,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function canSiteLoopback() :bool {
@@ -196,13 +185,13 @@ class ModCon extends BaseShield\ModCon {
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		$this->storeRealInstallDate();
 
-		if ( $oOpts->isTrackingEnabled() && !$oOpts->isTrackingPermissionSet() ) {
-			$oOpts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		if ( $opts->isTrackingEnabled() && !$opts->isTrackingPermissionSet() ) {
+			$opts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -433,11 +422,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return bool
+	 * @param string $key
 	 */
-	public function isImportExportSecretKey( $sKey ) :bool {
-		return !empty( $sKey ) && $this->getImportExportSecretKey() == $sKey;
+	public function isImportExportSecretKey( $key ) :bool {
+		return !empty( $key ) && $this->getImportExportSecretKey() == $key;
 	}
 
 	protected function cleanImportExportWhitelistUrls() {
@@ -475,11 +463,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @param string $sId
-	 * @return bool
+	 * @param string $id
 	 */
-	protected function isValidInstallId( $sId ) :bool {
-		return !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40;
+	protected function isValidInstallId( $id ) :bool {
+		return !empty( $id ) && is_string( $id ) && strlen( $id ) == 40;
 	}
 
 	public function isXmlrpcBypass() :bool {
@@ -514,6 +501,19 @@ class ModCon extends BaseShield\ModCon {
 				],
 			]
 		];
+
+		$opts = $this->getOptions();
+		if ( Services::Request()->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 ) {
+			$opts->setOpt( 'ipdetect_at', Services::Request()->ts() );
+			$locals[] = [
+				'shield/ip_detect',
+				'icwp_wpsf_vars_ipdetect',
+				[
+					'url'  => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
+					'ajax' => $this->getAjaxActionData( 'ipdetect' ),
+				]
+			];
+		}
 
 		return $locals;
 	}

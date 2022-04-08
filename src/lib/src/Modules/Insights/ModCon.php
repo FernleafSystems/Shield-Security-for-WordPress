@@ -66,9 +66,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getScriptLocalisations() :array {
-		$con = $this->getCon();
-		$modPlugin = $con->getModule_Plugin();
-
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [
 			'plugin',
@@ -80,12 +77,6 @@ class ModCon extends BaseShield\ModCon {
 					'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
 				],
 			]
-		];
-
-		$locals[] = [
-			$con->prefix( 'ip_detect' ),
-			'icwp_wpsf_vars_ipdetect',
-			[ 'ajax' => $modPlugin->getAjaxActionData( 'ipdetect' ) ]
 		];
 
 		$locals[] = [
@@ -157,7 +148,7 @@ class ModCon extends BaseShield\ModCon {
 				case 'users':
 				case 'stats':
 
-				$enq[ Enqueue::JS ][] = 'shield/tables';
+					$enq[ Enqueue::JS ][] = 'shield/tables';
 					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}

@@ -504,13 +504,6 @@
       "default":      0
     },
     {
-      "key":          "last_ip_detect_source",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "openssl_private_key",
       "transferable": false,
       "sensitive":    true,
@@ -539,10 +532,17 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "ipdetect_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "integer",
+      "default":      0
     }
   ],
   "definitions":   {
-    "rest_api":               {
+    "rest_api":            {
       "publish":    true,
       "pro_only":   true,
       "route_defs": {
@@ -558,11 +558,11 @@
         }
       }
     },
-    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
-    "db_classes":             {
+    "href_privacy_policy": "https://shsec.io/wpshieldprivacypolicy",
+    "db_classes":          {
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
     },
-    "db_table_notes":         {
+    "db_table_notes":      {
       "slug":           "notes",
       "has_updated_at": true,
       "cols_custom":    {
@@ -570,7 +570,7 @@
         "note":        "TEXT"
       }
     },
-    "events":                 {
+    "events":              {
       "debug_log":              {
         "audit_params": [
           "message"
@@ -664,7 +664,7 @@
         "stat":    false
       }
     },
-    "wizards":                {
+    "wizards":             {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
         "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",

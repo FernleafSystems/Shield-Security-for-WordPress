@@ -294,6 +294,7 @@ abstract class ModCon {
 		$shieldAction = $this->getCon()->getShieldAction();
 		if ( !empty( $shieldAction ) ) {
 			do_action( $this->getCon()->prefix( 'shield_action' ), $shieldAction );
+			$this->handleShieldAction( $shieldAction );
 		}
 
 		add_action( 'cli_init', function () {
@@ -334,6 +335,9 @@ abstract class ModCon {
 		}
 
 		$this->loadDebug();
+	}
+
+	protected function handleShieldAction( string $action ) {
 	}
 
 	/**

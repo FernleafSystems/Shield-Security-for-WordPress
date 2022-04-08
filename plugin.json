@@ -77,7 +77,8 @@
         "shield/datatables",
         "shield/traffic",
         "shield/audit_trail",
-        "shield/scanners"
+        "shield/scanners",
+        "shield/ip_detect"
       ]
     },
     "frontend":     {
@@ -323,6 +324,11 @@
         "shield/audit_trail":      {
           "deps": [
             "shield/datatables"
+          ]
+        },
+        "shield/ip_detect":        {
+          "deps": [
+            "wp-jquery"
           ]
         },
         "shield/traffic":          {

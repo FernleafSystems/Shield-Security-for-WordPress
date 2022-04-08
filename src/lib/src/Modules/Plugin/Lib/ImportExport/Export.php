@@ -36,13 +36,13 @@ class Export {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$sSecretKey = $req->query( 'secret', '' );
+		$secretKey = $req->query( 'secret', '' );
 
 		$sNetworkOpt = $req->query( 'network', '' );
 		$bDoNetwork = !empty( $sNetworkOpt );
 		$url = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
 
-		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $url ) ) {
+		if ( !$mod->isImportExportSecretKey( $secretKey ) && !$this->isUrlOnWhitelist( $url ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
 
