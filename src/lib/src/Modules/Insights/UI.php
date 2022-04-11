@@ -63,6 +63,7 @@ class UI extends BaseShield\UI {
 
 		$modPlugin = $con->getModule_Plugin();
 
+		$data = [];
 		switch ( $inav ) {
 
 			case 'audit':
@@ -136,6 +137,14 @@ class UI extends BaseShield\UI {
 				$data = $UIReporting->buildInsightsVars();
 				break;
 
+			case 'rules':
+				$data = [
+					'content' => [
+						'rules_summary' => $con->rules->renderSummary()
+					]
+				];
+				break;
+
 			case 'scans_results':
 				/** @var Shield\Modules\HackGuard\UI $UIHackGuard */
 				$UIHackGuard = $con->getModule_HackGuard()->getUIHandler();
@@ -202,9 +211,10 @@ class UI extends BaseShield\UI {
 			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),
 			'license'       => __( 'ShieldPRO', 'wp-simple-firewall' ),
-			'importexport'  => __( 'Import / Export', 'wp-simple-firewall' ),
+			'importexport'  => sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
+			'rules'         => __( 'Rules', 'wp-simple-firewall' ),
 			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
 			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
@@ -222,9 +232,9 @@ class UI extends BaseShield\UI {
 				__( 'Configuration', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
 		}
 
-		if ( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
-								 ->setMod( $this->getCon()->getModule_SecAdmin() )
+								 ->setMod( $con->getModule_SecAdmin() )
 								 ->build()[ 'url_login2fa_logourl' ];
 		}
 		else {
@@ -269,14 +279,13 @@ class UI extends BaseShield\UI {
 
 		return $mod->renderTemplate(
 			sprintf( '/wpadmin_pages/insights/%s/index.twig', $templateDir ),
-			$data,
-			true
+			$data
 		);
 	}
 
 	private function renderTabEvents() :string {
 		$con = $this->getCon();
-		$srvEvents = $this->getCon()->loadEventsService();
+		$srvEvents = $con->loadEventsService();
 
 		$eventsSortedByLevel = [
 			'Alert'   => [],

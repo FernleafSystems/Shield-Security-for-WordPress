@@ -824,10 +824,10 @@ class Controller extends DynPropertiesClass {
 			apply_filters( $this->prefix( 'plugin_labels' ), $this->cfg->labels )
 		);
 
-		$oDP = Services::Data();
+		$D = Services::Data();
 		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
 			$key = 'icon_url_'.$dimension;
-			if ( !empty( $labels[ $key ] ) && !$oDP->isValidWebUrl( $labels[ $key ] ) ) {
+			if ( !empty( $labels[ $key ] ) && !$D->isValidWebUrl( $labels[ $key ] ) ) {
 				$labels[ $key ] = $this->urls->forImage( $labels[ $key ] );
 			}
 		}

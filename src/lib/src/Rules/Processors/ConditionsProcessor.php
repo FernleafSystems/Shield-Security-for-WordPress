@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
 
 class ConditionsProcessor extends BaseProcessor {
 
@@ -50,7 +51,7 @@ class ConditionsProcessor extends BaseProcessor {
 			}
 			else {
 				try {
-					$handler = $this->controller->getConditionHandler( $subCondition );
+					$handler = $this->rulesCon->getConditionHandler( $subCondition );
 					$matched = $handler->setRule( $this->rule )
 									   ->run();
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
@@ -91,7 +92,7 @@ class ConditionsProcessor extends BaseProcessor {
 	 * @throws Exceptions\RuleNotYetRunException
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
-		$result = $this->controller->getRule( $rule )->result;
+		$result = $this->rulesCon->getRule( $rule )->result;
 		if ( is_null( $result ) ) {
 			throw new Exceptions\RuleNotYetRunException( 'Rule not yet run: '.$rule );
 		}

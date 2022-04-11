@@ -412,6 +412,12 @@ class SideMenuBuilder {
 				'active' => $this->getInav() === 'notes'
 			],
 			[
+				'slug'   => $slug.'-rules',
+				'title'  => __( 'Rules', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'rules' ),
+				'active' => $this->getInav() === 'rules'
+			],
+			[
 				'slug'   => $slug.'-debug',
 				'title'  => __( "Debug Info", 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( 'debug' ),

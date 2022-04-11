@@ -13,8 +13,8 @@ class ResponseProcessor extends BaseProcessor {
 	 */
 	private $triggerMetaData;
 
-	public function __construct( RuleVO $rule, RulesController $controller, array $triggerMetaData ) {
-		parent::__construct( $rule, $controller );
+	public function __construct( RuleVO $rule, RulesController $rulesCon, array $triggerMetaData ) {
+		parent::__construct( $rule, $rulesCon );
 		$this->triggerMetaData = $triggerMetaData;
 	}
 
@@ -22,7 +22,7 @@ class ResponseProcessor extends BaseProcessor {
 		$eventFireResponseProcessed = false;
 		foreach ( $this->rule->responses as $response ) {
 			try {
-				$this->controller->getResponseHandler( $response )
+				$this->rulesCon->getResponseHandler( $response )
 								 ->setConditionTriggerMeta( $this->triggerMetaData )
 								 ->setRule( $this->rule )
 								 ->run();
@@ -40,7 +40,7 @@ class ResponseProcessor extends BaseProcessor {
 
 		// We always fire the default event if an event wasn't fired already
 		if ( !$eventFireResponseProcessed ) {
-			$this->controller->getDefaultEventFireResponseHandler()
+			$this->rulesCon->getDefaultEventFireResponseHandler()
 							 ->setConditionTriggerMeta( $this->triggerMetaData )
 							 ->setRule( $this->rule )
 							 ->run();

@@ -52,6 +52,13 @@ class RulesController {
 		$this->setupCronHooks();
 	}
 
+	public function renderSummary() :string {
+		return ( new Render\RenderSummary() )
+			->setCon( $this->getCon() )
+			->setRulesCon( $this )
+			->render();
+	}
+
 	public function runHourlyCron() {
 		$this->buildRules();
 	}
@@ -114,7 +121,7 @@ class RulesController {
 	/**
 	 * @return RuleVO[]
 	 */
-	protected function getRules() :array {
+	public function getRules() :array {
 		if ( !isset( $this->rules ) ) {
 			try {
 				$this->rules = array_map(

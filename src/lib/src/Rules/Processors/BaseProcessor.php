@@ -5,9 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
 
 class BaseProcessor {
 
+	use RulesControllerConsumer;
 	use PluginControllerConsumer;
 
 	/**
@@ -15,13 +17,8 @@ class BaseProcessor {
 	 */
 	protected $rule;
 
-	/**
-	 * @var RulesController
-	 */
-	protected $controller;
-
-	public function __construct( RuleVO $rule, RulesController $controller ) {
+	public function __construct( RuleVO $rule, RulesController $rulesCon ) {
+		$this->setRulesCon( $rulesCon );
 		$this->rule = $rule;
-		$this->controller = $controller;
 	}
 }
