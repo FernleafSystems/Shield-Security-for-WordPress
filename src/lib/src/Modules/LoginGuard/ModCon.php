@@ -14,6 +14,13 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $mfaCon;
 
+	public function getMfaController() :Lib\TwoFactor\MfaController {
+		if ( !isset( $this->mfaCon ) ) {
+			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
+		}
+		return $this->mfaCon;
+	}
+
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -23,13 +30,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$IDs = $opts->getOpt( 'antibot_form_ids', [] );
-		foreach ( $IDs as $nKey => $id ) {
+		foreach ( $IDs as $key => $id ) {
 			$id = trim( strip_tags( $id ) );
 			if ( empty( $id ) ) {
-				unset( $IDs[ $nKey ] );
+				unset( $IDs[ $key ] );
 			}
 			else {
-				$IDs[ $nKey ] = $id;
+				$IDs[ $key ] = $id;
 			}
 		}
 		$opts->setOpt( 'antibot_form_ids', array_values( array_unique( $IDs ) ) );
@@ -116,15 +123,10 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	/**
-	 * @param string $to
-	 * @param bool   $bSendAsLink
-	 * @return bool
-	 */
-	public function sendEmailVerifyCanSend( $to = null, $bSendAsLink = true ) {
+	public function sendEmailVerifyCanSend( string $to = '', bool $sendAsLink = true ) :bool {
 
 		if ( !Services::Data()->validEmail( $to ) ) {
-			$to = get_bloginfo( 'admin_email' );
+			$to = Services::WpGeneral()->getSiteAdminEmail();
 		}
 
 		$msg = [
@@ -133,7 +135,7 @@ class ModCon extends BaseShield\ModCon {
 			''
 		];
 
-		if ( $bSendAsLink ) {
+		if ( $sendAsLink ) {
 			$msg[] = sprintf(
 				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
 				add_query_arg( $this->getModActionParams( 'email_send_verify' ), Services::WpGeneral()->getHomeUrl() )
@@ -143,12 +145,11 @@ class ModCon extends BaseShield\ModCon {
 			$msg[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );
 		}
 
-		return $this->getEmailProcessor()
-					->sendEmailWithWrap(
-						$to,
-						__( 'Email Sending Verification', 'wp-simple-firewall' ),
-						$msg
-					);
+		return $this->getEmailProcessor()->sendEmailWithWrap(
+			$to,
+			__( 'Email Sending Verification', 'wp-simple-firewall' ),
+			$msg
+		);
 	}
 
 	private function cleanLoginUrlPath() {
@@ -202,28 +203,12 @@ class ModCon extends BaseShield\ModCon {
 		return $cfg;
 	}
 
-	public function getMfaController() :Lib\TwoFactor\MfaController {
-		if ( !isset( $this->mfaCon ) ) {
-			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
-		}
-		return $this->mfaCon;
-	}
-
 	/**
-	 * @param bool $bCan
 	 * @return $this
 	 */
-	public function setIfCanSendEmail( $bCan ) {
-		$this->getOptions()->setOpt( 'email_can_send_verified_at', $bCan ? Services::Request()->ts() : 0 );
+	public function setIfCanSendEmail( bool $can ) {
+		$this->getOptions()->setOpt( 'email_can_send_verified_at', $can ? Services::Request()->ts() : 0 );
 		return $this;
-	}
-
-	public function setEnabled2FaEmail( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_email_authentication', $enable ? 'Y' : 'N' );
-	}
-
-	public function setEnabled2FaGoogleAuthenticator( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_google_authenticator', $enable ? 'Y' : 'N' );
 	}
 
 	public function getTextOptDefault( string $key ) :string {
@@ -260,15 +245,15 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCustomScriptEnqueues() :array {
-		$enqs = [];
+		$enq = [];
 		if ( is_admin() || is_network_admin() ) {
-			$enqs[ Enqueue::CSS ] = [
+			$enq[ Enqueue::CSS ] = [
 				'wp-wp-jquery-ui-dialog'
 			];
-			$enqs[ Enqueue::JS ] = [
+			$enq[ Enqueue::JS ] = [
 				'wp-jquery-ui-dialog'
 			];
 		}
-		return $enqs;
+		return $enq;
 	}
 }

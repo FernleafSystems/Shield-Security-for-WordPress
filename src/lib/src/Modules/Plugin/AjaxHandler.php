@@ -159,17 +159,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
 		}
 		else {
-			$sMasterSiteUrl = $formParams[ 'MasterSiteUrl' ];
-			$sSecretKey = $formParams[ 'MasterSiteSecretKey' ];
-			$bEnabledNetwork = $formParams[ 'ShieldNetwork' ] === 'Y';
-			$bDisableNetwork = $formParams[ 'ShieldNetwork' ] === 'N';
-			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
+			$doNetwork = ( $formParams[ 'ShieldNetwork' ] === 'Y' ) ? true : ( ( $formParams[ 'ShieldNetwork' ] === 'N' ) ? false : null );
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
 			try {
 				$code = ( new Plugin\Lib\ImportExport\Import() )
 					->setMod( $this->getMod() )
-					->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+					->fromSite( (string)$formParams[ 'MasterSiteUrl' ],  (string)$formParams[ 'MasterSiteSecretKey' ], $doNetwork );
 			}
 			catch ( \Exception $e ) {
 				$code = $e->getCode();

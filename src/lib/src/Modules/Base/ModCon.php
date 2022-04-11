@@ -848,7 +848,7 @@ abstract class ModCon {
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( $this->bImportExportWhitelistNotify ?? false ) {
 			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
+				wp_schedule_single_event( Services::Request()->ts() + 30, $this->prefix( 'importexport_notify' ) );
 			}
 		}
 	}

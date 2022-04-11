@@ -134,9 +134,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	public function ajaxExec_Profile2faEmailDisable() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->setEnabled2FaEmail( false );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$opts->setOpt( 'enable_email_authentication', 'N' );
 		return [
 			'success'     => true,
 			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),

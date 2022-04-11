@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
@@ -36,49 +37,51 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function processAuthEmail() {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$oReq = Services::Request();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$req = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 
-		$sEmail = $oReq->post( 'email' );
-		$sCode = $oReq->post( 'code' );
-		$bFa = $oReq->post( 'Email2FAOption' ) === 'Y';
+		$email = $req->post( 'email' );
+		$code = $req->post( 'code' );
+		$is2FA = $req->post( 'Email2FAOption' ) === 'Y';
 
-		if ( !Services::Data()->validEmail( $sEmail ) ) {
-			$sMessage = __( 'Invalid email address', 'wp-simple-firewall' );
+		if ( empty( $email ) || !Services::Data()->validEmail( $email ) ) {
+			$msg = __( 'Invalid email address', 'wp-simple-firewall' );
 		}
-		elseif ( empty( $sCode ) ) {
-			if ( $mod->sendEmailVerifyCanSend( $sEmail, false ) ) {
+		elseif ( empty( $code ) ) {
+			if ( $mod->sendEmailVerifyCanSend( $email, false ) ) {
 				$mod->setIfCanSendEmail( false );
 				$oResponse->setSuccessful( true );
-				$sMessage = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
-							.' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
+				$msg = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
+					   .' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
 			}
 			else {
-				$sMessage = 'Failed to send verification email';
+				$msg = 'Failed to send verification email';
 			}
 		}
-		elseif ( $sCode == $mod->getCanEmailVerifyCode() ) {
+		elseif ( $code == $mod->getCanEmailVerifyCode() ) {
 			$oResponse->setSuccessful( true );
-			$sMessage = 'Email sending has been verified successfully.';
+			$msg = 'Email sending has been verified successfully.';
 
 			$mod->setIfCanSendEmail( true );
 
-			if ( $bFa ) {
-				$mod->setEnabled2FaEmail( true );
-				$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
+			if ( $is2FA ) {
+				$opts->setOpt( 'enable_email_authentication', 'Y' );
+				$msg .= ' '.'Email-based two factor authentication is now enabled.';
 			}
 			else {
-				$sMessage .= ' '.'Email-based two factor authentication is NOT enabled.';
+				$msg .= ' '.'Email-based two factor authentication is NOT enabled.';
 			}
 		}
 		else {
-			$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
-						.'Email-based two factor authentication option has not been updated.';
+			$msg = 'This does not appear to be the correct 6-digit code that was sent to you.'
+				   .'Email-based two factor authentication option has not been updated.';
 		}
 
-		return $oResponse->setMessageText( $sMessage );
+		return $oResponse->setMessageText( $msg );
 	}
 
 	/**

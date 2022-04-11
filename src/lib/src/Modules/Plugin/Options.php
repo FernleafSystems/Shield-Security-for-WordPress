@@ -16,11 +16,16 @@ class Options extends BaseShield\Options {
 		];
 	}
 
+	public function getImportExportMasterImportUrl() :string {
+		return (string)$this->getOpt( 'importexport_masterurl', '' );
+	}
+
 	/**
-	 * @return string
+	 * @return string[]
 	 */
-	public function getImportExportMasterImportUrl() {
-		return $this->getOpt( 'importexport_masterurl', '' );
+	public function getImportExportWhitelist() :array {
+		$list = $this->getOpt( 'importexport_whitelist', [] );
+		return is_array( $list ) ? $list : [];
 	}
 
 	public function getIpSource() :string {
@@ -28,10 +33,12 @@ class Options extends BaseShield\Options {
 	}
 
 	public function hasImportExportMasterImportUrl() :bool {
-		$sMaster = $this->getImportExportMasterImportUrl();
-		return !empty( $sMaster );
+		return !empty( $this->getImportExportMasterImportUrl() );
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isIpSourceAutoDetect() :bool {
 		return $this->getIpSource() == 'AUTO_DETECT_IP';
 	}
@@ -51,14 +58,6 @@ class Options extends BaseShield\Options {
 
 	public function isTrackingPermissionSet() :bool {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getImportExportWhitelist() :array {
-		$whitelist = $this->getOpt( 'importexport_whitelist', [] );
-		return is_array( $whitelist ) ? $whitelist : [];
 	}
 
 	public function isEnabledShieldNET() :bool {

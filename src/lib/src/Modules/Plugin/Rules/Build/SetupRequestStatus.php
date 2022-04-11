@@ -33,6 +33,9 @@ class SetupRequestStatus extends BuildRuleCoreShieldBase {
 				[
 					'condition' => Conditions\WpIsWpcli::SLUG,
 				],
+				[
+					'condition' => Conditions\WpIsXmlrpc::SLUG,
+				],
 			]
 		];
 	}

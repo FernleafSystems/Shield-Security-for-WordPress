@@ -87,18 +87,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	public function onWpInit() {
-		parent::onWpInit();
-		$this->getImportExportSecretKey();
-	}
-
 	/**
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( !$opts->isIpSourceAutoDetect() ) {
+		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
 			Services::IP()->setIpDetector(
 				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
@@ -111,6 +106,8 @@ class ModCon extends BaseShield\ModCon {
 				( new Lib\ImportExport\Export() )
 					->setMod( $this )
 					->toFile();
+				break;
+			default:
 				break;
 		}
 	}
@@ -146,16 +143,16 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	public function canSiteLoopback() :bool {
-		$canLoopback = false;
+		$can = false;
 		if ( class_exists( '\WP_Site_Health' ) && method_exists( '\WP_Site_Health', 'get_instance' ) ) {
-			$canLoopback = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
+			$can = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
 		}
-		if ( !$canLoopback ) {
-			$canLoopback = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
+		if ( !$can ) {
+			$can = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
 				'timeout' => 10
 			] );
 		}
-		return $canLoopback;
+		return $can;
 	}
 
 	/**
@@ -166,10 +163,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return add_query_arg(
-			[ 'shield_action' => 'dump_tracking_data' ],
-			Services::WpGeneral()->getAdminUrl()
-		);
+		return add_query_arg( [ 'shield_action' => 'dump_tracking_data' ], Services::WpGeneral()->getAdminUrl() );
 	}
 
 	public function getPluginReportEmail() :string {
@@ -269,9 +263,9 @@ class ModCon extends BaseShield\ModCon {
 		$WP = Services::WpGeneral();
 		$ts = Services::Request()->ts();
 
-		$sOptKey = $this->getCon()->prefixOption( 'install_date' );
+		$key = $this->getCon()->prefixOption( 'install_date' );
 
-		$nWpDate = $WP->getOption( $sOptKey );
+		$nWpDate = $WP->getOption( $key );
 		if ( empty( $nWpDate ) ) {
 			$nWpDate = $ts;
 		}
@@ -282,7 +276,7 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$nFinal = min( $nPluginDate, $nWpDate );
-		$WP->updateOption( $sOptKey, $nFinal );
+		$WP->updateOption( $key, $nFinal );
 		$this->getOptions()->setOpt( 'installation_time', $nPluginDate );
 
 		return $nFinal;
@@ -353,113 +347,26 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	public function hasImportExportWhitelistSites() :bool {
-		return count( $this->getImportExportWhitelist() ) > 0;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getImportExportWhitelist() :array {
-		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
-		return is_array( $list ) ? $list : [];
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getImportExportSecretKey() {
+	private function cleanImportExportWhitelistUrls() {
+		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$ID = $opts->getOpt( 'importexport_secretkey', '' );
-		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = sha1( $this->getCon()->getSiteInstallationId().wp_rand( 0, PHP_INT_MAX ) );
-			$opts->setOpt( 'importexport_secretkey', $ID )
-				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
-		}
-		return $ID;
-	}
+		$cleaned = [];
+		$whitelist = $opts->getImportExportWhitelist();
+		foreach ( $whitelist as $url ) {
 
-	protected function isImportExportSecretKeyExpired() :bool {
-		return Services::Request()->ts() >
-			   $this->getOptions()->getOpt( 'importexport_secretkey_expires_at' );
-	}
-
-	public function isImportExportWhitelistNotify() :bool {
-		return $this->getOptions()->isOpt( 'importexport_whitelist_notify', 'Y' );
-	}
-
-	/**
-	 * @param string $sUrl
-	 * @return $this
-	 */
-	public function addUrlToImportExportWhitelistUrls( $sUrl ) {
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $sUrl );
-		if ( $sUrl !== false ) {
-			$aWhitelistUrls = $this->getImportExportWhitelist();
-			$aWhitelistUrls[] = $sUrl;
-			$this->getOptions()->setOpt( 'importexport_whitelist', $aWhitelistUrls );
-			$this->saveModOptions();
-		}
-		return $this;
-	}
-
-	/**
-	 * @param string $url
-	 * @return $this
-	 */
-	public function removeUrlFromImportExportWhitelistUrls( $url ) {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url !== false ) {
-			$aWhitelistUrls = $this->getImportExportWhitelist();
-			$sKey = array_search( $url, $aWhitelistUrls );
-			if ( $sKey !== false ) {
-				unset( $aWhitelistUrls[ $sKey ] );
-			}
-			$this->getOptions()->setOpt( 'importexport_whitelist', $aWhitelistUrls );
-			$this->saveModOptions();
-		}
-		return $this;
-	}
-
-	/**
-	 * @param string $key
-	 */
-	public function isImportExportSecretKey( $key ) :bool {
-		return !empty( $key ) && $this->getImportExportSecretKey() == $key;
-	}
-
-	protected function cleanImportExportWhitelistUrls() {
-		$oDP = Services::Data();
-
-		$aCleaned = [];
-		$aWhitelistUrls = $this->getImportExportWhitelist();
-		foreach ( $aWhitelistUrls as $nKey => $sUrl ) {
-
-			$sUrl = $oDP->validateSimpleHttpUrl( $sUrl );
-			if ( $sUrl !== false ) {
-				$aCleaned[] = $sUrl;
+			$url = Services::Data()->validateSimpleHttpUrl( $url );
+			if ( $url !== false ) {
+				$cleaned[] = $url;
 			}
 		}
-		$this->getOptions()->setOpt( 'importexport_whitelist', array_unique( $aCleaned ) );
+		$opts->setOpt( 'importexport_whitelist', array_unique( $cleaned ) );
 	}
 
-	protected function cleanImportExportMasterImportUrl() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$url = Services::Data()->validateSimpleHttpUrl( $oOpts->getImportExportMasterImportUrl() );
-		if ( $url === false ) {
-			$url = '';
-		}
-		$this->getOptions()->setOpt( 'importexport_masterurl', $url );
-	}
-
-	/**
-	 * @param string $url
-	 * @return $this
-	 */
-	public function setImportExportMasterImportUrl( $url ) {
-		$this->getOptions()->setOpt( 'importexport_masterurl', $url ); //saving will clean the URL
-		return $this->saveModOptions();
+	private function cleanImportExportMasterImportUrl() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
+		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
 	/**
@@ -544,5 +451,13 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
+	}
+
+	/**
+	 * @deprecated 15.0
+	 */
+	public function getImportExportWhitelist() :array {
+		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
+		return is_array( $list ) ? $list : [];
 	}
 }
