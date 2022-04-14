@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Scanner extends ExecOnceModConsumer {
@@ -81,113 +80,89 @@ class Scanner extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param array $aCommData
+	 * @param array $commData
 	 * @return array
 	 */
-	public function checkComment( $aCommData ) {
+	public function checkComment( $commData ) {
+		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
 		if ( Services::WpComments()->isCommentSubmission()
-			 && $this->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
+			 && is_array( $commData )
+			 && $this->getIfDoCommentsCheck( $commData[ 'comment_post_ID' ], $commData[ 'comment_author_email' ] ) ) {
 
-			$mResult = $this->runScans( $aCommData );
-			if ( is_wp_error( $mResult ) ) {
+			$spamErrors = $this->runScans( $commData );
 
-				$this->getCon()
-					 ->fireEvent(
-						 'spam_block_'.$mResult->get_error_code(),
-						 [ 'audit_params' => $mResult->get_error_data() ]
-					 );
+			$errorCodes = $spamErrors->get_error_codes();
+			if ( count( $errorCodes ) > 0 ) {
+
+				foreach ( $errorCodes as $errorCode ) {
+					$this->getCon()
+						 ->fireEvent(
+							 'spam_block_'.$errorCode,
+							 [ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
+						 );
+				}
+
 				$this->getCon()->fireEvent( 'comment_spam_block' );
 
-				if ( $mResult->get_error_code() == 'human' ) {
+				// if we're configured to actually block...
+				if ( $opts->isEnabledAntiBot() && in_array( 'antibot', $errorCodes ) ) {
+					$status = $opts->getOpt( 'comments_default_action_spam_bot' );
+				}
+				elseif ( $opts->isEnabledHumanCheck() && in_array( 'human', $errorCodes ) ) {
 					$status = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$status = $opts->getOpt( 'comments_default_action_spam_bot' );
+					$status = null;
 				}
 
-				if ( $status == 'reject' ) {
-					Services::Response()->redirectToHome();
-				}
+				if ( !is_null( $status ) ) {
+					if ( $status == 'reject' ) {
+						Services::Response()->redirectToHome();
+					}
 
-				$this->spamStatus = $status;
-				$this->spamReason = $mResult->get_error_message();
+					$this->spamStatus = $status;
+					$this->spamReason = $spamErrors->get_error_message();
+				}
 			}
 		}
 
-		return $aCommData;
+		return $commData;
+	}
+
+	private function runScans( array $commData ) :\WP_Error {
+		$errors = new \WP_Error();
+
+		$isBot = $this->getCon()
+					  ->getModule_IPs()
+					  ->getBotSignalsController()
+					  ->isBot();
+		if ( $isBot ) {
+			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
+		}
+
+		$humanError = ( new Human() )
+			->setMod( $this->getMod() )
+			->scan( $commData );
+		if ( is_wp_error( $humanError ) ) {
+			$code = $humanError->get_error_code();
+			$errors->add( $code, $humanError->get_error_message( $code ), $humanError->get_error_data( $code ) );
+		}
+
+		return $errors;
 	}
 
 	/**
-	 * @param array $aCommData
-	 * @return true|\WP_Error|null
+	 * @param int    $postID
+	 * @param string $commentEmail
 	 */
-	private function runScans( $aCommData ) {
-		/** @var CommentsFilter\ModCon $mod */
-		$mod = $this->getMod();
+	public function getIfDoCommentsCheck( $postID, $commentEmail ) :bool {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
-
-		$mResult = true;
-
-		if ( $opts->isEnabledAntiBot() ) {
-			try {
-				( new AntiBot() )
-					->setMod( $this->getMod() )
-					->scan();
-			}
-			catch ( \Exception $e ) {
-				$mResult = new \WP_Error( 'antibot', $e->getMessage() );
-			}
-		}
-		else {
-
-			if ( $opts->isEnabledGaspCheck() ) {
-				$mResult = ( new Bot() )
-					->setMod( $this->getMod() )
-					->scan( $aCommData[ 'comment_post_ID' ] );
-			}
-
-			if ( !is_wp_error( $mResult ) && $opts->isEnabledCaptcha() && $mod->getCaptchaCfg()->ready ) {
-				try {
-					if ( $mod->getCaptchaCfg()->provider === 'hcaptcha' ) {
-						( new Utilities\HCaptcha\TestRequest() )
-							->setMod( $this->getMod() )
-							->test();
-					}
-					else {
-						( new Utilities\ReCaptcha\TestRequest() )
-							->setMod( $this->getMod() )
-							->test();
-					}
-				}
-				catch ( \Exception $e ) {
-					$mResult = new \WP_Error( 'recaptcha', $e->getMessage(), [] );
-				}
-			}
-		}
-
-		if ( !is_wp_error( $mResult ) && $opts->isEnabledHumanCheck() ) {
-			$mResult = ( new Human() )
-				->setMod( $this->getMod() )
-				->scan( $aCommData );
-		}
-
-		return $mResult;
-	}
-
-	/**
-	 * @param int    $nPostId
-	 * @param string $sCommentEmail
-	 * @return bool
-	 */
-	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
-		$post = Services::WpPost()->getById( $nPostId );
+		$post = Services::WpPost()->getById( $postID );
 		return $post instanceof \WP_Post
 			   && Services::WpComments()->isCommentsOpen( $post )
-			   && !( new IsEmailTrusted() )->trusted( $sCommentEmail, $opts->getApprovedMinimum(), $opts->getTrustedRoles() );
+			   && !( new IsEmailTrusted() )->trusted( $commentEmail, $opts->getApprovedMinimum(), $opts->getTrustedRoles() );
 	}
 }

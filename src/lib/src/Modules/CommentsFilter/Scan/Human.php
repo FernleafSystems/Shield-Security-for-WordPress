@@ -15,10 +15,10 @@ class Human {
 	 * Does the same as the WordPress blacklist filter, but more intelligently and with a nod towards much higher
 	 * performance. It also uses defined options for which fields are checked for SPAM instead of just checking
 	 * EVERYTHING!
-	 * @param array $aCommData
+	 * @param array $commData
 	 * @return \WP_Error|true
 	 */
-	public function scan( $aCommData ) {
+	public function scan( $commData ) {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
@@ -26,10 +26,10 @@ class Human {
 
 		$items = array_intersect_key(
 			[
-				'comment_content' => $aCommData[ 'comment_content' ],
-				'url'             => $aCommData[ 'comment_author_url' ],
-				'author_name'     => $aCommData[ 'comment_author' ],
-				'author_email'    => $aCommData[ 'comment_author_email' ],
+				'comment_content' => $commData[ 'comment_content' ],
+				'url'             => $commData[ 'comment_author_url' ],
+				'author_name'     => $commData[ 'comment_author' ],
+				'author_email'    => $commData[ 'comment_author_email' ],
 				'ip_address'      => Services::IP()->getRequestIp(),
 				'user_agent'      => substr( Services::Request()->getUserAgent(), 0, 254 )
 			],

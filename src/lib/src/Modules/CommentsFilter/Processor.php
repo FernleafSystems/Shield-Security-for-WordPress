@@ -26,20 +26,11 @@ class Processor extends BaseShield\Processor {
 				->setMod( $this->getMod() )
 				->execute();
 
-			( new Forms\GoogleRecaptcha() )
-				->setMod( $this->getMod() )
-				->execute();
-
 			if ( Services::Request()->isPost() ) {
 				( new Scan\Scanner() )
 					->setMod( $this->getMod() )
 					->execute();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
-			}
-			else {
-				( new Forms\Gasp() )
-					->setMod( $this->getMod() )
-					->execute();
 			}
 		}
 	}

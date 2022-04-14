@@ -31,10 +31,10 @@ abstract class BaseProtectionProvider {
 	}
 
 	/**
-	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $oFormProvider
+	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $formProvider
 	 * @return string
 	 */
-	abstract public function buildFormInsert( $oFormProvider );
+	abstract public function buildFormInsert( $formProvider );
 
 	public function setAsInsertBuilt() :self {
 		$this->factorBuilt = true;

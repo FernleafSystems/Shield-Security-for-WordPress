@@ -52,7 +52,6 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 								->getModule_IPs()
 								->getBotSignalsController()
 								->isBot( Services::IP()->getRequestIp() );
-			self::$isBot = true;
 			$this->fireBotEvent();
 		}
 		return self::$isBot;
