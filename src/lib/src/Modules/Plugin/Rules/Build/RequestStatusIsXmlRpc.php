@@ -8,31 +8,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions
 };
 
-class SetupRequestStatus extends BuildRuleCoreShieldBase {
+class RequestStatusIsXmlRpc extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/setup_request_status';
+	const SLUG = 'shield/request_status_is_xmlrpc';
 
 	protected function getName() :string {
-		return 'Setup Request Status';
+		return 'Is XML-RPC';
 	}
 
 	protected function getDescription() :string {
-		return 'Setup Request Status.';
+		return 'Request Status - Is XML-RPC.';
 	}
 
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_OR,
 			'group' => [
-				[
-					'condition' => Conditions\WpIsAjax::SLUG,
-				],
-				[
-					'condition' => Conditions\WpIsAdmin::SLUG,
-				],
-				[
-					'condition' => Conditions\WpIsWpcli::SLUG,
-				],
 				[
 					'condition' => Conditions\WpIsXmlrpc::SLUG,
 				],

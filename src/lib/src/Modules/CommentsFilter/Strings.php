@@ -60,39 +60,39 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Comments SPAM Protection', 'wp-simple-firewall' ) );
-				$aSummary = [
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), __( 'Comments SPAM Protection', 'wp-simple-firewall' ) );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Comments Filter', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
 			case 'section_bot_comment_spam_common' :
-				$sTitleShort = __( 'Common Settings', 'wp-simple-firewall' );
-				$sTitle = __( 'Common Settings For All SPAM Scanning', 'wp-simple-firewall' );
-				$aSummary = [
+				$titleShort = __( 'Common Settings', 'wp-simple-firewall' );
+				$title = __( 'Common Settings For All SPAM Scanning', 'wp-simple-firewall' );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Settings that apply to all comment SPAM scanning.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_bot_comment_spam_protection_filter' :
-				$sTitle = sprintf( __( '%s Comment SPAM Protection', 'wp-simple-firewall' ), __( 'Automatic Bot', 'wp-simple-firewall' ) );
-				$aSummary = [
+				$title = sprintf( __( '%s Comment SPAM Protection', 'wp-simple-firewall' ), __( 'Automatic Bot', 'wp-simple-firewall' ) );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Blocks 100% of all automated bot-generated comment SPAM.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Bot SPAM', 'wp-simple-firewall' );
+				$titleShort = __( 'Bot SPAM', 'wp-simple-firewall' );
 				break;
 
 			case 'section_human_spam_filter' :
-				$sTitle = sprintf( __( '%s Comment SPAM Protection Filter', 'wp-simple-firewall' ), __( 'Human', 'wp-simple-firewall' ) );
-				$aSummary = [
+				$title = sprintf( __( '%s Comment SPAM Protection Filter', 'wp-simple-firewall' ), __( 'Human', 'wp-simple-firewall' ) );
+				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 					__( 'This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis.', 'wp-simple-firewall' )
 				];
-				$sTitleShort = __( 'Human SPAM', 'wp-simple-firewall' );
+				$titleShort = __( 'Human SPAM', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -100,15 +100,13 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => $summary ?? [],
 		];
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
@@ -163,83 +161,11 @@ class Strings extends Base\Strings {
 				$desc = sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' );
 				break;
 
-			case 'enable_comments_gasp_protection' :
-				$name = __( 'SPAM Bot Protection', 'wp-simple-firewall' );
-				$summary = sprintf( '[DEPRECATED - %s] %s',
-					'Please use the newer AntiBot setting above',
-					__( 'Block 100% Comment SPAM From Automated Bots', 'wp-simple-firewall' )
-				);
-				$desc = [
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Use the newer AntiBot Detection Engine to detect SPAM instead of CAPTCHAs.", 'wp-simple-firewall' ) ),
-
-					__( 'Highly effective detection for the most common types of comment SPAM.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Bonus', 'wp-simple-firewall' ), __( "Unlike Akismet, your data is never sent off-site to 3rd party processing servers.", 'wp-simple-firewall' ) )
-				];
-				break;
-
 			case 'comments_default_action_spam_bot' :
 				$name = __( 'SPAM Action', 'wp-simple-firewall' );
 				$summary = __( 'Where To Put SPAM Comments', 'wp-simple-firewall' );
 				$desc = sprintf( __( 'When a comment is detected as being SPAM, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() );
-				break;
-
-			case 'custom_message_checkbox' :
-				$name = __( 'GASP Checkbox Message', 'wp-simple-firewall' );
-				$summary = __( 'If you want a custom checkbox message, please provide this here', 'wp-simple-firewall' );
-				$desc = [
-					__( "You can customise the message beside the checkbox.", 'wp-simple-firewall' ),
-					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) )
-				];
-				break;
-
-			case 'google_recaptcha_style_comments' :
-				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$summary = sprintf( '[DEPRECATED - %s] %s',
-					'Please use the newer AntiBot setting above',
-					__( 'Enable CAPTCHA To Protect Against SPAM Comments', 'wp-simple-firewall' )
-				);
-				$desc = [
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Use the newer AntiBot Detection Engine to detect SPAM instead of CAPTCHAs.", 'wp-simple-firewall' ) ),
-					__( 'You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA, when you upgrade to PRO.', 'wp-simple-firewall' )
-				];
-				if ( !$mod->getCaptchaCfg()->ready ) {
-					$desc[] = sprintf( '<a href="%s">%s</a>',
-						$this->getCon()
-							 ->getModule_Plugin()
-							 ->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
-						__( 'Please remember to provide your CAPTCHA keys.', 'wp-simple-firewall' )
-					);
-				}
-				break;
-
-			case 'custom_message_alert' :
-				$name = __( 'GASP Alert Message', 'wp-simple-firewall' );
-				$summary = __( 'If you want a custom alert message, please provide this here', 'wp-simple-firewall' );
-				$desc = [
-					__( "This alert message is displayed when a visitor attempts to submit a comment without checking the box.", 'wp-simple-firewall' ),
-					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) )
-				];
-				break;
-
-			case 'custom_message_comment_wait' :
-				$name = __( 'GASP Wait Message', 'wp-simple-firewall' );
-				$summary = __( 'If you want a custom submit-button wait message, please provide this here.', 'wp-simple-firewall' );
-				$desc = [
-					__( "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these.", 'wp-simple-firewall' ),
-					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( 'Please wait %s seconds before posting your comment', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			case 'custom_message_comment_reload' :
-				$name = __( 'GASP Reload Message', 'wp-simple-firewall' );
-				$summary = __( 'If you want a custom message when the comment token has expired, please provide this here.', 'wp-simple-firewall' );
-				$desc = [
-					__( 'This message is displayed on the submit-button when the comment token is expired', 'wp-simple-firewall' ),
-					sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please reload this page to post a comment", 'wp-simple-firewall' ) )
-				];
 				break;
 
 			default:
