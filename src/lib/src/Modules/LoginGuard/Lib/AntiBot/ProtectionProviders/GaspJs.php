@@ -25,11 +25,6 @@ class GaspJs extends BaseProtectionProvider {
 				/** @var LoginGuard\Options $opts */
 				$opts = $this->getOptions();
 
-				$ts = Services::Request()->ts();
-				$nonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
-				$nonce[ 'ts' ] = $ts;
-				$nonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
-
 				$localz[] = [
 					'shield/loginbot',
 					'icwp_wpsf_vars_lpantibot',

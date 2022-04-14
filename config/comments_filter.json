@@ -213,13 +213,6 @@
       "description":   "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
     },
     {
-      "key":     "comments_cooldown",
-      "section": "section_non_ui",
-      "type":    "integer",
-      "default": 10,
-      "min":     0
-    },
-    {
       "key":     "human_spam_items",
       "section": "section_non_ui",
       "type":    "array",
@@ -234,7 +227,6 @@
     }
   ],
   "definitions":   {
-    "comments_expire":          1800,
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
       "comment_spam_block":   {

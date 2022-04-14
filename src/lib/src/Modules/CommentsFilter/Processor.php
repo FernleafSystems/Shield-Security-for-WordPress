@@ -35,14 +35,6 @@ class Processor extends BaseShield\Processor {
 		}
 	}
 
-	public function runHourlyCron() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isEnabledGaspCheck() && function_exists( 'delete_expired_transients' ) ) {
-			delete_expired_transients(); // cleanup unused comment tokens
-		}
-	}
-
 	/**
 	 * When you set a new comment as anything but 'spam' a notification email is sent to the post author.
 	 * We suppress this for when we mark as trash by emptying the email notifications list.

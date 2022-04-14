@@ -298,12 +298,6 @@
             "wp-jquery-ui-dialog"
           ]
         },
-        "shield/comments":         {
-          "deps":   [
-            "wp-jquery"
-          ],
-          "footer": true
-        },
         "shield/loginbot":         {
           "deps": [
             "wp-jquery"
