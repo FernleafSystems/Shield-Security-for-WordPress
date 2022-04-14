@@ -13,9 +13,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Lookup {
 
-	const URL_REDIRECTLI = 'https://api.redirect.li/v1/ip/';
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
+
+	const URL_REDIRECTLI = 'https://api.redirect.li/v1/ip/';
 
 	private $ips = [];
 
@@ -38,7 +39,7 @@ class Lookup {
 				->loadIP( $this->getIP(), true );
 
 			if ( is_null( $ipRecord->geo )
-				 || Services::Request()->carbon()->subMonth()->timestamp > @$ipRecord->geo[ 'ts' ] ) {
+				 || Services::Request()->carbon()->subMonth()->timestamp > ( $ipRecord->geo[ 'ts' ] ?? 0 ) ) {
 
 				if ( $this->reqCount++ > 30 ) {
 					throw new \Exception( 'Lookup limit reached.' );

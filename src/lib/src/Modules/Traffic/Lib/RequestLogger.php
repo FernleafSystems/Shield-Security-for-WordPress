@@ -69,21 +69,19 @@ class RequestLogger extends ExecOnceModConsumer {
 
 	private function isRequestTypeExcluded() :bool {
 		$srvProviders = Services::ServiceProviders();
-		$ipIdentity = Services::IP()->getIpDetector()->getIPIdentity();
+		$ipID = Services::IP()->getIpDetector()->getIPIdentity();
 		/** @var Traffic\Options $opts */
 		$opts = $this->getOptions();
 		$excl = $opts->getReqTypeExclusions();
 		$isLoggedIn = Services::WpUsers()->isUserLoggedIn();
 
-		$exclude = ( in_array( 'simple', $excl ) && count( Services::Request()->getRawRequestParams( false ) ) == 0 )
-				   || ( in_array( 'logged_in', $excl ) && $isLoggedIn )
-				   || ( in_array( 'ajax', $excl ) && Services::WpGeneral()->isAjax() )
+		$exclude = ( in_array( 'logged_in', $excl ) && $isLoggedIn )
 				   || ( in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() )
-				   || ( in_array( 'server', $excl ) && $ipIdentity === IpID::THIS_SERVER );
+				   || ( in_array( 'server', $excl ) && $ipID === IpID::THIS_SERVER );
 
 		if ( !$exclude && !$isLoggedIn ) {
-			$exclude = ( in_array( 'search', $excl ) && in_array( $ipIdentity, $srvProviders->getSearchProviders() ) )
-					   || ( in_array( 'uptime', $excl ) && in_array( $ipIdentity, $srvProviders->getUptimeProviders() ) );
+			$exclude = ( in_array( 'search', $excl ) && in_array( $ipID, $srvProviders->getSearchProviders() ) )
+					   || ( in_array( 'uptime', $excl ) && in_array( $ipID, $srvProviders->getUptimeProviders() ) );
 		}
 
 		return $exclude;
@@ -101,6 +99,7 @@ class RequestLogger extends ExecOnceModConsumer {
 		foreach ( $opts->getCustomExclusions() as $excl ) {
 			if ( stripos( $agent, $excl ) !== false || stripos( $path, $excl ) !== false ) {
 				$exclude = true;
+				break;
 			}
 		}
 		return $exclude;

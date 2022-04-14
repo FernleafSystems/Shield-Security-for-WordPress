@@ -113,18 +113,6 @@
       ],
       "value_options": [
         {
-          "value_key": "simple",
-          "text":      "Simple Requests"
-        },
-        {
-          "value_key": "api",
-          "text":      "REST API"
-        },
-        {
-          "value_key": "ajax",
-          "text":      "AJAX"
-        },
-        {
           "value_key": "logged_in",
           "text":      "Logged-In Users"
         },
