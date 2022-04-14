@@ -17,7 +17,7 @@ class LearnPress extends Base {
 	 * @return string|\WP_Error
 	 */
 	public function checkLogin_LP( $maybeError ) {
-		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'login' )->checkIsBot() ) {
+		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
 			$maybeError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 		}
 		return $maybeError;
@@ -28,7 +28,7 @@ class LearnPress extends Base {
 	 * @return string|\WP_Error
 	 */
 	public function checkRegister_LP( $maybeError ) {
-		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( !is_wp_error( $maybeError ) && $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$maybeError = new \WP_Error( 'shield-fail-register', $this->getErrorMessage() );
 		}
 		return $maybeError;

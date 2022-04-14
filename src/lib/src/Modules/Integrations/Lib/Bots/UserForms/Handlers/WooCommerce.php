@@ -21,7 +21,7 @@ class WooCommerce extends Base {
 	 * @param \WP_Error $wpError
 	 */
 	public function checkCheckout_Woo( $data, $wpError ) {
-		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'checkout' )->checkIsBot() ) {
+		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'checkout' )->isBotBlockRequired() ) {
 			$wpError->add( 'shield-user-checkout', $this->getErrorMessage() );
 		}
 	}
@@ -32,7 +32,7 @@ class WooCommerce extends Base {
 	 * @return \WP_User|\WP_Error
 	 */
 	public function checkLogin_Woo( $wpError, $username ) {
-		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'login' )->checkIsBot() ) {
+		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
 			$this->setAuditUser( $username );
 			$wpError->add( 'shield-user-login', $this->getErrorMessage() );
 		}
@@ -45,7 +45,7 @@ class WooCommerce extends Base {
 	 * @return \WP_Error
 	 */
 	public function checkRegister_Woo( $wpError, $username ) {
-		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$this->setAuditUser( $username );
 			$wpError->add( 'shield-user-register', $this->getErrorMessage() );
 		}

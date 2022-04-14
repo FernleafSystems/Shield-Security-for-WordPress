@@ -8,7 +8,7 @@ class SupportCandy extends Base {
 
 	protected function run() {
 		add_filter( 'wpsc_before_create_ticket_args', function ( $args ) {
-			if ( $this->isSpam() ) {
+			if ( $this->isBotBlockRequired() ) {
 				Services::WpGeneral()->wpDie( $this->getCommonSpamMessage() );
 			}
 			return $args;

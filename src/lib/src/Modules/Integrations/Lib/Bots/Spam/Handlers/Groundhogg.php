@@ -6,7 +6,7 @@ class Groundhogg extends Base {
 
 	protected function run() {
 		add_filter( 'groundhogg/form/submission_handler/is_spam', function ( $wasSpam ) {
-			return $wasSpam || $this->isSpam();
+			return $wasSpam || $this->isBotBlockRequired();
 		}, 1000 );
 	}
 

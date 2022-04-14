@@ -11,7 +11,7 @@ class WpForo extends Base {
 				// It should be an array, but customer reported fatal error with a boolean passed
 				if ( is_array( $args ) ) {
 					$status = $args[ 'status' ] ?? null;
-					if ( $status !== 1 && $this->isSpam() ) {
+					if ( $status !== 1 && $this->isBotBlockRequired() ) {
 						if ( !empty( WPF()->current_userid ) ) {
 							WPF()->moderation->ban_for_spam( WPF()->current_userid );
 						}

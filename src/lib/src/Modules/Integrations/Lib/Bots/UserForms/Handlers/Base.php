@@ -18,8 +18,6 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	 */
 	private $auditUser;
 
-	private static $isBot = null;
-
 	protected function run() {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
@@ -62,7 +60,6 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	/**
-	 * @param string $action
 	 * @return $this
 	 */
 	protected function setAuditAction( string $action ) {
@@ -71,7 +68,6 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	/**
-	 * @param string $user
 	 * @return $this
 	 */
 	protected function setAuditUser( string $user ) {
@@ -79,21 +75,23 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 		return $this;
 	}
 
-	public function checkIsBot() :bool {
-		if ( is_null( self::$isBot ) ) {
-			self::$isBot = $this->isBot();
-			$this->getCon()->fireEvent(
-				sprintf( 'user_form_bot_%s', self::$isBot ? 'fail' : 'pass' ),
-				[
-					'audit_params' => [
-						'form_provider' => $this->getHandlerName(),
-						'action'        => $this->getAuditAction(),
-						'username'      => $this->getAuditUser(),
-					]
+	protected function fireBotEvent() {
+		$this->getCon()->fireEvent(
+			sprintf( 'user_form_bot_%s', $this->isBot() ? 'fail' : 'pass' ),
+			[
+				'audit_params' => [
+					'form_provider' => $this->getHandlerName(),
+					'action'        => $this->getAuditAction(),
+					'username'      => $this->getAuditUser(),
 				]
-			);
-		}
-		return self::$isBot;
+			]
+		);
+	}
+
+	protected function isBotBlockEnabled() :bool {
+		/** @var LoginGuard\Options $loginOpts */
+		$loginOpts = $this->getCon()->getModule_LoginGuard()->getOptions();
+		return $loginOpts->isEnabledAntiBot();
 	}
 
 	protected function getErrorMessage() :string {

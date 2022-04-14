@@ -30,7 +30,7 @@ class WordPress extends Base {
 		if ( !is_wp_error( $userOrError ) || empty( $userOrError->get_error_codes() ) ) {
 			$this->setAuditAction( 'login' )
 				 ->setAuditUser( $username );
-			if ( $this->checkIsBot() ) {
+			if ( $this->isBotBlockRequired() ) {
 				$userOrError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 				remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 				remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
@@ -52,7 +52,7 @@ class WordPress extends Base {
 			else {
 				$this->setAuditUser( sanitize_user( Services::Request()->post( 'user_login', '' ) ) );
 			}
-			if ( $this->checkIsBot() ) {
+			if ( $this->isBotBlockRequired() ) {
 				$wpError->add( 'shield-fail-lostpassword', $this->getErrorMessage() );
 			}
 		}
@@ -67,7 +67,7 @@ class WordPress extends Base {
 		if ( !is_wp_error( $wpError ) || empty( $wpError->get_error_codes() ) ) {
 			$this->setAuditAction( 'register' )
 				 ->setAuditUser( $username );
-			if ( $this->checkIsBot() ) {
+			if ( $this->isBotBlockRequired() ) {
 				$wpError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 			}
 		}
