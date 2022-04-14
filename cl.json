@@ -1,4 +1,55 @@
 {
+  "15.0": {
+    "version":     "15.0",
+    "released_at": 1649932802,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease150",
+      "upgrade": "https://shsec.io/shieldupgradeguide150"
+    },
+    "title":       "Rules Engine",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Rules Engine",
+        "description": [
+          "Massive performance and processing optimisations with a brand new core Shield Rules Engine.",
+          "All requests are now processed using a unique and customisable (future releases) set of rules."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Removed: Legacy Comment SPAM Detection",
+        "description": [
+          "We've completely removed the older, less reliable comment spam detection using Javascript and CAPTCHAs.",
+          "Please use the newer AntiBot Detection Engine."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Author Discovery/Fishing",
+        "description": [
+          "This feature is now a Bot Signal which is logged in the Audit Trail and triggers offenses."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Massive Performance Improvements",
+        "description": [
+          "Shield has undergone major enhancements and performance improvements."
+        ],
+        "list":        [
+          "Reduced duplicate and unnecessary DB requests.",
+          "Consolidated and removed many excess Transients (fewer DB requests).",
+          "Optimised several DB queries."
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "14.1": {
     "version":     "14.1",
     "released_at": 1647269718,

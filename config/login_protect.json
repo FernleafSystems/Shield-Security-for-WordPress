@@ -119,6 +119,14 @@
       ]
     },
     {
+      "slug":        "section_deprecated",
+      "title":       "Deprecated Options",
+      "title_short": "Deprecated Options",
+      "summary":     [
+        "These options will be removed in the future. Please use the ADE option under Bot SPAM section."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -365,7 +373,7 @@
     },
     {
       "key":         "enable_login_gasp_check",
-      "section":     "section_brute_force_login_protection",
+      "section":     "section_deprecated",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3r",
@@ -377,7 +385,7 @@
     },
     {
       "key":           "enable_google_recaptcha_login",
-      "section":       "section_brute_force_login_protection",
+      "section":       "section_deprecated",
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -411,7 +419,7 @@
     },
     {
       "key":         "antibot_form_ids",
-      "section":     "section_brute_force_login_protection",
+      "section":     "section_deprecated",
       "advanced":    true,
       "premium":     true,
       "type":        "array",
@@ -475,7 +483,7 @@
     },
     {
       "key":         "text_imahuman",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "premium":     true,
       "default":     "default",
@@ -488,7 +496,7 @@
     },
     {
       "key":         "text_pleasecheckbox",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "premium":     true,
       "default":     "default",
