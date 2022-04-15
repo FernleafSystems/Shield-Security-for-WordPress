@@ -32,8 +32,18 @@ class UI extends Base\UI {
 						],
 						[
 							'type'      => 'http-equiv',
+							'type_type' => 'Cache-Control',
+							'content'   => 'max-age=0',
+						],
+						[
+							'type'      => 'http-equiv',
 							'type_type' => 'Expires',
 							'content'   => '0',
+						],
+						[
+							'type'      => 'name',
+							'type_type' => 'robots',
+							'content'   => implode( ',', [ 'noindex', 'nofollow', 'noarchve', 'noimageindex' ] ),
 						],
 					],
 					'scripts' => []

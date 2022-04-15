@@ -39,34 +39,45 @@
 	{% endblock %}
 </head>
 {% block body %}
-	<body>
-		{% block body_header %}
-		{% endblock %}
-
-		{% block body_content %}
-			<div class="container-fluid">
-			{% block body_content_header %}
-				<div class="row">
-					<div class="col-4 offset-4"></div>
-				</div>
+	{% block html_tag_body %}<body>{% endblock html_tag_body %}
+		<main>
+			{% block body_start %}
 			{% endblock %}
-				{% block body_content_main %}
-					<div class="row">
-					<div class="col-4 offset-4"></div>
-				</div>
-				{% endblock %}
-				{% block body_content_footer %}
-					<div class="row">
-					<div class="col-4 offset-4"></div>
-				</div>
-				{% endblock %}
-		</div>
-		{% endblock %}
 
-		{% block body_footer %}
-		{% endblock %}
+			{% block body_header %}
+			{% endblock %}
 
-		{% block body_footer_scripts %}
+			{% block body_content %}
+				<div class="container-fluid">
+				{% block body_content_header %}
+					<div class="row">
+						<div class="col-4 offset-4"></div>
+					</div>
+				{% endblock %}
+					{% block body_content_main %}
+						<div class="row">
+						<div class="col-4 offset-4"></div>
+					</div>
+					{% endblock %}
+					{% block body_content_footer %}
+						<div class="row">
+						<div class="col-4 offset-4"></div>
+					</div>
+					{% endblock %}
+			</div>
+			{% endblock %}
+
+			{% block body_footer %}
+			{% endblock %}
+
+			{% block body_footer_scripts %}
+			{% endblock %}
+
+			{% block body_end %}
+			{% endblock %}
+		</main>
+
+		{% block pre_body_close %}
 		{% endblock %}
 	</body>
 {% endblock %}
