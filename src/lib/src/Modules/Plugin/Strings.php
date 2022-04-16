@@ -275,8 +275,11 @@ class Strings extends Base\Strings {
 
 			case 'enable_upgrade_admin_notice' :
 				$name = __( 'In-Plugin Notices', 'wp-simple-firewall' );
-				$summary = __( 'Display Plugin Specific Notices', 'wp-simple-firewall' );
-				$desc = __( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.', 'wp-simple-firewall' );
+				$summary = __( 'Display Non-Essential Plugin Notices And Admin Bar Menu', 'wp-simple-firewall' );
+				$desc = [
+					__( 'By default Shield displays non-essential notices in the admin area and admin bar.', 'wp-simple-firewall' ),
+					__( 'These notices can be hidden by switching off this option.', 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'display_plugin_badge' :

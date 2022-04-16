@@ -237,6 +237,28 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "8",
+        "released_at": 1649164738,
+        "items":       [
+          {
+            "title": "Display of Shield's Admin Menu Bar items can be controlled using a plugin configuration option.",
+            "type":  "improved"
+          },
+          {
+            "title": "REST API supports non-permalinks style requests (?rest_route=), regardless of permalinks configuration.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Fix for non-URL-encoding of password reset URL parameters when using Rename Login feature.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Traffic Request Log wasn't correctly indicating a request was an offense in the log viewer.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
