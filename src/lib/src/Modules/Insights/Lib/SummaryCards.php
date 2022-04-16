@@ -64,8 +64,7 @@ class SummaryCards {
 		return [
 			$mod->getSlug() => [
 				'title'   => 'Comment SPAM',
-				'enabled' => $mod->isModuleEnabled()
-							 && $opts->isEnabledAntiBot(),
+				'enabled' => !$mod->isModuleEnabled() || $opts->isEnabledAntiBot(),
 				'href'    => $mod->getUrl_AdminPage(),
 			]
 		];
