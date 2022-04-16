@@ -150,19 +150,6 @@
       "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
     },
     {
-      "key":         "auto_filter_results",
-      "section":     "section_file_guard",
-      "premium":     false,
-      "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
-      "beacon_id":   439,
-      "name":        "Auto-Filter Results",
-      "summary":     "Automatically Filter Results Of Irrelevant Items",
-      "description": "Automatically remove items from results that are irrelevant."
-    },
-    {
       "key":         "scan_path_exclusions",
       "section":     "section_file_guard",
       "advanced":    true,

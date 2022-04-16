@@ -120,7 +120,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_scan_wpv' :
-				$shortTitle = __( 'Vulnerabilities', 'wp-simple-firewall' );
+				$shortTitle = sprintf( '%s, %s, %s', __( 'Vulnerabilities', 'wp-simple-firewall' ),
+					__( 'Plugins', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) );
 				$title = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.', 'wp-simple-firewall' ) ),
@@ -316,15 +317,6 @@ class Strings extends Base\Strings {
 				$name = __( 'Show Re-Install Links', 'wp-simple-firewall' );
 				$summary = __( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' );
 				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
-				break;
-
-			case 'auto_filter_results' :
-				$name = __( 'Auto-Filter Results', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Filter Results Of Irrelevant Items', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Automatically remove items from results that are irrelevant.', 'wp-simple-firewall' ),
-					__( "An example of this is filtering out results for PHP files that don't have any executable code.", 'wp-simple-firewall' ),
-				];
 				break;
 
 			case 'scan_path_exclusions' :

@@ -107,7 +107,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isAutoFilterResults() :bool {
-		return $this->isOpt( 'auto_filter_results', 'Y' );
+		return (bool)apply_filters( 'shield/scan_auto_filter_results', true );
 	}
 
 	public function isPtgReinstallLinks() :bool {
