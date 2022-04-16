@@ -61,16 +61,6 @@
       ]
     },
     {
-      "slug":        "section_realtime",
-      "title":       "Realtime Change Detection",
-      "title_short": "Realtime Change Detection",
-      "beacon_id":   226,
-      "summary":     [
-        "Purpose - Monitor Your WordPress Site For Changes To Critical Components In Realtime.",
-        "Recommendation - Keep The Realtime Change Detection Active."
-      ]
-    },
-    {
       "slug":        "section_scan_options",
       "title":       "Scan Options",
       "title_short": "Scan Options",
@@ -150,6 +140,37 @@
       "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
     },
     {
+      "key":           "file_locker",
+      "section":       "section_file_guard",
+      "premium":       true,
+      "type":          "multiple_select",
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "wpconfig",
+          "text":      "WP Config"
+        },
+        {
+          "value_key": "root_htaccess",
+          "text":      "Root .htaccess"
+        },
+        {
+          "value_key": "root_index",
+          "text":      "Root index.php"
+        },
+        {
+          "value_key": "root_webconfig",
+          "text":      "Root Web.Config"
+        }
+      ],
+      "link_info":     "https://shsec.io/h7",
+      "link_blog":     "https://shsec.io/h8",
+      "beacon_id":     226,
+      "name":          "File Locker",
+      "summary":       "Lock Files Against Tampering and Changes",
+      "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
+    },
+    {
       "key":         "scan_path_exclusions",
       "section":     "section_file_guard",
       "advanced":    true,
@@ -210,37 +231,6 @@
       "name":        "Automatic Updates",
       "summary":     "Apply Updates Automatically To Vulnerable Plugins",
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
-    },
-    {
-      "key":           "file_locker",
-      "section":       "section_realtime",
-      "premium":       true,
-      "type":          "multiple_select",
-      "default":       [],
-      "value_options": [
-        {
-          "value_key": "wpconfig",
-          "text":      "WP Config"
-        },
-        {
-          "value_key": "root_htaccess",
-          "text":      "Root .htaccess"
-        },
-        {
-          "value_key": "root_index",
-          "text":      "Root index.php"
-        },
-        {
-          "value_key": "root_webconfig",
-          "text":      "Root Web.Config"
-        }
-      ],
-      "link_info":     "https://shsec.io/h7",
-      "link_blog":     "https://shsec.io/h8",
-      "beacon_id":     226,
-      "name":          "File Locker",
-      "summary":       "Lock Files Against Tampering and Changes",
-      "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
     },
     {
       "key":           "scan_frequency",

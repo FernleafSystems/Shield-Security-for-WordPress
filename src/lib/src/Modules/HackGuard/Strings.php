@@ -141,17 +141,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_realtime' :
-				$shortTitle = __( 'Realtime Change Detection', 'wp-simple-firewall' );
-				$title = __( 'Realtime Change Detection', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
-						__( 'Monitor Your WordPress Site For Changes To Critical Components In Realtime.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						sprintf( __( 'Enable The Realtime Change Detection Features.', 'wp-simple-firewall' ), $title ) )
-				];
-				break;
-
 			case 'section_scan_apc' :
 				$title = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
 				$shortTitle = __( 'Abandoned Plugins', 'wp-simple-firewall' );

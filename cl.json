@@ -45,6 +45,13 @@
           "Consolidated and removed many excess Transients (fewer DB requests).",
           "Optimised several DB queries."
         ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Option Removed: Auto-Filter Scan Results",
+        "description": [
+          "Shield will now filter unnecessary scan results automatically. This can be adjusted using a WP filter."
+        ]
       }
     ],
     "patches":     [
