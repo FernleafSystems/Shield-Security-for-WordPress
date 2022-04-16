@@ -192,6 +192,10 @@
         "released_at": 1649164738,
         "items":       [
           {
+            "title": "Display of Shield's Admin Menu Bar items can be controlled using a plugin configuration option.",
+            "type":  "improved"
+          },
+          {
             "title": "REST API supports non-permalinks style requests (?rest_route=), regardless of permalinks configuration.",
             "type":  "fixed"
           },

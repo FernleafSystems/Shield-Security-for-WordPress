@@ -21,6 +21,10 @@ class Options extends Base\Options {
 		return $this->getCon()->isPremiumActive();
 	}
 
+	public function isShowPluginNotices() :bool {
+		return $this->isShowPromoAdminNotices();
+	}
+
 	public function isShowPromoAdminNotices() :bool {
 		return $this->getCon()
 					->getModule_Plugin()

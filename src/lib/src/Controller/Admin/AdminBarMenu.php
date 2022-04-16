@@ -13,7 +13,7 @@ class AdminBarMenu {
 	protected function canRun() :bool {
 		$con = $this->getCon();
 		return $con->getMeetsBasePermissions() &&
-			   apply_filters( $con->prefix( 'shield/show_admin_bar_menu' ), $con->cfg->properties[ 'show_admin_bar_menu' ] );
+			   apply_filters( 'shield/show_admin_bar_menu', $con->cfg->properties[ 'show_admin_bar_menu' ] );
 	}
 
 	protected function run() {

@@ -29,7 +29,12 @@ abstract class Processor {
 	}
 
 	public function onWpAdminInit() {
-		add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
+		/** @var Shield\Modules\Plugin\Options $optsPlugin */
+		$optsPlugin = $this->getCon()->getModule_Plugin()->getOptions();
+		// @deprecated 14.1.8
+		if ( method_exists( $optsPlugin, 'isShowPluginNotices' ) && $optsPlugin->isShowPluginNotices() ) {
+			add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
+		}
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
