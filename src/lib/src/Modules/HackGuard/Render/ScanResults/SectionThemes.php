@@ -93,7 +93,60 @@ class SectionThemes extends SectionPluginThemesBase {
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
 
-		$data = [
+		$flags = [
+			'has_update'      => $theme->hasUpdate(),
+			'is_abandoned'    => !empty( $abandoned ),
+			'has_guard_files' => !empty( $guardFilesData ),
+			'is_active'       => $theme->active || $theme->is_parent,
+			'is_ignored'      => $theme->active || $theme->is_parent,
+			'is_vulnerable'   => !empty( $vulnerabilities ),
+			'is_wporg'        => $theme->isWpOrg(),
+			'is_child'        => $theme->is_child,
+			'is_parent'       => $theme->is_parent,
+		];
+
+		$isCheckActive = apply_filters( 'shield/scans_check_theme_active', true );
+		$isCheckUpdates = apply_filters( 'shield/scans_check_theme_update', true );
+
+		$flags[ 'has_issue' ] = $flags[ 'is_abandoned' ]
+								|| $flags[ 'has_guard_files' ]
+								|| $flags[ 'is_vulnerable' ];
+		$flags[ 'has_warning' ] = !$flags[ 'has_issue' ]
+								  && (
+									  ( $isCheckActive && !$flags[ 'is_active' ] )
+									  ||
+									  ( $isCheckUpdates && $flags[ 'has_update' ] )
+								  );
+
+
+		if ( $theme->isWpOrg() && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
+			$wpOrgThemes = implode( '|', array_map( function ( $ver ) {
+				return 'twenty'.$ver;
+			}, [
+				'twentyseven',
+				'twentysix',
+				'twentyfive',
+				'twentyfour',
+				'twentythree',
+				'twentytwo',
+				'twentyone',
+				'twenty',
+				'nineteen',
+				'seventeen',
+				'sixteen',
+				'fifteen',
+				'fourteen',
+				'thirteen',
+				'twelve',
+				'eleven',
+				'ten',
+			] ) );
+			if ( preg_match( sprintf( '#^%s$#', $wpOrgThemes ), strtolower( (string)$theme->slug ) ) ) {
+				$flags[ 'has_warning' ] = false;
+			}
+		}
+
+		return [
 			'info'  => [
 				'type'         => 'theme',
 				'name'         => $theme->Name,
@@ -121,57 +174,11 @@ class SectionThemes extends SectionPluginThemesBase {
 					'https://shsec.io/shieldvulnerabilitylookup'
 				),
 			],
-			'flags' => [
-				'has_update'      => $theme->hasUpdate(),
-				'is_abandoned'    => !empty( $abandoned ),
-				'has_guard_files' => !empty( $guardFilesData ),
-				'is_active'       => $theme->active || $theme->is_parent,
-				'is_ignored'      => $theme->active || $theme->is_parent,
-				'is_vulnerable'   => !empty( $vulnerabilities ),
-				'is_wporg'        => $theme->isWpOrg(),
-				'is_child'        => $theme->is_child,
-				'is_parent'       => $theme->is_parent,
-			],
+			'flags' => $flags,
 			'vars'  => [
 				'count_items' => count( $guardFilesData ) + count( $vulnerabilities )
 								 + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
-		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
-										  || $data[ 'flags' ][ 'has_guard_files' ]
-										  || $data[ 'flags' ][ 'is_vulnerable' ];
-		$data[ 'flags' ][ 'has_warning' ] = !$data[ 'flags' ][ 'has_issue' ]
-											&& (
-												!$data[ 'flags' ][ 'is_active' ]
-												|| $data[ 'flags' ][ 'has_update' ]
-											);
-		if ( $theme->isWpOrg() && $data[ 'flags' ][ 'has_warning' ] && !$data[ 'flags' ][ 'has_update' ] ) {
-			$wpOrgThemes = implode( '|', array_map( function ( $ver ) {
-				return 'twenty'.$ver;
-			}, [
-				'twentyseven',
-				'twentysix',
-				'twentyfive',
-				'twentyfour',
-				'twentythree',
-				'twentytwo',
-				'twentyone',
-				'twenty',
-				'nineteen',
-				'seventeen',
-				'sixteen',
-				'fifteen',
-				'fourteen',
-				'thirteen',
-				'twelve',
-				'eleven',
-				'ten',
-			] ) );
-			if ( preg_match( sprintf( '#^%s$#', $wpOrgThemes ), strtolower( (string)$theme->slug ) ) ) {
-				$data[ 'flags' ][ 'has_warning' ] = false;
-			}
-		}
-
-		return $data;
 	}
 }

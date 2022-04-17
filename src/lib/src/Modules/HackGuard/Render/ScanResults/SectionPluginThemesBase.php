@@ -12,8 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class SectionPluginThemesBase extends SectionBase {
 
 	protected function getCommonRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return Services::DataManipulation()
 					   ->mergeArraysRecursive( parent::getCommonRenderData(), [
 						   'strings' => [

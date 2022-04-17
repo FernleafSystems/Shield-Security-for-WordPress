@@ -48,6 +48,13 @@
       },
       {
         "type":        "improved",
+        "title":       "New Filters: Adjust scanner notices about plugin/theme update/active status",
+        "description": [
+          "You can now use filters to adjust whether Shield warns about inactive plugins/themes or those with updates."
+        ]
+      },
+      {
+        "type":        "improved",
         "title":       "Option Removed: Auto-Filter Scan Results",
         "description": [
           "Shield will now filter unnecessary scan results automatically. This can be adjusted using a WP filter."
