@@ -1,41 +1,6 @@
 {% extends '/pages/block/base_block_page.twig' %}
 
-{% block body_content %}
-	<div class="row">
-    <div class="col-lg-6 col-md-9 mx-auto text-start mt-5">
-      <h3 class="">Restriction Details</h3>
-      <p class="mb-2">
-	      This website uses a security service to monitor requests, checking for activity that isn't normal or expected.
-      </p>
-      <p class="mb-2">
-	      Unfortunately, your IP address has been identified as having sent too many requests to the site
-	      that triggered the automated defenses.
-      </p>
-    </div>
-  </div>
-
-	<div class="row">
-    <div class="col-lg-6 col-md-9 mx-auto d-flex justify-content-end my-3">
-	    <table class="table table-compact table-sm">
-		    <tr>
-			    <th class="text-start">Your IP Address</th>
-			    <td class="text-end px-2">{{ vars.visitor_ip }}</td>
-		    </tr>
-		    <tr>
-			    <th class="text-start">Restrictions Lifted</th>
-			    <td class="text-end px-2">{{ vars.time_remaining }}</td>
-		    </tr>
-		    <tr>
-			    <th class="text-start">Time Now</th>
-			    <td class="text-end px-2">{{ vars.time_now }}</td>
-		    </tr>
-		    <tr>
-			    <th class="text-start">Homepage</th>
-			    <td class="text-end px-2">{{ vars.home_url }}</td>
-		    </tr>
-	    </table>
-    </div>
-  </div>
+{% block page_actions %}
 
 	<div class="row">
 		<div class="col-lg-6 col-md-9 mx-auto mb-3">
@@ -54,7 +19,6 @@
   </div>
 
 	<div class="row">
-
 		<div class="col-md-3 offset-md-3 mb-3">
 			<div class="alert alert-secondary">
 		      Please contact site admin to request your IP address is unblocked.
@@ -67,7 +31,6 @@
 		      <a href="{{ hrefs.how_to_unblock }}" target="_blank">please review this guide</a>.
 			</div>
     </div>
-
   </div>
 
 {% endblock %}

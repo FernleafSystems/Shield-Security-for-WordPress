@@ -8,6 +8,11 @@ abstract class BaseTemplateRenderer {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @var array
+	 */
+	private $aux = [];
+
 	public function render() :string {
 		try {
 			$output = $this->getCon()
@@ -23,6 +28,10 @@ abstract class BaseTemplateRenderer {
 		return $output;
 	}
 
+	public function getAuxData() :array {
+		return $this->aux;
+	}
+
 	protected function getData() :array {
 		return [];
 	}
@@ -34,4 +43,9 @@ abstract class BaseTemplateRenderer {
 	abstract protected function getTemplateBaseDir() :string;
 
 	abstract protected function getTemplateStub() :string;
+
+	public function setAuxData( array $aux ) {
+		$this->aux = $aux;
+		return $this;
+	}
 }

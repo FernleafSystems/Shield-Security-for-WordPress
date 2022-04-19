@@ -15,7 +15,6 @@ class ProcessOffenses extends ExecOnceModConsumer {
 		$mod->loadOffenseTracker()->setIfCommit( true );
 
 		$con = $this->getCon();
-		add_filter( 'shield/firewall_die_message', [ $this, 'augmentFirewallDieMessage' ] );
 		add_action( $con->prefix( 'pre_plugin_shutdown' ), function () {
 			$this->processOffense();
 		} );
@@ -33,26 +32,6 @@ class ProcessOffenses extends ExecOnceModConsumer {
 				->setIp( Services::IP()->getRequestIp() )
 				->run();
 		}
-	}
-
-	/**
-	 * @param array $msg
-	 * @return array
-	 */
-	public function augmentFirewallDieMessage( $msg ) {
-		if ( !is_array( $msg ) ) {
-			$msg = [];
-		}
-
-		$msg[] = sprintf( '<p>%s</p>', sprintf(
-			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
-			max( 0, ( new IPs\Components\QueryRemainingOffenses() )
-				->setMod( $this->getMod() )
-				->setIP( Services::IP()->getRequestIp() )
-				->run() )
-		) );
-
-		return $msg;
 	}
 
 	/**

@@ -145,15 +145,6 @@ class ModCon extends BaseShield\ModCon {
 				);
 				break;
 
-			case 'text_remainingtrans':
-				$text = sprintf( '%s: %s',
-					__( 'Warning', 'wp-simple-firewall' ),
-					__( 'You have %s remaining offenses(s) against this site and then your IP address will be completely blocked.', 'wp-simple-firewall' )
-					.'<br/><strong>'.__( 'Seriously, stop repeating what you are doing or you will be locked out.', 'wp-simple-firewall' ).'</strong>'
-					.sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldcantaccess', __( 'More Info', 'wp-simple-firewall' ) )
-				);
-				break;
-
 			default:
 				$text = parent::getTextOptDefault( $key );
 				break;

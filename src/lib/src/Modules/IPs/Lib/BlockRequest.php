@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\IpBlocked;
+use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 
 class BlockRequest extends ExecOnceModConsumer {
@@ -13,7 +13,7 @@ class BlockRequest extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		( new IpBlocked() )
+		( new RenderBlockIP() )
 			->setMod( $this->getMod() )
 			->display();
 	}

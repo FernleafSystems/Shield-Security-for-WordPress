@@ -248,20 +248,6 @@
       "name":        "Ignore Administrators",
       "summary":     "Ignore Administrators",
       "description": "Authenticated administrator users will not be processed by the firewall rules."
-    },
-    {
-      "key":         "text_firewalldie",
-      "section":     "section_user_messages",
-      "sensitive":   true,
-      "premium":     true,
-      "default":     "default",
-      "type":        "text",
-      "beacon_id":   139,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Firewall Block Message",
-      "summary":     "Message Displayed To Visitor When A Firewall Block Is Triggered",
-      "description": "When you select the option to display a message to the visitor, this is the message that is displayed."
     }
   ],
   "definitions": {

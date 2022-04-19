@@ -17,18 +17,59 @@
 
 				<h1 class="display-4 fw-bold mb-3">
 					{% block block_header_title %}
-						Access Restricted
+						{{ strings.title|default('NO TITLE') }}
 					{% endblock %}
 			  </h1>
 
 	      <p class="lead mb-1">
 	        {% block block_header_subtitle %}
-	          Access from your IP address or location has been temporarily restricted.
+		        {{ strings.subtitle|default('NO SUBTITLE') }}
 	        {% endblock %}
 	      </p>
 
 	    </div>
 	  </div>
+	{% endblock %}
+
+	{% block body_content %}
+
+		{% block body_restriction_details %}
+
+			<div class="row">
+		    <div class="col-lg-6 col-md-9 mx-auto text-start mt-5">
+		      <h3 class="">{{ strings.restriction_details|default('Restriction Details') }}</h3>
+
+			    {% block restriction_details_blurb %}
+				    {% for blurb in strings.restriction_details_blurb %}
+					    <p class="mb-2">
+						    {{ blurb }}
+					    </p>
+				    {% endfor %}
+			    {% endblock %}
+
+		    </div>
+		  </div>
+
+			{% block restriction_details_points %}
+				<div class="row">
+			    <div class="col-lg-6 col-md-9 mx-auto d-flex justify-content-end my-3">
+				    <table class="table table-compact table-sm">
+					    {% for row_header,row_content in vars.restriction_details_points %}
+						    <tr>
+							    <th class="text-start">{{ row_header }}</th>
+							    <td class="text-end px-2">{{ row_content }}</td>
+						    </tr>
+					    {% endfor %}
+				    </table>
+			    </div>
+			  </div>
+			{% endblock %}
+
+		{% endblock %}
+
+		{% block page_actions %}
+		{% endblock %}
+
 	{% endblock %}
 
 	{% block body_footer %}
@@ -62,23 +103,6 @@
 	    </div>
 	{% endblock %}
 
-{% block body_end %}
+	{% block body_end %}
 </div>
 {% endblock %}
-
-
-
-
-
-{% block body_content %}
-
-	  {% block block_body %}
-		  <div class="row">
-		    <div class="col-lg-6 col-md-9 mx-auto text-start mt-5">
-			    body of block page here
-		    </div>
-	    </div>
-	  {% endblock %}
-
-	{#  {{ content.inner|raw }} #}
-{% endblock body_content %}

@@ -563,20 +563,6 @@
       "description":   "Identify a request as a bot if the user agent is not provided."
     },
     {
-      "key":         "text_remainingtrans",
-      "section":     "section_user_messages",
-      "sensitive":   true,
-      "premium":     true,
-      "default":     "default",
-      "type":        "text",
-      "link_info":   "https://shsec.io/e9",
-      "link_blog":   "",
-      "beacon_id":   139,
-      "name":        "Remaining Offenses",
-      "summary":     "Visitor Triggers The IP Offenses System Through A Firewall Block",
-      "description": "This message is displayed if the visitor triggered the IP Offenses system and reports how many offenses remain before being blocked."
-    },
-    {
       "key":          "autounblock_ips",
       "section":      "section_non_ui",
       "transferable": false,

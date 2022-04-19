@@ -6,40 +6,30 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
-class IpBlocked extends BaseBlockPage {
+class RenderBlockIP extends BaseBlockPage {
 
 	protected function getPageSpecificData() :array {
 		$con = $this->getCon();
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
-		$labels = $con->getLabels();
-		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-
-		$timeRemaining = Services::Request()->carbon()->addSeconds( $opts->getAutoExpireTime() )->diffForHumans();
 
 		$autoUnblock = $this->renderAutoUnblock();
 		$magicLink = $this->renderEmailMagicLinkContent();
 
 		return [
 			'content' => [
-				'email_unblock' => $magicLink,
 				'auto_unblock'  => $autoUnblock,
+				'email_unblock' => $magicLink,
 			],
 			'flags'   => [
-				'has_magiclink'   => empty( $magicLink ),
+				'has_magiclink'   => !empty( $magicLink ),
 				'has_autorecover' => !empty( $autoUnblock ),
 			],
 			'hrefs'   => [
 				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
 			],
-			'imgs'    => [
-				'banner' => $bannerURL,
-			],
 			'strings' => [
-				'page_title' => sprintf( '%s - %s', __( 'Access Restricted', 'wp-simple-firewall' ), $con->getHumanName() ),
-			],
-			'vars'    => [
-				'time_remaining' => $timeRemaining,
+				'page_title' => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'title'      => __( 'Access Restricted', 'wp-simple-firewall' ),
+				'subtitle'   => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -77,6 +67,29 @@ class IpBlocked extends BaseBlockPage {
 		}
 
 		return $content;
+	}
+
+	protected function getRestrictionDetailsBlurb() :array {
+		return array_merge(
+			parent::getRestrictionDetailsBlurb(),
+			[
+				__( "Too many requests from your IP address triggered the automated defenses.", 'wp-simple-firewall' ),
+			]
+		);
+	}
+
+	protected function getRestrictionDetailsPoints() :array {
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
+		return array_merge(
+			[
+				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()
+																			 ->carbon()
+																			 ->addSeconds( $opts->getAutoExpireTime() )
+																			 ->diffForHumans(),
+			],
+			parent::getRestrictionDetailsPoints()
+		);
 	}
 
 	private function renderEmailMagicLinkContent() :string {

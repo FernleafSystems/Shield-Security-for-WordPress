@@ -97,16 +97,9 @@ class FirewallHandler extends ExecOnceModConsumer {
 	}
 
 	protected function getFirewallDieMessage() :array {
-		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
-		$customMessage = $this->getMod()->getTextOpt( 'text_firewalldie' );
-
-		$messages = apply_filters(
-			'shield/firewall_die_message',
-			[
-				empty( $customMessage ) ? $default : $customMessage,
-			]
-		);
-		return is_array( $messages ) ? $messages : [ $default ];
+		return [
+			__( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' )
+		];
 	}
 
 	private function sendBlockEmail() :bool {

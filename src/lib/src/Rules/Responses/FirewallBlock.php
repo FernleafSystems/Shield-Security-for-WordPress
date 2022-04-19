@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockFirewall;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -28,7 +29,10 @@ class FirewallBlock extends Base {
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
 			case 'redirect_die_message':
-				Services::WpGeneral()->wpDie( implode( ' ', $this->getFirewallDieMessage() ) );
+				( new RenderBlockFirewall() )
+					->setMod( $mod )
+					->setAuxData( $this->getConsolidatedConditionMeta() )
+					->display();
 				break;
 			case 'redirect_home':
 				Services::Response()->redirectToHome();
@@ -41,20 +45,6 @@ class FirewallBlock extends Base {
 				break;
 		}
 		die();
-	}
-
-	private function getFirewallDieMessage() :array {
-		$mod = $this->getCon()->getModule_Firewall();
-		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
-		$customMessage = $mod->getTextOpt( 'text_firewalldie' );
-
-		$messages = apply_filters(
-			'shield/firewall_die_message',
-			[
-				empty( $customMessage ) ? $default : $customMessage,
-			]
-		);
-		return is_array( $messages ) ? $messages : [ $default ];
 	}
 
 	private function preBlock() {

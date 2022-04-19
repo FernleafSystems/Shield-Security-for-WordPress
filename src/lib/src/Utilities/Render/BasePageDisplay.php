@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BasePageDisplay extends BaseTemplateRenderer {
-
 	public function display() {
 		$this->issueHeaders();
 		echo $this->render();
@@ -27,6 +26,9 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 	protected function getData() :array {
 		$con = $this->getCon();
 		$WP = Services::WpGeneral();
+		$labels = $con->getLabels();
+		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
+
 		return [
 			'flags'   => [
 				'is_whitelabelled' => $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled()
@@ -41,6 +43,7 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 			],
 			'imgs'    => [
 				'about_shield' => $con->urls->forImage( 'pluginlogo_128x128.png' ),
+				'banner'       => $bannerURL,
 				'favicon'      => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'strings' => [

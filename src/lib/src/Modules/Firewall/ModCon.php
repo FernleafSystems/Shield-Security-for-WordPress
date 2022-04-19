@@ -33,22 +33,4 @@ class ModCon extends BaseShield\ModCon {
 		$response = $this->getOptions()->getOpt( 'block_response', '' );
 		return !empty( $response ) ? $response : 'redirect_die_message'; // TODO: use default
 	}
-
-	public function getTextOptDefault( string $key ) :string {
-
-		switch ( $key ) {
-			case 'text_firewalldie':
-				$text = sprintf(
-					__( "You were blocked by the %s Firewall.", 'wp-simple-firewall' ),
-					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
-																										->getHumanName().'</a>'
-				);
-				break;
-
-			default:
-				$text = parent::getTextOptDefault( $key );
-				break;
-		}
-		return $text;
-	}
 }
