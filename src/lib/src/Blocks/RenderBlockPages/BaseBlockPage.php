@@ -37,7 +37,8 @@ abstract class BaseBlockPage extends BasePageDisplay {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [
-			__( "This website uses a security service to monitor requests, checking for activity that isn't normal or expected.", 'wp-simple-firewall' ),
+			'this_website'      => __( "This website uses a security service to monitor requests to check for activity that is malicious, abnormal or unexpected.", 'wp-simple-firewall' ),
+			'activity_recorded' => __( "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated.", 'wp-simple-firewall' ),
 		];
 	}
 

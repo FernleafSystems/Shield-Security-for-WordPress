@@ -35,7 +35,7 @@ class RenderBlockIP extends BaseBlockPage {
 	}
 
 	protected function getTemplateStub() :string {
-		return 'ip_blocked';
+		return 'block_page_ip';
 	}
 
 	private function renderAutoUnblock() :string {
@@ -70,12 +70,14 @@ class RenderBlockIP extends BaseBlockPage {
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
-		return array_merge(
-			parent::getRestrictionDetailsBlurb(),
+		$blurb = array_merge(
 			[
-				__( "Too many requests from your IP address triggered the automated defenses.", 'wp-simple-firewall' ),
-			]
+				__( "Too many requests from your IP address have triggered the site's automated defenses.", 'wp-simple-firewall' ),
+			],
+			parent::getRestrictionDetailsBlurb()
 		);
+		unset( $blurb[ 'activity_recorded' ] );
+		return $blurb;
 	}
 
 	protected function getRestrictionDetailsPoints() :array {

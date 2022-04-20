@@ -22,7 +22,8 @@ class FirewallBlock extends Base {
 
 		remove_filter( 'wp_robots', 'wp_robots_noindex_search' );
 		remove_filter( 'wp_robots', 'wp_robots_noindex_embeds' );
-		header( 'Cache-Control: no-store, no-cache' );
+		Services::WpGeneral()->turnOffCache();
+		nocache_headers();
 
 		switch ( $mod->getBlockResponse() ) {
 			case 'redirect_die':
@@ -38,7 +39,6 @@ class FirewallBlock extends Base {
 				Services::Response()->redirectToHome();
 				break;
 			case 'redirect_404':
-				Services::WpGeneral()->turnOffCache();
 				Services::Response()->sendApache404();
 				break;
 			default:

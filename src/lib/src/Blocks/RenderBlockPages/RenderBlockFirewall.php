@@ -15,7 +15,6 @@ class RenderBlockFirewall extends BaseBlockPage {
 				'page_title' => sprintf( '%s | %s', __( 'Request Blocked by Firewall', 'wp-simple-firewall' ), $con->getHumanName() ),
 				'title'      => __( 'Request Blocked', 'wp-simple-firewall' ),
 				'subtitle'   => __( 'Firewall terminated the request because it triggered a firewall rule.', 'wp-simple-firewall' ),
-				'message'    => $this->getFirewallDieMessage(),
 			],
 		];
 	}
@@ -25,8 +24,8 @@ class RenderBlockFirewall extends BaseBlockPage {
 			__( "Data scanned in this request matched at least 1 firewall rule and is considered potentially dangerous.", 'wp-simple-firewall' )
 		] );
 		return array_merge(
-			parent::getRestrictionDetailsBlurb(),
-			is_array( $messages ) ? $messages : []
+			is_array( $messages ) ? $messages : [],
+			parent::getRestrictionDetailsBlurb()
 		);
 	}
 
@@ -52,21 +51,7 @@ class RenderBlockFirewall extends BaseBlockPage {
 		);
 	}
 
-	private function getFirewallDieMessage() :array {
-		$mod = $this->getCon()->getModule_Firewall();
-		$default = __( "Something in the request URL or Form data triggered the firewall.", 'wp-simple-firewall' );
-		$customMessage = $mod->getTextOpt( 'text_firewalldie' );
-
-		$messages = apply_filters(
-			'shield/firewall_die_message',
-			[
-				empty( $customMessage ) ? $default : $customMessage,
-			]
-		);
-		return is_array( $messages ) ? $messages : [ $default ];
-	}
-
 	protected function getTemplateStub() :string {
-		return 'firewall_blocked';
+		return 'block_page_standard';
 	}
 }

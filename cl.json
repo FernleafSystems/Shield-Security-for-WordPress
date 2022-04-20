@@ -21,6 +21,13 @@
       },
       {
         "type":        "new",
+        "title":       "Brand New Shield Block Pages",
+        "description": [
+          "We now supply much more refined block pages for the user for all scenarios: firewall, IP block, username fishing."
+        ]
+      },
+      {
+        "type":        "new",
         "title":       "Removed: Legacy Comment SPAM Detection",
         "description": [
           "We've completely removed the older, less reliable comment spam detection using Javascript and CAPTCHAs.",

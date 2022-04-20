@@ -42,7 +42,7 @@
 			    {% block restriction_details_blurb %}
 				    {% for blurb in strings.restriction_details_blurb %}
 					    <p class="mb-2">
-						    {{ blurb }}
+						    {{ blurb|raw }}
 					    </p>
 				    {% endfor %}
 			    {% endblock %}
@@ -51,7 +51,7 @@
 		  </div>
 
 			{% block restriction_details_points %}
-				<div class="row">
+			<div class="row">
 			    <div class="col-lg-6 col-md-9 mx-auto d-flex justify-content-end my-3">
 				    <table class="table table-compact table-sm">
 					    {% for row_header,row_content in vars.restriction_details_points %}
@@ -63,7 +63,7 @@
 				    </table>
 			    </div>
 			  </div>
-			{% endblock %}
+		{% endblock %}
 
 		{% endblock %}
 
