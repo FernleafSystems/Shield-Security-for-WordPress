@@ -16,9 +16,10 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	const SCAN_CATEGORY = '';
 
 	protected function getName() :string {
-		return $this->getMod()
-					->getStrings()
-					->getOptionStrings( 'block_'.static::SCAN_CATEGORY )[ 'name' ];
+		return sprintf( '%s: %s', __( 'Firewall', 'wp-simple-firewall' ),
+			$this->getMod()
+				 ->getStrings()
+				 ->getOptionStrings( 'block_'.static::SCAN_CATEGORY )[ 'name' ] );
 	}
 
 	protected function getCommonAuditParamsMapping() :array {

@@ -11,6 +11,10 @@ trait RulesControllerConsumer {
 	 */
 	protected $rulesCon;
 
+	public function getRulesCon() :RulesController {
+		return $this->rulesCon;
+	}
+
 	public function setRulesCon( RulesController $rulesCon ) {
 		$this->rulesCon = $rulesCon;
 		return $this;
