@@ -5,12 +5,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
-		$this->dbIntegrity();
+		$this->checkEmail( '' );
 		die( 'finish' );
+	}
+
+	private function checkEmail( string $email ) {
+		$apiToken = $this->getCon()
+						 ->getModule_License()
+						 ->getWpHashesTokenManager()
+						 ->getToken();
+		if ( !empty( $apiToken ) ) {
+			$verifys = ( new Email( $apiToken ) )->getEmailVerification( $email );
+			var_dump( $verifys );
+		}
 	}
 
 	private function dbIntegrity() {

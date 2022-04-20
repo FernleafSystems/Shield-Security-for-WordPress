@@ -3,14 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SessionController {
+class SessionController extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	use WpLoginCapture;
 
 	/**
 	 * @var SessionVO
@@ -29,6 +30,25 @@ class SessionController {
 	 */
 	private $sessionID;
 
+	protected function run() {
+		if ( !Services::WpUsers()->isProfilePage() && !Services::IP()->isLoopback() ) { // only on logout
+			add_action( 'clear_auth_cookie', function () {
+				$this->getCurrentWP();
+			}, 0 );
+		}
+
+		$this->setToCaptureApplicationLogin( true )
+			 ->setAllowMultipleCapture( true )
+			 ->setupLoginCaptureHooks();
+	}
+
+	protected function captureLogin( \WP_User $user ) {
+		if ( !empty( $this->getLoggedInCookie() ) ) {
+			$this->getCurrentWP();
+			$this->getCon()->fireEvent( 'login_success' );
+		}
+	}
+
 	public function getCurrentWP() :SessionVO {
 
 		if ( !isset( $this->currentWP ) ) {
@@ -36,12 +56,17 @@ class SessionController {
 		}
 
 		$WPUsers = Services::WpUsers();
-		if ( !$this->currentWP->valid && did_action( 'init' ) && $WPUsers->isUserLoggedIn() ) {
+		if ( !$this->currentWP->valid ) {
 
-			foreach ( [ 'logged_in', 'secure_auth', 'auth' ] as $type ) {
-				$parsed = wp_parse_auth_cookie( '', $type );
-				if ( !empty( $parsed ) ) {
-					break;
+			if ( !empty( $this->getLoggedInCookie() ) ) {
+				$parsed = wp_parse_auth_cookie( $this->getLoggedInCookie() );
+			}
+			if ( empty( $parsed ) ) {
+				foreach ( [ 'logged_in', 'secure_auth', 'auth' ] as $type ) {
+					$parsed = wp_parse_auth_cookie( '', $type );
+					if ( !empty( $parsed ) ) {
+						break;
+					}
 				}
 			}
 

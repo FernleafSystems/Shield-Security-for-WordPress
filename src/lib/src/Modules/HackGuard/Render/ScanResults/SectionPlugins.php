@@ -91,8 +91,8 @@ class SectionPlugins extends SectionPluginThemesBase {
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
 
-		$isCheckActive = apply_filters( 'shield/scans_check_plugin_active', false );
-		$isCheckUpdates = apply_filters( 'shield/scans_check_plugin_update', false );
+		$isCheckActive = apply_filters( 'shield/scans_check_plugin_active', true );
+		$isCheckUpdates = apply_filters( 'shield/scans_check_plugin_update', true );
 
 		$flags = [
 			'has_update'      => $plugin->hasUpdate(),

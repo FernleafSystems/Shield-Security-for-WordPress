@@ -1,10 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -216,10 +215,8 @@ class UserSuspendController extends ExecOnceModConsumer {
 			$mod = $this->getMod();
 			$mod->addRemoveHardSuspendUser( $user, $isSuspend );
 
-			if ( $isSuspend ) { // Delete any existing user sessions
-				( new Terminate() )
-					->setMod( $con->getModule_Sessions() )
-					->byUsername( $user->user_login );
+			if ( $isSuspend ) {
+				\WP_Session_Tokens::get_instance( $user->ID )->destroy_all();
 			}
 		}
 	}
