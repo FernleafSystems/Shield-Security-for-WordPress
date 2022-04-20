@@ -22,6 +22,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function preProcessOptions() {
+		$WP = Services::WpGeneral();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $this->isModuleOptionsRequest() && $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
@@ -51,9 +52,8 @@ class ModCon extends BaseShield\ModCon {
 
 		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
 
-		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' )
-			 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ) ) {
-			$opts->resetOptToDefault( 'mfa_verify_page' );
+		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' ) && !$WP->getWordpressIsAtLeastVersion( '4.0' ) ) {
+			$opts->setOpt( 'mfa_verify_page', 'custom_shield' );
 		}
 
 		$redirect = preg_replace( '#[^0-9a-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );

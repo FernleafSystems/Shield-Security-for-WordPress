@@ -86,9 +86,9 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_multifactor_authentication' :
-				$title = __( 'Multi-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( 'Multi-Factor Auth', 'wp-simple-firewall' );
+			case 'section_twofactor_auth' :
+				$title = __( 'Two-Factor Authentication', 'wp-simple-firewall' );
+				$titleShort = __( 'Two-Factor Auth', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.', 'wp-simple-firewall' ) ),
 					__( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' )
@@ -97,7 +97,7 @@ class Strings extends Base\Strings {
 
 			case 'section_2fa_email' :
 				$title = __( 'Email Two-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( '2FA Email', 'wp-simple-firewall' );
+				$titleShort = __( '2FA By Email', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '.__( 'However, if your host blocks email sending you may lock yourself out.', 'wp-simple-firewall' ) ),
@@ -190,8 +190,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mfa_verify_page' :
-				$name = __( 'MFA Verification Page', 'wp-simple-firewall' );
-				$summary = __( 'Type Of MFA Verification Page', 'wp-simple-firewall' );
+				$name = __( '2FA Verification Page', 'wp-simple-firewall' );
+				$summary = __( 'Type Of 2FA Verification Page', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Choose the type of page provided to users for MFA verification.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
@@ -202,8 +202,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mfa_user_setup_pages' :
-				$name = __( 'User 2FA Setup', 'wp-simple-firewall' );
-				$summary = __( 'User 2FA Setup Page Locations', 'wp-simple-firewall' );
+				$name = __( '2FA Config For Users', 'wp-simple-firewall' );
+				$summary = __( '2FA Config Pages For User Control', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Specify pages available to users to configure 2FA on their account.', 'wp-simple-firewall' ),
 					__( 'At least 1 option must be provided and defaults to the user profile page within the WP admin area.', 'wp-simple-firewall' )
@@ -213,13 +213,16 @@ class Strings extends Base\Strings {
 			case 'mfa_skip' :
 				$name = __( '2FA Remember Me', 'wp-simple-firewall' );
 				$summary = __( 'A User Can Bypass 2FA For The Set Number Of Days', 'wp-simple-firewall' );
-				$desc = __( 'Enter the number of days a user can bypass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
+				$desc = __( 'The number of days a user can bypass 2FA after a successful 2FA. 0 to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'allow_backupcodes' :
 				$name = __( 'Allow Backup Codes', 'wp-simple-firewall' );
 				$summary = __( 'Allow Users To Generate A Backup Code', 'wp-simple-firewall' );
-				$desc = __( 'Allow users to generate a backup code that can be used to login if MFA factors are unavailable.', 'wp-simple-firewall' );
+				$desc = [
+					__( "Allow users to generate a backup 2FA login code.", 'wp-simple-firewall' ),
+					__( "These may be used by the user when they don't have access to their normal 2FA methods.", 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'enable_google_authenticator' :

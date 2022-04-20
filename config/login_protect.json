@@ -45,6 +45,17 @@
       ]
     },
     {
+      "slug":        "section_twofactor_auth",
+      "title":       "Multi-Factor Authentication",
+      "title_short": "2-Factor Auth",
+      "beacon_id":   326,
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
       "slug":        "section_2fa_email",
       "title":       "Email Two-Factor Authentication",
       "title_short": "2FA - Email",
@@ -73,17 +84,6 @@
       "beacon_id":   249,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
-        "Note: You may combine multiple authentication factors for increased security."
-      ]
-    },
-    {
-      "slug":        "section_multifactor_authentication",
-      "title":       "Multi-Factor Authentication",
-      "title_short": "2-Factor Auth",
-      "beacon_id":   326,
-      "summary":     [
-        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
         "Note: You may combine multiple authentication factors for increased security."
       ]
     },
@@ -175,17 +175,17 @@
     },
     {
       "key":           "mfa_verify_page",
-      "section":       "section_multifactor_authentication",
-      "default":       "custom_shield",
+      "section":       "section_twofactor_auth",
+      "default":       "wp_login",
       "type":          "select",
       "value_options": [
         {
-          "value_key": "custom_shield",
-          "text":      "Custom Shield MFA Page"
+          "value_key": "wp_login",
+          "text":      "WP Login Page"
         },
         {
-          "value_key": "wp_login",
-          "text":      "WP Login Page (beta)"
+          "value_key": "custom_shield",
+          "text":      "Custom Shield MFA Page"
         }
       ],
       "link_info":     "",
@@ -197,7 +197,7 @@
     },
     {
       "key":           "mfa_user_setup_pages",
-      "section":       "section_multifactor_authentication",
+      "section":       "section_twofactor_auth",
       "type":          "multiple_select",
       "default":       [
         "profile"
@@ -221,7 +221,7 @@
     },
     {
       "key":         "mfa_skip",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_twofactor_auth",
       "premium":     true,
       "type":        "integer",
       "default":     0,
@@ -235,7 +235,7 @@
     },
     {
       "key":         "allow_backupcodes",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_twofactor_auth",
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
