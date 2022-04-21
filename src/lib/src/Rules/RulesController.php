@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	AttemptToAccessNonExistingRuleException,
 	NoConditionActionDefinedException,
@@ -18,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\{
 	ResponseProcessor
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
-use FernleafSystems\Wordpress\Services\Services;
 
 class RulesController {
 
@@ -30,6 +28,15 @@ class RulesController {
 	 * @var RuleVO[]
 	 */
 	private $rules;
+
+	/**
+	 * @var RulesStorageHandler
+	 */
+	private $storageHandler;
+
+	public function __construct() {
+		$this->storageHandler = ( new RulesStorageHandler() )->setRulesCon( $this );
+	}
 
 	protected function canRun() :bool {
 		return !$this->getCon()->this_req->rules_completed;
@@ -45,7 +52,7 @@ class RulesController {
 
 		// Rebuild the rules when configuration is updated
 		add_action( $this->getCon()->prefix( 'pre_options_store' ), function () {
-			$this->buildRules();
+			$this->storageHandler->buildAndStore();
 		} );
 
 		// Rebuild the rules every hour
@@ -60,7 +67,7 @@ class RulesController {
 	}
 
 	public function runHourlyCron() {
-		$this->buildRules();
+		$this->storageHandler->buildAndStore();
 	}
 
 	public function getRulesResultsSummary() :array {
@@ -70,12 +77,6 @@ class RulesController {
 			},
 			$this->getRules()
 		);
-	}
-
-	private function buildRules() {
-		( new Builder() )
-			->setCon( $this->getCon() )
-			->run( $this );
 	}
 
 	private function processRules() {
@@ -128,7 +129,9 @@ class RulesController {
 					function ( $rule ) {
 						return ( new RuleVO() )->applyFromArray( $rule );
 					},
-					$this->load()[ 'rules' ]
+					( new RulesStorageHandler() )
+						->setRulesCon( $this )
+						->loadRules()[ 'rules' ]
 				);
 			}
 			catch ( \Exception $e ) {
@@ -136,10 +139,6 @@ class RulesController {
 			}
 		}
 		return $this->rules;
-	}
-
-	private function getPathToRules() :string {
-		return path_join( __DIR__, 'rules.json' );
 	}
 
 	/**
@@ -215,42 +214,9 @@ class RulesController {
 		return $theHandlerClass;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function load( bool $attemptRebuild = true ) :array {
-		$rules = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'rules' ) );
-		if ( ( empty( $rules[ 'rules' ] ) || !is_array( $rules[ 'rules' ] ) ) && $attemptRebuild ) {
-			$this->buildRules();
-			$rules = $this->load( false );
-			Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'rules' ), $rules );
-		}
-
-		if ( !is_array( $rules[ 'rules' ] ) || empty( $rules[ 'rules' ] ) ) {
-			throw new \Exception( 'No rules to load' );
-		}
-
-		return $rules;
-	}
-
-	public function store( array $rules ) :bool {
-		$WP = Services::WpGeneral();
-		$req = Services::Request();
-		$data = [
-			'ts'    => $req->ts(),
-			'time'  => $WP->getTimeStampForDisplay( $req->ts() ),
-			'rules' => array_map( function ( RuleVO $rule ) {
-				return $rule->getRawData();
-			}, $rules ),
-		];
-		$WP->updateOption( $this->getCon()->prefix( 'rules' ), $data );
-		return Services::WpFs()->putFileContent( $this->getPathToRules(), wp_json_encode( $data ) );
-	}
-
 	private function verifyRulesStatus() :bool {
-		// Rebuild the rules upon upgrade or settings change
-		if ( $this->getCon()->cfg->rebuilt ) {
-			$this->buildRules();
+		if ( $this->getCon()->cfg->rebuilt ) { // Rebuild the rules upon upgrade or settings change
+			$this->storageHandler->buildAndStore();
 		}
 		return !empty( $this->getRules() );
 	}

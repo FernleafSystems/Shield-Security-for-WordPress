@@ -13,8 +13,6 @@ class Processor extends BaseShield\Processor {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 
 		$this->removePluginConflicts();
 		( new Lib\OverrideLocale() )
@@ -28,7 +26,7 @@ class Processor extends BaseShield\Processor {
 			->setMod( $this->getMod() )
 			->execute();
 
-		if ( $opts->isOpt( 'importexport_enable', 'Y' ) ) {
+		if ( $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) ) {
 			$mod->getImpExpController()->execute();
 		}
 

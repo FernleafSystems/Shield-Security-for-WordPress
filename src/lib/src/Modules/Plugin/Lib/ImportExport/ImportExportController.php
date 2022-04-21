@@ -12,7 +12,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	use Shield\Crons\PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return $this->getCon()->isPremiumActive();
+		return $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) && $this->getCon()->isPremiumActive();
 	}
 
 	protected function run() {

@@ -73,7 +73,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $source
 	 * @return $this
 	 */
 	public function setVisitorAddressSource( string $source ) {
