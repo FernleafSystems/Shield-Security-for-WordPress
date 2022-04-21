@@ -49,6 +49,10 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
+					'rule'         => Shield\Modules\IPs\Rules\Build\IpBlocked::SLUG,
+					'invert_match' => true
+				],
+				[
 					'condition' => Conditions\RequestHasParameters::SLUG,
 				],
 			]
