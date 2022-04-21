@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
+use FernleafSystems\Wordpress\Services\Utilities\Render;
 
-abstract class BaseTemplateRenderer {
+class BaseTemplateRenderer {
 
 	use PluginControllerConsumer;
 
@@ -13,14 +16,36 @@ abstract class BaseTemplateRenderer {
 	 */
 	private $aux = [];
 
+	/**
+	 * @var array
+	 */
+	private $renderData = [];
+
+	/**
+	 * @var string
+	 */
+	private $renderTemplate = '';
+
 	public function render() :string {
 		try {
-			$output = $this->getCon()
-						   ->getRenderer()
-						   ->setTemplateEngineTwig()
-						   ->setTemplate( $this->getTemplate() )
-						   ->setRenderVars( $this->getData() )
-						   ->render();
+			$renderer = $this->getRenderer();
+
+			$template = $this->getTemplate();
+			if ( empty( $template ) ) {
+				throw new \Exception( 'No template provided for render' );
+			}
+
+			$ext = Paths::Ext( $template );
+			if ( empty( $ext ) || strtolower( $ext ) === 'twig' ) {
+				$renderer->setTemplateEngineTwig();
+			}
+			else {
+				$renderer->setTemplateEnginePhp();
+			}
+
+			$output = $renderer->setTemplate( $template )
+							   ->setRenderVars( $this->getRenderData() )
+							   ->render();
 		}
 		catch ( \Exception $e ) {
 			$output = $e->getMessage();
@@ -28,24 +53,44 @@ abstract class BaseTemplateRenderer {
 		return $output;
 	}
 
+	protected function getRenderer() :Render {
+		return $this->getCon()->getRenderer();
+	}
+
 	public function getAuxData() :array {
 		return $this->aux;
 	}
 
-	protected function getData() :array {
-		return [];
+	protected function getRenderData() :array {
+		return $this->renderData;
 	}
 
 	protected function getTemplate() :string {
-		return rtrim( $this->getTemplateBaseDir(), '/' ).'/'.ltrim( $this->getTemplateStub(), '/' );
+		return empty( $this->renderTemplate ) ?
+			rtrim( $this->getTemplateBaseDir(), '/' ).'/'.ltrim( $this->getTemplateStub(), '/' )
+			: $this->renderTemplate;
 	}
 
-	abstract protected function getTemplateBaseDir() :string;
+	protected function getTemplateBaseDir() :string {
+		return '';
+	}
 
-	abstract protected function getTemplateStub() :string;
+	protected function getTemplateStub() :string {
+		return '';
+	}
 
 	public function setAuxData( array $aux ) {
 		$this->aux = $aux;
+		return $this;
+	}
+
+	public function setRenderData( array $data ) {
+		$this->renderData = $data;
+		return $this;
+	}
+
+	public function setTemplate( string $template ) {
+		$this->renderTemplate = $template;
 		return $this;
 	}
 }

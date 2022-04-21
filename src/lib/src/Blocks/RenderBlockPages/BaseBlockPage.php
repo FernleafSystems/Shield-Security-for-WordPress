@@ -14,10 +14,10 @@ abstract class BaseBlockPage extends BasePageDisplay {
 		return 503;
 	}
 
-	protected function getData() :array {
+	protected function getRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$this->getMod()->getUIHandler()->getBaseDisplayData(),
-			parent::getData(),
+			parent::getRenderData(),
 			[
 				'strings' => [
 					'restriction_details'       => __( 'Restriction Details', 'wp-simple-firewall' ),

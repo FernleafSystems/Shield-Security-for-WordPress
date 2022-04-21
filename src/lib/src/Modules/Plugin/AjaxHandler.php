@@ -28,9 +28,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
 				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
+				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
 			] );
 		}
 		return $map;
+	}
+
+	public function ajaxExec_RenderDashboardWidget() :array {
+		return [
+			'success' => true,
+			'html'    => ( new Components\DashboardWidget() )
+				->setMod( $this->getMod() )
+				->render()
+		];
 	}
 
 	public function ajaxExec_Wizard() :array {
@@ -117,17 +127,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$sItemId = Services::Request()->post( 'rid' );
-		if ( empty( $sItemId ) ) {
+		$noteID = Services::Request()->post( 'rid' );
+		if ( empty( $noteID ) ) {
 			$msg = __( 'Note not found.', 'wp-simple-firewall' );
 		}
 		else {
 			try {
-				$bSuccess = $mod->getDbHandler_Notes()
-								->getQueryDeleter()
-								->deleteById( $sItemId );
+				$success = $mod->getDbHandler_Notes()
+							   ->getQueryDeleter()
+							   ->deleteById( $noteID );
 
-				if ( $bSuccess ) {
+				if ( $success ) {
 					$msg = __( 'Note deleted', 'wp-simple-firewall' );
 				}
 				else {
@@ -165,7 +175,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			try {
 				$code = ( new Plugin\Lib\ImportExport\Import() )
 					->setMod( $this->getMod() )
-					->fromSite( (string)$formParams[ 'MasterSiteUrl' ],  (string)$formParams[ 'MasterSiteSecretKey' ], $doNetwork );
+					->fromSite( (string)$formParams[ 'MasterSiteUrl' ], (string)$formParams[ 'MasterSiteSecretKey' ], $doNetwork );
 			}
 			catch ( \Exception $e ) {
 				$code = $e->getCode();

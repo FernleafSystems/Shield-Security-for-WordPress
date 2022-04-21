@@ -1150,39 +1150,11 @@ abstract class ModCon {
 		return [];
 	}
 
-	/**
-	 * @param array  $aData
-	 * @param string $sSubView
-	 */
-	protected function display( $aData = [], $sSubView = '' ) {
-	}
-
-	public function renderTemplate( string $template, array $data = [], bool $isTwig = false ) :string {
-		if ( empty( $data[ 'unique_render_id' ] ) ) {
-			$data[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
-		}
-		try {
-			$rndr = $this->getCon()->getRenderer();
-			if ( $isTwig || preg_match( '#^.*\.twig$#i', $template ) ) {
-				$rndr->setTemplateEngineTwig();
-			}
-
-			$data[ 'strings' ] = Services::DataManipulation()
-										 ->mergeArraysRecursive(
-											 $this->getStrings()->getDisplayStrings(),
-											 $data[ 'strings' ] ?? []
-										 );
-
-			$render = $rndr->setTemplate( $template )
-						   ->setRenderVars( $data )
-						   ->render();
-		}
-		catch ( \Exception $e ) {
-			$render = $e->getMessage();
-			error_log( $e->getMessage() );
-		}
-
-		return (string)$render;
+	public function renderTemplate( string $template, array $data = [] ) :string {
+		return $this->getRenderer()
+					->setTemplate( $template )
+					->setRenderData( $data )
+					->render();
 	}
 
 	public function getMainWpData() :array {
@@ -1248,6 +1220,15 @@ abstract class ModCon {
 	 */
 	public function getStrings() {
 		return $this->loadStrings()->setMod( $this );
+	}
+
+	/**
+	 * @return mixed|Shield\Modules\Base\Renderer
+	 */
+	public function getRenderer() {
+		/** @var Renderer $r */
+		$r = $this->loadModElement( 'Renderer' );
+		return $r->setMod( $this );
 	}
 
 	/**

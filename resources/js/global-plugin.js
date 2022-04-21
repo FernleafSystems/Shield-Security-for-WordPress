@@ -56,7 +56,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 			data: reqData,
 			dataType: "text",
 			success: function ( raw ) {
-				var resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+				let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
 				if ( typeof resp.data.show_toast === typeof undefined || resp.data.show_toast ) {
 
@@ -76,7 +76,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 				}
 
 				if ( triggerEvent.length > 0 ) {
-					jQuery( document ).trigger( 'shield-'+triggerEvent, resp );
+					jQuery( document ).trigger( 'shield-' + triggerEvent, resp );
 				}
 				else if ( resp.data.page_reload ) {
 					setTimeout( function () {
@@ -246,6 +246,34 @@ var iCWP_WPSF_Growl = new function () {
 		return $oDiv;
 	};
 
+}();
+
+let Shield_WP_Dashboard_Widget = new function () {
+	let widgetContainer = function () {
+		return jQuery( '#ShieldDashboardWidget' );
+	};
+	let render = function () {
+		jQuery.ajax( {
+			type: "POST",
+			url: ajaxurl,
+			data: icwp_wpsf_vars_dashboardwidget.ajax_render,
+			dataType: "json",
+			success: function ( raw ) {
+				console.log( raw );
+				widgetContainer().html( raw.data.html );
+			}
+		} ).fail( function () {
+			widgetContainer().text( 'There was a problem loading the content.' )
+			console.log( 'Something went wrong with the request - it was either blocked or there was an error.' );
+		} );
+	};
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			if ( typeof icwp_wpsf_vars_dashboardwidget !== 'undefined' ) {
+				render();
+			}
+		} );
+	};
 }();
 
 var iCWP_WPSF_BodyOverlay = new function () {

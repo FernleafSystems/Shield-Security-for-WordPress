@@ -37,7 +37,11 @@ class FindSessions {
 
 		$DB = Services::WpDb();
 		$results = $DB->selectCustom(
-			sprintf( 'SELECT `user_meta`.user_id as user_id, INET6_NTOA(`ips`.ip) as ip, `wp_users`.user_login as user_login
+			sprintf( 'SELECT `user_meta`.user_id as user_id,
+       					`user_meta`.last_login_at as last_login_at,
+       					INET6_NTOA(`ips`.ip) as ip,
+       					`wp_users`.user_login as user_login
+
 						FROM `%s` as `user_meta`
 						INNER JOIN `%s` as `ips`
 						    ON `user_meta`.ip_ref = `ips`.id

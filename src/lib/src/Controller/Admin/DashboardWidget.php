@@ -26,9 +26,11 @@ class DashboardWidget {
 		$con = $this->getCon();
 		wp_add_dashboard_widget(
 			$con->prefix( 'dashboard_widget' ),
-			apply_filters( $con->prefix( 'dashboard_widget_title' ), $con->getHumanName() ),
+			apply_filters( 'shield/dashboard_widget_title',
+				sprintf( '%s: %s', $con->getHumanName(), __( 'Overview', 'wp-simple-firewall' ) ) ),
 			function () {
-				do_action( $this->getCon()->prefix( 'dashboard_widget_content' ) );
+				echo '<div id="ShieldDashboardWidget">loading ... </div>'.
+					 "<script>jQuery( document ).ready( function () { typeof Shield_WP_Dashboard_Widget !== 'undefined'? Shield_WP_Dashboard_Widget.initialise() :null; } );</script>";
 			}
 		);
 	}

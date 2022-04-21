@@ -358,4 +358,44 @@ tr.icwp-plugin-vulnerability dd {
 	padding: 0 0 5px;
 }
 
+#ShieldDashboardWidget a {
+	color: #008000 !important;
+}
+#ShieldDashboardWidget table thead th {
+	background-color: #97b797;
+	color: white;
+	font-weight: bolder;
+	text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+#ShieldDashboardWidget table.table-recent {
+	border-collapse: collapse;
+	box-shadow: 3px 3px 2px rgb(0 0 0 / 10%);
+}
+#ShieldDashboardWidget .mini-scrolling-table {
+	overflow: auto;
+	min-height: 60px;
+	max-height: 150px;
+}
+#ShieldDashboardWidget .mini-scrolling-table th {
+	padding: 2px 10px;
+
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+#ShieldDashboardWidget .jump-buttons {
+	margin: 10px auto;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 7px;
+}
+
+#ShieldDashboardWidget .subheader {
+	font-weight: bolder;
+	margin-top: 1rem;
+}
+
 /* override boostrap */

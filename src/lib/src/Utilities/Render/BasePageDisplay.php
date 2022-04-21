@@ -23,7 +23,7 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 		die();
 	}
 
-	protected function getData() :array {
+	protected function getRenderData() :array {
 		$con = $this->getCon();
 		$WP = Services::WpGeneral();
 		$labels = $con->getLabels();

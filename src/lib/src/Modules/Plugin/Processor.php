@@ -37,6 +37,24 @@ class Processor extends BaseShield\Processor {
 		add_action( $con->prefix( 'dashboard_widget_content' ), function () {
 			$this->printDashboardWidget();
 		}, 11 );
+		add_action( 'admin_init', function () {
+			$this->handleDashboardWidget();
+		}, 11 );
+	}
+
+	private function handleDashboardWidget() {
+		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			$localz[] = [
+				'global-plugin',
+				'icwp_wpsf_vars_dashboardwidget',
+				[
+					'ajax_render' => $mod->getAjaxActionData( 'render_dashboard_widget' ),
+				]
+			];
+			return $localz;
+		}, 10, 2 );
 	}
 
 	private function printDashboardWidget() {

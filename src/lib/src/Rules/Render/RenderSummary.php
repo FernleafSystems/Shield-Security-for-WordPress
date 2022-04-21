@@ -8,7 +8,7 @@ class RenderSummary extends RenderBase {
 		return 'summary/summary';
 	}
 
-	protected function getData() :array {
+	protected function getRenderData() :array {
 		$rulesCon = $this->getRulesCon();
 		$rules = $rulesCon->getRules();
 

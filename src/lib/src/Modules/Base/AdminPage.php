@@ -64,8 +64,10 @@ class AdminPage extends ExecOnceModConsumer {
 	protected function renderModulePage( array $data = [] ) :string {
 		return $this->getMod()->renderTemplate(
 			'index.php',
-			Services::DataManipulation()->mergeArraysRecursive( $this->getMod()->getUIHandler()
-																	 ->getBaseDisplayData(), $data )
+			Services::DataManipulation()->mergeArraysRecursive(
+				$this->getMod()->getUIHandler()->getBaseDisplayData(),
+				$data
+			)
 		);
 	}
 

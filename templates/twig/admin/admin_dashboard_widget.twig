@@ -1,0 +1,110 @@
+<a class="shield-logo" href="{{ hrefs.logo }}" target="_blank" style="display: block">
+	<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
+</a>
+
+<h3 style="font-weight: bolder;">Recently Blocked IPs</h3>
+
+{% if vars.recent_ips_blocked|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>IP</th>
+				<th>Blocked</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for ip in vars.recent_ips_blocked %}
+				<tr>
+					<td>
+						{% if flags.show_internal_links %}
+							<a href="{{ ip.ip_href }}" target="_blank">{{ ip.ip }}</a>
+						{% else %}
+							{{ ip.ip }}
+						{% endif %}
+					</td>
+					<td>{{ ip.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p>No IP blocks recorded yet.</p>
+{% endif %}
+
+<h3 class="subheader">Recent Offenses</h3>
+
+{% if vars.recent_ips_offense|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>IP</th>
+				<th>Last Offense</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for ip in vars.recent_ips_offense %}
+				<tr>
+					<td>
+						{% if flags.show_internal_links %}
+							<a href="{{ ip.ip_href }}" target="_blank">{{ ip.ip }}</a>
+						{% else %}
+							{{ ip.ip }}
+						{% endif %}
+					</td>
+					<td>{{ ip.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p>No IP offenses recorded yet.</p>
+{% endif %}
+
+<h3 class="subheader">Recent User Sessions</h3>
+{% if vars.recent_users|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>User</th>
+				<th>IP</th>
+				<th>Session Started</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for session in vars.recent_users %}
+				<tr>
+					<td>
+						<a href="{{ session.user_href }}" target="_blank">{{ session.user }}</a>
+					</td>
+
+					<td>
+						{% if flags.show_internal_links %}
+							<a href="{{ session.ip_href }}" target="_blank">{{ session.ip }}</a>
+						{% else %}
+							{{ session.ip }}
+						{% endif %}
+					</td>
+
+					<td>{{ session.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p>No new session activity recorded yet.</p>
+{% endif %}
+
+{% if flags.show_internal_links %}
+	<div class="jump-buttons">
+	{% for jump_link in vars.jump_links %}
+		<a href="{{ jump_link.href }}">{{ jump_link.text }}</a>
+	{% endfor %}
+		<a href="javascript:{ Shield_WP_Dashboard_Widget.initialise() }">Refresh</a>
+	</div>
+{% endif %}
