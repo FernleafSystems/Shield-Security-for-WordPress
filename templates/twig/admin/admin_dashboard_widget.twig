@@ -2,7 +2,7 @@
 	<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
 </a>
 
-<h3 style="font-weight: bolder;">Recently Blocked IPs</h3>
+<h3 class="subheader">Recently Blocked IPs</h3>
 
 {% if vars.recent_ips_blocked|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
@@ -30,7 +30,7 @@
 		</table>
 	</div>
 {% else %}
-	<p>No IP blocks recorded yet.</p>
+	<p class="no-entries">No IP blocks recorded yet.</p>
 {% endif %}
 
 <h3 class="subheader">Recent Offenses</h3>
@@ -61,7 +61,7 @@
 		</table>
 	</div>
 {% else %}
-	<p>No IP offenses recorded yet.</p>
+	<p class="no-entries">No IP offenses recorded yet.</p>
 {% endif %}
 
 <h3 class="subheader">Recent User Sessions</h3>
@@ -97,14 +97,42 @@
 		</table>
 	</div>
 {% else %}
-	<p>No new session activity recorded yet.</p>
+	<p class="no-entries">No new session activity recorded yet.</p>
 {% endif %}
 
-{% if flags.show_internal_links %}
-	<div class="jump-buttons">
-	{% for jump_link in vars.jump_links %}
-		<a href="{{ jump_link.href }}">{{ jump_link.text }}</a>
-	{% endfor %}
-		<a href="javascript:{ Shield_WP_Dashboard_Widget.initialise() }">Refresh</a>
+<h3 class="subheader">Recent Activity</h3>
+{% if vars.recent_events|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>Events</th>
+				<th>Time</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for event in vars.recent_events %}
+				<tr>
+					<td>
+						{{ event.name }}
+					</td>
+					<td>
+						{{ event.at }}
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
 	</div>
+{% else %}
+	<p class="no-entries">No new session activity recorded yet.</p>
 {% endif %}
+
+<div class="jump-buttons">
+	{% if flags.show_internal_links %}
+		{% for jump_link in vars.jump_links %}
+			<a href="{{ jump_link.href }}">{{ jump_link.text }}</a>
+		{% endfor %}
+	{% endif %}
+	<a href="javascript:{ Shield_WP_Dashboard_Widget.initialise() }">Refresh</a>
+</div>

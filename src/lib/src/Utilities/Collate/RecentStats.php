@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs as IPsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
@@ -13,12 +13,12 @@ class RecentStats {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var EntryVO[]
+	 * @var IPsDB\EntryVO[]
 	 */
 	private static $recentlyBlocked;
 
 	/**
-	 * @var EntryVO[]
+	 * @var IPsDB\EntryVO[]
 	 */
 	private static $recentlyOffended;
 
@@ -27,9 +27,14 @@ class RecentStats {
 	 */
 	private static $recentUserSessions;
 
+	/**
+	 * @var EventsDB\EntryVO[]
+	 */
+	private static $recentEvents;
+
 	public function getRecentlyBlockedIPs() :array {
 		if ( !isset( self::$recentlyBlocked ) ) {
-			/** @var Select $sel */
+			/** @var IPsDB\Select $sel */
 			$sel = $this->getCon()->getModule_IPs()->getDbHandler_IPs()->getQuerySelector();
 			self::$recentlyBlocked = $sel->filterByBlocked( true )
 										 ->setOrderBy( 'blocked_at' )
@@ -41,7 +46,7 @@ class RecentStats {
 
 	public function getRecentlyOffendedIPs() :array {
 		if ( !isset( self::$recentlyOffended ) ) {
-			/** @var Select $sel */
+			/** @var IPsDB\Select $sel */
 			$sel = $this->getCon()->getModule_IPs()->getDbHandler_IPs()->getQuerySelector();
 			self::$recentlyOffended = $sel->filterByBlocked( false )
 										  ->filterByList( ModCon::LIST_AUTO_BLACK )
@@ -59,5 +64,14 @@ class RecentStats {
 				->mostRecent();
 		}
 		return is_array( self::$recentUserSessions ) ? self::$recentUserSessions : [];
+	}
+
+	public function getRecentEvents() :array {
+		/** @var EventsDB\Select $select */
+		if ( !isset( self::$recentEvents ) ) {
+			$select = $this->getCon()->getModule_Events()->getDbHandler_Events()->getQuerySelector();
+			self::$recentEvents = $select->getLatestForAllEvents();
+		}
+		return self::$recentEvents;
 	}
 }

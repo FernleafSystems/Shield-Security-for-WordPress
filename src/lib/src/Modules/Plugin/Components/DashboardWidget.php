@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,6 +17,36 @@ class DashboardWidget {
 		$labels = $con->getLabels();
 
 		$recent = ( new RecentStats() )->setCon( $this->getCon() );
+
+		$recentEvents = array_map(
+			function ( $evt ) {
+				/** @var EntryVO $evt */
+				return [
+					'name' => $this->getCon()->service_events->getEventName( $evt->event ),
+					'at'   => Services::Request()
+									  ->carbon()
+									  ->setTimestamp( $evt->created_at )
+									  ->diffForHumans(),
+				];
+			},
+			array_filter(
+				$recent->getRecentEvents(),
+				function ( $evt ) {
+					return in_array( $evt->event, [
+						'login_block',
+						'firewall_block',
+						'ip_blocked',
+						'ip_offense',
+						'bottrack_fakewebcrawler',
+						'bottrack_logininvalid',
+						'bottrack_loginfailed',
+						'bottrack_xmlrpc',
+						'bottrack_404',
+						'spam_block_antibot',
+					] );
+				}
+			)
+		);
 
 		return $this->getMod()
 					->getRenderer()
@@ -53,6 +84,7 @@ class DashboardWidget {
 									'text' => __( 'Config', 'wp-simple-firewall' ),
 								],
 							],
+							'recent_events'      => $recentEvents,
 							'recent_ips_blocked' => array_map(
 								function ( $ip ) use ( $modInsights ) {
 									return [

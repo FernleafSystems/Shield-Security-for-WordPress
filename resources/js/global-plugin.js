@@ -253,6 +253,7 @@ let Shield_WP_Dashboard_Widget = new function () {
 		return jQuery( '#ShieldDashboardWidget' );
 	};
 	let render = function () {
+		widgetContainer().text( 'loading ...' );
 		jQuery.ajax( {
 			type: "POST",
 			url: ajaxurl,

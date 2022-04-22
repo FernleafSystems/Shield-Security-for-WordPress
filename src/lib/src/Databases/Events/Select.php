@@ -10,7 +10,6 @@ class Select extends Base\Select {
 
 	/**
 	 * @param string $event
-	 * @return int
 	 */
 	public function sumEvent( $event ) :int {
 		return $this->sumEvents( [ $event ] );
@@ -18,7 +17,6 @@ class Select extends Base\Select {
 
 	/**
 	 * @param string[] $events
-	 * @return int
 	 */
 	public function sumEvents( array $events ) :int {
 		return (int)$this->filterByEvents( $events )
@@ -35,7 +33,7 @@ class Select extends Base\Select {
 	/**
 	 * @return int[]
 	 */
-	public function sumAllEvents() {
+	public function sumAllEvents() :array {
 		$sums = [];
 
 		$allEvents = ( clone $this )->reset()->getAllEvents();
@@ -48,7 +46,6 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $event
 	 * @return EntryVO|null
 	 */
 	public function getLatestForEvent( string $event ) {
@@ -59,11 +56,11 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $sEvent
+	 * @param string $event
 	 * @return EntryVO|null
 	 */
-	public function getOldestForEvent( $sEvent ) {
-		return $this->filterByEvent( $sEvent )
+	public function getOldestForEvent( $event ) {
+		return $this->filterByEvent( $event )
 					->setOrderBy( 'created_at', 'ASC' )
 					->setResultsAsVo( true )
 					->first();
@@ -80,7 +77,7 @@ class Select extends Base\Select {
 	 * https://stackoverflow.com/questions/5554075/get-last-distinct-set-of-records
 	 * @return EntryVO[] - keys are event names
 	 */
-	public function getLatestForAllEvents() {
+	public function getLatestForAllEvents() :array {
 		$latest = [];
 		$this->setGroupBy( 'event' )
 			 ->setOrderBy( 'created_at', 'DESC' )
@@ -97,24 +94,15 @@ class Select extends Base\Select {
 	 * @return int[]
 	 */
 	private function getMaxIds() {
-		$aIds = $this->setCustomSelect( 'MAX(id)' )
-					 ->setGroupBy( 'event' )
-					 ->setResultsAsVo( false )
-					 ->setSelectResultsFormat( ARRAY_A )
-					 ->query();
 		return array_map(
-			function ( $aId ) {
-				return (int)$aId[ 'MAX(id)' ];
+			function ( $id ) {
+				return (int)$id[ 'MAX(id)' ];
 			},
-			$aIds
+			$this->setCustomSelect( 'MAX(id)' )
+				 ->setGroupBy( 'event' )
+				 ->setResultsAsVo( false )
+				 ->setSelectResultsFormat( ARRAY_A )
+				 ->query()
 		);
-	}
-
-	/**
-	 * @param int $nGreaterThan
-	 * @return $this
-	 */
-	public function filterByCountGreaterThan( $nGreaterThan ) {
-		return $this->addWhere( 'count', (int)$nGreaterThan, '>' );
 	}
 }
