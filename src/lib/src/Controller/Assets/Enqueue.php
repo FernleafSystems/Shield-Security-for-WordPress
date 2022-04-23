@@ -69,7 +69,6 @@ class Enqueue {
 		] );
 		foreach ( $depContainer->queue as $script ) {
 			$handle = (string)$depContainer->registered[ $script ]->handle;
-			error_log($handle );
 			if ( strpos( $handle, $prefix ) === false
 				 && preg_match( sprintf( '/(%s)/i', implode( '|', $conflictHandles ) ), $handle ) ) {
 				$toDequeue[] = $handle;

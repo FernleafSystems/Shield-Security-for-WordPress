@@ -18,6 +18,10 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'disable_file_editing', 'Y' );
 	}
 
+	public function isBlockAuthorDiscovery() :bool {
+		return $this->isOpt( 'block_author_discovery', 'Y' );
+	}
+
 	public function isRestApiAnonymousAccessDisabled() :bool {
 		return $this->isOpt( 'disable_anonymous_restapi', 'Y' );
 	}

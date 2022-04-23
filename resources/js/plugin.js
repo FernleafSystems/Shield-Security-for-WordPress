@@ -352,6 +352,8 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 jQuery( document ).ready( function () {
 
+	const circle = new CircularProgressBar('pie'); circle.initial();
+
 	jQuery( document ).ajaxComplete( function () {
 		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
 		popoverTriggerList.map( function ( popoverTriggerEl ) {

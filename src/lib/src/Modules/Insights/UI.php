@@ -34,14 +34,21 @@ class UI extends BaseShield\UI {
 	private function buildInsightsVars_Overview() :array {
 		return [
 			'vars'    => [
-				'overview_cards' => ( new Lib\OverviewCards() )
+				'overview_cards'  => ( new Lib\OverviewCards() )
 					->setMod( $this->getMod() )
 					->buildForShuffle(),
-				'summary_cards'  => ( new Lib\SummaryCards() )
+				'progress_meters' => ( new Lib\MeterAnalysis\Handler() )
+					->setMod( $this->getMod() )
+					->buildAllMeterComponents(),
+				'summary_cards'   => ( new Lib\SummaryCards() )
 					->setMod( $this->getMod() )
 					->build(),
 			],
+			'ajax'    => [
+				'render_meter_analysis' => $this->getMod()->getAjaxActionData( 'render_meter_analysis', true ),
+			],
 			'strings' => [
+				'analysis'           => __( 'Analysis', 'wp-simple-firewall' ),
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
 				'clear_filter'       => __( 'Clear Filter', 'wp-simple-firewall' ),
 				'go_to_options'      => sprintf(

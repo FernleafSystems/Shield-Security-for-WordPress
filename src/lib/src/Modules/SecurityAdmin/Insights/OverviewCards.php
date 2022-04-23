@@ -31,7 +31,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 				'href'    => $mod->getUrl_DirectLinkToOption( 'admin_access_key' ),
 			];
 
-			$isWPOptsRestricted = $opts->getAdminAccessArea_Options();
+			$isWPOptsRestricted = $opts->isRestrictWpOptions();
 			$cards[ 'wpopts' ] = [
 				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
 				'state'   => $isWPOptsRestricted ? 1 : -1,

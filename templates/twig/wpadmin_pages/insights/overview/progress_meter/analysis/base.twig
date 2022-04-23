@@ -1,0 +1,36 @@
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title">
+	  {% block title %}{{ strings.title|default('provide title') }}{% endblock %}
+  </h5>
+  <button type="button" class="btn-close text-reset"
+          data-bs-dismiss="offcanvas" aria-label="Close"></button>
+</div>
+<div class="offcanvas-body">
+  {% block body %}
+	  {% block body_components %}
+		  <ul class="list-group">
+
+			  {% for component in vars.components %}
+
+				  <a href="{{ component.href|default('#') }}" target="_blank"
+				     class="meter-analysis-link list-group-item list-group-item-action
+					     {{ component.protected ? 'list-group-item-success' : 'list-group-item-warning' }}"
+				     aria-current="true">
+
+					  <div class="d-flex w-100 justify-content-between">
+						  <h5 class="mb-1">{{ component.title|default('NO Title') }}
+						  </h5>
+							  <div class="float-end"><span class="badge bg-info rounded-pill">&plus;{{ component.weight_as_percent|default(0) }}</span></div>
+					  </div>
+
+					  <p class="mb-1">
+						  {{ component.protected ? component.desc_protected|default('NO DESCRIPTION') : component.desc_unprotected|default('NO DESCRIPTION') }}
+					  </p>
+
+				  </a>
+
+			  {% endfor %}
+		  </ul>
+	  {% endblock %}
+  {% endblock %}
+</div>

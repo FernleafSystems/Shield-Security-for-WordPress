@@ -260,7 +260,6 @@ let Shield_WP_Dashboard_Widget = new function () {
 			data: icwp_wpsf_vars_dashboardwidget.ajax_render,
 			dataType: "json",
 			success: function ( raw ) {
-				console.log( raw );
 				widgetContainer().html( raw.data.html );
 			}
 		} ).fail( function () {
@@ -269,11 +268,9 @@ let Shield_WP_Dashboard_Widget = new function () {
 		} );
 	};
 	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			if ( typeof icwp_wpsf_vars_dashboardwidget !== 'undefined' ) {
-				render();
-			}
-		} );
+		if ( typeof icwp_wpsf_vars_dashboardwidget !== 'undefined' ) {
+			render();
+		}
 	};
 }();
 

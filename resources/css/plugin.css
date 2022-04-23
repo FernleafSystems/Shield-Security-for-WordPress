@@ -1199,7 +1199,7 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SectionIpsWhite .form-inline {
 	background-color: transparent !important;
 }
-a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link)::after {
+a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link):not(.meter-analysis-link)::after {
 	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
 	margin: 0 3px;
 }
@@ -1226,10 +1226,10 @@ dl.pro-features dd {
 .form-check .form-check-input:checked,
 .option-checkbox.custom-switch .form-check-input:checked {
 	background-color: rgba(69, 119, 0, 1) !important;
-	border-color: rgba(69, 119, 0, 1)!important;
+	border-color: rgba(69, 119, 0, 1) !important;
 }
-.form-check .form-check-input:checked::before ,
-.form-check .form-check-input:checked::before ,
+.form-check .form-check-input:checked::before,
+.form-check .form-check-input:checked::before,
 .option-checkbox.custom-switch .form-check-input:checked::before {
 	content: none;
 }
@@ -1744,4 +1744,8 @@ button.btn.action {
 }
 button.bs-placeholder {
 	display: none;
+}
+
+#ShieldProgressMeterOffcanvas {
+	width: 600px;
 }

@@ -78,7 +78,8 @@
         "shield/traffic",
         "shield/audit_trail",
         "shield/scanners",
-        "shield/ip_detect"
+        "shield/ip_detect",
+        "tp/circular-progress"
       ]
     },
     "frontend":     {
@@ -197,6 +198,11 @@
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
+          ]
+        },
+        "tp/circular-progress":       {
+          "url":  "https://cdn.jsdelivr.net/gh/tomik23/circular-progress-bar@1.1.9/dist/circularProgressBar.min.js",
+          "deps": [
           ]
         },
         "select2":                 {

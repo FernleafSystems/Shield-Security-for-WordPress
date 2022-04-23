@@ -17,8 +17,6 @@ class DynamicPageLoader extends DynPropertiesClass {
 	private $params = [];
 
 	/**
-	 * @param array $params
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function build( array $params ) :array {

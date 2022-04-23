@@ -175,9 +175,9 @@
       "link_info":   "https://shsec.io/a0",
       "link_blog":   "https://shsec.io/wpsf32",
       "beacon_id":   214,
-      "name":        "Options",
-      "summary":     "Restrict Access To Key WordPress Posts And Pages Actions",
-      "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
+      "name":        "WordPress Options",
+      "summary":     "Restrict Access To Certain WordPress Admin Options",
+      "description": "Careful: This will restrict the ability of WordPress administrators from changing key WordPress settings."
     },
     {
       "key":         "admin_access_restrict_admin_users",

@@ -8,7 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionController {
 
 	protected function canRun() :bool {
-		return parent::canRun() && !Services::WpUsers()->isUserLoggedIn();
+		return parent::canRun()
+			   && Services::Request()->isPost()
+			   && !Services::WpUsers()->isUserLoggedIn();
 	}
 
 	public function getSelectedProvidersOptKey() :string {

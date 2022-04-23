@@ -11,14 +11,16 @@ class Options extends BaseShield\Options {
 		return $this->setOpt( 'admin_access_key', '' );
 	}
 
+	/**
+	 * @deprecated 15.0 - see isRestrictWpOptions()
+	 */
 	public function getAdminAccessArea_Options() :bool {
 		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
 	}
 
 	/**
-	 * @param string $area one of plugins, themes
-	 * @return array
 	 * @since 11.1
+	 * @param string $area one of plugins, themes
 	 */
 	public function getSecAdminAreaCaps( $area = 'plugins' ) :array {
 		$d = $this->getOpt( 'admin_access_restrict_'.$area, [] );
@@ -74,5 +76,9 @@ class Options extends BaseShield\Options {
 
 	public function isSecAdminRestrictUsersEnabled() :bool {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
+	}
+
+	public function isRestrictWpOptions() :bool {
+		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
 	}
 }

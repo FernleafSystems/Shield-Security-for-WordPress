@@ -84,7 +84,7 @@ class BuildDataForStats {
 				]
 			],
 			[
-				'title'  => __( 'Bot Tracking' ),
+				'title'  => __( 'Bot Tracking', 'wp-simple-firewall' ),
 				'events' => [
 					'antibot_fail',
 					'antibot_pass',

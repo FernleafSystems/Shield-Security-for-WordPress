@@ -47,7 +47,7 @@ class Options extends BaseShield\Options {
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
 			},
-			is_array( $paths ) ? $paths : []
+			$paths
 		);
 	}
 
@@ -70,8 +70,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $fileName
-	 * @param string $url
 	 * @return string[]
 	 */
 	private function getMalSignatures( string $fileName, string $url ) :array {

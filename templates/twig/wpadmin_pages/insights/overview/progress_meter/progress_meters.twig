@@ -1,0 +1,74 @@
+{# https://github.com/tomik23/circular-progress-bar #}
+<div class="row">
+	<div class="col">
+		<h5 class="mb-4">Shield Protection Summary</h5>
+	</div>
+</div>
+<div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 justify-content-center">
+
+	{% for meter_slug,meter in vars.progress_meters %}
+		<div class="col mb-4">
+			<div class="card summary-card h-100 progress-meter">
+				<div class="card-header">
+					{{ meter.title }}
+				</div>
+				<div class="card-body" style="margin: auto">
+
+					<div class="pie" data-pie='{
+  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )",
+  "percent": {{ meter.totals.percentage }},
+  "colorCircle": "#e6e6e6"
+}'></div>
+				</div>
+				<div class="card-footer text-center">
+					<a class="btn btn-outline-secondary"
+					   href="javascript:{shield_render_meter_analysis('{{ meter_slug }}')}"
+							{#             data-bs-toggle="offcanvas" data-bs-target="#ShieldProgressMeterOffcanvas" #}
+             aria-controls="ShieldProgressMeterOffcanvas">
+						{{ strings.analysis }}
+					</a>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
+
+<div class="offcanvas offcanvas-end meter-analysis"
+     id="ShieldProgressMeterOffcanvas"
+     data-bs-scroll="true" data-bs-backdrop="true"
+     tabindex="-1"
+     aria-labelledby="offcanvasExampleLabel"
+     style="z-index: 1000000000">
+</div>
+
+<script>
+
+function shield_render_meter_analysis( meter ) {
+	iCWP_WPSF_BodyOverlay.show();
+	let reqData = {{ ajax.render_meter_analysis|raw }};
+	reqData.meter = meter;
+
+	let $canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
+	$canvas.html( 'loading...' );
+	let analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+	analysisContainer.show();
+
+	jQuery.ajax(
+		{
+			type: "POST",
+			url: ajaxurl,
+			data: reqData,
+			dataType: "text",
+			success: function ( rawResponse ) {
+				let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
+				jQuery( '#ShieldProgressMeterOffcanvas' ).html( response.data.html );
+				console.log( response.html );
+			}
+		}
+	).always(
+		function () {
+			iCWP_WPSF_BodyOverlay.hide();
+		}
+	);
+}
+</script>
