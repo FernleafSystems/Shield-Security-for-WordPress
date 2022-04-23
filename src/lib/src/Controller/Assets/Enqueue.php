@@ -63,11 +63,13 @@ class Enqueue {
 		$toDequeue = [];
 		$prefix = $this->getCon()->prefix();
 		$conflictHandles = array_map( 'preg_quote', [
+			'cerber_css', // Really? on every WP admin page?
 			'bootstrap',
 			'wp-notes',
 		] );
 		foreach ( $depContainer->queue as $script ) {
 			$handle = (string)$depContainer->registered[ $script ]->handle;
+			error_log($handle );
 			if ( strpos( $handle, $prefix ) === false
 				 && preg_match( sprintf( '/(%s)/i', implode( '|', $conflictHandles ) ), $handle ) ) {
 				$toDequeue[] = $handle;

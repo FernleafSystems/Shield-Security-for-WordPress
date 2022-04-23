@@ -2,15 +2,19 @@
 	<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
 </a>
 
-<h3 class="subheader">Recently Blocked IPs</h3>
-
+<h3 class="subheader">
+	{{ strings.recent_blocked }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
 {% if vars.recent_ips_blocked|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
 			<thead>
 			<tr>
 				<th>IP</th>
-				<th>Blocked</th>
+				<th>{{ strings.blocked }}</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -30,18 +34,22 @@
 		</table>
 	</div>
 {% else %}
-	<p class="no-entries">No IP blocks recorded yet.</p>
+	<p class="no-entries">{{ strings.no_blocked }}</p>
 {% endif %}
 
-<h3 class="subheader">Recent Offenses</h3>
-
+<h3 class="subheader">
+	{{ strings.recent_offenses }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
 {% if vars.recent_ips_offense|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
 			<thead>
 			<tr>
 				<th>IP</th>
-				<th>Last Offense</th>
+				<th>{{ strings.last_offense }}</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -61,18 +69,23 @@
 		</table>
 	</div>
 {% else %}
-	<p class="no-entries">No IP offenses recorded yet.</p>
+	<p class="no-entries">{{ strings.no_offenses }}</p>
 {% endif %}
 
-<h3 class="subheader">Recent User Sessions</h3>
+<h3 class="subheader">
+	{{ strings.recent_sessions }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.sessions }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
 {% if vars.recent_users|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
 			<thead>
 			<tr>
-				<th>User</th>
+				<th>{{ strings.user }}</th>
 				<th>IP</th>
-				<th>Session Started</th>
+				<th>{{ strings.session_started }}</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -97,35 +110,36 @@
 		</table>
 	</div>
 {% else %}
-	<p class="no-entries">No new session activity recorded yet.</p>
+	<p class="no-entries">{{ strings.no_sessions }}</p>
 {% endif %}
 
-<h3 class="subheader">Recent Activity</h3>
+<h3 class="subheader">
+	{{ strings.recent_activity }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.audit_trail }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
 {% if vars.recent_events|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
 			<thead>
 			<tr>
-				<th>Events</th>
-				<th>Time</th>
+				<th>{{ strings.events }}</th>
+				<th>{{ strings.time }}</th>
 			</tr>
 			</thead>
 			<tbody>
 			{% for event in vars.recent_events %}
 				<tr>
-					<td>
-						{{ event.name }}
-					</td>
-					<td>
-						{{ event.at }}
-					</td>
+					<td>{{ event.name }}</td>
+					<td>{{ event.at }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>
 		</table>
 	</div>
 {% else %}
-	<p class="no-entries">No new session activity recorded yet.</p>
+	<p class="no-entries">{{ strings.no_activity }}</p>
 {% endif %}
 
 <div class="jump-buttons">
@@ -134,5 +148,9 @@
 			<a href="{{ jump_link.href }}">{{ jump_link.text }}</a>
 		{% endfor %}
 	{% endif %}
-	<a href="javascript:{ Shield_WP_Dashboard_Widget.initialise() }">Refresh</a>
+	<a href="javascript:{ Shield_WP_Dashboard_Widget.initialise() }">{{ strings.refresh }}</a>
+</div>
+
+<div>
+	<p style="text-align: center; font-size: smaller">{{ strings.generated }}: {{ vars.generated_at }}</p>
 </div>
