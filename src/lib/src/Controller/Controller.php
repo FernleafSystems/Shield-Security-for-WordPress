@@ -280,17 +280,24 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
+	/**
+	 * Supported if:
+	 * - the mysql version is at least the minimum version
+	 * - OR: it's mariaDB and it doesn't match the pattern: 5.5.xx-MariaDB
+	 * - OR: we can find the function 'INET6_ATON'
+	 */
 	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
 		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
 		$supported = empty( $versionToSupport )
 					 || empty( $mysqlInfo )
-					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
-					 || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+					 || version_compare( preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
+					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false && !preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
+
 		if ( !$supported ) {
 			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
-			if ( !empty( $miscFunctions ) && is_array( $miscFunctions ) ) {
-				foreach ( $miscFunctions as $func ) {
-					if ( strtoupper( $func[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
+			if ( is_array( $miscFunctions ) ) {
+				foreach ( $miscFunctions as $fn ) {
+					if ( is_array( $fn ) && strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
 						$supported = true;
 						break;
 					}
