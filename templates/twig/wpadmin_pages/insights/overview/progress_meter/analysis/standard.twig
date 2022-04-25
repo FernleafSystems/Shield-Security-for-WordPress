@@ -12,22 +12,31 @@
 
 			  {% for component in vars.components %}
 
-				  <a href="{{ component.href|default('#') }}" target="_blank"
+				  {% if component.href is empty %}
+					  <span
+				  {% else %}
+					  <a href="{{ component.href }}" target="_blank"
+				  {% endif %}
 				     class="meter-analysis-link list-group-item list-group-item-action
 					     {{ component.protected ? 'list-group-item-success' : 'list-group-item-warning' }}"
-				     aria-current="true">
+						  aria-current="true">
 
 					  <div class="d-flex w-100 justify-content-between">
 						  <h5 class="mb-1">{{ component.title|default('NO Title') }}
 						  </h5>
-							  <div class="float-end"><span class="badge bg-info rounded-pill">&plus;{{ component.weight_as_percent|default(0) }}</span></div>
+							  <div class="float-end"><span
+										  class="badge bg-info rounded-pill">&plus;{{ component.weight_as_percent|default(0) }}</span></div>
 					  </div>
 
 					  <p class="mb-1">
 						  {{ component.protected ? component.desc_protected|default('NO DESCRIPTION') : component.desc_unprotected|default('NO DESCRIPTION') }}
 					  </p>
 
-				  </a>
+				  {% if component.href is empty %}
+					  </span>
+				  {% else %}
+					  </a>
+				  {% endif %}
 
 			  {% endfor %}
 		  </ul>

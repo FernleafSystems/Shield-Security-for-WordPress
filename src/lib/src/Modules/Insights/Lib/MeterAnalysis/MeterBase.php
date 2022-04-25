@@ -46,6 +46,12 @@ abstract class MeterBase extends BaseTemplateRenderer {
 	}
 
 	protected function buildComponents() :array {
+		return ( new Components() )
+			->setCon( $this->getCon() )
+			->getComponents( $this->getComponentSlugs() );
+	}
+
+	protected function getComponentSlugs() :array {
 		return [];
 	}
 
@@ -77,6 +83,6 @@ abstract class MeterBase extends BaseTemplateRenderer {
 	}
 
 	protected function getTemplateStub() :string {
-		return static::SLUG;
+		return 'standard';
 	}
 }

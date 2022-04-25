@@ -2,19 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
-class MeterSpam extends MeterBase {
+class MeterSiteIntegrity extends MeterBase {
 
-	const SLUG = 'spam';
+	const SLUG = 'integrity';
 
 	protected function title() :string {
-		return __( 'SPAM Protection', 'wp-simple-firewall' );
+		return __( 'Site Integrity', 'wp-simple-firewall' );
 	}
 
 	protected function getComponentSlugs() :array {
 		return [
-			'comment_spam_antibot',
-			'comment_spam_human',
-			'comment_approved_minimum',
+			'ssl_certificate',
+			'db_password',
+			'audit_trail_enabled',
+			'report_email',
+			'headers',
 		];
 	}
 }

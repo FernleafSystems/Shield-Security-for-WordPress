@@ -36,41 +36,7 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 					: __( "Sessions aren't locked to IP address", 'wp-simple-firewall' ),
 				'href'    => $mod->getUrl_DirectLinkToOption( 'session_lock_location' ),
 			];
-
-			$bPolicies = $opts->isPasswordPoliciesEnabled();
-
-			$bPwned = $bPolicies && $opts->isPassPreventPwned();
-			$cards[ 'pwned' ] = [
-				'name'    => __( 'Pwned Passwords', 'wp-simple-firewall' ),
-				'state'   => $bPwned ? 1 : -1,
-				'summary' => $bPwned ?
-					__( 'Pwned passwords are blocked on this site', 'wp-simple-firewall' )
-					: __( 'Pwned passwords are allowed on this site', 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
-			];
-
-			$bIndepthPolices = $bPolicies && $this->getCon()->isPremiumActive();
-			$cards[ 'policies' ] = [
-				'name'    => __( 'Password Policies', 'wp-simple-firewall' ),
-				'state'   => $bIndepthPolices ? 1 : -1,
-				'summary' => $bIndepthPolices ?
-					__( 'Several password policies are active', 'wp-simple-firewall' )
-					: __( 'Limited or no password polices are active', 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_passwords' ),
-			];
 		}
-
-		$oAdmin = Services::WpUsers()->getUserByUsername( 'admin' );
-		$bActiveAdminUser = $oAdmin instanceof \WP_User && user_can( $oAdmin, 'manage_options' );
-		$cards[ 'admin_active' ] = [
-			'name'    => __( 'Admin User', 'wp-simple-firewall' ),
-			'summary' => $bActiveAdminUser ?
-				sprintf( __( "Default 'admin' user is still available", 'wp-simple-firewall' ), $opts->getOpt( 'session_idle_timeout_interval' ) )
-				: __( "The default 'admin' user is no longer available.", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
-			'state'   => $bActiveAdminUser ? -2 : 1,
-			'help'    => __( "The default 'admin' user should be deleted or demoted.", 'wp-simple-firewall' )
-		];
 
 		return $cards;
 	}

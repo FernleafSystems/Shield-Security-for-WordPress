@@ -21,16 +21,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		if ( $mod->isModOptEnabled() ) {
-			$goodFrequency = $opts->getScanFrequency() > 1;
-			$cards[ 'frequency' ] = [
-				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
-				'state'   => $goodFrequency ? 1 : 0,
-				'summary' => $goodFrequency ?
-					__( 'Automatic scanners run more than once per day', 'wp-simple-firewall' )
-					: __( "Automatic scanners only run once per day", 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_options' ),
-			];
-
 			$cards = array_merge(
 				$cards,
 				$this->getCardsForWcf(),
@@ -170,14 +160,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		$isAPC = $scanCon->isEnabled();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'state'   => $isAPC ? 1 : -1,
-			'summary' => $isAPC ?
-				sprintf( __( '%s Scanner is enabled.' ), $scanCon->getScanName() )
-				: sprintf( __( '%s Scanner is not enabled.' ), $scanCon->getScanName() ),
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-		];
 		if ( $isAPC && $scanCon->getScansController()->getScanResultsCount()->countAbandoned() > 0 ) {
 			$cards[ 'apc_problem' ] = [
 				'name'    => __( 'Plugin Abandoned' ),

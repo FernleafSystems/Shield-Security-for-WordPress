@@ -1313,6 +1313,10 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'hack_protect' );
 	}
 
+	public function getModule_Headers() :Shield\Modules\Headers\ModCon {
+		return $this->getModule( 'headers' );
+	}
+
 	public function getModule_Insights() :Shield\Modules\Insights\ModCon {
 		return $this->getModule( 'insights' );
 	}
