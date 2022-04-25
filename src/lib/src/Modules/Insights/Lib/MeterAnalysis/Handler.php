@@ -54,6 +54,7 @@ class Handler {
 			MeterIpBlocking::class,
 			MeterLockdown::class,
 			MeterScans::class,
+			MeterLoginProtection::class,
 			MeterUsers::class,
 			MeterSpam::class,
 		];

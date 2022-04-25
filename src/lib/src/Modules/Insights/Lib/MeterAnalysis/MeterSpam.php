@@ -14,6 +14,7 @@ class MeterSpam extends MeterBase {
 		return [
 			'comment_spam_antibot',
 			'comment_spam_human',
+			'contact_forms_spam',
 			'comment_approved_minimum',
 		];
 	}

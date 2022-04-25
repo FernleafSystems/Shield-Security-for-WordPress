@@ -2,24 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
-class MeterUsers extends MeterBase {
+class MeterLoginProtection extends MeterBase {
 
-	const SLUG = 'users';
+	const SLUG = 'login';
 
 	protected function title() :string {
-		return __( 'User Protection', 'wp-simple-firewall' );
+		return __( 'Login Protection', 'wp-simple-firewall' );
 	}
 
 	protected function getComponentSlugs() :array {
 		return [
-			'admin_user',
-			'secadmin_admins',
+			'cooldown',
+			'ade_loginguard',
+			'ade_login',
+			'ade_register',
+			'ade_lostpassword',
+			'tp_login_forms',
 			'2fa',
-			'sessions_idle',
-			'users_inactive',
 			'pass_policies',
-			'pass_pwned',
-			'pass_str',
 		];
 	}
 }

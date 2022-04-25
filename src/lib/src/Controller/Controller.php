@@ -1281,6 +1281,10 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'audit_trail' );
 	}
 
+	public function getModule_Autoupdates() :Shield\Modules\Autoupdates\ModCon {
+		return $this->getModule( 'autoupdates' );
+	}
+
 	public function getModule_Comments() :Shield\Modules\CommentsFilter\ModCon {
 		return $this->getModule( 'comments_filter' );
 	}

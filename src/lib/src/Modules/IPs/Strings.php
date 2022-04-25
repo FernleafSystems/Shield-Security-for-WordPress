@@ -349,23 +349,29 @@ class Strings extends Base\Strings {
 			case 'track_xmlrpc' :
 				$name = __( 'XML-RPC Access', 'wp-simple-firewall' );
 				$summary = __( 'Identify A Bot When It Accesses XML-RPC', 'wp-simple-firewall' );
-				$desc = __( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' )
-						.'<br/>'.__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' )
-						.'<br/>'.__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' );
+				$desc = [
+					__( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' ),
+					__( "Be careful to ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' ),
+					__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'track_linkcheese' :
 				$name = __( 'Link Cheese', 'wp-simple-firewall' );
 				$summary = __( 'Tempt A Bot With A Fake Link To Follow', 'wp-simple-firewall' );
-				$desc = __( "Detect a bot when it follows a fake 'no-follow' link.", 'wp-simple-firewall' )
-						.'<br/>'.__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives.", 'wp-simple-firewall' );
+				$desc = [
+					__( "Detect a bot when it follows a fake 'no-follow' link.", 'wp-simple-firewall' ),
+					__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives.", 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'track_logininvalid' :
 				$name = __( 'Invalid Usernames', 'wp-simple-firewall' );
 				$summary = __( "Detect Attempted Logins With Usernames That Don't Exist", 'wp-simple-firewall' );
-				$desc = __( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' )
-						.'<br/>'.__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' );
+				$desc = [
+					__( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' ),
+					__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'track_loginfailed' :

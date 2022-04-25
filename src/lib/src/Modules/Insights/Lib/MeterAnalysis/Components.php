@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	CommentsFilter,
 	HackGuard,
 	Headers,
+	Integrations,
 	IPs,
 	Lockdown,
 	LoginGuard,
@@ -66,9 +67,6 @@ class Components {
 	 * @return \Closure[]
 	 */
 	private function build() :array {
-		$modComments = $this->getCon()->getModule_Comments();
-		/** @var CommentsFilter\Options $optsComments */
-		$optsComments = $modComments->getOptions();
 		return [
 			'comment_spam_antibot'     => function () {
 				$modComments = $this->getCon()->getModule_Comments();
@@ -94,6 +92,70 @@ class Components {
 					'href'             => $modComments->getUrl_DirectLinkToOption( 'enable_comments_human_spam_filter' ),
 					'protected'        => $optsComments->isEnabledHumanCheck(),
 					'weight'           => 25,
+				];
+			},
+			'tp_login_forms'           => function () {
+				$modIntegrations = $this->getCon()->getModule_Integrations();
+				/** @var Integrations\Lib\Bots\Common\BaseHandler[] $installedButNotEnabledProviders */
+				$installedButNotEnabledProviders = array_filter(
+					array_map(
+						function ( $providerClass ) use ( $modIntegrations ) {
+							return ( new $providerClass() )->setMod( $modIntegrations );
+						},
+						$modIntegrations->getController_UserForms()->enumProviders()
+					),
+					function ( $provider ) {
+						/** @var Integrations\Lib\Bots\Common\BaseHandler $provider */
+						return !$provider->isEnabled() && $provider::IsProviderInstalled();
+					}
+				);
+
+				$names = empty( $installedButNotEnabledProviders ) ? '' :
+					implode( ', ', array_map(
+						function ( $provider ) {
+							return $provider->getHandlerName();
+						}, $installedButNotEnabledProviders
+					) );
+
+				return [
+					'title'            => __( '3rd Party Login Forms', 'wp-simple-firewall' ),
+					'desc_protected'   => __( "It appears that any 3rd party login forms you're using are protected against Bots.", 'wp-simple-firewall' ),
+					'desc_unprotected' => sprintf( __( "It appears that certain 3rd party login forms aren't protected against Bots: %s", 'wp-simple-firewall' ), $names ),
+					'href'             => $modIntegrations->getUrl_DirectLinkToOption( 'user_form_providers' ),
+					'protected'        => empty( $names ),
+					'weight'           => 30,
+				];
+			},
+			'contact_forms_spam'       => function () {
+				$modIntegrations = $this->getCon()->getModule_Integrations();
+				/** @var Integrations\Lib\Bots\Common\BaseHandler[] $installedButNotEnabledProviders */
+				$installedButNotEnabledProviders = array_filter(
+					array_map(
+						function ( $providerClass ) use ( $modIntegrations ) {
+							return ( new $providerClass() )->setMod( $modIntegrations );
+						},
+						$modIntegrations->getController_SpamForms()->enumProviders()
+					),
+					function ( $provider ) {
+						/** @var Integrations\Lib\Bots\Common\BaseHandler $provider */
+						return !$provider->isEnabled() && $provider::IsProviderInstalled();
+					}
+				);
+
+				$names = empty( $installedButNotEnabledProviders ) ? '' :
+					implode( ', ', array_map(
+						function ( $provider ) {
+							return $provider->getHandlerName();
+						}, $installedButNotEnabledProviders
+					) );
+
+				return [
+					'title'            => __( '3rd Party Contact Form SPAM', 'wp-simple-firewall' ),
+					'desc_protected'   => __( "It appears that any contact forms you're using are protected against Bot SPAM.", 'wp-simple-firewall' ),
+					'desc_unprotected' => sprintf( __( "It appears that certain contact forms aren't protected against Bot SPAM: %s", 'wp-simple-firewall' ), $names ),
+					'href'             => $modIntegrations->getUrl_DirectLinkToOption( 'form_spam_providers' ),
+					'protected'        => empty( $names ),
+					'weight'           => 30,
 				];
 			},
 			'comment_approved_minimum' => function () {
@@ -132,6 +194,19 @@ class Components {
 					'href'             => $modLG->getUrl_DirectLinkToOption( 'login_limit_interval' ),
 					'protected'        => $optsLG->isEnabledCooldown(),
 					'weight'           => 20,
+				];
+			},
+			'ade_loginguard'           => function () {
+				$modLG = $this->getCon()->getModule_LoginGuard();
+				/** @var LoginGuard\Options $optsLG */
+				$optsLG = $modLG->getOptions();
+				return [
+					'title'            => __( 'AntiBot Detection Engine For Logins', 'wp-simple-firewall' ),
+					'desc_protected'   => __( 'The AntiBot Detection Engine option is enabled.', 'wp-simple-firewall' ),
+					'desc_unprotected' => __( 'The AntiBot Detection Engine option is disabled, removing brute force protection for login, register and lost password forms.', 'wp-simple-firewall' ),
+					'href'             => $modLG->getUrl_DirectLinkToOption( 'enable_antibot_check' ),
+					'protected'        => $optsLG->isEnabledAntiBot() && $optsLG->isProtectLogin(),
+					'weight'           => 30,
 				];
 			},
 			'ade_login'                => function () {
@@ -420,7 +495,7 @@ class Components {
 					'desc_unprotected' => __( "Plugins with known vulnerabilities aren't automatically updated to protect your site.", 'wp-simple-firewall' ),
 					'href'             => $modHG->getUrl_DirectLinkToOption( 'wpvuln_scan_autoupdate' ),
 					'protected'        => $optsHG->isWpvulnAutoupdatesEnabled(),
-					'weight'           => 10,
+					'weight'           => 30,
 				];
 			},
 			'scan_freq'                => function () {
@@ -695,6 +770,42 @@ class Components {
 					'href'             => Services::WpGeneral()->getAdminUrl_Themes( true ),
 					'protected'        => $countThemesUpdates === 0,
 					'weight'           => 45,
+				];
+			},
+			'autoupdate_core'          => function () {
+				return [
+					'title'            => __( 'WordPress Core Automatic Updates', 'wp-simple-firewall' ),
+					'desc_protected'   => __( 'WordPress Core is automatically updated when minor upgrades are released.', 'wp-simple-firewall' ),
+					'desc_unprotected' => __( "WordPress Core isn't automatically updated when minor upgrades are released.", 'wp-simple-firewall' ),
+					'href'             => $this->getCon()->getModule_Autoupdates()->getUrl_AdminPage(),
+					'protected'        => Services::WpGeneral()->canCoreUpdateAutomatically(),
+					'weight'           => 50,
+				];
+			},
+			'users_inactive'           => function () {
+				$modUM = $this->getCon()->getModule_UserManagement();
+				/** @var UserManagement\Options $optsUM */
+				$optsUM = $modUM->getOptions();
+				return [
+					'title'            => __( 'Inactive User Accounts', 'wp-simple-firewall' ),
+					'desc_protected'   => sprintf( __( 'Inactive user accounts are automatically suspended after %s.', 'wp-simple-firewall' ), $optsUM->getOpt( 'auto_idle_days' ) ),
+					'desc_unprotected' => __( 'There is currently no control over how inactive user accounts are handled.', 'wp-simple-firewall' ),
+					'href'             => $modUM->getUrl_DirectLinkToOption( 'auto_idle_days' ),
+					'protected'        => $optsUM->getOpt( 'auto_idle_days' ) > 0,
+					'weight'           => 20,
+				];
+			},
+			'sessions_idle'            => function () {
+				$modUM = $this->getCon()->getModule_UserManagement();
+				/** @var UserManagement\Options $optsUM */
+				$optsUM = $modUM->getOptions();
+				return [
+					'title'            => __( 'Idle User Sessions', 'wp-simple-firewall' ),
+					'desc_protected'   => sprintf( 'Idle user sessions are always automatically logged out after %s hours.', $optsUM->getOpt( 'session_idle_timeout_interval' ) ),
+					'desc_unprotected' => __( 'There is currently no control over how idle user sessions are handled.', 'wp-simple-firewall' ),
+					'href'             => $modUM->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
+					'protected'        => $optsUM->hasSessionIdleTimeout(),
+					'weight'           => 20,
 				];
 			},
 			'ssl_certificate'          => function () {

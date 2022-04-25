@@ -7,7 +7,7 @@ class MeterIpBlocking extends MeterBase {
 	const SLUG = 'ips';
 
 	protected function title() :string {
-		return __( 'IP Blocking', 'wp-simple-firewall' );
+		return __( 'IP Blocking and Bot Detection', 'wp-simple-firewall' );
 	}
 
 	protected function getComponentSlugs() :array {

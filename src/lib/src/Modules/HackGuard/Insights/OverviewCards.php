@@ -15,8 +15,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	protected function buildModCards() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
 
 		$cards = [];
 
@@ -45,36 +43,12 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 	private function getCardsForWcf() :array {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
 		/** @var Afs $scanCon */
 		$scanCon = $mod->getScanCon( Afs::SCAN_SLUG );
 
 		$cards = [];
 
 		$scanCore = $scanCon->isEnabled();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'state'   => $scanCore ? 1 : -2,
-			'summary' => $scanCore ?
-				__( 'WP Core files are scanned automatically', 'wp-simple-firewall' )
-				: __( "WP Core files aren't automatically scanned!", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
-			'help'    => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
-		];
-		if ( $scanCore ) {
-			if ( !$opts->isRepairFileWP() ) {
-				$cards[ 'wcf_repair' ] = [
-					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
-					'state'   => $opts->isRepairFileWP() ? 1 : -1,
-					'summary' => $opts->isRepairFileWP() ?
-						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
-						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
-					'href'    => $mod->getUrl_DirectLinkToOption( 'file_repair_areas' ),
-				];
-			}
-		}
-
 		if ( $scanCore && $scanCon->getScansController()->getScanResultsCount()->countWPFiles() ) {
 			$cards[ 'wcf_problem' ] = [
 				'name'    => sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ), __( 'WordPress Core Files', 'wp-simple-firewall' ) ),
@@ -97,15 +71,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		$isPTG = $scanCon->isEnabledPluginThemeScan();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), __( 'Plugins & Themes', 'wp-simple-firewall' ) ),
-			'summary' => $isPTG ?
-				__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
-				: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
-			'state'   => $isPTG ? 1 : -2,
-			'href'    => $mod->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
-			'help'    => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' ),
-		];
 
 		$status = $scanCon->getScansController()->getScanResultsCount();
 		if ( $isPTG && ( $status->countPluginFiles() + $status->countPluginFiles() ) > 0 ) {
@@ -130,15 +95,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		$malEnabled = $scanCon->isEnabledMalwareScan();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => sprintf( '%s: %s', __( 'Scanner', 'wp-simple-firewall' ), $scanCon->getScanName() ),
-			'summary' => $malEnabled ?
-				sprintf( __( '%s Scanner runs automatically.' ), $scanCon->getScanName() )
-				: sprintf( __( "%s Scanner isn't set to run automatically." ), $scanCon->getScanName() ),
-			'state'   => $malEnabled ? 1 : -2,
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_file_guard' ),
-			'help'    => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
-		];
 		if ( $malEnabled && $scanCon->getScansController()->getScanResultsCount()->countMalware() ) {
 			$cards[ 'mal_problem' ] = [
 				'name'    => __( 'Potential Malware Detected', 'wp-simple-firewall' ),
@@ -181,27 +137,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		$enabledWpv = $scanCon->isEnabled();
-		$cards[ $scanCon::SCAN_SLUG ] = [
-			'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
-			'state'   => $enabledWpv ? 1 : -2,
-			'summary' => $enabledWpv ?
-				__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
-				: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
-			'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
-			'help'    => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
-		];
-
-		$bWpvAutoUpdates = $scanCon->isCronAutoRepair();
-		if ( $enabledWpv ) {
-			$cards[ 'wpv_repair' ] = [
-				'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
-				'summary' => $bWpvAutoUpdates ?
-					__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
-					: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
-				'state'   => $bWpvAutoUpdates ? 1 : -1,
-				'href'    => $mod->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
-			];
-		}
 		if ( $enabledWpv && $scanCon->getScansController()->getScanResultsCount()->countVulnerableAssets() > 0 ) {
 			$cards[ 'wpv_problem' ] = [
 				'name'    => __( 'Vulnerable Plugin', 'wp-simple-firewall' ),

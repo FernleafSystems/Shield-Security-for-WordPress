@@ -17,16 +17,6 @@ class OverviewCards extends Shield\Modules\Base\Insights\OverviewCards {
 		$cards = [];
 
 		if ( $mod->isModOptEnabled() ) {
-			$bHasIdle = $opts->hasSessionIdleTimeout();
-			$cards[ 'idle' ] = [
-				'name'    => __( 'Idle Users', 'wp-simple-firewall' ),
-				'state'   => $bHasIdle ? 1 : -1,
-				'summary' => $bHasIdle ?
-					sprintf( __( 'Idle sessions are terminated after %s hours', 'wp-simple-firewall' ), $opts->getOpt( 'session_idle_timeout_interval' ) )
-					: __( 'Idle sessions wont be terminated', 'wp-simple-firewall' ),
-				'href'    => $mod->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
-			];
-
 			$bLocked = $opts->isLockToIp();
 			$cards[ 'lockip' ] = [
 				'name'    => __( 'Lock To IP', 'wp-simple-firewall' ),

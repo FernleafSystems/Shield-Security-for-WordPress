@@ -12,11 +12,14 @@ class MeterAssets extends MeterBase {
 
 	protected function getComponentSlugs() :array {
 		return [
-			'plugins_inactive',
-			'plugins_updates',
-			'themes_inactive',
-			'themes_updates',
+			'autoupdate_core',
+			'wpv_scanner',
+			'vuln_autoupdate',
 			'apc_scanner',
+			'plugins_updates',
+			'themes_updates',
+			'plugins_inactive',
+			'themes_inactive',
 		];
 	}
 }
