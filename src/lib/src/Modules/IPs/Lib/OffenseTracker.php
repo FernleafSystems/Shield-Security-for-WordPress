@@ -9,10 +9,22 @@ class OffenseTracker extends EventsListener {
 	/**
 	 * @var bool
 	 */
+	private $isBlocked = false;
+
+	/**
+	 * @var bool
+	 * @deprecated 15.0
+	 */
 	private $bIsBlocked = false;
 
 	/**
 	 * @var int
+	 */
+	private $offenseCount = 0;
+
+	/**
+	 * @var int
+	 * @deprecated 15.0
 	 */
 	private $nOffenseCount = 0;
 
@@ -30,18 +42,18 @@ class OffenseTracker extends EventsListener {
 	}
 
 	public function isBlocked() :bool {
-		return (bool)$this->bIsBlocked;
+		return (bool)( $this->isBlocked ?? $this->bIsBlocked );
 	}
 
 	public function getOffenseCount() :int {
-		return (int)$this->nOffenseCount;
+		return (int)( $this->offenseCount ?? $this->nOffenseCount );
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function setIsBlocked( bool $isBlocked ) {
-		$this->bIsBlocked = $isBlocked;
+		$this->isBlocked = $isBlocked;
 		return $this;
 	}
 
@@ -49,14 +61,14 @@ class OffenseTracker extends EventsListener {
 	 * @return $this
 	 */
 	public function incrementCount( int $increment = 1 ) {
-		return $this->setOffenseCount( $this->getOffenseCount() + (int)$increment );
+		return $this->setOffenseCount( $this->getOffenseCount() + $increment );
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function setOffenseCount( int $offenseCount ) {
-		$this->nOffenseCount = max( $offenseCount, (int)$this->nOffenseCount );
+		$this->offenseCount = max( $offenseCount, $this->getOffenseCount() );
 		return $this;
 	}
 }

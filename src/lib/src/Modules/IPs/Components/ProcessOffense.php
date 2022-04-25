@@ -36,6 +36,10 @@ class ProcessOffense {
 			$toBlock = $offenseTracker->isBlocked() ||
 					   ( $IP->blocked_at == 0 && ( $newCount >= $opts->getOffenseLimit() ) );
 
+			if ( $toBlock ) {
+				$newCount = (int)max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
+			}
+
 			/** @var Databases\IPs\Update $updater */
 			$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
 			$updater->updateTransgressions( $IP, $newCount );
