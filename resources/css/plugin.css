@@ -1531,6 +1531,8 @@ body.folded #FooterBannerGoPro {
 	border-style: solid;
 	min-width: 140px;
 	width: 140px;
+
+	border-top-right-radius: 24px; /** to match with Overview Dials */
 }
 #NavSideBar a.nav-link:hover {
 }
@@ -1697,6 +1699,25 @@ body.folded #FooterBannerGoPro {
 	background: linear-gradient(to bottom, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeded', endColorstr='#f9acac', GradientType=0); /* IE6-9 */
 }
+#odp-PageContainer .card.progress-meter {
+	box-shadow: 1px 1px 2px rgb(0 0 0 / 20%);
+	background: rgb(253 253 253 / 45%);
+	border-radius: 24px;
+	border: 1px solid rgb(177 216 178);
+}
+.card.progress-meter .card-header {
+	text-align: center;
+	padding: 1rem 1rem 0.5rem;
+	background: transparent;
+	border: 0 none;
+}
+.card.progress-meter .card-footer {
+	text-align: right;
+	border: 0 none;
+	padding:  0.5rem 1rem 1rem;
+	background-color: transparent;
+}
+
 #ScanResultsPlugins li.nav-item a.nav-link {
 	/*background-color: white;*/
 	border: 1px solid #c2c2c2;

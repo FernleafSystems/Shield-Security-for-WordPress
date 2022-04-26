@@ -2,27 +2,35 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
-
 class MeterFirewall extends MeterBase {
 
 	const SLUG = 'firewall';
 
 	protected function title() :string {
-		return __( 'Firewall', 'wp-simple-firewall' );
+		return __( 'Powerful WordPress Firewall', 'wp-simple-firewall' );
 	}
 
-	protected function getMeterRenderData() :array{
+	protected function subtitle() :string {
+		return __( 'How malicious requests to your site are handled', 'wp-simple-firewall' );
+	}
+
+	protected function description() :array {
+		return [
+			__( "The firewall inspects all data sent in every request to your site.", 'wp-simple-firewall' )
+			.' '.__( "If malicious data is detected, the request will be quickly terminated before it can be misused.", 'wp-simple-firewall' ),
+			__( "The more rules you employ, the better, but you should always monitor your Activity Audit Trail for false positives.", 'wp-simple-firewall' ),
+		];
+	}
+
+	protected function getMeterRenderData() :array {
 		return [];
 	}
 
-	protected function buildComponents() :array {
-		$mod = $this->getCon()->getModule_Firewall();
-		/** @var Firewall\Options $opts */
-		$opts = $mod->getOptions();
-
-		$components = [];
-		foreach (
+	protected function getComponentSlugs() :array {
+		return array_map(
+			function ( string $key ) {
+				return 'fwb_'.$key;
+			},
 			[
 				'dir_traversal',
 				'wordpress_terms',
@@ -31,14 +39,7 @@ class MeterFirewall extends MeterBase {
 				'exe_file_uploads',
 				'leading_schema',
 				'aggressive'
-			] as $opt
-		) {
-			$opt = 'block_'.$opt;
-			$components[ $opt ] = [
-				'protected' => $opts->isOpt( $opt, 'Y' ),
-				'weight'    => 20,
-			];
-		}
-		return $components;
+			]
+		);
 	}
 }

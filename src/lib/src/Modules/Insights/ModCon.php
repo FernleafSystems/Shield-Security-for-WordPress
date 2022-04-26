@@ -113,8 +113,6 @@ class ModCon extends BaseShield\ModCon {
 
 				case 'overview':
 					$enq[ Enqueue::JS ] = [
-						'shuffle',
-						'shield/shuffle',
 						'ip_detect'
 					];
 					break;

@@ -48,12 +48,12 @@ class Handler {
 
 	public function enumMeters() :array {
 		$meters = [
-			MeterSiteIntegrity::class,
+			MeterIntegrity::class,
 			MeterAssets::class,
-			MeterFirewall::class,
 			MeterIpBlocking::class,
-			MeterLockdown::class,
 			MeterScans::class,
+			MeterFirewall::class,
+			MeterLockdown::class,
 			MeterLoginProtection::class,
 			MeterUsers::class,
 			MeterSpam::class,

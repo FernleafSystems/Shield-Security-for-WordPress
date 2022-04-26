@@ -119,6 +119,7 @@
       "slug":        "section_enable_plugin_feature_ips",
       "title":       "Enable Module: IP Manager",
       "title_short": "Disable Module",
+      "beacon_id":   208,
       "summary":     [
         "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",
         "Recommendation - Keep the IP Manager feature turned on. You should also carefully review the automatic black list settings."
@@ -348,7 +349,7 @@
       ],
       "link_info":     "https://shsec.io/fo",
       "link_blog":     "https://shsec.io/f6",
-      "beacon_id":     123,
+      "beacon_id":     206,
       "name":          "Link Cheese",
       "summary":       "Tempt A Bot With A Fake Link To Follow",
       "description":   "Detect A Bot That Follows A 'no-follow' Link."
@@ -522,7 +523,7 @@
       ],
       "link_info":     "https://shsec.io/f5",
       "link_blog":     "https://shsec.io/f7",
-      "beacon_id":     206,
+      "beacon_id":     124,
       "name":          "Fake Web Crawler",
       "summary":       "Detect Fake Search Engine Crawlers",
       "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."

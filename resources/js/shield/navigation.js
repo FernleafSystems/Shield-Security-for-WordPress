@@ -32,7 +32,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 	};
 
 	var sendReq = function ( params ) {
-		document.querySelector( '#apto-PageMainBody' ).innerHTML = 'Loading ...';
+		document.querySelector( '#apto-PageMainBody' ).innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 		shield_vars_navigation.ajax.dynamic_load.load_params = params;
 		iCWP_WPSF_StandardAjax.send_ajax_req(
 			shield_vars_navigation.ajax.dynamic_load, false, 'dynamic_load'

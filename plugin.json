@@ -2,7 +2,7 @@
   "properties":       {
     "version":                 "14.1.7",
     "release_timestamp":       1649156583,
-    "build":                   "202204.2501",
+    "build":                   "202204.2601",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -290,14 +290,6 @@
             "chartist",
             "chartist-plugin-legend",
             "plugin"
-          ]
-        },
-        "shuffle":                 {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/Shuffle/5.3.0/shuffle.min.js"
-        },
-        "shield/shuffle":          {
-          "deps": [
-            "shuffle"
           ]
         },
         "shield/dialog":           {

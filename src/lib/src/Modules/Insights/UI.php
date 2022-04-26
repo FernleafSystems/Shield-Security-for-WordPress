@@ -34,9 +34,6 @@ class UI extends BaseShield\UI {
 	private function buildInsightsVars_Overview() :array {
 		return [
 			'vars'    => [
-				'overview_cards'  => ( new Lib\OverviewCards() )
-					->setMod( $this->getMod() )
-					->buildForShuffle(),
 				'progress_meters' => ( new Lib\MeterAnalysis\Handler() )
 					->setMod( $this->getMod() )
 					->buildAllMeterComponents(),

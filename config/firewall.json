@@ -349,7 +349,6 @@
           "wp-config.php"
         ],
         "regex":  [
-          "^wp_",
           "^user_login",
           "^user_pass"
         ]
