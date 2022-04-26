@@ -2,8 +2,8 @@
 
 {% block page_main %}
 	<div class="row">
-		<div class="col insights_section" id="TabOverviewCards">
-			{% include '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' %}
+		<div class="col insights_section" id="TabDashboardMeters">
+			{{ content.progress_meters|raw }}
 		</div>
 	</div>
 {% endblock %}

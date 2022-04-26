@@ -16,14 +16,34 @@ class Handler {
 		return $this->getMeter( $meter )->render();
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function buildAllMeterComponents() :array {
+	public function renderDashboardMeters() :string {
+		$mod = $this->getMod();
+		return $mod->getRenderer()
+				   ->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' )
+				   ->setRenderData( [
+					   'ajax'    => [
+						   'render_meter_analysis' => $mod->getAjaxActionData( 'render_meter_analysis', true ),
+					   ],
+					   'strings' => [
+						   'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
+					   ],
+					   'vars'    => [
+						   'progress_meters' => $this->buildAllMeterComponents()
+					   ],
+				   ] )
+				   ->render();
+	}
+
+	private function buildAllMeterComponents() :array {
 		return array_map(
 			function ( string $class ) {
 				/** @var MeterBase $class */
-				return $this->buildMeterComponents( $class::SLUG );
+				try {
+					return $this->buildMeterComponents( $class::SLUG );
+				}
+				catch ( \Exception $e ) {
+					return 'meter component error:'.$e->getMessage();
+				}
 			},
 			$this->enumMeters()
 		);

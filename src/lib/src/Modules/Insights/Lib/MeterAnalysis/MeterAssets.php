@@ -16,7 +16,7 @@ class MeterAssets extends MeterBase {
 
 	protected function description() :array {
 		return [
-			__( "This section reviews how your plugins and themes are scanned, do you have unused items, and any particular issues that need to be addressed.", 'wp-simple-firewall' ),
+			__( "This section reviews how your plugins & themes are scanned, where there are unused items, and any particular issues that need to be addressed.", 'wp-simple-firewall' ),
 			__( "Generally you should keep all assets updated, remove unused items, and use only plugins that are regularly maintained.", 'wp-simple-firewall' ),
 		];
 	}
