@@ -261,7 +261,7 @@ class UI extends BaseShield\UI {
 					'mods'                   => $this->buildSelectData_ModuleSettings(),
 					'search_select'          => $this->buildSelectData_OptionsSearch(),
 					'active_module_settings' => $subNavSection,
-					'navbar_menu'            => ( new Lib\SideMenuBuilder() )
+					'navbar_menu'            => ( new Lib\NavMenuBuilder() )
 						->setMod( $this->getMod() )
 						->build()
 				],
