@@ -104,6 +104,23 @@ class Components {
 		return array_merge(
 			$firewallComponents,
 			[
+				'all'                      => function () {
+					$con = $this->getCon();
+					$meter = ( new MeterAll() )
+						->setCon( $this->getCon() )
+						->buildMeterComponents();
+
+					$weight = 200;
+					return [
+						'title'            => sprintf( __( 'Overall %s Configuration Summary', 'wp-simple-firewall' ), $con->getHumanName() ),
+						'desc_protected'   => sprintf( __( 'The cumulative score for your entire %s configuration', 'wp-simple-firewall' ), $con->getHumanName() ),
+						'desc_unprotected' => sprintf( __( 'The cumulative score for your entire %s configuration', 'wp-simple-firewall' ), $con->getHumanName() ),
+						'href'             => '',
+						'protected'        => $meter[ 'totals' ][ 'percentage' ] > 75,
+						'score'            => $meter[ 'totals' ][ 'percentage' ]*$weight/100,
+						'weight'           => $weight,
+					];
+				},
 				'shieldpro'                => function () {
 					$con = $this->getCon();
 					return [
@@ -992,7 +1009,7 @@ class Components {
 							'https://mxtoolbox.com/SuperTool.aspx'
 						),
 						'protected'        => false,
-						'weight'           => 50,
+						'weight'           => 45,
 					];
 
 					// SSL Expires

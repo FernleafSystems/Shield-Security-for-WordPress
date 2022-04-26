@@ -20,24 +20,28 @@ abstract class MeterBase extends BaseTemplateRenderer {
 
 	protected function postProcessMeter( array $meter ) :array {
 		$hasCritical = false;
-		$protected = 0;
+		$totalScore = 0;
 		$totalWeight = 0;
 		foreach ( $meter[ 'components' ] as $key => $component ) {
-			$totalWeight += $component[ 'weight' ];
-			if ( $component[ 'protected' ] ) {
-				$protected += $component[ 'weight' ];
+
+			if ( !isset( $component[ 'score' ] ) ) {
+				$component[ 'score' ] = $component[ 'protected' ] ? $component[ 'weight' ] : 0;
 			}
+			$totalScore += $component[ 'score' ];
+			$totalWeight += $component[ 'weight' ];
 
 			if ( !isset( $component[ 'is_critical' ] ) ) {
 				$component[ 'is_critical' ] = false;
 			}
+
 			$meter[ 'components' ][ $key ] = $component;
 
 			$hasCritical = $hasCritical || $component[ 'is_critical' ];
 		}
 
-		foreach ( $meter[ 'components' ] as &$component ) {
-			$component[ 'weight_as_percent' ] = (int)round( 100*$component[ 'weight' ]/$totalWeight );
+		foreach ( $meter[ 'components' ] as &$comp ) {
+			$comp[ 'score_as_percent' ] = (int)round( 100*$comp[ 'score' ]/$totalWeight );
+			$comp[ 'weight_as_percent' ] = (int)round( 100*$comp[ 'weight' ]/$totalWeight );
 		}
 
 		// Put critical components to the top of the list.
@@ -48,9 +52,9 @@ abstract class MeterBase extends BaseTemplateRenderer {
 			return $a[ 'is_critical' ] ? -1 : 1;
 		} );
 
-		$percentage = (int)round( 100*$protected/$totalWeight );
+		$percentage = (int)round( 100*$totalScore/$totalWeight );
 		$meter[ 'totals' ] = [
-			'protected'  => $protected,
+			'score'      => $totalScore,
 			'max_weight' => $totalWeight,
 			'percentage' => $percentage,
 		];

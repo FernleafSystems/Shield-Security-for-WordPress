@@ -1770,3 +1770,6 @@ button.bs-placeholder {
 #ShieldProgressMeterOffcanvas {
 	width: 600px;
 }
+.button-svg-container > .bi {
+	vertical-align: -0.125em;
+}

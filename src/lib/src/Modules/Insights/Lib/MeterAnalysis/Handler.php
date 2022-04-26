@@ -17,6 +17,7 @@ class Handler {
 	}
 
 	public function renderDashboardMeters() :string {
+		$con = $this->getCon();
 		$mod = $this->getMod();
 		return $mod->getRenderer()
 				   ->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' )
@@ -26,6 +27,11 @@ class Handler {
 					   ],
 					   'strings' => [
 						   'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
+					   ],
+					   'imgs'     => [
+						   'svgs'           => [
+							   'analysis'   => $con->svgs->raw( 'bootstrap/clipboard2-data-fill.svg' ),
+						   ],
 					   ],
 					   'vars'    => [
 						   'progress_meters' => $this->buildAllMeterComponents()
@@ -68,6 +74,7 @@ class Handler {
 
 	public function enumMeters() :array {
 		$meters = [
+//			MeterAll::class,
 			MeterIntegrity::class,
 			MeterAssets::class,
 			MeterIpBlocking::class,

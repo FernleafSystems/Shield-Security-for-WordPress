@@ -11,7 +11,7 @@ class MeterIntegrity extends MeterBase {
 	}
 
 	protected function subtitle() :string {
-		return __( 'How WordPress site protection looking overall', 'wp-simple-firewall' );
+		return __( 'How WordPress security protection is looking overall', 'wp-simple-firewall' );
 	}
 
 	protected function description() :array {
@@ -23,6 +23,7 @@ class MeterIntegrity extends MeterBase {
 
 	protected function getComponentSlugs() :array {
 		$components = [
+			'all',
 			'ssl_certificate',
 			'db_password',
 			'audit_trail_enabled',

@@ -29,27 +29,21 @@
 			      <div class="card-body">
 				      <h6 class="card-title">
 					      {{ meter.title }}
-					      <br/><small class="text-muted">{{ meter.subtitle }}</small>
+					      <br /><small class="text-muted">{{ meter.subtitle }}</small>
 				      </h6>
-{#					    <small>{{ meter.subtitle }}</small>#}
+				      {#              <small>{{ meter.subtitle }}</small> #}
 				      {% for desc in meter.description %}
 					      <p class="card-text">{{ desc }}</p>
 				      {% endfor %}
 
 			      </div>
 			      <div class="card-footer">
-				      <a class="btn
-								{% if meter.has_critical|default(false) %}
-									btn-danger
-								{% elseif meter.totals.percentage > 50 %}
-									btn-success
-								{% else %}
-									btn-warning
-								{% endif %}"
+				      <a class="btn {% if meter.has_critical|default(false) %}btn-danger{% elseif meter.totals.percentage > 50 %}btn-success{% else %}btn-warning{% endif %}"
 				         href="javascript:{shield_render_meter_analysis('{{ meter_slug }}')}"
 						      {#             data-bs-toggle="offcanvas" data-bs-target="#ShieldProgressMeterOffcanvas" #}
 						     aria-controls="ShieldProgressMeterOffcanvas">
-								{{ strings.analysis }}
+								<span class="button-svg-container">{{ imgs.svgs.analysis|raw }}</span>
+					      {{ strings.analysis }}
 							</a>
 			      </div>
 
@@ -59,26 +53,6 @@
     </div>
 	{% endfor %}
 </div>
-
-
-{#      <div class="card summary-card h-100 progress-meter"> #}
-{#        <div class="card-body" style="margin: auto"> #}
-
-{#          <div class="pie" data-pie='{ #}
-{#  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )", #}
-{#  "percent": {{ meter.totals.percentage }}, #}
-{#  "colorCircle": "#e6e6e6" #}
-{# }'></div> #}
-{#        </div> #}
-{#        <div class="card-footer text-center"> #}
-{#          <a class="btn btn-secondary btn-block" #}
-{#             href="javascript:{shield_render_meter_analysis('{{ meter_slug }}')}" #}
-{#              #}{#             data-bs-toggle="offcanvas" data-bs-target="#ShieldProgressMeterOffcanvas" #}
-{#             aria-controls="ShieldProgressMeterOffcanvas"> #}
-{#            {{ strings.analysis }} #}
-{#          </a> #}
-{#        </div> #}
-{#      </div> #}
 
 <div class="offcanvas offcanvas-end meter-analysis"
      id="ShieldProgressMeterOffcanvas"
