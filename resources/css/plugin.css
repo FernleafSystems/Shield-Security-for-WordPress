@@ -1529,8 +1529,8 @@ body.folded #FooterBannerGoPro {
 	border-color: rgb(177 216 178);
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
-	min-width: 140px;
-	width: 140px;
+	min-width: 160px;
+	width: 160px;
 
 	border-top-right-radius: 24px; /** to match with Overview Dials */
 }
@@ -1609,16 +1609,22 @@ body.folded #FooterBannerGoPro {
 .primary_side_sub_menu {
 }
 .primary_side_sub_menu a {
+	border-left: 1px solid rgba(0, 0, 0, 0.2);
+	padding-left: 24px;
 	text-decoration: none;
 	color: #111111;
 }
 .primary_side_sub_menu a:hover {
+	border-left: 3px solid rgba(0, 128, 0, 0.3);
+	padding-left: 22px;
+
 	color: #008000;
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 .primary_side_sub_menu a.active {
-	border-left: 3px solid rgba(0, 128, 0, 0.4);
-	padding-left: 6px !important;
+	color: #008000;
+	border-left: 3px solid rgba(0, 128, 0, 0.7);
+	padding-left: 20px;
 }
 #SearchDialog .modal-body {
 	min-height: 450px;

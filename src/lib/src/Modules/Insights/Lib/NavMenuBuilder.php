@@ -140,12 +140,12 @@ class NavMenuBuilder {
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
 			],
-			[
-				'slug'    => 'audit-download',
-				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
-				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
-				'classes' => [ 'shield_file_download' ],
-			],
+//			[
+//				'slug'    => 'audit-download',
+//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
+//				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
+//				'classes' => [ 'shield_file_download' ],
+//			],
 			[
 				'slug'   => 'audit-glossary',
 				'title'  => __( 'Glossary', 'wp-simple-firewall' ),

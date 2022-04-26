@@ -48,7 +48,7 @@
 					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
 						{% for sub in mitem.sub_items %}
 							<li class="mb-0 pl-0 py-0">
-							<a class="py-1 px-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
+							<a class="py-1 m0-1 pe-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
 							   href="{{ sub.href|default('#') }}"
 									{% for data_key,data_val in sub.data|default([]) %}
 										data-{{ data_key }}="{{ data_val }}"

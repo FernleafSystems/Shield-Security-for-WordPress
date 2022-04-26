@@ -16,7 +16,7 @@ class MeterIpBlocking extends MeterBase {
 
 	protected function description() :array {
 		return [
-			__( "Bot detection & IP Blocking is the core foundation to reliable, long-term, powerful WordPress protection.", 'wp-simple-firewall' ),
+			__( "Bot Detection & IP Blocking form the core foundation to reliable, powerful, and long-term WordPress protection.", 'wp-simple-firewall' ),
 			__( "Your biggest threat comes from automated bots, so detecting them quickly and blocking them early is your greatest source of protection.", 'wp-simple-firewall' ),
 			__( "When the security plugin detects enough bad behaviours it'll block the IP from accessing the site altogether.", 'wp-simple-firewall' ),
 		];
