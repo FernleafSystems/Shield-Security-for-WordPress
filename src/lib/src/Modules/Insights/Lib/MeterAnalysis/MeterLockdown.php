@@ -11,7 +11,7 @@ class MeterLockdown extends MeterBase {
 	}
 
 	protected function subtitle() :string {
-		return __( 'How various components of WordPress are locked-down', 'wp-simple-firewall' );
+		return __( 'How various WordPress components are locked-down', 'wp-simple-firewall' );
 	}
 
 	protected function description() :array {

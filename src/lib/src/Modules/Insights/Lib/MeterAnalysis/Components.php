@@ -391,9 +391,9 @@ class Components {
 					/** @var Traffic\Options $optsTraffic */
 					$optsTraffic = $modTraffic->getOptions();
 					return [
-						'title'            => __( 'Traffic Activity', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Tracking all types of traffic and requests with the Traffic Log is enabled making it easier to track issues.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Tracking all types of traffic and requests with the Traffic Log isn't enabled making it harder to track issues.", 'wp-simple-firewall' ),
+						'title'            => __( 'Traffic Logging', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Traffic requests are being logged, making it easier to track issues.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Traffic requests aren't being logged, making it harder to track issues.", 'wp-simple-firewall' ),
 						'href'             => $modTraffic->isModOptEnabled() ? $modTraffic->getUrl_DirectLinkToOption( 'enable_logger' )
 							: $modTraffic->getUrl_DirectLinkToOption( 'enable_traffic' ),
 						'protected'        => $modTraffic->isModOptEnabled() && $optsTraffic->isTrafficLoggerEnabled(),

@@ -80,7 +80,9 @@ abstract class MeterBase extends BaseTemplateRenderer {
 			$this->getCon()->getModule_Plugin()->getUIHandler()->getBaseDisplayData(),
 			[
 				'strings' => [
-					'title' => sprintf( '%s: %s', __( 'Analysis', 'wp-simple-firewall' ), $this->title() ),
+					'title'            => sprintf( '%s: %s', __( 'Analysis', 'wp-simple-firewall' ), $this->title() ),
+					'scores_footnote1' => __( 'Scores are an approximate weighting for each component.', 'wp-simple-firewall' ),
+					'scores_footnote2' => __( 'As each issue is resolved the overall score will improve, up to 100%.', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'components' => $this->buildMeterComponents()[ 'components' ]
