@@ -17,20 +17,26 @@ class UI {
 			->standard();
 	}
 
-	public function buildSelectData_ModuleSettings() :array {
-		return $this->getMod()->getModulesSummaryData();
-	}
-
 	public function buildSelectData_OptionsSearch() :array {
-		$modsToSearch = array_filter(
-			$this->getMod()->getModulesSummaryData(),
-			function ( $modSummary ) {
-				return !empty( $modSummary[ 'show_mod_opts' ] );
-			}
-		);
 		$searchSelect = [];
-		foreach ( $modsToSearch as $slug => $summary ) {
-			$searchSelect[ $summary[ 'name' ] ] = $summary[ 'options' ];
+		foreach ( $this->getCon()->modules as $module ) {
+			$cfg = $module->cfg;
+			if ( $cfg->properties[ 'show_module_options' ] ) {
+				$options = [];
+				foreach ( $module->getOptions()->getVisibleOptionsKeys() as $optKey ) {
+					try {
+						$options[ $optKey ] = array_merge(
+							$module->getStrings()->getOptionStrings( $optKey ),
+							[
+								'href'=>$module->getUrl_DirectLinkToOption( $optKey )
+							]
+						);
+					}
+					catch ( \Exception $e ) {
+					}
+				}
+				$searchSelect[ $module->getMainFeatureName() ] = $options;
+			}
 		}
 		return $searchSelect;
 	}
@@ -44,32 +50,13 @@ class UI {
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
 
 		return [
-			'sPluginName'   => $con->getHumanName(),
 			'sTagline'      => $mod->cfg->properties[ 'tagline' ],
 			'nonce_field'   => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 			'form_action'   => 'admin.php?page='.$mod->getModSlug(),
-			'aPluginLabels' => $con->getLabels(),
-			'help_video'    => [
-				'auto_show'   => $this->getIfAutoShowHelpVideo(),
-				'display_id'  => 'ShieldHelpVideo'.$mod->getSlug(),
-				'options'     => $this->getHelpVideoOptions(),
-				'displayable' => $this->isHelpVideoDisplayable(),
-				'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
-				'width'       => 772,
-				'height'      => 454,
-			],
-
-			'aSummaryData' => array_filter(
-				$mod->getModulesSummaryData(),
-				function ( $summary ) {
-					return $summary[ 'show_mod_opts' ];
-				}
-			),
 
 			'sPageTitle' => $mod->getMainFeatureName(),
 			'data'       => [
 				'mod_slug'       => $mod->getModSlug( true ),
-				'mod_slug_short' => $mod->getModSlug( false ),
 				'all_options'    => $this->buildOptionsForStandardUI(),
 				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions() )
 					->setMod( $mod )
@@ -77,7 +64,7 @@ class UI {
 				'hidden_options' => $this->getOptions()->getHiddenOptions()
 			],
 			'vars'       => [
-				'mod_slug' => $mod->getModSlug( true ),
+				'mod_slug' => $mod->getModSlug(),
 			],
 			'ajax'       => [
 				'mod_options'          => $mod->getAjaxActionData( 'mod_options', true ),
@@ -134,80 +121,8 @@ class UI {
 		];
 	}
 
-	public function getInsightsOverviewCards() :array {
-		/** @var Insights\OverviewCards $oc */
-		$oc = $this->loadInsightsHelperClass( 'OverviewCards' );
-		return $oc->build();
-	}
-
-	protected function getModDisabledCard() :array {
-		$mod = $this->getMod();
-		return [
-			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
-			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
-			'state'   => -1,
-			'href'    => $mod->getUrl_DirectLinkToOption( $mod->getEnableModOptKey() ),
-		];
-	}
-
-	protected function getModDisabledInsight() :array {
-		$mod = $this->getMod();
-		return [
-			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
-			'enabled' => false,
-			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
-			'weight'  => 2,
-			'href'    => $mod->getUrl_DirectLinkToOption( $mod->getEnableModOptKey() ),
-		];
-	}
-
-	protected function getHelpVideoOptions() :array {
-		$aOptions = $this->getOptions()->getOpt( 'help_video_options', [] );
-		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
-			$aOptions = [
-				'closed'    => false,
-				'displayed' => false,
-				'played'    => false,
-			];
-			$this->getOptions()->setOpt( 'help_video_options', $aOptions );
-		}
-		return $aOptions;
-	}
-
 	protected function getHelpVideoUrl( string $id ) :string {
 		return sprintf( 'https://player.vimeo.com/video/%s', $id );
-	}
-
-	protected function getIfAutoShowHelpVideo() :bool {
-		return !$this->getHelpVideoHasBeenClosed();
-	}
-
-	protected function getHelpVideoHasBeenDisplayed() :bool {
-		return (bool)$this->getHelpVideoOption( 'displayed' );
-	}
-
-	protected function getVideoHasBeenPlayed() :bool {
-		return (bool)$this->getHelpVideoOption( 'played' );
-	}
-
-	/**
-	 * @param string $key
-	 * @return mixed|null
-	 */
-	protected function getHelpVideoOption( $key ) {
-		$opts = $this->getHelpVideoOptions();
-		return $opts[ $key ] ?? null;
-	}
-
-	protected function getHelpVideoHasBeenClosed() :bool {
-		return (bool)$this->getHelpVideoOption( 'closed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isHelpVideoDisplayable() {
-		return false;
 	}
 
 	public function getSectionNotices( string $section ) :array {
@@ -216,32 +131,5 @@ class UI {
 
 	public function getSectionWarnings( string $section ) :array {
 		return [];
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 10.0
-	 */
-	public function isEnabledForUiSummary() :bool {
-		return $this->getMod()->isModuleEnabled();
-	}
-
-	protected function loadInsightsHelperClass( string $classToLoad ) {
-		try {
-			$NS = ( new \ReflectionClass( $this ) )->getNamespaceName();
-		}
-		catch ( \Exception $e ) {
-			$NS = __NAMESPACE__;
-		}
-
-		$fullClass = rtrim( $NS, '\\' ).'\\Insights\\'.$classToLoad;
-		if ( !@class_exists( $fullClass ) ) {
-			$fullClass = __NAMESPACE__.'\\Insights\\'.$classToLoad;
-		}
-
-		/** @var ModConsumer $class */
-		$class = new $fullClass();
-		$class->setMod( $this->getMod() );
-		return $class;
 	}
 }

@@ -19,6 +19,9 @@
     "skip_processor":        false,
     "tracking_exclude":      false
   },
+  "menus":         {
+    "config_menu_priority": 50
+  },
   "wpcli":       {
     "enabled": true
   },

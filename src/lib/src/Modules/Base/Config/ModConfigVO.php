@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property array  $properties
+ * @property array  $menus
  * @property array  $meta
  * @property array  $options
  * @property array  $sections

@@ -18,6 +18,9 @@
     "run_if_wpcli":          false,
     "order":                 20
   },
+  "menus":         {
+    "config_menu_priority": 15
+  },
   "wpcli":         {
     "enabled":  true,
     "cmd_base": "secadmin"

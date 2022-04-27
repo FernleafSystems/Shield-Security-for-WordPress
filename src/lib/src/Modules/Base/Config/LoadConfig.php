@@ -125,6 +125,10 @@ class LoadConfig {
 			'show_module_menu_item' => false,
 		], $cfg[ 'properties' ] );
 
+		$cfg[ 'menus' ] = array_merge( [
+			'config_menu_priority' => 100,
+		], $cfg[ 'menus' ] ?? [] );
+
 		if ( empty( $cfg[ 'properties' ][ 'storage_key' ] ) ) {
 			$cfg[ 'properties' ][ 'storage_key' ] = $cfg[ 'properties' ][ 'slug' ];
 		}

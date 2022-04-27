@@ -140,12 +140,12 @@ class NavMenuBuilder {
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
 			],
-//			[
-//				'slug'    => 'audit-download',
-//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
-//				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
-//				'classes' => [ 'shield_file_download' ],
-//			],
+			//			[
+			//				'slug'    => 'audit-download',
+			//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
+			//				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
+			//				'classes' => [ 'shield_file_download' ],
+			//			],
 			[
 				'slug'   => 'audit-glossary',
 				'title'  => __( 'Glossary', 'wp-simple-firewall' ),
@@ -276,26 +276,34 @@ class NavMenuBuilder {
 	}
 
 	private function configuration() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$slug = 'configuration';
 
 		$subItems = [];
-		foreach ( $mod->getModulesSummaryData() as $modData ) {
-			if ( $modData[ 'show_mod_opts' ] ) {
-				$subItems[] = [
-					'slug'    => $slug.'-'.$modData[ 'slug' ],
-					'title'   => $modData[ 'sidebar_name' ] ?? $modData[ 'name' ],
-					'href'    => $modData[ 'href' ],
-					'classes' => [ 'dynamic_body_load' ],
-					'data'    => [
+		foreach ( $this->getCon()->modules as $module ) {
+			$cfg = $module->cfg;
+			if ( $cfg->properties[ 'show_module_options' ] ) {
+				$subItems[ $cfg->slug ] = [
+					'mod_slug'      => $cfg->slug,
+					'slug'          => $slug.'-'.$cfg->slug,
+					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
+					'href'          => $module->getUrl_AdminPage(),
+					'classes'       => [ 'dynamic_body_load' ],
+					'data'          => [
 						'load_type'    => $slug,
-						'load_variant' => $modData[ 'slug' ],
+						'load_variant' => $cfg->slug
 					],
-					'active'  => Services::Request()->query( 'subnav' ) === $modData[ 'slug' ]
+					'active'        => Services::Request()->query( 'subnav' ) === $cfg->slug,
+					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],
 				];
 			}
 		}
+
+		uasort( $subItems, function ( $a, $b ) {
+			if ( $a[ 'menu_priority' ] == $b[ 'menu_priority' ] ) {
+				return 0;
+			}
+			return ( $a[ 'menu_priority' ] < $b[ 'menu_priority' ] ) ? -1 : 1;
+		} );
 
 		return [
 			'slug'      => $slug,

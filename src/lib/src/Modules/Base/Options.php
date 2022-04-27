@@ -656,7 +656,6 @@ class Options {
 		return [
 			'dismissed_notices',
 			'ui_track',
-			'help_video_options',
 			'xfer_excluded',
 			'cfg_version'
 		];

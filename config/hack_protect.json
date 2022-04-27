@@ -19,6 +19,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
   },
+  "menus":         {
+    "config_menu_priority": 25
+  },
   "wpcli":            {
     "enabled": true,
     "root":    "hack_guard"

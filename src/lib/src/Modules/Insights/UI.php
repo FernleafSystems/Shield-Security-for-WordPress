@@ -33,7 +33,7 @@ class UI extends BaseShield\UI {
 
 	private function buildInsightsVars_Overview() :array {
 		return [
-			'content'    => [
+			'content' => [
 				'progress_meters' => ( new Lib\MeterAnalysis\Handler() )
 					->setMod( $this->getMod() )
 					->renderDashboardMeters(),
@@ -84,12 +84,6 @@ class UI extends BaseShield\UI {
 						'table_traffic' => $trafficUI->renderTrafficTable(),
 					],
 				];
-				break;
-
-			case 'dashboard':
-				/** @var Shield\Modules\Plugin\UI $UI */
-				$UI = $con->getModule_Plugin()->getUIHandler();
-				$data = $UI->buildInsightsVars_Dashboard();
 				break;
 
 			case 'debug':
@@ -170,6 +164,7 @@ class UI extends BaseShield\UI {
 				$data = $UIUsers->buildInsightsVars();
 				break;
 
+			case 'dashboard':
 			case 'overview':
 			case 'index':
 				$data = $this->buildInsightsVars_Overview();
@@ -216,17 +211,11 @@ class UI extends BaseShield\UI {
 			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
-		$modsToSearch = array_filter(
-			$mod->getModulesSummaryData(),
-			function ( $modSummary ) {
-				return !empty( $modSummary[ 'show_mod_opts' ] );
-			}
-		);
-
 		$pageTitle = $availablePages[ $inav ];
-		if ( !empty( $subNavSection ) ) {
+		if ( $inav === 'settings' && !empty( $subNavSection ) ) {
+			$mod = $con->getModule( $subNavSection );
 			$pageTitle = sprintf( '%s: %s',
-				__( 'Configuration', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
+				__( 'Configuration', 'wp-simple-firewall' ), empty( $mod ) ? 'Unknown Module' : $mod->getMainFeatureName() );
 		}
 
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
@@ -258,7 +247,6 @@ class UI extends BaseShield\UI {
 				],
 				'vars'    => [
 					'changelog_id'           => $con->cfg->meta[ 'announcekit_changelog_id' ],
-					'mods'                   => $this->buildSelectData_ModuleSettings(),
 					'search_select'          => $this->buildSelectData_OptionsSearch(),
 					'active_module_settings' => $subNavSection,
 					'navbar_menu'            => ( new Lib\NavMenuBuilder() )

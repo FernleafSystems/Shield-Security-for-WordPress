@@ -581,65 +581,6 @@ abstract class ModCon {
 		}
 	}
 
-	/**
-	 * TODO: not the place for this method.
-	 * @return array[]
-	 */
-	public function getModulesSummaryData() {
-		return array_map(
-			function ( $mod ) {
-				return $mod->buildSummaryData();
-			},
-			$this->getCon()->modules
-		);
-	}
-
-	public function buildSummaryData() :array {
-		$opts = $this->getOptions();
-
-		$sections = $opts->getSections();
-		foreach ( $sections as $slug => $section ) {
-			try {
-				$strings = $this->getStrings()->getSectionStrings( $section[ 'slug' ] );
-				foreach ( $strings as $key => $val ) {
-					unset( $section[ $key ] );
-					$section[ $key ] = $val;
-				}
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		$summary = [
-			'slug'          => $this->getSlug(),
-			'enabled'       => $this->getUIHandler()->isEnabledForUiSummary(),
-			'active'        => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
-			'name'          => $this->getMainFeatureName(),
-			'sidebar_name'  => __( $this->cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
-			'menu_title'    => __( $this->cfg->properties[ 'menu_title' ], 'wp-simple-firewall' ),
-			'href'          => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'      => $sections,
-			'options'       => [],
-			'show_mod_opts' => $this->cfg->properties[ 'show_module_options' ],
-		];
-
-		foreach ( $opts->getVisibleOptionsKeys() as $optKey ) {
-			try {
-				$optData = $this->getStrings()->getOptionStrings( $optKey );
-				$optData[ 'href' ] = $this->getUrl_DirectLinkToOption( $optKey );
-				$summary[ 'options' ][ $optKey ] = $optData;
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		$summary[ 'tooltip' ] = sprintf(
-			'%s',
-			empty( $summary[ 'sidebar_name' ] ) ? $summary[ 'name' ] : __( $summary[ 'sidebar_name' ], 'wp-simple-firewall' )
-		);
-		return $summary;
-	}
-
 	public function getIfShowModuleMenuItem() :bool {
 		return $this->cfg->properties[ 'show_module_menu_item' ];
 	}
@@ -1001,25 +942,12 @@ abstract class ModCon {
 
 	/**
 	 * Override this to customize anything with the display of the page
-	 * @param array $data
-	 * @return string
 	 */
 	protected function renderModulePage( array $data = [] ) :string {
 		return $this->renderTemplate(
 			'index.php',
 			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $data )
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getContentWizardLanding() {
-		$aData = $this->getUIHandler()->getBaseDisplayData();
-		if ( $this->hasWizard() ) {
-			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
-		}
-		return $this->renderTemplate( 'snippets/module-wizard-template.php', $aData );
 	}
 
 	protected function buildContextualHelp() {

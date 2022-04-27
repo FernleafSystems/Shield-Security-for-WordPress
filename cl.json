@@ -23,7 +23,14 @@
         "type":        "new",
         "title":       "Brand New Shield Block Pages",
         "description": [
-          "We now supply much more refined block pages for the user for all scenarios: firewall, IP block, username fishing."
+          "We now offer more user-friendly block pages to the visitor for all scenarios: firewall, IP block, username fishing."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "All-New Dashboard Overview",
+        "description": [
+          "The Shield Dashboard Overview provides detailed and actionable insights into your WordPress security and how to improve it."
         ]
       },
       {

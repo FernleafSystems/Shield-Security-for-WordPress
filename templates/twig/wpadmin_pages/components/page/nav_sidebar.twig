@@ -3,7 +3,7 @@
 <ul class="nav top-level-nav flex-column mt-3 accordion" id="ShieldCollapseNav">
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item pb-3 {% if mitem.sub_items|default([]) is not empty %}with-submenu{% endif %}"
+		<li class="nav-item pb-2{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
 		    {% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
 			<a class="nav-link p-0 mb-2 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }} "

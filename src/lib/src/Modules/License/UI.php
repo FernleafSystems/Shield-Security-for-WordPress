@@ -93,10 +93,4 @@ class UI extends BaseShield\UI {
 			'strings' => $mod->getStrings()->getDisplayStrings(),
 		];
 	}
-
-	public function isEnabledForUiSummary() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getLicenseHandler()->hasValidWorkingLicense();
-	}
 }

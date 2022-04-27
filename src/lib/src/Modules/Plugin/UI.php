@@ -9,16 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvent
 
 class UI extends BaseShield\UI {
 
-	public function buildInsightsVars_Dashboard() :array {
-		return [
-			'content' => [
-				'dashboard_cards' => ( new Insights\DashboardCards() )
-					->setMod( $this->getMod() )
-					->renderAll(),
-			],
-		];
-	}
-
 	public function buildInsightsVars_Debug() :array {
 		return [
 			'strings' => [

@@ -17,6 +17,9 @@
     "run_if_wpcli":          false,
     "order":                 50
   },
+  "menus":         {
+    "config_menu_priority": 40
+  },
   "wpcli":         {
     "enabled": true
   },

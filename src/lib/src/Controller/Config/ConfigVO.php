@@ -33,7 +33,6 @@ class ConfigVO extends DynPropertiesClass {
 	public $rebuilt = false;
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {

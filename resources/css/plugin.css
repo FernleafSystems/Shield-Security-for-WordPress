@@ -1525,14 +1525,10 @@ body.folded #FooterBannerGoPro {
 #odp-PageHead {
 }
 #apto-PageMainSide {
-	background-color: rgb(230 239 230);
-	border-color: rgb(177 216 178);
-	border-width: 1px 1px 1px 0;
-	border-style: solid;
+	background-color: transparent;
+	border: 0 none;
 	min-width: 160px;
 	width: 160px;
-
-	border-top-right-radius: 24px; /** to match with Overview Dials */
 }
 #NavSideBar a.nav-link:hover {
 }
