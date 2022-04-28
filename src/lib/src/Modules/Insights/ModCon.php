@@ -26,7 +26,7 @@ class ModCon extends BaseShield\ModCon {
 			if ( !$con->isModulePage() && $con->getModule_Plugin()->getActivateLength() < 5 ) {
 				Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
 			}
-			elseif ( $this->getAdminPage()->isCurrentPage() && empty( Services::Request()->query( 'inav' ) ) ) {
+			elseif ( $this->getAdminPage()->isCurrentPage() && empty( $this->getCurrentInsightsPage() ) ) {
 				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
 			}
 		}
@@ -59,6 +59,10 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
+	public function getCurrentInsightsPage() :string {
+		return (string)Services::Request()->query( 'inav' );
+	}
+
 	protected function renderModulePage( array $data = [] ) :string {
 		/** @var UI $UI */
 		$UI = $this->getUIHandler();
@@ -67,17 +71,27 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
-		$locals[] = [
-			'plugin',
-			'icwp_wpsf_vars_insights',
-			[
-				'strings' => [
-					'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-					'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
-					'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
-				],
-			]
+
+		$insightsData = [
+			'strings' => [
+				'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+				'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
+				'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+			],
 		];
+
+		if ( $this->getCurrentInsightsPage() === 'overview' ) {
+			// Supply data for the progress meters
+			$insightsData[ 'vars' ][ 'meters' ] = [
+				'ajax' => [
+					'render_meter_analysis' => $this->getAjaxActionData( 'render_meter_analysis' ),
+				]
+			];
+		}
+
+		$locals[] = [ 'plugin', 'icwp_wpsf_vars_insights', $insightsData ];
 
 		$locals[] = [
 			'shield/navigation',
@@ -99,7 +113,7 @@ class ModCon extends BaseShield\ModCon {
 		];
 
 		$con = $this->getCon();
-		$inav = Services::Request()->query( 'inav' );
+		$inav = $this->getCurrentInsightsPage();
 		if ( empty( $inav ) ) {
 			$inav = 'overview';
 		}

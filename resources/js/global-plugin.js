@@ -13,15 +13,15 @@ iCWP_WPSF_JSErrorTrack.initialise();
 
 var iCWP_WPSF_ParseAjaxResponse = new function () {
 	this.parseIt = function ( raw ) {
-		var parsed = {};
+		let parsed = {};
 		try {
 			parsed = JSON.parse( raw );
 		}
 		catch ( e ) {
-			var openJsonTag = '##APTO_OPEN##';
-			var closeJsonTag = '##APTO_CLOSE##';
-			var start = 0;
-			var end = 0;
+			let openJsonTag = '##APTO_OPEN##';
+			let closeJsonTag = '##APTO_CLOSE##';
+			let start = 0;
+			let end = 0;
 
 			if ( raw.indexOf( openJsonTag ) >= 0 ) {
 				start = raw.indexOf( openJsonTag ) + openJsonTag.length;

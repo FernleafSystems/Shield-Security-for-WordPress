@@ -39,7 +39,7 @@
 			      </div>
 			      <div class="card-footer">
 				      <a class="btn {% if meter.has_critical|default(false) %}btn-danger{% elseif meter.totals.percentage > 50 %}btn-success{% else %}btn-warning{% endif %}"
-				         href="javascript:{shield_render_meter_analysis('{{ meter_slug }}')}"
+				         href="javascript:{iCWP_WPSF_ProgressMeters.renderAnalysis('{{ meter_slug }}')}"
 						      {#             data-bs-toggle="offcanvas" data-bs-target="#ShieldProgressMeterOffcanvas" #}
 						     aria-controls="ShieldProgressMeterOffcanvas">
 								<span class="button-svg-container">{{ imgs.svgs.analysis|raw }}</span>
@@ -61,35 +61,3 @@
      aria-labelledby="offcanvasExampleLabel"
      style="z-index: 1000000000">
 </div>
-
-<script>
-
-function shield_render_meter_analysis( meter ) {
-	iCWP_WPSF_BodyOverlay.show();
-	let reqData = {{ ajax.render_meter_analysis|raw }};
-	reqData.meter = meter;
-
-	let $canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
-	$canvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
-	let analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
-	analysisContainer.show();
-
-	jQuery.ajax(
-		{
-			type: "POST",
-			url: ajaxurl,
-			data: reqData,
-			dataType: "text",
-			success: function ( rawResponse ) {
-				let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
-				jQuery( '#ShieldProgressMeterOffcanvas' ).html( response.data.html );
-				console.log( response.html );
-			}
-		}
-	).always(
-		function () {
-			iCWP_WPSF_BodyOverlay.hide();
-		}
-	);
-}
-</script>

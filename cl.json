@@ -177,20 +177,29 @@
         ]
       },
       {
+        "type":        "changed",
+        "pro_only":    false,
         "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Comments",
         "description": [
           "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Comment SPAM has been deprecated.",
           "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
-        ],
-        "type":        "changed",
-        "pro_only":    false
+        ]
       },
       {
-        "type":        "fixed",
-        "pro_only":    false,
-        "title":       "Firewall didn't always scan all parameters in some cases",
-        "description": [
-        ]
+        "type":  "improved",
+        "title": "Display of Shield's Admin Menu Bar items can be controlled using a plugin configuration option."
+      },
+      {
+        "type":  "fixed",
+        "title": "Shield's REST API supports non-permalinks style requests (?rest_route=), regardless of permalinks configuration."
+      },
+      {
+        "type":  "fixed",
+        "title": "Fix for non-URL-encoding of password reset URL parameters when using Rename Login feature."
+      },
+      {
+        "type":  "fixed",
+        "title": "Traffic Request Log wasn't correctly indicating a request was an offense in the log viewer."
       }
     ],
     "patches":     [
@@ -262,28 +271,6 @@
         "items":       [
           {
             "title": "Fix for an error during certain Firewall scanning.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "8",
-        "released_at": 1649164738,
-        "items":       [
-          {
-            "title": "Display of Shield's Admin Menu Bar items can be controlled using a plugin configuration option.",
-            "type":  "improved"
-          },
-          {
-            "title": "REST API supports non-permalinks style requests (?rest_route=), regardless of permalinks configuration.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Fix for non-URL-encoding of password reset URL parameters when using Rename Login feature.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Traffic Request Log wasn't correctly indicating a request was an offense in the log viewer.",
             "type":  "fixed"
           }
         ]

@@ -923,18 +923,20 @@ table.scan-table.wp-list-table button.toggle-row {
 .insights-sub-nav ul.nav.nav-tabs a.nav-link {
 	color: #666666;
 	font-size: 0.9rem;
-	margin-right: 1rem;
 	background-color: rgba(0, 0, 0, 0.05);
 	border-color: rgba(0, 0, 0, 0.1);
 	border-bottom-color: transparent;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.03) inset;
 	opacity: 0.9;
+	border-radius: 0;
+	padding: 4px 12px;
+	margin: 0 0 -1px -1px;
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link:hover {
 	opacity: 1;
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link.active {
-	color: #333333;
+	color: #008000;
 	background-color: transparent;
 	border-bottom-color: #f1f1f1;
 	opacity: 1;

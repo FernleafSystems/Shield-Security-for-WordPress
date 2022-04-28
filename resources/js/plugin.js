@@ -350,9 +350,70 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 	} );
 }
 
+let iCWP_WPSF_ProgressMeters = new function () {
+
+	let data;
+	let $canvas;
+	let analysisContainer;
+
+	this.renderAnalysis = function ( meter ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let reqData = data.ajax.render_meter_analysis;
+		reqData.meter = meter;
+
+		$canvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		analysisContainer.show();
+
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				dataType: "text",
+				success: function ( raw ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+					$canvas.html( response.data.html );
+				}
+			}
+		).always(
+			function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	this.initialise = function ( workingData ) {
+		data = workingData;
+		$canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
+		analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+
+		const circle = new CircularProgressBar( 'pie' );
+		circle.initial();
+	};
+}();
+
+if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+
+	jQuery( document ).ready( function () {
+		jQuery( document ).on( 'click', 'a.shield_file_download, a.shield_file_download ', function ( evt ) {
+			evt.preventDefault();
+			/** Cache busting **/
+			let url = jQuery( this ).attr( 'href' ) + '&rand='
+				+ Math.floor( 10000 * Math.random() );
+			jQuery.fileDownload( url, {
+				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
+				failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
+			} );
+			return false;
+		} );
+	} );
+}
+
 jQuery( document ).ready( function () {
 
-	const circle = new CircularProgressBar('pie'); circle.initial();
+	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
+		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
+	}
 
 	jQuery( document ).ajaxComplete( function () {
 		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )

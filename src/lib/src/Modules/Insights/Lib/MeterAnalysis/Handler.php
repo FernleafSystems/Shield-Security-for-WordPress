@@ -22,9 +22,6 @@ class Handler {
 		return $mod->getRenderer()
 				   ->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' )
 				   ->setRenderData( [
-					   'ajax'    => [
-						   'render_meter_analysis' => $mod->getAjaxActionData( 'render_meter_analysis', true ),
-					   ],
 					   'strings' => [
 						   'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
 					   ],
