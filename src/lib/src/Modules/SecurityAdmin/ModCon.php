@@ -27,7 +27,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function setupCustomHooks() {
-		add_action( $this->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
+		add_action( $this->getCon()->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
 	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {

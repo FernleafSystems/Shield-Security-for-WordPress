@@ -170,7 +170,7 @@ class ModCon extends BaseShield\ModCon {
 			$key = uniqid();
 			$opts->setOpt( 'gasp_key', $key );
 		}
-		return $this->prefix( $key );
+		return $this->getCon()->prefix( $key );
 	}
 
 	public function getTextImAHuman() :string {

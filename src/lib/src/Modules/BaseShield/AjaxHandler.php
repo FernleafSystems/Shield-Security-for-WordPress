@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
 
 class AjaxHandler extends Base\AjaxHandler {
 
@@ -43,7 +44,9 @@ class AjaxHandler extends Base\AjaxHandler {
 	public function ajaxExec_ModOptionsFormRender() :array {
 		return [
 			'success' => true,
-			'html'    => $this->getMod()->renderOptionsForm(),
+			'html'    => ( new RenderOptionsForm() )
+				->setMod( $this->getMod() )
+				->render(),
 			'message' => 'loaded'
 		];
 	}

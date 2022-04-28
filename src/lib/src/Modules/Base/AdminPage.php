@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class AdminPage extends ExecOnceModConsumer {
 
@@ -49,7 +51,7 @@ class AdminPage extends ExecOnceModConsumer {
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
-		echo $this->renderModulePage();
+		echo $this->getMod()->isAccessRestricted() ? $this->renderRestrictedPage() : $this->renderModulePage();
 	}
 
 	public function getScreenID() :string {
@@ -58,16 +60,46 @@ class AdminPage extends ExecOnceModConsumer {
 
 	/**
 	 * Override this to customize anything with the display of the page
-	 * @param array $data
 	 * @return string
 	 */
-	protected function renderModulePage( array $data = [] ) :string {
-		return $this->getMod()->renderTemplate(
-			'index.php',
-			Services::DataManipulation()->mergeArraysRecursive(
-				$this->getMod()->getUIHandler()->getBaseDisplayData(),
-				$data
-			)
+	protected function renderModulePage() :string {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\UI $uiHandler */
+		$uiHandler = $this->getCon()
+						  ->getModule_Insights()
+						  ->getUIHandler();
+		return $uiHandler->renderPages();
+	}
+
+	public function renderRestrictedPage() :string {
+		$mod = $this->getMod();
+		/** @var SecurityAdmin\Options $secOpts */
+		$secOpts = $this->getCon()
+						->getModule_SecAdmin()
+						->getOptions();
+
+		$reportEmail = $mod->getPluginReportEmail();
+
+		return $mod->renderTemplate(
+			'/wpadmin_pages/security_admin/index.twig',
+			Services::DataManipulation()
+					->mergeArraysRecursive(
+						$mod->getUIHandler()->getBaseDisplayData(),
+						[
+							'ajax'    => [
+								'restricted_access' => $mod->getAjaxActionData( 'restricted_access' ),
+							],
+							'strings' => [
+								'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
+								'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
+								'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
+									Obfuscate::Email( $reportEmail ) ),
+								'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
+							],
+							'flags'   => [
+								'allow_email_override' => $secOpts->isEmailOverridePermitted()
+							]
+						]
+					)
 		);
 	}
 
@@ -125,7 +157,7 @@ class AdminPage extends ExecOnceModConsumer {
 				$isHighlighted = $menuItem[ 'highlight' ] ?? false;
 				$items[ $menuPageTitle ] = [
 					$isHighlighted ? sprintf( '<span class="shield_highlighted_menu">%s</span>', $title ) : $title,
-					$mod->prefix( $menuItem[ 'slug' ] ),
+					$con->prefix( $menuItem[ 'slug' ] ),
 					[ $this, $menuItem[ 'callback' ] ?? '' ],
 					true
 				];

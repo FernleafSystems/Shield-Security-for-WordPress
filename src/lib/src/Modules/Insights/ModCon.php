@@ -63,12 +63,6 @@ class ModCon extends BaseShield\ModCon {
 		return (string)Services::Request()->query( 'inav' );
 	}
 
-	protected function renderModulePage( array $data = [] ) :string {
-		/** @var UI $UI */
-		$UI = $this->getUIHandler();
-		return $UI->renderPages();
-	}
-
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
 

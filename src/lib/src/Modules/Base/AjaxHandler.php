@@ -14,7 +14,7 @@ abstract class AjaxHandler {
 	 */
 	public function __construct( $mod ) {
 		$this->setMod( $mod );
-		add_filter( $mod->prefix( 'ajax_handlers' ),
+		add_filter( $mod->getCon()->prefix( 'ajax_handlers' ),
 			function ( array $ajaxHandlers, bool $isAuth ) {
 				return \array_merge( $ajaxHandlers, $this->getAjaxActionCallbackMap( $isAuth ) );
 			},

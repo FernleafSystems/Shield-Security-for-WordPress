@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ModCon {
@@ -226,8 +227,8 @@ abstract class ModCon {
 				}
 			}
 			if ( !empty( $reqPHP[ 'constants' ] ) && is_array( $reqPHP[ 'constants' ] ) ) {
-				foreach ( $reqPHP[ 'constants' ] as $sConstant ) {
-					$meetReqs = $meetReqs && defined( $sConstant );
+				foreach ( $reqPHP[ 'constants' ] as $constant ) {
+					$meetReqs = $meetReqs && defined( $constant );
 				}
 			}
 		}
@@ -290,10 +291,11 @@ abstract class ModCon {
 	}
 
 	public function onWpInit() {
+		$con = $this->getCon();
 
-		$shieldAction = $this->getCon()->getShieldAction();
+		$shieldAction = $con->getShieldAction();
 		if ( !empty( $shieldAction ) ) {
-			do_action( $this->getCon()->prefix( 'shield_action' ), $shieldAction );
+			do_action( $con->prefix( 'shield_action' ), $shieldAction );
 			$this->handleShieldAction( $shieldAction );
 		}
 
@@ -326,8 +328,8 @@ abstract class ModCon {
 
 		// GDPR
 		if ( $this->isPremium() ) {
-			add_filter( $this->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
-			add_filter( $this->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
+			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
+			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
 
 		if ( is_admin() || is_network_admin() ) {
@@ -553,7 +555,7 @@ abstract class ModCon {
 	}
 
 	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? $this->prefix( $this->getSlug() ) : $this->getSlug();
+		return $prefix ? $this->getCon()->prefix( $this->getSlug() ) : $this->getSlug();
 	}
 
 	public function getSlug() :string {
@@ -569,7 +571,8 @@ abstract class ModCon {
 		$cfg = $this->getOptions()->getRawData_FullFeatureConfig();
 		if ( !empty( $cfg[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
 			foreach ( $cfg[ 'custom_redirects' ] as $redirect ) {
-				if ( Services::Request()->query( 'page' ) == $this->prefix( $redirect[ 'source_mod_page' ] ) ) {
+				if ( Services::Request()->query( 'page' ) == $this->getCon()
+																  ->prefix( $redirect[ 'source_mod_page' ] ) ) {
 					Services::Response()->redirect(
 						$this->getCon()->getModule( $redirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
 						$redirect[ 'query_args' ],
@@ -712,7 +715,7 @@ abstract class ModCon {
 		}
 
 		$this->doPrePluginOptionsSave();
-		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
+		if ( apply_filters( $this->getCon()->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
 				 ->setNeedSave( true );
 		}
@@ -720,7 +723,7 @@ abstract class ModCon {
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		if ( $this->getOptions()->getNeedSave() ) {
 			$this->bImportExportWhitelistNotify = true;
-			do_action( $this->prefix( 'pre_options_store' ), $this );
+			do_action( $this->getCon()->prefix( 'pre_options_store' ), $this );
 		}
 		$this->store();
 		return $this;
@@ -730,10 +733,11 @@ abstract class ModCon {
 	}
 
 	private function store() {
-		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+		$con = $this->getCon();
+		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()
-			 ->doOptionsSave( $this->getCon()->getIsResetPlugin(), $this->isPremium() );
-		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+			 ->doOptionsSave( $con->getIsResetPlugin(), $this->isPremium() );
+		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
 	/**
@@ -778,7 +782,8 @@ abstract class ModCon {
 	 * @throws \Exception
 	 */
 	public function saveOptionsSubmit() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
+		$con = $this->getCon();
+		if ( !$con->isPluginAdmin() ) {
 			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
 
@@ -788,8 +793,8 @@ abstract class ModCon {
 
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( $this->bImportExportWhitelistNotify ?? false ) {
-			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( Services::Request()->ts() + 30, $this->prefix( 'importexport_notify' ) );
+			if ( !wp_next_scheduled( $con->prefix( 'importexport_notify' ) ) ) {
+				wp_schedule_single_event( Services::Request()->ts() + 30, $con->prefix( 'importexport_notify' ) );
 			}
 		}
 	}
@@ -928,26 +933,10 @@ abstract class ModCon {
 	 * @param string $suffix
 	 * @param string $glue
 	 * @return string
+	 * @deprecated 15.0
 	 */
 	public function prefix( $suffix = '', $glue = '-' ) {
 		return $this->getCon()->prefix( $suffix, $glue );
-	}
-
-	/**
-	 * @uses echo()
-	 */
-	public function displayModuleAdminPage() {
-		echo $this->renderModulePage();
-	}
-
-	/**
-	 * Override this to customize anything with the display of the page
-	 */
-	protected function renderModulePage( array $data = [] ) :string {
-		return $this->renderTemplate(
-			'index.php',
-			Services::DataManipulation()->mergeArraysRecursive( $this->getUIHandler()->getBaseDisplayData(), $data )
-		);
 	}
 
 	protected function buildContextualHelp() {
@@ -1027,32 +1016,11 @@ abstract class ModCon {
 	}
 
 	public function getIsShowMarketing() :bool {
-		return (bool)apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
+		return (bool)apply_filters( 'shield/show_marketing', !$this->isPremium() );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function renderOptionsForm() {
-
-		if ( $this->canDisplayOptionsForm() ) {
-			$template = 'components/options_form/main.twig';
-		}
-		else {
-			$template = 'subfeature-access_restricted';
-		}
-
-		try {
-			return $this->getCon()
-						->getRenderer()
-						->setTemplate( $template )
-						->setRenderVars( $this->getUIHandler()->getBaseDisplayData() )
-						->setTemplateEngineTwig()
-						->render();
-		}
-		catch ( \Exception $e ) {
-			return 'Error rendering options form: '.$e->getMessage();
-		}
+	public function isAccessRestricted() :bool {
+		return $this->cfg->properties[ 'access_restricted' ] && !$this->getCon()->isPluginAdmin();
 	}
 
 	public function canDisplayOptionsForm() :bool {

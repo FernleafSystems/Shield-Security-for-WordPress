@@ -55,7 +55,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 		}
 
 		if ( $opts->isEnabledAutoVisitorRecover()
-			 && $req->post( 'action' ) == $mod->prefix()
+			 && $req->post( 'action' ) == $mod->getCon()->prefix()
 			 && $req->post( 'exec' ) == 'uau-'.$ip ) {
 
 			if ( check_admin_referer( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
@@ -108,7 +108,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 		$unblocked = false;
 
 		if ( $opts->isEnabledMagicEmailLinkRecover()
-			 && $req->query( 'action' ) == $mod->prefix()
+			 && $req->query( 'action' ) == $mod->getCon()->prefix()
 			 && strpos( $req->query( 'exec' ), 'uaum-' ) === 0 ) {
 
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {

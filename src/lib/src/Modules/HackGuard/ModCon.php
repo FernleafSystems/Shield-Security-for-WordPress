@@ -173,7 +173,7 @@ class ModCon extends BaseShield\ModCon {
 		$freq = $opts->getScanFrequency();
 		Services::WpCron()
 				->addNewSchedule(
-					$this->prefix( sprintf( 'per-day-%s', $freq ) ),
+					$this->getCon()->prefix( sprintf( 'per-day-%s', $freq ) ),
 					[
 						'interval' => DAY_IN_SECONDS/$freq,
 						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )

@@ -68,7 +68,7 @@ class ModCon extends BaseShield\ModCon {
 
 		$user = Services::WpUsers()->getUserByEmail( $email );
 		if ( !empty( $user ) ) {
-
+			$con = $this->getCon();
 			$WP = Services::WpGeneral();
 			$exportData = array_map(
 				function ( $log ) use ( $WP ) {
@@ -96,10 +96,10 @@ class ModCon extends BaseShield\ModCon {
 				$exportItems[] = [
 					'group_id'          => $this->getModSlug(),
 					'group_label'       => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
+						$con->getHumanName() ),
 					'group_description' => sprintf( __( '[%s] Audit Trail Entries referencing the given user.', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
-					'item_id'           => $this->prefix( 'audit-trail' ),
+						$con->getHumanName() ),
+					'item_id'           => $con->prefix( 'audit-trail' ),
 					'data'              => $exportData,
 				];
 			}
