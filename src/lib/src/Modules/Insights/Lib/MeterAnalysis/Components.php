@@ -119,6 +119,7 @@ class Components {
 						'protected'        => $meter[ 'totals' ][ 'percentage' ] > 75,
 						'score'            => $meter[ 'totals' ][ 'percentage' ]*$weight/100,
 						'weight'           => $weight,
+						'original_score'   => $meter[ 'totals' ][ 'percentage' ],
 					];
 				},
 				'shieldpro'                => function () {

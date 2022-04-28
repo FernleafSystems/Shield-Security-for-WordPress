@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,6 +29,7 @@ class DashboardWidget {
 					->setTemplate( '/admin/admin_dashboard_widget.twig' )
 					->setRenderData( [
 						'hrefs'   => [
+							'overview'    => $modInsights->getUrl_SubInsightsPage( 'overview' ),
 							'logo'        => $labels[ 'PluginURI' ],
 							'audit_trail' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
 							'sessions'    => $modInsights->getUrl_SubInsightsPage( 'users' ),
@@ -40,23 +42,25 @@ class DashboardWidget {
 							'logo' => $con->urls->forImage( 'pluginlogo_banner-772x250.png' )
 						],
 						'strings' => [
-							'recent_blocked'  => __( 'Recently Blocked', 'wp-simple-firewall' ),
-							'recent_offenses' => __( 'Recent Offenses', 'wp-simple-firewall' ),
-							'recent_sessions' => __( 'Recent Sessions', 'wp-simple-firewall' ),
-							'recent_activity' => __( 'Recent Activity', 'wp-simple-firewall' ),
-							'view_all'        => __( 'View All', 'wp-simple-firewall' ),
-							'no_offenses'     => __( "No offenses recorded by IPs that haven't already been blocked.", 'wp-simple-firewall' ),
-							'no_blocked'      => __( 'No IP blocks recorded yet.', 'wp-simple-firewall' ),
-							'no_sessions'     => __( 'No new session activity recorded yet.', 'wp-simple-firewall' ),
-							'no_activity'     => __( 'No site activity recorded yet.', 'wp-simple-firewall' ),
-							'generated'       => __( 'Summary Generated', 'wp-simple-firewall' ),
-							'refresh'         => __( 'Refresh', 'wp-simple-firewall' ),
-							'events'          => __( 'Events', 'wp-simple-firewall' ),
-							'time'            => __( 'Time', 'wp-simple-firewall' ),
-							'user'            => __( 'User', 'wp-simple-firewall' ),
-							'session_started' => __( 'Session Started', 'wp-simple-firewall' ),
-							'last_offense'    => __( 'Last Offense', 'wp-simple-firewall' ),
-							'blocked'         => __( 'Blocked', 'wp-simple-firewall' ),
+							'security_progress' => __( 'Overall Security Progress', 'wp-simple-firewall' ),
+							'progress_overview' => __( 'Go To Overview', 'wp-simple-firewall' ),
+							'recent_blocked'    => __( 'Recently Blocked', 'wp-simple-firewall' ),
+							'recent_offenses'   => __( 'Recent Offenses', 'wp-simple-firewall' ),
+							'recent_sessions'   => __( 'Recent Sessions', 'wp-simple-firewall' ),
+							'recent_activity'   => __( 'Recent Activity', 'wp-simple-firewall' ),
+							'view_all'          => __( 'View All', 'wp-simple-firewall' ),
+							'no_offenses'       => __( "No offenses recorded by IPs that haven't already been blocked.", 'wp-simple-firewall' ),
+							'no_blocked'        => __( 'No IP blocks recorded yet.', 'wp-simple-firewall' ),
+							'no_sessions'       => __( 'No new session activity recorded yet.', 'wp-simple-firewall' ),
+							'no_activity'       => __( 'No site activity recorded yet.', 'wp-simple-firewall' ),
+							'generated'         => __( 'Summary Generated', 'wp-simple-firewall' ),
+							'refresh'           => __( 'Refresh', 'wp-simple-firewall' ),
+							'events'            => __( 'Events', 'wp-simple-firewall' ),
+							'time'              => __( 'Time', 'wp-simple-firewall' ),
+							'user'              => __( 'User', 'wp-simple-firewall' ),
+							'session_started'   => __( 'Session Started', 'wp-simple-firewall' ),
+							'last_offense'      => __( 'Last Offense', 'wp-simple-firewall' ),
+							'blocked'           => __( 'Blocked', 'wp-simple-firewall' ),
 						],
 						'vars'    => $vars,
 					] )
@@ -70,8 +74,14 @@ class DashboardWidget {
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
 		if ( $refresh || empty( $vars ) ) {
+			error_log( var_export( ( new Components() )
+									   ->setCon( $this->getCon() )
+									   ->getComponent( 'all' )[ 'original_score' ], true ) );
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
+				'security_progress'  => ( new Components() )
+											->setCon( $this->getCon() )
+											->getComponent( 'all' )[ 'original_score' ],
 				'jump_links'         => [
 					[
 						'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),

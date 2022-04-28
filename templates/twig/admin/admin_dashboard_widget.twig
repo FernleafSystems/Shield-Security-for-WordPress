@@ -3,11 +3,30 @@
 </a>
 
 <h3 class="subheader">
+	{{ strings.security_progress }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.overview }}">{{ strings.progress_overview }}</a>]</small>
+	{% endif %}
+</h3>
+<div class="shield-progress-bar
+	{% if vars.security_progress < 45 %}
+		red
+	{% elseif vars.security_progress < 75 %}
+		orange
+	{% endif %}
+	">
+  <div class="thebar" style="width: {{ vars.security_progress }}%">
+		<div class="thepercent">{{ vars.security_progress }}&percnt;</div>
+  </div>
+</div>
+
+<h3 class="subheader">
 	{{ strings.recent_blocked }}
 	{% if flags.show_internal_links %}
 		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
+
 {% if vars.recent_ips_blocked|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
