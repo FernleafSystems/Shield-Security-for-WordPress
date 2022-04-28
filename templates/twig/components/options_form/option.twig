@@ -206,7 +206,7 @@
 				{% endif %}
 
 				{% if flags.show_transfer_switch %}
-					{% if attribute(data.xferable_opts, aOption.key) is not same as(false) %}
+					{% if attribute(vars.xferable_opts, aOption.key) is not same as(false) %}
 						<span class="form-check float-end importexport-checkbox"
 						      data-bs-toggle="tooltip"
 						      data-bs-placement="left"
@@ -218,7 +218,7 @@
 								   name="optxfer-{{ aOption.key }}"
 								   aria-labelledby="Label-{{ aOption.key }}"
 								   value="Y"
-								{{ ( attribute(data.xferable_opts, aOption.key) is same as('Y') ) ? 'checked="checked"' : '' }}
+								{{ ( attribute(vars.xferable_opts, aOption.key) is same as('Y') ) ? 'checked="checked"' : '' }}
 							/>
 							<label class="custom-control-label"
 								   for="optxfer-{{ aOption.key }}">&nbsp;</label>

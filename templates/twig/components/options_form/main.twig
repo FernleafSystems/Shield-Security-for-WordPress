@@ -1,15 +1,15 @@
-<form action="{{ form_action }}" method="post"
-	  class="icwpOptionsForm form"
-	  novalidate="novalidate"
-	  autocomplete="off"
-	  data-mod_slug="{{ vars.mod_slug }}"
+<form action="{{ hrefs.form_action }}" method="post"
+      class="icwpOptionsForm form"
+      novalidate="novalidate"
+      autocomplete="off"
+      data-mod_slug="{{ vars.mod_slug }}"
 >
+	<input type="hidden" name="working_mod" value="{{ vars.working_mod }}" />
 
 	<div id="ModuleOptionsNav" class="insights-sub-nav" aria-orientation="horizontal">
 		<ul class="nav nav-tabs" role="tablist">
-		{% for opt_sect_key,opt_section in data.all_options %}
+		{% for opt_sect_key,opt_section in vars.all_options %}
 			<li class="nav-item">
-
 				<a href="#tab-{{ opt_section.slug }}"
 				   class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
@@ -23,9 +23,9 @@
 	</div>
 
 	<div class="tab-content container-fluid">
-		{% for opt_section in data.all_options %}
+		{% for opt_section in vars.all_options %}
 			<div class="tab-pane {{ opt_section.primary ? 'active show primary_section' : 'non_primary_section' }}"
-				 role="tabpanel" id="tab-{{ opt_section.slug }}">
+			     role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">
 					<div class="col-12">
@@ -93,7 +93,7 @@
 		<div class="row">
 			<div class="col text-start">
 				<button type="submit" class="button button-primary ms-3 mt-3 icwp-form-button"
-						name="submit">{{ strings.save_all_settings }}</button>
+				        name="submit">{{ strings.save_all_settings }}</button>
 			</div>
 		</div>
 </form>

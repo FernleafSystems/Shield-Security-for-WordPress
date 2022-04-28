@@ -409,6 +409,13 @@ class ModCon extends BaseShield\ModCon {
 					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
 					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 				],
+				'vars'    => [
+					'mod_options' => [
+						'ajax' => [
+							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
+						]
+					]
+				]
 			]
 		];
 
@@ -416,7 +423,7 @@ class ModCon extends BaseShield\ModCon {
 			'global-plugin',
 			'icwp_wpsf_vars_globalplugin',
 			[
-				'vars'    => [
+				'vars' => [
 					'dashboard_widget' => [
 						'ajax' => [
 							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )

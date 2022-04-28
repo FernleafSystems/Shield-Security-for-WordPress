@@ -13,7 +13,7 @@
 				<br />{{ strings.aar_must_supply_key_first }}
 			</p>
 
-			<form action="{{ form_action }}" method="post" class="form-horizontal" id="SecurityAdminForm">
+			<form action="{{ hrefs.form_action }}" method="post" class="form-horizontal" id="SecurityAdminForm">
 
 				{% for input_name, input_val in ajax.sec_admin_login %}
 					<input type="hidden" name="{{ input_name }}" value="{{ input_val }}" />

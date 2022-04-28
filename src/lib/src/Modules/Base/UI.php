@@ -28,7 +28,7 @@ class UI {
 						$options[ $optKey ] = array_merge(
 							$module->getStrings()->getOptionStrings( $optKey ),
 							[
-								'href'=>$module->getUrl_DirectLinkToOption( $optKey )
+								'href' => $module->getUrl_DirectLinkToOption( $optKey )
 							]
 						);
 					}
@@ -50,29 +50,19 @@ class UI {
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
 
 		return [
-			'sTagline'      => $mod->cfg->properties[ 'tagline' ],
-			'nonce_field'   => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
-			'form_action'   => 'admin.php?page='.$mod->getModSlug(),
+			'sTagline'    => $mod->cfg->properties[ 'tagline' ],
+			'nonce_field' => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 
 			'sPageTitle' => $mod->getMainFeatureName(),
-			'data'       => [
-				'mod_slug'       => $mod->getModSlug( true ),
-				'all_options'    => $this->buildOptionsForStandardUI(),
-				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions() )
-					->setMod( $mod )
-					->build(),
-				'hidden_options' => $this->getOptions()->getHiddenOptions()
+			'ajax'       => [
 			],
 			'vars'       => [
-				'mod_slug' => $mod->getModSlug(),
-			],
-			'ajax'       => [
-				'mod_options'          => $mod->getAjaxActionData( 'mod_options', true ),
-				'mod_opts_form_render' => $mod->getAjaxActionData( 'mod_opts_form_render', true ),
+				'mod_slug'         => $mod->getModSlug(),
+				'unique_render_id' => uniqid(),
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
-				'access_restricted'     => !$mod->canDisplayOptionsForm(),
+				'access_restricted'     => $mod->isAccessRestricted(),
 				'show_ads'              => $mod->getIsShowMarketing(),
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,

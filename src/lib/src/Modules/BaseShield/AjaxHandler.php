@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
 
 class AjaxHandler extends Base\AjaxHandler {
 
@@ -11,42 +10,10 @@ class AjaxHandler extends Base\AjaxHandler {
 		$map = parent::getAjaxActionCallbackMap( $isAuth );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'mod_options'          => [ $this, 'ajaxExec_ModOptions' ],
-				'wiz_process_step'     => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizProcessStep' ],
-				'wiz_render_step'      => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizRenderStep' ],
+				'wiz_process_step' => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizProcessStep' ],
+				'wiz_render_step'  => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizRenderStep' ],
 			] );
 		}
 		return $map;
-	}
-
-	public function ajaxExec_ModOptions() :array {
-		$name = $this->getCon()->getHumanName();
-
-		try {
-			$this->getMod()->saveOptionsSubmit();
-			$success = true;
-			$msg = sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $name );
-		}
-		catch ( \Exception $e ) {
-			$success = false;
-			$msg = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $name )
-				   .' '.$e->getMessage();
-		}
-
-		return [
-			'success' => $success,
-			'html'    => '', //we reload the page
-			'message' => $msg
-		];
-	}
-
-	public function ajaxExec_ModOptionsFormRender() :array {
-		return [
-			'success' => true,
-			'html'    => ( new RenderOptionsForm() )
-				->setMod( $this->getMod() )
-				->render(),
-			'message' => 'loaded'
-		];
 	}
 }

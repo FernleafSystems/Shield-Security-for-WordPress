@@ -72,10 +72,9 @@ class AdminPage extends ExecOnceModConsumer {
 
 	public function renderRestrictedPage() :string {
 		$mod = $this->getMod();
+		$modSecAdmin = $this->getCon()->getModule_SecAdmin();
 		/** @var SecurityAdmin\Options $secOpts */
-		$secOpts = $this->getCon()
-						->getModule_SecAdmin()
-						->getOptions();
+		$secOpts = $modSecAdmin->getOptions();
 
 		$reportEmail = $mod->getPluginReportEmail();
 
@@ -88,6 +87,12 @@ class AdminPage extends ExecOnceModConsumer {
 							'ajax'    => [
 								'restricted_access' => $mod->getAjaxActionData( 'restricted_access' ),
 							],
+							'flags'   => [
+								'allow_email_override' => $secOpts->isEmailOverridePermitted()
+							],
+							'hrefs'   => [
+								'form_action' => $modSecAdmin->getUrl_AdminPage()
+							],
 							'strings' => [
 								'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
 								'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
@@ -95,9 +100,6 @@ class AdminPage extends ExecOnceModConsumer {
 									Obfuscate::Email( $reportEmail ) ),
 								'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
 							],
-							'flags'   => [
-								'allow_email_override' => $secOpts->isEmailOverridePermitted()
-							]
 						]
 					)
 		);

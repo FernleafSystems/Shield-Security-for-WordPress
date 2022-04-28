@@ -16,6 +16,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		] );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
+				'mod_options_save'        => [ $this, 'ajaxExec_ModOptionsSave' ],
 				'bulk_action'             => [ $this, 'ajaxExec_BulkItemAction' ],
 				'delete_forceoff'         => [ $this, 'ajaxExec_DeleteForceOff' ],
 				'import_from_site'        => [ $this, 'ajaxExec_ImportFromSite' ],
@@ -32,6 +33,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			] );
 		}
 		return $map;
+	}
+
+	public function ajaxExec_ModOptionsSave() :array {
+		$name = $this->getCon()->getHumanName();
+
+		$success = ( new Shield\Modules\Base\Options\HandleOptionsSaveRequest() )
+			->setMod( $this->getMod() )
+			->handleSave();
+
+		return [
+			'success' => $success,
+			'html'    => '', //we reload the page
+			'message' => $success ?
+				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $name )
+				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $name )
+		];
 	}
 
 	public function ajaxExec_RenderDashboardWidget() :array {

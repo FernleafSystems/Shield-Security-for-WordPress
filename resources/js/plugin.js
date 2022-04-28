@@ -28,22 +28,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
 			jQuery( 'html,body' ).scrollTop( 0 );
 		}
-
-		jQuery( function () {
-			// jQuery( 'a.section_title_info' ).popover( {
-			// 	placement: 'bottom',
-			// 	trigger: 'click',
-			// 	delay: 50,
-			// 	html: true
-			// } );
-
-			// jQuery( '[data-bs-toggle="tooltip"]' ).tooltip( {
-			// 	placement: 'left',
-			// 	trigger: 'hover focus',
-			// 	delay: 150,
-			// 	html: false
-			// } );
-		} );
 	};
 }();
 
@@ -105,8 +89,8 @@ iCWP_WPSF_Toaster.initialise();
 
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
-	let bRequestCurrentlyRunning = false;
-	var reqParams = icwp_wpsf_vars_base.ajax.mod_options;
+	let workingData;
+	let requestRunning = false;
 
 	this.submit = function ( msg, success ) {
 		let $oDiv = createDynDiv( success ? 'success' : 'failed' );
@@ -115,10 +99,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			$oDiv.fadeOut( 5000 );
 			$oDiv.remove();
 		}, 4000 );
-	};
-
-	this.updateAjaxReqParams = function ( params ) {
-		reqParams = params;
 	};
 
 	/**
@@ -138,7 +118,10 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			alert( 'Missing form data' );
 			return false;
 		}
+
+		let reqParams = workingData.ajax.mod_options_save;
 		reqParams.mod_slug = $form.data( 'mod_slug' );
+
 		let reqs = jQuery.extend(
 			reqParams,
 			{
@@ -168,7 +151,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 
 		} ).always( function () {
-			bRequestCurrentlyRunning = false;
+			requestRunning = false;
 			setTimeout( function () {
 				location.reload();
 			}, 1000 );
@@ -192,13 +175,13 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	var submitOptionsForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		if ( bRequestCurrentlyRunning ) {
+		if ( requestRunning ) {
 			return false;
 		}
-		bRequestCurrentlyRunning = true;
+		requestRunning = true;
 		event.preventDefault();
 
-		var $form = jQuery( this );
+		let $form = jQuery( this );
 
 		var $passwordsReady = true;
 		jQuery( 'input[type=password]', $form ).each( function () {
@@ -218,15 +201,13 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		}
 	};
 
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", 'form.icwpOptionsForm', submitOptionsForm );
-		} );
+	this.initialise = function ( data ) {
+		workingData = data;
+		jQuery( document ).on( "submit", 'form.icwpOptionsForm', submitOptionsForm );
 	};
 }();
 
 iCWP_WPSF_OptionsPages.initialise();
-iCWP_WPSF_OptionsFormSubmit.initialise();
 
 jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
@@ -396,6 +377,10 @@ jQuery( document ).ready( function () {
 
 	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
 		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
+	}
+
+	if ( typeof icwp_wpsf_vars_plugin.vars.mod_options !== 'undefined' ) {
+		iCWP_WPSF_OptionsFormSubmit.initialise( icwp_wpsf_vars_plugin.vars.mod_options );
 	}
 
 	jQuery( document ).ajaxComplete( function () {

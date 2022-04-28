@@ -17,6 +17,11 @@ class Renderer extends BaseTemplateRenderer {
 			$data[ 'unique_render_id' ] = 'noticeid-'.uniqid();
 		}
 
+		$data = Services::DataManipulation()->mergeArraysRecursive(
+			$this->getMod()->getUIHandler()->getBaseDisplayData(),
+			$data
+		);
+
 		$data[ 'strings' ] = Services::DataManipulation()->mergeArraysRecursive(
 			$this->getMod()->getStrings()->getDisplayStrings(),
 			$data[ 'strings' ] ?? []
