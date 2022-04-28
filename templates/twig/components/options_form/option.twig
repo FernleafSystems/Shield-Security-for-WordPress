@@ -32,7 +32,7 @@
 
 	<div class="col-4">
 
-		{% if aOption.type is sameas('checkbox') %}
+		{% if aOption.type is same as('checkbox') %}
 			<div class="form-check">
 				<input type="checkbox"
 					   class="form-check-input"
@@ -41,13 +41,13 @@
 					   {% if aOption.disabled %}disabled="disabled"{% endif %}
 					   aria-labelledby="Label-{{ aOption.key }}"
 					   value="Y"
-						{{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }}
+						{{ ( aOption.value is same as('Y') ) ? 'checked="checked"' : '' }}
 				/>
 				<label class="form-check-label"
 					   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
 			</div>
 
-		{% elseif aOption.type is sameas('text') %}
+		{% elseif aOption.type is same as('text') %}
 
 			<input type="text" name="{{ aOption.key }}"
 				   id="Opt-{{ aOption.key }}"
@@ -58,7 +58,7 @@
 					{% endif %}
 				   class="form-control" />
 
-		{% elseif aOption.type is sameas('password') %}
+		{% elseif aOption.type is same as('password') %}
 
 			<input type="password" name="{{ aOption.key }}"
 				   id="Opt-{{ aOption.key }}"
@@ -74,7 +74,7 @@
 				   {% if aOption.disabled %}disabled="disabled"{% endif %}
 				   class="form-control" />
 
-		{% elseif aOption.type is sameas('email') %}
+		{% elseif aOption.type is same as('email') %}
 
 			<input type="text" name="{{ aOption.key }}"
 				   id="Opt-{{ aOption.key }}"
@@ -83,7 +83,7 @@
 				   {% if aOption.disabled %}disabled="disabled"{% endif %}
 				   class="form-control" />
 
-		{% elseif aOption.type is sameas('select') %}
+		{% elseif aOption.type is same as('select') %}
 
 			{% for option_value, option_value_name in aOption.value_options %}
 				<div class="form-check">
@@ -104,7 +104,7 @@
 				</div>
 			{% endfor %}
 
-		{% elseif aOption.type is sameas('multiple_select') %}
+		{% elseif aOption.type is same as('multiple_select') %}
 
 			{% for option_value, option_value_name in aOption.value_options %}
 				<div class="form-check">
@@ -128,7 +128,7 @@
 				</div>
 			{% endfor %}
 
-		{% elseif aOption.type is sameas('array') %}
+		{% elseif aOption.type is same as('array') %}
 
 			<textarea name="{{ aOption.key }}"
 					  id="Opt-{{ aOption.key }}"
@@ -137,7 +137,7 @@
 					  {% if aOption.disabled %}disabled="disabled"{% endif %}
 					  class="form-control">{{ aOption.value|raw }}</textarea>
 
-		{% elseif aOption.type is sameas('comma_separated_lists') %}
+		{% elseif aOption.type is same as('comma_separated_lists') %}
 
 			<textarea name="{{ aOption.key }}"
 					  id="Opt-{{ aOption.key }}"
@@ -146,14 +146,14 @@
 					  {% if aOption.disabled %}disabled="disabled"{% endif %}
 					  class="form-control">{{ aOption.value }}</textarea>
 
-		{% elseif aOption.type is sameas('noneditable_text') %}
+		{% elseif aOption.type is same as('noneditable_text') %}
 
 			<input name="{{ aOption.key }}" id="Opt-{{ aOption.key }}"
 				   type="text" readonly
 				   class="form-control"
 				   value="{{ aOption.value }}" />
 
-		{% elseif aOption.type is sameas('integer') %}
+		{% elseif aOption.type is same as('integer') %}
 
 			<input type="text" name="{{ aOption.key }}"
 				   id="Opt-{{ aOption.key }}"
@@ -166,7 +166,7 @@
 			ERROR: Should never reach this point.
 		{% endif %}
 
-		{% if aOption.type is not sameas('checkbox') %}
+		{% if aOption.type is not same as('checkbox') %}
 			{# checkboxes display slightly differently #}
 			<div class="options-summary">{{ aOption.summary }}</div>
 		{% endif %}
