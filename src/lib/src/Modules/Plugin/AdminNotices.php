@@ -63,13 +63,32 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 	}
 
+	private function buildNotice_RulesNotRunning( NoticeVO $notice ) {
+		$name = $this->getCon()->getHumanName();
+
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title' => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( "%s's Rules Engine Isn't Running", 'wp-simple-firewall' ), $name ) ),
+				'lines' => [
+					sprintf(
+						__( "The Rules Engine that processes requests and protects your site doesn't appear to be operating normally.", 'wp-simple-firewall' ),
+						$name
+					),
+					__( "This could be a webhosting configuration issue, but please reach out to our support desk for help to isolate the issue.", 'wp-simple-firewall' ),
+				],
+			],
+		];
+	}
+
 	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
 		$name = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+				'title'        => sprintf( '%s: %s', __( 'asdfasdf', 'wp-simple-firewall' ),
 					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
 				'lines'        => [
 					sprintf(
@@ -302,7 +321,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	private function isNeeded_RulesNotRunning() :bool {
 		$con = $this->getCon();
-		return $con->rules->isRulesEngineReady() && !$con->rules->processComplete;
+		return !$con->rules->isRulesEngineReady() || !$con->rules->processComplete;
 	}
 
 	private function isNeeded_PluginTooOld() :bool {

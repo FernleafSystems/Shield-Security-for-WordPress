@@ -6,7 +6,7 @@
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
-		 class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible">
+	     class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible">
 
 		<div class="notice-icon">
 			<span class="dashicons dashicons-shield"></span>&nbsp;
@@ -14,7 +14,7 @@
 
 		<div class="notice-content">
 			{% if strings.title|default('') is not empty %}
-				<h3 class="notice-title">{{ strings.title|title }}</h3>
+				<h3 class="notice-title">{{ strings.title }}</h3>
 			{% endif %}
 			<div>
 				{% block notice_body %}
@@ -23,10 +23,9 @@
 							<p>{{ line }}</p>
 						{% endfor %}
 					{% endif %}
-
 					{% if strings.read_more|default('') is not empty %}
 						<p><a href="{{ hrefs.read_more }}" target="_blank">{{ strings.read_more }}</a></p>
-					{% endif %}
+				  {% endif %}
 				{% endblock %}
 			</div>
 		</div>
@@ -43,16 +42,16 @@
 	{% if ajax|default([]) is not empty %}
 		<script type="text/javascript">
 			jQuery( document ).on(
-				'click',
-				'#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
-				function () {
-					var $oContainer = jQuery( '#{{ unique_render_id }}' );
-					jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
-					$oContainer.fadeOut( 500, function () {
-						$oContainer.remove();
-					} );
-				}
-			);
+		  'click',
+		  '#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
+		  function () {
+			  var $oContainer = jQuery( '#{{ unique_render_id }}' );
+			  jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
+			  $oContainer.fadeOut( 500, function () {
+				  $oContainer.remove();
+			  } );
+		  }
+	  );
 		</script>
 	{% endif %}
 {% endblock %}

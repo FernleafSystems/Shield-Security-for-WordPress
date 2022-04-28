@@ -948,8 +948,8 @@ class Controller extends DynPropertiesClass {
 		return $this->getCfgProperty( 'base_permissions' );
 	}
 
-	public function isValidAdminArea( bool $bCheckUserPerms = false ) :bool {
-		if ( $bCheckUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
+	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
+		if ( $checkUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
 		}
 

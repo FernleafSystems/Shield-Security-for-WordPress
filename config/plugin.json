@@ -36,15 +36,15 @@
     "rules-not-running":             {
       "id":               "rules-not-running",
       "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": false,
-      "can_dismiss":      true,
+      "valid_admin":      false,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
       "type":             "error"
     },
     "override-forceoff":          {
       "id":               "override-forceoff",
       "schedule":         "conditions",
-      "valid_admin":      true,
+      "valid_admin":      false,
       "plugin_page_only": false,
       "can_dismiss":      false,
       "type":             "error"
