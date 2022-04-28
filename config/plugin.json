@@ -282,17 +282,6 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
-      "key":         "enable_xmlrpc_compatibility",
-      "section":     "section_defaults",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "XML-RPC Compatibility",
-      "summary":     "Allow Login Through XML-RPC To By-Pass Login Guard Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
-    },
-    {
       "key":         "importexport_enable",
       "section":     "section_importexport",
       "advanced":    true,

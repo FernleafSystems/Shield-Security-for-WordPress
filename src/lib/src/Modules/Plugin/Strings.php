@@ -317,12 +317,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'enable_xmlrpc_compatibility' :
-				$name = __( 'XML-RPC Compatibility', 'wp-simple-firewall' );
-				$summary = __( 'Allow Login Through XML-RPC To Bypass Accounts Management Rules', 'wp-simple-firewall' );
-				$desc = __( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.', 'wp-simple-firewall' );
-				break;
-
 			case 'importexport_enable' :
 				$name = __( 'Allow Import/Export', 'wp-simple-firewall' );
 				$summary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );

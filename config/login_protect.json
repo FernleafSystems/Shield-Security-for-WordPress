@@ -123,8 +123,8 @@
     },
     {
       "slug":        "section_deprecated",
-      "title":       "Deprecated Options",
-      "title_short": "Deprecated Options",
+      "title":       "Deprecated",
+      "title_short": "Deprecated",
       "summary":     [
         "These options will be removed in the future. Please use the ADE option under Bot SPAM section."
       ]

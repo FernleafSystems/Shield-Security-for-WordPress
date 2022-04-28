@@ -380,7 +380,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function isXmlrpcBypass() :bool {
-		return $this->getOptions()->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
+		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
 
 	public function getCanAdminNotes() :bool {
