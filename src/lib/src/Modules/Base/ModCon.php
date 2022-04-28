@@ -1034,8 +1034,7 @@ abstract class ModCon {
 				'icwp_wpsf_vars_base',
 				[
 					'ajax' => [
-						'mod_options'          => $this->getAjaxActionData( 'mod_options' ),
-						'mod_opts_form_render' => $this->getAjaxActionData( 'mod_opts_form_render' ),
+						'mod_options' => $this->getAjaxActionData( 'mod_options' ),
 					]
 				]
 			]

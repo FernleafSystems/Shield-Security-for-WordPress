@@ -24,8 +24,10 @@ class RenderOptionsForm {
 		}
 	}
 
-	public function canDisplayOptionsForm() :bool {
-		return !$this->getMod()->cfg->properties[ 'access_restricted' ]
-			   || $this->getCon()->isPluginAdmin();
+	public function buildOptionsForStandardUI() :array {
+		return ( new BuildForDisplay() )
+			->setMod( $this->getMod() )
+			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
+			->standard();
 	}
 }

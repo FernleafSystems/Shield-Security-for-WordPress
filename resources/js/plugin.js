@@ -392,23 +392,6 @@ let iCWP_WPSF_ProgressMeters = new function () {
 	};
 }();
 
-if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
-
-	jQuery( document ).ready( function () {
-		jQuery( document ).on( 'click', 'a.shield_file_download, a.shield_file_download ', function ( evt ) {
-			evt.preventDefault();
-			/** Cache busting **/
-			let url = jQuery( this ).attr( 'href' ) + '&rand='
-				+ Math.floor( 10000 * Math.random() );
-			jQuery.fileDownload( url, {
-				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
-				failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
-			} );
-			return false;
-		} );
-	} );
-}
-
 jQuery( document ).ready( function () {
 
 	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {

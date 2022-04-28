@@ -49,7 +49,10 @@ class NavMenuBuilder {
 				}
 			}
 
-			if ( !empty( $item[ 'sub_items' ] ) ) {
+			if ( empty( $item[ 'sub_items' ] ) ) {
+				$item[ 'classes' ][] = 'body_content_link';
+			}
+			else {
 				$item[ 'sub_items' ] = array_map( function ( $sub ) {
 					if ( empty( $sub[ 'classes' ] ) ) {
 						$sub[ 'classes' ] = [];
@@ -286,8 +289,8 @@ class NavMenuBuilder {
 					'mod_slug'      => $cfg->slug,
 					'slug'          => $slug.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
-					'href'          => $module->getUrl_AdminPage(),
-					'classes'       => [ 'dynamic_body_load' ],
+					'href'          => '',
+					'classes'       => [ 'dynamic_body_load', 'body_content_link' ],
 					'data'          => [
 						'load_type'    => $slug,
 						'load_variant' => $cfg->slug

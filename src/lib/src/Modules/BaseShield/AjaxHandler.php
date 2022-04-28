@@ -11,7 +11,6 @@ class AjaxHandler extends Base\AjaxHandler {
 		$map = parent::getAjaxActionCallbackMap( $isAuth );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'mod_opts_form_render' => [ $this, 'ajaxExec_ModOptionsFormRender' ],
 				'mod_options'          => [ $this, 'ajaxExec_ModOptions' ],
 				'wiz_process_step'     => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizProcessStep' ],
 				'wiz_render_step'      => [ $this->getMod()->getWizardHandler(), 'ajaxExec_WizRenderStep' ],
