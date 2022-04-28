@@ -69,10 +69,7 @@ class Controller extends DynPropertiesClass {
 		return $this;
 	}
 
-	/**
-	 * @return Shield\Modules\Events\Lib\EventsService
-	 */
-	public function loadEventsService() {
+	public function loadEventsService() :Shield\Modules\Events\Lib\EventsService {
 		if ( !isset( $this->service_events ) ) {
 			$this->service_events = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
@@ -1254,15 +1251,17 @@ class Controller extends DynPropertiesClass {
 		do_action( $this->prefix( 'modules_loaded' ) );
 
 		$this->rules->execute();
+		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
 
-		if ( !$this->cfg->rebuilt ) {
+			$this->rules->processRules();
+
 			foreach ( $this->modules as $module ) {
 				$module->onRunProcessors();
 			}
-		}
 
-		// This is where any rules responses will execute (i.e. after processors are run):
-		do_action( $this->prefix( 'after_run_processors' ) );
+			// This is where any rules responses will execute (i.e. after processors are run):
+			do_action( $this->prefix( 'after_run_processors' ) );
+		}
 
 		return true;
 	}

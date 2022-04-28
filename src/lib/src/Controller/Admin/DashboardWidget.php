@@ -29,8 +29,7 @@ class DashboardWidget {
 			apply_filters( 'shield/dashboard_widget_title',
 				sprintf( '%s: %s', $con->getHumanName(), __( 'Overview', 'wp-simple-firewall' ) ) ),
 			function () {
-				echo '<div id="ShieldDashboardWidget"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'.
-					 "<script>jQuery( document ).ready( function () { typeof Shield_WP_Dashboard_Widget !== 'undefined'? Shield_WP_Dashboard_Widget.initialise() :null; } );</script>";
+				echo '<div id="ShieldDashboardWidget"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 			}
 		);
 	}

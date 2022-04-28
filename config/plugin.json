@@ -33,6 +33,14 @@
       "can_dismiss":      true,
       "type":             "error"
     },
+    "rules-not-running":             {
+      "id":               "rules-not-running",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": false,
+      "can_dismiss":      true,
+      "type":             "error"
+    },
     "override-forceoff":          {
       "id":               "override-forceoff",
       "schedule":         "conditions",

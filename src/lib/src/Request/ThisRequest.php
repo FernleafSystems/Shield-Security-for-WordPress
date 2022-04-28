@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @property string          $ip
  * @property BotSignalRecord $botsignal_record
- * @property bool            $rules_completed
  * @property string          $ip_id
  * @property bool            $is_force_off
  * @property bool            $is_security_admin
@@ -58,7 +57,6 @@ class ThisRequest extends DynPropertiesClass {
 			case 'request_bypasses_all_restrictions':
 			case 'is_security_admin':
 			case 'is_trusted_bot':
-			case 'rules_completed':
 				$value = (bool)$value;
 				break;
 

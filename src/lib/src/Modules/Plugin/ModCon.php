@@ -412,6 +412,20 @@ class ModCon extends BaseShield\ModCon {
 			]
 		];
 
+		$locals[] = [
+			'global-plugin',
+			'icwp_wpsf_vars_globalplugin',
+			[
+				'vars'    => [
+					'dashboard_widget' => [
+						'ajax' => [
+							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )
+						]
+					]
+				],
+			]
+		];
+
 		$opts = $this->getOptions();
 		if ( Services::Request()->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 ) {
 			$opts->setOpt( 'ipdetect_at', Services::Request()->ts() );

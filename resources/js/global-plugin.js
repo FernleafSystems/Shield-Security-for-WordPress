@@ -240,37 +240,39 @@ var iCWP_WPSF_Growl = new function () {
 	};
 
 	var createDynDiv = function ( sClass ) {
-		var $oDiv = jQuery( '<div />' ).appendTo( 'body' );
-		$oDiv.attr( 'id', 'icwp-growl-notice' + Math.floor( (Math.random() * 100) + 1 ) );
-		$oDiv.addClass( sClass ).addClass( 'icwp-growl-notice' );
-		return $oDiv;
+		let div = jQuery( '<div />' ).appendTo( 'body' );
+		div.attr( 'id', 'icwp-growl-notice' + Math.floor( (Math.random() * 100) + 1 ) );
+		div.addClass( sClass ).addClass( 'icwp-growl-notice' );
+		return div;
 	};
 
 }();
 
 let Shield_WP_Dashboard_Widget = new function () {
-	let widgetContainer = function () {
-		return jQuery( '#ShieldDashboardWidget' );
-	};
-	let render = function () {
-		widgetContainer().text( 'loading ...' );
-		jQuery.ajax( {
-			type: "POST",
-			url: ajaxurl,
-			data: icwp_wpsf_vars_dashboardwidget.ajax_render,
-			dataType: "json",
-			success: function ( raw ) {
-				widgetContainer().html( raw.data.html );
-			}
-		} ).fail( function () {
-			widgetContainer().text( 'There was a problem loading the content.' )
-			console.log( 'Something went wrong with the request - it was either blocked or there was an error.' );
-		} );
-	};
-	this.initialise = function () {
-		if ( typeof icwp_wpsf_vars_dashboardwidget !== 'undefined' ) {
-			render();
+	let data;
+	this.render = function ( refresh = 0 ) {
+
+		let widgetContainer = jQuery( '#ShieldDashboardWidget' );
+
+		if ( widgetContainer.length === 1 ) {
+			widgetContainer.text( 'loading ...' );
+			data.ajax.render_dashboard_widget.refresh = refresh;
+			jQuery.ajax( {
+				type: "POST",
+				url: ajaxurl,
+				data: data.ajax.render_dashboard_widget,
+				dataType: "json",
+				success: function ( raw ) {
+					widgetContainer.html( raw.data.html );
+				}
+			} ).fail( function () {
+				widgetContainer.text( 'There was a problem loading the content.' )
+			} );
 		}
+	};
+	this.initialise = function ( workingData ) {
+		data = workingData;
+		this.render();
 	};
 }();
 
@@ -304,4 +306,8 @@ var iCWP_WPSF_BodyOverlay = new function () {
 
 jQuery( document ).ready( function () {
 	iCWP_WPSF_BodyOverlay.initialise();
+
+	if ( typeof icwp_wpsf_vars_globalplugin.vars.dashboard_widget !== 'undefined' ) {
+		Shield_WP_Dashboard_Widget.initialise( icwp_wpsf_vars_globalplugin.vars.dashboard_widget );
+	}
 } );

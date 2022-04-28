@@ -34,20 +34,18 @@ class RulesController {
 	 */
 	private $storageHandler;
 
+	public $processComplete;
+
 	public function __construct() {
+		$this->processComplete = false;
 		$this->storageHandler = ( new RulesStorageHandler() )->setRulesCon( $this );
 	}
 
-	protected function canRun() :bool {
-		return !$this->getCon()->this_req->rules_completed;
-	}
-
 	protected function run() {
-		if ( $this->verifyRulesStatus() ) {
-			$this->processRules();
-			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-//				error_log( var_export( $this->getRulesResultsSummary(), true ) );
-			} );
+
+		// Rebuild the rules upon upgrade or settings change
+		if ( $this->getCon()->cfg->rebuilt ) {
+			$this->storageHandler->buildAndStore();
 		}
 
 		// Rebuild the rules when configuration is updated
@@ -79,23 +77,34 @@ class RulesController {
 		);
 	}
 
-	private function processRules() {
-		foreach ( $this->getImmediateRules() as $rule ) {
-			$this->processRule( $rule );
-		}
+	public function isRulesEngineReady() :bool {
+		return !empty( $this->getRules() );
+	}
 
-		$allHooks = array_unique( array_filter( array_map( function ( $rule ) {
-			return $rule->wp_hook;
-		}, $this->getRules() ) ) );
-		foreach ( $allHooks as $wpHook ) {
-			add_action( $wpHook, function () use ( $wpHook ) {
-				foreach ( $this->getRulesForHook( $wpHook ) as $rule ) {
-					$this->processRule( $rule );
-				}
-			}, PHP_INT_MIN );
-		}
+	public function processRules() {
+		if ( !$this->processComplete && $this->isRulesEngineReady() ) {
 
-		$this->getCon()->this_req->rules_completed = true;
+			foreach ( $this->getImmediateRules() as $rule ) {
+				$this->processRule( $rule );
+			}
+
+			$allHooks = array_unique( array_filter( array_map( function ( $rule ) {
+				return $rule->wp_hook;
+			}, $this->getRules() ) ) );
+			foreach ( $allHooks as $wpHook ) {
+				add_action( $wpHook, function () use ( $wpHook ) {
+					foreach ( $this->getRulesForHook( $wpHook ) as $rule ) {
+						$this->processRule( $rule );
+					}
+				}, PHP_INT_MIN );
+			}
+
+			$this->processComplete = true;
+
+			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
+//				error_log( var_export( $this->getRulesResultsSummary(), true ) );
+			} );
+		}
 	}
 
 	private function processRule( RuleVO $rule ) {
@@ -212,12 +221,5 @@ class RulesController {
 			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$theHandlerClass );
 		}
 		return $theHandlerClass;
-	}
-
-	private function verifyRulesStatus() :bool {
-		if ( $this->getCon()->cfg->rebuilt ) { // Rebuild the rules upon upgrade or settings change
-			$this->storageHandler->buildAndStore();
-		}
-		return !empty( $this->getRules() );
 	}
 }

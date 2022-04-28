@@ -148,9 +148,10 @@
 			<a href="{{ jump_link.href }}">{{ jump_link.text }}</a>
 		{% endfor %}
 	{% endif %}
-	<a href="javascript:{ Shield_WP_Dashboard_Widget.initialise() }">{{ strings.refresh }}</a>
 </div>
 
 <div>
-	<p style="text-align: center; font-size: smaller">{{ strings.generated }}: {{ vars.generated_at }}</p>
+	<p style="text-align: center; font-size: smaller">{{ strings.generated }}: {{ vars.generated_at }}
+		<a href="javascript:{ Shield_WP_Dashboard_Widget.render( 1 ) }">{{ strings.refresh }}</a>
+	</p>
 </div>

@@ -39,7 +39,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success' => true,
 			'html'    => ( new Components\DashboardWidget() )
 				->setMod( $this->getMod() )
-				->render()
+				->render( (bool)Services::Request()->post( 'refresh' ) )
 		];
 	}
 

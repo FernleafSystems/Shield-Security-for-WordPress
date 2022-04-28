@@ -12,12 +12,12 @@ class DashboardWidget {
 
 	use ModConsumer;
 
-	public function render() :string {
+	public function render( bool $forceRefresh = false ) :string {
 		$con = $this->getCon();
 		$modInsights = $con->getModule_Insights();
 		$labels = $con->getLabels();
 
-		$vars = $this->getVars();
+		$vars = $this->getVars( $forceRefresh );
 		$vars[ 'generated_at' ] = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $vars[ 'generated_at' ] )
@@ -63,13 +63,13 @@ class DashboardWidget {
 					->render();
 	}
 
-	private function getVars() :array {
+	private function getVars( bool $refresh ) :array {
 		$con = $this->getCon();
 		$modInsights = $con->getModule_Insights();
 		$recent = ( new RecentStats() )->setCon( $this->getCon() );
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
-		if ( empty( $vars ) ) {
+		if ( $refresh || empty( $vars ) ) {
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
 				'jump_links'         => [
@@ -98,7 +98,7 @@ class DashboardWidget {
 					function ( $evt ) {
 						/** @var EntryVO $evt */
 						return [
-							'name' => $this->getCon()->service_events->getEventName( $evt->event ),
+							'name' => $this->getCon()->loadEventsService()->getEventName( $evt->event ),
 							'at'   => Services::Request()
 											  ->carbon()
 											  ->setTimestamp( $evt->created_at )

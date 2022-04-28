@@ -17,6 +17,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
+			case 'rules-not-running':
+				$this->buildNotice_RulesNotRunning( $notice );
+				break;
+
 			case 'plugin-too-old':
 				$this->buildNotice_PluginTooOld( $notice );
 				break;
@@ -261,6 +265,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$needed = false;
 				break;
 
+			case 'rules-not-running':
+				$needed = $this->isNeeded_RulesNotRunning();
+				break;
+
 			case 'plugin-too-old':
 				$needed = $this->isNeeded_PluginTooOld();
 				break;
@@ -290,6 +298,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 		}
 		return $needed;
+	}
+
+	private function isNeeded_RulesNotRunning() :bool {
+		$con = $this->getCon();
+		return $con->rules->isRulesEngineReady() && !$con->rules->processComplete;
 	}
 
 	private function isNeeded_PluginTooOld() :bool {
