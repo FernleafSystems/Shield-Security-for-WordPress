@@ -17,41 +17,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( document ).on( 'shown.bs.tab', '#ModuleOptionsNav a.nav-link', function ( e ) {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
-
-			jQuery( document ).on( 'odp-optsrender', onOptsTabRender );
 		} );
-	};
-
-	var onOptsTabRender = function ( evt ) {
-		var sActiveTabHash = window.location.hash;
-		if ( typeof sActiveTabHash !== 'undefined' ) {
-			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
-			jQuery( 'html,body' ).scrollTop( 0 );
-		}
-	};
-}();
-
-let iCWP_WPSF_OptsPageRender = new function () {
-	this.renderForm = function ( reqData ) {
-		iCWP_WPSF_BodyOverlay.show();
-		jQuery.ajax(
-			{
-				type: "POST",
-				url: ajaxurl,
-				data: reqData,
-				dataType: "text",
-				success: function ( rawResponse ) {
-					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
-					jQuery( '#ColumnOptions .content-options' )
-					.html( response.data.html )
-					.trigger( 'odp-optsrender' );
-				}
-			}
-		).always(
-			function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
 	};
 }();
 
@@ -93,11 +59,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	let requestRunning = false;
 
 	this.submit = function ( msg, success ) {
-		let $oDiv = createDynDiv( success ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( msg );
+		let theDiv = createDynDiv( success ? 'success' : 'failed' );
+		theDiv.fadeIn().html( msg );
 		setTimeout( function () {
-			$oDiv.fadeOut( 5000 );
-			$oDiv.remove();
+			theDiv.fadeOut( 5000 );
+			theDiv.remove();
 		}, 4000 );
 	};
 
@@ -119,11 +85,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			return false;
 		}
 
-		let reqParams = workingData.ajax.mod_options_save;
-		reqParams.mod_slug = $form.data( 'mod_slug' );
-
 		let reqs = jQuery.extend(
-			reqParams,
+			workingData.ajax.mod_options_save,
 			{
 				'form_params': Base64.encode( formData ),
 				'enc_params': useCompression ? 'lz-string' : 'b64',
@@ -152,14 +115,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 		} ).always( function () {
 			requestRunning = false;
-			setTimeout( function () {
-				location.reload();
-			}, 1000 );
 		} );
 
 	};
 
-	var handleResponse = function ( raw ) {
+	let handleResponse = function ( raw ) {
 		let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 		let msg;
 		if ( response === null || typeof response.data === 'undefined'
@@ -170,9 +130,13 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			msg = response.data.message;
 		}
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
+
+		setTimeout( function () {
+			window.location.replace( response.data.redirect_to );
+		}, 1000 );
 	};
 
-	var submitOptionsForm = function ( event ) {
+	let submitOptionsForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
 		if ( requestRunning ) {
@@ -185,11 +149,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 		var $passwordsReady = true;
 		jQuery( 'input[type=password]', $form ).each( function () {
-			var $oPass = jQuery( this );
-			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $form );
-			if ( typeof $oConfirm.attr( 'id' ) !== 'undefined' ) {
-				if ( $oPass.val() && !$oConfirm.val() ) {
-					$oConfirm.addClass( 'is-invalid' );
+			let $pass = jQuery( this );
+			let $confirm = jQuery( '#' + $pass.attr( 'id' ) + '_confirm', $form );
+			if ( typeof $confirm.attr( 'id' ) !== 'undefined' ) {
+				if ( $pass.val() && !$confirm.val() ) {
+					$confirm.addClass( 'is-invalid' );
 					alert( 'Form not submitted due to error: password confirmation field not provided.' );
 					$passwordsReady = false;
 				}
@@ -395,7 +359,18 @@ let iCWP_WPSF_Helpscout = new function () {
 	};
 
 	let beaconInit = function () {
-		!function(e,t,n){function a(){var e=t.getElementsByTagName("script")[0],n=t.createElement("script");n.type="text/javascript",n.async=!0,n.src="https://beacon-v2.helpscout.net",e.parentNode.insertBefore(n,e)}if(e.Beacon=n=function(t,n,a){e.Beacon.readyQueue.push({method:t,options:n,data:a})},n.readyQueue=[],"complete"===t.readyState)return a();e.attachEvent?e.attachEvent("onload",a):e.addEventListener("load",a,!1)}(window,document,window.Beacon||function(){});
+		!function ( e, t, n ) {
+			function a() {
+				var e = t.getElementsByTagName( "script" )[ 0 ], n = t.createElement( "script" );
+				n.type = "text/javascript", n.async = !0, n.src = "https://beacon-v2.helpscout.net", e.parentNode.insertBefore( n, e )
+			}
+
+			if ( e.Beacon = n = function ( t, n, a ) {
+				e.Beacon.readyQueue.push( { method: t, options: n, data: a } )
+			}, n.readyQueue = [], "complete" === t.readyState ) return a();
+			e.attachEvent ? e.attachEvent( "onload", a ) : e.addEventListener( "load", a, !1 )
+		}( window, document, window.Beacon || function () {
+		} );
 	};
 }();
 

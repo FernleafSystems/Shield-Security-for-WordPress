@@ -38,14 +38,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	public function ajaxExec_ModOptionsSave() :array {
 		$name = $this->getCon()->getHumanName();
 
-		$success = ( new Shield\Modules\Base\Options\HandleOptionsSaveRequest() )
-			->setMod( $this->getMod() )
-			->handleSave();
+		$saver = ( new Shield\Modules\Base\Options\HandleOptionsSaveRequest() )
+			->setMod( $this->getMod() );
+		$success = $saver->handleSave();
 
 		return [
-			'success' => $success,
-			'html'    => '', //we reload the page
-			'message' => $success ?
+			'success'     => $success,
+			'redirect_to' => $saver->getMod()->getUrl_AdminPage(),
+			'html'        => '', //we reload the page
+			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $name )
 				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $name )
 		];
