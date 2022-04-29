@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Requests;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
@@ -58,12 +59,17 @@ class DynamicPageLoader extends DynPropertiesClass {
 		return $content;
 	}
 
+	/**
+	 * this is messy! Need to build this properly.
+	 */
 	private function getPageUrl() :string {
 		$con = $this->getCon();
+		/** @var Insights\ModCon $mod */
+		$mod = $this->getMod();
 
 		switch ( $this->load_type ) {
 			case 'configuration':
-				$url = $con->getModule( $this->load_variant )->getUrl_AdminPage();
+				$url = $mod->getUrl_SubInsightsPage( 'settings', $this->load_variant );
 				break;
 
 			default:

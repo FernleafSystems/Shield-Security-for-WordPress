@@ -79,6 +79,7 @@ class Components {
 		/** @var Firewall\Strings $stringsFW */
 		$stringsFW = $modFW->getStrings();
 
+		$fireModEnabled = $modFW->isModOptEnabled();
 		$firewallComponents = [];
 		foreach (
 			[
@@ -95,8 +96,10 @@ class Components {
 				'title'            => $stringsFW->getFirewallCategoryName( $firewallBlockKey ),
 				'desc_protected'   => __( 'Firewall is configured to block this category of requests.', 'wp-simple-firewall' ),
 				'desc_unprotected' => __( "Firewall isn't configured to block this category of requests.", 'wp-simple-firewall' ),
-				'href'             => $modFW->getUrl_DirectLinkToOption( 'block_'.$firewallBlockKey ),
-				'protected'        => $optsFW->isOpt( 'block_'.$firewallBlockKey, 'Y' ),
+				'href'             => $fireModEnabled ?
+					$modFW->getUrl_DirectLinkToOption( 'block_'.$firewallBlockKey )
+					: $modFW->getUrl_DirectLinkToOption( 'enable_firewall' ),
+				'protected'        => $fireModEnabled && $optsFW->isOpt( 'block_'.$firewallBlockKey, 'Y' ),
 				'weight'           => 20,
 			];
 		}
@@ -141,8 +144,10 @@ class Components {
 						'title'            => __( 'Bot Comment SPAM', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Your site is protected against automated Comment SPAM by Bots.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Your site isn't protected against automated Comment SPAM by Bots.", 'wp-simple-firewall' ),
-						'href'             => $modComments->getUrl_DirectLinkToOption( 'enable_antibot_comments' ),
-						'protected'        => $optsComments->isEnabledAntiBot(),
+						'href'             => $modComments->isModOptEnabled() ?
+							$modComments->getUrl_DirectLinkToOption( 'enable_antibot_comments' )
+							: $modComments->getUrl_DirectLinkToOption( 'enable_comments_filter' ),
+						'protected'        => $modComments->isModOptEnabled() && $optsComments->isEnabledAntiBot(),
 						'weight'           => 75,
 					];
 				},
@@ -154,8 +159,10 @@ class Components {
 						'title'            => __( 'Human Comment SPAM', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Your site is protected against Comment SPAM by humans.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Your site isn't protected against Comment SPAM by humans.", 'wp-simple-firewall' ),
-						'href'             => $modComments->getUrl_DirectLinkToOption( 'enable_comments_human_spam_filter' ),
-						'protected'        => $optsComments->isEnabledHumanCheck(),
+						'href'             => $modComments->isModOptEnabled() ?
+							$modComments->getUrl_DirectLinkToOption( 'enable_comments_human_spam_filter' )
+							: $modComments->getUrl_DirectLinkToOption( 'enable_comments_filter' ),
+						'protected'        => $modComments->isModOptEnabled() && $optsComments->isEnabledHumanCheck(),
 						'weight'           => 25,
 					];
 				},
@@ -231,8 +238,10 @@ class Components {
 						'title'            => __( 'Minimum Comment Auto-Approval', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Comments are auto-approved only if they have at least 1 other approved comment.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Comments are auto-approved only if they have at least 1 other approved comment.", 'wp-simple-firewall' ),
-						'href'             => $modComments->getUrl_DirectLinkToOption( 'enable_comments_human_spam_filter' ),
-						'protected'        => $optsComments->getApprovedMinimum() > 1,
+						'href'             => $modComments->isModOptEnabled() ?
+							$modComments->getUrl_DirectLinkToOption( 'enable_comments_human_spam_filter' )
+							: $modComments->getUrl_DirectLinkToOption( 'enable_comments_filter' ),
+						'protected'        => $modComments->isModOptEnabled() && $optsComments->getApprovedMinimum() > 1,
 						'weight'           => 10,
 					];
 				},
@@ -256,8 +265,10 @@ class Components {
 						'title'            => __( 'Login Cooldown', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Login Cooldown system is helping prevent brute force attacks by limiting login attempts.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Brute force login attacks are not blocked by the login cooldown system.", 'wp-simple-firewall' ),
-						'href'             => $modLG->getUrl_DirectLinkToOption( 'login_limit_interval' ),
-						'protected'        => $optsLG->isEnabledCooldown(),
+						'href'             => $modLG->isModOptEnabled() ?
+							$modLG->getUrl_DirectLinkToOption( 'login_limit_interval' )
+							: $modLG->getUrl_DirectLinkToOption( 'enable_login_protect' ),
+						'protected'        => $modLG->isModOptEnabled() && $optsLG->isEnabledCooldown(),
 						'weight'           => 20,
 					];
 				},
@@ -269,8 +280,10 @@ class Components {
 						'title'            => __( 'AntiBot Detection Engine For Logins', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'The AntiBot Detection Engine option is enabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( 'The AntiBot Detection Engine option is disabled, removing brute force protection for login, register and lost password forms.', 'wp-simple-firewall' ),
-						'href'             => $modLG->getUrl_DirectLinkToOption( 'enable_antibot_check' ),
-						'protected'        => $optsLG->isEnabledAntiBot() && $optsLG->isProtectLogin(),
+						'href'             => $modLG->isModOptEnabled() ?
+							$modLG->getUrl_DirectLinkToOption( 'enable_antibot_check' )
+							: $modLG->getUrl_DirectLinkToOption( 'enable_login_protect' ),
+						'protected'        => $modLG->isModOptEnabled() && $optsLG->isEnabledAntiBot(),
 						'weight'           => 30,
 					];
 				},
@@ -282,8 +295,10 @@ class Components {
 						'title'            => __( 'Login Bot Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Brute force bot attacks against your WordPress login are blocked by the AntiBot Detection Engine.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Brute force login attacks by bots aren't being blocked.", 'wp-simple-firewall' ),
-						'href'             => $modLG->getUrl_DirectLinkToOption( 'enable_antibot_check' ),
-						'protected'        => $optsLG->isEnabledAntiBot() && $optsLG->isProtectLogin(),
+						'href'             => $modLG->isModOptEnabled() ?
+							$modLG->getUrl_DirectLinkToOption( 'bot_protection_locations' )
+							: $modLG->getUrl_DirectLinkToOption( 'enable_login_protect' ),
+						'protected'        => $modLG->isModOptEnabled() && $optsLG->isEnabledAntiBot() && $optsLG->isProtectLogin(),
 						'weight'           => 30,
 					];
 				},
@@ -295,8 +310,10 @@ class Components {
 						'title'            => __( 'Register Bot Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'SPAM and bulk user registration by bots are blocked by the AntiBot Detection Engine.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "SPAM and bulk user registration by bots aren't being blocked.", 'wp-simple-firewall' ),
-						'href'             => $modLG->getUrl_DirectLinkToOption( 'enable_antibot_check' ),
-						'protected'        => $optsLG->isEnabledAntiBot() && $optsLG->isProtectRegister(),
+						'href'             => $modLG->isModOptEnabled() ?
+							$modLG->getUrl_DirectLinkToOption( 'bot_protection_locations' )
+							: $modLG->getUrl_DirectLinkToOption( 'enable_login_protect' ),
+						'protected'        => $modLG->isModOptEnabled() && $optsLG->isEnabledAntiBot() && $optsLG->isProtectRegister(),
 						'weight'           => 30,
 					];
 				},
@@ -308,8 +325,10 @@ class Components {
 						'title'            => __( 'Lost Password Bot Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Lost Password SPAMing by bots are blocked by the AntiBot Detection Engine.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Lost Password SPAMing by bots aren't being blocked.", 'wp-simple-firewall' ),
-						'href'             => $modLG->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-						'protected'        => $optsLG->isEnabledAntiBot() && $optsLG->isProtectLostPassword(),
+						'href'             => $modLG->isModOptEnabled() ?
+							$modLG->getUrl_DirectLinkToOption( 'bot_protection_locations' )
+							: $modLG->getUrl_DirectLinkToOption( 'enable_login_protect' ),
+						'protected'        => $modLG->isModOptEnabled() && $optsLG->isEnabledAntiBot() && $optsLG->isProtectLostPassword(),
 						'weight'           => 30,
 					];
 				},
@@ -321,11 +340,14 @@ class Components {
 						'title'            => __( '2-Factor Authentication', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'At least 1 2FA option is available to help users protect their accounts.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "There are no 2FA options made available to help users protect their accounts.", 'wp-simple-firewall' ),
-						'href'             => $modLG->getUrl_DirectLinkToOption( 'enable_email_authentication' ),
-						'protected'        => $optsLG->isEmailAuthenticationActive()
-											  || $optsLG->isEnabledGoogleAuthenticator()
-											  || $optsLG->isEnabledYubikey()
-											  || $optsLG->isEnabledU2F(),
+						'href'             => $modLG->isModOptEnabled() ?
+							$modLG->getUrl_DirectLinkToOption( 'enable_email_authentication' )
+							: $modLG->getUrl_DirectLinkToOption( 'enable_login_protect' ),
+						'protected'        => $modLG->isModOptEnabled()
+											  && ( $optsLG->isEmailAuthenticationActive()
+												   || $optsLG->isEnabledGoogleAuthenticator()
+												   || $optsLG->isEnabledYubikey()
+												   || $optsLG->isEnabledU2F() ),
 						'weight'           => 30,
 					];
 				},
@@ -337,8 +359,10 @@ class Components {
 						'title'            => __( 'Password Policies', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Password policies are enabled to help promote good password hygiene.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Password polices aren't enabled which may lead to poor password hygiene.", 'wp-simple-firewall' ),
-						'href'             => $modUM->getUrl_DirectLinkToOption( 'enable_password_policies' ),
-						'protected'        => $optsUM->isPasswordPoliciesEnabled(),
+						'href'             => $modUM->isModOptEnabled() ?
+							$modUM->getUrl_DirectLinkToOption( 'enable_password_policies' )
+							: $modUM->getUrl_DirectLinkToOption( 'enable_user_management' ),
+						'protected'        => $modUM->isModOptEnabled() && $optsUM->isPasswordPoliciesEnabled(),
 						'weight'           => 30,
 					];
 				},
@@ -350,8 +374,10 @@ class Components {
 						'title'            => __( 'Pwned Passwords', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Pwned passwords are blocked from being set by any user.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Pwned passwords are allowed to be used.", 'wp-simple-firewall' ),
-						'href'             => $modUM->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
-						'protected'        => $optsUM->isPasswordPoliciesEnabled() && $optsUM->isPassPreventPwned(),
+						'href'             => $modUM->isModOptEnabled() ?
+							$modUM->getUrl_DirectLinkToOption( 'pass_prevent_pwned' )
+							: $modUM->getUrl_DirectLinkToOption( 'enable_user_management' ),
+						'protected'        => $modUM->isModOptEnabled() && $optsUM->isPasswordPoliciesEnabled() && $optsUM->isPassPreventPwned(),
 						'weight'           => 30,
 					];
 				},
@@ -363,8 +389,10 @@ class Components {
 						'title'            => __( 'Strong Passwords', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'All new passwords are required to be be of high strength.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "There is no requirement for strong user passwords.", 'wp-simple-firewall' ),
-						'href'             => $modUM->getUrl_DirectLinkToOption( 'pass_min_strength' ),
-						'protected'        => $optsUM->isPasswordPoliciesEnabled() && $optsUM->getPassMinStrength() >= 3,
+						'href'             => $modUM->isModOptEnabled() ?
+							$modUM->getUrl_DirectLinkToOption( 'pass_min_strength' )
+							: $modUM->getUrl_DirectLinkToOption( 'enable_user_management' ),
+						'protected'        => $modUM->isModOptEnabled() && $optsUM->isPasswordPoliciesEnabled() && $optsUM->getPassMinStrength() >= 3,
 						'weight'           => 20,
 					];
 				},
@@ -376,8 +404,10 @@ class Components {
 						'title'            => __( 'Plugin Security Badge', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Your customers and visitors are reassured that you take their security seriously.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Your customers and visitors aren't given reassurance that you take their security seriously.", 'wp-simple-firewall' ),
-						'href'             => $modPlugin->getUrl_DirectLinkToOption( 'display_plugin_badge' ),
-						'protected'        => $optsPlugin->isOpt( 'display_plugin_badge', 'Y' ),
+						'href'             => $modPlugin->isModOptEnabled() ?
+							$modPlugin->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
+							: $modPlugin->getUrl_DirectLinkToOption( 'enable_plugin' ),
+						'protected'        => $modPlugin->isModOptEnabled() && $optsPlugin->isOpt( 'display_plugin_badge', 'Y' ),
 						'weight'           => 5,
 					];
 				},
@@ -399,7 +429,9 @@ class Components {
 						'title'            => __( 'Activity Logging', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Tracking activity with the Audit Trail is enabled making it easier to track issues.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Activity tracking with the Audit Trail is disabled making it harder to track issues.", 'wp-simple-firewall' ),
-						'href'             => $modAudit->getUrl_DirectLinkToOption( 'section_enable_audit_contexts' ),
+						'href'             => $modAudit->isModOptEnabled() ?
+							$modAudit->getUrl_DirectLinkToOption( 'section_localdb' )
+							: $modAudit->getUrl_DirectLinkToOption( 'enable_audit_trail' ),
 						'protected'        => $modAudit->isModOptEnabled() && $optsAudit->isLogToDB(),
 						'weight'           => 25,
 					];
@@ -412,10 +444,26 @@ class Components {
 						'title'            => __( 'Traffic Logging', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Traffic requests are being logged, making it easier to track issues.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Traffic requests aren't being logged, making it harder to track issues.", 'wp-simple-firewall' ),
-						'href'             => $modTraffic->isModOptEnabled() ? $modTraffic->getUrl_DirectLinkToOption( 'enable_logger' )
+						'href'             => $modTraffic->isModOptEnabled() ?
+							$modTraffic->getUrl_DirectLinkToOption( 'enable_logger' )
 							: $modTraffic->getUrl_DirectLinkToOption( 'enable_traffic' ),
 						'protected'        => $modTraffic->isModOptEnabled() && $optsTraffic->isTrafficLoggerEnabled(),
 						'weight'           => 25,
+					];
+				},
+				'traffic_rate_limiting'    => function () {
+					$modTraffic = $this->getCon()->getModule_Traffic();
+					/** @var Traffic\Options $optsTraffic */
+					$optsTraffic = $modTraffic->getOptions();
+					return [
+						'title'            => __( 'Traffic Rate Limiting', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Traffic rate limiting is enabled reducing the likelihood that bots can overwhelm your site.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Traffic is never rate limited meaning abusive bots and crawlers may consume resources without limits and potentially overload your system.", 'wp-simple-firewall' ),
+						'href'             => $modTraffic->isModOptEnabled() ?
+							$modTraffic->getUrl_DirectLinkToOption( 'section_traffic_limiter' )
+							: $modTraffic->getUrl_DirectLinkToOption( 'enable_traffic' ),
+						'protected'        => $modTraffic->isModOptEnabled() && $optsTraffic->isTrafficLimitEnabled(),
+						'weight'           => 35,
 					];
 				},
 				'scanresults_apc'          => function () {
@@ -483,20 +531,6 @@ class Components {
 						'is_critical'      => $hasResults
 					];
 				},
-				'traffic_rate_limiting'    => function () {
-					$modTraffic = $this->getCon()->getModule_Traffic();
-					/** @var Traffic\Options $optsTraffic */
-					$optsTraffic = $modTraffic->getOptions();
-					return [
-						'title'            => __( 'Traffic Rate Limiting', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Traffic rate limiting is enabled reducing the likelihood that bots can overwhelm your site.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Traffic is never rate limited meaning abusive bots and crawlers may consume resources without limits and potentially overload your system.", 'wp-simple-firewall' ),
-						'href'             => $modTraffic->isModOptEnabled() ? $modTraffic->getUrl_DirectLinkToSection( 'section_traffic_limiter' )
-							: $modTraffic->getUrl_DirectLinkToOption( 'enable_traffic' ),
-						'protected'        => $modTraffic->isModOptEnabled() && $optsTraffic->isTrafficLimitEnabled(),
-						'weight'           => 35,
-					];
-				},
 				'report_email'             => function () {
 					$modPlugin = $this->getCon()->getModule_Plugin();
 					/** @var Plugin\Options $optsPlugin */
@@ -520,9 +554,12 @@ class Components {
 						'title'            => __( 'HTTP Headers', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Important HTTP Headers are helping to protect visitors.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Important HTTP Headers aren't being used to help protect visitors.", 'wp-simple-firewall' ),
-						'href'             => $modHeaders->getUrl_DirectLinkToOption( 'section_security_headers' ),
-						'protected'        => $optsHeaders->isEnabledXFrame() && $optsHeaders->isEnabledXssProtection()
-											  && $optsHeaders->isEnabledContentTypeHeader() && $optsHeaders->isReferrerPolicyEnabled(),
+						'href'             => $modHeaders->isModOptEnabled() ?
+							$modHeaders->getUrl_DirectLinkToOption( 'section_security_headers' )
+							: $modHeaders->getUrl_DirectLinkToOption( 'enable_headers' ),
+						'protected'        => $modHeaders->isModOptEnabled() && $optsHeaders->isEnabledXFrame()
+											  && $optsHeaders->isEnabledXssProtection() && $optsHeaders->isEnabledContentTypeHeader()
+											  && $optsHeaders->isReferrerPolicyEnabled(),
 						'weight'           => 10,
 					];
 				},
@@ -535,8 +572,10 @@ class Components {
 						'title'            => __( 'WordPress File Scanner', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'WordPress file scanner is enabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "WordPress file scanner isn't enabled.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
-						'protected'        => $afsCon->isEnabled(),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $afsCon->isEnabled(),
 						'weight'           => 40,
 					];
 				},
@@ -549,8 +588,61 @@ class Components {
 						'title'            => __( 'PHP Malware Scanner', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'PHP malware scanner is enabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "PHP malware scanner isn't enabled.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
-						'protected'        => $afsCon->isEnabledMalwareScan(),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $afsCon->isEnabledMalwareScan(),
+						'weight'           => 30,
+					];
+				},
+				'apc_scanner'              => function () {
+					$modHG = $this->getCon()->getModule_HackGuard();
+					$scansCon = $modHG->getScansCon();
+					return [
+						'title'            => __( 'Abandoned WordPress.org Plugins', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Detection of abandoned WordPress.org plugins is enabled.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Detection of abandoned WordPress.org plugins isn't enabled.", 'wp-simple-firewall' ),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'enabled_scan_apc' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled()
+											  && $scansCon->getScanCon( HackGuard\Scan\Controller\Apc::SCAN_SLUG )
+														  ->isEnabled(),
+						'weight'           => 30,
+					];
+				},
+				'wpv_scanner'              => function () {
+					$modHG = $this->getCon()->getModule_HackGuard();
+					$scansCon = $modHG->getScansCon();
+					return [
+						'title'            => __( 'Vulnerable Plugins & Themes', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Plugins and Themes are scanned for known vulnerabilities.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Plugins and Themes aren't scanned for known vulnerabilities.", 'wp-simple-firewall' ),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'enable_wpvuln_scan' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled()
+											  && $scansCon->getScanCon( HackGuard\Scan\Controller\Wpv::SCAN_SLUG )
+														  ->isEnabled(),
+						'weight'           => 40,
+					];
+				},
+				'vuln_autoupdate'          => function () {
+					$modHG = $this->getCon()->getModule_HackGuard();
+					$scansCon = $modHG->getScansCon();
+					/** @var HackGuard\Options $optsHG */
+					$optsHG = $modHG->getOptions();
+					return [
+						'title'            => __( 'Auto-Update Vulnerable Plugins', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Plugins with known vulnerabilities are automatically updated to protect your site.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Plugins with known vulnerabilities aren't automatically updated to protect your site.", 'wp-simple-firewall' ),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'wpvuln_scan_autoupdate' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled()
+											  && $scansCon->getScanCon( HackGuard\Scan\Controller\Wpv::SCAN_SLUG )
+														  ->isEnabled()
+											  && $optsHG->isWpvulnAutoupdatesEnabled(),
 						'weight'           => 30,
 					];
 				},
@@ -565,8 +657,10 @@ class Components {
 						'title'            => __( 'WordPress Core Auto-Repair', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Auto-repair of modified WordPress core files is enabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Auto-repair of modified WordPress core files isn't enabled.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'file_repair_areas' ),
-						'protected'        => $afsCon->isEnabled() && $optsHG->isRepairFileWP(),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'file_repair_areas' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $afsCon->isEnabled() && $optsHG->isRepairFileWP(),
 						'weight'           => 30,
 					];
 				},
@@ -581,8 +675,10 @@ class Components {
 						'title'            => __( 'WordPress.org Plugin Auto-Repair', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Auto-repair of files from WordPress.org plugins is enabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Auto-repair of files from WordPress.org plugins isn't enabled.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'file_repair_areas' ),
-						'protected'        => $afsCon->isEnabledPluginThemeScan() && $optsHG->isRepairFilePlugin(),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'file_repair_areas' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $afsCon->isEnabledPluginThemeScan() && $optsHG->isRepairFilePlugin(),
 						'weight'           => 30,
 					];
 				},
@@ -597,9 +693,26 @@ class Components {
 						'title'            => __( 'WordPress.org Theme Auto-Repair', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Auto-repair of files from WordPress.org themes is enabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Auto-repair of files from WordPress.org themes isn't enabled.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'file_repair_areas' ),
-						'protected'        => $afsCon->isEnabledPluginThemeScan() && $optsHG->isRepairFileTheme(),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'file_repair_areas' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $afsCon->isEnabledPluginThemeScan() && $optsHG->isRepairFileTheme(),
 						'weight'           => 20,
+					];
+				},
+				'scan_freq'                => function () {
+					$modHG = $this->getCon()->getModule_HackGuard();
+					/** @var HackGuard\Options $optsHG */
+					$optsHG = $modHG->getOptions();
+					return [
+						'title'            => __( 'Scanning Frequency', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Scans are run against your site at least twice per day.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Scans are run against your site once per day at most.", 'wp-simple-firewall' ),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'scan_frequency' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $optsHG->getScanFrequency() > 1,
+						'weight'           => 10,
 					];
 				},
 				'filelocker_wpconfig'      => function () {
@@ -611,8 +724,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', 'wp-config.php', __( 'Protection', 'wp-simple-firewall' ) ),
 						'desc_protected'   => sprintf( __( '%s is protected against tampering.', 'wp-simple-firewall' ), 'wp-config.php' ),
 						'desc_unprotected' => sprintf( __( "%s isn't protected against tampering.", 'wp-simple-firewall' ), 'wp-config.php' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'file_locker' ),
-						'protected'        => $fileLocker->isEnabled() && in_array( 'wpconfig', $optsHG->getFilesToLock() ),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'file_locker' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $fileLocker->isEnabled() && in_array( 'wpconfig', $optsHG->getFilesToLock() ),
 						'weight'           => 30,
 					];
 				},
@@ -625,61 +740,11 @@ class Components {
 						'title'            => sprintf( '%s - %s', '.htaccess', __( 'Protection', 'wp-simple-firewall' ) ),
 						'desc_protected'   => sprintf( __( '%s is protected against tampering.', 'wp-simple-firewall' ), '.htaccess' ),
 						'desc_unprotected' => sprintf( __( "%s isn't protected against tampering.", 'wp-simple-firewall' ), '.htaccess' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'file_locker' ),
-						'protected'        => $fileLocker->isEnabled() && in_array( 'root_htaccess', $optsHG->getFilesToLock() ),
+						'href'             => $modHG->isModOptEnabled() ?
+							$modHG->getUrl_DirectLinkToOption( 'file_locker' )
+							: $modHG->getUrl_DirectLinkToOption( 'enable_hack_protect' ),
+						'protected'        => $modHG->isModOptEnabled() && $fileLocker->isEnabled() && in_array( 'root_htaccess', $optsHG->getFilesToLock() ),
 						'weight'           => 30,
-					];
-				},
-				'apc_scanner'              => function () {
-					$modHG = $this->getCon()->getModule_HackGuard();
-					$scansCon = $modHG->getScansCon();
-					return [
-						'title'            => __( 'Abandoned WordPress.org Plugins', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Detection of abandoned WordPress.org plugins is enabled.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Detection of abandoned WordPress.org plugins isn't enabled.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'enabled_scan_apc' ),
-						'protected'        => $scansCon->getScanCon( HackGuard\Scan\Controller\Apc::SCAN_SLUG )
-													   ->isEnabled(),
-						'weight'           => 30,
-					];
-				},
-				'wpv_scanner'              => function () {
-					$modHG = $this->getCon()->getModule_HackGuard();
-					$scansCon = $modHG->getScansCon();
-					return [
-						'title'            => __( 'Vulnerable Plugins & Themes', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Plugins and Themes are scanned for known vulnerabilities.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Plugins and Themes aren't scanned for known vulnerabilities.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'enable_wpvuln_scan' ),
-						'protected'        => $scansCon->getScanCon( HackGuard\Scan\Controller\Wpv::SCAN_SLUG )
-													   ->isEnabled(),
-						'weight'           => 40,
-					];
-				},
-				'vuln_autoupdate'          => function () {
-					$modHG = $this->getCon()->getModule_HackGuard();
-					/** @var HackGuard\Options $optsHG */
-					$optsHG = $modHG->getOptions();
-					return [
-						'title'            => __( 'Auto-Update Vulnerable Plugins', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Plugins with known vulnerabilities are automatically updated to protect your site.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Plugins with known vulnerabilities aren't automatically updated to protect your site.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'wpvuln_scan_autoupdate' ),
-						'protected'        => $optsHG->isWpvulnAutoupdatesEnabled(),
-						'weight'           => 30,
-					];
-				},
-				'scan_freq'                => function () {
-					$modHG = $this->getCon()->getModule_HackGuard();
-					/** @var HackGuard\Options $optsHG */
-					$optsHG = $modHG->getOptions();
-					return [
-						'title'            => __( 'Scanning Frequency', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Scans are run against your site at least twice per day.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Scans are run against your site once per day at most.", 'wp-simple-firewall' ),
-						'href'             => $modHG->getUrl_DirectLinkToOption( 'scan_frequency' ),
-						'protected'        => $optsHG->getScanFrequency() > 1,
-						'weight'           => 10,
 					];
 				},
 				'secadmin'                 => function () {
@@ -689,8 +754,10 @@ class Components {
 						'title'            => __( 'Security Admin Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'The security plugin is protected against tampering through use of a Security Admin PIN.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "The security plugin isn't protected against tampering through use of a Security Admin PIN.", 'wp-simple-firewall' ),
-						'href'             => $modSecAdmin->getUrl_DirectLinkToOption( 'admin_access_key' ),
-						'protected'        => $secAdminCon->isEnabledSecAdmin(),
+						'href'             => $modSecAdmin->isModOptEnabled() ?
+							$modSecAdmin->getUrl_DirectLinkToOption( 'admin_access_key' )
+							: $modSecAdmin->getUrl_DirectLinkToOption( 'enable_admin_access_restriction' ),
+						'protected'        => $modSecAdmin->isModOptEnabled() && $secAdminCon->isEnabledSecAdmin(),
 						'weight'           => 40,
 					];
 				},
@@ -703,8 +770,11 @@ class Components {
 						'title'            => __( 'WordPress Admins Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'WordPress admin accounts are protected against tampering from other WordPress admins.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "WordPress admin accounts aren't protected against tampering from other WordPress admins.", 'wp-simple-firewall' ),
-						'href'             => $modSecAdmin->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
-						'protected'        => $secAdminCon->isEnabledSecAdmin() && $optsSecAdmin->isSecAdminRestrictUsersEnabled(),
+						'href'             => $modSecAdmin->isModOptEnabled() ?
+							$modSecAdmin->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' )
+							: $modSecAdmin->getUrl_DirectLinkToOption( 'enable_admin_access_restriction' ),
+						'protected'        => $modSecAdmin->isModOptEnabled()
+											  && $secAdminCon->isEnabledSecAdmin() && $optsSecAdmin->isSecAdminRestrictUsersEnabled(),
 						'weight'           => 20,
 					];
 				},
@@ -717,8 +787,11 @@ class Components {
 						'title'            => __( 'WordPress Settings Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Critical WordPress settings are protected against tampering from other WordPress admins.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Critical WordPress settings aren't protected against tampering from other WordPress admins.", 'wp-simple-firewall' ),
-						'href'             => $modSecAdmin->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
-						'protected'        => $secAdminCon->isEnabledSecAdmin() && $optsSecAdmin->isRestrictWpOptions(),
+						'href'             => $modSecAdmin->isModOptEnabled() ?
+							$modSecAdmin->getUrl_DirectLinkToOption( 'admin_access_restrict_options' )
+							: $modSecAdmin->getUrl_DirectLinkToOption( 'enable_admin_access_restriction' ),
+						'protected'        => $modSecAdmin->isModOptEnabled()
+											  && $secAdminCon->isEnabledSecAdmin() && $optsSecAdmin->isRestrictWpOptions(),
 						'weight'           => 20,
 					];
 				},
@@ -730,8 +803,10 @@ class Components {
 						'title'            => __( 'XML-RPC Access', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Access to XML-RPC is disabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Access to XML-RPC is available.", 'wp-simple-firewall' ),
-						'href'             => $modLockdown->getUrl_DirectLinkToOption( 'disable_xmlrpc' ),
-						'protected'        => $optsLockdown->isXmlrpcDisabled(),
+						'href'             => $modLockdown->isModOptEnabled() ?
+							$modLockdown->getUrl_DirectLinkToOption( 'disable_xmlrpc' )
+							: $modLockdown->getUrl_DirectLinkToOption( 'enable_lockdown' ),
+						'protected'        => $modLockdown->isModOptEnabled() && $optsLockdown->isXmlrpcDisabled(),
 						'weight'           => 30,
 					];
 				},
@@ -743,8 +818,10 @@ class Components {
 						'title'            => __( 'WordPress File Editing', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Editing files from within the WordPress admin area is disabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Editing files from within the WordPress admin area is allowed.", 'wp-simple-firewall' ),
-						'href'             => $modLockdown->getUrl_DirectLinkToOption( 'disable_file_editing' ),
-						'protected'        => $optsLockdown->isOptFileEditingDisabled(),
+						'href'             => $modLockdown->isModOptEnabled() ?
+							$modLockdown->getUrl_DirectLinkToOption( 'disable_file_editing' )
+							: $modLockdown->getUrl_DirectLinkToOption( 'enable_lockdown' ),
+						'protected'        => $modLockdown->isModOptEnabled() && $optsLockdown->isOptFileEditingDisabled(),
 						'weight'           => 30,
 					];
 				},
@@ -756,8 +833,10 @@ class Components {
 						'title'            => sprintf( '%s / %s', __( 'Username Fishing', 'wp-simple-firewall' ), __( 'Author Discovery', 'wp-simple-firewall' ) ),
 						'desc_protected'   => __( 'The ability to fish for WordPress usernames is disabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "The ability to fish for WordPress usernames isn't blocked.", 'wp-simple-firewall' ),
-						'href'             => $modLockdown->getUrl_DirectLinkToOption( 'block_author_discovery' ),
-						'protected'        => $optsLockdown->isBlockAuthorDiscovery(),
+						'href'             => $modLockdown->isModOptEnabled() ?
+							$modLockdown->getUrl_DirectLinkToOption( 'block_author_discovery' )
+							: $modLockdown->getUrl_DirectLinkToOption( 'enable_lockdown' ),
+						'protected'        => $modLockdown->isModOptEnabled() && $optsLockdown->isBlockAuthorDiscovery(),
 						'weight'           => 30,
 					];
 				},
@@ -769,8 +848,10 @@ class Components {
 						'title'            => __( 'Anonymous REST API Access', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Anonymous/Unauthenticated access to the WordPress REST API is disabled.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Anonymous/Unauthenticated access to the WordPress REST API isn't blocked.", 'wp-simple-firewall' ),
-						'href'             => $modLockdown->getUrl_DirectLinkToOption( 'disable_anonymous_restapi' ),
-						'protected'        => $optsLockdown->isRestApiAnonymousAccessDisabled(),
+						'href'             => $modLockdown->isModOptEnabled() ?
+							$modLockdown->getUrl_DirectLinkToOption( 'disable_anonymous_restapi' )
+							: $modLockdown->getUrl_DirectLinkToOption( 'enable_lockdown' ),
+						'protected'        => $modLockdown->isModOptEnabled() && $optsLockdown->isRestApiAnonymousAccessDisabled(),
 						'weight'           => 20,
 					];
 				},
@@ -783,8 +864,10 @@ class Components {
 						'desc_protected'   => sprintf( __( 'Auto IP blocking is turned on with an offense limit of %s.', 'wp-simple-firewall' ),
 							$optsIPs->getOffenseLimit() ),
 						'desc_unprotected' => __( 'Auto IP blocking is turned of as there is no offense limit provided.', 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'transgression_limit' ),
-						'protected'        => $optsIPs->isEnabledAutoBlackList(),
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'transgression_limit' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->isEnabledAutoBlackList(),
 						'weight'           => 50,
 					];
 				},
@@ -798,8 +881,11 @@ class Components {
 							$optsIPs->getOffenseLimit() ),
 						'desc_unprotected' => sprintf( __( "Your maximum offense limit before blocking an IP seems high: %s", 'wp-simple-firewall' ),
 							$optsIPs->getOffenseLimit() ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'transgression_limit' ),
-						'protected'        => $optsIPs->getOffenseLimit() <= 10,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'transgression_limit' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled()
+											  && $optsIPs->isEnabledAutoBlackList() && $optsIPs->getOffenseLimit() <= 10,
 						'weight'           => 30,
 					];
 				},
@@ -808,10 +894,12 @@ class Components {
 					/** @var IPs\Options $optsIPs */
 					$optsIPs = $modIPs->getOptions();
 					return [
-						'title'            => __( 'Anti-Bot Detection Engine', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Anti-Bot Detection Engine is enabled with a minimum bot-score threshold.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( 'Anti-Bot Detection Engine is disabled as there is no minimum bot-score threshold provided.', 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'antibot_minimum' ),
+						'title'            => __( 'AntiBot Detection Engine', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'AntiBot Detection Engine is enabled with a minimum bot-score threshold.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( 'AntiBot Detection Engine is disabled as there is no minimum bot-score threshold provided.', 'wp-simple-firewall' ),
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'antibot_minimum' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
 						'protected'        => $optsIPs->isEnabledAntiBotEngine(),
 						'weight'           => 30,
 					];
@@ -824,8 +912,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), '404s' ),
 						'desc_protected'   => __( 'Bots that trigger 404 errors are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that trigger 404 errors aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_404' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_404' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_404' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_404' ) > 0,
 						'weight'           => 20,
 					];
 				},
@@ -837,8 +927,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Failed Logins', 'wp-simple-firewall' ) ),
 						'desc_protected'   => __( 'Bots that attempt to login and fail are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that attempt to login and fail aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_loginfailed' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_loginfailed' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_loginfailed' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_loginfailed' ) > 0,
 						'weight'           => 30,
 					];
 				},
@@ -850,8 +942,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Invalid Logins', 'wp-simple-firewall' ) ),
 						'desc_protected'   => __( 'Bots that attempt to login with non-existent usernames are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that attempt to login with non-existent usernames aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_logininvalid' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_logininvalid' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_logininvalid' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_logininvalid' ) > 0,
 						'weight'           => 40,
 					];
 				},
@@ -863,8 +957,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), 'XML-RPC' ),
 						'desc_protected'   => __( 'Bots that attempt to access XML-RPC are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that attempt to access XML-RPC aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_xmlrpc' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_xmlrpc' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_xmlrpc' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_xmlrpc' ) > 0,
 						'weight'           => 40,
 					];
 				},
@@ -874,10 +970,12 @@ class Components {
 					$optsIPs = $modIPs->getOptions();
 					return [
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Fake Web Crawlers', 'wp-simple-firewall' ) ),
-						'desc_protected'   => __( 'Currently penalising fake web crawlers.', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Bots that pretend to be official web crawlers such as Google are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that pretend to be official web crawlers such as Google aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_fakewebcrawler' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_fakewebcrawler' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_fakewebcrawler' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_fakewebcrawler' ) > 0,
 						'weight'           => 30,
 					];
 				},
@@ -889,8 +987,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Link-Cheese', 'wp-simple-firewall' ) ),
 						'desc_protected'   => __( 'Bots that trigger the link-cheese bait are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that trigger the link-cheese bait aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_linkcheese' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_linkcheese' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_linkcheese' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_linkcheese' ) > 0,
 						'weight'           => 20,
 					];
 				},
@@ -902,8 +1002,10 @@ class Components {
 						'title'            => sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Invalid Scripts', 'wp-simple-firewall' ) ),
 						'desc_protected'   => __( 'Bots that attempt to access invalid scripts or WordPress files are penalised.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Bots that attempt to access invalid scripts or WordPress files aren't penalised.", 'wp-simple-firewall' ),
-						'href'             => $modIPs->getUrl_DirectLinkToOption( 'track_invalidscript' ),
-						'protected'        => $optsIPs->getOffenseCountFor( 'track_invalidscript' ) > 0,
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'track_invalidscript' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->getOffenseCountFor( 'track_invalidscript' ) > 0,
 						'weight'           => 20,
 					];
 				},
@@ -976,8 +1078,10 @@ class Components {
 						'title'            => __( 'Inactive User Accounts', 'wp-simple-firewall' ),
 						'desc_protected'   => sprintf( __( 'Inactive user accounts are automatically suspended after %s.', 'wp-simple-firewall' ), $optsUM->getOpt( 'auto_idle_days' ) ),
 						'desc_unprotected' => __( 'There is currently no control over how inactive user accounts are handled.', 'wp-simple-firewall' ),
-						'href'             => $modUM->getUrl_DirectLinkToOption( 'auto_idle_days' ),
-						'protected'        => $optsUM->getOpt( 'auto_idle_days' ) > 0,
+						'href'             => $modUM->isModOptEnabled() ?
+							$modUM->getUrl_DirectLinkToOption( 'auto_idle_days' )
+							: $modUM->getUrl_DirectLinkToOption( 'enable_user_management' ),
+						'protected'        => $modUM->isModOptEnabled() && $optsUM->getOpt( 'auto_idle_days' ) > 0,
 						'weight'           => 20,
 					];
 				},
@@ -989,8 +1093,10 @@ class Components {
 						'title'            => __( 'Idle User Sessions', 'wp-simple-firewall' ),
 						'desc_protected'   => sprintf( 'Idle user sessions are always automatically logged out after %s hours.', $optsUM->getOpt( 'session_idle_timeout_interval' ) ),
 						'desc_unprotected' => __( 'There is currently no control over how idle user sessions are handled.', 'wp-simple-firewall' ),
-						'href'             => $modUM->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
-						'protected'        => $optsUM->hasSessionIdleTimeout(),
+						'href'             => $modUM->isModOptEnabled() ?
+							$modUM->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' )
+							: $modUM->getUrl_DirectLinkToOption( 'enable_user_management' ),
+						'protected'        => $modUM->isModOptEnabled() && $optsUM->hasSessionIdleTimeout(),
 						'weight'           => 20,
 					];
 				},

@@ -241,15 +241,6 @@ class Strings extends Base\Strings {
 				$titleShort = __( 'Log To DB', 'wp-simple-firewall' );
 				break;
 
-			case 'section_enable_audit_contexts' :
-				$title = __( 'Enable Audit Areas', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Specify which types of actions on your site are logged.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
-				];
-				$titleShort = __( 'Audit Areas', 'wp-simple-firewall' );
-				break;
-
 			default:
 				return parent::getSectionStrings( $section );
 		}
